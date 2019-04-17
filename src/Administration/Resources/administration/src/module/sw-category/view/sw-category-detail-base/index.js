@@ -38,6 +38,7 @@ Component.register('sw-category-detail-base', {
             deleteButtonDisabled: true,
             cmsPages: [],
             cmsPageId: null,
+            showLayoutSelectionModal: false,
 
             // @todo remove
             cmsPage: null,
@@ -201,6 +202,21 @@ Component.register('sw-category-detail-base', {
                     this.products.splice(index, 1);
                 }
             });
+        },
+
+        onLayoutSelect(selectedLayout) {
+            this.cmsPageId = selectedLayout;
+            this.getCmsPage(this.cmsPageId).then(response => {
+                this.cmsPage = response;
+            });
+        },
+
+        openLayoutModal() {
+            this.showLayoutSelectionModal = true;
+        },
+
+        closeLayoutModal() {
+            this.showLayoutSelectionModal = false;
         }
     }
 });

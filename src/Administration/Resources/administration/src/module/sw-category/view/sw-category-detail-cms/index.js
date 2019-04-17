@@ -39,7 +39,6 @@ Component.register('sw-category-detail-cms', {
             if (!this.cmsPage) {
                 return [];
             }
-            console.log('blocks: ', this.cmsPage.getAssociation('blocks').store);
             return Object.values(this.cmsPage.getAssociation('blocks').store);
         }
     },
@@ -67,7 +66,6 @@ Component.register('sw-category-detail-cms', {
                 this.cmsPages = response.items;
                 // @todo get selected cms page by route ID
                 this.cmsPage = this.cmsPages[0];
-                console.log(this.cmsPage);
             });
         }
     }

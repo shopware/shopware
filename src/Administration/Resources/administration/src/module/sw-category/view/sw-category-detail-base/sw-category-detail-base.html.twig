@@ -18,7 +18,7 @@
                     {% block sw_category_detail_information_active %}
                         <sw-field type="boolean" :label="$tc('sw-category.base.general.isCategoryActiveLabel')" name="categoryActive" v-model="category.active"></sw-field>
                     {% endblock %}
-                    {% block sw_category_content_information_subcategories %}
+                    {% block sw_category_detail_information_subcategories %}
                         <sw-field
                             class="sw-category-detail__base-subcategories"
                             name="categoryShowSubcategories"
@@ -30,7 +30,7 @@
                 </sw-container>
 
                 <sw-container columns="repeat(auto-fit, minmax(150px, 1fr))" gap="0px 30px">
-                    {% block sw_category_content_information_link %}
+                    {% block sw_category_detail_information_link %}
                         <sw-field
                             v-model="hasCategoryLink"
                             class="sw-category-detail__base-link"
@@ -39,7 +39,7 @@
                         </sw-field>
                     {% endblock %}
 
-                    {% block sw_category_content_information_link_input %}
+                    {% block sw_category_detail_information_link_input %}
                         <sw-field
                             :disabled="!hasCategoryLink"
                             v-model="categoryLink"
@@ -114,10 +114,18 @@
                         <sw-cms-list-item :page="cmsPage"></sw-cms-list-item>
                     {% endblock %}
 
+                    {% block sw_category_detail_layout_modal %}
+                        <sw-cms-layout-modal
+                            :isOpen="showLayoutSelectionModal"
+                            @onLayoutSelectSuccess="onLayoutSelect"
+                            @closeModal="closeLayoutModal">
+                        </sw-cms-layout-modal>
+                    {% endblock %}
+
                     <div class="sw-category-detail__layout-desc">
                         <h4 class="layout-desc__headline">{{ cmsPage.name }}</h4>
                         <div class="layout-desc__actions">
-                            <sw-button size="small">{{ $tc('sw-category.base.cms.changeLayout') }}</sw-button>
+                            <sw-button size="small" @click="openLayoutModal()">{{ $tc('sw-category.base.cms.changeLayout') }}</sw-button>
                             <sw-button size="small">{{ $tc('sw-category.base.cms.editInPagebuilder') }}</sw-button>
                         </div>
                         <a class="layout-desc__link" :routerLink="{ name: 'sw.category.detail.cms', params: { id: category.id }}">

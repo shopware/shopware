@@ -6,6 +6,7 @@ use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Twig\ErrorTemplateResolver;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ErrorPageController extends StorefrontController
 {
@@ -23,11 +24,10 @@ class ErrorPageController extends StorefrontController
     {
         $response = $this->forward("Shopware\Storefront\PageController\HomePageController:index");
 
-        switch ((int) $exception->getCode()) {
-            case 404:
-                $code = 404;
-                break;
-            default: $code = 500;
+        $code = 500;
+
+        if ($exception instanceof HttpException) {
+            $code = $exception->getStatusCode();
         }
 
         $response->setStatusCode($code);

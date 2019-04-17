@@ -1,6 +1,5 @@
 import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-category-view.html.twig';
-import './sw-category-view.scss';
 
 Component.register('sw-category-view', {
     template,
@@ -29,16 +28,16 @@ Component.register('sw-category-view', {
 
     methods: {
         onUploadAdded({ uploadTag }) {
-            this.$emit('sw-category-base-on-upload-media', uploadTag);
+            this.$emit('sw-category-view-on-upload-media', uploadTag);
         },
         setMediaItem(mediaItem) {
-            this.$emit('sw-category-base-on-set-media', mediaItem);
+            this.$emit('sw-category-view-on-set-media', mediaItem);
         },
         onUnlinkLogo() {
-            this.$emit('sw-category-base-on-remove-media');
+            this.$emit('sw-category-view-on-remove-media');
         },
         openSidebar() {
-            this.$emit('sw-category-base-on-open-sidebar');
+            this.$emit('sw-category-view-on-open-sidebar');
         }
     }
 });

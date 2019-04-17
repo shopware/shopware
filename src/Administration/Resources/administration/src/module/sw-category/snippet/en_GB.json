@@ -41,7 +41,7 @@
             "headlineInformationCard": "Category information",
             "isCategoryActiveLabel": "Category is active",
             "showSubcategoryProductsLabel": "Include products from subcategories",
-            "useAsLink": "Use as a link"
+            "useAsLink": "Use as link"
           },
 
           "mount": {
@@ -62,7 +62,7 @@
           "cms": {
             "title": "CMS-Layout",
             "changeLayout": "Change layout",
-            "editInPagebuilder": "Edit in Pagebuilder",
+            "editInPagebuilder": "Edit in pagebuilder",
             "editContent": "Edit content"
           },
 

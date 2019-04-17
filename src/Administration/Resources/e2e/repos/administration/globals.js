@@ -89,6 +89,7 @@ module.exports = {
  *
  */
 function renderWatcherUsage() {
+    global.logger.success(`Launching on DB ${process.env.DB_NAME}`);
     if (process.env.APP_WATCH === 'true') {
         global.logger.lineBreak();
         global.logger.title('Usage of administration:watch');

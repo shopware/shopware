@@ -2,6 +2,7 @@ const mediaPage = require('administration/page-objects/module/sw-media.page-obje
 
 module.exports = {
     '@tags': ['media', 'rename', 'media-rename'],
+    '@disabled': true,
     'open media listing': (browser) => {
         const page = mediaPage(browser);
         page.openMediaIndex();

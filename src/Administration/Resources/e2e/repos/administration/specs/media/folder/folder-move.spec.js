@@ -2,12 +2,13 @@ const mediaPage = require('administration/page-objects/module/sw-media.page-obje
 
 module.exports = {
     '@tags': ['media', 'folder', 'folder-move', 'move'],
+    '@disabled': true,
     before: (browser, done) => {
         global.MediaFixtureService.setFolderFixture({
-            name: 'First folder'
+            name: '1st folder'
         }).then(() => {
             return global.MediaFixtureService.setFolderFixture({
-                name: 'Second folder'
+                name: '2nd folder'
             });
         }).then(() => {
             done();
@@ -24,7 +25,7 @@ module.exports = {
             .waitForElementNotPresent(page.elements.loader)
             .waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
             .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton, `${page.elements.gridItem}--0 `)
-            .expect.element('.smart-bar__header').to.have.text.that.equals('First folder');
+            .expect.element('.smart-bar__header').to.have.text.that.equals('1st folder');
     },
     'upload image to folder and verify placement in folder': (browser) => {
         const page = mediaPage(browser);
@@ -32,7 +33,7 @@ module.exports = {
 
         browser
             .assert.containsText(page.elements.mediaNameLabel, 'sw-login-background.png')
-            .expect.element(page.elements.smartBarHeader).to.have.text.that.equals('First folder');
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.equals('1st folder');
     },
     'navigate back to root folder': (browser) => {
         const page = mediaPage(browser);
@@ -53,12 +54,12 @@ module.exports = {
     'move image to second folder': (browser) => {
         const page = mediaPage(browser);
 
-        page.moveMediaItem('sw-test-image.png', 'media', 2);
+        page.moveMediaItem('sw-test-image.png', 'media', 7);
     },
     'move first folder to second one': (browser) => {
         const page = mediaPage(browser);
 
-        page.moveMediaItem('First folder', 'folder');
+        page.moveMediaItem('1st folder', 'folder');
     },
     'verify movement': (browser) => {
         const page = mediaPage(browser);
@@ -66,14 +67,14 @@ module.exports = {
         browser
             .waitForElementNotPresent(page.elements.loader)
             .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton, `${page.elements.gridItem}--0 `)
-            .expect.element('.smart-bar__header').to.have.text.that.equals('Second folder');
+            .expect.element('.smart-bar__header').to.have.text.that.equals('2nd folder');
 
-        browser.assert.containsText(`${page.elements.gridItem}--0 ${page.elements.baseItemName}`, 'First folder')
+        browser.assert.containsText(`${page.elements.gridItem}--0 ${page.elements.baseItemName}`, '1st folder')
             .assert.containsText(`${page.elements.gridItem}--1 ${page.elements.baseItemName}`, 'sw-test-image.png');
 
         browser
             .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton, `${page.elements.gridItem}--0 `)
-            .expect.element('.smart-bar__header').to.have.text.that.equals('First folder');
+            .expect.element('.smart-bar__header').to.have.text.that.equals('1st folder');
 
         browser.expect.element(`${page.elements.gridItem}--0 ${page.elements.baseItemName}`).to.have.text.that.equals('sw-login-background.png');
     }

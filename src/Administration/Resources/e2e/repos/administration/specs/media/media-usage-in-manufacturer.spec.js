@@ -3,6 +3,7 @@ const mediaPage = require('administration/page-objects/module/sw-media.page-obje
 
 module.exports = {
     '@tags': ['media', 'media-usage', 'media-usage-in-manufacturer'],
+    '@disabled': true,
     before: (browser, done) => {
         global.ProductFixtureService.setProductFixture({}).then(() => {
             done();

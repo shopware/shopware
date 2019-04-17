@@ -12,6 +12,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
+use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -53,6 +54,9 @@ class StorefrontSubscriber implements EventSubscriberInterface
             ],
             KernelEvents::CONTROLLER => [
                 ['preventPageLoadingFromXmlHttpRequest'],
+            ],
+            KernelEvents::RESPONSE => [
+                ['setCanonicalUrl'],
             ],
         ];
     }
@@ -141,5 +145,17 @@ class StorefrontSubscriber implements EventSubscriberInterface
         }
 
         throw new AccessDeniedHttpException('PageController can\'t be requested via XmlHttpRequest.');
+    }
+
+    public function setCanonicalUrl(FilterResponseEvent $event): void
+    {
+        if (!$event->getResponse()->isSuccessful()) {
+            return;
+        }
+
+        if ($canonical = $event->getRequest()->attributes->get(SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK)) {
+            $canonical = sprintf('<%s>; rel="canonical"', $canonical);
+            $event->getResponse()->headers->set('Link', $canonical);
+        }
     }
 }

@@ -33,8 +33,8 @@ class PriceAggregationSubscriber implements EventSubscriberInterface
 
         $request = $event->getRequest();
 
-        $min = $request->optionalGet(self::MIN_PRICE_PARAMETER);
-        $max = $request->optionalGet(self::MAX_PRICE_PARAMETER);
+        $min = $request->query->get(self::MIN_PRICE_PARAMETER);
+        $max = $request->query->get(self::MAX_PRICE_PARAMETER);
 
         $range = [];
         if ($min !== null) {

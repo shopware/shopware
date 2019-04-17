@@ -2,12 +2,12 @@
 
 namespace Shopware\Storefront\Page\Account\AddressList;
 
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Shopware\Storefront\Pagelet\Account\AddressList\AccountAddressListPageletLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class AccountAddressListPageLoader implements PageLoaderInterface
 {
@@ -36,7 +36,7 @@ class AccountAddressListPageLoader implements PageLoaderInterface
         $this->accountAddressPageletLoader = $accountAddressPageletLoader;
     }
 
-    public function load(InternalRequest $request, SalesChannelContext $context): AccountAddressListPage
+    public function load(Request $request, SalesChannelContext $context): AccountAddressListPage
     {
         $page = $this->pageWithHeaderLoader->load($request, $context);
 

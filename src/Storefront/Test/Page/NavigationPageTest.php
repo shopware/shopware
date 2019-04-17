@@ -3,12 +3,12 @@
 namespace Shopware\Storefront\Test\Page;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Navigation\NavigationPage;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoadedEvent;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoader;
+use Symfony\Component\HttpFoundation\Request;
 
 class NavigationPageTest extends TestCase
 {
@@ -22,7 +22,7 @@ class NavigationPageTest extends TestCase
 
     public function testItDoesLoadAPage(): void
     {
-        $request = new InternalRequest();
+        $request = new Request();
         $context = $this->createSalesChannelContextWithNavigation();
 
         /** @var NavigationPageLoadedEvent $event */

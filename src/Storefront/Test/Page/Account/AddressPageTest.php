@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Test\Page\Account;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Account\Address\AccountAddressPage;
@@ -11,6 +10,7 @@ use Shopware\Storefront\Page\Account\Address\AccountAddressPageLoadedEvent;
 use Shopware\Storefront\Page\Account\Address\AccountAddressPageLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
 use Shopware\Storefront\Test\Page\StorefrontPageTestConstants;
+use Symfony\Component\HttpFoundation\Request;
 
 class AddressPageTest extends TestCase
 {
@@ -25,7 +25,7 @@ class AddressPageTest extends TestCase
     public function testItLoadsAddressesAndCountriesForACustomer(): void
     {
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
-        $request = new InternalRequest();
+        $request = new Request();
 
         /** @var AccountAddressPageLoadedEvent $event */
         $event = null;
@@ -42,7 +42,7 @@ class AddressPageTest extends TestCase
     public function testItFiltersByAnAddressId(): void
     {
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
-        $request = new InternalRequest(['addressId' => $context->getCustomer()->getActiveBillingAddress()->getId()]);
+        $request = new Request([], [], ['addressId' => $context->getCustomer()->getActiveBillingAddress()->getId()]);
 
         /** @var AccountAddressPageLoadedEvent $event */
         $event = null;

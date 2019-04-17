@@ -2,11 +2,11 @@
 
 namespace Shopware\Storefront\Page\Home;
 
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class HomePageLoader implements PageLoaderInterface
 {
@@ -28,7 +28,7 @@ class HomePageLoader implements PageLoaderInterface
         $this->genericLoader = $genericLoader;
     }
 
-    public function load(InternalRequest $request, SalesChannelContext $context): HomePage
+    public function load(Request $request, SalesChannelContext $context): HomePage
     {
         $page = $this->genericLoader->load($request, $context);
 

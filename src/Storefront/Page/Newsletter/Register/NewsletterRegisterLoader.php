@@ -5,11 +5,11 @@ namespace Shopware\Storefront\Page\Newsletter\Register;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class NewsletterRegisterLoader implements PageLoaderInterface
 {
@@ -37,7 +37,7 @@ class NewsletterRegisterLoader implements PageLoaderInterface
         $this->salutationRepository = $salutationRepository;
     }
 
-    public function load(InternalRequest $request, SalesChannelContext $context): NewsletterRegisterPage
+    public function load(Request $request, SalesChannelContext $context): NewsletterRegisterPage
     {
         $page = $this->genericLoader->load($request, $context);
 

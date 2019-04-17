@@ -4,8 +4,8 @@ namespace Shopware\Storefront\Pagelet\Menu\Offcanvas;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 
 class MenuOffcanvasPageletLoadedEvent extends NestedEvent
 {
@@ -22,11 +22,11 @@ class MenuOffcanvasPageletLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var InternalRequest
+     * @var Request
      */
     protected $request;
 
-    public function __construct(MenuOffcanvasPagelet $page, SalesChannelContext $context, InternalRequest $request)
+    public function __construct(MenuOffcanvasPagelet $page, SalesChannelContext $context, Request $request)
     {
         $this->page = $page;
         $this->context = $context;
@@ -53,7 +53,7 @@ class MenuOffcanvasPageletLoadedEvent extends NestedEvent
         return $this->page;
     }
 
-    public function getRequest(): InternalRequest
+    public function getRequest(): Request
     {
         return $this->request;
     }

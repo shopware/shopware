@@ -4,8 +4,8 @@ namespace Shopware\Storefront\Page\Checkout\Register;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 
 class CheckoutRegisterPageLoadedEvent extends NestedEvent
 {
@@ -22,11 +22,11 @@ class CheckoutRegisterPageLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var InternalRequest
+     * @var Request
      */
     protected $request;
 
-    public function __construct(CheckoutRegisterPage $page, SalesChannelContext $context, InternalRequest $request)
+    public function __construct(CheckoutRegisterPage $page, SalesChannelContext $context, Request $request)
     {
         $this->page = $page;
         $this->context = $context;
@@ -53,7 +53,7 @@ class CheckoutRegisterPageLoadedEvent extends NestedEvent
         return $this->page;
     }
 
-    public function getRequest(): InternalRequest
+    public function getRequest(): Request
     {
         return $this->request;
     }

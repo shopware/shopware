@@ -24,8 +24,8 @@ class PaginationSubscriber implements EventSubscriberInterface
     {
         $request = $event->getRequest();
 
-        $limit = $request->optionalGet('limit', 25);
-        $page = $request->optionalGet('p', 1);
+        $limit = $request->query->get('limit', 25);
+        $page = $request->query->get('p', 1);
 
         //pagination
         $criteria = $event->getCriteria();

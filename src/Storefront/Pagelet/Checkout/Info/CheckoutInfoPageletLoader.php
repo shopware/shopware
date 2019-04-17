@@ -3,10 +3,10 @@
 namespace Shopware\Storefront\Pagelet\Checkout\Info;
 
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class CheckoutInfoPageletLoader implements PageLoaderInterface
 {
@@ -29,7 +29,7 @@ class CheckoutInfoPageletLoader implements PageLoaderInterface
     /**
      * @throws \Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException
      */
-    public function load(InternalRequest $request, SalesChannelContext $context): CheckoutInfoPagelet
+    public function load(Request $request, SalesChannelContext $context): CheckoutInfoPagelet
     {
         $page = new CheckoutInfoPagelet(
             $this->cartService->getCart($context->getToken(), $context),

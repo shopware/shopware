@@ -4,11 +4,11 @@ namespace Shopware\Storefront\Page\Account\Profile;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class AccountProfilePageLoader implements PageLoaderInterface
 {
@@ -37,7 +37,7 @@ class AccountProfilePageLoader implements PageLoaderInterface
         $this->accountService = $accountService;
     }
 
-    public function load(InternalRequest $request, SalesChannelContext $context): AccountProfilePage
+    public function load(Request $request, SalesChannelContext $context): AccountProfilePage
     {
         $page = $this->pageWithHeaderLoader->load($request, $context);
 

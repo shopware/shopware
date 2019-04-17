@@ -4,8 +4,8 @@ namespace Shopware\Storefront\Page\Checkout\Confirm;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 
 class CheckoutConfirmPageLoadedEvent extends NestedEvent
 {
@@ -22,11 +22,11 @@ class CheckoutConfirmPageLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var InternalRequest
+     * @var Request
      */
     protected $request;
 
-    public function __construct(CheckoutConfirmPage $page, SalesChannelContext $context, InternalRequest $request)
+    public function __construct(CheckoutConfirmPage $page, SalesChannelContext $context, Request $request)
     {
         $this->page = $page;
         $this->context = $context;
@@ -53,7 +53,7 @@ class CheckoutConfirmPageLoadedEvent extends NestedEvent
         return $this->page;
     }
 
-    public function getRequest(): InternalRequest
+    public function getRequest(): Request
     {
         return $this->request;
     }

@@ -39,7 +39,7 @@ class PropertiesAggregationSubscriber implements EventSubscriberInterface
             )
         );
 
-        $ids = $request->optionalGet(self::PROPERTIES_PARAMETER, '');
+        $ids = $request->query->get(self::PROPERTIES_PARAMETER, '');
         $ids = array_filter(explode('|', $ids));
 
         if (empty($ids)) {

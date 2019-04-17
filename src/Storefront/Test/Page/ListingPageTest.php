@@ -3,12 +3,12 @@
 namespace Shopware\Storefront\Test\Page;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Listing\ListingPage;
 use Shopware\Storefront\Page\Listing\ListingPageLoadedEvent;
 use Shopware\Storefront\Page\Listing\ListingPageLoader;
+use Symfony\Component\HttpFoundation\Request;
 
 class ListingPageTest extends TestCase
 {
@@ -24,7 +24,7 @@ class ListingPageTest extends TestCase
     {
         $context = $this->createSalesChannelContextWithNavigation();
         $product = $this->getRandomProduct($context);
-        $request = new InternalRequest(['productId' => $product->getId()]);
+        $request = new Request(['productId' => $product->getId()]);
 
         /** @var ListingPageLoadedEvent $event */
         $event = null;

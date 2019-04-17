@@ -5,8 +5,8 @@ namespace Shopware\Storefront\Pagelet\Listing;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\NestedEvent;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 
 class ListingPageletCriteriaCreatedEvent extends NestedEvent
 {
@@ -23,11 +23,11 @@ class ListingPageletCriteriaCreatedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var InternalRequest
+     * @var Request
      */
     protected $request;
 
-    public function __construct(Criteria $criteria, SalesChannelContext $context, InternalRequest $request)
+    public function __construct(Criteria $criteria, SalesChannelContext $context, Request $request)
     {
         $this->criteria = $criteria;
         $this->context = $context;
@@ -54,16 +54,8 @@ class ListingPageletCriteriaCreatedEvent extends NestedEvent
         return $this->criteria;
     }
 
-    public function getRequest(): InternalRequest
+    public function getRequest(): Request
     {
         return $this->request;
-    }
-
-    /**
-     * @param InternalRequest $request
-     */
-    public function setRequest($request): void
-    {
-        $this->request = $request;
     }
 }

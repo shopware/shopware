@@ -12,7 +12,7 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
@@ -60,12 +60,16 @@ class ProductPageLoader implements PageLoaderInterface
         $this->slotDataResolver = $slotDataResolver;
     }
 
-    public function load(InternalRequest $request, SalesChannelContext $context): ProductPage
+    public function load(Request $request, SalesChannelContext $context): ProductPage
     {
         $page = $this->pageWithHeaderLoader->load($request, $context);
         $page = ProductPage::createFrom($page);
 
-        $productId = $request->requireGet('productId');
+        $productId = $request->attributes->get('productId');
+        if (!$productId) {
+            throw new MissingRequestParameterException('productId', '/productId');
+        }
+
         $product = $this->loadProduct($productId, $context);
         $page->setProduct($product);
 

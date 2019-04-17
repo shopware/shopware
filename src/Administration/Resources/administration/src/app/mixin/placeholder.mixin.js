@@ -24,10 +24,11 @@ Mixin.register('placeholder', {
                     return translation[field];
                 }
             }
-
             // Return the field from translated if set
             if (entity.translated != null && entity.translated.hasOwnProperty(field)) {
-                return entity.translated[field];
+                if (entity.translated[field] !== null) {
+                    return entity.translated[field];
+                }
             }
 
             // Return the placeholder snippet

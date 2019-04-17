@@ -70,6 +70,7 @@ export default {
         },
 
         destroyedComponent() {
+            this.closeExpandedMenu();
             document.removeEventListener('mouseup', this.onMouseUp);
             this.$emit('destroyed-el');
         },
@@ -77,6 +78,7 @@ export default {
         onMouseUp(event) {
             if (!event.path.includes(this.$el)) {
                 this.closeExpandedMenu();
+                return;
             }
 
             if (event.path.indexOf(this.$el) > -1 || !this.parentIsActive) {
@@ -155,12 +157,34 @@ export default {
             this.keepSelection(true);
 
             if (button.value) {
-                this.$emit('on-set-link', button.value, target);
+                this.$emit('on-set-link', this.prepareLink(button.value), target);
 
                 this.range = document.getSelection().getRangeAt(0);
                 this.range.setStart(this.range.startContainer, 0);
                 this.keepSelection(true);
             }
+        },
+
+        prepareLink(link) {
+            link = link.trim();
+            link = this.addProtocol(link);
+            return link;
+        },
+
+        addProtocol(link) {
+            if (/^(\w+):\/\//.test(link)) {
+                return link;
+            }
+
+            const isInternal = /^\/[^\/\s]/.test(link);
+            const isAnchor = link.substring(0, 1) === '#';
+            const isProtocolRelative = /^\/\/[^\/\s]/.test(link);
+
+            if (!isInternal && !isAnchor && !isProtocolRelative) {
+                link = `http://${link}`;
+            }
+
+            return link;
         },
 
         keepSelection(keepRange) {

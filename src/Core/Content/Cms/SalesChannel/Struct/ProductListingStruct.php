@@ -10,15 +10,15 @@ class ProductListingStruct extends Struct
     /**
      * @var EntitySearchResult|null
      */
-    protected $searchResult;
+    protected $listing;
 
-    public function getSearchResult(): ?EntitySearchResult
+    public function getListing(): ?EntitySearchResult
     {
-        return $this->searchResult;
+        return $this->listing;
     }
 
-    public function setSearchResult(EntitySearchResult $searchResult): void
+    public function setListing(EntitySearchResult $listing): void
     {
-        $this->searchResult = $searchResult;
+        $this->listing = $listing;
     }
 }

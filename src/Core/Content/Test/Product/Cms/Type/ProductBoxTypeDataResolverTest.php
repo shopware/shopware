@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Cms\SlotDataResolver\Type;
+namespace Shopware\Core\Content\Test\Product\Cms\Type;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
@@ -10,13 +10,14 @@ use Shopware\Core\Content\Cms\SlotDataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolveResult;
-use Shopware\Core\Content\Cms\SlotDataResolver\Type\ProductBoxTypeDataResolver;
+use Shopware\Core\Content\Product\Cms\Type\ProductBoxTypeDataResolver;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 
 class ProductBoxTypeDataResolverTest extends TestCase
 {
@@ -37,7 +38,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
 
     public function testCollectWithEmptyConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class));
+        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
@@ -52,7 +53,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
 
     public function testCollectWithStaticConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class));
+        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('product', FieldConfig::SOURCE_STATIC, 'product123'));
@@ -71,7 +72,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
 
     public function testCollectWithMappedConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class));
+        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('product', FieldConfig::SOURCE_MAPPED, 'entity.relatedProduct'));
@@ -88,7 +89,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
 
     public function testEnrichWithEmptyConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class));
+        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
         $result = new SlotDataResolveResult();
 
         $slot = new CmsSlotEntity();
@@ -108,7 +109,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
         $product = new SalesChannelProductEntity();
         $product->setId('product123');
 
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class));
+        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
         $result = new SlotDataResolveResult();
         $result->add('product_id', new EntitySearchResult(
             1,
@@ -135,7 +136,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
 
     public function testEnrichWithStaticConfigButNoResult(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class));
+        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
         $result = new SlotDataResolveResult();
         $result->add('product_id', new EntitySearchResult(
             0,
@@ -169,7 +170,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
         $product->setId('product123');
         $product->setParent($parent);
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), ProductDefinition::class, $product);
+        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), ProductDefinition::class, $product);
         $result = new SlotDataResolveResult();
 
         $fieldConfig = new FieldConfigCollection();
@@ -192,7 +193,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
         $product = new SalesChannelProductEntity();
         $product->setId('product123');
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), ProductDefinition::class, $product);
+        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), ProductDefinition::class, $product);
         $result = new SlotDataResolveResult();
 
         $fieldConfig = new FieldConfigCollection();

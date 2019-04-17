@@ -1,16 +1,27 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Cms\SlotDataResolver\Type;
+namespace Shopware\Core\Content\Product\Cms\Type;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductListingStruct;
 use Shopware\Core\Content\Cms\SlotDataResolver\CriteriaCollection;
-use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ListingResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolveResult;
+use Shopware\Core\Content\Cms\SlotDataResolver\Type\TypeDataResolver;
+use Shopware\Core\Content\Product\Cms\ListingGatewayInterface;
 
 class ProductListingTypeDataResolver extends TypeDataResolver
 {
+    /**
+     * @var ListingGatewayInterface
+     */
+    private $listingGateway;
+
+    public function __construct(ListingGatewayInterface $listingGateway)
+    {
+        $this->listingGateway = $listingGateway;
+    }
+
     public function getType(): string
     {
         return 'product-listing';
@@ -26,10 +37,8 @@ class ProductListingTypeDataResolver extends TypeDataResolver
         $data = new ProductListingStruct();
         $slot->setData($data);
 
-        if (!$resolverContext instanceof ListingResolverContext) {
-            return;
-        }
+        $listing = $this->listingGateway->search($resolverContext->getRequest(), $resolverContext->getSalesChannelContext());
 
-        $data->setSearchResult($resolverContext->getSearchResult());
+        $data->setListing($listing);
     }
 }

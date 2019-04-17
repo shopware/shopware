@@ -14,6 +14,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class NavigationPageLoader implements PageLoaderInterface
 {
@@ -106,7 +107,7 @@ class NavigationPageLoader implements PageLoaderInterface
             return;
         }
 
-        $resolverContext = new ResolverContext($context);
+        $resolverContext = new ResolverContext($context, new Request());
         $slots = $this->slotDataResolver->resolve($page->getBlocks()->getSlots(), $resolverContext);
 
         $page->getBlocks()->setSlots($slots);

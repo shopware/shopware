@@ -142,5 +142,23 @@
             <tag name="shopware.entity.definition" entity="delivery_time"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\Cms\ListingGateway">
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductRepository" />
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Cms\ListingGatewayInterface" alias="Shopware\Core\Content\Product\Cms\ListingGateway" />
+
+        <service id="Shopware\Core\Content\Product\Cms\Type\ProductBoxTypeDataResolver">
+            <tag name="shopware.cms.data_resolver" />
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Cms\Type\ProductListingTypeDataResolver">
+            <argument type="service" id="Shopware\Core\Content\Product\Cms\ListingGatewayInterface" />
+            <tag name="shopware.cms.data_resolver" />
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Cms\Type\ProductSliderTypeDataResolver">
+            <tag name="shopware.cms.data_resolver"/>
+        </service>
     </services>
 </container>                

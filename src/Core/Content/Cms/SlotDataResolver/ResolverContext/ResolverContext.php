@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext;
 
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 
 class ResolverContext
 {
@@ -11,13 +12,24 @@ class ResolverContext
      */
     protected $context;
 
-    public function __construct(SalesChannelContext $context)
+    /**
+     * @var Request
+     */
+    private $request;
+
+    public function __construct(SalesChannelContext $context, Request $request)
     {
         $this->context = $context;
+        $this->request = $request;
     }
 
     public function getSalesChannelContext(): SalesChannelContext
     {
         return $this->context;
+    }
+
+    public function getRequest(): Request
+    {
+        return $this->request;
     }
 }

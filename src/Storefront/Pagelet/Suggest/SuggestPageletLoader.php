@@ -3,12 +3,12 @@
 namespace Shopware\Storefront\Pagelet\Suggest;
 
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Pagelet\Listing\ListingPageletLoader;
 use Shopware\Storefront\Pagelet\Listing\Subscriber\SearchTermSubscriber;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class SuggestPageletLoader implements PageLoaderInterface
 {
@@ -28,13 +28,13 @@ class SuggestPageletLoader implements PageLoaderInterface
         $this->listingPageletLoader = $listingPageletLoader;
     }
 
-    public function load(InternalRequest $request, SalesChannelContext $context): SuggestPagelet
+    public function load(Request $request, SalesChannelContext $context): SuggestPagelet
     {
-        $request->addParam('product-min-visibility', ProductVisibilityDefinition::VISIBILITY_SEARCH);
+        $request->request->set('product-min-visibility', ProductVisibilityDefinition::VISIBILITY_SEARCH);
 
         $page = new SuggestPagelet(
             $this->listingPageletLoader->load($request, $context),
-            $request->requireGet(SearchTermSubscriber::TERM_PARAMETER)
+            $request->query->get(SearchTermSubscriber::TERM_PARAMETER)
         );
 
         $this->eventDispatcher->dispatch(

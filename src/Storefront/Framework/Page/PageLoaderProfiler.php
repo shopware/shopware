@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Framework\Page;
 
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Stopwatch\Stopwatch;
 
 class PageLoaderProfiler implements PageLoaderInterface
@@ -24,7 +24,7 @@ class PageLoaderProfiler implements PageLoaderInterface
         $this->stopwatch = $stopwatch;
     }
 
-    public function load(InternalRequest $request, SalesChannelContext $context)
+    public function load(Request $request, SalesChannelContext $context)
     {
         $this->stopwatch->start(get_class($this->decorated));
 

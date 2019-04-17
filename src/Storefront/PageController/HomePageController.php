@@ -2,11 +2,11 @@
 
 namespace Shopware\Storefront\PageController;
 
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Home\HomePageLoader;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -25,9 +25,9 @@ class HomePageController extends StorefrontController
     /**
      * @Route("/", name="frontend.home.page", options={"seo"="false"}, methods={"GET"})
      */
-    public function index(InternalRequest $internal, SalesChannelContext $context): ?Response
+    public function index(Request $request, SalesChannelContext $context): ?Response
     {
-        $data = $this->homePageLoader->load($internal, $context);
+        $data = $this->homePageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/page/home/index.html.twig', ['page' => $data]);
     }

@@ -3,13 +3,13 @@
 namespace Shopware\Storefront\Test\Page\Account;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Account\AddressList\AccountAddressListPage;
 use Shopware\Storefront\Page\Account\AddressList\AccountAddressListPageLoadedEvent;
 use Shopware\Storefront\Page\Account\AddressList\AccountAddressListPageLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
+use Symfony\Component\HttpFoundation\Request;
 
 class AddressListPageTest extends TestCase
 {
@@ -29,7 +29,7 @@ class AddressListPageTest extends TestCase
     public function testItLoadsAnAddresseslist(): void
     {
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
-        $request = new InternalRequest(['addressId' => $context->getCustomer()->getActiveBillingAddress()->getId()]);
+        $request = new Request(['addressId' => $context->getCustomer()->getActiveBillingAddress()->getId()]);
 
         /** @var AccountAddressListPageLoadedEvent $event */
         $event = null;

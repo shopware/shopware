@@ -2,11 +2,11 @@
 
 namespace Shopware\Storefront\Page\Checkout\AddressList;
 
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Pagelet\Account\AddressList\AccountAddressListPageletLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class CheckoutAddressListPageLoader implements PageLoaderInterface
 {
@@ -28,7 +28,7 @@ class CheckoutAddressListPageLoader implements PageLoaderInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function load(InternalRequest $request, SalesChannelContext $context): CheckoutAddressListPage
+    public function load(Request $request, SalesChannelContext $context): CheckoutAddressListPage
     {
         $page = new CheckoutAddressListPage($context);
 

@@ -4,8 +4,8 @@ namespace Shopware\Storefront\Pagelet\Checkout\AjaxCart;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 
 class CheckoutAjaxCartPageletLoadedEvent extends NestedEvent
 {
@@ -22,14 +22,14 @@ class CheckoutAjaxCartPageletLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var InternalRequest
+     * @var Request
      */
     protected $request;
 
     public function __construct(
         CheckoutAjaxCartPagelet $pagelet,
         SalesChannelContext $context,
-        InternalRequest $request
+        Request $request
     ) {
         $this->pagelet = $pagelet;
         $this->context = $context;
@@ -56,7 +56,7 @@ class CheckoutAjaxCartPageletLoadedEvent extends NestedEvent
         return $this->pagelet;
     }
 
-    public function getRequest(): InternalRequest
+    public function getRequest(): Request
     {
         return $this->request;
     }

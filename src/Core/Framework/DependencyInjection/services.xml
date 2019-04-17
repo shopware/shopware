@@ -23,10 +23,6 @@
             <factory class="Shopware\Core\Kernel" method="getConnection"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Routing\InternalRequestResolver">
-            <tag name="controller.argument_value_resolver" priority="1000"/>
-        </service>
-
         <service id="Shopware\Core\Framework\Routing\QueryDataBagResolver">
             <tag name="controller.argument_value_resolver" priority="1000"/>
         </service>

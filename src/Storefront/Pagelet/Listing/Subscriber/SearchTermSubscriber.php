@@ -37,7 +37,7 @@ class SearchTermSubscriber implements EventSubscriberInterface
     {
         $request = $event->getRequest();
 
-        $term = trim((string) $request->optionalGet(self::TERM_PARAMETER));
+        $term = trim((string) $request->query->get(self::TERM_PARAMETER));
 
         if (empty($term)) {
             return;

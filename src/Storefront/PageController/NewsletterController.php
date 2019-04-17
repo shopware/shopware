@@ -3,13 +3,13 @@
 namespace Shopware\Storefront\PageController;
 
 use Shopware\Core\Content\NewsletterReceiver\Service\NewsletterSubscriptionServiceInterface;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Home\HomePageLoader;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -65,7 +65,7 @@ class NewsletterController extends StorefrontController
     /**
      * @Route("/newsletter", name="frontend.newsletter.register.page", methods={"GET"})
      */
-    public function index(SalesChannelContext $context, InternalRequest $request): Response
+    public function index(SalesChannelContext $context, Request $request): Response
     {
         $page = $this->newsletterRegisterPageLoader->load($request, $context);
 
@@ -100,7 +100,7 @@ class NewsletterController extends StorefrontController
     /**
      * @Route("/newsletter/confirm", name="frontend.newsletter.register.confirm", methods={"GET"})
      */
-    public function confirm(SalesChannelContext $context, InternalRequest $request)
+    public function confirm(SalesChannelContext $context, Request $request)
     {
         $page = $this->newsletterConfirmPageLoader->load($request, $context);
 
@@ -110,7 +110,7 @@ class NewsletterController extends StorefrontController
     /**
      * @Route("/newsletter/subscribe", name="frontend.newsletter.subscribe", methods={"GET"})
      */
-    public function confirmSubscribe(SalesChannelContext $context, InternalRequest $request, QueryDataBag $queryDataBag)
+    public function confirmSubscribe(SalesChannelContext $context, Request $request, QueryDataBag $queryDataBag)
     {
         try {
             $this->newsletterService->confirm($queryDataBag, $context->getContext());
@@ -126,7 +126,7 @@ class NewsletterController extends StorefrontController
     /**
      * @Route("/newsletter/error", name="frontend.newsletter.error", methods={"GET"})
      */
-    public function error(SalesChannelContext $context, InternalRequest $request)
+    public function error(SalesChannelContext $context, Request $request)
     {
         $page = $this->newsletterErrorPageLoader->load($request, $context);
 

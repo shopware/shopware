@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Test\Page\Account;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Account\Profile\AccountProfilePage;
@@ -11,6 +10,7 @@ use Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoadedEvent;
 use Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
 use Shopware\Storefront\Test\Page\StorefrontPageTestConstants;
+use Symfony\Component\HttpFoundation\Request;
 
 class ProfilePageTest extends TestCase
 {
@@ -29,7 +29,7 @@ class ProfilePageTest extends TestCase
 
     public function testItLoadsTheProfilePage(): void
     {
-        $request = new InternalRequest();
+        $request = new Request();
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
 
         /** @var AccountProfilePageLoadedEvent $event */

@@ -28,9 +28,6 @@ Component.register('sw-seo-url-template-card', {
         };
     },
 
-    computed: {
-    },
-
     created() {
         this.createdComponent();
     },
@@ -86,7 +83,7 @@ Component.register('sw-seo-url-template-card', {
         },
         createSeoUrlTemplatesFromDefaultRoutes(salesChannelId) {
             // Iterate over the default seo url templates and create new entities for the actual sales channel
-            // if the do not exist
+            // if they do not exist
             this.defaultSeoUrlTemplates.forEach(defaultEntity => {
                 let foundId = Object.keys(this.seoUrlTemplates).find(id => {
                     return this.seoUrlTemplates[id].routeName === defaultEntity.routeName;
@@ -141,7 +138,7 @@ Component.register('sw-seo-url-template-card', {
 
             return this.defaultSeoUrlTemplates[defaultEntityId].template;
         },
-        onSave() {
+        onClickSave() {
             const hasError = Object.keys(this.errorMessages).some((key) => {
                 return this.errorMessages[key] !== null;
             });

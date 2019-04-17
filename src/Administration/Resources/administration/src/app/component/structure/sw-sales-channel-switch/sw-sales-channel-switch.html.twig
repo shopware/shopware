@@ -40,10 +40,9 @@
                     ref="salesChannelSelect"
                     :disabled="disabled"
                     id="salesChannelSelect"
-                    :defaultOption="$tc('sw-sales-channel-switch.labelDefaultOption')"
-                    required
+                    :placeholder="$tc('sw-sales-channel-switch.labelDefaultOption')"
                     :label="label"
-                    :placeholder="$tc('sw-sales-channel-switch.placeholderSelect')"
+                    :searchPlaceholder="$tc('sw-sales-channel-switch.placeholderSelect')"
                     @input="onInput"
                     v-model="salesChannelId"
                     entity="sales_channel">

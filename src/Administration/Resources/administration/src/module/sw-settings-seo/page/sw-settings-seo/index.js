@@ -5,7 +5,7 @@ Component.register('sw-settings-seo', {
     template,
 
     methods: {
-        onSave() {
+        onClickSave() {
         }
     }
 });

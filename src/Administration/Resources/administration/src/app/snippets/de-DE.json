@@ -300,6 +300,10 @@
     "sw-select": {
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden."
     },
+    "sw-single-select": {
+      "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden.",
+      "valuePlaceholder": "Bitte auswählen"
+    },
     "sw-label": {
       "buttonDismiss": "Entfernen"
     },

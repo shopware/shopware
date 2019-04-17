@@ -72,6 +72,8 @@ export default {
                 this.currentOptions.push(item);
             });
 
+            this.initPlaceholder();
+
             this.total = result.total;
             this.page = result.criteria.page;
             this.limit = result.criteria.limit;

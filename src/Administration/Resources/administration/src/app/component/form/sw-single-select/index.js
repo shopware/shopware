@@ -1,5 +1,5 @@
 import { Mixin } from 'src/core/shopware';
-import utils, { types } from 'src/core/service/util.service';
+import utils from 'src/core/service/util.service';
 import './sw-single-select.scss';
 import template from './sw-single-select.html.twig';
 
@@ -20,15 +20,15 @@ export default {
         value: {
             required: true
         },
-        placeholder: {
+        searchPlaceholder: {
             type: String,
             required: false,
             default: ''
         },
-        defaultOption: {
-            type: [Object, String],
+        placeholder: {
+            type: String,
             required: false,
-            default: null
+            default: ''
         },
         label: {
             type: String,
@@ -75,7 +75,7 @@ export default {
             hasError: false,
             singleSelection: null,
             currentOptions: [],
-            defaultSelectOption: null
+            placeholderOption: null
         };
     },
 
@@ -114,13 +114,9 @@ export default {
 
     methods: {
         createdComponent() {
-            if (this.defaultOption) {
-                if (types.isString(this.defaultOption)) {
-                    // Create default option with null as keyProperty
-                    this.defaultSelectOption = { [this.keyProperty]: null, [this.valueProperty]: this.defaultOption };
-                } else {
-                    this.defaultSelectOption = this.defaultOption;
-                }
+            if (!this.required) {
+                const valueProperty = this.placeholder || this.$tc('global.sw-single-select.valuePlaceholder');
+                this.placeholderOption = { [this.keyProperty]: null, [this.valueProperty]: valueProperty };
             }
 
             this.init();
@@ -129,7 +125,16 @@ export default {
 
         init() {
             this.currentOptions = this.options;
+
+            this.initPlaceholder();
+
             this.loadSelected();
+        },
+
+        initPlaceholder() {
+            if (this.placeholderOption) {
+                this.currentOptions.unshift(this.placeholderOption);
+            }
         },
 
         destroyedComponent() {
@@ -149,11 +154,8 @@ export default {
         },
 
         loadSelected() {
-            if (this.defaultSelectOption
-                    && (this.value === this.defaultSelectOption[this.keyProperty]
-                        || (types.isEmpty(this.value) && types.isEmpty(this.defaultSelectOption[this.keyProperty])))
-            ) {
-                this.singleSelection = this.defaultSelectOption;
+            if (this.value === null || this.value === '') {
+                this.singleSelection = this.placeholderOption;
                 return;
             }
             this.resolveKey(this.value).then((item) => {
@@ -195,9 +197,7 @@ export default {
         },
 
         setValue({ item }) {
-            if (item === undefined
-                    || !item.hasOwnProperty(this.keyProperty)
-                    || (this.singleSelection && this.singleSelection[this.keyProperty] === item[this.keyProperty])) {
+            if (item === undefined) {
                 if (this.isExpanded) {
                     this.closeResultList();
                 }
@@ -300,9 +300,7 @@ export default {
         navigateUpResults() {
             this.$emit('sw-single-select-on-arrow-up', this.activeResultPosition);
 
-            const firstOptionPosition = (this.defaultSelectOption) ? 0 : 1;
-
-            if (this.activeResultPosition === firstOptionPosition) {
+            if (this.activeResultPosition === 0) {
                 return;
             }
 
@@ -324,7 +322,7 @@ export default {
 
             const optionsCount = this.currentOptions.length;
 
-            if (this.activeResultPosition === optionsCount || optionsCount < 1) {
+            if (this.activeResultPosition === optionsCount - 1 || optionsCount < 1) {
                 return;
             }
 

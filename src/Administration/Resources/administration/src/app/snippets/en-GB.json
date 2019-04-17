@@ -299,6 +299,10 @@
     "sw-select": {
       "messageNoResults": "No results found for \"{term}\"."
     },
+    "sw-single-select": {
+      "messageNoResults": "No results found for \"{term}\".",
+      "valuePlaceholder": "Choose one"
+    },
     "sw-label": {
       "buttonDismiss": "Dismiss"
     },

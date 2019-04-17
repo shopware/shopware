@@ -5,9 +5,9 @@ Component.override('sw-settings-seo', {
     template,
 
     methods: {
-        onSave() {
-            this.$refs.seoUrlTemplateCard.onSave();
-            this.$super.onSave();
+        onClickSave() {
+            this.$refs.seoUrlTemplateCard.onClickSave();
+            this.$super.onClickSave();
         }
     }
 });

@@ -30,8 +30,8 @@
                         </slot>
 
                         <span v-else-if="!isExpanded"
-                              class="sw-single-select__placeholder">
-                            {{ getInlineSnippet(placeholder) }}
+                              class="sw-single-select__searchPlaceholder">
+                            {{ getInlineSnippet(searchPlaceholder) }}
                         </span>
                     {% endblock %}
                 </div>
@@ -40,15 +40,6 @@
                     <div class="sw-single-select__indicators">
                         {% block sw_single_select__indicators_loader %}
                             <sw-loader class="sw-single-select__indicator" v-if="isLoading" size="16px"></sw-loader>
-                        {% endblock %}
-
-                        {% block sw_single_select_indicators_dismiss %}
-                            <sw-icon v-if="!required"
-                                     class="sw-single-select__indicator sw-single-select__indicator--button"
-                                     name="small-default-x-line-small"
-                                     @click="unsetValue"
-                                     small>
-                            </sw-icon>
                         {% endblock %}
 
                         {% block sw_single_select_indicators_helptext %}
@@ -77,7 +68,7 @@
                                         <input ref="swSelectInput"
                                                class="sw-single-select__input-single"
                                                type="text"
-                                               :placeholder="getInlineSnippet(placeholder)"
+                                               :placeholder="getInlineSnippet(searchPlaceholder)"
                                                v-model="searchTerm"
                                                @input="search">
                                         <sw-icon name="small-search" small></sw-icon>
@@ -92,22 +83,13 @@
                                            {% endblock %}
 
                                             {% block sw_single_select_result_item_list %}
-                                                {% block sw_single_select_result_item_list_default_option %}
-                                                    <sw-single-select-option
-                                                            v-if="defaultSelectOption"
-                                                            :index="0" :item="defaultSelectOption">
-                                                        <slot name="valueProperty">
-                                                            <span v-html="getInlineSnippet(defaultSelectOption[valueProperty])"></span>
-                                                        </slot>
-                                                    </sw-single-select-option>
-                                                {% endblock %}
                                                 {% block sw_single_select_result_item_list_option %}
                                                      <template v-if="currentOptions" v-for="(item, index) in currentOptions">
-                                                         <slot name="result_items" :item="item" :index="index+1">
+                                                         <slot name="result_items" :item="item" :index="index">
                                                              {% block sw_single_select_result_item_slot %}
                                                                  <sw-single-select-option
                                                                          ref="swSelectOption"
-                                                                         :index="index+1"
+                                                                         :index="index"
                                                                          :item="item">
                                                                     <slot name="valueProperty">
                                                                         <span v-html="getInlineSnippet(item[valueProperty])"></span>
@@ -134,7 +116,7 @@
                                         {% endblock %}
 
                                         {% block sw_single_select_results_empty_text %}
-                                            {{ $tc('global.sw-select.messageNoResults', searchTerm, { term: searchTerm }) }}
+                                            {{ $tc('global.sw-single-select.messageNoResults', searchTerm, { term: searchTerm }) }}
                                         {% endblock %}
                                     </div>
                                 {% endblock %}

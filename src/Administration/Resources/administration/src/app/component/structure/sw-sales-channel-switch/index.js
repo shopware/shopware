@@ -75,7 +75,7 @@ Component.register('sw-sales-channel-switch', {
         emitChange() {
             this.lastSalesChannelId = this.salesChannelId;
 
-            this.$emit('on-change', this.salesChannelId);
+            this.$emit('change-sales-channel-id', this.salesChannelId);
         },
         onCloseChangesModal() {
             this.showUnsavedChangesModal = false;

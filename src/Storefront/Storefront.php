@@ -30,4 +30,17 @@ class Storefront extends Bundle
 
         $container->addCompilerPass(new DisableTemplateCachePass());
     }
+
+    public function getViewPaths(): array
+    {
+        return [
+            'Resources/views',
+            'Administration/views',
+        ];
+    }
+
+    public function getAdministrationEntryPath(): string
+    {
+        return 'Administration';
+    }
 }

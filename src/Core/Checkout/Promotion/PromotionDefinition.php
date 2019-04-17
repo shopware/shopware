@@ -11,14 +11,17 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionPersonaRule\PromotionPer
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSalesChannelDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionTranslation\PromotionTranslationDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -67,10 +70,13 @@ class PromotionDefinition extends EntityDefinition
             new BoolField('active', 'active'),
             new DateField('valid_from', 'validFrom'),
             new DateField('valid_until', 'validUntil'),
-            new IntField('redeemable', 'redeemable'),
+            new IntField('max_redemptions_global', 'maxRedemptionsGlobal'),
+            new IntField('max_redemptions_per_customer', 'maxRedemptionsPerCustomer'),
             new BoolField('exclusive', 'exclusive'),
             new BoolField('use_codes', 'useCodes'),
             new StringField('code', 'code'),
+            (new IntField('order_count', 'orderCount'))->setFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new JsonField('orders_per_customer_count', 'ordersPerCustomerCount'))->setFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             (new OneToManyAssociationField('salesChannels', PromotionSalesChannelDefinition::class, 'promotion_id', 'id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('discounts', PromotionDiscountDefinition::class, 'promotion_id'))->addFlags(new CascadeDelete()),
 

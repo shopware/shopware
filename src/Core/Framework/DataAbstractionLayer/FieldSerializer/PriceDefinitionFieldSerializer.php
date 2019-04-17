@@ -89,7 +89,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                         $parameters->getPath()
                     );
 
-                    if (!array_key_exists('filter', $value)) {
+                    if (!array_key_exists('filter', $value) || $value['filter'] === null) {
                         break;
                     }
                     $violations = $this->validateRules($value['filter'], $parameters->getPath() . '/filter');
@@ -129,10 +129,10 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
 
                 return new AbsolutePriceDefinition($value['price'], $value['precision'], $rules);
             case PercentagePriceDefinition::TYPE:
-                $rules = array_key_exists('filter', $value) ? $this->decodeRule($value['filter']) : null;
+                $rules = array_key_exists('filter', $value) && $value['filter'] !== null ? $this->decodeRule($value['filter']) : null;
 
                 return new PercentagePriceDefinition($value['percentage'], $value['precision'], $rules);
-            default:throw new InvalidPriceFieldTypeException($value['type']);
+            default : throw new InvalidPriceFieldTypeException($value['type']);
         }
     }
 

@@ -48,7 +48,8 @@
           "placeholderSalesChannels": "Verkaufskanal hinzufügen...",
           "labelValidFrom": "Aktiv von:",
           "labelValidUntil": "Aktiv bis:",
-          "labelRedeemable": "Anzahl",
+          "labelMaxRedemptionsGlobal": "Anzahl insgesamt",
+          "labelMaxRedemptionsPerCustomer": "Anzahl pro Kunde",
           "codes" : {
             "card" : "Aktionscodes",
             "labelCode" : "Allgemeiner Aktionscode",

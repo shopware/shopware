@@ -77,6 +77,8 @@
             <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="shipping_method.repository"/>
             <argument type="service" id="customer_address.repository"/>
+            <argument type="service" id="country.repository"/>
+            <argument type="service" id="country_state.repository"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
             <argument type="service" id="serializer"/>
             <call method="setContainer">

@@ -11,7 +11,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\Country\Exception\CountryNotFoundException;
+use Shopware\Core\System\Country\Exception\CountryStateNotFoundException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,6 +24,13 @@ use Symfony\Component\Serializer\Serializer;
 
 class SalesChannelContextController extends AbstractController
 {
+    private const SHIPPING_METHOD_ID = SalesChannelContextService::SHIPPING_METHOD_ID;
+    private const PAYMENT_METHOD_ID = SalesChannelContextService::PAYMENT_METHOD_ID;
+    private const BILLING_ADDRESS_ID = SalesChannelContextService::BILLING_ADDRESS_ID;
+    private const SHIPPING_ADDRESS_ID = SalesChannelContextService::SHIPPING_ADDRESS_ID;
+    private const COUNTRY_ID = SalesChannelContextService::COUNTRY_ID;
+    private const STATE_ID = SalesChannelContextService::STATE_ID;
+
     /**
      * @var EntityRepositoryInterface
      */
@@ -46,10 +56,22 @@ class SalesChannelContextController extends AbstractController
      */
     protected $serializer;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    protected $countryRepository;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    protected $countryStateRepository;
+
     public function __construct(
         EntityRepositoryInterface $paymentMethodRepository,
         EntityRepositoryInterface $shippingMethodRepository,
         EntityRepositoryInterface $customerAddressRepository,
+        EntityRepositoryInterface $countryRepository,
+        EntityRepositoryInterface $countryStateRepository,
         SalesChannelContextPersister $contextPersister,
         Serializer $serializer
     ) {
@@ -58,6 +80,8 @@ class SalesChannelContextController extends AbstractController
         $this->customerAddressRepository = $customerAddressRepository;
         $this->contextPersister = $contextPersister;
         $this->serializer = $serializer;
+        $this->countryRepository = $countryRepository;
+        $this->countryStateRepository = $countryStateRepository;
     }
 
     /**
@@ -71,17 +95,23 @@ class SalesChannelContextController extends AbstractController
         $payload = $request->request->all();
 
         $update = [];
-        if (array_key_exists('shippingMethodId', $payload)) {
-            $update['shippingMethodId'] = $this->validateShippingMethodId($payload['shippingMethodId'], $context);
+        if (array_key_exists(self::SHIPPING_METHOD_ID, $payload)) {
+            $update[self::SHIPPING_METHOD_ID] = $this->validateShippingMethodId($payload[self::SHIPPING_METHOD_ID], $context);
         }
-        if (array_key_exists('paymentMethodId', $payload)) {
-            $update['paymentMethodId'] = $this->validatePaymentMethodId($payload['paymentMethodId'], $context);
+        if (array_key_exists(self::PAYMENT_METHOD_ID, $payload)) {
+            $update[self::PAYMENT_METHOD_ID] = $this->validatePaymentMethodId($payload[self::PAYMENT_METHOD_ID], $context);
         }
-        if (array_key_exists('billingAddressId', $payload)) {
-            $update['billingAddressId'] = $this->validateAddressId($payload['billingAddressId'], $context);
+        if (array_key_exists(self::BILLING_ADDRESS_ID, $payload)) {
+            $update[self::BILLING_ADDRESS_ID] = $this->validateAddressId($payload[self::BILLING_ADDRESS_ID], $context);
         }
-        if (array_key_exists('shippingAddressId', $payload)) {
-            $update['shippingAddressId'] = $this->validateAddressId($payload['shippingAddressId'], $context);
+        if (array_key_exists(self::SHIPPING_ADDRESS_ID, $payload)) {
+            $update[self::SHIPPING_ADDRESS_ID] = $this->validateAddressId($payload[self::SHIPPING_ADDRESS_ID], $context);
+        }
+        if (array_key_exists(self::COUNTRY_ID, $payload)) {
+            $update[self::COUNTRY_ID] = $this->validateCountryId($payload[self::COUNTRY_ID], $context);
+        }
+        if (array_key_exists(self::STATE_ID, $payload)) {
+            $update[self::STATE_ID] = $this->validateCountryStateId($payload[self::STATE_ID], $context);
         }
 
         $this->contextPersister->save($context->getToken(), $update);
@@ -140,5 +170,31 @@ class SalesChannelContextController extends AbstractController
         }
 
         return $addressId;
+    }
+
+    private function validateCountryId(string $countryId, SalesChannelContext $context): string
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('country.id', $countryId));
+
+        $valid = $this->countryRepository->searchIds($criteria, $context->getContext());
+        if (!\in_array($countryId, $valid->getIds(), true)) {
+            throw new CountryNotFoundException($countryId);
+        }
+
+        return $countryId;
+    }
+
+    private function validateCountryStateId(string $stateId, SalesChannelContext $context): string
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('country_state.id', $stateId));
+
+        $valid = $this->countryStateRepository->searchIds($criteria, $context->getContext());
+        if (!\in_array($stateId, $valid->getIds(), true)) {
+            throw new CountryStateNotFoundException($stateId);
+        }
+
+        return $stateId;
     }
 }

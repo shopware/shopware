@@ -116,7 +116,7 @@
 
                     {% block sw_category_detail_layout_modal %}
                         <sw-cms-layout-modal
-                            :isOpen="showLayoutSelectionModal"
+                            v-if="showLayoutSelectionModal"
                             @onLayoutSelectSuccess="onLayoutSelect"
                             @closeModal="closeLayoutModal">
                         </sw-cms-layout-modal>
@@ -239,8 +239,8 @@
                 <sw-empty-state
                     v-else
                     slot="grid"
-                    :title="$tc('sw-category.base.general.productAssignmentEmptyStateTitle')"
-                    :subline="$tc('sw-category.base.general.productAssignmentEmptyStateSubline')"
+                    :title="$tc('sw-category.base.products.productAssignmentEmptyStateTitle')"
+                    :subline="$tc('sw-category.base.products.productAssignmentEmptyStateSubline')"
                     icon="default-package-closed">
                 </sw-empty-state>
 

@@ -9,16 +9,6 @@ Component.register('sw-cms-layout-modal', {
         Mixin.getByName('listing')
     ],
 
-    props: {
-        isOpen: {
-            type: Boolean,
-            required: true,
-            default() {
-                return false;
-            }
-        }
-    },
-
     data() {
         return {
             selected: null,
@@ -40,11 +30,10 @@ Component.register('sw-cms-layout-modal', {
 
     methods: {
         componentCreated() {
-            console.log(2);
+            this.getList();
         },
 
         getList() {
-            console.log(1);
             this.isLoading = true;
             const params = this.getListingParams();
 

@@ -13,10 +13,6 @@
             <tag name="shopware.entity.definition" entity="payment_method_translation"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodRules\PaymentMethodRuleDefinition">
-            <tag name="shopware.entity.definition" entity="payment_method_rule"/>
-        </service>
-
         <service id="Shopware\Core\Checkout\Payment\PaymentService">
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactory"/>
@@ -88,17 +84,6 @@
         <!--Repository Decorators-->
         <service id="Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentMethodRepositoryDecorator" decorates="payment_method.repository">
             <argument type="service" id="Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentMethodRepositoryDecorator.inner"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Payment\Util\EventIdExtractor"/>
-
-        <service id="Shopware\Core\Checkout\Payment\DataAbstractionLayer\Indexing\PaymentMethodIndexer">
-            <argument type="service" id="payment_method.repository"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Checkout\Payment\Util\EventIdExtractor"/>
-
-            <tag name="shopware.dbal_indexing.indexer"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Cart\PaymentMethodValidator">

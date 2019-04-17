@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media;
 
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateMediaCollection;
@@ -176,6 +177,11 @@ class MediaEntity extends Entity
      * @var ShippingMethodCollection|null
      */
     protected $shippingMethods;
+
+    /**
+     * @var PaymentMethodCollection|null
+     */
+    protected $paymentMethods;
 
     public function get(string $property)
     {
@@ -489,6 +495,16 @@ class MediaEntity extends Entity
     public function setShippingMethods(?ShippingMethodCollection $shippingMethods): void
     {
         $this->shippingMethods = $shippingMethods;
+    }
+
+    public function getPaymentMethods(): ?PaymentMethodCollection
+    {
+        return $this->paymentMethods;
+    }
+
+    public function setPaymentMethods(PaymentMethodCollection $paymentMethods): void
+    {
+        $this->paymentMethods = $paymentMethods;
     }
 
     public function jsonSerialize(): array

@@ -1,6 +1,8 @@
 import { Component, State, Mixin } from 'src/core/shopware';
 import { warn } from 'src/core/service/utils/debug.utils';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-settings-payment-detail.html.twig';
+import './sw-settings-payment-detail.scss';
 
 Component.register('sw-settings-payment-detail', {
     template,
@@ -13,8 +15,23 @@ Component.register('sw-settings-payment-detail', {
 
     data() {
         return {
-            paymentMethod: {}
+            paymentMethod: {},
+            mediaItem: null,
+            uploadTag: 'sw-payment-method-upload-tag',
+            ruleFilter: CriteriaFactory.multi(
+                'OR',
+                CriteriaFactory.contains('rule.moduleTypes.types', 'payment'),
+                CriteriaFactory.equals('rule.moduleTypes', null)
+            )
         };
+    },
+
+    watch: {
+        'paymentMethod.mediaId'() {
+            if (this.paymentMethod.mediaId) {
+                this.setMediaItem({ targetId: this.paymentMethod.mediaId });
+            }
+        }
     },
 
     computed: {
@@ -24,8 +41,8 @@ Component.register('sw-settings-payment-detail', {
         ruleStore() {
             return State.getStore('rule');
         },
-        paymentMethodRuleAssociation() {
-            return this.paymentMethod.getAssociation('availabilityRules');
+        mediaStore() {
+            return State.getStore('media');
         }
     },
 
@@ -55,6 +72,9 @@ Component.register('sw-settings-payment-detail', {
 
         loadEntityData() {
             this.paymentMethod = this.paymentMethodStore.getById(this.paymentMethodId);
+            if (this.paymentMethod.mediaId) {
+                this.setMediaItem({ targetId: this.paymentMethod.mediaId });
+            }
         },
 
         onSave() {
@@ -70,6 +90,8 @@ Component.register('sw-settings-payment-detail', {
             );
 
             return this.paymentMethod.save().then(() => {
+                this.$refs.mediaSidebarItem.getList();
+
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,
                     message: messageSaveSuccess
@@ -82,6 +104,27 @@ Component.register('sw-settings-payment-detail', {
                 warn(this._name, exception.message, exception.response);
                 throw exception;
             });
+        },
+
+        setMediaItem({ targetId }) {
+            this.mediaStore.getByIdAsync(targetId).then((updatedMedia) => {
+                this.mediaItem = updatedMedia;
+            });
+            this.paymentMethod.mediaId = targetId;
+        },
+
+        setMediaFromSidebar(mediaEntity) {
+            this.mediaItem = mediaEntity;
+            this.paymentMethod.mediaId = mediaEntity.id;
+        },
+
+        onUnlinkLogo() {
+            this.mediaItem = null;
+            this.paymentMethod.mediaId = null;
+        },
+
+        openMediaSidebar() {
+            this.$refs.mediaSidebarItem.openContent();
         }
     }
 });

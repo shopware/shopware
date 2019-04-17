@@ -88,25 +88,13 @@ class ConfirmPageTest extends TestCase
 
         /** @var EntityRepositoryInterface $paymentMethodRepository */
         $paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
-        $paymentMethodRuleRepository = $this->getContainer()->get('payment_method_rule.repository');
         $criteria = (new Criteria())->addFilter(new EqualsFilter('active', true));
         /** @var PaymentMethodEntity $paymentMethod */
         $paymentMethod = $paymentMethodRepository->search($criteria, $context->getContext())->first();
 
-        $ruleToDelete = [];
-
-        foreach ($paymentMethod->getAvailabilityRuleIds() as $availabilityRuleId) {
-            $ruleToDelete[] = [
-                'paymentMethodId' => $paymentMethod->getId(),
-                'ruleId' => $availabilityRuleId,
-            ];
-        }
-
-        $paymentMethodRuleRepository->delete($ruleToDelete, $context->getContext());
-
         $paymentMethodRepository->update(
             [
-                ['id' => $paymentMethod->getId(), 'availabilityRules' => [['name' => 'invalid', 'priority' => 0]]],
+                ['id' => $paymentMethod->getId(), 'availabilityRule' => ['name' => 'invalid', 'priority' => 0]],
             ],
             $context->getContext()
         );

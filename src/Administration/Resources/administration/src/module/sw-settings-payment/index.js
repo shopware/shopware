@@ -1,6 +1,7 @@
 import { Module } from 'src/core/shopware';
 import { NEXT687 } from 'src/flag/feature_next687';
 
+import './component/sw-plugin-box';
 import './extension/sw-settings-index';
 import './page/sw-settings-payment-list';
 import './page/sw-settings-payment-detail';

@@ -134,7 +134,7 @@ class AccountPageController extends StorefrontController
     /**
      * @Route("/account/login", name="frontend.account.login.page", methods={"GET"})
      */
-    public function login(Request $request, SalesChannelContext $context): Response
+    public function login(Request $request,RequestDataBag$data, SalesChannelContext $context): Response
     {
         /** @var string $redirect */
         $redirect = $request->get('redirectTo', $this->generateUrl('frontend.account.home.page'));
@@ -149,6 +149,7 @@ class AccountPageController extends StorefrontController
             'redirectTo' => $redirect,
             'page' => $page,
             'loginError' => (bool) $request->get('loginError'),
+            'data' => $data,
         ]);
     }
 
@@ -170,6 +171,8 @@ class AccountPageController extends StorefrontController
             }
         } catch (BadCredentialsException | UnauthorizedHttpException $e) {
         }
+
+        $data->set('password', null);
 
         return $this->forward('Shopware\Storefront\PageController\AccountPageController::login', [
             'loginError' => true,

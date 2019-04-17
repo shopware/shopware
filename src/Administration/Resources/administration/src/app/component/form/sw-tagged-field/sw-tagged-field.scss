@@ -59,6 +59,7 @@ $sw-tagged-field-transition-tags:                 all ease-in-out .15s;
         display: flex;
         flex-wrap: wrap;
         list-style: none;
+        line-height: 8px;
     }
 
     .sw-tagged-field__tag-item-input {

@@ -101,11 +101,11 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             const values = [
                 {
                     label: this.$tc('global.sw-condition.condition.yes'),
-                    value: 'true'
+                    value: '1'
                 },
                 {
                     label: this.$tc('global.sw-condition.condition.no'),
-                    value: 'false'
+                    value: '0'
                 }
             ];
 
@@ -381,11 +381,11 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
         },
 
         selectFilter(index, newValue) {
+            this.multiValues = [];
             let path = this.conditionFieldPath;
             path = path.slice(0, index);
             path.push(newValue);
             this.actualCondition.field = path.join('.');
-
             this.fields = this.getPathFields();
         },
 
@@ -450,6 +450,9 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
         },
         isTypeGreaterEquals() {
             return this.type === TYPES.TYPE_GREATER_THAN_EQUALS;
+        },
+        isDateTime() {
+            return this.lastField.format === 'date-time';
         },
 
         mapParametersForType(type) {
@@ -541,6 +544,9 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
         getValueFieldByType(type) {
             switch (type) {
             case 'string':
+                if (this.isDateTime()) {
+                    return 'date';
+                }
                 return 'text';
             case 'integer':
             case 'number':
@@ -561,7 +567,15 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             case 'string':
                 switch (this.lastField.format) {
                 case 'date-time':
-                    return [TYPES.TYPE_EQUALS, TYPES.TYPE_NOT_EQUALS];
+                    return [
+                        TYPES.TYPE_EQUALS,
+                        TYPES.TYPE_GREATER_THAN,
+                        TYPES.TYPE_GREATER_THAN_EQUALS,
+                        TYPES.TYPE_LESS_THAN,
+                        TYPES.TYPE_LESS_THAN_EQUALS,
+                        TYPES.TYPE_NOT_EQUALS,
+                        TYPES.TYPE_RANGE
+                    ];
                 case 'uuid':
                     return [
                         TYPES.TYPE_EQUALS,
@@ -582,24 +596,11 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             case 'integer':
             case 'number':
             case 'object':
-                if (this.lastField.entity) {
-                    return [
-                        TYPES.TYPE_EQUALS,
-                        TYPES.TYPE_EQUALS_ANY,
-                        TYPES.TYPE_NOT_EQUALS,
-                        TYPES.TYPE_NOT_EQUALS_ANY
-                    ];
-                }
                 return [
                     TYPES.TYPE_EQUALS,
                     TYPES.TYPE_EQUALS_ANY,
-                    TYPES.TYPE_GREATER_THAN,
-                    TYPES.TYPE_GREATER_THAN_EQUALS,
-                    TYPES.TYPE_LESS_THAN,
-                    TYPES.TYPE_LESS_THAN_EQUALS,
                     TYPES.TYPE_NOT_EQUALS,
-                    TYPES.TYPE_NOT_EQUALS_ANY,
-                    TYPES.TYPE_RANGE
+                    TYPES.TYPE_NOT_EQUALS_ANY
                 ];
             default:
                 return [

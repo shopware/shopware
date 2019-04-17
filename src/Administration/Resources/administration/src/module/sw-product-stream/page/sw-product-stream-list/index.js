@@ -98,14 +98,13 @@ Component.register('sw-product-stream-list', {
         },
 
         onDuplicate(id) {
-            this.productStreamStore.apiService.clone(id).then((productStream) => {
-                this.$router.push(
-                    {
-                        name: 'sw.product.stream.detail',
-                        params: { id: productStream.id }
-                    }
-                );
-            });
+            const duplicatedEntity = this.productStreamStore.duplicate(id);
+            this.$router.push(
+                {
+                    name: 'sw.product.stream.detail',
+                    params: { id: duplicatedEntity.id }
+                }
+            );
         }
     }
 });

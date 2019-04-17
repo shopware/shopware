@@ -77,7 +77,8 @@
         <template v-else-if="isTypeRange()">
             {% block sw_product_stream_filter_less_than_field %}
                 <sw-field v-if="isTypeLower()"
-                          type="number"
+                          :type="isDateTime() ? 'date' : 'number'"
+                          dateType="datetime"
                           class="field--main"
                           v-model="actualCondition.parameters.lt"
                           :disabled="isApi()"
@@ -87,7 +88,8 @@
 
             {% block sw_product_stream_filter_greater_than_field %}
                 <sw-field v-else-if="isTypeGreater()"
-                          type="number"
+                          :type="isDateTime() ? 'date' : 'number'"
+                          dateType="datetime"
                           class="field--main"
                           v-model="actualCondition.parameters.gt"
                           :disabled="isApi()"
@@ -97,7 +99,8 @@
 
             {% block sw_product_stream_filter_less_than_equals_field %}
                 <sw-field v-else-if="isTypeLowerEquals()"
-                          type="number"
+                          :type="isDateTime() ? 'date' : 'number'"
+                          dateType="datetime"
                           class="field--main"
                           v-model="actualCondition.parameters.lte"
                           :disabled="isApi()"
@@ -107,7 +110,8 @@
 
             {% block sw_product_stream_filter_greater_than_equals_field %}
                 <sw-field v-else-if="isTypeGreaterEquals()"
-                          type="number"
+                          :type="isDateTime() ? 'date' : 'number'"
+                          dateType="datetime"
                           class="field--main"
                           v-model="actualCondition.parameters.gte"
                           :disabled="isApi()"
@@ -118,19 +122,21 @@
             {% block sw_product_stream_filter_range_fields %}
                 <template v-else>
                     {% block sw_product_stream_filter_range_field_gte %}
-                        <sw-field type="number"
+                        <sw-field :type="isDateTime() ? 'date' : 'number'"
+                                  dateType="datetime"
                                   class="field--main has--arrow"
                                   v-model="actualCondition.parameters.gte"
                                   :disabled="isApi()"
-                                  :placeholder="$tc('global.sw-condition.operator.greaterThanEquals')">
+                                  :placeholder="$tc('sw-product-stream.filter.type.greaterThanEquals')">
                         </sw-field>
                     {% endblock %}
                     {% block sw_product_stream_filter_range_field_lte %}
-                        <sw-field type="number"
+                        <sw-field :type="isDateTime() ? 'date' : 'number'"
+                                  dateType="datetime"
                                   class="field--main"
                                   v-model="actualCondition.parameters.lte"
                                   :disabled="isApi()"
-                                  :placeholder="$tc('global.sw-condition.operator.lessThanEquals')">
+                                  :placeholder="$tc('sw-product-stream.filter.type.lessThanEquals')">
                         </sw-field>
                     {% endblock %}
                 </template>
@@ -154,6 +160,7 @@
     {% block sw_product_stream_filter_type_field %}
         <sw-field v-else
                   :type="getValueFieldByType(lastField.type)"
+                  dateType="datetime"
                   class="field--main"
                   :disabled="isApi()"
                   v-model="filterValue">

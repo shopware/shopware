@@ -52,6 +52,10 @@ Component.register('sw-category-detail-base', {
             return State.getStore('product');
         },
 
+        mediaStore() {
+            return State.getStore('media');
+        },
+
         categoryProductStore() {
             return this.category.getAssociation('products');
         },
@@ -113,24 +117,18 @@ Component.register('sw-category-detail-base', {
             return newProducts;
         },
 
-        onResetAssociations() {
-            this.$refs.productAssignmentSelect.resetAssociations();
-        },
-
-        onUploadAdded({ uploadTag }) {
-            this.$emit('sw-category-view-on-upload-media', uploadTag);
-        },
-
-        setMediaItem({ media }) {
-            this.$emit('sw-category-view-on-set-media', media);
+        setMediaItem({ targetId }) {
+            this.mediaStore.getByIdAsync(targetId).then((updatedMedia) => {
+                this.$emit('sw-category-base-on-set-media', updatedMedia);
+            });
         },
 
         removeMediaItem() {
-            this.$emit('sw-category-view-on-remove-media');
+            this.$emit('sw-category-base-on-remove-media');
         },
 
         openMediaSidebar() {
-            this.$emit('sw-category-view-open-sidebar');
+            this.$emit('sw-category-base-on-open-sidebar');
         },
 
         onViewProduct(productId) {

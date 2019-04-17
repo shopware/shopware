@@ -187,6 +187,7 @@ Component.register('sw-category-detail', {
         },
 
         setMediaItem(media) {
+            console.log(media);
             this.mediaItem = media;
             this.category.mediaId = media.id;
         },

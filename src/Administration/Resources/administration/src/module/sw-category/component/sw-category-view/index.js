@@ -25,5 +25,20 @@ Component.register('sw-category-view', {
             required: true,
             default: false
         }
+    },
+
+    methods: {
+        onUploadAdded({ uploadTag }) {
+            this.$emit('sw-category-base-on-upload-media', uploadTag);
+        },
+        setMediaItem(mediaItem) {
+            this.$emit('sw-category-base-on-set-media', mediaItem);
+        },
+        onUnlinkLogo() {
+            this.$emit('sw-category-base-on-remove-media');
+        },
+        openSidebar() {
+            this.$emit('sw-category-base-on-open-sidebar');
+        }
     }
 });

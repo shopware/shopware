@@ -33,7 +33,11 @@
                 v-if="!isLoading"
                 :category="category"
                 :mediaItem="mediaItem"
-                :isLoading="isLoading">
+                :isLoading="isLoading"
+                @sw-category-base-on-open-sidebar="openSidebar"
+                @sw-category-base-on-set-media="setMediaItem"
+                @sw-category-base-on-upload-media="onUploadAdded"
+                @sw-category-base-on-remove-media="onUnlinkLogo">
             </router-view>
         {% endblock %}
 

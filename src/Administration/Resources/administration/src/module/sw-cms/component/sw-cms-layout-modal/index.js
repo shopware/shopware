@@ -34,12 +34,17 @@ Component.register('sw-cms-layout-modal', {
         }
     },
 
-    methods: {
-        getList() {
-            if (this.isLoading || this.noMorePages) {
-                return false;
-            }
+    created() {
+        this.componentCreated();
+    },
 
+    methods: {
+        componentCreated() {
+            console.log(2);
+        },
+
+        getList() {
+            console.log(1);
             this.isLoading = true;
             const params = this.getListingParams();
 
@@ -71,9 +76,14 @@ Component.register('sw-cms-layout-modal', {
             this.getList();
         },
 
+        onSelection(selection) {
+            this.selected = selection;
+        },
+
         closeModal() {
             this.$emit('closeModal');
             this.selected = null;
+            this.term = null;
         }
     }
 });

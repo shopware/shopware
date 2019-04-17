@@ -217,18 +217,41 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
      *
      * @private
      * @memberOf module:app/adapter/view/vue
-     * @returns {Store<any>}
+     * @returns {Vuex.Store}
      */
     function initStore() {
         const store = new Vuex.Store({
-            modules: State.getStore('vuex'),
-            strict: process.env.NODE_ENV !== 'production'
+            modules: filterStateRegistry(State.getStoreRegistry()),
+            strict: false
         });
 
         // remove unnecessary objects from state.factory
         State.getStoreRegistry().delete('vuex');
 
         return store;
+    }
+
+    /**
+     * Returns only parts from state namespace that should be registered at Vuex
+     * This will become unnecessary when old data handling is removed
+     * @param registry
+     */
+    function filterStateRegistry(registry) {
+        const storeModules = {};
+        registry.forEach((value, key) => {
+            if (value instanceof EntityStore) {
+                return;
+            }
+
+            if (key === 'cmsPageState') {
+                console.log(value);
+                return;
+            }
+
+            storeModules[key] = value;
+        });
+
+        return storeModules;
     }
 
     /**

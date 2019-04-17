@@ -14,33 +14,31 @@ Component.register('sw-login-login', {
     data() {
         return {
             username: '',
-            password: '',
-            lastUrl: ''
+            password: ''
         };
     },
 
     methods: {
         loginUserWithPassword() {
-            this.$emit('isLoading');
+            this.$emit('is-loading');
 
             return this.loginService.loginByUsername(this.username, this.password)
                 .then(() => {
                     this.handleLoginSuccess();
-                    this.$emit('isNotLoading');
+                    this.$emit('is-not-loading');
                 })
                 .catch((response) => {
                     this.password = '';
 
                     this.handleLoginError(response);
-                    this.$emit('isNotLoading');
+                    this.$emit('is-not-loading');
                 });
         },
 
         handleLoginSuccess() {
-            this.lastUrl = '';
             this.password = '';
 
-            this.$emit('loginSuccess');
+            this.$emit('login-success');
 
             const animationPromise = new Promise((resolve) => {
                 setTimeout(resolve, 300);
@@ -69,9 +67,9 @@ Component.register('sw-login-login', {
         handleLoginError(response) {
             this.password = '';
 
-            this.$emit('loginError');
+            this.$emit('login-error');
             setTimeout(() => {
-                this.$emit('loginError');
+                this.$emit('login-error');
             }, 500);
 
             this.createNotificationFromResponse(response);

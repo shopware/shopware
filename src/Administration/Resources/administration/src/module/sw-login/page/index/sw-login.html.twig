@@ -36,10 +36,10 @@
                         {% block sw_login_view %}
                             <transition name="fade" mode="out-in">
                                 <router-view :hash="hash"
-                                             @isLoading="setLoading(true)"
-                                             @isNotLoading="setLoading(false)"
-                                             @loginError="loginError"
-                                             @loginSuccess="loginSuccess">
+                                             @is-loading="setLoading(true)"
+                                             @is-not-loading="setLoading(false)"
+                                             @login-error="loginError"
+                                             @login-success="loginSuccess">
                                 </router-view>
                             </transition>
                         {% endblock %}

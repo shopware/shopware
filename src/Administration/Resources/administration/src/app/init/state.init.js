@@ -12,7 +12,9 @@ export default function createCoreStates() {
         serviceContainer.mediaService
     ));
 
-    stateFactory.registerStore('vuex', VuexModules);
+    Object.keys(VuexModules).forEach((storeModule) => {
+        stateFactory.registerStore(storeModule, VuexModules[storeModule]);
+    });
 
     return true;
 }

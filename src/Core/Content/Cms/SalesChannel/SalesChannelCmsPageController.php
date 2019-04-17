@@ -38,7 +38,7 @@ class SalesChannelCmsPageController extends AbstractController
     public function getPage(string $pageId, Request $request, SalesChannelContext $context, ResponseFactoryInterface $responseFactory): Response
     {
         $cmsPage = $this->getCmsPage($pageId, $context);
-        $this->loadSlotData($cmsPage, $context);
+        $this->loadSlotData($cmsPage, $request, $context);
 
         return $responseFactory->createDetailResponse(
             $cmsPage,
@@ -48,13 +48,13 @@ class SalesChannelCmsPageController extends AbstractController
         );
     }
 
-    private function loadSlotData(CmsPageEntity $page, SalesChannelContext $context): void
+    private function loadSlotData(CmsPageEntity $page, Request $request, SalesChannelContext $context): void
     {
         if (!$page->getBlocks()) {
             return;
         }
 
-        $resolverContext = new ResolverContext($context);
+        $resolverContext = new ResolverContext($context, $request);
         $slots = $this->slotDataResolver->resolve($page->getBlocks()->getSlots(), $resolverContext);
 
         $page->getBlocks()->setSlots($slots);

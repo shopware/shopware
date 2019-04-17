@@ -37,23 +37,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
         </service>
 
-        <service id="Shopware\Core\Content\Cms\SlotDataResolver\Type\ProductBoxTypeDataResolver">
-            <tag name="shopware.cms.data_resolver" />
-        </service>
-
-        <service id="Shopware\Core\Content\Cms\SlotDataResolver\Type\ProductListingTypeDataResolver">
-            <tag name="shopware.cms.data_resolver" />
-        </service>
-
-        <service id="Shopware\Core\Content\Cms\SlotDataResolver\Type\ImageTypeDataResolver">
-            <tag name="shopware.cms.data_resolver" />
-        </service>
-
         <service id="Shopware\Core\Content\Cms\SlotDataResolver\Type\TextTypeDataResolver">
-            <tag name="shopware.cms.data_resolver"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Cms\SlotDataResolver\Type\ProductSliderTypeDataResolver">
             <tag name="shopware.cms.data_resolver"/>
         </service>
 

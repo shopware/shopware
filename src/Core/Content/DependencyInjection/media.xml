@@ -267,5 +267,9 @@
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
             <argument type="service" id="media_folder.repository"/>
         </service>
+
+        <service id="Shopware\Core\Content\Media\Cms\Type\ImageTypeDataResolver">
+            <tag name="shopware.cms.data_resolver" />
+        </service>
     </services>
 </container>

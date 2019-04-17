@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Cms\SlotDataResolver\Type;
+namespace Shopware\Core\Content\Media\Cms\Type;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ImageStruct;
@@ -9,6 +9,7 @@ use Shopware\Core\Content\Cms\SlotDataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolveResult;
+use Shopware\Core\Content\Cms\SlotDataResolver\Type\TypeDataResolver;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;

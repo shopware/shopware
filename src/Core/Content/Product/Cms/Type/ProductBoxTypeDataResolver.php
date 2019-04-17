@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Cms\SlotDataResolver\Type;
+namespace Shopware\Core\Content\Product\Cms\Type;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductBoxStruct;
@@ -8,6 +8,7 @@ use Shopware\Core\Content\Cms\SlotDataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolveResult;
+use Shopware\Core\Content\Cms\SlotDataResolver\Type\TypeDataResolver;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;

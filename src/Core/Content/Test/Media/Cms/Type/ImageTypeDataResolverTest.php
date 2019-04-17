@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Cms\SlotDataResolver\Type;
+namespace Shopware\Core\Content\Test\Media\Cms\Type;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
@@ -10,7 +10,7 @@ use Shopware\Core\Content\Cms\SlotDataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolveResult;
-use Shopware\Core\Content\Cms\SlotDataResolver\Type\ImageTypeDataResolver;
+use Shopware\Core\Content\Media\Cms\Type\ImageTypeDataResolver;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 
 class ImageTypeDataResolverTest extends TestCase
 {
@@ -42,7 +43,7 @@ class ImageTypeDataResolverTest extends TestCase
 
     public function testCollectWithEmptyConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class));
+        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
@@ -57,7 +58,7 @@ class ImageTypeDataResolverTest extends TestCase
 
     public function testCollectWithMediaId(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class));
+        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('media', FieldConfig::SOURCE_STATIC, 'media123'));
@@ -80,7 +81,7 @@ class ImageTypeDataResolverTest extends TestCase
 
     public function testEnrichWithEmptyConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class));
+        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
         $result = new SlotDataResolveResult();
 
         $slot = new CmsSlotEntity();
@@ -99,7 +100,7 @@ class ImageTypeDataResolverTest extends TestCase
 
     public function testEnrichWithUrlOnly(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class));
+        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
         $result = new SlotDataResolveResult();
 
         $fieldConfig = new FieldConfigCollection();
@@ -121,7 +122,7 @@ class ImageTypeDataResolverTest extends TestCase
 
     public function testEnrichWithMediaOnly(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class));
+        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
 
         $media = new MediaEntity();
         $media->setUniqueIdentifier('media123');
@@ -157,7 +158,7 @@ class ImageTypeDataResolverTest extends TestCase
 
     public function testEnrichWithMediaAndUrl(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class));
+        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
 
         $media = new MediaEntity();
         $media->setUniqueIdentifier('media123');
@@ -194,7 +195,7 @@ class ImageTypeDataResolverTest extends TestCase
 
     public function testEnrichWithMissingMediaId(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class));
+        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
 
         $media = new MediaEntity();
         $media->setUniqueIdentifier('media123');
@@ -229,7 +230,7 @@ class ImageTypeDataResolverTest extends TestCase
 
     public function testMediaWithRemote(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class));
+        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
 
         $media = new MediaEntity();
         $media->setUniqueIdentifier('media123');
@@ -273,7 +274,7 @@ class ImageTypeDataResolverTest extends TestCase
         $product = new ProductEntity();
         $product->setCover($productMedia);
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), ProductDefinition::class, $product);
+        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), ProductDefinition::class, $product);
 
         $mediaSearchResult = new EntitySearchResult(
             0,
@@ -310,7 +311,7 @@ class ImageTypeDataResolverTest extends TestCase
         $product = new ProductEntity();
         $product->setManufacturer($manufacturer);
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), ProductDefinition::class, $product);
+        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), ProductDefinition::class, $product);
 
         $result = new SlotDataResolveResult();
 

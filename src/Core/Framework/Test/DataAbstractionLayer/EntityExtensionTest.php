@@ -463,6 +463,7 @@ class EntityExtensionTest extends TestCase
 
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'price test',
             'ean' => 'test',
@@ -505,6 +506,7 @@ class EntityExtensionTest extends TestCase
 
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'category test',
             'ean' => 'test',

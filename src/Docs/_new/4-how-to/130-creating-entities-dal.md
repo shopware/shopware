@@ -1,9 +1,10 @@
 [titleEn]: <>(Creating entities via DAL)
+[metaDescriptionEn]: <>(You want to create a new entry for an existing entity in your plugin, e.g. adding a new tax rate upon installing your plugin. The best and most recommended way for this is to use the Shopware platform data abstraction layer.)
 
 ## Overview
 
 You want to create a new entry for an existing entity in your plugin, e.g. adding a new tax rate upon installing your plugin.
-The best and **most recommended** way for this is to use the Shopware platform [data abstraction layer](../2-internals/1-core/20-data-abstraction-layer/__categoryInfo.md).
+The best and **most recommended** way for this is to use the Shopware platform [data abstraction layer](./../2-internals/1-core/20-data-abstraction-layer/__categoryInfo.md).
 
 All of the following methods are to be executed on the entities' respective repository.
 

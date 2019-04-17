@@ -127,10 +127,10 @@ Component.register('sw-mail-template-detail', {
 
             if (this.mailTemplate.salesChannels.length) {
                 this.mailTemplate.salesChannels.forEach((salesChannel) => {
-                    return this.mailService.testMailTemplateById(
+                    this.mailService.testMailTemplateById(
                         this.testerMail,
                         this.mailTemplate,
-                        salesChannel.id
+                        salesChannel
                     ).then(() => {
                         this.createNotificationSuccess(notificationTestMailSuccess);
                     }).catch((exception) => {

@@ -27,25 +27,31 @@ Table(ShopwareCoreCheckoutShippingShippingMethodDefinition, "shipping_method\n(S
    not_null(bindShippingfree) bool
    name translated
    active bool
-   minDeliveryTime int
-   maxDeliveryTime int
    shippingFree float
    attributes translated
-   availabilityRuleIds list
+   availabilityRuleId foreignKey
+   mediaId foreignKey
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
+   not_null(deliveryTimeId) foreignKey
    description translated
-   comment translated
    translated json
 }
-Table(ShopwareCoreCheckoutShippingAggregateShippingMethodPriceRuleShippingMethodPriceRuleDefinition, "shipping_method_price_rule\n(Shipping rule prices)") {
+Table(ShopwareCoreCheckoutShippingAggregateShippingMethodTagShippingMethodTagDefinition, "shipping_method_tag\n(M:N Mapping)") {
+   primary_key(shippingMethodId) foreignKey
+   primary_key(tagId) foreignKey
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+Table(ShopwareCoreCheckoutShippingAggregateShippingMethodPriceShippingMethodPriceDefinition, "shipping_method_price\n(Prices of a shipping method)") {
    primary_key(id) id
    not_null(shippingMethodId) foreignKey
    not_null(currencyId) foreignKey
-   not_null(ruleId) foreignKey
+   ruleId foreignKey
    calculation int
-   not_null(quantityStart) int
-   quantityEnd int
+   calculationRuleId foreignKey
+   quantityStart float
+   quantityEnd float
    not_null(price) float
    attributes attributes
    not_null(createdAt) createdAt
@@ -54,18 +60,13 @@ Table(ShopwareCoreCheckoutShippingAggregateShippingMethodPriceRuleShippingMethod
 TranslationTable(ShopwareCoreCheckoutShippingAggregateShippingMethodTranslationShippingMethodTranslationDefinition, "shipping_method_translation\n((Translations))") {
    not_null(name) string
    description longText
-   comment string
    attributes attributes
    primary_key(shippingMethodId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
-Table(ShopwareCoreCheckoutShippingAggregateShippingMethodRulesShippingMethodRuleDefinition, "shipping_method_rule\n(M:N Mapping)") {
-   primary_key(shippingMethodId) foreignKey
-   primary_key(ruleId) foreignKey
-   not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+ForeignTable(ShopwareCoreContentDeliveryTimeDeliveryTimeDefinition, "delivery_time") {
 }
 ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
 }
@@ -73,23 +74,30 @@ ForeignTable(ShopwareCoreCheckoutOrderAggregateOrderDeliveryOrderDeliveryDefinit
 }
 ForeignTable(ShopwareCoreSystemSalesChannelAggregateSalesChannelShippingMethodSalesChannelShippingMethodDefinition, "sales_channel_shipping_method") {
 }
-ForeignTable(ShopwareCoreSystemCurrencyCurrencyDefinition, "currency") {
-}
 ForeignTable(ShopwareCoreContentRuleRuleDefinition, "rule") {
+}
+ForeignTable(ShopwareCoreContentMediaMediaDefinition, "media") {
+}
+ForeignTable(ShopwareCoreFrameworkTagTagDefinition, "tag") {
+}
+ForeignTable(ShopwareCoreSystemCurrencyCurrencyDefinition, "currency") {
 }
 ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 }
 
 ' relationshipd
 
+ShopwareCoreCheckoutShippingShippingMethodDefinition --> ShopwareCoreContentDeliveryTimeDeliveryTimeDefinition
 ShopwareCoreCheckoutShippingShippingMethodDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreCheckoutShippingShippingMethodDefinition --> ShopwareCoreCheckoutOrderAggregateOrderDeliveryOrderDeliveryDefinition
 ShopwareCoreCheckoutShippingAggregateShippingMethodTranslationShippingMethodTranslationDefinition --> ShopwareCoreCheckoutShippingShippingMethodDefinition
 ShopwareCoreCheckoutShippingShippingMethodDefinition --> ShopwareCoreSystemSalesChannelAggregateSalesChannelShippingMethodSalesChannelShippingMethodDefinition
-ShopwareCoreCheckoutShippingAggregateShippingMethodRulesShippingMethodRuleDefinition --> ShopwareCoreCheckoutShippingShippingMethodDefinition
-ShopwareCoreCheckoutShippingAggregateShippingMethodPriceRuleShippingMethodPriceRuleDefinition --> ShopwareCoreCheckoutShippingShippingMethodDefinition
-ShopwareCoreCheckoutShippingAggregateShippingMethodPriceRuleShippingMethodPriceRuleDefinition --> ShopwareCoreSystemCurrencyCurrencyDefinition
-ShopwareCoreCheckoutShippingAggregateShippingMethodPriceRuleShippingMethodPriceRuleDefinition --> ShopwareCoreContentRuleRuleDefinition
+ShopwareCoreCheckoutShippingShippingMethodDefinition --> ShopwareCoreContentRuleRuleDefinition
+ShopwareCoreCheckoutShippingAggregateShippingMethodPriceShippingMethodPriceDefinition --> ShopwareCoreCheckoutShippingShippingMethodDefinition
+ShopwareCoreCheckoutShippingShippingMethodDefinition --> ShopwareCoreContentMediaMediaDefinition
+ShopwareCoreCheckoutShippingAggregateShippingMethodTagShippingMethodTagDefinition --> ShopwareCoreCheckoutShippingShippingMethodDefinition
+ShopwareCoreCheckoutShippingAggregateShippingMethodTagShippingMethodTagDefinition --> ShopwareCoreFrameworkTagTagDefinition
+ShopwareCoreCheckoutShippingAggregateShippingMethodPriceShippingMethodPriceDefinition --> ShopwareCoreSystemCurrencyCurrencyDefinition
+ShopwareCoreCheckoutShippingAggregateShippingMethodPriceShippingMethodPriceDefinition --> ShopwareCoreContentRuleRuleDefinition
 ShopwareCoreCheckoutShippingAggregateShippingMethodTranslationShippingMethodTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
-ShopwareCoreCheckoutShippingAggregateShippingMethodRulesShippingMethodRuleDefinition --> ShopwareCoreContentRuleRuleDefinition
 @enduml

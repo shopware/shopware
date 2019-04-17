@@ -1,4 +1,5 @@
 [titleEn]: <>(Updating your plugin via migrations)
+[metaDescriptionEn]: <>(Whenever you decide to release a new version of your plugin, including new features, you might have to take care about new database tables or about updating existing ones. This can be done using the Migration system in your plugin.)
 
 ## Overview
 
@@ -13,15 +14,15 @@ A very common solution to this issue is a database migration system, which the S
 for every plugin.
 
 Here's a brief introduction on how to use `Migrations` in your plugin.
-Make sure to have a look at our in-depth guide about [plugin migrations](../2-internals/4-plugins/080-plugin-migrations.md).
+Make sure to have a look at our in-depth guide about [plugin migrations](./../2-internals/4-plugins/080-plugin-migrations.md).
 
 ## Setup
 
 This example won't explain how to create a plugin in the first instance.
-How to create your first plugin is explained in detail [here](../2-internals/4-plugins/010-plugin-quick-start.md).
+How to create your first plugin is explained in detail [here](./../2-internals/4-plugins/010-plugin-quick-start.md).
 
 By default, the Shopware platform is looking for migration files in a folder called `Migration` relative to your plugin's base class directory.
-You can adjust this behaviour by overwriting the [getMigrationNamespace](../2-internals/4-plugins/020-plugin-base-class.md#getMigrationNamespace()) method in your plugin.
+You can adjust this behaviour by overwriting the [getMigrationNamespace](./../2-internals/4-plugins/020-plugin-base-class.md#getMigrationNamespace()) method in your plugin.
 
 ## The migration file
 
@@ -67,3 +68,7 @@ SQL;
 }
 ```
 
+## Source
+
+There's a GitHub repository available, containing this example source.
+Check it out [here](https://github.com/shopware/swag-docs-plugin-migration-example).

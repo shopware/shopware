@@ -44,6 +44,7 @@ class PromotionGateway implements PromotionGatewayInterface
             MultiFilter::CONNECTION_AND,
             [
                 new EqualsFilter('active', true),
+                new EqualsFilter('promotion.salesChannels.salesChannelId', $context->getSalesChannel()->getId()),
                 $this->getDateRangeFilter(),
                 $this->getRuleConditionFilters($contextRules),
                 new EqualsFilter('codeType', PromotionEntity::CODE_TYPE_NO_CODE),
@@ -71,6 +72,7 @@ class PromotionGateway implements PromotionGatewayInterface
                 MultiFilter::CONNECTION_AND,
                 [
                     new EqualsFilter('active', true),
+                    new EqualsFilter('promotion.salesChannels.salesChannelId', $context->getSalesChannel()->getId()),
                     $this->getDateRangeFilter(),
                     new EqualsAnyFilter('code', $codes),
                 ]
@@ -155,6 +157,7 @@ class PromotionGateway implements PromotionGatewayInterface
                     [
                         new EqualsFilter('personaRuleId', null),
                         new EqualsFilter('scopeRuleId', null),
+                        new EqualsFilter('promotion.orderRules.id', null),
                     ]
                 ),
                 new MultiFilter(
@@ -162,6 +165,7 @@ class PromotionGateway implements PromotionGatewayInterface
                     [
                         new EqualsAnyFilter('personaRuleId', $contextRuleIds),
                         new EqualsAnyFilter('scopeRuleId', $contextRuleIds),
+                        new EqualsAnyFilter('promotion.orderRules.id', $contextRuleIds),
                     ]
                 ),
             ]

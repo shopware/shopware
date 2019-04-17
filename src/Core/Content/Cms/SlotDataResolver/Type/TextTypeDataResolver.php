@@ -3,11 +3,11 @@
 namespace Shopware\Core\Content\Cms\SlotDataResolver\Type;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
+use Shopware\Core\Content\Cms\SalesChannel\Struct\TextStruct;
 use Shopware\Core\Content\Cms\SlotDataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolveResult;
-use Shopware\Core\Content\Cms\Storefront\Struct\TextStruct;
 
 class TextTypeDataResolver extends TypeDataResolver
 {

@@ -21,7 +21,7 @@ EOD
 Cron jobs based on the message queue.
 EOD
     ,
-    'Shopware\\Core\\Framework\\Tag' => <<<'EOD'
+    'Shopware\\Core\\System\\Tag' => <<<'EOD'
 Additionally to categories tagging is used throughout Shopware to flag contents with different properties. In contrast to categories tags are a more lightweight alternative that can easily be created, discarded and assigned.
 EOD
     ,
@@ -109,7 +109,7 @@ EOD
 Product streams describe stored filter conditions that applied to the catalogue as a whole to create dynamic streams.
 EOD
     ,
-    'Shopware\\Core\\Content\\Configuration' => <<<'EOD'
+    'Shopware\\Core\\Content\\Property' => <<<'EOD'
 Contains the configuration options for product variants.
 EOD
     ,
@@ -169,7 +169,7 @@ EOD
 Like cron jobs. Contains named messages and a an interval to execute them in. 
 EOD
     ,
-    Shopware\Core\Framework\Tag\TagDefinition::class => <<<'EOD'
+    Shopware\Core\System\Tag\TagDefinition::class => <<<'EOD'
 A tag as known from blogging systems. Used to quickly categorize related entities.
 EOD
     ,
@@ -349,11 +349,11 @@ EOD
 Represents a single filter property. All to a stream related filters build a persisted and nested search query.
 EOD
     ,
-    Shopware\Core\Content\Configuration\ConfigurationGroupDefinition::class => <<<'EOD'
+    Shopware\Core\Content\Property\PropertyGroupDefinition::class => <<<'EOD'
 Is the basis for the product variant generation. A group can be assigned to a product to generate product variants according to the contained settings.
 EOD
     ,
-    Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition::class => <<<'EOD'
+    Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition::class => <<<'EOD'
 A single option relates to a generated product variant through its configuration group.
 EOD
     ,
@@ -405,7 +405,7 @@ EOD
 Represents a list of available shipping methods for customers to choose from during checkout.
 EOD
     ,
-    'Shopware\\Core\\Checkout\\Shipping\\Aggregate\\ShippingMethodPrice\\ShippingMethodPriceDefinition' => <<<'EOD'
+    Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition::class => <<<'EOD'
 
 EOD
     ,
@@ -513,7 +513,7 @@ EOD
 
 EOD
     ,
-    Shopware\Core\Content\Product\Aggregate\ProductDatasheet\ProductDatasheetDefinition::class => <<<'EOD'
+    'Shopware\\Core\\Content\\Product\\Aggregate\\ProductDatasheet\\ProductDatasheetDefinition' => <<<'EOD'
 
 EOD
     ,
@@ -525,7 +525,7 @@ EOD
 
 EOD
     ,
-    Shopware\Core\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition::class => <<<'EOD'
+    'Shopware\\Core\\Content\\Product\\Aggregate\\ProductVariation\\ProductVariationDefinition' => <<<'EOD'
 
 EOD
     ,
@@ -541,11 +541,11 @@ EOD
 
 EOD
     ,
-    Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationDefinition::class => <<<'EOD'
+    'Shopware\\Core\\Content\\Configuration\\Aggregate\\ConfigurationGroupOptionTranslation\\ConfigurationGroupOptionTranslationDefinition' => <<<'EOD'
 
 EOD
     ,
-    Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationDefinition::class => <<<'EOD'
+    'Shopware\\Core\\Content\\Configuration\\Aggregate\\ConfigurationGroupTranslation\\ConfigurationGroupTranslationDefinition' => <<<'EOD'
 
 EOD
     ,
@@ -577,11 +577,11 @@ EOD
 
 EOD
     ,
-    Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPriceRule\ShippingMethodPriceRuleDefinition::class => <<<'EOD'
+    'Shopware\\Core\\Checkout\\Shipping\\Aggregate\\ShippingMethodPriceRule\\ShippingMethodPriceRuleDefinition' => <<<'EOD'
 Contains `quantityFrom` as a selection criteria to provide different prices for different orders with the same shipping method.
 EOD
     ,
-    Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodRules\ShippingMethodRuleDefinition::class => <<<'EOD'
+    'Shopware\\Core\\Checkout\\Shipping\\Aggregate\\ShippingMethodRules\\ShippingMethodRuleDefinition' => <<<'EOD'
 
 EOD
     ,
@@ -591,6 +591,30 @@ EOD
     ,
     Shopware\Storefront\Framework\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition::class => <<<'EOD'
 A template to generate seo urls from.
+EOD
+    ,
+    Shopware\Core\System\NumberRange\Aggregate\NumberRangeTypeTranslation\NumberRangeTypeTranslationDefinition::class => <<<'EOD'
+
+EOD
+    ,
+    Shopware\Core\Content\Product\Aggregate\ProductProperty\ProductPropertyDefinition::class => <<<'EOD'
+
+EOD
+    ,
+    Shopware\Core\Content\Product\Aggregate\ProductOption\ProductOptionDefinition::class => <<<'EOD'
+
+EOD
+    ,
+    Shopware\Core\Content\Property\Aggregate\PropertyGroupOptionTranslation\PropertyGroupOptionTranslationDefinition::class => <<<'EOD'
+
+EOD
+    ,
+    Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation\PropertyGroupTranslationDefinition::class => <<<'EOD'
+
+EOD
+    ,
+    Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTag\ShippingMethodTagDefinition::class => <<<'EOD'
+
 EOD
     ,
 ];

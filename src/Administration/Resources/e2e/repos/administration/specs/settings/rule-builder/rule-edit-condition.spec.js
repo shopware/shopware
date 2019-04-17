@@ -42,6 +42,7 @@ module.exports = {
         const page = ruleBuilderPage(browser);
 
         browser.click('.sw-condition-and-container__actions--and')
+            .waitForElementVisible('.condition-content__spacer--and')
             .waitForElementVisible(`${page.elements.conditionOrContainer}--0 ${page.elements.conditionAndContainer}--1`);
 
         page.createBasicInputCondition({

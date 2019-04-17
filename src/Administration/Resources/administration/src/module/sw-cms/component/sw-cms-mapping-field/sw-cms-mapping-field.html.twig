@@ -61,7 +61,7 @@
 
             {% block sw_cms_mapping_field_preview %}
                 <div class="sw-cms-mapping-field__preview" v-if="hasPreview">
-                    <slot name="preview" :demoValue="currentDemoValue"></slot>
+                    <slot name="preview" :demoValue="demoValue"></slot>
                 </div>
             {% endblock %}
         </template>

@@ -36,7 +36,7 @@ abstract class StorefrontController extends AbstractController
         /** @var TemplateFinder $templateFinder */
         $templateFinder = $this->get(TemplateFinder::class);
 
-        return $templateFinder->find($view, true);
+        return $templateFinder->find($view);
     }
 
     /**
@@ -53,7 +53,7 @@ abstract class StorefrontController extends AbstractController
         }
 
         /** @var SalesChannelContext|null $context */
-        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT);
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
 
         if ($context && $context->getCustomer() && $context->getCustomer()->getGuest() === false) {
             return;

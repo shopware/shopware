@@ -3,13 +3,13 @@
 namespace Shopware\Storefront\Page\Product;
 
 use Shopware\Core\Content\Cms\CmsPageEntity;
+use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageRepository;
 use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver;
-use Shopware\Core\Content\Cms\Storefront\StorefrontCmsPageRepository;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\Storefront\StorefrontProductEntity;
-use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\InternalRequest;
@@ -21,7 +21,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class ProductPageLoader implements PageLoaderInterface
 {
     /**
-     * @var StorefrontProductRepository
+     * @var SalesChannelProductRepository
      */
     private $productRepository;
 
@@ -36,7 +36,7 @@ class ProductPageLoader implements PageLoaderInterface
     private $pageWithHeaderLoader;
 
     /**
-     * @var StorefrontCmsPageRepository
+     * @var SalesChannelCmsPageRepository
      */
     private $cmsPageRepository;
 
@@ -47,9 +47,9 @@ class ProductPageLoader implements PageLoaderInterface
 
     public function __construct(
         PageLoaderInterface $pageWithHeaderLoader,
-        StorefrontProductRepository $productRepository,
+        SalesChannelProductRepository $productRepository,
         EventDispatcherInterface $eventDispatcher,
-        StorefrontCmsPageRepository $cmsPageRepository,
+        SalesChannelCmsPageRepository $cmsPageRepository,
         SlotDataResolver $slotDataResolver
     ) {
         $this->eventDispatcher = $eventDispatcher;
@@ -81,7 +81,7 @@ class ProductPageLoader implements PageLoaderInterface
         return $page;
     }
 
-    private function loadSlotData(CmsPageEntity $page, SalesChannelContext $context, StorefrontProductEntity $product): void
+    private function loadSlotData(CmsPageEntity $page, SalesChannelContext $context, SalesChannelProductEntity $product): void
     {
         if (!$page->getBlocks()) {
             return;
@@ -107,12 +107,12 @@ class ProductPageLoader implements PageLoaderInterface
         return $page;
     }
 
-    private function loadProduct(string $productId, SalesChannelContext $context): StorefrontProductEntity
+    private function loadProduct(string $productId, SalesChannelContext $context): SalesChannelProductEntity
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('id', $productId));
 
-        /** @var StorefrontProductEntity|null $product */
+        /** @var SalesChannelProductEntity|null $product */
         $product = $this->productRepository->read($criteria, $context)->get($productId);
 
         if (!$product) {

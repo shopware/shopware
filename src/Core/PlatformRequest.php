@@ -8,6 +8,11 @@ final class PlatformRequest
     public const API_VERSION = 1;
 
     /**
+     * Response Headers
+     */
+    public const HEADER_FRAME_OPTIONS = 'x-frame-options';
+
+    /**
      * Context headers
      */
     public const HEADER_CONTEXT_TOKEN = 'x-sw-context-token';
@@ -20,7 +25,7 @@ final class PlatformRequest
      * Context attributes
      */
     public const ATTRIBUTE_CONTEXT_OBJECT = 'x-sw-context';
-    public const ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT = 'x-sw-storefront-context';
+    public const ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT = 'x-sw-sales-channel-context';
     public const ATTRIBUTE_SALES_CHANNEL_ID = 'x-sw-sales-channel-id';
 
     /**

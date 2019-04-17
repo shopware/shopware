@@ -55,17 +55,9 @@ class Delivery extends Struct
 
         $deliveryTime = $this->shippingMethod->getDeliveryTime();
 
-        $min = 0;
-        $max = 0;
-
-        if ($deliveryTime !== null) {
-            $min = $deliveryTime->getMin();
-            $max = $deliveryTime->getMax();
-        }
-
         $this->endDeliveryDate = new DeliveryDate(
-            $end->getEarliest()->add(new \DateInterval('P' . $min . 'D')),
-            $end->getLatest()->add(new \DateInterval('P' . $max . 'D'))
+            $end->getEarliest()->add(new \DateInterval('P' . $deliveryTime->getMin() . 'D')),
+            $end->getLatest()->add(new \DateInterval('P' . $deliveryTime->getMax() . 'D'))
         );
     }
 

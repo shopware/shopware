@@ -25,27 +25,50 @@ skinparam backgroundColor #FFFFFF
 Table(ShopwareCoreSystemNumberRangeNumberRangeDefinition, "number_range\n(Number range)") {
    primary_key(id) id
    not_null(typeId) foreignKey
-   name string
-   description string
-   pattern string
+   not_null(global) bool
+   name translated
+   description translated
+   not_null(pattern) string
    start int
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
+   attributes translated
+   translated json
 }
 Table(ShopwareCoreSystemNumberRangeAggregateNumberRangeSalesChannelNumberRangeSalesChannelDefinition, "number_range_sales_channel\n(M:N Mapping)") {
-   primary_key(numberRangeId) foreignKey
-   primary_key(salesChannelId) foreignKey
+   primary_key(id) id
+   not_null(numberRangeId) foreignKey
+   not_null(salesChannelId) foreignKey
+   numberRangeTypeId foreignKey
 }
 Table(ShopwareCoreSystemNumberRangeAggregateNumberRangeStateNumberRangeStateDefinition, "number_range_state\n(Current number range max value)") {
+   primary_key(id) id
    not_null(numberRangeId) foreignKey
    not_null(lastValue) int
 }
 Table(ShopwareCoreSystemNumberRangeAggregateNumberRangeTypeNumberRangeTypeDefinition, "number_range_type\n(Type)") {
    primary_key(id) id
-   not_null(typeName) string
+   technicalName string
+   typeName translated
    not_null(global) bool
+   attributes translated
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+   translated json
+}
+TranslationTable(ShopwareCoreSystemNumberRangeAggregateNumberRangeTypeTranslationNumberRangeTypeTranslationDefinition, "number_range_type_translation\n((Translations))") {
+   not_null(typeName) string
+   attributes attributes
+   primary_key(numberRangeTypeId) foreignKey
+   primary_key(languageId) foreignKey
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+ForeignTable(ShopwareCoreSystemNumberRangeAggregateNumberRangeTranslationNumberRangeTranslationDefinition, "number_range_translation") {
 }
 ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
+}
+ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 }
 
 ' relationshipd
@@ -53,5 +76,9 @@ ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channe
 ShopwareCoreSystemNumberRangeAggregateNumberRangeTypeNumberRangeTypeDefinition --> ShopwareCoreSystemNumberRangeNumberRangeDefinition
 ShopwareCoreSystemNumberRangeAggregateNumberRangeSalesChannelNumberRangeSalesChannelDefinition --> ShopwareCoreSystemNumberRangeNumberRangeDefinition
 ShopwareCoreSystemNumberRangeAggregateNumberRangeStateNumberRangeStateDefinition --> ShopwareCoreSystemNumberRangeNumberRangeDefinition
+ShopwareCoreSystemNumberRangeNumberRangeDefinition --> ShopwareCoreSystemNumberRangeAggregateNumberRangeTranslationNumberRangeTranslationDefinition
 ShopwareCoreSystemNumberRangeAggregateNumberRangeSalesChannelNumberRangeSalesChannelDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreSystemNumberRangeAggregateNumberRangeTypeNumberRangeTypeDefinition --> ShopwareCoreSystemNumberRangeAggregateNumberRangeSalesChannelNumberRangeSalesChannelDefinition
+ShopwareCoreSystemNumberRangeAggregateNumberRangeTypeTranslationNumberRangeTypeTranslationDefinition --> ShopwareCoreSystemNumberRangeAggregateNumberRangeTypeNumberRangeTypeDefinition
+ShopwareCoreSystemNumberRangeAggregateNumberRangeTypeTranslationNumberRangeTypeTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 @enduml

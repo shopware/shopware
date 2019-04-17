@@ -174,6 +174,13 @@ export default {
                 this.swFieldConfig = { ...this.swFieldConfig, ...{ type: 'date', dateType: 'datetime' } };
                 return 'sw-field';
             }
+            if (this.type === 'password') {
+                this.swFieldConfig = { ...this.swFieldConfig, ...{ type: 'password' } };
+                return 'sw-field';
+            }
+            if (this.type === 'select') {
+                return 'sw-select';
+            }
 
             throw new Error(`sw-form-field-renderer - No suitable component for type "${this.type}" found`);
         },

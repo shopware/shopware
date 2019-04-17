@@ -451,7 +451,13 @@ export default {
 
         openResultList(event) {
             if (event.relatedTarget && event.relatedTarget.type === 'submit') {
-                this.$refs.swSelectInput.blur();
+                this.$nextTick(() => {
+                    if (!this.$refs.swSelectInput) {
+                        return;
+                    }
+
+                    this.$refs.swSelectInput.blur();
+                });
                 return;
             }
 
@@ -476,7 +482,13 @@ export default {
                 return;
             }
 
-            this.$refs.swSelectInput.blur();
+            this.$nextTick(() => {
+                if (!this.$refs.swSelectInput) {
+                    return;
+                }
+
+                this.$refs.swSelectInput.blur();
+            });
         },
 
         onSearchTermChange() {
@@ -610,7 +622,7 @@ export default {
             }
 
             item = JSON.parse(JSON.stringify(item));
-            if (item[this.displayName]) {
+            if (item[this.displayName] && typeof item[this.displayName] === 'string') {
                 item[this.displayName] = item[this.displayName].replace(/<[^>]+>/g, '');
             }
 

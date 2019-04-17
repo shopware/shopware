@@ -1,9 +1,10 @@
 [titleEn]: <>(Creating a custom entity)
+[metaDescriptionEn]: <>(Quite often, your plugin has to save data into a custom database table. The Shopware platform's data abstraction layer fully supports custom entities, so you don't have to take care about the data handling at all.)
 
 ## Overview
 
 Quite often, your plugin has to save data into a custom database table.
-The Shopware platform's [data abstraction layer](../2-internals/1-core/20-data-abstraction-layer/__categoryInfo.md) fully supports custom entities,
+The Shopware platform's [data abstraction layer](./../2-internals/1-core/20-data-abstraction-layer/__categoryInfo.md) fully supports custom entities,
 so you don't have to take care about the data handling at all.
 
 ## Plugin base class
@@ -13,12 +14,12 @@ So let's start with the plugin base class.
 All it has to do, is to register your `services.xml` file by simply putting it into the proper directory `<plugin root>/src/Resources/config/`.
 This way, the Shopware platform is able to automatically find and load your `services.xml` file.
 
-*Note: You can change your plugin's `services.xml` location by overriding the method `getContainerPath` of your [plugin's base class](../2-internals/4-plugins/020-plugin-base-class.md#getContainerPath()).*
+*Note: You can change your plugin's `services.xml` location by overriding the method `getContainerPath` of your [plugin's base class](./../2-internals/4-plugins/020-plugin-base-class.md#getContainerPath()).*
 
 ## The EntityDefinition class
 
 The main entry point for custom entities is an `EntityDefinition` class.
-For more information about what the `EntityDefinition` class does, have a look at the guide about the [data abstraction layer](../2-internals/1-core/20-data-abstraction-layer/__categoryInfo.md).
+For more information about what the `EntityDefinition` class does, have a look at the guide about the [data abstraction layer](./../2-internals/1-core/20-data-abstraction-layer/__categoryInfo.md).
 
 Your custom entity, as well as your `EntityDefinition` and the `EntityCollection` classes, should be placed inside a folder
 named after the domain it handles, e.g. "Checkout" if you were to include a Checkout entity.
@@ -186,7 +187,7 @@ As already mentioned earlier, the database table **has to** be named after your 
 
 You should create the database table using the plugin migration system.
 For a short example how to use migrations, have a look [here](./170-plugin-migrations.md).
-A more detailed explanation about the plugin migration system can be found in [this guide](../2-internals/4-plugins/080-plugin-migrations.md).
+A more detailed explanation about the plugin migration system can be found in [this guide](./../2-internals/4-plugins/080-plugin-migrations.md).
 
 In short:
 Create a new directory named `src/Resources/migration` in your plugin root and add a migration class like this in there:
@@ -246,3 +247,8 @@ $customId = $customRepository->searchIds(
 In this example, the ID of your custom entity, whose technical name equals to 'FOO', is requested.
 
 As a follow up, you might want to have a look at the documentation on [How to translate custom entities](./060-custom-entity-translations.md).
+
+## Source
+
+There's a GitHub repository available, containing this example source.
+Check it out [here](https://github.com/shopware/swag-docs-custom-entity).

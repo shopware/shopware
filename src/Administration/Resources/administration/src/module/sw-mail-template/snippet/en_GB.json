@@ -111,14 +111,14 @@
         "labelPlain": "Plain text",
         "labelHtml": "HTML",
         "placeholderPlain": "Enter email header plain text",
-        "placeholderPHtml": "Enter email header formatted text"
+        "placeholderHtml": "Enter email header formatted text"
       },
       "footer": {
         "titleCard": "Mail footer",
         "labelPlain": "Plain text",
         "labelHtml": "HTML",
         "placeholderPlain": "Enter email footer plain text",
-        "placeholderPHtml": "Enter email footer formatted text"
+        "placeholderHtml": "Enter email footer formatted text"
       },
       "buttonCancel": "Cancel",
       "buttonSave": "Save",

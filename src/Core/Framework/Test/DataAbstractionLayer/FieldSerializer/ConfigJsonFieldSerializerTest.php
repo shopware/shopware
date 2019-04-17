@@ -1,0 +1,98 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Framework\Test\DataAbstractionLayer\FieldSerializer;
+
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ConfigJsonFieldSerializer;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\FieldExceptionStack;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\JsonDefinition;
+use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+
+class ConfigJsonFieldSerializerTest extends TestCase
+{
+    use KernelTestBehaviour, CacheTestBehaviour;
+
+    /**
+     * @var ConfigJsonFieldSerializer
+     */
+    private $serializer;
+
+    /**
+     * @var ConfigJsonField
+     */
+    private $field;
+
+    /**
+     * @var EntityExistence
+     */
+    private $existence;
+
+    /**
+     * @var WriteParameterBag
+     */
+    private $parameters;
+
+    protected function setUp(): void
+    {
+        $this->serializer = $this->getContainer()->get(ConfigJsonFieldSerializer::class);
+        $this->field = new ConfigJsonField('data', 'data');
+        $this->field->addFlags(new Required());
+
+        $this->existence = new EntityExistence(JsonDefinition::class, [], false, false, false, []);
+
+        $this->parameters = new WriteParameterBag(
+            JsonDefinition::class,
+            WriteContext::createFromContext(Context::createDefaultContext()),
+            '',
+            new WriteCommandQueue(),
+            new FieldExceptionStack()
+        );
+    }
+
+    public function serializerProvider(): array
+    {
+        return [
+            [['string']],
+            [[11234]],
+            [[11234.123243]],
+            [[
+                [
+                    'foo' => 'sadfsadf',
+                    'bar' => [
+                        'a' => 1234,
+                    ],
+                ],
+            ]],
+            [[
+                [1, 2, 3],
+            ]],
+            [[null]],
+            [[false]],
+            [[0]],
+            [['']],
+        ];
+    }
+
+    /**
+     * @dataProvider serializerProvider
+     */
+    public function testSerializer($input): void
+    {
+        static::assertTrue(true);
+
+        $kvPair = new KeyValuePair('password', $input, true);
+        $encoded = $this->serializer->encode($this->field, $this->existence, $kvPair, $this->parameters)->current();
+        $decoded = $this->serializer->decode($this->field, $encoded);
+
+        static::assertEquals($input, $decoded, 'Output should be equal to the input');
+    }
+}

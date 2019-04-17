@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\System;
 
+use Shopware\Core\Framework\Bundle;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
-use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class System extends Bundle
 {
@@ -32,5 +32,6 @@ class System extends Bundle
         $loader->load('state_machine.xml');
         $loader->load('configuration.xml');
         $loader->load('number_range.xml');
+        $loader->load('tag.xml');
     }
 }

@@ -206,24 +206,6 @@ class TranslationTest extends TestCase
         );
     }
 
-    public function testOverrideWithExtendedParams(): void
-    {
-        static::markTestSkipped('Header is not allowed to be an array. Will be fixed with NEXT-2485');
-        $langId = Uuid::randomHex();
-        $this->createLanguage($langId);
-
-        $this->assertTranslation(
-            ['name' => 'translated'],
-            [
-                'translations' => [
-                    Defaults::LANGUAGE_SYSTEM => ['name' => 'not translated'],
-                    $langId => ['name' => 'translated'],
-                ],
-            ],
-            ['id' => $langId, 'inherit' => true] // TODO: Fix with NEXT-2485
-        );
-    }
-
     public function testNoDefaultTranslation(): void
     {
         $langId = Uuid::randomHex();
@@ -619,7 +601,7 @@ class TranslationTest extends TestCase
         static::assertEquals($errors, $actualErrors);
     }
 
-    private function assertTranslation(array $expectedTranslations, array $data, $langOverride = null, string $entity = 'category'): void
+    private function assertTranslation(array $expectedTranslations, array $data, ?string $langOverride = null, string $entity = 'category'): void
     {
         $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/' . $entity;
 

@@ -1,0 +1,10 @@
+{% sw_extends '@Storefront/base.html.twig' %}
+
+{% block base_content %}
+    {# TODO: @Benjamin_Ott (content ersetzen) #}
+    <p>{{ dump(app.request.get('errors')) }}</p>
+
+    <p>An error occurred during activation...</p>
+    <p>Please try again...</p>
+    <p>If an error should occur again, please contact our customer support!</p>
+{% endblock %}

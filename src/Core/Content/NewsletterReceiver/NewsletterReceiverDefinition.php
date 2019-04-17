@@ -5,10 +5,10 @@ namespace Shopware\Core\Content\NewsletterReceiver;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -39,26 +39,28 @@ class NewsletterReceiverDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new StringField('email', 'email'))->addFlags(new Required(), new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
-            (new StringField('first_name', 'firstName'))->addFlags(new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
-            (new StringField('last_name', 'lastName'))->addFlags(new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
-            (new StringField('zip_code', 'zipCode'))->addFlags(new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
-            (new StringField('city', 'city'))->addFlags(new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
-            (new StringField('street', 'street'))->addFlags(new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
-            (new StringField('status', 'status'))->addFlags(new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
+            (new StringField('email', 'email'))->addFlags(new Required()),
+            new StringField('first_name', 'firstName'),
+            new StringField('last_name', 'lastName'),
+            new StringField('zip_code', 'zipCode'),
+            new StringField('city', 'city'),
+            new StringField('street', 'street'),
+            new StringField('status', 'status'),
+            new StringField('hash', 'hash'),
             new AttributesField(),
 
+            new DateField('confirmed_at', 'confirmedAt'),
             new CreatedAtField(),
             new UpdatedAtField(),
 
             (new FkField('salutation_id', 'salutationId', SalutationDefinition::class))->addFlags(new Required()),
-            (new ManyToOneAssociationField('salutation', 'salutation_id', SalutationDefinition::class, 'id', true))->addFlags(new Required(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
+            new ManyToOneAssociationField('salutation', 'salutation_id', SalutationDefinition::class, 'id', true),
 
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new Required()),
-            (new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', true))->addFlags(new Required(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
+            new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', true),
 
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new Required()),
-            (new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', true))->addFlags(new Required(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
+            new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', true),
         ]);
     }
 }

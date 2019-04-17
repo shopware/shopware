@@ -50,6 +50,11 @@ class NewsletterReceiverEntity extends Entity
     /**
      * @var string
      */
+    protected $hash;
+
+    /**
+     * @var string
+     */
     protected $salutationId;
 
     /**
@@ -81,6 +86,11 @@ class NewsletterReceiverEntity extends Entity
      * @var array|null
      */
     protected $attributes;
+
+    /**
+     * @var \DateTimeInterface|null
+     */
+    protected $confirmedAt;
 
     /**
      * @var \DateTimeInterface
@@ -162,6 +172,16 @@ class NewsletterReceiverEntity extends Entity
         $this->status = $status;
     }
 
+    public function getHash(): string
+    {
+        return $this->hash;
+    }
+
+    public function setHash(string $hash): void
+    {
+        $this->hash = $hash;
+    }
+
     public function getSalutationId(): string
     {
         return $this->salutationId;
@@ -220,6 +240,16 @@ class NewsletterReceiverEntity extends Entity
     public function setSalesChannel(SalesChannelEntity $salesChannel): void
     {
         $this->salesChannel = $salesChannel;
+    }
+
+    public function getConfirmedAt(): ?\DateTimeInterface
+    {
+        return $this->confirmedAt;
+    }
+
+    public function setConfirmedAt(\DateTimeInterface $confirmedAt): void
+    {
+        $this->confirmedAt = $confirmedAt;
     }
 
     public function getCreatedAt(): \DateTimeInterface

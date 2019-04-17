@@ -1,7 +1,8 @@
 [titleEn]: <>(SalesChannel-API controller)
+[metaDescriptionEn]: <>(This HowTo will give you a brief introduction on how to setup a custom SalesChannel-API controller with your plugin.)
 
 This HowTo will give you a brief introduction on how to setup a custom SalesChannel-API controller with your plugin.
-Read [here](../3-api/60-sales-channel-api.md) for more information about the SalesChannel-API.
+Read [here](./../3-api/60-sales-channel-api.md) for more information about the SalesChannel-API.
 Also, [this](./020-api-controller.md) guide covers the same subject for the management API.
 
 ## Plugin base class
@@ -76,3 +77,8 @@ There are several things to note about the `@Route` annotation:
 - In order for your controller to be an SalesChannel-API controller, your route needs to start with `/sales-channel-api/`
 - The respective method only supports `GET` requests, hence the `methods={"GET"}` part of the annotation
 - Make sure to use your vendor prefix (`swag` in this example), so route collisions with other plugins won't be an issue
+
+## Source
+
+There's a GitHub repository available, containing this example source.
+Check it out [here](https://github.com/shopware/swag-docs-storefront-api-controller).

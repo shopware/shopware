@@ -130,6 +130,7 @@ class SeoUrlExtensionTest extends TestCase
     private function upsertProduct($data): void
     {
         $defaults = [
+            'productNumber' => Uuid::randomHex(),
             'manufacturer' => [
                 'id' => Uuid::randomHex(),
                 'name' => 'amazing brand',

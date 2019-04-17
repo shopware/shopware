@@ -176,7 +176,7 @@ Detailed information about the authentication can be found [here](./20-managemen
 
 After fetching an access token you can access all other resources by sending the access token in the **Authorization** header.
 The following example shows how to get a list of products.
-For detailed information take a look at [Standard Resources](30-standard-resources.md) and [Special Resources](40-special-resources.md).
+For detailed information take a look at [usage](./30-management-api-usage.md) and [extended read](./40-management-extended-read.md).
 
 ```javascript
     const baseUrl = '{insert your url}';

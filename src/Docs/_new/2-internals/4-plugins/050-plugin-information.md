@@ -76,6 +76,6 @@ Have a look at the [composer schema](https://getcomposer.org/doc/04-schema.md), 
 
 Some fields of the plugin entity are translatable.
 Shopware will try to match each of your provided translations with an existing language in the system.
-For more information about the translation system in Shopware have look [here](../1-core/20-data-abstraction-layer/040-translation-handling.md).
+For more information about the translation system in Shopware have look [here](./../1-core/20-data-abstraction-layer/040-translation-handling.md).
 Your translation locale code must look like that "de_DE", "en_GB", "de_CH", etc.
 If a language with this locale is not available, the translation will not be written.

@@ -1,4 +1,5 @@
 [titleEn]: <>(Setting up a scheduled task)
+[metaDescriptionEn]: <>(A scheduled task in the Shopware platform is mainly what people know as a 'cronjob'. If you were wondering how to set up such a scheduled task, then you've found the right article.)
 
 ## Overview
 
@@ -92,3 +93,8 @@ class MyTaskHandler extends ScheduledTaskHandler
 ```
 
 Now every five minutes, your task will be executed and it will print an output every time now.
+
+## Source
+
+There's a GitHub repository available, containing this example source.
+Check it out [here](https://github.com/shopware/swag-docs-scheduled-task-plugin).

@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Test;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Test\TestCaseBase\StorefrontFunctionalTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Twig\InheritanceExtension;
 use Shopware\Core\Framework\Twig\TemplateFinder;
 use Shopware\Storefront\Test\fixtures\BundleFixture;
@@ -12,7 +12,7 @@ use Twig\Loader\FilesystemLoader;
 
 class TwigIncludeTest extends TestCase
 {
-    use StorefrontFunctionalTestBehaviour;
+    use SalesChannelFunctionalTestBehaviour;
 
     public function testMultipleInheritance(): void
     {

@@ -27,7 +27,7 @@ class PluginActivateCommand extends AbstractPluginLifecycleCommand
     {
         $io = new SymfonyStyle($input, $output);
         $context = Context::createDefaultContext();
-        $plugins = $this->prepareExecution(self::LIFECYCLE_METHOD, $io, $input->getArgument('plugins'), $context);
+        $plugins = $this->prepareExecution(self::LIFECYCLE_METHOD, $io, $input, $context);
 
         $activated = 0;
         /** @var PluginEntity $plugin */

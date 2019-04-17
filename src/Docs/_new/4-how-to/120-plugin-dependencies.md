@@ -1,4 +1,5 @@
 [titleEn]: <>(Depending on other plugins)
+[metaDescriptionEn]: <>(New in the Shopware platform is the possibility to properly require on other plugins to be in the system. This HowTo will cover that subject.)
 
 ## Overview
 
@@ -9,7 +10,7 @@ Further information about this can be found in the [official composer documentat
 ## Setup
 
 Each plugin for the Shopware platform has to own a `composer.json` file for it to be a valid plugin.
-Creating a plugin is not explained here, make sure to read our [plugin quick start guide](../2-internals/4-plugins/010-plugin-quick-start.md) first.
+Creating a plugin is not explained here, make sure to read our [plugin quick start guide](./../2-internals/4-plugins/010-plugin-quick-start.md) first.
 
 Since every plugin has to own a `composer.json` file, you can simply refer to this plugin by its technical name and its version
 mentioned in the respective plugin's `composer.json`.
@@ -71,3 +72,8 @@ Just as in composer itself, you can also use version wildcards, such as `v1.0.*`
 minor version to be 1.1, not considering the patch version.
 
 Now your plugin isn't installable anymore, until that requirement is fulfilled.
+
+## Source
+
+There's a GitHub repository available, containing this example source.
+Check it out [here](https://github.com/shopware/swag-docs-plugin-dependency).

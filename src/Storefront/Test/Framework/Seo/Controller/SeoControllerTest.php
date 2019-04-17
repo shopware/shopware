@@ -60,6 +60,7 @@ class SeoControllerTest extends TestCase
     {
         $product = [
             'id' => Uuid::randomHex(),
+            'productNumber' => Uuid::randomHex(),
             'name' => 'test',
             'price' => [
                 'gross' => 10,

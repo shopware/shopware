@@ -112,6 +112,7 @@ Table(ShopwareCoreSystemNumberRange, "Shopware\Core\System\NumberRange\n(Number 
    number_range_sales_channel Table
    number_range_state Table
    number_range_type Table
+   number_range_type_translation Table
 }
 Table(ShopwareCoreContentCategory, "Shopware\Core\Content\Category\n(Categories)") {
    category Table
@@ -133,14 +134,14 @@ Table(ShopwareCoreContentProduct, "Shopware\Core\Content\Product\n(Products)") {
    product Table
    product_category Table
    product_tag Table
-   product_configurator Table
+   product_configurator_setting Table
    product_price Table
    product_property Table
    product_manufacturer Table
    product_manufacturer_translation Table
    product_media Table
    product_translation Table
-   product_variation Table
+   product_option Table
    product_category_tree Table
    product_visibility Table
 }
@@ -160,11 +161,11 @@ Table(ShopwareCoreContentProductStream, "Shopware\Core\Content\ProductStream\n(P
    product_stream_translation Table
    product_stream_filter Table
 }
-Table(ShopwareCoreContentConfiguration, "Shopware\Core\Content\Configuration\n(Product configuration)") {
-   configuration_group Table
-   configuration_group_option Table
-   configuration_group_option_translation Table
-   configuration_group_translation Table
+Table(ShopwareCoreContentProperty, "Shopware\Core\Content\Property\n(__EMPTY__)") {
+   property_group Table
+   property_group_option Table
+   property_group_option_translation Table
+   property_group_translation Table
 }
 Table(ShopwareCoreCheckoutCustomer, "Shopware\Core\Checkout\Customer\n(Customer)") {
    customer Table
@@ -190,9 +191,9 @@ Table(ShopwareCoreCheckoutPayment, "Shopware\Core\Checkout\Payment\n(Payments)")
 }
 Table(ShopwareCoreCheckoutShipping, "Shopware\Core\Checkout\Shipping\n(Shipping)") {
    shipping_method Table
-   shipping_method_price_rule Table
+   shipping_method_tag Table
+   shipping_method_price Table
    shipping_method_translation Table
-   shipping_method_rule Table
 }
 Table(ShopwareCoreCheckoutDiscountSurcharge, "Shopware\Core\Checkout\DiscountSurcharge\n(Discount/Surcharge)") {
    discount_surcharge Table
@@ -207,6 +208,8 @@ ForeignTable(ShopwareCoreContentNewsletterReceiver, "newsletter_receiver") {
 ForeignTable(ShopwareCoreContentCms, "cms_page") {
 }
 ForeignTable(ShopwareCoreContentMailTemplate, "mail_template_media") {
+}
+ForeignTable(ShopwareCoreContentDeliveryTime, "delivery_time") {
 }
 ForeignTable(ShopwareCoreCheckoutPromotion, "promotion") {
 }
@@ -225,6 +228,7 @@ ShopwareCoreContentMedia --> ShopwareCoreFrameworkTag
 ShopwareCoreContentCategory --> ShopwareCoreFrameworkTag
 ShopwareCoreCheckoutCustomer --> ShopwareCoreFrameworkTag
 ShopwareCoreCheckoutOrder --> ShopwareCoreFrameworkTag
+ShopwareCoreCheckoutShipping --> ShopwareCoreFrameworkTag
 ShopwareCoreFrameworkLanguage --> ShopwareCoreFrameworkLanguage
 ShopwareCoreSystemLocale --> ShopwareCoreFrameworkLanguage
 ShopwareCoreSystemSalesChannel --> ShopwareCoreFrameworkLanguage
@@ -238,7 +242,7 @@ ShopwareCoreCheckoutPayment --> ShopwareCoreFrameworkLanguage
 ShopwareCoreContentProduct --> ShopwareCoreFrameworkLanguage
 ShopwareCoreCheckoutShipping --> ShopwareCoreFrameworkLanguage
 ShopwareCoreSystemUnit --> ShopwareCoreFrameworkLanguage
-ShopwareCoreContentConfiguration --> ShopwareCoreFrameworkLanguage
+ShopwareCoreContentProperty --> ShopwareCoreFrameworkLanguage
 ShopwareCoreCheckoutDiscountSurcharge --> ShopwareCoreFrameworkLanguage
 ShopwareCoreSystemSalutation --> ShopwareCoreFrameworkLanguage
 ShopwareCoreFrameworkSearch --> ShopwareCoreFrameworkLanguage
@@ -247,6 +251,8 @@ ShopwareCoreSystemStateMachine --> ShopwareCoreFrameworkLanguage
 ShopwareCoreFrameworkLanguage --> ShopwareCoreContentCms
 ShopwareCoreContentNavigation --> ShopwareCoreFrameworkLanguage
 ShopwareCoreFrameworkLanguage --> ShopwareCoreContentMailTemplate
+ShopwareCoreSystemNumberRange --> ShopwareCoreFrameworkLanguage
+ShopwareCoreFrameworkLanguage --> ShopwareCoreContentDeliveryTime
 ShopwareCoreSystemSalesChannel --> ShopwareCoreSystemSalesChannel
 ShopwareCoreCheckoutCustomer --> ShopwareCoreSystemSalesChannel
 ShopwareCoreSystemCurrency --> ShopwareCoreSystemSalesChannel
@@ -292,12 +298,13 @@ ShopwareCoreContentNavigation --> ShopwareCoreContentCategory
 ShopwareCoreContentProduct --> ShopwareCoreContentCategory
 ShopwareCoreContentProduct --> ShopwareCoreContentMedia
 ShopwareCoreContentMedia --> ShopwareCoreContentMedia
-ShopwareCoreContentConfiguration --> ShopwareCoreContentMedia
+ShopwareCoreContentProperty --> ShopwareCoreContentMedia
 ShopwareCoreContentMedia --> ShopwareCoreContentMailTemplate
+ShopwareCoreCheckoutShipping --> ShopwareCoreContentMedia
 ShopwareCoreContentProduct --> ShopwareCoreContentProduct
 ShopwareCoreContentProduct --> ShopwareCoreFrameworkSearch
 ShopwareCoreContentProduct --> ShopwareStorefront
-ShopwareCoreContentConfiguration --> ShopwareCoreContentProduct
+ShopwareCoreContentProperty --> ShopwareCoreContentProduct
 ShopwareCoreContentRule --> ShopwareCoreContentProduct
 ShopwareCoreContentNavigation --> ShopwareCoreContentCms
 ShopwareCoreContentNavigation --> ShopwareCoreContentNavigation
@@ -307,7 +314,7 @@ ShopwareCoreCheckoutShipping --> ShopwareCoreContentRule
 ShopwareCoreCheckoutPayment --> ShopwareCoreContentRule
 ShopwareCoreContentRule --> ShopwareCoreCheckoutPromotion
 ShopwareCoreContentProductStream --> ShopwareCoreContentProductStream
-ShopwareCoreContentConfiguration --> ShopwareCoreContentConfiguration
+ShopwareCoreContentProperty --> ShopwareCoreContentProperty
 ShopwareCoreCheckoutCustomer --> ShopwareCoreCheckoutCustomer
 ShopwareCoreCheckoutPayment --> ShopwareCoreCheckoutCustomer
 ShopwareCoreCheckoutOrder --> ShopwareCoreCheckoutCustomer
@@ -316,6 +323,7 @@ ShopwareCoreCheckoutOrder --> ShopwareCoreCheckoutDocument
 ShopwareCoreCheckoutShipping --> ShopwareCoreCheckoutOrder
 ShopwareCoreCheckoutPayment --> ShopwareCoreCheckoutOrder
 ShopwareCoreCheckoutPayment --> ShopwareCoreCheckoutPayment
+ShopwareCoreCheckoutShipping --> ShopwareCoreContentDeliveryTime
 ShopwareCoreCheckoutShipping --> ShopwareCoreCheckoutShipping
 ShopwareCoreCheckoutDiscountSurcharge --> ShopwareCoreCheckoutDiscountSurcharge
 @enduml

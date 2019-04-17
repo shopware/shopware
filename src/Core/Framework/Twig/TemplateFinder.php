@@ -76,16 +76,19 @@ class TemplateFinder
     /**
      * @throws LoaderError
      */
-    public function find(string $template, $wholeInheritance = false, $ignoreMissing = false): string
+    public function find(string $template, $ignoreMissing = false, ?string $startAt = null): string
     {
         $template = ltrim($template, '@');
 
-        $queue = [];
-        if (!$wholeInheritance && array_key_exists($template, $this->queue)) {
-            $queue = $this->queue[$template];
-        }
-        if (empty($queue) || $wholeInheritance === true) {
-            $queue = $this->queue[$template] = $this->bundles;
+        $queue = $this->bundles;
+
+        if ($startAt) {
+            $index = array_search($startAt, $this->bundles, true);
+
+            $queue = array_merge(
+                array_slice($this->bundles, $index + 1),
+                array_slice($this->bundles, 0, $index + 1)
+            );
         }
 
         foreach ($queue as $index => $prefix) {

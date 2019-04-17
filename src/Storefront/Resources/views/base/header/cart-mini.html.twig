@@ -1,4 +1,4 @@
-{% extends '@Storefront/base/_utilities/offcanvas.html.twig' %}
+{% sw_extends '@Storefront/base/_utilities/offcanvas.html.twig' %}
 
 {% block base_utilities_offcanvas_close_text %}
     {{ "checkout.continueShopping"|trans }}
@@ -25,7 +25,7 @@
 							{% block base_cart_mini_item_actions %}
 								{% if lineItem.isRemovable() %}
 									<form class="cart-item-remove"
-									      action="{{ path('storefront-api.checkout.cart.line-item.delete', {'version': 1, 'id': lineItem.key}) }}"
+									      action="{{ path('sales-channel-api.checkout.cart.line-item.delete', {'version': 1, 'id': lineItem.key}) }}"
 									      method="post"
 									      data-remove-product="true">
 										<button type="submit"

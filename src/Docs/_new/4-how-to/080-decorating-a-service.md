@@ -1,4 +1,5 @@
 [titleEn]: <>(Decorating a service)
+[metaDescriptionEn]: <>(The decorator pattern became more and more popular in PHP recently. This HowTo will teach you how to decorate an existing service via your plugin.)
 
 ## Overview
 
@@ -67,3 +68,8 @@ class DecoratedService
 ```
 
 Note: It's **highly recommended** to work with interfaces when using the decoration pattern.
+
+## Source
+
+There's a GitHub repository available, containing this example source.
+Check it out [here](https://github.com/shopware/swag-docs-service-decoration).

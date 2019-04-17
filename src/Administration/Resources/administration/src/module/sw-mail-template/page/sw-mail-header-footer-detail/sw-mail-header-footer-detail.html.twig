@@ -76,12 +76,13 @@
                         {% endblock %}
 
                         {% block sw_mail_header_footer_detail_content_header_html_field %}
-                            <sw-text-editor
+                            <sw-code-editor
                                     :label="$tc('sw-mail-header-footer.detail.header.labelHtml')"
                                     :placeholder="$tc('sw-mail-header-footer.detail.header.placeholderHtml')"
                                     name="header_html"
+                                    identifier="header_html"
                                     v-model="mailHeaderFooter.headerHtml">
-                            </sw-text-editor>
+                            </sw-code-editor>
                         {% endblock %}
                     </sw-card>
                 {% endblock %}
@@ -97,12 +98,13 @@
                         {% endblock %}
 
                         {% block sw_mail_header_footer_detail_content_footer_html_field %}
-                            <sw-text-editor
+                            <sw-code-editor
                                     :label="$tc('sw-mail-header-footer.detail.footer.labelHtml')"
                                     :placeholder="$tc('sw-mail-header-footer.detail.footer.placeholderHtml')"
                                     name="footer_html"
+                                    identifier="footer_html"
                                     v-model="mailHeaderFooter.footerHtml">
-                            </sw-text-editor>
+                            </sw-code-editor>
                         {% endblock %}
                     </sw-card>
                 {% endblock %}

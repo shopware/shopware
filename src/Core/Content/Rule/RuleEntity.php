@@ -112,6 +112,11 @@ class RuleEntity extends Entity
      */
     protected $shippingMethodPriceCalculations;
 
+    /**
+     * @var PromotionCollection|null
+     */
+    protected $orderPromotions;
+
     public function getName(): string
     {
         return $this->name;
@@ -300,5 +305,23 @@ class RuleEntity extends Entity
     public function setShippingMethodPriceCalculations(ShippingMethodPriceCollection $shippingMethodPriceCalculations): void
     {
         $this->shippingMethodPriceCalculations = $shippingMethodPriceCalculations;
+    }
+
+    /**
+     * Gets a list of all promotions where this rule is
+     * being used within the Order Conditions.
+     */
+    public function getOrderPromotions(): ?PromotionCollection
+    {
+        return $this->orderPromotions;
+    }
+
+    /**
+     * Sets a list of all promotions where this rule should be
+     * used as Order Condition.
+     */
+    public function setOrderPromotions(?PromotionCollection $orderPromotions): void
+    {
+        $this->orderPromotions = $orderPromotions;
     }
 }

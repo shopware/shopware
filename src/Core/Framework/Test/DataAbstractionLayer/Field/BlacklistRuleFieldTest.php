@@ -51,6 +51,7 @@ class BlacklistRuleFieldTest extends TestCase
         $products = [
             [
                 'id' => $product1,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
@@ -60,6 +61,7 @@ class BlacklistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $product2,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
@@ -69,6 +71,7 @@ class BlacklistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $product3,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
@@ -139,6 +142,7 @@ class BlacklistRuleFieldTest extends TestCase
         $products = [
             [
                 'id' => $parentId1,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
@@ -148,12 +152,14 @@ class BlacklistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $productId1,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'parentId' => $parentId1,
             ],
 
             [
                 'id' => $parentId2,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
@@ -162,6 +168,7 @@ class BlacklistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $productId2,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'parentId' => $parentId2,
                 'blacklistIds' => [$rule1, $rule2],
@@ -169,6 +176,7 @@ class BlacklistRuleFieldTest extends TestCase
 
             [
                 'id' => $parentId3,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
@@ -177,6 +185,7 @@ class BlacklistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $productId3,
+                'productNumber' => Uuid::randomHex(),
                 'parentId' => $parentId3,
                 'stock' => 1,
             ],
@@ -249,6 +258,7 @@ class BlacklistRuleFieldTest extends TestCase
         $products = [
             [
                 'id' => $parent1,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
@@ -257,10 +267,16 @@ class BlacklistRuleFieldTest extends TestCase
                 'blacklistIds' => [$rule1, $rule2],
             ],
             //child has inherited blacklist
-            ['id' => $product1, 'stock' => 1, 'parentId' => $parent1],
+            [
+                'id' => $product1,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 1,
+                'parentId' => $parent1,
+            ],
 
             [
                 'id' => $parent2,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
@@ -268,10 +284,17 @@ class BlacklistRuleFieldTest extends TestCase
                 'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
             ],
             //child has blacklist, parent not
-            ['id' => $product2, 'stock' => 1, 'parentId' => $parent2, 'blacklistIds' => [$rule1, $rule2]],
+            [
+                'id' => $product2,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 1,
+                'parentId' => $parent2,
+                'blacklistIds' => [$rule1, $rule2],
+            ],
 
             [
                 'id' => $parent3,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
@@ -279,10 +302,15 @@ class BlacklistRuleFieldTest extends TestCase
                 'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
             ],
             //child and parent have no blacklist
-            ['id' => $product3, 'stock' => 1, 'parentId' => $parent3],
-
+            [
+                'id' => $product3,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 1,
+                'parentId' => $parent3,
+            ],
             [
                 'id' => $product4,
+                'productNumber' => Uuid::randomHex(),
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'stock' => 1,
                 'name' => 'test product',
@@ -292,6 +320,7 @@ class BlacklistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $product5,
+                'productNumber' => Uuid::randomHex(),
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'stock' => 1,
                 'name' => 'test product',
@@ -301,6 +330,7 @@ class BlacklistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $product6,
+                'productNumber' => Uuid::randomHex(),
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'stock' => 1,
                 'name' => 'test product',
@@ -372,6 +402,7 @@ class BlacklistRuleFieldTest extends TestCase
         $products = [
             [
                 'id' => $product1,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test',
@@ -382,6 +413,7 @@ class BlacklistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $product2,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test',
@@ -392,6 +424,7 @@ class BlacklistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $product3,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test',
@@ -403,6 +436,7 @@ class BlacklistRuleFieldTest extends TestCase
 
             [
                 'id' => $product4,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test',
@@ -459,6 +493,7 @@ class BlacklistRuleFieldTest extends TestCase
         $products = [
             [
                 'id' => $product1,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test',
@@ -472,6 +507,7 @@ class BlacklistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $product2,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test',
@@ -485,6 +521,7 @@ class BlacklistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $product3,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test',
@@ -499,6 +536,7 @@ class BlacklistRuleFieldTest extends TestCase
 
             [
                 'id' => $product4,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test',
@@ -555,6 +593,7 @@ class BlacklistRuleFieldTest extends TestCase
         $products = [
             [
                 'id' => $product1,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
@@ -565,6 +604,7 @@ class BlacklistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $product2,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
@@ -575,6 +615,7 @@ class BlacklistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $product3,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
@@ -627,6 +668,7 @@ class BlacklistRuleFieldTest extends TestCase
         $products = [
             [
                 'id' => $product1,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
@@ -636,6 +678,7 @@ class BlacklistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $product2,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
@@ -645,6 +688,7 @@ class BlacklistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $product3,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
@@ -699,6 +743,7 @@ class BlacklistRuleFieldTest extends TestCase
         $products = [
             [
                 'id' => $product1,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
@@ -711,6 +756,7 @@ class BlacklistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $product2,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
@@ -723,6 +769,7 @@ class BlacklistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $product3,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
@@ -771,6 +818,7 @@ class BlacklistRuleFieldTest extends TestCase
         $ruleId2 = Uuid::randomHex();
 
         $default = [
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'tax' => ['name' => 'test', 'taxRate' => 15, 'id' => $manufacturerId],
             'name' => 'test product',

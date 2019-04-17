@@ -5,7 +5,7 @@ Plugins are [Symfony Bundles](https://symfony.com/doc/current/bundles.html) whic
 A plugin can change the behavior of the system including: 
 * Listening for events and executing afterwards ([Listening to events via Subscriber](#Listening to events via Subscriber)
 * Define new services, extend existing ones or exchange them completely to implement your custom logic and business cases (([Creating a service](#Creating a service)))
-* Include entities in the system and/or extend existing ones ([Custom entities via plugin](../../4-how-to/050-custom-entity.md)
+* Include entities in the system and/or extend existing ones ([Custom entities via plugin](./../../4-how-to/050-custom-entity.md)
 
 This document will give you a brief introduction on how to create your very first own plugin, including some
 basic setup, e.g. registering your first service or creating a new controller.
@@ -145,11 +145,11 @@ For this tutorial, a simple configuration containing a single text field is used
     
     <card>
         <title>Minimal configuration</title>
-        <title lang="de_DE">Minimale Konfiguration</title>
+        <title lang="de-DE">Minimale Konfiguration</title>
         <input-field>
             <name>example</name>
             <label>Example Label EN</label>
-            <label lang="de_DE">Beispiel Label DE</label>
+            <label lang="de-DE">Beispiel Label DE</label>
         </input-field>
     </card>
 </config>
@@ -322,7 +322,7 @@ about [external routing resources](https://symfony.com/doc/current/routing/exter
 
 Now the controller should be fully working and accessible using the route mentioned in the method's `@Route` annotation.
 Since we've created an API route here, an authorization token is still necessary to actually access our controller.
-Remove the 'api' from the route to circumvent the authorization for testing purposes or get more into how the Shopware platform management API works [here](../3-api/010-management-api.md). 
+Remove the 'api' from the route to circumvent the authorization for testing purposes or get more into how the Shopware platform management API works [here](./../../3-api/10-management-api.md). 
 
 # Creating a service
 
@@ -430,3 +430,8 @@ Your `services.xml` should now look like this:
     </services>
 </container>
 ```
+
+## Source
+
+There's a GitHub repository available, containing this example source.
+Check it out [here](https://github.com/shopware/swag-docs-plugin-quick-start).

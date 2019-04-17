@@ -159,21 +159,35 @@ Component.register('sw-settings-snippet-set-list', {
                     }
 
                     set.name = `${set.name} ${this.$tc('sw-settings-snippet.general.copyName')}`;
-                    set.save().then(() => {
-                        this.createCloneSuccessNote();
-                        this.getList();
-                    }).catch(() => {
-                        set.delete().then(() => {
-                            this.createCloneErrorNote();
+
+                    new Promise((resolve) => {
+                        const baseName = set.name;
+                        const checkUsedNames = item => item.name === set.name;
+                        let copyCounter = 1;
+
+                        while (this.snippetSets.some(checkUsedNames)) {
+                            copyCounter += 1;
+                            set.name = `${baseName} (${copyCounter})`;
+                        }
+                        resolve();
+                    }).then(() => {
+                        set.save().then(() => {
+                            this.createCloneSuccessNote();
                             this.getList();
+                        }).catch(() => {
+                            set.delete().then(() => {
+                                this.createCloneErrorNote();
+                                this.getList();
+                            });
                         });
                     });
                 });
-            }).catch(() => {
-                this.createCloneErrorNote();
-            }).finally(() => {
                 this.isLoading = false;
                 this.closeCloneModal();
+            }).catch(() => {
+                this.isLoading = false;
+                this.closeCloneModal();
+                this.createCloneErrorNote();
             });
         },
 

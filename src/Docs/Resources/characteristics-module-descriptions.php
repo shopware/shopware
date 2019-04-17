@@ -211,10 +211,10 @@ Products and Variants
 * [Entity relationship diagram](./10-erd/erd-shopware-core-content-product.md)
 EOD
     ,
-    'Content/Configuration' => <<<'EOD'
+    'Content/Property' => <<<'EOD'
 Content configuration
 
-* [Entity relationship diagram](./10-erd/erd-shopware-core-content-configuration.md)
+* [Entity relationship diagram](./10-erd/erd-shopware-core-content-property.md)
 EOD
     ,
     'Checkout/Payment' => <<<'EOD'

@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Page\Checkout\Confirm;
 
-use Shopware\Core\Checkout\Cart\Storefront\CartService;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;

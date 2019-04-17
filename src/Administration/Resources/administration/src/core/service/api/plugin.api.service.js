@@ -29,7 +29,7 @@ class PluginApiService extends ApiService {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
-            .post(`/_action/${this.getApiBasePath(pluginName)}/install`, {}, { headers })
+            .post(`/_action/${this.getApiBasePath()}/install`, {}, { params: { pluginName }, headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
@@ -39,7 +39,7 @@ class PluginApiService extends ApiService {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
-            .post(`/_action/${this.getApiBasePath(pluginName)}/uninstall`, {}, { headers })
+            .post(`/_action/${this.getApiBasePath()}/uninstall`, {}, { params: { pluginName }, headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
@@ -49,7 +49,7 @@ class PluginApiService extends ApiService {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
-            .post(`/_action/${this.getApiBasePath(pluginName)}/activate`, {}, { headers })
+            .post(`/_action/${this.getApiBasePath()}/activate`, {}, { params: { pluginName }, headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
@@ -59,7 +59,7 @@ class PluginApiService extends ApiService {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
-            .post(`/_action/${this.getApiBasePath(pluginName)}/deactivate`, {}, { headers })
+            .post(`/_action/${this.getApiBasePath()}/deactivate`, {}, { params: { pluginName }, headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
@@ -69,7 +69,7 @@ class PluginApiService extends ApiService {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
-            .post(`/_action/${this.getApiBasePath(pluginName)}/update`, {}, { headers })
+            .post(`/_action/${this.getApiBasePath()}/update`, {}, { params: { pluginName }, headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
@@ -79,7 +79,7 @@ class PluginApiService extends ApiService {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
-            .post(`/_action/${this.getApiBasePath(pluginName)}/delete`, {}, { headers })
+            .post(`/_action/${this.getApiBasePath()}/delete`, {}, { params: { pluginName }, headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });

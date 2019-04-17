@@ -1,4 +1,5 @@
 [titleEn]: <>(How to create a subscriber)
+[metaDescriptionEn]: <>(Registering a subscriber in the Shopware platform is as easy as it is in Symfony. This HowTo will cover what you need to know in order to create a subscriber using your plugin.)
 
 This HowTo will cover what you need to know in order to create a subscriber using your plugin.
 
@@ -94,3 +95,8 @@ to be recognized as such.
 
 That's it, your subscriber service is now automatically loaded at runtime and it should start listening to the mentioned events
 to be dispatched.
+
+## Source
+
+There's a GitHub repository available, containing this example source.
+Check it out [here](https://github.com/shopware/swag-docs-subscriber-plugin).

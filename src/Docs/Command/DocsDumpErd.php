@@ -10,6 +10,8 @@ use Shopware\Core\Content\Cms\Aggregate\CmsPageTranslation\CmsPageTranslationDef
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation\CmsSlotTranslationDefinition;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
+use Shopware\Core\Content\DeliveryTime\Aggregate\DeliveryTimeTranslation\DeliveryTimeTranslationDefinition;
+use Shopware\Core\Content\DeliveryTime\DeliveryTimeDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooterTranslation\MailHeaderFooterTranslationDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateMediaDefinition;
@@ -61,6 +63,9 @@ class DocsDumpErd extends Command
         StoreSettingsDefinition::class,
 
         NewsletterReceiverDefinition::class,
+
+        DeliveryTimeDefinition::class,
+        DeliveryTimeTranslationDefinition::class,
     ];
 
     /**
@@ -156,7 +161,7 @@ class DocsDumpErd extends Command
             $dump = $this->erdGenerator->generateFromDefinitions($moduleDefinition, new MarkdownErdDumper(
                 $descriptionsShort->get($moduleName),
                 $descriptionsLong->get($moduleName),
-                'dist/erm-' . $this->toFileName($moduleName) . '.svg'
+                'dist/erd-' . $this->toFileName($moduleName) . '.png'
             ), $descriptionsLong);
             file_put_contents(
                 $destPath . '/erd-' . $this->toFileName($moduleName) . '.md',

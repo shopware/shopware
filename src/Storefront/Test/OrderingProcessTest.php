@@ -13,14 +13,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Test\TestCaseBase\StorefrontFunctionalTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
 class OrderingProcessTest extends TestCase
 {
-    use StorefrontFunctionalTestBehaviour;
+    use SalesChannelFunctionalTestBehaviour;
 
     /**
      * @var Connection
@@ -116,8 +116,8 @@ class OrderingProcessTest extends TestCase
             'quantity' => $quantity,
         ];
 
-        $this->getStorefrontClient()->request('POST', '/cart/addProduct', $data);
-        $response = $this->getStorefrontClient()->getResponse();
+        $this->getSalesChannelClient()->request('POST', '/cart/addProduct', $data);
+        $response = $this->getSalesChannelClient()->getResponse();
 
         static::assertEquals(200, $response->getStatusCode(), print_r($response->getContent(), true));
 
@@ -133,8 +133,8 @@ class OrderingProcessTest extends TestCase
             'quantity' => $quantity,
         ];
 
-        $this->getStorefrontClient()->request('POST', '/cart/setLineItemQuantity', $data);
-        $response = $this->getStorefrontClient()->getResponse();
+        $this->getSalesChannelClient()->request('POST', '/cart/setLineItemQuantity', $data);
+        $response = $this->getSalesChannelClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertTrue($content['success']);
@@ -146,8 +146,8 @@ class OrderingProcessTest extends TestCase
             'identifier' => $id,
         ];
 
-        $this->getStorefrontClient()->request('POST', '/cart/removeLineItem', $data);
-        $response = $this->getStorefrontClient()->getResponse();
+        $this->getSalesChannelClient()->request('POST', '/cart/removeLineItem', $data);
+        $response = $this->getSalesChannelClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertTrue($content['success']);
@@ -202,10 +202,10 @@ class OrderingProcessTest extends TestCase
             'password' => $password,
         ];
 
-        $this->getStorefrontClient()->request('POST', '/account/login', $data);
+        $this->getSalesChannelClient()->request('POST', '/account/login', $data);
 
         /** @var Response $response */
-        $response = $this->getStorefrontClient()->getResponse();
+        $response = $this->getSalesChannelClient()->getResponse();
 
         static::assertStringEndsWith('/account', (string) $response->headers->get('Location'), $response->getContent());
     }
@@ -216,10 +216,10 @@ class OrderingProcessTest extends TestCase
             'paymentMethodId' => $paymentMethodId,
         ];
 
-        $this->getStorefrontClient()->request('POST', '/checkout/saveShippingPayment', $data);
+        $this->getSalesChannelClient()->request('POST', '/checkout/saveShippingPayment', $data);
 
         /** @var Response $response */
-        $response = $this->getStorefrontClient()->getResponse();
+        $response = $this->getSalesChannelClient()->getResponse();
         static::assertStringEndsWith('/checkout/confirm', $response->headers->get('Location'));
     }
 
@@ -229,10 +229,10 @@ class OrderingProcessTest extends TestCase
             'sAGB' => 'on',
         ];
 
-        $this->getStorefrontClient()->request('POST', '/checkout/pay', $data);
+        $this->getSalesChannelClient()->request('POST', '/checkout/pay', $data);
 
         /** @var Response $response */
-        $response = $this->getStorefrontClient()->getResponse();
+        $response = $this->getSalesChannelClient()->getResponse();
 
         return $this->getOrderIdByResponse($response);
     }

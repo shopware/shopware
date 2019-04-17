@@ -4,8 +4,8 @@ namespace Shopware\Storefront\Test;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
-use Shopware\Core\Checkout\Customer\Storefront\AccountRegistrationService;
-use Shopware\Core\Checkout\Customer\Storefront\AccountService;
+use Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService;
+use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;

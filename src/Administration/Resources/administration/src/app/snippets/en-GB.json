@@ -458,20 +458,26 @@
       "sunday": "Sunday"
     }
   },
+  "sw-text-editor-toolbar": {
+    "link": {
+      "openInNewTab": "Open link in new window",
+      "placeholder": "Enter URL",
+      "linkTo": "Link to",
+      "insert": "Insert"
+    }
+  },
   "sw-tree": {
-    "general": {
-      "placeholderSearch": "Search",
-      "treeHeadSelected": "{count} selected",
-      "treeHeadline": "Tree structure",
-      "buttonCreate": "Create element",
-      "actions": {
-        "createSub": "New subelement",
-        "createBefore": "New element before",
-        "createAfter": "New element after",
-        "edit": "Edit",
-        "actionsDisabledInLanguage": "Elements can only be created in the default system language",
-        "delete": "Delete"
-      }
+    "placeholderSearch": "Search",
+    "treeHeadSelected": "{count} selected",
+    "treeHeadline": "Tree structure",
+    "buttonCreate": "Create element",
+    "actions": {
+      "createSub": "New subelement",
+      "createBefore": "New element before",
+      "createAfter": "New element after",
+      "edit": "Edit",
+      "actionsDisabledInLanguage": "Elements can only be created in the default system language",
+      "delete": "Delete"
     },
     "modal": {
       "modalTitleDelete": "Delete element",

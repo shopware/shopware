@@ -129,6 +129,18 @@ export default {
                 parentNode = parentNode.$parent;
             }
             return parentNode;
+        },
+
+        toolTip() {
+            return {
+                showDelay: 300,
+                message: this.$tc(`${this.translationContext}.general.actions.actionsDisabledInLanguage`),
+                disabled: !this.disableContextMenu
+            };
+        },
+
+        isDisabled() {
+            return this.currentEditElement !== null || this.disableContextMenu;
         }
     },
 

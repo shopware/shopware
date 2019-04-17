@@ -1,4 +1,4 @@
-{% extends '@Storefront/page/account/_page.html.twig' %}
+{% sw_extends '@Storefront/page/account/_page.html.twig' %}
 
 {% block base_breadcrumb %}
     {% set breadcrumbList = [
@@ -34,16 +34,30 @@
         {% block page_account_address_form_main %}
             <div class="card">
                 <div class="card-body">
+                    {% block page_account_address_form_create_errors %}
+                        {% if formViolations.getViolations() %}
+                            {% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
+                                type:"danger",
+                                list: formViolations.getViolations()
+                            } %}
+                        {% endif %}
+                    {% endblock %}
+
                     {% block page_account_address_form_create %}
-                        <form id="createAddressForm"
-                              method="post"
-                              action="{{ path('storefront-api.customer.address.create', {'version': 1}) }}">
+                        <form method="post"
+                              action="{{ path('frontend.account.address.create.page') }}">
                             {% block page_account_address_form_create_personal %}
-                                {% sw_include '@Storefront/component/address/address-personal.html.twig' %}
+                                {% sw_include '@Storefront/component/address/address-personal.html.twig' with {
+                                    'data': page.address,
+                                    'prefix': 'address'
+                                } %}
                             {% endblock %}
 
                             {% block page_account_address_form_create_general %}
-                                {% sw_include '@Storefront/component/address/address-form.html.twig' %}
+                                {% sw_include '@Storefront/component/address/address-form.html.twig' with {
+                                    'data': page.address,
+                                    'prefix': 'address'
+                                } %}
                             {% endblock %}
 
                             {% block page_account_address_required %}

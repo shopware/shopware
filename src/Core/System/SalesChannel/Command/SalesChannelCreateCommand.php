@@ -65,7 +65,7 @@ class SalesChannelCreateCommand extends Command
     {
         $this->setName('sales-channel:create')
             ->addOption('id', null, InputOption::VALUE_REQUIRED, 'Id for the sales channel', Uuid::randomHex())
-            ->addOption('name', null, InputOption::VALUE_REQUIRED, 'Name for the application', 'Storefront API endpoint')
+            ->addOption('name', null, InputOption::VALUE_REQUIRED, 'Name for the application', 'SalesChannel API endpoint')
             ->addOption('languageId', null, InputOption::VALUE_REQUIRED, 'Default language', Defaults::LANGUAGE_SYSTEM)
             ->addOption('snippetSetId', null, InputOption::VALUE_REQUIRED, 'Default snippet set')
             ->addOption('currencyId', null, InputOption::VALUE_REQUIRED, 'Default currency', Defaults::CURRENCY)

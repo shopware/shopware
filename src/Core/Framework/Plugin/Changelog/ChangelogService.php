@@ -23,7 +23,7 @@ class ChangelogService
     {
         $finder = new Finder();
 
-        $finder->files()->in($pluginPath)->name('CHANGELOG.md')->name('CHANGELOG-??_??.md');
+        $finder->files()->in($pluginPath)->name('CHANGELOG.md')->name('CHANGELOG-??_??.md')->depth(0);
 
         $files = [];
 

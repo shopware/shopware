@@ -319,7 +319,7 @@ Component.register('sw-settings-snippet-list', {
             const title = this.$tc('sw-settings-snippet.list.titleDeleteSuccess');
             const message = this.$tc(
                 'sw-settings-snippet.list.resetSuccessMessage',
-                item.isCustomSnippet ? 2 : 0,
+                !item.isCustomSnippet,
                 {
                     key: item.value,
                     value: item.origin

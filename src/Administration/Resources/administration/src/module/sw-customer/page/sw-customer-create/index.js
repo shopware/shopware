@@ -49,6 +49,7 @@ Component.extend('sw-customer-create', 'sw-customer-detail', {
         onSave() {
             if (this.customerNumberPreview === this.customer.customerNumber) {
                 this.numberRangeService.reserve('customer', this.customer.salesChannelId).then((response) => {
+                    this.customerNumberPreview = 'reserved';
                     this.customer.customerNumber = response.number;
                     this.$super.onSave().then(() => {
                         this.$router.push({ name: 'sw.customer.detail', params: { id: this.customer.id } });
@@ -56,6 +57,7 @@ Component.extend('sw-customer-create', 'sw-customer-detail', {
                 });
             } else {
                 this.$super.onSave().then(() => {
+                    this.customerNumberPreview = 'reserved';
                     this.$router.push({ name: 'sw.customer.detail', params: { id: this.customer.id } });
                 });
             }

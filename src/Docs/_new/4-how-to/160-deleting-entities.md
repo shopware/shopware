@@ -1,9 +1,10 @@
 [titleEn]: <>(Deleting entities via DAL)
+[metaDescriptionEn]: <>(When you want to get rid of an database entry, you'd probably write a SQL 'DELETE' query to do the job. In the Shopware platform though it is highly recommended to use the data abstraction layer for such tasks.)
 
 ## Overview
 
 When you want to get rid of an database entry, you'd probably write a SQL `DELETE` query to do the job.
-In the Shopware platform though it is **highly recommended** to use the [data abstraction layer](../2-internals/1-core/20-data-abstraction-layer/__categoryInfo.md) for such tasks.
+In the Shopware platform though it is **highly recommended** to use the [data abstraction layer](./../2-internals/1-core/20-data-abstraction-layer/__categoryInfo.md) for such tasks.
 
 ## Delete
 

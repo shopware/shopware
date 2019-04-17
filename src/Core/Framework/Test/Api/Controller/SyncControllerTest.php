@@ -37,6 +37,7 @@ class SyncControllerTest extends TestCase
                 'payload' => [
                     [
                         'id' => $id1,
+                        'productNumber' => Uuid::randomHex(),
                         'stock' => 1,
                         'manufacturer' => ['name' => 'test'],
                         'tax' => ['name' => 'test', 'taxRate' => 15],
@@ -45,6 +46,7 @@ class SyncControllerTest extends TestCase
                     ],
                     [
                         'id' => $id2,
+                        'productNumber' => Uuid::randomHex(),
                         'stock' => 1,
                         'manufacturer' => ['name' => 'test'],
                         'name' => 'CREATE-2',
@@ -76,6 +78,7 @@ class SyncControllerTest extends TestCase
     public function testInsertAndUpdateSameEntity(): void
     {
         $id = Uuid::randomHex();
+        $productNumber = Uuid::randomHex();
 
         $data = [
             [
@@ -84,6 +87,7 @@ class SyncControllerTest extends TestCase
                 'payload' => [
                     [
                         'id' => $id,
+                        'productNumber' => $productNumber,
                         'active' => true,
                         'stock' => 1,
                         'tax' => ['name' => 'test', 'taxRate' => 15],
@@ -93,6 +97,7 @@ class SyncControllerTest extends TestCase
                     ],
                     [
                         'id' => $id,
+                        'productNumber' => $productNumber,
                         'manufacturer' => ['name' => 'test'],
                         'stock' => 1,
                         'tax' => ['name' => 'test', 'taxRate' => 15],
@@ -139,6 +144,7 @@ class SyncControllerTest extends TestCase
                 'payload' => [
                     [
                         'id' => $productId,
+                        'productNumber' => Uuid::randomHex(),
                         'stock' => 1,
                         'tax' => ['name' => 'test', 'taxRate' => 15],
                         'name' => 'PROD-1',
@@ -186,6 +192,7 @@ class SyncControllerTest extends TestCase
                 'payload' => [
                     [
                         'id' => $product,
+                        'productNumber' => Uuid::randomHex(),
                         'name' => 'PROD-1',
                         'stock' => 1,
                         'manufacturer' => ['name' => 'test'],
@@ -197,6 +204,7 @@ class SyncControllerTest extends TestCase
                     ],
                     [
                         'id' => $product2,
+                        'productNumber' => Uuid::randomHex(),
                         'name' => 'PROD-2',
                         'stock' => 1,
                         'tax' => ['name' => 'test', 'taxRate' => 15],
@@ -247,6 +255,7 @@ class SyncControllerTest extends TestCase
                 'payload' => [
                     [
                         'id' => $product,
+                        'productNumber' => Uuid::randomHex(),
                         'stock' => 1,
                         'name' => 'PROD-1',
                         'tax' => ['name' => 'test', 'taxRate' => 15],
@@ -255,6 +264,7 @@ class SyncControllerTest extends TestCase
                     ],
                     [
                         'id' => $product2,
+                        'productNumber' => Uuid::randomHex(),
                         'stock' => 1,
                         'tax' => ['name' => 'test', 'taxRate' => 15],
                         'name' => 'PROD-2',

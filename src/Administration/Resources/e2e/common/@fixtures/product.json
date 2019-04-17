@@ -5,5 +5,6 @@
   "price": {
     "net": 42,
     "gross": 64
-  }
+  },
+  "productNumber": "Test-E2E-10000001"
 }

@@ -10,8 +10,8 @@ use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
 
 class ResponseFactoryRegistry
 {
-    public const DEFAULT_RESPONSE_TYPE = 'application/vnd.api+json';
-    public const STOREFRONT_DEFAULT_RESPONSE_TYPE = 'application/json';
+    private const DEFAULT_RESPONSE_TYPE = 'application/vnd.api+json';
+    private const SALES_CHANNEL_DEFAULT_RESPONSE_TYPE = 'application/json';
 
     /**
      * @var ResponseFactoryInterface[]
@@ -31,7 +31,7 @@ class ResponseFactoryRegistry
         $contentTypes = $request->getAcceptableContentTypes();
         if (\in_array('*/*', $contentTypes, true)) {
             $contentTypes[] = ($context->getSource() instanceof SalesChannelApiSource)
-                ? self::STOREFRONT_DEFAULT_RESPONSE_TYPE
+                ? self::SALES_CHANNEL_DEFAULT_RESPONSE_TYPE
                 : self::DEFAULT_RESPONSE_TYPE;
         }
 

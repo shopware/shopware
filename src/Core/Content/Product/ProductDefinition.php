@@ -49,8 +49,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\WhitelistRuleField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
-use Shopware\Core\Framework\Tag\TagDefinition;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
+use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Unit\UnitDefinition;
 
@@ -132,7 +132,7 @@ class ProductDefinition extends EntityDefinition
 
             (new StringField('manufacturer_number', 'manufacturerNumber'))->addFlags(new Inherited()),
             (new StringField('ean', 'ean'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
-            (new NumberRangeField('product_number', 'productNumber'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new NumberRangeField('product_number', 'productNumber'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING), new Required()),
             (new BoolField('is_closeout', 'isCloseout'))->addFlags(new Inherited()),
             (new IntField('purchase_steps', 'purchaseSteps'))->addFlags(new Inherited()),
             (new IntField('max_purchase', 'maxPurchase'))->addFlags(new Inherited()),

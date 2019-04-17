@@ -1,6 +1,7 @@
 const loginPage = require('../page-objects/module/sw-login.page-object.js');
 
-const symfonyToolbarButtonSelector = '.hide-button';
+const symfonyToolbarSelector = '.sf-toolbar';
+const symfonyToolbarButtonSelector = '.sf-toolbar .hide-button';
 
 module.exports = {
     /**
@@ -20,10 +21,13 @@ module.exports = {
         });
     },
     hideToolbarIfVisible: (browser) => {
-        browser.checkIfElementExists(symfonyToolbarButtonSelector, (result) => {
+        browser.checkIfElementExists(symfonyToolbarSelector, (result) => {
             if (result.value) {
                 global.logger.error(`Element "${symfonyToolbarButtonSelector}" was detected and will be collapsed.`);
-                browser.click(symfonyToolbarButtonSelector).waitForElementNotVisible(symfonyToolbarButtonSelector);
+                browser
+                    .waitForElementVisible(symfonyToolbarButtonSelector)
+                    .click(symfonyToolbarButtonSelector)
+                    .waitForElementNotVisible(symfonyToolbarButtonSelector);
             }
         });
     }

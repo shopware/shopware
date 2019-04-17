@@ -61,7 +61,10 @@ class RequirementsValidator
      */
     private function getPluginRequirements(PluginEntity $plugin): array
     {
-        $pluginInformation = (new PackageProvider())->getPluginInformation($this->projectDir . $plugin->getPath(), new NullIO());
+        $pluginInformation = (new PackageProvider())->getPluginInformation(
+            $this->projectDir . '/' . $plugin->getPath(),
+            new NullIO()
+        );
 
         return $pluginInformation->getRequires();
     }

@@ -4,13 +4,13 @@ namespace Shopware\Core\Framework\Plugin\Api;
 
 use Composer\IO\NullIO;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Plugin\Exception\CanNotDeletePluginManagedByComposerException;
 use Shopware\Core\Framework\Plugin\Exception\PluginCannotBeDeletedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotAZipFileException;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginService;
+use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -36,21 +36,14 @@ class PluginController extends AbstractController
      */
     private $pluginManagementService;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $pluginRepo;
-
     public function __construct(
         PluginService $pluginService,
         PluginLifecycleService $pluginLifecycleService,
-        PluginManagementService $pluginManagementService,
-        EntityRepositoryInterface $pluginRepo
+        PluginManagementService $pluginManagementService
     ) {
         $this->pluginService = $pluginService;
         $this->pluginLifecycleService = $pluginLifecycleService;
         $this->pluginManagementService = $pluginManagementService;
-        $this->pluginRepo = $pluginRepo;
     }
 
     /**
@@ -78,10 +71,11 @@ class PluginController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_action/plugin/{pluginName}/delete", name="api.action.plugin.delete", methods={"POST"})
+     * @Route("/api/v{version}/_action/plugin/delete", name="api.action.plugin.delete", methods={"POST"})
      */
-    public function deletePlugin(string $pluginName, Context $context): JsonResponse
+    public function deletePlugin(QueryDataBag $queryParams, Context $context): JsonResponse
     {
+        $pluginName = $queryParams->get('pluginName');
         $plugin = $this->pluginService->getPluginByName($pluginName, $context);
 
         if ($plugin->getInstalledAt() !== null) {
@@ -100,10 +94,11 @@ class PluginController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_action/plugin/{pluginName}/install", name="api.action.plugin.install", methods={"POST"})
+     * @Route("/api/v{version}/_action/plugin/install", name="api.action.plugin.install", methods={"POST"})
      */
-    public function installPlugin(string $pluginName, Context $context): JsonResponse
+    public function installPlugin(QueryDataBag $queryParams, Context $context): JsonResponse
     {
+        $pluginName = $queryParams->get('pluginName');
         $plugin = $this->pluginService->getPluginByName($pluginName, $context);
 
         $this->pluginLifecycleService->installPlugin($plugin, $context);
@@ -112,10 +107,11 @@ class PluginController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_action/plugin/{pluginName}/uninstall", name="api.action.plugin.uninstall", methods={"POST"})
+     * @Route("/api/v{version}/_action/plugin/uninstall", name="api.action.plugin.uninstall", methods={"POST"})
      */
-    public function uninstallPlugin(string $pluginName, Context $context): JsonResponse
+    public function uninstallPlugin(QueryDataBag $queryParams, Context $context): JsonResponse
     {
+        $pluginName = $queryParams->get('pluginName');
         $plugin = $this->pluginService->getPluginByName($pluginName, $context);
 
         $this->pluginLifecycleService->uninstallPlugin($plugin, $context);
@@ -124,10 +120,11 @@ class PluginController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_action/plugin/{pluginName}/activate", name="api.action.plugin.activate", methods={"POST"})
+     * @Route("/api/v{version}/_action/plugin/activate", name="api.action.plugin.activate", methods={"POST"})
      */
-    public function activatePlugin(string $pluginName, Context $context): JsonResponse
+    public function activatePlugin(QueryDataBag $queryParams, Context $context): JsonResponse
     {
+        $pluginName = $queryParams->get('pluginName');
         $plugin = $this->pluginService->getPluginByName($pluginName, $context);
 
         $this->pluginLifecycleService->activatePlugin($plugin, $context);
@@ -136,10 +133,11 @@ class PluginController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_action/plugin/{pluginName}/deactivate", name="api.action.plugin.deactivate", methods={"POST"})
+     * @Route("/api/v{version}/_action/plugin/deactivate", name="api.action.plugin.deactivate", methods={"POST"})
      */
-    public function deactivatePlugin(string $pluginName, Context $context): JsonResponse
+    public function deactivatePlugin(QueryDataBag $queryParams, Context $context): JsonResponse
     {
+        $pluginName = $queryParams->get('pluginName');
         $plugin = $this->pluginService->getPluginByName($pluginName, $context);
 
         $this->pluginLifecycleService->deactivatePlugin($plugin, $context);
@@ -148,10 +146,11 @@ class PluginController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_action/plugin/{pluginName}/update", name="api.action.plugin.update", methods={"POST"})
+     * @Route("/api/v{version}/_action/plugin/update", name="api.action.plugin.update", methods={"POST"})
      */
-    public function updatePlugin(string $pluginName, Context $context): JsonResponse
+    public function updatePlugin(QueryDataBag $queryParams, Context $context): JsonResponse
     {
+        $pluginName = $queryParams->get('pluginName');
         $plugin = $this->pluginService->getPluginByName($pluginName, $context);
 
         $this->pluginLifecycleService->updatePlugin($plugin, $context);

@@ -7,12 +7,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Test\TestCaseBase\StorefrontFunctionalTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class ProductControllerTest extends TestCase
 {
-    use StorefrontFunctionalTestBehaviour;
+    use SalesChannelFunctionalTestBehaviour;
 
     /**
      * @var EntityRepositoryInterface
@@ -35,12 +35,13 @@ class ProductControllerTest extends TestCase
         $manufacturerId = Uuid::randomHex();
         $taxId = Uuid::randomHex();
 
-        $client = $this->getStorefrontClient();
+        $client = $this->getSalesChannelClient();
         $salesChannelId = $this->salesChannelIds[count($this->salesChannelIds) - 1];
 
         $this->productRepository->create([
             [
                 'id' => Uuid::randomHex(),
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -52,7 +53,7 @@ class ProductControllerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $client->request('GET', '/storefront-api/v1/product');
+        $client->request('GET', '/sales-channel-api/v1/product');
 
         static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
@@ -80,12 +81,13 @@ class ProductControllerTest extends TestCase
         $manufacturerId = Uuid::randomHex();
         $taxId = Uuid::randomHex();
 
-        $client = $this->getStorefrontClient();
+        $client = $this->getSalesChannelClient();
         $salesChannelId = $this->salesChannelIds[count($this->salesChannelIds) - 1];
 
         $this->productRepository->create([
             [
                 'id' => $productId,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -97,7 +99,7 @@ class ProductControllerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $client->request('GET', '/storefront-api/v1/product/' . $productId);
+        $client->request('GET', '/sales-channel-api/v1/product/' . $productId);
 
         static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 

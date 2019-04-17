@@ -5,16 +5,13 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <parameters>
-        <parameter key="shopware.bundle.dir" type="constant">Shopware\Core\Framework\Framework::BUNDLE_DIR</parameter>
         <parameter key="shopware.slug.config" type="collection">
             <parameter key="regexp">/([^A-Za-z0-9\.]|-)+/</parameter>
             <parameter key="lowercase">false</parameter>
         </parameter>
 
         <!-- Migration config -->
-        <parameter key="migration.directories" type="collection">
-            <parameter key="Shopware\Core\Migration" type="string">%shopware.bundle.dir%/../Migration</parameter>
-        </parameter>
+        <parameter key="migration.directories" type="collection" />
         <parameter key="migration.active" type="collection"/>
     </parameters>
 
@@ -238,7 +235,7 @@
             <argument type="tagged" tag="shopware.validator"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Api\Controller\StorefrontProxyController" public="true">
+        <service id="Shopware\Core\Framework\Api\Controller\SalesChannelProxyController" public="true">
             <argument type="service" id="kernel"/>
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver"/>

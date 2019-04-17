@@ -27,6 +27,12 @@ export default class FieldTogglePlugin extends Plugin {
          * when the field previously had the required attribute
          */
         wasRequiredCls: 'js-field-toggle-was-required',
+
+        /**
+         * the class which gets applied
+         * when the field previously had the disabled attribute
+         */
+        wasDisabledCls: 'js-field-toggle-was-disabled',
     };
 
     init() {
@@ -118,7 +124,12 @@ export default class FieldTogglePlugin extends Plugin {
             if (isRequired) {
                 field.classList.add(this.options.wasRequiredCls);
                 field.removeAttribute('required');
-                field.setAttribute('disabled', 'disabled');
+            }
+
+            const isDisabled = DomAccess.hasAttribute(field, 'disabled');
+            field.setAttribute('disabled', 'disabled');
+            if (isDisabled) {
+                field.classList.add(this.options.wasDisabledCls);
             }
         });
 
@@ -137,6 +148,9 @@ export default class FieldTogglePlugin extends Plugin {
             if (field.classList.contains(this.options.wasRequiredCls)) {
                 field.classList.remove(this.options.wasRequiredCls);
                 field.setAttribute('required', 'required');
+            }
+
+            if (!field.classList.contains(this.options.wasDisabledCls)) {
                 field.removeAttribute('disabled');
             }
         });

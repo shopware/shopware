@@ -16,7 +16,7 @@
 {% endblock %}
 
 {% block base_body %}
-    <body class="is-ctl-{{ controllerName }} is-act-{{ controllerAction }}">
+    <body class="is-ctl-{{ controllerName|lower }} is-act-{{ controllerAction|lower }}">
     {% block base_body_inner %}
         {% block base_noscript %}
             <noscript class="noscript-main">

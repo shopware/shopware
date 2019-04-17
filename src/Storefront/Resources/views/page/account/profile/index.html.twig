@@ -44,7 +44,8 @@
                             {% block page_account_profile_personal_form %}
                                 <form id="profilePersonalForm"
                                       method="post"
-                                      action="{{ path('frontend.account.profile.save') }}">
+                                      action="{{ path('frontend.account.profile.save') }}"
+                                      data-form-validation="true">
                                     {% block page_account_profile_personal_fields %}
                                         {% sw_include '@Storefront/page/account/profile/personal.html.twig' with {
                                             'showBirthdayField': shopware.config.register.birthdayField,
@@ -200,7 +201,7 @@
                                             <form id="profilePasswordForm"
                                                   class="profile-item-form"
                                                   method="post"
-                                                  action="{{ path('frontend.account.profile.password.save') }}">
+                                                  action="{{ path('frontend.account.profile.password.save') }}"
                                                   data-form-validation="true">
                                                 {% block page_account_profile_new_password %}
                                                     <div class="form-group">

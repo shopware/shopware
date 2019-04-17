@@ -10,19 +10,19 @@ class VectorBase {
 
         this._iterateVertices((vertex, key) => {
             this[vertex] = rest[key];
-        })
+        });
     }
 
     /**
      * iterates over all available vertices
      *
-     * @param cb
+     * @param {function} callback
      * @private
      */
-    _iterateVertices(cb) {
-        for (let key = 0; key < this._verticesCount; key++) {
-            const vertex = VERTICES[key];
-            cb(vertex, key);
+    _iterateVertices(callback) {
+        for (let index = 0; index < this._verticesCount; index++) {
+            const vertex = VERTICES[index];
+            callback(vertex, index);
         }
     }
 
@@ -32,38 +32,47 @@ class VectorBase {
      *  - is a single number it uses it for all vector values
      *  - is a number array it uses them for the vector values
      *
-     * @param args
-     * @param cb
+     * @param {Array} args
+     * @param {function} callback
      * @return {Array}
      *
      * @private
      */
-    _parseArguments(args, cb) {
+    _parseArguments(args, callback) {
         const parameters = [];
 
-        if (args[0] instanceof VectorBase) {
+        if (typeof args === 'number') {
+            this._iterateVertices((vertex, index) => {
+                parameters.push(callback(this[vertex], args, index));
+            });
+        } else if (args[0] instanceof VectorBase) {
             this._validate(args[0], true);
-            this._iterateVertices(vertex => {
-                parameters.push(cb(this[vertex], args[0][vertex]));
+            this._iterateVertices((vertex, index) => {
+                parameters.push(callback(this[vertex], args[0][vertex], index));
+            });
+        } else if (args instanceof VectorBase) {
+            this._validate(args, true);
+            this._iterateVertices((vertex, index) => {
+                parameters.push(callback(this[vertex], args[vertex], index));
             });
         } else if (typeof args[0] === 'number' || typeof args[0] === 'boolean') {
             if (typeof args[1] !== 'number' && typeof args[1] !== 'boolean') {
-                this._iterateVertices(vertex => {
+                this._iterateVertices((vertex, index) => {
                     if (args[0] === false) {
                         parameters.push(this[vertex]);
                     } else {
-                        parameters.push(cb(this[vertex], args[0]));
+                        parameters.push(callback(this[vertex], args[0], index));
                     }
                 });
             } else {
-                this._iterateVertices((vertex, key) => {
-                    if (typeof args[key] !== 'number' && typeof args[key] !== 'boolean') {
-                        throw new Error(`Parameter ${key + 1} must be a Number or Boolean`);
+                this._iterateVertices((vertex, index) => {
+                    if (typeof args[index] !== 'number' && typeof args[index] !== 'boolean') {
+                        throw new Error(`Parameter ${index + 1} must be a Number or Boolean`);
                     }
-                    if (args[key] === false) {
+                    if (args[index] === false) {
                         parameters.push(this[vertex]);
                     } else {
-                        parameters.push(cb(this[vertex], args[key]));
+                        parameters.push(callback(this[vertex], args[index], index));
                     }
                 });
             }
@@ -91,7 +100,7 @@ class VectorBase {
 
 }
 
-class Vector extends VectorBase {
+export default class Vector extends VectorBase {
 
     /**
      * sets the vector values
@@ -122,13 +131,15 @@ class Vector extends VectorBase {
     /**
      * linear extrapolation between two vectors
      *
-     * @param vector
+     *
+     * @param {VectorBase, Number} args
      * @param factor
      * @return {*}
      */
-    lerp(vector, factor) {
-        this._validate(vector, true);
-        return vector.sub(this).mul(factor).add(this);
+    lerp(args, factor) {
+        const parameters = this._parseArguments(args, (currentVertex, passedVertex) => passedVertex);
+        const vertex = new this.constructor(...parameters);
+        return vertex.subtract(this).multiply(factor).add(this);
     }
 
     /**
@@ -201,15 +212,14 @@ class Vector extends VectorBase {
     /**
      * crossnumber between two vectors
      *
-     * @param vector
+     * @param {VectorBase, Number} args
      * @return {number}
      */
-    cross(vector) {
-        this._validate(vector, true);
+    cross(...args) {
         let ret = 0;
 
-        this._iterateVertices(vertex => {
-            ret -= this[vertex] * vector[vertex];
+        this._parseArguments(args, (currentVertex, passedVertex) => {
+            ret -= currentVertex * passedVertex;
         });
 
         return ret;
@@ -218,15 +228,14 @@ class Vector extends VectorBase {
     /**
      * returns the scalar product of two vectors
      *
-     * @param vector
+     * @param {VectorBase, Number} args
      * @return {number}
      */
-    dot(vector) {
-        this._validate(vector, true);
+    dot(...args) {
         let ret = 0;
 
-        this._iterateVertices(vertex => {
-            ret += parseFloat(this[vertex] * vector[vertex]);
+        this._parseArguments(args, (currentVertex, passedVertex) => {
+            ret += parseFloat(currentVertex * passedVertex);
         });
 
         return ret;
@@ -294,27 +303,19 @@ class Vector extends VectorBase {
     /**
      * clamps vector to min/max value
      *
-     * @param {VectorBase|number} minVecOrNum
-     * @param {VectorBase|number} maxVecOrNum
+     * @param {VectorBase|number} min
+     * @param {VectorBase|number} max
      * @return {VectorBase}
      */
-    clamp(minVecOrNum, maxVecOrNum) {
+    clamp(min, max) {
         const parameters = [];
 
-        this._iterateVertices(vertex => {
-            let min = minVecOrNum;
-            if (typeof minVecOrNum !== 'number') {
-                this._validate(minVecOrNum, true);
-                min = minVecOrNum[vertex];
-            }
+        this._parseArguments(min, (currentVertex, passedVertex, index) => {
+            parameters[index] = Math.max(currentVertex, passedVertex);
+        });
 
-            let max = maxVecOrNum;
-            if (typeof maxVecOrNum !== 'number') {
-                this._validate(maxVecOrNum, true);
-                max = maxVecOrNum[vertex];
-            }
-
-            parameters.push(Math.max(min, Math.min(max, this[vertex])));
+        this._parseArguments(max, (currentVertex, passedVertex, index) => {
+            parameters[index] = Math.min(parameters[index], passedVertex);
         });
 
         return new this.constructor(...parameters);
@@ -338,15 +339,14 @@ class Vector extends VectorBase {
     /**
      * compares two vectors
      *
-     * @param vector
+     * @param {VectorBase, Number} args
      * @return {boolean}
      */
-    equals(vector) {
-        this._validate(vector, true);
+    equals(...args) {
         const truthy = [];
 
-        this._iterateVertices(vertex => {
-            truthy.push(this[vertex] === vector[vertex]);
+        this._parseArguments(args, (currentVertex, passedVertex) => {
+            truthy.push(currentVertex === passedVertex);
         });
 
         return truthy.indexOf(false) === -1;
@@ -370,7 +370,8 @@ class Vector2 extends Vector {
      * @return {number}
      */
     angle() {
-        return Math.atan2(this.y, this.x);
+        const angle = Math.atan2(this.y, this.x) * (180 / Math.PI);
+        return (angle + 360) % 360;
     }
 
 }
@@ -401,5 +402,5 @@ export {
     Vector2,
     Vector3,
     Vector4,
-}
+};
 

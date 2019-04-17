@@ -27,7 +27,7 @@ class CustomerNumberRuleTest extends TestCase
             ->willReturn($customer);
 
         static::assertTrue(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -47,7 +47,7 @@ class CustomerNumberRuleTest extends TestCase
             ->willReturn($customer);
 
         static::assertTrue(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -67,7 +67,7 @@ class CustomerNumberRuleTest extends TestCase
             ->willReturn($customer);
 
         static::assertTrue(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -84,7 +84,7 @@ class CustomerNumberRuleTest extends TestCase
             ->willReturn(null);
 
         static::assertFalse(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -104,7 +104,7 @@ class CustomerNumberRuleTest extends TestCase
             ->willReturn($customer);
 
         static::assertFalse(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 }

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
-use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraints\Choice;
@@ -30,14 +29,10 @@ class LineItemTotalPriceRule extends Rule
     /**
      * @throws UnsupportedOperatorException
      */
-    public function match(
-        RuleScope $scope
-    ): Match {
+    public function match(RuleScope $scope): bool
+    {
         if (!$scope instanceof LineItemScope) {
-            return new Match(
-                false,
-                ['Invalid Match Context. LineItemScope expected']
-            );
+            return false;
         }
 
         $lineItem = $scope->getLineItem();
@@ -46,40 +41,22 @@ class LineItemTotalPriceRule extends Rule
 
         switch ($this->operator) {
             case self::OPERATOR_GTE:
-                return new Match(
-                    $lineItem->getPrice()->getTotalPrice() >= $this->amount,
-                    ['LineItem total price too low']
-                );
+                return $lineItem->getPrice()->getTotalPrice() >= $this->amount;
 
             case self::OPERATOR_LTE:
-                return new Match(
-                    $lineItem->getPrice()->getTotalPrice() <= $this->amount,
-                    ['LineItem total price too high']
-                );
+                return $lineItem->getPrice()->getTotalPrice() <= $this->amount;
 
             case self::OPERATOR_GT:
-                return new Match(
-                    $lineItem->getPrice()->getTotalPrice() > $this->amount,
-                    ['LineItem total price too low']
-                );
+                return $lineItem->getPrice()->getTotalPrice() > $this->amount;
 
             case self::OPERATOR_LT:
-                return new Match(
-                    $lineItem->getPrice()->getTotalPrice() < $this->amount,
-                    ['LineItem total price too high']
-                );
+                return $lineItem->getPrice()->getTotalPrice() < $this->amount;
 
             case self::OPERATOR_EQ:
-                return new Match(
-                    $lineItem->getPrice()->getTotalPrice() === $this->amount,
-                    ['LineItem total price is not equal']
-                );
+                return $lineItem->getPrice()->getTotalPrice() === $this->amount;
 
             case self::OPERATOR_NEQ:
-                return new Match(
-                    $lineItem->getPrice()->getTotalPrice() !== $this->amount,
-                    ['LineItem total price is equal']
-                );
+                return $lineItem->getPrice()->getTotalPrice() !== $this->amount;
 
             default:
                 throw new UnsupportedOperatorException($this->operator, __CLASS__);

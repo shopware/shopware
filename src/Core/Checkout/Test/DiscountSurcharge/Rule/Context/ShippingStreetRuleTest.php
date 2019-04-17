@@ -30,7 +30,7 @@ class ShippingStreetRuleTest extends TestCase
                 ));
 
         static::assertTrue(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -50,7 +50,7 @@ class ShippingStreetRuleTest extends TestCase
                 ));
 
         static::assertTrue(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -70,7 +70,7 @@ class ShippingStreetRuleTest extends TestCase
                 ));
 
         static::assertFalse(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -90,7 +90,7 @@ class ShippingStreetRuleTest extends TestCase
                 ));
 
         static::assertFalse(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 

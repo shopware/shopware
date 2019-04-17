@@ -22,7 +22,7 @@ class RuleCollection extends EntityCollection
     {
         return $this->filter(
             function (RuleEntity $rule) use ($cart, $context) {
-                return $rule->getPayload()->match(new CartRuleScope($cart, $context))->matches();
+                return $rule->getPayload()->match(new CartRuleScope($cart, $context));
             }
         );
     }

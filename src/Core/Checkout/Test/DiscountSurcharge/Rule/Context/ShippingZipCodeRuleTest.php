@@ -29,7 +29,7 @@ class ShippingZipCodeRuleTest extends TestCase
             ->willReturn($location);
 
         static::assertTrue(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -49,7 +49,7 @@ class ShippingZipCodeRuleTest extends TestCase
             ->willReturn($location);
 
         static::assertTrue(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -69,7 +69,7 @@ class ShippingZipCodeRuleTest extends TestCase
             ->willReturn($location);
 
         static::assertFalse(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -88,7 +88,7 @@ class ShippingZipCodeRuleTest extends TestCase
             ->willReturn($location);
 
         static::assertFalse(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 

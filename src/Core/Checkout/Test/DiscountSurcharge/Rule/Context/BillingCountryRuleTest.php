@@ -35,7 +35,7 @@ class BillingCountryRuleTest extends TestCase
             ->willReturn($customer);
 
         static::assertTrue(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -61,7 +61,7 @@ class BillingCountryRuleTest extends TestCase
             ->willReturn($customer);
 
         static::assertFalse(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -87,7 +87,7 @@ class BillingCountryRuleTest extends TestCase
             ->willReturn($customer);
 
         static::assertTrue(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -104,7 +104,7 @@ class BillingCountryRuleTest extends TestCase
             ->willReturn(null);
 
         static::assertFalse(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 }

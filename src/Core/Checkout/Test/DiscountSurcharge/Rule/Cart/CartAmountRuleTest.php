@@ -19,7 +19,7 @@ class CartAmountRuleTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
 
         static::assertTrue(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -31,7 +31,7 @@ class CartAmountRuleTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
 
         static::assertFalse(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -43,7 +43,7 @@ class CartAmountRuleTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
 
         static::assertTrue(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -55,7 +55,7 @@ class CartAmountRuleTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
 
         static::assertTrue(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -67,7 +67,7 @@ class CartAmountRuleTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
 
         static::assertFalse(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -79,7 +79,7 @@ class CartAmountRuleTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
 
         static::assertTrue(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -91,7 +91,7 @@ class CartAmountRuleTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
 
         static::assertTrue(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -103,7 +103,7 @@ class CartAmountRuleTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
 
         static::assertFalse(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -115,7 +115,7 @@ class CartAmountRuleTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
 
         static::assertTrue(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -127,7 +127,7 @@ class CartAmountRuleTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
 
         static::assertFalse(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -144,7 +144,7 @@ class CartAmountRuleTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
 
         static::assertFalse(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 

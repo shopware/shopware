@@ -29,23 +29,17 @@ class WeekdayRule extends Rule
         return 'dayOfWeek';
     }
 
-    public function match(RuleScope $scope): Match
+    public function match(RuleScope $scope): bool
     {
         $todaysDayOfWeek = (int) \date('N');
 
         switch ($this->operator) {
             case self::OPERATOR_EQ:
-                return new Match($todaysDayOfWeek === (int) $this->dayOfWeek, [
-                    \sprintf('Today is not the selected day of week. Today is %s',
-                        date('l')
-                    ),
-                ]);
+                return $todaysDayOfWeek === (int) $this->dayOfWeek;
+
             case self::OPERATOR_NEQ:
-                return new Match($todaysDayOfWeek !== (int) $this->dayOfWeek, [
-                    \sprintf('Today is the selected day of week. Today is %s',
-                        date('l')
-                    ),
-                ]);
+                return $todaysDayOfWeek !== (int) $this->dayOfWeek;
+
             default:
                 throw new UnsupportedOperatorException($this->operator, __CLASS__);
         }

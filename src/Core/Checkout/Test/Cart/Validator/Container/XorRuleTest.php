@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Test\Cart\Common\FalseRule;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Framework\Rule\Container\XorRule;
-use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class XorRuleTest extends TestCase
@@ -20,8 +19,7 @@ class XorRuleTest extends TestCase
             new FalseRule(),
         ]);
 
-        static::assertEquals(
-            new Match(true),
+        static::assertTrue(
             $rule->match(
                 new CheckoutRuleScope(
                     $this->createMock(SalesChannelContext::class)
@@ -37,8 +35,7 @@ class XorRuleTest extends TestCase
             new FalseRule(),
         ]);
 
-        static::assertEquals(
-            new Match(false),
+        static::assertFalse(
             $rule->match(
                 new CheckoutRuleScope(
                     $this->createMock(SalesChannelContext::class)
@@ -55,8 +52,7 @@ class XorRuleTest extends TestCase
             new FalseRule(),
         ]);
 
-        static::assertEquals(
-            new Match(false),
+        static::assertFalse(
             $rule->match(
                 new CheckoutRuleScope(
                     $this->createMock(SalesChannelContext::class)

@@ -35,7 +35,7 @@ class DifferentAddressesRuleTest extends TestCase
             ->willReturn($customer);
 
         static::assertTrue(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -62,7 +62,7 @@ class DifferentAddressesRuleTest extends TestCase
             ->willReturn($customer);
 
         static::assertFalse(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -79,7 +79,7 @@ class DifferentAddressesRuleTest extends TestCase
             ->willReturn(null);
 
         static::assertFalse(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 }

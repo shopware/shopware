@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
-use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraints\Choice;
@@ -27,27 +26,19 @@ class LineItemOfTypeRule extends Rule
         $this->operator = self::OPERATOR_EQ;
     }
 
-    public function match(
-        RuleScope $scope
-    ): Match {
+    public function match(RuleScope $scope): bool
+    {
         if (!$scope instanceof LineItemScope) {
-            return new Match(
-                false,
-                ['Invalid Match Context. LineItemScope expected']
-            );
+            return false;
         }
 
         switch ($this->operator) {
             case self::OPERATOR_EQ:
-                return new Match(
-                    strcasecmp($scope->getLineItem()->getType(), $this->lineItemType) === 0,
-                    ['LineItem type does not match']
-                );
+                return strcasecmp($scope->getLineItem()->getType(), $this->lineItemType) === 0;
+
             case self::OPERATOR_NEQ:
-                return new Match(
-                    strcasecmp($scope->getLineItem()->getType(), $this->lineItemType) !== 0,
-                    ['LineItem type does match']
-                );
+                return strcasecmp($scope->getLineItem()->getType(), $this->lineItemType) !== 0;
+
             default:
                 throw new UnsupportedOperatorException($this->operator, __CLASS__);
         }

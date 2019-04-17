@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
-use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
@@ -28,30 +27,26 @@ class BillingCountryRule extends Rule
         $this->operator = self::OPERATOR_EQ;
     }
 
-    public function match(RuleScope $scope): Match
+    public function match(RuleScope $scope): bool
     {
         if (!$scope instanceof CheckoutRuleScope) {
-            return new Match(false, ['Wrong scope']);
+            return false;
         }
 
         /** @var CheckoutRuleScope $scope */
         if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
-            return new Match(false, ['Not logged in customer']);
+            return false;
         }
 
         $id = $customer->getActiveBillingAddress()->getCountry()->getId();
 
         switch ($this->operator) {
             case self::OPERATOR_EQ:
-                return new Match(
-                    $id !== null && \in_array($id, $this->countryIds, true),
-                    ['Billing country not matched']
-                );
+                return $id !== null && \in_array($id, $this->countryIds, true);
+
             case self::OPERATOR_NEQ:
-                return new Match(
-                    !\in_array($id, $this->countryIds, true),
-                    ['Billing country matched']
-                );
+                return !\in_array($id, $this->countryIds, true);
+
             default:
                 throw new UnsupportedOperatorException($this->operator, __CLASS__);
         }

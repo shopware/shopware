@@ -18,7 +18,7 @@ class LineItemOfTypeRuleTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
 
         static::assertTrue(
-            $rule->match(new LineItemScope(new LineItem('A', 'product'), $context))->matches()
+            $rule->match(new LineItemScope(new LineItem('A', 'product'), $context))
         );
     }
 
@@ -29,7 +29,7 @@ class LineItemOfTypeRuleTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
 
         static::assertFalse(
-            $rule->match(new LineItemScope(new LineItem('A', 'product'), $context))->matches()
+            $rule->match(new LineItemScope(new LineItem('A', 'product'), $context))
         );
     }
 }

@@ -12,6 +12,7 @@ use Twig\Error\Error;
 class InvoiceGenerator implements DocumentGeneratorInterface
 {
     public const DEFAULT_TEMPLATE = '@Shopware/documents/invoice.html.twig';
+    public const INVOICE = 'invoice';
 
     /**
      * @var string
@@ -31,18 +32,13 @@ class InvoiceGenerator implements DocumentGeneratorInterface
 
     public function supports(): string
     {
-        return DocumentTypes::INVOICE;
-    }
-
-    public function documentConfiguration(): DocumentConfiguration
-    {
-        return new DocumentConfiguration();
+        return self::INVOICE;
     }
 
     /**
      * @throws Error
      */
-    public function generateFromTemplate(
+    public function generate(
         OrderEntity $order,
         DocumentConfiguration $config,
         Context $context,
@@ -52,7 +48,7 @@ class InvoiceGenerator implements DocumentGeneratorInterface
 
         return $this->twigEngine->render($templatePath, [
             'order' => $order,
-            'config' => DocumentConfigurationFactory::mergeConfiguration($config, $this->documentConfiguration())->toArray(),
+            'config' => DocumentConfigurationFactory::mergeConfiguration($config, new DocumentConfiguration())->toArray(),
             'rootDir' => $this->rootDir,
             'context' => $context,
         ]);

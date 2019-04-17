@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media;
 
+use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
@@ -174,6 +175,11 @@ class MediaEntity extends Entity
      * @var string|null
      */
     protected $thumbnailsRo;
+
+    /**
+     * @var DocumentBaseConfigCollection|null
+     */
+    protected $documentBaseConfigs;
 
     /**
      * @var ShippingMethodCollection|null
@@ -497,6 +503,16 @@ class MediaEntity extends Entity
     public function setThumbnailsRo(string $thumbnailsRo): void
     {
         $this->thumbnailsRo = $thumbnailsRo;
+    }
+
+    public function getDocumentBaseConfigs(): ?DocumentBaseConfigCollection
+    {
+        return $this->documentBaseConfigs;
+    }
+
+    public function setDocumentBaseConfigs(?DocumentBaseConfigCollection $documentBaseConfigs): void
+    {
+        $this->documentBaseConfigs = $documentBaseConfigs;
     }
 
     public function getShippingMethods(): ?ShippingMethodCollection

@@ -21,20 +21,20 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentEntity;
-use Shopware\Core\Checkout\Document\DocumentGenerator\DocumentTypes;
+use Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator;
+use Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator;
 use Shopware\Core\Checkout\Document\DocumentService;
+use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Order\OrderDefinition;
-use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
-use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
-use Shopware\Core\Content\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
+use Shopware\Core\Framework\Test\TestCaseBase\RuleTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -43,7 +43,8 @@ use Smalot\PdfParser\Parser;
 
 class DocumentServiceTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use IntegrationTestBehaviour,
+        RuleTestBehaviour;
     /**
      * @var SalesChannelContext
      */
@@ -69,9 +70,9 @@ class DocumentServiceTest extends TestCase
 
         $priceRuleId = Uuid::randomHex();
 
-        $paymentMethodId = $this->createPaymentMethod($priceRuleId);
+        $paymentMethodId = $this->getAvailablePaymentMethodId();
         $customerId = $this->createCustomer($paymentMethodId);
-        $shippingMethodId = $this->createShippingMethod($priceRuleId);
+        $shippingMethodId = $this->getAvailableShippingMethodId();
         $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
             Defaults::SALES_CHANNEL,
@@ -85,10 +86,6 @@ class DocumentServiceTest extends TestCase
         $this->salesChannelContext->setRuleIds([$priceRuleId]);
     }
 
-    /**
-     * @runInSeparateProcess
-     * todo fix Rule Caching for tests to remove @runInSeparateProcess
-     */
     public function testCreateDeliveryNotePdf(): void
     {
         $documentService = $this->getContainer()->get(DocumentService::class);
@@ -98,7 +95,7 @@ class DocumentServiceTest extends TestCase
 
         $documentStruct = $documentService->create(
             $orderId,
-            DocumentTypes::DELIVERY_NOTE,
+            DeliveryNoteGenerator::DELIVERY_NOTE,
             FileTypes::PDF,
             new DocumentConfiguration(),
             $this->context
@@ -113,16 +110,13 @@ class DocumentServiceTest extends TestCase
         static::assertNotNull($document);
         static::assertSame($orderId, $document->getOrderId());
         static::assertNotSame(Defaults::LIVE_VERSION, $document->getOrderVersionId());
-        static::assertSame(DocumentTypes::DELIVERY_NOTE, $document->getDocumentType()->getTechnicalName());
+        static::assertSame(DeliveryNoteGenerator::DELIVERY_NOTE, $document->getDocumentType()->getTechnicalName());
         static::assertSame(FileTypes::PDF, $document->getFileType());
     }
 
-    /**
-     * @runInSeparateProcess
-     * todo fix Rule Caching for tests to remove @runInSeparateProcess
-     */
     public function testGetInvoicePdfDocumentById(): void
     {
+        /** @var DocumentService $documentService */
         $documentService = $this->getContainer()->get(DocumentService::class);
 
         $cart = $this->generateDemoCart(75);
@@ -130,17 +124,28 @@ class DocumentServiceTest extends TestCase
 
         $document = $documentService->create(
             $orderId,
-            DocumentTypes::INVOICE,
+            InvoiceGenerator::INVOICE,
             FileTypes::PDF,
             new DocumentConfiguration(),
             $this->context
         );
 
-        $document = $documentService->getDocumentByIdAndToken($document->getId(), $document->getDeepLinkCode(), $this->context);
-        $renderedDocument = $documentService->renderDocument($document, $this->context);
+        $criteria = new Criteria();
+        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
+            new EqualsFilter('id', $document->getId()),
+            new EqualsFilter('deepLinkCode', $document->getDeepLinkCode()),
+        ]));
+        $documentRepository = $this->getContainer()->get('document.repository');
+        $document = $documentRepository->search($criteria, $this->context)->get($document->getId());
+
+        if (!$document) {
+            throw new InvalidDocumentException($documentId);
+        }
+
+        $renderedDocument = $documentService->generate($document, $this->context);
 
         $parser = new Parser();
-        @$parsedDocument = $parser->parseContent($renderedDocument->getFileBlob());
+        $parsedDocument = $parser->parseContent($renderedDocument->getFileBlob());
 
         if ($cart->getLineItems()->count() <= 0) {
             static::fail('No line items found');
@@ -242,103 +247,6 @@ class DocumentServiceTest extends TestCase
         $this->getContainer()->get('customer.repository')->upsert([$customer], $this->context);
 
         return $customerId;
-    }
-
-    private function createShippingMethod(string $priceRuleId): string
-    {
-        $shippingMethodId = Uuid::randomHex();
-        $repository = $this->getContainer()->get('shipping_method.repository');
-
-        $ruleRegistry = $this->getContainer()->get(RuleConditionRegistry::class);
-        $prop = ReflectionHelper::getProperty(RuleConditionRegistry::class, 'rules');
-        $prop->setValue($ruleRegistry, array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
-
-        $data = [
-            'id' => $shippingMethodId,
-            'type' => 0,
-            'name' => 'test shipping method',
-            'bindShippingfree' => false,
-            'active' => true,
-            'priceRules' => [
-                [
-                    'price' => '10.00',
-                    'currencyId' => Defaults::CURRENCY,
-                    'rule' => [
-                        'name' => 'true',
-                        'priority' => 0,
-                        'conditions' => [
-                            [
-                                'type' => 'true',
-                            ],
-                        ],
-                    ],
-                    'calculation' => 1,
-                    'quantityStart' => 1,
-                ],
-            ],
-            'deliveryTime' => $this->createDeliveryTimeData(),
-            'availabilityRules' => [
-                [
-                    'id' => $priceRuleId,
-                    'name' => 'true',
-                    'priority' => 0,
-                    'conditions' => [
-                        [
-                            'type' => 'true',
-                        ],
-                    ],
-                ],
-            ],
-        ];
-
-        $repository->create([$data], $this->context);
-
-        return $shippingMethodId;
-    }
-
-    private function createDeliveryTimeData(): array
-    {
-        return [
-            'id' => Uuid::randomHex(),
-            'name' => 'test',
-            'min' => 1,
-            'max' => 90,
-            'unit' => DeliveryTimeEntity::DELIVERY_TIME_DAY,
-        ];
-    }
-
-    private function createPaymentMethod(string $ruleId): string
-    {
-        $paymentMethodId = Uuid::randomHex();
-        $repository = $this->getContainer()->get('payment_method.repository');
-
-        $ruleRegistry = $this->getContainer()->get(RuleConditionRegistry::class);
-        $prop = ReflectionHelper::getProperty(RuleConditionRegistry::class, 'rules');
-        $prop->setValue($ruleRegistry, array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
-
-        $data = [
-            'id' => $paymentMethodId,
-            'handlerIdentifier' => SyncTestPaymentHandler::class,
-            'name' => 'Payment',
-            'active' => true,
-            'position' => 0,
-            'availabilityRules' => [
-                [
-                    'id' => $ruleId,
-                    'name' => 'true',
-                    'priority' => 0,
-                    'conditions' => [
-                        [
-                            'type' => 'true',
-                        ],
-                    ],
-                ],
-            ],
-        ];
-
-        $repository->create([$data], $this->context);
-
-        return $paymentMethodId;
     }
 
     private function getValidSalutationId(): string

@@ -21,11 +21,11 @@ abstract class Rule extends Struct
     /**
      * @var string
      */
-    protected $type;
+    protected $_name;
 
     public function __construct()
     {
-        $this->type = $this->getName();
+        $this->_name = $this->getName();
     }
 
     /**
@@ -52,7 +52,7 @@ abstract class Rule extends Struct
     {
         $data = parent::jsonSerialize();
         unset($data['extensions'], $data['_class']);
-        $data['type'] = $this->getName();
+        $data['_name'] = $this->getName();
 
         return $data;
     }

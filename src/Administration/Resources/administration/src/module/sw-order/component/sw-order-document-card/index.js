@@ -35,6 +35,17 @@ Component.register('sw-order-document-card', {
         };
     },
     computed: {
+        creditItems() {
+            const items = [];
+
+            this.order.lineItems.forEach((lineItem) => {
+                if (lineItem.type === 'credit') {
+                    items.push(lineItem);
+                }
+            });
+
+            return items;
+        },
         documentStore() {
             return this.order.getAssociation('documents');
         },
@@ -76,6 +87,28 @@ Component.register('sw-order-document-card', {
                 this.documents = response.items;
             }).then(() => {
                 this.documentsLoading = false;
+            });
+        },
+        documentTypeAvailable(documentType) {
+            return (
+                (
+                    documentType.technicalName !== 'storno' &&
+                    documentType.technicalName !== 'credit_note'
+                ) ||
+                (
+                    (
+                        documentType.technicalName === 'storno' ||
+                        (
+                            documentType.technicalName === 'credit_note' &&
+                            this.creditItems.length !== 0
+                        )
+                    ) && this.invoiceExists()
+                )
+            );
+        },
+        invoiceExists() {
+            return this.documents.some((document) => {
+                return (document.documentType.technicalName === 'invoice');
             });
         },
         onSearchTermChange(searchTerm) {

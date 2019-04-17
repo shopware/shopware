@@ -94,32 +94,25 @@ class LineItemCollection extends Collection
 
     public function sortByPriority(): void
     {
-        $lineItemsByPriceType = [];
+        $lineItemsByPricePriority = [];
         /** @var LineItem $lineItem */
         foreach ($this->elements as $lineItem) {
-            $lineItemPriceDefPrio = QuantityPriceDefinition::SORTING_PRIORITY;
+            $priceDefinitionPriority = QuantityPriceDefinition::SORTING_PRIORITY;
             if ($lineItem->getPriceDefinition()) {
-                $lineItemPriceDefPrio = $lineItem->getPriceDefinition()->getPriority();
+                $priceDefinitionPriority = $lineItem->getPriceDefinition()->getPriority();
             }
 
-            if (!array_key_exists($lineItemPriceDefPrio, $lineItemsByPriceType)) {
-                $lineItemsByPriceType[$lineItemPriceDefPrio] = [];
+            if (!array_key_exists($priceDefinitionPriority, $lineItemsByPricePriority)) {
+                $lineItemsByPricePriority[$priceDefinitionPriority] = [];
             }
-            $lineItemsByPriceType[$lineItemPriceDefPrio][] = $lineItem;
+            $lineItemsByPricePriority[$priceDefinitionPriority][] = $lineItem;
         }
 
-        krsort($lineItemsByPriceType);
+        // Sort all line items by their price definition priority
+        krsort($lineItemsByPricePriority);
 
-        foreach ($lineItemsByPriceType as $lineItemByPriceType) {
-            uasort($lineItemByPriceType,
-                function (LineItem $a, LineItem $b) {
-                    return $b->getPriority() <=> $a->getPriority();
-                }
-            );
-        }
-
-        if (count($lineItemsByPriceType)) {
-            $this->elements = array_merge(...$lineItemsByPriceType);
+        if (count($lineItemsByPricePriority)) {
+            $this->elements = array_merge(...$lineItemsByPricePriority);
         }
     }
 

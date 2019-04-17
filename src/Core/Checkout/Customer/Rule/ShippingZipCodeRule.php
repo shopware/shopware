@@ -22,10 +22,11 @@ class ShippingZipCodeRule extends Rule
      */
     protected $operator;
 
-    public function __construct()
+    public function __construct(string $operator = self::OPERATOR_EQ, ?array $zipCodes = null)
     {
         parent::__construct();
-        $this->operator = self::OPERATOR_EQ;
+        $this->operator = $operator;
+        $this->zipCodes = $zipCodes;
     }
 
     public function match(RuleScope $scope): bool

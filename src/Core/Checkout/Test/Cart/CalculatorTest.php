@@ -102,13 +102,11 @@ class CalculatorTest extends TestCase
         $cart = new Cart('test', 'test');
 
         $lineItem = (new LineItem('A', 'test', 2))
-            ->setPriority(LineItem::GOODS_PRIORITY)
             ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection([]), 2, 2));
 
         $cart->add($lineItem);
 
         $lineItem = (new LineItem('B', 'test', 1))
-            ->setPriority(LineItem::GOODS_PRIORITY + 1)
             ->setPriceDefinition(new PercentagePriceDefinition(-10, 2, null));
 
         $cart->add($lineItem);

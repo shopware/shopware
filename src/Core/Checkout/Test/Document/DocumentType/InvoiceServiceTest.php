@@ -19,22 +19,24 @@ use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
-use Shopware\Core\Checkout\Document\DocumentGenerated;
+use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator;
 use Shopware\Core\Checkout\Document\FileGenerator\PdfGenerator;
+use Shopware\Core\Checkout\Document\GeneratedDocument;
 use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
 use Shopware\Core\Content\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Currency\CurrencyFormatter;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -58,13 +60,18 @@ class InvoiceServiceTest extends TestCase
      */
     private $connection;
 
+    /**
+     * @var CurrencyFormatter
+     */
+    private $currencyFormatter;
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->context = Context::createDefaultContext();
-
         $this->connection = $this->getContainer()->get(Connection::class);
+        $this->currencyFormatter = $this->getContainer()->get(CurrencyFormatter::class);
 
         $priceRuleId = Uuid::randomHex();
         $customerId = $this->createCustomer();
@@ -84,30 +91,62 @@ class InvoiceServiceTest extends TestCase
         $this->salesChannelContext->setRuleIds([$priceRuleId]);
     }
 
-    public function testGenerateFromTemplate()
+    public function testGenerate()
     {
         $invoiceService = $this->getContainer()->get(InvoiceGenerator::class);
         $pdfGenerator = $this->getContainer()->get(PdfGenerator::class);
 
-        $cart = $this->generateDemoCart(75);
+        $possibleTaxes = [7, 19, 22];
+        $cart = $this->generateDemoCart(75, $possibleTaxes);
         $orderId = $this->persistCart($cart);
+        /** @var OrderEntity $order */
         $order = $this->getOrderById($orderId);
 
-        $documentConfiguration = new DocumentConfiguration();
+        $documentConfiguration = DocumentConfigurationFactory::mergeConfiguration(
+            new DocumentConfiguration(),
+            [
+                'displayLineItems' => true,
+                'itemsPerPage' => 10,
+                'displayFooter' => true,
+                'displayHeader' => true,
+            ]
+        );
         $context = Context::createDefaultContext();
 
-        $processedTemplate = $invoiceService->generateFromTemplate(
+        $processedTemplate = $invoiceService->generate(
             $order,
             $documentConfiguration,
             $context
         );
 
-        file_put_contents('/tmp/test.html', $processedTemplate);
+        static::assertStringContainsString('<html>', $processedTemplate);
+        static::assertStringContainsString('</html>', $processedTemplate);
+        static::assertStringContainsString($order->getLineItems()->first()->getLabel(), $processedTemplate);
+        static::assertStringContainsString($order->getLineItems()->last()->getLabel(), $processedTemplate);
+        static::assertStringContainsString(
+            $this->currencyFormatter->formatCurrencyByLanguage(
+                $order->getAmountTotal(),
+                $order->getCurrency()->getIsoCode(),
+                $context->getLanguageId(),
+                $context
+            ),
+            $processedTemplate
+        );
+        foreach ($possibleTaxes as $possibleTax) {
+            static::assertStringContainsString(
+                sprintf('plus %d%% VAT', $possibleTax),
+                $processedTemplate
+            );
+        }
 
-        $generatedDocument = new DocumentGenerated();
+        $generatedDocument = new GeneratedDocument();
         $generatedDocument->setHtml($processedTemplate);
 
-        file_put_contents('/tmp/test2.pdf', $pdfGenerator->generate($generatedDocument));
+        $generatorOutput = $pdfGenerator->generate($generatedDocument);
+        static::assertNotEmpty($generatorOutput);
+
+        $finfo = new \finfo(FILEINFO_MIME_TYPE);
+        static::assertEquals('application/pdf', $finfo->buffer($generatorOutput));
     }
 
     /**
@@ -116,7 +155,7 @@ class InvoiceServiceTest extends TestCase
      * @throws MixedLineItemTypeException
      * @throws \Exception
      */
-    private function generateDemoCart(int $lineItemCount): Cart
+    private function generateDemoCart(int $lineItemCount, array $taxes): Cart
     {
         $cart = new Cart('A', 'a-b-c');
         $deliveryInformation = new DeliveryInformation(
@@ -132,7 +171,6 @@ class InvoiceServiceTest extends TestCase
         for ($i = 0; $i < $lineItemCount; ++$i) {
             $price = random_int(100, 200000) / 100.0;
             $quantity = random_int(1, 25);
-            $taxes = [7, 19, 22];
             $taxRate = $taxes[array_rand($taxes)];
             shuffle($keywords);
             $name = ucfirst(implode($keywords, ' ') . ' product');
@@ -217,33 +255,23 @@ class InvoiceServiceTest extends TestCase
             'name' => 'test shipping method',
             'bindShippingfree' => false,
             'active' => true,
-            'priceRules' => [
+            'prices' => [
                 [
+                    'name' => 'Std',
                     'price' => '10.00',
                     'currencyId' => Defaults::CURRENCY,
-                    'rule' => [
-                        'name' => 'true',
-                        'priority' => 0,
-                        'conditions' => [
-                            [
-                                'type' => 'true',
-                            ],
-                        ],
-                    ],
                     'calculation' => 1,
                     'quantityStart' => 1,
                 ],
             ],
             'deliveryTime' => $this->createDeliveryTimeData(),
-            'availabilityRules' => [
-                [
-                    'id' => $priceRuleId,
-                    'name' => 'true',
-                    'priority' => 0,
-                    'conditions' => [
-                        [
-                            'type' => 'true',
-                        ],
+            'availabilityRule' => [
+                'id' => $priceRuleId,
+                'name' => 'true',
+                'priority' => 1,
+                'conditions' => [
+                    [
+                        'type' => (new TrueRule())->getName(),
                     ],
                 ],
             ],
@@ -326,15 +354,5 @@ class InvoiceServiceTest extends TestCase
         }
 
         return Uuid::fromBytesToHex($id);
-    }
-
-    private function getValidSalutationId(): string
-    {
-        /** @var EntityRepositoryInterface $repository */
-        $repository = $this->getContainer()->get('salutation.repository');
-
-        $criteria = (new Criteria())->setLimit(1);
-
-        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
     }
 }

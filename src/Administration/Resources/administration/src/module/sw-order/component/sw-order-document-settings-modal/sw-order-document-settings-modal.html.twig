@@ -1,31 +1,31 @@
 {% block sw_order_document_settings_modal %}
-    <sw-modal title="Modal title"
+    <sw-modal :title="$tc('sw-order.documentModal.modalTitle')"
         @closeModal="onCancel"
-        class="sw-order-document-settings-modal">
+        class="sw-order-document-settings-modal__settings-modal">
         {% block sw_order_document_settings_modal_form_first_row %}
             <sw-container columns="1fr 1fr" gap="0px 10px">
                 {% block sw_order_document_settings_modal_form_document_number %}
-                    <sw-field type="text" :label="$tc('sw-order.documentModal.labelDocumentNumber')" :value="documentConfig.documentNumber" v-model="documentConfig.documentNumber" disabled></sw-field>
+                    <sw-field type="text"
+                              :label="$tc('sw-order.documentModal.labelDocumentNumber')"
+                              v-model="documentConfig.documentNumber"
+                              disabled>
+                    </sw-field>
                 {% endblock %}
                 {% block sw_order_document_settings_modal_form_document_date %}
-                    <sw-datepicker
-                        v-if="documentConfig.documentDate"
-                        dateType="date"
-                        :label="$tc('sw-order.documentModal.labelDocumentDate')"
-                        :value="documentConfig.documentDate"
-                        v-model="documentConfig.documentDate">
+                    <sw-datepicker v-if="documentConfig.documentDate"
+                                   dateType="date"
+                                   :label="$tc('sw-order.documentModal.labelDocumentDate')"
+                                   v-model="documentConfig.documentDate">
                     </sw-datepicker>
                 {% endblock %}
             </sw-container>
         {% endblock %}
 
-        {% block sw_order_document_settings_modal_form_additional_content %}
-        {% endblock %}
+        {% block sw_order_document_settings_modal_form_additional_content %}{% endblock %}
 
         {% block sw_order_document_settings_modal_form_document_comment %}
-            <sw-text-field
-                :label="$tc('sw-order.documentModal.labelDocumentComment')"
-                v-model="documentConfig.documentComment">
+            <sw-text-field :label="$tc('sw-order.documentModal.labelDocumentComment')"
+                           v-model="documentConfig.documentComment">
             </sw-text-field>
         {% endblock %}
 
@@ -46,22 +46,29 @@
                 {% block sw_order_document_settings_modal_form_document_footer_split_button %}
                     <sw-button-group splitButton>
                         {% block sw_order_document_settings_modal_form_document_footer_split_button_create %}
-                            <sw-button variant="primary" size="small" @click="onCreateDocument" :disabled="!documentPreconditionsFulfilled">
+                            <sw-button variant="primary"
+                                       size="small"
+                                       @click="onCreateDocument"
+                                       :disabled="!documentPreconditionsFulfilled">
                                 {{ $tc('sw-order.documentModal.labelCreate') }}
                             </sw-button>
                         {% endblock %}
-
+                        <!-- not full implemented yet
                         {% block sw_order_document_settings_modal_form_document_footer_split_button_context %}
                             <sw-context-button :disabled="!documentPreconditionsFulfilled">
                                 {% block sw_order_document_settings_modal_form_document_footer_split_button_context_arrow %}
-                                    <sw-button square slot="button" variant="primary" size="small" :disabled="!documentPreconditionsFulfilled">
+                                    <sw-button square
+                                               slot="button"
+                                               variant="primary"
+                                               size="small"
+                                               :disabled="!documentPreconditionsFulfilled">
                                         <sw-icon name="small-arrow-medium-down" size="16"></sw-icon>
                                     </sw-button>
                                 {% endblock %}
 
                                 {% block sw_order_document_settings_modal_form_document_footer_split_button_context_create_send %}
                                     <sw-context-menu-item>
-                                        <a class="sw-document-download-button" @click="onCreateDocument('send')">
+                                        <a class="sw-order-document-settings-modal__download-button" @click="onCreateDocument('send')">
                                             {{ $tc('sw-order.documentModal.labelCreateSend') }}
                                         </a>
                                     </sw-context-menu-item>
@@ -69,13 +76,14 @@
 
                                 {% block sw_order_document_settings_modal_form_document_footer_split_button_context_create_download %}
                                     <sw-context-menu-item>
-                                        <a class="sw-document-download-button" @click="onCreateDocument('download')">
+                                        <a class="sw-order-document-settings-modal__download-button" @click="onCreateDocument('download')">
                                             {{ $tc('sw-order.documentModal.labelCreateDownloadPdf') }}
                                         </a>
                                     </sw-context-menu-item>
                                 {% endblock %}
                             </sw-context-button>
                         {% endblock %}
+                        -->
                     </sw-button-group>
                 {% endblock %}
             </template>

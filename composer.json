@@ -38,6 +38,7 @@
         "doctrine/annotations": "1.6.1",
         "doctrine/dbal": "2.9.2",
         "doctrine/inflector": "1.3.0",
+        "dompdf/dompdf": "0.8.3",
         "enqueue/fs": "0.9.8",
         "enqueue/messenger-adapter": "0.2.2",
         "erusev/parsedown-extra": "0.7.1",
@@ -91,8 +92,7 @@
         "symfony/yaml": "4.2.4",
         "twig/extensions": "1.5.4",
         "twig/twig": "2.7.4",
-        "voku/stop-words": "2.0.1",
-        "dompdf/dompdf": "0.8.3"
+        "voku/stop-words": "2.0.1"
     },
     "require-dev": {
         "ext-tokenizer": "*",

@@ -20,7 +20,7 @@ Component.extend('sw-order-document-settings-delivery-note-modal', 'sw-order-doc
         this.createdComponent();
     },
     methods: {
-        onCreateDocument(mode = false) {
+        onCreateDocument(additionalAction = false) {
             if (this.documentConfig.documentNumberPreview === this.documentConfig.documentNumber) {
                 this.numberRangeService.reserve(
                     `document_${this.currentDocumentType.technicalName}`,
@@ -28,14 +28,14 @@ Component.extend('sw-order-document-settings-delivery-note-modal', 'sw-order-doc
                     false
                 ).then((response) => {
                     this.documentConfig.custom.deliveryNoteNumber = response.number;
+                    this.$emit('document-modal-create-document', this.documentConfig, additionalAction);
                 });
             } else {
                 this.documentConfig.custom.deliveryNoteNumber = this.documentConfig.documentNumber;
+                this.$emit('document-modal-create-document', this.documentConfig, additionalAction);
             }
-            this.$emit('document-modal-create-document', this.documentConfig, mode);
         },
         onPreview() {
-            // todo fix :-)
             this.documentConfig.custom.deliveryNoteNumber = this.documentConfig.documentNumber;
             this.$super.onPreview();
         }

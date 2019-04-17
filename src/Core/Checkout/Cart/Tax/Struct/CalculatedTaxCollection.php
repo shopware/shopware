@@ -32,13 +32,13 @@ class CalculatedTaxCollection extends Collection
         return $this->has($this->getKey($calculatedTax));
     }
 
-    public function getSortedByTax(): array
+    public function sortByTax(): CalculatedTaxCollection
     {
         $this->sort(function (CalculatedTax $a, CalculatedTax $b) {
             return $a->getTaxRate() <=> $b->getTaxRate();
         });
 
-        return $this->elements;
+        return $this;
     }
 
     /**

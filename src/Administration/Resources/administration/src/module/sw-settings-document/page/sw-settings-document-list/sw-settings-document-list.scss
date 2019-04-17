@@ -1,12 +1,10 @@
 @import "~scss/variables";
 
-$sw-settings-document-list-color-success: $color-emerald;
-$sw-settings-document-list-color-border-collapse: $color-steam-cloud;
 $sw-settings-document-list-font-size-default: $font-size-default;
 
 .sw-settings-document-list {
     .is--default {
-        color: $sw-settings-document-list-color-success;
+        color: $color-emerald;
     }
 
     .sw-list {
@@ -25,7 +23,7 @@ $sw-settings-document-list-font-size-default: $font-size-default;
         cursor: pointer;
         padding-bottom: 16px;
         color: #607182;
-        border-bottom: 1px solid $sw-settings-document-list-color-border-collapse;
+        border-bottom: 1px solid $color-steam-cloud;
 
         .sw-settings-document-list__collapse-indicator {
             margin-right: 25px;
@@ -36,7 +34,7 @@ $sw-settings-document-list-font-size-default: $font-size-default;
         grid-template-columns: 24px 1fr;
         margin: 16px 0 0 16px;
 
-        &.sw-field label{
+        &.sw-field label {
             font-size: $sw-settings-document-list-font-size-default;
         }
     }

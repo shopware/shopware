@@ -7,17 +7,11 @@ Component.register('sw-order-document-settings-modal', {
     props: {
         order: {
             type: Object,
-            required: true,
-            default() {
-                return {};
-            }
+            required: true
         },
         currentDocumentType: {
             type: Object,
-            required: true,
-            default() {
-                return {};
-            }
+            required: true
         }
     },
     data() {
@@ -34,6 +28,7 @@ Component.register('sw-order-document-settings-modal', {
     },
     computed: {
         documentPreconditionsFulfilled() {
+            // can be overwritten in extending component
             return true;
         }
     },
@@ -49,12 +44,11 @@ Component.register('sw-order-document-settings-modal', {
             ).then((response) => {
                 this.documentConfig.documentNumber = response.number;
                 this.documentNumberPreview = this.documentConfig.documentNumber;
-                const date = new Date();
-                this.documentConfig.documentDate = date;
+                this.documentConfig.documentDate = new Date();
             });
         },
-        onCreateDocument(mode = false) {
-            this.$emit('document-modal-create-document', this.documentConfig, mode);
+        onCreateDocument(additionalAction = false) {
+            this.$emit('document-modal-create-document', this.documentConfig, additionalAction);
         },
         onPreview() {
             this.$emit('document-modal-show-preview', this.documentConfig);

@@ -12,9 +12,9 @@
     <table>
         <tr><td>{% trans with {'%customerNumber%': customer.customerNumber} %}document.customerNumber{% endtrans %}</td></tr>
         <tr><td>{% trans with {'%orderNumber%': order.orderNumber | truncate(10)} %}document.orderNumber{% endtrans %}</td></tr>
-        <tr><td>{% trans with {'%date%': document.custom.deliveryNoteDate|date('d.m.Y')} %}document.date{% endtrans %}</td></tr>
-        <tr><td>{% trans with {'%orderDate%': order.date|date('d.m.Y')} %}document.orderDate{% endtrans %}</td></tr>
-        <tr><td>{% trans with {'%deliveryDate%': document.custom.deliveryDate|date('d.m.Y')} %}document.deliveryDate{% endtrans %}</td></tr>
+        <tr><td>{% trans with {'%date%': document.custom.deliveryNoteDate|localizeddate('medium', 'none', order.saleschannel.language.locale.code)} %}document.date{% endtrans %}</td></tr>
+        <tr><td>{% trans with {'%orderDate%': order.date|localizeddate('medium', 'none', order.saleschannel.language.locale.code)} %}document.orderDate{% endtrans %}</td></tr>
+        <tr><td>{% trans with {'%deliveryDate%': document.custom.deliveryDate|localizeddate('medium', 'none', order.saleschannel.language.locale.code)} %}document.deliveryDate{% endtrans %}</td></tr>
     </table><br/>
 {% endblock %}
 

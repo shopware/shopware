@@ -30,7 +30,7 @@ Component.extend('sw-order-document-settings-credit-note-modal', 'sw-order-docum
             return items;
         },
         documentPreconditionsFulfilled() {
-            return this.highlightedItems.length !== 0;
+            return this.highlightedItems.length !== 0 && this.documentConfig.custom.invoiceNumber;
         }
     },
     created() {
@@ -52,7 +52,7 @@ Component.extend('sw-order-document-settings-credit-note-modal', 'sw-order-docum
                 }
             });
         },
-        onCreateDocument(mode = false) {
+        onCreateDocument(additionalAction = false) {
             if (this.documentConfig.documentNumberPreview === this.documentConfig.documentNumber) {
                 this.numberRangeService.reserve(
                     `document_${this.currentDocumentType.technicalName}`,
@@ -60,11 +60,12 @@ Component.extend('sw-order-document-settings-credit-note-modal', 'sw-order-docum
                     false
                 ).then((response) => {
                     this.documentConfig.custom.creditNoteNumber = response.number;
+                    this.$emit('document-modal-create-document', this.documentConfig, additionalAction);
                 });
             } else {
                 this.documentConfig.custom.creditNoteNumber = this.documentConfig.documentNumber;
+                this.$emit('document-modal-create-document', this.documentConfig, additionalAction);
             }
-            this.$emit('document-modal-create-document', this.documentConfig, mode);
         }
     }
 });

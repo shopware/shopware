@@ -37,6 +37,7 @@ class CartAmountRule extends Rule
         if (!$scope instanceof CartRuleScope) {
             return false;
         }
+
         $cartAmount = $scope->getCart()->getPrice()->getTotalPrice();
 
         $this->amount = (float) $this->amount;

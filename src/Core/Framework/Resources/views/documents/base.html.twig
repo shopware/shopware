@@ -1,165 +1,42 @@
 {% block document_base %}
-{# @var order \Shopware\Core\Checkout\Order\OrderEntity #}
-{# @var config \Shopware\Core\Checkout\Document\DocumentConfiguration #}
-{# @var context \Shopware\Core\Framework\Context #}
+    {# @var order \Shopware\Core\Checkout\Order\OrderEntity #}
+    {# @var config \Shopware\Core\Checkout\Document\DocumentConfiguration #}
+    {# @var context \Shopware\Core\Framework\Context #}
 
-{# @var customer \Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity #}
-{% set customer = order.orderCustomer %}
+    {# @var customer \Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity #}
+    {% set customer = order.orderCustomer %}
 
-{% set lineItems = order.lineItems %}
+    {% set lineItems = order.lineItems %}
 
-{# @var billingAddress \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity #}
-{% set billingAddress = order.addresses.get(order.billingAddressId) %}
+    {# @var billingAddress \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity #}
+    {% set billingAddress = order.addresses.get(order.billingAddressId) %}
 
-{% set currencyIsoCode = order.currency.isoCode %}
+    {% set currencyIsoCode = order.currency.isoCode %}
 
-<!DOCTYPE html>
-<html>
+    {% if config.itemsPerPage <= 0 %}
+        {% set itemsPerPage = 10 %}
+    {% else %}
+        {% set itemsPerPage = config.itemsPerPage %}
+    {% endif %}
+
+    <!DOCTYPE html>
+    <html>
     <head>
         {% block document_head %}
             <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
             {#{% if config.title %}#}
-                <title>{% block document_title_tag %}{% endblock %}</title>
+            <title>{% block document_title_tag %}{% endblock %}</title>
             {#{% endif %}#}
-            <style type="text/css">
-                {% block document_style %}
-                /* Fonts */
-                @font-face {
-                    font-family: 'Source Sans Pro';
-                    font-style: normal;
-                    font-weight: normal;
-                    src: url('https://fonts.googleapis.com/css?family=Source+Sans+Pro:400') format('truetype');
-                }
-
-                body {
-                    font-family: 'Source Sans Pro', sans-serif;
-                    font-size: 12px;
-                    line-height: 12px;
-                    width: 100%;
-                }
-
-                h1 {
-                    line-height: 24px;
-                }
-
-                /* Helper classes */
-                .align-right {
-                    text-align: right;
-                }
-
-                .bold {
-                    font-weight: bold;
-                }
-
-                .small-padding-top {
-                    padding-top: 15px;
-                }
-
-                /*Page */
-                @page {
-                    margin-top: 100px;
-                }
-
-                /* Header */
-                header {
-                    position: fixed;
-                    top: -75px;
-                }
-
-                .logo {
-                    width: 30%;
-                }
-
-                /* Document title */
-                .document-title-container {
-                    margin: 45px 0 20px 0;
-                }
-
-                /* Sender info section (top right) */
-                .sender-address-container {
-                    top: 0;
-                    right: 30px;
-                    position: absolute;
-                }
-
-                /* Receipt address section */
-                .recipient-address-container {
-                    margin-top: 100px;
-                }
-
-                /* Line item section */
-                .line-item-table {
-                    width: 100%;
-                    border-spacing: 0 2px;
-                }
-
-
-                .line-item-table-header > th, .line-item-table:last-child {
-                    padding-bottom: 20px;
-                    border-bottom: 1px solid rgba(0, 0, 0, 0.15);
-                }
-
-                .line-item, .sum-container, .payment-shipping-container {
-                    line-height: 16px;
-                }
-
-                .line-item.first > td {
-                    padding-top: 20px;
-                }
-
-                .line-item-breakable {
-                    word-wrap: break-word;
-                }
-
-                /* Payment/shipping details*/
-                .payment-shipping-container {
-                    padding-top: 25px;
-                }
-
-                /* Page count */
-                .page-count {
-                    margin: 10px 0;
-                }
-
-                .pagenum:after {
-                    content: counter(page);
-                }
-
-                /* Subtotal/Total section */
-                .sum-container {
-                    margin-top: 20px;
-                    text-align: right;
-                    float: right;
-                    right: 30px;
-                }
-
-                .sum-table {
-                    border-spacing: 20px 0;
-                }
-
-                /* Footer */
-                footer {
-                    position: fixed;
-                    bottom: 50px;
-                    left: -40px;
-                    font-size: 8px;
-                }
-
-                footer:after {
-                    clear: both;
-                }
-
-                footer > ul {
-                    list-style-type: none;
-                    float: left;
-                }
-                {% endblock %}
-            </style>
+            {% if config.custom.pageOrientation == 'landscape' %}
+                {% include '@Shopware/documents/style_base_landscape.css.twig' %}
+            {% else %}
+                {% include '@Shopware/documents/style_base_portrait.css.twig' %}
+            {% endif %}
         {% endblock %}
     </head>
     <body>
     {% block document_body %}
-         {# To include a header or footer on every site, these elements have to be defined before the content #}
+        {# To include a header or footer on every site, these elements have to be defined before the content #}
         {% if config.displayHeader %}
             <header>
                 {% block document_header %}
@@ -172,6 +49,13 @@
 
         {% if config.displayFooter %}
             <footer>
+                {% if config.displayPageCount %}
+                    <div class="page-count">
+                        {% block document_page_count %}
+                            {% trans with {'%pageNumber%': '<span class="pagenum"></span>'} %}document.page{% endtrans %}
+                        {% endblock %}
+                    </div>
+                {% endif %}
                 {% block document_footer %}
                     <ul>
                         <li class="bold">{{ config.companyName }}</li>
@@ -198,131 +82,127 @@
                 {% endblock %}
             </footer>
         {% endif %}
-
-        <div class="recipient-address-container">
-            {% block document_recipient %}
-                <span class="sender-address-small">
-                    {% block document_recipient_sender %}
-                        {{ config.companyAddress }}<br><br>
-                    {% endblock %}
-                </span>
-                 {# todo support companys #}
-                {{ customer.salutation.name }} {{ customer.firstName }} {{ customer.lastName }}<br>
-                {{ billingAddress.street }}<br>
-                {{ billingAddress.zipcode }} {{ billingAddress.city }}<br>
-                {{ billingAddress.country.name }}<br>
-            {% endblock %}
-        </div>
-
-        <div class="sender-address-container">
-            {% block document_sender_address %}
-                <table>
-                     {# todo save address with sales channel? #}
-                    <tr><td class="bold">shopware AG</td></tr>
-                    <tr><td>48624 Schöppingen</td></tr>
-                    <tr><td>Ebbinghoff 10</td></tr>
-                    <tr><td>Fon: 01234 / 56789</td></tr>
-                    <tr><td>Fax: 01234 / 56789</td></tr>
-                    <tr><td>info@shopware.com</td></tr>
-                    <tr><td>www.shopware.com</td></tr>
-                </table>
-            {% endblock %}
-            {% block document_side_info %}
-                <table>
-                    <tr><td>{% trans with {'%customerNumber%': customer.customerNumber} %}document.customerNumber{% endtrans %}</td></tr>
-                    <tr><td>{% trans with {'%orderNumber%': order.orderNumber | truncate(10)} %}document.orderNumber{% endtrans %}</td></tr>
-                    <tr><td>{% trans with {'%orderDate%': order.date|date('d.m.Y')} %}document.orderDate{% endtrans %}</td></tr>
-                </table><br/>
-            {% endblock %}
-        </div>
-
-        <div class="document-title-container">
-            {% block document_headline %}{% endblock %}
-        </div>
-
-        {% if config.displayPageCount %}
-            <div class="page-count">
-                {% block document_page_count %}
-                    {% trans with {'%pageNumber%': '<span class="pagenum"></span>'} %}document.page{% endtrans %}
+        <div class="letter-header">
+            <div class="recipient-address-container">
+                {% block document_recipient %}
+                    <span class="sender-address-small">
+                        {% block document_recipient_sender %}
+                            {{ config.companyAddress }}<br><br>
+                        {% endblock %}
+                    </span>
+                    {# todo support companys #}
+                    {{ customer.salutation.displayName }} {{ customer.firstName }} {{ customer.lastName }}<br>
+                    {{ billingAddress.street }}<br>
+                    {{ billingAddress.zipcode }} {{ billingAddress.city }}<br>
+                    {{ billingAddress.country.name }}<br>
                 {% endblock %}
             </div>
-        {% endif %}
 
-        {% if config.displayLineItems %}
-            <div class="line-item-container">
-                {% block document_line_items %}
-                    <table class="line-item-table">
-                        <thead>
-                            <tr class="line-item-table-header">
-                                {% block document_line_item_table_head %}
-                                    {% if config.displayLineItemPosition %}
-                                        <th>{% trans %}document.lineItems.header.position{% endtrans %}</th>
-                                    {% endif %}
-                                    <th>{% trans %}document.lineItems.header.articleNumber{% endtrans %}</th>
-                                    <th>{% trans %}document.lineItems.header.label{% endtrans %}</th>
-                                    <th>{% trans %}document.lineItems.header.quantity{% endtrans %}</th>
-                                    {% if config.displayPrices %}
-                                        <th>{% trans %}document.lineItems.header.tax{% endtrans %}</th>
-                                        <th>{% trans %}document.lineItems.header.unitPrice{% endtrans %}</th>
-                                        <th>{% trans %}document.lineItems.header.total{% endtrans %}</th>
-                                    {% endif %}
-                                {% endblock %}
-                            </tr>
-                        </thead>
+            <div class="sender-address-container">
+                {% block document_sender_address %}
+                    <table>
+                        {# todo save address with sales channel? #}
+                        <tr><td class="bold">shopware AG</td></tr>
+                        <tr><td>48624 Schöppingen</td></tr>
+                        <tr><td>Ebbinghoff 10</td></tr>
+                        <tr><td>Fon: 01234 / 56789</td></tr>
+                        <tr><td>Fax: 01234 / 56789</td></tr>
+                        <tr><td>info@shopware.com</td></tr>
+                        <tr><td>www.shopware.com</td></tr>
+                    </table>
+                {% endblock %}
+                {% block document_side_info %}
+                    <table>
+                        <tr><td>{% trans with {'%customerNumber%': customer.customerNumber} %}document.customerNumber{% endtrans %}</td></tr>
+                        <tr><td>{% trans with {'%orderNumber%': order.orderNumber | truncate(10)} %}document.orderNumber{% endtrans %}</td></tr>
+                        <tr><td>{% trans with {'%orderDate%': order.date|date('d.m.Y')} %}document.orderDate{% endtrans %}</td></tr>
+                    </table><br/>
+                {% endblock %}
+            </div>
 
-                        {% block document_line_item_list %}
-                            {# @var lineItem \Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity #}
-                            {% for lineItem in lineItems %}
-                                <tr class="line-item{% if loop.first %} first{% endif %}">
-                                    {% block document_line_item_row %}
+            <div class="document-title-container">
+                {% block document_headline %}{% endblock %}
+            </div>
+        </div>
+        <div class="letter-body">
+            {% if config.displayLineItems %}
+                {% for lineItemPage in lineItems|batch(itemsPerPage) %}
+                    <div class="line-item-container">
+                        {% block document_line_items %}
+                            <table class="line-item-table">
+                                <thead>
+                                <tr class="line-item-table-header">
+                                    {% block document_line_item_table_head %}
                                         {% if config.displayLineItemPosition %}
-                                            <td>{{ loop.index }}</td>
+                                            <th>{% trans %}document.lineItems.header.position{% endtrans %}</th>
                                         {% endif %}
-                                        <td>{{ lineItem.id | truncate(10) }}</td>
-                                        <td class="line-item-breakable">{{ lineItem.label }}</td>
-                                        <td class="align-right">{{ lineItem.quantity }}</td>
+                                        <th>{% trans %}document.lineItems.header.articleNumber{% endtrans %}</th>
+                                        <th>{% trans %}document.lineItems.header.label{% endtrans %}</th>
+                                        <th class="numbers">{% trans %}document.lineItems.header.quantity{% endtrans %}</th>
                                         {% if config.displayPrices %}
-                                            <td class="align-right">{{ lineItem.price.taxRules.first.taxRate }}%</td>
-                                            <td class="align-right">{{ lineItem.unitPrice|currency(currencyIsoCode) }}</td>
-                                            <td class="align-right">{{ lineItem.totalPrice|currency(currencyIsoCode) }}</td>
+                                            <th class="numbers">{% trans %}document.lineItems.header.tax{% endtrans %}</th>
+                                            <th class="numbers">{% trans %}document.lineItems.header.unitPrice{% endtrans %}</th>
+                                            <th class="numbers">{% trans %}document.lineItems.header.total{% endtrans %}</th>
                                         {% endif %}
                                     {% endblock %}
                                 </tr>
-                            {% endfor %}
+                                </thead>
+
+                                {# @var lineItem \Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity #}
+                                {% for lineItem in lineItemPage %}
+                                    <tr class="line-item{% if loop.first %} first{% endif %}">
+                                        {% block document_line_item_row %}
+                                            {% if config.displayLineItemPosition %}
+                                                <td>{{ loop.index }}</td>
+                                            {% endif %}
+                                            <td>{{ lineItem.payload.productNumber | truncate(10) }}</td>
+                                            <td class="line-item-breakable">{{ lineItem.label }}</td>
+                                            <td class="align-right">{{ lineItem.quantity }}</td>
+                                            {% if config.displayPrices %}
+                                                <td class="align-right">{{ lineItem.price.taxRules.first.taxRate }}%</td>
+                                                <td class="align-right">{{ lineItem.unitPrice|currency(currencyIsoCode) }}</td>
+                                                <td class="align-right">{{ lineItem.totalPrice|currency(currencyIsoCode) }}</td>
+                                            {% endif %}
+                                        {% endblock %}
+                                    </tr>
+                                {% endfor %}
+                            </table>
                         {% endblock %}
-                    </table>
+                    </div>
+                    {% if loop.last != true %}
+                        <div class="page_break"></div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+
+            <div class="sum-container">
+                <table class="sum-table">
+                    {% block document_sum %}
+                        <tr>
+                            <td class="align-right">{% trans %}document.lineItems.totalNet{% endtrans %}</td>
+                            <td class="align-right">{{ order.amountNet|currency(currencyIsoCode) }}</td>
+                        </tr>
+                        {% for calculatedTax in order.price.calculatedTaxes.sortByTax.getElements %}
+                            <tr>
+                                <td class="align-right">{% trans with {'%taxRate%': calculatedTax.taxRate} %}document.lineItems.tax{% endtrans %}</td>
+                                <td class="align-right">{{ calculatedTax.tax|currency(currencyIsoCode) }}</td>
+                            </tr>
+                        {% endfor %}
+                        <tr class="bold">
+                            <td class="align-right">{% trans %}document.lineItems.total{% endtrans %}</td>
+                            <td class="align-right">{{ order.amountTotal|currency(currencyIsoCode) }}</td>
+                        </tr>
+                    {% endblock %}
+                </table>
+            </div>
+
+            <div class="payment-shipping-container">
+                {% block document_payment_shipping %}
+                    {% trans with {'%paymentMethod%': order.transactions.first.paymentMethod.name} %}document.paymentShippingInfo.paymentMethod{% endtrans %}<br>
+                    {% trans with {'%shippingMethod%': order.deliveries.first.shippingMethod.name} %}document.paymentShippingInfo.shippingMethod{% endtrans %}<br>
+                    {% trans %}document.paymentShippingInfo.additionalInfo{% endtrans %}<br>
                 {% endblock %}
             </div>
-        {% endif %}
-
-        <div class="sum-container">
-            <table class="sum-table">
-                {% block document_sum %}
-                    <tr>
-                        <td class="align-right">{% trans %}document.lineItems.totalNet{% endtrans %}</td>
-                        <td class="align-right">{{ order.amountNet|currency(currencyIsoCode) }}</td>
-                    </tr>
-                     {# @var calculatedTax \Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax #}
-                    {% for calculatedTax in order.price.calculatedTaxes.sortedByTax %}
-                        <tr>
-                            <td class="align-right">{% trans with {'%taxRate%': calculatedTax.taxRate} %}document.lineItems.tax{% endtrans %}</td>
-                            <td class="align-right">{{ calculatedTax.tax|currency(currencyIsoCode) }}</td>
-                        </tr>
-                    {% endfor %}
-                    <tr class="bold">
-                        <td class="align-right">{% trans %}document.lineItems.total{% endtrans %}</td>
-                        <td class="align-right">{{ order.amountTotal|currency(currencyIsoCode) }}</td>
-                    </tr>
-                {% endblock %}
-            </table>
-        </div>
-
-        <div class="payment-shipping-container">
-            {% block document_payment_shipping %}
-                {% trans with {'%paymentMethod%': order.transactions.first.paymentMethod.name} %}document.paymentShippingInfo.paymentMethod{% endtrans %}<br>
-                {% trans with {'%shippingMethod%': order.deliveries.first.shippingMethod.name} %}document.paymentShippingInfo.shippingMethod{% endtrans %}<br>
-                {% trans %}document.paymentShippingInfo.additionalInfo{% endtrans %}<br>
-            {% endblock %}
         </div>
     {% endblock %}
     </body>

@@ -28,6 +28,11 @@ Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-s
             invoiceNumbers: []
         };
     },
+    computed: {
+        documentPreconditionsFulfilled() {
+            return !!this.documentConfig.custom.invoiceNumber;
+        }
+    },
     created() {
         this.createdComponent();
     },
@@ -54,7 +59,7 @@ Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-s
                 }
             });
         },
-        onCreateDocument(mode = false) {
+        onCreateDocument(additionalAction = false) {
             if (this.documentConfig.documentNumberPreview === this.documentConfig.documentNumber) {
                 this.numberRangeService.reserve(
                     `document_${this.currentDocumentType.technicalName}`,
@@ -62,11 +67,12 @@ Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-s
                     false
                 ).then((response) => {
                     this.documentConfig.custom.stornoNumber = response.number;
+                    this.$emit('document-modal-create-document', this.documentConfig, additionalAction);
                 });
             } else {
                 this.documentConfig.custom.stornoNumber = this.documentConfig.documentNumber;
+                this.$emit('document-modal-create-document', this.documentConfig, additionalAction);
             }
-            this.$emit('document-modal-create-document', this.documentConfig, mode);
         },
         onPreview() {
             this.documentConfig.custom.stornoNumber = this.documentConfig.documentNumber;

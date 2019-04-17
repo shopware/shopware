@@ -51,7 +51,8 @@
                             <sw-order-line-items-grid :order="currentOrder"
                                 :editable="isEditing"
                                 ref="sw-order-line-item-grid"
-                                @sw-order-line-items-grid-item-edited="onRecalculateOrder">
+                                @item-deleted="onLineItemsDeleted"
+                                @item-edited="onLineItemsEdited">
                             </sw-order-line-items-grid>
                         {% endblock %}
                         {% block sw_order_detail_base_line_items_summary %}
@@ -128,7 +129,7 @@
             </sw-order-delivery-metadata>
         {% endblock %}
         {% block sw_order_detail_base_document_grid %}
-            <sw-order-document-card v-if="hasAssociations && next1046 && !isEditing"
+            <sw-order-document-card v-if="hasAssociations && !isEditing"
                 class="sw-order-detail-base__document-grid"
                 :order="currentOrder"
                 :isLoading="isLoading">

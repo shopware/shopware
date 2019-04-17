@@ -23,10 +23,15 @@ class DateRangeRule extends Rule
      */
     protected $useTime;
 
-    public function __construct()
-    {
+    public function __construct(
+        ?\DateTimeInterface $fromDate = null,
+        ?\DateTimeInterface $toDate = null,
+        bool $useTime = false
+    ) {
         parent::__construct();
-        $this->useTime = false;
+        $this->useTime = $useTime;
+        $this->fromDate = $fromDate;
+        $this->toDate = $toDate;
     }
 
     public function match(RuleScope $scope): bool

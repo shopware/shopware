@@ -183,7 +183,7 @@ Component.register('sw-order-detail-base', {
                 this.nextRoute();
             });
         },
-        onRecalculateOrder() {
+        onLineItemsDeleted() {
             this.isLoading = true;
 
             this.orderService.recalculateOrder(this.currentOrder.id, this.currentOrder.versionId, {}, {}).then(() => {
@@ -191,6 +191,9 @@ Component.register('sw-order-detail-base', {
             }).catch((error) => {
                 this.$emit('sw-order-detail-base-error', error);
             });
+        },
+        onLineItemsEdited() {
+            this.reloadVersionedOrder(this.currentOrder.versionId);
         },
         onShippingChargeEdited(amount) {
             this.currentOrder.deliveries[0].shippingCosts.unitPrice = amount;
@@ -200,7 +203,6 @@ Component.register('sw-order-detail-base', {
             });
         },
         sortByTaxRate(price) {
-            console.log();
             return price.sort((prev, current) => {
                 return prev.taxRate - current.taxRate;
             });

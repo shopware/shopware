@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Collector\LineItemCollector;
 use Shopware\Core\Checkout\Promotion\Cart\Validator\LineIemCollector;
-use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class LineItemCollectorTest extends TestCase
@@ -30,11 +29,16 @@ class LineItemCollectorTest extends TestCase
     public function setUp(): void
     {
         $this->cart = new Cart('C1', 'TOKEN-1');
-        $this->cart->add(new LineItem('P1', ProductCollector::LINE_ITEM_TYPE, 1, LineItem::GOODS_PRIORITY));
-        $this->cart->add(new LineItem('P2', ProductCollector::LINE_ITEM_TYPE, 1, LineItem::GOODS_PRIORITY));
+        $this->cart->add(new LineItem('P1', LineItem::PRODUCT_LINE_ITEM_TYPE, 1));
+        $this->cart->add(new LineItem('P2', LineItem::PRODUCT_LINE_ITEM_TYPE, 1));
 
         $this->checkoutContext = $this->getMockBuilder(SalesChannelContext::class)->disableOriginalConstructor()->getMock();
 
         $this->validator = new LineItemCollector('PROMOTION');
+    }
+
+    public function testNothing()
+    {
+        static::markTestIncomplete('Test Incomplete');
     }
 }

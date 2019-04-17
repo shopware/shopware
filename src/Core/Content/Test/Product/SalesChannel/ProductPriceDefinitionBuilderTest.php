@@ -49,6 +49,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
                 'id' => $this->currencyId,
                 'factor' => 0.8,
                 'symbol' => 'T',
+                'isoCode' => 'TTT',
                 'position' => 3,
                 'decimalPrecision' => 2,
                 'shortName' => 'TE',

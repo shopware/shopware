@@ -258,8 +258,8 @@
         "accept": "Accept"
     },
     "document": {
-      "invoiceNumber": "Invoice No. %invoiceNumber%",
-      "invoiceHeadline": "Invoice No. %invoiceNumber%",
+    "invoiceNumber": "Invoice No. %invoiceNumber%",
+    "invoiceHeadline": "Invoice No. %invoiceNumber%",
     "stornoNumber": "Storno No. %stornoNumber%",
     "stornoHeadline": "Storno No. %stornoNumber% for Invoice No. %invoiceNumber%",
     "deliveryNoteNumber": "Delivery Note No. %deliveryNoteNumber%",
@@ -267,11 +267,11 @@
     "creditNoteNumber": "Credit Note No. %deliveryNoteNumber%",
     "creditNoteHeadline": "Credit Note No. %creditNoteNumber% for Invoice No. %invoiceNumber%",
     "customerNumber": "Customer No. %customerNumber%",
-      "date": "Date: %date%",
-      "orderDate": "Order date: %orderDate%",
+    "date": "Date: %date%",
+    "orderDate": "Order date: %orderDate%",
     "deliveryDate": "Delivery date: %deliveryDate%",
-      "page": "Page %pageNumber%",
-      "orderNumber": "Order No. %orderNumber%",
+    "page": "Page %pageNumber%",
+    "orderNumber": "Order No. %orderNumber%",
     "taxNumber": "Tax No.: %taxNumber%",
     "vatId": "VVAT Reg No.: %vatId%",
     "taxOffice": "Tax office %taxOffice%",
@@ -281,7 +281,7 @@
     "placeOfJurisdiction": "Place of jurisdiction is %placeOfJurisdiction%",
     "placeOfFulfillment": "Erfüllungsort: %placeOfFulfillment%",
     "ceo": "CEO",
-      "lineItems": {
+    "lineItems": {
         "header": {
           "position": "Pos.",
           "label": "Label",

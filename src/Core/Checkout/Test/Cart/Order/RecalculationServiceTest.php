@@ -35,7 +35,6 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
 use Shopware\Core\Content\DeliveryTime\DeliveryTimeEntity;
-use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -928,6 +927,7 @@ class RecalculationServiceTest extends TestCase
         );
         $cart = $this->getContainer()->get(Enrichment::class)->enrich($cart, $this->salesChannelContext, new CartBehavior());
         $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->salesChannelContext, new CartBehavior());
+        print_r($cart);
 
         return $cart;
     }
@@ -1105,7 +1105,7 @@ class RecalculationServiceTest extends TestCase
         $creditAmount = -10;
         $data = [
             'identifier' => $identifier,
-            'type' => ProductCollector::CREDIT_ITEM_TYPE,
+            'type' => LineItem::CREDIT_LINE_ITEM_TYPE,
             'quantity' => 1,
             'label' => 'awesome credit',
             'description' => 'schubbidu',
@@ -1192,31 +1192,12 @@ class RecalculationServiceTest extends TestCase
                 [
                     'price' => '10.00',
                     'currencyId' => Defaults::CURRENCY,
-                    'rule' => [
-                        'name' => 'true',
-                        'priority' => 0,
-                        'conditions' => [
-                            [
-                                'type' => 'true',
-                            ],
-                        ],
-                    ],
                     'calculation' => 1,
                     'quantityStart' => 1,
                 ],
                 [
                     'price' => 8.00,
                     'currencyId' => Defaults::CURRENCY,
-                    'rule' => [
-                        'id' => $priceRuleId,
-                        'name' => 'true',
-                        'priority' => 0,
-                        'conditions' => [
-                            [
-                                'type' => 'true',
-                            ],
-                        ],
-                    ],
                     'calculationRule' => [
                         'name' => 'check',
                         'priority' => 10,

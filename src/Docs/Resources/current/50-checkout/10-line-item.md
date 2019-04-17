@@ -10,7 +10,7 @@ or any other type you might implement.
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Content\Product\Cart\ProductCollector;
 
-$product = new LineItem('407f9c24dd414da485501085e3ead678', ProductCollector::LINE_ITEM_TYPE, 5);
+$product = new LineItem('407f9c24dd414da485501085e3ead678', LineItem::PRODUCT_LINE_ITEM_TYPE, 5);
 ```
 Example of a line item of type `product`  
 
@@ -32,12 +32,6 @@ use Shopware\Core\Framework\Struct\Struct;
 
 class LineItem extends Struct
 {
-    public const GOODS_PRIORITY = 100;
-
-    public const VOUCHER_PRIORITY = 50;
-
-    public const DISCOUNT_PRIORITY = 25;
-
     /**
      * @var string
      */
@@ -79,11 +73,6 @@ class LineItem extends Struct
     protected $good = true;
 
     /**
-     * @var int
-     */
-    protected $priority = self::GOODS_PRIORITY;
-
-    /**
      * @var string|null
      */
     protected $description;
@@ -121,11 +110,10 @@ class LineItem extends Struct
     /**
      * @throws InvalidQuantityException
      */
-    public function __construct(string $key, string $type, int $quantity = 1, int $priority = self::GOODS_PRIORITY)
+    public function __construct(string $key, string $type, int $quantity = 1)
     {
         $this->key = $key;
         $this->type = $type;
-        $this->priority = $priority;
         $this->children = new LineItemCollection();
 
         if ($quantity < 1) {
@@ -272,7 +260,7 @@ use Shopware\Core\Content\Product\Cart\ProductCollector;
  */
 public function addLineItem(CheckoutContext $checkoutContext)
 {
-    $product = new LineItem('407f9c24dd414da485501085e3ead678', ProductCollector::LINE_ITEM_TYPE, 5);
+    $product = new LineItem('407f9c24dd414da485501085e3ead678', LineItem::PRODUCT_LINE_ITEM_TYPE, 5);
     
     /** @var CartService $cartService */
     $cartService->add($product, $checkoutContext);
@@ -297,8 +285,8 @@ use Shopware\Core\Content\Product\Cart\ProductCollector;
  */
 public function addMultipleLineItems(CheckoutContext $checkoutContext)
 {
-    $product        = new LineItem('407f9c24dd414da485501085e3ead678', ProductCollector::LINE_ITEM_TYPE, 5);
-    $anotherProduct = new LineItem('43ab6d2834fc49e387ca089d537d6e39', ProductCollector::LINE_ITEM_TYPE, 1);
+    $product        = new LineItem('407f9c24dd414da485501085e3ead678', LineItem::PRODUCT_LINE_ITEM_TYPE, 5);
+    $anotherProduct = new LineItem('43ab6d2834fc49e387ca089d537d6e39', LineItem::PRODUCT_LINE_ITEM_TYPE, 1);
     
     /** @var CartService $cartService */
     $cartService->fill(new LineItemCollection([$product, $anotherProduct]), $checkoutContext);

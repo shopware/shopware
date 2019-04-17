@@ -101,9 +101,9 @@ class CartRuleLoader
 
     private function loadRules(Context $context): RuleCollection
     {
-        /*if ($this->rules !== null) {
+        if ($this->rules !== null) {
             return $this->rules;
-        }*/
+        }
 
         /** @var RuleCollection $rules */
         $rules = $this->repository->search(new Criteria(), $context)->getEntities();

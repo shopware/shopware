@@ -74,7 +74,6 @@ class OrderLineItemDefinition extends EntityDefinition
             new BoolField('good', 'good'),
             new BoolField('removable', 'removable'),
             new BoolField('stackable', 'stackable'),
-            new IntField('priority', 'priority'),
 
             (new CalculatedPriceField('price', 'price'))->setFlags(new Required()),
             (new PriceDefinitionField('price_definition', 'priceDefinition'))->setFlags(new Required()),

@@ -63,35 +63,31 @@ Component.register('sw-order-line-items-grid', {
             });
         },
         onInlineEditSave(item) {
+            this.saveLineItem(item).then(() => {
+                this.$emit('item-edited');
+            });
+        },
+        saveLineItem(item) {
+            let returnVal = false;
             if (item.isLocal === true) {
                 // The item is a custom item
                 if (item.type === '') {
-                    // The is item is based on a product
-                    this.orderService.addProductToOrder(this.order.id,
+                    // This item is based on a product
+                    returnVal = this.orderService.addProductToOrder(this.order.id,
                         this.order.versionId,
                         item.identifier,
-                        item.quantity).then(() => {
-                        this.$emit('sw-order-line-items-grid-item-edited');
-                    });
+                        item.quantity);
                 } else if (item.type === 'credit') {
-                    this.orderService.addCreditItemToOrder(this.order.id,
-                        this.order.versionId,
-                        item).then(() => {
-                        this.$emit('sw-order-line-items-grid-item-edited');
-                    });
+                    returnVal = this.orderService.addCreditItemToOrder(this.order.id, this.order.versionId, item);
                 } else {
-                    this.orderService.addCustomLineItemToOrder(this.order.id,
-                        this.order.versionId,
-                        item).then(() => {
-                        this.$emit('sw-order-line-items-grid-item-edited');
-                    });
+                    // This item not based on an existing product (blank item)
+                    returnVal = this.orderService.addCustomLineItemToOrder(this.order.id, this.order.versionId, item);
                 }
             } else {
                 // The item already existed in the order
-                item.save().then(() => {
-                    this.$emit('sw-order-line-items-grid-item-edited');
-                });
+                returnVal = item.save();
             }
+            return returnVal;
         },
         onInlineEditCancel(item) {
             item.discardChanges();
@@ -138,7 +134,7 @@ Component.register('sw-order-line-items-grid', {
             });
 
             Promise.all(deletionPromises).then(() => {
-                this.$emit('sw-order-line-items-grid-item-edited');
+                this.$emit('item-deleted');
             });
         },
         itemCreatedFromProduct(id) {

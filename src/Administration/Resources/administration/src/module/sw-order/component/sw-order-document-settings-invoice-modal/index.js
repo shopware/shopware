@@ -7,7 +7,7 @@ Component.extend('sw-order-document-settings-invoice-modal', 'sw-order-document-
         this.createdComponent();
     },
     methods: {
-        onCreateDocument(mode = false) {
+        onCreateDocument(additionalAction = false) {
             if (this.documentConfig.documentNumberPreview === this.documentConfig.custom.invoiceNumber) {
                 this.numberRangeService.reserve(
                     `document_${this.currentDocumentType.technicalName}`,
@@ -15,11 +15,12 @@ Component.extend('sw-order-document-settings-invoice-modal', 'sw-order-document-
                     false
                 ).then((response) => {
                     this.documentConfig.custom.invoiceNumber = response.number;
+                    this.$emit('document-modal-create-document', this.documentConfig, additionalAction);
                 });
             } else {
                 this.documentConfig.custom.invoiceNumber = this.documentConfig.documentNumber;
+                this.$emit('document-modal-create-document', this.documentConfig, additionalAction);
             }
-            this.$emit('document-modal-create-document', this.documentConfig, mode);
         },
         onPreview() {
             this.documentConfig.custom.invoiceNumber = this.documentConfig.documentNumber;

@@ -122,9 +122,11 @@
       "labelType": "Typ",
       "labelSent": "Gesendet",
       "labelAmount": "Betrag",
-      "labelDownloadPdf": "Als PDF herunterladen"
+      "labelDownloadPdf": "Als PDF herunterladen",
+      "labelCreateNew": "Neu erstellen"
     },
     "documentModal": {
+      "modalTitle": "Dokument anlegen",
       "labelDocumentDate": "Datum",
       "labelDeliveryDate": "Lieferdatum",
       "labelDocumentNumber": "Nummer",

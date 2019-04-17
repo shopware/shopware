@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Language\LanguageEntity;
+use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 
 class CurrencyFormatter
 {
@@ -28,14 +29,19 @@ class CurrencyFormatter
 
     /**
      * @throws InconsistentCriteriaIdsException
+     * @throws LanguageNotFoundException
      */
     public function formatCurrencyByLanguage(float $price, string $currency, string $languageId, Context $context): string
     {
         if (!array_key_exists($languageId, $this->localeCache)) {
             $criteria = (new Criteria())->addFilter(new EqualsFilter('language.id', $languageId));
-            /** @var LanguageEntity $language */
+            /** @var LanguageEntity|null $language */
             $language = $this->languageRepository->search($criteria, $context)->get($languageId);
-            // todo throw exception
+
+            if ($language === null) {
+                throw new LanguageNotFoundException($languageId);
+            }
+
             $this->localeCache[$languageId] = $language->getLocale()->getCode();
         }
 

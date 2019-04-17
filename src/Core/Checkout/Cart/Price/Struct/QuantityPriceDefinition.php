@@ -8,6 +8,11 @@ use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
+/**
+ * A QuantityPriceDefinition is the most common PriceDefinition type and is used for all prices which increase or decrease
+ * based on a item quantity. These Definitions are used for LineItems created from Products. They do not depend on
+ * other PriceDefinitions in a calculation process.
+ */
 class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
 {
     public const TYPE = 'quantity';

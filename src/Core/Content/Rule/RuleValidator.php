@@ -149,7 +149,7 @@ class RuleValidator implements WriteCommandValidatorInterface
         foreach ($payload as $fieldName => $value) {
             $currentPath = sprintf('%s/%s', $basePath, $fieldName);
 
-            if (!array_key_exists($fieldName, $fieldValidations) && $fieldName !== 'type') {
+            if (!array_key_exists($fieldName, $fieldValidations) && $fieldName !== '_name') {
                 $list->add(
                     $this->buildViolation(
                         'The property "{{ fieldName }}" is not allowed.', ['{{ fieldName }}' => $fieldName],

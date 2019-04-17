@@ -10,9 +10,7 @@ interface DocumentGeneratorInterface
 {
     public function supports(): string;
 
-    public function documentConfiguration(): DocumentConfiguration;
-
-    public function generateFromTemplate(
+    public function generate(
         OrderEntity $order,
         DocumentConfiguration $config,
         Context $context,

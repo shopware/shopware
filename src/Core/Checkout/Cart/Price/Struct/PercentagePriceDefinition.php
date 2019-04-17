@@ -7,6 +7,10 @@ use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
+/**
+ * A PercentagePriceDefinition calculate a percentual sum of all previously calculated prices and returns it as its own
+ * price. This can be used for percentual discounts.
+ */
 class PercentagePriceDefinition extends Struct implements PriceDefinitionInterface
 {
     public const TYPE = 'percentage';
@@ -73,7 +77,5 @@ class PercentagePriceDefinition extends Struct implements PriceDefinitionInterfa
         return [
             'percentage' => [new NotBlank(), new Type('numeric')],
         ];
-
-        // todo validate rules
     }
 }

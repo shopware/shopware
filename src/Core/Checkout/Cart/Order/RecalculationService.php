@@ -22,7 +22,6 @@ use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
-use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -157,7 +156,7 @@ class RecalculationService
     public function addProductToOrder(string $orderId, string $productId, int $quantity, Context $context): void
     {
         $this->validateProduct($productId, $context);
-        $lineItem = (new LineItem($productId, ProductCollector::LINE_ITEM_TYPE, $quantity))
+        $lineItem = (new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, $quantity))
             ->setRemovable(true)
             ->setStackable(true)
             ->setPayload(['id' => $productId]);
@@ -195,7 +194,6 @@ class RecalculationService
         $cart->add($lineItem);
 
         $recalculatedCart = $this->recalculateCart($cart, $salesChannelContext);
-        //$recalculatedCart = $this->cartService->refresh($cart, $salesChannelContext);
 
         $conversionContext = (new OrderConversionContext())
             ->setIncludeCustomer(false)

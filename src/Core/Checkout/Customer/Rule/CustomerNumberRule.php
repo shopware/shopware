@@ -22,10 +22,11 @@ class CustomerNumberRule extends Rule
      */
     protected $operator;
 
-    public function __construct()
+    public function __construct(string $operator = self::OPERATOR_EQ, ?array $numbers = null)
     {
         parent::__construct();
-        $this->operator = self::OPERATOR_EQ;
+        $this->operator = $operator;
+        $this->numbers = $numbers;
     }
 
     public function match(RuleScope $scope): bool

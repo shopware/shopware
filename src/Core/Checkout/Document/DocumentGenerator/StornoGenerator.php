@@ -13,6 +13,7 @@ use Twig\Error\Error;
 class StornoGenerator implements DocumentGeneratorInterface
 {
     public const DEFAULT_TEMPLATE = '@Shopware/documents/storno.html.twig';
+    public const STORNO = 'storno';
 
     /**
      * @var string
@@ -32,18 +33,13 @@ class StornoGenerator implements DocumentGeneratorInterface
 
     public function supports(): string
     {
-        return DocumentTypes::STORNO;
-    }
-
-    public function documentConfiguration(): DocumentConfiguration
-    {
-        return new DocumentConfiguration();
+        return self::STORNO;
     }
 
     /**
      * @throws Error
      */
-    public function generateFromTemplate(
+    public function generate(
         OrderEntity $order,
         DocumentConfiguration $config,
         Context $context,
@@ -55,7 +51,7 @@ class StornoGenerator implements DocumentGeneratorInterface
 
         return $this->twigEngine->render($templatePath, [
             'order' => $order,
-            'config' => DocumentConfigurationFactory::mergeConfiguration($config, $this->documentConfiguration())->toArray(),
+            'config' => DocumentConfigurationFactory::mergeConfiguration($config, new DocumentConfiguration())->toArray(),
             'rootDir' => $this->rootDir,
             'context' => $context,
         ]);
@@ -66,14 +62,14 @@ class StornoGenerator implements DocumentGeneratorInterface
         return $config->getFileNamePrefix() . $config->getDocumentNumber() . $config->getFileNameSuffix();
     }
 
-    protected function handlePrices(OrderEntity $order)
+    private function handlePrices(OrderEntity $order)
     {
         foreach ($order->getLineItems() as $lineItem) {
             $lineItem->setUnitPrice($lineItem->getUnitPrice() / -1);
             $lineItem->setTotalPrice($lineItem->getTotalPrice() / -1);
         }
         /** @var CalculatedTax $tax */
-        foreach ($order->getPrice()->getCalculatedTaxes()->getSortedByTax() as $tax) {
+        foreach ($order->getPrice()->getCalculatedTaxes()->sortByTax()->getElements() as $tax) {
             $tax->setTax($tax->getTax() / -1);
         }
 

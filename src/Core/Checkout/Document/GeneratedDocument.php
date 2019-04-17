@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Document;
 
 use Shopware\Core\Framework\Struct\Struct;
 
-class DocumentGenerated extends Struct
+class GeneratedDocument extends Struct
 {
     /**
      * @var string
@@ -24,7 +24,17 @@ class DocumentGenerated extends Struct
     /**
      * @var string
      */
+    protected $pageSize = 'a4';
+
+    /**
+     * @var string
+     */
     protected $html;
+
+    /**
+     * @var string
+     */
+    protected $contentType;
 
     public function getFilename(): string
     {
@@ -51,9 +61,11 @@ class DocumentGenerated extends Struct
         return $this->pageOrientation;
     }
 
-    public function setPageOrientation(string $pageOrientation): void
+    public function setPageOrientation(?string $pageOrientation): void
     {
-        $this->pageOrientation = $pageOrientation;
+        if ($pageOrientation !== null) {
+            $this->pageOrientation = $pageOrientation;
+        }
     }
 
     public function getHtml(): string
@@ -64,5 +76,30 @@ class DocumentGenerated extends Struct
     public function setHtml(string $html): void
     {
         $this->html = $html;
+    }
+
+    public function getPageSize(): string
+    {
+        return $this->pageSize;
+    }
+
+    /**
+     * @param string $pageSize
+     */
+    public function setPageSize(?string $pageSize): void
+    {
+        if ($pageSize !== null) {
+            $this->pageSize = $pageSize;
+        }
+    }
+
+    public function getContentType(): string
+    {
+        return $this->contentType;
+    }
+
+    public function setContentType(string $contentType): void
+    {
+        $this->contentType = $contentType;
     }
 }

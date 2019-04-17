@@ -22,10 +22,11 @@ class ShippingStreetRule extends Rule
      */
     protected $operator;
 
-    public function __construct()
+    public function __construct(string $operator = self::OPERATOR_EQ, ?string $streetName = null)
     {
         parent::__construct();
-        $this->operator = self::OPERATOR_EQ;
+        $this->operator = $operator;
+        $this->streetName = $streetName;
     }
 
     public function match(RuleScope $scope): bool

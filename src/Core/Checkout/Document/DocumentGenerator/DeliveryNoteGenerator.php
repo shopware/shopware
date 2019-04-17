@@ -12,6 +12,7 @@ use Twig\Error\Error;
 class DeliveryNoteGenerator implements DocumentGeneratorInterface
 {
     public const DEFAULT_TEMPLATE = '@Shopware/documents/delivery_note.html.twig';
+    public const DELIVERY_NOTE = 'delivery_note';
 
     /**
      * @var string
@@ -31,18 +32,13 @@ class DeliveryNoteGenerator implements DocumentGeneratorInterface
 
     public function supports(): string
     {
-        return DocumentTypes::DELIVERY_NOTE;
-    }
-
-    public function documentConfiguration(): DocumentConfiguration
-    {
-        return new DocumentConfiguration();
+        return self::DELIVERY_NOTE;
     }
 
     /**
      * @throws Error
      */
-    public function generateFromTemplate(
+    public function generate(
         OrderEntity $order,
         DocumentConfiguration $config,
         Context $context,
@@ -58,7 +54,7 @@ class DeliveryNoteGenerator implements DocumentGeneratorInterface
         return $this->twigEngine->render($templatePath, [
             'order' => $order,
             'orderDelivery' => $deliveries,
-            'config' => DocumentConfigurationFactory::mergeConfiguration($config, $this->documentConfiguration())->toArray(),
+            'config' => DocumentConfigurationFactory::mergeConfiguration($config, new DocumentConfiguration())->toArray(),
             'rootDir' => $this->rootDir,
             'context' => $context,
         ]);

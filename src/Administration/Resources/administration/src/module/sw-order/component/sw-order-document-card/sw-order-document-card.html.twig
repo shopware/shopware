@@ -1,80 +1,93 @@
-<sw-card :title="$tc('sw-order.documentCard.cardTitle')"
-         class="sw-order-document-card"
-         :isLoading="isLoading || documentsLoading || cardLoading">
-    <template slot="grid">
-    <sw-card-section divider="bottom" secondary slim>
-        <sw-card-filter :placeholder="$tc('sw-order.documentCard.searchBarPlaceholder')"
-            @sw-card-filter-term-change="onSearchTermChange">
-            <template slot="filter">
-                <sw-context-button>
-                    <sw-button slot="button"
-                        class="sw-order-document-grid-button sw-button--small">
-                        Neu erstellen
-                    </sw-button>
-                    <template v-for="documentType in documentTypes">
-                        <sw-context-menu-item class="sw-order-list__order-view-action" @click="onPrepareDocument(documentType)">
-                            {{ documentType.name }}
-                        </sw-context-menu-item>
+{% block sw_order_document_card %}
+    <sw-card :title="$tc('sw-order.documentCard.cardTitle')"
+             class="sw-order-document-card"
+             :isLoading="isLoading || documentsLoading || cardLoading">
+        <template slot="grid">
+        {% block sw_order_document_card_header %}
+            <sw-card-section divider="bottom" secondary slim>
+                <sw-card-filter :placeholder="$tc('sw-order.documentCard.searchBarPlaceholder')"
+                                @sw-card-filter-term-change="onSearchTermChange">
+                    <template slot="filter">
+                        <sw-context-button>
+                            <sw-button slot="button"
+                                       class="sw-order-document-grid-button sw-button--small">
+                                {{ $tc('sw-order.documentCard.labelCreateNew') }}
+                            </sw-button>
+                            <template v-for="documentType in documentTypes">
+                                <sw-context-menu-item class="sw-order-list__order-view-action"
+                                                      :disabled="!documentTypeAvailable(documentType)"
+                                                      @click="onPrepareDocument(documentType)"
+                                >
+                                    {{ documentType.name }}
+                                </sw-context-menu-item>
+                            </template>
+                        </sw-context-button>
                     </template>
-                </sw-context-button>
-            </template>
-        </sw-card-filter>
-    </sw-card-section>
-    <sw-grid v-if="documents.length > 0"
-        :items="documents"
-        :selectable="true"
-        table>
-        <template slot="columns" slot-scope="{ item }">
-            <sw-grid-column flex="minmax(100px, 180px)"
-                :label="$tc('sw-order.documentCard.labelDate')"
-                dataIndex="item.createdAt"
-                truncate>
-                {{ item.createdAt | date({year: '2-digit', hour:'2-digit', minute:'2-digit'}) }}
-            </sw-grid-column>
-            <sw-grid-column flex="minmax(100px, 1fr)"
-                :label="$tc('sw-order.documentCard.labelNumber')"
-                dataIndex="item.id"
-                truncate>
-                {{ item.config.documentNumber }}
-            </sw-grid-column>
-            <sw-grid-column flex="minmax(100px, 1fr)"
-                :label="$tc('sw-order.documentCard.labelType')"
-                dataIndex="item.documentType.name"
-                truncate>
-                {{ item.documentType.name }}
-            </sw-grid-column>
-            <sw-grid-column flex="minmax(100px, 1fr)"
-                    :label="$tc('sw-order.documentCard.labelSent')"
-                    dataIndex="item.sent"
-                    truncate>
-                <sw-icon v-if="item.sent"
-                    name="small-default-checkmark-line-medium"
-                    small>
-                </sw-icon>
-                <sw-icon v-else
-                    name="small-default-x-line-medium"
-                    small>
-                </sw-icon>
-            </sw-grid-column>
-            <sw-grid-column flex="minmax(70px, 70px)"
-                align="center">
-                <sw-context-button>
-                    <sw-context-menu-item>
-                        <a class="sw-document-download-button" :href="documentService.generateDocumentLink(item.id,item.deepLinkCode)" target="_blank">
-                            {{ $tc('sw-order.documentCard.labelDownloadPdf') }}
-                        </a>
-                    </sw-context-menu-item>
-                </sw-context-button>
-            </sw-grid-column>
+                </sw-card-filter>
+            </sw-card-section>
+        {% endblock %}
+        {% block sw_order_document_card_grid %}
+            <sw-grid v-if="documents.length > 0" :items="documents" :selectable="true" table>
+                <template slot="columns" slot-scope="{ item }">
+                    {% block sw_order_document_card_grid_column_created_at %}
+                        <sw-grid-column flex="minmax(100px, 180px)"
+                                        :label="$tc('sw-order.documentCard.labelDate')"
+                                        dataIndex="item.createdAt"
+                                        truncate>
+                            {{ item.createdAt | date({year: '2-digit', hour:'2-digit', minute:'2-digit'}) }}
+                        </sw-grid-column>
+                    {% endblock %}
+                    {% block sw_order_document_card_grid_column_document_number %}
+                        <sw-grid-column flex="minmax(100px, 1fr)"
+                                        :label="$tc('sw-order.documentCard.labelNumber')"
+                                        dataIndex="item.config.documentNumber"
+                                        truncate>
+                            {{ item.config.documentNumber }}
+                        </sw-grid-column>
+                    {% endblock %}
+                    {% block sw_order_document_card_grid_column_name %}
+                        <sw-grid-column flex="minmax(100px, 1fr)"
+                                        :label="$tc('sw-order.documentCard.labelType')"
+                                        dataIndex="item.documentType.name"
+                                        truncate>
+                            {{ item.documentType.name }}
+                        </sw-grid-column>
+                    {% endblock %}
+                    {% block sw_order_document_card_grid_column_sent %}
+                        <sw-grid-column flex="minmax(100px, 1fr)"
+                                        :label="$tc('sw-order.documentCard.labelSent')"
+                                        dataIndex="item.sent"
+                                        truncate>
+                            <sw-icon v-if="item.sent" name="small-default-checkmark-line-medium" small>
+                            </sw-icon>
+                            <sw-icon v-else name="small-default-x-line-medium" small>
+                            </sw-icon>
+                        </sw-grid-column>
+                    {% endblock %}
+                    {% block sw_order_document_card_grid_column_context %}
+                        <sw-grid-column flex="minmax(70px, 70px)" align="center">
+                            <sw-context-button>
+                                <sw-context-menu-item>
+                                    <a class="sw-document-download-button" :href="documentService.generateDocumentLink(item.id,item.deepLinkCode)" target="_blank">
+                                        {{ $tc('sw-order.documentCard.labelDownloadPdf') }}
+                                    </a>
+                                </sw-context-menu-item>
+                            </sw-context-button>
+                        </sw-grid-column>
+                    {% endblock %}
+                </template>
+            </sw-grid>
+        {% endblock %}
         </template>
-    </sw-grid>
-    </template>
-    <component v-if="showModal"
-        :is="documentModal"
-        :currentDocumentType="currentDocumentType"
-        :order="order"
-        @document-modal-leave-page="onCancelCreation"
-        @document-modal-create-document="onCreateDocument"
-        @document-modal-show-preview="onPreview">
-    </component>
-</sw-card>
+        {% block sw_order_document_card_grid_column_modal %}
+            <component v-if="showModal"
+                       :is="documentModal"
+                       :currentDocumentType="currentDocumentType"
+                       :order="order"
+                       @document-modal-leave-page="onCancelCreation"
+                       @document-modal-create-document="onCreateDocument"
+                       @document-modal-show-preview="onPreview">
+            </component>
+        {% endblock %}
+    </sw-card>
+{% endblock %}

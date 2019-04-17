@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
@@ -78,7 +77,7 @@ trait StorefrontPageTestBehaviour
     {
         $product = $this->getRandomProduct($context);
 
-        $lineItem = (new LineItem($product->getId(), ProductCollector::LINE_ITEM_TYPE, 1))
+        $lineItem = (new LineItem($product->getId(), LineItem::PRODUCT_LINE_ITEM_TYPE, 1))
                     ->setPayload(['id' => $product->getId()])
                     ->setRemovable(true)
                     ->setStackable(true);

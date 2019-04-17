@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Checkout\Document;
 
+use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentGenerator\DocumentGeneratorRegistry;
 use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
-use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentGeneratorTypeException;
 use Shopware\Core\Checkout\Document\Exception\InvalidFileGeneratorTypeException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileGeneratorRegistry;
@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -48,10 +47,11 @@ class DocumentService
      * @var EntityRepositoryInterface
      */
     private $documentTypeRepository;
+
     /**
-     * @var DocumentConfigurationService
+     * @var EntityRepositoryInterface
      */
-    private $documentConfigurationService;
+    private $documentConfigRepository;
 
     public function __construct(
         DocumentGeneratorRegistry $documentGeneratorRegistry,
@@ -59,14 +59,14 @@ class DocumentService
         EntityRepositoryInterface $orderRepository,
         EntityRepositoryInterface $documentRepository,
         EntityRepositoryInterface $documentTypeRepository,
-        DocumentConfigurationService $documentConfigurationService
+        EntityRepositoryInterface $documentConfigRepository
     ) {
         $this->documentGeneratorRegistry = $documentGeneratorRegistry;
         $this->fileGeneratorRegistry = $fileGeneratorRegistry;
         $this->orderRepository = $orderRepository;
         $this->documentRepository = $documentRepository;
         $this->documentTypeRepository = $documentTypeRepository;
-        $this->documentConfigurationService = $documentConfigurationService;
+        $this->documentConfigRepository = $documentConfigRepository;
     }
 
     public function create(
@@ -91,7 +91,7 @@ class DocumentService
 
         $documentId = Uuid::randomHex();
 
-        $documentConfiguration = $this->documentConfigurationService->getConfiguration(
+        $documentConfiguration = $this->getConfiguration(
             $context,
             $documentType->getId(),
             $config->toArray()
@@ -115,41 +115,7 @@ class DocumentService
         return new DocumentIdStruct($documentId, $deepLinkCode);
     }
 
-    public function getDocumentByIdAndToken(string $documentId, string $deepLinkCode, Context $context): DocumentEntity
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
-            new EqualsFilter('id', $documentId),
-            new EqualsFilter('deepLinkCode', $deepLinkCode),
-        ]));
-        $document = $this->documentRepository->search($criteria, $context)->get($documentId);
-
-        if (!$document) {
-            throw new InvalidDocumentException($documentId);
-        }
-
-        return $document;
-    }
-
-    public function getDocumentByOrder(
-        string $orderId,
-        string $documentType,
-        string $fileType,
-        DocumentConfiguration $config,
-        Context $context
-    ): DocumentGenerated {
-        $documentId = $this->create($orderId, $documentType, $fileType, $config, $context);
-
-        /** @var DocumentEntity|null $document */
-        $document = $this->documentRepository->search(new Criteria([$documentId]), $context)->get($documentId);
-        if (!$document) {
-            throw new InvalidDocumentException($documentId->getId());
-        }
-
-        return $this->renderDocument($document, $context);
-    }
-
-    public function renderDocument(DocumentEntity $document, Context $context): DocumentGenerated
+    public function generate(DocumentEntity $document, Context $context): GeneratedDocument
     {
         $documentGenerator = $this->documentGeneratorRegistry->getGenerator($document->getDocumentType()->getTechnicalName());
         $fileGenerator = $this->fileGeneratorRegistry->getGenerator($document->getFileType());
@@ -164,23 +130,25 @@ class DocumentService
 
         $config = DocumentConfigurationFactory::createConfiguration($document->getConfig());
 
-        $documentGenerated = new DocumentGenerated();
-        $documentGenerated->setHtml($documentGenerator->generateFromTemplate($order, $config, $context));
-        $documentGenerated->setFilename($documentGenerator->getFileName($config) . '.' . $fileGenerator->getExtension());
-        $documentGenerated->setPageOrientation($config->getPageOrientation());
-        $documentGenerated->setFileBlob($fileGenerator->generate($documentGenerated));
+        $generatedDocument = new GeneratedDocument();
+        $generatedDocument->setHtml($documentGenerator->generate($order, $config, $context));
+        $generatedDocument->setFilename($documentGenerator->getFileName($config) . '.' . $fileGenerator->getExtension());
+        $generatedDocument->setPageOrientation($config->getPageOrientation());
+        $generatedDocument->setPageSize($config->getPageSize());
+        $generatedDocument->setFileBlob($fileGenerator->generate($generatedDocument));
+        $generatedDocument->setContentType($fileGenerator->getContentType());
 
-        return $documentGenerated;
+        return $generatedDocument;
     }
 
-    public function getPreview(
+    public function preview(
         string $orderId,
         string $deepLinkCode,
         string $documentTypeName,
         string $fileType,
         DocumentConfiguration $config,
         Context $context
-    ): DocumentGenerated {
+    ): GeneratedDocument {
         $documentType = $this->getDocumentTypeByName($documentTypeName, $context);
 
         if (!$this->documentGeneratorRegistry->hasGenerator($documentTypeName) || !$documentType) {
@@ -195,19 +163,21 @@ class DocumentService
             throw new InvalidOrderException($orderId);
         }
 
-        $documentConfiguration = $this->documentConfigurationService->getConfiguration(
+        $documentConfiguration = $this->getConfiguration(
             $context,
             $documentType->getId(),
             $config->toArray()
         );
 
-        $documentGenerated = new DocumentGenerated();
-        $documentGenerated->setHtml($documentGenerator->generateFromTemplate($order, $documentConfiguration, $context));
-        $documentGenerated->setFilename($documentGenerator->getFileName($config) . '.' . $fileGenerator->getExtension());
-        $documentGenerated->setPageOrientation($config->getPageOrientation());
-        $documentGenerated->setFileBlob($fileGenerator->generate($documentGenerated));
+        $generatedDocument = new GeneratedDocument();
+        $generatedDocument->setHtml($documentGenerator->generate($order, $documentConfiguration, $context));
+        $generatedDocument->setFilename($documentGenerator->getFileName($config) . '.' . $fileGenerator->getExtension());
+        $generatedDocument->setPageOrientation($config->getPageOrientation());
+        $generatedDocument->setPageSize($config->getPageSize());
+        $generatedDocument->setFileBlob($fileGenerator->generate($generatedDocument));
+        $generatedDocument->setContentType($fileGenerator->getContentType());
 
-        return $documentGenerated;
+        return $generatedDocument;
     }
 
     private function getOrderByIdAndToken(
@@ -219,7 +189,8 @@ class DocumentService
         $criteria = (new Criteria([$orderId]))
             ->addFilter(new EqualsFilter('deepLinkCode', $deepLinkCode))
             ->addAssociation('lineItems')
-            ->addAssociation('transactions');
+            ->addAssociation('transactions')
+            ->addAssociation('deliveries', (new Criteria())->addAssociation('positions'));
 
         return $this->orderRepository->search($criteria, $context->createWithVersionId($versionId))->get($orderId);
     }
@@ -231,7 +202,8 @@ class DocumentService
     ): ?OrderEntity {
         $criteria = (new Criteria([$orderId]))
             ->addAssociation('lineItems')
-            ->addAssociation('transactions');
+            ->addAssociation('transactions')
+            ->addAssociation('deliveries', (new Criteria())->addAssociation('positions'));
 
         return $this->orderRepository->search($criteria, $context->createWithVersionId($versionId))->get($orderId);
     }
@@ -249,5 +221,15 @@ class DocumentService
         if ($versionId === Defaults::LIVE_VERSION) {
             throw new DocumentGenerationException('Only versioned orders can be used for document generation.');
         }
+    }
+
+    private function getConfiguration(Context $context, string $documentTypeId, ?array $specificConfiguration): DocumentConfiguration
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('documentTypeId', $documentTypeId));
+        /** @var DocumentBaseConfigEntity $typeConfig */
+        $typeConfig = $this->documentConfigRepository->search($criteria, $context)->first();
+
+        return DocumentConfigurationFactory::createConfiguration($specificConfiguration, $typeConfig);
     }
 }

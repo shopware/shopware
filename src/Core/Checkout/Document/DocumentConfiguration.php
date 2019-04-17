@@ -34,7 +34,12 @@ class DocumentConfiguration extends Struct
     /**
      * @var string
      */
-    protected $pageOrientation = 'portrait';
+    protected $pageOrientation;
+
+    /**
+     * @var string
+     */
+    protected $pageSize;
 
     /**
      * @var bool|null
@@ -192,13 +197,23 @@ class DocumentConfiguration extends Struct
         $this->documentNumber = $documentNumber;
     }
 
-    public function getPageOrientation(): string
+    public function getPageOrientation(): ?string
     {
         return $this->pageOrientation;
     }
 
-    public function setPageOrientation(string $pageOrientation): void
+    public function setPageOrientation(?string $pageOrientation): void
     {
         $this->pageOrientation = $pageOrientation;
+    }
+
+    public function getPageSize(): ?string
+    {
+        return $this->pageSize;
+    }
+
+    public function setPageSize(?string $pageSize): void
+    {
+        $this->pageSize = $pageSize;
     }
 }

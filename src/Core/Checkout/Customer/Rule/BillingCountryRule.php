@@ -22,10 +22,11 @@ class BillingCountryRule extends Rule
      */
     protected $operator;
 
-    public function __construct()
+    public function __construct(string $operator = self::OPERATOR_EQ, ?array $countryIds = null)
     {
         parent::__construct();
-        $this->operator = self::OPERATOR_EQ;
+        $this->operator = $operator;
+        $this->countryIds = $countryIds;
     }
 
     public function match(RuleScope $scope): bool

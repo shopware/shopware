@@ -1,9 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Document;
+namespace Shopware\Core\Checkout\Document\Controller;
 
+use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
+use Shopware\Core\Checkout\Document\DocumentService;
+use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,9 +24,15 @@ class DocumentController extends AbstractController
      */
     protected $documentService;
 
-    public function __construct(DocumentService $documentService)
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $documentRepository;
+
+    public function __construct(DocumentService $documentService, EntityRepositoryInterface $documentRepository)
     {
         $this->documentService = $documentService;
+        $this->documentRepository = $documentRepository;
     }
 
     /**
@@ -28,11 +41,26 @@ class DocumentController extends AbstractController
     public function downloadDocument(Request $request, string $documentId, string $deepLinkCode, Context $context): Response
     {
         $download = $request->query->getBoolean('download', false);
-        $document = $this->documentService->getDocumentByIdAndToken($documentId, $deepLinkCode, $context);
 
-        $documentGenerated = $this->documentService->renderDocument($document, $context);
+        $criteria = new Criteria();
+        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
+            new EqualsFilter('id', $documentId),
+            new EqualsFilter('deepLinkCode', $deepLinkCode),
+        ]));
+        $document = $this->documentRepository->search($criteria, $context)->get($documentId);
 
-        return $this->createResponse($documentGenerated->getFilename(), $documentGenerated->getFileBlob(), $download);
+        if (!$document) {
+            throw new InvalidDocumentException($documentId);
+        }
+
+        $generatedDocument = $this->documentService->generate($document, $context);
+
+        return $this->createResponse(
+            $generatedDocument->getFilename(),
+            $generatedDocument->getFileBlob(),
+            $download,
+            $generatedDocument->getContentType()
+        );
     }
 
     /**
@@ -56,7 +84,7 @@ class DocumentController extends AbstractController
         $fileType = $request->query->getAlnum('fileType', FileTypes::PDF);
         $download = $request->query->getBoolean('download', false);
 
-        $documentGenerated = $this->documentService->getPreview(
+        $generatedDocument = $this->documentService->preview(
             $orderId,
             $deepLinkCode,
             $documentTypeName,
@@ -65,10 +93,15 @@ class DocumentController extends AbstractController
             $context
         );
 
-        return $this->createResponse($documentGenerated->getFilename(), $documentGenerated->getFileBlob(), $download);
+        return $this->createResponse(
+            $generatedDocument->getFilename(),
+            $generatedDocument->getFileBlob(),
+            $download,
+            $generatedDocument->getContentType()
+        );
     }
 
-    private function createResponse(string $filename, string $content, bool $forceDownload): Response
+    private function createResponse(string $filename, string $content, bool $forceDownload, string $contentType): Response
     {
         $response = new Response($content);
 
@@ -77,9 +110,7 @@ class DocumentController extends AbstractController
             $filename
         );
 
-        // todo get from generator
-        $response->headers->set('Content-Type', 'application/pdf');
-
+        $response->headers->set('Content-Type', $contentType);
         $response->headers->set('Content-Disposition', $disposition);
 
         return $response;

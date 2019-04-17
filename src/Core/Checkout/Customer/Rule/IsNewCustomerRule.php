@@ -14,10 +14,10 @@ class IsNewCustomerRule extends Rule
      */
     protected $isNew;
 
-    public function __construct()
+    public function __construct(bool $isNew = true)
     {
         parent::__construct();
-        $this->isNew = true;
+        $this->isNew = $isNew;
     }
 
     public function match(RuleScope $scope): bool

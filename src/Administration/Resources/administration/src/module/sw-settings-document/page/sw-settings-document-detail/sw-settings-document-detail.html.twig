@@ -17,7 +17,10 @@
                 {% endblock %}
 
                 {% block sw_settings_document_detail_actions_save %}
-                    <sw-button class="sw-settings-document-detail__save-action" variant="primary" :disabled="documentConfig.isLoading" @click.prevent="onSave">
+                    <sw-button class="sw-settings-document-detail__save-action"
+                               variant="primary"
+                               :disabled="documentConfig.isLoading"
+                               @click.prevent="onSave">
                         {{ $tc('sw-settings-document.detail.buttonSave') }}
                     </sw-button>
                 {% endblock %}
@@ -42,7 +45,7 @@
                             {% block sw_configuration_option_list_grid_column_media %}
                                 <div flex="250px" align="stretch"  class="media-column">
                                     <sw-media-field v-model="documentConfig.logoId"
-                                                    :label="$tc('sw-configuration.detail.labelOptionMedia')">
+                                                    :label="$tc('sw-settings-document.detail.labelOptionMedia')">
                                     </sw-media-field>
                                 </div>
                             {% endblock %}
@@ -63,12 +66,11 @@
                             </div>
                             {% endblock %}
                             {% block sw_attribute_set_renderer_card_tabs_content %}
-                                <template v-for="attribute in attributeSet.attributes">
+                                <template v-for="formFields in formFieldSet.formFields">
                                     {% block sw_attribute_set_renderer_card_form_renderer %}
-                                    <sw-form-field-renderer
-                                            v-if="documentConfig.config"
-                                            v-bind="attribute"
-                                            v-model="documentConfig.config[attribute.name]">
+                                    <sw-form-field-renderer v-if="documentConfig.config"
+                                                            v-bind="formFields"
+                                                            v-model="documentConfig.config[formFields.name]">
                                     </sw-form-field-renderer>
                                     {% endblock %}
                                 </template>
@@ -81,31 +83,33 @@
                         <sw-container columns="repeat(auto-fit, minmax(100%, 1fr)" gap="0px 30px">
                             {% block sw_document_detail_base_general_input_type %}
                                 <sw-select :store="documentTypeStore"
-                                           v-model="documentConfig.type.id"
-                                           v-if="documentConfig.type"
+                                           v-model="documentConfig.documentType.id"
+                                           v-if="documentConfig.documentType"
                                            id="documentConfigTypes"
                                            displayName="name"
                                            :label="$tc('sw-settings-document.detail.labelType')"
                                            class="sw-settings-document-detail__select-type"
                                            :showSearch="false"
-                                           :disabled="documentConfig.global || (documentConfigSalesChannels !== null && documentConfigSalesChannels.length > 0)"
+                                           :disabled="documentConfig.global ||
+                                                      (documentConfigSalesChannels !== null &&
+                                                       documentConfigSalesChannels.length > 0)"
                                            @input="onChangeType">
                                 </sw-select>
                             {% endblock %}
                             {% block sw_document_detail_base_general_input_sales_channel %}
                                 <sw-select :store="salesChannelStore"
-                                        multi
-                                        v-model="documentConfigSalesChannels"
-                                        :associationStore="documentConfigSalesChannelsStore"
-                                        id="documentSalesChannel"
-                                        :criteria="salesChannelsTypeCriteria"
-                                        :label="$tc('sw-settings-document.detail.labelSalesChannel')"
-                                        class="sw-document-detail__select-type"
-                                        v-if="documentConfig && (!documentConfig.global || documentConfig.global === false)"
-                                        :showSearch="false"
-                                        ref="documentSalesChannel"
-                                        :disabled="selectedType.id === undefined"
-                                        validation="required">
+                                           multi
+                                           v-model="documentConfigSalesChannels"
+                                           :associationStore="documentConfigSalesChannelsStore"
+                                           id="documentSalesChannel"
+                                           :criteria="salesChannelsTypeCriteria"
+                                           :label="$tc('sw-settings-document.detail.labelSalesChannel')"
+                                           class="sw-document-detail__select-type"
+                                           v-if="documentConfig && (!documentConfig.global || documentConfig.global === false)"
+                                           :showSearch="false"
+                                           ref="documentSalesChannel"
+                                           :disabled="selectedType.id === undefined"
+                                           validation="required">
                             </sw-select>
                             {% endblock %}
                         </sw-container>

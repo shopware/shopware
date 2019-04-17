@@ -50,15 +50,12 @@
                                          class="sw-settings-document-list-grid"
                                          :items="items"
                                          :selectable="false"
-                                         @inline-edit-cancel="onInlineEditCancel"
-                                         @inline-edit-finish="onInlineEditSave"
                                          table>
                                     <template slot="columns" slot-scope="{ item }">
                                         {% block sw_product_list_grid_columns %}
 
                                             {% block sw_settings_document_list_columns_name %}
-                                                <sw-grid-column class="sw-document-list__column-name" flex="minmax(150px, 1fr)"
-                                                                editable
+                                                <sw-grid-column class="sw-document-list__column-name" flex="minmax(100px, 1fr)"
                                                                 :label="$tc('sw-settings-document.list.columnName')">
 
                                                     {% block sw_settings_document_list_columns_name_link %}
@@ -69,18 +66,19 @@
                                                             {% endblock %}
                                                         </router-link>
                                                     {% endblock %}
+                                                </sw-grid-column>
+                                            {% endblock %}
 
-                                                    {% block sw_settings_document_list_columns_name_editor %}
-                                                        <sw-field type="text"
-                                                                  v-model="item.name"
-                                                                  slot="inline-edit">
-                                                        </sw-field>
-                                                    {% endblock %}
+                                            {% block sw_settings_document_list_columns_type %}
+                                                <sw-grid-column class="sw-document-list__column-type" flex="minmax(100px, 1fr)"
+                                                                :label="$tc('sw-settings-document.list.columnType')"
+                                                                v-if="item.documentType.translated">
+                                                    {{ item.documentType.translated.name }}
                                                 </sw-grid-column>
                                             {% endblock %}
 
                                             {% block sw_settings_document_list_columns_assignment %}
-                                                <sw-grid-column flex="minmax(150px, 1fr)"
+                                                <sw-grid-column flex="minmax(100px, 1fr)"
                                                                 :label="$tc('sw-settings-document.list.columnAssignment')">
                                                     {% block sw_settings_document_list_columns_assignment_label %}
                                                         <div class="sw-list" v-if="item.global">
@@ -89,9 +87,11 @@
                                                             </span>
                                                         </div>
                                                         <ul class="sw-list" v-if="!item.global">
-                                                            <li v-for="salesChannel in item.meta.viewData.salesChannels.elements">
-                                                                <span class="sw-label" v-if="salesChannel.salesChannel">
-                                                                    {{ salesChannel.salesChannel.viewData.name }}
+                                                            <li v-for="salesChannel in item.salesChannels">
+                                                                <span class="sw-label"
+                                                                      v-if="salesChannel.salesChannel &&
+                                                                      salesChannel.salesChannel.translated">
+                                                                    {{ salesChannel.salesChannel.translated.name }}
                                                                 </span>
                                                             </li>
                                                         </ul>
@@ -107,7 +107,8 @@
                                                     <sw-context-button>
 
                                                         {% block sw_settings_document_list_columns_actions_edit %}
-                                                            <sw-context-menu-item class="sw-document-list__edit-action" :routerLink="{ name: 'sw.settings.document.detail', params: { id: item.id } }">
+                                                            <sw-context-menu-item class="sw-document-list__edit-action"
+                                                                                  :routerLink="{ name: 'sw.settings.document.detail', params: { id: item.id } }">
                                                                 {{ $tc('sw-settings-document.list.contextMenuEdit') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}

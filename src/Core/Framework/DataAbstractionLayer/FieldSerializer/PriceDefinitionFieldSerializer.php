@@ -129,17 +129,14 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         switch ($value['type']) {
             case QuantityPriceDefinition::TYPE:
                 return QuantityPriceDefinition::fromArray($value);
-                break;
             case AbsolutePriceDefinition::TYPE:
                 $rules = (array_key_exists('filter', $value) && $value['filter'] !== null) ? $this->decodeRule($value['filter']) : null;
 
                 return new AbsolutePriceDefinition($value['price'], $value['precision'], $rules);
-                break;
             case PercentagePriceDefinition::TYPE:
                 $rules = array_key_exists('filter', $value) ? $this->decodeRule($value['filter']) : null;
 
                 return new PercentagePriceDefinition($value['percentage'], $value['precision'], $rules);
-                break;
             default:throw new InvalidPriceFieldTypeException($value['type']);
         }
     }
@@ -149,18 +146,18 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         $violationList = new ConstraintViolationList();
         /** @var string|null $type */
         $type = null;
-        if (array_key_exists('type', $data)) {
-            $type = $data['type'];
-            unset($data['type']);
+        if (array_key_exists('_name', $data)) {
+            $type = $data['_name'];
+            unset($data['_name']);
         }
 
         if ($type === null) {
             $violationList->add(
                 $this->buildViolation(
-                    'This "type" value (%value%) is invalid.',
+                    'This "_name" value (%value%) is invalid.',
                     ['%value%' => $type ?? 'NULL'],
                     null,
-                    $basePath . '/type'
+                    $basePath . '/_name'
                 )
             );
         } else {
@@ -184,11 +181,11 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
 
     private function decodeRule(array $rule): Rule
     {
-        if (!$this->ruleConditionRegistry->has($rule['type'])) {
-            throw new ConditionTypeNotFound($rule['type']);
+        if (!$this->ruleConditionRegistry->has($rule['_name'])) {
+            throw new ConditionTypeNotFound($rule['_name']);
         }
 
-        $ruleClass = $this->ruleConditionRegistry->getRuleClass($rule['type']);
+        $ruleClass = $this->ruleConditionRegistry->getRuleClass($rule['_name']);
         $object = new $ruleClass();
 
         if (array_key_exists('rules', $rule) && $object instanceof Container) {

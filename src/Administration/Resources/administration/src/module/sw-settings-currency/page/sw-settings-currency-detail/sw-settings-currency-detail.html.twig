@@ -53,6 +53,14 @@
                                 </sw-field>
                             {% endblock %}
 
+                            {% block sw_settings_currency_detail_content_field_iso_code %}
+                                <sw-field type="text"
+                                          :label="$tc('sw-settings-currency.detail.labelIsoCode')"
+                                          :placeholder="placeholder(currency, 'isoCode', $tc('sw-settings-currency.detail.placeholderIsoCode'))"
+                                          v-model="currency.isoCode">
+                                </sw-field>
+                            {% endblock %}
+
                             {% block sw_settings_currency_detail_content_field_short_name %}
                                 <sw-field type="text"
                                           :label="$tc('sw-settings-currency.detail.labelShortName')"

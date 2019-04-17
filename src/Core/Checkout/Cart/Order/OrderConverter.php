@@ -331,7 +331,6 @@ class OrderConverter
             ->setStackable($entity->getStackable())
             ->setLabel($entity->getLabel())
             ->setGood($entity->getGood())
-            ->setPriority($entity->getPriority())
             ->setRemovable($entity->getRemovable())
             ->setStackable($entity->getStackable())
             ->addExtension(self::ORIGINAL_ID, new IdStruct($id));

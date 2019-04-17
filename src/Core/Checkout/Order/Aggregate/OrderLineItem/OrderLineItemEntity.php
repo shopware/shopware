@@ -69,11 +69,6 @@ class OrderLineItemEntity extends Entity
     protected $stackable;
 
     /**
-     * @var int
-     */
-    protected $priority;
-
-    /**
      * @var CalculatedPrice|null
      */
     protected $price;
@@ -236,16 +231,6 @@ class OrderLineItemEntity extends Entity
     public function setStackable(bool $stackable): void
     {
         $this->stackable = $stackable;
-    }
-
-    public function getPriority(): int
-    {
-        return $this->priority;
-    }
-
-    public function setPriority(int $priority): void
-    {
-        $this->priority = $priority;
     }
 
     public function getPrice(): ?CalculatedPrice

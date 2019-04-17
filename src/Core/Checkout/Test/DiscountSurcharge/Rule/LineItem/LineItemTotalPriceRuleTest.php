@@ -26,7 +26,7 @@ class LineItemTotalPriceRuleTest extends TestCase
             );
 
         static::assertTrue(
-            $rule->match(new LineItemScope($lineItem, $context))->matches()
+            $rule->match(new LineItemScope($lineItem, $context))
         );
     }
 
@@ -42,7 +42,7 @@ class LineItemTotalPriceRuleTest extends TestCase
             );
 
         static::assertFalse(
-            $rule->match(new LineItemScope($lineItem, $context))->matches()
+            $rule->match(new LineItemScope($lineItem, $context))
         );
     }
 
@@ -58,7 +58,7 @@ class LineItemTotalPriceRuleTest extends TestCase
             );
 
         static::assertTrue(
-            $rule->match(new LineItemScope($lineItem, $context))->matches()
+            $rule->match(new LineItemScope($lineItem, $context))
         );
     }
 
@@ -74,7 +74,7 @@ class LineItemTotalPriceRuleTest extends TestCase
             );
 
         static::assertTrue(
-            $rule->match(new LineItemScope($lineItem, $context))->matches()
+            $rule->match(new LineItemScope($lineItem, $context))
         );
     }
 
@@ -90,7 +90,7 @@ class LineItemTotalPriceRuleTest extends TestCase
             );
 
         static::assertFalse(
-            $rule->match(new LineItemScope($lineItem, $context))->matches()
+            $rule->match(new LineItemScope($lineItem, $context))
         );
     }
 
@@ -106,7 +106,7 @@ class LineItemTotalPriceRuleTest extends TestCase
             );
 
         static::assertTrue(
-            $rule->match(new LineItemScope($lineItem, $context))->matches()
+            $rule->match(new LineItemScope($lineItem, $context))
         );
     }
 
@@ -122,7 +122,7 @@ class LineItemTotalPriceRuleTest extends TestCase
             );
 
         static::assertTrue(
-            $rule->match(new LineItemScope($lineItem, $context))->matches()
+            $rule->match(new LineItemScope($lineItem, $context))
         );
     }
 
@@ -138,7 +138,7 @@ class LineItemTotalPriceRuleTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
 
         static::assertFalse(
-            $rule->match(new LineItemScope($lineItem, $context))->matches()
+            $rule->match(new LineItemScope($lineItem, $context))
         );
     }
 
@@ -154,7 +154,7 @@ class LineItemTotalPriceRuleTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
 
         static::assertTrue(
-            $rule->match(new LineItemScope($lineItem, $context))->matches()
+            $rule->match(new LineItemScope($lineItem, $context))
         );
     }
 
@@ -170,7 +170,7 @@ class LineItemTotalPriceRuleTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
 
         static::assertFalse(
-            $rule->match(new LineItemScope($lineItem, $context))->matches()
+            $rule->match(new LineItemScope($lineItem, $context))
         );
     }
 }

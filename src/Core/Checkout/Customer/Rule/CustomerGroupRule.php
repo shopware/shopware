@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
-use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
@@ -28,10 +27,10 @@ class CustomerGroupRule extends Rule
         $this->operator = self::OPERATOR_EQ;
     }
 
-    public function match(RuleScope $scope): Match
+    public function match(RuleScope $scope): bool
     {
         if (!$scope instanceof CheckoutRuleScope) {
-            return new Match(false, ['Wrong scope']);
+            return false;
         }
 
         $id = $scope->getSalesChannelContext()->getCurrentCustomerGroup()->getId();
@@ -39,17 +38,11 @@ class CustomerGroupRule extends Rule
         switch ($this->operator) {
             case self::OPERATOR_EQ:
                 /* @var CheckoutRuleScope $scope */
-                return new Match(
-                    $id !== null && \in_array($id, $this->customerGroupIds, true),
-                    ['Current customer group not matched']
-                );
+                return $id !== null && \in_array($id, $this->customerGroupIds, true);
 
             case self::OPERATOR_NEQ:
                 /* @var CheckoutRuleScope $scope */
-                return new Match(
-                    $id !== null && !\in_array($id, $this->customerGroupIds, true),
-                    ['Current customer group matched']
-                );
+                return $id !== null && !\in_array($id, $this->customerGroupIds, true);
 
             default:
                 throw new UnsupportedOperatorException($this->operator, __CLASS__);

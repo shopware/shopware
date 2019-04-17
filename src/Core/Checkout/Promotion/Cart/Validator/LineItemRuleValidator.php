@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
-use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -56,11 +55,10 @@ class LineItemRuleValidator
             try {
                 $itemScope = new LineItemScope($lineItem, $context);
 
-                /** @var Match $matchResult */
                 $matchResult = $discountCondition->match($itemScope);
 
                 // if the rule matches, we are allowed to add a promotion for this line item
-                if ($matchResult->matches()) {
+                if ($matchResult) {
                     $eligibleItems[] = $lineItem->getKey();
                 }
             } catch (\Throwable $ex) {

@@ -75,7 +75,112 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
 
         $match = $rule->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
 
-        static::assertTrue($match->matches());
+        static::assertTrue($match);
+    }
+
+    public function testNotContainsFreeDeliveryItems(): void
+    {
+        $cart = new Cart('test', Uuid::randomHex());
+
+        $lineItemCollection = new LineItemCollection();
+        $lineItemCollection->add(
+            (new LineItem('dummyNoShippingCost', 'product', 3))->setDeliveryInformation(
+                new DeliveryInformation(
+                    9999,
+                    50.0,
+                    new DeliveryDate(new \DateTime('-6h'), new \DateTime('+3 weeks')),
+                    new DeliveryDate(new \DateTime('-6h'), new \DateTime('+3 weeks')),
+                    false
+                )
+            )
+        );
+
+        $cart->addLineItems($lineItemCollection);
+
+        $rule = new CartHasDeliveryFreeItemRule();
+
+        $match = $rule->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
+
+        static::assertFalse($match);
+    }
+
+    public function testEmptyDeliveryItems(): void
+    {
+        $cart = new Cart('test', Uuid::randomHex());
+
+        $lineItemCollection = new LineItemCollection();
+        $cart->addLineItems($lineItemCollection);
+
+        $rule = new CartHasDeliveryFreeItemRule();
+        $match = $rule->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
+
+        static::assertFalse($match);
+
+        $rule = (new CartHasDeliveryFreeItemRule())->assign(['allowed' => false]);
+        $match = $rule->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
+
+        static::assertFalse($match);
+    }
+
+    public function testNotContainsFreeDeliveryItemsMatchesNotAllowed(): void
+    {
+        $cart = new Cart('test', Uuid::randomHex());
+
+        $lineItemCollection = new LineItemCollection();
+        $lineItemCollection->add(
+            (new LineItem('dummyNoShippingCost', 'product', 3))->setDeliveryInformation(
+                new DeliveryInformation(
+                    9999,
+                    50.0,
+                    new DeliveryDate(new \DateTime('-6h'), new \DateTime('+3 weeks')),
+                    new DeliveryDate(new \DateTime('-6h'), new \DateTime('+3 weeks')),
+                    false
+                )
+            )
+        );
+
+        $cart->addLineItems($lineItemCollection);
+
+        $rule = (new CartHasDeliveryFreeItemRule())->assign(['allowed' => false]);
+
+        $match = $rule->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
+
+        static::assertTrue($match);
+    }
+
+    public function testContainsNotFreeDeliveryItems(): void
+    {
+        $cart = new Cart('test', Uuid::randomHex());
+
+        $lineItemCollection = new LineItemCollection();
+        $lineItemCollection->add((new LineItem('dummyWithShippingCost', 'product', 3))->setDeliveryInformation(
+            new DeliveryInformation(
+                9999,
+                50.0,
+                new DeliveryDate(new \DateTime('-6h'), new \DateTime('+3 weeks')),
+                new DeliveryDate(new \DateTime('-6h'), new \DateTime('+3 weeks')),
+                false
+            )
+        ));
+        $lineItemCollection->add(
+            (new LineItem('dummyNoShippingCost', 'product', 3))->setDeliveryInformation(
+                new DeliveryInformation(
+                    9999,
+                    50.0,
+                    new DeliveryDate(new \DateTime('-6h'), new \DateTime('+3 weeks')),
+                    new DeliveryDate(new \DateTime('-6h'), new \DateTime('+3 weeks')),
+                    true
+                )
+            )
+        );
+
+        $cart->addLineItems($lineItemCollection);
+
+        $rule = (new CartHasDeliveryFreeItemRule())->assign(['allowed' => false]);
+
+        $match = $rule->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
+
+        static::assertTrue($match);
     }
 
     public function testIfRuleIsConsistent(): void

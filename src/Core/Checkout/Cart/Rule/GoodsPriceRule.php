@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
-use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraints\Choice;
@@ -30,14 +29,10 @@ class GoodsPriceRule extends Rule
     /**
      * @throws UnsupportedOperatorException
      */
-    public function match(
-        RuleScope $scope
-    ): Match {
+    public function match(RuleScope $scope): bool
+    {
         if (!$scope instanceof CartRuleScope) {
-            return new Match(
-                false,
-                ['Invalid Match Context. CartRuleScope expected']
-            );
+            return false;
         }
         $goods = $scope->getCart()->getLineItems()->filterGoods();
 
@@ -45,45 +40,22 @@ class GoodsPriceRule extends Rule
 
         switch ($this->operator) {
             case self::OPERATOR_GTE:
-
-                return new Match(
-                    $goodsAmount >= $this->amount,
-                    ['Goods price too low']
-                );
+                return $goodsAmount >= $this->amount;
 
             case self::OPERATOR_LTE:
-
-                return new Match(
-                    $goodsAmount <= $this->amount,
-                    ['Goods price too high']
-                );
+                return $goodsAmount <= $this->amount;
 
             case self::OPERATOR_GT:
-
-                return new Match(
-                    $goodsAmount > $this->amount,
-                    ['Goods price too low']
-                );
+                return $goodsAmount > $this->amount;
 
             case self::OPERATOR_LT:
-
-                return new Match(
-                    $goodsAmount < $this->amount,
-                    ['Goods price too high']
-                );
+                return $goodsAmount < $this->amount;
 
             case self::OPERATOR_EQ:
-                return new Match(
-                    $goodsAmount === $this->amount,
-                    ['Goods price is not equal']
-                );
+                return $goodsAmount === $this->amount;
 
             case self::OPERATOR_NEQ:
-
-                return new Match(
-                    $goodsAmount !== $this->amount,
-                    ['Goods price is equal']
-                );
+                return $goodsAmount !== $this->amount;
 
             default:
                 throw new UnsupportedOperatorException($this->operator, __CLASS__);

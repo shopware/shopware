@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
-use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraints\Type;
@@ -20,28 +19,22 @@ class DifferentAddressesRule extends Rule
         $this->isDifferent = true;
     }
 
-    public function match(RuleScope $scope): Match
+    public function match(RuleScope $scope): bool
     {
         if (!$scope instanceof CheckoutRuleScope) {
-            return new Match(false, ['Wrong scope']);
+            return false;
         }
 
         /** @var CheckoutRuleScope $scope */
         if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
-            return new Match(false, ['Not logged in customer']);
+            return false;
         }
 
         if ($this->isDifferent) {
-            return new Match(
-                $customer->getActiveBillingAddress()->getId() !== $customer->getActiveShippingAddress()->getId(),
-                ['Addresses are equal']
-            );
+            return $customer->getActiveBillingAddress()->getId() !== $customer->getActiveShippingAddress()->getId();
         }
 
-        return new Match(
-            $customer->getActiveBillingAddress()->getId() === $customer->getActiveShippingAddress()->getId(),
-            ['Addresses are not equal']
-        );
+        return $customer->getActiveBillingAddress()->getId() === $customer->getActiveShippingAddress()->getId();
     }
 
     public function getConstraints(): array

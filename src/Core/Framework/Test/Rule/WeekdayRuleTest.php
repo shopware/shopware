@@ -17,8 +17,7 @@ class WeekdayRuleTest extends TestCase
         ]);
         $match = $rule->match($this->createMock(RuleScope::class));
 
-        static::assertTrue($match->matches());
-        static::assertStringStartsWith('Today is not the selected day of week.', $match->getMessages()[0]);
+        static::assertTrue($match);
     }
 
     public function testMatchForYesterday(): void
@@ -31,8 +30,7 @@ class WeekdayRuleTest extends TestCase
 
         $match = $rule->match($this->createMock(RuleScope::class));
 
-        static::assertFalse($match->matches());
-        static::assertStringStartsWith('Today is not the selected day of week.', $match->getMessages()[0]);
+        static::assertFalse($match);
     }
 
     public function testMatchWithNotEqualsOperator(): void
@@ -45,7 +43,6 @@ class WeekdayRuleTest extends TestCase
 
         $match = $rule->match($this->createMock(RuleScope::class));
 
-        static::assertFalse($match->matches());
-        static::assertStringStartsWith('Today is the selected day of week.', $match->getMessages()[0]);
+        static::assertFalse($match);
     }
 }

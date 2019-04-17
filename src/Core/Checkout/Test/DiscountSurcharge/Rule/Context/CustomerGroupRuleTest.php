@@ -27,7 +27,7 @@ class CustomerGroupRuleTest extends TestCase
             ->willReturn($group);
 
         static::assertTrue(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -47,7 +47,7 @@ class CustomerGroupRuleTest extends TestCase
             ->willReturn($group);
 
         static::assertTrue(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -67,7 +67,7 @@ class CustomerGroupRuleTest extends TestCase
             ->willReturn($group);
 
         static::assertFalse(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 }

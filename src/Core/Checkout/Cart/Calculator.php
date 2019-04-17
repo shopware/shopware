@@ -100,7 +100,7 @@ class Calculator
                     new LineItemScope($lineItem, $context)
                 );
 
-                return $match->matches();
+                return $match;
             }
         );
     }
@@ -161,6 +161,6 @@ class Calculator
 
         $scope = new CartRuleScope($cart, $context);
 
-        return $lineItem->getRequirement()->match($scope)->matches();
+        return $lineItem->getRequirement()->match($scope);
     }
 }

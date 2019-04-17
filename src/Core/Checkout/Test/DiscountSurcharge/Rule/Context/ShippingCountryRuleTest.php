@@ -29,7 +29,7 @@ class ShippingCountryRuleTest extends TestCase
             ->willReturn(ShippingLocation::createFromCountry($country));
 
         static::assertTrue(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -49,7 +49,7 @@ class ShippingCountryRuleTest extends TestCase
             ->willReturn(ShippingLocation::createFromCountry($country));
 
         static::assertFalse(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -69,7 +69,7 @@ class ShippingCountryRuleTest extends TestCase
             ->willReturn(ShippingLocation::createFromCountry($country));
 
         static::assertTrue(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -89,7 +89,7 @@ class ShippingCountryRuleTest extends TestCase
             ->willReturn(ShippingLocation::createFromCountry($country));
 
         static::assertFalse(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -116,7 +116,7 @@ class ShippingCountryRuleTest extends TestCase
             ->willReturn(ShippingLocation::createFromCountry($country));
 
         $this->expectException(UnsupportedOperatorException::class);
-        $rule->match(new CartRuleScope($cart, $context))->matches();
+        $rule->match(new CartRuleScope($cart, $context));
     }
 
     public function testUnsupportedOperatorMessage(): void

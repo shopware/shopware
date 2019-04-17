@@ -3,7 +3,6 @@
 namespace Shopware\Core\System\Currency\Rule;
 
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
-use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
@@ -27,19 +26,15 @@ class CurrencyRule extends Rule
         $this->operator = self::OPERATOR_EQ;
     }
 
-    public function match(RuleScope $scope): Match
+    public function match(RuleScope $scope): bool
     {
         switch ($this->operator) {
             case self::OPERATOR_EQ:
-                return new Match(
-                    \in_array($scope->getContext()->getCurrencyId(), $this->currencyIds, true),
-                    ['Currency not matched']
-                );
+                return \in_array($scope->getContext()->getCurrencyId(), $this->currencyIds, true);
+
             case self::OPERATOR_NEQ:
-                return new Match(
-                    !\in_array($scope->getContext()->getCurrencyId(), $this->currencyIds, true),
-                    ['Currency not matched']
-                );
+                return !\in_array($scope->getContext()->getCurrencyId(), $this->currencyIds, true);
+
             default:
                 throw new UnsupportedOperatorException($this->operator, __CLASS__);
         }

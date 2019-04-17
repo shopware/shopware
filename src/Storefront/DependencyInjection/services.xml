@@ -276,8 +276,6 @@
 
         <service id="Shopware\Storefront\PageController\HomePageController" public="true">
             <argument type="service" id="Shopware\Storefront\Page\Home\HomePageLoader"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
         </service>
 
         <service id="Shopware\Storefront\PageController\ProductPageController" public="true">
@@ -292,32 +290,32 @@
             <argument type="service" id="Shopware\Storefront\Page\Navigation\NavigationPageLoader"/>
         </service>
 
-        <service id="Shopware\Storefront\Page\NewsletterReceiver\Register\NewsletterReceiverLoader">
+        <service id="Shopware\Storefront\Page\Newsletter\Register\NewsletterRegisterLoader">
             <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="salutation.repository"/>
         </service>
 
-        <service id="Shopware\Storefront\Page\NewsletterReceiver\Confirm\NewsletterReceiverConfirmPageLoader">
+        <service id="Shopware\Storefront\Page\Newsletter\Confirm\NewsletterConfirmPageLoader">
             <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Storefront\Page\NewsletterReceiver\ConfirmSubscribe\NewsletterReceiverConfirmSubscribePageLoader">
+        <service id="Shopware\Storefront\Page\Newsletter\ConfirmSubscribe\NewsletterConfirmSubscribePageLoader">
             <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Storefront\Page\NewsletterReceiver\Error\NewsletterReceiverErrorPageLoader">
+        <service id="Shopware\Storefront\Page\Newsletter\Error\NewsletterErrorPageLoader">
             <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Storefront\PageController\NewsletterController" public="true">
-            <argument type="service" id="Shopware\Storefront\Page\NewsletterReceiver\Register\NewsletterReceiverLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\NewsletterReceiver\Confirm\NewsletterReceiverConfirmPageLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\NewsletterReceiver\ConfirmSubscribe\NewsletterReceiverConfirmSubscribePageLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\NewsletterReceiver\Error\NewsletterReceiverErrorPageLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\Newsletter\Register\NewsletterRegisterLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\Newsletter\Confirm\NewsletterConfirmPageLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\Newsletter\ConfirmSubscribe\NewsletterConfirmSubscribePageLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\Newsletter\Error\NewsletterErrorPageLoader"/>
             <argument type="service" id="Shopware\Core\Content\NewsletterReceiver\Service\NewsletterSubscriptionService" />
             <argument type="service" id="request_stack"/>
         </service>

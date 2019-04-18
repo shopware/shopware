@@ -7,7 +7,7 @@
     <services>
         <service id="Shopware\Core\Checkout\DiscountSurcharge\Cart\DiscountSurchargeCollector">
             <argument type="service" id="discount_surcharge.repository"/>
-            <tag name="Shopware\Core\Checkout\Cart\CollectorInterface"/>
+            <tag name="shopware.cart.collector"/>
         </service>
 
         <service id="Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeDefinition">

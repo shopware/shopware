@@ -12,11 +12,11 @@ that the calculation will also work even if your plugin is no longer installed o
 Please do not change the calculation process itself to implement your changes!
 
 ## Register a collector
-Cart collectors are registered via the Symfony DI container tag named `cart.processor`.
+Cart collectors are registered via the Symfony DI container tag named `shopware.cart.collector`.
 To define the order of the calculation queue, the tag supports the `priority` attribute:
 ```xml
 <service id="Shopware\Core\Content\Product\Cart\ProductCollector">
-    <tag name="Shopware\Core\Checkout\Cart\CollectorInterface" priority="1000" />
+    <tag name="shopware.cart.collector" priority="1000" />
 </service>
 ```
 A high `priority` implies an early invocation of the collector. The `priority` defaults to `0`.

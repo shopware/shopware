@@ -8,7 +8,6 @@
         <service id="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductRepository">
             <argument type="service" id="product.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
-            <tag name="shopware.traceable" label="product.sales-channel-repository"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductController" public="true">

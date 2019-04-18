@@ -166,7 +166,7 @@
         </service>
 
         <service id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\StrategyFactory">
-            <argument type="tagged" tag="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface"/>
+            <argument type="tagged" tag="shopware.pathname.strategy"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface">
@@ -175,11 +175,11 @@
         </service>
 
         <service id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\Md5PathnameStrategy">
-            <tag name="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface"/>
+            <tag name="shopware.pathname.strategy"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PlainPathnameStrategy">
-            <tag name="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface"/>
+            <tag name="shopware.pathname.strategy"/>
         </service>
 
         <!-- Controller -->
@@ -208,44 +208,44 @@
 
         <!-- Metadata -->
         <service id="Shopware\Core\Content\Media\Metadata\MetadataLoader\GetId3Loader">
-            <tag name="\Shopware\Core\Content\Media\Metadata\MetadataLoader\MetadataLoaderInterface"/>
+            <tag name="shopware.metadata.loader"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Metadata\MetadataLoader\PdfParserLoader">
-            <tag name="\Shopware\Core\Content\Media\Metadata\MetadataLoader\MetadataLoaderInterface"/>
+            <tag name="shopware.metadata.loader"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Metadata\MetadataLoader\WordLoader">
-            <tag name="\Shopware\Core\Content\Media\Metadata\MetadataLoader\MetadataLoaderInterface"/>
+            <tag name="shopware.metadata.loader"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Metadata\MetadataLoader">
-            <argument type="tagged" tag="\Shopware\Core\Content\Media\Metadata\MetadataLoader\MetadataLoaderInterface"/>
+            <argument type="tagged" tag="shopware.metadata.loader"/>
         </service>
 
         <!-- TypeDetector -->
         <service id="Shopware\Core\Content\Media\TypeDetector\AudioTypeDetector">
-            <tag name="\Shopware\Core\Content\Media\TypeDetector\TypeDetectorInterface" priority="10"/>
+            <tag name="shopware.media_type.detector" priority="10"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\TypeDetector\DefaultTypeDetector">
-            <tag name="\Shopware\Core\Content\Media\TypeDetector\TypeDetectorInterface" priority="0"/>
+            <tag name="shopware.media_type.detector" priority="0"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\TypeDetector\DocumentTypeDetector">
-            <tag name="\Shopware\Core\Content\Media\TypeDetector\TypeDetectorInterface" priority="10"/>
+            <tag name="shopware.media_type.detector" priority="10"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\TypeDetector\ImageTypeDetector">
-            <tag name="\Shopware\Core\Content\Media\TypeDetector\TypeDetectorInterface" priority="10"/>
+            <tag name="shopware.media_type.detector" priority="10"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\TypeDetector\VideoTypeDetector">
-            <tag name="\Shopware\Core\Content\Media\TypeDetector\TypeDetectorInterface" priority="10"/>
+            <tag name="shopware.media_type.detector" priority="10"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\TypeDetector\TypeDetector">
-            <argument type="tagged" tag="\Shopware\Core\Content\Media\TypeDetector\TypeDetectorInterface"/>
+            <argument type="tagged" tag="shopware.media_type.detector"/>
         </service>
 
         <!-- Services -->

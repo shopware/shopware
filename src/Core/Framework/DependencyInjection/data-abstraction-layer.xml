@@ -157,7 +157,6 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry"/>
-            <tag name="shopware.traceable" label="entity.aggregator"/>
         </service>
 
         <service class="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface">
@@ -170,7 +169,6 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface"/>
-            <tag name="shopware.traceable" label="entity.writer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\Language\LanguageLoader"/>
         </service>
@@ -183,7 +181,6 @@
         <service class="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\CommandQueueValidator"/>
-            <tag name="shopware.traceable" label="entity.write-gateway"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
@@ -199,60 +196,60 @@
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverRegistry">
-            <argument type="tagged" tag="shopware.entity.field_resolver"/>
+            <argument type="tagged" tag="shopware.field_resolver"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\ManyToOneAssociationFieldResolver">
-            <tag name="shopware.entity.field_resolver" priority="-50"/>
+            <tag name="shopware.field_resolver" priority="-50"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\OneToManyAssociationFieldResolver">
-            <tag name="shopware.entity.field_resolver" priority="-50"/>
+            <tag name="shopware.field_resolver" priority="-50"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\SearchKeywordAssociationFieldResolver">
-            <tag name="shopware.entity.field_resolver" priority="-30"/>
+            <tag name="shopware.field_resolver" priority="-30"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\ManyToManyAssociationFieldResolver">
-            <tag name="shopware.entity.field_resolver" priority="-50"/>
+            <tag name="shopware.field_resolver" priority="-50"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\TranslationFieldResolver">
-            <tag name="shopware.entity.field_resolver" priority="-50"/>
+            <tag name="shopware.field_resolver" priority="-50"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry">
-            <argument type="tagged" tag="shopware.entity.field_accessor_builder"/>
+            <argument type="tagged" tag="shopware.field_accessor_builder"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\PriceRuleFieldAccessorBuilder">
-            <tag name="shopware.entity.field_accessor_builder" priority="-50"/>
+            <tag name="shopware.field_accessor_builder" priority="-50"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\PriceFieldAccessorBuilder">
-            <tag name="shopware.entity.field_accessor_builder" priority="-100"/>
+            <tag name="shopware.field_accessor_builder" priority="-100"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\JsonFieldAccessorBuilder">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <tag name="shopware.entity.field_accessor_builder" priority="-150"/>
+            <tag name="shopware.field_accessor_builder" priority="-150"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\DefaultFieldAccessorBuilder">
-            <tag name="shopware.entity.field_accessor_builder" priority="-200"/>
+            <tag name="shopware.field_accessor_builder" priority="-200"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\ConfigJsonFieldAccessorBuilder">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <tag name="shopware.entity.field_accessor_builder" priority="-100"/>
+            <tag name="shopware.field_accessor_builder" priority="-100"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\AttributesFieldAccessorBuilder">
             <argument type="service" id="Shopware\Core\Framework\Attribute\AttributeService"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
 
-            <tag name="shopware.entity.field_accessor_builder" priority="-100"/>
+            <tag name="shopware.field_accessor_builder" priority="-100"/>
         </service>
 
         <service id="Shopware\Core\Framework\Version\VersionDefinition">

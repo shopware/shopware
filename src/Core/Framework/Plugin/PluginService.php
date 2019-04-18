@@ -9,13 +9,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Language\LanguageEntity;
 use Shopware\Core\Framework\Plugin\Changelog\ChangelogService;
-use Shopware\Core\Framework\Plugin\Composer\PackageProvider;
+use Shopware\Core\Framework\Plugin\Exception\ExceptionCollection;
 use Shopware\Core\Framework\Plugin\Exception\PluginChangelogInvalidException;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
-use Shopware\Core\Framework\ShopwareHttpException;
 
 class PluginService
 {
@@ -40,11 +39,6 @@ class PluginService
     private $languageRepo;
 
     /**
-     * @var PackageProvider
-     */
-    private $composerPackageProvider;
-
-    /**
      * @var ChangelogService
      */
     private $changelogService;
@@ -64,7 +58,6 @@ class PluginService
         string $projectDir,
         EntityRepositoryInterface $pluginRepo,
         EntityRepositoryInterface $languageRepo,
-        PackageProvider $composerPackageProvider,
         ChangelogService $changelogService,
         PluginFinder $pluginFinder,
         VersionSanitizer $versionSanitizer
@@ -73,32 +66,23 @@ class PluginService
         $this->projectDir = $projectDir;
         $this->pluginRepo = $pluginRepo;
         $this->languageRepo = $languageRepo;
-        $this->composerPackageProvider = $composerPackageProvider;
         $this->changelogService = $changelogService;
         $this->pluginFinder = $pluginFinder;
         $this->versionSanitizer = $versionSanitizer;
     }
 
-    /**
-     * @return ShopwareHttpException[]
-     */
-    public function refreshPlugins(Context $shopwareContext, IOInterface $composerIO): array
+    public function refreshPlugins(Context $shopwareContext, IOInterface $composerIO): ExceptionCollection
     {
-        $pluginsFromFileSystem = $this->pluginFinder->findPlugins($this->pluginDir, $this->projectDir);
+        $errors = new ExceptionCollection();
+        $pluginsFromFileSystem = $this->pluginFinder->findPlugins($this->pluginDir, $this->projectDir, $errors, $composerIO);
 
         $installedPlugins = $this->getPlugins(new Criteria(), $shopwareContext);
 
         $plugins = [];
-        $errors = [];
         foreach ($pluginsFromFileSystem as $pluginFromFileSystem) {
             $pluginName = $pluginFromFileSystem->getName();
             $pluginPath = $pluginFromFileSystem->getPath();
-            try {
-                $info = $this->composerPackageProvider->getPluginInformation($pluginPath, $composerIO);
-            } catch (PluginComposerJsonInvalidException $e) {
-                $errors[] = $e;
-                continue;
-            }
+            $info = $pluginFromFileSystem->getComposerPackage();
 
             $autoload = $info->getAutoload();
             if (empty($autoload) || (empty($autoload['psr-4']) && empty($autoload['psr-0']))) {

@@ -13,7 +13,7 @@ class PackageProviderTest extends TestCase
     {
         $packageProvider = $this->createProvider();
         $pluginPath = __DIR__ . '/_fixture/valid';
-        $package = $packageProvider->getPluginInformation($pluginPath, new NullIO());
+        $package = $packageProvider->getPluginComposerPackage($pluginPath, new NullIO());
 
         static::assertSame('test/test', $package->getName());
     }
@@ -25,7 +25,7 @@ class PackageProviderTest extends TestCase
 
         $this->expectException(PluginComposerJsonInvalidException::class);
         $this->expectExceptionMessage('name : The property name is required');
-        $packageProvider->getPluginInformation($pluginPath, new NullIO());
+        $packageProvider->getPluginComposerPackage($pluginPath, new NullIO());
     }
 
     public function testGetPluginInformationInvalidJsonPath(): void
@@ -35,7 +35,7 @@ class PackageProviderTest extends TestCase
 
         $this->expectException(PluginComposerJsonInvalidException::class);
         $this->expectExceptionMessage('failed to open stream: No such file or directory');
-        $packageProvider->getPluginInformation($pluginPath, new NullIO());
+        $packageProvider->getPluginComposerPackage($pluginPath, new NullIO());
     }
 
     private function createProvider(): PackageProvider

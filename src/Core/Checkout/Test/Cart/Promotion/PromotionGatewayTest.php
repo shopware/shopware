@@ -68,6 +68,9 @@ class PromotionGatewayTest extends TestCase
             ]
         ));
 
+        $expectedCriteria->addAssociation('personaRules');
+        $expectedCriteria->addAssociation('personaCustomers');
+
         static::assertEquals($expectedCriteria, $fakeRepo->getSearchedCriteria());
     }
 
@@ -95,6 +98,9 @@ class PromotionGatewayTest extends TestCase
             $this->getExpectedDateRangeFilter(),
             $this->getExpectedCodesFilter(['CODE-1', 'CODE-2']),
         ]));
+
+        $expectedCriteria->addAssociation('personaRules');
+        $expectedCriteria->addAssociation('personaCustomers');
 
         static::assertEquals($expectedCriteria, $fakeRepo->getSearchedCriteria());
     }
@@ -172,7 +178,6 @@ class PromotionGatewayTest extends TestCase
                 new MultiFilter(
                     MultiFilter::CONNECTION_AND,
                     [
-                        new EqualsFilter('personaRuleId', null),
                         new EqualsFilter('scopeRuleId', null),
                         new EqualsFilter('promotion.orderRules.id', null),
                     ]
@@ -180,7 +185,6 @@ class PromotionGatewayTest extends TestCase
                 new MultiFilter(
                     MultiFilter::CONNECTION_OR,
                     [
-                        new EqualsAnyFilter('personaRuleId', $contextRuleIds),
                         new EqualsAnyFilter('scopeRuleId', $contextRuleIds),
                         new EqualsAnyFilter('promotion.orderRules.id', $contextRuleIds),
                     ]

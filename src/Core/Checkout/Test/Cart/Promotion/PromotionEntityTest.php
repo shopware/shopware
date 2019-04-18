@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
+use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -32,7 +33,7 @@ class PromotionEntityTest extends TestCase
         $ruleScope->setId('SCOPE-1');
 
         $this->promotion = new PromotionEntity();
-        $this->promotion->setPersonaRule($rulePersona);
+        $this->promotion->setPersonaRules(new RuleCollection([$rulePersona]));
         $this->promotion->setScopeRule($ruleScope);
 
         $this->checkoutContext = $this->getMockBuilder(SalesChannelContext::class)->disableOriginalConstructor()->getMock();
@@ -55,7 +56,7 @@ class PromotionEntityTest extends TestCase
 
         $this->checkoutContext->expects(static::any())->method('getRuleIds')->willReturn($checkoutRuleIds);
 
-        $isValid = $this->promotion->isPersonaValid($this->checkoutContext);
+        $isValid = $this->promotion->isPersonaConditionValid($this->checkoutContext);
 
         static::assertTrue($isValid);
     }
@@ -70,14 +71,14 @@ class PromotionEntityTest extends TestCase
      */
     public function testPersonaRuleIsNotInContext()
     {
-        $checkoutRuleIDs = [
+        $contextRuleIDs = [
             'OTHER-RULE1',
             'OTHER-RULE2',
         ];
 
-        $this->checkoutContext->expects(static::any())->method('getRuleIds')->willReturn($checkoutRuleIDs);
+        $this->checkoutContext->expects(static::any())->method('getRuleIds')->willReturn($contextRuleIDs);
 
-        $isValid = $this->promotion->isPersonaValid($this->checkoutContext);
+        $isValid = $this->promotion->isPersonaConditionValid($this->checkoutContext);
 
         static::assertFalse($isValid);
     }
@@ -100,7 +101,7 @@ class PromotionEntityTest extends TestCase
 
         $this->checkoutContext->expects(static::any())->method('getRuleIds')->willReturn($checkoutRuleIDs);
 
-        $isValid = $promotionWithoutRule->isPersonaValid($this->checkoutContext);
+        $isValid = $promotionWithoutRule->isPersonaConditionValid($this->checkoutContext);
 
         static::assertTrue($isValid);
     }

@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemWithQuantityRule;
 use Shopware\Core\Checkout\Promotion\Cart\Validator\LineItemRuleValidator;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Product\Cart\ProductCollector;
+use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -53,7 +54,7 @@ class LineItemRuleValidatorTest extends TestCase
         $ruleScope->setId('SCOPE-1');
 
         $this->promotion = new PromotionEntity();
-        $this->promotion->setPersonaRule($rulePersona);
+        $this->promotion->setPersonaRules(new RuleCollection([$rulePersona]));
         $this->promotion->setScopeRule($ruleScope);
 
         $this->cart = new Cart('C1', 'TOKEN-1');

@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsDataDefinition;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Fakes\FakePromotionGateway;
 use Shopware\Core\Content\Product\Cart\ProductCollector;
+use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Struct\StructCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -72,7 +73,7 @@ class CartPromotionsCollectorTest extends TestCase
         $this->promotionPersona->setId('PROM-PERSONA');
         $this->promotionPersona->setPercental(true);
         $this->promotionPersona->setValue(10);
-        $this->promotionPersona->setPersonaRule($this->getFakeRule());
+        $this->promotionPersona->setPersonaRules(new RuleCollection([$this->getFakeRule()]));
 
         $this->promotionScope = new PromotionEntity();
         $this->promotionScope->setId('PROM-SCOPE');
@@ -86,7 +87,7 @@ class CartPromotionsCollectorTest extends TestCase
      * iterate through all available promotions and does only return the
      * valid promotions in the data struct.
      * Thus we build a fake promotion gateway, that returns 3 promotions
-     * with a persona and scope rule restriction and an addition one without any restrictions.
+     * with a persona and scope rule restriction and an additional one without any restrictions.
      * Our Checkout Context does not have any rules applied, so our collect
      * function should only return the global promotion in the end.
      *

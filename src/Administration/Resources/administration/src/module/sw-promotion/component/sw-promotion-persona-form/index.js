@@ -1,5 +1,6 @@
 import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-promotion-persona-form.html.twig';
+import './sw-promotion-persona-form.scss';
 
 Component.register('sw-promotion-persona-form', {
     template,
@@ -20,15 +21,14 @@ Component.register('sw-promotion-persona-form', {
         ruleStore() {
             return State.getStore('rule');
         },
-
         customerStore() {
             return State.getStore('customer');
-        }
-    },
-
-    methods: {
-        onPersonaRuleChange(ruleId) {
-            this.promotion.personaRuleId = ruleId;
+        },
+        personaRulesAssociationStore() {
+            return this.promotion.getAssociation('personaRules');
+        },
+        personaCustomerAssociationStore() {
+            return this.promotion.getAssociation('personaCustomers');
         }
     }
 });

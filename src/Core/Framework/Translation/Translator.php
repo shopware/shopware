@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Translation;
 
 use Psr\Cache\CacheItemPoolInterface;
-use Shopware\Core\Framework\Snippet\SnippetServiceInterface;
+use Shopware\Core\Framework\Snippet\SnippetService;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Translation\Exception\LogicException;
@@ -45,7 +45,7 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
     private $formatter;
 
     /**
-     * @var SnippetServiceInterface
+     * @var SnippetService
      */
     private $snippetService;
 
@@ -54,7 +54,7 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
         RequestStack $requestStack,
         CacheItemPoolInterface $cache,
         MessageFormatterInterface $formatter,
-        SnippetServiceInterface $snippetService
+        SnippetService $snippetService
     ) {
         $this->translator = $translator;
         $this->requestStack = $requestStack;

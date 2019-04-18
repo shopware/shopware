@@ -6,7 +6,7 @@ use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class NestedEventDispatcher implements NestedEventDispatcherInterface
+class NestedEventDispatcher implements EventDispatcherInterface
 {
     /**
      * @var EventDispatcherInterface

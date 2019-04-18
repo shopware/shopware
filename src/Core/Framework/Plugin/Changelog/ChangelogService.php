@@ -10,11 +10,11 @@ class ChangelogService
     private const FALLBACK_LOCALE = 'en_GB';
 
     /**
-     * @var ChangelogParserInterface
+     * @var ChangelogParser
      */
     private $changelogParser;
 
-    public function __construct(ChangelogParserInterface $changelogParser)
+    public function __construct(ChangelogParser $changelogParser)
     {
         $this->changelogParser = $changelogParser;
     }

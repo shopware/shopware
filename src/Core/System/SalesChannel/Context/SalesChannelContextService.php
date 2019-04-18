@@ -36,7 +36,7 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
     private $cache;
 
     /**
-     * @var SalesChannelContextFactoryInterface
+     * @var SalesChannelContextFactory
      */
     private $factory;
 
@@ -57,7 +57,7 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
 
     public function __construct(
         CacheItemPoolInterface $cache,
-        SalesChannelContextFactoryInterface $factory,
+        SalesChannelContextFactory $factory,
         CartRuleLoader $ruleLoader,
         SalesChannelContextPersister $contextPersister,
         CartService $cartService

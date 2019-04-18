@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Snippet\Filter;
 
 use Shopware\Core\Framework\Snippet\Exception\FilterNotFoundException;
 
-class SnippetFilterFactory implements SnippetFilterFactoryInterface
+class SnippetFilterFactory
 {
     /**
      * @var array
@@ -17,8 +17,6 @@ class SnippetFilterFactory implements SnippetFilterFactoryInterface
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @throws \Exception
      */
     public function getFilter(string $name): SnippetFilterInterface

@@ -6,7 +6,7 @@ use Shopware\Core\System\SystemConfig\Exception\XmlElementNotFoundException;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Config\Util\XmlUtils;
 
-abstract class XmlReader implements XmlReaderInterface
+abstract class XmlReader
 {
     /**
      * @var string should be set in instance that extends this class

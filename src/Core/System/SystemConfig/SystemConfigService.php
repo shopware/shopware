@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidKeyException;
 
-class SystemConfigService implements SystemConfigServiceInterface
+class SystemConfigService
 {
     /**
      * @var Connection

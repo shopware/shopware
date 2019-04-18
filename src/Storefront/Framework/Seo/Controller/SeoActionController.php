@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Storefront\Framework\Seo\Exception\InvalidTemplateException;
-use Shopware\Storefront\Framework\Seo\SeoServiceInterface;
+use Shopware\Storefront\Framework\Seo\SeoService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,7 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class SeoActionController extends AbstractController
 {
     /**
-     * @var SeoServiceInterface
+     * @var SeoService
      */
     private $seoService;
 
@@ -27,7 +27,7 @@ class SeoActionController extends AbstractController
      */
     private $definitionRegistry;
 
-    public function __construct(SeoServiceInterface $seoService, DefinitionRegistry $definitionRegistry)
+    public function __construct(SeoService $seoService, DefinitionRegistry $definitionRegistry)
     {
         $this->seoService = $seoService;
         $this->definitionRegistry = $definitionRegistry;

@@ -11,11 +11,11 @@ use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Snippet\Aggregate\SnippetSet\SnippetSetEntity;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileInterface;
-use Shopware\Core\Framework\Snippet\Filter\SnippetFilterFactoryInterface;
+use Shopware\Core\Framework\Snippet\Filter\SnippetFilterFactory;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
-class SnippetService implements SnippetServiceInterface
+class SnippetService
 {
     /**
      * @var Connection
@@ -38,7 +38,7 @@ class SnippetService implements SnippetServiceInterface
     private $snippetSetRepository;
 
     /**
-     * @var SnippetFilterFactoryInterface
+     * @var SnippetFilterFactory
      */
     private $snippetFilterFactory;
 
@@ -47,7 +47,7 @@ class SnippetService implements SnippetServiceInterface
         SnippetFileCollection $snippetFileCollection,
         EntityRepositoryInterface $snippetRepository,
         EntityRepositoryInterface $snippetSetRepository,
-        SnippetFilterFactoryInterface $snippetFilterFactory
+        SnippetFilterFactory $snippetFilterFactory
     ) {
         $this->connection = $connection;
         $this->snippetFileCollection = $snippetFileCollection;
@@ -57,7 +57,19 @@ class SnippetService implements SnippetServiceInterface
     }
 
     /**
-     * {@inheritdoc}
+     * filters: [
+     *      'isCustom' => bool,
+     *      'isEmpty' => bool,
+     *      'term' => string,
+     *      'namespaces' => array,
+     *      'authors' => array,
+     *      'translationKeys' => array,
+     * ]
+     *
+     * sort: [
+     *      'column' => NULL || the string -> 'translationKey' || setId
+     *      'direction' => 'ASC' || 'DESC'
+     * ]
      */
     public function getList(int $page, int $limit, Context $context, array $requestFilters, array $sort): array
     {

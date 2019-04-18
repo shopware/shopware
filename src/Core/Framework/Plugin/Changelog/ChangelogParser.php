@@ -5,10 +5,10 @@ namespace Shopware\Core\Framework\Plugin\Changelog;
 use Shopware\Core\Framework\Plugin\Exception\PluginChangelogInvalidException;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
-class ChangelogParser implements ChangelogParserInterface
+class ChangelogParser
 {
     /**
-     * {@inheritdoc}
+     * @throws PluginChangelogInvalidException
      */
     public function parseChangelog(string $path): array
     {

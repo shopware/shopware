@@ -39,12 +39,12 @@ export default {
             required: false,
             default: ''
         },
-        valueProperty: {
+        labelProperty: {
             type: String,
             required: false,
             default: 'value'
         },
-        keyProperty: {
+        valueProperty: {
             type: String,
             required: false,
             default: 'key'
@@ -104,7 +104,7 @@ export default {
     watch: {
         // Update the view if the value changes from outside
         value() {
-            if (this.singleSelection && this.singleSelection[this.keyProperty] !== this.value) {
+            if (this.singleSelection && this.singleSelection[this.valueProperty] !== this.value) {
                 this.init();
             } else if (!this.singleSelection && this.value !== null) {
                 this.init();
@@ -115,8 +115,8 @@ export default {
     methods: {
         createdComponent() {
             if (!this.required) {
-                const valueProperty = this.placeholder || this.$tc('global.sw-single-select.valuePlaceholder');
-                this.placeholderOption = { [this.keyProperty]: null, [this.valueProperty]: valueProperty };
+                const labelProperty = this.placeholder || this.$tc('global.sw-single-select.valuePlaceholder');
+                this.placeholderOption = { [this.valueProperty]: null, [this.labelProperty]: labelProperty };
             }
 
             this.init();
@@ -165,7 +165,7 @@ export default {
 
         resolveKey(key) {
             const found = this.currentOptions.find((item) => {
-                return (item[this.keyProperty] === key);
+                return (item[this.valueProperty] === key);
             });
 
             return Promise.resolve(found);
@@ -186,14 +186,14 @@ export default {
                 return;
             }
 
-            this.$emit('input', this.singleSelection[this.keyProperty]);
+            this.$emit('input', this.singleSelection[this.valueProperty]);
         },
 
         isSelected(item) {
             if (this.singleSelection === null) {
                 return false;
             }
-            return this.singleSelection[this.keyProperty] === item[this.keyProperty];
+            return this.singleSelection[this.valueProperty] === item[this.valueProperty];
         },
 
         setValue({ item }) {
@@ -205,8 +205,8 @@ export default {
             }
 
             item = JSON.parse(JSON.stringify(item));
-            if (item[this.valueProperty].constructor === String) {
-                item[this.valueProperty] = item[this.valueProperty].replace(/<[^>]+>/g, '');
+            if (item[this.labelProperty].constructor === String) {
+                item[this.labelProperty] = item[this.labelProperty].replace(/<[^>]+>/g, '');
             }
 
             this.singleSelection = item;
@@ -215,18 +215,7 @@ export default {
             this.closeResultList();
         },
 
-        openResultList(event) {
-            if (event.relatedTarget && event.relatedTarget.type === 'submit') {
-                this.$nextTick(() => {
-                    if (!this.$refs.swSelectInput) {
-                        return;
-                    }
-
-                    this.$refs.swSelectInput.blur();
-                });
-                return;
-            }
-
+        openResultList() {
             if (this.isExpanded === false) {
                 this.scrollToResultsTop();
             }
@@ -256,8 +245,8 @@ export default {
             });
         },
 
-        setFocus(event) {
-            this.openResultList(event);
+        setFocus() {
+            this.openResultList();
 
             if (!this.showSearch) {
                 return;

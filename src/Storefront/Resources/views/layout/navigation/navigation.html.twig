@@ -1,45 +1,47 @@
 {% block layout_main_navigation %}
-
     <div class="main-navigation"
          id="mainNavigation"
-         data-flyout-menu="true">
+		 data-flyout-menu="true">
         {% block layout_main_navigation_navbar %}
-            <nav class="navbar navbar-expand-lg navbar-light">
-                {% block layout_main_navigation_menu %}
-                    <div class="navbar-nav navigation-menu"
-                         itemscope="itemscope"
-                         itemtype="http://schema.org/SiteNavigationElement">
-                        {% block layout_main_navigation_menu_home %}
-                            <a class="nav-item nav-link{% if controllerName is same as('HomePage') %} active{% endif %} home-link"
-                               href="{{ path('frontend.home.page') }}"
-                               itemprop="url"
-                               title="{{ "general.homeLink"|trans }}">
-                                <span itemprop="name">{{ "general.homeLink"|trans }}</span>
-                            </a>
-                        {% endblock %}
+			<div class="container">
+				{% block layout_main_navigation_menu %}
+					<nav class="nav main-navigation-menu"
+						itemscope="itemscope"
+						itemtype="http://schema.org/SiteNavigationElement">
+						{% block layout_main_navigation_menu_home %}
+							<a class="nav-link main-navigation-link{% if controllerName is same as('HomePage') %} active{% endif %} home-link"
+								href="{{ path('frontend.home.page') }}"
+								itemprop="url"
+								title="{{ "general.homeLink"|trans }}">
+								<div class="main-navigation-link-inner">
+									<span itemprop="name">{{ "general.homeLink"|trans }}</span>
+								</div>
+							</a>
+						{% endblock %}
 
-                        {% block layout_main_navigation_menu_items %}
-                            {% for treeItem in page.header.navigation.tree %}
-                                {% block layout_main_navigation_menu_item %}
-                                    <a class="nav-item nav-link{% if treeItem.category.id is same as(page.header.navigation.active.id) %} active{% endif %}"
-                                       href="{{ path('frontend.navigation.page', {'navigationId': treeItem.category.id}) }}"
-                                       itemprop="url"
-                                        {% if treeItem.children|length > 0 %}
-                                            data-flyout-menu-trigger="{{ treeItem.category.id }}"
-                                        {% endif %}
-                                       title="{{ treeItem.category.name }}">
-                                        <span itemprop="name">{{ treeItem.category.name }}</span>
-                                    </a>
-                                {% endblock %}
-                            {% endfor %}
-                        {% endblock %}
-                    </div>
-                {% endblock %}
-            </nav>
+						{% block layout_main_navigation_menu_items %}
+							{% for treeItem in page.header.navigation.tree %}
+								{% block layout_main_navigation_menu_item %}
+									<a class="nav-link main-navigation-link{% if treeItem.category.id is same as(page.header.navigation.active.id) %} active{% endif %}"
+										href="{{ path('frontend.navigation.page', {'navigationId': treeItem.category.id}) }}"
+										itemprop="url"
+										{% if treeItem.children|length > 0 %}
+											data-flyout-menu-trigger="{{ treeItem.category.id }}"
+										{% endif %}
+										title="{{ treeItem.category.name }}">
+										<div class="main-navigation-link-inner">
+											<span itemprop="name">{{ treeItem.category.name }}</span>
+										</div>
+									</a>
+								{% endblock %}
+							{% endfor %}
+						{% endblock %}
+					</nav>
+				{% endblock %}
+			</div>
         {% endblock %}
 
         {% block layout_main_navigation_menu_flyout_wrapper %}
-
             {% set navigationChildrenCount = 0 %}
             {% for treeItem in page.header.navigation.tree %}
                 {% if treeItem.category.childCount > 0 %}
@@ -49,16 +51,18 @@
 
             {% if navigationChildrenCount > 0 %}
                 {% block layout_main_navigation_menu_flyout_container %}
-                    <div class="navigation-flyouts container">
+                    <div class="navigation-flyouts">
                         {% block layout_main_navigation_menu_flyouts %}
                             {% for treeItem in page.header.navigation.tree %}
                                 {% if treeItem.children|length > 0 %}
                                     {% block layout_main_navigation_menu_flyout %}
                                         <div class="navigation-flyout"
                                              data-flyout-menu-id="{{ treeItem.category.id }}">
-                                            {% block layout_main_navigation_menu_flyout_include %}
-                                                {% sw_include '@Storefront/layout/navigation/flyout.html.twig' with {navigationTree: treeItem, level: level+1} only %}
-                                            {% endblock %}
+											<div class="container">
+												{% block layout_main_navigation_menu_flyout_include %}
+													{% sw_include '@Storefront/layout/navigation/flyout.html.twig' with {navigationTree: treeItem, level: level+1} only %}
+												{% endblock %}
+											</div>
                                         </div>
                                     {% endblock %}
                                 {% endif %}
@@ -67,8 +71,6 @@
                     </div>
                 {% endblock %}
             {% endif %}
-
         {% endblock %}
-
     </div>
 {% endblock %}

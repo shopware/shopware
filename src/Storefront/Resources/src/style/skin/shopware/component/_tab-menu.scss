@@ -11,7 +11,6 @@ https://getbootstrap.com/docs/4.3/components/card/#navigation
 
     .card-header {
         background: none;
-        font-weight: $font-weight-bold;
         padding-left: 10px;
         padding-right: 10px;
     }
@@ -21,16 +20,20 @@ https://getbootstrap.com/docs/4.3/components/card/#navigation
     }
 
     .nav-link {
-        border-color: $border-color;
+        border: 0;
+        border-bottom: 2px solid $border-color;
+        border-radius: 0 !important;
         color: $gray-600;
+        padding-left: 0;
+        padding-bottom: 5px;
 
         &:hover {
-            border-color: $border-color;
+            border-color: $primary;
             color: $primary;
         }
 
         &.active {
-            border-color: $border-color $border-color transparent;
+            border-color: $primary;
             color: $gray-800;
         }
 
@@ -42,9 +45,6 @@ https://getbootstrap.com/docs/4.3/components/card/#navigation
     }
 
     .card-body {
-        border: 1px solid transparent;
-        border-color: transparent $border-color $border-color $border-color;
-        margin-top: -1px; // removes 1px gap between card-header and card-body
-        padding: 30px;
+        padding-top: 30px;
     }
 }

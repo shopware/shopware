@@ -7,7 +7,6 @@
 {% block layout_navigation_categories %}
     <ul class="list-unstyled category-list level-{{ level }}">
         {% for treeItem in navigationTree %}
-
             {% block layout_navigation_categories_item %}
                 <li>
                     {% block layout_navigation_categories_item_link %}
@@ -26,12 +25,8 @@
                             {% sw_include '@Storefront/layout/navigation/categories.html.twig' with { navigationTree: treeItem.children, level: level + 1  } only %}
                         {% endif %}
                     {% endblock %}
-
                 </li>
             {% endblock %}
         {% endfor %}
     </ul>
 {% endblock %}
-
-
-

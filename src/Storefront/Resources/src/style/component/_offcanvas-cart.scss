@@ -91,3 +91,9 @@
         }
     }
 }
+
+@include media-breakpoint-up(md) {
+    .offcanvas-cart.js-offcanvas {
+        width: 560px;
+    }
+}

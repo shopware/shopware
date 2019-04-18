@@ -40,9 +40,7 @@
         {% block base_navigation %}
             <div class="nav-main">
                 {% block base_navigation_inner %}
-                    <div class="container">
-                        {% sw_include '@Storefront/layout/navigation/navigation.html.twig' %}
-                    </div>
+                    {% sw_include '@Storefront/layout/navigation/navigation.html.twig' %}
                 {% endblock %}
             </div>
         {% endblock %}

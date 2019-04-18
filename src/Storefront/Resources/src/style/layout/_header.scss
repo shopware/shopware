@@ -68,7 +68,6 @@
     display: none;
 }
 
-.account-widget-title,
 .account-widget-btn::after,
 .cart-widget-total {
     display: none;
@@ -139,11 +138,5 @@
 
     .cart-widget-total {
         margin-left: $spacer-sm;
-    }
-}
-
-@include media-breakpoint-up(lg) {
-    .account-widget-title {
-        display: inline-block;
     }
 }

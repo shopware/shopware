@@ -69,6 +69,7 @@
 @include media-breakpoint-up(md) {
     .footer-columns {
         border-bottom: 1px solid $border-color;
+        padding-bottom: 20px;
     }
 
     .footer-column {

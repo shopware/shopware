@@ -1,43 +1,35 @@
 /*
 Main navigation
 ==============================================
-Custom styling for bootstrap navbar.
+Custom styling for bootstrap nav.
 
-https://getbootstrap.com/docs/4.3/components/navbar/
+https://getbootstrap.com/docs/4.3/components/navs/
 */
 
-.nav-main {
-    background: $white;
-    border-bottom: 1px solid $primary;
+.main-navigation-menu {
     font-size: $font-size-lg;
-
-    .navbar {
-        padding: 0;
-        background: none;
-    }
 }
 
 @include media-breakpoint-up(md) {
-    .nav-main {
-        .navbar-nav .nav-link {
-            color: $gray-600;
-            text-align: center;
+    .main-navigation-link {
+        color: $gray-600;
 
-            &.active {
-                background-color: $primary;
-                font-weight: $font-weight-bold;
-            }
+        &:first-of-type {
+            padding-left: 0;
+        }
 
-            &:hover,
-            &.is-open {
-                background: $gray-800;
-                color: $white;
-            }
+        .main-navigation-link-inner {
+            border-bottom: 2px solid transparent;
+            padding-bottom: 3px;
+        }
 
-            &:hover,
-            &.active,
-            &.is-open {
-                color: $white;
+        &:hover,
+        &.active,
+        &.is-open {
+            color: $gray-800;
+
+            .main-navigation-link-inner {
+                border-color: $primary;
             }
         }
     }

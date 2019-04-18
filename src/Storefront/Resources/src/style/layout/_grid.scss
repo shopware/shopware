@@ -1,5 +1,6 @@
 .content-main-inner {
     padding: 20px 0;
+    min-height: 200px;
 }
 
 @include media-breakpoint-up(md) {
@@ -11,5 +12,6 @@
 @include media-breakpoint-up(xl) {
     .content-main-inner {
         padding: 50px 0;
+        min-height: 700px;
     }
 }

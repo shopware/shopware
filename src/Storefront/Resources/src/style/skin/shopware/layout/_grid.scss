@@ -1,37 +1,3 @@
 .container {
-    max-width: 1260px;
-}
-
-.content-main > .container {
-    padding: 0;
-}
-
-.content-main-inner {
-    background: $white;
-    min-height: 200px;
-    padding: 20px ($grid-gutter-width / 2);
-}
-
-@include media-breakpoint-up(md) {
-    .content-main-inner {
-        padding: 30px;
-    }
-}
-
-@include media-breakpoint-up(xl) {
-    .content-main {
-        margin: 20px 0 50px;
-
-        // reapply bootstrap container padding on large desktops
-        > .container {
-            padding-left: $grid-gutter-width / 2;
-            padding-right: $grid-gutter-width / 2;
-        }
-    }
-
-    .content-main-inner {
-        box-shadow: 0 0 4px 1px $gray-300;
-        min-height: 700px;
-        padding: 50px;
-    }
+    max-width: 1400px;
 }

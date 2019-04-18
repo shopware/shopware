@@ -156,7 +156,7 @@ class AccountPageController extends StorefrontController
     /**
      * @Route("/account/logout", name="frontend.account.logout.page", methods={"GET"})
      */
-    public function logout(InternalRequest $request, SalesChannelContext $context): Response
+    public function logout(SalesChannelContext $context): Response
     {
         if ($context->getCustomer() === null) {
             return $this->redirectToRoute('frontend.account.login.page');

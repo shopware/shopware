@@ -21,6 +21,12 @@ Component.register('sw-cms-list', {
         Mixin.getByName('listing')
     ],
 
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    },
+
     data() {
         return {
             pages: [],

@@ -11,6 +11,21 @@
 
 <h3>2019-04-11: Roadmap update</h3>
 
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
 <p>Here you will find a current overview of the epics that are currently being implemented, which have been completed and which will be implemented next.</p>
 
 <p><strong>Open</strong><br />
@@ -79,6 +94,21 @@ These epics are finished</p>
 
 <h3>2019-04-04: Refactored viewData (Breaking change)</h3>
 
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
 <p>We have completely removed the<strong> Entity::viewData </strong>property.</p>
 
 <p><strong>Why was it removed?</strong></p>
@@ -106,10 +136,25 @@ These epics are finished</p>
 <p>This value is initialized for the following routes as follows</p>
 
 <p><strong>/api </strong>Default <strong>false</strong><br />
-<strong>/storefront-api </strong>Default <strong>true</strong><br />
+<strong>/sales-channel-api </strong>Default <strong>true</strong><br />
 <strong>twig-frontend</strong> Default <strong>true</strong></p>
 
 <h3>2019-04-03: Rename product_price_rule to product_price</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
 
 <p>We changed the naming of product_price_rule table and all corresponding php classes, api routes, php properties.</p>
 
@@ -122,7 +167,47 @@ These epics are finished</p>
 	<li>/api/v1/product/{id}/prices</li>
 </ul>
 
+<h3>2019-04-03: LESS has been removed</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
+<ul>
+	<li>LESS has been removed from the administration source code</li>
+	<li>The duplicated LESS base variables are no longer available. Components LESS which uses base variables will not be functional.</li>
+	<li>Please do not use LESS inside core components any longer because it is also no longer supported by the component library.</li>
+	<li>However the package.json dependency has not been completely removed. External plugins should still have the posibility to use LESS. But we will recommend SCSS in our documentation.</li>
+	<li>Some documentation markdown files may still include LESS examples. Those will be edited by the documentation squad soon.</li>
+</ul>
+
 <h3>2019-04-03: Admin scaffolding components</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
 
 <p>With the new data handling, we implemented a list of scaffolding components to prevent boiler plate code and keep data handling as simple as possible.</p>
 
@@ -303,36 +388,22 @@ A decoration of <strong>sw-multi-select.</strong> This component is mostly used 
 <ul>
 </ul>
 
-<h3>2019-04-03: LESS has been removed</h3>
-
-<ul>
-	<li>LESS has been removed from the administration source code</li>
-	<li>The duplicated LESS base variables are no longer available. Components LESS which uses base variables will not be functional.</li>
-	<li>Please do not use LESS inside core components any longer because it is also no longer supported by the component library.</li>
-	<li>However the package.json dependency has not been completely removed. External plugins should still have the posibility to use LESS. But we will recommend SCSS in our documentation.</li>
-	<li>Some documentation markdown files may still include LESS examples. Those will be edited by the documentation squad soon.</li>
-</ul>
-
-<h3>2019-04-02: Default constants removed</h3>
-
-<p>We removed a ton of constants from our super global <strong>Defaults-object.</strong></p>
-
-<p>Please rebase your branch and run <strong>phpstan</strong> to check that you don&#39;t use any of the removed constants.</p>
-
-<p>If you use some <strong>stateMachineConstants</strong> -&gt;<br />
-They are moved to its own classes:</p>
-
-<p><strong>OrderStates</strong></p>
-
-<ul>
-	<li>Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates</li>
-	<li>Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates</li>
-	<li>Shopware\Core\Checkout\Order\OrderStates</li>
-</ul>
-
-<p>&nbsp;If you used some other constants, you have to replace them by a query to get the correct <strong>Id</strong></p>
-
 <h3>2019-04-02: New admin data handling</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
 
 <p>The new data handling was created to remove the active record pattern in the admininstration. It uses a repository pattern which is strongly based on the DAL from the PHP part.</p>
 
@@ -845,23 +916,56 @@ Component.register(&#39;sw-show-case-list&#39;, {
     }
 });</pre>
 
-<h3>2019-04-01: Payment handler exception</h3>
+<h3>2019-04-02: Default constants removed</h3>
 
-<p>Payment handler are now able to throw special exceptions if certain error cases occur.</p>
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
+<p>We removed a ton of constants from our super global <strong>Defaults-object.</strong></p>
+
+<p>Please rebase your branch and run <strong>phpstan</strong> to check that you don&#39;t use any of the removed constants.</p>
+
+<p>If you use some <strong>stateMachineConstants</strong> -&gt;<br />
+They are moved to its own classes:</p>
+
+<p><strong>OrderStates</strong></p>
 
 <ul>
-	<li><strong>Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface::pay </strong>should throw the<strong> SyncPaymentProcessException</strong> if something goes wrong.</li>
-	<li>Same for the <strong>Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface::pay</strong> Throw an <strong>AsyncPaymentProcessException</strong> e.g. if a call to an external API fails</li>
-	<li>The finalize method of the <strong>AsynchronousPaymentHandlerInterface</strong> could also throw an <strong>AsyncPaymentFinalizeException</strong>. Additionally it could throw a <strong>CustomerCanceledAsyncPaymentException</strong> if the customer canceled the process on the payment provider page.</li>
+	<li>Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates</li>
+	<li>Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates</li>
+	<li>Shopware\Core\Checkout\Order\OrderStates</li>
 </ul>
 
-<p>In every case, Shopware catches these exceptions and set the transaction state to <strong>canceled</strong> before the exceptions are thrown again. So a caller of the Shopware pay API route will get an exception message, if something goes wrong during the payment process and could react accordingly.</p>
-
-<p>Soonish it will be possible to transform the order into a cart again and let the customer update the payment method or something like that. Afterwards the order will be updatet und persisted again.</p>
-
-<p>Have a look at the <a href="https://github.com/shopware/platform/blob/master/src/Docs/_new/4-how-to/010-payment-plugin.md">Docs</a> or at our <a href="https://github.com/shopwareLabs/SwagPayPal/blob/master/Core/Checkout/Payment/Cart/PaymentHandler/PayPalPayment.php">PayPal Plugin</a> for examples</p>
+<p>&nbsp;If you used some other constants, you have to replace them by a query to get the correct <strong>Id</strong></p>
 
 <h3>2019-04-01: sw-icon update</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
 
 <p>The icon system in the administration has been updated.</p>
 
@@ -905,9 +1009,55 @@ The icon bug in Google Chrome has been fixed. The SVG&#39;s source code is now d
 	<li>No extra repository required</li>
 </ul>
 
+<h3>2019-04-01: Payment handler exception</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
+<p>Payment handler are now able to throw special exceptions if certain error cases occur.</p>
+
+<ul>
+	<li><strong>Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface::pay </strong>should throw the<strong> SyncPaymentProcessException</strong> if something goes wrong.</li>
+	<li>Same for the <strong>Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface::pay</strong> Throw an <strong>AsyncPaymentProcessException</strong> e.g. if a call to an external API fails</li>
+	<li>The finalize method of the <strong>AsynchronousPaymentHandlerInterface</strong> could also throw an <strong>AsyncPaymentFinalizeException</strong>. Additionally it could throw a <strong>CustomerCanceledAsyncPaymentException</strong> if the customer canceled the process on the payment provider page.</li>
+</ul>
+
+<p>In every case, Shopware catches these exceptions and set the transaction state to <strong>canceled</strong> before the exceptions are thrown again. So a caller of the Shopware pay API route will get an exception message, if something goes wrong during the payment process and could react accordingly.</p>
+
+<p>Soonish it will be possible to transform the order into a cart again and let the customer update the payment method or something like that. Afterwards the order will be updatet und persisted again.</p>
+
+<p>Have a look at the <a href="https://github.com/shopware/platform/blob/master/src/Docs/_new/4-how-to/010-payment-plugin.md">Docs</a> or at our <a href="https://github.com/shopwareLabs/SwagPayPal/blob/master/Core/Checkout/Payment/Cart/PaymentHandler/PayPalPayment.php">PayPal Plugin</a> for examples</p>
+
 <h2>March 2019</h2>
 
 <h3>2019-03-29: Exception Locations</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
 
 <p>Just removed the last of the global exceptions. From now on, please move custom exceptions into the <strong>module that throws it.</strong></p>
 
@@ -932,6 +1082,21 @@ In Perspective all Exception will move to a <strong>\Exception</strong> Folder, 
 
 <h3>2019-03-29: Backend UUID</h3>
 
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
 <p>The Uuid class was moved from <strong>FrameworkStruct\Uuid </strong>to<strong> Framework\Uuid\Uuid </strong>please adjust your branches.</p>
 
 <p><strong>Changes:</strong></p>
@@ -947,41 +1112,22 @@ Backwards Compatibility:</p>
 
 <p>You can still use the old class, but it is deprecated and will be removed next week.</p>
 
-<h3>2019-03-28: Payment refactoring</h3>
-
-<p>We deleted the entity properties:</p>
-
-<ul>
-	<li>template</li>
-	<li>class</li>
-	<li>percentageSurcharge</li>
-	<li>absoluteSurcharge</li>
-	<li>surchargeText</li>
-</ul>
-
-<p>and renamed the <strong>technicalName</strong> to <strong>handlerIdentifier</strong>, which isn&acute;t unique anymore.</p>
-
-<p>The <strong>handlerIdentifier</strong> is only internal and can not be written by the API. It contains the class of the identifier. If a plugin is created via the admin, the <strong>Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DefaultPayment</strong> handler will be choosed.</p>
-
-<p>Also we divided the <strong>PaymentHandlerInterface</strong> into two payment handler interfaces:</p>
-
-<ul>
-	<li>AsynchronousPaymentHandlerInterface</li>
-	<li>SynchronousPaymentHandlerInterface</li>
-</ul>
-
-<p>and also added the two new structs:</p>
-
-<ul>
-	<li>AsyncPaymentTransactionStruct</li>
-	<li>SyncPaymentTransactionStruct</li>
-</ul>
-
-<p>The <strong>AsynchronousPaymentHandlerInterface</strong> has a <strong>finalize</strong> Method and the <strong>pay</strong> Method returns a <strong>RedirectResponse</strong>. In the <strong>SynchronousPaymentHandlerInterface</strong> we only have the <strong>pay</strong> Methods wich has no return.</p>
-
-<p>Another change is a decoration of the payment repository which prevents to delete a plugin payment via API. Payments without a plugin id can be deleted via API. For plugin payments deletions, the plugin itself has to use the new method <strong>internalDelete</strong>, which uses the normal undecorated delete method without restrictions.</p>
-
 <h3>2019-03-28: Validation / input validation</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
 
 <p><strong>#1 Request / Query data</strong><br />
 Request data from either the body (POST) or from the query string (GET) is now wrapped in a <strong>DataBag</strong>. It&#39;s an extension to Symfony&#39;s <strong>ParameterBag</strong> with some sugar for arrays. This allows you to access nested arrays more fluently:</p>
@@ -1049,7 +1195,71 @@ $mapped = $mappingEvent-&gt;getOutput();</pre>
 <p><br />
 The $mapped variable will then be passed to the DAL repository.</p>
 
+<h3>2019-03-28: Payment refactoring</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
+<p>We deleted the entity properties:</p>
+
+<ul>
+	<li>template</li>
+	<li>class</li>
+	<li>percentageSurcharge</li>
+	<li>absoluteSurcharge</li>
+	<li>surchargeText</li>
+</ul>
+
+<p>and renamed the <strong>technicalName</strong> to <strong>handlerIdentifier</strong>, which isn&acute;t unique anymore.</p>
+
+<p>The <strong>handlerIdentifier</strong> is only internal and can not be written by the API. It contains the class of the identifier. If a plugin is created via the admin, the <strong>Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DefaultPayment</strong> handler will be choosed.</p>
+
+<p>Also we divided the <strong>PaymentHandlerInterface</strong> into two payment handler interfaces:</p>
+
+<ul>
+	<li>AsynchronousPaymentHandlerInterface</li>
+	<li>SynchronousPaymentHandlerInterface</li>
+</ul>
+
+<p>and also added the two new structs:</p>
+
+<ul>
+	<li>AsyncPaymentTransactionStruct</li>
+	<li>SyncPaymentTransactionStruct</li>
+</ul>
+
+<p>The <strong>AsynchronousPaymentHandlerInterface</strong> has a <strong>finalize</strong> Method and the <strong>pay</strong> Method returns a <strong>RedirectResponse</strong>. In the <strong>SynchronousPaymentHandlerInterface</strong> we only have the <strong>pay</strong> Methods wich has no return.</p>
+
+<p>Another change is a decoration of the payment repository which prevents to delete a plugin payment via API. Payments without a plugin id can be deleted via API. For plugin payments deletions, the plugin itself has to use the new method <strong>internalDelete</strong>, which uses the normal undecorated delete method without restrictions.</p>
+
 <h3>2019-03-28: Exception conventions</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
 
 <p><strong>Error codes</strong><br />
 Exceptions are not translated when they are thrown. There there must be an identifier to translate them in the clients. Every exception in Shopware should implement <strong>ShopwareException</strong> or better extend from <strong>ShopwareHttpException</strong>. The interface now requires an getErrorCode() method, which returns an unique identifier for this exception.</p>
@@ -1069,6 +1279,21 @@ parent::__construct(
 
 <h3>2019-03-27: BC: SourceContext removed</h3>
 
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
 <p>We&#39;ve removed the <strong>SourceContext</strong> as it was global mutable State.</p>
 
 <p>Now the <strong>Context</strong> has a <strong>Source</strong>, that is either a <strong>SystemSource</strong>, <strong>AdminApiSource</strong> or <strong>SalesChannelSource</strong>.</p>
@@ -1079,21 +1304,41 @@ parent::__construct(
 
 <h3>2019-03-27: Plugin system: New flag managed_by_composer on plugin table</h3>
 
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
 <p>The entity for plugins got a new boolean field <strong>managedByComposer</strong> which determines if a plugin is required with composer. The field is set during <strong>bin/console plugin:refresh</strong></p>
 
 <p>So if you are currently developing or working with plugins you might need to recreate your database.</p>
 
-<h3>2019-03-20: !!! Public admin component library available !!!</h3>
-
-<p>The component library is now public on <a href="https://component-library.shopware.com">https://component-library.shopware.com</a> !</p>
-
-<h3>2019-03-20: PaymentMethodEntity changed</h3>
-
-<p>We changed the properties of <strong>src/Core/Checkout/Payment/PaymentMethodEntity.php</strong> from <strong>additionalDescription</strong> to <strong>description</strong> and <strong>surcharge_string</strong> to <strong>surcharge_text</strong>. <strong>surcharge_text</strong> is also now translateable.</p>
-
-<p>Further changes of the <strong>PaymentHandler</strong> and the <strong>PaymentMethodEntity</strong> are in development.</p>
-
 <h3>2019-03-20: PaymentTransactionStruct changed</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
 
 <p>We changed the contents of the <strong>\Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct</strong></p>
 
@@ -1101,7 +1346,62 @@ parent::__construct(
 
 <p>Due to this change, you need to adjust your PaymentHandler. Have a look at our PayPal plugins which changes are necessary: <a href="https://github.com/shopwareLabs/SwagPayPal/commit/af5532361be7d0d54c055896a340ee7574df2d66">https://github.com/shopwareLabs/SwagPayPal/commit/af5532361be7d0d54c055896a340ee7574df2d66</a></p>
 
+<h3>2019-03-20: PaymentMethodEntity changed</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
+<p>We changed the properties of <strong>src/Core/Checkout/Payment/PaymentMethodEntity.php</strong> from <strong>additionalDescription</strong> to <strong>description</strong> and <strong>surcharge_string</strong> to <strong>surcharge_text</strong>. <strong>surcharge_text</strong> is also now translateable.</p>
+
+<p>Further changes of the <strong>PaymentHandler</strong> and the <strong>PaymentMethodEntity</strong> are in development.</p>
+
+<h3>2019-03-20: !!! Public admin component library available !!!</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
+<p>The component library is now public on <a href="https://component-library.shopware.com">https://component-library.shopware.com</a> !</p>
+
 <h3>2019-03-20: Major issues fixed in admin data handling</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
 
 <p>We fixed two issues in the current data handling of the administration.</p>
 
@@ -1132,6 +1432,21 @@ product = {
 
 <h3>2019-03-19: First plugin-manager version</h3>
 
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
 <p>The first Plugin-Manager version is now merged, but it&#39;s behind the <strong>NEXT-1223</strong> feature flag.</p>
 
 <p>Before you can use the Plugin-Manager, you have to set your host in the shopware.yml file. Additionally, you have to change the Framework Version in Framework.php to a version that the SBP knows.</p>
@@ -1159,6 +1474,21 @@ product = {
 
 <h3>2019-03-14: sw-tree refactoring</h3>
 
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
 <p>The <strong>sw-tree</strong> was refactored again, due to the changing of the sorting.</p>
 
 <p>To use the tree, each item should have an <strong>afterIdProperty</strong> which should contain the id of the element which is before the current item.</p>
@@ -1177,60 +1507,22 @@ product = {
 
 <p>A visual example can be found in the <strong>sw-category-tree</strong></p>
 
-<h3>2019-03-12: Number ranges added</h3>
-
-<p>We implemented a configurable number range.</p>
-
-<p>Number ranges are defined unique identifiers for specific entities.</p>
-
-<p>The new NumberRangeValueGenerator is used to generate a unique identifier for a given entity with a given configuration.</p>
-
-<p>The configuration will be provided in the administration where you can provide a pattern for a specific entity in a specific sales channel.</p>
-
-<p>You can reserve a new value for a number range by calling the route /api/v1/number-range/reserve/{entity}/{salesChannelId} with the name of the entity like product or order and, for sales channel dependent number ranges, also the salesChannelId</p>
-
-<p>In-Code reservation of a new value for a number range can be done by using the NumberRangeValueGenerator method getValue(string $definition, Context $context, ?string $salesChannelId) directly.</p>
-
-<p><strong>PATTERNS</strong><br />
-Build-In patterns are the following:</p>
-
-<p>increment(&#39;n&#39;): Generates a consecutive number, the value to start with can be defined in the configuration</p>
-
-<p>date(&#39;date&#39;,&#39;date_ymd&#39;): Generates the date by time of generation. The standard format is &#39;y-m-d&#39;. The format can be overwritten by passing the format as part of the pattern. The pattern date_ymd generates a date in the Format 190231. This pattern accepts a PHP Dateformat-String</p>
-
-<p><strong>PATTERN EXAMPLE</strong><br />
-Order{date_dmy}_{n} will generate a value like Order310219_5489</p>
-
-<p><strong>ValueGeneratorPattern</strong></p>
-
-<p>The ValueGeneratorPattern is a resolver for a part of the whole pattern configured for a given number range.</p>
-
-<p>The build-in patterns mentioned above have a corresponding pattern resolver which is responsible for resolving the pattern to the correct value.</p>
-
-<p>A ValueGeneratorPattern can easily be added to extend the possibilities for specific requirements.</p>
-
-<p>You only need to derive a class from ValueGeneratorPattern and implement your custom rules to the resolve-method.</p>
-
-<p><strong>IncrementConnector</strong><br />
-<br />
-The increment pattern is somewhat special because it needs to communicate with a persistence layer in some way.</p>
-
-<p>The IncrementConnector allows you to overwrite the connection interface for the increment pattern to switch to a more perfomant solution for this specific task.</p>
-
-<p>If you want to overwrite the IncrementConnector you have to implement the IncrementConnectorInterface in your new connector class and register your new class with the id of the interface.</p>
-
-<p>&nbsp;</p>
-
-<pre>
-&lt;service class=&quot;MyNewIncrementConnector&quot; id=&quot;Shopware\Core\System\NumberRange\ValueGenerator\IncrementConnectorInterface&quot;&gt;
-&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&lt;tag name=&quot;shopware.value_generator_connector&quot;/&gt;
-&lt;/service&gt;</pre>
-
-<h3>2019-03-12: Details column removed from OrderTransaction</h3>
-
-<p>We removed the details column from the order_transaction table. It was introduced in the past, to store additional data to the transaction, e.g. from external payment providers. This is now unnecessary since the introduction of the attribute field. If you stored data to the details field, create a new attribute and store the data in this attribute field. An example migration could be found in our <a href="https://github.com/shopwareLabs/SwagPayPal/commit/a09beec33c5ebe8247d259e970dfcc09ee9c8f13">PayPal integration</a></p>
-
 <h3>2019-03-12: Updates for upload handling</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
 
 <p>In order to react to upload events and errors globally, we made some changes how uploads are stored and run.</p>
 
@@ -1310,7 +1602,105 @@ function myListener({action, uploadTag, payload }) {...}</pre>
 
 <p>The action and payload is similar to the vue.js event name and $event data described above.</p>
 
+<h3>2019-03-12: Number ranges added</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
+<p>We implemented a configurable number range.</p>
+
+<p>Number ranges are defined unique identifiers for specific entities.</p>
+
+<p>The new NumberRangeValueGenerator is used to generate a unique identifier for a given entity with a given configuration.</p>
+
+<p>The configuration will be provided in the administration where you can provide a pattern for a specific entity in a specific sales channel.</p>
+
+<p>You can reserve a new value for a number range by calling the route /api/v1/number-range/reserve/{entity}/{salesChannelId} with the name of the entity like product or order and, for sales channel dependent number ranges, also the salesChannelId</p>
+
+<p>In-Code reservation of a new value for a number range can be done by using the NumberRangeValueGenerator method getValue(string $definition, Context $context, ?string $salesChannelId) directly.</p>
+
+<p><strong>PATTERNS</strong><br />
+Build-In patterns are the following:</p>
+
+<p>increment(&#39;n&#39;): Generates a consecutive number, the value to start with can be defined in the configuration</p>
+
+<p>date(&#39;date&#39;,&#39;date_ymd&#39;): Generates the date by time of generation. The standard format is &#39;y-m-d&#39;. The format can be overwritten by passing the format as part of the pattern. The pattern date_ymd generates a date in the Format 190231. This pattern accepts a PHP Dateformat-String</p>
+
+<p><strong>PATTERN EXAMPLE</strong><br />
+Order{date_dmy}_{n} will generate a value like Order310219_5489</p>
+
+<p><strong>ValueGeneratorPattern</strong></p>
+
+<p>The ValueGeneratorPattern is a resolver for a part of the whole pattern configured for a given number range.</p>
+
+<p>The build-in patterns mentioned above have a corresponding pattern resolver which is responsible for resolving the pattern to the correct value.</p>
+
+<p>A ValueGeneratorPattern can easily be added to extend the possibilities for specific requirements.</p>
+
+<p>You only need to derive a class from ValueGeneratorPattern and implement your custom rules to the resolve-method.</p>
+
+<p><strong>IncrementConnector</strong><br />
+<br />
+The increment pattern is somewhat special because it needs to communicate with a persistence layer in some way.</p>
+
+<p>The IncrementConnector allows you to overwrite the connection interface for the increment pattern to switch to a more perfomant solution for this specific task.</p>
+
+<p>If you want to overwrite the IncrementConnector you have to implement the IncrementConnectorInterface in your new connector class and register your new class with the id of the interface.</p>
+
+<p>&nbsp;</p>
+
+<pre>
+&lt;service class=&quot;MyNewIncrementConnector&quot; id=&quot;Shopware\Core\System\NumberRange\ValueGenerator\IncrementConnectorInterface&quot;&gt;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&lt;tag name=&quot;shopware.value_generator_connector&quot;/&gt;
+&lt;/service&gt;</pre>
+
+<h3>2019-03-12: Details column removed from OrderTransaction</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
+<p>We removed the details column from the order_transaction table. It was introduced in the past, to store additional data to the transaction, e.g. from external payment providers. This is now unnecessary since the introduction of the attribute field. If you stored data to the details field, create a new attribute and store the data in this attribute field. An example migration could be found in our <a href="https://github.com/shopwareLabs/SwagPayPal/commit/a09beec33c5ebe8247d259e970dfcc09ee9c8f13">PayPal integration</a></p>
+
 <h3>2019-03-11: sw-data-grid update</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
 
 <ul>
 	<li>The prop &quot;identifier&quot; is no longer required. When no identifier is set the grid will not save any settings to the localStorage.</li>
@@ -1319,9 +1709,22 @@ function myListener({action, uploadTag, payload }) {...}</pre>
 	<li>Accidental sorting when doing a column resize should now be fixed.</li>
 </ul>
 
-<p>&nbsp;</p>
-
 <h3>2019-03-11: New component sw-data-grid</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
 
 <p>The sw-data-grid is a new component to render tables with data. It works similar to the sw-grid component but it has some additional features like hiding columns or scrolling horizontally.</p>
 
@@ -1526,6 +1929,21 @@ Every column creates a dynamic slot in which you can put custom HTML. This dynam
 
 <h3>2019-03-08: Module specific snippets</h3>
 
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
 <p>We had the problem that our two big snippets files for the administration caused a bunch of merge conflicts in the past.</p>
 
 <p>Now it&#39;s possible to register module specific snippets, e.g. each module can have their own snippet files.</p>
@@ -1556,35 +1974,22 @@ Module.register(&#39;sw-configuration&#39;, {
 
 <p>The usage inside components and component templates haven&#39;t changed.</p>
 
-<h3>2019-03-06: AttributesField</h3>
+<h3>2019-03-06: JsonField-Serializer changes</h3>
 
-<p>We added an easy way to add custom attributes to entities. The AttributesField is like the JsonField only dynamically typed. To save attributes to entities you first have to define the attribute:</p>
+<style type="text/css">
 
-<pre>
-$attributesRepository-&gt;create([[
-&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;id&#39; =&gt; &#39;&lt;uuid&gt;&#39;,
-&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;name&#39; =&gt; &#39;sw_test_float&#39;,
-&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;type&#39; =&gt; AttributeType::Float,
-&nbsp;&nbsp; &nbsp;]],
-&nbsp;&nbsp; &nbsp;$context
-);
-</pre>
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
 
-<p>Then you can save it like a normal json field</p>
+dl dd {
+    padding-left: 2rem;
+}
 
-<pre>
-$entityRepository-&gt;update([[
-&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;id&#39; =&gt; &#39;&lt;entity id&#39;&gt;&#39;,
-&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;attributes&#39; =&gt; [
-&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;sw_test_float&#39; =&gt; 10.1
-&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;]
-&nbsp;&nbsp; &nbsp;]],
-&nbsp;&nbsp; &nbsp;$context
-);</pre>
+</style>
 
-<p>Unlike the JsonField, the AttributesField patchs the data instead of replacing it completely. So you dont need to send the whole object to update one property.</p>
 
-<h3>2019-03-06: JsonField(-Serializer) changes</h3>
 
 <p>It&#39;s already possible to define types for the values in the json object by passing an array of Fields into propertyMapping. The values are then validated and encoded by the corresponding FieldSerializer.</p>
 
@@ -1619,7 +2024,65 @@ props: {
 &nbsp; &nbsp; }
 }</pre>
 
+<h3>2019-03-06: AttributesField</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
+<p>We added an easy way to add custom attributes to entities. The AttributesField is like the JsonField only dynamically typed. To save attributes to entities you first have to define the attribute:</p>
+
+<pre>
+$attributesRepository-&gt;create([[
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;id&#39; =&gt; &#39;&lt;uuid&gt;&#39;,
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;name&#39; =&gt; &#39;sw_test_float&#39;,
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;type&#39; =&gt; AttributeType::Float,
+&nbsp;&nbsp; &nbsp;]],
+&nbsp;&nbsp; &nbsp;$context
+);
+</pre>
+
+<p>Then you can save it like a normal json field</p>
+
+<pre>
+$entityRepository-&gt;update([[
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;id&#39; =&gt; &#39;&lt;entity id&#39;&gt;&#39;,
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;attributes&#39; =&gt; [
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;sw_test_float&#39; =&gt; 10.1
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;]
+&nbsp;&nbsp; &nbsp;]],
+&nbsp;&nbsp; &nbsp;$context
+);</pre>
+
+<p>Unlike the JsonField, the AttributesField patchs the data instead of replacing it completely. So you dont need to send the whole object to update one property.</p>
+
 <h3>2019-03-05: New tab component</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
 
 <p>The new tab component got a redesign. It supports now horizontal and vertical mode. The vertical mode looks and works like the side-navigation component. This is the reason why it was replaced with this component. You can switch between a left and right alignment.</p>
 
@@ -1639,7 +2102,44 @@ props: {
 &lt;/sw-tabs&gt;
 </pre>
 
+<h3>2019-03-01: NPM dependency</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
+<p>Recently we used an npm feature (clean-install) which is available since version 6.5.0</p>
+
+<p>We already updated the docs accordingly, but the npm dependency in the package.json was still wrong. this is fixed now. so please check the npm version on your machine!</p>
+
+
 <h3>2019-03-01: New code style fixer rules</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
 
 <p>We added the following new rules to our coding style rule set</p>
 
@@ -1657,13 +2157,22 @@ props: {
 
 <p>Additionally the option &quot;allow-risky&quot; is now part of the php_cs.dist config. So it is not necessary anymore to call the cs-fixer with the &quot;&ndash;allow-risky&quot; parameter</p>
 
-<h3>2019-03-01: NPM dependency</h3>
-
-<p>Recently we used an npm feature (clean-install) which is available since version 6.5.0</p>
-
-<p>We already updated the docs accordingly, but the npm dependency in the package.json was still wrong. this is fixed now. so please check the npm version on your machine!</p>
-
 <h3>2019-03-01: Breaking change -&nbsp;GroupBy-Aggregations</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
 
 <p>It is now possible to group aggregations by the value of given fields. Just like GROUP BY in SQL works.</p>
 
@@ -2343,7 +2852,7 @@ These epics are planned as the very next one</p>
 <ul>
 	<li>Products</li>
 	<li>Variants / Properties</li>
-	<li>Storefront API / Page, Pagelets</li>
+	<li>SalesChannel API / Page, Pagelets</li>
 	<li>Order</li>
 	<li>CMS</li>
 	<li>Categories</li>
@@ -2849,9 +3358,4 @@ class OrderStateTranslationDefinition extends EntityTranslationDefinition
 		<li>Have a look here, how it have to look like: src/Docs/60-plugin-system/05-plugin-information.md</li>
 	</ul>
 	</li>
-</ul>
-
-<h3>&nbsp;</h3>
-
-<ul>
 </ul>

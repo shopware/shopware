@@ -24,18 +24,13 @@
 
     .sw-category-detail__layout {
         display: grid;
-        grid-template-columns: 148px 1fr;
-        align-items: center;
+        grid-template-columns: min-content 1fr;
         gap: 32px;
     }
 
-    .sw-category-detail__layout-image {
-        border: 1px solid $color-steam-cloud;
-        border-radius: $border-radius-default;
-        background: $color-iron;
-        display: flex;
-        height: 128px;
-        width: 128px;
+    .sw-cms-list-item {
+        height: 228px;
+        width: 300px;
     }
 
     .sw-category-detail__description {
@@ -43,9 +38,19 @@
     }
 
     .sw-category-detail__layout-desc {
+        display: grid;
+        grid-template-rows: min-content 1fr min-content;
+        align-items: baseline;
+
         .layout-desc__headline {
-            margin-bottom: 8px;
             font-weight: 600;
+            font-size: 14px;
+        }
+        .layout-desc__subheadline {
+            font-size: 14px;
+        }
+        .layout-desc__info {
+            margin-bottom: 16px;
         }
         .layout-desc__actions {
             display: grid;
@@ -55,9 +60,17 @@
             gap: 12px;
         }
         .layout-desc__link {
-            text-decoration: none;
-            margin-top: 8px;
             display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            color: $color-shopware-blue;
+            text-decoration: none;
+            font-size: 14px;
+            margin-top: 8px;
+
+            .sw-icon {
+                margin-left: 8px;
+            }
         }
     }
 

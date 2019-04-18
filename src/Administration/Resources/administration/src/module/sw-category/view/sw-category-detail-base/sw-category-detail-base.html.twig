@@ -122,16 +122,32 @@
                         </sw-cms-layout-modal>
                     {% endblock %}
 
-                    <div class="sw-category-detail__layout-desc">
-                        <h4 class="layout-desc__headline">{{ cmsPage.name }}</h4>
-                        <div class="layout-desc__actions">
-                            <sw-button size="small" @click="openLayoutModal()">{{ $tc('sw-category.base.cms.changeLayout') }}</sw-button>
-                            <sw-button size="small">{{ $tc('sw-category.base.cms.editInPagebuilder') }}</sw-button>
+                    {% block sw_category_detail_layout_desc %}
+                        <div class="sw-category-detail__layout-desc">
+
+                            {% block sw_category_detail_layout_desc_info %}
+                                <div class="layout-desc__info">
+                                    <div class="layout-desc__headline">{{ cmsPage.name }}</div>
+                                    <div class="layout-desc__subheadline">{{ cmsPage.type }}</div>
+                                </div>
+                            {% endblock %}
+
+                            {% block sw_category_detail_layout_desc_actions %}
+                                <div class="layout-desc__actions">
+                                    <sw-button size="small" @click="openLayoutModal()">{{ $tc('sw-category.base.cms.changeLayout') }}</sw-button>
+                                    <sw-button size="small" @click="openInPagebuilder()">{{ $tc('sw-category.base.cms.editInPagebuilder') }}</sw-button>
+                                </div>
+                            {% endblock %}
+
+                            {% block sw_category_detail_layout_desc_link %}
+                                <router-link class="layout-desc__link" :to="{ name: 'sw.category.detail.cms', params: { id: $route.params.id }}">
+                                    {{ $tc('sw-category.base.cms.editContent') }}
+                                    <sw-icon name="default-arrow-simple-right" small></sw-icon>
+                                </router-link>
+                            {% endblock %}
+
                         </div>
-                        <a class="layout-desc__link" :routerLink="{ name: 'sw.category.detail.cms', params: { id: category.id }}">
-                            {{ $tc('sw-category.base.cms.editContent') }}
-                        </a>
-                    </div>
+                    {% endblock %}
                 </div>
             </sw-card>
         {% endblock %}

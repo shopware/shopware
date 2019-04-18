@@ -209,6 +209,10 @@ Component.register('sw-category-detail-base', {
             });
         },
 
+        openInPagebuilder() {
+            this.$router.push({ name: 'sw.cms.detail', params: { id: this.cmsPage.id } });
+        },
+
         openLayoutModal() {
             this.showLayoutSelectionModal = true;
         },

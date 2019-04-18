@@ -3,7 +3,6 @@
          :class="selectClasses"
          tabindex="0"
          ref="swSelect"
-         @click="setFocus"
          @focus="setFocus"
          @keyup.esc="closeResultList"
          @keyup.enter.prevent="onKeyUpEnter"
@@ -23,8 +22,8 @@
                     {% block sw_single_select_single_selection_inner %}
                         <slot v-if="singleSelection !== null" name="selected_option" :item="singleSelection">
                             {% block sw_single_select_single_selection_slot_label %}
-                                <slot name="valueProperty" :item="singleSelection">
-                                    {{ getInlineSnippet(singleSelection[valueProperty]) }}
+                                <slot name="labelProperty" :item="singleSelection">
+                                    {{ getInlineSnippet(singleSelection[labelProperty]) }}
                                 </slot>
                             {% endblock %}
                         </slot>
@@ -91,8 +90,8 @@
                                                                          ref="swSelectOption"
                                                                          :index="index"
                                                                          :item="item">
-                                                                    <slot name="valueProperty">
-                                                                        <span v-html="getInlineSnippet(item[valueProperty])"></span>
+                                                                    <slot name="labelProperty">
+                                                                        <span v-html="getInlineSnippet(item[labelProperty])"></span>
                                                                     </slot>
                                                                  </sw-single-select-option>
                                                              {% endblock %}

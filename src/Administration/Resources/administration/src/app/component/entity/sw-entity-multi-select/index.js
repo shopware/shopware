@@ -11,12 +11,12 @@ export default {
             type: Array,
             required: false
         },
-        valueProperty: {
+        labelProperty: {
             type: String,
             required: false,
             default: 'name'
         },
-        keyProperty: {
+        valueProperty: {
             type: String,
             required: false,
             default: 'id'
@@ -81,7 +81,7 @@ export default {
         },
 
         isSelected(item) {
-            return this.selectedIds.includes(item[this.keyProperty]);
+            return this.selectedIds.includes(item[this.valueProperty]);
         },
 
         openResultList(event) {
@@ -118,7 +118,7 @@ export default {
         remove(identifier) {
             // remove identifier from visible element list
             this.visibleValues = this.visibleValues.filter((item) => {
-                return item[this.keyProperty] !== identifier;
+                return item[this.valueProperty] !== identifier;
             });
 
             this.selectedIds = this.selectedIds.filter((id) => {
@@ -135,19 +135,19 @@ export default {
 
         addItem({ item }) {
             if (this.isSelected(item)) {
-                this.remove(item[this.keyProperty]);
+                this.remove(item[this.valueProperty]);
                 return Promise.resolve();
             }
 
             this.visibleValues.push(item);
-            this.selectedIds.push(item[this.keyProperty]);
+            this.selectedIds.push(item[this.valueProperty]);
 
             if (this.localMode) {
                 this.collection.add(item);
                 return Promise.resolve();
             }
 
-            return this.repository.assign(item[this.keyProperty], this.collection.context);
+            return this.repository.assign(item[this.valueProperty], this.collection.context);
         },
 
         sendSearchRequest() {
@@ -178,7 +178,7 @@ export default {
 
         displayAssigned(result) {
             result.forEach((item) => {
-                this.selectedIds.push(item[this.keyProperty]);
+                this.selectedIds.push(item[this.valueProperty]);
                 this.visibleValues.push(item);
             });
 

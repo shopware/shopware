@@ -3,16 +3,16 @@
 
         {% block sw_category_detail_information %}
             <sw-card :title="$tc('sw-category.base.general.headlineInformationCard')" :isLoading="isLoading || isLoadingProducts">
-                    {% block sw_category_detail_information_name %}
-                        <sw-field
-                            name="categoryName"
-                            class="sw-category-detail__base-name"
-                            v-model="category.name"
-                            validation="required"
-                            :label="$tc('sw-category.base.general.categoryNameLabel')"
-                            :placeholder="placeholder(category, 'name')">
-                        </sw-field>
-                    {% endblock %}
+                {% block sw_category_detail_information_name %}
+                    <sw-field
+                        name="categoryName"
+                        class="sw-category-detail__base-name"
+                        v-model="category.name"
+                        validation="required"
+                        :label="$tc('sw-category.base.general.categoryNameLabel')"
+                        :placeholder="placeholder(category, 'name')">
+                    </sw-field>
+                {% endblock %}
 
                 <sw-container columns="repeat(auto-fit, minmax(150px, 1fr))" gap="0px 30px" class="sw-category-detail__info">
                     {% block sw_category_detail_information_active %}
@@ -117,8 +117,8 @@
                     {% block sw_category_detail_layout_modal %}
                         <sw-cms-layout-modal
                             v-if="showLayoutSelectionModal"
-                            @onLayoutSelectSuccess="onLayoutSelect"
-                            @closeModal="closeLayoutModal">
+                            @modal-layout-select="onLayoutSelect"
+                            @modal-close="closeLayoutModal">
                         </sw-cms-layout-modal>
                     {% endblock %}
 
@@ -157,96 +157,120 @@
         {% block sw_category_detail_products %}
             <sw-card :title="$tc('sw-category.base.products.productAssignmentHeadline')" :isLoading="isLoading || isLoadingProducts">
 
-            {% block sw_category_detail_products_search %}
-                <div class="sw-category-detail__product-search">
-                    <sw-category-select
-                        ref="productAssignmentSelect"
-                        :categoryId="category.id"
-                        :assignedProducts="products"
-                        :hasPreview="false"
-                        id="productSelection"
-                        itemValueKey="id"
-                        :store="productStore"
-                        :associationStore="categoryProductStore"
-                        :placeholder="$tc('sw-category.base.products.productAssignmentPlaceholder')"
-                        @sw-category-select-on-select="onSelectProduct">
-                    </sw-category-select>
-                </div>
+                {% block sw_category_detail_products_search %}
+                    <div class="sw-category-detail__product-search">
+                        <sw-category-select
+                            ref="productAssignmentSelect"
+                            :categoryId="category.id"
+                            :assignedProducts="products"
+                            :hasPreview="false"
+                            id="productSelection"
+                            itemValueKey="id"
+                            :store="productStore"
+                            :associationStore="categoryProductStore"
+                            :placeholder="$tc('sw-category.base.products.productAssignmentPlaceholder')"
+                            @sw-category-select-on-select="onSelectProduct">
+                        </sw-category-select>
+                    </div>
 
-                {% block sw_category_detail_products_search_remove %}
-                    <sw-button
-                        v-if="products && products.length"
-                        class="sw-category-detail__multi-delete"
-                        :disabled="deleteButtonDisabled"
-                        @click="onRemoveProducts"
-                        size="small"
-                        square>
-                            <sw-icon name="default-action-trash" small />
-                    </sw-button>
+                    {% block sw_category_detail_products_search_remove %}
+                        <sw-button
+                            v-if="products.length"
+                            class="sw-category-detail__multi-delete"
+                            :disabled="deleteButtonDisabled"
+                            @click="onRemoveProducts"
+                            size="small"
+                            square>
+                                <sw-icon name="default-action-trash" small />
+                        </sw-button>
+                    {% endblock %}
                 {% endblock %}
-            {% endblock %}
 
-            {% block sw_category_detail_products_grid %}
-                <sw-grid
-                    v-if="products.length"
-                    slot="grid"
-                    ref="grid"
-                    selectable
-                    :items="products"
-                    :sortBy="sortBy"
-                    :sortDirection="sortDirection"
-                    :isLoading="isLoadingProducts"
-                    @sw-grid-select-item="selectionChanged"
-                    @sw-grid-select-all="selectionChanged"
-                    table>
+                {% block sw_category_detail_products_grid %}
+                    <sw-grid
+                        v-if="products.length"
+                        slot="grid"
+                        ref="grid"
+                        selectable
+                        :items="products"
+                        :sortBy="sortBy"
+                        :sortDirection="sortDirection"
+                        :isLoading="isLoadingProducts"
+                        @sw-grid-select-item="selectionChanged"
+                        @sw-grid-select-all="selectionChanged"
+                        table>
 
-                    <template slot="columns" slot-scope="{ item }">
-                        <sw-grid-column flex="minmax(200px, 1fr)" :label="$tc('sw-category.base.products.columnNameLabel')">
-                            <router-link :to="{ name: 'sw.product.detail', params: { id: item.id }}">
-                                {{ placeholder(item, 'name' ) }}
-                            </router-link>
-                        </sw-grid-column>
-                        <sw-grid-column flex="minmax(200px, 1fr)" :label="$tc('sw-category.base.products.columnManufacturerLabel')">
-                            {{ placeholder(item.manufacturer, 'name' ) }}
-                        </sw-grid-column>
+                        {% block sw_category_detail_products_grid_columns %}
+                            <template slot="columns" slot-scope="{ item }">
 
-                        <sw-grid-column flex="70px" align="center">
-                            <sw-context-button>
-                                <sw-context-menu-item @click="onViewProduct(item.id)">
-                                    {{ $tc('sw-category.base.products.productAssignmentActionDetails') }}
-                                </sw-context-menu-item>
-                                <sw-context-menu-item @click="onRemoveProduct(item)">
-                                    {{ item.isDeleted ?
-                                        $tc('sw-category.base.products.productAssignmentActionUndo') :
-                                        $tc('sw-category.base.products.productAssignmentActionRemove')
-                                    }}
-                                </sw-context-menu-item>
-                            </sw-context-button>
-                        </sw-grid-column>
-                    </template>
+                                {% block sw_category_detail_products_grid_columns_name %}
+                                    <sw-grid-column flex="minmax(200px, 1fr)" :label="$tc('sw-category.base.products.columnNameLabel')">
+                                        <router-link :to="{ name: 'sw.product.detail', params: { id: item.id }}">
+                                            {{ placeholder(item, 'name' ) }}
+                                        </router-link>
+                                    </sw-grid-column>
+                                {% endblock %}
 
-                    <template slot="pagination">
-                        <sw-pagination
-                            :page="page"
-                            :limit="limit"
-                            :total="total"
-                            :total-visible="7"
-                            @page-change="onPageChange">
-                        </sw-pagination>
-                    </template>
-                </sw-grid>
+                                {% block sw_category_detail_products_grid_columns_manufacturer %}
+                                    <sw-grid-column flex="minmax(200px, 1fr)" :label="$tc('sw-category.base.products.columnManufacturerLabel')">
+                                        {{ placeholder(item.manufacturer, 'name' ) }}
+                                    </sw-grid-column>
+                                {% endblock %}
 
-                <sw-empty-state
-                    v-else
-                    slot="grid"
-                    :title="$tc('sw-category.base.products.productAssignmentEmptyStateTitle')"
-                    :subline="$tc('sw-category.base.products.productAssignmentEmptyStateSubline')"
-                    icon="default-package-closed">
-                </sw-empty-state>
+                                {% block sw_category_detail_products_grid_columns_actions %}
+                                    <sw-grid-column flex="70px" align="center">
 
-            {% endblock %}
-        </sw-card>
+                                        {% block sw_category_detail_products_grid_columns_actions_button %}
+                                            <sw-context-button>
+
+                                                {% block sw_category_detail_products_grid_columns_actions_button_view %}
+                                                    <sw-context-menu-item @click="onViewProduct(item.id)">
+                                                        {{ $tc('sw-category.base.products.productAssignmentActionDetails') }}
+                                                    </sw-context-menu-item>
+                                                {% endblock %}
+
+                                                {% block sw_category_detail_products_grid_columns_actions_button_remove %}
+                                                    <sw-context-menu-item @click="onRemoveProduct(item)">
+                                                        {{ item.isDeleted ?
+                                                            $tc('sw-category.base.products.productAssignmentActionUndo') :
+                                                            $tc('sw-category.base.products.productAssignmentActionRemove')
+                                                        }}
+                                                    </sw-context-menu-item>
+                                                {% endblock %}
+
+                                            </sw-context-button>
+                                        {% endblock %}
+
+                                    </sw-grid-column>
+                                {% endblock %}
+                            </template>
+
+                            {% block sw_category_detail_products_grid_pagination %}
+                                <template slot="pagination">
+                                    <sw-pagination
+                                        :page="page"
+                                        :limit="limit"
+                                        :total="total"
+                                        :total-visible="7"
+                                        @page-change="onPageChange">
+                                    </sw-pagination>
+                                </template>
+                            {% endblock %}
+                        {% endblock %}
+                    </sw-grid>
+
+                    {% block sw_category_detail_products_empty %}
+                        <sw-empty-state
+                            v-else
+                            slot="grid"
+                            :title="$tc('sw-category.base.products.productAssignmentEmptyStateTitle')"
+                            :subline="$tc('sw-category.base.products.productAssignmentEmptyStateSubline')"
+                            icon="default-package-closed">
+                        </sw-empty-state>
+                    {% endblock %}
+                {% endblock %}
+
+            </sw-card>
         {% endblock %}
-
     </div>
 {% endblock %}

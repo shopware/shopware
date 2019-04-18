@@ -8,8 +8,7 @@ Component.register('sw-category-detail-cms', {
     props: {
         category: {
             type: Object,
-            required: true,
-            default: {}
+            required: true
         },
         mediaItem: {
             type: Object,
@@ -18,8 +17,7 @@ Component.register('sw-category-detail-cms', {
         },
         isLoading: {
             type: Boolean,
-            required: true,
-            default: false
+            required: true
         }
     },
 

@@ -52,7 +52,7 @@ Component.register('sw-cms-layout-modal', {
         },
 
         selectLayout() {
-            this.$emit('onLayoutSelectSuccess', this.selected);
+            this.$emit('modal-layout-select', this.selected);
             this.closeModal();
         },
 
@@ -70,7 +70,7 @@ Component.register('sw-cms-layout-modal', {
         },
 
         closeModal() {
-            this.$emit('closeModal');
+            this.$emit('modal-close');
             this.selected = null;
             this.term = null;
         }

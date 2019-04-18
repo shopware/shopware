@@ -73,14 +73,15 @@
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelContextController" public="true">
-            <argument type="service" id="payment_method.repository"/>
-            <argument type="service" id="shipping_method.repository"/>
-            <argument type="service" id="customer_address.repository"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
-            <argument type="service" id="serializer"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelContextSwitcher"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelContextSwitcher">
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Command\SalesChannelCreateCommand">

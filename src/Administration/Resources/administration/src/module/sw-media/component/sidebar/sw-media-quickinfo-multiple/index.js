@@ -55,7 +55,7 @@ Component.register('sw-media-quickinfo-multiple', {
 
     methods: {
         onRemoveItemFromSelection(event) {
-            this.$emit('sw-media-item-selection-remove', event);
+            this.$emit('media-item-selection-remove', event);
         }
     }
 });

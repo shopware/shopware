@@ -56,21 +56,21 @@ Mixin.register('media-sidebar-modal-mixin', {
         deleteSelectedItems(deletePromise) {
             this.closeModalDelete();
             deletePromise.then((ids) => {
-                this.$emit('sw-media-sidebar-items-delete', ids);
+                this.$emit('media-sidebar-items-delete', ids);
             });
         },
 
         onFolderDissolved(dissolvePromise) {
             this.closeFolderDissolve();
             dissolvePromise.then((ids) => {
-                this.$emit('sw-media-sidebar-folder-items-dissolved', ids);
+                this.$emit('media-sidebar-folder-items-dissolve', ids);
             });
         },
 
         onFolderMoved(movePromise) {
             this.closeModalMove();
             movePromise.then((ids) => {
-                this.$emit('sw-media-sidebar-items-moved', ids);
+                this.$emit('media-sidebar-items-move', ids);
             });
         }
     }

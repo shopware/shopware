@@ -84,7 +84,7 @@ Component.register('sw-media-grid', {
         },
 
         emitSelectionCleared(originalDomEvent) {
-            this.$emit('sw-media-grid-selection-clear', {
+            this.$emit('media-grid-selection-clear', {
                 originalDomEvent
             });
         }

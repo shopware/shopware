@@ -164,7 +164,7 @@ export default {
         },
 
         removeFromSelection(originalDomEvent) {
-            this.$emit('sw-media-item-selection-remove', originalDomEvent);
+            this.$emit('media-item-selection-remove', originalDomEvent);
         },
 
         startInlineEdit(event) {

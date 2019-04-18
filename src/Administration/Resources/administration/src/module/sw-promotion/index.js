@@ -27,7 +27,7 @@ import './page/sw-promotion-list';
 Module.register('sw-promotion', {
     flag: NEXT700,
     type: 'core',
-    name: 'Promotion',
+    name: 'sw-promotion.general.mainMenuItemGeneral',
     description: 'sw-promotion.general.descriptionModule',
     version: '1.0.0',
     targetVersion: '1.0.0',

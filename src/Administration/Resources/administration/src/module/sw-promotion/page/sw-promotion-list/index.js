@@ -17,6 +17,12 @@ Component.register('sw-promotion-list', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    },
+
     computed: {
         promotionStore() {
             return State.getStore('promotion');

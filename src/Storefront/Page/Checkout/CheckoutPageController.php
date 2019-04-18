@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\PageController;
+namespace Shopware\Storefront\Page\Checkout;
 
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
@@ -179,7 +179,7 @@ class CheckoutPageController extends StorefrontController
         } catch (ConstraintViolationException $formViolations) {
         }
 
-        return $this->forward('Shopware\Storefront\PageController\CheckoutPageController::confirm', ['formViolations' => $formViolations]);
+        return $this->forward(self::class . '::confirm', ['formViolations' => $formViolations]);
     }
 
     /**
@@ -247,7 +247,7 @@ class CheckoutPageController extends StorefrontController
         $forwardAction = $address->get('id') ? 'editAddress' : 'createAddress';
 
         return $this->forward(
-            'Shopware\Storefront\PageController\CheckoutPageController::' . $forwardAction,
+            self::class . '::' . $forwardAction,
             ['formViolations' => $formViolations],
             ['addressId' => $address->get('id')]
         );

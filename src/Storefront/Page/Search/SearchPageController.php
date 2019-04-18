@@ -1,12 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\PageController;
+namespace Shopware\Storefront\Page\Search;
 
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
-use Shopware\Storefront\Page\Search\SearchPageLoader;
 use Shopware\Storefront\Pagelet\Listing\Subscriber\SearchTermSubscriber;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

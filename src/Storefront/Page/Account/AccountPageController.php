@@ -1,9 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\PageController;
+namespace Shopware\Storefront\Page\Account;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException as CustomerNotLoggedInExceptionAlias;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\Exception\CannotDeleteDefaultAddressException;
@@ -118,7 +117,7 @@ class AccountPageController extends StorefrontController
     /**
      * @Route("/account", name="frontend.account.home.page", methods={"GET"})
      *
-     * @throws CustomerNotLoggedInExceptionAlias
+     * @throws CustomerNotLoggedInException
      */
     public function index(Request $request, SalesChannelContext $context): Response
     {
@@ -188,7 +187,7 @@ class AccountPageController extends StorefrontController
 
         $data->set('password', null);
 
-        return $this->forward('Shopware\Storefront\PageController\AccountPageController::login', [
+        return $this->forward(self::class . '::login', [
             'loginError' => true,
         ]);
     }
@@ -225,7 +224,7 @@ class AccountPageController extends StorefrontController
 
             $this->accountRegistrationService->register($data, $data->has('guest'), $context);
         } catch (ConstraintViolationException $formViolations) {
-            return $this->forward('Shopware\Storefront\PageController\AccountPageController::register', ['formViolations' => $formViolations]);
+            return $this->forward(self::class . '::register', ['formViolations' => $formViolations]);
         }
 
         $this->accountService->login($data->get('email'), $context, $data->has('guest'));
@@ -237,6 +236,8 @@ class AccountPageController extends StorefrontController
 
     /**
      * @Route("/account/payment", name="frontend.account.payment.page", options={"seo"="false"}, methods={"GET"})
+     *
+     * @throws CustomerNotLoggedInException
      */
     public function paymentOverview(Request $request, SalesChannelContext $context): Response
     {
@@ -251,6 +252,8 @@ class AccountPageController extends StorefrontController
 
     /**
      * @Route("/account/order", name="frontend.account.order.page", options={"seo"="false"}, methods={"GET"})
+     *
+     * @throws CustomerNotLoggedInException
      */
     public function orderOverview(Request $request, SalesChannelContext $context): Response
     {
@@ -265,6 +268,8 @@ class AccountPageController extends StorefrontController
 
     /**
      * @Route("/account/profile", name="frontend.account.profile.page", methods={"GET"})
+     *
+     * @throws CustomerNotLoggedInException
      */
     public function profileOverview(Request $request, SalesChannelContext $context): Response
     {
@@ -402,7 +407,7 @@ class AccountPageController extends StorefrontController
         $forwardAction = $address->get('id') ? 'editAddress' : 'createAddress';
 
         return $this->forward(
-            'Shopware\Storefront\PageController\AccountPageController::' . $forwardAction,
+            self::class . '::' . $forwardAction,
             ['formViolations' => $formViolations],
             ['addressId' => $address->get('id')]
         );

@@ -10,14 +10,13 @@ use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidKeyException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\System\SystemConfig\SystemConfigServiceInterface;
 
 class SystemConfigServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
     /**
-     * @var SystemConfigServiceInterface
+     * @var SystemConfigService
      */
     private $systemConfigService;
 

@@ -16,7 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactoryInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -45,7 +45,7 @@ class SalesChannelCheckoutController extends AbstractController
     private $contextPersister;
 
     /**
-     * @var SalesChannelContextFactoryInterface
+     * @var SalesChannelContextFactory
      */
     private $salesChannelContextFactory;
 
@@ -68,7 +68,7 @@ class SalesChannelCheckoutController extends AbstractController
         PaymentService $paymentService,
         CartService $cartService,
         SalesChannelContextPersister $contextPersister,
-        SalesChannelContextFactoryInterface $salesChannelContextFactory,
+        SalesChannelContextFactory $salesChannelContextFactory,
         Serializer $serializer,
         EntityRepositoryInterface $orderRepository,
         AccountRegistrationService $accountRegisterService

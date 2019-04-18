@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\NewsletterReceiver\Service;
+namespace Shopware\Core\Content\NewsletterReceiver\SalesChannel;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;

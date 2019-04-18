@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Framework\Attribute\AttributeServiceInterface;
+use Shopware\Core\Framework\Attribute\AttributeService;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -19,7 +19,7 @@ class AttributesFieldSerializer extends JsonFieldSerializer
     private $writeExtractor;
 
     /**
-     * @var AttributeServiceInterface
+     * @var AttributeService
      */
     private $attributeService;
 
@@ -27,7 +27,7 @@ class AttributesFieldSerializer extends JsonFieldSerializer
         FieldSerializerRegistry $compositeHandler,
         ConstraintBuilder $constraintBuilder,
         ValidatorInterface $validator,
-        AttributeServiceInterface $attributeService,
+        AttributeService $attributeService,
         WriteCommandExtractor $writeExtractor
     ) {
         parent::__construct($compositeHandler, $constraintBuilder, $validator);

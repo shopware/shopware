@@ -134,7 +134,7 @@ class AccountPageController extends StorefrontController
     /**
      * @Route("/account/login", name="frontend.account.login.page", methods={"GET"})
      */
-    public function login(Request $request, SalesChannelContext $context): Response
+    public function login(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         /** @var string $redirect */
         $redirect = $request->get('redirectTo', $this->generateUrl('frontend.account.home.page'));
@@ -149,6 +149,7 @@ class AccountPageController extends StorefrontController
             'redirectTo' => $redirect,
             'page' => $page,
             'loginError' => (bool) $request->get('loginError'),
+            'data' => $data,
         ]);
     }
 
@@ -184,6 +185,8 @@ class AccountPageController extends StorefrontController
             }
         } catch (BadCredentialsException | UnauthorizedHttpException $e) {
         }
+
+        $data->set('password', null);
 
         return $this->forward('Shopware\Storefront\PageController\AccountPageController::login', [
             'loginError' => true,
@@ -228,12 +231,12 @@ class AccountPageController extends StorefrontController
 
     /**
      * @Route("/account/payment", name="frontend.account.payment.page", options={"seo"="false"}, methods={"GET"})
-     *
-     * @throws CustomerNotLoggedInExceptionAlias
      */
     public function paymentOverview(Request $request, SalesChannelContext $context): Response
     {
-        $this->denyAccessUnlessLoggedIn();
+        if (!$context->getCustomer()) {
+            return $this->redirectToRoute('frontend.account.login.page');
+        }
 
         $page = $this->paymentMethodPageLoader->load($request, $context);
 
@@ -242,12 +245,12 @@ class AccountPageController extends StorefrontController
 
     /**
      * @Route("/account/order", name="frontend.account.order.page", options={"seo"="false"}, methods={"GET"})
-     *
-     * @throws CustomerNotLoggedInExceptionAlias
      */
     public function orderOverview(Request $request, SalesChannelContext $context): Response
     {
-        $this->denyAccessUnlessLoggedIn();
+        if (!$context->getCustomer()) {
+            return $this->redirectToRoute('frontend.account.login.page');
+        }
 
         $page = $this->orderPageLoader->load($request, $context);
 
@@ -256,12 +259,12 @@ class AccountPageController extends StorefrontController
 
     /**
      * @Route("/account/profile", name="frontend.account.profile.page", methods={"GET"})
-     *
-     * @throws CustomerNotLoggedInExceptionAlias
      */
     public function profileOverview(Request $request, SalesChannelContext $context): Response
     {
-        $this->denyAccessUnlessLoggedIn();
+        if (!$context->getCustomer()) {
+            return $this->redirectToRoute('frontend.account.login.page');
+        }
 
         $page = $this->profilePageLoader->load($request, $context);
 

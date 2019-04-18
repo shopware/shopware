@@ -5,11 +5,12 @@ namespace Shopware\Storefront\Pagelet\Detail\Images;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class DetailImagesPageletLoader implements PageLoaderInterface
 {
@@ -32,12 +33,16 @@ class DetailImagesPageletLoader implements PageLoaderInterface
     /**
      * @throws ProductNotFoundException
      * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
+     * @throws MissingRequestParameterException
      */
-    public function load(InternalRequest $request, SalesChannelContext $context): Struct
+    public function load(Request $request, SalesChannelContext $context): Struct
     {
         $page = new DetailImagesPagelet();
 
-        $productId = $request->requireGet('productId');
+        $productId = $request->get('productId');
+        if (!$productId) {
+            throw new MissingRequestParameterException('productId');
+        }
 
         $criteria = new Criteria([$productId]);
 

@@ -3,15 +3,16 @@
 namespace Shopware\Storefront\PageletController;
 
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
+use Shopware\Storefront\Framework\Controller\XmlHttpRequestableInterface;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Pagelet\Detail\Images\DetailImagesPageletLoader;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class DetailPageletController extends StorefrontController
+class DetailPageletController extends StorefrontController implements XmlHttpRequestableInterface
 {
     /**
      * @var DetailImagesPageletLoader|PageLoaderInterface
@@ -28,7 +29,7 @@ class DetailPageletController extends StorefrontController
      *
      * @throws CartTokenNotFoundException
      */
-    public function imagesAction(InternalRequest $request, SalesChannelContext $context): Response
+    public function images(Request $request, SalesChannelContext $context): Response
     {
         $page = $this->imagesLoader->load($request, $context);
 

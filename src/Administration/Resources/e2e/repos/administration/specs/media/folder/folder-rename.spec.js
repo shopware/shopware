@@ -2,7 +2,6 @@ const mediaPage = require('administration/page-objects/module/sw-media.page-obje
 
 module.exports = {
     '@tags': ['media', 'folder', 'folder-rename', 'rename'],
-    '@disabled': true,
     before: (browser, done) => {
         global.MediaFixtureService.setFolderFixture().then(() => {
             done();
@@ -17,7 +16,7 @@ module.exports = {
 
         browser
             .waitForElementNotPresent(page.elements.loader)
-            .expect.element(`${page.elements.gridItem}--0 ${page.elements.folderNameLabel}`).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
+            .expect.element(`${page.elements.gridItem}--0`).to.have.text.that.contains(global.MediaFixtureService.mediaFolderFixture.name);
     },
     'navigate back and edit folder name via context menu': (browser) => {
         const page = mediaPage(browser);
@@ -34,7 +33,7 @@ module.exports = {
     'verify changed folder name': (browser) => {
         const page = mediaPage(browser);
 
-        browser.expect.element(page.elements.folderNameLabel).to.have.text.that.equals('An Edith gets a new name');
+        browser.expect.element(`${page.elements.gridItem}--0`).to.have.text.that.contains('An Edith gets a new name');
     },
     'edit folder name via settings modal': (browser) => {
         const page = mediaPage(browser);
@@ -48,14 +47,14 @@ module.exports = {
     'verify changed folder name again': (browser) => {
         const page = mediaPage(browser);
 
-        browser.expect.element(`${page.elements.gridItem}--0 ${page.elements.folderNameLabel}`).to.have.text.that.equals('An Edith Finch');
+        browser.expect.element(`${page.elements.gridItem}--0`).to.have.text.that.contains('An Edith Finch');
     },
     'edit folder name via sidebar': (browser) => {
         const page = mediaPage(browser);
 
         browser
-            .waitForElementVisible(`${page.elements.gridItem}--0 ${page.elements.folderNameLabel}`)
-            .click(`${page.elements.gridItem}--0 ${page.elements.folderNameLabel}`)
+            .waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__name`)
+            .click(`${page.elements.gridItem}--0 .sw-media-base-item__name`)
             .expect.element('.sw-media-sidebar__headline').to.have.text.that.equals('An Edith Finch');
 
         browser
@@ -68,6 +67,6 @@ module.exports = {
         browser
             .click('.icon--multicolor-folder-breadcrumbs-back-to-root')
             .waitForElementNotPresent(page.elements.loader)
-            .expect.element(`${page.elements.gridItem}--0 ${page.elements.folderNameLabel}`).to.have.text.that.equals('1. What remains of Ediths Name');
+            .expect.element(`${page.elements.gridItem}--0`).to.have.text.that.contains('1. What remains of Ediths Name');
     }
 };

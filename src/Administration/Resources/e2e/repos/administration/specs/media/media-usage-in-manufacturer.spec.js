@@ -3,16 +3,10 @@ const mediaPage = require('administration/page-objects/module/sw-media.page-obje
 
 module.exports = {
     '@tags': ['media', 'media-usage', 'media-usage-in-manufacturer'],
-    '@disabled': true,
     before: (browser, done) => {
         global.ProductFixtureService.setProductFixture({}).then(() => {
             done();
         });
-    },
-    'create default folder for manufacturer': (browser) => {
-        const page = mediaPage(browser);
-        page.openMediaIndex();
-        page.createDefaultFolder('manufacturer', 'Manufacturer Media');
     },
     'open manufacturer listing and select manufacturer': (browser) => {
         const page = manufacturerPage(browser);
@@ -39,9 +33,9 @@ module.exports = {
 
         browser
             .waitForElementNotPresent(page.elements.loader)
-            .waitForElementVisible(`${page.elements.gridItem}--0`)
-            .click(`${page.elements.gridItem}--0`)
-            .expect.element('.sw-media-sidebar__headline').to.have.text.that.equals('Manufacturer Media');
+            .waitForElementVisible(`${page.elements.gridItem}--2`)
+            .click(`${page.elements.gridItem}--2`)
+            .expect.element('.sw-media-sidebar__headline').to.have.text.that.equals('Product Manufacturer Media');
 
         browser
             .waitForElementVisible(`${page.elements.gridItem}--0`)

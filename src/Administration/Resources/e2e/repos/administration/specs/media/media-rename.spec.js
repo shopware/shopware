@@ -2,7 +2,6 @@ const mediaPage = require('administration/page-objects/module/sw-media.page-obje
 
 module.exports = {
     '@tags': ['media', 'rename', 'media-rename'],
-    '@disabled': true,
     'open media listing': (browser) => {
         const page = mediaPage(browser);
         page.openMediaIndex();
@@ -15,12 +14,12 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
-            .click(`${page.elements.gridItem}--0 .sw-media-preview__item`)
+            .click(`${page.elements.mediaItem} .sw-media-preview__item`)
             .waitForElementVisible('.sw-media-quickinfo')
             .fillField('.sw-media-quickinfo-metadata-name input', 'new file name', true)
             .click('.sw-media-quickinfo-metadata-name .sw-confirm-field__button--submit')
-            .waitForElementPresent(`${page.elements.gridItem}--0 .sw-media-base-item__loader`)
-            .waitForElementNotPresent(`${page.elements.gridItem}--0 .sw-media-base-item__loader`)
-            .expect.element(`${page.elements.gridItem}--0 ${page.elements.baseItemName}`).to.have.text.that.contains('new file name');
+            .waitForElementPresent(`${page.elements.mediaItem} .sw-media-base-item__loader`)
+            .waitForElementNotPresent(`${page.elements.mediaItem} .sw-media-base-item__loader`)
+            .expect.element(`${page.elements.mediaItem} ${page.elements.baseItemName}`).to.have.text.that.contains('new file name');
     }
 };

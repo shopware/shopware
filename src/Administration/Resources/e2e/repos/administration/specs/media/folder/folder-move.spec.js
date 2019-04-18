@@ -2,7 +2,6 @@ const mediaPage = require('administration/page-objects/module/sw-media.page-obje
 
 module.exports = {
     '@tags': ['media', 'folder', 'folder-move', 'move'],
-    '@disabled': true,
     before: (browser, done) => {
         global.MediaFixtureService.setFolderFixture({
             name: '1st folder'
@@ -54,12 +53,17 @@ module.exports = {
     'move image to second folder': (browser) => {
         const page = mediaPage(browser);
 
-        page.moveMediaItem('sw-test-image.png', 'media', 7);
+        page.moveMediaItem('sw-test-image.png', {
+            itemType: 'move',
+            listingPosition: 1
+        });
     },
     'move first folder to second one': (browser) => {
         const page = mediaPage(browser);
 
-        page.moveMediaItem('1st folder', 'folder');
+        page.moveMediaItem('1st folder', {
+            itemType: 'folder'
+        });
     },
     'verify movement': (browser) => {
         const page = mediaPage(browser);

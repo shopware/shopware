@@ -2,7 +2,6 @@ const mediaPage = require('administration/page-objects/module/sw-media.page-obje
 
 module.exports = {
     '@tags': ['media', 'rename', 'upload', 'replace', 'media-modal', 'media-upload-modal'],
-    '@disabled': true,
     'open media listing': (browser) => {
         const page = mediaPage(browser);
         page.openMediaIndex();
@@ -16,7 +15,7 @@ module.exports = {
 
         browser
             .waitForElementNotPresent(page.elements.loader)
-            .waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
+            .waitForElementVisible(`${page.elements.mediaItem} .sw-media-base-item__preview-container`)
             .clickContextMenuItem('.sw-media-upload__button-url-upload', '.sw-media-upload__button-context-menu')
             .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`)
             .click(`${page.elements.modalFooter} ${page.elements.primaryButton}`);
@@ -38,7 +37,8 @@ module.exports = {
 
         browser
             .waitForElementNotPresent(page.elements.loader)
-            .waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
+            .waitForElementVisible(`${page.elements.mediaItem} .sw-media-base-item__preview-container`)
+            .moveTo(`${page.elements.mediaItem} .sw-media-base-item__preview-container`, 5, 5)
             .clickContextMenuItem('.sw-media-upload__button-url-upload', '.sw-media-upload__button-context-menu')
             .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`)
             .click(`${page.elements.modalFooter} ${page.elements.primaryButton}`);
@@ -53,14 +53,15 @@ module.exports = {
             .waitForElementVisible(page.elements.alertClose)
             .click(page.elements.alertClose);
 
-        browser.expect.element(`${page.elements.gridItem}--0 ${page.elements.baseItem}`).to.have.text.that.equals('sw-login-background_(1).png');
+        browser.expect.element(`${page.elements.mediaItem} ${page.elements.baseItem}`).to.have.text.that.contains('sw-login-background_(1).png');
     },
     'trigger duplicate media modal one last time by uploading the existing media item': (browser) => {
         const page = mediaPage(browser);
 
         browser
             .waitForElementNotPresent(page.elements.loader)
-            .waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
+            .waitForElementVisible(`${page.elements.mediaItem} .sw-media-base-item__preview-container`)
+            .moveTo(`${page.elements.mediaItem} .sw-media-base-item__preview-container`, 5, 5)
             .clickContextMenuItem('.sw-media-upload__button-url-upload', '.sw-media-upload__button-context-menu')
             .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`)
             .click(`${page.elements.modalFooter} ${page.elements.primaryButton}`);
@@ -74,8 +75,8 @@ module.exports = {
             .waitForElementVisible('.sw-modal__footer')
             .click(`${page.elements.modalFooter} ${page.elements.primaryButton}`);
 
-        browser.expect.element('.sw-media-grid-item__item--0').to.have.text.that.equals('sw-login-background_(1).png');
-        browser.expect.element('.sw-media-grid-item__item--1').to.have.text.that.equals('sw-login-background.png');
+        browser.expect.element('.sw-media-grid-item__item--5').to.have.text.that.equals('sw-login-background_(1).png');
+        browser.expect.element('.sw-media-grid-item__item--6').to.have.text.that.equals('sw-login-background.png');
     }
 };
 

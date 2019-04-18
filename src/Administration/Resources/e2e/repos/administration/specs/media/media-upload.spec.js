@@ -19,7 +19,7 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
-            .click(`${page.elements.previewItem}`)
+            .click(`${page.elements.mediaItem} ${page.elements.previewItem}`)
             .waitForElementVisible('.sw-media-quickinfo');
     },
     'verify meta data': (browser) => {

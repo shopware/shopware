@@ -12,8 +12,7 @@ module.exports = {
         const page = mediaPage(browser);
         page.openMediaIndex();
 
-        browser
-            .waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`);
+        browser.waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`);
     },
     'upload an image': (browser) => {
         const page = mediaPage(browser);

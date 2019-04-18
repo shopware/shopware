@@ -28,7 +28,9 @@ class MediaPageObject extends GeneralPageObject {
     uploadImageViaURL(imgPath) {
         this.browser
             .waitForElementNotPresent(this.elements.loader)
-            .clickContextMenuItem('.sw-media-upload__button-url-upload', '.sw-media-upload__button-context-menu')
+            .clickContextMenuItem('.sw-media-upload__button-context-menu', {
+                menuActionSelector: '.sw-media-upload__button-url-upload'
+            })
             .waitForElementVisible('.sw-media-url-form')
             .fillField('input[name=sw-field--url]', imgPath)
             .click(`${this.elements.modal}__footer .sw-button--primary`)
@@ -48,12 +50,15 @@ class MediaPageObject extends GeneralPageObject {
     }
 
     openMediaModal(action, itemPosition = null) {
-        let item = itemPosition !== null ? `${this.elements.gridItem}--${itemPosition}` : this.elements.mediaItem;
+        const item = itemPosition !== null ? `${this.elements.gridItem}--${itemPosition}` : this.elements.mediaItem;
 
         this.browser
             .waitForElementVisible(item)
             .moveToElement(item, 5, 5)
-            .clickContextMenuItem(action, '.sw-context-button__button', item)
+            .clickContextMenuItem(this.elements.contextMenuButton, {
+                menuActionSelector: action,
+                scope: item
+            })
             .waitForElementVisible('.sw-modal__title');
     }
 
@@ -73,7 +78,10 @@ class MediaPageObject extends GeneralPageObject {
 
         this.browser
             .waitForElementVisible(mediaItem)
-            .clickContextMenuItem(contextMenuItemSelector, this.elements.contextMenuButton, mediaItem)
+            .clickContextMenuItem(this.elements.contextMenuButton, {
+                menuActionSelector: contextMenuItemSelector,
+                scope: mediaItem
+            })
             .expect.element(this.elements.modalTitle).to.have.text.that.equals(`Move "${name}"`);
         this.browser.expect.element('.sw-media-modal-move__confirm').to.not.be.enabled;
 
@@ -86,7 +94,7 @@ class MediaPageObject extends GeneralPageObject {
         if (itemType === 'folder') {
             this.browser
                 .checkNotification('Media items successfully moved', '.sw-notifications__notification--1')
-                .checkNotification('Folder "1st folder" has been moved successfully.');
+                .checkNotification(`Folder "${name}" has been moved successfully.`);
         } else {
             this.browser.checkNotification('Media items successfully moved');
         }

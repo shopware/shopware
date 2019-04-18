@@ -23,9 +23,12 @@ module.exports = {
         const page = settingsPage(browser);
 
         browser
-            .clickContextMenuItem('.sw-context-menu-item--danger', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
-            .expect.element(`${page.elements.modal} .sw-modal__body`).to.have.text.that
-            .contains(`Are you sure you want to delete the country "${global.AdminFixtureService.basicFixture.name}"?`);
+            .waitForElementNotPresent(page.elements.loader)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-context-menu-item--danger',
+                scope: `${page.elements.gridRow}--0`
+            })
+            .expect.element(`${page.elements.modal} .sw-modal__body`).to.have.text.that.contains(`Are you sure you want to delete the country "${global.AdminFixtureService.basicFixture.name}"?`);
 
         browser
             .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)

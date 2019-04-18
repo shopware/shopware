@@ -45,7 +45,7 @@
 
                         {% block sw_data_grid_settings_column_element %}
                             <div v-for="(column, index) in currentColumns"
-                                 class="sw-data-grid__settings-column-item"
+                                 :class="['sw-data-grid__settings-column-item', 'sw-data-grid__settings-item--' + index]"
                                  :key="column.property">
 
                                 {% block sw_data_grid_settings_column_visibility_checkbox %}

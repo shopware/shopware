@@ -23,7 +23,10 @@ module.exports = {
         const page = settingsPage(browser);
 
         browser
-            .clickContextMenuItem('.sw-context-menu-item--danger', page.elements.contextMenuButton, `${page.elements.gridRow}--5`)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-context-menu-item--danger',
+                scope: `${page.elements.gridRow}--5`
+            })
             .expect.element(`${page.elements.modal}__body`).to.have.text.that.equals(`Are you sure you want to delete the tax "${global.AdminFixtureService.basicFixture.name}"?`);
 
         browser

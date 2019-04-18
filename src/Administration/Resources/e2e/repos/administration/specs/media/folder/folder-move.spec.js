@@ -23,7 +23,10 @@ module.exports = {
         browser
             .waitForElementNotPresent(page.elements.loader)
             .waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
-            .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton, `${page.elements.gridItem}--0 `)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: page.elements.showMediaAction,
+                scope: `${page.elements.gridItem}--0 `
+            })
             .expect.element('.smart-bar__header').to.have.text.that.equals('1st folder');
     },
     'upload image to folder and verify placement in folder': (browser) => {
@@ -70,14 +73,20 @@ module.exports = {
 
         browser
             .waitForElementNotPresent(page.elements.loader)
-            .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton, `${page.elements.gridItem}--0 `)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: page.elements.showMediaAction,
+                scope: `${page.elements.gridItem}--0 `
+            })
             .expect.element('.smart-bar__header').to.have.text.that.equals('2nd folder');
 
         browser.assert.containsText(`${page.elements.gridItem}--0 ${page.elements.baseItemName}`, '1st folder')
             .assert.containsText(`${page.elements.gridItem}--1 ${page.elements.baseItemName}`, 'sw-test-image.png');
 
         browser
-            .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton, `${page.elements.gridItem}--0 `)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: page.elements.showMediaAction,
+                scope: `${page.elements.gridItem}--0 `
+            })
             .expect.element('.smart-bar__header').to.have.text.that.equals('1st folder');
 
         browser.expect.element(`${page.elements.gridItem}--0 ${page.elements.baseItemName}`).to.have.text.that.equals('sw-login-background.png');

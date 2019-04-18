@@ -25,7 +25,10 @@ class ProductStreamPageObject extends GeneralPageObject {
         this.browser
             .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
             .waitForElementNotPresent(this.elements.loader)
-            .clickContextMenuItem('.sw-context-menu-item--danger', this.elements.contextMenuButton, `${this.elements.gridRow}--0`)
+            .clickContextMenuItem(this.elements.contextMenuButton, {
+                menuActionSelector: '.sw-context-menu-item--danger',
+                scope: `${this.elements.gridRow}--0`
+            })
             .expect.element(`${this.elements.modal}__body`).to.have.text.that.equals(`Are you sure you want to delete the product stream "${productStreamName}"?`);
 
         this.browser

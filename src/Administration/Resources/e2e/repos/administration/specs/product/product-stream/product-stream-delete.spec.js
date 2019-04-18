@@ -30,7 +30,10 @@ module.exports = {
         browser
 
             .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
-            .clickContextMenuItem(`${page.elements.contextMenu} .sw-context-menu-item__text`, page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: `${page.elements.contextMenu} .sw-context-menu-item__text`,
+                scope: `${page.elements.gridRow}--0`
+            })
             .waitForElementNotPresent(page.elements.loader)
             .expect.element(page.elements.smartBarHeader).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
     },

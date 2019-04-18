@@ -7,13 +7,14 @@ use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemovableException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Framework\Controller\XmlHttpRequestableInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Router;
 
-class CheckoutActionController extends AbstractController
+class CheckoutActionController extends AbstractController implements XmlHttpRequestableInterface
 {
     /**
      * @var CartService

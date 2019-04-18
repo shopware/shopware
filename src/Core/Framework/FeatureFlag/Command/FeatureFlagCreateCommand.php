@@ -39,10 +39,10 @@ class FeatureFlagCreateCommand extends Command
         $io->title("Creating feature flag: $name");
 
         $phpFlag = $this->generator
-            ->exportPhp('Flag', $name, __DIR__ . '/../../Flag');
+            ->exportPhp('Flag', $name, __DIR__ . '/../../../Flag');
 
         $jsFlag = $this->generator
-            ->exportJs($name, __DIR__ . '/../../../Administration/Resources/administration/src/flag');
+            ->exportJs($name, __DIR__ . '/../../../../Administration/Resources/administration/src/flag');
 
         $envName = $this->generator
             ->getEnvironmentName($name);

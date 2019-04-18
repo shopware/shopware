@@ -34,7 +34,7 @@ class ErrorResponseFactory
                 $statusCode = $exception->getStatusCode();
             }
 
-            $response = new JsonResponse(['errors' => $this->convertExceptionToError($exception)], $statusCode);
+            $response = new JsonResponse(['errors' => $this->convertExceptionToError($exception, $debug)], $statusCode);
         }
 
         return $response;

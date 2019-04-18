@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -30,8 +29,8 @@ class PromotionOrderRuleDefinition extends MappingEntityDefinition
             (new FkField('promotion_id', 'promotionId', PromotionDefinition::class))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('rule_id', 'ruleId', RuleDefinition::class))->addFlags(new PrimaryKey(), new Required()),
             new CreatedAtField(),
-            (new ManyToOneAssociationField('promotion', 'promotion_id', PromotionDefinition::class, 'id'))->addFlags(new CascadeDelete()),
-            (new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, 'id'))->addFlags(new CascadeDelete()),
+            new ManyToOneAssociationField('promotion', 'promotion_id', PromotionDefinition::class, 'id'),
+            new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, 'id'),
         ]);
     }
 }

@@ -1,54 +1,26 @@
 {% block sw_promotion_scope_form %}
     <div class="sw-promotion-scope-form">
-        <b>{{ $tc('sw-promotion.detail.main.preconditions.descriptionTitleScope') }}</b>
+        <h4>{{ $tc('sw-promotion.detail.main.preconditions.descriptionTitleScope') }}</h4>
         <p>
             {{ $tc('sw-promotion.detail.main.preconditions.descriptionTextScope') }}
             <router-link :to="{ name: 'sw.settings.rule.index' }">
                 {{ $tc('sw-promotion.detail.main.preconditions.ruleModuleLink') }}
             </router-link>
         </p>
-        {% block sw_promotion_settings_form_scope_rule_id_field %}
-            <sw-select
-                    id="rule"
-                    class="sw-promotion-scope__rules"
-                    :store="ruleStore"
-                    :value="promotion.scopeRuleId"
-                    @input="onScopeRuleChange($event, promotion.scopeRuleId)"
-                    :label="$tc('sw-promotion.detail.main.preconditions.labelScopeRule')">
-                <template slot="result_items" slot-scope="{ item, index }">
-                    <sw-select-option
-                            :index="index"
-                            :item="item">
-                        {{ item.name }}
-                    </sw-select-option>
-                </template>
-            </sw-select>
-        {% endblock %}
-        {% block sw_promotion_settings_form_category_field %}
-            <sw-select id="rule" :store="categoryStore"
-                       class="sw-promotion-scope__categories"
-                       :label="$tc('sw-promotion.detail.main.preconditions.labelCategory')">
-                <template slot="result_items" slot-scope="{ item, index }">
-                    <sw-select-option
-                            :index="index"
-                            :item="item">
-                        {{ item.name }}
-                    </sw-select-option>
-                </template>
-            </sw-select>
-        {% endblock %}
-        {% block sw_promotion_settings_form_product_field %}
-            <sw-select id="rule" :store="productStore"
-                       class="sw-promotion-scope__product-rules"
-                       :label="$tc('sw-promotion.detail.main.preconditions.labelProduct')">
-                <template slot="result_items" slot-scope="{ item, index }">
-                    <sw-select-option
-                            :index="index"
-                            :item="item">
-                        {{ item.name }}
-                    </sw-select-option>
-                </template>
-            </sw-select>
+        {% block sw_promotion_cart_condition_form_rules_field %}
+        <sw-select id="rule" :store="rulesStore"
+                   multi
+                   class="sw-promotion-scope-form__select-cart-rules"
+                   :label="$tc('sw-promotion.detail.main.preconditions.cart.rulesCaption')"
+                   :placeholder="$tc('sw-promotion.detail.main.preconditions.cart.rulesPlaceholder')"
+
+                   :associationStore="cartRulesAssociationStore">
+            <template slot="result_items" slot-scope="{ item, index }">
+                <sw-select-option :index="index" :item="item">
+                    {{ item.name }}
+                </sw-select-option>
+            </template>
+        </sw-select>
         {% endblock %}
     </div>
 {% endblock %}

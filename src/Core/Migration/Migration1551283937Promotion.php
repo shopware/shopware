@@ -25,18 +25,11 @@ class Migration1551283937Promotion extends MigrationStep
               `exclusive` TINYINT(1) NOT NULL DEFAULT 0,
               `priority` INT NOT NULL DEFAULT 0,
               `exclude_lower_priority` TINYINT(1) NOT NULL DEFAULT 0,
-              `scope_rule_id` BINARY(16) NULL,
               `discount_rule_id` BINARY(16) NULL,
               `code` VARCHAR(255) NULL UNIQUE,
               `use_codes` TINYINT(1) NOT NULL DEFAULT 0,
               PRIMARY KEY (`id`),
-              INDEX `idx.promotion.scope_rule_id` (`scope_rule_id` ASC),
               INDEX `idx.promotion.discount_rule_id` (`discount_rule_id` ASC),
-              CONSTRAINT `fk.promotion.scope_rule_id`
-                FOREIGN KEY (`scope_rule_id`)
-                REFERENCES `rule` (`id`)
-                ON DELETE NO ACTION
-                ON UPDATE NO ACTION,
               CONSTRAINT `fk.promotion.discount_rule_id`
                 FOREIGN KEY (`discount_rule_id`)
                 REFERENCES `rule` (`id`)

@@ -30,11 +30,11 @@ class PromotionEntityTest extends TestCase
         $rulePersona->setId('PERSONA-1');
 
         $ruleScope = new RuleEntity();
-        $ruleScope->setId('SCOPE-1');
+        $ruleScope->setId('CART-1');
 
         $this->promotion = new PromotionEntity();
         $this->promotion->setPersonaRules(new RuleCollection([$rulePersona]));
-        $this->promotion->setScopeRule($ruleScope);
+        $this->promotion->setCartRules(new RuleCollection([$ruleScope]));
 
         $this->checkoutContext = $this->getMockBuilder(SalesChannelContext::class)->disableOriginalConstructor()->getMock();
     }
@@ -118,12 +118,12 @@ class PromotionEntityTest extends TestCase
     {
         $checkoutRuleIds = [
             'OTHER-RULE',
-            'SCOPE-1',
+            'CART-1',
         ];
 
         $this->checkoutContext->expects(static::any())->method('getRuleIds')->willReturn($checkoutRuleIds);
 
-        $isValid = $this->promotion->isScopeValid($this->checkoutContext);
+        $isValid = $this->promotion->isCartConditionValid($this->checkoutContext);
 
         static::assertTrue($isValid);
     }
@@ -145,7 +145,7 @@ class PromotionEntityTest extends TestCase
 
         $this->checkoutContext->expects(static::any())->method('getRuleIds')->willReturn($checkoutRuleIDs);
 
-        $isValid = $this->promotion->isScopeValid($this->checkoutContext);
+        $isValid = $this->promotion->isCartConditionValid($this->checkoutContext);
 
         static::assertFalse($isValid);
     }
@@ -168,7 +168,7 @@ class PromotionEntityTest extends TestCase
 
         $this->checkoutContext->expects(static::any())->method('getRuleIds')->willReturn($checkoutRuleIDs);
 
-        $isValid = $promotionWithoutRule->isScopeValid($this->checkoutContext);
+        $isValid = $promotionWithoutRule->isCartConditionValid($this->checkoutContext);
 
         static::assertTrue($isValid);
     }

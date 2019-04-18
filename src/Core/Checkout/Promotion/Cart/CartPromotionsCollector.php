@@ -156,7 +156,7 @@ class CartPromotionsCollector implements CollectorInterface
                 continue;
             }
 
-            if (!$promotion->isScopeValid($context)) {
+            if (!$promotion->isCartConditionValid($context)) {
                 continue;
             }
 

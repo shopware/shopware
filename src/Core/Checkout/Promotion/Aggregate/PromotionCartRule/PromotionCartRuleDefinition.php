@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionPersonaRule;
+namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionCartRule;
 
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
@@ -12,15 +12,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 
-class PromotionPersonaRuleDefinition extends MappingEntityDefinition
+class PromotionCartRuleDefinition extends MappingEntityDefinition
 {
     /**
-     * This class is used as m:n relation between promotions and persona rules.
-     * It gives the option to assign what rules may use this promotion.
+     * This class is used as m:n relation between promotions and cart rules.
+     * It gives the option to assign what rules may be used for cart conditions.
      */
     public static function getEntityName(): string
     {
-        return 'promotion_persona_rule';
+        return 'promotion_cart_rule';
     }
 
     protected static function defineFields(): FieldCollection

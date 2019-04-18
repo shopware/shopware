@@ -30,6 +30,10 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Promotion\Aggregate\PromotionCartRule\PromotionCartRuleDefinition">
+            <tag name="shopware.entity.definition" entity="promotion_cart_rule"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Promotion\PromotionGateway">
             <argument type="service" id="promotion.repository"/>
         </service>

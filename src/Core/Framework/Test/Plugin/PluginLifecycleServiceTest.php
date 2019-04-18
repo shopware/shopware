@@ -333,8 +333,9 @@ class PluginLifecycleServiceTest extends TestCase
 
     private function addTestPluginToKernel(): void
     {
-        require_once __DIR__ . '/_fixture/plugins/SwagTest/src/SwagTest.php';
-        $this->pluginCollection->add(new \SwagTest\SwagTest(false));
+        $testPluginBaseDir = __DIR__ . '/_fixture/plugins/SwagTest';
+        require_once $testPluginBaseDir . '/src/SwagTest.php';
+        $this->pluginCollection->add(new \SwagTest\SwagTest(false, $testPluginBaseDir));
     }
 
     private function pluginTableExists(): bool

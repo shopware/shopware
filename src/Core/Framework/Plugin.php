@@ -21,7 +21,7 @@ abstract class Plugin extends Bundle
      */
     private $basePath;
 
-    final public function __construct(bool $active = true, ?string $basePath = null)
+    final public function __construct(bool $active, string $basePath)
     {
         $this->active = $active;
         $this->basePath = $basePath;
@@ -70,17 +70,13 @@ abstract class Plugin extends Bundle
         parent::configureRoutes($routes, $environment);
     }
 
-    public function getBasePath(): ?string
+    public function getBasePath(): string
     {
         return $this->basePath;
     }
 
-    private function computePluginClassPath()
+    private function computePluginClassPath(): string
     {
-        if ($this->basePath === null) {
-            return parent::getPath();
-        }
-
         $canonicalizedPluginClassPath = parent::getPath();
         $canonicalizedPluginPath = realpath($this->basePath);
 

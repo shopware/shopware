@@ -42,13 +42,6 @@ class PluginTest extends TestCase
         }
     }
 
-    public function testGetPathFallback(): void
-    {
-        $plugin = new SwagTest(true);
-
-        static::assertEquals(self::$swagTestPluginPath . '/src', $plugin->getPath());
-    }
-
     public function testGetPathWithNonSymlinkedPlugin(): void
     {
         $plugin = new SwagTest(true, self::$swagTestPluginPath);
@@ -68,12 +61,5 @@ class PluginTest extends TestCase
         $plugin = new SwagTest(true, self::$symlinkedSwagTestPluginPath);
 
         static::assertEquals(self::$symlinkedSwagTestPluginPath, $plugin->getBasePath());
-    }
-
-    public function testGetBasePathNotSet(): void
-    {
-        $plugin = new SwagTest(true);
-
-        static::assertNull($plugin->getBasePath());
     }
 }

@@ -126,22 +126,22 @@ class ApiRouteLoader extends Loader
             $entityName = $definition::getEntityName();
             $resourceName = str_replace('_', '-', $definition::getEntityName());
 
-//            $route = new Route('/sales-channel-api/v{version}/' . $resourceName . '/{id}');
-//            $route->setMethods(['GET']);
-//            $route->setDefault('_controller', $class . '::detail');
-//            $route->setDefault('entityName', $resourceName);
-//            $route->addRequirements(['version' => '\d+']);
-//            $routes->add('sales-channel-api.' . $entityName . '.detail', $route);
-//
-//            $route = new Route('/sales-channel-api/v{version}/search-ids/' . $resourceName);
-//            $route->setMethods(['POST']);
-//            $route->setDefault('_controller', $class . '::searchIds');
-//            $route->setDefault('entityName', $resourceName);
-//            $route->addRequirements(['version' => '\d+']);
-//            $routes->add('sales-channel-api.' . $entityName . '.search-ids', $route);
+            $route = new Route('/sales-channel-api/v{version}/' . $resourceName . '/{id}');
+            $route->setMethods(['GET']);
+            $route->setDefault('_controller', $class . '::detail');
+            $route->setDefault('entity', $resourceName);
+            $route->addRequirements(['version' => '\d+']);
+            $routes->add('sales-channel-api.' . $entityName . '.detail', $route);
+
+            $route = new Route('/sales-channel-api/v{version}/search-ids/' . $resourceName);
+            $route->setMethods(['POST']);
+            $route->setDefault('_controller', $class . '::searchIds');
+            $route->setDefault('entity', $resourceName);
+            $route->addRequirements(['version' => '\d+']);
+            $routes->add('sales-channel-api.' . $entityName . '.search-ids', $route);
 
             $route = new Route('/sales-channel-api/v{version}/' . $resourceName);
-            $route->setMethods(['POST']);
+            $route->setMethods(['POST', 'GET']);
             $route->setDefault('_controller', $class . '::search');
             $route->setDefault('entity', $resourceName);
             $route->addRequirements(['version' => '\d+']);

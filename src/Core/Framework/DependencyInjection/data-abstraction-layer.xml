@@ -153,6 +153,7 @@
         <service id="Shopware\Core\System\SalesChannel\Entity\SalesChannelApiController" public="true">
             <argument type="service" id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Response\Type\SalesChannel\JsonType"/>
         </service>
 
         <service class="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityReader" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface">

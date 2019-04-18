@@ -123,7 +123,17 @@ class SalesChannelControllerTest extends TestCase
         $originalCountryWithStates = $this->addCountryWithStates();
         $countryId = $originalCountryWithStates['id'];
 
-        $this->getSalesChannelClient()->request('GET', '/sales-channel-api/v1/country/' . $countryId . '/state');
+        $body = [
+            'filter' => [
+                [
+                    'type' => 'equals',
+                    'field' => 'country_state.countryId',
+                    'value' => $countryId,
+                ],
+            ],
+        ];
+
+        $this->getSalesChannelClient()->request('POST', '/sales-channel-api/v1/country-state', $body);
         $response = $this->getSalesChannelClient()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
@@ -176,6 +186,7 @@ class SalesChannelControllerTest extends TestCase
                 continue;
             }
 
+            unset($originalShippingMethod['availabilityRules']);
             $this->silentAssertArraySubset($originalShippingMethod, $shippingMethod);
         }
     }
@@ -196,6 +207,7 @@ class SalesChannelControllerTest extends TestCase
                 continue;
             }
 
+            unset($originalShippingMethod['availabilityRules']);
             $this->silentAssertArraySubset($originalShippingMethod, $shippingMethod);
         }
     }
@@ -219,6 +231,7 @@ class SalesChannelControllerTest extends TestCase
                 continue;
             }
 
+            unset($originalShippingMethod['availabilityRules']);
             $this->silentAssertArraySubset($originalShippingMethod, $shippingMethod);
         }
     }
@@ -231,8 +244,8 @@ class SalesChannelControllerTest extends TestCase
         static::assertEquals(200, $response->getStatusCode());
 
         $content = json_decode($response->getContent(), true);
-        static::assertCount(1, $content['data']);
-        static::assertEquals(1, $content['total']);
+        static::assertCount(2, $content['data']);
+        static::assertEquals(2, $content['total']);
     }
 
     public function testGetSalesChannelPaymentMethodsWithoutUnavailable(): void
@@ -246,7 +259,7 @@ class SalesChannelControllerTest extends TestCase
 
         $content = json_decode($response->getContent(), true);
 
-        static::assertCount(6, $content['data'], print_r($content['data'], true));
+        static::assertCount(7, $content['data'], print_r($content['data'], true));
 
         foreach ($content['data'] as $paymentMethod) {
             if ($paymentMethod['id'] !== $originalPaymentMethod['id']) {
@@ -268,9 +281,9 @@ class SalesChannelControllerTest extends TestCase
 
         $this->getSalesChannelClient()->request('GET', '/sales-channel-api/v1/payment-method');
         $response = $this->getSalesChannelClient()->getResponse();
-        static::assertEquals(200, $response->getStatusCode());
-
         $content = json_decode($response->getContent(), true);
+
+        static::assertEquals(200, $response->getStatusCode(), print_r($content, true));
 
         static::assertGreaterThanOrEqual(5, count($content['data']));
         static::assertCount($content['total'], $content['data']);

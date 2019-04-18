@@ -50,8 +50,8 @@
                                                     :term="term"
                                                     :compact="compact"
                                                     :allowMultiSelect="allowMultiSelect"
-                                                    @sw-media-selection-changed="selection = $event"
-                                                    @media-folder-changed="folderId = $event"
+                                                    @media-selection-change="selection = $event"
+                                                    @media-folder-change="folderId = $event"
                                                     ref="mediaLibrary">
                                                 </sw-media-library>
                                             {% endblock %}
@@ -90,7 +90,7 @@
                                                         :selected="checkMediaItem(upload)"
                                                         :editable="false"
                                                         :isList="compact"
-                                                        @sw-media-item-selection-remove="onMediaRemoveSelected"
+                                                        @media-item-selection-remove="onMediaRemoveSelected"
                                                         @sw-media-item-selection-add="onMediaAddSelected"
                                                         @sw-media-item-clicked="onMeidaItemSelect">
                                                     </sw-media-media-item>
@@ -108,10 +108,10 @@
                     <sw-media-sidebar
                         :items="selection"
                         :currentFolderId="null"
-                        @sw-media-sidebar-items-delete="onItemsDeleted"
-                        @sw-media-sidebar-folder-items-dissolved="onMediaFoldersDissolved"
-                        @sw-media-sidebar-items-moved="refreshList"
-                        @sw-media-item-selection-remove="onMediaRemoveSelected">
+                        @media-sidebar-items-delete="onItemsDeleted"
+                        @media-sidebar-folder-items-dissolve="onMediaFoldersDissolved"
+                        @media-sidebar-items-move="refreshList"
+                        @media-item-selection-remove="onMediaRemoveSelected">
                     </sw-media-sidebar>
                 {% endblock %}
             </div>

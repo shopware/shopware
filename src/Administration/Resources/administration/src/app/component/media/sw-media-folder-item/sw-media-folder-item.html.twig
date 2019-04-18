@@ -8,7 +8,7 @@
                     :displayName="item.name"
                     :editValue="item.name"
                     @sw-media-item-selection-add="selectItem"
-                    @sw-media-item-selection-remove="removeFromSelection"
+                    @media-item-selection-remove="removeFromSelection"
                     @sw-media-item-clicked="handleGridItemClick">
 
                 {% block sw_media_folder_item_preview %}

@@ -4,7 +4,7 @@ import template from './sw-media-modal.html.twig';
 import './sw-media-modal.scss';
 
 /**
- * @event sw-media-modal-selection-changed EntityProxy[]
+ * @event media-modal-selection-change EntityProxy[]
  * @event closeModal (void)
  */
 Component.register('sw-media-modal', {
@@ -141,7 +141,7 @@ Component.register('sw-media-modal', {
                 return selected.getEntityName() === 'media';
             });
 
-            this.$emit('sw-media-modal-selection-changed', selectedMedia);
+            this.$emit('media-modal-selection-change', selectedMedia);
             this.$emit('closeModal');
         },
 

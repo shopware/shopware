@@ -80,7 +80,7 @@
                             :pendingUploads="uploads"
                             :term="term"
                             editable
-                            @media-folder-changed="updateRoute"
+                            @media-folder-change="updateRoute"
                             v-model="selectedItems"
                             ref="mediaLibrary">
                         </sw-media-library>
@@ -91,10 +91,10 @@
                             :items="selectedItems"
                             :currentFolderId="routeFolderId"
                             editable
-                            @sw-media-sidebar-items-delete="onItemsDeleted"
-                            @sw-media-sidebar-folder-items-dissolved="onMediaFoldersDissolved"
-                            @sw-media-sidebar-items-moved="reloadList"
-                            @sw-media-item-selection-remove="onMediaUnselect">
+                            @media-sidebar-items-delete="onItemsDeleted"
+                            @media-sidebar-folder-items-dissolve="onMediaFoldersDissolved"
+                            @media-sidebar-items-move="reloadList"
+                            @media-item-selection-remove="onMediaUnselect">
                         </sw-media-sidebar>
                     {% endblock %}
 

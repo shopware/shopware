@@ -17,7 +17,7 @@ Mixin.register('selectable-media-item', {
         },
 
         removeFromSelection(originalDomEvent) {
-            this.$emit('sw-media-item-selection-remove', {
+            this.$emit('media-item-selection-remove', {
                 originalDomEvent,
                 item: this.item
             });

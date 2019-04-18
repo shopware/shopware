@@ -9,7 +9,7 @@ Component.register('sw-media-library', {
 
     model: {
         prop: 'selection',
-        event: 'sw-media-selection-changed'
+        event: 'media-selection-change'
     },
 
     mixins: [
@@ -140,7 +140,7 @@ Component.register('sw-media-library', {
         },
 
         selectedItems() {
-            this.$emit('sw-media-selection-changed', this.selectedItems);
+            this.$emit('media-selection-change', this.selectedItems);
         },
 
         sorting() {
@@ -283,7 +283,7 @@ Component.register('sw-media-library', {
         },
 
         goToParentFolder() {
-            this.$emit('media-folder-changed', this.parentFolder.id || null);
+            this.$emit('media-folder-change', this.parentFolder.id || null);
         },
 
         clearSelection() {

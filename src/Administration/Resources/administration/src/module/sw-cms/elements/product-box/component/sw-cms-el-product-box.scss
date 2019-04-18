@@ -3,6 +3,10 @@
 .sw-cms-el-product-box {
     height: 100%;
 
+    a {
+        pointer-events: none;
+    }
+
     .sw-cms-el-product-box__content {
         height: 100%;
         display: flex;
@@ -12,6 +16,7 @@
         border: 1px solid #dadee5;
         border-radius: 4px;
         position: relative;
+        background: $color-white;
     }
 
     .sw-cms-el-product-box__badges {

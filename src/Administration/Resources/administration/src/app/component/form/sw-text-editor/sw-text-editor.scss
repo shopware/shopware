@@ -40,7 +40,6 @@
 
     .sw-text-editor__content {
         position: relative;
-        min-height: 150px;
         display: flex;
         flex-direction: column;
     }
@@ -67,5 +66,37 @@
         flex-grow: 1;
         flex-shrink: 1;
         flex-basis: 0;
+
+        h1 {
+            margin-bottom: 18px;
+        }
+
+        h2, h3, h4, h5, h6 {
+            margin-bottom: 15px;
+        }
+
+        p, blockquote, ul, ol {
+            margin-bottom: 20px;
+        }
+
+        ul, ol {
+            margin-left: 20px;
+        }
+
+        blockquote {
+            font-style: italic;
+            margin-left: 20px;
+            position: relative;
+
+            &:before {
+                content: '"';
+                font-size: 40px;
+                line-height: 16px;
+                color: $color-gray;
+                position: absolute;
+                top: 10px;
+                left: -24px;
+            }
+        }
     }
 }

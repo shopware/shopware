@@ -49,34 +49,6 @@ export default {
             default() {
                 return [
                     {
-                        type: 'bold',
-                        icon: 'default-text-editor-bold'
-                    },
-                    {
-                        type: 'italic',
-                        icon: 'default-text-editor-italic'
-                    },
-                    {
-                        type: 'underline',
-                        icon: 'default-text-editor-underline'
-                    },
-                    {
-                        type: 'superscript',
-                        icon: 'default-text-editor-superscript'
-                    },
-                    {
-                        type: 'subscript',
-                        icon: 'default-text-editor-subscript'
-                    },
-                    {
-                        type: 'strikethrough',
-                        icon: 'default-text-editor-strikethrough'
-                    },
-                    {
-                        type: 'insertUnorderedList',
-                        icon: 'default-text-editor-list'
-                    },
-                    {
                         type: 'paragparh',
                         icon: 'default-text-editor-style',
                         expanded: false,
@@ -124,6 +96,30 @@ export default {
                         ]
                     },
                     {
+                        type: 'bold',
+                        icon: 'default-text-editor-bold'
+                    },
+                    {
+                        type: 'italic',
+                        icon: 'default-text-editor-italic'
+                    },
+                    {
+                        type: 'underline',
+                        icon: 'default-text-editor-underline'
+                    },
+                    {
+                        type: 'strikethrough',
+                        icon: 'default-text-editor-strikethrough'
+                    },
+                    {
+                        type: 'superscript',
+                        icon: 'default-text-editor-superscript'
+                    },
+                    {
+                        type: 'subscript',
+                        icon: 'default-text-editor-subscript'
+                    },
+                    {
                         type: 'justify',
                         icon: 'default-text-editor-align-left',
                         expanded: false,
@@ -145,6 +141,10 @@ export default {
                                 icon: 'default-text-align-justify'
                             }
                         ]
+                    },
+                    {
+                        type: 'insertUnorderedList',
+                        icon: 'default-text-editor-list'
                     },
                     {
                         type: 'link',

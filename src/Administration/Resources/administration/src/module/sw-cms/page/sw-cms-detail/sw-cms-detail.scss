@@ -148,6 +148,11 @@
     .sw-cms-detail__navigator {
         padding: 10px 25px;
     }
+
+    .sw-cms-detail__block-category {
+        margin-bottom: 20px;
+        border-bottom: 1px solid $color-steam-cloud;
+    }
 }
 
 .sw-cms-detail__block-preview {
@@ -155,7 +160,7 @@
     padding: 15px;
     background: $color-white;
     border: 1px solid $color-steam-cloud;
-    box-shadow: 0 0 5px 0 $color-steam-cloud;
+    box-shadow: 0 0 4px 0 rgba($color-steam-cloud, 0.8);
     cursor: grab;
     user-select: none;
     user-focus: none;
@@ -165,26 +170,47 @@
         border: 1px dashed $color-steam-cloud;
         background-color: $color-iron;
     }
+
+    &.is--drag-element {
+        border: 1px solid $color-shopware-blue;
+        box-shadow: 0 0 4px 0 rgba($color-shopware-blue, 0.4);
+    }
 }
 
-.sw-cms-detail__navigator-element,
-.sw-cms-detail__navigator-element.is--drag-element {
+.sw-cms-detail__navigator-element {
     display: grid;
-    grid-template-columns: 1fr 20px;
+    grid-template-columns: 1fr 28px 28px;
     align-items: center;
     align-content: center;
-    padding: 8px 14px;
+    padding: 8px 4px 8px 14px;
     margin: 0 0 12px 0;
-    border-left: 4px solid $color-shopware-blue;
+    border: 1px solid $color-steam-cloud;
     background: $color-light-gray;
+    color: $color-gutenberg;
+    border-radius: 4px;
     cursor: move;
 
+    &.is--drag-element {
+        border: 1px solid $color-shopware-blue;
+        box-shadow: 0 0 4px 0 rgba($color-shopware-blue, 0.4);
+
+        .navigator-element__action-duplicate,
+        .navigator-element__action-delete {
+            display: none;
+        }
+    }
+
+    &.is--dragging {
+        background: none;
+    }
+
+    .navigator-element__action-duplicate,
     .navigator-element__action-delete {
         line-height: 12px;
         cursor: pointer;
 
         &:hover {
-            color: $color-crimson;
+            color: $color-shopware-blue;
         }
     }
 }

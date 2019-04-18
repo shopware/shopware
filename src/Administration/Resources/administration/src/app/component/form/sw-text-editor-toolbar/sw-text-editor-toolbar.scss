@@ -11,6 +11,7 @@ $sw-text-editor-toolbar-item-child-border: $color-steam-cloud;
 $sw-text-editor-toolbar-item-child-shadow: rgba(120, 138, 155, 0.5);
 
 .sw-text-editor-toolbar {
+    padding: 0 6px;
     background: linear-gradient(-180deg, $sw-text-editor-toolbar-dark-grey-start 0%, $sw-text-editor-toolbar-dark-grey-end 100%);
     border-radius: 4px;
     color: $sw-text-editor-toolbar-item-color;

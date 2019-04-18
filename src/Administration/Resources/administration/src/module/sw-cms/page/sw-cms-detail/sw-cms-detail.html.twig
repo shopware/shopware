@@ -120,7 +120,9 @@
                                                                   :key="block.id"
                                                                   :block="block"
                                                                   :active="currentBlock !== null && currentBlock.id === block.id"
-                                                                  @onBlockOverlayClick="onBlockSelection(block)">
+                                                                  @onBlockOverlayClick="onBlockSelection(block)"
+                                                                  @onBlockDelete="onBlockDelete(block.id)"
+                                                                  @onBlockDuplicate="onBlockDuplicate(block)">
 
                                                         {% block sw_cms_detail_stage_content_block_component %}
                                                             <component :is="`sw-cms-block-${block.type}`">
@@ -211,9 +213,20 @@
                                                      ref="blockSelectionSidebar">
                                         {% block sw_cms_detail_sidebar_block_overview_content %}
                                             <div class="sw-cms-detail__block-overview">
+
+                                                {% block sw_cms_detail_sidebar_block_overview_category %}
+                                                    <div class="sw-cms-detail__block-category">
+                                                        <sw-select-field :label="$tc('sw-cms.detail.labelBlockCategorySelection')" v-model="currentBlockCategory">
+                                                            <option value="standard">{{ $tc('sw-cms.detail.labelBlockCategoryStandard') }}</option>
+                                                            <option value="ecommerce">{{ $tc('sw-cms.detail.labelBlockCategoryEcommerce') }}</option>
+                                                        </sw-select-field>
+                                                    </div>
+                                                {% endblock %}
+
                                                 {% block sw_cms_detail_sidebar_block_overview_preview %}
                                                     <div class="sw-cms-detail__block-preview"
                                                          v-for="block in cmsBlocks"
+                                                         v-if="block.category === currentBlockCategory"
                                                          v-draggable="{ dragGroup: 'cms-stage', data: { block }, onDrop: onBlockStageDrop }">
                                                         {% block sw_cms_detail_sidebar_block_overview_preview_component %}
                                                             <component :is="block.previewComponent"></component>
@@ -270,9 +283,15 @@
                                                             </div>
                                                         {% endblock %}
 
+                                                        {% block sw_cms_detail_sidebar_navigator_element_duplicate %}
+                                                            <div class="navigator-element__action-duplicate" @click="onBlockDuplicate(block)">
+                                                                <sw-icon name="default-action-duplicate" size="16"></sw-icon>
+                                                            </div>
+                                                        {% endblock %}
+
                                                         {% block sw_cms_detail_sidebar_navigator_element_delete %}
                                                             <div class="navigator-element__action-delete" @click="onBlockDelete(block.id)">
-                                                                <sw-icon name="default-basic-x-circle" size="16"></sw-icon>
+                                                                <sw-icon name="default-action-trash" size="16"></sw-icon>
                                                             </div>
                                                         {% endblock %}
                                                     </div>

@@ -45,6 +45,12 @@ Component.register('sw-cms-block', {
             return {
                 'is--active': this.active
             };
+        },
+
+        toolbarClasses() {
+            return {
+                'is--active': this.active
+            };
         }
     },
 
@@ -68,6 +74,14 @@ Component.register('sw-cms-block', {
 
         onBlockOverlayClick() {
             this.$emit('onBlockOverlayClick');
+        },
+
+        onBlockDelete() {
+            this.$emit('onBlockDelete');
+        },
+
+        onBlockDuplicate() {
+            this.$emit('onBlockDuplicate');
         }
     }
 });

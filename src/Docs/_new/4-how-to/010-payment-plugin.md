@@ -337,6 +337,13 @@ class PaymentPlugin extends Plugin
 }
 ```
 
+## Identify your payment
+
+You can identify your payment by the entity property `formattedHandlerIdentifier`.
+It shortens the original handler identifier (php class reference):
+`Custom/Payment/SEPAPayment` to `handler_custom_sepapayment`
+The syntax for the shortening can be looked up in `Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentHandlerIdentifierSubscriber`.
+
 ## Source
 
 There's a GitHub repository available, containing this example source.

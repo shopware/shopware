@@ -81,6 +81,10 @@
             <tag name="shopware.payment.method.sync"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentHandlerIdentifierSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <!--Repository Decorators-->
         <service id="Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentMethodRepositoryDecorator" decorates="payment_method.repository">
             <argument type="service" id="Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentMethodRepositoryDecorator.inner"/>

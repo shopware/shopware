@@ -1,7 +1,6 @@
 import { Component, Mixin, State } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-settings-snippet-list.html.twig';
-import './sw-settings-snippet-list.scss';
 
 Component.register('sw-settings-snippet-list', {
     template,
@@ -15,9 +14,11 @@ Component.register('sw-settings-snippet-list', {
     data() {
         return {
             entityName: 'snippets',
+            sortBy: 'id',
+            sortDirection: 'ASC',
             metaId: '',
             currentAuthor: '',
-            snippetSets: {},
+            snippetSets: null,
             hasResetableItems: true,
             showOnlyEdited: false,
             showOnlyAdded: false,
@@ -28,11 +29,15 @@ Component.register('sw-settings-snippet-list', {
             authorFilters: [],
             appliedFilter: [],
             appliedAuthors: [],
-            emptyIcon: this.$route.meta.$module.icon
+            emptyIcon: this.$route.meta.$module.icon,
+            skeletonItemAmount: 25
         };
     },
 
     computed: {
+        columns() {
+            return this.getColumns();
+        },
         snippetSetStore() {
             return State.getStore('snippet_set');
         },
@@ -96,11 +101,35 @@ Component.register('sw-settings-snippet-list', {
             this.initializeSnippetSet();
         },
 
-        initializeSnippetSet() {
-            if (!this.$route.query.ids || this.$route.query.ids.length <= 0) {
-                this.backRoutingError();
-                this.$router.back();
+        getColumns() {
+            const columns = [{
+                property: 'id',
+                label: this.$tc('sw-settings-snippet.list.columnKey'),
+                inlineEdit: true,
+                dataIndex: 'id',
+                allowResize: true,
+                rawData: true,
+                primary: true
+            }];
 
+            if (this.snippetSets) {
+                this.snippetSets.forEach((item) => {
+                    columns.push({
+                        property: item.id,
+                        label: item.name,
+                        dataIndex: item.id,
+                        allowResize: true,
+                        inlineEdit: 'string',
+                        rawData: true
+                    });
+                });
+            }
+            return columns;
+        },
+
+        initializeSnippetSet() {
+            if (!this.$route.query.ids) {
+                this.backRoutingError();
                 return;
             }
 
@@ -181,6 +210,17 @@ Component.register('sw-settings-snippet-list', {
             });
         },
 
+        onInlineEditCancel(rowItems) {
+            Object.keys(rowItems).forEach((itemKey) => {
+                const item = rowItems[itemKey];
+                if (typeof item !== 'object' || item.value === undefined) {
+                    return;
+                }
+
+                item.value = item.resetTo;
+            });
+        },
+
         onEmptyClick() {
             this.showOnlyEdited = false;
             this.getList();
@@ -193,19 +233,10 @@ Component.register('sw-settings-snippet-list', {
             this.initializeSnippetSet();
         },
 
-        onInlineEditCancel(rowItems) {
-            Object.keys(rowItems).forEach((itemKey) => {
-                const item = rowItems[itemKey];
-                if (typeof item !== 'object' || item.value === undefined) {
-                    return;
-                }
-
-                item.value = item.resetTo;
-            });
-        },
-
         backRoutingError() {
-            this.createNotificationSuccess({
+            this.$router.push({ name: 'sw.settings.snippet.index' });
+
+            this.createNotificationError({
                 title: this.$tc('sw-settings-snippet.general.errorBackRoutingTitle'),
                 message: this.$tc('sw-settings-snippet.general.errorBackRoutingMessage')
             });
@@ -264,7 +295,8 @@ Component.register('sw-settings-snippet-list', {
                     return a.setName <= b.setName ? -1 : 1;
                 });
                 this.showDeleteModal = item;
-            }).finally(() => {
+                this.isLoading = false;
+            }).catch(() => {
                 this.isLoading = false;
             });
         },
@@ -288,6 +320,8 @@ Component.register('sw-settings-snippet-list', {
 
         onConfirmReset(fullSelection) {
             let items;
+            const promises = [];
+
             if (this.showOnlyEdited) {
                 items = Object.values(fullSelection).filter(item => typeof item !== 'string');
             } else if (this.selection !== undefined) {
@@ -298,17 +332,23 @@ Component.register('sw-settings-snippet-list', {
 
             this.showDeleteModal = false;
 
-            items.forEach((item) => {
-                if (item.hasOwnProperty('isFileSnippet') || item.id === null) {
-                    return;
-                }
-                item.isCustomSnippet = fullSelection.isCustomSnippet;
-                this.isLoading = true;
-                this.snippetService.delete(item.id).then(() => {
-                    this.createSuccessMessage(item);
+            this.$nextTick(() => {
+                items.forEach((item) => {
+                    if (item.hasOwnProperty('isFileSnippet') || item.id === null) {
+                        return;
+                    }
+                    item.isCustomSnippet = fullSelection.isCustomSnippet;
+                    this.isLoading = true;
+                    promises.push(this.snippetService.delete(item.id).then(() => {
+                        this.createSuccessMessage(item);
+                    }).catch(() => {
+                        this.createResetErrorNote(item);
+                    }));
+                });
+                Promise.all(promises).then(() => {
+                    this.isLoading = false;
+                    this.getList();
                 }).catch(() => {
-                    this.createResetErrorNote(item);
-                }).finally(() => {
                     this.isLoading = false;
                     this.getList();
                 });
@@ -408,6 +448,16 @@ Component.register('sw-settings-snippet-list', {
             }
 
             this.getList();
+        },
+
+        onPageChange(opts) {
+            this.page = opts.page;
+            this.limit = opts.limit;
+            this.updateRoute({
+                page: this.page
+            }, {
+                ids: this.$route.query.ids
+            });
         }
     }
 });

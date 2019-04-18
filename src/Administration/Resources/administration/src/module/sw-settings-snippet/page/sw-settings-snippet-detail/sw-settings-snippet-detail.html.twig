@@ -29,7 +29,8 @@
                 {% endblock %}
 
                 {% block sw_settings_snippet_detail_actions_save %}
-                    <sw-button class="sw-snippet-detail__save-action" :disabled="isLoading || !this.translationKey || !this.isSavable"
+                    <sw-button class="sw-snippet-detail__save-action"
+                               :disabled="isLoading || !this.translationKey || !this.isSavable"
                                @click.prevent="onSave"
                                variant="primary">
                         {{ $tc('sw-settings-snippet.detail.buttonSave') }}
@@ -69,8 +70,8 @@
                                                   v-for="(snippet, index) in snippets"
                                                   v-model="snippet.value"
                                                   :class="`sw-settings-snippet-detail__translation-field--${index}`"
-                                                  @input="onChange"
                                                   :key="snippet.setId"
+                                                  @input="onChange"
                                                   :label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: sets[snippet.setId].name })"
                                                   :placeholder="snippet.origin || $tc('sw-settings-snippet.general.placeholderValue')">
                                         </sw-field>

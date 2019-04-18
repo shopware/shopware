@@ -18,8 +18,8 @@ class SnippetSetApiService extends ApiService {
         const headers = this.getBasicHeaders();
 
         const defaultSort = {
-            sortBy: null,
-            sortDirection: null
+            sortBy: 'id',
+            sortDirection: 'ASC'
         };
 
         sort = { ...defaultSort, ...sort };

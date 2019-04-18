@@ -5,11 +5,6 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductRepository">
-            <argument type="service" id="product.repository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
-        </service>
-
         <service id="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductSubscriber">
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
@@ -135,7 +130,7 @@
         </service>
 
         <service id="Shopware\Core\Content\Product\Cms\ListingGateway">
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductRepository" />
+            <argument type="service" id="sales_channel.product.repository" />
         </service>
 
         <service id="Shopware\Core\Content\Product\Cms\ListingGatewayInterface" alias="Shopware\Core\Content\Product\Cms\ListingGateway" />

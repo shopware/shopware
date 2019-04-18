@@ -2,20 +2,20 @@
 
 namespace Shopware\Core\Content\Product\Cms;
 
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 class ListingGateway implements ListingGatewayInterface
 {
     /**
-     * @var SalesChannelProductRepository
+     * @var SalesChannelRepository
      */
     private $productRepository;
 
-    public function __construct(SalesChannelProductRepository $productRepository)
+    public function __construct(SalesChannelRepository $productRepository)
     {
         $this->productRepository = $productRepository;
     }

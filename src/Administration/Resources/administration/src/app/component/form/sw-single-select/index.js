@@ -20,6 +20,11 @@ export default {
         value: {
             required: true
         },
+        searchPlaceholder: {
+            type: String,
+            required: false,
+            default: ''
+        },
         placeholder: {
             type: String,
             required: false,
@@ -69,7 +74,8 @@ export default {
             isLoading: false,
             hasError: false,
             singleSelection: null,
-            currentOptions: []
+            currentOptions: [],
+            placeholderOption: null
         };
     },
 
@@ -95,15 +101,40 @@ export default {
         this.destroyedComponent();
     },
 
+    watch: {
+        // Update the view if the value changes from outside
+        value() {
+            if (this.singleSelection && this.singleSelection[this.keyProperty] !== this.value) {
+                this.init();
+            } else if (!this.singleSelection && this.value !== null) {
+                this.init();
+            }
+        }
+    },
+
     methods: {
         createdComponent() {
+            if (!this.required) {
+                const valueProperty = this.placeholder || this.$tc('global.sw-single-select.valuePlaceholder');
+                this.placeholderOption = { [this.keyProperty]: null, [this.valueProperty]: valueProperty };
+            }
+
             this.init();
             this.addEventListeners();
         },
 
         init() {
             this.currentOptions = this.options;
+
+            this.initPlaceholder();
+
             this.loadSelected();
+        },
+
+        initPlaceholder() {
+            if (this.placeholderOption) {
+                this.currentOptions.unshift(this.placeholderOption);
+            }
         },
 
         destroyedComponent() {
@@ -123,6 +154,10 @@ export default {
         },
 
         loadSelected() {
+            if (this.value === null || this.value === '') {
+                this.singleSelection = this.placeholderOption;
+                return;
+            }
             this.resolveKey(this.value).then((item) => {
                 this.singleSelection = item;
             });
@@ -133,9 +168,7 @@ export default {
                 return (item[this.keyProperty] === key);
             });
 
-            return new Promise((resolve) => {
-                resolve(found);
-            });
+            return Promise.resolve(found);
         },
 
         search() {
@@ -164,7 +197,10 @@ export default {
         },
 
         setValue({ item }) {
-            if (item === undefined || !item[this.keyProperty]) {
+            if (item === undefined) {
+                if (this.isExpanded) {
+                    this.closeResultList();
+                }
                 return;
             }
 
@@ -284,7 +320,9 @@ export default {
         navigateDownResults() {
             this.$emit('sw-single-select-on-arrow-down', this.activeResultPosition);
 
-            if (this.activeResultPosition === this.currentOptions.length - 1 || this.currentOptions.length < 1) {
+            const optionsCount = this.currentOptions.length;
+
+            if (this.activeResultPosition === optionsCount - 1 || optionsCount < 1) {
                 return;
             }
 

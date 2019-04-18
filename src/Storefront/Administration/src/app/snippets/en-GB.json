@@ -10,7 +10,8 @@
       "titleSaveSuccess": "Success",
       "messageSaveSuccess": "The SEO url templates have been saved successfully.",
       "preview": "Preview:",
-      "placeholderSelectVariables": "Choose..."
+      "placeholderSelectVariables": "Choose...",
+      "labelSalesChannelSelect": "Sales channel"
     },
     "routeNames": {
       "frontend-detail-page": "Product detail page"

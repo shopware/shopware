@@ -36,7 +36,7 @@ class SeoUrlTemplateDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class),
 
             (new StringField('entity_name', 'entityName', 64))->addFlags(new Required()),

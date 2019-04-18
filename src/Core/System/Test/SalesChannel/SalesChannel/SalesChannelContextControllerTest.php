@@ -154,6 +154,70 @@ class SalesChannelContextControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $this->getSalesChannelClient()->getResponse()->getStatusCode());
     }
 
+    public function testSwitchToNotExistingLanguage()
+    {
+        $id = Uuid::randomHex();
+
+        $this->getSalesChannelClient()
+            ->request('PATCH', '/sales-channel-api/v1/context', ['languageId' => $id]);
+
+        $request = $this->getSalesChannelClient()->getResponse();
+
+        $content = json_decode($request->getContent(), true);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $request->getStatusCode(), print_r($content, true));
+
+        static::assertEquals(
+            sprintf('The "language" entity with id "%s" does not exists.', $id),
+            $content['errors'][0]['detail'] ?? null
+        );
+    }
+
+    public function testSwitchToValidLanguage()
+    {
+        $id = Defaults::LANGUAGE_SYSTEM;
+
+        $this->getSalesChannelClient()
+            ->request('PATCH', '/sales-channel-api/v1/context', ['languageId' => $id]);
+
+        $request = $this->getSalesChannelClient()->getResponse();
+        $content = json_decode($request->getContent(), true);
+
+        static::assertSame(Response::HTTP_OK, $request->getStatusCode(), print_r($content, true));
+    }
+
+    public function testSwitchToValidCurrency()
+    {
+        $id = Defaults::CURRENCY;
+
+        $this->getSalesChannelClient()
+            ->request('PATCH', '/sales-channel-api/v1/context', ['currencyId' => $id]);
+
+        $request = $this->getSalesChannelClient()->getResponse();
+        $content = json_decode($request->getContent(), true);
+
+        static::assertSame(Response::HTTP_OK, $request->getStatusCode(), print_r($content, true));
+    }
+
+    public function testSwitchToNotExistingCurrency()
+    {
+        $id = Uuid::randomHex();
+
+        $this->getSalesChannelClient()
+            ->request('PATCH', '/sales-channel-api/v1/context', ['currencyId' => $id]);
+
+        $request = $this->getSalesChannelClient()->getResponse();
+
+        $content = json_decode($request->getContent(), true);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $request->getStatusCode(), print_r($content, true));
+
+        static::assertEquals(
+            sprintf('The "currency" entity with id "%s" does not exists.', $id),
+            $content['errors'][0]['detail'] ?? null
+        );
+    }
+
     private function createCustomerAndLogin(?string $email = null, string $password = 'shopware'): string
     {
         $email = $email ?? Uuid::randomHex() . '@example.com';

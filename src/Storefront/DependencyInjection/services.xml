@@ -320,5 +320,10 @@
             <argument type="service" id="Shopware\Core\Content\NewsletterReceiver\Service\NewsletterSubscriptionService" />
             <argument type="service" id="request_stack"/>
         </service>
+
+        <service id="Shopware\Storefront\ActionController\CheckoutActionController" public="true">
+            <argument type="service" id="router"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
+        </service>
     </services>
 </container>

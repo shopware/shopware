@@ -1,0 +1,35 @@
+@import '~scss/variables';
+
+$sw-seo-url-template-card-color-preview: $color-kashmir;
+$sw-seo-url-template-card-font-size-preview: $font-size-small;
+
+.sw-seo-url-template-card {
+    .sw-loader {
+        position: relative;
+    }
+
+    .sw-seo-url-template-card__seo-url {
+        margin-bottom: 32px;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+
+        .sw-field {
+            margin-bottom: 0;
+        }
+    }
+
+    .sw-seo-url-template-card__preview {
+        color: $sw-seo-url-template-card-color-preview;
+        font-size: $sw-seo-url-template-card-font-size-preview;
+    }
+
+    .sw-seo-url-template-card__preview-label {
+        margin: 10px 0 8px;
+        display: block;
+        line-height: 16px;
+        font-weight: normal;
+        user-select: none;
+    }
+}

@@ -12,7 +12,6 @@ Component.register('sw-cms-el-text', {
     data() {
         return {
             editable: true,
-            hasFocus: false,
             demoValue: ''
         };
     },
@@ -46,71 +45,19 @@ Component.register('sw-cms-el-text', {
             }
         },
 
-        getContent() {
-            return this.$refs.contentEditor.innerHTML;
+        onBlur(content) {
+            this.emitChanges(content);
         },
 
-        onClick() {
-            this.hasFocus = true;
+        onInput(content) {
+            this.emitChanges(content);
         },
 
-        onFocus() {
-            this.setFocus();
-            document.execCommand('defaultParagraphSeparator', false, 'p');
-        },
-
-        onBlur() {
-            this.element.config.content.value = this.getContent();
-            this.$emit('element-update', this.element);
-        },
-
-        setFocus() {
-            if (!this.hasFocus) {
-                document.addEventListener('click', this.onDocumentClick);
-                this.hasFocus = true;
+        emitChanges(content) {
+            if (content !== this.element.config.content.value) {
+                this.element.config.content.value = content;
+                this.$emit('element-update', this.element);
             }
-        },
-
-        removeFocus() {
-            if (this.hasFocus) {
-                this.hasFocus = false;
-                document.removeEventListener('click', this.onDocumentClick);
-            }
-        },
-
-        onDocumentClick(event) {
-            if (!event.path.includes(this.$el)) {
-                this.removeFocus();
-            }
-        },
-
-        onSetBold() {
-            this.hasFocus = true;
-            document.execCommand('bold', false, true);
-        },
-
-        onSetItalic() {
-            document.execCommand('italic', false, true);
-        },
-
-        onSetUnderline() {
-            document.execCommand('underline', false, true);
-        },
-
-        onSetJustifyLeft() {
-            document.execCommand('justifyLeft', false, true);
-        },
-
-        onSetJustifyRight() {
-            document.execCommand('justifyRight', false, true);
-        },
-
-        onSetJustifyCenter() {
-            document.execCommand('justifyCenter', false, true);
-        },
-
-        onSetJustifyFull() {
-            document.execCommand('justifyFull', false, true);
         }
     }
 });

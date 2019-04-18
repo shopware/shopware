@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="88" height="88" viewBox="0 0 88 88">
+  <defs>
+    <circle id="products_spotillustration-a" cx="44" cy="44" r="44"/>
+  </defs>
+  <g fill="none" fill-rule="evenodd">
+    <mask id="products_spotillustration-b" fill="#fff">
+      <use xlink:href="#products_spotillustration-a"/>
+    </mask>
+    <use fill="#EBFAF4" fill-rule="nonzero" xlink:href="#products_spotillustration-a"/>
+    <rect width="56" height="56" x="43" y="27" fill="#89E4BF" fill-rule="nonzero" mask="url(#products_spotillustration-b)" rx="2"/>
+    <rect width="56" height="56" x="22" y="40" fill="#57D9A3" mask="url(#products_spotillustration-b)" rx="2"/>
+  </g>
+</svg>

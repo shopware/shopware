@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Framework\Page;
 
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoader;
+use Symfony\Component\HttpFoundation\Request;
 
 class PageWithHeaderLoader implements PageLoaderInterface
 {
@@ -18,7 +18,7 @@ class PageWithHeaderLoader implements PageLoaderInterface
         $this->headerLoader = $headerLoader;
     }
 
-    public function load(InternalRequest $request, SalesChannelContext $context): PageWithHeader
+    public function load(Request $request, SalesChannelContext $context): PageWithHeader
     {
         $header = $this->headerLoader->load($request, $context);
 

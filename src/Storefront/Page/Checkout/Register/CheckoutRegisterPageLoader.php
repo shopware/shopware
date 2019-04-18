@@ -4,10 +4,10 @@ namespace Shopware\Storefront\Page\Checkout\Register;
 
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AddressService;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class CheckoutRegisterPageLoader implements PageLoaderInterface
 {
@@ -41,7 +41,7 @@ class CheckoutRegisterPageLoader implements PageLoaderInterface
         $this->addressService = $addressService;
     }
 
-    public function load(InternalRequest $request, SalesChannelContext $context): CheckoutRegisterPage
+    public function load(Request $request, SalesChannelContext $context): CheckoutRegisterPage
     {
         $page = $this->pageWithHeaderLoader->load($request, $context);
 
@@ -53,7 +53,7 @@ class CheckoutRegisterPageLoader implements PageLoaderInterface
 
         $page->setSalutations($this->accountService->getSalutationList($context));
 
-        $addressId = $request->optionalGet('addressId');
+        $addressId = $request->attributes->get('addressId');
         if ($addressId) {
             $address = $this->addressService->getById((string) $addressId, $context);
             $page->setAddress($address);

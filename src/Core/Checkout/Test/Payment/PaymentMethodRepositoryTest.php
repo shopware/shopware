@@ -45,15 +45,19 @@ class PaymentMethodRepositoryTest extends TestCase
         $this->paymentRepository->create($paymentMethod, $defaultContext);
 
         $criteria = new Criteria([$this->paymentMethodId]);
-        $criteria->addAssociation('availabilityRules');
+        $criteria->addAssociation('availabilityRule');
 
         /** @var PaymentMethodCollection $resultSet */
         $resultSet = $this->paymentRepository->search($criteria, $defaultContext);
 
         static::assertSame($this->paymentMethodId, $resultSet->first()->getId());
         static::assertSame(
-            $paymentMethod[0]['availabilityRules'][0]['id'],
-            $resultSet->first()->getAvailabilityRules()->first()->getId()
+            $paymentMethod[0]['availabilityRule']['id'],
+            $resultSet->first()->getAvailabilityRule()->getId()
+        );
+        static::assertSame(
+            'handler_shopware_asynctestpaymenthandler',
+            $resultSet->first()->getFormattedHandlerIdentifier()
         );
     }
 
@@ -67,25 +71,23 @@ class PaymentMethodRepositoryTest extends TestCase
 
         $updateParameter = [
             'id' => $this->paymentMethodId,
-            'availabilityRules' => [
-                [
-                    'id' => Uuid::randomHex(),
-                    'name' => 'test update',
-                    'priority' => 5,
-                    'created_at' => new \DateTime(),
-                ],
+            'availabilityRule' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'test update',
+                'priority' => 5,
+                'created_at' => new \DateTime(),
             ],
         ];
 
         $this->paymentRepository->update([$updateParameter], $defaultContext);
 
         $criteria = new Criteria([$this->paymentMethodId]);
-        $criteria->addAssociation('availabilityRules');
+        $criteria->addAssociation('availabilityRule');
 
         /** @var PaymentMethodCollection $resultSet */
         $resultSet = $this->paymentRepository->search($criteria, $defaultContext);
 
-        static::assertCount(2, $resultSet->first()->getAvailabilityRules());
+        static::assertSame('test update', $resultSet->first()->getAvailabilityRule()->getName());
     }
 
     public function testPaymentMethodCanBeDeleted(): void
@@ -203,12 +205,10 @@ class PaymentMethodRepositoryTest extends TestCase
                 'id' => $this->paymentMethodId,
                 'name' => 'test',
                 'handlerIdentifier' => AsyncTestPaymentHandler::class,
-                'availabilityRules' => [
-                    [
-                        'id' => Uuid::randomHex(),
-                        'name' => 'asd',
-                        'priority' => 2,
-                    ],
+                'availabilityRule' => [
+                    'id' => Uuid::randomHex(),
+                    'name' => 'asd',
+                    'priority' => 2,
                 ],
             ],
         ];

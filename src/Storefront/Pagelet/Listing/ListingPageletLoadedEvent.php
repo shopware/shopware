@@ -4,9 +4,9 @@ namespace Shopware\Storefront\Pagelet\Listing;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
+use Symfony\Component\HttpFoundation\Request;
 
 class ListingPageletLoadedEvent extends NestedEvent
 {
@@ -23,11 +23,11 @@ class ListingPageletLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var InternalRequest
+     * @var Request
      */
     protected $request;
 
-    public function __construct(StorefrontSearchResult $searchResult, SalesChannelContext $context, InternalRequest $request)
+    public function __construct(StorefrontSearchResult $searchResult, SalesChannelContext $context, Request $request)
     {
         $this->searchResult = $searchResult;
         $this->context = $context;
@@ -54,7 +54,7 @@ class ListingPageletLoadedEvent extends NestedEvent
         return $this->searchResult;
     }
 
-    public function getRequest(): InternalRequest
+    public function getRequest(): Request
     {
         return $this->request;
     }

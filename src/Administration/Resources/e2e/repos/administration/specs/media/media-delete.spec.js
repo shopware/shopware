@@ -26,7 +26,7 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
-            .click(`${page.elements.gridItem}--0 .sw-media-preview__item`)
+            .click(`${page.elements.mediaItem} .sw-media-preview__item`)
             .waitForElementVisible('.sw-media-quickinfo')
             .click('li.quickaction--delete')
             .expect.element(`${page.elements.modal}__body`).to.have.text.that.equals('Are you sure you want to delete "sw-login-background.png"?');

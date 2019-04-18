@@ -35,7 +35,8 @@ export default {
         return {
             silent: false,
             page: 1,
-            limit: 10
+            limit: 10,
+            repository: {}
         };
     },
 
@@ -70,6 +71,8 @@ export default {
             result.forEach((item) => {
                 this.currentOptions.push(item);
             });
+
+            this.initPlaceholder();
 
             this.total = result.total;
             this.page = result.criteria.page;

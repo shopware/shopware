@@ -6,7 +6,8 @@ use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationCollection;
-use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Plugin\PluginEntity;
@@ -92,9 +93,24 @@ class PaymentMethodEntity extends Entity
     protected $salesChannels;
 
     /**
-     * @var RuleCollection|null
+     * @var RuleEntity|null
      */
-    protected $availabilityRules;
+    protected $availabilityRule;
+
+    /**
+     * @var string|null
+     */
+    protected $availabilityRuleId;
+
+    /**
+     * @var string|null
+     */
+    protected $mediaId;
+
+    /**
+     * @var MediaEntity|null
+     */
+    protected $media;
 
     /**
      * @var array|null
@@ -102,9 +118,9 @@ class PaymentMethodEntity extends Entity
     protected $attributes;
 
     /**
-     * @var array|null
+     * @var string
      */
-    protected $availabilityRuleIds;
+    protected $formattedHandlerIdentifier;
 
     public function getPluginId(): ?string
     {
@@ -126,12 +142,22 @@ class PaymentMethodEntity extends Entity
         $this->handlerIdentifier = $handlerIdentifier;
     }
 
+    public function setFormattedHandlerIdentifier(string $formattedHandlerIdentifier): void
+    {
+        $this->formattedHandlerIdentifier = $formattedHandlerIdentifier;
+    }
+
+    public function getFormattedHandlerIdentifier(): string
+    {
+        return $this->formattedHandlerIdentifier;
+    }
+
     public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(?string $name): void
+    public function setName(string $name): void
     {
         $this->name = $name;
     }
@@ -256,14 +282,44 @@ class PaymentMethodEntity extends Entity
         $this->salesChannels = $salesChannels;
     }
 
-    public function getAvailabilityRules(): ?RuleCollection
+    public function getAvailabilityRule(): ?RuleEntity
     {
-        return $this->availabilityRules;
+        return $this->availabilityRule;
     }
 
-    public function setAvailabilityRules(?RuleCollection $availabilityRules): void
+    public function setAvailabilityRule(?RuleEntity $availabilityRule): void
     {
-        $this->availabilityRules = $availabilityRules;
+        $this->availabilityRule = $availabilityRule;
+    }
+
+    public function getAvailabilityRuleId(): ?string
+    {
+        return $this->availabilityRuleId;
+    }
+
+    public function setAvailabilityRuleId(?string $availabilityRuleId): void
+    {
+        $this->availabilityRuleId = $availabilityRuleId;
+    }
+
+    public function getMediaId(): ?string
+    {
+        return $this->mediaId;
+    }
+
+    public function setMediaId(?string $mediaId): void
+    {
+        $this->mediaId = $mediaId;
+    }
+
+    public function getMedia(): ?MediaEntity
+    {
+        return $this->media;
+    }
+
+    public function setMedia(?MediaEntity $media): void
+    {
+        $this->media = $media;
     }
 
     public function getAttributes(): ?array
@@ -274,15 +330,5 @@ class PaymentMethodEntity extends Entity
     public function setAttributes(?array $attributes): void
     {
         $this->attributes = $attributes;
-    }
-
-    public function getAvailabilityRuleIds(): ?array
-    {
-        return $this->availabilityRuleIds;
-    }
-
-    public function setAvailabilityRuleIds(array $availabilityRuleIds): void
-    {
-        $this->availabilityRuleIds = $availabilityRuleIds;
     }
 }

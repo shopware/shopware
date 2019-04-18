@@ -423,18 +423,16 @@ class SalesChannelControllerTest extends TestCase
             'name' => 'PayPal',
             'handlerIdentifier' => SyncTestPaymentHandler::class,
             'description' => 'My payment method',
-            'availabilityRules' => [
-                [
-                    'id' => Uuid::randomHex(),
-                    'name' => 'Rule',
-                    'priority' => 100,
-                    'conditions' => [
-                        [
-                            'type' => 'cartCartAmount',
-                            'value' => [
-                                'operator' => '>=',
-                                'amount' => 0,
-                            ],
+            'availabilityRule' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'Rule',
+                'priority' => 100,
+                'conditions' => [
+                    [
+                        'type' => 'cartCartAmount',
+                        'value' => [
+                            'operator' => '>=',
+                            'amount' => 0,
                         ],
                     ],
                 ],
@@ -447,7 +445,7 @@ class SalesChannelControllerTest extends TestCase
             'paymentMethods' => $paymentMethods,
         ];
         $this->salesChannelRepository->update([$data], $this->context);
-        unset($paymentMethod['availabilityRules']);
+        unset($paymentMethod['availabilityRule']);
 
         return $paymentMethod;
     }
@@ -515,25 +513,23 @@ class SalesChannelControllerTest extends TestCase
             'name' => 'Special payment',
             'position' => 4,
             'active' => true,
-            'availabilityRules' => [
-                [
-                    'id' => Uuid::randomHex(),
-                    'name' => 'Rule',
-                    'priority' => 100,
-                    'conditions' => [
-                        [
-                            'type' => 'cartCartAmount',
-                            'value' => [
-                                'operator' => '=',
-                                'amount' => 0,
-                            ],
+            'availabilityRule' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'Rule',
+                'priority' => 100,
+                'conditions' => [
+                    [
+                        'type' => 'cartCartAmount',
+                        'value' => [
+                            'operator' => '=',
+                            'amount' => 0,
                         ],
-                        [
-                            'type' => 'cartCartAmount',
-                            'value' => [
-                                'operator' => '!=',
-                                'amount' => 0,
-                            ],
+                    ],
+                    [
+                        'type' => 'cartCartAmount',
+                        'value' => [
+                            'operator' => '!=',
+                            'amount' => 0,
                         ],
                     ],
                 ],

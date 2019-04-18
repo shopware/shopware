@@ -1,0 +1,52 @@
+{% block sw_sales_channel_switch %}
+    <div class="sw-sales-channel-switch">
+        {% block sw_sales_channel_switch_modal %}
+            <sw-modal v-if="showUnsavedChangesModal"
+                      @closeModal="onCloseChangesModal"
+                      :title="$tc('sw-sales-channel-switch.titleModalUnsavedChanges')"
+                      variant="small">
+                {% block sw_sales_channel_switch_message %}
+                    <p>{{ $tc('sw-sales-channel-switch.messageModalUnsavedChanges') }}</p>
+                {% endblock %}
+                {% block sw_sales_channel_switch_footer %}
+                    <template slot="modal-footer">
+                        {% block sw_sales_channel_switch_footer_button_close %}
+                            <sw-button @click="onCloseChangesModal"
+                                       size="small">
+                                {{ $tc('sw-sales-channel-switch.titleModalButtonCancelUnsavedChanges') }}
+                            </sw-button>
+                        {% endblock %}
+
+                        {% block sw_sales_channel_switch_footer_button_revert %}
+                            <sw-button @click="onClickRevertUnsavedChanges"
+                                       size="small">
+                                {{ $tc('sw-sales-channel-switch.titleModalButtonRevertUnsavedChanges') }}
+                            </sw-button>
+                        {% endblock %}
+
+                        {% block sw_sales_channel_switch_footer_button_save %}
+                            <sw-button @click="onClickSaveChanges"
+                                       variant="primary"
+                                       size="small">
+                                {{ $tc('sw-sales-channel-switch.titleModalButtonSaveChanges') }}
+                            </sw-button>
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+            </sw-modal>
+        {% endblock %}
+        {% block sw_sales_channel_switch_select %}
+            <sw-entity-single-select
+                    ref="salesChannelSelect"
+                    :disabled="disabled"
+                    id="salesChannelSelect"
+                    :placeholder="$tc('sw-sales-channel-switch.labelDefaultOption')"
+                    :label="label"
+                    :searchPlaceholder="$tc('sw-sales-channel-switch.placeholderSelect')"
+                    @input="onInput"
+                    v-model="salesChannelId"
+                    entity="sales_channel">
+            </sw-entity-single-select>
+        {% endblock %}
+    </div>
+{% endblock %}

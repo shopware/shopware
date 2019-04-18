@@ -13,7 +13,7 @@ only find the canonical URL. With a custom `FieldResolver`, you are free to desi
 ## Example
 
 A custom FieldResolver must implement the `Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverInterface`
-interface and should be registered and tagged in the service container as `shopware.entity.field_resolver`.
+interface and should be registered and tagged in the service container as `shopware.field_resolver`.
 
 ```php
 class CanonicalUrlFieldResolver implements FieldResolverInterface
@@ -55,6 +55,6 @@ The `resolve()` method should return if it was able to handle the field by retur
 
 ```xml
 <service id="Shopware\Storefront\Api\Entity\Dbal\CanonicalUrlAssociationFieldResolver">
-    <tag name="shopware.entity.field_resolver" />
+    <tag name="shopware.field_resolver" />
 </service>
 ```

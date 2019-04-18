@@ -20,19 +20,8 @@ class CategorySubscriber implements EventSubscriberInterface
     {
         $request = $event->getRequest();
 
-        $categoryId = $request->optionalRouting('categoryId');
-
-        if ($categoryId) {
+        if ($categoryId = $request->get('categoryId')) {
             $event->getCriteria()->addFilter(new EqualsFilter('product.categoriesRo.id', $categoryId));
-
-            return;
-        }
-
-        $categoryId = $request->optionalGet('categoryId');
-        if ($categoryId) {
-            $event->getCriteria()->addFilter(new EqualsFilter('product.categoriesRo.id', $categoryId));
-
-            return;
         }
     }
 }

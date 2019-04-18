@@ -2,11 +2,11 @@
 
 namespace Shopware\Storefront\Page\Newsletter\Error;
 
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class NewsletterErrorPageLoader implements PageLoaderInterface
 {
@@ -28,7 +28,7 @@ class NewsletterErrorPageLoader implements PageLoaderInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function load(InternalRequest $request, SalesChannelContext $context)
+    public function load(Request $request, SalesChannelContext $context)
     {
         $page = $this->genericLoader->load($request, $context);
         $page = NewsletterErrorPage::createFrom($page);

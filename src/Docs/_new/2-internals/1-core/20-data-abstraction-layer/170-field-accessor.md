@@ -14,7 +14,7 @@ Therefore you need to classify your data and select your value to be compared. I
 property in the `PriceField`.
 
 The FieldAccessor must implement the `Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\FieldAccessorBuilderInterface` interface and should be registered and tagged in the service container as
-`shopware.entity.field_accessor_builder`.
+`shopware.field_accessor_builder`.
 
 ```php
 class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
@@ -37,6 +37,6 @@ The returned selector will be used in the SQL statement for comparing or selecti
 
 ```xml
 <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\PriceFieldAccessorBuilder">
-    <tag name="shopware.entity.field_accessor_builder" />
+    <tag name="shopware.field_accessor_builder" />
 </service>
 ```

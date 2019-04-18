@@ -7,7 +7,6 @@ An entire simple rule might look like this:
 ```php
 <?php declare(strict_types=1);
 
-use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 
@@ -15,8 +14,8 @@ class TrueRule extends Rule
 {
     public function match(
         RuleScope $ruleScope
-    ): Match {
-        return new Match(true);
+    ): bool {
+        return true;
     }
 }
 ```

@@ -42,19 +42,16 @@
 
                 {% block sw_settings_payment_detail_content_card %}
                     <sw-card :title="$tc('sw-settings-payment.detail.titleCard')">
-                        <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
-                            {% block sw_settings_payment_detail_content_field_active %}
-                                <sw-field type="checkbox"
-                                          :label="$tc('sw-settings-payment.detail.labelActive')"
-                                          v-model="paymentMethod.active">
-                                </sw-field>
-                            {% endblock %}
-                        </sw-container>
+                        {% block sw_settings_payment_detail_content_field_plugin %}
+                            <sw-plugin-box v-if="!!paymentMethod.pluginId"
+                                           :pluginId="paymentMethod.pluginId">
+                            </sw-plugin-box>
+                        {% endblock %}
 
-                        <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
+                        <sw-container columns="3fr 1fr" gap="0px 30px">
                             {% block sw_settings_payment_detail_content_field_name %}
                                 <sw-field type="text"
-                                          :label="$tc('sw-settings-shipping.detail.labelName')"
+                                          :label="$tc('sw-settings-payment.detail.labelName')"
                                           :placeholder="placeholder(paymentMethod, 'name', $tc('sw-settings-payment.detail.placeholderName'))"
                                           v-model="paymentMethod.name">
                                 </sw-field>
@@ -70,39 +67,72 @@
                         </sw-container>
 
                         <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
-                            {% block sw_settings_payment_detail_content_field_description %}
-                                <sw-text-editor :label="$tc('sw-settings-payment.detail.labelDescription')"
-                                                :placeholder="placeholder(paymentMethod, 'description', $tc('sw-settings-payment.detail.placeholderDescription'))"
-                                                v-model="paymentMethod.description">
-                                </sw-text-editor>
+                            {% block sw_settings_payment_detail_base_content_field_description %}
+                                <sw-textarea-field
+                                        :value="paymentMethod.description"
+                                        class="sw-settings-payment-detail__description"
+                                        :label="$tc('sw-settings-payment.detail.labelDescription')"
+                                        :placeholder="placeholder(paymentMethod, 'description', $tc('sw-settings-payment.detail.placeholderDescription'))"
+                                        v-model="paymentMethod.description">
+                                </sw-textarea-field>
+                            {% endblock %}
+
+                            {% block sw_settings_payment_detail_base_content_media_upload %}
+                                <sw-upload-store-listener
+                                        :uploadTag="uploadTag"
+                                        autoUpload
+                                        @sw-media-upload-finished="setMediaItem">
+                                </sw-upload-store-listener>
+                                <sw-media-upload
+                                        :uploadTag="uploadTag"
+                                        :source="mediaItem"
+                                        class="sw-settings-payment-detail__logo-image-upload"
+                                        :allowMultiSelect="false"
+                                        variant="regular"
+                                        :label="$tc('sw-settings-payment.detail.labelLogoUpload')"
+                                        :defaultFolder="paymentMethod.getEntityName()"
+                                        @sw-media-upload-open-sidebar="openMediaSidebar"
+                                        @sw-media-upload-remove-image="onUnlinkLogo">
+                                </sw-media-upload>
                             {% endblock %}
                         </sw-container>
 
                         <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
-                            {% block sw_settings_payment_detail_content_field_plugin %}
-                                <sw-field type="text"
-                                          :disabled="true"
-                                          :label="$tc('sw-settings-payment.detail.labelPluginId')"
-                                          :placeholder="$tc('sw-settings-payment.detail.placeholderPluginId')"
-                                          v-model="paymentMethod.pluginId">
+                            {% block sw_settings_payment_detail_content_field_active %}
+                                <sw-field type="switch"
+                                          :label="$tc('sw-settings-payment.detail.labelActive')"
+                                          v-model="paymentMethod.active">
                                 </sw-field>
-                            {% endblock %}
-                        </sw-container>
-
-                        <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
-                            {% block sw_settings_payment_detail_content_field_rule_selection %}
-                                <sw-select multi
-                                           :store="ruleStore"
-                                           :label="$tc('sw-settings-payment.detail.labelSetRules')"
-                                           :associationStore="paymentMethodRuleAssociation"
-                                           v-model="paymentMethod.availabilityRules"
-                                           id="rules">
-                                </sw-select>
                             {% endblock %}
                         </sw-container>
                     </sw-card>
                 {% endblock %}
+
+                {% block sw_settings_payment_detail_top_rule %}
+                    <sw-card class="sw-settings-payment-detail__condition_container"
+                             :title="$tc('sw-settings-payment.detail.topRule')">
+                        <sw-select id="rule"
+                                   required
+                                   v-model="paymentMethod.availabilityRuleId"
+                                   :store="ruleStore"
+                                   :criteria="ruleFilter">
+                        </sw-select>
+                    </sw-card>
+                {% endblock %}
             </sw-card-view>
         {% endblock %}
+
+        <template slot="sidebar">
+            <sw-sidebar :propagateWidth="true">
+                <sw-sidebar-media-item ref="mediaSidebarItem">
+                    <template slot="context-menu-items" slot-scope="media">
+                        <sw-context-menu-item @click="setMediaFromSidebar(media.mediaItem)">
+                            {{ $tc('sw-settings-payment.detail.sidebar.labelUseAsLogo') }}
+                        </sw-context-menu-item>
+                    </template>
+                </sw-sidebar-media-item>
+            </sw-sidebar>
+        </template>
+
     </sw-page>
 {% endblock %}

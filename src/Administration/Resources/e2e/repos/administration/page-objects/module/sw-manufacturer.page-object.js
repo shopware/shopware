@@ -16,7 +16,7 @@ class ManufacturerPageObject extends GeneralPageObject {
         this.browser
             .fillField('input[name=name]', manufacturerName)
             .fillField('input[name=link]', 'https://www.google.com/doodles')
-            .fillField('.ql-editor', 'De-scribe THIS!', false, 'editor')
+            .fillField('.sw-text-editor__content-editor', 'De-scribe THIS!', false, 'editor')
             .click(this.elements.manufacturerSave)
             .checkNotification(`Manufacturer "${manufacturerName}" has been saved successfully.`);
     }

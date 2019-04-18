@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
-use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraints\Type;
@@ -20,32 +19,26 @@ class IsNewCustomerRule extends Rule
         $this->isNew = true;
     }
 
-    public function match(RuleScope $scope): Match
+    public function match(RuleScope $scope): bool
     {
         if (!$scope instanceof CheckoutRuleScope) {
-            return new Match(false, ['Wrong scope']);
+            return false;
         }
 
         /** @var CheckoutRuleScope $scope */
         if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
-            return new Match(false, ['Not logged in customer']);
+            return false;
         }
 
         if (!$customer->getFirstLogin()) {
-            return new Match(false, ['Never logged in']);
+            return false;
         }
 
         if ($this->isNew) {
-            return new Match(
-                $customer->getFirstLogin()->format('Y-m-d') === (new \DateTime())->format('Y-m-d'),
-                ['Customer is not new']
-            );
+            return $customer->getFirstLogin()->format('Y-m-d') === (new \DateTime())->format('Y-m-d');
         }
 
-        return new Match(
-            $customer->getFirstLogin()->format('Y-m-d') !== (new \DateTime())->format('Y-m-d'),
-            ['Customer is new']
-        );
+        return $customer->getFirstLogin()->format('Y-m-d') !== (new \DateTime())->format('Y-m-d');
     }
 
     public function getConstraints(): array

@@ -5,99 +5,99 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
         <service id="Shopware\Core\Checkout\Cart\Rule\CartAmountRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Rule\GoodsCountRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Rule\LineItemOfTypeRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Rule\LineItemRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Rule\LineItemsInCartRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Rule\LineItemTotalPriceRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Rule\LineItemUnitPriceRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Rule\LineItemWithQuantityRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Rule\LineItemWrapperRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Rule\CartWeightRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Rule\CartHasDeliveryFreeItemRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Rule\BillingCountryRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Rule\BillingStreetRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Rule\BillingZipCodeRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Rule\CustomerGroupRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Rule\CustomerNumberRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Rule\DifferentAddressesRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Rule\IsNewCustomerRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Rule\LastNameRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Rule\ShippingCountryRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Rule\ShippingStreetRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Rule\ShippingZipCodeRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Rule\LineItemTagRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
     </services>
 </container>

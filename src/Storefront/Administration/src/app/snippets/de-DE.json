@@ -1,0 +1,20 @@
+{
+  "sw-seo-url-template-card": {
+    "general": {
+      "titleCard": "SEO Url Templates",
+      "labelPossibleValues": "Mögliche Variablen",
+      "tooltipValidTemplate": "Das Template ist gültig",
+      "tooltipInvalidTemplate": "Das Template ist nicht gültig",
+      "titleSaveError": "Fehler",
+      "messageSaveError": "Nicht alle SEO Url Templates sind gültig.",
+      "titleSaveSuccess": "Erfolg",
+      "messageSaveSuccess": "Die SEO Url Templates wurden erfolgreich gespeichert.",
+      "preview": "Vorschau:",
+      "placeholderSelectVariables": "Auswählen...",
+      "labelSalesChannelSelect": "Verkaufskanal"
+    },
+    "routeNames": {
+      "frontend-detail-page": "Produktdetailseite"
+    }
+  }
+}

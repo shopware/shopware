@@ -86,7 +86,7 @@ abstract class Bundle extends SymfonyBundle
 
     protected function getRoutesPath(): string
     {
-        return 'Resources/config/';
+        return 'Resources/config';
     }
 
     protected function getServicesFilePath(): string

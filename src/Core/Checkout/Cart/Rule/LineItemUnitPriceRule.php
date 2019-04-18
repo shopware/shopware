@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
-use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraints\Choice;
@@ -30,14 +29,10 @@ class LineItemUnitPriceRule extends Rule
     /**
      * @throws UnsupportedOperatorException
      */
-    public function match(
-        RuleScope $scope
-    ): Match {
+    public function match(RuleScope $scope): bool
+    {
         if (!$scope instanceof LineItemScope) {
-            return new Match(
-                false,
-                ['Invalid Match Context. LineItemScope expected']
-            );
+            return false;
         }
 
         $unitPrice = $scope->getLineItem()->getPrice()->getUnitPrice();
@@ -46,46 +41,22 @@ class LineItemUnitPriceRule extends Rule
 
         switch ($this->operator) {
             case self::OPERATOR_GTE:
-
-                return new Match(
-                    $unitPrice >= $this->amount,
-                    ['LineItem unit price too low']
-                );
+                return $unitPrice >= $this->amount;
 
             case self::OPERATOR_LTE:
-
-                return new Match(
-                    $unitPrice <= $this->amount,
-                    ['LineItem unit price too high']
-                );
+                return $unitPrice <= $this->amount;
 
             case self::OPERATOR_GT:
-
-                return new Match(
-                    $unitPrice > $this->amount,
-                    ['LineItem unit price too low']
-                );
+                return $unitPrice > $this->amount;
 
             case self::OPERATOR_LT:
-
-                return new Match(
-                    $unitPrice < $this->amount,
-                    ['LineItem unit price too high']
-                );
+                return $unitPrice < $this->amount;
 
             case self::OPERATOR_EQ:
-
-                return new Match(
-                    $unitPrice === $this->amount,
-                    ['LineItem unit price is not equal']
-                );
+                return $unitPrice === $this->amount;
 
             case self::OPERATOR_NEQ:
-
-                return new Match(
-                    $unitPrice !== $this->amount,
-                    ['LineItem unit price is equal']
-                );
+                return $unitPrice !== $this->amount;
 
             default:
                 throw new UnsupportedOperatorException($this->operator, __CLASS__);

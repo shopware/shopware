@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Test\Cart\Common\FalseRule;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Framework\Rule\Container\NotRule;
-use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class NotRuleTest extends TestCase
@@ -18,8 +17,7 @@ class NotRuleTest extends TestCase
             new FalseRule(),
         ]);
 
-        static::assertEquals(
-            new Match(true),
+        static::assertTrue(
             $rule->match(
                 new CheckoutRuleScope(
                     $this->createMock(SalesChannelContext::class)
@@ -44,8 +42,7 @@ class NotRuleTest extends TestCase
             new TrueRule(),
         ]);
 
-        static::assertEquals(
-            new Match(false),
+        static::assertFalse(
             $rule->match(
                 new CheckoutRuleScope(
                     $this->createMock(SalesChannelContext::class)

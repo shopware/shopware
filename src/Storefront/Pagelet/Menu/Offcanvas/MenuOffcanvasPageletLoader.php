@@ -6,10 +6,10 @@ use Shopware\Core\Content\Navigation\NavigationEntity;
 use Shopware\Core\Content\Navigation\Service\NavigationTreeLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\Tree\Tree;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class MenuOffcanvasPageletLoader implements PageLoaderInterface
 {
@@ -29,10 +29,10 @@ class MenuOffcanvasPageletLoader implements PageLoaderInterface
         $this->navigationLoader = $navigationLoader;
     }
 
-    public function load(InternalRequest $request, SalesChannelContext $context): MenuOffcanvasPagelet
+    public function load(Request $request, SalesChannelContext $context): MenuOffcanvasPagelet
     {
         $activeId = $context->getSalesChannel()->getNavigationId();
-        $navigationId = $request->optionalGet('navigationId', $activeId);
+        $navigationId = $request->query->get('navigationId', $activeId);
 
         if (!$navigationId) {
             throw new MissingRequestParameterException('navigationId');

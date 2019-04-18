@@ -48,7 +48,7 @@ class ManufacturerAggregationSubscriber implements EventSubscriberInterface
             )
         );
 
-        $names = $request->optionalGet(self::MANUFACTURER_PARAMETER);
+        $names = $request->query->get(self::MANUFACTURER_PARAMETER);
         if (empty($names)) {
             return;
         }

@@ -28,7 +28,7 @@ class DateRangeRule extends Rule
         $this->useTime = false;
     }
 
-    public function match(RuleScope $scope): Match
+    public function match(RuleScope $scope): bool
     {
         $now = new \DateTime();
 
@@ -37,14 +37,14 @@ class DateRangeRule extends Rule
         }
 
         if ($this->fromDate && $this->fromDate >= $now) {
-            return new Match(false, ['Not in date range']);
+            return false;
         }
 
         if ($this->toDate && $this->toDate < $now) {
-            return new Match(false, ['Not in date range']);
+            return false;
         }
 
-        return new Match(true);
+        return true;
     }
 
     public function getConstraints(): array

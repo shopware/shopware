@@ -16,7 +16,6 @@ module.exports = {
     'create default folder for manufacturer': (browser) => {
         const page = mediaPage(browser);
         page.openMediaIndex();
-        page.createDefaultFolder('product', 'Product Media');
     },
     'open product listing and select product': (browser) => {
         const page = productPage(browser);
@@ -44,10 +43,10 @@ module.exports = {
 
         browser
             .waitForElementNotPresent(page.elements.loader)
-            .waitForElementVisible(`${page.elements.gridItem}--0`)
-            .click(`${page.elements.gridItem}--0`)
-            .waitForElementVisible(`${page.elements.gridItem}--0`)
-            .click(`${page.elements.gridItem}--0`)
+            .waitForElementVisible(`${page.elements.gridItem}--3`)
+            .click(`${page.elements.gridItem}--3`)
+            .waitForElementVisible(page.elements.mediaItem)
+            .click(page.elements.mediaItem)
             .waitForElementNotPresent('sw-media-sidebar.no-headline')
             .expect.element('.sw-media-sidebar__headline').to.have.text.that.equals('sw-test-image.png');
 

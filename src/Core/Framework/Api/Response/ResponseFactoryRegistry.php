@@ -18,7 +18,7 @@ class ResponseFactoryRegistry
      */
     private $responseFactories;
 
-    public function __construct(iterable $responseFactories)
+    public function __construct(ResponseFactoryInterface ...$responseFactories)
     {
         $this->responseFactories = $responseFactories;
     }

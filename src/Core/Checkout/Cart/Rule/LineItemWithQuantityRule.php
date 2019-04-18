@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
-use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
@@ -36,21 +35,14 @@ class LineItemWithQuantityRule extends Rule
     /**
      * @throws UnsupportedOperatorException
      */
-    public function match(
-        RuleScope $scope
-    ): Match {
+    public function match(RuleScope $scope): bool
+    {
         if (!$scope instanceof LineItemScope) {
-            return new Match(
-                false,
-                ['Invalid Match Context. LineItemScope expected']
-            );
+            return false;
         }
 
         if ($scope->getLineItem()->getKey() !== $this->id) {
-            return new Match(
-                false,
-                ['LineItem id does not match']
-            );
+            return false;
         }
 
         if ($this->quantity !== null) {
@@ -58,47 +50,29 @@ class LineItemWithQuantityRule extends Rule
 
             switch ($this->operator) {
                 case self::OPERATOR_GTE:
-                    return new Match(
-                        $quantity >= $this->quantity,
-                        ['LineItem quantity too low']
-                    );
+                    return $quantity >= $this->quantity;
 
                 case self::OPERATOR_LTE:
-                    return new Match(
-                        $quantity <= $this->quantity,
-                        ['LineItem quantity too high']
-                    );
+                    return $quantity <= $this->quantity;
 
                 case self::OPERATOR_GT:
-                    return new Match(
-                        $quantity > $this->quantity,
-                        ['LineItem quantity too low']
-                    );
+                    return $quantity > $this->quantity;
 
                 case self::OPERATOR_LT:
-                    return new Match(
-                        $quantity < $this->quantity,
-                        ['LineItem quantity too high']
-                    );
+                    return $quantity < $this->quantity;
 
                 case self::OPERATOR_EQ:
-                    return new Match(
-                        $quantity === $this->quantity,
-                        ['LineItem quantity does not match']
-                    );
+                    return $quantity === $this->quantity;
 
                 case self::OPERATOR_NEQ:
-                    return new Match(
-                        $quantity !== $this->quantity,
-                        ['LineItem quantity is equal']
-                    );
+                    return $quantity !== $this->quantity;
 
                 default:
                     throw new UnsupportedOperatorException($this->operator, __CLASS__);
             }
         }
 
-        return new Match(true);
+        return true;
     }
 
     public function getConstraints(): array

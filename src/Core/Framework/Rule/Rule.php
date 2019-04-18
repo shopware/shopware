@@ -24,9 +24,9 @@ abstract class Rule extends Struct
     abstract public function getName(): string;
 
     /**
-     * Validate the current rule and returns a reason object which contains defines if the rule match and if not why not
+     * Validate the current rule and returns the matching of the rule
      */
-    abstract public function match(RuleScope $scope): Match;
+    abstract public function match(RuleScope $scope): bool;
 
     /**
      * Gets the constraints of the rule

@@ -24,7 +24,7 @@ class TimeRangeRuleTest extends TestCase
 
         $match = $rule->match($this->createMock(RuleScope::class));
 
-        static::assertTrue($match->matches());
+        static::assertTrue($match);
     }
 
     public function testIfOnSameDayOutOfTimeRangeMatches(): void
@@ -36,7 +36,7 @@ class TimeRangeRuleTest extends TestCase
 
         $match = $rule->match($this->createMock(RuleScope::class));
 
-        static::assertFalse($match->matches());
+        static::assertFalse($match);
     }
 
     public function testIfToTimeIsSmallerThanFromTimeMatchesCorrect(): void
@@ -48,7 +48,7 @@ class TimeRangeRuleTest extends TestCase
 
         $match = $rule->match($this->createMock(RuleScope::class));
 
-        static::assertFalse($match->matches());
+        static::assertFalse($match);
     }
 
     public function testBeforeEdgeToNextDayConditionMatchesCorrect(): void
@@ -60,7 +60,7 @@ class TimeRangeRuleTest extends TestCase
 
         $match = $rule->match($this->createMock(RuleScope::class));
 
-        static::assertFalse($match->matches());
+        static::assertFalse($match);
     }
 
     public function testOnNextDayConditionMatchesCorrect(): void
@@ -72,7 +72,7 @@ class TimeRangeRuleTest extends TestCase
 
         $match = $rule->match($this->createMock(RuleScope::class));
 
-        static::assertTrue($match->matches());
+        static::assertTrue($match);
     }
 
     public function testIfRuleIsConsistent(): void

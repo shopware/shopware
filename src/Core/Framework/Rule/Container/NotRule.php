@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Rule\Container;
 
-use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 
@@ -23,19 +22,13 @@ class NotRule extends Container
         $this->checkRules();
     }
 
-    public function match(
-        RuleScope $scope
-    ): Match {
+    public function match(RuleScope $scope): bool
+    {
         $rules = $this->rules;
 
         $rule = array_shift($rules);
 
-        $match = $rule->match($scope);
-
-        return new Match(
-            !$match->matches(),
-            $match->getMessages()
-        );
+        return !$rule->match($scope);
     }
 
     public function getName(): string

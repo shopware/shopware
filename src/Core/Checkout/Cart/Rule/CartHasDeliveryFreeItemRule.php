@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraints\Type;
@@ -25,13 +24,10 @@ class CartHasDeliveryFreeItemRule extends Rule
         return 'cartHasDeliveryFreeItem';
     }
 
-    public function match(RuleScope $scope): Match
+    public function match(RuleScope $scope): bool
     {
         if (!$scope instanceof CartRuleScope) {
-            return new Match(
-                false,
-                ['Invalid Match Context. CartRuleScope expected']
-            );
+            return false;
         }
 
         /** @var LineItem $lineItem */
@@ -40,11 +36,11 @@ class CartHasDeliveryFreeItemRule extends Rule
                 continue;
             }
             if ($lineItem->getDeliveryInformation()->getFreeDelivery() === $this->allowed) {
-                return new Match($lineItem->getDeliveryInformation()->getFreeDelivery() === $this->allowed, [sprintf('Found free delivery item %s', $lineItem->getKey())]);
+                return true;
             }
         }
 
-        return new Match(true, ['no free delivery item']);
+        return false;
     }
 
     public function getConstraints(): array

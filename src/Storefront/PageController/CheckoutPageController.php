@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AddressService;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -108,7 +107,7 @@ class CheckoutPageController extends StorefrontController
      *
      * @throws CartTokenNotFoundException
      */
-    public function cart(InternalRequest $request, SalesChannelContext $context): Response
+    public function cart(Request $request, SalesChannelContext $context): Response
     {
         $page = $this->cartPageLoader->load($request, $context);
 
@@ -120,7 +119,7 @@ class CheckoutPageController extends StorefrontController
      *
      * @throws CartTokenNotFoundException
      */
-    public function confirm(InternalRequest $request, SalesChannelContext $context): Response
+    public function confirm(Request $request, SalesChannelContext $context): Response
     {
         if (!$context->getCustomer()) {
             return $this->redirectToRoute('frontend.checkout.register.page');
@@ -142,7 +141,7 @@ class CheckoutPageController extends StorefrontController
      * @throws InvalidParameterException
      * @throws MissingRequestParameterException
      */
-    public function finish(InternalRequest $request, SalesChannelContext $context): Response
+    public function finish(Request $request, SalesChannelContext $context): Response
     {
         if (!$context->getCustomer()) {
             return $this->redirectToRoute('frontend.checkout.register.page');
@@ -177,7 +176,7 @@ class CheckoutPageController extends StorefrontController
     /**
      * @Route("/checkout/register", name="frontend.checkout.register.page", options={"seo"="false"}, methods={"GET"})
      */
-    public function register(Request $request, InternalRequest $internal, SalesChannelContext $context): Response
+    public function register(Request $request, SalesChannelContext $context): Response
     {
         /** @var string $redirect */
         $redirect = $request->get('redirectTo', $this->generateUrl('frontend.checkout.confirm.page'));
@@ -186,7 +185,7 @@ class CheckoutPageController extends StorefrontController
             return $this->redirect($redirect);
         }
 
-        $page = $this->registerPageLoader->load($internal, $context);
+        $page = $this->registerPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/page/checkout/address/index.html.twig', ['redirectTo' => $redirect, 'page' => $page]);
     }
@@ -196,7 +195,7 @@ class CheckoutPageController extends StorefrontController
      *
      * @throws CustomerNotLoggedInException
      */
-    public function createAddress(InternalRequest $request, SalesChannelContext $context): Response
+    public function createAddress(Request $request, SalesChannelContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -210,7 +209,7 @@ class CheckoutPageController extends StorefrontController
      *
      * @throws CustomerNotLoggedInException
      */
-    public function editAddress(InternalRequest $request, SalesChannelContext $context): Response
+    public function editAddress(Request $request, SalesChannelContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -248,11 +247,11 @@ class CheckoutPageController extends StorefrontController
     /**
      * @Route("/checkout/address", name="frontend.checkout.address.page", options={"seo"="false"}, methods={"GET"})
      */
-    public function address(InternalRequest $internal, SalesChannelContext $context): Response
+    public function address(Request $request, SalesChannelContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
-        $page = $this->addressListPageLoader->load($internal, $context);
+        $page = $this->addressListPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/component/address/address-selection.html.twig', ['page' => $page]);
     }

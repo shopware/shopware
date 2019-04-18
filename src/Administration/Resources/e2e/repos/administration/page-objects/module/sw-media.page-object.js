@@ -37,14 +37,6 @@ class MediaPageObject extends GeneralPageObject {
             .waitForElementVisible(this.elements.previewItem);
     }
 
-    deleteImage() {
-        this.browser
-            .clickContextMenuItem(`${this.elements.contextMenu}-item--danger`, this.elements.contextMenuButton)
-            .waitForElementVisible(`div.${this.elements.modal}.${this.elements.modal}--small.sw-media-modal-delete`)
-            .click('.sw-media-modal-delete__confirm')
-            .waitForElementNotPresent(`${this.elements.modal}__footer`);
-    }
-
     openMediaIndex() {
         this.browser
             .openMainMenuEntry({
@@ -55,37 +47,46 @@ class MediaPageObject extends GeneralPageObject {
             .click('a.sw-admin-menu__navigation-link[href="#/sw/media/index"]');
     }
 
-    openMediaModal(action, itemPosition) {
+    openMediaModal(action, itemPosition = null) {
+        let item = itemPosition !== null ? `${this.elements.gridItem}--${itemPosition}` : this.elements.mediaItem;
+
         this.browser
-            .waitForElementVisible(`${this.elements.gridItem}--${itemPosition} ${this.elements.baseItem}`)
-            .moveToElement(this.elements.baseItem, 5, 5)
-            .clickContextMenuItem(action, '.sw-context-button__button', `${this.elements.gridItem}--0`)
+            .waitForElementVisible(item)
+            .moveToElement(item, 5, 5)
+            .clickContextMenuItem(action, '.sw-context-button__button', item)
             .waitForElementVisible('.sw-modal__title');
     }
 
-    moveMediaItem(name, itemType, position = 0) {
+    moveMediaItem(name, {
+        itemType,
+        position = 0,
+        listingPosition = 0
+    }) {
+        let mediaItem = this.elements.mediaItem;
+
         let contextMenuItemSelector = '.sw-media-context-item__move-media-action';
 
         if (itemType === 'folder') {
+            mediaItem = `${this.elements.gridItem}--${position}`;
             contextMenuItemSelector = '.sw-media-context-item__move-folder-action';
         }
 
         this.browser
-            .waitForElementVisible(`${this.elements.gridItem}--${position}`)
-            .clickContextMenuItem(contextMenuItemSelector, this.elements.contextMenuButton, `${this.elements.gridItem}--${position} `)
+            .waitForElementVisible(mediaItem)
+            .clickContextMenuItem(contextMenuItemSelector, this.elements.contextMenuButton, mediaItem)
             .expect.element(this.elements.modalTitle).to.have.text.that.equals(`Move "${name}"`);
         this.browser.expect.element('.sw-media-modal-move__confirm').to.not.be.enabled;
 
         this.browser
             .waitForElementVisible('.sw-media-folder-content__folder-listing')
-            .click('.sw-media-folder-content__folder-listing')
+            .click(`.sw-media-folder-content__list-item--${listingPosition}`)
             .expect.element('.sw-media-modal-move__confirm').to.be.enabled;
         this.browser.click('.sw-media-modal-move__confirm');
 
         if (itemType === 'folder') {
             this.browser
                 .checkNotification('Media items successfully moved', '.sw-notifications__notification--1')
-                .checkNotification('Folder "First folder" has been moved successfully.');
+                .checkNotification('Folder "1st folder" has been moved successfully.');
         } else {
             this.browser.checkNotification('Media items successfully moved');
         }
@@ -101,20 +102,6 @@ class MediaPageObject extends GeneralPageObject {
             .waitForElementNotPresent('.sw-media-base-item__loader');
 
         this.browser.expect.element(`${this.elements.gridItem}--${position} ${this.elements.baseItemName}`).to.have.text.that.equals(name);
-    }
-
-    createDefaultFolder(defaultFolderEntity, name, position = 0) {
-        this.createFolder(name, position);
-        this.openMediaModal(this.elements.showSettingsAction, position);
-
-        this.browser.click('.sw-media-folder-settings-modal__default-folder-select')
-            .waitForElementVisible('.sw-select__results')
-            .setValue('.sw-select__input-single', defaultFolderEntity)
-            .waitForElementNotPresent('.sw-loader')
-            .click('.sw-select-option--0')
-            .click('.sw-media-modal-folder-settings__confirm')
-            .waitForElementNotPresent('.sw-media-modal-folder-settings')
-            .checkNotification('Settings have been saved successfully.');
     }
 
     setThumbnailSize(width, height) {

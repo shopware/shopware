@@ -6,6 +6,16 @@
 
         <slot name="tabs"></slot>
 
+        {% block sw_card_toolbar %}
+            <div class="sw-card__toolbar"
+                 v-if="!!$slots.toolbar">
+                {% block sw_card_toolbar_inner %}
+                    <slot name="toolbar">
+                        {% block sw_card_slot_toolbar %}{% endblock %}
+                    </slot>
+                {% endblock %}
+            </div>
+        {% endblock %}
         {% block sw_card_content %}
             <div class="sw-card__content">
                 <slot>

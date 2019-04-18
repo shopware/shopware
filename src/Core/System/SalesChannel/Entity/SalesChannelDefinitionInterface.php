@@ -17,5 +17,5 @@ interface SalesChannelDefinitionInterface
      *      $criteria->addFilter(new EqualsFilter('product.active', true));
      *      $criteria->addFilter(new EqualsFilter('currency.salesChannel.id', $context->getSalesChannel()->getId())
      */
-    public static function processApiCriteria(Criteria $criteria, SalesChannelContext $context): void;
+    public static function processCriteria(Criteria $criteria, SalesChannelContext $context): void;
 }

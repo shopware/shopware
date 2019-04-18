@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Test\SalesChannel\Entity;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -86,6 +87,7 @@ class SalesChannelDefinitionTest extends TestCase
 
         $data = [
             'id' => $id,
+            'productNumber' => 'test',
             'stock' => 10,
             'name' => 'test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
@@ -93,6 +95,9 @@ class SalesChannelDefinitionTest extends TestCase
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'categories' => [
                 ['id' => $id, 'name' => 'asd'],
+            ],
+            'visibilities' => [
+                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
 

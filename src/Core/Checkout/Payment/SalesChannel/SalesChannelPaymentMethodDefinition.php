@@ -14,7 +14,7 @@ class SalesChannelPaymentMethodDefinition extends PaymentMethodDefinition implem
 {
     use SalesChannelDefinitionTrait;
 
-    public static function processApiCriteria(Criteria $criteria, SalesChannelContext $context): void
+    public static function processCriteria(Criteria $criteria, SalesChannelContext $context): void
     {
         $criteria->addFilter(new EqualsFilter('payment_method.salesChannels.id', $context->getSalesChannel()->getId()));
     }

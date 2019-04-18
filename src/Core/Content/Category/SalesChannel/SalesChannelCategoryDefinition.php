@@ -14,7 +14,7 @@ class SalesChannelCategoryDefinition extends CategoryDefinition implements Sales
 {
     use SalesChannelDefinitionTrait;
 
-    public static function processApiCriteria(Criteria $criteria, SalesChannelContext $context): void
+    public static function processCriteria(Criteria $criteria, SalesChannelContext $context): void
     {
         $criteria->addFilter(new EqualsFilter('category.active', true));
     }

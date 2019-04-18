@@ -41,7 +41,7 @@ class SalesChannelRepository
     protected $eventDispatcher;
 
     /**
-     * @var string|EntityDefinition
+     * @var string|EntityDefinition|SalesChannelDefinitionInterface
      */
     protected $definition;
 
@@ -61,6 +61,11 @@ class SalesChannelRepository
 
     public function search(Criteria $criteria, SalesChannelContext $context): EntitySearchResult
     {
+        $instance = new $this->definition();
+        if ($instance instanceof SalesChannelDefinitionInterface) {
+            $this->definition::processCriteria($criteria, $context);
+        }
+
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context)->getAggregations();
@@ -109,6 +114,11 @@ class SalesChannelRepository
 
     public function aggregate(Criteria $criteria, SalesChannelContext $context): AggregatorResult
     {
+        $instance = new $this->definition();
+        if ($instance instanceof SalesChannelDefinitionInterface) {
+            $this->definition::processCriteria($criteria, $context);
+        }
+
         $result = $this->aggregator->aggregate($this->definition, $criteria, $context->getContext());
 
         $event = new EntityAggregationResultLoadedEvent($this->definition, $result);
@@ -119,6 +129,11 @@ class SalesChannelRepository
 
     public function searchIds(Criteria $criteria, SalesChannelContext $context): IdSearchResult
     {
+        $instance = new $this->definition();
+        if ($instance instanceof SalesChannelDefinitionInterface) {
+            $this->definition::processCriteria($criteria, $context);
+        }
+
         $result = $this->searcher->search($this->definition, $criteria, $context->getContext());
 
         $event = new SalesChannelEntityIdSearchResultLoadedEvent($this->definition, $result, $context);

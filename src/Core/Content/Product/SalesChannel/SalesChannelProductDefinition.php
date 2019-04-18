@@ -24,7 +24,7 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
         return SalesChannelProductEntity::class;
     }
 
-    public static function processApiCriteria(Criteria $criteria, SalesChannelContext $context): void
+    public static function processCriteria(Criteria $criteria, SalesChannelContext $context): void
     {
         $criteria->addFilter(new EqualsFilter('product.active', true));
 

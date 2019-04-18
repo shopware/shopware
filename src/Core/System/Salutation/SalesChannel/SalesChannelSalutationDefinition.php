@@ -13,7 +13,7 @@ class SalesChannelSalutationDefinition extends SalutationDefinition implements S
 {
     use SalesChannelDefinitionTrait;
 
-    public static function processApiCriteria(Criteria $criteria, SalesChannelContext $context): void
+    public static function processCriteria(Criteria $criteria, SalesChannelContext $context): void
     {
     }
 

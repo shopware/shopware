@@ -51,7 +51,7 @@ class SalesChannelApiController
         $criteria = new Criteria();
         $this->criteriaBuilder->handleRequest($request, $criteria, $definition, $context->getContext());
 
-        $definition::processApiCriteria($criteria, $context);
+        $definition::processCriteria($criteria, $context);
 
         $result = $repository->searchIds($criteria, $context);
 
@@ -78,7 +78,7 @@ class SalesChannelApiController
         $criteria = new Criteria([$id]);
         $this->criteriaBuilder->handleRequest($request, $criteria, $definition, $context->getContext());
 
-        $definition::processApiCriteria($criteria, $context);
+        $definition::processCriteria($criteria, $context);
 
         $result = $repository->search($criteria, $context);
 
@@ -102,7 +102,7 @@ class SalesChannelApiController
         $criteria = new Criteria();
         $this->criteriaBuilder->handleRequest($request, $criteria, $definition, $context->getContext());
 
-        $definition::processApiCriteria($criteria, $context);
+        $definition::processCriteria($criteria, $context);
 
         $result = $repository->search($criteria, $context);
 

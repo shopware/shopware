@@ -4,7 +4,7 @@
 
 The language table provides access to all possible content languages. Allmost all entities relate to this table, because almost all entities contain translatable content.
 
-![Languages](./dist/erm-shopware-core-framework-language.svg)
+![Languages](./dist/erd-shopware-core-framework-language.png)
 
 
 ### Table `language`

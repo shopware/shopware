@@ -4,8 +4,8 @@ namespace Shopware\Storefront\Pagelet\Header;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 
 class HeaderPageletLoadedEvent extends NestedEvent
 {
@@ -22,11 +22,11 @@ class HeaderPageletLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var InternalRequest
+     * @var Request
      */
     protected $request;
 
-    public function __construct(HeaderPagelet $page, SalesChannelContext $context, InternalRequest $request)
+    public function __construct(HeaderPagelet $page, SalesChannelContext $context, Request $request)
     {
         $this->pagelet = $page;
         $this->context = $context;
@@ -53,7 +53,7 @@ class HeaderPageletLoadedEvent extends NestedEvent
         return $this->pagelet;
     }
 
-    public function getRequest(): InternalRequest
+    public function getRequest(): Request
     {
         return $this->request;
     }

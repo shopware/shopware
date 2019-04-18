@@ -1,4 +1,5 @@
 [titleEn]: <>(Translating a custom entity)
+[metaDescriptionEn]: <>(This HowTo will handle how to properly translate your plugin's custom entities.)
 
 ## Overview
 
@@ -397,3 +398,8 @@ $customEntityTranslation = $customEntity->getTranslations()->filterByLanguageId(
 
 In this example, the ID of your custom entity, whose technical name equals to 'FOO', is requested.
 Additional to that, the translation for the entity is read.
+
+## Source
+
+There's a GitHub repository available, containing this example source.
+Check it out [here](https://github.com/shopware/swag-docs-custom-entity-translations).

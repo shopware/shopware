@@ -1,14 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="88" height="88" viewBox="0 0 88 88">
   <defs>
-    <circle id="media_empty_state-a" cx="44" cy="44" r="44"/>
+    <circle id="media_spotillustration-a" cx="44" cy="44" r="44"/>
   </defs>
   <g fill="none" fill-rule="evenodd">
-    <mask id="media_empty_state-b" fill="#fff">
-      <use xlink:href="#media_empty_state-a"/>
+    <mask id="media_spotillustration-b" fill="#fff">
+      <use xlink:href="#media_spotillustration-a"/>
     </mask>
-    <use fill="#FFF3B3" xlink:href="#media_empty_state-a"/>
-    <polygon fill="#FFDD26" points="65.184 33.478 127.331 100.435 9.565 100.435" mask="url(#media_empty_state-b)"/>
-    <polygon fill="gold" points="42.227 44 104.375 110.957 -13.391 110.957" mask="url(#media_empty_state-b)"/>
-    <circle cx="26.304" cy="23.435" r="8.13" fill="gold" mask="url(#media_empty_state-b)"/>
+    <use fill="#FFF3B3" xlink:href="#media_spotillustration-a"/>
+    <polygon fill="#FFE34D" fill-rule="nonzero" points="65.184 33.478 127.331 100.435 9.565 100.435" mask="url(#media_spotillustration-b)"/>
+    <polygon fill="gold" points="42.227 44 104.375 110.957 -13.391 110.957" mask="url(#media_spotillustration-b)"/>
+    <circle cx="26.304" cy="23.435" r="8.13" fill="gold" mask="url(#media_spotillustration-b)"/>
   </g>
 </svg>

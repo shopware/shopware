@@ -18,7 +18,7 @@ class ProductPageObject extends GeneralPageObject {
         this.browser
             .fillField('input[name=sw-field--product-name]', productName)
             .fillField('input[name=sw-field--product-stock]', '1')
-            .fillField('.ql-editor', 'My very first description', false, 'editor')
+            .fillField('.sw-text-editor__content-editor', 'My very first description', false, 'editor')
             .fillSwSelectComponent(
                 '.sw-select-product__select_manufacturer',
                 {

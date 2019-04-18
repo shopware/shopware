@@ -66,7 +66,6 @@ trait SalesChannelApiTestBehaviour
         $kernel = KernelLifecycleManager::getKernel();
         $salesChannelApiClient = KernelLifecycleManager::createClient($kernel);
         $salesChannelApiClient->setServerParameters([
-            'HTTP_X-Requested-With' => 'XMLHttpRequest',
             'HTTP_Accept' => 'application/json',
         ]);
         $this->authorizeSalesChannelClient($salesChannelApiClient, $salesChannelOverride);
@@ -93,7 +92,6 @@ trait SalesChannelApiTestBehaviour
 
         $salesChannelApiClient = KernelLifecycleManager::createClient($kernel, $enableReboot);
         $salesChannelApiClient->setServerParameters([
-            'HTTP_X-Requested-With' => 'XMLHttpRequest',
             'HTTP_Accept' => 'application/json',
         ]);
         $this->authorizeSalesChannelClient($salesChannelApiClient);

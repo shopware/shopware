@@ -3,12 +3,12 @@
 namespace Shopware\Storefront\Page\Listing;
 
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Shopware\Storefront\Pagelet\Listing\ListingPageletLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class ListingPageLoader implements PageLoaderInterface
 {
@@ -37,13 +37,13 @@ class ListingPageLoader implements PageLoaderInterface
         $this->listingPageletLoader = $listingPageletLoader;
     }
 
-    public function load(InternalRequest $request, SalesChannelContext $context)
+    public function load(Request $request, SalesChannelContext $context)
     {
         $page = $this->genericLoader->load($request, $context);
 
         $page = ListingPage::createFrom($page);
 
-        $request->addParam(ListingPageletLoader::PRODUCT_VISIBILITY, ProductVisibilityDefinition::VISIBILITY_ALL);
+        $request->request->set(ListingPageletLoader::PRODUCT_VISIBILITY, ProductVisibilityDefinition::VISIBILITY_ALL);
 
         $page->setListing($this->listingPageletLoader->load($request, $context));
 

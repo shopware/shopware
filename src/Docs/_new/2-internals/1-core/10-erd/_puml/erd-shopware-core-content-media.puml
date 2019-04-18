@@ -41,6 +41,7 @@ Table(ShopwareCoreContentMediaMediaDefinition, "media\n(Media / Files)") {
    title translated
    url string
    attributes translated
+   thumbnailsRo blob
    hasFile bool
    translated json
 }
@@ -96,6 +97,7 @@ Table(ShopwareCoreContentMediaAggregateMediaFolderConfigurationMediaFolderConfig
    createThumbnails bool
    keepAspectRatio bool
    thumbnailQuality int
+   mediaThumbnailSizesRo blob
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    attributes attributes
@@ -119,9 +121,11 @@ ForeignTable(ShopwareCoreContentProductAggregateProductManufacturerProductManufa
 }
 ForeignTable(ShopwareCoreContentProductAggregateProductMediaProductMediaDefinition, "product_media") {
 }
-ForeignTable(ShopwareCoreContentConfigurationAggregateConfigurationGroupOptionConfigurationGroupOptionDefinition, "configuration_group_option") {
+ForeignTable(ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition, "property_group_option") {
 }
 ForeignTable(ShopwareCoreContentMailTemplateAggregateMailTemplateMediaMailTemplateMediaDefinition, "mail_template_media") {
+}
+ForeignTable(ShopwareCoreCheckoutShippingShippingMethodDefinition, "shipping_method") {
 }
 ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 }
@@ -137,9 +141,10 @@ ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreContentProductAggregateP
 ShopwareCoreContentMediaAggregateMediaTranslationMediaTranslationDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentMediaAggregateMediaThumbnailMediaThumbnailDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition --> ShopwareCoreContentMediaMediaDefinition
-ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreContentConfigurationAggregateConfigurationGroupOptionConfigurationGroupOptionDefinition
+ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition
 ShopwareCoreContentMediaAggregateMediaTagMediaTagDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreContentMailTemplateAggregateMailTemplateMediaMailTemplateMediaDefinition
+ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreCheckoutShippingShippingMethodDefinition
 ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition --> ShopwareCoreContentMediaAggregateMediaDefaultFolderMediaDefaultFolderDefinition
 ShopwareCoreContentMediaAggregateMediaTranslationMediaTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition --> ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition

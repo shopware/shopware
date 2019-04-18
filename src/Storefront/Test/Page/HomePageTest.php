@@ -3,12 +3,12 @@
 namespace Shopware\Storefront\Test\Page;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Home\HomePage;
 use Shopware\Storefront\Page\Home\HomePageLoadedEvent;
 use Shopware\Storefront\Page\Home\HomePageLoader;
+use Symfony\Component\HttpFoundation\Request;
 
 class HomePageTest extends TestCase
 {
@@ -22,7 +22,7 @@ class HomePageTest extends TestCase
 
     public function testHomepageLoading(): void
     {
-        $request = new InternalRequest();
+        $request = new Request();
         $context = $this->createSalesChannelContextWithNavigation();
 
         /** @var HomePageLoadedEvent $event */

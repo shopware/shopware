@@ -291,12 +291,13 @@ class SalesChannelControllerTest extends TestCase
     public function testGetSalutations(): void
     {
         $this->getSalesChannelClient()->request('GET', '/sales-channel-api/v1/salutation');
+
         $response = $this->getSalesChannelClient()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
         $content = json_decode($response->getContent(), true);
 
-        static::assertGreaterThanOrEqual(5, count($content['data']));
+        static::assertGreaterThanOrEqual(3, count($content['data']));
         static::assertCount($content['total'], $content['data']);
 
         foreach ($content['data'] as $salutation) {
@@ -422,18 +423,16 @@ class SalesChannelControllerTest extends TestCase
             'name' => 'PayPal',
             'handlerIdentifier' => SyncTestPaymentHandler::class,
             'description' => 'My payment method',
-            'availabilityRules' => [
-                [
-                    'id' => Uuid::randomHex(),
-                    'name' => 'Rule',
-                    'priority' => 100,
-                    'conditions' => [
-                        [
-                            'type' => 'cartCartAmount',
-                            'value' => [
-                                'operator' => '>=',
-                                'amount' => 0,
-                            ],
+            'availabilityRule' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'Rule',
+                'priority' => 100,
+                'conditions' => [
+                    [
+                        'type' => 'cartCartAmount',
+                        'value' => [
+                            'operator' => '>=',
+                            'amount' => 0,
                         ],
                     ],
                 ],
@@ -446,7 +445,7 @@ class SalesChannelControllerTest extends TestCase
             'paymentMethods' => $paymentMethods,
         ];
         $this->salesChannelRepository->update([$data], $this->context);
-        unset($paymentMethod['availabilityRules']);
+        unset($paymentMethod['availabilityRule']);
 
         return $paymentMethod;
     }
@@ -514,25 +513,23 @@ class SalesChannelControllerTest extends TestCase
             'name' => 'Special payment',
             'position' => 4,
             'active' => true,
-            'availabilityRules' => [
-                [
-                    'id' => Uuid::randomHex(),
-                    'name' => 'Rule',
-                    'priority' => 100,
-                    'conditions' => [
-                        [
-                            'type' => 'cartCartAmount',
-                            'value' => [
-                                'operator' => '=',
-                                'amount' => 0,
-                            ],
+            'availabilityRule' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'Rule',
+                'priority' => 100,
+                'conditions' => [
+                    [
+                        'type' => 'cartCartAmount',
+                        'value' => [
+                            'operator' => '=',
+                            'amount' => 0,
                         ],
-                        [
-                            'type' => 'cartCartAmount',
-                            'value' => [
-                                'operator' => '!=',
-                                'amount' => 0,
-                            ],
+                    ],
+                    [
+                        'type' => 'cartCartAmount',
+                        'value' => [
+                            'operator' => '!=',
+                            'amount' => 0,
                         ],
                     ],
                 ],

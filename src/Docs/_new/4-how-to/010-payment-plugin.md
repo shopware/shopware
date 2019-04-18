@@ -1,4 +1,5 @@
 [titleEn]: <>(Payment plugin)
+[metaDescriptionEn]: <>(Payments are an essential part of the checkout process. That's the reason why Shopware offers an easy platform on which you can build payment plugins. Learn here, how that's done.)
 
 Payments are an essential part of the checkout process.
 That's the reason why Shopware offers an easy platform on which you can build payment plugins.
@@ -11,10 +12,10 @@ Shopware platform has a few default payment handler which can be found under `Sh
 
 You can create your own payment handler by implementing one of the following interfaces:
 
-|               Interface             |   DI container tag   |                               Usage                                 |
-|-------------------------------------|----------------------|---------------------------------------------------------------------|
-| SynchronousPaymentHandlerInterface  | payment.method.sync  | A redirect to an external payment provider is required, e.g. PayPal |
-| AsynchronousPaymentHandlerInterface | payment.method.async | Payment can be handled locally, e.g. SEPA payment                   |
+|               Interface             |   DI container tag            |                               Usage                                 |
+|-------------------------------------|-------------------------------|---------------------------------------------------------------------|
+| SynchronousPaymentHandlerInterface  | shopware.payment.method.sync  | A redirect to an external payment provider is required, e.g. PayPal |
+| AsynchronousPaymentHandlerInterface | shopware.payment.method.async | Payment can be handled locally, e.g. SEPA payment                   |
 
 Depending on the interface, those two methods are required:
 
@@ -48,7 +49,7 @@ You also need to make sure to register your custom payment in the DI container.
 
     <services>
         <service id="Swag\PaymentPlugin\Service\ExamplePayment">
-            <tag name="payment.method.async" />
+            <tag name="shopware.payment.method.async" />
         </service>
     </services>
 </container>
@@ -335,3 +336,15 @@ class PaymentPlugin extends Plugin
     }
 }
 ```
+
+## Identify your payment
+
+You can identify your payment by the entity property `formattedHandlerIdentifier`.
+It shortens the original handler identifier (php class reference):
+`Custom/Payment/SEPAPayment` to `handler_custom_sepapayment`
+The syntax for the shortening can be looked up in `Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentHandlerIdentifierSubscriber`.
+
+## Source
+
+There's a GitHub repository available, containing this example source.
+Check it out [here](https://github.com/shopware/swag-docs-payment-plugin).

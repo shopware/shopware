@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Rule\Container;
 
-use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
@@ -10,22 +9,19 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class XorRule extends Container
 {
-    public function match(
-        RuleScope $scope
-    ): Match {
+    public function match(RuleScope $scope): bool
+    {
         $matches = 0;
-        $messages = [];
 
         foreach ($this->rules as $rule) {
             $match = $rule->match($scope);
-            if (!$match->matches()) {
+            if (!$match) {
                 continue;
             }
-            $messages = array_merge($messages, $match->getMessages());
             ++$matches;
         }
 
-        return new Match($matches === 1, $messages);
+        return $matches === 1;
     }
 
     public function getName(): string

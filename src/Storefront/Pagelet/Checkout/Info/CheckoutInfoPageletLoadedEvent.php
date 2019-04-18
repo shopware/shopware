@@ -4,8 +4,8 @@ namespace Shopware\Storefront\Pagelet\Checkout\Info;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 
 class CheckoutInfoPageletLoadedEvent extends NestedEvent
 {
@@ -22,14 +22,14 @@ class CheckoutInfoPageletLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var InternalRequest
+     * @var Request
      */
     protected $request;
 
     public function __construct(
         CheckoutInfoPagelet $pagelet,
         SalesChannelContext $context,
-        InternalRequest $request
+        Request $request
     ) {
         $this->pagelet = $pagelet;
         $this->context = $context;
@@ -56,7 +56,7 @@ class CheckoutInfoPageletLoadedEvent extends NestedEvent
         return $this->pagelet;
     }
 
-    public function getRequest(): InternalRequest
+    public function getRequest(): Request
     {
         return $this->request;
     }

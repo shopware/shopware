@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPage;
@@ -16,6 +15,7 @@ use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
 use Shopware\Storefront\Test\Page\StorefrontPageTestConstants;
+use Symfony\Component\HttpFoundation\Request;
 
 class ConfirmPageTest extends TestCase
 {
@@ -29,7 +29,7 @@ class ConfirmPageTest extends TestCase
 
     public function testItLoadsTheConfirmPage(): void
     {
-        $request = new InternalRequest();
+        $request = new Request();
         $context = $this->createSalesChannelContextWithNavigation();
 
         /** @var CheckoutConfirmPageLoadedEvent $event */
@@ -50,7 +50,7 @@ class ConfirmPageTest extends TestCase
 
     public function testItIgnoresUnavailableShippingMethods(): void
     {
-        $request = new InternalRequest();
+        $request = new Request();
         $context = $this->createSalesChannelContextWithNavigation();
 
         /** @var EntityRepositoryInterface $shippingMethodRepository */
@@ -83,30 +83,18 @@ class ConfirmPageTest extends TestCase
 
     public function testItIgnoresUnavailablePaymentMethods(): void
     {
-        $request = new InternalRequest();
+        $request = new Request();
         $context = $this->createSalesChannelContextWithNavigation();
 
         /** @var EntityRepositoryInterface $paymentMethodRepository */
         $paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
-        $paymentMethodRuleRepository = $this->getContainer()->get('payment_method_rule.repository');
         $criteria = (new Criteria())->addFilter(new EqualsFilter('active', true));
         /** @var PaymentMethodEntity $paymentMethod */
         $paymentMethod = $paymentMethodRepository->search($criteria, $context->getContext())->first();
 
-        $ruleToDelete = [];
-
-        foreach ($paymentMethod->getAvailabilityRuleIds() as $availabilityRuleId) {
-            $ruleToDelete[] = [
-                'paymentMethodId' => $paymentMethod->getId(),
-                'ruleId' => $availabilityRuleId,
-            ];
-        }
-
-        $paymentMethodRuleRepository->delete($ruleToDelete, $context->getContext());
-
         $paymentMethodRepository->update(
             [
-                ['id' => $paymentMethod->getId(), 'availabilityRules' => [['name' => 'invalid', 'priority' => 0]]],
+                ['id' => $paymentMethod->getId(), 'availabilityRule' => ['name' => 'invalid', 'priority' => 0]],
             ],
             $context->getContext()
         );

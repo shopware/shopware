@@ -172,3 +172,8 @@ public function getMigrationNamespace(): string
 ```
 
 Since the path is read from the namespace, your Migration directory would have to be named `MyMigrationNamespace` now.
+
+## Source
+
+There's a GitHub repository available, containing this example source.
+Check it out [here](https://github.com/shopware/swag-docs-plugin-migration-example).

@@ -60,7 +60,7 @@
                                           :disabled="advanced"
                                           @input="onChange()"
                                           :label="$tc('sw-settings-number-range.detail.labelPrefix')"
-                                          :placeholder="!simplePossible?$tc('sw-settings-number-range.detail.placeholderSimpleModeImpossible'):$tc('sw-settings-number-range.detail.placeholderPrefix')"
+                                          :placeholder="advanced?$tc('sw-settings-number-range.detail.placeholderSimpleModeImpossible'):$tc('sw-settings-number-range.detail.placeholderPrefix')"
                                           v-model="prefix">
                                 </sw-field>
                             {% endblock %}
@@ -80,7 +80,7 @@
                                           :disabled="advanced"
                                           @input="onChange()"
                                           :label="$tc('sw-settings-number-range.detail.labelSuffix')"
-                                          :placeholder="!simplePossible?$tc('sw-settings-number-range.detail.placeholderSimpleModeImpossible'):$tc('sw-settings-number-range.detail.placeholderSuffix')"
+                                          :placeholder="advanced?$tc('sw-settings-number-range.detail.placeholderSimpleModeImpossible'):$tc('sw-settings-number-range.detail.placeholderSuffix')"
                                           v-model="suffix">
                                 </sw-field>
                             {% endblock %}

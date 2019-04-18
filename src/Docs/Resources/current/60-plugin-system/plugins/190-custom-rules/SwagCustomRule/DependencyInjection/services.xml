@@ -6,7 +6,7 @@
 
     <services>
         <service id="SwagCustomRule\Core\Rule\Count42Rule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
     </services>
 </container>

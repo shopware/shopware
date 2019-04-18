@@ -5,10 +5,10 @@ namespace Shopware\Storefront\Page\Checkout\Address;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AddressService;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class CheckoutAddressPageLoader implements PageLoaderInterface
 {
@@ -37,7 +37,7 @@ class CheckoutAddressPageLoader implements PageLoaderInterface
         $this->accountService = $accountService;
     }
 
-    public function load(InternalRequest $request, SalesChannelContext $context): CheckoutAddressPage
+    public function load(Request $request, SalesChannelContext $context): CheckoutAddressPage
     {
         $page = new CheckoutAddressPage($context);
 
@@ -60,13 +60,13 @@ class CheckoutAddressPageLoader implements PageLoaderInterface
         return $page;
     }
 
-    private function getAddress(InternalRequest $request, SalesChannelContext $context): ?CustomerAddressEntity
+    private function getAddress(Request $request, SalesChannelContext $context): ?CustomerAddressEntity
     {
-        if ($request->hasPost('address')) {
-            return (new CustomerAddressEntity())->assign($request->optionalPost('address'));
+        if ($request->request->has('address')) {
+            return (new CustomerAddressEntity())->assign($request->request->get('address', []));
         }
 
-        $addressId = $request->optionalGet('addressId');
+        $addressId = $request->attributes->get('addressId');
         if ($addressId) {
             return $this->addressService->getById((string) $addressId, $context);
         }

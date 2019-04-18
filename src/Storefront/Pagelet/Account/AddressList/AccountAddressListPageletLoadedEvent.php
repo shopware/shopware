@@ -4,9 +4,9 @@ namespace Shopware\Storefront\Pagelet\Account\AddressList;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
+use Symfony\Component\HttpFoundation\Request;
 
 class AccountAddressListPageletLoadedEvent extends NestedEvent
 {
@@ -23,14 +23,14 @@ class AccountAddressListPageletLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var InternalRequest
+     * @var Request
      */
     protected $request;
 
     public function __construct(
         StorefrontSearchResult $pagelet,
         SalesChannelContext $context,
-        InternalRequest $request
+        Request $request
     ) {
         $this->pagelet = $pagelet;
         $this->context = $context;
@@ -57,7 +57,7 @@ class AccountAddressListPageletLoadedEvent extends NestedEvent
         return $this->pagelet;
     }
 
-    public function getRequest(): InternalRequest
+    public function getRequest(): Request
     {
         return $this->request;
     }

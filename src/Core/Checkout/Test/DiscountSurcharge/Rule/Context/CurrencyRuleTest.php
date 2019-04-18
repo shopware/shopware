@@ -29,7 +29,7 @@ class CurrencyRuleTest extends TestCase
             ->willReturn($context);
 
         static::assertTrue(
-            $rule->match(new CartRuleScope($cart, $salesChannelContext))->matches()
+            $rule->match(new CartRuleScope($cart, $salesChannelContext))
         );
     }
 
@@ -51,7 +51,7 @@ class CurrencyRuleTest extends TestCase
             ->willReturn($context);
 
         static::assertFalse(
-            $rule->match(new CartRuleScope($cart, $salesChannelContext))->matches()
+            $rule->match(new CartRuleScope($cart, $salesChannelContext))
         );
     }
 
@@ -73,7 +73,7 @@ class CurrencyRuleTest extends TestCase
             ->willReturn($context);
 
         static::assertTrue(
-            $rule->match(new CartRuleScope($cart, $salesChannelContext))->matches()
+            $rule->match(new CartRuleScope($cart, $salesChannelContext))
         );
     }
 }

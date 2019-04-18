@@ -4,39 +4,39 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
         <service id="Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry">
-            <argument type="tagged" tag="rule.definition"/>
+            <argument type="tagged" tag="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Framework\Rule\Container\AndRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Framework\Rule\Container\NotRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Framework\Rule\Container\OrRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Framework\Rule\Container\XorRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Framework\Rule\DateRangeRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Framework\Rule\SalesChannelRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Framework\Rule\TimeRangeRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Framework\Rule\WeekdayRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
 
     </services>

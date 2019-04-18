@@ -4,7 +4,7 @@
 
 A metadata tree to categorize your products.
 
-![Categories](./dist/erm-shopware-core-content-category.svg)
+![Categories](./dist/erd-shopware-core-content-category.png)
 
 
 ### Table `category`

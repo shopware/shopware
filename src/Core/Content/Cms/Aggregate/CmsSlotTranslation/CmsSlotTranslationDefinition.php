@@ -3,10 +3,10 @@
 namespace Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotDefinition;
+use Shopware\Core\Content\Cms\DataAbstractionLayer\Field\SlotConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class CmsSlotTranslationDefinition extends EntityTranslationDefinition
@@ -29,7 +29,7 @@ class CmsSlotTranslationDefinition extends EntityTranslationDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new JsonField('config', 'config'))->setFlags(new Required()),
+            (new SlotConfigField('config', 'config'))->setFlags(new Required()),
             new AttributesField(),
         ]);
     }

@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
-use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraints\Choice;
@@ -34,45 +33,33 @@ class CartWeightRule extends Rule
         return 'cartWeight';
     }
 
-    public function match(RuleScope $scope): Match
+    public function match(RuleScope $scope): bool
     {
         if (!$scope instanceof CartRuleScope) {
-            return new Match(false, ['Invalid Match Context. CartRuleScope expected']);
+            return false;
         }
 
         $cartWeight = $this->calculateCartWeight($scope->getCart());
 
         switch ($this->operator) {
             case self::OPERATOR_EQ:
-                return new Match(
-                    $cartWeight === (float) $this->weight,
-                    [sprintf('cartWeight is equals %f, %f wanted', $cartWeight, $this->weight)]
-                );
+                return $cartWeight === (float) $this->weight;
+
             case self::OPERATOR_NEQ:
-                return new Match(
-                    $cartWeight !== (float) $this->weight,
-                    [sprintf('cartWeight is equals %f', $this->weight)]
-                );
+                return $cartWeight !== (float) $this->weight;
+
             case self::OPERATOR_GT:
-                return new Match(
-                    $cartWeight > (float) $this->weight,
-                    [sprintf('cartWeight is smaller than %f', $this->weight)]
-                );
+                return $cartWeight > (float) $this->weight;
+
             case self::OPERATOR_LT:
-                return new Match(
-                    $cartWeight < (float) $this->weight,
-                    [sprintf('cartWeight is greater than %f', $this->weight)]
-                );
+                return $cartWeight < (float) $this->weight;
+
             case self::OPERATOR_GTE:
-                return new Match(
-                    $cartWeight >= (float) $this->weight,
-                    [sprintf('cartWeight is smaller than or equals %f', $this->weight)]
-                );
+                return $cartWeight >= (float) $this->weight;
+
             case self::OPERATOR_LTE:
-                return new Match(
-                    $cartWeight <= (float) $this->weight,
-                    [sprintf('cartWeight is greater than or equals %f', $this->weight)]
-                );
+                return $cartWeight <= (float) $this->weight;
+
             default:
                 throw new UnsupportedOperatorException($this->operator, __CLASS__);
         }

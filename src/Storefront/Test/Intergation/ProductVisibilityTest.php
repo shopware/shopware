@@ -9,7 +9,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -19,6 +18,7 @@ use Shopware\Storefront\Page\Product\ProductPageLoader;
 use Shopware\Storefront\Page\Search\SearchPage;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
 use Shopware\Storefront\Pagelet\Suggest\SuggestPageletLoader;
+use Symfony\Component\HttpFoundation\Request;
 
 class ProductVisibilityTest extends TestCase
 {
@@ -103,7 +103,7 @@ class ProductVisibilityTest extends TestCase
     {
         $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId1);
 
-        $request = new InternalRequest();
+        $request = new Request();
 
         /** @var ListingPage $page */
         $page = $this->listingPageLoader->load($request, $salesChannelContext);
@@ -120,7 +120,7 @@ class ProductVisibilityTest extends TestCase
     {
         $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId1);
 
-        $request = new InternalRequest(['search' => 'test']);
+        $request = new Request(['search' => 'test']);
 
         /** @var SearchPage $page */
         $page = $this->searchPageLoader->load($request, $salesChannelContext);
@@ -153,7 +153,7 @@ class ProductVisibilityTest extends TestCase
         foreach ($cases as $case) {
             $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $case['salesChannelId']);
 
-            $request = new InternalRequest([], [], ['productId' => $case['productId']]);
+            $request = new Request([], [], ['productId' => $case['productId']]);
 
             $e = null;
             try {
@@ -175,7 +175,7 @@ class ProductVisibilityTest extends TestCase
     {
         $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId1);
 
-        $request = new InternalRequest(['search' => 'test']);
+        $request = new Request(['search' => 'test']);
 
         /** @var SearchPage $page */
         $page = $this->suggestPageletLoader->load($request, $salesChannelContext);

@@ -50,6 +50,7 @@ Component.extend('sw-promotion-create', 'sw-promotion-detail', {
         onSave() {
             if (this.promotionNumberPreview === this.promotion.promotionNumber) {
                 this.numberRangeService.reserve('promotion').then((response) => {
+                    this.promotionNumberPreview = 'reserved';
                     this.promotion.promotionNumber = response.number;
                     this.$super.onSave().then(() => {
                         this.$router.push({ name: 'sw.promotion.detail', params: { id: this.promotion.id } });
@@ -57,6 +58,7 @@ Component.extend('sw-promotion-create', 'sw-promotion-detail', {
                 });
             } else {
                 this.$super.onSave().then(() => {
+                    this.promotionNumberPreview = 'reserved';
                     this.$router.push({ name: 'sw.promotion.detail', params: { id: this.promotion.id } });
                 });
             }

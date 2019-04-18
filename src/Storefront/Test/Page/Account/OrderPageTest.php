@@ -3,13 +3,13 @@
 namespace Shopware\Storefront\Test\Page\Account;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Account\Order\AccountOrderPage;
 use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoadedEvent;
 use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
+use Symfony\Component\HttpFoundation\Request;
 
 class OrderPageTest extends TestCase
 {
@@ -28,7 +28,7 @@ class OrderPageTest extends TestCase
 
     public function testItLoadsOrders(): void
     {
-        $request = new InternalRequest();
+        $request = new Request();
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
 
         /** @var AccountOrderPageLoadedEvent $event */

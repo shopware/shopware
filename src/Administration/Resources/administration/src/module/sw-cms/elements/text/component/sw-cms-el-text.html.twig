@@ -1,27 +1,17 @@
 {% block sw_cms_element_text %}
-    <div class="sw-cms-el-text" :class="{ 'has--focus': hasFocus }" @click="onClick">
-        <div class="content-editor"
-             ref="contentEditor"
-             :contenteditable="editable ? 'true' : 'false'"
-             spellcheck="false"
-             @focus="onFocus"
-             @blur="onBlur"
-             v-html="element.config.content.value"
-             v-if="element.config.content.source === 'static'">
-        </div>
+    <div class="sw-cms-el-text">
+        <sw-text-editor v-if="element.config.content.source === 'static'"
+                        v-model="element.config.content.value"
+                        :placeholder="element.data.content"
+                        @blur="onBlur"
+                        @input="onInput"
+                        :isInlineEdit="true">
+        </sw-text-editor>
 
         <div class="content-editor"
              v-html="demoValue"
              v-if="element.config.content.source === 'mapped'">
         </div>
 
-        <div class="content-editor__toolbar" v-if="hasFocus">
-            <button @click="onSetBold"><sw-icon name="default-text-style-bold" size="18"></sw-icon></button>
-            <button @click="onSetItalic"><sw-icon name="default-text-style-italic" size="18"></sw-icon></button>
-            <button @click="onSetUnderline"><sw-icon name="default-text-style-underline" size="18"></sw-icon></button>
-            <button @click="onSetJustifyLeft"><sw-icon name="default-text-align-left" size="19"></sw-icon></button>
-            <button @click="onSetJustifyFull"><sw-icon name="default-text-align-justify" size="19"></sw-icon></button>
-            <button @click="onSetJustifyRight"><sw-icon name="default-text-align-right" size="19"></sw-icon></button>
-        </div>
     </div>
 {% endblock %}

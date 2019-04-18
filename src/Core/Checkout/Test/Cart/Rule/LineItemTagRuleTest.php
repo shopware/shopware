@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Validation\ConstraintViolationException;
+use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -184,8 +184,7 @@ class LineItemTagRuleTest extends TestCase
         $cartRuleScope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
 
         $match = $rule->match($cartRuleScope);
-        static::assertFalse($match->matches());
-        static::assertSame(['Line items not in cart'], $match->getMessages());
+        static::assertFalse($match);
     }
 
     public function testMatchUnequalsTags(): void
@@ -198,7 +197,7 @@ class LineItemTagRuleTest extends TestCase
         $cartRuleScope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
 
         $match = $rule->match($cartRuleScope);
-        static::assertTrue($match->matches());
+        static::assertTrue($match);
     }
 
     public function testMatchWithMatchingTags(): void
@@ -213,7 +212,7 @@ class LineItemTagRuleTest extends TestCase
         $cartRuleScope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
 
         $match = $rule->match($cartRuleScope);
-        static::assertTrue($match->matches());
+        static::assertTrue($match);
     }
 
     public function testMatchWithPartialMatchingTags(): void
@@ -228,7 +227,7 @@ class LineItemTagRuleTest extends TestCase
         $cartRuleScope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
 
         $match = $rule->match($cartRuleScope);
-        static::assertTrue($match->matches());
+        static::assertTrue($match);
     }
 
     public function testNoMatchWithPartialMatchingUnequalOperatorTags(): void
@@ -243,7 +242,6 @@ class LineItemTagRuleTest extends TestCase
         $cartRuleScope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
 
         $match = $rule->match($cartRuleScope);
-        static::assertFalse($match->matches());
-        static::assertSame(['Line items in cart'], $match->getMessages());
+        static::assertFalse($match);
     }
 }

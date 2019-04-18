@@ -3,7 +3,6 @@
 namespace SwagCustomRule\Core\Rule;
 
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
-use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraints\Choice;
@@ -27,13 +26,13 @@ class Count42Rule extends Rule
         $this->operator = self::OPERATOR_EQ;
     }
 
-    public function match(RuleScope $scope): Match
+    public function match(RuleScope $scope): bool
     {
         switch ($this->operator) {
             case self::OPERATOR_EQ:
-                return new Match($this->count === 42, ['The count not equals 42']);
+                return $this->count === 42;
             case self::OPERATOR_NEQ:
-                return new Match($this->count !== 42, ['The count equals 42']);
+                return $this->count !== 42;
             default:
                 throw new UnsupportedOperatorException($this->operator, __CLASS__);
         }

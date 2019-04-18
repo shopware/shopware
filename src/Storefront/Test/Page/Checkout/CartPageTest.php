@@ -3,13 +3,13 @@
 namespace Shopware\Storefront\Test\Page\Checkout;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPage;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
+use Symfony\Component\HttpFoundation\Request;
 
 class CartPageTest extends TestCase
 {
@@ -23,7 +23,7 @@ class CartPageTest extends TestCase
 
     public function testItLoadsTheCart(): void
     {
-        $request = new InternalRequest();
+        $request = new Request();
         $context = $this->createSalesChannelContextWithNavigation();
 
         /** @var CheckoutCartPageLoadedEvent $event */

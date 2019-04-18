@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
-use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraints\Choice;
@@ -28,31 +27,24 @@ class ShippingStreetRule extends Rule
         $this->operator = self::OPERATOR_EQ;
     }
 
-    public function match(RuleScope $scope): Match
+    public function match(RuleScope $scope): bool
     {
         if (!$scope instanceof CheckoutRuleScope) {
-            return new Match(false, ['Wrong scope']);
+            return false;
         }
 
         /** @var CheckoutRuleScope $scope */
         if (!$location = $scope->getSalesChannelContext()->getShippingLocation()->getAddress()) {
-            return new Match(
-                false,
-                ['Shipping location has no address']
-            );
+            return false;
         }
 
         switch ($this->operator) {
             case self::OPERATOR_EQ:
-                return new Match(
-                    strcasecmp($this->streetName, $location->getStreet()) === 0,
-                    ['Shipping street not matched']
-                );
+                return strcasecmp($this->streetName, $location->getStreet()) === 0;
+
             case self::OPERATOR_NEQ:
-                return new Match(
-                    strcasecmp($this->streetName, $location->getStreet()) !== 0,
-                    ['Shipping street matched']
-                );
+                return strcasecmp($this->streetName, $location->getStreet()) !== 0;
+
             default:
                 throw new UnsupportedOperatorException($this->operator, __CLASS__);
         }

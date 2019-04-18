@@ -3,13 +3,14 @@
 namespace Shopware\Storefront\Page\Search;
 
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Shopware\Storefront\Pagelet\Listing\ListingPageletLoader;
 use Shopware\Storefront\Pagelet\Listing\Subscriber\SearchTermSubscriber;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class SearchPageLoader implements PageLoaderInterface
 {
@@ -38,20 +39,23 @@ class SearchPageLoader implements PageLoaderInterface
         $this->listingPageletLoader = $listingPageletLoader;
     }
 
-    public function load(InternalRequest $request, SalesChannelContext $context): SearchPage
+    public function load(Request $request, SalesChannelContext $context): SearchPage
     {
         $page = $this->pageWithHeaderLoader->load($request, $context);
-
         $page = SearchPage::createFrom($page);
 
-        $request->addParam('product-min-visibility', ProductVisibilityDefinition::VISIBILITY_SEARCH);
+        if (!$request->query->has(SearchTermSubscriber::TERM_PARAMETER)) {
+            throw new MissingRequestParameterException(SearchTermSubscriber::TERM_PARAMETER);
+        }
+
+        $request->request->set('product-min-visibility', ProductVisibilityDefinition::VISIBILITY_SEARCH);
 
         $page->setListing(
             $this->listingPageletLoader->load($request, $context)
         );
 
         $page->setSearchTerm(
-            (string) $request->requireGet(SearchTermSubscriber::TERM_PARAMETER)
+            (string) $request->query->get(SearchTermSubscriber::TERM_PARAMETER)
         );
 
         $this->eventDispatcher->dispatch(

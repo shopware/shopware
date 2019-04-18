@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
-use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
@@ -33,13 +32,10 @@ class LineItemTagRule extends Rule
         return 'cartLineItemTag';
     }
 
-    public function match(RuleScope $scope): Match
+    public function match(RuleScope $scope): bool
     {
         if (!$scope instanceof CartRuleScope) {
-            return new Match(
-                false,
-                ['Invalid Match Context. CartRuleScope expected']
-            );
+            return false;
         }
 
         $elements = $scope->getCart()->getLineItems();
@@ -47,15 +43,10 @@ class LineItemTagRule extends Rule
 
         switch ($this->operator) {
             case self::OPERATOR_EQ:
-                return new Match(
-                    !empty(array_intersect($identifiers, $this->identifiers)),
-                    ['Line items not in cart']
-                );
+                return !empty(array_intersect($identifiers, $this->identifiers));
             case self::OPERATOR_NEQ:
-                return new Match(
-                    empty(array_intersect($identifiers, $this->identifiers)),
-                    ['Line items in cart']
-                );
+                return empty(array_intersect($identifiers, $this->identifiers));
+
             default:
                 throw new UnsupportedOperatorException($this->operator, __CLASS__);
         }

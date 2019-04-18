@@ -30,11 +30,6 @@ export default {
             required: false,
             default: false
         },
-        grid: {
-            type: String,
-            required: false,
-            default: ''
-        },
         large: {
             type: Boolean,
             required: false,
@@ -47,8 +42,9 @@ export default {
             return {
                 'sw-card--tabs': !!this.$slots.tabs,
                 'sw-card--grid': !!this.$slots.grid,
-                'sw-card--hero': !!this.$props.hero,
-                'sw-card--large': this.large
+                'sw-card--hero': !!this.hero,
+                'sw-card--large': this.large,
+                'has--header': !!this.$slots.toolbar
             };
         }
     }

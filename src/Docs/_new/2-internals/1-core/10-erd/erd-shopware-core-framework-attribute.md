@@ -4,7 +4,7 @@
 
 Attributes are part of almost every entity of the system. The term describes object attribute-values (see EAV). The configuration of these attributes is stored here.
 
-![Attributes/EAV](./dist/erm-shopware-core-framework-attribute.svg)
+![Attributes/EAV](./dist/erd-shopware-core-framework-attribute.png)
 
 
 ### Table `attribute`

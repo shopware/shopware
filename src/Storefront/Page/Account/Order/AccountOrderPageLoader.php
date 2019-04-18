@@ -2,12 +2,12 @@
 
 namespace Shopware\Storefront\Page\Account\Order;
 
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Shopware\Storefront\Pagelet\Account\Order\AccountOrderPageletLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class AccountOrderPageLoader implements PageLoaderInterface
 {
@@ -36,7 +36,7 @@ class AccountOrderPageLoader implements PageLoaderInterface
         $this->pageWithHeaderLoader = $pageWithHeaderLoader;
     }
 
-    public function load(InternalRequest $request, SalesChannelContext $context): AccountOrderPage
+    public function load(Request $request, SalesChannelContext $context): AccountOrderPage
     {
         $page = $this->pageWithHeaderLoader->load($request, $context);
 

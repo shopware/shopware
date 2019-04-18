@@ -46,7 +46,7 @@ module.exports = {
 
         browser
             .fillField('input[name=sw-field--product-name]', 'Echt gutes Produkt', true)
-            .fillField('.ql-editor', 'Siehst du nicht, dass das ein wunderbares Produkt ist?', true, 'editor')
+            .fillField('.sw-text-editor__content-editor', 'Siehst du nicht, dass das ein wunderbares Produkt ist?', true, 'editor')
             .click(page.elements.productSaveAction)
             .checkNotification('Product "Echt gutes Produkt" has been saved successfully.');
     },

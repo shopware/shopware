@@ -3,12 +3,12 @@
 namespace Shopware\Storefront\Test\Page;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Search\SearchPage;
 use Shopware\Storefront\Page\Search\SearchPageLoadedEvent;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
+use Symfony\Component\HttpFoundation\Request;
 
 class SearchPageTest extends TestCase
 {
@@ -24,7 +24,7 @@ class SearchPageTest extends TestCase
 
     public function testitRequiresSearchParam(): void
     {
-        $request = new InternalRequest();
+        $request = new Request();
         $context = $this->createSalesChannelContextWithNavigation();
 
         $this->expectParamMissingException('search');
@@ -33,7 +33,7 @@ class SearchPageTest extends TestCase
 
     public function testItDoesSearch(): void
     {
-        $request = new InternalRequest(['search' => self::TEST_TERM]);
+        $request = new Request(['search' => self::TEST_TERM]);
         $context = $this->createSalesChannelContextWithNavigation();
         /** @var SearchPageLoadedEvent $homePageLoadedEvent */
         $homePageLoadedEvent = null;

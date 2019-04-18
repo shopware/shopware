@@ -8,6 +8,11 @@ final class PlatformRequest
     public const API_VERSION = 1;
 
     /**
+     * Response Headers
+     */
+    public const HEADER_FRAME_OPTIONS = 'x-frame-options';
+
+    /**
      * Context headers
      */
     public const HEADER_CONTEXT_TOKEN = 'x-sw-context-token';

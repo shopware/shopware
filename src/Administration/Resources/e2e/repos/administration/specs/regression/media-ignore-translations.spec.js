@@ -2,6 +2,7 @@ const mediaPage = require('administration/page-objects/module/sw-media.page-obje
 
 module.exports = {
     '@tags': ['media', 'media-ignore-translations', 'translation', 'language-switch'],
+    '@disabled': true,
     before: (browser, done) => {
         global.MediaFixtureService.setFolderFixture().then(() => {
             done();

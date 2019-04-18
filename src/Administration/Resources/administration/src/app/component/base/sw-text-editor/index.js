@@ -1,3 +1,4 @@
+import { Mixin } from 'src/core/shopware';
 import template from './sw-text-editor.html.twig';
 import './sw-text-editor.scss';
 
@@ -7,47 +8,17 @@ import './sw-text-editor.scss';
  * @example-type static
  * @description A simple text editor which uses the browsers api, pass buttonConfig to configure the buttons you desire
  * @component-example
- * <div>
- *      <sw-text-editor-new value="Lorem ipsum dolor sit amet, consetetur sadipscing elitr" :isInlineEdit="true">
+ *  <sw-text-editor value="Lorem ipsum dolor sit amet, consetetur sadipscing elitr" :isInlineEdit="true">
  *
- *      </sw-text-editor-new>
- *
- *      <sw-text-editor-new
- *          value="Lorem ipsum dolor sit amet, consetetur sadipscing elitr"
- *          :buttonConfig="[{ type: 'bold', icon: 'default-text-editor-bold' },
- *                          {
- *                            type: 'paragparh',
- *                            icon: 'default-text-editor-style',
- *                            expanded: false,
- *                            children: [
- *                                {
- *                                   type: 'formatBlock',
- *                                   name: 'Paragraph',
- *                                   value: 'p'
- *                                },
- *                                {
- *                                   type: 'formatBlock',
- *                                   name: 'Headline 1',
- *                                   value: 'h1'
- *                                }
- *                             ]
- *                           },
- *                           {
- *                               type: 'link',
- *                               icon: 'default-text-editor-link',
- *                               expanded: false,
- *                               newTab: false,
- *                               value: ''
- *                           }
- *                         ]">
- *
- *      </sw-text-editor-new>
- * </div>
+ *  </sw-text-editor>
  */
 export default {
-    // ToDo: refactor to sw-text-editor and replace old editor
-    name: 'sw-text-editor-new',
+    name: 'sw-text-editor',
     template,
+
+    mixins: [
+        Mixin.getByName('sw-inline-snippet')
+    ],
 
     props: {
         value: {
@@ -62,6 +33,16 @@ export default {
             default: false
         },
 
+        label: {
+            required: false,
+            default: ''
+        },
+
+        placeholder: {
+            required: false,
+            default: ''
+        },
+
         buttonConfig: {
             type: Array,
             required: false,
@@ -73,14 +54,26 @@ export default {
                     },
                     {
                         type: 'italic',
-                        icon: 'default-text-style-italic'
+                        icon: 'default-text-editor-italic'
                     },
                     {
                         type: 'underline',
                         icon: 'default-text-editor-underline'
                     },
                     {
-                        type: 'insertOrderedList',
+                        type: 'superscript',
+                        icon: 'default-text-editor-superscript'
+                    },
+                    {
+                        type: 'subscript',
+                        icon: 'default-text-editor-subscript'
+                    },
+                    {
+                        type: 'strikethrough',
+                        icon: 'default-text-editor-strikethrough'
+                    },
+                    {
+                        type: 'insertUnorderedList',
                         icon: 'default-text-editor-list'
                     },
                     {
@@ -178,7 +171,9 @@ export default {
             isActive: false,
             hasSelection: false,
             selection: null,
-            toolbar: null
+            toolbar: null,
+            textLength: 0,
+            content: this.value
         };
     },
 
@@ -186,8 +181,27 @@ export default {
         this.createdComponent();
     },
 
+    mounted() {
+        this.mountedComponent();
+    },
+
     destroyed() {
         this.destroyedComponent();
+    },
+
+    watch: {
+        value: {
+            handler() {
+                if (this.value && !this.isActive) {
+                    this.content = this.value;
+                    this.$nextTick(() => {
+                        this.setWordcount();
+                    });
+                } else {
+                    this.setWordcount();
+                }
+            }
+        }
     },
 
     computed: {
@@ -196,6 +210,10 @@ export default {
                 'is--active': this.isActive,
                 'is--boxed': !this.isInlineEdit
             };
+        },
+
+        placeholderVisible() {
+            return this.textLength === 0;
         }
     },
 
@@ -205,13 +223,24 @@ export default {
             document.addEventListener('mousedown', this.onSelectionChange);
         },
 
+        mountedComponent() {
+            if (this.value) {
+                this.setWordcount();
+            }
+        },
+
         destroyedComponent() {
             document.removeEventListener('mouseup', this.onSelectionChange);
             document.removeEventListener('mousedown', this.onSelectionChange);
         },
 
         onSelectionChange(event) {
-            if (!event.path.includes(this.$el) || !this.isActive) {
+            if (!event.path.includes(this.$el) && !event.path.includes(this.toolbar)) {
+                this.hasSelection = false;
+                return;
+            }
+
+            if (!this.isActive) {
                 return;
             }
 
@@ -237,6 +266,7 @@ export default {
 
         onTextStyleChange(type, value) {
             document.execCommand(type, false, value);
+            this.emitContent();
         },
 
         onSetLink(value, target) {
@@ -244,8 +274,7 @@ export default {
                 return;
             }
 
-            document.execCommand('insertHTML', false, `<a target="${target}" href="${value}">${this.selection}</a>`);
-
+            this.onTextStyleChange('insertHTML', `<a target="${target}" href="${value}">${this.selection}</a>`);
             this.selection = document.getSelection();
         },
 
@@ -266,10 +295,13 @@ export default {
         },
 
         removeFocus() {
-            if (this.isActive) {
-                this.isActive = false;
-                document.removeEventListener('click', this.onDocumentClick);
+            if (!this.isActive) {
+                return;
             }
+
+            this.isActive = false;
+            this.emitContent();
+            document.removeEventListener('click', this.onDocumentClick);
         },
 
         onDocumentClick(event) {
@@ -280,6 +312,29 @@ export default {
             if (!event.path.includes(this.$el)) {
                 this.removeFocus();
             }
+        },
+
+        onContentChange() {
+            this.emitContent();
+        },
+
+        emitContent() {
+            if (!this.$refs.editor) {
+                return;
+            }
+
+            const regex = /^\s*(?:<br\s*\/?\s*>)+|(?:<br\s*\/?\s*>)+\s*$/gi;
+            let val = this.$refs.editor.innerHTML.replace(regex, '');
+
+            val = !val ? null : val;
+
+            this.$emit('input', val);
+        },
+
+        setWordcount() {
+            let text = this.$refs.editor.innerText.replace(/(\r\n|\n|\r)/gm, '');
+            text = text.replace(/<\/?("[^"]*"|'[^']*'|[^>])*(>|$)/g, '');
+            this.textLength = text.length;
         }
     }
 };

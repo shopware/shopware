@@ -53,7 +53,7 @@ class NewsletterReceiverTaskHandler extends ScheduledTaskHandler
         $criteria->addFilter(new RangeFilter(
             'createdAt',
             [
-                RangeFilter::LT => $dateTime->format(DATE_ATOM),
+                RangeFilter::LTE => $dateTime->format(DATE_ATOM),
             ]
         ));
 

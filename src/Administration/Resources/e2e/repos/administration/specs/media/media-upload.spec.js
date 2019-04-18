@@ -2,6 +2,7 @@ const mediaPage = require('administration/page-objects/module/sw-media.page-obje
 
 module.exports = {
     '@tags': ['media', 'upload', 'media-upload'],
+    '@disabled': true,
     'open media listing': (browser) => {
         const page = mediaPage(browser);
         page.openMediaIndex();
@@ -18,7 +19,7 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
-            .click(`${page.elements.previewItem}`)
+            .click(`${page.elements.mediaItem} ${page.elements.previewItem}`)
             .waitForElementVisible('.sw-media-quickinfo');
     },
     'verify meta data': (browser) => {

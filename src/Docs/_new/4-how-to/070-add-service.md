@@ -1,4 +1,5 @@
 [titleEn]: <>(Creating a service)
+[metaDescriptionEn]: <>(Creating custom services for your plugin is as simple as it is in Symfony bundles, since Shopware platform plugins are basically just extended Symfony bundles. This HowTo will cover that subject in short anyway.)
 
 ## Overview
 
@@ -45,3 +46,8 @@ class MyService
 
 *Note: By default, all services on the Shopware platform are marked as `private`.*
 Read more about private and public services [here](https://symfony.com/doc/current/service_container/alias_private.html#marking-services-as-public-private).
+
+## Source
+
+There's a GitHub repository available, containing this example source.
+Check it out [here](https://github.com/shopware/swag-docs-custom-service).

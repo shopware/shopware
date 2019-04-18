@@ -39,7 +39,7 @@ class CartWeightRuleTest extends TestCase
             $this->createMock(SalesChannelContext::class)
         ));
 
-        static::assertTrue($match->matches());
+        static::assertTrue($match);
     }
 
     public function testIfMatchesUnequal(): void
@@ -51,7 +51,7 @@ class CartWeightRuleTest extends TestCase
             $this->createMock(SalesChannelContext::class)
         ));
 
-        static::assertFalse($match->matches());
+        static::assertFalse($match);
     }
 
     public function testIfGreaterThanIsCorrect(): void
@@ -63,7 +63,7 @@ class CartWeightRuleTest extends TestCase
             $this->createMock(SalesChannelContext::class)
         ));
 
-        static::assertFalse($match->matches());
+        static::assertFalse($match);
 
         $this->rule->assign(['weight' => 200]);
 
@@ -72,7 +72,7 @@ class CartWeightRuleTest extends TestCase
             $this->createMock(SalesChannelContext::class)
         ));
 
-        static::assertTrue($match->matches());
+        static::assertTrue($match);
     }
 
     public function testIfRuleIsConsistent(): void

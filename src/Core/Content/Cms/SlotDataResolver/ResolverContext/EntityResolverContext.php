@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 
 class EntityResolverContext extends ResolverContext
 {
@@ -18,9 +19,9 @@ class EntityResolverContext extends ResolverContext
      */
     protected $definition;
 
-    public function __construct(SalesChannelContext $context, string $definition, Entity $entity)
+    public function __construct(SalesChannelContext $context, Request $request, string $definition, Entity $entity)
     {
-        parent::__construct($context);
+        parent::__construct($context, $request);
 
         $this->entity = $entity;
         $this->definition = $definition;

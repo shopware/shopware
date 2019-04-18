@@ -1,0 +1,37 @@
+{% block sw_plugin_box %}
+    <div class="sw-plugin-box">
+        {% block sw_plugin_box_container %}
+            <sw-container columns="3fr 1fr"
+                          gap="0px 30px"
+                          class="sw-plugin-box__container">
+                {% block sw_plugin_box_container_plugin_data %}
+                    <sw-container :class="{ 'has--no-icon' : !plugin.icon }">
+                        {% block sw_plugin_box_container_plugin_data_icon %}
+                            <img v-if="!!plugin.icon"
+                                 class="sw-plugin-box__icon"
+                                 :src="plugin.icon" />
+                        {% endblock %}
+                        {% block sw_plugin_box_container_plugin_data_description %}
+                            <div class="sw-plugin-box__description">
+                                {% block sw_plugin_box_container_plugin_data_description_label %}
+                                    <p class="sw-plugin-box__label">{{ plugin.label }}</p>
+                                {% endblock %}
+                                {% block sw_plugin_box_container_plugin_data_description_author %}
+                                    <p class="sw-plugin-box__author">{{ plugin.author }}</p>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </sw-container>
+                {% endblock %}
+                {% block sw_plugin_box_container_button %}
+                    <sw-button variant="ghost"
+                               size="small"
+                               class="sw-plugin-box__button"
+                               :routerLink="{ name: 'sw.plugin.settings', params: { id: plugin.id } }">
+                        {{ $tc('sw-plugin-box.buttonPluginSettings') }}
+                    </sw-button>
+                {% endblock %}
+            </sw-container>
+        {% endblock %}
+    </div>
+{% endblock %}

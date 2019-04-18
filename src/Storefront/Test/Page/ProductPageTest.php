@@ -4,13 +4,13 @@ namespace Shopware\Storefront\Test\Page;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Product\ProductPage;
 use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
+use Symfony\Component\HttpFoundation\Request;
 
 class ProductPageTest extends TestCase
 {
@@ -24,7 +24,7 @@ class ProductPageTest extends TestCase
 
     public function testItRequiresProductParam(): void
     {
-        $request = new InternalRequest();
+        $request = new Request();
         $context = $this->createSalesChannelContextWithNavigation();
 
         $this->expectParamMissingException('productId');
@@ -33,7 +33,7 @@ class ProductPageTest extends TestCase
 
     public function testItRequiresAValidProductParam(): void
     {
-        $request = new InternalRequest(['productId' => '99999911ffff4fffafffffff19830531']);
+        $request = new Request([], [], ['productId' => '99999911ffff4fffafffffff19830531']);
         $context = $this->createSalesChannelContextWithNavigation();
 
         $this->expectException(ProductNotFoundException::class);
@@ -43,7 +43,7 @@ class ProductPageTest extends TestCase
     public function testItFailsWithANonExistingProduct(): void
     {
         $context = $this->createSalesChannelContextWithNavigation();
-        $request = new InternalRequest(['productId' => Uuid::randomHex()]);
+        $request = new Request([], [], ['productId' => Uuid::randomHex()]);
 
         /** @var ProductPageLoadedEvent $event */
         $event = null;
@@ -58,7 +58,7 @@ class ProductPageTest extends TestCase
         $context = $this->createSalesChannelContextWithNavigation();
         $product = $this->getRandomProduct($context);
 
-        $request = new InternalRequest(['productId' => $product->getId()]);
+        $request = new Request([], [], ['productId' => $product->getId()]);
 
         /** @var ProductPageLoadedEvent $event */
         $event = null;

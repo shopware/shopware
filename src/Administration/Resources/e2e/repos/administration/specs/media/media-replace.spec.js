@@ -1,7 +1,6 @@
 const mediaPage = require('administration/page-objects/module/sw-media.page-object.js');
 const productPage = require('administration/page-objects/module/sw-product.page-object.js');
 
-
 module.exports = {
     '@tags': ['media', 'media-replace', 'replace'],
     before: (browser, done) => {
@@ -39,7 +38,9 @@ module.exports = {
     },
     'open replace modal': (browser) => {
         const page = mediaPage(browser);
-        page.openMediaModal('.sw-media-context-item__replace-media-action', 0);
+        browser
+            .click(`${page.elements.gridItem}--3`);
+        page.openMediaModal('.sw-media-context-item__replace-media-action');
     },
     'ensure image cannot be replaced with empty input': (browser) => {
         browser.expect.element('.sw-media-replace__replace-media-action').to.not.be.enabled;
@@ -55,7 +56,7 @@ module.exports = {
             .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/fixtures/sw-test-image.png`)
             .click('.sw-media-url-form__submit-button')
             .waitForElementNotPresent('input[name=sw-field--url]')
-            .waitForElementVisible(`${page.elements.gridItem}--0 ${page.elements.previewItem}`)
+            .waitForElementVisible(`${page.elements.mediaItem} ${page.elements.previewItem}`)
             .click('.sw-media-replace__replace-media-action')
             .checkNotification('File has been saved successfully.');
     },
@@ -64,7 +65,7 @@ module.exports = {
         browser.expect.element(page.elements.mediaNameLabel).to.have.text.that.equals('sw-test-image.png');
 
         browser
-            .click(`${page.elements.gridItem}--0`)
+            .click(`${page.elements.mediaItem}`)
             .waitForElementVisible('.sw-media-quickinfo__media-preview')
             .waitForElementVisible('.sw-media-sidebar__headline')
             .assert.containsText('.sw-media-sidebar__headline', 'sw-test-image.png')

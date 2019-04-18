@@ -4,7 +4,7 @@
 
 Payment processing, handling and settings.
 
-![Payments](./dist/erm-shopware-core-checkout-payment.svg)
+![Payments](./dist/erd-shopware-core-checkout-payment.png)
 
 
 ### Table `payment_method`

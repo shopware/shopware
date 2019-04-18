@@ -300,6 +300,10 @@
     "sw-select": {
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden."
     },
+    "sw-single-select": {
+      "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden.",
+      "valuePlaceholder": "Bitte auswählen"
+    },
     "sw-label": {
       "buttonDismiss": "Entfernen"
     },
@@ -516,6 +520,15 @@
     "titleModalButtonCancelUnsavedChanges": "Abbrechen",
     "titleModalButtonRevertUnsavedChanges": "Änderungen verwerfen",
     "titleModalButtonSaveChanges": "Speichern"
+  },
+  "sw-sales-channel-switch": {
+    "messageModalUnsavedChanges": "Du hast noch ungespeicherte Änderungen in diesem Verkaufskanal. Möchtest Du diese jetzt speichern?",
+    "placeholderSelect": "Suchen...",
+    "titleModalUnsavedChanges": "Nicht gespeicherte Änderungen",
+    "titleModalButtonCancelUnsavedChanges": "Abbrechen",
+    "titleModalButtonRevertUnsavedChanges": "Änderungen verwerfen",
+    "titleModalButtonSaveChanges": "Speichern",
+    "labelDefaultOption": "Alle Verkaufskanäle"
   },
   "sw-config-form-renderer": {
     "placeholder": "Bitte \"{name}\" ausfüllen...",

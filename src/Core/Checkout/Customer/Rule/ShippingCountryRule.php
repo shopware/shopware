@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
-use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
@@ -31,25 +30,19 @@ class ShippingCountryRule extends Rule
     /**
      * @throws UnsupportedOperatorException
      */
-    public function match(RuleScope $scope): Match
+    public function match(RuleScope $scope): bool
     {
         if (!$scope instanceof CheckoutRuleScope) {
-            return new Match(false, ['Wrong scope']);
+            return false;
         }
 
         $context = $scope->getSalesChannelContext();
         switch ($this->operator) {
             case self::OPERATOR_EQ:
-                return new Match(
-                    \in_array($context->getShippingLocation()->getCountry()->getId(), $this->countryIds, true),
-                    ['Shipping country id not matched']
-                );
+                return \in_array($context->getShippingLocation()->getCountry()->getId(), $this->countryIds, true);
 
             case self::OPERATOR_NEQ:
-                return new Match(
-                    !\in_array($context->getShippingLocation()->getCountry()->getId(), $this->countryIds, true),
-                    ['Shipping country id matched']
-                );
+                return !\in_array($context->getShippingLocation()->getCountry()->getId(), $this->countryIds, true);
 
             default:
                 throw new UnsupportedOperatorException($this->operator, __CLASS__);

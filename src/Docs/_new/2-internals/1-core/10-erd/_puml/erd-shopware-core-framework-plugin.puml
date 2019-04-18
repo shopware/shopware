@@ -26,6 +26,7 @@ Table(ShopwareCoreFrameworkPluginPluginDefinition, "plugin\n(Plugin)") {
    primary_key(id) id
    not_null(name) string
    composerName string
+   not_null(autoload) json
    active bool
    managedByComposer bool
    path string

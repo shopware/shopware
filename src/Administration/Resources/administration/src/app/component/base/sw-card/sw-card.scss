@@ -9,6 +9,7 @@ $sw-card-tabs-item-color-background:        $color-light-gray;
 $sw-card-tabs-item-color-background-active: $color-white;
 $sw-card-color-text:                        $color-gutenberg;
 $sw-card-tabs-color-background:             #F9FAFB; //TODO: replace with matching global variable
+$sw-card-color-background-toolbar:			$color-light-gray;
 
 .sw-card {
     max-width: 800px;
@@ -107,6 +108,19 @@ $sw-card-tabs-color-background:             #F9FAFB; //TODO: replace with matchi
         }
     }
 
+	.sw-card__toolbar {
+		padding: 30px;
+		background-color: $sw-card-color-background-toolbar;
+		border: 1px solid $sw-card-color-border;
+	}
+
+	&.has--header {
+		.sw-card__content {
+			border-top: none;
+			border-radius: 0 0 $sw-card-border-radius $sw-card-border-radius;
+		}
+	}
+
     .sw-card__content {
         padding: 30px;
         background: $sw-card-color-background;
@@ -152,9 +166,7 @@ $sw-card-tabs-color-background:             #F9FAFB; //TODO: replace with matchi
                 color: darken($color-shopware-blue, 10);
             }
         }
-    }
 
-    .sw-card__content {
         .sw-tabs {
             border-width: 0 0 1px 0;
             border-bottom-right-radius: 0;

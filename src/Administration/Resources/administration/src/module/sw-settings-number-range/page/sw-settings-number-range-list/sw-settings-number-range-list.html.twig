@@ -120,7 +120,7 @@
                                                         {% endblock %}
 
                                                         {% block sw_settings_number_range_list_columns_actions_delete %}
-                                                            <sw-context-menu-item variant="danger"
+                                                            <sw-context-menu-item v-if="!item.type.global && !item.global" variant="danger"
                                                                                   @click="onDelete(item.id)">
                                                                 {{ $tc('sw-settings-number-range.list.buttonDelete') }}
                                                             </sw-context-menu-item>

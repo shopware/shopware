@@ -7,6 +7,7 @@ use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\FetchMode;
+use Shopware\Core\Framework\Api\Controller\FallbackController;
 use Shopware\Core\Framework\Framework;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Plugin;
@@ -20,6 +21,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
+use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollectionBuilder;
 
 class Kernel extends HttpKernel
@@ -186,6 +188,7 @@ class Kernel extends HttpKernel
 
         $this->addBundleRoutes($routes);
         $this->addApiRoutes($routes);
+        $this->addFallbackRoute($routes);
     }
 
     /**
@@ -361,5 +364,15 @@ SQL;
 
             self::$plugins->add($plugin);
         }
+    }
+
+    private function addFallbackRoute(RouteCollectionBuilder $routes): void
+    {
+        // detail routes
+        $route = new Route('/');
+        $route->setMethods(['GET']);
+        $route->setDefault('_controller', FallbackController::class . '::rootFallback');
+
+        $routes->addRoute($route, 'root.fallback');
     }
 }

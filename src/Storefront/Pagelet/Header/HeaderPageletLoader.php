@@ -9,11 +9,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Language\LanguageCollection;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class HeaderPageletLoader implements PageLoaderInterface
 {
@@ -49,9 +49,9 @@ class HeaderPageletLoader implements PageLoaderInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function load(InternalRequest $request, SalesChannelContext $context): HeaderPagelet
+    public function load(Request $request, SalesChannelContext $context): HeaderPagelet
     {
-        $navigationId = $request->optionalRouting(
+        $navigationId = $request->get(
             'navigationId',
             $context->getSalesChannel()->getNavigationId()
         );

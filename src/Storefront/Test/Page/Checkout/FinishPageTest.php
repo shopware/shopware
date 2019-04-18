@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Test\Page\Checkout;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
@@ -12,6 +11,7 @@ use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPage;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
+use Symfony\Component\HttpFoundation\Request;
 
 class FinishPageTest extends TestCase
 {
@@ -20,8 +20,8 @@ class FinishPageTest extends TestCase
 
     public function testItRequiresAOrderId(): void
     {
-        $request = new InternalRequest();
-        $context = $this->createSalesChannelContextWithNavigation();
+        $request = new Request();
+        $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
 
         $this->expectParamMissingException('orderId');
         $this->getPageLoader()->load($request, $context);
@@ -34,7 +34,7 @@ class FinishPageTest extends TestCase
 
     public function testMissingOrderThrows(): void
     {
-        $request = new InternalRequest(['orderId' => 'foo']);
+        $request = new Request([], [], ['orderId' => 'foo']);
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
 
         $this->expectException(OrderNotFoundException::class);
@@ -45,7 +45,7 @@ class FinishPageTest extends TestCase
     {
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
         $orderId = $this->placeRandomOrder($context);
-        $request = new InternalRequest(['orderId' => $orderId]);
+        $request = new Request([], [], ['orderId' => $orderId]);
 
         /** @var CheckoutFinishPageLoadedEvent $event */
         $event = null;

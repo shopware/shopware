@@ -17,7 +17,6 @@ Create a class, let it extend the abstract 'Rule' class and implement the missin
 namespace SwagCustomRule\Core\Rule;
 
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
-use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 
@@ -28,7 +27,7 @@ class ExampleRule extends Rule
         ...
     }
 
-    public function match(RuleScope $scope): Match
+    public function match(RuleScope $scope): bool
     {
         ...
     }
@@ -40,7 +39,7 @@ class ExampleRule extends Rule
 }
 ```
 
-Tag this new rule as a "rule.definition" in the DI-Container.
+Tag this new rule as a "shopware.rule.definition" in the DI-Container.
 
 ```xml
 <?xml version="1.0" ?>
@@ -51,7 +50,7 @@ Tag this new rule as a "rule.definition" in the DI-Container.
     <services>
         ...
         <service id="SwagCustomRule\Core\Rule\ExampleRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
         ...
     </services>

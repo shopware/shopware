@@ -8,7 +8,7 @@ The product endpoint of the SalesChannel-API is used to get product information 
 
 Description: Returns a list of products assigned to the sales channel.
 All filter, sorting, limit, and search operations are supported.
-You find more information about these operations [here](../30-api/50-filter-search-limit.md).
+You find more information about these operations [here](./../3-api/50-filter-search-limit.md).
 
 ## Detailed product information
 

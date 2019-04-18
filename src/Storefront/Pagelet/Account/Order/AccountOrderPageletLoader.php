@@ -7,11 +7,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class AccountOrderPageletLoader implements PageLoaderInterface
 {
@@ -31,7 +31,7 @@ class AccountOrderPageletLoader implements PageLoaderInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function load(InternalRequest $request, SalesChannelContext $context): StorefrontSearchResult
+    public function load(Request $request, SalesChannelContext $context): StorefrontSearchResult
     {
         $customer = $context->getCustomer();
         if ($customer === null) {
@@ -52,10 +52,10 @@ class AccountOrderPageletLoader implements PageLoaderInterface
         return $pagelet;
     }
 
-    private function createCriteria(string $customerId, InternalRequest $request): Criteria
+    private function createCriteria(string $customerId, Request $request): Criteria
     {
-        $limit = (int) $request->optionalGet('limit', 10);
-        $page = (int) $request->optionalGet('p', 1);
+        $limit = (int) $request->query->get('limit', 10);
+        $page = (int) $request->query->get('p', 1);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $customerId));

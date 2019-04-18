@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
-use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraints\Choice;
@@ -28,28 +27,24 @@ class LastNameRule extends Rule
         $this->operator = self::OPERATOR_EQ;
     }
 
-    public function match(RuleScope $scope): Match
+    public function match(RuleScope $scope): bool
     {
         if (!$scope instanceof CheckoutRuleScope) {
-            return new Match(false, ['Wrong scope']);
+            return false;
         }
 
         /** @var CheckoutRuleScope $scope */
         if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
-            return new Match(false, ['Not logged in customer']);
+            return false;
         }
 
         switch ($this->operator) {
             case Rule::OPERATOR_EQ:
-                return new Match(
-                    strcasecmp($this->lastName, $customer->getLastName()) === 0,
-                    ['Last name not matched']
-                );
+                return strcasecmp($this->lastName, $customer->getLastName()) === 0;
+
             case Rule::OPERATOR_NEQ:
-                return new Match(
-                    strcasecmp($this->lastName, $customer->getLastName()) !== 0,
-                    ['Last name matched']
-                );
+                return strcasecmp($this->lastName, $customer->getLastName()) !== 0;
+
             default:
                 throw new UnsupportedOperatorException($this->operator, __CLASS__);
         }

@@ -4,7 +4,7 @@
 
 Like the rule system, that makes core decisions configurable through the Rest-API, the state machine makes core workflows configurable. State machines in checkout, payment and delivery processing are used to adapt the Shopware Platform to custom needs.
 
-![State machine](./dist/erm-shopware-core-system-statemachine.svg)
+![State machine](./dist/erd-shopware-core-system-statemachine.png)
 
 
 ### Table `state_machine`

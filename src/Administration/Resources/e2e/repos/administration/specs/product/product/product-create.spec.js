@@ -69,7 +69,7 @@ module.exports = {
 
         browser
             .clickContextMenuItem('.sw-product-list__edit-action', page.elements.contextMenuButton, `${page.elements.dataGridRow}--0`)
-            .expect.element('.ql-editor').to.have.text.that.equals('My very first description');
+            .expect.element('.sw-text-editor__content-editor').to.have.text.that.equals('My very first description');
 
         browser
             .getLocationInView('.sw-select__selection-item')

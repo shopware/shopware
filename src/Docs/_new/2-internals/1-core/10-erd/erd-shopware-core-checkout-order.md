@@ -4,7 +4,7 @@
 
 Order management of the Platform. Notice: The data structure in this module is mostly decoupled from the rest of the system so deleting customers, products and other entities will not break already placed orders.
 
-![Orders](./dist/erm-shopware-core-checkout-order.svg)
+![Orders](./dist/erd-shopware-core-checkout-order.png)
 
 
 ### Table `order`

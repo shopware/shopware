@@ -52,7 +52,7 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Seo\Entity\Dbal\CanonicalUrlAssociationFieldResolver">
-            <tag name="shopware.entity.field_resolver" priority="200"/>
+            <tag name="shopware.field_resolver" priority="200"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Seo\SeoService">

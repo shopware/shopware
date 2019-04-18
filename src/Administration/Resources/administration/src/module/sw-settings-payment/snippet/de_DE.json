@@ -21,30 +21,26 @@
     },
     "detail": {
       "textHeadline": "Neue Zahlungsart",
-      "titleCard": "Einstellungen",
+      "titleCard": "Zahlungsarten",
       "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Die Zahlungsart \"{name}\" wurde erfolgreich gespeichert.",
       "labelName": "Name",
       "labelPosition": "Position",
-      "labelPluginId": "Plugin",
-      "labelActive": "Aktiv",
+      "labelActive": "Zahlungsart Aktiv",
       "labelDescription": "Beschreibung",
-      "labelSurchargeText": "Beschreibung des Aufschlages",
-      "labelSetRules": "Regeln",
-      "labelTemplate": "Template",
-      "labelAbsoluteSurcharge": "Absoluter Aufschlag",
-      "labelPercentageSurcharge": "Prozentualer Aufschlag",
+      "labelLogoUpload": "Logo",
+      "sidebar": {
+        "labelUseAsLogo": "Als Logo benutzen"
+      },
+      "topRule": "Regel",
       "placeholderName": "Namen eingeben...",
       "placeholderPosition": "Position eingeben...",
-      "placeholderPluginId": "-",
       "placeholderDescription": "Beschreibung eingeben...",
-      "placeholderSurchargeText": "Beschreibung des Aufschlages eingeben...",
-      "placeholderTemplate": "Template eingeben...",
-      "placeholderAbsoluteSurcharge": "Absoluten Aufschlag eingeben...",
-      "placeholderPercentageSurcharge": "Prozentualen Aufschlag eingeben...",
       "buttonCancel": "Abbrechen",
-      "buttonSave": "Speichern",
-      "percentageSurchargeSymbol" : "%"
+      "buttonSave": "Speichern"
     }
+  },
+  "sw-plugin-box": {
+    "buttonPluginSettings": "Plugin Einstellungen"
   }
 }

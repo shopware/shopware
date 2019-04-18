@@ -22,11 +22,11 @@ abstract class Bundle extends SymfonyBundle
     {
         parent::build($container);
 
+        $this->registerContainerFile($container);
+        $this->registerMigrationPath($container);
         $this->registerFilesystem($container, 'private');
         $this->registerFilesystem($container, 'public');
-        $this->registerMigrationPath($container);
         $this->registerEvents($container);
-        $this->registerContainerFile($container);
     }
 
     public function boot(): void
@@ -86,7 +86,7 @@ abstract class Bundle extends SymfonyBundle
 
     protected function getRoutesPath(): string
     {
-        return 'Resources/config/';
+        return 'Resources/config';
     }
 
     protected function getServicesFilePath(): string

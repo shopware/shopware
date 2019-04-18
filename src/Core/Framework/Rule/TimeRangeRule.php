@@ -49,14 +49,14 @@ class TimeRangeRule extends Rule
         return 'timeRange';
     }
 
-    public function match(RuleScope $scope): Match
+    public function match(RuleScope $scope): bool
     {
         $this->from = $this->extractTime($this->fromTime);
         $this->to = $this->extractTime($this->toTime);
 
         $this->switchValidationIfToIsSmallerThanFrom();
 
-        return new Match($this->returnResultWithSightOnValidationTurnover(), ['not in the given time range']);
+        return $this->returnResultWithSightOnValidationTurnover();
     }
 
     public function getConstraints(): array

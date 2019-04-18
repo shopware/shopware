@@ -1,5 +1,8 @@
 <?php declare(strict_types=1);
 
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Symfony\Component\Dotenv\Dotenv;
+
 function getProjectDir(): string
 {
     if (isset($_SERVER['PROJECT_ROOT']) && file_exists($_SERVER['PROJECT_ROOT'])) {
@@ -22,9 +25,8 @@ function getProjectDir(): string
 
 define('TEST_PROJECT_DIR', getProjectDir());
 
-require_once TEST_PROJECT_DIR . '/vendor/autoload.php';
-
-use Symfony\Component\Dotenv\Dotenv;
+$loader = require TEST_PROJECT_DIR . '/vendor/autoload.php';
+KernelLifecycleManager::prepare($loader);
 
 if (!class_exists(Dotenv::class)) {
     throw new \RuntimeException('APP_ENV environment variable is not defined. You need to define environment variables for configuration or add "symfony/dotenv" as a Composer dependency to load variables from a .env file.');

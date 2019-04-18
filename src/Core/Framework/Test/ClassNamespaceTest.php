@@ -71,6 +71,7 @@ class ClassNamespaceTest extends TestCase
                     'Framework/Test/Snippet/_fixtures/testGetStoreFrontSnippets/de.json',
                     'Framework/Test/Snippet/_fixtures/testGetStoreFrontSnippets/en.json',
                     'Framework/Test/TestCaseBase/TestValidityListener.php',
+                    'Framework/Test/TestCaseHelper/TestClient.php',
                     'Framework/Translation/Translator.php',
                     'Migration/Migration1536232740StorefrontApiContext.php',
                     'Migration/Migration1536233420BasicData.php',

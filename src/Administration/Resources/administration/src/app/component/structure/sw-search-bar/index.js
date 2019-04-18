@@ -159,7 +159,7 @@ export default {
                 if (element.nodeName === 'INPUT' || element.nodeName === 'TEXTAREA' || element.nodeName === 'SELECT') {
                     return;
                 }
-                if (element.nodeName === 'DIV' && element.className.includes('ql-editor')) {
+                if (element.nodeName === 'DIV' && element.className.includes('sw-text-editor__content-editor')) {
                     return;
                 }
 

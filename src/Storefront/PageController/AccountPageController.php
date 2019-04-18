@@ -216,12 +216,12 @@ class AccountPageController extends StorefrontController
         }
 
         try {
-            $this->accountRegistrationService->register($data, false, $context);
+            $this->accountRegistrationService->register($data, $data->has('guest'), $context);
         } catch (ConstraintViolationException $formViolations) {
             return $this->forward('Shopware\Storefront\PageController\AccountPageController::register', ['formViolations' => $formViolations]);
         }
 
-        $this->accountService->login($data->get('email'), $context);
+        $this->accountService->login($data->get('email'), $context, $data->has('guest'));
 
         return new RedirectResponse($this->generateUrl('frontend.account.home.page'));
     }

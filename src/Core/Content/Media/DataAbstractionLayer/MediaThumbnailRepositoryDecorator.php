@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\Content\Media\DataAbstractionLayer;
 
-use function Flag\next1309;
-use League\Flysystem\FileNotFoundException;
-use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Event\MediaThumbnailDeletedEvent;
 use Shopware\Core\Content\Media\Message\DeleteFileMessage;
@@ -28,11 +25,6 @@ class MediaThumbnailRepositoryDecorator implements EntityRepositoryInterface
     private $urlGenerator;
 
     /**
-     * @var FilesystemInterface
-     */
-    private $filesystem;
-
-    /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
@@ -49,12 +41,10 @@ class MediaThumbnailRepositoryDecorator implements EntityRepositoryInterface
         EntityRepositoryInterface $innerRepo,
         EventDispatcherInterface $eventDispatcher,
         UrlGeneratorInterface $urlGenerator,
-        FilesystemInterface $filesystem,
         MessageBusInterface $messageBus
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->urlGenerator = $urlGenerator;
-        $this->filesystem = $filesystem;
         $this->innerRepo = $innerRepo;
         $this->messageBus = $messageBus;
     }
@@ -152,19 +142,9 @@ class MediaThumbnailRepositoryDecorator implements EntityRepositoryInterface
             );
         }
 
-        if (next1309()) {
-            $deleteMsg = new DeleteFileMessage();
-            $deleteMsg->setFiles($thumbnailPaths);
-            $this->messageBus->dispatch($deleteMsg);
-        } else {
-            foreach ($thumbnailPaths as $path) {
-                try {
-                    $this->filesystem->delete($path);
-                } catch (FileNotFoundException $e) {
-                    //ignore file is already deleted
-                }
-            }
-        }
+        $deleteMsg = new DeleteFileMessage();
+        $deleteMsg->setFiles($thumbnailPaths);
+        $this->messageBus->dispatch($deleteMsg);
 
         $delete = $this->innerRepo->delete($thumbnailIds, $context);
 

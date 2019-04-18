@@ -2,7 +2,8 @@
     {% parent %}
 
     {% block sw_settings_payment_item %}
-        <sw-settings-item :label="$tc('sw-settings-payment.general.mainMenuItemGeneral')"
+        <sw-settings-item id="sw-settings-payment"
+                          :label="$tc('sw-settings-payment.general.mainMenuItemGeneral')"
                           :to="{ name: 'sw.settings.payment.index' }"
                           :disabled="!next687">
             <template slot="icon">

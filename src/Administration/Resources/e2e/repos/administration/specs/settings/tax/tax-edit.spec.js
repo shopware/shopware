@@ -10,10 +10,11 @@ module.exports = {
     'open tax module and look for the tax to be edited': (browser) => {
         browser
             .openMainMenuEntry({
-                targetPath: '#/sw/settings/tax/index',
-                mainMenuId: 'sw-settings',
-                subMenuId: 'sw-settings-tax'
+                targetPath: '#/sw/settings/index',
+                mainMenuId: 'sw-settings'
             })
+            .click('#sw-settings-tax')
+            .assert.urlContains('#/sw/settings/tax/index')
             .waitForElementVisible('.sw-settings-tax-list-grid');
     },
     'edit tax': (browser) => {

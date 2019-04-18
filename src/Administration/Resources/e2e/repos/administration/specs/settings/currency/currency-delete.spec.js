@@ -12,10 +12,11 @@ module.exports = {
 
         browser
             .openMainMenuEntry({
-                targetPath: '#/sw/settings/currency/index',
-                mainMenuId: 'sw-settings',
-                subMenuId: 'sw-settings-currency'
+                targetPath: '#/sw/settings/index',
+                mainMenuId: 'sw-settings'
             })
+            .click('#sw-settings-currency')
+            .assert.urlContains('#/sw/settings/currency/index')
             .expect.element(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
     },
     'delete currency': (browser) => {

@@ -5,10 +5,11 @@ module.exports = {
     'open integration module': (browser) => {
         browser
             .openMainMenuEntry({
-                targetPath: '#/sw/integration/index',
-                mainMenuId: 'sw-settings',
-                subMenuId: 'sw-integration'
-            });
+                targetPath: '#/sw/settings/index',
+                mainMenuId: 'sw-settings'
+            })
+            .click('#sw-integration')
+            .assert.urlContains('#/sw/integration/index');
     },
     'go to create integration page': (browser) => {
         const page = integrationPage(browser);

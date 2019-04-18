@@ -27,6 +27,7 @@ module.exports = {
             })
             .waitForElementVisible(page.elements.productListName)
             .click(`${page.elements.productListName} a`)
+            .waitForElementVisible('.sw-product-detail-page__tabs')
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(fixture.name);
     },
     'upload media item': (browser) => {

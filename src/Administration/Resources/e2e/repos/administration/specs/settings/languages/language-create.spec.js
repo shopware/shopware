@@ -11,10 +11,11 @@ module.exports = {
     'open language module': (browser) => {
         browser
             .openMainMenuEntry({
-                targetPath: '#/sw/settings/language/index',
-                mainMenuId: 'sw-settings',
-                subMenuId: 'sw-settings-language'
-            });
+                targetPath: '#/sw/settings/index',
+                mainMenuId: 'sw-settings'
+            })
+            .click('#sw-settings-language')
+            .assert.urlContains('#/sw/settings/language/index');
     },
     'create new language': (browser) => {
         const page = settingsPage(browser);

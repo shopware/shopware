@@ -10,10 +10,11 @@ module.exports = {
     'open snippet module': (browser) => {
         browser
             .openMainMenuEntry({
-                targetPath: '#/sw/settings/snippet/index',
-                mainMenuId: 'sw-settings',
-                subMenuId: 'sw-settings-snippet'
-            });
+                targetPath: '#/sw/settings/index',
+                mainMenuId: 'sw-settings'
+            })
+            .click('#sw-settings-snippet')
+            .assert.urlContains('#/sw/settings/snippet/index');
     },
     'open snippet set': (browser) => {
         const page = settingsPage(browser);

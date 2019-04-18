@@ -12,10 +12,10 @@ module.exports = {
 
         browser
             .openMainMenuEntry({
-                targetPath: '#/sw/integration/index',
-                mainMenuId: 'sw-settings',
-                subMenuId: 'sw-integration'
+                targetPath: '#/sw/settings/index',
+                mainMenuId: 'sw-settings'
             })
+            .click('#sw-integration')
             .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Integrations');
 
         browser

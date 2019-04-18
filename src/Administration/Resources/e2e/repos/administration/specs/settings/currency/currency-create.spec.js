@@ -5,10 +5,11 @@ module.exports = {
     'open currency module': (browser) => {
         browser
             .openMainMenuEntry({
-                targetPath: '#/sw/settings/currency/index',
-                mainMenuId: 'sw-settings',
-                subMenuId: 'sw-settings-currency'
-            });
+                targetPath: '#/sw/settings/index',
+                mainMenuId: 'sw-settings'
+            })
+            .click('#sw-settings-currency')
+            .assert.urlContains('#/sw/settings/currency/index');
     },
     'create new currency (Yen)': (browser) => {
         const page = settingsPage(browser);

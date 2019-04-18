@@ -26,9 +26,9 @@ class SalesChannelPageObject extends GeneralPageObject {
             .fillSwSelectComponent(
                 '.sw-sales-channel-detail__select-payment-method',
                 {
-                    value: 'Direct Debit',
+                    value: 'Invoice',
                     isMulti: true,
-                    searchTerm: 'Direct Debit'
+                    searchTerm: 'Invoice'
                 }
             )
             .fillSwSelectComponent(

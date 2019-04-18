@@ -12,10 +12,11 @@ module.exports = {
 
         browser
             .openMainMenuEntry({
-                targetPath: '#/sw/settings/country/index',
-                mainMenuId: 'sw-settings',
-                subMenuId: 'sw-settings-country'
+                targetPath: '#/sw/settings/index',
+                mainMenuId: 'sw-settings'
             })
+            .click('#sw-settings-country')
+            .assert.urlContains('#/sw/settings/country/index')
             .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
     },
     'delete country': (browser) => {

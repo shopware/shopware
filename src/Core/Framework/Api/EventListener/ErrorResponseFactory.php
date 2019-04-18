@@ -34,7 +34,7 @@ class ErrorResponseFactory
                 $statusCode = $exception->getStatusCode();
             }
 
-            $response = new JsonResponse(['errors' => $this->convertExceptionToError($exception)], $statusCode);
+            $response = new JsonResponse(['errors' => $this->convertExceptionToError($exception, $debug)], $statusCode);
         }
 
         return $response;
@@ -55,7 +55,15 @@ class ErrorResponseFactory
         ];
 
         if ($debug) {
-            $error['trace'] = $this->convert($exception->getTrace());
+            $error['meta'] = [
+                'trace' => $this->convert($exception->getTrace()),
+                'file' => $exception->getFile(),
+                'line' => $exception->getLine(),
+            ];
+
+            if ($exception->getPrevious()) {
+                $error['meta']['previous'] = $this->convertExceptionToError($exception->getPrevious(), $debug);
+            }
         }
 
         return [$error];

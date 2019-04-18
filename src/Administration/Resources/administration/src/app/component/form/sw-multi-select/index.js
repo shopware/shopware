@@ -17,12 +17,12 @@ export default {
             type: Array,
             required: true
         },
-        valueProperty: {
+        labelProperty: {
             type: String,
             required: false,
             default: 'value'
         },
-        keyProperty: {
+        valueProperty: {
             type: String,
             required: false,
             default: 'key'
@@ -127,7 +127,7 @@ export default {
             const toShow = [];
 
             const visibleKeys = this.visibleValues.map((item) => {
-                return item[this.keyProperty];
+                return item[this.valueProperty];
             });
 
             this.currentValue.forEach((item) => {
@@ -154,7 +154,7 @@ export default {
             }
 
             this.currentOptions = this.options.filter((item) => {
-                const value = item[this.valueProperty];
+                const value = item[this.labelProperty];
 
                 return value.toLowerCase().includes(this.searchTerm.toLowerCase());
             });
@@ -162,16 +162,16 @@ export default {
 
         isSelected(item) {
             return !this.currentValue.every((key) => {
-                return key !== item[this.keyProperty];
+                return key !== item[this.valueProperty];
             });
         },
 
         addItem({ item }) {
-            if (item === undefined || !item[this.keyProperty]) {
+            if (item === undefined || !item[this.valueProperty]) {
                 return;
             }
 
-            const key = item[this.keyProperty];
+            const key = item[this.valueProperty];
 
             if (this.isSelected(item)) {
                 this.remove(key);
@@ -193,7 +193,7 @@ export default {
 
             // remove identifier from visible element list
             this.visibleValues = this.visibleValues.filter((item) => {
-                return item[this.keyProperty] !== identifier;
+                return item[this.valueProperty] !== identifier;
             });
 
             if (this.visibleValues.length <= 0) {
@@ -214,7 +214,7 @@ export default {
             }
 
             const lastSelection = this.visibleValues[this.visibleValues.length - 1];
-            this.remove(lastSelection[this.keyProperty]);
+            this.remove(lastSelection[this.valueProperty]);
         },
 
         resolveKeys(keys) {
@@ -222,7 +222,7 @@ export default {
 
             keys.forEach((key) => {
                 this.options.forEach((item) => {
-                    if (key === item[this.keyProperty]) {
+                    if (key === item[this.valueProperty]) {
                         values.push(item);
                     }
                 });

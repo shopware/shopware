@@ -21,6 +21,8 @@ class SalesChannelContextSwitcher
     private const SHIPPING_ADDRESS_ID = SalesChannelContextService::SHIPPING_ADDRESS_ID;
     private const COUNTRY_ID = SalesChannelContextService::COUNTRY_ID;
     private const STATE_ID = SalesChannelContextService::STATE_ID;
+    private const CURRENCY_ID = SalesChannelContextService::CURRENCY_ID;
+    private const LANGUAGE_ID = SalesChannelContextService::LANGUAGE_ID;
 
     /**
      * @var SalesChannelContextPersister
@@ -46,9 +48,9 @@ class SalesChannelContextSwitcher
 
         $parameters = $data->all();
 
-        $criteria = new Criteria();
+        $addressCriteria = new Criteria();
         if ($context->getCustomer()) {
-            $criteria->addFilter(new EqualsFilter('customer_address.customerId', $context->getCustomer()->getId()));
+            $addressCriteria->addFilter(new EqualsFilter('customer_address.customerId', $context->getCustomer()->getId()));
         } else {
             // do not allow to set address ids if the customer is not logged in
             if (isset($parameters[self::SHIPPING_ADDRESS_ID])) {
@@ -60,11 +62,23 @@ class SalesChannelContextSwitcher
             }
         }
 
+        $currencyCriteria = new Criteria();
+        $currencyCriteria->addFilter(
+            new EqualsFilter('currency.salesChannels.id', $context->getSalesChannel()->getId())
+        );
+
+        $languageCriteria = new Criteria();
+        $languageCriteria->addFilter(
+            new EqualsFilter('language.salesChannels.id', $context->getSalesChannel()->getId())
+        );
+
         $definition
+            ->add(self::LANGUAGE_ID, new EntityExists(['entity' => 'language', 'context' => $context->getContext(), 'criteria' => $languageCriteria]))
+            ->add(self::CURRENCY_ID, new EntityExists(['entity' => 'currency', 'context' => $context->getContext(), 'criteria' => $currencyCriteria]))
             ->add(self::SHIPPING_METHOD_ID, new EntityExists(['entity' => 'shipping_method', 'context' => $context->getContext()]))
             ->add(self::PAYMENT_METHOD_ID, new EntityExists(['entity' => 'payment_method', 'context' => $context->getContext()]))
-            ->add(self::BILLING_ADDRESS_ID, new EntityExists(['entity' => 'customer_address', 'context' => $context->getContext(), 'criteria' => $criteria]))
-            ->add(self::SHIPPING_ADDRESS_ID, new EntityExists(['entity' => 'customer_address', 'context' => $context->getContext(), 'criteria' => $criteria]))
+            ->add(self::BILLING_ADDRESS_ID, new EntityExists(['entity' => 'customer_address', 'context' => $context->getContext(), 'criteria' => $addressCriteria]))
+            ->add(self::SHIPPING_ADDRESS_ID, new EntityExists(['entity' => 'customer_address', 'context' => $context->getContext(), 'criteria' => $addressCriteria]))
             ->add(self::COUNTRY_ID, new EntityExists(['entity' => 'country', 'context' => $context->getContext()]))
             ->add(self::STATE_ID, new EntityExists(['entity' => 'country_state', 'context' => $context->getContext()]))
         ;

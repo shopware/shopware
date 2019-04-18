@@ -22,6 +22,13 @@ Component.register('sw-media-index', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    },
+
+
     computed: {
         mediaItemStore() {
             return State.getStore('media');

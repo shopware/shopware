@@ -1,0 +1,52 @@
+@import "~scss/variables";
+
+.sw-modal.sw-modal--default.sw-product-modal-variant-generation {
+
+    .sw-modal__dialog {
+        max-width: 1440px;
+
+        .sw-modal__body {
+            display: flex;
+            padding: 0;
+            height: 520px;
+            overflow: hidden;
+
+            .sw-tabs .sw-tabs__custom-content {
+                padding: 10px 0;
+            }
+
+            .sw-product-modal-variant-generation__main {
+                width: 100%;
+
+                .sw-property-search {
+                    height: 100%;
+
+                    .sw-property-search__search-selection {
+                        height: calc(100% - 113px);
+
+                        // deep selector is needed to avoid specifity problems
+                        // uncommon BEM class name is used in 'sw-property-search'
+                        .sw-grid.sw-property-search__search-selection__option_grid.sw-grid--table.sw-grid--normal {
+                            height: 100%;
+                        }
+                    }
+                }
+            }
+
+            .sw-product-modal-variant-generation__sidebar {
+                padding: 20px 30px;
+                max-width: 320px;
+                border-right: 1px solid $color-steam-cloud;
+            }
+        }
+
+        .sw-modal__footer {
+            border-top: 1px solid $color-steam-cloud;
+        }
+    }
+
+}
+
+p.sw-product-variants-configurator-selection__modal--delete-text {
+    margin-bottom: 20px;
+}

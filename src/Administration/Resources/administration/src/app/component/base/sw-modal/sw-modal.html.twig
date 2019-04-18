@@ -37,8 +37,10 @@
 
                         {% block sw_modal_body %}
                             <div class="sw-modal__body">
-                                {% block sw_card_loader %}
-                                    <sw-loader v-if="isLoading"></sw-loader>
+                                {% block sw_modal_loader %}
+                                    <slot name="modal-loader">
+                                        <sw-loader v-if="isLoading"></sw-loader>
+                                    </slot>
                                 {% endblock %}
                                 <slot>
                                     {% block sw_modal_slot_default %}{% endblock %}

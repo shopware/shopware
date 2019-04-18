@@ -1,0 +1,36 @@
+
+.sw-media-compact-upload.sw-media-upload {
+    .sw-media-upload__dropzone {
+        min-height: unset;
+        padding: 5px;
+    }
+
+    .sw-media-upload__button {
+        margin: 0;
+    }
+
+    .sw-media-upload__preview {
+        width: 35px;
+        height: 35px;
+    }
+
+    .sw-media-upload__actions {
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: stretch;
+    }
+
+    .sw-media-upload__button {
+        margin-right: 5px;
+    }
+
+    .sw-media-compact-upload__browse-button {
+        padding: 10px;
+    }
+    .sw-media-compact-upload__browse-icon {
+        width: 14px;
+        height: 14px;
+    }
+
+}
+

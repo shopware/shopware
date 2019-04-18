@@ -11,6 +11,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollectio
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Metadata\Metadata;
+use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
@@ -182,6 +183,11 @@ class MediaEntity extends Entity
      * @var PaymentMethodCollection|null
      */
     protected $paymentMethods;
+
+    /**
+     * @var ProductConfiguratorSettingCollection|null
+     */
+    protected $productConfiguratorSettings;
 
     public function get(string $property)
     {
@@ -513,5 +519,15 @@ class MediaEntity extends Entity
         unset($data['metaDataRaw'], $data['mediaTypeRaw']);
 
         return $data;
+    }
+
+    public function getProductConfiguratorSettings(): ?ProductConfiguratorSettingCollection
+    {
+        return $this->productConfiguratorSettings;
+    }
+
+    public function setProductConfiguratorSettings(ProductConfiguratorSettingCollection $productConfiguratorSettings): void
+    {
+        $this->productConfiguratorSettings = $productConfiguratorSettings;
     }
 }

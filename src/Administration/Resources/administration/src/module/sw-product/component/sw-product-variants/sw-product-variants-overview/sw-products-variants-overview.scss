@@ -1,0 +1,110 @@
+@import "~scss/variables";
+$sw-products-variants-generated-variants-toolbar-background: #f8f9fa;
+$sw-products-variants-generated-variants-toolbar-border: $color-steam-cloud;
+
+.sw-product-variants-overview {
+
+    .sw-configuration-option-list__toolbar {
+        background-color: $sw-products-variants-generated-variants-toolbar-background;
+        border-bottom: 1px solid $sw-products-variants-generated-variants-toolbar-border;
+        padding: 25px;
+
+        .sw-button {
+            height: 32px;
+            line-height: 16px;
+
+            .sw-icon {
+                width: 15px;
+                height: 15px;
+            }
+        }
+    }
+
+
+    .sw-product-variants-overview__data-grid {
+        .sw-data-grid__wrapper {
+            max-height: 500px;
+        }
+
+        a.sw-product-variants-overview__variation-link {
+            cursor: pointer;
+
+            .sw-icon {
+                opacity: 0;
+                color: $color-shopware-blue;
+                width: 12px;
+                height: 12px;
+                margin-right: 5px;
+            }
+
+            &:hover {
+                text-decoration: none;
+
+                .sw-icon {
+                    opacity: 1;
+                }
+            }
+        }
+    }
+
+    .sw-product-variants-overview__single-variation {
+        display: inline-flex;
+
+        &::after {
+            content: '-';
+            margin: 0 5px;
+        }
+        &:last-child::after {
+            display: none;
+        }
+    }
+
+    .sw-product-variants-overview__filter-list-button {
+        position: relative;
+
+        .sw-context-menu {
+            top: calc(100% + 10px);
+            right: 0;
+            z-index: 10;
+
+            .sw-tree {
+                max-height: 450px;
+                width: 280px;
+                overflow: auto;
+
+                .sw-tree__content {
+                    max-height: none;
+                    overflow: hidden;
+                }
+            }
+
+            .sw-tree-actions__headline {
+                display: none;
+            }
+
+            .sw-tree-item__element {
+                grid-template-columns: 30px auto 30px;
+
+                .sw-tree-item__icon {
+                    display: none;
+                }
+
+                .sw-tree-item__actions {
+                    display: none;
+                }
+            }
+
+            .sw-tree-item.is--no-children .sw-tree-item__element{
+                grid-template-columns: 30px 24px auto 30px;
+            }
+
+            .sw-tree-item__element .sw-tree-item__selection{
+                display: none;
+            }
+            .sw-tree-item.is--no-children .sw-tree-item__element .sw-tree-item__selection{
+                display: block;
+            }
+
+        }
+    }
+}

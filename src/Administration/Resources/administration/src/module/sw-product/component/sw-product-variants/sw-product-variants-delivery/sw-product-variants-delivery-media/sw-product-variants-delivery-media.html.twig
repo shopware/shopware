@@ -1,0 +1,67 @@
+{% block sw_product_variants_delivery_media %}
+    <div class="sw-product-variants-delivery-media">
+        {% block sw_product_variants_delivery_media_groups %}
+            <div class="sw-product-variants-delivery-media__groups">
+                <ul>
+                    <li v-for="group in selectedGroups"
+                        :key="group.id"
+                        @click="activeGroup = group"
+                        class="sw-product-variants-delivery-media__groupElement"
+                        :class="{'is--selected': activeGroup.id == group.id}">
+                        <sw-icon name="multicolor-folder-breadcrumbs" size="16px" multicolor></sw-icon>
+                        {{ group.name }}
+                    </li>
+                </ul>
+            </div>
+        {% endblock %}
+
+        {% block sw_product_variants_delivery_media_media %}
+            <div class="sw-product-variants-delivery-media__media">
+                {% block sw_product_variants_delivery_media_data_grid %}
+                    <sw-data-grid
+                            v-if="activeOptions.length"
+                            :data-source="activeOptions"
+                            :columns="optionColumns"
+                            :showActions="false"
+                            :showSelection="false"
+                            ref="variantsMedia"
+                            fullPage>
+
+                        {% block sw_product_variants_delivery_media_data_grid_column_name %}
+                            <template slot="column-name" slot-scope="{ item, isInlineEdit, compact }">
+                                {{ item.internalOption ? item.internalOption.name : item.option.name }}
+                            </template>
+                        {% endblock %}
+
+                        {% block sw_product_variants_delivery_media_data_grid_column_option_media %}
+                            <template slot="column-option.media" slot-scope="{ item, isInlineEdit, compact }">
+                                {% block sw_product_variants_delivery_media_data_grid_column_option_media_listener %}
+                                    <sw-upload-store-listener
+                                            :uploadTag="item.id"
+                                            @sw-media-upload-added="onUploadsAdded"
+                                            @sw-media-upload-finished="successfulUpload">
+                                    </sw-upload-store-listener>
+                                {% endblock %}
+                                {% block sw_product_variants_delivery_media_data_grid_column_option_media_upload %}
+                                    <sw-media-compact-upload
+                                            :source="item.mediaId"
+                                            :uploadTag="item.id"
+                                            :defaultFolder="product.getEntityName()"
+                                            @sw-media-upload-remove-image="removeMedia(item)"
+                                            @selectionChange="setMedia">
+                                    </sw-media-compact-upload>
+                                {% endblock %}
+                            </template>
+                        {% endblock %}
+
+                    </sw-data-grid>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_product_variants_delivery_media_loader %}
+            <sw-loader v-if="isLoading"></sw-loader>
+        {% endblock %}
+
+    </div>
+{% endblock %}

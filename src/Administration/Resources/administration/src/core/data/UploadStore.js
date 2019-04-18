@@ -82,15 +82,18 @@ class UploadStore {
     }
 
     addUploads(uploadTag, uploadCollection) {
+        const tasks = [];
         uploadCollection.forEach((uploadData) => {
-            this.uploads.push(new UploadTask({ uploadTag, ...uploadData }));
+            const task = new UploadTask({ uploadTag, ...uploadData });
+            tasks.push(task);
+            this.uploads.push(task);
         });
 
         this.getListenerForTag(uploadTag).forEach((listener) => {
             listener(this._createUploadEvent(
                 UploadEvents.UPLOAD_ADDED,
                 uploadTag,
-                { data: uploadCollection }
+                { data: tasks }
             ));
         });
     }

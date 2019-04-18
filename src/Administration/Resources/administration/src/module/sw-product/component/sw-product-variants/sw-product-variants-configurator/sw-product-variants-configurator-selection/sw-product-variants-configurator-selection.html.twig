@@ -1,0 +1,19 @@
+{% block sw_property_search_field %}
+    <div class="sw-property-search__toolbar sw-product-variants-configurator-selection__toolbar">
+        <slot name="toolbar">
+            <div class="sw-property-search__search-field-container">
+                <slot name="toolbar-search-field">
+                    {% block sw_product_variants_configurator_selection_search_field %}
+                        <sw-simple-search-field
+                            class="sw-property-search__search-field sw-product-variants-configurator-selection-search__search-field"
+                            ref="searchField"
+                            @focus="onFocusSearch"
+                            @input="onSearchOptions"
+                            :placeholder="$tc('sw-property-search.placeholderSearch')">
+                        </sw-simple-search-field>
+                    {% endblock %}
+                </slot>
+            </div>
+        </slot>
+    </div>
+{% endblock %}

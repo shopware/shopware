@@ -42,11 +42,6 @@ export default {
         disableContextMenu: {
             type: Boolean,
             default: false
-        },
-
-        sortable: {
-            type: Boolean,
-            default: true
         }
     },
 
@@ -103,8 +98,7 @@ export default {
                 'is--dragging': this.isDragging,
                 'is--active': this.active,
                 'is--opened': this.isOpened,
-                'is--no-children': this.item.childCount <= 0,
-                'is--unsortable': !this.sortable
+                'is--no-children': this.item.childCount <= 0
             };
         },
 
@@ -117,8 +111,7 @@ export default {
                 onDragStart: this.dragStart,
                 onDragEnter: this.onMouseEnter,
                 onDrop: this.dragEnd,
-                preventEvent: true,
-                deactivate: !this.sortable
+                preventEvent: true
             };
         },
 
@@ -166,9 +159,6 @@ export default {
             if (this.newElementId) {
                 this.currentEditElement = this.newElementId;
                 this.editElementName();
-            }
-            if (this.item.checked) {
-                this.checked = true;
             }
         },
 

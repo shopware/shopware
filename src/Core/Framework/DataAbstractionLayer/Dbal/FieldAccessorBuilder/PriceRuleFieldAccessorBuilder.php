@@ -18,9 +18,6 @@ class PriceRuleFieldAccessorBuilder implements FieldAccessorBuilderInterface
 
         $keys = $context->getRules();
 
-        $defaultCurrencyId = Defaults::CURRENCY;
-        $currencyId = $context->getCurrencyId();
-
         $jsonField = 'net';
         if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
             $jsonField = 'gross';
@@ -29,11 +26,11 @@ class PriceRuleFieldAccessorBuilder implements FieldAccessorBuilderInterface
         $select = [];
         foreach ($keys as $key) {
             $parsed = sprintf('`%s`.`%s`', $root, $field->getStorageName());
-            $path = sprintf('$.optimized.r%s.c%s.%s', $key, $currencyId, $jsonField);
+            $path = sprintf('$.optimized.r%s.c%s.%s', $key, $context->getCurrencyId(), $jsonField);
             $select[] = sprintf('JSON_UNQUOTE(JSON_EXTRACT(%s, "%s"))', $parsed, $path);
 
             if ($context->getCurrencyId() !== Defaults::CURRENCY) {
-                $path = sprintf('$.optimized.r%s.c%s.%s', $key, $defaultCurrencyId, $jsonField);
+                $path = sprintf('$.optimized.r%s.c%s.%s', $key, Defaults::CURRENCY, $jsonField);
                 $select[] = sprintf('JSON_UNQUOTE(JSON_EXTRACT(%s, "%s")) * %s', $parsed, $path, $context->getCurrencyFactor());
             }
         }

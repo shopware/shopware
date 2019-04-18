@@ -108,6 +108,16 @@ export default {
         this.destroyedComponent();
     },
 
+    watch: {
+        'options'() {
+            this.initData();
+        },
+        'value'() {
+            this.visibleValues = [];
+            this.initData();
+        }
+    },
+
     methods: {
         createdComponent() {
             this.initData();

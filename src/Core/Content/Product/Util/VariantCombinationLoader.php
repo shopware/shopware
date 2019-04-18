@@ -22,7 +22,7 @@ class VariantCombinationLoader
     public function load(string $productId, Context $context): array
     {
         $query = $this->connection->createQueryBuilder();
-        $query->select('LOWER(HEX(product.id))', 'product.option_ids');
+        $query->select('LOWER(HEX(product.id))', 'product.option_ids as options', 'product.product_number as productNumber');
         $query->from('product');
         $query->where('product.parent_id = :id');
         $query->andWhere('product.version_id = :versionId');
@@ -31,10 +31,10 @@ class VariantCombinationLoader
         $query->andWhere('product.option_ids IS NOT NULL');
 
         $combinations = $query->execute()->fetchAll();
-        $combinations = FetchModeHelper::keyPair($combinations);
+        $combinations = FetchModeHelper::groupUnique($combinations);
 
         foreach ($combinations as &$combination) {
-            $combination = json_decode($combination, true);
+            $combination['options'] = json_decode($combination['options'], true);
         }
 
         return $combinations;

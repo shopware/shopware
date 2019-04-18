@@ -173,6 +173,12 @@ return [
                         'related' => '/api/media/3e352be2d85846dd97529c0f6b544870/payment-methods',
                     ],
                 ],
+                'productConfiguratorSettings' => [
+                    'data' => [],
+                    'links' => [
+                        'related' => '/api/media/3e352be2d85846dd97529c0f6b544870/product-configurator-settings',
+                    ],
+                ],
             ],
             'meta' => null,
         ],

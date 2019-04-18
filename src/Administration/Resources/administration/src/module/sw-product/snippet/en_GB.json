@@ -144,7 +144,10 @@
       "cardTitleProperties": "Properties"
     },
     "variations": {
+      "emptyStateDescription": "There are no variants for this product yet.",
+      "emptyStateButton": "Starting the Variant Generator",
       "generateVariationsButton": "Generate variations",
+      "cancelVariationsButton": "Cancel",
       "configuratorCardTitle": "Variations generator",
       "generatedVariationCardTitle": "Generated variations",
       "progressTypeOf": "of",
@@ -159,7 +162,7 @@
       "generationWarningButtonContinue": "Generate anyway",
       "generatedFilterList": "Filter list",
       "generatedListColumnVariation": "Variation",
-      "generatedListColumnPrice": "Price",
+      "generatedListColumnPrice": "Price (Gross / Net)",
       "generatedListColumnProductNumber": "Product number",
       "generatedListColumnStock": "Stock",
       "generatedListContextMenuEdit": "Edit",
@@ -172,7 +175,42 @@
       "generatedListMessageSaveSuccess": "The variation has been saved.",
       "generatedListMessageSaveError": "The variation could not be saved.",
       "generatedListTitleDeleteError": "Deleted",
-      "generatedListMessageDeleteSuccess": "The variation has been deleted."
+      "generatedListMessageDeleteSuccess": "The variation has been deleted.",
+
+      "overview": {
+        "filterReset": "Reset",
+        "filter": "Filter",
+        "generateVariants": "Generate variations",
+        "storefrontDelivery": "Storefront Delivery"
+      },
+      "configuratorModal": {
+        "selectOptions": "Select options",
+        "selectOptionsExplanation": "Select the options which should be used for the generation of variations.",
+        "priceSurcharges": "Price surcharge",
+        "resetSurcharges": "Delete surcharge",
+        "defineRestrictions": "Define restriction",
+        "priceOptions": "Options",
+        "restrictedCombinations": "Restricted comnbination",
+        "searchRestrictions": "Search for combinations",
+        "addNewRestriction": "Add new restriction",
+        "editRestriction": "Edit restriction",
+        "deleteRestriction": "Delete restriction",
+        "singleRestrictionSeperation": "And",
+        "deleteCombination": "Delete combination",
+        "isOneFrom": "is one from",
+        "cancel": "Cancel",
+        "save": "Save"
+      },
+      "deliveryModal": {
+        "modalHeadline": "Variants delivery",
+        "order": "Order",
+        "orderExplanation": "You can edit the order of the variant options for the Storefront.",
+        "media": "Media",
+        "mediaExplanation": "You can pick media for each option for the Storefront.",
+        "mediaOptions": "Options",
+        "cancel": "Cancel",
+        "save": "Save"
+      }
     }
   }
 }

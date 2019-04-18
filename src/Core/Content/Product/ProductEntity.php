@@ -232,6 +232,16 @@ class ProductEntity extends Entity
     protected $packUnit;
 
     /**
+     * @var array|null
+     */
+    protected $variantRestrictions;
+
+    /**
+     * @var string[]|null
+     */
+    protected $configuratorGroupSorting;
+
+    /**
      * @var TaxEntity|null
      */
     protected $tax;
@@ -1129,5 +1139,25 @@ class ProductEntity extends Entity
     public function setTagIds(array $tagIds): void
     {
         $this->tagIds = $tagIds;
+    }
+
+    public function getVariantRestrictions(): ?array
+    {
+        return $this->variantRestrictions;
+    }
+
+    public function setVariantRestrictions(?array $variantRestrictions): void
+    {
+        $this->variantRestrictions = $variantRestrictions;
+    }
+
+    public function getConfiguratorGroupSorting(): ?array
+    {
+        return $this->configuratorGroupSorting;
+    }
+
+    public function setConfiguratorGroupSorting(?array $configuratorGroupSorting): void
+    {
+        $this->configuratorGroupSorting = $configuratorGroupSorting;
     }
 }

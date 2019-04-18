@@ -110,7 +110,7 @@ export default {
 
         emitPlayEvent(originalDomEvent, item) {
             if (!this.selected) {
-                this.$emit('sw-media-media-item-play', {
+                this.$emit('media-item-play', {
                     originalDomEvent,
                     item
                 });
@@ -139,7 +139,7 @@ export default {
         emitItemDeleted(deletePromise) {
             this.closeModalDelete();
             deletePromise.then((ids) => {
-                this.$emit('sw-media-media-item-delete', ids.mediaIds);
+                this.$emit('media-item-delete', ids.mediaIds);
             });
         },
 
@@ -162,7 +162,7 @@ export default {
         onMediaItemMoved(movePromise) {
             this.closeModalMove();
             movePromise.then((ids) => {
-                this.$emit('sw-media-media-item-moved', ids);
+                this.$emit('media-folder-move', ids);
             });
         }
     }

@@ -7,8 +7,8 @@
                              :allowMultiSelect="false"
                              :defaultFolder="cmsPageState.pageEntityName"
                              :caption="$tc('sw-cms.elements.captionMediaUpload')"
-                             @sw-media-upload-open-sidebar="onOpenMediaModal"
-                             @sw-media-upload-remove-image="onImageRemove">
+                             @media-upload-sidebar-open="onOpenMediaModal"
+                             @media-upload-remove-image="onImageRemove">
             </sw-media-upload>
             <sw-upload-store-listener
                 :uploadTag="uploadTag"
@@ -32,7 +32,7 @@
                 :entityContext="cmsPageState.entityName"
                 :allowMultiSelect="false"
                 :initialFolderId="cmsPageState.defaultMediaFolderId"
-                @sw-media-upload-remove-image="onImageRemove"
+                @media-upload-remove-image="onImageRemove"
                 @media-modal-selection-change="onSelectionChanges"
                 @closeModal="onCloseModal">
             </sw-media-modal>

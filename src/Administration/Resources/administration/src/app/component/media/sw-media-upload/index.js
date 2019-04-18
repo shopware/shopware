@@ -126,7 +126,7 @@ export default {
         },
 
         hasOpenMediaButtonListener() {
-            return Object.keys(this.$listeners).includes('sw-media-upload-open-sidebar');
+            return Object.keys(this.$listeners).includes('media-upload-sidebar-open');
         },
 
         previewClass() {
@@ -254,12 +254,12 @@ export default {
         },
 
         onClickOpenMediaSidebar() {
-            this.$emit('sw-media-upload-open-sidebar');
+            this.$emit('media-upload-sidebar-open');
         },
 
         onRemoveMediaItem() {
             this.preview = null;
-            this.$emit('sw-media-upload-remove-image');
+            this.$emit('media-upload-remove-image');
         },
 
         /*
@@ -340,7 +340,7 @@ export default {
         },
 
         handleUploadStoreEvent({ action }) {
-            if (action === 'sw-media-upload-failed') {
+            if (action === 'media-upload-fail') {
                 this.onRemoveMediaItem();
             }
         }

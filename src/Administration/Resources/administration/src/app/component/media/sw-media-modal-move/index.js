@@ -109,7 +109,7 @@ export default {
         },
 
         closeMoveModal() {
-            this.$emit('sw-media-modal-move-close');
+            this.$emit('media-move-modal-close');
         },
 
         isNotPartOfItemsToMove(item) {
@@ -187,7 +187,7 @@ export default {
             movePromises.push(this.mediaStore.sync());
 
             this.$emit(
-                'sw-media-modal-move-items-moved',
+                'media-move-modal-items-move',
                 Promise.all(movePromises).then((ids) => {
                     this.createNotificationSuccess({
                         title: this.$root.$tc('global.sw-media-modal-move.notification.successOverall.title'),

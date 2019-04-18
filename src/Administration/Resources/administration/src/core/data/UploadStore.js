@@ -8,7 +8,7 @@ import { fileReader } from 'src/core/service/util.service';
 const UploadEvents = {
     UPLOAD_ADDED: 'sw-media-upload-added',
     UPLOAD_FINISHED: 'sw-media-upload-finished',
-    UPLOAD_FAILED: 'sw-media-upload-failed'
+    UPLOAD_FAILED: 'media-upload-fail'
 };
 
 class UploadStore {

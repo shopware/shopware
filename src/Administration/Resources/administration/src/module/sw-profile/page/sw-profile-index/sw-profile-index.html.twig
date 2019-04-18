@@ -65,8 +65,8 @@
                                     variant="regular"
                                     :label="$tc('sw-profile.index.labelUploadAvatar')"
                                     :defaultFolder="userStore.getEntityName()"
-                                    @sw-media-upload-open-sidebar="openMediaSidebar"
-                                    @sw-media-upload-remove-image="onUnlinkAvatar">
+                                    @media-upload-sidebar-open="openMediaSidebar"
+                                    @media-upload-remove-image="onUnlinkAvatar">
                                 </sw-media-upload>
                             {% endblock %}
                         </sw-card>

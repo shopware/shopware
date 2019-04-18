@@ -6,14 +6,14 @@
                 :uploadTag="product.id"
                 @sw-media-upload-added="onUploadsAdded"
                 @sw-media-upload-finished="successfulUpload"
-                @sw-media-upload-failed="onUploadFailed">
+                @media-upload-fail="onUploadFailed">
             </sw-upload-store-listener>
             <sw-media-upload
                     :uploadTag="product.id"
                     variant="regular"
                     :scrollTarget="$parent.$el"
                     :defaultFolder="product.getEntityName()"
-                    @sw-media-upload-open-sidebar="onMediaUploadButtonOpenSidebar">
+                    @media-upload-sidebar-open="onMediaUploadButtonOpenSidebar">
             </sw-media-upload>
         {% endblock %}
 

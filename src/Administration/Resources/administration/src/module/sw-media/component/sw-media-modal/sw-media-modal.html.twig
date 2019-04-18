@@ -65,7 +65,7 @@
                                                     :uploadTag="uploadTag"
                                                     @sw-media-upload-added="onUploadsAdded"
                                                     @sw-media-upload-finished="onUploadFinished"
-                                                    @sw-media-upload-failed="onUploadFailed">
+                                                    @media-upload-fail="onUploadFailed">
                                                 </sw-upload-store-listener>
                                                 <sw-media-upload
                                                     class="sw-media-modal__upload-container"
@@ -91,8 +91,8 @@
                                                         :editable="false"
                                                         :isList="compact"
                                                         @media-item-selection-remove="onMediaRemoveSelected"
-                                                        @sw-media-item-selection-add="onMediaAddSelected"
-                                                        @sw-media-item-clicked="onMeidaItemSelect">
+                                                        @media-item-selection-add="onMediaAddSelected"
+                                                        @media-item-click="onMeidaItemSelect">
                                                     </sw-media-media-item>
                                                 </sw-media-grid>
                                             {% endblock %}

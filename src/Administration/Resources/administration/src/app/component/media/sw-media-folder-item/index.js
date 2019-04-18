@@ -112,7 +112,7 @@ export default {
 
             if (item.isLocal === true) {
                 item.delete(true).then(() => {
-                    this.$emit('sw-media-folder-item-remove', [item.id]);
+                    this.$emit('media-folder-remove', [item.id]);
                 });
             }
             endInlineEdit();
@@ -154,21 +154,21 @@ export default {
         emitItemDeleted(deletePromise) {
             this.closeDeleteModal();
             deletePromise.then((ids) => {
-                this.$emit('sw-media-folder-item-delete', ids.folderIds);
+                this.$emit('media-folder-delete', ids.folderIds);
             });
         },
 
         onFolderDissolved(dissolvePromise) {
             this.closeDissolveModal();
             dissolvePromise.then((ids) => {
-                this.$emit('sw-media-folder-item-dissolve', ids);
+                this.$emit('media-folder-dissolve', ids);
             });
         },
 
         onFolderMoved(movePromise) {
             this.closeMoveModal();
             movePromise.then((ids) => {
-                this.$emit('sw-media-media-item-moved', ids);
+                this.$emit('media-folder-move', ids);
             });
         },
 

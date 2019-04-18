@@ -18,10 +18,10 @@ Mixin.register('media-grid-listener', {
     computed: {
         mediaItemSelectionHandler() {
             return {
-                'sw-media-item-clicked': this.handleMediaItemClicked,
-                'sw-media-item-selection-add': this.handleMediaGridItemSelected,
+                'media-item-click': this.handleMediaItemClicked,
+                'media-item-selection-add': this.handleMediaGridItemSelected,
                 'media-item-selection-remove': this.handleMediaGridItemUnselected,
-                'sw-media-media-item-play': this.handleMediaItemClicked
+                'media-item-play': this.handleMediaItemClicked
             };
         },
 

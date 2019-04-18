@@ -79,7 +79,7 @@ export default {
     methods: {
         emitUrl(originalDomEvent) {
             if (this.isValid) {
-                this.$emit('sw-media-url-form-submit', {
+                this.$emit('media-url-form-submit', {
                     originalDomEvent,
                     url: this.urlObject,
                     fileExtension: this.fileExtension

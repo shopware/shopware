@@ -49,7 +49,7 @@
                                     :showContextMenuButton="false"
                                     :allowMultiSelect="allowMultiSelect"
                                     :isList="showItemsAsList"
-                                    @sw-media-item-clicked="goToParentFolder"
+                                    @media-item-click="goToParentFolder"
                                     isParent>
                                 </sw-media-folder-item>
                             {% endblock %}
@@ -66,11 +66,11 @@
                                     :isList="showItemsAsList"
                                     :editable="editable"
                                     :allowMultiSelect="allowMultiSelect"
-                                    @sw-media-media-item-delete="refreshList"
-                                    @sw-media-folder-item-delete="refreshList"
-                                    @sw-media-folder-item-remove="removeNewFolder"
-                                    @sw-media-folder-item-dissolve="refreshList"
-                                    @sw-media-media-item-moved="refreshList"
+                                    @media-item-delete="refreshList"
+                                    @media-folder-delete="refreshList"
+                                    @media-folder-remove="removeNewFolder"
+                                    @media-folder-dissolve="refreshList"
+                                    @media-folder-move="refreshList"
                                     v-on="mediaItemSelectionHandler">
                                 </sw-media-entity-mapper>
                             {% endblock %}

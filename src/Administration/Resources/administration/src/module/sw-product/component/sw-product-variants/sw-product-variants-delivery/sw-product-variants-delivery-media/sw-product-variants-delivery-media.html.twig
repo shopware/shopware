@@ -47,8 +47,8 @@
                                             :source="item.mediaId"
                                             :uploadTag="item.id"
                                             :defaultFolder="product.getEntityName()"
-                                            @sw-media-upload-remove-image="removeMedia(item)"
-                                            @selectionChange="setMedia">
+                                            @media-upload-remove-image="removeMedia(item)"
+                                            @selection-change="setMedia">
                                     </sw-media-compact-upload>
                                 {% endblock %}
                             </template>

@@ -4,7 +4,7 @@
               @closeModal="closeModal"
               :title="folder.name"
               variant="large">
-        
+
         {% block sw_media_modal_folder_settings_tabs %}
             <sw-tabs :isSmall="false" defaultItem="settings">
                 <template slot-scope="{ active }" >
@@ -157,7 +157,7 @@
                                             {% endblock %}
 
                                             {% block sw_media_modal_folder_settings_add_thumbnail_size_form %}
-                                                <sw-media-add-thumbnail-form v-if="!notEditable && isEditThumbnails" @sw-media-add-thumbnail-form-size-added="addThumbnail"></sw-media-add-thumbnail-form>
+                                                <sw-media-add-thumbnail-form v-if="!notEditable && isEditThumbnails" @thumbnail-form-size-add="addThumbnail"></sw-media-add-thumbnail-form>
                                             {% endblock %}
                                         </div>
                                     {% endblock %}

@@ -25,7 +25,7 @@ function isDuplicationException(error) {
  * @status ready
  * @event sw-media-upload-added { UploadTask[]: data }
  * @event sw-media-upload-finished { string: targetId }
- * @event sw-media-upload-failed UploadTask UploadTask
+ * @event media-upload-fail UploadTask UploadTask
  * @example code-only
  * @component-example
  * <sw-upload-store-listener @sw-uploads-added="..."></sw-upload-store-listener>

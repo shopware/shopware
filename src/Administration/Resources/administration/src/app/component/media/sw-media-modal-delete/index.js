@@ -107,7 +107,7 @@ export default {
         },
 
         closeDeleteModal(originalDomEvent) {
-            this.$emit('sw-media-modal-delete-close', { originalDomEvent });
+            this.$emit('media-delete-modal-close', { originalDomEvent });
         },
 
         deleteSelection() {
@@ -154,7 +154,7 @@ export default {
             });
 
             this.$emit(
-                'sw-media-modal-delete-items-deleted',
+                'media-delete-modal-items-delete',
                 Promise.all(deletePromises).then(() => {
                     this.createNotificationSuccess({
                         title: this.$root.$tc('global.sw-media-modal-delete.notification.successOverall.title'),

@@ -241,7 +241,7 @@ export default {
         onPlayClick(originalDomEvent) {
             if (!(originalDomEvent.shiftKey || originalDomEvent.ctrlKey)) {
                 originalDomEvent.stopPropagation();
-                this.$emit('sw-media-preview-play', {
+                this.$emit('play', {
                     originalDomEvent,
                     item: this.trueSource
                 });

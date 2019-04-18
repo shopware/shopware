@@ -4,11 +4,11 @@
             <div class="sw-text-editor-toolbar__item"
                  v-for="(button, index) in buttonConfig"
                  :key="index"
-                 @click="handleButtonClick(button)">
+                 v-on="button.children || button.type === 'link' ? { click: () => onToggleMenu(button) } : { click: () => handleButtonClick(button) }">
 
                 {% block sw_text_editor_toolbar_item_button %}
                     <template v-if="button.icon">
-                        <div class="sw-text-editor-toolbar__item-button" @click="onToggleMenu(button)">
+                        <div class="sw-text-editor-toolbar__item-button">
                             <sw-icon :name="button.icon" size="16"></sw-icon>
                             <sw-icon v-if="button.children" name="default-arrow-head-down" size="8"></sw-icon>
                         </div>

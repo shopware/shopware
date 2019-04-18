@@ -339,16 +339,20 @@ Component.register('sw-cms-detail', {
                 return;
             }
 
+            const blockConfig = this.cmsBlocks[dragData.block.name];
             const blockStore = this.page.getAssociation('blocks');
             const newBlock = blockStore.create();
             newBlock.type = dragData.block.name;
             newBlock.position = dropData.dropIndex;
             newBlock.pageId = this.page.id;
 
-            Object.assign(newBlock.config, cloneDeep(this.blockConfigDefaults));
+            Object.assign(
+                newBlock.config,
+                cloneDeep(this.blockConfigDefaults),
+                cloneDeep(blockConfig.defaultConfig || {})
+            );
 
             const slotStore = newBlock.getAssociation('slots');
-            const blockConfig = this.cmsBlocks[newBlock.type];
             Object.keys(blockConfig.slots).forEach((slotName) => {
                 const slotConfig = blockConfig.slots[slotName];
                 const element = slotStore.create();
@@ -402,9 +406,28 @@ Component.register('sw-cms-detail', {
         },
 
         onSave() {
+            if (!this.page.name || !this.page.type) {
+                this.$refs.pageConfigSidebar.openContent();
+
+                const warningTitle = this.$tc('sw-cms.detail.notificationTitleMissingFields');
+                const warningMessage = this.$tc('sw-cms.detail.notificationMessageMissingFields');
+                this.createNotificationWarning({
+                    title: warningTitle,
+                    message: warningMessage
+                });
+                return Promise.reject();
+            }
+
             this.isLoading = true;
             return this.page.save(true).then(() => {
                 return this.loadPage(this.page.id);
+            }).catch((exception) => {
+                this.isLoading = false;
+
+                this.createNotificationError({
+                    title: exception.message,
+                    message: exception.response.statusText
+                });
             });
         },
 

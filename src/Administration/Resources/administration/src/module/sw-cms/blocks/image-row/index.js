@@ -8,6 +8,13 @@ Application.getContainer('service').cmsService.registerCmsBlock({
     category: 'standard',
     component: 'sw-cms-block-image-row',
     previewComponent: 'sw-cms-preview-image-row',
+    defaultConfig: {
+        marginBottom: '40px',
+        marginTop: '40px',
+        marginLeft: '20px',
+        marginRight: '20px',
+        sizingMode: 'boxed'
+    },
     slots: {
         left: {
             type: 'image',

@@ -54,7 +54,6 @@ Component.register('sw-cms-el-config-image', {
         },
 
         onImageRemove() {
-            console.log('onImageRemove', this.element);
             this.element.config.media.value = null;
             this.$set(this.element.data, 'mediaId', null);
             this.$set(this.element.data, 'media', null);

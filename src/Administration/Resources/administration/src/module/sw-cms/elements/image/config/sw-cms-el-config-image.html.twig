@@ -18,9 +18,9 @@
         {% endblock %}
 
         {% block sw_cms_element_image_config_display_mode %}
-            <sw-select-field label="Display mode" v-model="element.config.displayMode.value">
-                <option value="standard">Standard</option>
-                <option value="cover">Cover</option>
+            <sw-select-field :label="$tc('sw-cms.elements.labelMediaDisplayMode')" v-model="element.config.displayMode.value">
+                <option value="standard">{{ $tc('sw-cms.elements.labelMediaDisplayModeStandard') }}</option>
+                <option value="cover">{{ $tc('sw-cms.elements.labelMediaDisplayModeCover') }}</option>
             </sw-select-field>
         {% endblock %}
 

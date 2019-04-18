@@ -17,5 +17,9 @@
         <service id="Shopware\Core\Content\Category\Aggregate\CategoryTag\CategoryTagDefinition">
             <tag name="shopware.entity.definition" entity="category_tag"/>
         </service>
+
+        <service id="Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryDefinition">
+            <tag name="shopware.sales_channel.entity.definition" entity="category"/>
+        </service>
     </services>
 </container>                

@@ -147,6 +147,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
 
         $categoryData = $data;
+        $categoryData['active'] = true;
         if (!isset($categoryData['id'])) {
             $categoryData['id'] = Uuid::randomHex();
         }

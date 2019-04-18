@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
+use Shopware\Core\System\Currency\SalesChannel\SalesChannelCurrencyDefinition as SalesChannelApiCurrencyDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChannelCurrencyDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
@@ -43,6 +44,11 @@ class CurrencyDefinition extends EntityDefinition
     public static function getEntityClass(): string
     {
         return CurrencyEntity::class;
+    }
+
+    public static function getSalesChannelDecorationDefinition(): string
+    {
+        return SalesChannelApiCurrencyDefinition::class;
     }
 
     protected static function defineFields(): FieldCollection

@@ -40,7 +40,7 @@ class SalesChannelCategoryControllerTest extends TestCase
         $id = Uuid::randomHex();
 
         $this->repository->create([
-            ['id' => $id, 'name' => 'Test category'],
+            ['id' => $id, 'name' => 'Test category', 'active' => true],
         ], $this->context);
 
         $this->getSalesChannelClient()->request('GET', '/sales-channel-api/v1/category');
@@ -62,16 +62,15 @@ class SalesChannelCategoryControllerTest extends TestCase
         $id = Uuid::randomHex();
 
         $this->repository->create([
-            ['id' => $id, 'name' => 'Test category'],
+            ['id' => $id, 'name' => 'Test category', 'active' => true],
         ], $this->context);
 
         $this->getSalesChannelClient()->request('GET', '/sales-channel-api/v1/category/' . $id);
 
         $response = $this->getSalesChannelClient()->getResponse();
-
-        static::assertSame(200, $response->getStatusCode());
-
         $content = json_decode($response->getContent(), true);
+
+        static::assertSame(200, $response->getStatusCode(), print_r($content, true));
 
         static::assertNotEmpty($content);
         static::assertArrayHasKey('data', $content);
@@ -85,9 +84,9 @@ class SalesChannelCategoryControllerTest extends TestCase
         $categoryB = Uuid::randomHex();
 
         $this->repository->create([
-            ['id' => $categoryC, 'name' => 'Category C'],
-            ['id' => $categoryA, 'name' => 'Category A'],
-            ['id' => $categoryB, 'name' => 'Category B'],
+            ['id' => $categoryC, 'name' => 'Category C', 'active' => true],
+            ['id' => $categoryA, 'name' => 'Category A', 'active' => true],
+            ['id' => $categoryB, 'name' => 'Category B', 'active' => true],
         ], $this->context);
 
         $params = ['sort' => 'name'];
@@ -116,9 +115,9 @@ class SalesChannelCategoryControllerTest extends TestCase
         $categoryB = Uuid::randomHex();
 
         $this->repository->create([
-            ['id' => $categoryC, 'name' => 'Matching name'],
-            ['id' => $categoryA, 'name' => 'Not'],
-            ['id' => $categoryB, 'name' => 'Matching name'],
+            ['id' => $categoryC, 'active' => true, 'name' => 'Matching name'],
+            ['id' => $categoryA, 'active' => true, 'name' => 'Not'],
+            ['id' => $categoryB, 'active' => true, 'name' => 'Matching name'],
         ], $this->context);
 
         $this->getSalesChannelClient()->request('GET', '/sales-channel-api/v1/category', ['term' => 'Matching']);
@@ -174,8 +173,8 @@ class SalesChannelCategoryControllerTest extends TestCase
         $this->repository->create([
             ['id' => $categoryC, 'name' => 'C', 'active' => true],
             ['id' => $categoryA, 'name' => 'A', 'active' => true],
-            ['id' => $categoryA2, 'name' => 'A', 'active' => false],
-            ['id' => $categoryB, 'name' => 'B', 'active' => false],
+            ['id' => $categoryA2, 'name' => 'A', 'active' => true, 'displayNestedProducts' => false],
+            ['id' => $categoryB, 'name' => 'B', 'active' => true, 'displayNestedProducts' => false],
         ], $this->context);
 
         $body = [
@@ -202,7 +201,7 @@ class SalesChannelCategoryControllerTest extends TestCase
             'filter' => [
                 [
                     'type' => 'equals',
-                    'field' => 'category.active',
+                    'field' => 'category.displayNestedProducts',
                     'value' => true,
                 ],
             ],
@@ -226,7 +225,7 @@ class SalesChannelCategoryControllerTest extends TestCase
                     'type' => 'multi',
                     'operator' => 'OR',
                     'queries' => [
-                        ['type' => 'equals', 'field' => 'category.active', 'value' => true],
+                        ['type' => 'equals', 'field' => 'category.displayNestedProducts', 'value' => true],
                         ['type' => 'equals', 'field' => 'category.name', 'value' => 'B'],
                     ],
                 ],
@@ -247,7 +246,7 @@ class SalesChannelCategoryControllerTest extends TestCase
 
         $body = [
             'post-filter' => [
-                ['type' => 'equals', 'field' => 'category.active', 'value' => true],
+                ['type' => 'equals', 'field' => 'category.displayNestedProducts', 'value' => true],
             ],
             'aggregations' => [
                 [
@@ -295,8 +294,8 @@ class SalesChannelCategoryControllerTest extends TestCase
 
         static::assertNotEmpty($content);
         static::assertArrayHasKey('errors', $content);
-        static::assertEquals($content['errors'][0]['code'], 'CONTENT__CATEGORY_NOT_FOUND');
-        static::assertEquals($content['errors'][0]['status'], 404);
-        static::assertStringMatchesFormat('Category "%s" not found.', $content['errors'][0]['detail']);
+        static::assertEquals('FRAMEWORK__RESOURCE_NOT_FOUND', $content['errors'][0]['code']);
+        static::assertEquals(404, $content['errors'][0]['status']);
+        static::assertStringMatchesFormat('The category resource with the following primary key was not found: id(%s)', $content['errors'][0]['detail']);
     }
 }

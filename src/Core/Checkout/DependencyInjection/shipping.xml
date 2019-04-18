@@ -9,6 +9,10 @@
             <tag name="shopware.entity.definition" entity="shipping_method"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Shipping\SalesChannel\SalesChannelShippingMethodDefinition">
+            <tag name="shopware.sales_channel.entity.definition" entity="shipping_method"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTag\ShippingMethodTagDefinition">
             <tag name="shopware.entity.definition" entity="shipping_method_tag"/>
         </service>

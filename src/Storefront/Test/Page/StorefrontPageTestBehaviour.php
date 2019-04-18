@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductRepository;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
@@ -22,6 +21,7 @@ use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -118,8 +118,8 @@ trait StorefrontPageTestBehaviour
             'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
         ]], $context->getContext());
 
-        /** @var SalesChannelProductRepository $storefrontProductRepository */
-        $storefrontProductRepository = $this->getContainer()->get(SalesChannelProductRepository::class);
+        /** @var SalesChannelRepository $storefrontProductRepository */
+        $storefrontProductRepository = $this->getContainer()->get('sales_channel.product.repository');
         $searchResult = $storefrontProductRepository->search(new Criteria([$id]), $context);
 
         return $searchResult->first();

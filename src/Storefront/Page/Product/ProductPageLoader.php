@@ -9,10 +9,10 @@ use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
@@ -22,7 +22,7 @@ use Symfony\Component\HttpFoundation\Request;
 class ProductPageLoader implements PageLoaderInterface
 {
     /**
-     * @var SalesChannelProductRepository
+     * @var SalesChannelRepository
      */
     private $productRepository;
 
@@ -48,7 +48,7 @@ class ProductPageLoader implements PageLoaderInterface
 
     public function __construct(
         PageLoaderInterface $pageWithHeaderLoader,
-        SalesChannelProductRepository $productRepository,
+        SalesChannelRepository $productRepository,
         EventDispatcherInterface $eventDispatcher,
         SalesChannelCmsPageRepository $cmsPageRepository,
         SlotDataResolver $slotDataResolver
@@ -121,7 +121,7 @@ class ProductPageLoader implements PageLoaderInterface
         $criteria->addFilter(new EqualsFilter('id', $productId));
 
         /** @var SalesChannelProductEntity|null $product */
-        $product = $this->productRepository->read($criteria, $context)->get($productId);
+        $product = $this->productRepository->search($criteria, $context)->get($productId);
 
         if (!$product) {
             throw new ProductNotFoundException($productId);

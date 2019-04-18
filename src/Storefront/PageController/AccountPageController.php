@@ -219,6 +219,10 @@ class AccountPageController extends StorefrontController
         }
 
         try {
+            if (!$data->has('differentShippingAddress')) {
+                $data->remove('shippingAddress');
+            }
+
             $this->accountRegistrationService->register($data, $data->has('guest'), $context);
         } catch (ConstraintViolationException $formViolations) {
             return $this->forward('Shopware\Storefront\PageController\AccountPageController::register', ['formViolations' => $formViolations]);

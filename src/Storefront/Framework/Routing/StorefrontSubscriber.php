@@ -114,6 +114,9 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
+        $session->migrate();
+        $session->set('sessionId', $session->getId());
+
         $token = $event->getContextToken();
         $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
         $master->headers->set(

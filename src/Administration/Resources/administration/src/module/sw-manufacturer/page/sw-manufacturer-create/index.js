@@ -13,12 +13,6 @@ Component.extend('sw-manufacturer-create', 'sw-manufacturer-detail', {
         next();
     },
 
-    metaInfo() {
-        return {
-            title: this.$createTitle()
-        };
-    },
-
     computed: {
         languageStore() {
             return State.getStore('language');

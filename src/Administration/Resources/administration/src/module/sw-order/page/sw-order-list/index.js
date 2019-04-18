@@ -18,6 +18,12 @@ Component.register('sw-order-list', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    },
+
     computed: {
         orderStore() {
             return State.getStore('order');

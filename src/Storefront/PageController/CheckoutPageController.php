@@ -4,6 +4,7 @@ namespace Shopware\Storefront\PageController;
 
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AddressService;
@@ -274,5 +275,23 @@ class CheckoutPageController extends StorefrontController
         $route = $request->get('redirectTo', 'frontend.checkout.cart.page');
 
         return $this->redirectToRoute($route);
+    }
+
+    /**
+     * @Route("/checkout/line-item/delete/{id}", name="frontend.checkout.line-item.delete", defaults={"XmlHttpRequest": true}, methods={"POST"})
+     */
+    public function removeLineItem(string $id, Request $request, SalesChannelContext $context): Response
+    {
+        $token = $request->request->getAlnum('token', $context->getToken());
+
+        $cart = $this->cartService->getCart($token, $context);
+
+        if (!$cart->has($id)) {
+            throw new LineItemNotFoundException($id);
+        }
+
+        $this->cartService->remove($cart, $id, $context);
+
+        return $this->createActionResponse($request);
     }
 }

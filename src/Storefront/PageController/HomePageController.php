@@ -23,7 +23,7 @@ class HomePageController extends StorefrontController
     }
 
     /**
-     * @Route("/", name="frontend.home.page", options={"seo"="false"}, methods={"GET"})
+     * @Route("/", name="frontend.home.page", methods={"GET"})
      */
     public function index(Request $request, SalesChannelContext $context): ?Response
     {

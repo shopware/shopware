@@ -19,19 +19,21 @@
                         columns="minmax(min-content, 1fr) minmax(min-content, 1fr) 1fr"
                         gap="0 15px">
                         {% block sw_order_detail_base_status_change_transaction %}
-                            <sw-order-state-select :transitionOptions="transactionOptions"
-                                roundedStyle
-                                @state-selected="onQuickTransactionStatusChange"
-                                :placeholder="transactionOptionPlaceholder"
-                                :backgroundStyle="transactionOptionsBackground">
+                            <sw-order-state-select class="sw-order-state-select__payment-state"
+                                    :transitionOptions="transactionOptions"
+                                    roundedStyle
+                                    @state-selected="onQuickTransactionStatusChange"
+                                    :placeholder="transactionOptionPlaceholder"
+                                    :backgroundStyle="transactionOptionsBackground">
                             </sw-order-state-select>
                         {% endblock %}
                         {% block sw_order_detail_base_status_change_order %}
-                            <sw-order-state-select :transitionOptions="orderOptions"
-                                roundedStyle
-                                @state-selected="onQuickOrderStatusChange"
-                                :placeholder="orderOptionPlaceholder"
-                                :backgroundStyle="orderOptionsBackground">
+                            <sw-order-state-select class="sw-order-state-select__order-state"
+                                    :transitionOptions="orderOptions"
+                                    roundedStyle
+                                    @state-selected="onQuickOrderStatusChange"
+                                    :placeholder="orderOptionPlaceholder"
+                                    :backgroundStyle="orderOptionsBackground">
                             </sw-order-state-select>
                         {% endblock %}
                     </sw-container>

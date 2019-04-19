@@ -17,44 +17,22 @@
 
         {% block sw_media_base_item_preview %}
             <div class="sw-media-base-item__preview-container">
-                <slot name="sw-media-item-preview">
+                <slot name="preview" v-bind="{ item }">
                     {% block sw_media_base_item_slot_media_preview %}{% endblock %}
                 </slot>
             </div>
         {% endblock %}
 
         {% block sw_media_base_item_name_container %}
-            <div class="sw-media-base-item__name-container">
-                <slot name="sw-media-item-name">
-                    {% block sw_media_base_item_name %}
-                        <sw-field v-if="isInlineEdit"
-                                  ref="inputItemName"
-                                  class="sw-media-base-item__name-field"
-                                  :value="editValue"
-                                  name="media-item-name"
-                                  v-autofocus
-                                  @click.stop
-                                  @blur="onBlurInlineEdit"
-                                  @keyup.enter="onDoRenaming"
-                                  @keyup.esc="onCancelRenaming">
-                        </sw-field>
-                        <div v-else
-                             class="sw-media-base-item__name"
-                             ref="itemName"
-                             :title="displayName"
-                             :data-last-content="lastContent"
-                             @dblclick="startInlineEdit">
-                            {{ displayName }}
-                        </div>
-                    {% endblock %}
-                </slot>
+            <div class="sw-media-base-item__name-container" :class="mediaNameContainerClasses">
+                <slot name="name" v-bind="{ item, isInlineEdit, startInlineEdit, endInlineEdit }"></slot>
             </div>
         {% endblock %}
 
         {% block sw_media_base_item_metadata_container %}
             <div v-if="isList" class="sw-media-base-item__metadata-container">
                 {% block sw_media_base_item_metadata %}
-                    <slot name="media-item-metadata">
+                    <slot name="metadata" v-bind="{ item }">
                         {% block sw_media_base_item_slot_media_item_metadata %}{% endblock %}
                     </slot>
                 {% endblock %}
@@ -64,7 +42,7 @@
         {% block sw_media_base_item_context_menu %}
             <sw-context-button v-if="showContextMenuButton && !isLoading" ref="swContextButton">
                 {% block sw_media_base_item_context_items%}
-                    <slot name="media-item-context-menu">
+                    <slot name="context-menu" v-bind="{ item, startInlineEdit }">
                         {% block sw_media_base_item_slot_media_item_context_menu %}{% endblock %}
                     </slot>
                 {% endblock %}
@@ -91,5 +69,7 @@
                 size="16px">
             </sw-icon>
         {% endblock %}
+
+        <slot name="modal-windows" v-bind="{ item }"></slot>
     </div>
 {% endblock %}

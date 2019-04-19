@@ -56,7 +56,7 @@ module.exports = {
             .waitForElementVisible(page.elements.alertClose)
             .click(page.elements.alertClose);
 
-        browser.expect.element(`${page.elements.mediaItem}`).to.have.text.that.contains('sw-login-background_(1).png');
+        browser.expect.element(`${page.elements.mediaItem}${page.elements.baseItem}`).to.have.text.that.contains('sw-login-background_(1).png');
     },
     'trigger duplicate media modal one last time by uploading the existing media item': (browser) => {
         const page = mediaPage(browser);

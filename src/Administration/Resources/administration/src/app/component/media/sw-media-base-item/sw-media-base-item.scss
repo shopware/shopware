@@ -122,11 +122,7 @@ $sw-media-base-item-preview-background:      $color-white;
             @include truncate();
             border: 1px solid transparent;
             line-height: 27px;
-
-            &:before {
-                content: attr(data-last-content);
-                float: right;
-            }
+            direction: rtl;
         }
 
         .sw-media-base-item__name-field {
@@ -137,6 +133,10 @@ $sw-media-base-item-preview-background:      $color-white;
                 border: 1px solid $sw-media-base-item-color-input-border;
                 padding: 0 16px;
             }
+        }
+
+        &.is--truncate-right .sw-media-base-item__name {
+            direction: ltr;
         }
     }
 

@@ -1,3 +1,8 @@
+// Register flags and fixtures globally so we have to import them one time
+require('./../../common/helper/cliOutputHelper');
+require('./../../common/flags.js');
+require('../../common/service/administration/fixture.service');
+require('../../common/service/saleschannel/fixture.service');
 require('./../../common/helper/cliOutputHelper');
 require('./../../common/helper/utils');
 
@@ -8,7 +13,10 @@ module.exports = {
     asyncHookTimeout: 30000,
 
     beforeEach: (browser, done) => {
-        browser.url(browser.launch_url);
+        browser
+            .url(browser.launch_url)
+            .click('#cookieButton .btn-primary');
+
         done();
     },
     afterEach(client, done) {

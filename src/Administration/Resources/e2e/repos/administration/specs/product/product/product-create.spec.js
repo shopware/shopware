@@ -16,7 +16,7 @@ module.exports = {
                 targetPath: '#/sw/product/index',
                 mainMenuId: 'sw-product'
             })
-            .expect.element(page.elements.smartBarAmount).to.have.text.that.equals('(1)');
+            .expect.element(page.elements.smartBarAmount).to.have.text.that.equals('(0)');
     },
     'go to create page, fill and save the new product': (browser) => {
         const page = productPage(browser);

@@ -3,7 +3,7 @@
   "firstName": "Pep",
   "lastName": "Eroni",
   "email": "test@example.com",
-  "guest": true,
+  "password": "shopware",
   "addresses": [
     {}
   ]

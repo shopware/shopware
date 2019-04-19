@@ -86,7 +86,7 @@ export default {
         },
 
         locale() {
-            return this.$store.state.adminLocale.currentLocale;
+            return this.$store.getters.adminLocaleLanguage;
         },
 
         currentFlatpickrConfig() {
@@ -146,8 +146,8 @@ export default {
 
         locale: {
             immediate: true,
-            handler(newLocale) {
-                this.defaultConfig.locale = this.locale ? newLocale.split('-')[0] : 'DE';
+            handler() {
+                this.defaultConfig.locale = this.locale;
                 this.updateFlatpickrInstance(this.config);
             }
         },

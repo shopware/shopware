@@ -4,15 +4,16 @@ import { debug } from 'src/core/service/util.service';
 export default {
     state: {
         locales: [],
-        currentLocale: 'de-DE'
+        currentLocale: Application.getContainer('factory').locale.getLastKnownLocale(),
+        fallbackLocale: null
     },
 
     getters: {
-        currentLanguage(state) {
+        adminLocaleLanguage(state) {
             return state.currentLocale.split('-')[0];
         },
 
-        currentRegion(state) {
+        adminLocaleRegion(state) {
             return state.currentLocale.split('-')[1];
         }
     },
@@ -36,7 +37,16 @@ export default {
             }
 
             state.currentLocale = locale;
-            Application.getContainer('factory').locale.setLocale(state.currentLocale);
+            Application.getContainer('factory').locale.storeCurrentLocale(state.currentLocale);
+        },
+
+        setAdminFallbackLocale(state, locale) {
+            if (!state.locales.find((l) => l === locale)) {
+                debug.warn('AdminLocaleStore', `Locale ${locale} not registered at store`);
+                return;
+            }
+
+            state.fallbackLocale = locale;
         }
     }
 };

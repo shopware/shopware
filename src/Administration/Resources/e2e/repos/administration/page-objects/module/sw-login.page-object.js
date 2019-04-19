@@ -8,8 +8,8 @@ class LoginPageObject extends GeneralPageObject {
             ...this.elements,
             ...{
                 loginForm: '.sw-login__content',
-                usernameField: 'input[name=sw-field--authStore-username]',
-                passwordField: 'input[name=sw-field--authStore-password]',
+                usernameField: 'input[name=sw-field--username]',
+                passwordField: 'input[name=sw-field--password]',
                 submitButton: '.sw-login__login-action'
             }
         };
@@ -49,8 +49,6 @@ class LoginPageObject extends GeneralPageObject {
 
     verifyFailedLogin(notificationMessage) {
         this.browser
-            .waitForElementVisible('.sw-field--password.has--error')
-            .waitForElementVisible('.sw-field--text.has--error')
             .checkNotification(notificationMessage);
     }
 }

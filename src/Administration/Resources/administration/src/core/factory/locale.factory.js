@@ -12,7 +12,7 @@ export default {
     getBrowserLanguage,
     getBrowserLanguages,
     getLastKnownLocale,
-    setLocale
+    storeCurrentLocale
 };
 
 /**
@@ -209,7 +209,7 @@ function getBrowserLanguages() {
  * @param {AxiosInstance|null} [httpClient=null]
  * @returns {String}
  */
-function setLocale(localeName) {
+function storeCurrentLocale(localeName) {
     // Necessary for testing purpose
     if (typeof document === 'object') {
         const shortLocaleName = localeName.split('-')[0];

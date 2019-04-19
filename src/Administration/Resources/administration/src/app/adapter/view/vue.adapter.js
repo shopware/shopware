@@ -243,11 +243,6 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
                 return;
             }
 
-            if (key === 'cmsPageState') {
-                console.log(value);
-                return;
-            }
-
             storeModules[key] = value;
         });
 
@@ -271,16 +266,22 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
         });
 
         store.commit('setAdminLocale', localeFactory.getLastKnownLocale());
+        store.commit('setAdminFallbackLocale', 'en-GB');
 
         const i18n = new VueI18n({
             locale: store.state.adminLocale.currentLocale,
-            fallbackLocale: 'en-GB',
+            fallbackLocale: store.state.adminLocale.fallbackLocale,
             messages
         });
 
         store.subscribe(({ type }, state) => {
             if (type === 'setAdminLocale') {
                 i18n.locale = state.adminLocale.currentLocale;
+                return;
+            }
+
+            if (type === 'setAdminFallbackLocale') {
+                i18n.fallbackLocale = state.adminLocale.fallbackLocale;
             }
         });
 

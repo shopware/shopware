@@ -26,8 +26,11 @@ module.exports = {
                 mainMenuId: 'sw-product'
             })
             .waitForElementVisible(page.elements.productListName)
-            .click(`${page.elements.productListName} a`)
-            .waitForElementVisible('.sw-product-detail-page__tabs')
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-product-list__edit-action',
+                scope: `${page.elements.dataGridRow}--0`
+            })
+            .waitForElementNotPresent(`.product-basic-form ${page.elements.loader}`)
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(fixture.name);
     },
     'upload media item': (browser) => {

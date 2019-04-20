@@ -56,7 +56,6 @@ export default class AdminFixtureService {
         });
     }
 
-
     search(type, filter) {
         return this.apiClient.post(`/v1/search/${type}?response=true`, {
             filter: [{

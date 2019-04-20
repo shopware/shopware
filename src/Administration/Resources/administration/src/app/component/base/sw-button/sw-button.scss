@@ -37,12 +37,17 @@ $sw-button-default-disabled-color:    $color-light-gray;
     cursor: pointer;
     user-select: none;
     margin: 0;
+    position: relative;
 
     .sw-button__content {
         display: grid;
         grid-auto-flow: column;
         align-items: center;
         grid-gap: 0 8px;
+    }
+
+    .sw-button__content.is--hidden {
+        visibility: hidden;
     }
 
     &:hover {
@@ -261,5 +266,17 @@ $sw-button-default-disabled-color:    $color-light-gray;
         .sw-button__content {
             display: inline;
         }
+    }
+
+    .sw-button__loader {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        animation:spin 2s linear infinite;
+    }
+
+    @keyframes spin {
+        from { transform: translate(-50%, -50%) rotate(0deg); }
+        to { transform: translate(-50%, -50%) rotate(360deg)}
     }
 }

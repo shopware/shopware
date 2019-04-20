@@ -16,19 +16,28 @@
                 {% endblock %}
 
                 {% block sw_product_detail_actions_save %}
-                    <sw-button variant="primary" class="sw-product-detail__save-action" :disabled="disableSaving" @click.prevent="onSave">
+                    <sw-button-process
+                        class="sw-product-detail__save-action"
+                        :isLoading="isLoading"
+                        :processSuccess="isSaveSuccessful"
+                        :disabled="disableSaving"
+                        variant="primary"
+                        @process-finish="saveFinish"
+                        @click.prevent="onSave">
                         {{ $tc('sw-product.detail.buttonSave') }}
-                    </sw-button>
+                    </sw-button-process>
                 {% endblock %}
             </template>
         {% endblock %}
 
         {% block sw_product_detail_language_switch %}
-            <sw-language-switch slot="language-switch"
-                                @on-change="onChangeLanguage"
-                                :saveChangesFunction="saveOnLanguageChange"
-                                :abortChangeFunction="abortOnLanguageChange">
-            </sw-language-switch>
+            <template slot="language-switch">
+                <sw-language-switch
+                    @on-change="onChangeLanguage"
+                    :saveChangesFunction="saveOnLanguageChange"
+                    :abortChangeFunction="abortOnLanguageChange">
+                </sw-language-switch>
+            </template>
         {% endblock %}
 
         {% block sw_product_detail_content %}

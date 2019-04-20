@@ -30,6 +30,8 @@ module.exports = {
         page.createBasicProduct('Marci Darci');
 
         browser
+            .waitForElementNotPresent(page.elements.loader)
+            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .getLocationInView('.sw-product-detail__select-category')
             .fillSwSelectComponent(
                 '.sw-product-detail__select-category',
@@ -51,7 +53,7 @@ module.exports = {
 
         browser
             .click('.sw-product-detail__save-action')
-            .checkNotification('Product "Marci Darci" has been saved successfully')
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium')
             .assert.urlContains('#/sw/product/detail');
     },
     'upload product image ': (browser) => {

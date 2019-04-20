@@ -62,6 +62,11 @@ export default {
         link: {
             type: String,
             required: false
+        },
+        isLoading: {
+            type: Boolean,
+            default: false,
+            required: false
         }
     },
 
@@ -73,6 +78,12 @@ export default {
                 'sw-button--block': this.block,
                 'sw-button--disabled': this.disabled,
                 'sw-button--square': this.square
+            };
+        },
+
+        contentVisibilityClass() {
+            return {
+                'is--hidden': this.isLoading
             };
         }
     }

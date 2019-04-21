@@ -82,7 +82,7 @@ class PluginController extends AbstractController
             throw new PluginCannotBeDeletedException('can not delete installed plugins');
         }
 
-        if ($plugin->isManagedByComposer()) {
+        if ($plugin->getManagedByComposer()) {
             throw new CanNotDeletePluginManagedByComposerException('can not delete plugins managed by composer');
         }
 

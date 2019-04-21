@@ -19,8 +19,7 @@ class RequirementsValidatorTest extends TestCase
         $path = __DIR__ . '/_fixture/SwagRequirementValidTest';
         $path = str_replace($projectDir, '', $path);
 
-        $plugin = new PluginEntity();
-        $plugin->setPath($path);
+        $plugin = $this->createPlugin($path);
 
         try {
             $this->createValidator()->validateRequirements($plugin, Context::createDefaultContext(), 'test');
@@ -36,8 +35,7 @@ class RequirementsValidatorTest extends TestCase
         $path = __DIR__ . '/_fixture/SwagRequirementInvalidTest';
         $path = str_replace($projectDir, '', $path);
 
-        $plugin = new PluginEntity();
-        $plugin->setPath($path);
+        $plugin = $this->createPlugin($path);
 
         $exception = null;
         try {
@@ -63,8 +61,7 @@ class RequirementsValidatorTest extends TestCase
         $path = __DIR__ . '/_fixture/SwagRequirementInvalidTest';
         $path = str_replace($projectDir, '', $path);
 
-        $plugin = new PluginEntity();
-        $plugin->setPath($path);
+        $plugin = $this->createPlugin($path);
 
         $exception = null;
         try {
@@ -79,7 +76,7 @@ class RequirementsValidatorTest extends TestCase
         }
 
         static::assertContains(
-            'Required plugin/package "test/not-installed ~2" is missing',
+            'Required plugin/package "test/not-installed ~2" is missing or not installed and activated',
             $messages
         );
     }
@@ -90,5 +87,14 @@ class RequirementsValidatorTest extends TestCase
             $this->getContainer()->get('plugin.repository'),
             $this->getContainer()->getParameter('kernel.project_dir')
         );
+    }
+
+    private function createPlugin($path): PluginEntity
+    {
+        $plugin = new PluginEntity();
+        $plugin->setPath($path);
+        $plugin->setManagedByComposer(false);
+
+        return $plugin;
     }
 }

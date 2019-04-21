@@ -28,7 +28,6 @@ use Shopware\Core\Framework\Plugin\Event\PluginPreDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreInstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUpdateEvent;
-use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackException;
@@ -122,7 +121,6 @@ class PluginLifecycleService
     }
 
     /**
-     * @throws PluginComposerJsonInvalidException
      * @throws RequirementStackException
      */
     public function installPlugin(PluginEntity $plugin, Context $shopwareContext): InstallContext
@@ -241,7 +239,6 @@ class PluginLifecycleService
     }
 
     /**
-     * @throws PluginComposerJsonInvalidException
      * @throws RequirementStackException
      */
     public function updatePlugin(PluginEntity $plugin, Context $shopwareContext): UpdateContext

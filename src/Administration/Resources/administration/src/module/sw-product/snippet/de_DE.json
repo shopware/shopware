@@ -144,7 +144,10 @@
       "cardTitleProperties": "Eigenschaften"
     },
     "variations": {
+      "emptyStateDescription": "Für dieses Produkt existieren noch keine Varianten.",
+      "emptyStateButton": "Varianten-Generator starten",
       "generateVariationsButton": "Varianten generieren",
+      "cancelVariationsButton": "Abbrechen",
       "configuratorCardTitle": "Varianten generieren",
       "generatedVariationCardTitle": "Generierte Varianten",
       "progressTypeOf": "von",
@@ -159,7 +162,7 @@
       "generationWarningButtonContinue": "Trotzdem generieren",
       "generatedFilterList": "Liste filtern",
       "generatedListColumnVariation": "Variante",
-      "generatedListColumnPrice": "Preis",
+      "generatedListColumnPrice": "Preis (Brutto / Netto)",
       "generatedListColumnProductNumber": "Produktnummer",
       "generatedListColumnStock": "Lagerbestand",
       "generatedListContextMenuEdit": "Bearbeiten",
@@ -172,7 +175,41 @@
       "generatedListMessageSaveSuccess": "Die Variation wurde gespeichert.",
       "generatedListMessageSaveError": "Die Variation konnte nicht gespeichert werden.",
       "generatedListTitleDeleteError": "Gelöscht",
-      "generatedListMessageDeleteSuccess": "Die Variation wurde gelöscht."
+      "generatedListMessageDeleteSuccess": "Die Variation wurde gelöscht.",
+      "overview": {
+        "filterReset": "Zurücksetzen",
+        "filter": "Filtern",
+        "generateVariants": "Varianten generieren",
+        "storefrontDelivery": "Storefront Darstellung"
+      },
+      "configuratorModal": {
+        "selectOptions": "Optionen auswählen",
+        "selectOptionsExplanation": "Beginne mit der Auswahl der Optionen, aus denen die Variationen generiert werden sollen.",
+        "priceSurcharges": "Preis Auf-/Abschläge",
+        "resetSurcharges": "Auf- /Abschläge löschen",
+        "defineRestrictions": "Ausschlüsse definieren",
+        "priceOptions": "Optionen",
+        "restrictedCombinations": "Ausgeschlossene Kombinationen",
+        "searchRestrictions": "Suche nach Kombinationen",
+        "addNewRestriction": "Neuen Ausschluss hinzufügen",
+        "editRestriction": "Ausschluss bearbeiten",
+        "deleteRestriction": "Ausschluss löschen",
+        "singleRestrictionSeperation": "Und",
+        "deleteCombination": "Kombination entfernen",
+        "isOneFrom": "ist eine von",
+        "cancel": "Abbrechen",
+        "save": "Speichern"
+      },
+      "deliveryModal": {
+        "modalHeadline": "Varianten Ausspielung",
+        "order": "Reihenfolge",
+        "orderExplanation": "Hier kannst du die Reihenfolge der Varianteneigenschaften und Optionen im Shop anpassen.",
+        "media": "Medien",
+        "mediaExplanation": "Hier kannst du für die Eigenschaftsauswahl im Shop Medien hinterlegen.",
+        "mediaOptions": "Optionen",
+        "cancel": "Abbrechen",
+        "save": "Speichern"
+      }
     }
   }
 }

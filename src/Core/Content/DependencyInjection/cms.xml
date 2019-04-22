@@ -32,7 +32,7 @@
         <service id="Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver" public="true">
             <argument type="tagged" tag="shopware.cms.data_resolver"/>
             <argument type="collection">
-                <argument type="service" key="product" id="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductRepository" />
+                <argument type="service" key="product" id="sales_channel.product.repository" />
             </argument>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
         </service>

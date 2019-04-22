@@ -1,0 +1,51 @@
+@import "~scss/variables";
+
+$sw-product-variants-configurator-selection-overlay: rgba(255, 255, 255, 0.8);
+$sw-product-variants-configurator-selection-text-color: $color-gutenberg;
+$sw-product-variants-configurator-selection-search-background: $color-light-gray;
+
+.sw-property-search__search-field.sw-product-variants-configurator-selection-search__search-field {
+    padding: 30px;
+    border-bottom: 1px solid #D8DDE6;
+    background-color: $sw-product-variants-configurator-selection-search-background;
+
+    .sw-simple-search-field {
+        margin: 0;
+    }
+
+    .sw-icon.sw-simple-search-field__search-icon.icon--small-search.sw-icon--small {
+        left: 45px;
+    }
+}
+
+.generate-variant-progress-bar__wrapper {
+    z-index: 1;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: $sw-product-variants-configurator-selection-overlay;
+    transform-origin: top right;
+
+    .generate-variant-progress-bar {
+        max-width: 300px;
+    }
+
+    .generate-variant-progress-bar__description {
+        color: $sw-product-variants-configurator-selection-text-color;
+        margin-top: 20px;
+    }
+}
+
+.generate-variant-progress-bar--transition-enter-active, .generate-variant-progress-bar--transition-leave-active {
+    transition: opacity .3s ease-in-out;
+}
+.generate-variant-progress-bar--transition-enter, .generate-variant-progress-bar--transition-leave-to {
+    opacity: 0;
+}

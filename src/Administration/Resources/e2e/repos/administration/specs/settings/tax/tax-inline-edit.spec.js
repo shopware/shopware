@@ -10,10 +10,11 @@ module.exports = {
     'open tax module': (browser) => {
         browser
             .openMainMenuEntry({
-                targetPath: '#/sw/settings/tax/index',
-                mainMenuId: 'sw-settings',
-                subMenuId: 'sw-settings-tax'
-            });
+                targetPath: '#/sw/settings/index',
+                mainMenuId: 'sw-settings'
+            })
+            .click('#sw-settings-tax')
+            .assert.urlContains('#/sw/settings/tax/index');
     },
     'inline edit tax': (browser) => {
         const page = settingsPage(browser);

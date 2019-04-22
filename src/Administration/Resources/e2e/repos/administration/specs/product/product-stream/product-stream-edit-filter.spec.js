@@ -28,7 +28,10 @@ module.exports = {
 
         browser
             .waitForElementPresent('.sw-sidebar__navigation .sw-sidebar-navigation-item')
-            .clickContextMenuItem('.sw_product_stream_list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw_product_stream_list__edit-action',
+                scope: `${page.elements.gridRow}--0`
+            })
             .waitForElementNotPresent(page.elements.loader)
             .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('1st product stream');
 
@@ -50,11 +53,11 @@ module.exports = {
     'create and-filter for products before active-filter': (browser) => {
         const page = productStreamPage(browser);
 
-        browser.clickContextMenuItem(
-            '.sw-condition-base__create-before-action',
-            page.elements.contextMenuButton,
-            `${page.elements.conditionAndContainer}--0`
-        );
+        browser
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-condition-base__create-before-action',
+                scope: `${page.elements.conditionAndContainer}--0`
+            });
 
         page.createBasicSelectCondition({
             type: 'Product',
@@ -70,11 +73,10 @@ module.exports = {
         const page = productStreamPage(browser);
 
         browser
-            .clickContextMenuItem(
-                '.sw-condition-base__create-after-action',
-                page.elements.contextMenuButton,
-                `${page.elements.conditionAndContainer}--1`
-            );
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-condition-base__create-after-action',
+                scope: `${page.elements.conditionAndContainer}--1`
+            });
 
         page.createCombinedInputSelectCondition({
             type: 'Price',
@@ -140,11 +142,10 @@ module.exports = {
             .getLocationInView(
                 '.sw-product-stream-detail__condition_container'
             )
-            .clickContextMenuItem(
-                '.sw-context-menu-item--danger',
-                page.elements.contextMenuButton,
-                `${page.elements.conditionOrContainer}--1 ${page.elements.conditionAndContainer}--1 ${page.elements.conditionOrContainer}--1`
-            )
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-context-menu-item--danger',
+                scope: `${page.elements.conditionOrContainer}--1 ${page.elements.conditionAndContainer}--1 ${page.elements.conditionOrContainer}--1`
+            })
             .waitForElementNotPresent(`${page.elements.conditionOrContainer}--1 ${page.elements.conditionOrContainer}--1 ${page.elements.baseCondition}`);
     },
     'delete the first subcondition': (browser) => {

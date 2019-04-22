@@ -9,7 +9,8 @@
         }
     }
 
-    .sw-cms-slot__overlay {
+    .sw-cms-slot__overlay,
+    .sw-cms-slot__preview-overlay {
         display: none;
         position: absolute;
         top: 0;
@@ -18,28 +19,42 @@
         right: 0;
         margin: auto;
         border: 1px solid $color-shopware-blue;
+        box-shadow: 0 0 4px 0 rgba($color-shopware-blue, 0.3);
         pointer-events: none;
         z-index: 20;
     }
 
+    .sw-cms-slot__preview-overlay {
+        display: none;
+        border: 1px dashed rgba($color-shopware-blue, 0.4);
+        box-shadow: none;
+    }
+
     .sw-cms-slot__actions {
         display: grid;
-        grid-template-columns: auto auto;
-        grid-column-gap: 5px;
+        grid-template-columns: 1fr 1fr;
         justify-content: right;
         justify-items: right;
+        align-content: center;
+        align-items: center;
         pointer-events: auto;
         position: absolute;
-        top: 10px;
-        right: 10px;
+        top: -1px;
+        right: -1px;
+        background: $color-white;
+        border: 1px solid $color-shopware-blue;
+        border-bottom-left-radius: 4px;
+    }
 
-        .sw-button {
-            background-color: $color-white;
+    .sw-cms-slot__settings-action,
+    .sw-cms-slot__element-action {
+        padding: 10px;
+        line-height: 16px;
+        color: $color-gutenberg;
+        cursor: pointer;
 
-            .sw-icon {
-                position: relative;
-                top: -1px;
-            }
+        &:hover {
+            color: $color-shopware-blue;
         }
     }
 }
@@ -59,13 +74,13 @@
         padding: 15px;
         background: $color-white;
         border: 1px solid $color-steam-cloud;
-        box-shadow: 0 0 5px 0 $color-steam-cloud;
+        box-shadow: 0 0 4px 0 rgba($color-steam-cloud, 0.8);
         position: relative;
         cursor: pointer;
 
         &:hover {
             border-color: $color-shopware-blue;
-            box-shadow: 0 0 5px 0 $color-shopware-blue;
+            box-shadow: 0 0 4px 0 rgba($color-shopware-blue, 0.4);
 
             .element-selection__overlay {
                 display: grid;

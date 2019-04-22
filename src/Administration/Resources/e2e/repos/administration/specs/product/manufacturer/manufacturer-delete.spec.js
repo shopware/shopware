@@ -28,10 +28,10 @@ module.exports = {
 
         browser
             .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
-            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
-            .click(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
-            .waitForElementVisible(page.elements.contextMenu)
-            .click(`${page.elements.contextMenu} .sw-context-menu-item__text`)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: `${page.elements.contextMenu} .sw-context-menu-item__text`,
+                scope: `${page.elements.gridRow}--0`
+            })
             .waitForElementNotPresent(page.elements.loader)
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(global.AdminFixtureService.basicFixture.name).after(500);
     },

@@ -36,6 +36,12 @@ export default {
         };
     },
 
+    watch: {
+        columns() {
+            this.createdComponent();
+        }
+    },
+
     created() {
         this.createdComponent();
     },

@@ -297,7 +297,10 @@ SQL;
 
         $activeNonDestructiveMigrations = array_intersect($activeMigrations, $nonDestructiveMigrations);
 
-        $connectionVariables = ['SET @@group_concat_max_len = CAST(IF(@@group_concat_max_len > 320000, @@group_concat_max_len, 320000) AS UNSIGNED)'];
+        $connectionVariables = [
+            'SET @@group_concat_max_len = CAST(IF(@@group_concat_max_len > 320000, @@group_concat_max_len, 320000) AS UNSIGNED)',
+            "SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));",
+        ];
         foreach ($activeNonDestructiveMigrations as $migration) {
             $connectionVariables[] = sprintf(
                 'SET %s = TRUE',

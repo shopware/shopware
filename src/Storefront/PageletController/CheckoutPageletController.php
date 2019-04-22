@@ -5,7 +5,6 @@ namespace Shopware\Storefront\PageletController;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
-use Shopware\Storefront\Framework\Controller\XmlHttpRequestableInterface;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Pagelet\Checkout\AjaxCart\CheckoutAjaxCartPageletLoader;
 use Shopware\Storefront\Pagelet\Checkout\Info\CheckoutInfoPageletLoader;
@@ -13,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class CheckoutPageletController extends StorefrontController implements XmlHttpRequestableInterface
+class CheckoutPageletController extends StorefrontController
 {
     /**
      * @var CheckoutInfoPageletLoader|PageLoaderInterface
@@ -32,7 +31,7 @@ class CheckoutPageletController extends StorefrontController implements XmlHttpR
     }
 
     /**
-     * @Route("/widgets/checkout/info", name="widgets.checkout.info", methods={"GET"})
+     * @Route("/widgets/checkout/info", name="widgets.checkout.info", methods={"GET"}, defaults={"XmlHttpRequest"=true})
      *
      * @throws CartTokenNotFoundException
      */
@@ -44,7 +43,7 @@ class CheckoutPageletController extends StorefrontController implements XmlHttpR
     }
 
     /**
-     * @Route("/checkout/ajax-cart", name="frontend.cart.detail", options={"seo"="false"}, methods={"GET"})
+     * @Route("/checkout/ajax-cart", name="frontend.cart.detail", options={"seo"="false"}, methods={"GET"}, defaults={"XmlHttpRequest"=true})
      *
      * @throws CartTokenNotFoundException
      */

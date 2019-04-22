@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
-use Shopware\Storefront\Framework\Controller\XmlHttpRequestableInterface;
 use Shopware\Storefront\PageController\ErrorPageController;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -114,6 +113,9 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
+        $session->migrate();
+        $session->set('sessionId', $session->getId());
+
         $token = $event->getContextToken();
         $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
         $master->headers->set(
@@ -167,7 +169,9 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if ($controller[0] instanceof XmlHttpRequestableInterface) {
+        $isAllowed = $event->getRequest()->attributes->getBoolean('XmlHttpRequest', false);
+
+        if ($isAllowed) {
             return;
         }
 

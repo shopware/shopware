@@ -7,7 +7,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactoryInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlEntity;
 use Symfony\Component\Routing\RouterInterface;
 use Twig\Error\Error;
@@ -25,7 +25,7 @@ class ProductDetailPageSeoUrlGenerator extends SeoUrlGenerator
 
     public function __construct(
         EntityRepositoryInterface $salesChannelRepository,
-        SalesChannelContextFactoryInterface $salesChannelContextFactory,
+        SalesChannelContextFactory $salesChannelContextFactory,
         Slugify $slugify,
         RouterInterface $router,
         string $routeName,

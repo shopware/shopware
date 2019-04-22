@@ -3,7 +3,7 @@
 namespace Shopware\Core\Migration;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\NewsletterReceiver\Service\NewsletterSubscriptionService;
+use Shopware\Core\Content\NewsletterReceiver\SalesChannel\NewsletterSubscriptionServiceInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -28,7 +28,7 @@ class Migration1554204498NewsletterMailTemplate extends MigrationStep
             [
                 'id' => $registerMailId,
                 'sender_mail' => 'info@shopware.com',
-                'mail_type' => NewsletterSubscriptionService::MAIL_TYPE_OPT_IN,
+                'mail_type' => NewsletterSubscriptionServiceInterface::MAIL_TYPE_OPT_IN,
                 'system_default' => true,
                 'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
             ]
@@ -65,7 +65,7 @@ class Migration1554204498NewsletterMailTemplate extends MigrationStep
             [
                 'id' => $confirmMailId,
                 'sender_mail' => 'info@shopware.com',
-                'mail_type' => NewsletterSubscriptionService::MAIL_TYPE_REGISTER,
+                'mail_type' => NewsletterSubscriptionServiceInterface::MAIL_TYPE_REGISTER,
                 'system_default' => true,
                 'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
             ]

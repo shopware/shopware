@@ -57,7 +57,10 @@ module.exports = {
         const page = shippingMethodPage(browser);
 
         browser
-            .clickContextMenuItem('.sw-context-menu-item--danger', `${page.elements.gridRow}--1 ${page.elements.contextMenuButton}`)
+            .clickContextMenuItem('.sw-context-menu-item--danger', )
+            .clickContextMenuItem('.sw-context-menu-item--danger', {
+                menuActionSelector: `${page.elements.gridRow}--1 ${page.elements.contextMenuButton}`
+            })
             .assert.elementNotPresent(`${page.elements.gridRow}--1`)
             .click('.sw-settings-shipping-detail__delete-action')
             .assert.elementNotPresent('.context-price');

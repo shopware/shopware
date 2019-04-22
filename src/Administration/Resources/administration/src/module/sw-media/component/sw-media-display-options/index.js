@@ -63,14 +63,14 @@ Component.register('sw-media-display-options', {
     methods: {
         onSortingChanged(value) {
             const parts = value.split(':');
-            this.$emit('sw-media-sorting-changed', {
+            this.$emit('media-sorting-change', {
                 sortBy: parts[0],
                 sortDirection: parts[1]
             });
         },
 
         onPresentationChanged(value) {
-            this.$emit('sw-media-presentation-changed', value);
+            this.$emit('media-presentation-change', value);
         }
     }
 });

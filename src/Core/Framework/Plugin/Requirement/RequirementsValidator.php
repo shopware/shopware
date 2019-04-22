@@ -2,16 +2,16 @@
 
 namespace Shopware\Core\Framework\Plugin\Requirement;
 
-use Composer\IO\NullIO;
+use Composer\Composer;
 use Composer\Package\Link;
-use Composer\Package\PackageInterface;
 use Composer\Semver\Constraint\Constraint;
+use Composer\Semver\VersionParser;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Plugin\Composer\Factory;
-use Shopware\Core\Framework\Plugin\Composer\PackageProvider;
-use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\MissingRequirementException;
@@ -30,6 +30,11 @@ class RequirementsValidator
      */
     private $projectDir;
 
+    /**
+     * @var Composer
+     */
+    private $pluginComposer;
+
     public function __construct(EntityRepositoryInterface $pluginRepo, string $projectDir)
     {
         $this->pluginRepo = $pluginRepo;
@@ -37,7 +42,6 @@ class RequirementsValidator
     }
 
     /**
-     * @throws PluginComposerJsonInvalidException
      * @throws RequirementStackException
      */
     public function validateRequirements(PluginEntity $plugin, Context $context, string $method): void
@@ -48,6 +52,7 @@ class RequirementsValidator
 
         $pluginRequirements = $this->validateComposerPackages($pluginRequirements, $exceptionStack);
         $pluginRequirements = $this->validateInstalledPlugins($context, $pluginRequirements, $exceptionStack);
+        $pluginRequirements = $this->validateShippedDependencies($plugin, $pluginRequirements, $exceptionStack);
 
         $this->addRemainingRequirementsAsException($pluginRequirements, $exceptionStack);
 
@@ -55,18 +60,13 @@ class RequirementsValidator
     }
 
     /**
-     * @throws PluginComposerJsonInvalidException
-     *
      * @return Link[]
      */
     private function getPluginRequirements(PluginEntity $plugin): array
     {
-        $pluginInformation = (new PackageProvider())->getPluginInformation(
-            $this->projectDir . '/' . $plugin->getPath(),
-            new NullIO()
-        );
+        $this->pluginComposer = $this->getComposer($this->projectDir . '/' . $plugin->getPath());
 
-        return $pluginInformation->getRequires();
+        return $this->pluginComposer->getPackage()->getRequires();
     }
 
     /**
@@ -78,27 +78,42 @@ class RequirementsValidator
         array $pluginRequirements,
         RequirementExceptionStack $exceptionStack
     ): array {
-        foreach ($this->getInstalledVendorPackages() as $installedPackage) {
+        $shopwareProjectComposer = $this->getComposer($this->projectDir);
+        $pluginRequirements = $this->checkComposerDependencies(
+            $pluginRequirements,
+            $exceptionStack,
+            $shopwareProjectComposer
+        );
+
+        return $pluginRequirements;
+    }
+
+    private function getComposer(string $composerPath): Composer
+    {
+        return Factory::createComposer($composerPath);
+    }
+
+    /**
+     * @param Link[] $pluginRequirements
+     *
+     * @return Link[]
+     */
+    private function checkComposerDependencies(
+        array $pluginRequirements,
+        RequirementExceptionStack $exceptionStack,
+        Composer $pluginComposer
+    ): array {
+        $packages = $pluginComposer->getRepositoryManager()->getLocalRepository()->getPackages();
+        foreach ($packages as $package) {
             $pluginRequirements = $this->checkRequirement(
                 $pluginRequirements,
-                $installedPackage->getName(),
-                $installedPackage->getVersion(),
+                $package->getName(),
+                $package->getVersion(),
                 $exceptionStack
             );
         }
 
         return $pluginRequirements;
-    }
-
-    /**
-     * @return PackageInterface[]
-     */
-    private function getInstalledVendorPackages(): array
-    {
-        return Factory::createComposer($this->projectDir)
-            ->getRepositoryManager()
-            ->getLocalRepository()
-            ->getPackages();
     }
 
     /**
@@ -111,12 +126,13 @@ class RequirementsValidator
         array $pluginRequirements,
         RequirementExceptionStack $exceptionStack
     ): array {
+        $parser = new VersionParser();
         /** @var PluginEntity $pluginEntity */
         foreach ($this->getInstalledPlugins($context) as $pluginEntity) {
             $pluginRequirements = $this->checkRequirement(
                 $pluginRequirements,
                 $pluginEntity->getComposerName(),
-                $pluginEntity->getVersion(),
+                $parser->normalize($pluginEntity->getVersion()),
                 $exceptionStack
             );
         }
@@ -126,8 +142,11 @@ class RequirementsValidator
 
     private function getInstalledPlugins(Context $context): PluginCollection
     {
+        $criteria = new Criteria();
+        $criteria->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('installedAt', null)]));
+        $criteria->addFilter(new EqualsFilter('active', true));
         /** @var PluginCollection $plugins */
-        $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
+        $plugins = $this->pluginRepo->search($criteria, $context)->getEntities();
 
         return $plugins;
     }
@@ -173,5 +192,33 @@ class RequirementsValidator
                 new MissingRequirementException($installedPackage, $requirement->getPrettyConstraint())
             );
         }
+    }
+
+    /**
+     * @param Link[] $pluginRequirements
+     *
+     * @return Link[]
+     */
+    private function validateShippedDependencies(
+        PluginEntity $plugin,
+        array $pluginRequirements,
+        RequirementExceptionStack $exceptionStack
+    ): array {
+        if ($plugin->getManagedByComposer()) {
+            return $pluginRequirements;
+        }
+
+        $vendorDir = $this->pluginComposer->getConfig()->get('vendor-dir');
+        if (!is_dir($vendorDir)) {
+            return $pluginRequirements;
+        }
+
+        $pluginRequirements = $this->checkComposerDependencies(
+            $pluginRequirements,
+            $exceptionStack,
+            $this->pluginComposer
+        );
+
+        return $pluginRequirements;
     }
 }

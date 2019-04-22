@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting;
 
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Pricing\Price;
 
 class ProductConfiguratorSettingEntity extends Entity
 {
@@ -22,19 +22,29 @@ class ProductConfiguratorSettingEntity extends Entity
     protected $optionId;
 
     /**
-     * @var Price|null
+     * @var string
      */
-    protected $price;
+    protected $mediaId;
+
+    /**
+     * @var int
+     */
+    protected $position;
 
     /**
      * @var array|null
      */
-    protected $prices;
+    protected $price;
 
     /**
      * @var PropertyGroupOptionEntity
      */
     protected $option;
+
+    /**
+     * @var MediaDefinition|null
+     */
+    protected $media;
 
     /**
      * @var bool
@@ -101,24 +111,14 @@ class ProductConfiguratorSettingEntity extends Entity
         $this->optionId = $optionId;
     }
 
-    public function getPrice(): ?Price
+    public function getPrice(): ?array
     {
         return $this->price;
     }
 
-    public function setPrice(Price $price): void
+    public function setPrice(array $price): void
     {
         $this->price = $price;
-    }
-
-    public function getPrices(): ?array
-    {
-        return $this->prices;
-    }
-
-    public function setPrices(?array $prices): void
-    {
-        $this->prices = $prices;
     }
 
     public function getOption(): PropertyGroupOptionEntity
@@ -129,6 +129,36 @@ class ProductConfiguratorSettingEntity extends Entity
     public function setOption(PropertyGroupOptionEntity $option): void
     {
         $this->option = $option;
+    }
+
+    public function getMediaId(): string
+    {
+        return $this->mediaId;
+    }
+
+    public function setMediaId(string $mediaId): void
+    {
+        $this->mediaId = $mediaId;
+    }
+
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): void
+    {
+        $this->position = $position;
+    }
+
+    public function getMedia(): ?MediaDefinition
+    {
+        return $this->media;
+    }
+
+    public function setMedia(?MediaDefinition $media): void
+    {
+        $this->media = $media;
     }
 
     public function isSelected(): bool

@@ -10,10 +10,11 @@ module.exports = {
     'open tax module and look for the tax to be edited': (browser) => {
         browser
             .openMainMenuEntry({
-                targetPath: '#/sw/settings/tax/index',
-                mainMenuId: 'sw-settings',
-                subMenuId: 'sw-settings-tax'
+                targetPath: '#/sw/settings/index',
+                mainMenuId: 'sw-settings'
             })
+            .click('#sw-settings-tax')
+            .assert.urlContains('#/sw/settings/tax/index')
             .waitForElementVisible('.sw-settings-tax-list-grid');
     },
     'edit tax': (browser) => {
@@ -25,7 +26,10 @@ module.exports = {
             .expect.element(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`).to.have.text.that.equals(global.AdminFixtureService.basicFixture.name);
 
         browser
-            .clickContextMenuItem('.sw-tax-list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--5`)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-tax-list__edit-action',
+                scope: `${page.elements.gridRow}--5`
+            })
             .waitForElementVisible('.sw-settings-tax-detail .sw-card__content')
             .fillField('input[name=sw-field--tax-name]', 'Even higher tax rate', true)
             .click(page.elements.taxSaveAction)

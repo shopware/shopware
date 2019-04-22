@@ -2,7 +2,7 @@
     {% parent %}
 
     {% block sw_settings_attribute_item %}
-        <sw-settings-item v-if="next754" :label="$tc('sw-settings-attribute.general.mainMenuItemGeneral')" :to="{ name: 'sw.settings.attribute.index' }">
+        <sw-settings-item v-if="next754" id="sw-settings-attribute" :label="$tc('sw-settings-attribute.general.mainMenuItemGeneral')" :to="{ name: 'sw.settings.attribute.index' }">
             <template slot="icon">
                 <sw-icon name="default-basic-stack-block" size="45"></sw-icon>
             </template>

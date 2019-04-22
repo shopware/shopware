@@ -35,14 +35,15 @@
         height: 2px;
         width: 100%;
         background-color: $color-shopware-blue;
+        box-shadow: 0 0 10px 0 rgba($color-shopware-blue, 0.6);
         position: relative;
     }
 
     .sw-cms-stage-add-block__button {
         display: none;
-        width: 40px;
-        height: 40px;
-        border-radius: 20px;
+        width: 30px;
+        height: 30px;
+        border-radius: 15px;
         position: absolute;
         justify-items: center;
         justify-content: center;

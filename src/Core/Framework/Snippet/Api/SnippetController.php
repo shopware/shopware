@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Snippet\Api;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
-use Shopware\Core\Framework\Snippet\SnippetServiceInterface;
+use Shopware\Core\Framework\Snippet\SnippetService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class SnippetController extends AbstractController
 {
     /**
-     * @var SnippetServiceInterface
+     * @var SnippetService
      */
     private $snippetService;
 
@@ -24,7 +24,7 @@ class SnippetController extends AbstractController
     private $snippetFileCollection;
 
     public function __construct(
-        SnippetServiceInterface $snippetService,
+        SnippetService $snippetService,
         SnippetFileCollection $snippetFileCollection
     ) {
         $this->snippetService = $snippetService;

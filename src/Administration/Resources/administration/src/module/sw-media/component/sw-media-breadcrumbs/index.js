@@ -7,7 +7,7 @@ Component.register('sw-media-breadcrumbs', {
 
     model: {
         prop: 'currentFolderId',
-        event: 'media-folder-changed'
+        event: 'media-folder-change'
     },
 
     props: {
@@ -81,7 +81,7 @@ Component.register('sw-media-breadcrumbs', {
         },
 
         onBreadcrumbsItemClicked(id) {
-            this.$emit('media-folder-changed', id);
+            this.$emit('media-folder-change', id);
         }
     }
 });

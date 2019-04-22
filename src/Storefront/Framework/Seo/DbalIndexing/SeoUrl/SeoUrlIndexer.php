@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactoryInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -38,7 +38,7 @@ abstract class SeoUrlIndexer implements IndexerInterface
     private $seoService;
 
     /**
-     * @var SalesChannelContextFactoryInterface
+     * @var SalesChannelContextFactory
      */
     private $salesChannelContextFactory;
 
@@ -56,7 +56,7 @@ abstract class SeoUrlIndexer implements IndexerInterface
         EntityRepositoryInterface $salesChannelRepository,
         EventDispatcherInterface $eventDispatcher,
         SeoService $seoService,
-        SalesChannelContextFactoryInterface $salesChannelContextFactory,
+        SalesChannelContextFactory $salesChannelContextFactory,
         string $routeName,
         EntityRepositoryInterface $entityRepository
     ) {

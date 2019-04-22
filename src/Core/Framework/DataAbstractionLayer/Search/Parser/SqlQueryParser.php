@@ -170,13 +170,20 @@ class SqlQueryParser
         $result = new ParseResult();
 
         if ($field instanceof ListField) {
-            $result->addWhere('JSON_CONTAINS(' . $select . ', JSON_ARRAY(:' . $key . '))');
-
             if (\is_array($query->getValue())) {
-                $result->addParameter($key, $query->getValue(), Connection::PARAM_STR_ARRAY);
+                $where = [];
+
+                foreach ($query->getValue() as $value) {
+                    $key = $this->getKey();
+                    $where[] = sprintf('JSON_CONTAINS(%s, JSON_ARRAY(%s))', $select, ':' . $key);
+                    $result->addParameter($key, $value);
+                }
+                $result->addWhere(implode(' OR ', $where));
 
                 return $result;
             }
+
+            $result->addWhere('JSON_CONTAINS(' . $select . ', JSON_ARRAY(:' . $key . '))');
             $result->addParameter($key, $query->getValue());
 
             return $result;

@@ -34,7 +34,7 @@
                                                 v-show="column.visible"
                                                 @click="onClickHeaderCell($event, column)"
                                                 class="sw-data-grid__cell sw-data-grid__cell--header sw-data-grid__cell--property"
-                                                :class="getHeaderCellClasses(column)"
+                                                :class="getHeaderCellClasses(column, columnIndex)"
                                                 :style="{ width: column.width, minWidth: column.width }"
                                                 :key="`${column.property}-${columnIndex}`"
                                                 ref="column">

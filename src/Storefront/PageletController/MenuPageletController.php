@@ -4,14 +4,13 @@ namespace Shopware\Storefront\PageletController;
 
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
-use Shopware\Storefront\Framework\Controller\XmlHttpRequestableInterface;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class MenuPageletController extends StorefrontController implements XmlHttpRequestableInterface
+class MenuPageletController extends StorefrontController
 {
     /**
      * @var MenuOffcanvasPageletLoader|PageLoaderInterface
@@ -24,7 +23,7 @@ class MenuPageletController extends StorefrontController implements XmlHttpReque
     }
 
     /**
-     * @Route("/widgets/menu/offcanvas", name="widgets.menu.offcanvas", methods={"GET"})
+     * @Route("/widgets/menu/offcanvas", name="widgets.menu.offcanvas", methods={"GET"}, defaults={"XmlHttpRequest"=true})
      */
     public function menuOffcanvasAction(Request $request, SalesChannelContext $context): Response
     {

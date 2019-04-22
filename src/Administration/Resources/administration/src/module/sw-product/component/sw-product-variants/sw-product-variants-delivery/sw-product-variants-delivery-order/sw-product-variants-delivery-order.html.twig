@@ -1,0 +1,33 @@
+{% block sw_product_variants_delivery_order %}
+    <div class="sw-product-variants-delivery-order">
+        {% block sw_product_variants_delivery_order_groups %}
+            <div class="sw-product-variants-delivery-order__groups">
+                {% block sw_product_variants_delivery_order_groups_sw_tree %}
+                    <sw-tree
+                        v-if="orderObjects.length"
+                        :items="orderObjects"
+                        :searchable="false"
+                        :disableContextMenu="true"
+                        bindItemsToFolder
+                        @sw-tree-on-drag-end="orderChanged">
+
+                        <template slot="items"
+                                  slot-scope="{ treeItems, sortable, draggedItem, disableContextMenu, onChangeRoute }">
+                            <sw-tree-item
+                                    v-for="(item, index) in treeItems"
+                                    :key="item.id"
+                                    :item="item"
+                                    :disableContextMenu="true"
+                                    :sortable="true">
+                            </sw-tree-item>
+                        </template>
+                    </sw-tree>
+                {% endblock %}
+
+                {% block sw_product_variants_delivery_order_loader %}
+                    <sw-loader v-else></sw-loader>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

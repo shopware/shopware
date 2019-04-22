@@ -17,8 +17,12 @@ class RequirementStackException extends ShopwareHttpException
         $this->requirements = $requirements;
 
         parent::__construct(
-            'Could not {{ method }} plugin, got {{ failureCount }} failure(s).',
-            ['method' => $method, 'failureCount' => \count($requirements)]
+            'Could not {{ method }} plugin, got {{ failureCount }} failure(s). {{ errors }}',
+            [
+                'method' => $method,
+                'failureCount' => \count($requirements),
+                'errors' => "\n" . print_r($this->toArray(), true),
+            ]
         );
     }
 

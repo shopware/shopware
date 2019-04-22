@@ -179,5 +179,10 @@ abstract class EntityDefinition
                 || static::getFields()->filterInstance(TreeLevelField::class)->count() > 0);
     }
 
+    public static function getSalesChannelDecorationDefinition(): string
+    {
+        return static::class;
+    }
+
     abstract protected static function defineFields(): FieldCollection;
 }

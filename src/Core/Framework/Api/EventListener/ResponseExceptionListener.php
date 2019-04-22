@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\EventListener;
 
 use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\EventListener\ExceptionListener;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -21,6 +22,10 @@ class ResponseExceptionListener extends ExceptionListener
 
     public function onKernelException(GetResponseForExceptionEvent $event)
     {
+        if ($event->getRequest()->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
+            return $event;
+        }
+
         $exception = $event->getException();
 
         $event->setResponse((new ErrorResponseFactory())->getResponseFromException($exception, $this->debug));

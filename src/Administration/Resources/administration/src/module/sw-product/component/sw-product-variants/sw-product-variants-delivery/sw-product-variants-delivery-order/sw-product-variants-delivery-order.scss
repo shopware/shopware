@@ -1,0 +1,36 @@
+@import "~scss/variables";
+
+.sw-product-variants-delivery-order {
+    display: flex;
+    height: 100%;
+    padding: 0;
+    background-color: #F9FAFB;
+
+    .sw-product-variants-delivery-order__groups {
+        background-color: $color-white;
+        font-size: 14px;
+        flex-basis: 500px;
+        height: 100%;
+        overflow: auto;
+        border-right: 1px solid $color-steam-cloud;
+
+        .sw-tree {
+            border-width: 0px;
+        }
+        .sw-tree-item .sw-tree-item__element {
+            grid-template-columns: 30px 24px 1fr 30px;
+        }
+        .sw-tree .sw-tree-actions__headline {
+            display: none;
+        }
+        .sw-tree-item__selection {
+            display: none;
+        }
+        .sw-tree-item__actions {
+            display: none;
+        }
+        .sw-icon {
+            margin-right: 8px;
+        }
+    }
+}

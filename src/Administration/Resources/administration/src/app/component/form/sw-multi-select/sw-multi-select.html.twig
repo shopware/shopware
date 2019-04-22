@@ -25,12 +25,12 @@
                     :data-id="selection.id">
 
                     {% block sw_multi_select_selection_item %}
-                        <sw-label dismissAble @selected="changeDefaultItemId(selection.id)" @dismiss="remove(selection[keyProperty])">
+                        <sw-label dismissAble @selected="changeDefaultItemId(selection.id)" @dismiss="remove(selection[valueProperty])">
                             <template>
                                 {% block sw_multi_select_selection_item_text %}
                                     <span class="sw-multi-select__selection-item">
-                                        <slot name="valueProperty" :item="selection">
-                                            {{ getInlineSnippet(selection[valueProperty]) }}
+                                        <slot name="labelProperty" :item="selection">
+                                            {{ getInlineSnippet(selection[labelProperty]) }}
                                         </slot>
                                     </span>
                                 {% endblock %}
@@ -100,9 +100,9 @@
                                             <slot name="result_items" :item="item" :index="index">
                                                 {% block sw_multi_select_results_list_item_slot %}
                                                     <sw-multi-select-option ref="swSelectOption" :index="index" :item="item">
-                                                        <slot name="valueProperty" :item="item">
-                                                            <span v-html="getInlineSnippet(item[valueProperty])">
-                                                                {{ getInlineSnippet(item[valueProperty]) }}
+                                                        <slot name="labelProperty" :item="item">
+                                                            <span v-html="getInlineSnippet(item[labelProperty])">
+                                                                {{ getInlineSnippet(item[labelProperty]) }}
                                                             </span>
                                                         </slot>
                                                     </sw-multi-select-option>

@@ -34,7 +34,10 @@ module.exports = {
         const page = orderPage(browser);
 
         browser
-            .clickContextMenuItem('.sw-order-list__order-view-action', page.elements.contextMenuButton, `${page.elements.dataGridRow}--0`)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-order-list__order-view-action',
+                scope: `${page.elements.dataGridRow}--0`
+            })
             .waitForElementVisible('.sw-order-detail')
             .assert.urlContains('#/sw/order/detail');
     },
@@ -68,7 +71,9 @@ module.exports = {
 
         browser
             .getLocationInView('.sw-order-detail-base__summary')
-            .clickContextMenuItem('.sw-context-menu__content', page.elements.contextMenuButton)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-context-menu__content'
+            })
             .expect.element(page.elements.smartBarHeader).to.have.text.that.contains(global.ProductFixtureService.productFixture.name);
     }
 };

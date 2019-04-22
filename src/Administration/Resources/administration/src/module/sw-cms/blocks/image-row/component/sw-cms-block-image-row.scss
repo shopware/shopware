@@ -2,4 +2,8 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     grid-gap: 40px;
+
+    .sw-cms-el-image.is--cover {
+        min-height: 340px;
+    }
 }

@@ -19,7 +19,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Tax\TaxCollection;
 
-class SalesChannelContextFactory implements SalesChannelContextFactoryInterface
+class SalesChannelContextFactory
 {
     /**
      * @var EntityRepositoryInterface

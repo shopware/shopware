@@ -166,7 +166,7 @@ class PluginEntity extends Entity
         $this->active = $active;
     }
 
-    public function isManagedByComposer(): bool
+    public function getManagedByComposer(): bool
     {
         return $this->managedByComposer;
     }

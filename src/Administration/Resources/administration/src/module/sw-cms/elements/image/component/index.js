@@ -9,6 +9,14 @@ Component.register('sw-cms-el-image', {
         Mixin.getByName('cms-element')
     ],
 
+    computed: {
+        classes() {
+            return {
+                'is--cover': this.element.config.displayMode.value === 'cover'
+            };
+        }
+    },
+
     created() {
         this.createdComponent();
     },

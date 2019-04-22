@@ -1,0 +1,133 @@
+@import "~scss/variables";
+
+$sw-text-editor-toolbar-dark-grey-start: $color-gradient-dark-gray-start;
+$sw-text-editor-toolbar-dark-grey-end: $color-gradient-dark-gray-end;
+$sw-text-editor-toolbar-boxed-mode: $color-light-gray;
+$sw-text-editor-toolbar-arrow-shadow: rgba(120, 138, 155, 0.5);
+$sw-text-editor-toolbar-item-color: #d1d9e0;
+$sw-text-editor-toolbar-item-color-boxed: #9aa8b5;
+$sw-text-editor-toolbar-item-child-color: #52667a;
+$sw-text-editor-toolbar-item-child-border: $color-steam-cloud;
+$sw-text-editor-toolbar-item-child-shadow: rgba(120, 138, 155, 0.5);
+
+.sw-text-editor-toolbar {
+    padding: 0 6px;
+    background: linear-gradient(-180deg, $sw-text-editor-toolbar-dark-grey-start 0%, $sw-text-editor-toolbar-dark-grey-end 100%);
+    border-radius: 4px;
+    color: $sw-text-editor-toolbar-item-color;
+    display: grid;
+    grid-auto-flow: column dense;
+    grid-auto-columns: min-content;
+    height: 36px;
+    justify-items: center;
+    position: absolute;
+    user-select: none;
+    z-index: 201;
+
+    &::before {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        right: 50%;
+        height: 8px;
+        width: 8px;
+        transform: rotate(45deg);
+        background: $sw-text-editor-toolbar-dark-grey-end;
+        border-top: 1px solid $sw-text-editor-toolbar-dark-grey-end;
+        border-left: 1px solid $sw-text-editor-toolbar-dark-grey-end;
+    }
+
+    &.is--boxedEdit {
+        width: 100%;
+        top:0;
+        left: 0;
+        position: initial;
+        background: $sw-text-editor-toolbar-boxed-mode;
+        border-radius: 0;
+        border-bottom: 1px solid $color-steam-cloud;
+        color: $sw-text-editor-toolbar-item-color-boxed;
+
+        &::before {
+            content: none;
+        }
+    }
+
+    .sw-text-editor-toolbar__item {
+        cursor: pointer;
+        position: relative;
+        height: 36px;
+        width: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:hover {
+            color: $color-shopware-blue;
+        }
+
+        .sw-text-editor-toolbar__item-button {
+            display: flex;
+            align-items: center;
+        }
+
+        .sw-text-editor-toolbar__item-children {
+            background: $color-white;
+            border-radius: 4px;
+            flex-direction: column;
+            position: absolute;
+            left: 0;
+            top: 116%;
+            z-index: 202;
+            white-space: nowrap;
+            border: 1px solid $sw-text-editor-toolbar-item-child-border;
+            box-shadow: 0 3px 6px 0 $sw-text-editor-toolbar-item-child-shadow;
+
+
+            &::before {
+                content: '';
+                position: absolute;
+                top: -5px;
+                left: 10px;
+                height: 8px;
+                width: 8px;
+                transform: rotate(45deg);
+                background: $color-white;
+                border-top: 1px solid $sw-text-editor-toolbar-arrow-shadow;
+                border-left: 1px solid $sw-text-editor-toolbar-arrow-shadow;
+            }
+
+            .sw-text-editor-toolbar__item-children-child {
+                cursor: pointer;
+                color: $sw-text-editor-toolbar-item-child-color;
+                padding: 8px 15px;
+            }
+
+            &.sw-text-editor-toolbar__link-menu {
+                padding: 15px;
+                cursor: initial;
+                color: $sw-text-editor-toolbar-item-child-color;
+
+                .sw-text-editor-toolbar__link-menu-text {
+                    padding-bottom: 5px;
+                }
+
+                .sw-text-editor-toolbar__link-menu-buttons {
+                    display: grid;
+                    grid-auto-flow: column;
+                    justify-content: end;
+                }
+
+                .sw-field {
+                    &.sw-field--switch {
+                        margin-bottom: 5px;
+                    }
+
+                    &.sw-field--text {
+                        padding: 4px 0;
+                        margin-bottom: 10px;
+                    }
+                }
+            }
+        }
+    }
+}

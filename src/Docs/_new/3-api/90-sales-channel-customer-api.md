@@ -12,20 +12,17 @@ The customer endpoint is used to register and log in customers. It can also be u
 
 | Name                                   | Type    | Notes                                                       | Required |
 | ---------------------------------------| ------- | ----------------------------------------------------------- | :------: |
-| salutation                             | string  |                                                             |          |
+| salutationId                           | uuid    |                                                             |    ✔     |
 | title                                  | string  |                                                             |          |
 | firstName                              | string  |                                                             |    ✔     |
 | lastName                               | string  |                                                             |    ✔     |
 | guest                                  | bool    |                                                             |          |
 | email                                  | string  |                                                             |    ✔     |
-| emailConfirmation                      | string  |                                                             |    ✔     |
 | password                               | string  | Only required when guest is false                           |          |
-| passwordConfirmation                   | string  | Only required when guest is false                           |          |
 | birthdayDay                            | integer |                                                             |          |
 | birthdayMonth                          | integer |                                                             |          |
 | birthdayYear                           | integer |                                                             |          |
-| differentShippingAddress               | boolean | If set to true, an alternative shipping address is used.    |          |
-| billingAddress.company                 | sring   |                                                             |          |
+| billingAddress.company                 | string  |                                                             |          |
 | billingAddress.department              | string  |                                                             |          |
 | billingAddress.vatId                   | string  |                                                             |          |
 | billingAddress.street                  | string  |                                                             |    ✔     |
@@ -33,22 +30,23 @@ The customer endpoint is used to register and log in customers. It can also be u
 | billingAddress.additionalAddressLine2  | string  |                                                             |          |
 | billingAddress.zipcode                 | string  |                                                             |    ✔     |
 | billingAddress.city                    | string  |                                                             |    ✔     |
-| billingAddress.country                 | uuid    |                                                             |    ✔     |
-| billingAddress.countryState            | uuid    |                                                             |          |
-| billingAddress.phone                   | string  |                                                             |          |
-| shippingAddress.Salutation             | string  |                                                             |          |
-| shippingAddress.Company                | string  |                                                             |          |
-| shippingAddress.Department             | string  |                                                             |          |
-| shippingAddress.FirstName              | string  | Only required, when differentShippingAddress is set to true |          |
-| shippingAddress.LastName               | string  | Only required, when differentShippingAddress is set to true |          |
-| shippingAddress.Street                 | string  | Only required, when differentShippingAddress is set to true |          |
-| shippingAddress.AdditionalAddressLine1 | string  |                                                             |          |
-| shippingAddress.AdditionalAddressLine2 | string  |                                                             |          |
-| shippingAddress.Zipcode                | string  | Only required, when differentShippingAddress is set to true |          |
-| shippingAddress.City                   | string  | Only required, when differentShippingAddress is set to true |          |
-| shippingAddress.Phone                  | string  |                                                             |          |
-| shippingAddress.Country                | uuid    |                                                             |          |
-| shippingAddress.CountryState           | uuid    | Only required, when differentShippingAddress is set to true |          |
+| billingAddress.countryId               | uuid    |                                                             |    ✔     |
+| billingAddress.countryStateId          | uuid    |                                                             |          |
+| billingAddress.phoneNumber             | string  |                                                             |          |
+| shippingAddress.salutationId           | uuid    | Only required, when shippingAddress is given                |          |
+| shippingAddress.firstName              | string  | Only required, when shippingAddress is given                |          |
+| shippingAddress.lastName               | string  | Only required, when shippingAddress is given                |          |
+| shippingAddress.company                | string  |                                                             |          |
+| shippingAddress.department             | string  |                                                             |          |
+| shippingAddress.vatId                  | string  |                                                             |          |
+| shippingAddress.street                 | string  | Only required, when shippingAddress is given                |          |
+| shippingAddress.additionalAddressLine1 | string  |                                                             |          |
+| shippingAddress.additionalAddressLine2 | string  |                                                             |          |
+| shippingAddress.zipcode                | string  | Only required, when shippingAddress is given                |          |
+| shippingAddress.city                   | string  | Only required, when shippingAddress is given                |          |
+| shippingAddress.phoneNumber            | string  |                                                             |          |
+| shippingAddress.countryId              | uuid    | Only required, when shippingAddress is given                |          |
+| shippingAddress.countryStateId         | uuid    |                                                             |          |
 
 **Response:** If successful, the customerId will be returned.
 
@@ -107,6 +105,20 @@ The customer endpoint is used to register and log in customers. It can also be u
 
 **Response:** Empty response if successful
 
+## Update password
+
+**PUT  /sales-channel-api/v1/customer/password**
+
+**Parameter:**
+
+| Name     | Type   | Notes | Required |
+| -------- | ------ | ----- | :------: |
+| password | string |       |    ✔     |
+
+**Header:** x-sw-context-token is required
+
+**Response:** Empty response if successful
+
 ## Update profile information
 
 **PUT 
@@ -136,7 +148,7 @@ The customer endpoint is used to register and log in customers. It can also be u
 
 **Response:** List of all customer related information
 
-## Address managment
+## Address management
 
 ### Get customer addresses
 
@@ -173,13 +185,13 @@ Note: The address id must be assigned with the customer currently logged in.
 | birthdayMonth | int    | Required if one of the other birthday fields is set |          |
 | birthdayYear  | int    | Required if one of the other birthday fields is set |          |
 
-### Set default billing address
+### Delete customer address
 
-**POST  /sales-channel-api/v1/customer/default-billing-address/{id}**
+**DELETE /sales-channel-api/v1/customer/address/{id}**
+
+**Note:** You can not delete a default shipping or billing address.
 
 **Header:** x-sw-context-token is required
-
-**Response:** AddressId if successful
 
 ### Set default shipping address
 
@@ -189,13 +201,13 @@ Note: The address id must be assigned with the customer currently logged in.
 
 **Response:** AddressId if successful
 
-### Delete customer address
+### Set default billing address
 
-**DELETE /sales-channel-api/v1/customer/address/{id}**
-
-**Note:** You can not delete a default shipping or billing address.
+**POST  /sales-channel-api/v1/customer/default-billing-address/{id}**
 
 **Header:** x-sw-context-token is required
+
+**Response:** AddressId if successful
 
 ## Full example
 
@@ -206,27 +218,36 @@ Note: The address id must be assigned with the customer currently logged in.
     const randomStr = Math.random().toString(36).substring(2, 15);
     
     let customer = {
+        email: `max.mustermann_${randomStr}@example.com`,
         firstName: 'Max',
         lastName: 'Mustermann',
-        email: `max.mustermann_${randomStr}@example.com`,
-        billingStreet: 'Buchenweg 5',
-        billingZipcode: '33602',
-        billingCity: 'Bielefeld',
+        billingAddress: {
+            street: 'Buchenweg 5',
+            zipcode: '33602',
+            city: 'Bielefeld'
+        },
         password: 'UNSECURE_PASSWORD'
     };
-    
+
     let headers = {
         "Content-Type": "application/json",
         "X-SW-Access-Key": accessKey
     };
-    
+
     function getCountry(iso3) {
-        const url = `${baseUrl}/sales-channel-api/v1/sales-channel/countries?filter[iso3]=${iso3}`;
+        const url = `${baseUrl}/sales-channel-api/v1/country?filter[iso3]=${iso3}`;
         return fetch(url, { method: 'GET', headers })
             .then((resp) => resp.json())
             .then((json) => json.data[0]);
     }
-    
+
+    function getSalutation() {
+        const url = `${baseUrl}/sales-channel-api/v1/salutation`;
+        return fetch(url, { method: 'GET', headers })
+            .then((resp) => resp.json())
+            .then((json) => json.data[0]);
+    }
+
     function registerCustomer(customer) {
         const url = `${baseUrl}/sales-channel-api/v1/customer`;
         const body = JSON.stringify(customer);
@@ -234,7 +255,7 @@ Note: The address id must be assigned with the customer currently logged in.
             .then((resp) => resp.json())
             .then(({ data }) => data);
     }
-    
+
     function login(username, password) {
         const url = `${baseUrl}/sales-channel-api/v1/customer/login`;
         const body = JSON.stringify({ username, password });
@@ -244,36 +265,38 @@ Note: The address id must be assigned with the customer currently logged in.
                 headers['x-sw-context-token'] = token;
             });
     }
-    
+
     function logout() {
         const url = `${baseUrl}/sales-channel-api/v1/customer/logout`;
         return fetch(url, { method: 'POST', headers })
             .then((resp) => resp.text())
             .then(() => { headers['x-sw-context-token'] = null });
     }
-    
+
     function getProfile() {
         const url = `${baseUrl}/sales-channel-api/v1/customer`;
         return fetch(url, { method: 'GET', headers })
             .then((resp) => resp.json())
             .then(({ data }) => data);
     }
-    
-    
+
     async function customerExample() {
         const country = await getCountry('deu');
-        customer['billingCountry'] = country.id;
+        customer['billingAddress']['countryId'] = country.id;
+
+        const salutation = await getSalutation();
+        customer['salutationId'] = salutation.id;
         await registerCustomer(customer);
-    
+
         await login(customer.email, customer.password);
         console.log('Context-Token', headers['x-sw-context-token']);
-    
+
         console.log('Profile', await getProfile());
-    
+
         await logout();
         console.log('Context-Token', headers['x-sw-context-token']);
     }
-    
+
     customerExample().then(() => {
         console.log('Customer example completed');
     });

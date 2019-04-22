@@ -45,6 +45,7 @@ class EntitySearcherTest extends TestCase
                 'id' => $id1,
                 'productNumber' => Uuid::randomHex(),
                 'name' => 'test matching product',
+                'productNumber' => 'Test',
                 'stock' => 10,
                 'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
                 'manufacturer' => ['name' => 'test'],
@@ -54,6 +55,7 @@ class EntitySearcherTest extends TestCase
                 'id' => $id2,
                 'productNumber' => Uuid::randomHex(),
                 'name' => 'test matching',
+                'productNumber' => 'Test 2',
                 'stock' => 10,
                 'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
                 'manufacturer' => ['name' => 'test'],
@@ -195,5 +197,134 @@ class EntitySearcherTest extends TestCase
 
         static::assertSame(6, $result->getTotal());
         static::assertCount(6, $result->getEntities());
+    }
+
+    public function testJsonListEqualsAnyFilter()
+    {
+        $redId = Uuid::randomHex();
+        $greenId = Uuid::randomHex();
+        $yellowId = Uuid::randomHex();
+        $colorId = Uuid::randomHex();
+
+        $sizeId = Uuid::randomHex();
+        $bigId = Uuid::randomHex();
+        $smallId = Uuid::randomHex();
+
+        $id = Uuid::randomHex();
+        $variant1 = Uuid::randomHex();
+        $variant2 = Uuid::randomHex();
+        $variant3 = Uuid::randomHex();
+        $variant4 = Uuid::randomHex();
+        $variant5 = Uuid::randomHex();
+        $variant6 = Uuid::randomHex();
+
+        $context = Context::createDefaultContext();
+
+        $groups = [
+            [
+                'id' => $colorId,
+                'name' => 'color',
+                'options' => [
+                    ['id' => $redId, 'name' => 'red'],
+                    ['id' => $yellowId, 'name' => 'red'],
+                    ['id' => $greenId, 'name' => 'red'],
+                ],
+            ],
+            [
+                'id' => $sizeId,
+                'name' => 'size',
+                'options' => [
+                    ['id' => $bigId, 'name' => 'big'],
+                    ['id' => $smallId, 'name' => 'small'],
+                ],
+            ],
+        ];
+
+        $this->groupRepository->create($groups, $context);
+
+        $products = [
+            [
+                'id' => $id,
+                'name' => 'test',
+                'productNumber' => 'test1',
+                'stock' => 10,
+                'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+                'manufacturer' => ['name' => 'test'],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
+            ],
+            [
+                'id' => $variant1,
+                'productNumber' => 'test2',
+                'parentId' => $id,
+                'stock' => 10,
+                'options' => [['id' => $redId], ['id' => $bigId]],
+            ],
+            [
+                'id' => $variant2,
+                'productNumber' => 'test3',
+                'parentId' => $id,
+                'stock' => 10,
+                'options' => [['id' => $redId], ['id' => $smallId]],
+            ],
+            [
+                'id' => $variant3,
+                'productNumber' => 'test4',
+                'parentId' => $id,
+                'stock' => 10,
+                'options' => [['id' => $greenId], ['id' => $bigId]],
+            ],
+            [
+                'id' => $variant4,
+                'productNumber' => 'test5',
+                'parentId' => $id,
+                'stock' => 10,
+                'options' => [['id' => $greenId], ['id' => $smallId]],
+            ],
+            [
+                'id' => $variant5,
+                'productNumber' => 'test6',
+                'parentId' => $id,
+                'stock' => 10,
+                'options' => [['id' => $yellowId], ['id' => $bigId]],
+            ],
+            [
+                'id' => $variant6,
+                'productNumber' => 'test7',
+                'parentId' => $id,
+                'stock' => 10,
+                'options' => [['id' => $yellowId], ['id' => $smallId]],
+            ],
+        ];
+
+        $this->productRepository->create($products, $context);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('product.optionIds', [$yellowId, $redId]));
+
+        $result = $this->productRepository->search($criteria, $context);
+
+        static::assertSame(4, $result->getTotal());
+        static::assertTrue($result->has($variant1));
+        static::assertTrue($result->has($variant2));
+        static::assertTrue($result->has($variant5));
+        static::assertTrue($result->has($variant6));
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('product.optionIds', [$yellowId]));
+
+        $result = $this->productRepository->search($criteria, $context);
+        static::assertSame(2, $result->getTotal());
+        static::assertTrue($result->has($variant5));
+        static::assertTrue($result->has($variant6));
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('product.optionIds', [$yellowId, $smallId]));
+
+        $result = $this->productRepository->search($criteria, $context);
+        static::assertSame(4, $result->getTotal());
+        static::assertTrue($result->has($variant5));
+        static::assertTrue($result->has($variant6));
+        static::assertTrue($result->has($variant4));
+        static::assertTrue($result->has($variant2));
     }
 }

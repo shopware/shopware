@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\PageController;
 
-use Shopware\Core\Content\NewsletterReceiver\Service\NewsletterSubscriptionServiceInterface;
+use Shopware\Core\Content\NewsletterReceiver\SalesChannel\NewsletterSubscriptionServiceInterface;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;

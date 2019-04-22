@@ -15,7 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class AttributeService implements AttributeServiceInterface, EventSubscriberInterface
+class AttributeService implements EventSubscriberInterface
 {
     /**
      * @var EntityRepositoryInterface

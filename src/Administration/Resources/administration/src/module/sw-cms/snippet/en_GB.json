@@ -37,6 +37,9 @@
       "sidebarTitleBlockSettings": "Block settings",
       "sidebarHeaderBlockSettings": "Block:",
       "sidebarTitleNavigator": "Navigator",
+      "labelBlockCategorySelection": "Block category",
+      "labelBlockCategoryStandard": "Standard",
+      "labelBlockCategoryEcommerce": "eCommerce",
       "titleElementSettingsModal": "Element settings",
       "labelButtonElementSettingsConfirm": "Ok",
       "titleElementChangeModal": "Change element",
@@ -53,10 +56,15 @@
       "labelBlockRightMarginField": "Right margin",
       "labelButtonMappingAction": "Data mapping",
       "labelButtonMappingRemoveAction": "Remove mapping",
-      "labelMappingPreview": "Field mapped to:"
+      "labelMappingPreview": "Field mapped to:",
+      "notificationTitleMissingFields": "Missing configuration",
+      "notificationMessageMissingFields": "Please fill out the required configuration fields."
     },
     "elements": {
       "captionMediaUpload": "Upload an image",
+      "labelMediaDisplayMode": "Display mode",
+      "labelMediaDisplayModeStandard": "Standard",
+      "labelMediaDisplayModeCover": "Cover",
       "labelTextElementContent": "Text content",
       "labelProductActionDetail": "Details",
       "labelProductActionBuy": "Add to cart",

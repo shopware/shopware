@@ -17,7 +17,9 @@ module.exports = {
                 mainMenuId: 'sw-product',
                 subMenuId: 'sw-manufacturer'
             })
-            .clickContextMenuItem(page.elements.contextMenu, page.elements.contextMenuButton);
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: page.elements.contextMenu
+            });
     },
     'upload media item': (browser) => {
         const page = manufacturerPage(browser);

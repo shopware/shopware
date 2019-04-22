@@ -1620,8 +1620,8 @@ class ProductRepositoryTest extends TestCase
         $blue = $configuratorSettings->get($blueId);
         $red = $configuratorSettings->get($redId);
 
-        static::assertEquals(new Price(25, 50, false), $red->getPrice());
-        static::assertEquals(new Price(90, 100, false), $blue->getPrice());
+        static::assertEquals(['gross' => 50, 'net' => 25, 'linked' => false], $red->getPrice());
+        static::assertEquals(['gross' => 100, 'net' => 90, 'linked' => false], $blue->getPrice());
 
         static::assertEquals('red', $red->getOption()->getName());
         static::assertEquals('blue', $blue->getOption()->getName());

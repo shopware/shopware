@@ -11,11 +11,11 @@ use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Snippet\Aggregate\SnippetSet\SnippetSetEntity;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileInterface;
-use Shopware\Core\Framework\Snippet\Filter\SnippetFilterFactoryInterface;
+use Shopware\Core\Framework\Snippet\Filter\SnippetFilterFactory;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
-class SnippetService implements SnippetServiceInterface
+class SnippetService
 {
     /**
      * @var Connection
@@ -38,7 +38,7 @@ class SnippetService implements SnippetServiceInterface
     private $snippetSetRepository;
 
     /**
-     * @var SnippetFilterFactoryInterface
+     * @var SnippetFilterFactory
      */
     private $snippetFilterFactory;
 
@@ -47,7 +47,7 @@ class SnippetService implements SnippetServiceInterface
         SnippetFileCollection $snippetFileCollection,
         EntityRepositoryInterface $snippetRepository,
         EntityRepositoryInterface $snippetSetRepository,
-        SnippetFilterFactoryInterface $snippetFilterFactory
+        SnippetFilterFactory $snippetFilterFactory
     ) {
         $this->connection = $connection;
         $this->snippetFileCollection = $snippetFileCollection;
@@ -57,7 +57,19 @@ class SnippetService implements SnippetServiceInterface
     }
 
     /**
-     * {@inheritdoc}
+     * filters: [
+     *      'isCustom' => bool,
+     *      'isEmpty' => bool,
+     *      'term' => string,
+     *      'namespaces' => array,
+     *      'authors' => array,
+     *      'translationKeys' => array,
+     * ]
+     *
+     * sort: [
+     *      'column' => NULL || the string -> 'translationKey' || setId
+     *      'direction' => 'ASC' || 'DESC'
+     * ]
      */
     public function getList(int $page, int $limit, Context $context, array $requestFilters, array $sort): array
     {
@@ -146,6 +158,7 @@ class SnippetService implements SnippetServiceInterface
 
             $result[] = $region;
         }
+        sort($result);
 
         return $result;
     }
@@ -162,8 +175,10 @@ class SnippetService implements SnippetServiceInterface
         foreach ($files as $file) {
             $authors[$file['author']] = true;
         }
+        $result = array_keys($authors);
+        sort($result);
 
-        return array_keys($authors);
+        return $result;
     }
 
     private function fetchSnippetsFromDatabase(string $snippetSetId): array
@@ -255,6 +270,7 @@ class SnippetService implements SnippetServiceInterface
                             'translationKey' => $index,
                             'author' => '',
                             'origin' => '',
+                            'resetTo' => '',
                             'setId' => $currentSetId,
                             'id' => null,
                         ];
@@ -317,7 +333,8 @@ class SnippetService implements SnippetServiceInterface
                 ])
             );
 
-            $currentSnippet['origin'] = $fileSnippets[$snippet->getSetId()]['snippets'][$snippet->getTranslationKey()]['origin'] ?? $snippet->getValue();
+            $currentSnippet['origin'] = '';
+            $currentSnippet['resetTo'] = $fileSnippets[$snippet->getSetId()]['snippets'][$snippet->getTranslationKey()]['origin'] ?? $snippet->getValue();
             $result[$snippet->getSetId()]['snippets'][$snippet->getTranslationKey()] = $currentSnippet;
         }
 
@@ -340,7 +357,7 @@ class SnippetService implements SnippetServiceInterface
             return $snippets;
         }
 
-        if ($sort['sortBy'] === 'translationKey') {
+        if ($sort['sortBy'] === 'translationKey' || $sort['sortBy'] === 'id') {
             foreach ($snippets as $setId => &$set) {
                 if ($sort['sortDirection'] === 'ASC') {
                     ksort($set['snippets']);
@@ -359,11 +376,12 @@ class SnippetService implements SnippetServiceInterface
         $mainSet = $snippets[$sort['sortBy']];
         unset($snippets[$sort['sortBy']]);
 
-        if ($sort['sortDirection'] === 'ASC') {
-            asort($mainSet['snippets']);
-        } elseif ($sort['sortDirection'] === 'DESC') {
-            arsort($mainSet['snippets']);
-        }
+        uasort($mainSet['snippets'], function ($a, $b) use ($sort) {
+            $a = strtolower($a['value']);
+            $b = strtolower($b['value']);
+
+            return $sort['sortDirection'] !== 'DESC' ? $a > $b : $a <= $b;
+        });
 
         $result = [$sort['sortBy'] => $mainSet];
         foreach ($snippets as $setId => $set) {
@@ -388,6 +406,7 @@ class SnippetService implements SnippetServiceInterface
                     $result[$newIndex] = array_merge([
                         'value' => $value,
                         'origin' => $value,
+                        'resetTo' => $value,
                         'translationKey' => $newIndex,
                     ], $additionalParameters);
                     continue;

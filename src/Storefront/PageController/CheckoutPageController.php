@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelContextSwitcher;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
@@ -72,6 +73,11 @@ class CheckoutPageController extends StorefrontController
      */
     private $addressService;
 
+    /**
+     * @var SalesChannelContextSwitcher
+     */
+    private $contextSwitcher;
+
     public function __construct(
         CartService $cartService,
         PageLoaderInterface $cartPageLoader,
@@ -81,7 +87,8 @@ class CheckoutPageController extends StorefrontController
         PageLoaderInterface $addressListPageLoader,
         PageLoaderInterface $addressPageLoader,
         AddressService $addressService,
-        OrderService $orderService
+        OrderService $orderService,
+        SalesChannelContextSwitcher $contextSwitcher
     ) {
         $this->cartService = $cartService;
         $this->cartPageLoader = $cartPageLoader;
@@ -92,6 +99,7 @@ class CheckoutPageController extends StorefrontController
         $this->addressPageLoader = $addressPageLoader;
         $this->orderService = $orderService;
         $this->addressService = $addressService;
+        $this->contextSwitcher = $contextSwitcher;
     }
 
     /**
@@ -254,5 +262,17 @@ class CheckoutPageController extends StorefrontController
         $page = $this->addressListPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/component/address/address-selection.html.twig', ['page' => $page]);
+    }
+
+    /**
+     * @Route("/checkout/configure", name="frontend.checkout.configure", options={"seo"="false"}, methods={"POST"})
+     */
+    public function configure(Request $request, RequestDataBag $data, SalesChannelContext $context): RedirectResponse
+    {
+        $this->contextSwitcher->update($data, $context);
+
+        $route = $request->get('redirectTo', 'frontend.checkout.cart.page');
+
+        return $this->redirectToRoute($route);
     }
 }

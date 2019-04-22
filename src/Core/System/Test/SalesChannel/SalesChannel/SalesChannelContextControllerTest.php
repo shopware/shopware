@@ -55,7 +55,7 @@ class SalesChannelContextControllerTest extends TestCase
         $content = json_decode($this->getSalesChannelClient()->getResponse()->getContent(), true);
 
         static::assertEquals(
-            sprintf('Shipping method with id "%s" not found.', $testId),
+            sprintf('The "shipping_method" entity with id "%s" does not exists.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
 
@@ -63,11 +63,11 @@ class SalesChannelContextControllerTest extends TestCase
          * Payment method
          */
         $this->getSalesChannelClient()->request('PATCH', '/sales-channel-api/v1/context', ['paymentMethodId' => $testId]);
-        static::assertSame(Response::HTTP_NOT_FOUND, $this->getSalesChannelClient()->getResponse()->getStatusCode());
         $content = json_decode($this->getSalesChannelClient()->getResponse()->getContent(), true);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->getSalesChannelClient()->getResponse()->getStatusCode());
 
         static::assertEquals(
-            sprintf('The payment method %s could not be found.', $testId),
+            sprintf('The "payment_method" entity with id "%s" does not exists.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
     }
@@ -80,8 +80,8 @@ class SalesChannelContextControllerTest extends TestCase
          * Billing address
          */
         $this->getSalesChannelClient()->request('PATCH', '/sales-channel-api/v1/context', ['billingAddressId' => $testId]);
-        static::assertSame(Response::HTTP_FORBIDDEN, $this->getSalesChannelClient()->getResponse()->getStatusCode());
         $content = json_decode($this->getSalesChannelClient()->getResponse()->getContent(), true);
+        static::assertSame(Response::HTTP_FORBIDDEN, $this->getSalesChannelClient()->getResponse()->getStatusCode());
 
         static::assertEquals(
             'Customer is not logged in.',
@@ -92,8 +92,8 @@ class SalesChannelContextControllerTest extends TestCase
          * Shipping address
          */
         $this->getSalesChannelClient()->request('PATCH', '/sales-channel-api/v1/context', ['shippingAddressId' => $testId]);
-        static::assertSame(Response::HTTP_FORBIDDEN, $this->getSalesChannelClient()->getResponse()->getStatusCode());
         $content = json_decode($this->getSalesChannelClient()->getResponse()->getContent(), true);
+        static::assertSame(Response::HTTP_FORBIDDEN, $this->getSalesChannelClient()->getResponse()->getStatusCode());
 
         static::assertEquals(
             'Customer is not logged in.',
@@ -116,7 +116,7 @@ class SalesChannelContextControllerTest extends TestCase
         $content = json_decode($this->getSalesChannelClient()->getResponse()->getContent(), true);
 
         static::assertEquals(
-            sprintf('Customer address with id "%s" not found.', $testId),
+            sprintf('The "customer_address" entity with id "%s" does not exists.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
 
@@ -128,7 +128,7 @@ class SalesChannelContextControllerTest extends TestCase
         $content = json_decode($this->getSalesChannelClient()->getResponse()->getContent(), true);
 
         static::assertEquals(
-            sprintf('Customer address with id "%s" not found.', $testId),
+            sprintf('The "customer_address" entity with id "%s" does not exists.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
     }
@@ -152,6 +152,70 @@ class SalesChannelContextControllerTest extends TestCase
         $this->getSalesChannelClient()
             ->request('PATCH', '/sales-channel-api/v1/context', ['shippingAddressId' => $shippingId]);
         static::assertSame(Response::HTTP_OK, $this->getSalesChannelClient()->getResponse()->getStatusCode());
+    }
+
+    public function testSwitchToNotExistingLanguage()
+    {
+        $id = Uuid::randomHex();
+
+        $this->getSalesChannelClient()
+            ->request('PATCH', '/sales-channel-api/v1/context', ['languageId' => $id]);
+
+        $request = $this->getSalesChannelClient()->getResponse();
+
+        $content = json_decode($request->getContent(), true);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $request->getStatusCode(), print_r($content, true));
+
+        static::assertEquals(
+            sprintf('The "language" entity with id "%s" does not exists.', $id),
+            $content['errors'][0]['detail'] ?? null
+        );
+    }
+
+    public function testSwitchToValidLanguage()
+    {
+        $id = Defaults::LANGUAGE_SYSTEM;
+
+        $this->getSalesChannelClient()
+            ->request('PATCH', '/sales-channel-api/v1/context', ['languageId' => $id]);
+
+        $request = $this->getSalesChannelClient()->getResponse();
+        $content = json_decode($request->getContent(), true);
+
+        static::assertSame(Response::HTTP_OK, $request->getStatusCode(), print_r($content, true));
+    }
+
+    public function testSwitchToValidCurrency()
+    {
+        $id = Defaults::CURRENCY;
+
+        $this->getSalesChannelClient()
+            ->request('PATCH', '/sales-channel-api/v1/context', ['currencyId' => $id]);
+
+        $request = $this->getSalesChannelClient()->getResponse();
+        $content = json_decode($request->getContent(), true);
+
+        static::assertSame(Response::HTTP_OK, $request->getStatusCode(), print_r($content, true));
+    }
+
+    public function testSwitchToNotExistingCurrency()
+    {
+        $id = Uuid::randomHex();
+
+        $this->getSalesChannelClient()
+            ->request('PATCH', '/sales-channel-api/v1/context', ['currencyId' => $id]);
+
+        $request = $this->getSalesChannelClient()->getResponse();
+
+        $content = json_decode($request->getContent(), true);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $request->getStatusCode(), print_r($content, true));
+
+        static::assertEquals(
+            sprintf('The "currency" entity with id "%s" does not exists.', $id),
+            $content['errors'][0]['detail'] ?? null
+        );
     }
 
     private function createCustomerAndLogin(?string $email = null, string $password = 'shopware'): string

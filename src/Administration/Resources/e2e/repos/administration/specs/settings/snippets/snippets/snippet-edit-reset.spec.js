@@ -1,7 +1,7 @@
 const settingsPage = require('administration/page-objects/module/sw-settings.page-object.js');
 
 module.exports = {
-    '@tags': ['settings', 'snippet-reset', 'snippets', 'reset'],
+    '@tags': ['settings', 'snippet-reset', 'snippets', 'edit', 'reset'],
     'open snippet module': (browser) => {
         browser
             .openMainMenuEntry({
@@ -37,7 +37,8 @@ module.exports = {
                 '- some more'
             )
             .waitForElementVisible(`${page.elements.dataGridRow}--0 ${page.elements.dataGridInlineEditSave}`)
-            .click(` ${page.elements.dataGridInlineEditSave}`)
+            .click(`${page.elements.dataGridRow}--0 ${page.elements.dataGridInlineEditSave}`)
+            .waitForElementNotPresent('.is--inline-edit')
             .expect.element(`${page.elements.dataGridRow}--0`).to.have.text.that.contains('- some more');
 
         browser

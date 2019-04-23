@@ -48,12 +48,14 @@ Component.register('sw-settings-shipping-list', {
                 dataIndex: 'name',
                 inlineEdit: 'string',
                 routerLink: 'sw.settings.shipping.detail',
+                allowResize: true,
                 primary: true
             }, {
                 property: 'description',
                 label: this.$tc('sw-settings-shipping.list.columnDescription'),
                 dataIndex: 'description',
-                inlineEdit: 'string'
+                inlineEdit: 'string',
+                allowResize: true
             }];
         },
 

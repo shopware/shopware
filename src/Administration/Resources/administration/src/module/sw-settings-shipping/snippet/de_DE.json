@@ -84,7 +84,12 @@
       "columnVolumeEnd": "Volumen bis",
       "columnPrice": "Preis (Brutto)",
       "columnCalculationRule": "Regel",
-      "buttonAddAdditionalPriceRule": "Weitere Preisregel hinzufügen"
+      "buttonAddAdditionalPriceRule": "Weitere Preisregel hinzufügen",
+      "any": "beliebig",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen",
+      "modalTitleDelete": "Preismatrix löschen",
+      "textDeleteConfirm": "Möchtest Du die Preismatrix \"{name}\" wirklich löschen? | Möchtest Du die Preismatrix wirklich löschen?"
     },
     "sidebar": {
       "labelUseAsLogo": "Als Logo verwenden"

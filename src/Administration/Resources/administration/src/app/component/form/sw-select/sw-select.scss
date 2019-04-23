@@ -346,6 +346,10 @@ $sw-select-transition-result-icon: all ease-in-out .15s;
         .sw-select__selection-item-input {
             margin-bottom: 0;
         }
+
+        .sw-select__indicators {
+            top: 8px;
+        }
     }
 
     // Vue.js transitions

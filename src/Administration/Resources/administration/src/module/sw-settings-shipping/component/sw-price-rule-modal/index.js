@@ -102,6 +102,7 @@ Component.extend('sw-price-rule-modal', 'sw-rule-modal', {
         emitSave() {
             this.currentPriceRule.currencyId = this.currentCurrency.id;
             this.currentPriceRule.calculationRule = this.rule;
+            this.currentPriceRule.original.calculationRule = this.rule;
             this.$emit('save', this.currentPriceRule);
         }
     }

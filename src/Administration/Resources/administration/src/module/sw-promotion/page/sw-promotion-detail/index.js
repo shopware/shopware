@@ -17,7 +17,18 @@ Component.register('sw-promotion-detail', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
     computed: {
+        identifier() {
+            // ToDo: If 'name' is translatable, please update:
+            // ToDo: return this.placeholder(this.promotion, 'name');
+            return this.promotion.name;
+        },
         promotionStore() {
             return State.getStore('promotion');
         }

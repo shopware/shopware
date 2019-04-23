@@ -56,6 +56,12 @@ class ErrorResponseFactory
 
         if ($debug) {
             $error['trace'] = $this->convert($exception->getTrace());
+            $error['file'] = $exception->getFile();
+            $error['line'] = $exception->getLine();
+
+            if ($exception->getPrevious()) {
+                $error['previous'] = $this->convertExceptionToError($exception->getPrevious(), $debug);
+            }
         }
 
         return [$error];

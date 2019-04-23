@@ -27,6 +27,12 @@ Component.register('sw-settings-snippet-set-list', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    },
+
     computed: {
         snippetSetStore() {
             return State.getStore('snippet_set');

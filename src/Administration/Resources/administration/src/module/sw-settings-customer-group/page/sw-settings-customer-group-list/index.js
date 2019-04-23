@@ -20,6 +20,12 @@ Component.register('sw-settings-customer-group-list', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    },
+
     computed: {
         columns() {
             return this.getColumns();

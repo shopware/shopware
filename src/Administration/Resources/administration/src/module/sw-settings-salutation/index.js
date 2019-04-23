@@ -9,7 +9,7 @@ import enGB from './snippet/en_GB.json';
 
 Module.register('sw-settings-salutation', {
     type: 'core',
-    name: 'Salutations',
+    name: 'sw-settings-salutation.general.mainMenuItemGeneral',
     description: 'sw-settings-snippet.general.description',
     version: '1.0.0',
     targetVersion: '1.0.0',

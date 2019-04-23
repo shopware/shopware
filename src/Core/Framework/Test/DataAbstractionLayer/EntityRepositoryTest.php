@@ -4,15 +4,19 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Content\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
-use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
+use Shopware\Core\Content\Navigation\NavigationDefinition;
+use Shopware\Core\Content\Navigation\NavigationEntity;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -28,6 +32,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LocaleDefinition;
 
@@ -332,15 +337,14 @@ class EntityRepositoryTest extends TestCase
         $id = Uuid::randomHex();
         $data = [
             'id' => $id,
-            'productNumber' => Uuid::randomHex(),
-            'stock' => 1,
-            'name' => 'test',
-            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
-            'manufacturer' => ['id' => $id, 'name' => 'test'],
-            'tax' => ['id' => $id, 'name' => 'test', 'taxRate' => 15],
+            'name' => 'Main',
+            'children' => [
+                ['id' => Uuid::randomHex(), 'name' => 'Child1'],
+                ['id' => Uuid::randomHex(), 'name' => 'Child2'],
+            ],
         ];
 
-        $repository = $this->createRepository(ProductDefinition::class);
+        $repository = $this->createRepository(NavigationDefinition::class);
         $context = Context::createDefaultContext();
 
         $repository->create([$data], $context);
@@ -349,8 +353,8 @@ class EntityRepositoryTest extends TestCase
         $result = $repository->clone($id, $context, $newId);
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
-        $written = $result->getEventByDefinition(ProductDefinition::class);
-        static::assertCount(1, $written->getIds());
+        $written = $result->getEventByDefinition(NavigationDefinition::class);
+        static::assertCount(3, $written->getIds());
         static::assertContains($newId, $written->getIds());
 
         $entities = $repository->search(new Criteria([$id, $newId]), $context);
@@ -359,17 +363,16 @@ class EntityRepositoryTest extends TestCase
         static::assertTrue($entities->has($id));
         static::assertTrue($entities->has($newId));
 
-        /** @var ProductEntity $old */
+        /** @var NavigationEntity $old */
         $old = $entities->get($id);
-        /** @var ProductEntity $new */
+        /** @var NavigationEntity $new */
         $new = $entities->get($newId);
 
-        static::assertInstanceOf(ProductEntity::class, $old);
-        static::assertInstanceOf(ProductEntity::class, $new);
+        static::assertInstanceOf(NavigationEntity::class, $old);
+        static::assertInstanceOf(NavigationEntity::class, $new);
 
         static::assertSame($old->getName(), $new->getName());
-        static::assertSame($old->getTaxId(), $new->getTaxId());
-        static::assertSame($old->getManufacturerId(), $new->getManufacturerId());
+        static::assertSame($old->getChildren(), $new->getChildren());
     }
 
     public function testCloneWithUnknownId(): void
@@ -377,15 +380,14 @@ class EntityRepositoryTest extends TestCase
         $id = Uuid::randomHex();
         $data = [
             'id' => $id,
-            'productNumber' => Uuid::randomHex(),
-            'stock' => 1,
-            'name' => 'test',
-            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
-            'manufacturer' => ['id' => $id, 'name' => 'test'],
-            'tax' => ['id' => $id, 'name' => 'test', 'taxRate' => 15],
+            'name' => 'Main',
+            'children' => [
+                ['id' => Uuid::randomHex(), 'name' => 'Child1'],
+                ['id' => Uuid::randomHex(), 'name' => 'Child2'],
+            ],
         ];
 
-        $repository = $this->createRepository(ProductDefinition::class);
+        $repository = $this->createRepository(NavigationDefinition::class);
         $context = Context::createDefaultContext();
 
         $repository->create([$data], $context);
@@ -394,169 +396,184 @@ class EntityRepositoryTest extends TestCase
 
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
-        $written = $result->getEventByDefinition(ProductDefinition::class);
+        $written = $result->getEventByDefinition(NavigationDefinition::class);
 
-        static::assertCount(1, $written->getIds());
-        $newId = $result->getEventByDefinition(ProductDefinition::class)->getIds();
+        static::assertCount(3, $written->getIds());
+        $newId = $result->getEventByDefinition(NavigationDefinition::class)->getIds();
         $newId = array_shift($newId);
         static::assertNotEquals($id, $newId);
 
-        $entities = $repository->search(new Criteria([$id, $newId]), $context);
-
-        static::assertCount(2, $entities);
-        static::assertTrue($entities->has($id));
-        static::assertTrue($entities->has($newId));
-
-        /** @var ProductEntity $old */
-        $old = $entities->get($id);
-        /** @var ProductEntity $new */
-        $new = $entities->get($newId);
-
-        static::assertInstanceOf(ProductEntity::class, $old);
-        static::assertInstanceOf(ProductEntity::class, $new);
-
-        static::assertSame($old->getName(), $new->getName());
-        static::assertSame($old->getTaxId(), $new->getTaxId());
-        static::assertSame($old->getManufacturerId(), $new->getManufacturerId());
-    }
-
-    public function testCloneWithOneToMany(): void
-    {
-        $ruleA = Uuid::randomHex();
-        $ruleB = Uuid::randomHex();
-
-        $this->getContainer()->get('rule.repository')->create([
-            ['id' => $ruleA, 'name' => 'test', 'priority' => 1],
-            ['id' => $ruleB, 'name' => 'test', 'priority' => 2],
-        ], Context::createDefaultContext());
-
-        $id = Uuid::randomHex();
-        $data = [
-            'id' => $id,
-            'productNumber' => Uuid::randomHex(),
-            'stock' => 1,
-            'name' => 'test',
-            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
-            'manufacturer' => ['id' => $id, 'name' => 'test'],
-            'tax' => ['id' => $id, 'name' => 'test', 'taxRate' => 15],
-            'prices' => [
-                [
-                    'id' => $ruleA,
-                    'currencyId' => Defaults::CURRENCY,
-                    'quantityStart' => 1,
-                    'ruleId' => $ruleA,
-                    'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
-                ],
-                [
-                    'id' => $ruleB,
-                    'currencyId' => Defaults::CURRENCY,
-                    'quantityStart' => 1,
-                    'ruleId' => $ruleB,
-                    'price' => ['gross' => 10, 'net' => 8, 'linked' => false],
-                ],
-            ],
-        ];
-
-        $repository = $this->createRepository(ProductDefinition::class);
-        $context = Context::createDefaultContext();
-
-        $repository->create([$data], $context);
-        $newId = Uuid::randomHex();
-
-        $result = $repository->clone($id, $context, $newId);
-        static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
-
-        $written = $result->getEventByDefinition(ProductPriceDefinition::class);
-        static::assertCount(2, $written->getIds());
-
         $criteria = new Criteria([$id, $newId]);
-        $criteria->addAssociation('prices');
-
+        $criteria->addAssociation('children');
         $entities = $repository->search($criteria, $context);
 
         static::assertCount(2, $entities);
         static::assertTrue($entities->has($id));
         static::assertTrue($entities->has($newId));
 
-        /** @var ProductEntity $old */
+        /** @var NavigationEntity $old */
         $old = $entities->get($id);
-        /** @var ProductEntity $new */
+        /** @var NavigationEntity $new */
         $new = $entities->get($newId);
 
-        static::assertInstanceOf(ProductEntity::class, $old);
-        static::assertInstanceOf(ProductEntity::class, $new);
+        static::assertInstanceOf(NavigationEntity::class, $old);
+        static::assertInstanceOf(NavigationEntity::class, $new);
 
-        static::assertCount(2, $old->getPrices());
-        static::assertCount(2, $new->getPrices());
+        static::assertSame($old->getName(), $new->getName());
+        static::assertCount($old->getChildren()->count(), $new->getChildren());
+    }
 
-        $oldPriceIds = $old->getPrices()->map(function (ProductPriceEntity $price) {
-            return $price->getId();
+    public function testCloneWithOneToMany(): void
+    {
+        $recordA = Uuid::randomHex();
+
+        $salutation = $this->getValidSalutationId();
+        $address = [
+            'firstName' => 'not',
+            'lastName' => 'not',
+            'city' => 'not',
+            'street' => 'not',
+            'zipcode' => 'not',
+            'salutationId' => $salutation,
+            'country' => ['name' => 'not'],
+        ];
+        $address2 = [
+            'firstName' => 'not',
+            'lastName' => 'not',
+            'city' => 'not',
+            'street' => 'not',
+            'zipcode' => 'not',
+            'salutationId' => $salutation,
+            'country' => ['name' => 'not'],
+        ];
+
+        $matchTerm = Random::getAlphanumericString(20);
+
+        $paymentMethod = $this->getValidPaymentMethodId();
+        $record = [
+            'id' => $recordA,
+            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'defaultShippingAddress' => $address,
+            'defaultPaymentMethodId' => $paymentMethod,
+            'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'email' => Uuid::randomHex() . '@example.com',
+            'password' => 'not',
+            'lastName' => 'not',
+            'firstName' => $matchTerm,
+            'salutationId' => $salutation,
+            'customerNumber' => 'not',
+            'addresses' => [
+                $address2,
+            ],
+        ];
+
+        $repository = $this->createRepository(CustomerDefinition::class);
+        $context = Context::createDefaultContext();
+
+        $repository->create([$record], $context);
+        $newId = Uuid::randomHex();
+
+        $result = $repository->clone($recordA, $context, $newId);
+        static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
+
+        $written = $result->getEventByDefinition(CustomerAddressDefinition::class);
+        static::assertCount(2, $written->getIds());
+
+        $criteria = new Criteria([$recordA, $newId]);
+        $criteria->addAssociation('addresses');
+
+        $entities = $repository->search($criteria, $context);
+
+        static::assertCount(2, $entities);
+        static::assertTrue($entities->has($recordA));
+        static::assertTrue($entities->has($newId));
+
+        /** @var CustomerEntity $old */
+        $old = $entities->get($recordA);
+        /** @var CustomerEntity $new */
+        $new = $entities->get($newId);
+
+        static::assertInstanceOf(CustomerEntity::class, $old);
+        static::assertInstanceOf(CustomerEntity::class, $new);
+
+        static::assertCount(2, $old->getAddresses());
+        static::assertCount(2, $new->getAddresses());
+
+        $oldAddressIds = $old->getAddresses()->map(function (CustomerAddressEntity $address) {
+            return $address->getId();
         });
-        $newPriceIds = $new->getPrices()->map(function (ProductPriceEntity $price) {
-            return $price->getId();
+        $newAddressIds = $new->getAddresses()->map(function (CustomerAddressEntity $address) {
+            return $address->getId();
         });
 
-        foreach ($oldPriceIds as $id) {
-            static::assertNotContains($id, $newPriceIds);
+        foreach ($oldAddressIds as $id) {
+            static::assertNotContains($id, $newAddressIds);
         }
     }
 
     public function testCloneWithManyToMany(): void
     {
-        $id = Uuid::randomHex();
+        static::markTestSkipped('ManyToMany are currently intendently not cloned - to be discussed');
+        $recordA = Uuid::randomHex();
         $data = [
-            'id' => $id,
-            'productNumber' => Uuid::randomHex(),
-            'stock' => 1,
+            'id' => $recordA,
+            'bindShippingfree' => false,
             'name' => 'test',
-            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
-            'manufacturer' => ['id' => $id, 'name' => 'test'],
-            'tax' => ['id' => $id, 'name' => 'test', 'taxRate' => 15],
-            'categories' => [
-                ['id' => $id, 'name' => 'test'],
+            'availabilityRule' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'asd',
+                'priority' => 2,
+            ],
+            'deliveryTime' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'testDeliveryTime',
+                'min' => 1,
+                'max' => 90,
+                'unit' => DeliveryTimeEntity::DELIVERY_TIME_DAY,
+            ],
+            'tags' => [
+                [
+                    'name' => 'tag1',
+                ],
+                [
+                    'name' => 'tag2',
+                ],
             ],
         ];
 
-        $repository = $this->createRepository(ProductDefinition::class);
+        $repository = $this->createRepository(ShippingMethodDefinition::class);
         $context = Context::createDefaultContext();
 
-        $repository->create([$data], $context);
+        $result = $repository->create([$data], $context);
         $newId = Uuid::randomHex();
 
-        $result = $repository->clone($id, $context, $newId);
-        static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
-
-        $written = $result->getEventByDefinition(ProductCategoryDefinition::class);
+        $written = $result->getEventByDefinition(ShippingMethodDefinition::class);
         static::assertCount(1, $written->getIds());
 
-        $written = $result->getEventByDefinition(CategoryDefinition::class);
-        static::assertNull($written);
+        $result = $repository->clone($recordA, $context, $newId);
+        static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
-        $criteria = new Criteria([$id, $newId]);
-        $criteria->addAssociation('categories');
-        $criteria->addAssociation('categoriesRo');
+        $written = $result->getEventByDefinition(ShippingMethodDefinition::class);
+        static::assertCount(1, $written->getIds());
+
+        $criteria = new Criteria([$recordA, $newId]);
+        $criteria->addAssociation('tags');
         $entities = $repository->search($criteria, $context);
 
         static::assertCount(2, $entities);
-        static::assertTrue($entities->has($id));
+        static::assertTrue($entities->has($recordA));
         static::assertTrue($entities->has($newId));
 
-        /** @var ProductEntity $old */
-        $old = $entities->get($id);
-        /** @var ProductEntity $new */
+        /** @var ShippingMethodEntity $old */
+        $old = $entities->get($recordA);
+        /** @var ShippingMethodEntity $new */
         $new = $entities->get($newId);
 
-        static::assertInstanceOf(ProductEntity::class, $old);
-        static::assertInstanceOf(ProductEntity::class, $new);
+        static::assertInstanceOf(ShippingMethodEntity::class, $old);
+        static::assertInstanceOf(ShippingMethodEntity::class, $new);
 
-        static::assertCount(1, $old->getCategories());
-        static::assertCount(1, $new->getCategories());
-
-        static::assertCount(1, $old->getCategoryTree());
-        static::assertCount(1, $new->getCategoryTree());
-
-        static::assertCount(1, $old->getCategoriesRo());
-        static::assertCount(1, $new->getCategoriesRo());
+        static::assertCount(2, $old->getTags());
+        static::assertCount(2, $new->getTags());
     }
 
     public function testCloneWithChildren(): void
@@ -567,28 +584,15 @@ class EntityRepositoryTest extends TestCase
 
         $data = [
             'id' => $id,
-            'productNumber' => Uuid::randomHex(),
-            'stock' => 1,
-            'name' => 'parent',
-            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
-            'manufacturer' => ['id' => $id, 'name' => 'test'],
-            'tax' => ['id' => $id, 'name' => 'test', 'taxRate' => 15],
+            'name' => 'Main',
             'children' => [
-                [
-                    'id' => $child1,
-                    'productNumber' => Uuid::randomHex(),
-                    'stock' => 1,
-                ],
-                [
-                    'id' => $child2,
-                    'productNumber' => Uuid::randomHex(),
-                    'stock' => 1,
-                ],
+                ['id' => $child1, 'name' => 'Child1'],
+                ['id' => $child2, 'name' => 'Child2'],
             ],
         ];
 
         /** @var EntityRepository $repo */
-        $repo = $this->getContainer()->get('product.repository');
+        $repo = $this->getContainer()->get('navigation.repository');
 
         $context = Context::createDefaultContext();
 
@@ -600,7 +604,7 @@ class EntityRepositoryTest extends TestCase
 
         $childrenIds = $this->getContainer()->get(Connection::class)
             ->fetchAll(
-                'SELECT id FROM product WHERE parent_id IN (:ids)',
+                'SELECT id FROM navigation WHERE parent_id IN (:ids)',
                 ['ids' => [Uuid::fromHexToBytes($id), Uuid::fromHexToBytes($newId)]],
                 ['ids' => Connection::PARAM_STR_ARRAY]
             );
@@ -609,10 +613,10 @@ class EntityRepositoryTest extends TestCase
 
         $Criteria = new Criteria([$newId]);
         $Criteria->addAssociation('children');
-        /** @var ProductEntity $product */
-        $product = $repo->search($Criteria, $context)->get($newId);
+        /** @var NavigationEntity $navigation */
+        $navigation = $repo->search($Criteria, $context)->get($newId);
 
-        static::assertCount(2, $product->getChildren());
+        static::assertCount(2, $navigation->getChildren());
     }
 
     public function testCloneWithNestedChildren(): void

@@ -5,7 +5,7 @@
               :title="snippets.modalTitle">
 
         {% block sw_media_modal_body %}
-            <p v-html="snippets.deleteMessage"></p>
+            <p v-html="$sanitize(snippets.deleteMessage)"></p>
         {% endblock %}
 
         {% block sw_media_modal_footer %}

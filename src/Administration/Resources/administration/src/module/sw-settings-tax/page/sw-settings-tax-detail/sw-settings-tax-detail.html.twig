@@ -45,7 +45,7 @@
                                           :placeholder="$tc('sw-settings-tax.detail.placeholderTaxRate')"
                                           v-model="tax.taxRate">
                                        <span slot="suffix" slot-scope="slotProps">
-                                            <span v-html="$tc('sw-settings-tax.general.taxRateSymbol')"></span>
+                                            <span v-html="$sanitize($tc('sw-settings-tax.general.taxRateSymbol'))"></span>
                                        </span>
                                 </sw-field>
                             {% endblock %}

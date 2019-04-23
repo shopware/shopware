@@ -181,9 +181,9 @@
                                                                            :item="item">
                                                             <slot name="displayName" :item="item">
                                                                 <span v-if="item.translated && item.translated.hasOwnProperty(displayName)"
-                                                                      v-html="getInlineSnippet(item.translated[displayName])">
+                                                                      v-html="$sanitize(getInlineSnippet(item.translated[displayName]))">
                                                                 </span>
-                                                                <span v-else v-html="getInlineSnippet(item[displayName])">
+                                                                <span v-else v-html="$sanitize(getInlineSnippet(item[displayName]))">
                                                                 </span>
                                                             </slot>
                                                          </sw-select-option>

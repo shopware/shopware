@@ -9,7 +9,7 @@
         </sw-text-editor>
 
         <div class="content-editor"
-             v-html="demoValue"
+             v-html="$sanitize(demoValue)"
              v-if="element.config.content.source === 'mapped'">
         </div>
 

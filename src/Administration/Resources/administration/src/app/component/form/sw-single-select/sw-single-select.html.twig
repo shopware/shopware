@@ -91,7 +91,7 @@
                                                                          :index="index"
                                                                          :item="item">
                                                                     <slot name="labelProperty">
-                                                                        <span v-html="getInlineSnippet(item[labelProperty])"></span>
+                                                                        <span v-html="$sanitize(getInlineSnippet(item[labelProperty]))"></span>
                                                                     </slot>
                                                                  </sw-single-select-option>
                                                              {% endblock %}

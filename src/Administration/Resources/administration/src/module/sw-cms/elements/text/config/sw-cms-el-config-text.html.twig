@@ -8,7 +8,7 @@
             </sw-text-editor>
 
             <div class="sw-cms-el-config-text__mapping-preview" slot="preview" slot-scope="{ demoValue }">
-                <div v-html="demoValue"></div>
+                <div v-html="$sanitize(demoValue)"></div>
             </div>
         </sw-cms-mapping-field>
     </div>

@@ -10,10 +10,8 @@ export default {
             return false;
         }
 
-        Object.defineProperties(Vue.prototype, {
-            $sanitizer: Sanitizer,
-            $sanitize: Sanitizer.sanitize
-        });
+        Vue.prototype.$sanitizer = Sanitizer;
+        Vue.prototype.$sanitize = Sanitizer.sanitize;
 
         pluginInstalled = true;
 

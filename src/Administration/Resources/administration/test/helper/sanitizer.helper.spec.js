@@ -1,4 +1,8 @@
+import { shallowMount, createLocalVue } from '@vue/test-utils';
+
 import Sanitizer from 'src/core/helper/sanitizer.helper';
+import swEmptyState from 'src/app/component/base/sw-empty-state';
+import SanitizePlugin from 'src/core/plugins/sanitize.plugin';
 
 // Disable developer hints in jest output
 jest.spyOn(global.console, 'warn').mockImplementation(() => jest.fn());
@@ -109,5 +113,33 @@ describe('core/helper/sanitizer.helper.js', () => {
     it('should remove a middleware with a valid name only', () => {
         expect(Sanitizer.removeMiddleware('foo')).toBe(false);
         expect(Sanitizer.removeMiddleware('afterSanitizeElements')).toBe(true);
+    });
+
+    it('should sanitize untrusted HTML in a component', () => {
+        const localVue = createLocalVue();
+        localVue.use(SanitizePlugin);
+
+        const $route = {
+            meta: { $module: { icon: null } }
+        };
+
+        const $tc = (value) => {
+            return value;
+        };
+
+        const wrapper = shallowMount(swEmptyState, {
+            localVue,
+            stubs: ['sw-icon'],
+            mocks: {
+                $route,
+                $tc
+            },
+            props: {
+                title: 'Foo bar',
+                subline: '<x oncut=alert()>x'
+            }
+        });
+
+        expect(wrapper.element).toMatchSnapshot();
     });
 });

@@ -35,7 +35,17 @@ Component.register('sw-cms-detail', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
     computed: {
+        identifier() {
+            return this.placeholder(this.page, 'name');
+        },
+
         salesChannelStore() {
             return State.getStore('sales_channel');
         },

@@ -59,7 +59,6 @@ Component.register('sw-settings-attribute-set-list', {
 
                 params.term = '';
             }
-
             this.items = [];
 
             return this.store.getList(params).then((response) => {

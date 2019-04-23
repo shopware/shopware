@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Media\File;
 
-use function Flag\next1309;
 use League\Flysystem\FileExistsException;
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
@@ -130,15 +129,11 @@ class FileSaver
 
         $this->saveFileToMediaDir($mediaFile, $media);
 
-        if (next1309()) {
-            $message = new GenerateThumbnailsMessage();
-            $message->setMediaIds([$mediaId]);
-            $message->withContext($context);
+        $message = new GenerateThumbnailsMessage();
+        $message->setMediaIds([$mediaId]);
+        $message->withContext($context);
 
-            $this->messageBus->dispatch($message);
-        } else {
-            $this->thumbnailService->updateThumbnails($media, $context);
-        }
+        $this->messageBus->dispatch($message);
     }
 
     /**

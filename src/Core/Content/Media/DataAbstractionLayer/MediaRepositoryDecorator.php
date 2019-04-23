@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\Content\Media\DataAbstractionLayer;
 
-use function Flag\next1309;
-use League\Flysystem\FileNotFoundException;
-use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Message\DeleteFileMessage;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
@@ -36,11 +33,6 @@ class MediaRepositoryDecorator implements EntityRepositoryInterface
     private $urlGenerator;
 
     /**
-     * @var FilesystemInterface
-     */
-    private $filesystem;
-
-    /**
      * @var EntityRepositoryInterface
      */
     private $thumbnailRepository;
@@ -54,13 +46,11 @@ class MediaRepositoryDecorator implements EntityRepositoryInterface
         EntityRepositoryInterface $innerRepo,
         EventDispatcherInterface $eventDispatcher,
         UrlGeneratorInterface $urlGenerator,
-        FilesystemInterface $filesystem,
         EntityRepositoryInterface $thumbnailRepository,
         MessageBusInterface $messageBus
     ) {
         $this->innerRepo = $innerRepo;
         $this->eventDispatcher = $eventDispatcher;
-        $this->filesystem = $filesystem;
         $this->urlGenerator = $urlGenerator;
         $this->thumbnailRepository = $thumbnailRepository;
         $this->messageBus = $messageBus;
@@ -89,19 +79,9 @@ class MediaRepositoryDecorator implements EntityRepositoryInterface
             $thumbnailsToDelete = array_merge($thumbnailsToDelete, $mediaEntity->getThumbnails()->getIds());
         }
 
-        if (next1309()) {
-            $deleteMsg = new DeleteFileMessage();
-            $deleteMsg->setFiles($filesToDelete);
-            $this->messageBus->dispatch($deleteMsg);
-        } else {
-            foreach ($filesToDelete as $file) {
-                try {
-                    $this->filesystem->delete($file);
-                } catch (FileNotFoundException $e) {
-                    //ignore file is already deleted
-                }
-            }
-        }
+        $deleteMsg = new DeleteFileMessage();
+        $deleteMsg->setFiles($filesToDelete);
+        $this->messageBus->dispatch($deleteMsg);
 
         $this->thumbnailRepository->delete($thumbnailsToDelete, $context);
 

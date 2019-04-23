@@ -1,0 +1,10 @@
+@import "~scss/variables";
+
+$sw-property-assignment-background-color-options-item: $color-light-gray;
+
+.sw-product-detail-properties {
+    .sw-empty-state {
+        position: relative;
+        margin-top: 40px;
+    }
+}

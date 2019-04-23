@@ -1,39 +1,32 @@
 import { Component } from 'src/core/shopware';
+import { mapState } from 'vuex';
 import template from './sw-product-detail-base.html.twig';
 
 Component.register('sw-product-detail-base', {
     template,
 
     props: {
-        product: {
-            type: Object,
-            required: true,
-            default: {}
-        },
-        manufacturerStore: {
-            type: Object,
-            required: true
-        },
-        taxes: {
-            type: Array,
-            required: true,
-            default: []
-        },
-        currencies: {
-            type: Array,
-            required: true,
-            default: []
-        },
-        customFieldSets: {
-            type: Array,
-            required: true,
-            default: []
+        productId: {
+            type: String,
+            required: false,
+            default: null
         }
     },
 
-    methods: {
-        priceIsCalculating(value) {
-            this.$emit('calculating', value);
-        }
+    computed: {
+        ...mapState('swProductDetail', [
+            'product',
+            'customFieldSets',
+            'loading'
+        ]),
+
+        ...mapState('swProductDetail', {
+            customFieldSetsArray: state => {
+                if (!state.customFieldSets.items) {
+                    return [];
+                }
+                return Object.values(state.customFieldSets.items);
+            }
+        })
     }
 });

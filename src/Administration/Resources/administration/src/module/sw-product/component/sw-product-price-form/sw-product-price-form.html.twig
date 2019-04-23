@@ -9,7 +9,7 @@
                           validation="required"
                           required
                           v-model="product.taxId">
-                        <option v-for="tax in taxRates" :key="tax.id" :value="tax.id" :selected="product.taxId === tax.id">{{ tax.name }}</option>
+                        <option v-for="tax in taxes" :key="tax.id" :value="tax.id" :selected="product.taxId === tax.id">{{ tax.name }}</option>
                 </sw-field>
             {% endblock %}
 
@@ -27,14 +27,13 @@
         </sw-container>
 
         {% block sw_product_price_form_price_field %}
-            <sw-price-field
-                :price="product.price"
-                :taxRate="productTaxRate"
-                :currency="defaultCurrency"
-                rootPointer="product"
-                validation="required"
-                required
-                @calculating="priceIsCalculating">
+            <sw-price-field v-if="!isLoading"
+                            :price="product.price"
+                            :taxRate="productTaxRate"
+                            :currency="defaultCurrency"
+                            rootPointer="product"
+                            validation="required"
+                            required>
             </sw-price-field>
         {% endblock %}
 

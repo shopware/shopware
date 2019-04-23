@@ -8,6 +8,11 @@ $sw-property-assignment-background-color-options-item: $color-light-gray;
     .sw-grid-column .sw-grid__cell-content {
         padding: 15px 15px 5px 15px;
     }
+
+    .sw-empty-state {
+        position: relative;
+        margin-top: 40px;
+    }
 }
 .sw-property-assignment__grid_option_item {
     display: inline-block;

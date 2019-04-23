@@ -1,100 +1,236 @@
 import { Component } from 'src/core/shopware';
-import StoreLoader from 'src/core/helper/store-loader.helper';
+import { mapState } from 'vuex';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-product-visibility-select.html.twig';
 
-Component.extend('sw-product-visibility-select', 'sw-select', {
+Component.extend('sw-product-visibility-select', 'sw-multi-select', {
     template,
 
+    inject: ['repositoryFactory', 'context'],
+
+    props: {
+        options: {
+            type: Array,
+            required: false
+        },
+        labelProperty: {
+            type: String,
+            required: false,
+            default: 'name'
+        },
+        valueProperty: {
+            type: String,
+            required: false,
+            default: 'id'
+        },
+        localMode: {
+            type: Boolean,
+            default: false
+        },
+        collection: {
+            type: Object,
+            required: true
+        },
+        resultLimit: {
+            type: Number,
+            required: false,
+            default: 25
+        }
+    },
+
+    data() {
+        return {
+            limit: this.valueLimit,
+            repository: null,
+            searchRepository: null,
+            selectedIds: [],
+            searchCriteria: null
+        };
+    },
+
+    computed: {
+        ...mapState('swProductDetail', [
+            'product'
+        ])
+    },
+
     methods: {
-        loadSelected() {
-            this.isLoadingSelections = true;
+        initData() {
+            this.repository = this.repositoryFactory.create(this.collection.entity, this.collection.source);
 
-            const params = {
-                associations: { salesChannel: {} }
-            };
+            this.searchRepository = this.repositoryFactory.create('sales_channel');
 
-            const loader = new StoreLoader();
-            loader.loadAll(this.associationStore, params).then((items) => {
-                this.selections = items;
-                this.isLoadingSelections = false;
-            });
-        },
+            this.collection.criteria.setLimit(this.valueLimit);
+            this.searchCriteria = new Criteria(1, this.resultLimit);
 
-        isInSelections(item) {
-            return !this.selections.every((selection) => {
-                return selection.salesChannelId !== item.id;
-            });
-        },
+            this.selectedIds = this.collection.getIds();
 
-        getBySalesChannelId(salesChannelId) {
-            let item = null;
+            this.$on('scroll', this.paginate);
 
-            this.associationStore.each((visibility) => {
-                if (visibility.salesChannelId === salesChannelId) {
-                    item = visibility;
-                }
-            });
-
-            return item;
-        },
-
-        addSelection({ item }) {
-            if (item === undefined || !item.id) {
-                return;
+            if (this.localMode) {
+                return Promise.resolve();
             }
 
-            if (this.isInSelections(item)) {
-                let idToRemove = null;
-                this.associationStore.forEach((ine) => {
-                    if (ine.salesChannelId === item.id) {
-                        idToRemove = ine.id;
+            return this.repository.search(this.collection.criteria, this.collection.context).then(this.displayAssigned);
+        },
+
+        reloadVisibleItems() {
+            if (this.localMode) {
+                this.displayAssigned(Object.values(this.collection.items));
+
+                return Promise.resolve();
+            }
+
+            return this.repository.search(this.collection.criteria, this.collection.context).then(this.displayAssigned);
+        },
+
+        loadVisibleItems() {
+            this.collection.criteria.setPage(this.collection.criteria.page + 1);
+
+            return this.repository.search(this.collection.criteria, this.collection.context).then(this.displayAssigned);
+        },
+
+        search() {
+            this.searchCriteria.setTerm(this.searchTerm);
+            this.searchCriteria.setPage(1);
+            this.currentOptions = [];
+            return this.sendSearchRequest();
+        },
+
+        isSelected(item) {
+            const itemId = item.id;
+
+            return this.visibleValues.some((value) => {
+                return value.salesChannelId === itemId;
+            });
+        },
+
+        getAssociation(itemId) {
+            return this.visibleValues.find((value) => {
+                return value.salesChannelId === itemId;
+            });
+        },
+
+        openResultList(event) {
+            if (this.isExpanded === false) {
+                this.currentOptions = [];
+                this.page = 1;
+
+                this.$super.openResultList(event);
+
+                return this.loadResultList();
+            }
+
+            return this.$super.openResultList(event);
+        },
+
+        loadResultList() {
+            this.searchCriteria = new Criteria(1, this.resultLimit);
+            return this.sendSearchRequest();
+        },
+
+        paginate(event) {
+            if (this.getDistFromBottom(event.target) !== 0) {
+                return Promise.resolve();
+            }
+
+            if (this.localMode) {
+                return Promise.resolve();
+            }
+
+            this.searchCriteria.setPage(this.searchCriteria.page + 1);
+            return this.sendSearchRequest();
+        },
+
+        remove(identifier) {
+            // remove identifier from visible element list
+            this.visibleValues = this.visibleValues.filter((item) => {
+                return item[this.valueProperty] !== identifier;
+            });
+
+            this.selectedIds = this.selectedIds.filter((id) => {
+                return id !== identifier;
+            });
+
+            if (this.localMode) {
+                this.collection.remove(identifier);
+                return Promise.resolve();
+            }
+
+            return this.repository.delete(identifier, this.collection.context);
+        },
+
+        addItem({ item }) {
+            // Remove when already selected
+            if (this.isSelected(item)) {
+                const removeValue = this.getAssociation(item.id);
+                this.remove(removeValue.id);
+                return Promise.resolve();
+            }
+
+            // Create new entity
+            const newSalesChannelAssociation = this.repository.create(this.collection.context);
+            newSalesChannelAssociation.productId = this.product.id;
+            newSalesChannelAssociation.productVersionId = this.product.versionId;
+            newSalesChannelAssociation.salesChannelId = item.id;
+            newSalesChannelAssociation.visibility = 30;
+            newSalesChannelAssociation.salesChannel = item;
+
+            if (this.localMode) {
+                this.collection.add(newSalesChannelAssociation);
+                this.reloadVisibleItems();
+
+                return Promise.resolve();
+            }
+
+            this.repository.save(newSalesChannelAssociation, this.collection.context).then(() => {
+                // Add new entity to visible items
+                this.reloadVisibleItems();
+            });
+
+            return Promise.resolve();
+        },
+
+        sendSearchRequest() {
+            return this.searchRepository.search(this.searchCriteria, this.context)
+                .then((searchResult) => {
+                    if (searchResult.length <= 0) {
+                        return searchResult;
                     }
+
+                    const criteria = new Criteria();
+                    criteria.setIds(searchResult.getIds());
+
+                    return this.repository.searchIds(criteria, this.collection.context).then((assigned) => {
+                        assigned.data.forEach((id) => {
+                            this.selectedIds.push(id);
+                        });
+
+                        this.displaySearch(searchResult);
+
+                        return searchResult;
+                    });
                 });
-
-                this.dismissSelection(idToRemove);
-                return;
-            }
-
-            const salesChannelId = item.id;
-
-            if (!this.isInSelections(salesChannelId)) {
-                const newItem = this.associationStore.create();
-
-                newItem.setLocalData({
-                    salesChannelId: salesChannelId,
-                    salesChannelInternal: item,
-                    // full visible
-                    visibility: 30
-                });
-
-                this.selections.push(newItem);
-                this.selected.push(item);
-            } else {
-                const visibility = this.getBySalesChannelId(salesChannelId);
-
-                // In case the entity was already created but was deleted before
-                visibility.isDeleted = false;
-            }
-
-            this.searchTerm = '';
-
-            this.setFocus();
         },
 
-        dismissSelection(id) {
-            if (!id) {
-                return;
-            }
+        getDistFromBottom(element) {
+            return element.scrollHeight - element.clientHeight - element.scrollTop;
+        },
 
-            this.deletedItems.push(id);
-            this.selections = this.selections.filter((entry) => entry.id !== id);
-            this.selected = this.selected.filter((entry) => entry.id !== id);
+        displayAssigned(result) {
+            this.selectedIds = [];
+            this.visibleValues = [];
+            result.forEach((item) => {
+                this.selectedIds.push(item[this.valueProperty]);
+                this.visibleValues.push(item);
+            });
 
-            const entity = this.associationStore.store[id];
-            entity.delete();
+            this.invisibleValueCount = result.total - this.visibleValues.length;
+        },
 
-            this.selections = Object.values(this.associationStore.store).filter((item) => {
-                return item.isDeleted === false;
+        displaySearch(result) {
+            result.forEach((item) => {
+                this.currentOptions.push(item);
             });
         }
     }

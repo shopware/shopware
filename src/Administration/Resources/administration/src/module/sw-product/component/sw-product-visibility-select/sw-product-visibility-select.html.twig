@@ -1,8 +1,7 @@
-{% block sw_select_selection_item_text %}
-    <span v-if="selection.salesChannelInternal" class="sw-select__selection-item">
-        {{ selection.salesChannelInternal.translated.name }}
-    </span>
-    <span v-else class="sw-select__selection-item">
-        {{ selection.salesChannel.translated.name }}
+{% block sw_multi_select_selection_item_text %}
+    <span class="sw-multi-select__selection-item">
+        <slot name="labelProperty" :item="selection">
+            {{ selection.salesChannel.translated.name }}
+        </slot>
     </span>
 {% endblock %}

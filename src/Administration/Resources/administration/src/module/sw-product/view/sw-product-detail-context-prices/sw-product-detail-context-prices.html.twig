@@ -3,7 +3,7 @@
 
         {% block sw_product_detail_prices_empty_state %}
             <sw-card class="context-prices__empty-state"
-                     v-if="!isLoaded && !product.prices.length"
+                     v-if="isLoading"
                      :large="true">
                 <sw-loader></sw-loader>
             </sw-card>
@@ -20,25 +20,26 @@
 
                 {% block sw_product_detail_prices_price_card_toolbar %}
                     <label class="context-prices__toolbar-label">{{ $tc('sw-product.prices.toolbarLabel') }}</label>
-                    <div class="context-prices__toolbar">
+                    <div class="context-prices__toolbar" v-if="!isLoading">
 
                         {% block sw_product_detail_prices_price_card_rule_selection %}
-                            <sw-select id="rule"
-                                       :store="ruleStore"
-                                       :criteria="ruleFilter"
-                                       :value="priceGroup.ruleId"
-                                       validation="required"
-                                       required
-                                       @input="onRuleChange($event, priceGroup.ruleId)">
+                            <sw-entity-single-select
+                                    v-if="rules.entity"
+                                    id="rule"
+                                    :value="priceGroup.ruleId"
+                                    @input="onRuleChange($event, priceGroup.ruleId)"
+                                    :entity="rules.entity">
+
                                 <template slot="result_items" slot-scope="{ item, index }">
-                                        <sw-select-option
-                                                :disabled="!!priceRuleGroups[item.id]"
-                                                :index="index"
-                                                :item="item">
-                                            {{ item.name }}
-                                        </sw-select-option>
+                                    <sw-single-select-option
+                                            :disabled="!!priceRuleGroups[item.id]"
+                                            :index="index"
+                                            :item="item">
+                                        {{ item.name }}
+                                    </sw-single-select-option>
                                 </template>
-                            </sw-select>
+
+                            </sw-entity-single-select>
                         {% endblock %}
 
                         {% block sw_product_detail_prices_price_card_action_delete %}
@@ -79,7 +80,7 @@
                 {% endblock %}
 
                 {% block sw_product_detail_prices_price_matrix %}
-                    <div class="context-prices__prices" v-for="currencyRule in priceGroup.currencies">
+                    <div class="context-prices__prices" v-if="!isLoading" v-for="currencyRule in priceGroup.currencies">
 
                         {% block sw_product_detail_prices_price_matrix_title %}
                             <h3 v-if="currencyRule.currency">

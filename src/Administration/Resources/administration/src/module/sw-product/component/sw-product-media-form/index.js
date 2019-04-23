@@ -1,4 +1,6 @@
 import { Component, Mixin, State } from 'src/core/shopware';
+import { mapState, mapGetters } from 'vuex';
+import utils from 'src/core/service/util.service';
 import template from './sw-product-media-form.html.twig';
 import './sw-product-media-form.scss';
 
@@ -10,23 +12,70 @@ Component.register('sw-product-media-form', {
     ],
 
     props: {
-        product: {
-            type: Object,
-            required: true,
-            default: {}
+        productId: {
+            type: String,
+            required: true
         }
     },
 
     data() {
         return {
+            isMediaLoading: true,
+            product: {},
             columnCount: 7,
             columnWidth: 90
         };
     },
 
+    watch: {
+        'product.media': {
+            deep: true,
+            handler: utils.debounce(function saveProduct() {
+                const changes = Object.getOwnPropertyNames(this.product.getChanges());
+
+                const translatedIndex = changes.indexOf('translated');
+                if (translatedIndex >= 0) {
+                    changes.splice(translatedIndex, 1);
+                }
+
+                if (changes.length > 0) {
+                    if (!this.localMode) {
+                        this.product.save();
+                    }
+                }
+            }, 500)
+        }
+    },
+
     computed: {
+        ...mapState('swProductDetail', [
+            'localMode'
+        ]),
+
+        ...mapGetters('swProductDetail', {
+            isStoreLoading: 'isLoading'
+        }),
+
+        isLoading() {
+            let isActualLoading = false;
+
+            if (this.isMediaLoading) {
+                isActualLoading = true;
+            }
+
+            if (this.isStoreLoading) {
+                isActualLoading = true;
+            }
+
+            return isActualLoading;
+        },
+
+        productStore() {
+            return State.getStore('product');
+        },
+
         mediaItems() {
-            const mediaItems = this.product.media.slice();
+            const mediaItems = this.productMedia.slice();
             const placeholderCount = this.getPlaceholderCount(this.columnCount);
             if (placeholderCount === 0) {
                 return mediaItems;
@@ -37,6 +86,10 @@ Component.register('sw-product-media-form', {
             }
 
             return mediaItems;
+        },
+
+        productMedia() {
+            return Object.values(this.product.media);
         },
 
         productMediaStore() {
@@ -60,8 +113,14 @@ Component.register('sw-product-media-form', {
         this.mountedComponent();
     },
 
+    destroyed() {
+        this.destroyedComponent();
+    },
+
     methods: {
         mountedComponent() {
+            this.loadMedia();
+
             const that = this;
             this.$device.onResize({
                 listener() {
@@ -70,23 +129,107 @@ Component.register('sw-product-media-form', {
                 component: this
             });
             this.updateColumnCount();
+
+            this.$root.$on('media-added', (mediaId) => {
+                // add media
+                this.addMediaWithId(mediaId);
+            });
+        },
+
+        destroyedComponent() {
+            this.$root.$off('media-added');
+        },
+
+        addMediaWithId(mediaId) {
+            return new Promise((resolve) => {
+                // get media
+                this.mediaStore.getByIdAsync(mediaId).then((res) => {
+                    const responseMedia = res;
+
+                    // set mediaId
+                    responseMedia.setData({ mediaId: responseMedia.id });
+
+                    // push it to existing product
+                    this.product.media.push(responseMedia);
+                    resolve();
+                });
+            });
+        },
+
+        loadMedia() {
+            if (this.localMode) {
+                this.isMediaLoading = true;
+
+                // create new empty product
+                this.product = this.productStore.create();
+
+                // get existing media from vuex store
+                const productFromStore = this.$store.getters['swProductDetail/getProduct'];
+                const existingCoverId = productFromStore.coverId || '';
+                const mediaItemsFromStore = productFromStore.media.items;
+
+                // add cover to product
+                this.product.coverId = existingCoverId;
+
+                const mediaPromises = Object.values(mediaItemsFromStore).map((media) => {
+                    return new Promise((resolve) => {
+                        // get media
+                        this.mediaStore.getByIdAsync(media.mediaId).then((res) => {
+                            const responseMedia = res;
+
+                            // set mediaId
+                            responseMedia.setData({ mediaId: responseMedia.id });
+
+                            // push it to existing product
+                            this.product.media.push(responseMedia);
+                            resolve();
+                        });
+                    });
+                });
+
+                // get all media items from api
+                Promise.all(mediaPromises).then(() => {
+                    this.isMediaLoading = false;
+                    this.updateColumnCount();
+                });
+
+                return true;
+            }
+
+            this.isMediaLoading = true;
+            this.product = this.productStore.getById(this.productId);
+            this.product.getAssociation('media').getList({
+                page: 1,
+                limit: 50,
+                sortBy: 'position',
+                sortDirection: 'ASC'
+            });
+            this.isMediaLoading = false;
+
+            return true;
         },
 
         updateColumnCount() {
             this.$nextTick(() => {
+                if (this.isLoading) {
+                    return false;
+                }
+
                 const cssColumns = window.getComputedStyle(this.$refs.grid, null)
                     .getPropertyValue('grid-template-columns')
                     .split(' ');
                 this.columnCount = cssColumns.length;
                 this.columnWidth = cssColumns[0];
+
+                return true;
             });
         },
 
         getPlaceholderCount(columnCount) {
-            if (this.product.media.length + 3 < columnCount * 2) {
+            if (this.productMedia.length + 3 < columnCount * 2) {
                 columnCount *= 2;
             }
-            const placeholderCount = columnCount - ((this.product.media.length + 3) % columnCount);
+            const placeholderCount = columnCount - ((this.productMedia.length + 3) % columnCount);
 
             if (placeholderCount === columnCount) {
                 return 0;
@@ -115,7 +258,7 @@ Component.register('sw-product-media-form', {
             this.product.isLoading = true;
             this.mediaStore.sync().then(() => {
                 data.forEach((upload) => {
-                    if (this.product.media.some((pMedia) => {
+                    if (this.productMedia.some((pMedia) => {
                         return pMedia.mediaId === upload.targetId;
                     })) {
                         return;
@@ -141,24 +284,34 @@ Component.register('sw-product-media-form', {
             const productMedia = this.productMediaStore.create();
             productMedia.mediaId = mediaId;
 
-            if (this.product.media.length === 0) {
+            if (this.productMedia.length === 0) {
                 productMedia.position = 0;
                 this.product.coverId = productMedia.id;
             } else {
-                productMedia.position = this.product.media.length + 1;
+                productMedia.position = this.productMedia.length + 1;
             }
 
             return productMedia;
         },
 
         successfulUpload({ targetId }) {
-            this.mediaStore.getByIdAsync(targetId).then(() => {
+            this.mediaStore.getByIdAsync(targetId).then((mediaItem) => {
+                if (this.localMode) {
+                    this.$store.dispatch('swProductDetail/addMedia', mediaItem).then(() => {
+                        this.$forceUpdate();
+                    });
+
+                    return true;
+                }
+                this.product.save();
                 this.$forceUpdate();
+
+                return true;
             });
         },
 
         onUploadFailed(uploadTask) {
-            const toRemove = this.product.media.find((productMedia) => {
+            const toRemove = this.productMedia.find((productMedia) => {
                 return productMedia.mediaId === uploadTask.targetId;
             });
             if (toRemove) {
@@ -181,7 +334,21 @@ Component.register('sw-product-media-form', {
                     this.product.coverId = this.product.media[0].id;
                 }
             }
+
+            if (this.localMode) {
+                const mediaItemsFromStore = this.$store.getters['swProductDetail/getProduct'].media;
+                mediaItemsFromStore.remove(mediaItem.id);
+
+                return true;
+            }
+
             item.delete();
+
+            this.product.save().then(() => {
+                this.$root.$emit('media-remove', mediaItem.id);
+            });
+
+            return true;
         },
 
         isCover(productMedia) {
@@ -197,6 +364,10 @@ Component.register('sw-product-media-form', {
         },
 
         markMediaAsCover(productMedia) {
+            if (this.localMode) {
+                const productFromStore = this.$store.getters['swProductDetail/getProduct'];
+                productFromStore.coverId = productMedia.id;
+            }
             this.product.coverId = productMedia.id;
         },
 

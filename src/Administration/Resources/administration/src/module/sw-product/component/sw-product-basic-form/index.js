@@ -1,4 +1,5 @@
 import { Component, Mixin, State } from 'src/core/shopware';
+import { mapState } from 'vuex';
 import template from './sw-product-basic-form.html.twig';
 
 Component.register('sw-product-basic-form', {
@@ -8,19 +9,6 @@ Component.register('sw-product-basic-form', {
         Mixin.getByName('placeholder')
     ],
 
-    props: {
-        product: {
-            type: Object,
-            required: true,
-            default: {}
-        },
-
-        manufacturerStore: {
-            type: Object,
-            required: true
-        }
-    },
-
     data() {
         return {
             isTitleRequired: true
@@ -28,6 +16,11 @@ Component.register('sw-product-basic-form', {
     },
 
     computed: {
+        ...mapState('swProductDetail', [
+            'product',
+            'loading'
+        ]),
+
         languageStore() {
             return State.getStore('language');
         }

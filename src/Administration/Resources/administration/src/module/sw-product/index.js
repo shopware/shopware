@@ -17,13 +17,11 @@ import './component/sw-product-variants/sw-product-variants-delivery/sw-product-
 import './component/sw-product-variants/sw-product-variants-overview';
 import './component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-price-field';
 import './view/sw-product-detail-base';
-import './view/sw-product-create-base';
 import './view/sw-product-detail-context-prices';
 import './view/sw-product-detail-properties';
 import './view/sw-product-detail-variants';
 import './page/sw-product-list';
 import './page/sw-product-detail';
-import './page/sw-product-create';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
@@ -54,14 +52,14 @@ Module.register('sw-product', {
         },
 
         create: {
-            component: 'sw-product-create',
+            component: 'sw-product-detail',
             path: 'create',
             redirect: {
                 name: 'sw.product.create.base'
             },
             children: {
                 base: {
-                    component: 'sw-product-create-base',
+                    component: 'sw-product-detail-base',
                     path: 'base',
                     meta: {
                         parentPath: 'sw.product.index'
@@ -72,7 +70,10 @@ Module.register('sw-product', {
 
         detail: {
             component: 'sw-product-detail',
-            path: 'detail/:id',
+            path: 'detail/:id?',
+            props: {
+                default: (route) => ({ productId: route.params.id })
+            },
             redirect: {
                 name: 'sw.product.detail.base'
             },

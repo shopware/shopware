@@ -34,17 +34,19 @@
                 </sw-field>
             {% endblock %}
             {% block sw_product_basic_form_manufacturer_field %}
-                <sw-select :store="manufacturerStore"
-                           class="sw-select-product__select_manufacturer"
-                           id="manufacturerId"
-                           required
-                           :placeholder="$tc('sw-product.basicForm.placeholderManufacturer')"
-                           :label="$tc('sw-product.basicForm.labelManufacturer')"
-                           v-model="product.manufacturerId">
-                </sw-select>
+
+                <sw-entity-single-select required
+                                         v-model="product.manufacturerId"
+                                         entity="product_manufacturer"
+                                         class="sw-select-product__select_manufacturer"
+                                         id="manufacturerId"
+                                         :placeholder="$tc('sw-product.basicForm.placeholderManufacturer')"
+                                         :label="$tc('sw-product.basicForm.labelManufacturer')">
+                </sw-entity-single-select>
+
             {% endblock %}
         </sw-container>
 
-        <sw-tag-field :entity="product"></sw-tag-field>
+        <sw-tag-field-new v-if="!loading.product" :entity="product.tags" :label="$tc('global.sw-tag-field.title')"></sw-tag-field-new>
     </div>
 {% endblock %}

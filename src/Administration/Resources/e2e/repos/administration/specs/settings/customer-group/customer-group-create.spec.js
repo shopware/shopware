@@ -59,6 +59,6 @@ module.exports = {
             .click(`${page.elements.salesChannelMenuName}--1`)
             .waitForElementPresent('.sw-sales-channel-detail__select-navigation-category-id')
             .getLocationInView('.sw-sales-channel-detail__select-navigation-category-id')
-            .fillSingleSelect('.sw-sales-channel-detail__select-customer-group', 'E2E Merchant', 1);
+            .fillSingleSelect('.sw-sales-channel-detail__select-customer-group', 'E2E Merchant', 0);
     }
 };

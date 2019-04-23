@@ -83,7 +83,8 @@ export default {
             visibleValues: [],
             invisibleValueCount: 0,
             limit: this.valueLimit,
-            isLoading: false
+            isLoading: false,
+            activeResultPosition: 0
         };
     },
 
@@ -265,6 +266,10 @@ export default {
             this.$emit('input', this.currentValue);
         },
 
+        changeDefaultItemId() {
+            return false;
+        },
+
         onScroll(event) {
             this.$emit('scroll', event);
         },
@@ -282,6 +287,7 @@ export default {
 
         searchDelayed: utils.debounce(function debouncedSearch() {
             this.search();
+            this.$emit('search-finished', this.currentOptions);
         }, 400),
 
         openResultList(event) {

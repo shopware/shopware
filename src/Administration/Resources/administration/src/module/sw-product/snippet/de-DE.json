@@ -135,14 +135,25 @@
       "tabVariation": "Varianten",
       "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Das Produkt \"{name}\" wurde erfolgreich gespeichert.",
-      "messageUploadSuccess": "{count} von {total} Dateien erfolgreich gespeichert."
+      "messageUploadSuccess": "{count} von {total} Dateien erfolgreich gespeichert.",
+      "titleSaveWarning": "Keine Änderung",
+      "messageSaveWarning": "Sie haben keine Änderung vorgenommen."
     },
     "mediaForm": {
+      "errorHeadline": "Fehler",
       "errorNoImage": "\"{file}\" ist kein Bild",
       "errorMediaItemDuplicated": "Medium bereits verwendet"
     },
+    "advancedPrices": {
+      "deletionNotPossibleTitle": "Löschen nicht möglich",
+      "deletionNotPossibleMessage": "Der letzte Preis der Standardwährung kann nicht gelöscht werden."
+    },
     "properties": {
-      "cardTitleProperties": "Eigenschaften"
+      "cardTitleProperties": "Eigenschaften",
+      "emptyStateNoOptionsTitle": "Keine Optionen vorhanden",
+      "emptyStateNoOptionsDescription": "Du musst erst Optionen in den Eigenschaften erstellen um diese zuordnen zu können.",
+      "emptyStateNoSelectedOptionsTitle": "Keine Optionen ausgewählt",
+      "emptyStateNoSelectedOptionsDescription": "Bitte wähle Optionen aus der obigen Suche aus."
     },
     "variations": {
       "emptyStateDescription": "Für dieses Produkt existieren noch keine Varianten.",

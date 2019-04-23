@@ -1,39 +1,23 @@
-import { Component, State } from 'src/core/shopware';
+import { Component } from 'src/core/shopware';
+import { mapState } from 'vuex';
 import template from './sw-product-category-form.html.twig';
 
 Component.register('sw-product-category-form', {
     template,
 
-    props: {
-        product: {
-            type: Object,
-            required: true,
-            default: {}
-        }
-    },
-
     data() {
         return {
-            displayVisibilityDetail: false
+            displayVisibilityDetail: false,
+            multiSelectVisible: true
         };
     },
 
     computed: {
-        categoryStore() {
-            return State.getStore('category');
-        },
-
-        salesChannelStore() {
-            return State.getStore('sales_channel');
-        },
-
-        visibilityAssociationStore() {
-            return this.product.getAssociation('visibilities');
-        },
-
-        categoryAssociationStore() {
-            return this.product.getAssociation('categories');
-        }
+        ...mapState('swProductDetail', [
+            'product',
+            'localMode',
+            'loading'
+        ])
     },
 
     methods: {
@@ -43,6 +27,10 @@ Component.register('sw-product-category-form', {
 
         closeAdvancedVisibility() {
             this.displayVisibilityDetail = false;
+        },
+
+        reloadVisibilites() {
+            this.$store.dispatch('swProductDetail/loadProduct');
         }
     }
 });

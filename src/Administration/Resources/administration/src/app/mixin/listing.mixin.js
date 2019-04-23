@@ -87,6 +87,7 @@ Mixin.register('listing', {
             // Create new route
             const route = {
                 name: this.$route.name,
+                params: this.$route.params,
                 query: {
                     limit: query.limit || this.limit,
                     page: query.page || this.page,

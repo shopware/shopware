@@ -34,11 +34,11 @@ class TextTypeDataResolver extends TypeDataResolver
         if ($config->isMapped() && $resolverContext instanceof EntityResolverContext) {
             $content = $this->resolveEntityValue($resolverContext->getEntity(), $config->getValue());
 
-            $text->setContent($content);
+            $text->setContent((string) $content);
         }
 
         if ($config->isStatic()) {
-            $text->setContent($config->getValue());
+            $text->setContent((string) $config->getValue());
         }
     }
 }

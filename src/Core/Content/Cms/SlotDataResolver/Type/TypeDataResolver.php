@@ -33,6 +33,10 @@ abstract class TypeDataResolver implements SlotTypeDataResolverInterface
         while (count($parts) > 0) {
             $part = array_shift($parts);
 
+            if ($value === null) {
+                break;
+            }
+
             try {
                 $value = $value->get($part);
             } catch (\InvalidArgumentException $ex) {

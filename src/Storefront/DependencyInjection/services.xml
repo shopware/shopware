@@ -83,7 +83,7 @@
         </service>
 
         <service id="Shopware\Storefront\Pagelet\Detail\Images\DetailImagesPageletLoader">
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductRepository"/>
+            <argument type="service" id="product.repository"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 

@@ -144,7 +144,11 @@ export default {
                     },
                     {
                         type: 'insertUnorderedList',
-                        icon: 'default-text-editor-list'
+                        icon: 'default-text-editor-list-unordered'
+                    },
+                    {
+                        type: 'insertOrderedList',
+                        icon: 'default-text-editor-list-numberd'
                     },
                     {
                         type: 'link',

@@ -10,7 +10,8 @@
             :orderCustomer="currentOrder.orderCustomer"
             @sw-address-modal-selected-address="onAddressModalAddressSelected"
             @sw-address-modal-close="onAddressModalClose"
-            @sw-address-modal-save="onAddressModalSave">
+            @sw-address-modal-save="onAddressModalSave"
+            @sw-address-modal-error="$emit('error')">
         </sw-order-address-modal>
     {% endblock %}
     <sw-container slot="grid" rows="auto auto">

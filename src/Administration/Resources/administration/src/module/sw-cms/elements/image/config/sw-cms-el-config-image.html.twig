@@ -3,7 +3,7 @@
         {% block sw_cms_element_image_config_media_upload %}
             <sw-media-upload variant="regular"
                              :uploadTag="uploadTag"
-                             :source="element.data.media && element.data.media.id ? element.data.media : null"
+                             :source="element.data && element.data.media ? element.data.media : null"
                              :allowMultiSelect="false"
                              :defaultFolder="cmsPageState.pageEntityName"
                              :caption="$tc('sw-cms.elements.captionMediaUpload')"

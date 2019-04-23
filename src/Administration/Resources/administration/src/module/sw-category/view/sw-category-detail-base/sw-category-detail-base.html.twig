@@ -1,0 +1,292 @@
+{% block sw_category_detail_base %}
+    <div class="sw-category-detail__base">
+
+        {% block sw_category_detail_information %}
+            <sw-card :title="$tc('sw-category.base.general.headlineInformationCard')" :isLoading="isLoading || isLoadingProducts">
+                {% block sw_category_detail_information_name %}
+                    <sw-field
+                        name="categoryName"
+                        class="sw-category-detail__base-name"
+                        v-model="category.name"
+                        validation="required"
+                        :label="$tc('sw-category.base.general.categoryNameLabel')"
+                        :placeholder="placeholder(category, 'name')">
+                    </sw-field>
+                {% endblock %}
+
+                <sw-container columns="repeat(auto-fit, minmax(150px, 1fr))" gap="0px 30px" class="sw-category-detail__info">
+                    {% block sw_category_detail_information_active %}
+                        <sw-field type="boolean" :label="$tc('sw-category.base.general.isCategoryActiveLabel')" name="categoryActive" v-model="category.active"></sw-field>
+                    {% endblock %}
+                    {% block sw_category_detail_information_subcategories %}
+                        <sw-field
+                            class="sw-category-detail__base-subcategories"
+                            name="categoryShowSubcategories"
+                            type="boolean"
+                            :label="$tc('sw-category.base.general.showSubcategoryProductsLabel')"
+                            v-model="category.displayNestedProducts">
+                        </sw-field>
+                    {% endblock %}
+                </sw-container>
+
+                <sw-container columns="repeat(auto-fit, minmax(150px, 1fr))" gap="0px 30px">
+                    {% block sw_category_detail_information_link %}
+                        <sw-field
+                            v-model="hasCategoryLink"
+                            class="sw-category-detail__base-link"
+                            type="boolean"
+                            :label="$tc('sw-category.base.general.useAsLink')">
+                        </sw-field>
+                    {% endblock %}
+
+                    {% block sw_category_detail_information_link_input %}
+                        <sw-field
+                            :disabled="!hasCategoryLink"
+                            v-model="categoryLink"
+                            :label="$tc('sw-category.base.general.linkLabel')"
+                            :placeholder="$tc('sw-category.base.general.linkLabel')">
+                        </sw-field>
+                    {% endblock %}
+                </sw-container>
+
+                {% block sw_category_detail_information_tags %}
+                    <sw-tag-field :entity="category"></sw-tag-field>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
+
+        {% block sw_category_detail_mount %}
+            <sw-card class="sw-category-detail__base-mount" :title="$tc('sw-category.base.mount.title')" :isLoading="isLoading">
+                <p class="base-mount__text">{{ $tc('sw-category.base.mount.descriptionGeneral') }}</p>
+                <!-- @todo -->
+                <a class="base-mount__link" href="#">my-fashion.de</a>
+                <p class="base-mount__text">{{ $tc('sw-category.base.mount.descriptionMenu') }}</p>
+
+                <div class="base-mount__options">
+                    <sw-field type="boolean" :label="$tc('sw-category.base.mount.useAsHomepage')"></sw-field>
+                    <sw-field type="boolean" :label="$tc('sw-category.base.mount.showHomepageAsMainMenuEntry')"></sw-field>
+                </div>
+            </sw-card>
+        {% endblock %}
+
+        {% block sw_category_detail_menu %}
+            <sw-card class="sw-category-detail__menu" :title="$tc('sw-category.base.menu.title')" :isLoading="isLoading">
+
+                {% block sw_category_detail_menu_clickable %}
+                    <sw-field class="sw-category-detail__menu-clickable" type="boolean" :label="$tc('sw-category.base.menu.notClickable')"></sw-field>
+                {% endblock %}
+
+                {% block sw_category_detail_menu_media %}
+                    <sw-upload-store-listener
+                        :uploadTag="category.id"
+                        @sw-media-upload-finished="setMediaItem"
+                        autoUpload>
+                    </sw-upload-store-listener>
+                    <sw-media-upload
+                        :label="$tc('sw-category.base.menu.imageLabel')"
+                        variant="regular"
+                        :source="mediaItem"
+                        :uploadTag="category.id"
+                        :allowMultiSelect="false"
+                        :defaultFolder="category.getEntityName()"
+                        @sw-media-upload-open-sidebar="openMediaSidebar"
+                        @sw-media-upload-remove-image="removeMediaItem">
+                    </sw-media-upload>
+                {% endblock %}
+
+                {% block sw_category_detail_menu_description %}
+                    <sw-field
+                        class="sw-category-detail__description"
+                        type="textarea"
+                        :label="$tc('sw-category.base.menu.description')"
+                        :placeholder="$tc('sw-category.base.menu.description')">
+                    </sw-field>
+                {% endblock %}
+
+            </sw-card>
+        {% endblock %}
+
+        {% block sw_category_detail_layout %}
+            <sw-card :title="$tc('sw-category.base.cms.title')" :isLoading="isLoading && cmsPages.length">
+                <div v-if="cmsPage" class="sw-category-detail__layout">
+
+                    {% block sw_category_detail_layout_preview %}
+                        <sw-cms-list-item :page="cmsPage"></sw-cms-list-item>
+                    {% endblock %}
+
+                    {% block sw_category_detail_layout_modal %}
+                        <sw-cms-layout-modal
+                            v-if="showLayoutSelectionModal"
+                            @modal-layout-select="onLayoutSelect"
+                            @modal-close="closeLayoutModal">
+                        </sw-cms-layout-modal>
+                    {% endblock %}
+
+                    {% block sw_category_detail_layout_desc %}
+                        <div class="sw-category-detail__layout-desc">
+
+                            {% block sw_category_detail_layout_desc_info %}
+                                <div class="layout-desc__info">
+                                    <div class="layout-desc__headline">{{ cmsPage.name }}</div>
+                                    <div class="layout-desc__subheadline">{{ cmsPage.type }}</div>
+                                </div>
+                            {% endblock %}
+
+                            {% block sw_category_detail_layout_desc_actions %}
+                                <div class="layout-desc__actions">
+                                    <sw-button size="small" @click="openLayoutModal()">{{ $tc('sw-category.base.cms.changeLayout') }}</sw-button>
+                                    <sw-button size="small" @click="openInPagebuilder()">{{ $tc('sw-category.base.cms.editInPagebuilder') }}</sw-button>
+                                </div>
+                            {% endblock %}
+
+                            {% block sw_category_detail_layout_desc_link %}
+                                <router-link class="layout-desc__link" :to="{ name: 'sw.category.detail.cms', params: { id: $route.params.id }}">
+                                    {{ $tc('sw-category.base.cms.editContent') }}
+                                    <sw-icon name="default-arrow-simple-right" small></sw-icon>
+                                </router-link>
+                            {% endblock %}
+
+                        </div>
+                    {% endblock %}
+                </div>
+            </sw-card>
+        {% endblock %}
+
+        {% block sw_category_detail_seo %}
+            <sw-card :title="$tc('sw-category.base.seo.title')" :isLoading="isLoading">
+
+                {% block sw_category_detail_seo_name %}
+                    <sw-field :label="$tc('sw-category.base.seo.title')" :placeholder="$tc('sw-category.base.seo.title')"></sw-field>
+                {% endblock %}
+
+                {% block sw_category_detail_seo_description %}
+                    <sw-field type="textarea" :label="$tc('sw-category.base.seo.description')" :placeholder="$tc('sw-category.base.seo.description')"></sw-field>
+                {% endblock %}
+
+                {% block sw_category_detail_seo_preview %}
+                    <div class="sw-category-detail__seo-preview"></div>
+                {% endblock %}
+
+            </sw-card>
+        {% endblock %}
+
+        {% block sw_category_detail_products %}
+            <sw-card :title="$tc('sw-category.base.products.productAssignmentHeadline')" :isLoading="isLoading || isLoadingProducts">
+
+                {% block sw_category_detail_products_search %}
+                    <div class="sw-category-detail__product-search">
+                        <sw-category-select
+                            ref="productAssignmentSelect"
+                            :categoryId="category.id"
+                            :assignedProducts="products"
+                            :hasPreview="false"
+                            id="productSelection"
+                            itemValueKey="id"
+                            :store="productStore"
+                            :associationStore="categoryProductStore"
+                            :placeholder="$tc('sw-category.base.products.productAssignmentPlaceholder')"
+                            @sw-category-select-on-select="onSelectProduct">
+                        </sw-category-select>
+                    </div>
+
+                    {% block sw_category_detail_products_search_remove %}
+                        <sw-button
+                            v-if="products.length"
+                            class="sw-category-detail__multi-delete"
+                            :disabled="deleteButtonDisabled"
+                            @click="onRemoveProducts"
+                            size="small"
+                            square>
+                                <sw-icon name="default-action-trash" small />
+                        </sw-button>
+                    {% endblock %}
+                {% endblock %}
+
+                {% block sw_category_detail_products_grid %}
+                    <sw-grid
+                        v-if="products.length"
+                        slot="grid"
+                        ref="grid"
+                        selectable
+                        :items="products"
+                        :sortBy="sortBy"
+                        :sortDirection="sortDirection"
+                        :isLoading="isLoadingProducts"
+                        @sw-grid-select-item="selectionChanged"
+                        @sw-grid-select-all="selectionChanged"
+                        table>
+
+                        {% block sw_category_detail_products_grid_columns %}
+                            <template slot="columns" slot-scope="{ item }">
+
+                                {% block sw_category_detail_products_grid_columns_name %}
+                                    <sw-grid-column flex="minmax(200px, 1fr)" :label="$tc('sw-category.base.products.columnNameLabel')">
+                                        <router-link :to="{ name: 'sw.product.detail', params: { id: item.id }}">
+                                            {{ placeholder(item, 'name' ) }}
+                                        </router-link>
+                                    </sw-grid-column>
+                                {% endblock %}
+
+                                {% block sw_category_detail_products_grid_columns_manufacturer %}
+                                    <sw-grid-column flex="minmax(200px, 1fr)" :label="$tc('sw-category.base.products.columnManufacturerLabel')">
+                                        {{ placeholder(item.manufacturer, 'name' ) }}
+                                    </sw-grid-column>
+                                {% endblock %}
+
+                                {% block sw_category_detail_products_grid_columns_actions %}
+                                    <sw-grid-column flex="70px" align="center">
+
+                                        {% block sw_category_detail_products_grid_columns_actions_button %}
+                                            <sw-context-button>
+
+                                                {% block sw_category_detail_products_grid_columns_actions_button_view %}
+                                                    <sw-context-menu-item @click="onViewProduct(item.id)">
+                                                        {{ $tc('sw-category.base.products.productAssignmentActionDetails') }}
+                                                    </sw-context-menu-item>
+                                                {% endblock %}
+
+                                                {% block sw_category_detail_products_grid_columns_actions_button_remove %}
+                                                    <sw-context-menu-item @click="onRemoveProduct(item)">
+                                                        {{ item.isDeleted ?
+                                                            $tc('sw-category.base.products.productAssignmentActionUndo') :
+                                                            $tc('sw-category.base.products.productAssignmentActionRemove')
+                                                        }}
+                                                    </sw-context-menu-item>
+                                                {% endblock %}
+
+                                            </sw-context-button>
+                                        {% endblock %}
+
+                                    </sw-grid-column>
+                                {% endblock %}
+                            </template>
+
+                            {% block sw_category_detail_products_grid_pagination %}
+                                <template slot="pagination">
+                                    <sw-pagination
+                                        :page="page"
+                                        :limit="limit"
+                                        :total="total"
+                                        :total-visible="7"
+                                        @page-change="onPageChange">
+                                    </sw-pagination>
+                                </template>
+                            {% endblock %}
+                        {% endblock %}
+                    </sw-grid>
+
+                    {% block sw_category_detail_products_empty %}
+                        <sw-empty-state
+                            v-else
+                            slot="grid"
+                            :title="$tc('sw-category.base.products.productAssignmentEmptyStateTitle')"
+                            :subline="$tc('sw-category.base.products.productAssignmentEmptyStateSubline')"
+                            icon="default-package-closed">
+                        </sw-empty-state>
+                    {% endblock %}
+                {% endblock %}
+
+            </sw-card>
+        {% endblock %}
+    </div>
+{% endblock %}

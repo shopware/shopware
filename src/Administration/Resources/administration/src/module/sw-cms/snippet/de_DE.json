@@ -71,6 +71,14 @@
       "labelProductBadgeTopseller": "Topseller",
       "labelProductBadgeNew": "Neu",
       "labelProductPriceUnitContent": "Inhalt:"
+    },
+    "components": {
+      "cmsLayoutModal": {
+        "actionCancel": "Abbrechen",
+        "actionConfirm": "Layout übernehmen",
+        "modalTitle": "Layout auswählen",
+        "headline": "Landingpage / Produktlisting"
+      }
     }
   }
 }

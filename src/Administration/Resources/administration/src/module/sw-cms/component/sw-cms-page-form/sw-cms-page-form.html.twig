@@ -5,7 +5,7 @@
             <template v-for="block in page.blocks">
 
                 {% block sw_cms_page_form_card %}
-                    <sw-card class="sw-cms-page-form__block-card" :title="block.config.name ? block.config.name : cmsBlocks[block.type].label" :key="block.id">
+                    <sw-card class="sw-cms-page-form__block-card" :title="block.config && block.config.name ? block.config.name : cmsBlocks[block.type].label" :key="block.id">
 
                         {% block sw_cms_page_form_card_content %}
                             <div class="sw-cms-page-form__element-config" v-for="element in block.slots">

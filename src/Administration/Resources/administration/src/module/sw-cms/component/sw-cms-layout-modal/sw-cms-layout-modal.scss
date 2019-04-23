@@ -1,0 +1,61 @@
+@import '~scss/variables';
+
+.sw-cms-layout-modal {
+
+    .sw-cms-layout-modal__header {
+        display: grid;
+        grid-template-columns: 1fr 250px;
+        align-items: center;
+        padding: 24px 30px;
+        border-bottom: 1px solid $color-steam-cloud;
+
+        .sw-cms-layout-modal__header-title {
+            font-size: 18px;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+        .sw-simple-search-field {
+            margin-bottom: 0;
+        }
+    }
+
+    .sw-cms-layout-modal__content {
+        display: flex;
+        flex-direction: column;
+        padding: 20px 30px;
+        overflow-y: auto;
+
+        .sw-cms-layout-modal__content-item {
+            position: relative;
+
+            &.is--selected {
+                .sw-cms-list-item {
+                    border-color: $color-shopware-blue;
+                }
+            }
+
+            .sw-field--checkbox {
+                margin: 0;
+                width: 16px;
+                position: absolute;
+                grid-template-columns: 16px;
+                top: 24px;
+                left: 24px;
+            }
+        }
+    }
+
+    &.sw-modal.sw-modal--default {
+        .sw-modal__dialog {
+            max-width: 1075px;
+        }
+        .sw-modal__body {
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            height: 520px;
+        }
+    }
+}

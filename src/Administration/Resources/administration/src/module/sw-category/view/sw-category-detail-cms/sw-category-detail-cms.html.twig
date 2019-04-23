@@ -1,0 +1,7 @@
+{% block sw_category_detail_cms %}
+    <div class="sw-category-detail__cms">
+        {% block sw_category_detail_cms_form %}
+            <sw-cms-page-form v-if="cmsPage" :page="cmsPage"></sw-cms-page-form>
+        {% endblock %}
+    </div>
+{% endblock %}

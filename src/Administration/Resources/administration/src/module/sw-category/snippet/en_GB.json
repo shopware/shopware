@@ -5,30 +5,15 @@
             "mainMenuItemList": "Overview",
             "headlineCategories": "Categories",
             "placeholderSearchBar": "Search categories",
-            "headlineInformationCard": "Category information",
             "buttonCreate": "Create category",
             "buttonSafeCategory": "Save",
-            "isCategoryActiveLabel": "Category is active",
             "descriptionLabel": "Description",
-            "imageLabel": "Display image",
-            "showSubcategoryProductsLabel": "Include products from subcategories",
-            "categoryNameLabel": "Name",
             "titleSaveSuccess": "Success",
             "messageSaveSuccess": "Category \"{name}\" has been saved successfully.",
             "useAsLogo": "Use as display image",
             "treeHeadline": "Category structure",
-            "columnNameLabel": "Name",
-            "columnManufacturerLabel": "Manufacturer",
             "treeHeadSelected": "{count} selected",
             "emptyStateHeadline": "No category selected",
-            "productAssignmentHeadline": "Product assignment",
-            "productAssignmentPlaceholder": "Search and assign products...",
-            "productAssignmentActionDetails": "Details",
-            "productAssignmentActionRemove": "Remove",
-            "productAssignmentActionUndo": "Undo",
-            "productAssignmentEmptyText": "No products found",
-            "productAssignmentEmptyStateTitle": "No products assigned",
-            "productAssignmentEmptyStateSubline": "Use the search to add products.",
 
             "leavePageModal": {
                 "headline": "Warning",
@@ -43,6 +28,64 @@
                 "createAfter": "New category after"
             }
         },
+
+        "view": {
+          "general": "Allgemein",
+          "cms": "CMS"
+        },
+
+        "base": {
+          "general": {
+            "categoryNameLabel": "Name",
+            "linkLabel": "Link destination",
+            "headlineInformationCard": "Category information",
+            "isCategoryActiveLabel": "Category is active",
+            "showSubcategoryProductsLabel": "Include products from subcategories",
+            "useAsLink": "Use as link"
+          },
+
+          "mount": {
+            "title": "Mount",
+            "descriptionGeneral": "You have assigned this node in the following sales channels as a mounting point for the main navigation:",
+            "descriptionMenu": "The mounting point is also automatically the home page of these sales channels. If this should not be the case and instead the first active main menu item should be your start page, you can change this here: All subcategories will be deleted, too.",
+            "useAsHomepage": "Use as homepage",
+            "showHomepageAsMainMenuEntry": "Show homepage as main-menu entry"
+          },
+
+          "menu": {
+            "title": "Menü-Settings",
+            "notClickable": "Not clickable",
+            "imageLabel": "Display image",
+            "description": "Description"
+          },
+
+          "cms": {
+            "title": "CMS-Layout",
+            "changeLayout": "Change layout",
+            "editInPagebuilder": "Edit in pagebuilder",
+            "editContent": "Edit content"
+          },
+
+          "seo": {
+            "title": "SEO-Settings",
+            "name": "Meta-Name",
+            "description": "Meta-Description"
+          },
+
+          "products": {
+            "productAssignmentHeadline": "Product assignment",
+            "productAssignmentPlaceholder": "Search and assign products...",
+            "productAssignmentActionDetails": "Details",
+            "productAssignmentActionRemove": "Remove",
+            "productAssignmentActionUndo": "Undo",
+            "productAssignmentEmptyText": "No products found",
+            "productAssignmentEmptyStateTitle": "No products assigned",
+            "productAssignmentEmptyStateSubline": "Use the search to add products.",
+            "columnNameLabel": "Name",
+            "columnManufacturerLabel": "Manufacturer"
+          }
+        },
+
         "modal": {
             "modalTitleDelete": "Delete category",
             "textDeleteConfirm": "Are you sure you really want to delete the category \"{name}\"?",

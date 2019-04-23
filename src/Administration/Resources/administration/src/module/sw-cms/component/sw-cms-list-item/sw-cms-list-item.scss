@@ -34,5 +34,9 @@
 
     .sw-cms-list-item__title {
         color: $color-kashmir;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        font-size: 14px;
     }
 }

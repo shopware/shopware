@@ -71,6 +71,14 @@
       "labelProductBadgeTopseller": "Topseller",
       "labelProductBadgeNew": "New",
       "labelProductPriceUnitContent": "Content:"
+    },
+    "components": {
+      "cmsLayoutModal": {
+        "actionCancel": "Cancel",
+        "actionConfirm": "Confirm layout",
+        "modalTitle": "Select layout",
+        "headline": "Landing page / product listing"
+      }
     }
   }
 }

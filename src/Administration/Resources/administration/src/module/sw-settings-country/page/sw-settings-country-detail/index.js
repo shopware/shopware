@@ -17,7 +17,17 @@ Component.register('sw-settings-country-detail', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
     computed: {
+        identifier() {
+            return this.placeholder(this.country, 'name');
+        },
+
         countryStore() {
             return State.getStore('country');
         }

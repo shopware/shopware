@@ -20,6 +20,12 @@ Component.register('sw-settings-attribute-set-list', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    },
+
     computed: {
         // Settings Listing mixin override
         titleSaveSuccess() {

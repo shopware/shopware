@@ -3,5 +3,11 @@ import template from './sw-settings-index.html.twig';
 import './sw-settings-index.scss';
 
 Component.register('sw-settings-index', {
-    template
+    template,
+
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    }
 });

@@ -1,4 +1,4 @@
-import { Filter, Mixin, State } from 'src/core/shopware';
+import { Mixin, State } from 'src/core/shopware';
 import domUtils from 'src/core/service/utils/dom.utils';
 import template from './sw-media-media-item.html.twig';
 import './sw-media-media-item.scss';
@@ -29,27 +29,9 @@ export default {
 
     inject: ['mediaService'],
 
-    provide() {
-        return {
-            renameEntity: this.renameEntity,
-            rejectRenaming: this.rejectRenaming
-        };
-    },
-
     mixins: [
-        Mixin.getByName('selectable-media-item'),
         Mixin.getByName('notification')
     ],
-
-    props: {
-        item: {
-            type: Object,
-            required: true,
-            validator(value) {
-                return value.getEntityName() === 'media';
-            }
-        }
-    },
 
     data() {
         return {
@@ -72,51 +54,65 @@ export default {
 
         mediaStore() {
             return State.getStore('media');
-        },
-
-        displayName() {
-            if (this.item.hasFile) {
-                return `${this.item.fileName}.${this.item.fileExtension}`;
-            }
-
-            return this.item.isLoading ? this.$tc('global.sw-media-media-item.labelUploading') : '';
-        },
-
-        editFileName() {
-            return this.item.fileName || '';
-        },
-
-        baseComponent() {
-            return this.$refs.innerComponent;
-        },
-
-        dateFilter() {
-            return Filter.getByName('date');
-        },
-
-        fileSizeFilter() {
-            return Filter.getByName('fileSize');
-        },
-
-        getMetaData() {
-            const metadata = [
-                this.dateFilter(this.item.uploadedAt, { month: 'long' })
-            ];
-
-            if (this.item.fileSize) {
-                metadata.push(this.fileSizeFilter(this.item.fileSize, this.locale));
-            }
-
-            return metadata.join(', ');
         }
     },
 
     methods: {
-        emitPlayEvent(originalDomEvent) {
+        onChangeName(updatedName, item, endInlineEdit) {
+            if (!updatedName || !updatedName.trim()) {
+                this.rejectRenaming(endInlineEdit);
+                return;
+            }
+
+            item.isLoading = true;
+            this.mediaService.renameMedia(item.id, updatedName).then(() => {
+                this.mediaStore.getByIdAsync(item.id).then(() => {
+                    this.createNotificationSuccess({
+                        title: this.$tc('global.sw-media-media-item.notification.renamingSuccess.title'),
+                        message: this.$tc('global.sw-media-media-item.notification.renamingSuccess.message')
+                    });
+                });
+
+                endInlineEdit();
+                this.$emit('sw-media-item-rename-successful', item);
+            }).catch(() => {
+                item.isLoading = false;
+                endInlineEdit();
+                this.createNotificationError({
+                    title: this.$tc('global.sw-media-media-item.notification.renamingError.title'),
+                    message: this.$tc('global.sw-media-media-item.notification.renamingError.message')
+                });
+            });
+        },
+
+        rejectRenaming(endInlineEdit) {
+            this.createNotificationError({
+                title: this.$tc('global.sw-media-media-item.notification.errorBlankItemName.title'),
+                message: this.$tc('global.sw-media-media-item.notification.errorBlankItemName.message')
+            });
+
+            endInlineEdit();
+        },
+
+        onBlur(event, item, endInlineEdit) {
+            const input = event.target.value;
+            if (input !== item.fileName) {
+                return;
+            }
+
+            if (!input || !input.trim()) {
+                this.rejectRenaming(item, 'empty-name', endInlineEdit);
+                return;
+            }
+
+            endInlineEdit();
+        },
+
+        emitPlayEvent(originalDomEvent, item) {
             if (!this.selected) {
                 this.$emit('sw-media-media-item-play', {
                     originalDomEvent,
-                    item: this.item
+                    item
                 });
                 return;
             }
@@ -124,8 +120,8 @@ export default {
             this.removeFromSelection(originalDomEvent);
         },
 
-        copyItemLink() {
-            domUtils.copyToClipboard(this.item.url);
+        copyItemLink(item) {
+            domUtils.copyToClipboard(item.url);
             this.createNotificationSuccess({
                 title: this.$tc('sw-media.general.notification.urlCopied.title'),
                 message: this.$tc('sw-media.general.notification.urlCopied.message')
@@ -153,42 +149,6 @@ export default {
 
         closeModalReplace() {
             this.showModalReplace = false;
-        },
-
-        onStartRenaming() {
-            this.baseComponent.startInlineEdit();
-        },
-
-        renameEntity(updatedName) {
-            if (this.item.fileName === updatedName) {
-                return Promise.resolve();
-            }
-
-            this.item.isLoading = true;
-            return this.mediaService.renameMedia(this.item.id, updatedName).then(() => {
-                this.mediaStore.getByIdAsync(this.item.id).then(() => {
-                    this.createNotificationSuccess({
-                        title: this.$tc('global.sw-media-media-item.notification.renamingSuccess.title'),
-                        message: this.$tc('global.sw-media-media-item.notification.renamingSuccess.message')
-                    });
-                });
-                this.$emit('sw-media-item-rename-successful', this.item);
-            }).catch(() => {
-                this.item.isLoading = false;
-                this.createNotificationError({
-                    title: this.$tc('global.sw-media-media-item.notification.renamingError.title'),
-                    message: this.$tc('global.sw-media-media-item.notification.renamingError.message')
-                });
-            });
-        },
-
-        rejectRenaming(cause) {
-            if (cause === 'empty-name') {
-                this.createNotificationError({
-                    title: this.$tc('global.sw-media-media-item.notification.errorBlankItemName.title'),
-                    message: this.$tc('global.sw-media-media-item.notification.errorBlankItemName.message')
-                });
-            }
         },
 
         openModalMove() {

@@ -155,7 +155,7 @@ export default {
 
         onKeyDown(event) {
             if (event instanceof KeyboardEvent && event.key === 's') {
-                const element = event.path[0];
+                const element = event.target;
                 if (element.nodeName === 'INPUT' || element.nodeName === 'TEXTAREA' || element.nodeName === 'SELECT') {
                     return;
                 }

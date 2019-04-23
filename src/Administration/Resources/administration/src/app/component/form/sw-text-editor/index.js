@@ -235,7 +235,7 @@ export default {
         },
 
         onSelectionChange(event) {
-            if (!event.path.includes(this.$el) && !event.path.includes(this.toolbar)) {
+            if (event.type === 'mousedown' && !event.path.includes(this.$el) && !event.path.includes(this.toolbar)) {
                 this.hasSelection = false;
                 return;
             }
@@ -319,10 +319,12 @@ export default {
         },
 
         emitContent() {
-            if (!this.$refs.editor) {
+            if (!this.$refs.editor || this.value === this.$refs.editor.innerHTML) {
                 return;
             }
 
+
+            // remove leading and trailing <br>
             const regex = /^\s*(?:<br\s*\/?\s*>)+|(?:<br\s*\/?\s*>)+\s*$/gi;
             let val = this.$refs.editor.innerHTML.replace(regex, '');
 
@@ -332,7 +334,10 @@ export default {
         },
 
         setWordcount() {
+            // strip line breaks
             let text = this.$refs.editor.innerText.replace(/(\r\n|\n|\r)/gm, '');
+
+            // strip Tags
             text = text.replace(/<\/?("[^"]*"|'[^']*'|[^>])*(>|$)/g, '');
             this.textLength = text.length;
         }

@@ -5,5 +5,11 @@ import template from './sw-admin.html.twig';
  */
 export default {
     name: 'sw-admin',
-    template
+    template,
+
+    metaInfo() {
+        return {
+            title: this.$tc('global.sw-admin-menu.textShopwareAdmin')
+        };
+    }
 };

@@ -25,7 +25,17 @@ Component.register('sw-product-detail', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
     computed: {
+        identifier() {
+            return this.placeholder(this.product, 'name');
+        },
+
         productStore() {
             return State.getStore('product');
         },

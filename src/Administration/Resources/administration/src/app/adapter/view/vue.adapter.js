@@ -4,6 +4,7 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import VueI18n from 'vue-i18n';
+import VueMeta from 'vue-meta';
 import DeviceHelper from 'src/core/plugins/device-helper.plugin';
 import { Component, Mixin } from 'src/core/shopware';
 import { warn } from 'src/core/service/utils/debug.utils';
@@ -53,6 +54,7 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
         initDirectives();
         initFilters();
         initInheritance();
+        initTitle();
 
         const i18n = initLocales();
         const components = getComponents();
@@ -167,6 +169,7 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
         Vue.use(VueRouter);
         Vue.use(VueI18n);
         Vue.use(DeviceHelper);
+        Vue.use(VueMeta);
     }
 
     /**
@@ -229,7 +232,7 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
     }
 
     /**
-     * Extend Vue prototype to access super class for component inheritance.
+     * Extends Vue prototype to access super class for component inheritance.
      *
      * @private
      * @memberOf module:app/adapter/view/vue
@@ -273,6 +276,36 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
                 }
             }
         });
+    }
+
+    /**
+     * Extends Vue prototype to access $createTitle function
+     *
+     * @private
+     * @memberOf module:app/adapter/view/vue
+     */
+    function initTitle() {
+        if (Vue.prototype.hasOwnProperty('$createTitle')) {
+            return;
+        }
+
+        /**
+         * Generates the document title out of the given VueComponent and parameters
+         *
+         * @param {String} [identifier = null]
+         * @param {...String} additionalParams
+         * @returns {string}
+         */
+        Vue.prototype.$createTitle = function createTitle(identifier = null, ...additionalParams) {
+            const baseTitle = this.$tc('global.sw-admin-menu.textShopwareAdmin');
+            const pageTitle = this.$tc(this.$route.meta.$module.name);
+
+            const params = [baseTitle, pageTitle, identifier, ...additionalParams].filter((item) => {
+                return item !== null && item !== '';
+            });
+
+            return params.reverse().join(' | ');
+        };
     }
 
     /**

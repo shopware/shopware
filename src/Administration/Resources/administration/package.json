@@ -42,6 +42,7 @@
         "vue": "2.6.10",
         "vue-i18n": "8.10.0",
         "vue-router": "3.0.2",
+        "vue-meta": "1.6.0",
         "vue-template-compiler": "2.6.10",
         "worker-loader": "2.0.0"
     },

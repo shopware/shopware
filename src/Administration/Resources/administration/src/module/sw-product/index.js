@@ -30,7 +30,7 @@ import enGB from './snippet/en_GB.json';
 
 Module.register('sw-product', {
     type: 'core',
-    name: 'Products',
+    name: 'sw-product.general.mainMenuItemGeneral',
     description: 'sw-product.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
@@ -43,7 +43,6 @@ Module.register('sw-product', {
         'de-DE': deDE,
         'en-GB': enGB
     },
-
 
     routes: {
         index: {

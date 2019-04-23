@@ -1,8 +1,8 @@
 import BaseCollection from './base-collection.data';
 
 export default class EntityCollection extends BaseCollection {
-    constructor(source, entity, context, criteria, view) {
-        super(source, entity, context, criteria, view);
+    constructor(source, entity, context, criteria) {
+        super(source, entity, context, criteria);
 
         const that = this;
 

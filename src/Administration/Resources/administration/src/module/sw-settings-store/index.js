@@ -8,7 +8,7 @@ import enGB from './snippet/en_GB.json';
 
 Module.register('sw-settings-store', {
     type: 'core',
-    name: 'Store settings',
+    name: 'sw-settings-store.general.mainMenuItemGeneral',
     description: 'Store specific settings',
     color: '#9AA8B5',
     icon: 'default-action-settings',

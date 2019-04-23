@@ -5,7 +5,7 @@
         "textHeadline": "Shopware Account",
         "buttonSave": "Speichern",
         "titleSave": "Speichern erfolgreich",
-        "messageSave": "Deine Shopware Account Daten wurden erfolgreich gespeichert"
+        "messageSave": "Die Daten Deines Shopware Accounts wurden erfolgreich gespeichert"
     },
     "detail": {
         "titleCard": "Einstellungen",

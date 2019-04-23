@@ -15,6 +15,12 @@ Component.register('sw-settings-store', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    },
+
     computed: {
         storeSettingsStore() {
             return State.getStore('store_settings');

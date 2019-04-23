@@ -18,10 +18,21 @@ Component.register('sw-settings-customer-group-detail', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
     computed: {
+        identifier() {
+            return this.placeholder(this.customerGroup, 'name');
+        },
+
         customerGroupStore() {
             return State.getStore('customer_group');
         },
+
         entityDescription() {
             return this.placeholder(
                 this.customerGroup,

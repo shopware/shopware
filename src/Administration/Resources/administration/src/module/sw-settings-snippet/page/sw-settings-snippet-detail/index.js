@@ -29,7 +29,17 @@ Component.register('sw-settings-snippet-detail', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
     computed: {
+        identifier() {
+            return this.translationKey;
+        },
+
         snippetSetStore() {
             return State.getStore('snippet_set');
         },

@@ -9,7 +9,7 @@ import enGB from './snippet/en_GB.json';
 
 Module.register('sw-settings-customer-group', {
     type: 'core',
-    name: 'Customer Groups',
+    name: 'sw-settings-customer-group.general.mainMenuItemGeneral',
     description: 'sw-settings-customer-group.general.description',
     version: '1.0.0',
     targetVersion: '1.0.0',

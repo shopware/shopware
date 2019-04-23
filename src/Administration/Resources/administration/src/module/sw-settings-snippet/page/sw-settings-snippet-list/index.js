@@ -34,19 +34,39 @@ Component.register('sw-settings-snippet-list', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
     computed: {
+        identifier() {
+            return this.snippetSets ? this.$tc(
+                'sw-settings-snippet.list.identifier',
+                this.snippetSets.length,
+                {
+                    setName: this.metaName
+                }
+            ) : '';
+        },
+
         columns() {
             return this.getColumns();
         },
+
         snippetSetStore() {
             return State.getStore('snippet_set');
         },
+
         queryIdCount() {
             return this.queryIds.length;
         },
+
         metaName() {
             return this.snippetSets[0].name;
         },
+
         filter() {
             const filter = {};
             if (this.showOnlyEdited) {

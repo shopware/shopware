@@ -6,6 +6,9 @@ import DomAccess from 'src/script/helper/dom-access.helper';
 import PageLoadingIndicator from 'src/script/utility/loading-indicator/page-loading-indicator.util';
 import ImageZoomPlugin from 'src/script/plugin/image-zoom/image-zoom.plugin';
 
+const URL_TEMPLATE = (id) => `${window.router['widgets.detail.images']}?productId=${id}`;
+const MODAL_TRIGGER_SELECTOR = 'img';
+const PRODUCT_ID_DATA_ATTRIBUTE = 'data-product-id';
 const MODAL_WRAPPER_CLASS = 'ajax-modal-wrapper';
 const IMAGE_SLIDER_INIT_SELECTOR = '[data-image-slider]';
 const IMAGE_ZOOM_INIT_SELECTOR = '[data-image-zoom]';
@@ -15,28 +18,8 @@ const IMAGE_ZOOM_INIT_SELECTOR = '[data-image-zoom]';
  */
 export default class ZoomModalPlugin extends Plugin {
 
-    static options = {
-        /**
-         * selector to trigger the image zoom modal
-         */
-        triggerSelector: 'img',
-
-        /**
-         * product id to load the images via ajax
-         */
-        productIdDataAttribute: 'data-product-id',
-
-        /**
-         * url template to load the images via ajax
-         *
-         * @param id
-         * @returns {string}
-         */
-        requestURLTemplate: (id) => `${window.router['widgets.detail.images']}?productId=${id}`,
-    };
-
     init() {
-        this._triggers = this.el.querySelectorAll(this.options.triggerSelector);
+        this._triggers = this.el.querySelectorAll(MODAL_TRIGGER_SELECTOR);
         this._client = new HttpClient(window.accessKey, window.contextToken);
 
         this._registerEvents();
@@ -59,8 +42,8 @@ export default class ZoomModalPlugin extends Plugin {
      */
     _onClick(event) {
         ZoomModalPlugin._stopEvent(event);
-        const productId = DomAccess.getDataAttribute(this.el, this.options.productIdDataAttribute);
-        const url = this.options.requestURLTemplate(productId);
+        const productId = DomAccess.getDataAttribute(this.el, PRODUCT_ID_DATA_ATTRIBUTE);
+        const url = URL_TEMPLATE(productId);
         PageLoadingIndicator.open();
 
         this._fetchContent(url, this._openModal.bind(this));
@@ -75,22 +58,20 @@ export default class ZoomModalPlugin extends Plugin {
         // append the temporarily created ajax modal content to the end of the DOM
         const pseudoModal = ZoomModalPlugin._createPseudoModal(content);
         document.body.insertAdjacentElement('beforeend', pseudoModal);
-        const modal = DomAccess.querySelector(pseudoModal, '.modal', false);
+        const modal = DomAccess.querySelector(pseudoModal, '.modal');
 
-        if (modal) {
-            // execute all needed scripts for the slider
-            $(modal).on('shown.bs.modal', () => {
-                this._initSlider(modal);
-                this._initZoom(modal);
-            });
+        // execute all needed scripts for the slider
+        $(modal).on('shown.bs.modal', () => {
+            this._initSlider(modal);
+            this._initZoom(modal);
+        });
 
-            // remove ajax modal wrapper
-            $(modal).on('hidden.bs.modal', pseudoModal.remove);
+        // remove ajax modal wrapper
+        $(modal).on('hidden.bs.modal', pseudoModal.remove);
 
-            // close the loading indicator and show the modal
-            PageLoadingIndicator.close();
-            $(modal).modal('show');
-        }
+        // close the loading indicator and show the modal
+        PageLoadingIndicator.close();
+        $(modal).modal('show');
     }
 
     /**
@@ -104,39 +85,7 @@ export default class ZoomModalPlugin extends Plugin {
             const parentSliderIndex = this._getParentSliderIndex();
 
             PluginManager.executePlugin('ImageSlider', slider, {
-                slider: {
-                    startIndex: parentSliderIndex,
-                },
-                thumbnailSlider: {
-                    startIndex: parentSliderIndex,
-                    responsive: {
-                        xs: {
-                            enabled: true,
-                            center: true,
-                            axis: 'horizontal',
-                        },
-                        sm: {
-                            enabled: true,
-                            center: true,
-                            axis: 'horizontal',
-                        },
-                        md: {
-                            enabled: true,
-                            center: true,
-                            axis: 'horizontal',
-                        },
-                        lg: {
-                            enabled: true,
-                            center: true,
-                            axis: 'horizontal',
-                        },
-                        xl: {
-                            enabled: true,
-                            center: true,
-                            axis: 'horizontal',
-                        },
-                    },
-                },
+                startIndex: parentSliderIndex,
             });
         }
     }
@@ -165,7 +114,7 @@ export default class ZoomModalPlugin extends Plugin {
         this._parentSliderElement = this._getParentSliderElement();
 
         if (this._parentSliderElement) {
-            this._parentSliderPlugin = PluginManager.getPluginInstanceFromElement(this._parentSliderElement, 'ImageSlider');
+            this._parentSliderPlugin = PluginManager.getPluginInstance(this._parentSliderElement, 'ImageSlider');
 
             if (this._parentSliderPlugin) {
                 sliderIndex = this._parentSliderPlugin.getCurrentSliderIndex();

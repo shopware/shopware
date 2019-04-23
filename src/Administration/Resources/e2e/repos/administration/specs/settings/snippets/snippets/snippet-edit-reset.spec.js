@@ -39,11 +39,9 @@ module.exports = {
             .waitForElementVisible(`${page.elements.dataGridRow}--0 ${page.elements.dataGridInlineEditSave}`)
             .click(`${page.elements.dataGridRow}--0 ${page.elements.dataGridInlineEditSave}`)
             .waitForElementNotPresent('.is--inline-edit')
-            .expect.element(`${page.elements.dataGridRow}--0`).to.have.text.that.contains('- some more');
-
-        browser
             .waitForElementNotPresent(page.elements.loader)
-            .checkNotification('has been saved successfully.');
+            .checkNotification('has been saved successfully.')
+            .expect.element(`${page.elements.dataGridRow}--0`).to.have.text.that.contains('- some more');
     },
     'reset first snippet': (browser) => {
         const page = settingsPage(browser);

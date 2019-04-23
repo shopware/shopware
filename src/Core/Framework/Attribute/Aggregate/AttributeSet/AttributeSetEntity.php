@@ -22,6 +22,11 @@ class AttributeSetEntity extends Entity
     protected $config;
 
     /**
+     * @var bool
+     */
+    protected $active;
+
+    /**
      * @var AttributeCollection|null
      */
     protected $attributes;
@@ -59,6 +64,16 @@ class AttributeSetEntity extends Entity
     public function setConfig(?array $config): void
     {
         $this->config = $config;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(bool $active): void
+    {
+        $this->active = $active;
     }
 
     public function getAttributes(): ?AttributeCollection

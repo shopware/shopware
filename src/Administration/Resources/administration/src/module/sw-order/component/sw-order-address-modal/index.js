@@ -35,17 +35,20 @@ Component.register('sw-order-address-modal', {
         }
     },
     created() {
-        this.customerStore.getByIdAsync(this.orderCustomer.customerId).then((customer) => {
-            if (customer.isLocal) {
-                console.log('No Customer found');
-            } else {
-                customer.getAssociation('addresses').getList({ page: 1, limit: 25 }).then(() => {
-                    this.availableAddresses = customer.addresses;
-                });
-            }
-        });
+        this.createdComponent();
     },
     methods: {
+        createdComponent() {
+            this.customerStore.getByIdAsync(this.orderCustomer.customerId).then((customer) => {
+                if (customer.isLocal) {
+                    this.$emit('sw-address-modal-error', 'Invalid customerid');
+                } else {
+                    customer.getAssociation('addresses').getList({ page: 1, limit: 25 }).then(() => {
+                        this.availableAddresses = customer.addresses;
+                    });
+                }
+            });
+        },
         onNewActiveItem() {
             this.selectedAddressId = 0;
         },

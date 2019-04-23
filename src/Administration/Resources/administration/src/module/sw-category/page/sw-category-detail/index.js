@@ -27,7 +27,17 @@ Component.register('sw-category-detail', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
     computed: {
+        identifier() {
+            return this.category ? this.placeholder(this.category, 'name') : '';
+        },
+
         categoryStore() {
             return State.getStore('category');
         },

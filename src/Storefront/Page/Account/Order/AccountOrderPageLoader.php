@@ -46,6 +46,8 @@ class AccountOrderPageLoader implements PageLoaderInterface
             $this->accountOrderPageletLoader->load($request, $context)
         );
 
+        $page->setCustomer($context->getCustomer());
+
         $this->eventDispatcher->dispatch(
             AccountOrderPageLoadedEvent::NAME,
             new AccountOrderPageLoadedEvent($page, $context, $request)

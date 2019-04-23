@@ -1,5 +1,6 @@
 {% block sw_mail_header_footer_list_grid %}
-    <sw-card :isLoading="isLoading">
+    <sw-card :isLoading="isLoading"
+        :title="$tc('sw-mail-template.list.titleMailFooterList')">
         <sw-grid slot="grid"
                  :selectable="false"
                  :items="mailHeaderFooters"

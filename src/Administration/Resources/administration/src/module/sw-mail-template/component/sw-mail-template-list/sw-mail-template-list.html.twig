@@ -1,5 +1,6 @@
 {% block sw_mail_template_list_grid %}
-    <sw-card :isLoading="isLoading">
+    <sw-card :isLoading="isLoading"
+        :title="$tc('sw-mail-template.list.titleMailTemplateList')">
         <sw-grid slot="grid"
                  :selectable="false"
                  :items="mailTemplates"

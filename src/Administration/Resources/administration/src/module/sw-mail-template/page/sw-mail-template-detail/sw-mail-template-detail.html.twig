@@ -37,12 +37,14 @@
                 {% block sw_mail_template_detail_basic_info %}
                     <sw-card :title="$tc('sw-mail-template.detail.basic.titleCard')">
                         {% block sw_mail_template_basic_form_mail_type_field %}
-                            <sw-field type="text"
-                                      :label="$tc('sw-mail-template.detail.basic.labelMailType')"
-                                      :placeholder="$tc('sw-mail-template.detail.basic.placeholderMailType')"
-                                      v-model="mailTemplate.mailType"
-                                      validation="required">
-                            </sw-field>
+                            <sw-select id="mailTemplateTypes"
+                                :store="mailTemplateTypeStore"
+                                v-model="mailTemplate.mailTemplateTypeId"
+                                :label="$tc('sw-mail-template.detail.basic.labelMailType')"
+                                :placeholder="$tc('sw-mail-template.detail.basic.placeholderMailType')"
+                                @input="onMailTemplateTypeChanged"
+                                validation="required">
+                            </sw-select>
                         {% endblock %}
 
                         {% block sw_mail_template_basic_form_sales_channels_field %}
@@ -50,8 +52,11 @@
                                        multi
                                        :store="salesChannelStore"
                                        :associationStore="salesChannelAssociationStore"
+                                       :criteria="unassignedSalesChannelCriteria"
+                                       :disabled="!mailTemplate.mailTemplateTypeId"
                                        :label="$tc('sw-mail-template.detail.basic.labelSalesChannels')"
                                        :placeholder="$tc('sw-mail-template.detail.basic.placeholderSalesChannels')"
+                                       ref="salesChannelSelect"
                                        v-model="mailTemplate.salesChannels">
                             </sw-select>
                         {% endblock %}

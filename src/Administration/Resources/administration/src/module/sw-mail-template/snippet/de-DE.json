@@ -12,6 +12,8 @@
     },
     "list": {
       "textMailTemplateOverview": "E-Mail Vorlagen",
+      "titleMailTemplateList" : "Vorlagen",
+      "titleMailFooterList" : "Fußzeilen",
       "buttonAddMailTemplate": "E-Mail Vorlage hinzufügen",
       "buttonAdd": "Erstellen",
       "columnMailType": "Typ",

@@ -12,6 +12,8 @@
     },
     "list": {
       "textMailTemplateOverview": "Email templates",
+      "titleMailTemplateList" : "Templates",
+      "titleMailFooterList" : "Footer",
       "buttonAddMailTemplate": "Add email template",
       "buttonAdd": "Add",
       "columnMailType": "Type",

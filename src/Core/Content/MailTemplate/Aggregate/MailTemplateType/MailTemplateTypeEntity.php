@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTypeTranslation\MailTemplateTypeTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateCollection;
 
 class MailTemplateTypeEntity extends Entity
 {
@@ -44,6 +45,11 @@ class MailTemplateTypeEntity extends Entity
      * @var \DateTimeInterface
      */
     protected $updatedAt;
+
+    /**
+     * @var StateMachineStateCollection|null
+     */
+    protected $assignedStateMachineStates;
 
     public function getName(): string
     {
@@ -113,5 +119,15 @@ class MailTemplateTypeEntity extends Entity
     public function setUpdatedAt(\DateTimeInterface $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getAssignedStateMachineStates(): ?StateMachineStateCollection
+    {
+        return $this->assignedStateMachineStates;
+    }
+
+    public function setAssignedStateMachineStates(?StateMachineStateCollection $assignedStateMachineStates): void
+    {
+        $this->assignedStateMachineStates = $assignedStateMachineStates;
     }
 }

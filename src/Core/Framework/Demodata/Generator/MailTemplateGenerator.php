@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\Demodata\Generator;
 
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
@@ -17,10 +19,17 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
      */
     private $writer;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $mailTemplateTypeRepository;
+
     public function __construct(
-        EntityWriterInterface $writer
+        EntityWriterInterface $writer,
+        EntityRepositoryInterface $mailTemplateTypeRepository
     ) {
         $this->writer = $writer;
+        $this->mailTemplateTypeRepository = $mailTemplateTypeRepository;
     }
 
     public function getDefinition(): string
@@ -43,9 +52,11 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
         $mediaFolderId = null;
         $context->getConsole()->progressStart($count);
 
+        $mailTypeIds = $this->mailTemplateTypeRepository->search(new Criteria(), $context->getContext())->getIds();
+
         $payload = [];
         for ($i = 0; $i < $count; ++$i) {
-            $mailTemplate = $this->createSimpleMailTemplate($context);
+            $mailTemplate = $this->createSimpleMailTemplate($context, $mailTypeIds);
 
             $payload[] = $mailTemplate;
 
@@ -72,7 +83,7 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
         $context->add(MailTemplateDefinition::class, ...array_column($payload, 'id'));
     }
 
-    private function createSimpleMailTemplate(DemodataContext $context): array
+    private function createSimpleMailTemplate(DemodataContext $context, array $mailTypeIds): array
     {
         $faker = $context->getFaker();
         $mailTemplate = [
@@ -88,6 +99,7 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
                 $context
             ),
             'contentPlain' => $faker->text,
+            'mailTemplateTypeId' => \array_rand($mailTypeIds),
         ];
 
         return $mailTemplate;

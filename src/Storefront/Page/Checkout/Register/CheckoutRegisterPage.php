@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Checkout\Register;
 
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Salutation\SalutationCollection;
@@ -23,6 +24,11 @@ class CheckoutRegisterPage extends PageWithHeader
      * @var SalutationCollection
      */
     protected $salutations;
+
+    /**
+     * @var Cart
+     */
+    protected $cart;
 
     public function getCountries(): CountryCollection
     {
@@ -52,5 +58,15 @@ class CheckoutRegisterPage extends PageWithHeader
     public function setSalutations(SalutationCollection $salutations): void
     {
         $this->salutations = $salutations;
+    }
+
+    public function getCart(): Cart
+    {
+        return $this->cart;
+    }
+
+    public function setCart(Cart $cart): void
+    {
+        $this->cart = $cart;
     }
 }

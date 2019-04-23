@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Checkout\Register;
 
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AddressService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -28,17 +29,23 @@ class CheckoutRegisterPageLoader implements PageLoaderInterface
      * @var AddressService
      */
     private $addressService;
+    /**
+     * @var CartService
+     */
+    private $cartService;
 
     public function __construct(
         PageLoaderInterface $pageWithHeaderLoader,
         AccountService $accountService,
         AddressService $addressService,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        CartService $cartService
     ) {
         $this->pageWithHeaderLoader = $pageWithHeaderLoader;
         $this->accountService = $accountService;
         $this->eventDispatcher = $eventDispatcher;
         $this->addressService = $addressService;
+        $this->cartService = $cartService;
     }
 
     public function load(Request $request, SalesChannelContext $context): CheckoutRegisterPage
@@ -49,6 +56,10 @@ class CheckoutRegisterPageLoader implements PageLoaderInterface
 
         $page->setCountries(
             $this->addressService->getCountryList($context)
+        );
+
+        $page->setCart(
+            $this->cartService->getCart($context->getToken(), $context)
         );
 
         $page->setSalutations($this->accountService->getSalutationList($context));

@@ -52,7 +52,6 @@ export default {
             activeResultColumn: 0,
             activeTypeListIndex: 0,
             isLoading: false,
-            inputHovered: false,
             searchTypes: null,
             showTypeSelectContainer: false,
             typeSelectResults: [],
@@ -90,10 +89,6 @@ export default {
                 }
             }
 
-            if (this.inputHovered) {
-                return `${placeholder} ${this.$tc('global.sw-search-bar.placeholderShortcutInfo')}`;
-            }
-
             return placeholder;
         }
     },
@@ -124,6 +119,7 @@ export default {
             }
 
             this.searchTypes = this.searchTypeService.getTypes();
+            this.typeSelectResults = Object.values(this.searchTypes);
 
             this.registerListener();
 
@@ -171,8 +167,9 @@ export default {
         closeOnClickOutside(event) {
             const target = event.target;
 
-            if (!target.closest('.sw-search-bar') && this.showResultsContainer) {
+            if (!target.closest('.sw-search-bar')) {
                 this.clearSearchTerm();
+                this.showTypeSelectContainer = false;
             }
         },
 
@@ -186,6 +183,9 @@ export default {
 
         onFocusInput() {
             this.isActive = true;
+            if (!this.searchTerm) {
+                this.showTypeContainer();
+            }
         },
 
         onBlur() {
@@ -215,9 +215,7 @@ export default {
         onSearchTermChange() {
             const match = this.searchTerm.match(/^#(.*)/);
             if (match !== null) {
-                this.showTypeSelectContainer = true;
-                this.showResultsContainer = false;
-                this.activeTypeListIndex = 0;
+                this.showTypeContainer();
                 this.filterTypeSelectResults(match[1]);
 
                 return;
@@ -246,6 +244,12 @@ export default {
             }
 
             this.doGlobalSearch();
+        },
+
+        showTypeContainer() {
+            this.showTypeSelectContainer = true;
+            this.showResultsContainer = false;
+            this.activeTypeListIndex = 0;
         },
 
         filterTypeSelectResults(term) {
@@ -308,7 +312,10 @@ export default {
             this.isLoading = true;
             this.results = [];
             this.searchService.search({ term: searchTerm }).then((response) => {
-                this.results = response.data;
+                // filter not yet implemented entities and empty entities
+                this.results = response.data.filter(item => {
+                    return this.searchTypes.hasOwnProperty(item.entity) && item.total > 0;
+                });
                 this.activeResultColumn = 0;
                 this.activeResultIndex = 0;
                 this.isLoading = false;
@@ -321,7 +328,7 @@ export default {
         loadTypeSearchResults(searchTerm) {
             this.isLoading = true;
             const params = {
-                limit: 10,
+                limit: 25,
                 term: searchTerm
             };
             this.results = [];
@@ -334,7 +341,7 @@ export default {
             const apiService = Application.getContainer('factory').apiService.getByName(apiServiceName);
 
             apiService.getList(params).then((response) => {
-                entityResults.total = response.data.length;
+                entityResults.total = response.meta.total;
                 entityResults.entity = this.currentSearchType;
                 entityResults.entities = response.data;
 
@@ -446,8 +453,13 @@ export default {
 
             if (this.activeResultIndex === itemsInActualColumn - 1 || itemsInActualColumn < 1) {
                 if (this.activeResultColumn < this.results.length - 1) {
-                    this.activeResultColumn = this.activeResultColumn + 1;
-                    this.activeResultIndex = 0;
+                    // Move to the next column if it exists
+                    if (this.results[this.activeResultColumn + 1]) {
+                        this.activeResultColumn = this.activeResultColumn + 1;
+                        this.activeResultIndex = 0;
+                    } else {
+                        return;
+                    }
                 }
             } else {
                 this.activeResultIndex += 1;
@@ -485,14 +497,6 @@ export default {
             }
         },
 
-        onMouseEnter() {
-            this.inputHovered = true;
-        },
-
-        onMouseLeave() {
-            this.inputHovered = false;
-        },
-
         getSearchTypeProperty(entityName, propertyName) {
             if (!this.searchTypes[entityName] || !this.searchTypes[entityName].hasOwnProperty(propertyName)) {
                 return '';
@@ -504,7 +508,7 @@ export default {
             const module = this.moduleFactory.getModuleByEntityName(entityName);
 
             if (!module) {
-                return entityName;
+                return 'default-object-books';
             }
 
             return module.manifest.icon || entityName;

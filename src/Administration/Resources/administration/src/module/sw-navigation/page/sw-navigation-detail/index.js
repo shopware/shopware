@@ -7,7 +7,10 @@ import './sw-navigation-detail.scss';
 Component.register('sw-navigation-detail', {
     template,
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [
+        Mixin.getByName('notification'),
+        Mixin.getByName('placeholder')
+    ],
 
     data() {
         return {
@@ -19,7 +22,17 @@ Component.register('sw-navigation-detail', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
     computed: {
+        identifier() {
+            return this.navigation ? this.placeholder(this.navigation, 'name') : '';
+        },
+
         navigationStore() {
             return State.getStore('navigation');
         },

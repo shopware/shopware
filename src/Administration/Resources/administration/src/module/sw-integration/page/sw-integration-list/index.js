@@ -23,6 +23,12 @@ Component.register('sw-integration-list', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    },
+
     computed: {
         id() {
             return this.$vnode.tag;

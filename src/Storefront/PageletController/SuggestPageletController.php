@@ -29,6 +29,6 @@ class SuggestPageletController extends StorefrontController
     {
         $page = $this->suggestPageletLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/base/header/search-suggest.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/layout/header/search-suggest.html.twig', ['page' => $page]);
     }
 }

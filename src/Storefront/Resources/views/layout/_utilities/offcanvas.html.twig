@@ -1,0 +1,20 @@
+{% block layout_utilities_offcanvas %}
+    {% block layout_utilities_offcanvas_close %}
+        <a class="btn btn-dark btn-block js-offcanvas-close"
+           href="#offcanvas-close">
+            {% block layout_utilities_offcanvas_close_icon %}
+                <i class="fas offcanvas-close-icon"></i>
+            {% endblock %}
+
+            {% block layout_utilities_offcanvas_close_text %}
+                {{ "general.offcanvasCloseMenu"|trans }}
+            {% endblock %}
+        </a>
+    {% endblock %}
+
+    {% block layout_utilities_offcanvas_content_container %}
+        <div class="offcanvas-content-container">
+            {% block layout_utilities_offcanvas_content %}{% endblock %}
+        </div>
+    {% endblock %}
+{% endblock %}

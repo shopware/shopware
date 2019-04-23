@@ -1,0 +1,56 @@
+/*
+ * The file organization follows the 7-1 pattern architecture
+ * https://sass-guidelin.es/#the-7-1-pattern
+ *
+ * Vendors
+ * ------- */
+@import 'vendor/nunito-fontface';
+
+/*
+ * Variables, Mixins, Functions
+ * ---------------------------- */
+
+/*
+ * Base stuff
+ * ---------- */
+@import 'base/base';
+@import 'base/typography';
+
+/*
+ * Layout-related sections
+ * ----------------------- */
+@import 'layout/header';
+@import 'layout/footer';
+@import 'layout/grid';
+@import 'layout/navigation';
+
+/*
+ * Components
+ * ---------- */
+@import 'component/badge';
+@import 'component/breadcrumb';
+@import 'component/button';
+@import 'component/card';
+@import 'component/custom-select';
+@import 'component/form';
+@import 'component/image-slider';
+@import 'component/modal';
+@import 'component/product-box';
+@import 'component/spinner';
+@import 'component/tab-menu';
+@import 'component/payment-form';
+
+/*
+ * Page-specific styles
+ * -------------------- */
+@import 'page/product-detail';
+
+@import 'page/account/overview';
+@import 'page/account/register';
+@import 'page/account/address';
+@import 'page/account/profile';
+@import 'page/account/orders';
+
+@import 'page/checkout/cart';
+@import 'page/checkout/cart-item';
+@import 'page/checkout/confirm';

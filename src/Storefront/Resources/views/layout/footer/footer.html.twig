@@ -1,0 +1,140 @@
+{% block layout_footer_inner_container %}
+    {% block layout_footer_navigation %}
+        <div id="footerColumns" class="row footer-columns" data-collapse-footer="true">
+            {% block layout_footer_navigation_hotline %}
+                <div class="col-md-4 footer-column js-footer-column">
+                    {% block layout_footer_navigation_hotline_headline %}
+                        <div class="footer-column-headline footer-headline js-footer-column-headline js-collapse-footer-column-trigger"
+                             data-target="#collapseOneFooter"
+                             aria-expanded="true"
+                             aria-controls="collapseOneFooter">
+                            {{ 'footer.serviceHotlineHeadline'|trans }}
+                            {% block layout_footer_navigation_hotline_icons %}
+                                <div class="toggle-icon">
+                                    <i class="fas fa-plus plus-icon"></i>
+                                    <i class="fas fa-minus minus-icon"></i>
+                                </div>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block layout_footer_navigation_hotline_content %}
+                        <div id="collapseOneFooterFooter"
+                             class="footer-column-content js-footer-column-content footer-hotline"
+                             aria-labelledby="headingOne">
+                            {{ 'footer.serviceHotline'|trans|raw }}
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block layout_footer_navigation_service %}
+                <div class="col-md-4 footer-column js-footer-column">
+                    {% block layout_footer_navigation_service_headline %}
+                        <div class="footer-column-headline footer-headline js-collapse-footer-column-trigger"
+                             data-target="#collapseTwoFooter"
+                             aria-expanded="true"
+                             aria-controls="collapseTwoFooter">
+                            {{ 'footer.shopServiceHeadline'|trans }}
+                            {% block layout_footer_navigation_service_icons %}
+                                <div class="toggle-icon">
+                                    <i class="fas fa-plus plus-icon"></i>
+                                    <i class="fas fa-minus minus-icon"></i>
+                                </div>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block layout_footer_navigation_service_content %}
+                        <div id="collapseTwoFooter"
+                             class="footer-column-content js-footer-column-content"
+                             aria-labelledby="headingTwo">
+                            {% block layout_footer_navigation_service_links %}
+                                <ul class="list-group">
+                                    {#TODO: NEXT-1988 - Replace NAV Links through Footer Links#}
+                                    {% for treeItem in page.header.navigation.tree %}
+                                        {% block layout_footer_navigation_service_link_item %}
+                                            <li class="footer-link-item list-group-item">
+                                                {% block layout_footer_navigation_service_link %}
+                                                    <a class="footer-link"
+                                                       href="{{ path('frontend.navigation.page', {'navigationId': treeItem.category.id}) }}"
+                                                       title="{{ treeItem.category.name }}">
+                                                        {{ treeItem.category.name }}
+                                                    </a>
+                                                {% endblock %}
+                                            </li>
+                                        {% endblock %}
+                                    {% endfor %}
+                                </ul>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block layout_footer_navigation_information %}
+                <div class="col-md-4 footer-column js-footer-column">
+                    {% block layout_footer_navigation_information_headline %}
+                        <div class="footer-column-headline footer-headline js-collapse-footer-column-trigger"
+                             data-target="#collapseThreeFooter"
+                             aria-expanded="true"
+                             aria-controls="collapseThreeFooter">
+                            {{ 'footer.informationHeadline'|trans }}
+                            {% block layout_footer_navigation_information_icons %}
+                                <div class="toggle-icon">
+                                    <i class="fas fa-plus plus-icon"></i>
+                                    <i class="fas fa-minus minus-icon"></i>
+                                </div>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block layout_footer_navigation_information_content %}
+                        <div id="collapseThreeFooter"
+                             class="footer-column-content js-footer-column-content"
+                             aria-labelledby="headingThree">
+                            {% block layout_footer_navigation_information_links %}
+                                <ul class="list-group">
+                                    {% for treeItem in page.header.navigation.tree %}
+                                        {% block layout_footer_navigation_information_link_item %}
+                                            <li class="footer-link-item list-group-item">
+                                                {% block layout_footer_navigation_information_link %}
+                                                    <a class="footer-link"
+                                                       href="{{ path('frontend.navigation.page', {'navigationId': treeItem.category.id}) }}"
+                                                       title="{{ treeItem.category.name }}">
+                                                        {{ treeItem.category.name }}
+                                                    </a>
+                                                {% endblock %}
+                                            </li>
+                                        {% endblock %}
+                                    {% endfor %}
+                                </ul>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </div>
+    {% endblock %}
+
+    {% block layout_footer_bottom %}
+        <div class="footer-bottom">
+            {% block layout_footer_vat %}
+                {#TODO: NEXT-2667 - shop page link: footer VAT links#}
+                <div class="footer-vat">
+                    {% if page.context.taxState == "gross" %}
+                        <p>{{ "footer.includeVat"|trans|raw }}</p>
+                    {% else %}
+                        <p>{{ "footer.excludeVat"|trans|raw }}</p>
+                    {% endif %}
+                </div>
+            {% endblock %}
+
+            {% block layout_footer_copyright %}
+                <div class="footer-copyright">
+                    {{ "footer.copyrightInfo"|trans }}
+                </div>
+            {% endblock %}
+        </div>
+    {% endblock %}
+{% endblock %}

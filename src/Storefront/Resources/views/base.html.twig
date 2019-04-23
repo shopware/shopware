@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block base_head %}
-    {% sw_include '@Storefront/base/meta.html.twig' %}
+    {% sw_include '@Storefront/layout/meta.html.twig' %}
 {% endblock %}
 
 {% block base_body %}
@@ -20,7 +20,7 @@
     {% block base_body_inner %}
         {% block base_noscript %}
             <noscript class="noscript-main">
-	            {% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
+	            {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with {
 		            type: 'info',
 		            content: 'general.noscriptNotice'|trans
 	            } %}
@@ -31,7 +31,7 @@
             <header class="header-main">
                 {% block base_header_inner %}
                     <div class="container">
-                        {% sw_include '@Storefront/base/header/header.html.twig' %}
+                        {% sw_include '@Storefront/layout/header/header.html.twig' %}
                     </div>
                 {% endblock %}
             </header>
@@ -41,7 +41,7 @@
             <div class="nav-main">
                 {% block base_navigation_inner %}
                     <div class="container">
-                        {% sw_include '@Storefront/base/navigation/navigation.html.twig' %}
+                        {% sw_include '@Storefront/layout/navigation/navigation.html.twig' %}
                     </div>
                 {% endblock %}
             </div>
@@ -50,7 +50,7 @@
         {% block initial_offcanvas_navigation %}
             <div class="d-none js-offcanvas-menu-initial-content">
                 {% block initial_offcanvas_navigation_inner %}
-                    {% sw_include '@Storefront/base/navigation/offcanvas/navigation.html.twig' %}
+                    {% sw_include '@Storefront/layout/navigation/offcanvas/navigation.html.twig' %}
                 {% endblock %}
             </div>
         {% endblock %}
@@ -63,7 +63,7 @@
                             <div class="content-main-inner">
                                 {% block base_breadcrumb %}
                                     {% if breadcrumbList %}
-                                        {% sw_include '@Storefront/base/breadcrumb.html.twig' %}
+                                        {% sw_include '@Storefront/layout/breadcrumb.html.twig' %}
                                     {% endif %}
                                 {% endblock %}
 
@@ -87,7 +87,7 @@
             <footer class="footer-main">
                 {% block base_footer_inner %}
                     <div class="container">
-                        {% sw_include '@Storefront/base/footer/footer.html.twig' %}
+                        {% sw_include '@Storefront/layout/footer/footer.html.twig' %}
                     </div>
                 {% endblock %}
             </footer>
@@ -95,7 +95,7 @@
     {% endblock %}
 
     {% block base_cookie_permission %}
-        {% sw_include '@Storefront/base/cookie-permission.html.twig' %}
+        {% sw_include '@Storefront/layout/cookie-permission.html.twig' %}
     {% endblock %}
 
     {% block base_body_script %}

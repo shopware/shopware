@@ -1,0 +1,29 @@
+{% block layout_header_logo_inner %}
+	<div class="logo-main">
+		{% block layout_header_logo_link %}
+			<a class="logo-main-link"
+			   href="{{ path('frontend.home.page') }}"
+			   title="{{ "header.logoLink"|trans }}">
+				{% block layout_header_logo_image %}
+					<picture>
+						{% block layout_header_logo_image_desktop_source %}
+							<source srcset="{{ asset(shopware.theme.logo.desktop) }}"
+							        media="(min-width: {{ shopware.theme.breakpoint.lg }}px)">
+						{% endblock %}
+
+						{% block layout_header_logo_image_tablet_source %}
+							<source srcset="{{ asset(shopware.theme.logo.tablet) }}"
+							        media="(min-width: {{ shopware.theme.breakpoint.md }}px)">
+						{% endblock %}
+
+						{% block layout_header_logo_image_mobile %}
+							<img srcset="{{ asset(shopware.theme.logo.mobile) }}"
+							     alt="{{ "header.logoLink"|trans }}"
+							     class="img-fluid logo-main-img"/>
+						{% endblock %}
+					</picture>
+				{% endblock %}
+			</a>
+		{% endblock %}
+	</div>
+{% endblock %}

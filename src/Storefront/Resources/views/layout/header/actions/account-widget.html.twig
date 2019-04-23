@@ -1,0 +1,23 @@
+{% block layout_header_actions_account_widget %}
+    <div class="dropdown">
+        {% block layout_header_actions_account_widget_dropdown_button %}
+            <button class="btn btn-light dropdown-toggle account-widget-btn header-actions-btn"
+                    type="button"
+                    id="accountWidget"
+                    data-toggle="dropdown"
+                    data-offcanvas-account-menu="true"
+                    aria-haspopup="true"
+                    aria-expanded="false">
+                <i class="fas fa-user"></i>
+                <span class="account-widget-title">{{ "account.myAccount"|trans }}</span>
+            </button>
+        {% endblock %}
+
+        {% block layout_header_actions_account_widget_dropdown_menu %}
+            <div class="dropdown-menu dropdown-menu-right account-widget-dropdown js-account-widget-dropdown"
+                 aria-labelledby="accountWidget">
+                {% sw_include '@Storefront/layout/header/account-menu.html.twig' %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

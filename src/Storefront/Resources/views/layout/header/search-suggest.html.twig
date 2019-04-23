@@ -1,0 +1,70 @@
+{% block layout_search_suggest %}
+    <div class="js-search-result">
+        {% block layout_search_suggest_container %}
+            <ul class="search-suggest-container">
+            {# List of found product results #}
+                {% block layout_search_suggest_results %}
+                    {% for product in page.searchResult %}
+                        {% block layout_search_suggest_result_product %}
+                            <li class="js-result result-product">
+                                {% block layout_search_suggest_result_link %}
+                                    <a href="{{ path('frontend.detail.page', {'productId': product.id}) }}"
+                                       title="{{ product.name }}"
+                                       class="result-link">
+                                        {% block layout_search_suggest_result_image %}
+                                            <span class="result-image">
+                                                {% if product.cover.media.url %}
+													{% set imgSrc = product.cover.media.url %}
+												{% else %}
+													{% set imgSrc = asset(shopware.theme.general.noPicture) %}
+												{% endif %}
+                                                <img src="{{ imgSrc }}"
+													 alt="{{ product.name }}">
+                                            </span>
+                                        {% endblock %}
+
+                                        {% block layout_search_suggest_result_name %}
+                                            <span class="result-name">{{ product.name }}</span>
+                                        {% endblock %}
+
+                                        {% block layout_search_suggest_result_price %}
+                                            <span class="result-price">{{ product.price.gross|localizedcurrency(context.currency.shortName, app.request.locale) }}</span>
+                                        {% endblock %}
+                                    </a>
+                                {% endblock %}
+                            </li>
+                        {% endblock %}
+                    {% endfor %}
+                {% endblock %}
+
+                {# Total results link #}
+                {% block layout_search_suggest_result_total %}
+                    {% if page.listing.total == 0 %}
+                        {% block layout_search_suggest_no_result %}
+                            <li class="js-result no-search-result">
+                                {{ "header.searchNoResult"|trans }}
+                            </li>                        
+                        {% endblock %}
+                    {% else %}
+
+                        {% block layout_search_suggest_result_total_result %}
+                            {% block layout_search_suggest_result_total_link %}
+                                <li class="js-result result-total">
+                                    <a href="{{ path('frontend.search.page') }}?search={{ page.searchTerm }}"
+                                       title="{{ "header.searchAllResults"|trans }}"
+                                       class="total-link">
+                                        <i class="fas fa-chevron-right total-link-icon"></i> {{ "header.searchAllResults"|trans }}
+                                    </a>
+                            {% endblock %}
+
+                                {% block layout_search_suggest_result_total_count %}
+                                    <span class="total-count">{{ page.listing.total }} {{ "header.searchResults"|trans }}</span>
+                                {% endblock %}
+                                </li>
+                        {% endblock %}
+                    {% endif %}
+                {% endblock %}
+            </ul>
+        {% endblock %}
+    </div>
+{% endblock %}

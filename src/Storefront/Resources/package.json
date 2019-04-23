@@ -10,8 +10,8 @@
     "development": "NODE_ENV=development webpack --config webpack.config.js",
     "watch": "NODE_ENV=development MODE=watch webpack --watch --config webpack.config.js",
     "hot": "NODE_ENV=development MODE=hot webpack-dev-server --config webpack.config.js",
-    "lint": "eslint --config .eslintrc.js ./asset/script && stylelint --config stylelint.config.js ./asset/scss",
-    "lint-fix": "eslint --fix --config .eslintrc.js ./asset/script && stylelint --fix --config stylelint.config.js ./asset/scss"
+    "lint": "eslint --config .eslintrc.js ./src/script && stylelint --config stylelint.config.js ./src/style",
+    "lint-fix": "eslint --fix --config .eslintrc.js ./src/script && stylelint --fix --config stylelint.config.js ./src/style"
   },
   "keywords": [
     "sw",

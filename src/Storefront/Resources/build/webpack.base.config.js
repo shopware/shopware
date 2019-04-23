@@ -37,7 +37,7 @@ function getPath(dir) {
  * -------------------------------------------------------
  */
 
-const context = getPath('asset/script');
+const context = getPath('src/script');
 
 /**
  * Configuration of the applications entrypoints
@@ -112,13 +112,13 @@ const plugins = [
         name: 'Shopware Next Storefront',
     }),
     new StyleLintPlugin({
-        context: getPath('asset/scss'),
+        context: getPath('src/style'),
         syntax: 'scss',
         fix: true,
     }),
     new CopyPlugin([
         {
-            from: getPath('asset/img'),
+            from: getPath('assets/media'),
             to: 'img',
         },
     ]),
@@ -150,7 +150,8 @@ const devServer = {};
 const resolve = {
     extensions: ['.js', '.jsx', '.json', '.less', '.sass', '.scss', '.twig'],
     alias: {
-        asset: getPath('asset'),
+        src: getPath('src'),
+        assets: getPath('assets'),
     },
 };
 

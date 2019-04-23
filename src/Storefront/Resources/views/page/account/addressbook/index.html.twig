@@ -29,19 +29,19 @@
 
         {% block page_account_address_success_messages %}
             {% if app.request.get('changedDefaultAddress') == '1' %}
-                {% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
+                {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with {
                     type:"success",
                     content: "account.addressDefaultChanged"|trans
                 } %}
             {% endif %}
             {% if app.request.get('addressDeleted') == '1' %}
-                {% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
+                {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with {
                     type:"success",
                     content: "account.addressDeleted"|trans
                 } %}
             {% endif %}
             {% if app.request.get('addressSaved') %}
-                {% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
+                {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with {
                     type:"success",
                     content: "account.addressSaved"|trans
                 } %}
@@ -49,13 +49,13 @@
         {% endblock %}
         {% block page_account_address_error_messages %}
             {% if app.request.get('changedDefaultAddress') == '0' %}
-                {% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
+                {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with {
                     type:"danger",
                     content: "account.addressDefaultNotChanged"|trans
                 } %}
             {% endif %}
             {% if app.request.get('addressDeleted') == '0' %}
-                {% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
+                {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with {
                     type:"danger",
                     content: "account.addressNotDeleted"|trans
                 } %}

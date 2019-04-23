@@ -31,7 +31,7 @@
                 <div class="account-orders-main">
                     {% if page.orders.total == 0 %}
                         {% block page_account_orders_info_empty %}
-                            {% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
+                            {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with {
                                 type: "warning",
                                 content: "account.ordersInfoEmpty"|trans
                             } %}

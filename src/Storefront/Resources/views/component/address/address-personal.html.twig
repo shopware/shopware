@@ -38,7 +38,7 @@
 
                 {% block component_address_form_salutation_select_error %}
                     {% if formViolations.getViolations('/salutationId') is not empty %}
-                        {% sw_include '@Storefront/base/_utilities/form-violation.html.twig' with {
+                        {% sw_include '@Storefront/layout/_utilities/form-violation.html.twig' with {
                             violationPath: '/salutationId'
                         } %}
                     {% endif %}
@@ -90,7 +90,7 @@
 
             {% block component_address_personal_fields_first_name_input_error %}
                 {% if formViolations.getViolations('/firstName') is not empty %}
-                    {% sw_include '@Storefront/base/_utilities/form-violation.html.twig' with {
+                    {% sw_include '@Storefront/layout/_utilities/form-violation.html.twig' with {
                         violationPath: '/firstName'
                     } %}
                 {% endif %}
@@ -119,7 +119,7 @@
 
             {% block component_address_personal_fields_last_name_input_error %}
                 {% if formViolations.getViolations('/lastName') is not empty %}
-                    {% sw_include '@Storefront/base/_utilities/form-violation.html.twig' with {
+                    {% sw_include '@Storefront/layout/_utilities/form-violation.html.twig' with {
                         violationPath: '/lastName'
                     } %}
                 {% endif %}
@@ -159,7 +159,7 @@
 
                             {% block component_address_personal_fields_birthday_select_day_error %}
                                 {% if formViolations.getViolations('/birthdayDay') is not empty %}
-                                    {% sw_include '@Storefront/base/_utilities/form-violation.html.twig' with {
+                                    {% sw_include '@Storefront/layout/_utilities/form-violation.html.twig' with {
                                         violationPath: '/birthdayDay'
                                     } %}
                                 {% endif %}
@@ -188,7 +188,7 @@
 
                             {% block component_address_personal_fields_birthday_select_month_error %}
                                 {% if formViolations.getViolations('/birthdayMonth') is not empty %}
-                                    {% sw_include '@Storefront/base/_utilities/form-violation.html.twig' with {
+                                    {% sw_include '@Storefront/layout/_utilities/form-violation.html.twig' with {
                                         violationPath: '/birthdayMonth'
                                     } %}
                                 {% endif %}
@@ -220,7 +220,7 @@
 
                             {% block component_address_personal_fields_birthday_select_year_error %}
                                 {% if formViolations.getViolations('/birthdayYear') is not empty %}
-                                    {% sw_include '@Storefront/base/_utilities/form-violation.html.twig' with {
+                                    {% sw_include '@Storefront/layout/_utilities/form-violation.html.twig' with {
                                         violationPath: '/birthdayYear'
                                     } %}
                                 {% endif %}

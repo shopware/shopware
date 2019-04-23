@@ -52,11 +52,6 @@ import MagnifierPlugin from 'asset/script/plugin/magnifier/magnifier.plugin';
 import ImageZoomPlugin from 'asset/script/plugin/image-zoom/image-zoom.plugin';
 
 /*
-import static plugins
- */
-import Logout from 'asset/script/plugin/logout/logout.plugin';
-
-/*
 initialisation
 */
 new ViewportDetection();
@@ -120,8 +115,3 @@ document.addEventListener('DOMContentLoaded', () => PluginManager.executePlugins
 run utils
 */
 new ModalExtensionUtil();
-
-/*
-run static classes
-*/
-new Logout();

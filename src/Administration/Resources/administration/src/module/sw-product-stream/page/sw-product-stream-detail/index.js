@@ -8,6 +8,7 @@ Component.register('sw-product-stream-detail', {
     template,
 
     inject: ['productStreamConditionService'],
+
     mixins: [
         Mixin.getByName('placeholder'),
         Mixin.getByName('notification'),
@@ -70,7 +71,16 @@ Component.register('sw-product-stream-detail', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
     computed: {
+        identifier() {
+            return this.placeholder(this.productStream, 'name');
+        },
         productStreamStore() {
             return State.getStore('product_stream');
         },

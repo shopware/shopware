@@ -17,6 +17,12 @@ Component.register('sw-product-stream-list', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    },
+
     computed: {
         productStreamStore() {
             return State.getStore('product_stream');

@@ -24,6 +24,25 @@ abstract class StorefrontController extends AbstractController
         return $this->render($view, $parameters, $response);
     }
 
+    protected function createActionResponse(Request $request): Response
+    {
+        if ($request->get('redirectTo')) {
+            return $this->redirectToRoute($request->get('redirectTo'));
+        }
+
+        if ($request->get('forwardTo')) {
+            $router = $this->container->get('router');
+
+            $url = $this->generateUrl($request->get('forwardTo'));
+
+            $route = $router->match($url);
+
+            return $this->forward($route['_controller']);
+        }
+
+        return new Response();
+    }
+
     protected function resolveView(string $view): string
     {
         //remove static template inheritance prefix

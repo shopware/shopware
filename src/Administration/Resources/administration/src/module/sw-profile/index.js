@@ -7,7 +7,7 @@ import enGB from './snippet/en_GB.json';
 
 Module.register('sw-profile', {
     type: 'core',
-    name: 'Profile',
+    name: 'sw-profile.general.mainMenuItemGeneral',
     description: 'The user profile settings.',
     color: '#9AA8B5',
     icon: 'default-avatar-single',

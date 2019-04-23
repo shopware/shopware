@@ -57,7 +57,7 @@ class ShippingMethodDefinition extends EntityDefinition
             new BoolField('active', 'active'),
             new FloatField('shipping_free', 'shippingFree'),
             new TranslatedField('attributes'),
-            new FkField('availability_rule_id', 'availabilityRuleId', RuleDefinition::class),
+            (new FkField('availability_rule_id', 'availabilityRuleId', RuleDefinition::class))->addFlags(new Required()),
             new FkField('media_id', 'mediaId', MediaDefinition::class),
             new CreatedAtField(),
             new UpdatedAtField(),
@@ -69,7 +69,6 @@ class ShippingMethodDefinition extends EntityDefinition
             (new TranslationsAssociationField(ShippingMethodTranslationDefinition::class, 'shipping_method_id'))->addFlags(new Required()),
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelShippingMethodDefinition::class, 'shipping_method_id', 'sales_channel_id'),
             new ManyToOneAssociationField('availabilityRule', 'availability_rule_id', RuleDefinition::class),
-            // TODO NEXT-2360: Set loadInBasic to false
             (new OneToManyAssociationField('prices', ShippingMethodPriceDefinition::class, 'shipping_method_id', 'id'))->addFlags(new CascadeDelete()),
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class),
             new ManyToManyAssociationField('tags', TagDefinition::class, ShippingMethodTagDefinition::class, 'shipping_method_id', 'tag_id'),

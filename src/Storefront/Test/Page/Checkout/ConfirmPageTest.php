@@ -63,7 +63,10 @@ class ConfirmPageTest extends TestCase
         foreach ($shippingMethods as $shippingMethod) {
             $updates[] = [
                 'id' => $shippingMethod->getId(),
-                'availabilityRuleId' => null,
+                'availabilityRule' => [
+                    'name' => 'test',
+                    'priority' => 0,
+                ],
             ];
         }
 

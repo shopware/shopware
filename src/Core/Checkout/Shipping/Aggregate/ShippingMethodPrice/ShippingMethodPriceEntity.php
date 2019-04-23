@@ -27,7 +27,7 @@ class ShippingMethodPriceEntity extends Entity
     protected $ruleId;
 
     /**
-     * @var int
+     * @var int|null
      */
     protected $calculation;
 
@@ -126,7 +126,7 @@ class ShippingMethodPriceEntity extends Entity
         $this->price = $price;
     }
 
-    public function getCalculation(): int
+    public function getCalculation(): ?int
     {
         return $this->calculation;
     }

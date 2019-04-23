@@ -20,5 +20,15 @@
         <service id="Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationDefinition">
             <tag name="shopware.entity.definition" entity="shipping_method_translation"/>
         </service>
+
+        <service id="Shopware\Core\Checkout\Shipping\Cart\ShippingMethodPriceCollector">
+            <argument type="service" id="shipping_method_price.repository"/>
+
+            <tag name="shopware.cart.collector"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Shipping\Cart\ShippingMethodValidator">
+            <tag name="shopware.cart.validator"/>
+        </service>
     </services>
 </container>                

@@ -457,7 +457,7 @@ class SalesChannelControllerTest extends TestCase
             'name' => 'Express shipping',
             'bindShippingfree' => false,
             'deliveryTime' => $this->createDeliveryTimeData(),
-            'availabilityRules' => [
+            'availabilityRule' => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Rule',
                 'priority' => 100,
@@ -492,6 +492,7 @@ class SalesChannelControllerTest extends TestCase
             'name' => 'Special shipping',
             'bindShippingfree' => false,
             'deliveryTime' => $this->createDeliveryTimeData(),
+            'availabilityRule' => ['name' => 'test', 'priority' => 0],
         ];
         $data = [
             'id' => $this->getSalesChannelApiSalesChannelId(),

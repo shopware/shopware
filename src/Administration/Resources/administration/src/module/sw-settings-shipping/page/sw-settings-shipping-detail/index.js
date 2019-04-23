@@ -30,22 +30,37 @@ Component.register('sw-settings-shipping-detail', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
     computed: {
+        identifier() {
+            return this.placeholder(this.shippingMethod, 'name');
+        },
+
         shippingMethodStore() {
             return State.getStore('shipping_method');
         },
+
         ruleStore() {
             return State.getStore('rule');
         },
+
         priceRuleStore() {
             return State.getStore('shipping_method_price');
         },
+
         mediaStore() {
             return State.getStore('media');
         },
+
         deliveryTimeStore() {
             return State.getStore('delivery_time');
         },
+
         isLoading() {
             return Object.keys(this.shippingMethod).length === 0
                 || this.shippingMethod.isLoading;

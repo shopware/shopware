@@ -19,6 +19,12 @@ Component.register('sw-settings-rule-list', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    },
+
     computed: {
         ruleStore() {
             return State.getStore('rule');

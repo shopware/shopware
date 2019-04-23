@@ -270,7 +270,6 @@ class CheckoutPageController extends StorefrontController
     public function configure(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         try {
-            throw new \Exception('ttt');
             $route = $request->get('redirectTo', 'frontend.checkout.cart.page');
             $parameters = $request->get('redirectParameters', []);
 

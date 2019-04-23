@@ -5,9 +5,8 @@ import EntityCollection from './entity-collection.data';
 import Criteria from './criteria.data';
 
 export default class EntityFactory {
-    constructor(schema, view) {
+    constructor(schema) {
         this.schema = schema;
-        this.view = view;
     }
 
     /**
@@ -44,7 +43,7 @@ export default class EntityFactory {
             return true;
         });
 
-        const entity = new Entity(id, entityName, data, this.view);
+        const entity = new Entity(id, entityName, data);
         entity.markAsNew();
 
         return entity;
@@ -68,6 +67,6 @@ export default class EntityFactory {
         criteria.setLimit(10);
         criteria.setPage(1);
 
-        return new EntityCollection(source, related, context, criteria, this.view);
+        return new EntityCollection(source, related, context, criteria);
     }
 }

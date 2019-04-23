@@ -1,14 +1,14 @@
 import { warn } from 'src/core/service/utils/debug.utils';
 import types from 'src/core/service/utils/types.utils';
+import { setReactive, deleteReactive } from 'src/app/adapter/view/vue.adapter';
 
 export default class BaseCollection {
-    constructor(source, entity, context, criteria, view) {
+    constructor(source, entity, context, criteria) {
         this.source = source;
         this.context = context;
         this.criteria = criteria;
         this.elements = {};
         this.entity = entity;
-        this.view = view;
 
         // makes the collection iterable via for(const item of collection)
         this[Symbol.iterator] = function* iterator() {
@@ -46,7 +46,7 @@ export default class BaseCollection {
 
         const entity = this.get(id);
 
-        this.view.deleteReactive(this.elements, entity.id);
+        deleteReactive(this.elements, entity.id);
 
         return true;
     }
@@ -86,7 +86,7 @@ export default class BaseCollection {
      * @returns {boolean}
      */
     add(entity) {
-        return this.view.setReactive(this.elements, entity.id, entity);
+        return setReactive(this.elements, entity.id, entity);
     }
 
     forEach(iterator, scope = this) {

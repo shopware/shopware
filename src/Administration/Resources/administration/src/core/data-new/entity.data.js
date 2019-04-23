@@ -1,7 +1,8 @@
 import { cloneDeep } from 'src/core/service/utils/object.utils';
+import { setReactive } from 'src/app/adapter/view/vue.adapter';
 
 export default class Entity {
-    constructor(id, entityName, data, view) {
+    constructor(id, entityName, data) {
         this.id = id;
         this._origin = cloneDeep(data);
         this._entityName = entityName;
@@ -20,7 +21,7 @@ export default class Entity {
             },
 
             set(target, property, value) {
-                view.setReactive(that._draft, property, value);
+                setReactive(that._draft, property, value);
                 this._isDirty = true;
 
                 return true;

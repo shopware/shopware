@@ -16,6 +16,27 @@ import { warn } from 'src/core/service/utils/debug.utils';
 const vueComponents = {};
 
 /**
+ * Allows to set a object property over Vue
+ * @param {Object} object
+ * @param {String} property
+ * @param {*} value
+ * @returns {*}
+ */
+export function setReactive(object, property, value) {
+    return Vue.set(object, property, value);
+}
+
+/**
+ * Allows to delete a object property over Vue
+ * @param {Object} object
+ * @param {String} key
+ * @returns {*}
+ */
+export function deleteReactive(object, key) {
+    return Vue.delete(object, key);
+}
+
+/**
  * @method VueAdapter
  * @memberOf module:app/adapter/view/vue
  * @param context
@@ -34,9 +55,7 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
         getComponent,
         getComponents,
         getWrapper,
-        getName,
-        setReactive,
-        deleteReactive
+        getName
     };
 
     /**
@@ -326,26 +345,5 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
      */
     function getName() {
         return 'Vue.js';
-    }
-
-    /**
-     * Allows to set a object property over Vue
-     * @param {Object} object
-     * @param {String} property
-     * @param {*} value
-     * @returns {*}
-     */
-    function setReactive(object, property, value) {
-        return Vue.set(object, property, value);
-    }
-
-    /**
-     * Allows to delete a object property over Vue
-     * @param {Object} object
-     * @param {String} key
-     * @returns {*}
-     */
-    function deleteReactive(object, key) {
-        return Vue.delete(object, key);
     }
 }

@@ -10,7 +10,7 @@ import enGB from './snippet/en_GB.json';
 
 Module.register('sw-login', {
     type: 'core',
-    name: 'moduleNames.login',
+    name: 'sw-login.general.mainMenuItemsGeneral',
     description: 'Enter description here...',
     version: '1.0.0',
     targetVersion: '1.0.0',

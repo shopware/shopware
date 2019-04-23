@@ -7,7 +7,7 @@ import enGB from './snippet/en_GB.json';
 
 Module.register('sw-integration', {
     type: 'core',
-    name: 'integrations',
+    name: 'sw-integration.general.mainMenuItemIndex',
     description: 'The module for managing integrations.',
     version: '1.0.0',
     targetVersion: '1.0.0',

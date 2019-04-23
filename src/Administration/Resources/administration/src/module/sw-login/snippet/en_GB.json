@@ -1,5 +1,8 @@
 {
   "sw-login": {
+    "general": {
+      "mainMenuItemIndex": "Login"
+    },
     "index": {
       "headlineMain": "Hello",
       "subheadlineMain": "Welcome back!",

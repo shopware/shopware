@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media;
 
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -103,6 +104,7 @@ class MediaDefinition extends EntityDefinition
             new OneToManyAssociationField('shippingMethods', ShippingMethodDefinition::class, 'media_id'),
             (new OneToManyAssociationField('paymentMethods', PaymentMethodDefinition::class, 'media_id', 'id'))->addFlags(new CascadeDelete()),
             new OneToManyAssociationField('productConfiguratorSettings', ProductConfiguratorSettingDefinition::class, 'media_id'),
+            new OneToManyAssociationField('lineItems', OrderLineItemDefinition::class, 'cover_id'),
         ]);
     }
 }

@@ -45,6 +45,7 @@ class LineItemTransformer
             'price' => $lineItem->getPrice(),
             'priceDefinition' => $lineItem->getPriceDefinition(),
             'parentId' => $parentId,
+            'coverId' => $lineItem->getCover() ? $lineItem->getCover()->getId() : null,
             'payload' => $lineItem->getPayload(),
         ];
 

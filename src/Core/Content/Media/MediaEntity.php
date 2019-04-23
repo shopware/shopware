@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media;
 
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Category\CategoryCollection;
@@ -188,6 +189,11 @@ class MediaEntity extends Entity
      * @var ProductConfiguratorSettingCollection|null
      */
     protected $productConfiguratorSettings;
+
+    /**
+     * @var OrderLineItemDefinition|null
+     */
+    protected $lineItems;
 
     public function get(string $property)
     {
@@ -529,5 +535,15 @@ class MediaEntity extends Entity
     public function setProductConfiguratorSettings(ProductConfiguratorSettingCollection $productConfiguratorSettings): void
     {
         $this->productConfiguratorSettings = $productConfiguratorSettings;
+    }
+
+    public function getLineItems(): ?OrderLineItemDefinition
+    {
+        return $this->lineItems;
+    }
+
+    public function setLineItems(OrderLineItemDefinition $lineItems): void
+    {
+        $this->lineItems = $lineItems;
     }
 }

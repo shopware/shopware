@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItem;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -64,6 +65,9 @@ class OrderLineItemDefinition extends EntityDefinition
 
             new ParentFkField(self::class),
             (new ReferenceVersionField(self::class, 'parent_version_id'))->addFlags(new Required()),
+
+            new FkField('cover_id', 'coverId', MediaDefinition::class),
+            new ManyToOneAssociationField('cover', 'cover_id', MediaDefinition::class, 'id', false),
 
             (new StringField('identifier', 'identifier'))->addFlags(new Required()),
             (new IntField('quantity', 'quantity'))->addFlags(new Required()),

@@ -232,6 +232,9 @@
         "descriptionTitle": "Product information",
         "priceUnitName": "Content:"
     },
+    "error": {
+        "message-default": "Unfortunately, something went wrong."
+    },
     "footer": {
         "serviceHotlineHeadline": "Service Hotline",
         "shopServiceHeadline": "Shop Service",

@@ -65,7 +65,7 @@ class CheckoutFinishPageLoader implements PageLoaderInterface
             throw new CustomerNotLoggedInException();
         }
 
-        $orderId = $request->attributes->get('orderId');
+        $orderId = $request->get('orderId');
         if (!$orderId) {
             throw new MissingRequestParameterException('orderId', '/orderId');
         }

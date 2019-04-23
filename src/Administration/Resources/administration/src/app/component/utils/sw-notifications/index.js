@@ -1,4 +1,3 @@
-import { State } from 'src/core/shopware';
 import template from './sw-notifications.html.twig';
 import './sw-notifications.scss';
 
@@ -35,13 +34,11 @@ export default {
         }
     },
 
-    data() {
-        return {
-            notifications: State.getStore('notification').notifications
-        };
-    },
-
     computed: {
+        notifications() {
+            return this.$store.state.notification.notifications;
+        },
+
         notificationsStyle() {
             let notificationsGap = this.notificationsGap;
 
@@ -69,7 +66,7 @@ export default {
 
     methods: {
         onClose(notification) {
-            State.getStore('notification').removeNotification(notification);
+            this.$store.commit('notification/removeNotification', notification);
         }
     }
 };

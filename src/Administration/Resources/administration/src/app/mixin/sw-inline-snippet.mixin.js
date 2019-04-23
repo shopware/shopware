@@ -4,10 +4,10 @@ import types from 'src/core/service/utils/types.utils';
 Mixin.register('sw-inline-snippet', {
     computed: {
         swInlineSnippetLocale() {
-            return this.$root.$i18n.locale;
+            return this.$store.state.adminLocale.currentLocale;
         },
         swInlineSnippetFallbackLocale() {
-            return this.$root.$i18n.fallbackLocale;
+            return this.$store.state.adminLocale.fallbackLocale;
         }
     },
 

@@ -39,8 +39,8 @@ export default {
             return State.getStore('user');
         },
 
-        localeStore() {
-            return State.getStore('adminLocale');
+        currentLocale() {
+            return this.$store.state.adminLocale.currentLocale;
         },
 
         mainMenuEntries() {
@@ -220,11 +220,8 @@ export default {
         },
 
         onChangeLanguage() {
-            const lastLocale = this.$root.$i18n.locale;
-            const newLocale = (lastLocale === 'de-DE' ? 'en-GB' : 'de-DE');
-
-            this.$root.$i18n.locale = newLocale;
-            this.localeStore.setLocale(newLocale);
+            const newLocale = (this.currentLocale === 'de-DE' ? 'en-GB' : 'de-DE');
+            this.$store.commit('setAdminLocale', newLocale);
         },
 
         onToggleSidebar() {

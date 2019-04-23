@@ -1,4 +1,3 @@
-import { State } from 'src/core/shopware';
 import Flatpickr from 'flatpickr';
 import 'flatpickr/dist/l10n';
 import template from './sw-datepicker.html.twig';
@@ -76,7 +75,6 @@ export default {
                 altFormat: 'Y-m-d H:i'
                 // disableMobile: true // only render the flatpickr and no native pickers on mobile
             },
-            localeStore: State.getStore('adminLocale'),
             noCalendar: (this.dateType === 'time'),
             enableTime: (this.dateType === 'datetime' || this.dateType === 'datetime-local' || this.noCalendar)
         };
@@ -88,7 +86,7 @@ export default {
         },
 
         locale() {
-            return (this.localeStore !== undefined ? this.localeStore.locale : 'en-GB');
+            return this.$store.getters.adminLocaleLanguage;
         },
 
         currentFlatpickrConfig() {
@@ -148,8 +146,8 @@ export default {
 
         locale: {
             immediate: true,
-            handler(newLocale) {
-                this.defaultConfig.locale = newLocale.split('-')[0];
+            handler() {
+                this.defaultConfig.locale = this.locale;
                 this.updateFlatpickrInstance(this.config);
             }
         },

@@ -2,11 +2,13 @@
  * @module app/adapter/view/vue
  */
 import Vue from 'vue';
+import Vuex from 'vuex';
 import VueRouter from 'vue-router';
 import VueI18n from 'vue-i18n';
 import VueMeta from 'vue-meta';
 import DeviceHelper from 'src/core/plugins/device-helper.plugin';
-import { Component, Mixin } from 'src/core/shopware';
+import { Component, State, Mixin } from 'src/core/shopware';
+import EntityStore from 'src/core/data/EntityStore';
 import { warn } from 'src/core/service/utils/debug.utils';
 
 /**
@@ -75,7 +77,9 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
         initInheritance();
         initTitle();
 
-        const i18n = initLocales();
+        const store = initStore();
+        const i18n = initLocales(store);
+
         const components = getComponents();
 
         // Enable performance measurements in development mode
@@ -92,6 +96,7 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
             el: renderElement,
             template: '<sw-admin />',
             router,
+            store,
             i18n,
             components,
             data() {
@@ -185,6 +190,7 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
      * @memberOf module:app/adapter/view/vue
      */
     function initPlugins() {
+        Vue.use(Vuex);
         Vue.use(VueRouter);
         Vue.use(VueI18n);
         Vue.use(DeviceHelper);
@@ -226,28 +232,79 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
     }
 
     /**
+     * Initializes the Vuex store for local state management
+     *
+     * @private
+     * @memberOf module:app/adapter/view/vue
+     * @returns {Vuex.Store}
+     */
+    function initStore() {
+        const store = new Vuex.Store({
+            modules: filterStateRegistry(State.getStoreRegistry()),
+            strict: false
+        });
+
+        // remove unnecessary objects from state.factory
+        State.getStoreRegistry().delete('vuex');
+
+        return store;
+    }
+
+    /**
+     * Returns only parts from state namespace that should be registered at Vuex
+     * This will become unnecessary when old data handling is removed
+     * @param registry
+     */
+    function filterStateRegistry(registry) {
+        const storeModules = {};
+        registry.forEach((value, key) => {
+            if (value instanceof EntityStore) {
+                return;
+            }
+
+            storeModules[key] = value;
+        });
+
+        return storeModules;
+    }
+
+    /**
      * Initialises the standard locales.
      *
      * @private
      * @memberOf module:app/adapter/view/vue
      * @return {VueI18n}
      */
-    function initLocales() {
+    function initLocales(store) {
         const registry = localeFactory.getLocaleRegistry();
         const messages = {};
 
         registry.forEach((localeMessages, key) => {
+            store.commit('registerAdminLocale', key);
             messages[key] = localeMessages;
         });
 
-        const currentLocale = localeFactory.getLastKnownLocale();
-        localeFactory.setLocale(currentLocale);
+        store.commit('setAdminLocale', localeFactory.getLastKnownLocale());
+        store.commit('setAdminFallbackLocale', 'en-GB');
 
-        return new VueI18n({
-            locale: currentLocale,
-            fallbackLocale: 'en-GB',
+        const i18n = new VueI18n({
+            locale: store.state.adminLocale.currentLocale,
+            fallbackLocale: store.state.adminLocale.fallbackLocale,
             messages
         });
+
+        store.subscribe(({ type }, state) => {
+            if (type === 'setAdminLocale') {
+                i18n.locale = state.adminLocale.currentLocale;
+                return;
+            }
+
+            if (type === 'setAdminFallbackLocale') {
+                i18n.fallbackLocale = state.adminLocale.fallbackLocale;
+            }
+        });
+
+        return i18n;
     }
 
     /**
@@ -257,6 +314,10 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
      * @memberOf module:app/adapter/view/vue
      */
     function initInheritance() {
+        if (Vue.prototype.hasOwnProperty('$super')) {
+            return;
+        }
+
         Object.defineProperties(Vue.prototype, {
             $super: {
                 get() {

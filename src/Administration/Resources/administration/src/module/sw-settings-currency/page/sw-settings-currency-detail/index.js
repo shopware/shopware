@@ -16,7 +16,17 @@ Component.register('sw-settings-currency-detail', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
     computed: {
+        identifier() {
+            return this.placeholder(this.currency, 'name');
+        },
+
         currencyStore() {
             return State.getStore('currency');
         }

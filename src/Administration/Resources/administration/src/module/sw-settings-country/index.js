@@ -10,7 +10,7 @@ import enGB from './snippet/en_GB.json';
 
 Module.register('sw-settings-country', {
     type: 'core',
-    name: 'Country settings',
+    name: 'sw-settings-country.general.mainMenuItemGeneral',
     description: 'Country section in the settings module',
     color: '#9AA8B5',
     icon: 'default-action-settings',

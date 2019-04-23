@@ -10,7 +10,7 @@ import enGB from './snippet/en_GB.json';
 
 Module.register('sw-settings-currency', {
     type: 'core',
-    name: 'Currency settings',
+    name: 'sw-settings-currency.general.mainMenuItemGeneral',
     description: 'Currency section in the settings module',
     color: '#9AA8B5',
     icon: 'default-action-settings',

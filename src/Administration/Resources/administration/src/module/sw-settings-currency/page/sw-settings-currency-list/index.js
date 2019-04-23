@@ -8,6 +8,12 @@ Component.register('sw-settings-currency-list', {
         Mixin.getByName('sw-settings-list')
     ],
 
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    },
+
     data() {
         return {
             entityName: 'currency',

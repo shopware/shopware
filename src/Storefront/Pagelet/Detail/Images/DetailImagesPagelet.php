@@ -12,7 +12,7 @@ class DetailImagesPagelet extends Struct
      */
     private $productMedia;
 
-    public function getProductMedia(): ProductMediaCollection
+    public function getProductMedia(): ?ProductMediaCollection
     {
         return $this->productMedia;
     }

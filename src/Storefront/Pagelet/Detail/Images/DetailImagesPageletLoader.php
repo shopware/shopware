@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Pagelet\Detail\Images;
 
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Struct\Struct;
@@ -20,11 +20,11 @@ class DetailImagesPageletLoader implements PageLoaderInterface
     private $eventDispatcher;
 
     /**
-     * @var SalesChannelProductRepository
+     * @var EntityRepositoryInterface
      */
     private $productRepository;
 
-    public function __construct(SalesChannelProductRepository $productRepository, EventDispatcherInterface $eventDispatcher)
+    public function __construct(EntityRepositoryInterface $productRepository, EventDispatcherInterface $eventDispatcher)
     {
         $this->productRepository = $productRepository;
         $this->eventDispatcher = $eventDispatcher;
@@ -46,13 +46,15 @@ class DetailImagesPageletLoader implements PageLoaderInterface
 
         $criteria = new Criteria([$productId]);
 
-        $product = $this->productRepository->read($criteria, $context)->get($productId);
+        $product = $this->productRepository->search($criteria, $context->getContext())->get($productId);
 
         if (!$product) {
             throw new ProductNotFoundException($productId);
         }
 
-        $page->setProductMedia($product->getMedia());
+        if ($product->getMedia()) {
+            $page->setProductMedia($product->getMedia());
+        }
 
         $this->eventDispatcher->dispatch(
             DetailImagesPageletLoadedEvent::NAME,

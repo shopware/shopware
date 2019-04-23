@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Rule;
 use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionOrderRule\PromotionOrderRuleDefinition;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionPersonaRule\PromotionPersonaRuleDefinition;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
@@ -73,6 +74,8 @@ class RuleDefinition extends EntityDefinition
             (new OneToManyAssociationField('scopePromotions', PromotionDefinition::class, 'scope_rule_id', 'id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('discountPromotions', PromotionDefinition::class, 'discount_rule_id', 'id'))->addFlags(new CascadeDelete()),
 
+            // Promotion References
+            (new ManyToManyAssociationField('personaPromotions', PromotionDefinition::class, PromotionPersonaRuleDefinition::class, 'rule_id', 'promotion_id'))->addFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('orderPromotions', PromotionDefinition::class, PromotionOrderRuleDefinition::class, 'rule_id', 'promotion_id'))->addFlags(new CascadeDelete()),
         ]);
     }

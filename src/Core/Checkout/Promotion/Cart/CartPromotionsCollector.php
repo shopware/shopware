@@ -149,7 +149,7 @@ class CartPromotionsCollector implements CollectorInterface
         // if so, add them to our collection list.
         /** @var PromotionEntity $promotion */
         foreach ($promotions as $promotion) {
-            if (!$promotion->isPersonaValid($context)) {
+            if (!$promotion->isPersonaConditionValid($context)) {
                 continue;
             }
 

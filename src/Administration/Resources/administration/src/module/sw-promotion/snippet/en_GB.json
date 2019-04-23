@@ -91,7 +91,9 @@
             "descriptionTitlePersona": "Determine which customers benefit from this promotion",
             "labelCustomer": "Assign to specific customers",
             "labelPersonaRule": "Customer Rule",
-            "ruleModuleLink": "Open rule builder"
+            "ruleModuleLink": "Open rule builder",
+            "placeholderPersonaRules": "Add Rules...",
+            "placeholderPersonaCustomers" : "Assign Customers..."
         },
 
         "rebateForm": {

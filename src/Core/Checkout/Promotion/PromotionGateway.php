@@ -51,6 +51,9 @@ class PromotionGateway implements PromotionGatewayInterface
             ]
         ));
 
+        $criteria->addAssociation('personaRules');
+        $criteria->addAssociation('personaCustomers');
+
         /* @var EntityCollection $result */
         $result = $this->promotionRepository->search($criteria, $context->getContext())->getEntities();
 
@@ -78,6 +81,9 @@ class PromotionGateway implements PromotionGatewayInterface
                 ]
             )
         );
+
+        $criteria->addAssociation('personaRules');
+        $criteria->addAssociation('personaCustomers');
 
         /* @var EntityCollection $result */
         $result = $this->promotionRepository->search($criteria, $context->getContext())->getEntities();
@@ -155,7 +161,6 @@ class PromotionGateway implements PromotionGatewayInterface
                 new MultiFilter(
                     MultiFilter::CONNECTION_AND,
                     [
-                        new EqualsFilter('personaRuleId', null),
                         new EqualsFilter('scopeRuleId', null),
                         new EqualsFilter('promotion.orderRules.id', null),
                     ]
@@ -163,7 +168,6 @@ class PromotionGateway implements PromotionGatewayInterface
                 new MultiFilter(
                     MultiFilter::CONNECTION_OR,
                     [
-                        new EqualsAnyFilter('personaRuleId', $contextRuleIds),
                         new EqualsAnyFilter('scopeRuleId', $contextRuleIds),
                         new EqualsAnyFilter('promotion.orderRules.id', $contextRuleIds),
                     ]

@@ -2,8 +2,11 @@
 
 namespace Shopware\Core\Checkout\Promotion;
 
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionOrderRule\PromotionOrderRuleDefinition;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionPersonaCustomer\PromotionPersonaCustomerDefinition;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionPersonaRule\PromotionPersonaRuleDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSalesChannelDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -53,8 +56,6 @@ class PromotionDefinition extends EntityDefinition
             new BoolField('exclusive', 'exclusive'),
             new IntField('priority', 'priority'),
             new BoolField('exclude_lower_priority', 'excludeLowerPriority'),
-            new FkField('persona_rule_id', 'personaRuleId', RuleDefinition::class),
-            new ManyToOneAssociationField('personaRule', 'persona_rule_id', RuleDefinition::class, 'id', true),
             new FkField('scope_rule_id', 'scopeRuleId', RuleDefinition::class),
             new ManyToOneAssociationField('scopeRule', 'scope_rule_id', RuleDefinition::class, 'id', true),
             new FkField('discount_rule_id', 'discountRuleId', RuleDefinition::class),
@@ -64,6 +65,8 @@ class PromotionDefinition extends EntityDefinition
             new OneToManyAssociationField('salesChannels', PromotionSalesChannelDefinition::class, 'promotion_id', 'id'),
             new OneToManyAssociationField('discounts', PromotionDiscountDefinition::class, 'promotion_id'),
 
+            new ManyToManyAssociationField('personaRules', RuleDefinition::class, PromotionPersonaRuleDefinition::class, 'promotion_id', 'rule_id'),
+            new ManyToManyAssociationField('personaCustomers', CustomerDefinition::class, PromotionPersonaCustomerDefinition::class, 'promotion_id', 'customer_id'),
             new ManyToManyAssociationField('orderRules', RuleDefinition::class, PromotionOrderRuleDefinition::class, 'promotion_id', 'rule_id'),
         ]);
     }

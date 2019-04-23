@@ -91,7 +91,9 @@
             "descriptionTitlePersona": "Bestimme welche Kunden von dieser Rabattaktion profitieren",
             "labelCustomer": "Spezifischen Kunden zuweisen",
             "labelPersonaRule": "Kundenregeln",
-            "ruleModuleLink": "Regelmodul öffnen"
+            "ruleModuleLink": "Regelmodul öffnen",
+            "placeholderPersonaRules": "Regeln hinzufügen...",
+            "placeholderPersonaCustomers" : "Kunden zuweisen..."
         },
 
         "rebateForm": {

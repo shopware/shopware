@@ -10,7 +10,7 @@ import enGB from './snippet/en_GB.json';
 
 Module.register('sw-settings-number-range', {
     type: 'core',
-    name: 'Number Range settings',
+    name: 'sw-settings-number-range.general.mainMenuItemGeneral',
     description: 'Number Range section in the settings module',
     color: '#9AA8B5',
     icon: 'default-action-settings',

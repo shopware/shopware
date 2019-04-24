@@ -13,7 +13,7 @@ class OrderValidationService implements ValidationServiceInterface
     {
         $definition = new DataValidationDefinition('order.create');
 
-        $definition->add('sAGB', new NotBlank());
+        $definition->add('tos', new NotBlank());
 
         return $definition;
     }

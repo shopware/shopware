@@ -298,27 +298,15 @@
             <argument type="service" id="salutation.repository"/>
         </service>
 
-        <service id="Shopware\Storefront\Page\Newsletter\Confirm\NewsletterConfirmPageLoader">
-            <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
         <service id="Shopware\Storefront\Page\Newsletter\ConfirmSubscribe\NewsletterConfirmSubscribePageLoader">
-            <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service id="Shopware\Storefront\Page\Newsletter\Error\NewsletterErrorPageLoader">
             <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Storefront\PageController\NewsletterController" public="true">
             <argument type="service" id="Shopware\Storefront\Page\Newsletter\Register\NewsletterRegisterLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\Newsletter\Confirm\NewsletterConfirmPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Newsletter\ConfirmSubscribe\NewsletterConfirmSubscribePageLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\Newsletter\Error\NewsletterErrorPageLoader"/>
-            <argument type="service" id="Shopware\Core\Content\NewsletterReceiver\Service\NewsletterSubscriptionService" />
+            <argument type="service" id="Shopware\Core\Content\NewsletterReceiver\SalesChannel\NewsletterSubscriptionService" />
             <argument type="service" id="request_stack"/>
         </service>
     </services>

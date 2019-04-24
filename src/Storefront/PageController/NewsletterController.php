@@ -5,6 +5,7 @@ namespace Shopware\Storefront\PageController;
 use Shopware\Core\Content\NewsletterReceiver\SalesChannel\NewsletterSubscriptionServiceInterface;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
@@ -13,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class NewsletterController extends StorefrontController
 {
@@ -24,17 +26,7 @@ class NewsletterController extends StorefrontController
     /**
      * @var PageLoaderInterface
      */
-    private $newsletterConfirmPageLoader;
-
-    /**
-     * @var PageLoaderInterface
-     */
     private $newsletterConfirmRegisterPageLoader;
-
-    /**
-     * @var PageLoaderInterface
-     */
-    private $newsletterErrorPageLoader;
 
     /**
      * @var NewsletterSubscriptionServiceInterface
@@ -46,20 +38,23 @@ class NewsletterController extends StorefrontController
      */
     private $requestStack;
 
+    /**
+     * @var TranslatorInterface
+     */
+    private $translator;
+
     public function __construct(
         PageLoaderInterface $newsletterIndexPageLoader,
-        PageLoaderInterface $newsletterConfirmPageLoader,
         PageLoaderInterface $newsletterConfirmRegisterPageLoader,
-        PageLoaderInterface $newsletterErrorPageLoader,
         NewsletterSubscriptionServiceInterface $newsletterService,
-        RequestStack $requestStack
+        RequestStack $requestStack,
+        TranslatorInterface $translator
     ) {
         $this->newsletterRegisterPageLoader = $newsletterIndexPageLoader;
-        $this->newsletterConfirmPageLoader = $newsletterConfirmPageLoader;
         $this->newsletterConfirmRegisterPageLoader = $newsletterConfirmRegisterPageLoader;
-        $this->newsletterErrorPageLoader = $newsletterErrorPageLoader;
         $this->newsletterService = $newsletterService;
         $this->requestStack = $requestStack;
+        $this->translator = $translator;
     }
 
     /**
@@ -73,7 +68,7 @@ class NewsletterController extends StorefrontController
     }
 
     /**
-     * @Route("/newsletter/handle", name="frontend.newsletter.register.handle", methods={"POST"})
+     * @Route("/newsletter", name="frontend.newsletter.register.handle", methods={"POST"})
      */
     public function handle(SalesChannelContext $context, RequestDataBag $requestDataBag): Response
     {
@@ -85,26 +80,25 @@ class NewsletterController extends StorefrontController
         try {
             if ($subscribe) {
                 $this->newsletterService->subscribe($requestDataBag, $context->getContext());
+
+                $this->addFlash('success', $this->translator->trans('newsletter.subscriptionPersistedSuccess'));
+                $this->addFlash('info', $this->translator->trans('newsletter.subscriptionPersistedInfo'));
             } else {
                 $this->newsletterService->unsubscribe($requestDataBag, $context->getContext());
+
+                $this->addFlash('success', $this->translator->trans('newsletter.subscriptionRevokeSuccess'));
+            }
+        } catch (ConstraintViolationException $exception) {
+            foreach ($exception->getViolations() as $violation) {
+                $this->addFlash('danger', $violation->getMessage());
             }
         } catch (\Exception $exception) {
             if ($subscribe) {
-                return $this->forward('Shopware\Storefront\PageController\NewsletterController::index', ['errors' => $exception]);
+                $this->addFlash('danger', $this->translator->trans('error.message-default'));
             }
         }
 
-        return $this->redirectToRoute('frontend.newsletter.register.confirm', ['subscribe' => $subscribe]);
-    }
-
-    /**
-     * @Route("/newsletter/confirm", name="frontend.newsletter.register.confirm", methods={"GET"})
-     */
-    public function confirm(SalesChannelContext $context, Request $request)
-    {
-        $page = $this->newsletterConfirmPageLoader->load($request, $context);
-
-        return $this->renderStorefront('@Storefront/page/newsletter/confirm.html.twig', ['page' => $page]);
+        return $this->forward('Shopware\Storefront\PageController\NewsletterController::index');
     }
 
     /**
@@ -114,22 +108,14 @@ class NewsletterController extends StorefrontController
     {
         try {
             $this->newsletterService->confirm($queryDataBag, $context->getContext());
-        } catch (\Exception $exception) {
-            return $this->forward('Shopware\Storefront\PageController\NewsletterController::error', ['errors' => $exception]);
+        } catch (\Throwable $throwable) {
+            $this->addFlash('danger', $this->translator->trans('newsletter.subscriptionConfirmationFailed'));
+
+            throw new \Exception($throwable->getMessage(), $throwable->getCode(), $throwable);
         }
 
         $page = $this->newsletterConfirmRegisterPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/page/newsletter/confirm-subscribe.html.twig', ['page' => $page]);
-    }
-
-    /**
-     * @Route("/newsletter/error", name="frontend.newsletter.error", methods={"GET"})
-     */
-    public function error(SalesChannelContext $context, Request $request)
-    {
-        $page = $this->newsletterErrorPageLoader->load($request, $context);
-
-        return $this->renderStorefront('@Storefront/page/newsletter/error.html.twig', ['page' => $page]);
     }
 }

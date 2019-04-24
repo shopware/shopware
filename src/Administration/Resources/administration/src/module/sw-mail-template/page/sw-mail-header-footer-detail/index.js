@@ -17,7 +17,17 @@ Component.register('sw-mail-header-footer-detail', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
     computed: {
+        identifier() {
+            return this.placeholder(this.mailHeaderFooter, 'name');
+        },
+
         mailHeaderFooterStore() {
             return State.getStore('mail_header_footer');
         },

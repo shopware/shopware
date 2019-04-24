@@ -21,7 +21,19 @@ Component.register('sw-mail-template-detail', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
     computed: {
+        identifier() {
+            // ToDo: If 'mailType' is translatable, please update:
+            // ToDo: return this.placeholder(this.mailTemplate, 'mailType');
+            return this.mailTemplate ? this.mailTemplate.mailType : '';
+        },
+
         mailTemplateStore() {
             return State.getStore('mail_template');
         },

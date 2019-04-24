@@ -311,8 +311,8 @@
       "messageNoTypeResults": "No type found.",
       "placeholderSearchField": "Find products, customers, orders...",
       "placeholderTypeSearchField": "Search {entity}",
-      "placeholderShortcutInfo": "(Keyboard shortcut \"s\")",
-      "tooltipAllResults": "Show all results"
+      "placeholderShortcutInfo": "Tip: Use the \"s\" key to open the search faster.",
+      "labelShowResultsInModule": "Show results in module({count})"
     },
     "sw-search-bar-item": {
       "typeLabelCustomer": "Customer",

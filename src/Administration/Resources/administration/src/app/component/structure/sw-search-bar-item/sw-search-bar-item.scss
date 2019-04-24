@@ -8,6 +8,7 @@ $sw-search-bar-item-label-hover-color-text: $color-shopware-blue;
 
 .sw-search-bar-item {
     border-radius: $sw-search-bar-item-border-radius;
+    padding: 6px;
 
     .sw-search-bar-item__link {
         padding: 4px 10px;
@@ -38,9 +39,7 @@ $sw-search-bar-item-label-hover-color-text: $color-shopware-blue;
     }
 
 	&.is--active {
-		.sw-search-bar-item__link {
-			background: $sw-search-bar-item-hover-color-background;
-		}
+        background: $sw-search-bar-item-hover-color-background;
 
 		.sw-search-bar-item__label {
 			color: $sw-search-bar-item-label-hover-color-text;

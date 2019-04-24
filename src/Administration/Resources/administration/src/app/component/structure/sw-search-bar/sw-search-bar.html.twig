@@ -51,8 +51,6 @@
                                            :placeholder="placeholderSearchInput"
                                            v-model="searchTerm"
                                            @input="onSearchTermChange"
-                                           @mouseenter="onMouseEnter"
-                                           @mouseleave="onMouseLeave"
                                            @focus="onFocusInput"
                                            @blur="onBlur"
                                            @keydown.delete="resetSearchType">
@@ -79,44 +77,44 @@
                          class="sw-search-bar__results">
 
                         {% block sw_search_bar_results_empty_state %}
-                            <sw-loader v-if="this.isLoading"></sw-loader>
+                            <sw-loader v-if="isLoading"></sw-loader>
                         {% endblock %}
 
-                        <template v-else
+                        <template v-else-if="!isResultEmpty()"
                                   v-for="entity,column in results">
                             {% block sw_search_bar_results_list %}
-                                <div v-if="entity.entities.length > 0 && searchTypes.hasOwnProperty(entity.entity)"
-                                     class="sw-search-bar__results-column">
+                                <div class="sw-search-bar__results-column">
                                     {% block sw_search_bar_results_list_column %}
-                                        <div v-if="entity.entities.length > 0">
-                                            {% block sw_search_bar_results_list_column_header %}
-                                                <div class="sw-search-bar__results-column-header">
-                                                    <router-link v-tooltip="$tc('global.sw-search-bar.tooltipAllResults')"
-                                                                 class="sw-search-bar__results-column-header-router-link"
-                                                                 :to="{ name: getSearchTypeProperty(entity.entity, 'listingRoute'),
-                                                                  query: { term: searchTerm }}">
-                                                        <sw-icon v-if="getEntityIconName(entity.entity)"
-                                                                 :name="getEntityIconName(entity.entity)"
-                                                                 size="20px"
-                                                                 :color="getEntityIconColor(entity.entity)">
-                                                        </sw-icon>
+                                        {% block sw_search_bar_results_list_column_header %}
+                                            <div class="sw-search-bar__results-column-header">
+                                                <template v-if="!currentSearchType">
+                                                    <sw-icon v-if="getEntityIconName(entity.entity)"
+                                                             :name="getEntityIconName(entity.entity)"
+                                                             size="20px"
+                                                             :color="getEntityIconColor(entity.entity)">
+                                                    </sw-icon>
+                                                    <span class="sw-search-bar__types-header-entity">
                                                         {{ $tc(`global.entities.${entity.entity}`, entity.total) }}
-                                                        ({{ entity.total }})
-                                                    </router-link>
-                                                </div>
-                                            {% endblock %}
-                                            <ul class="sw-search-bar__results-list">
-                                                <sw-search-bar-item
-                                                        v-for="item,index in entity.entities"
-                                                        :item="item"
-                                                        :type="entity.entity"
-                                                        :searchTerm="searchTerm"
-                                                        :column="column"
-                                                        :index="index"
-                                                        :key="item.id">
-                                                </sw-search-bar-item>
-                                            </ul>
-                                        </div>
+                                                    </span>
+                                                </template>
+                                                <router-link class="sw-search-bar__types-header-link"
+                                                             :to="{ name: getSearchTypeProperty(entity.entity, 'listingRoute'),
+                                                              query: { term: searchTerm }}">
+                                                    {{ $tc(`global.sw-search-bar.labelShowResultsInModule`, 0, { count: entity.total }) }}
+                                                </router-link>
+                                            </div>
+                                        {% endblock %}
+                                        <ul class="sw-search-bar__results-list">
+                                            <sw-search-bar-item
+                                                    v-for="item,index in entity.entities"
+                                                    :item="item"
+                                                    :type="entity.entity"
+                                                    :searchTerm="searchTerm"
+                                                    :column="column"
+                                                    :index="index"
+                                                    :key="item.id">
+                                            </sw-search-bar-item>
+                                        </ul>
                                     {% endblock %}
                                 </div>
                             {% endblock %}
@@ -124,7 +122,7 @@
 
 
                         {% block sw_search_bar_results_empty %}
-                            <div v-if="isResultEmpty() && !isLoading" class="sw-search-bar__results-empty-message">
+                            <div v-else class="sw-search-bar__results-empty-message">
                                 {% block sw_search_bar_results_empty_icon %}
                                     <sw-icon name="default-action-search" size="20px"></sw-icon>
                                 {% endblock %}
@@ -141,10 +139,11 @@
                     <div v-if="showTypeSelectContainer"
                          class="sw-search-bar__types_container">
                             <div v-for="type,index in typeSelectResults"
-                                class="sw-search-bar__type-item"
-                                :class="{ 'is--active': activeTypeListIndex === index }"
-                                @mouseenter="onMouseEnterSearchType(index)"
-                                @click="onClickType(type.entityName)">
+                                 class="sw-search-bar__type-item"
+                                 :class="{ 'is--active': activeTypeListIndex === index }"
+                                 :style="{ 'border-color': getEntityIconColor(type.entityName) }"
+                                 @mouseenter="onMouseEnterSearchType(index)"
+                                 @click="onClickType(type.entityName)">
                                 <span class="sw-search-bar__type"
                                       :style="{ 'background-color': getEntityIconColor(type.entityName) }">
                                     {{ getLabelSearchType(type.entityName) }}
@@ -156,6 +155,11 @@
                                     {{ $tc('global.sw-search-bar.messageNoTypeResults') }}
                                 {% endblock %}
                             </div>
+                        {% endblock %}
+                        {% block sw_search_bar_types_container_tip %}
+                            <p class="sw-search-bar__shortcut-tip">
+                                {{ $tc('global.sw-search-bar.placeholderShortcutInfo') }}
+                            </p>
                         {% endblock %}
                     </div>
                 {% endblock %}

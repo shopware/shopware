@@ -312,8 +312,8 @@
       "messageNoTypeResults": "Es wurde kein passender Typ gefunden.",
       "placeholderSearchField": "Finde Produkte, Kunden, Bestellungen",
       "placeholderTypeSearchField": "Durchsuche alle {entity}",
-      "placeholderShortcutInfo": "(Tastaturkürzel \"s\")",
-      "tooltipAllResults": "Zeige alle Ergebnisse"
+      "placeholderShortcutInfo": "Tipp: Nutze die \"s\" Taste, um die Suche schneller zu öffnen.",
+      "labelShowResultsInModule": "Ergebnisse im Modul anzeigen({count})"
     },
     "sw-search-bar-item": {
       "typeLabelCustomer": "Kunde",

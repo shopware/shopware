@@ -51,6 +51,6 @@ class CheckoutPageletController extends StorefrontController
     {
         $page = $this->ajaxCartLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/layout/header/cart-mini.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/layout/header/offcanvas-cart.html.twig', ['page' => $page]);
     }
 }

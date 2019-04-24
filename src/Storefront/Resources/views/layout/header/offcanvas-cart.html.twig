@@ -6,7 +6,7 @@
 
 {% block layout_utilities_offcanvas_content %}
 	{% block layout_cart_mini %}
-		<div class="cart-mini">
+		<div class="offcanvas-cart">
 			{% set isCartNotEmpty = (page.cart.lineItems|length > 0) %}
 
 			{% if isCartNotEmpty %}
@@ -33,7 +33,7 @@
 
 							{% block layout_cart_mini_item_actions %}
 								{% if lineItem.isRemovable() %}
-									<form class="cart-item-remove js-cart-mini-remove-product"
+									<form class="cart-item-remove js-offcanvas-cart-remove-product"
 										  action="{{ path('frontend.checkout.line-item.delete', {'id': lineItem.key}) }}"
 									      method="post">
 										<button type="submit"

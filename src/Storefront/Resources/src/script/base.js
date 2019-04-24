@@ -36,7 +36,7 @@ import plugins
 import CartWidgetPlugin from 'src/script/plugin/header/cart-widget.plugin';
 import SearchWidgetPlugin from 'src/script/plugin/header/search-widget/search-widget.plugin';
 import AccountMenuPlugin from 'src/script/plugin/header/account-menu.plugin';
-import CartMiniPlugin from 'src/script/plugin/cart-mini/cart-mini.plugin';
+import OffCanvasCartPlugin from 'src/script/plugin/offcanvas-cart/offcanvas-cart.plugin';
 import CookiePermissionPlugin from 'src/script/plugin/cookie-permission/cookie-permission.plugin';
 import CollapseFooterColumnsPlugin from 'src/script/plugin/collapse/collapse-footer-columns.plugin';
 import FlyoutMenuPlugin from 'src/script/plugin/main-menu/flyout-menu.plugin';
@@ -85,7 +85,7 @@ register plugins
 PluginManager.register('CookiePermission', CookiePermissionPlugin, '[data-cookie-permission]');
 PluginManager.register('SearchWidget', SearchWidgetPlugin, '[data-search-form]');
 PluginManager.register('CartWidget', CartWidgetPlugin, '[data-cart-widget]');
-PluginManager.register('CartMini', CartMiniPlugin, '[data-cart-mini]');
+PluginManager.register('OffCanvasCart', OffCanvasCartPlugin, '[data-offcanvas-cart]');
 PluginManager.register('CollapseFooterColumns', CollapseFooterColumnsPlugin, '[data-collapse-footer]');
 PluginManager.register('FlyoutMenu', FlyoutMenuPlugin, '[data-offcanvas-menu]');
 PluginManager.register('OffcanvasMenu', OffcanvasMenuPlugin, '[data-offcanvas-menu]');

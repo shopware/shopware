@@ -64,12 +64,12 @@ export default {
 
         applyResult(result) {
             this.result = result;
-            this.records = result.elements;
+            this.records = result.items;
 
             if (result.total) {
                 this.total = result.total;
             } else {
-                this.total = Object.keys(result.elements).length;
+                this.total = Object.keys(result.items).length;
             }
 
             this.page = result.criteria.page;

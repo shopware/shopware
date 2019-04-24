@@ -7,12 +7,12 @@ export default class EntityCollection {
         this.source = source;
         this.context = context;
         this.criteria = criteria;
-        this.elements = {};
+        this.items = {};
         this.entity = entity;
 
         // makes the collection iterable via for(const item of collection)
         this[Symbol.iterator] = function* iterator() {
-            const values = Object.values(this.elements);
+            const values = Object.values(this.items);
 
             for (const item of values) { // eslint-disable-line no-restricted-syntax
                 yield item;
@@ -26,11 +26,11 @@ export default class EntityCollection {
      * @returns {Object|null}
      */
     first() {
-        const keys = Object.keys(this.elements);
+        const keys = Object.keys(this.items);
         if (keys.length <= 0) {
             return null;
         }
-        return this.elements[keys[0]];
+        return this.items[keys[0]];
     }
 
     /**
@@ -46,7 +46,7 @@ export default class EntityCollection {
 
         const entity = this.get(id);
 
-        deleteReactive(this.elements, entity.id);
+        deleteReactive(this.items, entity.id);
 
         return true;
     }
@@ -57,7 +57,7 @@ export default class EntityCollection {
      * @returns {boolean}
      */
     has(id) {
-        return Object.prototype.hasOwnProperty.call(this.elements, id);
+        return Object.prototype.hasOwnProperty.call(this.items, id);
     }
 
     /**
@@ -66,8 +66,8 @@ export default class EntityCollection {
      * @returns {Object|null}
      */
     get(id) {
-        if (this.elements[id]) {
-            return this.elements[id];
+        if (this.items[id]) {
+            return this.items[id];
         }
         return null;
     }
@@ -77,7 +77,7 @@ export default class EntityCollection {
      * @returns {string[]}
      */
     getIds() {
-        return Object.keys(this.elements);
+        return Object.keys(this.items);
     }
 
     /**
@@ -86,20 +86,20 @@ export default class EntityCollection {
      * @returns {boolean}
      */
     add(entity) {
-        return setReactive(this.elements, entity.id, entity);
+        return setReactive(this.items, entity.id, entity);
     }
 
     forEach(iterator, scope = this) {
         if (!types.isFunction(iterator)) {
             warn('Base collection', 'No function provided to forEach function');
 
-            return this.elements;
+            return this.items;
         }
 
-        Object.keys(this.elements).forEach((id) => {
-            iterator.call(scope, this.elements[id], id);
+        Object.keys(this.items).forEach((id) => {
+            iterator.call(scope, this.items[id], id);
         });
 
-        return this.elements;
+        return this.items;
     }
 }

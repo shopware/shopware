@@ -25,7 +25,7 @@ export default class EntityHydrator {
         return new SearchResult(
             route,
             entityName,
-            collection.elements,
+            collection.items,
             response.data.meta.total,
             criteria,
             context,

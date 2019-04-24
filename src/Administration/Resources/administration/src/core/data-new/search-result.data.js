@@ -6,6 +6,6 @@ export default class SearchResult extends EntityCollection {
 
         this.total = total;
         this.aggregations = aggregations;
-        this.elements = entities;
+        this.items = entities;
     }
 }

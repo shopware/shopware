@@ -15,7 +15,7 @@ import enGB from './snippet/en_GB.json';
 Module.register('sw-settings-shipping', {
     type: 'core',
     flag: NEXT688,
-    name: 'Shipping settings',
+    name: 'sw-settings-shipping.general.mainMenuItemGeneral',
     description: 'Shipping section in the settings module',
     color: '#9AA8B5',
     icon: 'default-action-settings',

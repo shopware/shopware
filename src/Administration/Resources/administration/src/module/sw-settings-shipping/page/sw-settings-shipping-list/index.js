@@ -20,6 +20,12 @@ Component.register('sw-settings-shipping-list', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    },
+
     computed: {
         columns() {
             return this.getColumns();

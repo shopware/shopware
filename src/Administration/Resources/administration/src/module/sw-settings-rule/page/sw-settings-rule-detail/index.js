@@ -73,7 +73,17 @@ Component.register('sw-settings-rule-detail', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
     computed: {
+        identifier() {
+            return this.rule.name || '';
+        },
+
         ruleStore() {
             return State.getStore('rule');
         }

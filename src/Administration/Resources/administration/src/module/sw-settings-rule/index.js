@@ -12,7 +12,7 @@ import enGB from './snippet/en_GB.json';
 
 Module.register('sw-settings-rule', {
     type: 'core',
-    name: 'Rules',
+    name: 'sw-settings-rule.general.mainMenuItemGeneral',
     description: 'sw-settings-rule.general.descriptionTextModule',
     color: '#9AA8B5',
     icon: 'default-action-settings',

@@ -2,7 +2,6 @@ const loginPage = require('../../page-objects/module/sw-login.page-object.js');
 
 module.exports = {
     '@tags': ['regression', 'login-failed', 'login'],
-    '@disabled': true,
     'make sure the user is not logged in already': (browser) => {
         const page = loginPage(browser);
 

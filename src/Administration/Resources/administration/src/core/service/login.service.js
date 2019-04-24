@@ -1,3 +1,4 @@
+import { Application } from 'src/core/shopware';
 /**
  * @module core/service/login
  */
@@ -17,6 +18,10 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
     const localStorageKey = 'bearerAuth';
     const onTokenChangedListener = [];
     const onLogoutListener = [];
+    const checkUserInterval = 30000;
+
+    const interval = window.setInterval(requestUserInfo, checkUserInterval);
+    document.addEventListener('visibilitychange', onHandleVisibilityChange, false);
 
     return {
         loginByUsername,
@@ -29,6 +34,36 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
         addOnTokenChangedListener,
         addOnLogoutListener
     };
+
+    /**
+     * Event handler which will be fired when the page comes back from background.
+     *
+     * @return {boolean}
+     */
+    function onHandleVisibilityChange() {
+        if (document.hidden) {
+            window.clearInterval(interval);
+            return false;
+        }
+        requestUserInfo();
+        window.setInterval(requestUserInfo, checkUserInterval);
+
+        return true;
+    }
+
+    /**
+     * Requests the user information from the REST api, logs out the user and redirects the user to the login form
+     * when the session was expired.
+     * @return {Promise<T | never>}
+     */
+    function requestUserInfo() {
+        const userService = Application.getContainer('service').userService;
+        return userService.getUser().catch(() => {
+            const router = Application.getApplicationRoot().$router;
+            logout();
+            router.push({ to: '/login' });
+        });
+    }
 
     /**
      * Sends an AJAX request to the authentication end point and tries to log in the user with the provided

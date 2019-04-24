@@ -7,6 +7,8 @@ export default function initializeUserContext(container) {
     return new Promise((resolve) => {
         // The user isn't logged in
         if (!loginService.isLoggedIn()) {
+            // Remove existing login info from the locale storage
+            loginService.logout();
             resolve();
             return;
         }

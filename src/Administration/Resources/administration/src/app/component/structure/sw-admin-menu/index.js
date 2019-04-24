@@ -126,7 +126,9 @@ export default {
             if (Object.keys(currentUser).length <= 0) {
                 this.userService.getUser().then((response) => {
                     this.userProfile = response.data;
-                    this.user = this.userStore.getById(this.userProfile.id);
+                    return this.userStore.getByIdAsync(this.userProfile.id);
+                }).then((user) => {
+                    this.user = user;
                     this.isUserLoading = false;
                 });
                 return true;
@@ -136,7 +138,6 @@ export default {
                 this.user = user;
                 this.isUserLoading = false;
             });
-
 
             return true;
         },
@@ -235,11 +236,15 @@ export default {
         },
 
         onToggleUserActions() {
+            if (this.isUserLoading) {
+                return false;
+            }
             this.isUserActionsActive = !this.isUserActionsActive;
+            return true;
         },
 
         openUserActions() {
-            if (this.isExpanded) {
+            if (this.isExpanded || this.isUserLoading) {
                 return;
             }
 

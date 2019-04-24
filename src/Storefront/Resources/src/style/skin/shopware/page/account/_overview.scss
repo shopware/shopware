@@ -24,18 +24,6 @@
     padding-top: $spacer;
 }
 
-.account-card {
-    .card-body {
-        display: flex;
-        flex-direction: column;
-    }
-}
-
-.account-card-actions {
-    align-items: flex-start;
-    margin-top: auto;
-}
-
 @include media-breakpoint-up(md) {
     .account {
         .account-sidebar {

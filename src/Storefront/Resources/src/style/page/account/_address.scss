@@ -1,25 +1,9 @@
-// Address-Book
-.address-item-card {
-    height: 100%;
-}
-
-.address-item-card-body {
-    display: flex;
-    flex-direction: column;
-}
-
 .address-item-content {
     margin-bottom: $spacer-lg;
 }
 
 .address-item-body .card-title {
     margin-bottom: $spacer-lg;
-}
-
-.address-item-actions {
-    align-items: flex-start;
-    margin-top: auto;
-    padding-top: $spacer-lg;
 }
 
 .address-actions-set-defaults {

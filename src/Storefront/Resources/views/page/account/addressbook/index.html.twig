@@ -69,9 +69,9 @@
             <div class="row address-content">
                 {% for address in page.addresses.entities.elements %}
                     {% block page_account_address_item_content %}
-                        <div class="col-lg-6 address-item-content address-box{% if defaultBillingAddress is same as(address.id) or defaultShippingAddress is same as(address.id) %} address-front{% endif %}">
-                            <div class="address-item-card card {% if defaultBillingAddress is same as(address.id) %}default-billing-address{% endif %} {% if defaultShippingAddress is same as(address.id) %}default-shipping-address{% endif %}">
-                                <div class="address-item-card-body card-body">
+                        <div class="col-lg-6 card-col address-box{% if defaultBillingAddress is same as(address.id) or defaultShippingAddress is same as(address.id) %} address-front{% endif %}">
+                            <div class="card{% if defaultBillingAddress is same as(address.id) %} default-billing-address{% endif %}{% if defaultShippingAddress is same as(address.id) %} default-shipping-address{% endif %}">
+                                <div class="card-body">
                                     {% block page_account_address_item_content_body %}
                                         <div class="address-item-body">
                                             {% block page_account_address_item_content_title %}
@@ -94,7 +94,7 @@
                                     {% endblock %}
 
                                     {% block page_account_address_item_content_actions %}
-                                        <div class="address-item-actions">
+                                        <div class="card-actions">
                                             {% block page_account_address_item_content_set_default %}
                                                 <div class="address-actions-set-defaults">
                                                     {% block page_account_address_item_content_set_default_shipping %}

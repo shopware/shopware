@@ -14,3 +14,23 @@ https://getbootstrap.com/docs/4.3/components/card/
         line-height: $headings-line-height;
     }
 }
+
+// equal height cards
+.card-col {
+    margin-bottom: $spacer-md;
+    display: flex;
+
+    .card {
+        width: 100%;
+    }
+
+    .card-body {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+.card-actions {
+    align-items: flex-start;
+    margin-top: auto;
+}

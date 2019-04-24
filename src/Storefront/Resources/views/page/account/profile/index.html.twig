@@ -33,8 +33,8 @@
 
             {% block page_account_profile_main %}
                 {% block page_account_profile_personal %}
-                    <div class="account-profile-card card profile-personal">
-                        <div class="account-profile-card-body card-body">
+                    <div class="card profile-personal">
+                        <div class="card-body">
                             {% block page_account_profile_personal_header %}
                                 <div class="card-title">
                                     {{ "account.profilePersonalTitle"|trans }}
@@ -60,10 +60,10 @@
                                     {% endblock %}
 
                                     {% block page_account_profile_personal_action_buttons %}
-                                        <div class="profile-form-actions">
+                                        <div class="card-actions">
                                             {% block page_account_profile_personal_action_button_send %}
                                                 <button type="submit"
-                                                        class="profile-form-submit btn btn-primary btn-sm"
+                                                        class="profile-form-submit btn btn-light btn-sm"
                                                         title="{{ "account.profileSaveChanges"|trans }}">
                                                     {{ "account.profileSaveChanges"|trans }}
                                                 </button>
@@ -79,217 +79,213 @@
                 {% block page_account_profile_mail_and_password %}
                     <div class="row profile-content">
                         {% block page_account_profile_mail %}
-                            <div class="col-lg-6 profile-item-content">
-                                <div class="profile-item-card card account-mail">
-                                    <div class="profile-item-card-body card-body">
-                                        {% block page_account_profile_mail_title %}
-                                            <div class="card-title">
-                                                {{ "account.profileMailTitle"|trans }}
-                                            </div>
-                                        {% endblock %}
+                            <div class="col-lg-6 card-col">
+                                <div class="card account-email">
+                                    {% block page_account_profile_mail_form %}
+                                        <form id="profileMailForm"
+                                              class="card-body"
+                                              method="post"
+                                              action="{{ path('frontend.account.profile.email.save') }}"
+                                              data-form-validation="true">
+                                            {% block page_account_profile_mail_title %}
+                                                <div class="card-title">
+                                                    {{ "account.profileMailTitle"|trans }}
+                                                </div>
+                                            {% endblock %}
 
-                                        {% block page_account_profile_current_mail_label %}
-                                            <span
-                                                class="account-current-mail">{{ "account.profileCurrentMail"|trans }}</span>
-                                            <p>{{ page.customer.email }}</p>
-                                        {% endblock %}
+                                            {% block page_account_profile_current_mail_label %}
+                                                <span
+                                                    class="account-current-mail">{{ "account.profileCurrentMail"|trans }}</span>
+                                                <p>{{ page.customer.email }}</p>
+                                            {% endblock %}
 
-                                        {% block page_account_profile_mail_form %}
-                                            <form id="profileMailForm"
-                                                  class="profile-item-form"
-                                                  method="post"
-                                                  action="{{ path('frontend.account.profile.email.save') }}"
-                                                  data-form-validation="true">
-                                                {% block page_account_profile_current_mail %}
-                                                    <div class="form-group">
-                                                        {% block page_account_profile_mail_label %}
-                                                            <label class="form-label" for="personalMail">
-                                                                {{ "account.personalMailLabel"|trans }}
-                                                            </label>
-                                                        {% endblock %}
+                                            {% block page_account_profile_current_mail %}
+                                                <div class="form-group">
+                                                    {% block page_account_profile_mail_label %}
+                                                        <label class="form-label" for="personalMail">
+                                                            {{ "account.personalMailLabel"|trans }}
+                                                        </label>
+                                                    {% endblock %}
 
-                                                        {% block page_account_profile_mail_input %}
-                                                            <input type="email"
-                                                                   class="form-control"
-                                                                   autocomplete="section-personal email"
-                                                                   id="personalMail"
-                                                                   placeholder="{{ "account.personalMailPlaceholder"|trans }}{{ "account.required"|trans }}"
-                                                                   name="email"
-                                                                   data-form-validation-equal="personalMail"
-                                                                   required="required">
-                                                        {% endblock %}
-                                                    </div>
-                                                {% endblock %}
+                                                    {% block page_account_profile_mail_input %}
+                                                        <input type="email"
+                                                               class="form-control"
+                                                               autocomplete="section-personal email"
+                                                               id="personalMail"
+                                                               placeholder="{{ "account.personalMailPlaceholder"|trans }}{{ "account.required"|trans }}"
+                                                               name="email"
+                                                               data-form-validation-equal="personalMail"
+                                                               required="required">
+                                                    {% endblock %}
+                                                </div>
+                                            {% endblock %}
 
-                                                {% block page_account_profile_mail_confirmation %}
-                                                    <div class="form-group">
-                                                        {% block page_account_profile_personal_mail_confirmation_label %}
-                                                            <label class="form-label" for="personalMailConfirmation">
-                                                                {{ "account.personalMailConfirmationLabel"|trans }}
-                                                            </label>
-                                                        {% endblock %}
 
-                                                        {% block page_account_profile_mail_confirmation_input %}
-                                                            <input type="email"
-                                                                   class="form-control"
-                                                                   autocomplete="section-personal email"
-                                                                   id="personalMailConfirmation"
-                                                                   placeholder="{{ "account.personalMailConfirmationPlaceholder"|trans }}{{ "account.required"|trans }}"
-                                                                   name="emailConfirmation"
-                                                                   required="required"
-                                                                   data-form-validation-equal="personalMail"
-                                                                   data-form-validation-equal-message="{{ "account.personalMailConfirmationInvalidMessage"|trans }}">
-                                                        {% endblock %}
-                                                    </div>
-                                                {% endblock %}
+                                            {% block page_account_profile_mail_confirmation %}
+                                                <div class="form-group">
+                                                    {% block page_account_profile_personal_mail_confirmation_label %}
+                                                        <label class="form-label" for="personalMailConfirmation">
+                                                            {{ "account.personalMailConfirmationLabel"|trans }}
+                                                        </label>
+                                                    {% endblock %}
 
-                                                {% block page_account_profile_mail_password %}
-                                                    <div class="form-group">
-                                                        {% block page_account_profile_password_label %}
-                                                            <label class="form-label" for="personalMailPassword">
-                                                                {{ "account.personalPasswordLabel"|trans }}
-                                                            </label>
-                                                        {% endblock %}
+                                                    {% block page_account_profile_mail_confirmation_input %}
+                                                        <input type="email"
+                                                               class="form-control"
+                                                               autocomplete="section-personal email"
+                                                               id="personalMailConfirmation"
+                                                               placeholder="{{ "account.personalMailConfirmationPlaceholder"|trans }}{{ "account.required"|trans }}"
+                                                               name="emailConfirmation"
+                                                               required="required"
+                                                               data-form-validation-equal="personalMail"
+                                                               data-form-validation-equal-message="{{ "account.personalMailConfirmationInvalidMessage"|trans }}">
+                                                    {% endblock %}
+                                                </div>
+                                            {% endblock %}
 
-                                                        {% block page_account_profile_mail_password_input %}
-                                                            <input type="password"
-                                                                   class="form-control"
-                                                                   autocomplete="new-password"
-                                                                   id="personalMailPassword"
-                                                                   placeholder="{{ "account.personalPasswordPlaceholder"|trans }}{{ "account.required"|trans }}"
-                                                                   name="password"
-                                                                   required="required">
-                                                        {% endblock %}
-                                                    </div>
-                                                {% endblock %}
+                                            {% block page_account_profile_mail_password %}
+                                                <div class="form-group">
+                                                    {% block page_account_profile_password_label %}
+                                                        <label class="form-label" for="personalMailPassword">
+                                                            {{ "account.personalPasswordLabel"|trans }}
+                                                        </label>
+                                                    {% endblock %}
 
-                                                {% block page_account_profile_mail_required %}
-                                                    <p class="profile-required-info required-fields">
-                                                        {{ "general.requiredFields"|trans }}
-                                                    </p>
-                                                {% endblock %}
+                                                    {% block page_account_profile_mail_password_input %}
+                                                        <input type="password"
+                                                               class="form-control"
+                                                               autocomplete="new-password"
+                                                               id="personalMailPassword"
+                                                               placeholder="{{ "account.personalPasswordPlaceholder"|trans }}{{ "account.required"|trans }}"
+                                                               name="password"
+                                                               required="required">
+                                                    {% endblock %}
+                                                </div>
+                                            {% endblock %}
 
-                                                {% block page_account_profile_mail_action_buttons %}
-                                                    <div class="profile-form-actions">
-                                                        {% block page_account_profile_mail_action_button_send %}
-                                                            <button type="submit"
-                                                                    class="profile-form-submit btn btn-primary btn-sm"
-                                                                    title="{{ "account.profileSaveChanges"|trans }}">
-                                                                {{ "account.profileSaveChanges"|trans }}
-                                                            </button>
-                                                        {% endblock %}
-                                                    </div>
-                                                {% endblock %}
-                                            </form>
-                                        {% endblock %}
-                                    </div>
+                                            {% block page_account_profile_mail_required %}
+                                                <p class="profile-required-info required-fields">
+                                                    {{ "general.requiredFields"|trans }}
+                                                </p>
+                                            {% endblock %}
+
+                                            {% block page_account_profile_mail_action_buttons %}
+                                                <div class="card-actions">
+                                                    {% block page_account_profile_mail_action_button_send %}
+                                                        <button type="submit"
+                                                                class="profile-form-submit btn btn-light btn-sm"
+                                                                title="{{ "account.profileSaveChanges"|trans }}">
+                                                            {{ "account.profileSaveChanges"|trans }}
+                                                        </button>
+                                                    {% endblock %}
+                                                </div>
+                                            {% endblock %}
+                                        </form>
+                                    {% endblock %}
                                 </div>
                             </div>
                         {% endblock %}
 
                         {% block page_account_profile_password %}
-                            <div class="col-lg-6 profile-item-content">
-                                <div class="profile-item-card card account-password">
-                                    <div class="profile-item-card-body card-body">
-                                        {% block page_account_profile_password_title %}
-                                            <div class="card-title">
-                                                {{ "account.profilePasswordTitle"|trans }}
-                                            </div>
-                                        {% endblock %}
+                            <div class="col-lg-6 card-col">
+                                <div class="card account-password">
+                                    {% block page_account_profile_password_form %}
+                                        <form id="profilePasswordForm"
+                                              class="card-body"
+                                              method="post"
+                                              action="{{ path('frontend.account.profile.password.save') }}"
+                                              data-form-validation="true">
+                                            {% block page_account_profile_password_title %}
+                                                <div class="card-title">
+                                                    {{ "account.profilePasswordTitle"|trans }}
+                                                </div>
+                                            {% endblock %}
+                                            {% block page_account_profile_new_password %}
+                                                <div class="form-group">
+                                                    {% block page_account_profile_new_password_label %}
+                                                        <label class="form-label" for="newPassword">
+                                                            {{ "account.profilePasswordCreateNew"|trans }}
+                                                        </label>
+                                                    {% endblock %}
 
-                                        {% block page_account_profile_password_form %}
-                                            <form id="profilePasswordForm"
-                                                  class="profile-item-form"
-                                                  method="post"
-                                                  action="{{ path('frontend.account.profile.password.save') }}"
-                                                  data-form-validation="true">
-                                                {% block page_account_profile_new_password %}
-                                                    <div class="form-group">
-                                                        {% block page_account_profile_new_password_label %}
-                                                            <label class="form-label" for="newPassword">
-                                                                {{ "account.profilePasswordCreateNew"|trans }}
-                                                            </label>
-                                                        {% endblock %}
+                                                    {% block page_account_profile_new_password_input %}
+                                                        <input type="password"
+                                                               class="form-control"
+                                                               autocomplete="new-password"
+                                                               id="newPassword"
+                                                               placeholder="{{ "account.profilePasswordCreateNew"|trans }}{{ "account.required"|trans }}"
+                                                               name="newPassword"
+                                                                data-form-validation-equal="newPassword"
+                                                               data-form-validation-length="{{ shopware.config.register.minPasswordLength }}"
+                                                               data-form-validation-length-message=" {{ "account.personalPasswordDescription"|trans({
+                                                                   '%minLength%': shopware.config.register.minPasswordLength
+                                                               }) }}"
+                                                               required="required">
+                                                    {% endblock %}
+                                                </div>
+                                            {% endblock %}
 
-                                                        {% block page_account_profile_new_password_input %}
-                                                            <input type="password"
-                                                                   class="form-control"
-                                                                   autocomplete="new-password"
-                                                                   id="newPassword"
-                                                                   placeholder="{{ "account.profilePasswordCreateNew"|trans }}{{ "account.required"|trans }}"
-                                                                   name="newPassword"
-                                                                    data-form-validation-equal="newPassword"
-                                                                   data-form-validation-length="{{ shopware.config.register.minPasswordLength }}"
-                                                                   data-form-validation-length-message=" {{ "account.personalPasswordDescription"|trans({
-                                                                       '%minLength%': shopware.config.register.minPasswordLength
-                                                                   }) }}"
-                                                                   required="required">
-                                                        {% endblock %}
-                                                    </div>
-                                                {% endblock %}
+                                            {% block page_account_profile_new_password_confirmation %}
+                                                <div class="form-group">
+                                                    {% block page_account_profile_new_password_confirmation_label %}
+                                                        <label class="form-label" for="passwordConfirmation">
+                                                            {{ "account.personalPasswordConfirmationLabel"|trans }}
+                                                        </label>
+                                                    {% endblock %}
 
-                                                {% block page_account_profile_new_password_confirmation %}
-                                                    <div class="form-group">
-                                                        {% block page_account_profile_new_password_confirmation_label %}
-                                                            <label class="form-label" for="passwordConfirmation">
-                                                                {{ "account.personalPasswordConfirmationLabel"|trans }}
-                                                            </label>
-                                                        {% endblock %}
+                                                    {% block page_account_profile_new_password_confirmation_input %}
+                                                        <input type="password"
+                                                               class="form-control"
+                                                               autocomplete="new-password"
+                                                               id="passwordConfirmation"
+                                                               placeholder="{{ "account.personalPasswordConfirmationLabel"|trans }}{{ "account.required"|trans }}"
+                                                               name="newPasswordConfirm"
+                                                               required="required"
+                                                               data-form-validation-equal="newPassword"
+                                                               data-form-validation-equal-message="{{ "account.personalPasswordConfirmationInvalidMessage"|trans }}">
+                                                    {% endblock %}
+                                                </div>
+                                            {% endblock %}
 
-                                                        {% block page_account_profile_new_password_confirmation_input %}
-                                                            <input type="password"
-                                                                   class="form-control"
-                                                                   autocomplete="new-password"
-                                                                   id="passwordConfirmation"
-                                                                   placeholder="{{ "account.personalPasswordConfirmationLabel"|trans }}{{ "account.required"|trans }}"
-                                                                   name="newPasswordConfirm"
-                                                                   required="required"
-                                                                   data-form-validation-equal="newPassword"
-                                                                   data-form-validation-equal-message="{{ "account.personalPasswordConfirmationInvalidMessage"|trans }}">
-                                                        {% endblock %}
-                                                    </div>
-                                                {% endblock %}
+                                            {% block page_account_profile_current_password %}
+                                                <div class="form-group">
+                                                    {% block page_account_profile_current_password_label %}
+                                                        <label class="form-label" for="personalPasswordCurrent">
+                                                            {{ "account.profilePasswordCurrent"|trans }}
+                                                        </label>
+                                                    {% endblock %}
 
-                                                {% block page_account_profile_current_password %}
-                                                    <div class="form-group">
-                                                        {% block page_account_profile_current_password_label %}
-                                                            <label class="form-label" for="personalPasswordCurrent">
-                                                                {{ "account.profilePasswordCurrent"|trans }}
-                                                            </label>
-                                                        {% endblock %}
+                                                    {% block page_account_profile_current_password_input %}
+                                                        <input type="password"
+                                                               class="form-control"
+                                                               autocomplete="new-password"
+                                                               id="password"
+                                                               placeholder="{{ "account.profilePasswordCurrent"|trans }}{{ "account.required"|trans }}"
+                                                               name="password"
+                                                               required="required">
+                                                    {% endblock %}
+                                                </div>
+                                            {% endblock %}
 
-                                                        {% block page_account_profile_current_password_input %}
-                                                            <input type="password"
-                                                                   class="form-control"
-                                                                   autocomplete="new-password"
-                                                                   id="password"
-                                                                   placeholder="{{ "account.profilePasswordCurrent"|trans }}{{ "account.required"|trans }}"
-                                                                   name="password"
-                                                                   required="required">
-                                                        {% endblock %}
-                                                    </div>
-                                                {% endblock %}
+                                            {% block page_account_profile_password_required %}
+                                                <p class="profile-required-info required-fields">
+                                                    {{ "general.requiredFields"|trans }}
+                                                </p>
+                                            {% endblock %}
 
-                                                {% block page_account_profile_password_required %}
-                                                    <p class="profile-required-info required-fields">
-                                                        {{ "general.requiredFields"|trans }}
-                                                    </p>
-                                                {% endblock %}
-
-                                                {% block page_account_profile_password_action_buttons %}
-                                                    <div class="profile-form-actions">
-                                                        {% block page_account_profile_password_action_button_send %}
-                                                            <button type="submit"
-                                                                    class="profile-form-submit btn btn-primary btn-sm"
-                                                                    title="{{ "account.profileSaveChanges"|trans }}">
-                                                                {{ "account.profileSaveChanges"|trans }}
-                                                            </button>
-                                                        {% endblock %}
-                                                    </div>
-                                                {% endblock %}
-                                            </form>
-                                        {% endblock %}
-                                    </div>
+                                            {% block page_account_profile_password_action_buttons %}
+                                                <div class="card-actions">
+                                                    {% block page_account_profile_password_action_button_send %}
+                                                        <button type="submit"
+                                                                class="profile-form-submit btn btn-light btn-sm"
+                                                                title="{{ "account.profileSaveChanges"|trans }}">
+                                                            {{ "account.profileSaveChanges"|trans }}
+                                                        </button>
+                                                    {% endblock %}
+                                                </div>
+                                            {% endblock %}
+                                        </form>
+                                    {% endblock %}
                                 </div>
                             </div>
                         {% endblock %}

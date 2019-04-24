@@ -29,7 +29,7 @@ module.exports = {
                 localStorage.setItem('bearerAuth', JSON.stringify(loginResult));
 
                 // Disable the auto closing of notifications globally.
-                Shopware.State.getStore('notification')._defaults.autoClose = false;
+                Shopware.State.getStore('notification').state.defaults.autoClose = false;
 
                 // Return bearer token
                 return localStorage.getItem('bearerAuth');

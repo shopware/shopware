@@ -1,13 +1,7 @@
 import Plugin from 'src/script/helper/plugin/plugin.class';
 import DeviceDetection from 'src/script/helper/device-detection.helper';
+import DomAccess from 'src/script/helper/dom-access.helper';
 
-const DEBOUNCE_TIME = 125;
-
-const ACTIVE_CLASS = 'is-open';
-const CONTAINER_SELECTOR = '[data-menu-flyout="true"]';
-const ClOSE_SELECTOR = '[data-close-menu-flyout="true"]';
-const FLYOUT_SELECTOR = id => (id) ? `[data-menu-flyout-id="${id}"]` : '[data-menu-flyout-id]';
-const TRIGGER_SELECTOR = id => (id) ? `[data-menu-flyout-trigger="${id}"]` : '[data-menu-flyout-trigger]';
 
 /**
  * This Plugin handles the
@@ -15,12 +9,40 @@ const TRIGGER_SELECTOR = id => (id) ? `[data-menu-flyout-trigger="${id}"]` : '[d
  */
 export default class FlyoutMenuPlugin extends Plugin {
 
+    static options = {
+        /**
+         * Hover debounce delay.
+         */
+        debounceTime: 125,
+
+        /**
+         * Class to add when the flyout is active.
+         */
+        activeCls: 'is-open',
+
+        /**
+         * Selector for the close buttons.
+         */
+        closeSelector: '.js-close-flyout-menu',
+
+        /**
+         * Id attribute for the flyout.
+         * Should be the same as 'triggerDataAttribute'
+         */
+        flyoutIdDataAttribute: 'data-flyout-menu-id',
+
+        /**
+         * Trigger attribute for the opening elements.
+         * Should be the same as 'flyoutIdDataAttribute'
+         */
+        triggerDataAttribute: 'data-flyout-menu-trigger',
+    };
+
     init() {
         this._debouncer = null;
-        this.el = document.querySelector(CONTAINER_SELECTOR);
-        this.triggerEls = this.el.querySelectorAll(TRIGGER_SELECTOR());
-        this.closeEls = this.el.querySelectorAll(ClOSE_SELECTOR);
-        this.flyoutEls = this.el.querySelectorAll(FLYOUT_SELECTOR());
+        this.triggerEls = this.el.querySelectorAll(`[${this.options.triggerDataAttribute}]`);
+        this.closeEls = this.el.querySelectorAll(this.options.closeSelector);
+        this.flyoutEls = this.el.querySelectorAll(`[${this.options.flyoutIdDataAttribute}]`);
 
         this._registerEvents();
     }
@@ -37,7 +59,7 @@ export default class FlyoutMenuPlugin extends Plugin {
 
         // register opening triggers
         this.triggerEls.forEach(el => {
-            const flyoutId = el.dataset.menuFlyoutTrigger;
+            const flyoutId = DomAccess.getDataAttribute(el, this.options.triggerDataAttribute);
             el.addEventListener(openEvent, this._openFlyoutById.bind(this, flyoutId, el));
             el.addEventListener(closeEvent, () => this._debounce(this._closeAllFlyouts));
         });
@@ -66,8 +88,8 @@ export default class FlyoutMenuPlugin extends Plugin {
     _openFlyout(flyoutEl, triggerEl) {
         if (!this._isOpen(triggerEl)) {
             this._closeAllFlyouts();
-            flyoutEl.classList.add(ACTIVE_CLASS);
-            triggerEl.classList.add(ACTIVE_CLASS);
+            flyoutEl.classList.add(this.options.activeCls);
+            triggerEl.classList.add(this.options.activeCls);
         }
     }
 
@@ -80,8 +102,8 @@ export default class FlyoutMenuPlugin extends Plugin {
      */
     _closeFlyout(flyoutEl, triggerEl) {
         if (this._isOpen(triggerEl)) {
-            flyoutEl.classList.remove(ACTIVE_CLASS);
-            triggerEl.classList.remove(ACTIVE_CLASS);
+            flyoutEl.classList.remove(this.options.activeCls);
+            triggerEl.classList.remove(this.options.activeCls);
         }
     }
 
@@ -95,7 +117,8 @@ export default class FlyoutMenuPlugin extends Plugin {
      * @private
      */
     _openFlyoutById(flyoutId, triggerEl, event) {
-        const flyoutEl = this.el.querySelector(FLYOUT_SELECTOR(flyoutId));
+        const flyoutEl = this.el.querySelector(`[${this.options.flyoutIdDataAttribute}='${flyoutId}']`);
+
         if (flyoutEl) {
             this._debounce(this._openFlyout, flyoutEl, triggerEl);
         }
@@ -112,7 +135,7 @@ export default class FlyoutMenuPlugin extends Plugin {
      * @private
      */
     _closeAllFlyouts() {
-        const flyoutEls = this.el.querySelectorAll(FLYOUT_SELECTOR());
+        const flyoutEls = this.el.querySelectorAll(`[${this.options.flyoutIdDataAttribute}]`);
 
         flyoutEls.forEach((el) => {
             const triggerEl = this._retrieveTriggerEl(el);
@@ -127,8 +150,8 @@ export default class FlyoutMenuPlugin extends Plugin {
      * @private
      */
     _retrieveTriggerEl(el) {
-        const flyoutId = el.dataset.menuFlyoutId;
-        return this.el.querySelector(TRIGGER_SELECTOR(flyoutId));
+        const flyoutId = DomAccess.getDataAttribute(el, this.options.flyoutIdDataAttribute, false);
+        return this.el.querySelector(`[${this.options.triggerDataAttribute}='${flyoutId}']`);
     }
 
     /**
@@ -140,7 +163,7 @@ export default class FlyoutMenuPlugin extends Plugin {
      * @private
      */
     _isOpen(el) {
-        return el.classList.contains(ACTIVE_CLASS);
+        return el.classList.contains(this.options.activeCls);
     }
 
     /**
@@ -156,7 +179,7 @@ export default class FlyoutMenuPlugin extends Plugin {
      */
     _debounce(fn, ...args) {
         this._clearDebounce();
-        this._debouncer = setTimeout(fn.bind(this, ...args), DEBOUNCE_TIME);
+        this._debouncer = setTimeout(fn.bind(this, ...args), this.options.debounceTime);
     }
 
     /**

@@ -1,3 +1,7 @@
+/**
+ * This is just a sample file.
+ * @todo: please remove before release!
+ */
 import Plugin from 'src/script/helper/plugin/plugin.class';
 
 /**

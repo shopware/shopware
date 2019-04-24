@@ -7,11 +7,14 @@ import AjaxOffCanvas from 'src/script/plugin/offcanvas/ajax-offcanvas.plugin';
 import LoadingIndicator from 'src/script/utility/loading-indicator/loading-indicator.util';
 import DeviceDetection from 'src/script/helper/device-detection.helper';
 
-const CART_MINI_REMOVE_PRODUCT_TRIGGER_SELECTOR = '[data-cart-mini-remove-product]';
-const CART_MINI_FORM_SELECTOR = 'form[data-add-to-cart=true]';
-const CART_MINI_POSITION = 'right';
 
 export default class CartMiniPlugin extends Plugin {
+
+    static options = {
+        removeProductTriggerSelector: '.js-cart-mini-remove-product',
+        formSelector: 'form.js-add-to-cart',
+        offcanvasPosition: 'right',
+    };
 
     init() {
         this.client = new HttpClient(window.accessKey, window.contextToken);
@@ -39,7 +42,7 @@ export default class CartMiniPlugin extends Plugin {
     _onOpenCartMini(e) {
         e.preventDefault();
 
-        AjaxOffCanvas.open(window.router['frontend.cart.detail'], false, this._registerRemoveProductTriggerEvents.bind(this), CART_MINI_POSITION);
+        AjaxOffCanvas.open(window.router['frontend.cart.detail'], false, this._registerRemoveProductTriggerEvents.bind(this), this.options.offcanvasPosition);
     }
 
     /**
@@ -47,7 +50,7 @@ export default class CartMiniPlugin extends Plugin {
      * @private
      */
     _registerFormEvents() {
-        const forms = document.querySelectorAll(CART_MINI_FORM_SELECTOR);
+        const forms = document.querySelectorAll(this.options.formSelector);
 
         forms.forEach(form => {
             form.addEventListener('submit', this._onFormSubmit.bind(this));
@@ -70,7 +73,7 @@ export default class CartMiniPlugin extends Plugin {
 
         OffCanvas.open(LoadingIndicator.getTemplate(), () => {
             this.client.post(requestUrl, formData,this._updateCart.bind(this));
-        }, CART_MINI_POSITION);
+        }, this.options.offcanvasPosition);
     }
 
     /**
@@ -92,7 +95,7 @@ export default class CartMiniPlugin extends Plugin {
      * @private
      */
     _registerRemoveProductTriggerEvents() {
-        const forms = document.querySelectorAll(CART_MINI_REMOVE_PRODUCT_TRIGGER_SELECTOR);
+        const forms = document.querySelectorAll(this.options.removeProductTriggerSelector);
 
         forms.forEach(form => {
             form.addEventListener('submit', this._onRemoveProductFromCart.bind(this));
@@ -118,6 +121,11 @@ export default class CartMiniPlugin extends Plugin {
         this.client.delete(requestUrl.toLowerCase(), this._updateCart.bind(this));
     }
 
+    /**
+     * updates the mini cart  and its widget
+     *
+     * @private
+     */
     _updateCart() {
         // Update the CartWidget in the header
         this._fetchCartWidgets();

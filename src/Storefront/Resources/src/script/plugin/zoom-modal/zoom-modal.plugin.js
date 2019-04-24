@@ -6,9 +6,6 @@ import DomAccess from 'src/script/helper/dom-access.helper';
 import PageLoadingIndicator from 'src/script/utility/loading-indicator/page-loading-indicator.util';
 import ImageZoomPlugin from 'src/script/plugin/image-zoom/image-zoom.plugin';
 
-const URL_TEMPLATE = (id) => `${window.router['widgets.detail.images']}?productId=${id}`;
-const MODAL_TRIGGER_SELECTOR = 'img';
-const PRODUCT_ID_DATA_ATTRIBUTE = 'data-product-id';
 const MODAL_WRAPPER_CLASS = 'ajax-modal-wrapper';
 const IMAGE_SLIDER_INIT_SELECTOR = '[data-image-slider]';
 const IMAGE_ZOOM_INIT_SELECTOR = '[data-image-zoom]';
@@ -18,8 +15,28 @@ const IMAGE_ZOOM_INIT_SELECTOR = '[data-image-zoom]';
  */
 export default class ZoomModalPlugin extends Plugin {
 
+    static options = {
+        /**
+         * selector to trigger the image zoom modal
+         */
+        triggerSelector: 'img',
+
+        /**
+         * product id to load the images via ajax
+         */
+        productIdDataAttribute: 'data-product-id',
+
+        /**
+         * url template to load the images via ajax
+         *
+         * @param id
+         * @returns {string}
+         */
+        requestURLTemplate: (id) => `${window.router['widgets.detail.images']}?productId=${id}`,
+    };
+
     init() {
-        this._triggers = this.el.querySelectorAll(MODAL_TRIGGER_SELECTOR);
+        this._triggers = this.el.querySelectorAll(this.options.triggerSelector);
         this._client = new HttpClient(window.accessKey, window.contextToken);
 
         this._registerEvents();
@@ -42,8 +59,8 @@ export default class ZoomModalPlugin extends Plugin {
      */
     _onClick(event) {
         ZoomModalPlugin._stopEvent(event);
-        const productId = DomAccess.getDataAttribute(this.el, PRODUCT_ID_DATA_ATTRIBUTE);
-        const url = URL_TEMPLATE(productId);
+        const productId = DomAccess.getDataAttribute(this.el, this.options.productIdDataAttribute);
+        const url = this.options.requestURLTemplate(productId);
         PageLoadingIndicator.open();
 
         this._fetchContent(url, this._openModal.bind(this));

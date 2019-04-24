@@ -1,3 +1,7 @@
+/**
+ * This is just a sample file.
+ * @todo: please remove before release!
+ */
 import SimplePlugin from 'src/script/plugin/_example/simple.plugin';
 
 /**

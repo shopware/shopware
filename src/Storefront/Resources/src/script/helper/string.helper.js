@@ -25,6 +25,17 @@ export default class StringHelper {
     }
 
     /**
+     * converts a camel case string
+     * into a dash case string
+     *
+     * @param string
+     * @returns {string}
+     */
+    static toDashCase(string) {
+        return string.replace(/([A-Z])/g, '-$1').replace(/^-/, '').toLowerCase();
+    }
+
+    /**
      *
      * @param {string} string
      * @param {string} separator
@@ -45,11 +56,11 @@ export default class StringHelper {
      */
     static toUpperCamelCase(string, separator) {
         if (!separator) {
-            return StringHelper.ucFirst(string);
+            return StringHelper.ucFirst(string.toLowerCase());
         }
 
         const stringParts = string.split(separator);
-        return stringParts.map(string => StringHelper.ucFirst(string)).join('');
+        return stringParts.map(string => StringHelper.ucFirst(string.toLowerCase())).join('');
     }
 
     /**

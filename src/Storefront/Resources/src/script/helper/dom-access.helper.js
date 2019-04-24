@@ -66,6 +66,14 @@ export default class DomAccess {
     static getDataAttribute(element, key, strict = true) {
         const keyWithoutData = key.replace(/^data(|-)/, '');
         const parsedKey = StringHelper.toLowerCamelCase(keyWithoutData, '-');
+        if (!DomAccess.isNode(element)) {
+            if (strict) {
+                throw new Error('The passed node is not a valid HTML Node!');
+            } else {
+                return undefined;
+            }
+        }
+
         const attribute = element.dataset[parsedKey];
 
         if (typeof attribute === 'undefined') {

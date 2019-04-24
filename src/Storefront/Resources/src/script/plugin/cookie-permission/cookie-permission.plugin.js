@@ -3,15 +3,28 @@ import CookieHandler from 'src/script/helper/cookie.helper';
 import Debouncer from 'src/script/helper/debouncer.helper';
 import DeviceDetection from 'src/script/helper/device-detection.helper';
 
-const EXPIRATION = 1;
-const RESIZE_DEBOUNCE_TIME = 200;
-
-const BUTTON_SELECTOR = '.js-cookie-permission-button';
-
 export default class CookiePermissionPlugin extends Plugin {
 
+    static options = {
+
+        /**
+         * cookie expiration time
+         */
+        cookieExpiration: 1,
+
+        /**
+         * cookie dismiss button selector
+         */
+        buttonSelector: '.js-cookie-permission-button',
+
+        /**
+         * resize debounce delay
+         */
+        resizeDebounceTime: 200,
+    };
+
     init() {
-        this._button = this.el.querySelector(BUTTON_SELECTOR);
+        this._button = this.el.querySelector(this.options.buttonSelector);
 
         if (!this._isCookieAllowed()) {
             this._setBodyPadding();
@@ -62,13 +75,13 @@ export default class CookiePermissionPlugin extends Plugin {
             this._button.addEventListener(submitEvent, () => {
                 this._hideCookieBar();
                 this._removeBodyPadding();
-                CookieHandler.setCookie('allowCookie', '1', EXPIRATION);
+                CookieHandler.setCookie('allowCookie', '1', this.options.cookieExpiration);
             });
         }
 
-        window.addEventListener('resize', Debouncer.debounce(this._setBodyPadding.bind(this), RESIZE_DEBOUNCE_TIME), {
+        window.addEventListener('resize', Debouncer.debounce(this._setBodyPadding.bind(this), this.options.resizeDebounceTime), {
             capture: true,
-            passive: true
+            passive: true,
         });
     }
 

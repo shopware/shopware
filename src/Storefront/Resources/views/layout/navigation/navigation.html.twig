@@ -1,6 +1,6 @@
 {% block layout_main_navigation %}
 
-    <div class="main-navigation" id="mainNavigation" data-menu-flyout="true">
+    <div class="main-navigation" id="mainNavigation" data-flyout-menu="true">
         {% block layout_main_navigation_navbar %}
             <nav class="navbar navbar-expand-lg navbar-light">
                 {% block layout_main_navigation_menu %}
@@ -23,7 +23,7 @@
                                         href="{{ path('frontend.navigation.page', {'navigationId': treeItem.category.id}) }}"
                                         itemprop="url"
                                         {% if treeItem.children|length > 0 %}
-                                            data-menu-flyout-trigger="{{ treeItem.category.id }}"
+                                            data-flyout-menu-trigger="{{ treeItem.category.id }}"
                                         {% endif %}
                                         title="{{ treeItem.category.name }}">
                                         <span itemprop="name">{{ treeItem.category.name }}</span>
@@ -52,7 +52,7 @@
                             {% for treeItem in page.header.navigation.tree %}
                                 {% if treeItem.children|length > 0 %}
                                     {% block layout_main_navigation_menu_flyout %}
-                                        <div class="navigation-flyout" data-menu-flyout-id="{{ treeItem.category.id }}">
+                                        <div class="navigation-flyout" data-flyout-menu-id="{{ treeItem.category.id }}">
                                             {% block layout_main_navigation_menu_flyout_include %}
                                                 {% sw_include '@Storefront/layout/navigation/flyout.html.twig' with {navigationTree: treeItem, level: level+1} only %}
                                             {% endblock %}

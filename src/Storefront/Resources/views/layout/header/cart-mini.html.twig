@@ -33,11 +33,9 @@
 
 							{% block layout_cart_mini_item_actions %}
 								{% if lineItem.isRemovable() %}
-									<form class="cart-item-remove"
-									      action="{{ path('frontend.checkout.line-item.delete', {'id': lineItem.key}) }}"
-									      method="post"
-										  data-cart-mini-remove-product="true">
-										<input type="hidden" name="forwardTo" value="frontend.cart.detail">
+									<form class="cart-item-remove js-cart-mini-remove-product"
+										  action="{{ path('frontend.checkout.line-item.delete', {'id': lineItem.key}) }}"
+									      method="post">
 										<button type="submit"
 										        title="{{ "checkout.removeLineItem"|trans }}"
 										        class="btn btn-light">

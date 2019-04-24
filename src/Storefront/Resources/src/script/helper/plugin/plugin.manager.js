@@ -1,6 +1,7 @@
 import deepmerge from 'deepmerge';
 import PluginRegistry from 'src/script/helper/plugin/plugin.registry';
 import DomAccess from 'src/script/helper/dom-access.helper';
+import 'src/script/helper/plugin/plugin.config.manager';
 
 /**
  * this file handles the plugin functionality of shopware
@@ -131,16 +132,21 @@ class PluginManagerSingleton {
      * Returns the definition of a plugin.
      *
      * @param {string} pluginName
+     * @param {boolean} strict
      *
      * @returns {Map|null}
      */
-    getPlugin(pluginName) {
+    getPlugin(pluginName, strict = true) {
         if (!pluginName) {
             throw new Error('A plugin name must be passed!');
         }
 
         if (!this._registry.has(pluginName)) {
-            throw new Error(`The plugin "${pluginName}" is not registered. You might need to register it first`);
+            if (strict) {
+                throw new Error(`The plugin "${pluginName}" is not registered. You might need to register it first.`);
+            } else {
+                this._registry.set(pluginName);
+            }
         }
 
         return this._registry.get(pluginName);
@@ -181,7 +187,7 @@ class PluginManagerSingleton {
      */
     static getPluginInstancesFromElement(el) {
         if (!DomAccess.isNode(el)) {
-            throw new Error('Passed element is not an Html element!')
+            throw new Error('Passed element is not an Html element!');
         }
 
         el.__plugins = el.__plugins || new Map();

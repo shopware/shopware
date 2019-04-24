@@ -88,8 +88,6 @@ class ProductPageLoader implements PageLoaderInterface
             new ProductPageLoadedEvent($page, $context, $request)
         );
 
-        dump($page);
-
         return $page;
     }
 

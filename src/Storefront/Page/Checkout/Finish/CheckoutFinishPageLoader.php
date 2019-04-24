@@ -73,11 +73,7 @@ class CheckoutFinishPageLoader implements PageLoaderInterface
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $customer->getId()));
         $criteria->addFilter(new EqualsFilter('order.id', $orderId));
-
-        $lineItemCriteria = new Criteria();
-        $lineItemCriteria->addAssociation('cover');
-
-        $criteria->addAssociation('lineItems', $lineItemCriteria);
+        $criteria->addAssociationPath('lineItems.cover');
 
         try {
             $searchResult = $this->orderRepository->search($criteria, $context->getContext());

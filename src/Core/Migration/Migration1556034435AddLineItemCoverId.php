@@ -15,6 +15,11 @@ class Migration1556034435AddLineItemCoverId extends MigrationStep
     public function update(Connection $connection): void
     {
         $connection->executeUpdate('ALTER TABLE `order_line_item` ADD `cover_id` binary(16) NULL AFTER `description`;');
+        $connection->executeUpdate('
+            ALTER TABLE `order_line_item` 
+            ADD CONSTRAINT `fk.order_line_item.cover_id` FOREIGN KEY (`cover_id`) 
+            REFERENCES `media` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE'
+        );
     }
 
     public function updateDestructive(Connection $connection): void

@@ -200,8 +200,12 @@ export default {
             this.selection.addRange(this.range);
         },
 
-        onToggleMenu(button) {
+        onToggleMenu(event, button) {
             if (button.type !== 'link' && !button.children) {
+                return;
+            }
+
+            if (button.type === 'link' && event.target.closest('.sw-text-editor-toolbar__link-menu')) {
                 return;
             }
 

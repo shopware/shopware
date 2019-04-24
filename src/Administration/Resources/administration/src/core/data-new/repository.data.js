@@ -50,15 +50,7 @@ export default class Repository {
         return this.httpClient
             .post(url, criteria.parse(), { headers })
             .then((response) => {
-                const result = this.hydrator.hydrateSearchResult(
-                    this.route,
-                    this.schema.entity,
-                    response,
-                    context,
-                    criteria
-                );
-
-                return result;
+                return this.hydrator.hydrateSearchResult(this.route, this.schema.entity, response, context, criteria);
             });
     }
 

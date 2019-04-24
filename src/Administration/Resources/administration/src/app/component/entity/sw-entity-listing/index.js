@@ -61,7 +61,7 @@ export default {
         },
 
         applyResult(result) {
-            this.records = result;
+            this.records = result.items;
             this.total = result.total;
             this.page = result.criteria.page;
             this.limit = result.criteria.limit;

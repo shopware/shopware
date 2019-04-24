@@ -1,0 +1,166 @@
+{% block sw_custom_field_list %}
+    <sw-card :isLoading="set.isLoading"
+             class="sw-custom-field-list">
+        {% block sw_custom_field_list_toolbar %}
+            <div class="sw-custom-field-list__toolbar">
+                <sw-container columns="1fr 32px minmax(100px, 200px)" gap="0 10px">
+                    {% block sw_custom_field_list_toolbar_searchfield %}
+                        <sw-simple-search-field @searchTermChanged="onSearch" v-model="term" />
+                    {% endblock %}
+
+                    {% block sw_custom_field_list_toolbar_delete %}
+                        <sw-button
+                                :disabled="deleteButtonDisabled"
+                                @click="onDeleteCustomFields"
+                                square
+                                size="small"
+                                class="sw-custom-field-list__delete-button">
+                            <sw-icon name="default-action-trash" small />
+                        </sw-button>
+                    {% endblock %}
+
+                    {% block sw_custom_field_list_toolbar_add %}
+                        <sw-button
+                                :disabled="set.isLoading"
+                                @click="onAddCustomField(set)"
+                                size="small"
+                                class="sw-custom-field-list__add-button">
+                            {{ $tc('sw-settings-custom-field.set.detail.addCustomField') }}
+                        </sw-button>
+                    {% endblock %}
+                </sw-container>
+            </div>
+        {% endblock %}
+
+        {% block sw_custom_field_list_grid %}
+            <sw-grid
+                    v-if="customFields.length || term"
+                    class="sw-custom-field-list__grid"
+                    ref="grid"
+                    :items="customFields"
+                    :isFullpage="false"
+                    table
+                    selectable
+                    @inline-edit-cancel="onInlineEditCancel"
+                    @sw-grid-select-item="selectionChanged">
+                <template slot="columns" slot-scope="{ item }">
+                    {% block sw_custom_field_list_grid_column_label %}
+                        <sw-grid-column
+                                dataIndex="label"
+                                truncate
+                                flex="minmax(150px, 1fr)"
+                                :label="$tc('sw-settings-custom-field.customField.list.labelCustomFieldLabel')">
+                            <span class="sw-custom-field-list__custom-field-label"
+                                  @click="onCustomFieldEdit(item)">
+                                {{ getInlineSnippet(item.config.label) || item.name }}
+                            </span>
+                            <sw-field
+                                    type="text"
+                                    :value="getInlineSnippet(item.config.label) || item.name"
+                                    disabled
+                                    slot="inline-edit">
+                            </sw-field>
+                        </sw-grid-column>
+                    {% endblock %}
+
+                    {% block sw_custom_field_list_grid_column_type %}
+                        <sw-grid-column
+                                dataIndex="type"
+                                truncate
+                                flex="minmax(150px, 200px)"
+                                :label="$tc('sw-settings-custom-field.customField.list.labelCustomFieldType')">
+                            {{ $tc(`sw-settings-custom-field.types.${item.config.customFieldType || item.type}`) }}
+                            <sw-field
+                                    type="text"
+                                    :value="$tc(`sw-settings-custom-field.types.${item.config.customFieldType || item.type}`)"
+                                    disabled
+                                    slot="inline-edit">
+                            </sw-field>
+                        </sw-grid-column>
+                    {% endblock %}
+
+                    {% block sw_custom_field_list_grid_column_custom_field_position %}
+                        <sw-grid-column
+                                dataIndex="position"
+                                flex="minmax(50px, 100px)"
+                                editable
+                                :label="$tc('sw-settings-custom-field.customField.list.labelCustomFieldPosition')">
+                            {{ item.config.customFieldPosition }}
+
+                            {% block sw_custom_field_list_grid_column_custom_field_position_edit %}
+                                <sw-field
+                                        type="number"
+                                        v-model="item.config.customFieldPosition"
+                                        numberType="int"
+                                        slot="inline-edit">
+                                </sw-field>
+                            {% endblock %}
+                        </sw-grid-column>
+                    {% endblock %}
+
+                    {% block sw_custom_field_list_grid_column_actions %}
+                        <sw-grid-column flex="minmax(100px, 100px)" align="center">
+                            <sw-context-button>
+                                {% block sw_custom_field_list_grid_column_actions_edit %}
+                                    <sw-context-menu-item @click="onCustomFieldEdit(item)"
+                                                          :disabled="item.isDeleted">
+                                        {{ $tc('sw-settings-custom-field.customField.list.contextMenuCustomFieldView') }}
+                                    </sw-context-menu-item>
+                                {% endblock %}
+
+                                {% block sw_custom_field_list_grid_column_actions_reset_delete %}
+                                    <sw-context-menu-item v-if="item.isDeleted"
+                                                          variant="success"
+                                                          @click="onCustomFieldResetDelete(item)">
+                                        {{ $tc('sw-settings-custom-field.customField.list.contextMenuCustomFieldResetDelete') }}
+                                    </sw-context-menu-item>
+                                {% endblock %}
+
+                                {% block sw_custom_field_list_grid_column_actions_delete %}
+                                    <sw-context-menu-item v-else variant="danger"
+                                                          @click="onCustomFieldDelete(item)">
+                                        {{ $tc('sw-settings-custom-field.customField.list.contextMenuCustomFieldDelete') }}
+                                    </sw-context-menu-item>
+                                {% endblock %}
+                            </sw-context-button>
+                        </sw-grid-column>
+                    {% endblock %}
+                </template>
+
+                {% block sw_custom_field_list_grid_pagination %}
+                    <template slot="pagination">
+                        <sw-pagination
+                                :page="page"
+                                :limit="limit"
+                                :total="total"
+                                :total-visible="7"
+                                @page-change="onPageChange"
+                                :steps="[10]" >
+                        </sw-pagination>
+                    </template>
+                {% endblock %}
+            </sw-grid>
+        {% endblock %}
+
+        {% block sw_custom_field_list_empty_state %}
+            <sw-empty-state
+                    v-else-if="!set.isLoading && !total"
+                    :title="$tc('sw-settings-custom-field.set.detail.messageCustomFieldsEmpty')">
+            </sw-empty-state>
+        {% endblock %}
+
+        {% block sw_custom_field_list_custom_field_detail %}
+            <sw-custom-field-detail
+                    v-if="currentCustomField"
+                    :set="set"
+                    :currentCustomField="currentCustomField"
+                    @save-custom-field-edit="onSaveCustomField"
+                    @cancel-custom-field-edit="onCancelCustomField">
+            </sw-custom-field-detail>
+        {% endblock %}
+
+        {% block sw_custom_field_list_loader %}
+            <sw-loader v-if="isLoading"></sw-loader>
+        {% endblock %}
+    </sw-card>
+{% endblock %}

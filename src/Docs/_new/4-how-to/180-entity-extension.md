@@ -4,10 +4,10 @@
 ## Overview
 
 If you're wondering how to extend existing core entities, this 'HowTo' will have you covered.
-Do not confuse entity extensions with entities' attributes though, as they serve a different purpose.
+Do not confuse entity extensions with entities' custom fields though, as they serve a different purpose.
 In short: Extensions are technical and not configurable by the admin user just like that.
 Also they can deal with more complex types than scalar ones.
-Attributes are, by default, configurable by the admin user in the administration and they mostly support scalar types, e.g. a
+Custom fields are, by default, configurable by the admin user in the administration and they mostly support scalar types, e.g. a
 text-field, a number field or the likes.
 
 ## Extending an entity

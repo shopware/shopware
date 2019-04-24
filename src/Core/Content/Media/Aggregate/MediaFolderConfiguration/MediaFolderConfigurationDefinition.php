@@ -6,9 +6,9 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfigurationMediaThumbnailSize\MediaFolderConfigurationMediaThumbnailSizeDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Internal;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -76,7 +76,7 @@ class MediaFolderConfigurationDefinition extends EntityDefinition
 
             (new BlobField('media_thumbnail_sizes_ro', 'mediaThumbnailSizesRo'))->addFlags(new Computed(), new Internal()),
 
-            new AttributesField(),
+            new CustomFields(),
         ]);
     }
 }

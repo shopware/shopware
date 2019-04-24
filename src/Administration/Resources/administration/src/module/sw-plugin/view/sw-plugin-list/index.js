@@ -175,7 +175,7 @@ Component.register('sw-plugin-list', {
 
                 // TODO: replace n requests with one request
                 this.getConfig(plugin.name).then((returnedConfig) => {
-                    plugin.attributes = {
+                    plugin.customFields = {
                         config: returnedConfig[0]
                     };
                 }).catch(() => {

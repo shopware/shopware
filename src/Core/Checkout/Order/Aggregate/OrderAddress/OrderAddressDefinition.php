@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderAddress;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -70,7 +70,7 @@ class OrderAddressDefinition extends EntityDefinition
             new StringField('phone_number', 'phoneNumber'),
             (new StringField('additional_address_line1', 'additionalAddressLine1'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new StringField('additional_address_line2', 'additionalAddressLine2'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
-            new AttributesField(),
+            new CustomFields(),
             new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, 'id', true),
             new ManyToOneAssociationField('countryState', 'country_state_id', CountryStateDefinition::class, 'id', true),
             (new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, 'id', false))->setFlags(new RestrictDelete()),

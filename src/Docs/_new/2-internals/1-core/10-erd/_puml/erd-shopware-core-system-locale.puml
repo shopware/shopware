@@ -27,7 +27,7 @@ Table(ShopwareCoreSystemLocaleLocaleDefinition, "locale\n(A locale)") {
    not_null(code) string
    name translated
    territory translated
-   attributes translated
+   customFields translated
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    translated json
@@ -35,7 +35,7 @@ Table(ShopwareCoreSystemLocaleLocaleDefinition, "locale\n(A locale)") {
 TranslationTable(ShopwareCoreSystemLocaleAggregateLocaleTranslationLocaleTranslationDefinition, "locale_translation\n((Translations))") {
    not_null(name) string
    not_null(territory) string
-   attributes attributes
+   customFields customFields
    primary_key(localeId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt

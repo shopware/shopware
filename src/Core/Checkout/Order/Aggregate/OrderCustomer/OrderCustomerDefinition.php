@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderCustomer;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -58,7 +58,7 @@ class OrderCustomerDefinition extends EntityDefinition
             (new StringField('last_name', 'lastName'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new StringField('title', 'title'),
             (new StringField('customer_number', 'customerNumber'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            new AttributesField(),
+            new CustomFields(),
             new OneToOneAssociationField('order', 'order_id', 'id', OrderDefinition::class, false),
             (new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, 'id', false))->addFlags(new SearchRanking(0.5)),
             new ManyToOneAssociationField('salutation', 'salutation_id', SalutationDefinition::class, 'id', true),

@@ -20,7 +20,7 @@ Component.register('sw-product-detail', {
             manufacturers: [],
             currencies: [],
             taxes: [],
-            attributeSets: [],
+            customFieldSets: [],
             priceIsCalculating: false
         };
     },
@@ -56,8 +56,8 @@ Component.register('sw-product-detail', {
             return State.getStore('tax');
         },
 
-        attributeSetStore() {
-            return State.getStore('attribute_set');
+        customFieldSetStore() {
+            return State.getStore('custom_field_set');
         },
 
         disableSaving() {
@@ -111,18 +111,18 @@ Component.register('sw-product-detail', {
                 this.taxes = response.items;
             });
 
-            this.attributeSetStore.getList({
+            this.customFieldSetStore.getList({
                 page: 1,
                 limit: 100,
                 criteria: CriteriaFactory.equals('relations.entityName', 'product'),
                 associations: {
-                    attributes: {
+                    customFields: {
                         limit: 100,
-                        sort: 'attribute.config.attributePosition'
+                        sort: 'config.customFieldPosition'
                     }
                 }
-            }, true).then(({ items }) => {
-                this.attributeSets = items.filter(set => set.attributes.length > 0);
+            }, true).then((response) => {
+                this.customFieldSets = response.items;
             });
         },
 

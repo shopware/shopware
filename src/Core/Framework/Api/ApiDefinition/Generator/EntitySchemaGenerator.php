@@ -7,7 +7,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelpe
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlacklistRuleField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -16,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CartPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -139,7 +139,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
             case $field instanceof ListField:
                 return ['type' => 'json_list', 'flags' => $flags];
 
-            case $field instanceof AttributesField:
+            case $field instanceof CustomFields:
             case $field instanceof VersionDataPayloadField:
             case $field instanceof WhitelistRuleField:
             case $field instanceof BlacklistRuleField:

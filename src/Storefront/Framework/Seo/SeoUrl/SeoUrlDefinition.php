@@ -4,8 +4,8 @@ namespace Shopware\Storefront\Framework\Seo\SeoUrl;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -52,7 +52,7 @@ class SeoUrlDefinition extends EntityDefinition
 
             (new IntField('auto_increment', 'autoIncrement'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
 
-            new AttributesField(),
+            new CustomFields(),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
         ]);
     }

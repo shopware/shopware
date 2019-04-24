@@ -27,7 +27,7 @@ Table(ShopwareCoreFrameworkSnippetAggregateSnippetSetSnippetSetDefinition, "snip
    not_null(name) string
    not_null(baseFile) string
    not_null(iso) string
-   attributes attributes
+   customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
@@ -37,7 +37,7 @@ Table(ShopwareCoreFrameworkSnippetSnippetDefinition, "snippet\n(Translation Stri
    not_null(translationKey) string
    not_null(value) longText
    not_null(author) string
-   attributes attributes
+   customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }

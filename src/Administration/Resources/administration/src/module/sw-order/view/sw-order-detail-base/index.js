@@ -15,7 +15,7 @@ Component.register('sw-order-detail-base', {
             type: Object,
             required: true
         },
-        attributeSets: {
+        customFieldSets: {
             type: Array,
             required: true
         }

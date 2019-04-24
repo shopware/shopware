@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductTranslation;
 
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -47,7 +47,7 @@ class ProductTranslationDefinition extends EntityTranslationDefinition
             new StringField('meta_title', 'metaTitle'),
             new StringField('pack_unit', 'packUnit'),
 
-            new AttributesField(),
+            new CustomFields(),
         ]);
     }
 }

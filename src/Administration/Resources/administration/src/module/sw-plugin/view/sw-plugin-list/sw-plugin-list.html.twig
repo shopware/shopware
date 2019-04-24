@@ -120,9 +120,9 @@
                                                         </sw-context-menu-item>
                                                     {% endblock %}
 
-                                                    <template v-if="item.attributes">
+                                                    <template v-if="item.customFields">
                                                         {% block sw_plugin_list_grid_columns_actions_settings %}
-                                                        <sw-context-menu-item v-if="item.attributes.config" @click="onPluginSettings(item)">
+                                                        <sw-context-menu-item v-if="item.customFields.config" @click="onPluginSettings(item)">
                                                             {{ $tc('sw-plugin.list.config') }}
                                                         </sw-context-menu-item>
                                                         {% endblock %}

@@ -21,10 +21,10 @@ export default {
 
     methods: {
         onChange(event) {
-            const checkedAttribute = event.target.checked;
+            const checkedCustomField = event.target.checked;
 
-            this.$emit('input', checkedAttribute);
-            this.$emit('change', checkedAttribute);
+            this.$emit('input', checkedCustomField);
+            this.$emit('change', checkedCustomField);
         }
     }
 };

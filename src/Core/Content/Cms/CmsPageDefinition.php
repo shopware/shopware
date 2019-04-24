@@ -51,7 +51,7 @@ class CmsPageDefinition extends EntityDefinition
                 new StringField('background_color', 'backgroundColor'),
             ]),
 
-            new TranslatedField('attributes'),
+            new TranslatedField('customFields'),
 
             (new OneToManyAssociationField('blocks', CmsBlockDefinition::class, 'cms_page_id'))->addFlags(new CascadeDelete()),
             new TranslationsAssociationField(CmsPageTranslationDefinition::class, 'cms_page_id'),

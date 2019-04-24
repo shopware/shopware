@@ -26,7 +26,7 @@ Table(ShopwareCoreSystemUnitUnitDefinition, "unit\n(Measuring unit)") {
    primary_key(id) id
    shortCode translated
    name translated
-   attributes translated
+   customFields translated
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    translated json
@@ -34,7 +34,7 @@ Table(ShopwareCoreSystemUnitUnitDefinition, "unit\n(Measuring unit)") {
 TranslationTable(ShopwareCoreSystemUnitAggregateUnitTranslationUnitTranslationDefinition, "unit_translation\n((Translations))") {
    not_null(shortCode) string
    not_null(name) string
-   attributes attributes
+   customFields customFields
    primary_key(unitId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt

@@ -87,8 +87,8 @@ dl dd {
 </style>
 
 <p>With the newest MySQL version <code>CONSTRAINTS</code> must be unique across all tables. This means that</p>
-<p><code>CONSTRAINT json.attributes CHECK (JSON_VALID(attributes))</code> is no longer valid. The new constraint name should be:</p>
-<p><code>CONSTRAINT json.table_name.attributes CHECK (JSON_VALID(attributes))</code>. This is true for all CONSTRAINT, not only JSON_VALID().</p>
+<p><code>CONSTRAINT json.custom_fields CHECK (JSON_VALID(custom_fields))</code> is no longer valid. The new constraint name should be:</p>
+<p><code>CONSTRAINT json.table_name.custom_fields CHECK (JSON_VALID(custom_fields))</code>. This is true for all CONSTRAINT, not only JSON_VALID().</p>
 <h3>2019-04-25: Consistent locale codes</h3>
 
 <style type="text/css">
@@ -588,7 +588,7 @@ All Epics listed here are in the final implementation phase and will be reviewed
 	<li>Plugin System</li>
     <li>Product Streams</li>
     <li>Newsletter Integeration</li>
-	<li>Attributes</li>
+	<li>Custom Fields</li>
 	<li>Documents</li>
 	<li>User</li>
 </ul>
@@ -2810,7 +2810,7 @@ props: {
 &nbsp; &nbsp; }
 }</pre>
 
-<h3>2019-03-06: AttributesField</h3>
+<h3>2019-03-06: CustomField</h3>
 
 <style type="text/css">
 
@@ -2827,10 +2827,10 @@ dl dd {
 
 
 
-<p>We added an easy way to add custom attributes to entities. The AttributesField is like the JsonField only dynamically typed. To save attributes to entities you first have to define the attribute:</p>
+<p>We added an easy way to add custom fields to entities. The CustomField is like the JsonField only dynamically typed. To save custom fields to entities you first have to define the attribute:</p>
 
 <pre>
-$attributesRepository-&gt;create([[
+$customFieldRepository-&gt;create([[
 &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;id&#39; =&gt; &#39;&lt;uuid&gt;&#39;,
 &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;name&#39; =&gt; &#39;sw_test_float&#39;,
 &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;type&#39; =&gt; AttributeType::Float,
@@ -2844,14 +2844,14 @@ $attributesRepository-&gt;create([[
 <pre>
 $entityRepository-&gt;update([[
 &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;id&#39; =&gt; &#39;&lt;entity id&#39;&gt;&#39;,
-&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;attributes&#39; =&gt; [
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;customFields&#39; =&gt; [
 &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;sw_test_float&#39; =&gt; 10.1
 &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;]
 &nbsp;&nbsp; &nbsp;]],
 &nbsp;&nbsp; &nbsp;$context
 );</pre>
 
-<p>Unlike the JsonField, the AttributesField patchs the data instead of replacing it completely. So you dont need to send the whole object to update one property.</p>
+<p>Unlike the JsonField, the CustomField patchs the data instead of replacing it completely. So you dont need to send the whole object to update one property.</p>
 
 <h3>2019-03-05: New tab component</h3>
 
@@ -3050,7 +3050,7 @@ response.aggregations.orderAmount[0].sum;
 
 <h3>2019-02-28: Dynamic Form Field Renderer</h3>
 
-<p>We have a new component for dynamic rendering of form fields. This component is useful whenever you want to render forms based on external configurations or user configuration(e.g. attributes).</p>
+<p>We have a new component for dynamic rendering of form fields. This component is useful whenever you want to render forms based on external configurations or user configuration(e.g. custom fields).</p>
 
 <p><strong>Here are some examples:</strong></p>
 
@@ -3625,7 +3625,7 @@ These epics are planned as the very next one</p>
 
 <ul>
 	<li>Documents</li>
-	<li>Attributes</li>
+	<li>Custom Fields</li>
 	<li>Plugin Manager</li>
 	<li>Customer</li>
 	<li>Core Settings</li>

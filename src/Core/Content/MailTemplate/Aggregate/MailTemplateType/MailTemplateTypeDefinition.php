@@ -50,7 +50,7 @@ class MailTemplateTypeDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
 
-            new TranslatedField('attributes'),
+            new TranslatedField('customFields'),
 
             (new TranslationsAssociationField(MailTemplateTypeTranslationDefinition::class, 'mail_template_type_id'))->addFlags(new Required()),
             new OneToManyAssociationField('mailTemplates', MailTemplateDefinition::class, 'mail_template_type_id'),

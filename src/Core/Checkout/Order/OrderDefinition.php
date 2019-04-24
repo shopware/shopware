@@ -10,9 +10,9 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition
 use Shopware\Core\Checkout\Order\Aggregate\OrderTag\OrderTagDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CalculatedPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CartPriceField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
@@ -85,7 +85,7 @@ class OrderDefinition extends EntityDefinition
             (new FkField('state_id', 'stateId', StateMachineStateDefinition::class))->setFlags(new Required()),
             new ManyToOneAssociationField('stateMachineState', 'state_id', StateMachineStateDefinition::class, 'id', true),
 
-            new AttributesField(),
+            new CustomFields(),
 
             (new OneToOneAssociationField('orderCustomer', 'id', 'order_id', OrderCustomerDefinition::class))->addFlags(new CascadeDelete(), new SearchRanking(0.5)),
             new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, 'id', true),

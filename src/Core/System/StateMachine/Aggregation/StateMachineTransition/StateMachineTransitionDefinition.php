@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -47,7 +47,7 @@ class StateMachineTransitionDefinition extends EntityDefinition
             (new FkField('to_state_id', 'toStateId', StateMachineStateDefinition::class))->setFlags(new Required()),
             new ManyToOneAssociationField('toStateMachineState', 'to_state_id', StateMachineStateDefinition::class, 'id', true),
 
-            new AttributesField(),
+            new CustomFields(),
         ]);
     }
 }

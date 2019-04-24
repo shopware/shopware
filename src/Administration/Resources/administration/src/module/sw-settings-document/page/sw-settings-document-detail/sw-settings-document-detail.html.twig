@@ -65,9 +65,9 @@
                                 </sw-field>
                             </div>
                             {% endblock %}
-                            {% block sw_attribute_set_renderer_card_tabs_content %}
+                            {% block sw_custom_field_set_renderer_card_tabs_content %}
                                 <template v-for="formFields in formFieldSet.formFields">
-                                    {% block sw_attribute_set_renderer_card_form_renderer %}
+                                    {% block sw_custom_field_set_renderer_card_form_renderer %}
                                     <sw-form-field-renderer v-if="documentConfig.config"
                                                             v-bind="formFields"
                                                             v-model="documentConfig.config[formFields.name]">

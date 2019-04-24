@@ -20,7 +20,7 @@ Component.register('sw-sales-channel-detail-base', {
             required: true,
             default: {}
         },
-        attributeSets: {
+        customFieldSets: {
             type: Array,
             required: true
         }

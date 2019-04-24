@@ -410,7 +410,7 @@
       "defaultPlaceholder": "Suche"
     },
     "entities": {
-      "attribute": "Zusatzfeld | Zusatzfelder",
+      "custom_field": "Zusatzfeld | Zusatzfelder",
       "cart": "Warenkorb | Warenkörbe",
       "category": "Kategorie | Kategorien",
       "cms_page": "Seite | Seiten",
@@ -541,7 +541,7 @@
     "configLoadErrorMessage": "Beim Laden der Konfiguration ist ein Fehler aufgetreten: | Beim Laden der Konfiguration sind Fehler aufgetreten:",
     "configLoadErrorTitle": "Fehler beim Laden der Konfiguration!"
   },
-  "sw-attribute-set-renderer": {
+  "sw-custom-field-set-renderer": {
     "general":{
       "labelButtonSave": "Speichern"
     }

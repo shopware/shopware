@@ -51,7 +51,7 @@ class CmsSlotDefinition extends EntityDefinition
             (new StringField('slot', 'slot'))->addFlags(new Required()),
 
             new TranslatedField('config'),
-            new TranslatedField('attributes'),
+            new TranslatedField('customFields'),
 
             (new JsonField('data', 'data'))->addFlags(new Deferred(), new WriteProtected()),
 

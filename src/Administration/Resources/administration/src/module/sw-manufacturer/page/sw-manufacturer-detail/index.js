@@ -18,7 +18,7 @@ Component.register('sw-manufacturer-detail', {
             manufacturerId: null,
             manufacturer: { isLoading: true },
             mediaItem: null,
-            attributeSets: []
+            customFieldSets: []
         };
     },
 
@@ -41,8 +41,8 @@ Component.register('sw-manufacturer-detail', {
             return State.getStore('media');
         },
 
-        attributeSetStore() {
-            return State.getStore('attribute_set');
+        customFieldSetStore() {
+            return State.getStore('custom_field_set');
         },
 
         mediaUploadTag() {
@@ -80,18 +80,18 @@ Component.register('sw-manufacturer-detail', {
                 }
             });
 
-            this.attributeSetStore.getList({
+            this.customFieldSetStore.getList({
                 page: 1,
                 limit: 100,
                 criteria: CriteriaFactory.equals('relations.entityName', 'product_manufacturer'),
                 associations: {
-                    attributes: {
+                    customFields: {
                         limit: 100,
-                        sort: 'attribute.config.attributePosition'
+                        sort: 'config.customFieldPosition'
                     }
                 }
             }, true).then(({ items }) => {
-                this.attributeSets = items.filter(set => set.attributes.length > 0);
+                this.customFieldSets = items.filter(set => set.customFields.length > 0);
             });
         },
 

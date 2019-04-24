@@ -41,7 +41,7 @@ class DeliveryTimeDefinition extends EntityDefinition
             (new IntField('min', 'min', 0))->addFlags(new Required()),
             (new IntField('max', 'max', 0))->addFlags(new Required()),
             (new StringField('unit', 'unit'))->addFlags(new Required()),
-            new TranslatedField('attributes'),
+            new TranslatedField('customFields'),
 
             new OneToManyAssociationField('shippingMethods', ShippingMethodDefinition::class, 'delivery_time_id'),
             (new TranslationsAssociationField(DeliveryTimeTranslationDefinition::class, 'delivery_time_id'))->addFlags(new Required()),

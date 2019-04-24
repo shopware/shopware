@@ -1,0 +1,39 @@
+{% block sw_custom_field_type_base_content %}
+    {% parent() %}
+
+    {% block sw_custom_field_type_number_container %}
+        <sw-container
+                columns="1fr 1fr"
+                gap="20px">
+            {% block sw_custom_field_type_number_container_numbertype %}
+                <sw-field
+                        type="select"
+                        :label="$tc('sw-settings-custom-field.customField.detail.labelNumberType')"
+                        :options="numberTypes"
+                        v-model="currentCustomField.config.numberType">
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_custom_field_type_number_container_step %}
+                <sw-number-field
+                        :label="$tc('sw-settings-custom-field.customField.detail.labelStep')"
+                        v-model="currentCustomField.config.step">
+                </sw-number-field>
+            {% endblock %}
+
+            {% block sw_custom_field_type_number_container_min %}
+                <sw-number-field
+                        :label="$tc('sw-settings-custom-field.customField.detail.labelMin')"
+                        v-model="currentCustomField.config.min">
+                </sw-number-field>
+            {% endblock %}
+
+            {% block sw_custom_field_type_number_container_max %}
+                <sw-number-field
+                        :label="$tc('sw-settings-custom-field.customField.detail.labelMax')"
+                        v-model="currentCustomField.config.max">
+                </sw-number-field>
+            {% endblock %}
+        </sw-container>
+    {% endblock %}
+{% endblock %}

@@ -283,14 +283,14 @@
             </sw-media-modal-move>
         {% endblock %}
 
-        {% block sw_media_quickinfo_attribute_sets %}
-            <sw-attribute-set-renderer
+        {% block sw_media_quickinfo_custom_field_sets %}
+            <sw-custom-field-set-renderer
                     v-if="next754"
                     :entity="item"
                     variant="media-collapse"
-                    @sw-attribute-set-renderer-save="item.save()"
-                    :sets="attributeSets">
-            </sw-attribute-set-renderer>
+                    @sw-custom-field-set-renderer-save="item.save()"
+                    :sets="customFieldSets">
+            </sw-custom-field-set-renderer>
         {% endblock %}
     </div>
 {% endblock %}

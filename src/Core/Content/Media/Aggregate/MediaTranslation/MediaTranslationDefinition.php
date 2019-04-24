@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Media\Aggregate\MediaTranslation;
 
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -36,7 +36,7 @@ class MediaTranslationDefinition extends EntityTranslationDefinition
         return new FieldCollection([
             new StringField('title', 'title'),
             new LongTextField('alt', 'alt'),
-            new AttributesField(),
+            new CustomFields(),
         ]);
     }
 }

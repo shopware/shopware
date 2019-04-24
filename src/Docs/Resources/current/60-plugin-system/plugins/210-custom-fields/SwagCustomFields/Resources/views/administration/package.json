@@ -1,0 +1,9 @@
+{
+    "name": "swagcustomfields",
+    "version": "1.0.0",
+    "description": "custom fields example",
+    "main": "index.js",
+    "author": "shopware AG",
+    "license": "MIT",
+    "private": true
+}

@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
@@ -41,7 +41,7 @@ class PluginTranslationDefinition extends EntityTranslationDefinition
             new StringField('manufacturer_link', 'manufacturerLink'),
             new StringField('support_link', 'supportLink'),
             new JsonField('changelog', 'changelog'),
-            new AttributesField(),
+            new CustomFields(),
         ]);
     }
 }

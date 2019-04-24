@@ -64,7 +64,7 @@ class PluginDefinition extends EntityDefinition
             new TranslatedField('manufacturerLink'),
             new TranslatedField('supportLink'),
             new TranslatedField('changelog'),
-            new TranslatedField('attributes'),
+            new TranslatedField('customFields'),
 
             (new TranslationsAssociationField(PluginTranslationDefinition::class, 'plugin_id'))->addFlags(new Required(), new CascadeDelete()),
             new OneToManyAssociationField('paymentMethods', PaymentMethodDefinition::class, 'plugin_id', 'id'),

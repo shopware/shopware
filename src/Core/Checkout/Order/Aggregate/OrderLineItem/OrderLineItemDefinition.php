@@ -6,9 +6,9 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPo
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CalculatedPriceField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
@@ -80,7 +80,7 @@ class OrderLineItemDefinition extends EntityDefinition
             (new FloatField('total_price', 'totalPrice'))->addFlags(new Computed()),
             new StringField('description', 'description'),
             new StringField('type', 'type'),
-            new AttributesField(),
+            new CustomFields(),
             new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, 'id', false),
             (new OneToManyAssociationField('orderDeliveryPositions', OrderDeliveryPositionDefinition::class, 'order_line_item_id', 'id'))->addFlags(new CascadeDelete(), new WriteProtected()),
         ]);

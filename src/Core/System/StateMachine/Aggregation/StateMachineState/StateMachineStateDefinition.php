@@ -64,7 +64,7 @@ class StateMachineStateDefinition extends EntityDefinition
             new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'state_id'),
             new OneToManyAssociationField('orders', OrderDefinition::class, 'state_id'),
 
-            new TranslatedField('attributes'),
+            new TranslatedField('customFields'),
 
             new OneToManyAssociationField('toStateMachineHistoryEntries', StateMachineHistoryDefinition::class, 'to_state_id'),
             new OneToManyAssociationField('fromStateMachineHistoryEntries', StateMachineHistoryDefinition::class, 'from_state_id'),

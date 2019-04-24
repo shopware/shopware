@@ -97,8 +97,8 @@
             <tag name="shopware.demodata_generator" />
         </service>
 
-        <service id="Shopware\Core\Framework\Demodata\Generator\AttributeGenerator">
-            <argument type="service" id="attribute_set.repository"/>
+        <service id="Shopware\Core\Framework\Demodata\Generator\CustomFieldGenerator">
+            <argument type="service" id="custom_field_set.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
             <tag name="shopware.demodata_generator" />

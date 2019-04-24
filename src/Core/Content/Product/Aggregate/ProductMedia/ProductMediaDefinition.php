@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductMedia;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -53,7 +53,7 @@ class ProductMediaDefinition extends EntityDefinition
             new IntField('position', 'position'),
             (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false))->addFlags(new ReverseInherited('media')),
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', true),
-            new AttributesField(),
+            new CustomFields(),
         ]);
     }
 }

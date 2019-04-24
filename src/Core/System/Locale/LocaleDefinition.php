@@ -41,7 +41,7 @@ class LocaleDefinition extends EntityDefinition
             (new StringField('code', 'code'))->addFlags(new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new TranslatedField('territory'),
-            new TranslatedField('attributes'),
+            new TranslatedField('customFields'),
             new OneToManyAssociationField('languages', LanguageDefinition::class, 'locale_id', 'id'),
             (new TranslationsAssociationField(LocaleTranslationDefinition::class, 'locale_id'))->addFlags(new Required()),
             (new OneToManyAssociationField('users', UserDefinition::class, 'locale_id', 'id'))->addFlags(new RestrictDelete()),

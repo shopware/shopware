@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTr
 
 use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -35,7 +35,7 @@ class DiscountSurchargeTranslationDefinition extends EntityTranslationDefinition
     {
         return new FieldCollection([
             (new StringField('name', 'name'))->addFlags(new Required()),
-            new AttributesField(),
+            new CustomFields(),
         ]);
     }
 }

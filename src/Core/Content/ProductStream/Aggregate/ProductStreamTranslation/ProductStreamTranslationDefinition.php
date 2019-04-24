@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation
 
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -37,7 +37,7 @@ class ProductStreamTranslationDefinition extends EntityTranslationDefinition
         return new FieldCollection([
             (new StringField('name', 'name'))->addFlags(new Required()),
             new LongTextField('description', 'description'),
-            new AttributesField(),
+            new CustomFields(),
         ]);
     }
 }

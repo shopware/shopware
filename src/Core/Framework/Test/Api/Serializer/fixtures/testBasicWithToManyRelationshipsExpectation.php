@@ -12,7 +12,7 @@ return [
             'active' => true,
             'firstName' => 'Manufacturer',
             'lastName' => '',
-            'attributes' => null,
+            'customFields' => null,
             'createdAt' => '2018-01-15T08:01:16+00:00',
             'updatedAt' => null,
             'avatarId' => null,
@@ -85,7 +85,7 @@ return [
                 'mediaType' => null,
                 'uploadedAt' => null,
                 'mediaFolderId' => null,
-                'attributes' => null,
+                'customFields' => null,
                 'translated' => [],
             ],
             'links' => [

@@ -31,7 +31,7 @@ Table(ShopwareCoreSystemCurrencyCurrencyDefinition, "currency\n(Currency)") {
    not_null(decimalPrecision) int
    position int
    isDefault bool
-   attributes translated
+   customFields translated
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    translated json
@@ -39,7 +39,7 @@ Table(ShopwareCoreSystemCurrencyCurrencyDefinition, "currency\n(Currency)") {
 TranslationTable(ShopwareCoreSystemCurrencyAggregateCurrencyTranslationCurrencyTranslationDefinition, "currency_translation\n((Translations))") {
    not_null(shortName) string
    not_null(name) string
-   attributes attributes
+   customFields customFields
    primary_key(currencyId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt

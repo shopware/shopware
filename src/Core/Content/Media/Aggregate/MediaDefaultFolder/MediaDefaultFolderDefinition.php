@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder;
 
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -41,7 +41,7 @@ class MediaDefaultFolderDefinition extends EntityDefinition
 
             new OneToOneAssociationField('folder', 'id', 'default_folder_id', MediaFolderDefinition::class),
 
-            new AttributesField(),
+            new CustomFields(),
         ]);
     }
 }

@@ -1,9 +1,0 @@
-{
-    "name": "swagcustomattributes",
-    "version": "1.0.0",
-    "description": "custom attributes example",
-    "main": "index.js",
-    "author": "shopware AG",
-    "license": "MIT",
-    "private": true
-}

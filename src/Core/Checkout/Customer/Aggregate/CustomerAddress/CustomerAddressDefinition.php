@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress;
 
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -63,7 +63,7 @@ class CustomerAddressDefinition extends EntityDefinition
             new StringField('phone_number', 'phoneNumber'),
             (new StringField('additional_address_line1', 'additionalAddressLine1'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new StringField('additional_address_line2', 'additionalAddressLine2'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
-            new AttributesField(),
+            new CustomFields(),
             new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, 'id', false),
             new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, 'id', true),
             new ManyToOneAssociationField('countryState', 'country_state_id', CountryStateDefinition::class, 'id', true),

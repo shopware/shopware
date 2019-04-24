@@ -14,7 +14,7 @@ return [
                 'name' => null,
                 'createdAt' => '2012-08-15T00:00:00+00:00',
                 'updatedAt' => '2017-11-21T11:25:34+00:00',
-                'attributes' => null,
+                'customFields' => null,
             ],
             'links' => [
                 'self' => '/api/media-folder/3e352be2d85846dd97529c0f6b544870',
@@ -72,7 +72,7 @@ return [
                 'name' => null,
                 'createdAt' => '2012-08-15T00:00:00+00:00',
                 'updatedAt' => '2017-11-21T11:25:34+00:00',
-                'attributes' => null,
+                'customFields' => null,
             ],
             'links' => [
                 'self' => '/api/media-folder/5846dd97529c0f6b5448713e352be2d8',

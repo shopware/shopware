@@ -105,7 +105,7 @@ class PaymentMethodEntity extends Entity
     /**
      * @var array|null
      */
-    protected $attributes;
+    protected $customFields;
 
     /**
      * @var string
@@ -292,13 +292,13 @@ class PaymentMethodEntity extends Entity
         $this->media = $media;
     }
 
-    public function getAttributes(): ?array
+    public function getCustomFields(): ?array
     {
-        return $this->attributes;
+        return $this->customFields;
     }
 
-    public function setAttributes(?array $attributes): void
+    public function setCustomFields(?array $customFields): void
     {
-        $this->attributes = $attributes;
+        $this->customFields = $customFields;
     }
 }

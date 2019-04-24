@@ -81,10 +81,10 @@ EOD
 Business events
 EOD
     ,
-    'Framework/Attribute' => <<<'EOD'
+    'Framework/CustomField' => <<<'EOD'
 Attribut management
 
-* [Entity relationship diagram](./10-erd/erd-shopware-core-framework-attribute.md)
+* [Entity relationship diagram](./10-erd/erd-shopware-core-framework-custom-field.md)
 EOD
     ,
     'Framework/Validation' => <<<'EOD'

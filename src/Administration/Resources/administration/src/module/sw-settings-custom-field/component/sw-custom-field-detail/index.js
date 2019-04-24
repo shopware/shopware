@@ -1,0 +1,141 @@
+import { Component, Mixin } from 'src/core/shopware';
+import template from './sw-custom-field-detail.html.twig';
+import './sw-custom-field-detail.scss';
+
+Component.register('sw-custom-field-detail', {
+    template,
+
+    inject: ['customFieldDataProviderService', 'SwCustomFieldListIsCustomFieldNameUnique'],
+
+    mixins: [
+        Mixin.getByName('notification')
+    ],
+
+    props: {
+        currentCustomField: {
+            type: Object,
+            required: true
+        },
+        set: {
+            type: Object,
+            required: true
+        }
+    },
+
+    data() {
+        return {
+            fieldTypes: {},
+            required: false
+        };
+    },
+
+    computed: {
+        locales() {
+            if (this.set.config.translated && this.set.config.translated === true) {
+                return Object.keys(this.$root.$i18n.messages);
+            }
+
+            return [this.$root.$i18n.fallbackLocale];
+        },
+        canSave() {
+            return this.currentCustomField.config.customFieldType;
+        },
+        renderComponentName() {
+            return this.fieldTypes[this.currentCustomField.config.customFieldType].configRenderComponent;
+        },
+        modalTitle() {
+            if (this.currentCustomField.isLocal) {
+                return this.$tc('sw-settings-custom-field.customField.detail.titleNewCustomField');
+            }
+
+            return this.$tc('sw-settings-custom-field.customField.detail.titleEditCustomField');
+        },
+        labelSaveButton() {
+            if (this.currentCustomField.isLocal) {
+                return this.$tc('sw-settings-custom-field.customField.detail.buttonSaveApply');
+            }
+
+            return this.$tc('sw-settings-custom-field.customField.detail.buttonEditApply');
+        }
+    },
+
+    watch: {
+        required(value) {
+            if (value) {
+                this.currentCustomField.config.validation = 'required';
+                return;
+            }
+
+            if (this.currentCustomField.config.hasOwnProperty('validation')) {
+                this.$delete(this.currentCustomField.config, 'validation');
+            }
+        }
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            this.fieldTypes = this.customFieldDataProviderService.getTypes();
+
+            if (!this.currentCustomField.config.hasOwnProperty('customFieldType')) {
+                this.$set(this.currentCustomField.config, 'customFieldType', '');
+            }
+
+            if (!this.currentCustomField.name) {
+                this.currentCustomField.name = `${this.set.name.toLowerCase()}_`;
+            }
+
+            if (this.currentCustomField.config.hasOwnProperty('validation')) {
+                this.required = (this.currentCustomField.config.validation === 'required');
+            }
+
+            if (!this.currentCustomField.config.hasOwnProperty('customFieldPosition')) {
+                this.$set(this.currentCustomField.config, 'customFieldPosition', 1);
+            }
+        },
+        onCancel() {
+            if (this.currentCustomField !== null && !this.currentCustomField.isLocal) {
+                this.currentCustomField.discardChanges();
+            }
+            this.$emit('cancel-custom-field-edit', this.currentCustomField);
+        },
+        onSave() {
+            this.applyTypeConfiguration();
+            if (!this.currentCustomField.isLocal) {
+                this.$emit('save-custom-field-edit', this.currentCustomField);
+                return;
+            }
+
+            this.SwCustomFieldListIsCustomFieldNameUnique(this.currentCustomField).then(isUnique => {
+                if (isUnique) {
+                    this.$emit('save-custom-field-edit', this.currentCustomField);
+                    return;
+                }
+                this.createNameNotUniqueNotification();
+            });
+        },
+        createNameNotUniqueNotification() {
+            const titleSaveSuccess = this.$tc('sw-settings-custom-field.set.detail.titleNameNotUnique');
+            const messageSaveSuccess = this.$tc('sw-settings-custom-field.set.detail.messageNameNotUnique');
+
+            this.createNotificationError({
+                title: titleSaveSuccess,
+                message: messageSaveSuccess
+            });
+        },
+        applyTypeConfiguration() {
+            const customFieldType = this.currentCustomField.config.customFieldType;
+
+            if (!this.currentCustomField.type) {
+                this.currentCustomField.type = this.fieldTypes[customFieldType].type || customFieldType;
+            }
+            this.currentCustomField.config = {
+                ...this.fieldTypes[customFieldType].config,
+                ...this.currentCustomField.config
+            };
+        }
+    }
+});

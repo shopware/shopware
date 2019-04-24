@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTypeTranslati
 
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -35,7 +35,7 @@ class MailTemplateTypeTranslationDefinition extends EntityTranslationDefinition
     {
         return new FieldCollection([
             (new StringField('name', 'name'))->setFlags(new Required()),
-            new AttributesField(),
+            new CustomFields(),
         ]);
     }
 }

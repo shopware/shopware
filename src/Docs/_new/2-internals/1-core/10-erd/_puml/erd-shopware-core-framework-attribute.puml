@@ -22,25 +22,25 @@ skinparam backgroundColor #FFFFFF
 
 ' entities
 
-Table(ShopwareCoreFrameworkAttributeAttributeDefinition, "attribute\n(Attribute configuration)") {
+Table(ShopwareCoreFrameworkCustomFieldCustomFieldDefinition, "customField\n(CustomField configuration)") {
    primary_key(id) id
    not_null(name) string
    not_null(type) string
    config json
-   attributeSetId foreignKey
+   customFieldSetId foreignKey
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
-Table(ShopwareCoreFrameworkAttributeAggregateAttributeSetAttributeSetDefinition, "attribute_set\n(Attribute set/group)") {
+Table(ShopwareCoreFrameworkCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition, "customField_set\n(CustomField set/group)") {
    primary_key(id) id
    not_null(name) string
    config json
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
-Table(ShopwareCoreFrameworkAttributeAggregateAttributeSetRelationAttributeSetRelationDefinition, "attribute_set_relation\n(Set to entity relation)") {
+Table(ShopwareCoreFrameworkCustomFieldAggregateCustomFieldSetRelationCustomFieldSetRelationDefinition, "customField_set_relation\n(Set to entity relation)") {
    primary_key(id) id
-   not_null(attributeSetId) foreignKey
+   not_null(customFieldSetId) foreignKey
    not_null(entityName) string
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
@@ -48,6 +48,6 @@ Table(ShopwareCoreFrameworkAttributeAggregateAttributeSetRelationAttributeSetRel
 
 ' relationshipd
 
-ShopwareCoreFrameworkAttributeAggregateAttributeSetAttributeSetDefinition --> ShopwareCoreFrameworkAttributeAttributeDefinition
-ShopwareCoreFrameworkAttributeAggregateAttributeSetRelationAttributeSetRelationDefinition --> ShopwareCoreFrameworkAttributeAggregateAttributeSetAttributeSetDefinition
+ShopwareCoreFrameworkCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition --> ShopwareCoreFrameworkCustomFieldCustomFieldDefinition
+ShopwareCoreFrameworkCustomFieldAggregateCustomFieldSetRelationCustomFieldSetRelationDefinition --> ShopwareCoreFrameworkCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition
 @enduml

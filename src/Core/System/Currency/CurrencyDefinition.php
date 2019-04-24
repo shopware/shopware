@@ -61,7 +61,7 @@ class CurrencyDefinition extends EntityDefinition
             (new IntField('decimal_precision', 'decimalPrecision'))->addFlags(new Required()),
             new IntField('position', 'position'),
             (new BoolField('is_default', 'isDefault'))->addFlags(new Deferred()),
-            new TranslatedField('attributes'),
+            new TranslatedField('customFields'),
             (new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'currency_id', 'id'))->addFlags(new RestrictDelete()),
             (new TranslationsAssociationField(CurrencyTranslationDefinition::class, 'currency_id'))->addFlags(new Required()),
             (new OneToManyAssociationField('orders', OrderDefinition::class, 'currency_id', 'id'))->addFlags(new RestrictDelete()),

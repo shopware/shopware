@@ -46,7 +46,7 @@ Table(ShopwareCoreCheckoutCustomerCustomerDefinition, "customer\n(The sales chan
    lastLogin date
    newsletter bool
    birthday date
-   attributes attributes
+   customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    legacyPassword string
@@ -54,7 +54,7 @@ Table(ShopwareCoreCheckoutCustomerCustomerDefinition, "customer\n(The sales chan
 }
 TranslationTable(ShopwareCoreCheckoutCustomerAggregateCustomerGroupTranslationCustomerGroupTranslationDefinition, "customer_group_translation\n((Translations))") {
    not_null(name) string
-   attributes attributes
+   customFields customFields
    primary_key(customerGroupId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -78,7 +78,7 @@ Table(ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinit
    phoneNumber string
    additionalAddressLine1 string
    additionalAddressLine2 string
-   attributes attributes
+   customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
@@ -86,7 +86,7 @@ Table(ShopwareCoreCheckoutCustomerAggregateCustomerGroupCustomerGroupDefinition,
    primary_key(id) id
    name translated
    displayGross bool
-   attributes translated
+   customFields translated
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    translated json

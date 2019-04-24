@@ -4,8 +4,8 @@ namespace Shopware\Core\System\User;
 
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Internal;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -52,7 +52,7 @@ class UserDefinition extends EntityDefinition
             (new StringField('last_name', 'lastName'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new StringField('email', 'email'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new BoolField('active', 'active'),
-            new AttributesField(),
+            new CustomFields(),
             new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, 'id', false),
             new OneToOneAssociationField('avatarMedia', 'avatar_id', 'id', MediaDefinition::class),
             new OneToManyAssociationField('media', MediaDefinition::class, 'user_id', 'id'),

@@ -10,7 +10,7 @@ return [
                 'priority' => null,
                 'description' => 'Test description',
                 'invalid' => null,
-                'attributes' => null,
+                'customFields' => null,
                 'createdAt' => null,
                 'updatedAt' => null,
                 'moduleTypes' => null,

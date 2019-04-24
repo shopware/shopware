@@ -105,7 +105,7 @@ class CategoryDefinition extends EntityDefinition
             new BoolField('active', 'active'),
 
             (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            new TranslatedField('attributes'),
+            new TranslatedField('customFields'),
             new TranslatedField('slotConfig'),
             new TranslatedField('externalLink'),
             new TranslatedField('description'),

@@ -39,12 +39,12 @@ Table(ShopwareCoreContentCategoryCategoryDefinition, "category\n(Category tree)"
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    name translated
-   attributes translated
+   customFields translated
    translated json
 }
 TranslationTable(ShopwareCoreContentCategoryAggregateCategoryTranslationCategoryTranslationDefinition, "category_translation\n((Translations))") {
    not_null(name) string
-   attributes attributes
+   customFields customFields
    primary_key(categoryId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt

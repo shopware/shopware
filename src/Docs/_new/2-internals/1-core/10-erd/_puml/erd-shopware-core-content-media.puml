@@ -40,7 +40,7 @@ Table(ShopwareCoreContentMediaMediaDefinition, "media\n(Media / Files)") {
    alt translated
    title translated
    url string
-   attributes translated
+   customFields translated
    thumbnailsRo blob
    hasFile bool
    translated json
@@ -51,7 +51,7 @@ Table(ShopwareCoreContentMediaAggregateMediaDefaultFolderMediaDefaultFolderDefin
    not_null(entity) string
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   attributes attributes
+   customFields customFields
 }
 Table(ShopwareCoreContentMediaAggregateMediaThumbnailMediaThumbnailDefinition, "media_thumbnail\n(Generated Thumbnail)") {
    primary_key(id) id
@@ -61,12 +61,12 @@ Table(ShopwareCoreContentMediaAggregateMediaThumbnailMediaThumbnailDefinition, "
    not_null(width) int
    not_null(height) int
    url string
-   attributes attributes
+   customFields customFields
 }
 TranslationTable(ShopwareCoreContentMediaAggregateMediaTranslationMediaTranslationDefinition, "media_translation\n((Translations))") {
    title string
    alt longText
-   attributes attributes
+   customFields customFields
    primary_key(mediaId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -82,13 +82,13 @@ Table(ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition, "media_
    not_null(name) string
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   attributes attributes
+   customFields customFields
 }
 Table(ShopwareCoreContentMediaAggregateMediaThumbnailSizeMediaThumbnailSizeDefinition, "media_thumbnail_size\n(Generated Thumbnails)") {
    primary_key(id) id
    not_null(width) int
    not_null(height) int
-   attributes attributes
+   customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
@@ -100,7 +100,7 @@ Table(ShopwareCoreContentMediaAggregateMediaFolderConfigurationMediaFolderConfig
    mediaThumbnailSizesRo blob
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   attributes attributes
+   customFields customFields
 }
 Table(ShopwareCoreContentMediaAggregateMediaFolderConfigurationMediaThumbnailSizeMediaFolderConfigurationMediaThumbnailSizeDefinition, "media_folder_configuration_media_thumbnail_size\n(M:N Mapping)") {
    primary_key(mediaFolderConfigurationId) foreignKey

@@ -29,7 +29,7 @@ Table(ShopwareCoreFrameworkSearchSearchDocumentDefinition, "search_document\n(Co
    not_null(entity) string
    not_null(keyword) string
    not_null(ranking) float
-   attributes attributes
+   customFields customFields
 }
 ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 }

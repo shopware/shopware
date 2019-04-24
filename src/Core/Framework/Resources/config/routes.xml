@@ -6,7 +6,7 @@
 
     <import resource="../../Api/Controller/" type="annotation" />
     <import resource="../../Snippet/" type="annotation" />
-    <import resource="../../Attribute/" type="annotation" />
+    <import resource="../../CustomField/" type="annotation" />
     <import resource="../../Plugin/" type="annotation" />
     <import resource="../../Store/" type="annotation" />
     <import resource="../../MessageQueue/" type="annotation" />

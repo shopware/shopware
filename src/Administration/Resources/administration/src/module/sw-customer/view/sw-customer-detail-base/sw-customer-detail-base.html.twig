@@ -52,15 +52,15 @@
                             </sw-card>
                         {% endblock %}
 
-                        {% block sw_customer_detail_attribute_sets %}
-                            <sw-card :title="$tc('sw-settings-attribute.general.mainMenuItemGeneral')"
-                                     v-if="next754 && customerAttributeSets.length > 0"
+                        {% block sw_customer_detail_custom_field_sets %}
+                            <sw-card :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                                     v-if="next754 && customerCustomFieldSets.length > 0"
                                      :isLoading="customer.isLoading">
-                                <sw-attribute-set-renderer
+                                <sw-custom-field-set-renderer
                                         :entity="customer"
                                         :disabled="!editMode"
-                                        :sets="customerAttributeSets">
-                                </sw-attribute-set-renderer>
+                                        :sets="customerCustomFieldSets">
+                                </sw-custom-field-set-renderer>
                             </sw-card>
                         {% endblock %}
                     </div>

@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
 return [
-    'Shopware\\Core\\Framework\\Attribute' => <<<'EOD'
-Attributes are part of almost every entity of the system. The term describes object attribute-values (see EAV). The configuration of these attributes is stored here.
+    'Shopware\\Core\\Framework\\CustomField' => <<<'EOD'
+Custom fields are part of almost every entity of the system. The term describes object custom field-values (see EAV). The configuration of these custom fields is stored here.
 EOD
     ,
     'Shopware\\Core\\Framework\\Event' => <<<'EOD'
@@ -137,15 +137,15 @@ EOD
 The storefront application of the Shopware Platform. Therefore contains Storefront specific entities that do not need to be part of the core and just support inner workings of this particular Storefront.
 EOD
     ,
-    Shopware\Core\Framework\Attribute\AttributeDefinition::class => <<<'EOD'
-A single attribute with a name and configuration.
+    Shopware\Core\Framework\CustomField\CustomFieldDefinition::class => <<<'EOD'
+A single custom field with a name and configuration.
 EOD
     ,
-    Shopware\Core\Framework\Attribute\Aggregate\AttributeSet\AttributeSetDefinition::class => <<<'EOD'
-A defined and named set of attributes.
+    Shopware\Core\Framework\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition::class => <<<'EOD'
+A defined and named set of custom fields.
 EOD
     ,
-    Shopware\Core\Framework\Attribute\Aggregate\AttributeSetRelation\AttributeSetRelationDefinition::class => <<<'EOD'
+    Shopware\Core\Framework\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationDefinition::class => <<<'EOD'
 Relates a set to a entity type.
 EOD
     ,

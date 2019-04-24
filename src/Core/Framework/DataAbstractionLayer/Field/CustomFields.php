@@ -1,0 +1,16 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
+
+class CustomFields extends JsonField
+{
+    public function __construct($storageName = 'custom_fields', $propertyName = 'customFields')
+    {
+        parent::__construct($storageName, $propertyName);
+    }
+
+    public function setPropertyMapping(array $propertyMapping): void
+    {
+        $this->propertyMapping = $propertyMapping;
+    }
+}

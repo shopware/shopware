@@ -69,7 +69,7 @@ export default function conditionService() {
             'linked'
         ],
         tax: [
-            'attributes',
+            'customFields',
             'name',
             'products',
             'productServices'
@@ -82,7 +82,7 @@ export default function conditionService() {
             'path',
             'level',
             'template',
-            'attributes',
+            'customFields',
             'childCount',
             'cmsDescription',
             'cmsHeadline',
@@ -99,11 +99,11 @@ export default function conditionService() {
         ],
         product_manufacturer: [
             'link',
-            'attributes',
+            'customFields',
             'media'
         ],
         unit: [
-            'attributes',
+            'customFields',
             'shortCode'
         ],
         product_configurator_setting: [
@@ -111,7 +111,7 @@ export default function conditionService() {
             'prices',
             'createdAt',
             'updatedAt',
-            'attributes'
+            'customFields'
         ],
         property_group_option: [
             'position',
@@ -120,7 +120,7 @@ export default function conditionService() {
             'productServices',
             'productProperties',
             'productOptions',
-            'attributes'
+            'customFields'
         ],
         property_group: [
             'description',
@@ -130,7 +130,7 @@ export default function conditionService() {
             'displayType',
             'sortingType',
             'options',
-            'attributes'
+            'customFields'
         ],
         product_visibility: [
             'id'
@@ -139,7 +139,7 @@ export default function conditionService() {
             'name',
             'accessKey',
             'configuration',
-            'attributes',
+            'customFields',
             'extensions',
             'type',
             'currencies',
@@ -184,13 +184,13 @@ export default function conditionService() {
         ]
     };
 
-    const productAttributes = {};
+    const productCustomFields = {};
 
     return {
         isPropertyInBlacklist,
         addToGeneralBlacklist,
         addToEntityBlacklist,
-        productAttributes
+        productCustomFields
     };
 
     function isPropertyInBlacklist(definition, property) {

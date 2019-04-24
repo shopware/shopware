@@ -192,7 +192,7 @@ class SalesChannelEntity extends Entity
     /**
      * @var array|null
      */
-    protected $attributes;
+    protected $customFields;
 
     /**
      * @var CategoryEntity|null
@@ -559,14 +559,14 @@ class SalesChannelEntity extends Entity
         $this->systemConfigs = $systemConfigs;
     }
 
-    public function getAttributes(): ?array
+    public function getCustomFields(): ?array
     {
-        return $this->attributes;
+        return $this->customFields;
     }
 
-    public function setAttributes(?array $attributes): void
+    public function setCustomFields(?array $customFields): void
     {
-        $this->attributes = $attributes;
+        $this->customFields = $customFields;
     }
 
     public function getNavigationCategoryId(): string

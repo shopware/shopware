@@ -32,7 +32,7 @@ Table(ShopwareCoreSystemCountryCountryDefinition, "country\n(Country)") {
    iso3 string
    displayStateInRegistration bool
    forceStateInRegistration bool
-   attributes translated
+   customFields translated
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    translated json
@@ -44,14 +44,14 @@ Table(ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition, "cou
    name translated
    position int
    active bool
-   attributes translated
+   customFields translated
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    translated json
 }
 TranslationTable(ShopwareCoreSystemCountryAggregateCountryStateTranslationCountryStateTranslationDefinition, "country_state_translation\n((Translations))") {
    not_null(name) string
-   attributes attributes
+   customFields customFields
    primary_key(countryStateId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -59,7 +59,7 @@ TranslationTable(ShopwareCoreSystemCountryAggregateCountryStateTranslationCountr
 }
 TranslationTable(ShopwareCoreSystemCountryAggregateCountryTranslationCountryTranslationDefinition, "country_translation\n((Translations))") {
    not_null(name) string
-   attributes attributes
+   customFields customFields
    primary_key(countryId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt

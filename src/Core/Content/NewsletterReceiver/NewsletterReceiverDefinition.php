@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\NewsletterReceiver;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -45,7 +45,7 @@ class NewsletterReceiverDefinition extends EntityDefinition
             new StringField('street', 'street'),
             new StringField('status', 'status'),
             new StringField('hash', 'hash'),
-            new AttributesField(),
+            new CustomFields(),
 
             new DateField('confirmed_at', 'confirmedAt'),
 

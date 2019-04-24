@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -50,7 +50,7 @@ class SalesChannelDomainDefinition extends EntityDefinition
             new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, 'id', false),
             new ManyToOneAssociationField('snippetSet', 'snippet_set_id', SnippetSetDefinition::class, 'id', false),
 
-            new AttributesField(),
+            new CustomFields(),
         ]);
     }
 }

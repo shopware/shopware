@@ -28,7 +28,7 @@ Table(ShopwareCoreCheckoutShippingShippingMethodDefinition, "shipping_method\n(S
    name translated
    active bool
    shippingFree float
-   attributes translated
+   customFields translated
    availabilityRuleId foreignKey
    mediaId foreignKey
    not_null(createdAt) createdAt
@@ -53,14 +53,14 @@ Table(ShopwareCoreCheckoutShippingAggregateShippingMethodPriceShippingMethodPric
    quantityStart float
    quantityEnd float
    not_null(price) float
-   attributes attributes
+   customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
 TranslationTable(ShopwareCoreCheckoutShippingAggregateShippingMethodTranslationShippingMethodTranslationDefinition, "shipping_method_translation\n((Translations))") {
    not_null(name) string
    description longText
-   attributes attributes
+   customFields customFields
    primary_key(shippingMethodId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt

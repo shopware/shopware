@@ -42,7 +42,7 @@ Table(ShopwareCoreCheckoutOrderOrderDefinition, "order\n(Order root table)") {
    not_null(currencyFactor) float
    deepLinkCode string
    not_null(stateId) foreignKey
-   attributes attributes
+   customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
@@ -66,7 +66,7 @@ Table(ShopwareCoreCheckoutOrderAggregateOrderAddressOrderAddressDefinition, "ord
    phoneNumber string
    additionalAddressLine1 string
    additionalAddressLine2 string
-   attributes attributes
+   customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
@@ -82,7 +82,7 @@ Table(ShopwareCoreCheckoutOrderAggregateOrderCustomerOrderCustomerDefinition, "o
    not_null(lastName) string
    title string
    customerNumber string
-   attributes attributes
+   customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
@@ -99,7 +99,7 @@ Table(ShopwareCoreCheckoutOrderAggregateOrderDeliveryOrderDeliveryDefinition, "o
    not_null(shippingDateEarliest) date
    not_null(shippingDateLatest) date
    shippingCosts calculatedPrice
-   attributes attributes
+   customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
@@ -114,7 +114,7 @@ Table(ShopwareCoreCheckoutOrderAggregateOrderDeliveryPositionOrderDeliveryPositi
    unitPrice float
    totalPrice float
    quantity int
-   attributes attributes
+   customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
@@ -139,7 +139,7 @@ Table(ShopwareCoreCheckoutOrderAggregateOrderLineItemOrderLineItemDefinition, "o
    totalPrice float
    description string
    type string
-   attributes attributes
+   customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
@@ -158,7 +158,7 @@ Table(ShopwareCoreCheckoutOrderAggregateOrderTransactionOrderTransactionDefiniti
    not_null(paymentMethodId) foreignKey
    not_null(amount) calculatedPrice
    not_null(stateId) foreignKey
-   attributes attributes
+   customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }

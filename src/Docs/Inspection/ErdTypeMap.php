@@ -2,7 +2,6 @@
 
 namespace Shopware\Docs\Inspection;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlacklistRuleField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -11,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CartPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\EmailField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -50,7 +50,7 @@ use Shopware\Storefront\Framework\Seo\Entity\Field\CanonicalUrlAssociationField;
 class ErdTypeMap
 {
     private $fieldTypeMap = [
-        AttributesField::class => 'attributes',
+        CustomFields::class => 'customFields',
         BlacklistRuleField::class => 'blacklistRule',
         BlobField::class => 'blob',
         BoolField::class => 'bool',

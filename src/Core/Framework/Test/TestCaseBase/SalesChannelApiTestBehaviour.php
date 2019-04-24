@@ -116,7 +116,7 @@ trait SalesChannelApiTestBehaviour
             'languageId' => Defaults::LANGUAGE_SYSTEM,
             'snippetSetId' => $this->getSnippetSetIdForLocale('en_GB'),
             'currencyId' => Defaults::CURRENCY,
-            'paymentMethodId' => $this->getValidPaymentMethodId(),
+            'paymentMethodId' => $this->getAvailablePaymentMethodId() ?? $this->getValidPaymentMethodId(),
             'shippingMethodId' => $this->getAvailableShippingMethodId(),
             'countryId' => $this->getValidCountryId(),
             'currencies' => [['id' => Defaults::CURRENCY]],

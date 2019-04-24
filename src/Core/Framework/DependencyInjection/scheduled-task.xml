@@ -39,7 +39,7 @@
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Api\Controller\ScheduledTaskController" public="true">
+        <service id="Shopware\Core\Framework\ScheduledTask\Api\ScheduledTaskController" public="true">
             <argument type="service" id="Shopware\Core\Framework\ScheduledTask\Scheduler\TaskScheduler"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

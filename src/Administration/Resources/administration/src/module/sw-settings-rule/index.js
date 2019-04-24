@@ -12,7 +12,8 @@ import enGB from './snippet/en_GB.json';
 
 Module.register('sw-settings-rule', {
     type: 'core',
-    name: 'sw-settings-rule.general.mainMenuItemGeneral',
+    name: 'settings-rule',
+    title: 'sw-settings-rule.general.mainMenuItemGeneral',
     description: 'sw-settings-rule.general.descriptionTextModule',
     color: '#9AA8B5',
     icon: 'default-action-settings',

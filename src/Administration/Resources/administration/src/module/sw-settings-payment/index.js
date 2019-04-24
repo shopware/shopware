@@ -13,7 +13,8 @@ import enGB from './snippet/en_GB.json';
 Module.register('sw-settings-payment', {
     type: 'core',
     flag: NEXT687,
-    name: 'sw-settings-payment.general.mainMenuItemGeneral',
+    name: 'settings-payment',
+    title: 'sw-settings-payment.general.mainMenuItemGeneral',
     description: 'Payment section in the settings module',
     color: '#9AA8B5',
     icon: 'default-action-settings',

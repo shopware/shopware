@@ -8,7 +8,8 @@ import enGB from './snippet/en_GB.json';
 
 Module.register('sw-manufacturer', {
     type: 'core',
-    name: 'sw-manufacturer.general.mainMenuItemGeneral',
+    name: 'manufacturer',
+    title: 'sw-manufacturer.general.mainMenuItemGeneral',
     description: 'Manages the manufacturer of the application',
     version: '1.0.0',
     targetVersion: '1.0.0',

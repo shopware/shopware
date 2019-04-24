@@ -9,7 +9,8 @@ import enGB from './snippet/en_GB.json';
 
 Module.register('sw-settings', {
     type: 'core',
-    name: 'sw-settings.general.mainMenuItemGeneral',
+    name: 'settings',
+    title: 'sw-settings.general.mainMenuItemGeneral',
     description: 'Settings Module',
     color: '#9AA8B5',
     icon: 'default-action-settings',

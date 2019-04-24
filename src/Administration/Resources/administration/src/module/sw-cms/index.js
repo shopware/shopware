@@ -16,7 +16,8 @@ import enGB from './snippet/en_GB.json';
 Module.register('sw-cms', {
     flag: NEXT134,
     type: 'core',
-    name: 'sw-cms.general.mainMenuItemGeneral',
+    name: 'cms',
+    title: 'sw-cms.general.mainMenuItemGeneral',
     description: 'The module for creating content.',
     color: '#ff68b4',
     icon: 'default-object-marketing',

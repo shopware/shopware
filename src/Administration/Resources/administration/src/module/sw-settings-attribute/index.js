@@ -22,7 +22,8 @@ import enGB from './snippet/en_GB.json';
 Module.register('sw-settings-attribute', {
     flag: NEXT754,
     type: 'core',
-    name: 'sw-settings-attribute.general.mainMenuItemGeneral',
+    name: 'settings-attribute',
+    title: 'sw-settings-attribute.general.mainMenuItemGeneral',
     description: 'sw-settings-attribute.general.description',
     color: '#9AA8B5',
     icon: 'default-action-settings',

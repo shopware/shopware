@@ -45,6 +45,7 @@
       "labelProfilePicture": "Profile picture",
       "labelChangePassword": "Change password",
       "labelNewPassword": "New password",
+      "labelNewUser": "New user",
       "placeholderNewPassword": "Enter new password",
       "labelButtonCancel": "Cancel",
       "labelButtonChangePassword": "Change",

@@ -12,7 +12,8 @@ import enGB from './snippet/en_GB.json';
 
 Module.register('sw-sales-channel', {
     type: 'core',
-    name: 'sw-sales-channel.general.titleMenuItems',
+    name: 'sales-channel',
+    title: 'sw-sales-channel.general.titleMenuItems',
     description: 'The module for managing sales channels.',
     version: '1.0.0',
     targetVersion: '1.0.0',

@@ -10,7 +10,8 @@ import enGB from './snippet/en_GB.json';
 Module.register('sw-navigation', {
     type: 'core',
     flag: NEXT1594,
-    name: 'sw-navigation.general.mainMenuItemIndex',
+    name: 'navigation',
+    title: 'sw-navigation.general.mainMenuItemIndex',
     description: 'sw-navigation.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',

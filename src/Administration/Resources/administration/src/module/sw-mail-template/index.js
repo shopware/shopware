@@ -13,7 +13,8 @@ import enGB from './snippet/en_GB.json';
 
 Module.register('sw-mail-template', {
     type: 'core',
-    name: 'sw-mail-template.general.mainMenuItemGeneral',
+    name: 'mail-template',
+    title: 'sw-mail-template.general.mainMenuItemGeneral',
     flag: NEXT712,
     description: 'Manages the mail templates of the application',
     version: '1.0.0',

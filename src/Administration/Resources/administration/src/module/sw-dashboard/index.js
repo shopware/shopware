@@ -5,7 +5,8 @@ import enGB from './snippet/en_GB.json';
 
 Module.register('sw-dashboard', {
     type: 'core',
-    name: 'sw-dashboard.general.mainMenuItemGeneral',
+    name: 'dashboard',
+    title: 'sw-dashboard.general.mainMenuItemGeneral',
     description: 'sw-dashboard.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',

@@ -1,12 +1,9 @@
 {
   "sw-promotion": {
     "general": {
-      "module" : "Promotions",
-      "description": "Promotions",
-      "mainMenu": {
-        "root": "Promotions",
-        "list": "Overview"
-      }
+      "mainMenuItemGeneral" : "Promotions",
+      "mainMenuItemList" : "Overview",
+      "description": "Promotions"
     },
     "list": {
       "textTitle": "Promotions",

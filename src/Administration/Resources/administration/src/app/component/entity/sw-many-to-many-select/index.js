@@ -1,7 +1,7 @@
 import Criteria from 'src/core/data-new/criteria.data';
 
 export default {
-    name: 'sw-entity-multi-select',
+    name: 'sw-many-to-many-select',
     extendsFrom: 'sw-multi-select',
 
     inject: ['repositoryFactory', 'context'],
@@ -21,16 +21,13 @@ export default {
             required: false,
             default: 'id'
         },
-        entity: {
-            type: String,
-            required: true
+        localMode: {
+            type: Boolean,
+            default: false
         },
-        criteria: {
+        collection: {
             type: Object,
-            required: false,
-            default() {
-                return new Criteria(1, this.resultLimit);
-            }
+            required: true
         },
         resultLimit: {
             type: Number,
@@ -43,28 +40,42 @@ export default {
         return {
             limit: this.valueLimit,
             repository: null,
-            selectedIds: []
+            searchRepository: null,
+            selectedIds: [],
+            searchCriteria: null
         };
     },
 
     methods: {
         initData() {
-            this.repository = this.repositoryFactory.create(this.entity, `/${this.entity}`);
+            this.repository = this.repositoryFactory.create(this.collection.entity, this.collection.source);
+            this.searchRepository = this.repositoryFactory.create(this.collection.entity);
+
+            this.collection.criteria.setLimit(this.valueLimit);
+            this.searchCriteria = new Criteria(1, this.resultLimit);
+
+            this.selectedIds = this.collection.getIds();
 
             this.$on('scroll', this.paginate);
 
-            return Promise.resolve();
+            this.displayAssigned(this.collection);
+
+            if (this.localMode) {
+                return Promise.resolve();
+            }
+
+            return this.repository.search(this.collection.criteria, this.collection.context).then(this.displayAssigned);
         },
 
         loadVisibleItems() {
-            this.criteria.setPage(this.criteria.page + 1);
+            this.collection.criteria.setPage(this.collection.criteria.page + 1);
 
-            return this.repository.search(this.criteria, this.context).then(this.displayAssigned);
+            return this.repository.search(this.collection.criteria, this.collection.context).then(this.displayAssigned);
         },
 
         search() {
-            this.criteria.setTerm(this.searchTerm);
-            this.criteria.setPage(1);
+            this.searchCriteria.setTerm(this.searchTerm);
+            this.searchCriteria.setPage(1);
             this.currentOptions = [];
             return this.sendSearchRequest();
         },
@@ -87,6 +98,7 @@ export default {
         },
 
         loadResultList() {
+            this.searchCriteria = new Criteria(1, this.resultLimit);
             return this.sendSearchRequest();
         },
 
@@ -95,7 +107,11 @@ export default {
                 return Promise.resolve();
             }
 
-            this.criteria.setPage(this.criteria.page + 1);
+            if (this.localMode) {
+                return Promise.resolve();
+            }
+
+            this.searchCriteria.setPage(this.searchCriteria.page + 1);
             return this.sendSearchRequest();
         },
 
@@ -109,7 +125,12 @@ export default {
                 return id !== identifier;
             });
 
-            return Promise.resolve();
+            if (this.localMode) {
+                this.collection.remove(identifier);
+                return Promise.resolve();
+            }
+
+            return this.repository.delete(identifier, this.collection.context);
         },
 
         addItem({ item }) {
@@ -121,19 +142,33 @@ export default {
             this.visibleValues.push(item);
             this.selectedIds.push(item[this.valueProperty]);
 
-            return Promise.resolve();
+            if (this.localMode) {
+                this.collection.add(item);
+                return Promise.resolve();
+            }
+
+            return this.repository.assign(item[this.valueProperty], this.collection.context);
         },
 
         sendSearchRequest() {
-            return this.repository.search(this.criteria, this.context)
+            return this.searchRepository.search(this.searchCriteria, this.context)
                 .then((searchResult) => {
                     if (searchResult.length <= 0) {
                         return searchResult;
                     }
 
-                    this.displaySearch(searchResult);
+                    const criteria = new Criteria();
+                    criteria.setIds(searchResult.getIds());
 
-                    return searchResult;
+                    return this.repository.searchIds(criteria, this.collection.context).then((assigned) => {
+                        assigned.data.forEach((id) => {
+                            this.selectedIds.push(id);
+                        });
+
+                        this.displaySearch(searchResult);
+
+                        return searchResult;
+                    });
                 });
         },
 

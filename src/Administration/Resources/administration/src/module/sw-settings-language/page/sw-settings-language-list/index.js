@@ -19,6 +19,12 @@ Component.register('sw-settings-language-list', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    },
+
     computed: {
         filters() {
             return [{
@@ -31,11 +37,13 @@ Component.register('sw-settings-language-list', {
                 criteria: { type: 'not', field: 'and', options: CriteriaFactory.equals('language.parentId', null) }
             }];
         },
+
         expandButtonClass() {
             return {
                 'is--hidden': this.expanded
             };
         },
+
         collapseButtonClass() {
             return {
                 'is--hidden': !this.expanded

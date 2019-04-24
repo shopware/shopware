@@ -32,22 +32,37 @@ Component.register('sw-settings-number-range-detail', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
     computed: {
+        identifier() {
+            return this.placeholder(this.numberRange, 'name');
+        },
+
         numberRangeStore() {
             return State.getStore('number_range');
         },
+
         numberRangeTypeStore() {
             return State.getStore('number_range_type');
         },
+
         salesChannelStore() {
             return State.getStore('sales_channel');
         },
+
         salesChannelAssociationStore() {
             return this.numberRange.getAssociation('numberRangeSalesChannels');
         },
+
         numberRangeStateStore() {
             return State.getStore('number_range_state');
         },
+
         firstSalesChannel() {
             if (this.numberRange.numberRangeSalesChannels && this.numberRange.numberRangeSalesChannels.length > 0) {
                 return this.numberRange.numberRangeSalesChannels[0].salesChannelId;

@@ -646,6 +646,96 @@ class DeliveryCalculatorTest extends TestCase
         static::assertSame(7.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
     }
 
+    public function testCalculateWithoutMatchingRule(): void
+    {
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setName(Uuid::randomHex());
+        $shippingMethod->setId(Uuid::randomHex());
+        $prices = new ShippingMethodPriceCollection();
+        foreach ([42, 23, 8, 10, 14] as $index => $price) {
+            $priceEntity = new ShippingMethodPriceEntity();
+            $priceEntity->setUniqueIdentifier(Uuid::randomHex());
+            $priceEntity->setPrice($price);
+            $priceEntity->setRuleId(Uuid::randomHex());
+            $prices->add($priceEntity);
+        }
+
+        $shippingMethod->setPrices($prices);
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
+        $lineItem = new LineItem(Uuid::randomHex(), 'product', 50);
+        $lineItem->setDeliveryInformation(
+            new DeliveryInformation(
+                50,
+                22.0,
+                new DeliveryDate(new \DateTime(), new \DateTime()),
+                new DeliveryDate(new \DateTime(), new \DateTime()),
+                false
+            )
+        );
+        $lineItem->setPrice(new CalculatedPrice(7.5, 375.0, new CalculatedTaxCollection(), new TaxRuleCollection(), 50));
+
+        $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
+
+        $this->deliveryCalculator->calculate($deliveries, $context);
+
+        static::assertSame(0.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+
+        static::assertNotNull($deliveries->first()->getError());
+        static::assertInstanceOf(ShippingMethodBlockedError::class, $deliveries->first()->getError());
+    }
+
+    public function testCalculateOpenEndWithMatchingRule(): void
+    {
+        $ruleId = Uuid::randomHex();
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $prices = new ShippingMethodPriceCollection();
+        $quantityStart = 0;
+        foreach ([42, 23, 8, 10, 14] as $index => $price) {
+            $priceEntity = new ShippingMethodPriceEntity();
+            $priceEntity->setUniqueIdentifier(Uuid::randomHex());
+            $priceEntity->setPrice($price);
+            $priceEntity->setCalculation(DeliveryCalculator::CALCULATION_BY_LINE_ITEM_COUNT);
+            $priceEntity->setQuantityStart($quantityStart);
+            if ($index < 4) {
+                $priceEntity->setQuantityEnd($quantityStart + 5);
+            }
+
+            $priceEntity->setRuleId($ruleId);
+
+            $prices->add($priceEntity);
+
+            $quantityStart += 5;
+        }
+
+        $shippingMethod->setPrices($prices);
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getRuleIds')->willReturn([$ruleId]);
+
+        $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
+        $lineItem = new LineItem(Uuid::randomHex(), 'product', 50);
+        $lineItem->setDeliveryInformation(
+            new DeliveryInformation(
+                50,
+                22.0,
+                new DeliveryDate(new \DateTime(), new \DateTime()),
+                new DeliveryDate(new \DateTime(), new \DateTime()),
+                false
+            )
+        );
+        $lineItem->setPrice(new CalculatedPrice(7.5, 375.0, new CalculatedTaxCollection(), new TaxRuleCollection(), 50));
+
+        $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
+
+        $this->deliveryCalculator->calculate($deliveries, $context);
+
+        static::assertSame(14.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+    }
+
     private function buildDeliveries(LineItemCollection $lineItems, SalesChannelContext $context): DeliveryCollection
     {
         return $this->getContainer()->get(DeliveryBuilder::class)->build(new DeliveryCollection(), $lineItems, $context);

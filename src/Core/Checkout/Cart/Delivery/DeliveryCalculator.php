@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Cart\Delivery;
 
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -83,6 +82,10 @@ class DeliveryCalculator
         );
 
         foreach ($prices as $price) {
+            if ($price->getRuleId() !== null && !in_array($price->getRuleId(), $context->getRuleIds(), true)) {
+                continue;
+            }
+
             if (!$this->matches($delivery, $price, $context)) {
                 continue;
             }
@@ -106,11 +109,13 @@ class DeliveryCalculator
 
     private function hasDeliveryShippingFreeItems(Delivery $delivery): bool
     {
-        $freeDeliveryItems = $delivery->getPositions()->getLineItems()->filter(function (LineItem $lineItem) {
-            return !$lineItem->getDeliveryInformation() ? false : $lineItem->getDeliveryInformation()->getFreeDelivery();
-        });
+        foreach ($delivery->getPositions()->getLineItems()->getIterator() as $lineItem) {
+            if ($lineItem->getDeliveryInformation() && $lineItem->getDeliveryInformation()->getFreeDelivery()) {
+                return true;
+            }
+        }
 
-        return (bool) $freeDeliveryItems->count();
+        return false;
     }
 
     private function matches(Delivery $delivery, ShippingMethodPriceEntity $shippingMethodPrice, SalesChannelContext $context): bool

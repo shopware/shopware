@@ -9,28 +9,11 @@ class ShippingMethodPriceFetchDefinition extends Struct
     /**
      * @var string[]
      */
-    protected $ruleIds;
-
-    /**
-     * @var string[]
-     */
     private $shippingMethodIds;
 
-    /**
-     * @param string[] $ruleIds
-     */
-    public function __construct(array $ruleIds, array $shippingMethodIds)
+    public function __construct(array $shippingMethodIds)
     {
-        $this->ruleIds = $ruleIds;
         $this->shippingMethodIds = $shippingMethodIds;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getRuleIds(): array
-    {
-        return $this->ruleIds;
     }
 
     /**

@@ -9,8 +9,6 @@ use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethod
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Struct\StructCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -34,32 +32,7 @@ class ShippingMethodPriceCollector implements CollectorInterface
         SalesChannelContext $context,
         CartBehavior $behavior
     ): void {
-        $ruleIds = $context->getRuleIds();
-
-        if (!$ruleIds) {
-            return;
-        }
-
-        $shippingMethodsIds = [];
-
-        if (!$behavior->isRecalculation()) {
-            $shippingMethodsIds[] = $context->getShippingMethod()->getId();
-
-            // remove invalid prices from context
-            $this->removeInvalidPrices($context->getShippingMethod()->getPrices(), $ruleIds);
-        }
-
-        //remove prices which are in cart but the rule id is not in provided context
-        foreach ($cart->getDeliveries() as $delivery) {
-            $shippingMethodsIds[] = $delivery->getShippingMethod()->getId();
-            $this->removeInvalidPrices($delivery->getShippingMethod()->getPrices(), $ruleIds);
-        }
-
-        if (!$shippingMethodsIds) {
-            return;
-        }
-
-        $definitions->set(self::DATA_KEY, new ShippingMethodPriceFetchDefinition($ruleIds, $shippingMethodsIds));
+        // nth
     }
 
     public function collect(
@@ -69,35 +42,7 @@ class ShippingMethodPriceCollector implements CollectorInterface
         SalesChannelContext $context,
         CartBehavior $behavior
     ): void {
-        $priceDefinitions = $fetchDefinitions->filterInstance(ShippingMethodPriceFetchDefinition::class);
-
-        if ($priceDefinitions->count() === 0) {
-            return;
-        }
-
-        $ids = [];
-        // also load context shipping method prices
-        $shippingMethodIds = [$context->getShippingMethod()->getId()];
-
-        /** @var ShippingMethodPriceFetchDefinition[] $priceDefinitions */
-        foreach ($priceDefinitions as $definition) {
-            array_push($ids, ...$definition->getRuleIds());
-            array_push($shippingMethodIds, ...$definition->getShippingMethodIds());
-        }
-
-        $criteria = new Criteria();
-        $criteria->addFilter(
-            new MultiFilter(
-                MultiFilter::CONNECTION_OR, [
-                    new EqualsFilter('ruleId', null),
-                    new EqualsAnyFilter('ruleId', $ids),
-                ]
-            )
-        );
-        $criteria->addFilter(new EqualsAnyFilter('shippingMethodId', $shippingMethodIds));
-        $prices = $this->repository->search($criteria, $context->getContext());
-
-        $data->set(self::DATA_KEY, $prices);
+        // nth
     }
 
     public function enrich(
@@ -106,12 +51,22 @@ class ShippingMethodPriceCollector implements CollectorInterface
         SalesChannelContext $context,
         CartBehavior $behavior
     ): void {
-        if (!$data->has(self::DATA_KEY)) {
+        if ($behavior->isRecalculation()) {
             return;
         }
 
-        /** @var ShippingMethodPriceCollection $prices */
-        $prices = $data->get(self::DATA_KEY);
+        $shippingMethodIds = [$context->getShippingMethod()->getId()];
+
+        $context->getShippingMethod()->setPrices(new ShippingMethodPriceCollection());
+
+        foreach ($cart->getDeliveries() as $delivery) {
+            $shippingMethodIds[] = $delivery->getShippingMethod()->getId();
+            $delivery->getShippingMethod()->setPrices(new ShippingMethodPriceCollection());
+        }
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('shippingMethodId', $shippingMethodIds));
+        $prices = $this->repository->search($criteria, $context->getContext());
 
         foreach ($prices as $price) {
             foreach ($cart->getDeliveries() as $delivery) {
@@ -120,28 +75,10 @@ class ShippingMethodPriceCollector implements CollectorInterface
                 }
             }
 
-            if ($behavior->isRecalculation()) {
-                continue;
-            }
-
             // add prices to context
             if ($context->getShippingMethod()->getId() === $price->getShippingMethodId()) {
                 $context->getShippingMethod()->getPrices()->add($price);
             }
-        }
-    }
-
-    /**
-     * @param string[] $ruleIds
-     */
-    private function removeInvalidPrices(ShippingMethodPriceCollection $prices, array $ruleIds): void
-    {
-        foreach ($prices as $index => $price) {
-            if (\in_array($price->getRuleId(), $ruleIds, true)) {
-                continue;
-            }
-
-            $prices->remove($index);
         }
     }
 }

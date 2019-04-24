@@ -39,7 +39,7 @@ class AttributeSetDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->addFlags(new Required()),
-            new JsonField('config', 'config'),
+            new JsonField('config', 'config', [], []),
 
             new BoolField('active', 'active'),
 

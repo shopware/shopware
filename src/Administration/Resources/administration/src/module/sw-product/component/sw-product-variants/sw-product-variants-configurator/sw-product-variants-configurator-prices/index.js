@@ -1,4 +1,4 @@
-import { Component, State } from 'src/core/shopware';
+import { Component } from 'src/core/shopware';
 import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-product-variants-configurator-prices.html.twig';
 import './sw-product-variants-configurator-prices.scss';
@@ -44,10 +44,6 @@ Component.register('sw-product-variants-configurator-prices', {
     },
 
     computed: {
-        currencyStore() {
-            return State.getStore('currency');
-        },
-
         currencyRepository() {
             return this.repositoryFactory.create('currency');
         },
@@ -95,12 +91,12 @@ Component.register('sw-product-variants-configurator-prices', {
             this.currencyRepository
                 .search(new Criteria(), this.context)
                 .then((response) => {
-                    this.currencies = response;
+                    this.currencies = response.items;
                 });
         },
 
         getOptionsForGroup() {
-            this.optionsForGroup = Object.values(this.product.configuratorSettings)
+            this.optionsForGroup = Object.values(this.product.configuratorSettings.items)
                 // Filter if option is in active group
                 .filter((element) => {
                     if (element.option.groupId === this.activeGroup.id) {

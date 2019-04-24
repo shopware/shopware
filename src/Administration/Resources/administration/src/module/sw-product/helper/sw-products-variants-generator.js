@@ -9,7 +9,7 @@ export default class VariantsGenerator extends EventEmitter {
         super();
 
         this.product = product;
-        this.configurators = product.configuratorSettings;
+        this.configurators = product.configuratorSettings.items;
 
         // set dependencies
         this.syncService = Application.getContainer('service').syncService;
@@ -89,6 +89,7 @@ export default class VariantsGenerator extends EventEmitter {
             const hashed = {};
             const numbers = {};
             const numberMap = {};
+            console.log(variationOnServer);
 
             // eslint-disable-next-line no-restricted-syntax
             for (const [key, variant] of Object.entries(variationOnServer)) {
@@ -155,7 +156,7 @@ export default class VariantsGenerator extends EventEmitter {
                 const variationPrice = deepCopyObject(this.product.price);
 
                 // Rewrite the price rules for the API request
-                const priceRules = Object.values(this.product.prices).map((priceRule) => {
+                const priceRules = Object.values(this.product.prices.items).map((priceRule) => {
                     return {
                         price: {
                             gross: parseFloat(priceRule.price.gross),

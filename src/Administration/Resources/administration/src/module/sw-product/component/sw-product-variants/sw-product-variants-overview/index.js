@@ -139,7 +139,7 @@ Component.register('sw-product-variants-overview', {
                     .search(searchCriteria, this.context)
                     .then((res) => {
                         this.total = res.total;
-                        this.variantList = res;
+                        this.variantList = res.items;
                         this.isLoading = false;
                         this.$emit('variants-updated', this.variantList);
                         resolve();
@@ -270,7 +270,7 @@ Component.register('sw-product-variants-overview', {
         },
 
         getOptionsForGroup(groupId) {
-            return Object.values(this.product.configuratorSettings).filter((element) => {
+            return Object.values(this.product.configuratorSettings.items).filter((element) => {
                 return !element.isDeleted && element.option.groupId === groupId;
             });
         },

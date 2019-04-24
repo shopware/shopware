@@ -3,6 +3,7 @@ import { debug } from 'src/core/service/util.service';
 
 export default {
     state: {
+        languageId: '',
         locales: [],
         currentLocale: Application.getContainer('factory').locale.getLastKnownLocale(),
         fallbackLocale: null
@@ -18,6 +19,15 @@ export default {
         }
     },
 
+    actions: {
+        setAdminLocale({ commit }, locale) {
+            const localeToLanguageService = Application.getContainer('service').localeToLanguageService;
+            localeToLanguageService.localeToLanguage(locale).then((languageId) => {
+                commit('setAdminLocale', { locale, languageId });
+            });
+        }
+    },
+
     mutations: {
         registerAdminLocale(state, locale) {
             if (state.locales.find((l) => l === locale)) {
@@ -30,12 +40,15 @@ export default {
             }
         },
 
-        setAdminLocale(state, locale) {
+        setAdminLocale(state, { locale, languageId }) {
             if (!state.locales.find((l) => l === locale)) {
                 debug.warn('AdminLocaleStore', `Locale ${locale} not registered at store`);
                 return;
             }
 
+            const contextService = Application.getContainer('service').context;
+            contextService.languageId = languageId;
+            state.languageId = languageId;
             state.currentLocale = locale;
             Application.getContainer('factory').locale.storeCurrentLocale(state.currentLocale);
         },

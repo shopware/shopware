@@ -14,6 +14,7 @@ import ProductStreamConditionService from 'src/app/service/product-stream-condit
 import StateStyleService from 'src/app/service/state-style.service';
 import AttributeService from 'src/app/service/attribute.service';
 import SearchTypeService from 'src/app/service/search-type.service';
+import LocaleToLanguageService from 'src/app/service/locale-to-language.service';
 import 'src/app/decorator/condition-type-data-provider';
 import 'src/app/decorator/state-styling-provider';
 
@@ -58,4 +59,7 @@ Application
     })
     .addServiceProvider('searchTypeService', () => {
         return SearchTypeService();
+    })
+    .addServiceProvider('localeToLanguageService', () => {
+        return LocaleToLanguageService();
     });

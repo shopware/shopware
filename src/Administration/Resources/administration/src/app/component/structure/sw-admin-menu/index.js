@@ -221,7 +221,7 @@ export default {
 
         onChangeLanguage() {
             const newLocale = (this.currentLocale === 'de-DE' ? 'en-GB' : 'de-DE');
-            this.$store.commit('setAdminLocale', newLocale);
+            this.$store.dispatch('setAdminLocale', newLocale);
         },
 
         onToggleSidebar() {

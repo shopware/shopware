@@ -22,13 +22,13 @@ const modules = {
             test: /\.scss$/,
             use: [
                 {
-                    loader: MiniCssExtractPlugin.loader //compiles a CSS file
+                    loader: MiniCssExtractPlugin.loader // extract css files from the js code
                 },
                 {
                     loader: 'css-loader'
                 },
                 {
-                    loader: 'postcss-loader' //needs to be AFTER css/style-loader and BEFORE sass-loader
+                    loader: 'postcss-loader' // needs to be AFTER css/style-loader and BEFORE sass-loader
                 },
                 {
                     loader: 'sass-loader'

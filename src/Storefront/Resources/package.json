@@ -41,11 +41,14 @@
     "eslint-loader": "2.1.1",
     "file-loader": "3.0.1",
     "form-association-polyfill": "2.0.0",
-    "mdn-polyfills": "5.16.0",
     "friendly-errors-webpack-plugin": "1.7.0",
+    "jest": "24.7.1",
+    "jest-webpack-resolver": "0.3.0",
+    "mdn-polyfills": "5.16.0",
     "mini-css-extract-plugin": "0.5.0",
     "node-sass": "4.11.0",
     "optimize-css-assets-webpack-plugin": "5.0.1",
+    "picturefill": "3.0.3",
     "postcss-loader": "3.0.0",
     "postcss-pxtorem": "4.0.1",
     "sass-loader": "7.1.0",
@@ -59,9 +62,7 @@
     "webpack-cli": "3.2.1",
     "webpack-dev-server": "3.1.14",
     "webpack-merge": "4.2.1",
-    "webpackbar": "3.1.5",
-    "jest": "24.7.1",
-    "jest-webpack-resolver": "^0.3.0"
+    "webpackbar": "3.1.5"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "5.7.2",

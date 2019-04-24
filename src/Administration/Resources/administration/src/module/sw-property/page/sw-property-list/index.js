@@ -16,6 +16,12 @@ Component.register('sw-property-list', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    },
+
     computed: {
         propertiesStore() {
             return State.getStore('property_group');

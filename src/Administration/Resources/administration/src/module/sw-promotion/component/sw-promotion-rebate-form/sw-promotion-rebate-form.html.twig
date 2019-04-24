@@ -4,8 +4,8 @@
             {% block sw_promotion_rebate_form_rebate_value_field %}
                 <sw-field type="number"
                           :suffix="promotion.percental ? '%' : '€'"
-                          :label="$tc('sw-promotion.rebateForm.labelValue')"
-                          :placeholder="$tc('sw-promotion.rebateForm.placeholderValue')"
+                          :label="$tc('sw-promotion.detail.main.discounts.labelValue')"
+                          :placeholder="$tc('sw-promotion.detail.main.discounts.placeholderValue')"
                           validation="required"
                           v-model="promotion.value">
                 </sw-field>
@@ -13,7 +13,7 @@
 
             {% block sw_promotion_rebate_form_rebate_type_field %}
                 <sw-field type="boolean"
-                          :label="$tc('sw-promotion.rebateForm.labelPercental')"
+                          :label="$tc('sw-promotion.detail.main.discounts.labelPercental')"
                           v-model="promotion.percental">
                 </sw-field>
             {% endblock %}

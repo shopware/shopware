@@ -17,7 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactoryInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 
 class OrderGenerator implements DemodataGeneratorInterface
@@ -28,7 +28,7 @@ class OrderGenerator implements DemodataGeneratorInterface
     private $connection;
 
     /**
-     * @var SalesChannelContextFactoryInterface
+     * @var SalesChannelContextFactory
      */
     private $contextFactory;
 
@@ -49,7 +49,7 @@ class OrderGenerator implements DemodataGeneratorInterface
 
     public function __construct(
         Connection $connection,
-        SalesChannelContextFactoryInterface $contextFactory,
+        SalesChannelContextFactory $contextFactory,
         CartService $cartService,
         OrderConverter $orderConverter,
         EntityWriterInterface $writer

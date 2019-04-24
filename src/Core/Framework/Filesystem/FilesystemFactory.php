@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Filesystem\Exception\AdapterFactoryNotFoundException
 use Shopware\Core\Framework\Filesystem\Exception\DuplicateFilesystemFactoryException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class FilesystemFactory implements FilesystemFactoryInterface
+class FilesystemFactory
 {
     /**
      * @var AdapterFactoryInterface[]
@@ -28,9 +28,6 @@ class FilesystemFactory implements FilesystemFactoryInterface
         $this->adapterFactories = $adapterFactories;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function factory(array $config): FilesystemInterface
     {
         $config = $this->resolveFilesystemConfig($config);

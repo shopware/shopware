@@ -58,17 +58,18 @@ export default {
                 return Promise.resolve();
             }
 
-            return this.repository.search(this.records.criteria, this.records.context)
+            return this.repository.search(this.result.criteria, this.result.context)
                 .then(this.applyResult);
         },
 
         applyResult(result) {
-            this.records = result;
+            this.result = result;
+            this.records = result.items;
 
             if (result.total) {
                 this.total = result.total;
             } else {
-                this.total = result.length;
+                this.total = Object.keys(result.items).length;
             }
 
             this.page = result.criteria.page;
@@ -81,8 +82,8 @@ export default {
                 return Promise.resolve();
             }
 
-            return this.repository.save(record, this.records.context).then(() => {
-                return this.repository.search(this.records.criteria, this.records.context)
+            return this.repository.save(record, this.result.context).then(() => {
+                return this.repository.search(this.result.criteria, this.result.context)
                     .then(this.applyResult);
             });
         },
@@ -92,7 +93,7 @@ export default {
                 return Promise.resolve();
             }
 
-            return this.repository.search(this.records.criteria, this.records.context);
+            return this.repository.search(this.result.criteria, this.result.context);
         },
 
         deleteItem(id) {
@@ -102,8 +103,8 @@ export default {
                 return Promise.resolve();
             }
 
-            return this.repository.delete(id, this.records.context).then(() => {
-                return this.repository.search(this.records.criteria, this.records.context)
+            return this.repository.delete(id, this.result.context).then(() => {
+                return this.repository.search(this.result.criteria, this.result.context)
                     .then(this.applyResult);
             });
         },
@@ -113,7 +114,7 @@ export default {
                 return Promise.resolve();
             }
 
-            this.records.criteria.resetSorting();
+            this.result.criteria.resetSorting();
 
             let direction = 'ASC';
             if (this.currentSortBy === column.dataIndex) {
@@ -122,13 +123,13 @@ export default {
                 }
             }
 
-            this.records.criteria.addSorting(
+            this.result.criteria.addSorting(
                 Criteria.sort(column.dataIndex, direction)
             );
 
             this.currentSortBy = column.dataIndex;
             this.currentSortDirection = direction;
-            return this.repository.search(this.records.criteria, this.records.context)
+            return this.repository.search(this.result.criteria, this.result.context)
                 .then(this.applyResult);
         },
 
@@ -137,9 +138,9 @@ export default {
                 return Promise.resolve();
             }
 
-            this.records.criteria.setPage(params.page);
-            this.records.criteria.setLimit(params.limit);
-            return this.repository.search(this.records.criteria, this.records.context)
+            this.result.criteria.setPage(params.page);
+            this.result.criteria.setLimit(params.limit);
+            return this.repository.search(this.result.criteria, this.result.context)
                 .then(this.applyResult);
         }
     }

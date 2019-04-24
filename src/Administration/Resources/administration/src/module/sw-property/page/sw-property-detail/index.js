@@ -5,7 +5,8 @@ Component.register('sw-property-detail', {
     template,
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
+        Mixin.getByName('placeholder')
     ],
 
     data() {
@@ -15,7 +16,16 @@ Component.register('sw-property-detail', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
     computed: {
+        identifier() {
+            return this.placeholder(this.group, 'name');
+        },
         groupStore() {
             return State.getStore('property_group');
         }

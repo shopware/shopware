@@ -21,7 +21,7 @@ import enGB from './snippet/en_GB.json';
 
 Module.register('sw-media', {
     type: 'core',
-    name: 'Media',
+    name: 'sw-media.general.mainMenuItemGeneral',
     description: 'sw-media.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',

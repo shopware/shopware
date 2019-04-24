@@ -2,7 +2,7 @@
     {% parent %}
 
     {% block sw_settings_customer_group_item %}
-        <sw-settings-item :label="$tc('sw-settings-customer-group.general.mainMenuItemGeneral')" :to="{ name: 'sw.settings.customer.group.index' }">
+        <sw-settings-item id="sw-settings-customer-group" :label="$tc('sw-settings-customer-group.general.mainMenuItemGeneral')" :to="{ name: 'sw.settings.customer.group.index' }">
             <template slot="icon">
                 <sw-icon name="default-object-address" size="45"></sw-icon>
             </template>

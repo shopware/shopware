@@ -13,6 +13,10 @@ Application.getContainer('service').cmsService.registerCmsElement({
         media: {
             source: 'static',
             value: null
+        },
+        displayMode: {
+            source: 'static',
+            value: 'standard'
         }
     }
 });

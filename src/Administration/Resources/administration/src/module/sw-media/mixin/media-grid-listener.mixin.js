@@ -20,7 +20,7 @@ Mixin.register('media-grid-listener', {
             return {
                 'sw-media-item-clicked': this.handleMediaItemClicked,
                 'sw-media-item-selection-add': this.handleMediaGridItemSelected,
-                'sw-media-item-selection-remove': this.handleMediaGridItemUnselected,
+                'media-item-selection-remove': this.handleMediaGridItemUnselected,
                 'sw-media-media-item-play': this.handleMediaItemClicked
             };
         },
@@ -53,7 +53,7 @@ Mixin.register('media-grid-listener', {
         },
 
         navigateToFolder({ item }) {
-            this.$emit('media-folder-changed', item.id);
+            this.$emit('media-folder-change', item.id);
         },
 
         showDetails(gridItem) {

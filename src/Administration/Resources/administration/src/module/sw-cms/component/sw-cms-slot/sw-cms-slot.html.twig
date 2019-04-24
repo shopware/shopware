@@ -5,20 +5,24 @@
             <component :is="elementConfig.component" v-model="element"></component>
         {% endblock %}
 
+        {% block sw_cms_slot_preview_overlay %}
+            <div class="sw-cms-slot__preview-overlay" v-if="!active"></div>
+        {% endblock %}
+
         {% block sw_cms_slot_overlay %}
             <div class="sw-cms-slot__overlay" v-if="active">
                 {% block sw_cms_slot_overlay_content %}
                     <div class="sw-cms-slot__actions">
                         {% block sw_cms_slot_overlay_action_settings %}
-                            <sw-button variant="ghost" square small class="sw-cms-slot__settings-action" @click="onSettingsButtonClick">
-                                <sw-icon name="default-action-settings" small></sw-icon>
-                            </sw-button>
+                            <div class="sw-cms-slot__settings-action" @click="onSettingsButtonClick">
+                                <sw-icon name="default-action-settings" size="16"></sw-icon>
+                            </div>
                         {% endblock %}
 
                         {% block sw_cms_slot_overlay_action_swap %}
-                            <sw-button variant="ghost" square small class="sw-cms-slot__element-action" @click="onElementButtonClick">
-                                <sw-icon name="default-arrow-turn-left" small></sw-icon>
-                            </sw-button>
+                            <div class="sw-cms-slot__element-action" @click="onElementButtonClick">
+                                <sw-icon name="default-arrow-switch" size="16"></sw-icon>
+                            </div>
                         {% endblock %}
                     </div>
                 {% endblock %}
@@ -58,7 +62,7 @@
 
                                 {% block sw_cms_slot_element_modal_selection_element_overlay %}
                                     <div class="element-selection__overlay">
-                                        <sw-icon name="default-arrow-turn-left" size="28"></sw-icon>
+                                        <sw-icon name="default-arrow-switch" size="28"></sw-icon>
                                     </div>
                                 {% endblock %}
                             </div>

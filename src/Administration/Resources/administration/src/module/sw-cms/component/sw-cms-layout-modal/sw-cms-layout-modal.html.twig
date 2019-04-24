@@ -1,0 +1,69 @@
+{% block sw_cms_layout_modal %}
+    <sw-modal class="sw-cms-layout-modal" @closeModal="closeModal" :title="$tc('sw-cms.components.cmsLayoutModal.modalTitle')">
+
+        {% block sw_cms_layout_modal_header %}
+            <div class="sw-cms-layout-modal__header">
+
+                {% block sw_cms_layout_modal_header_title %}
+                    <div class="sw-cms-layout-modal__header-title">
+                        {{ $tc('sw-cms.components.cmsLayoutModal.headline') }}
+                    </div>
+                {% endblock %}
+
+                {% block sw_cms_layout_modal_header_search %}
+                    <sw-simple-search-field class="sw-cms-layout-modal__header-search"
+                        :placeholder="$tc('sw-cms.general.placeholderSearchBar')"
+                        @searchTermChanged="onSearch">
+                    </sw-simple-search-field>
+                {% endblock %}
+
+            </div>
+        {% endblock %}
+
+        {% block sw_cms_layout_modal_content %}
+            <div class="sw-cms-layout-modal__content">
+
+                {% block sw_cms_layout_modal_loader %}
+                    <sw-loader v-if="isLoading && this.pages.length < 1"></sw-loader>
+                {% endblock %}
+
+                {% block sw_cms_layout_modal_content %}
+                    <sw-container v-else columns="repeat(auto-fill, minmax(280px, 1fr))" gap="24px">
+
+                        {% block sw_cms_layout_modal_content_listing %}
+                            <div v-for="cmsPage in pages" class="sw-cms-layout-modal__content-item" :class="{ 'is--selected': cmsPage.id === selected }">
+                                {% block sw_cms_layout_modal_content_listing_item %}
+
+                                    {% block sw_cms_layout_modal_content_listing_item_checkbox %}
+                                        <sw-checkbox-field @input="onSelection(cmsPage.id)" :value="cmsPage.id === selected" type="checkbox"></sw-checkbox-field>
+                                    {% endblock %}
+
+                                    {% block sw_cms_layout_modal_content_listing_item_inner %}
+                                        <sw-cms-list-item
+                                            :page="cmsPage"
+                                            :key="cmsPage.id"
+                                            @onItemClick="selectItem(cmsPage.id)">
+                                        </sw-cms-list-item>
+                                    {% endblock %}
+
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </sw-container>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_cms_layout_modal_footer %}
+            <template slot="modal-footer">
+                <sw-button @click="closeModal">
+                    {{ $tc('sw-cms.components.cmsLayoutModal.actionCancel') }}
+                </sw-button>
+                <sw-button @click="selectLayout" variant="primary">
+                    {{ $tc('sw-cms.components.cmsLayoutModal.actionConfirm') }}
+                </sw-button>
+            </template>
+        {% endblock %}
+
+    </sw-modal>
+{% endblock %}

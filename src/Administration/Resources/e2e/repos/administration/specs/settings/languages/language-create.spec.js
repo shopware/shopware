@@ -11,10 +11,11 @@ module.exports = {
     'open language module': (browser) => {
         browser
             .openMainMenuEntry({
-                targetPath: '#/sw/settings/language/index',
-                mainMenuId: 'sw-settings',
-                subMenuId: 'sw-settings-language'
-            });
+                targetPath: '#/sw/settings/index',
+                mainMenuId: 'sw-settings'
+            })
+            .click('#sw-settings-language')
+            .assert.urlContains('#/sw/settings/language/index');
     },
     'create new language': (browser) => {
         const page = settingsPage(browser);
@@ -59,7 +60,10 @@ module.exports = {
                 targetPath: '#/sw/product/index',
                 mainMenuId: 'sw-product'
             })
-            .clickContextMenuItem('.sw-product-list__edit-action', page.elements.contextMenuButton, `${page.elements.dataGridRow}--0`);
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-product-list__edit-action',
+                scope: `${page.elements.dataGridRow}--0`
+            });
         page.changeTranslation('Product name', 'Philippine English', 3);
 
         browser.expect.element('.sw-language-info').to.have.text.that.contains('"Product name" displayed in the language "Philippine English", which inherits from "English".');

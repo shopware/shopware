@@ -14,7 +14,9 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
-            .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton, `${page.elements.gridItem}--0`)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: page.elements.showMediaAction
+            })
             .expect.element('.smart-bar__header').to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
     },
     'upload image to folder': (browser) => {

@@ -4,14 +4,13 @@ namespace Shopware\Storefront\PageletController;
 
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
-use Shopware\Storefront\Framework\Controller\XmlHttpRequestableInterface;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Pagelet\Suggest\SuggestPageletLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class SuggestPageletController extends StorefrontController implements XmlHttpRequestableInterface
+class SuggestPageletController extends StorefrontController
 {
     /**
      * @var SuggestPageletLoader|PageLoaderInterface
@@ -24,7 +23,7 @@ class SuggestPageletController extends StorefrontController implements XmlHttpRe
     }
 
     /**
-     * @Route("/search/suggest", name="frontend.search.suggest", methods={"GET"})
+     * @Route("/search/suggest", name="frontend.search.suggest", methods={"GET"}, defaults={"XmlHttpRequest"=true})
      */
     public function suggest(SalesChannelContext $context, Request $request): Response
     {

@@ -240,7 +240,7 @@ class StoreController extends AbstractController
         /** @var PluginEntity|null $plugin */
         $plugin = $this->pluginRepo->search($criteria, $context)->first();
 
-        if ($plugin !== null && $plugin->isManagedByComposer()) {
+        if ($plugin !== null && $plugin->getManagedByComposer()) {
             throw new CanNotDownloadPluginManagedByComposerException('can not downloads plugins managed by composer from store api');
         }
 

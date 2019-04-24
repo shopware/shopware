@@ -8,26 +8,10 @@ export default {
     inheritAttrs: false,
 
     mixins: [
-        Mixin.getByName('selectable-media-item'),
         Mixin.getByName('notification')
     ],
 
-    provide() {
-        return {
-            renameEntity: this.renameEntity,
-            rejectRenaming: this.rejectRenaming
-        };
-    },
-
     props: {
-        item: {
-            type: Object,
-            required: true,
-            validator(value) {
-                return value.getEntityName() === 'media_folder';
-            }
-        },
-
         isParent: {
             type: Boolean,
             required: false,
@@ -41,6 +25,7 @@ export default {
             showDissolveModal: false,
             showMoveModal: false,
             showDeleteModal: false,
+            lastDefaultFolderId: null,
             iconConfig: {
                 name: '',
                 color: 'inherit'
@@ -53,88 +38,63 @@ export default {
             return State.getStore('media_default_folder');
         },
 
-        baseComponent() {
-            return this.$refs.innerComponent;
-        },
-
-        routerLink() {
-            return {
-                name: 'sw.media.index',
-                params: {
-                    folderId: this.item.id
-                }
-            };
-        },
-
         moduleFactory() {
             return Application.getContainer('factory').module;
-        },
-
-        isDefaultFolder() {
-            return !!this.item.defaultFolderId;
-        }
-    },
-
-    mounted() {
-        this.mountedComponent();
-    },
-
-    watch: {
-        'item.defaultFolderId'() {
-            this.updateIconConfig();
         }
     },
 
     methods: {
-        mountedComponent() {
-            if (this.item.name === '') {
-                this.baseComponent.startInlineEdit();
+        getIconConfigFromFolder(mediaFolder) {
+            if (mediaFolder.defaultFolderId === this.lastDefaultFolderId) {
+                return this.iconConfig;
             }
 
-            this.updateIconConfig();
+            this.lastDefaultFolderId = mediaFolder.defaultFolderId;
+            this.mediaDefaultFolderStore.getByIdAsync(mediaFolder.defaultFolderId)
+                .then((defaultFolder) => {
+                    if (!defaultFolder) {
+                        return;
+                    }
+
+                    const module = this.moduleFactory.getModuleByEntityName(defaultFolder.entity);
+                    if (module) {
+                        this.iconConfig.name = module.manifest.icon;
+                        this.iconConfig.color = module.manifest.color;
+                    }
+                });
+
+            return this.iconConfig;
         },
 
-        updateIconConfig() {
-            if (!this.isDefaultFolder) {
+        onChangeName(updatedName, item, endInlineEdit) {
+            if (!updatedName || updatedName.trim() === '') {
+                this.rejectRenaming(item, 'empty-name', endInlineEdit);
                 return;
             }
 
-            this.mediaDefaultFolderStore.getByIdAsync(this.item.defaultFolderId).then((defaultFolder) => {
-                if (!defaultFolder) {
-                    return;
-                }
-
-                const module = this.moduleFactory.getModuleByEntityName(defaultFolder.entity);
-                if (module) {
-                    this.iconConfig = {
-                        name: module.manifest.icon,
-                        color: module.manifest.color
-                    };
-                }
+            item.name = updatedName;
+            item.save().then(() => {
+                endInlineEdit();
+            }).catch((error) => {
+                this.rejectRenaming(item, error, endInlineEdit);
             });
         },
 
-        onStartRenaming() {
-            this.baseComponent.startInlineEdit();
-        },
-
-        renameEntity(updatedName) {
-            if (this.item.name === updatedName) {
-                return Promise.resolve();
+        onBlur(event, item, endInlineEdit) {
+            const input = event.target.value;
+            if (input !== item.name) {
+                return;
             }
 
-            this.item.isLoading = true;
-            this.item.name = updatedName;
+            if (!input || !input.trim()) {
+                this.rejectRenaming(item, 'empty-name', endInlineEdit);
+                return;
+            }
 
-            return this.item.save().then(() => {
-                this.item.isLoading = false;
-                this.$emit('sw-media-folder-rename-successful', this.item);
-            }).catch(() => {
-                this.rejectRenaming('error');
-            });
+            endInlineEdit();
         },
 
-        rejectRenaming(cause) {
+        rejectRenaming(item, cause, endInlineEdit) {
             if (cause) {
                 let title = this.$tc('global.sw-media-folder-item.notification.renamingError.title');
                 let message = this.$tc('global.sw-media-folder-item.notification.renamingError.message');
@@ -150,15 +110,21 @@ export default {
                 });
             }
 
-            if (this.item.isLocal === true) {
-                this.item.delete(true).then(() => {
-                    this.$emit('sw-media-folder-item-remove', [this.item.id]);
+            if (item.isLocal === true) {
+                item.delete(true).then(() => {
+                    this.$emit('sw-media-folder-item-remove', [item.id]);
                 });
             }
+            endInlineEdit();
         },
 
-        navigateToFolder() {
-            this.$router.push(this.routerLink);
+        navigateToFolder(id) {
+            this.$router.push({
+                name: 'sw.media.index',
+                params: {
+                    folderId: id
+                }
+            });
         },
 
         openSettings() {

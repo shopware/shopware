@@ -9,7 +9,8 @@
     border-radius: 4px;
 
     &:hover {
-        box-shadow: 0 0 4px 0 $color-shopware-blue;
+        border-color: $color-shopware-blue;
+        box-shadow: 0 0 4px 0 rgba($color-shopware-blue, 0.4);
         cursor: pointer;
     }
 
@@ -33,5 +34,9 @@
 
     .sw-cms-list-item__title {
         color: $color-kashmir;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        font-size: 14px;
     }
 }

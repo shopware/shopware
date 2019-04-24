@@ -37,6 +37,9 @@
       "sidebarTitleBlockSettings": "Block Einstellungen",
       "sidebarHeaderBlockSettings": "Block:",
       "sidebarTitleNavigator": "Navigator",
+      "labelBlockCategorySelection": "Block category",
+      "labelBlockCategoryStandard": "Standard",
+      "labelBlockCategoryEcommerce": "eCommerce",
       "titleElementSettingsModal": "Element Einstellungen",
       "labelButtonElementSettingsConfirm": "Ok",
       "titleElementChangeModal": "Element austauschen",
@@ -53,16 +56,29 @@
       "labelBlockRightMarginField": "Rechter Abstand",
       "labelButtonMappingAction": "Datenzuordnung",
       "labelButtonMappingRemoveAction": "Datenzuordnung entfernen",
-      "labelMappingPreview": "Datenzuordnung:"
+      "labelMappingPreview": "Datenzuordnung:",
+      "notificationTitleMissingFields": "Fehlende Konfiguration",
+      "notificationMessageMissingFields": "Bitte fülle alle erforderlichen Konfigurationsfelder aus."
     },
     "elements": {
       "captionMediaUpload": "Lade ein Bild hoch",
+      "labelMediaDisplayMode": "Anzeigemodus",
+      "labelMediaDisplayModeStandard": "Standard",
+      "labelMediaDisplayModeCover": "Füllen",
       "labelTextElementContent": "Text Inhalt",
       "labelProductActionDetail": "Details",
       "labelProductActionBuy": "In den Warenkorb",
       "labelProductBadgeTopseller": "Topseller",
       "labelProductBadgeNew": "Neu",
       "labelProductPriceUnitContent": "Inhalt:"
+    },
+    "components": {
+      "cmsLayoutModal": {
+        "actionCancel": "Abbrechen",
+        "actionConfirm": "Layout übernehmen",
+        "modalTitle": "Layout auswählen",
+        "headline": "Landingpage / Produktlisting"
+      }
     }
   }
 }

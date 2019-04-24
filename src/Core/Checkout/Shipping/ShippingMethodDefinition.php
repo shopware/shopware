@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTag\ShippingMethodTagDefinition;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationDefinition;
+use Shopware\Core\Checkout\Shipping\SalesChannel\SalesChannelShippingMethodDefinition as SalesChannelApiShippingMethodDefinition;
 use Shopware\Core\Content\DeliveryTime\DeliveryTimeDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
@@ -36,6 +37,11 @@ class ShippingMethodDefinition extends EntityDefinition
     public static function getEntityName(): string
     {
         return 'shipping_method';
+    }
+
+    public static function getSalesChannelDecorationDefinition(): string
+    {
+        return SalesChannelApiShippingMethodDefinition::class;
     }
 
     public static function getCollectionClass(): string

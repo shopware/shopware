@@ -47,7 +47,7 @@
                                                         :label="$tc('sw-plugin.list.columnChangelog')"
                                                         dataIndex="changelog">
                                             {% block sw_plugin_updates_list_grid_columns_changelog_label %}
-                                                <p>{{ item.changelog | striphtml }}</p>
+                                                <div v-html="item.changelog"></div>
                                             {% endblock %}
                                         </sw-grid-column>
                                     {% endblock %}

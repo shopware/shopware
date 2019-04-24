@@ -1,21 +1,20 @@
 {% block sw_promotion_scope_form %}
-    <div class="promotion-scope-form">
-        <b>{{ $tc('sw-promotion.scopeForm.descriptionTitleScope') }}</b>
+    <div class="sw-promotion-scope-form">
+        <b>{{ $tc('sw-promotion.detail.main.preconditions.descriptionTitleScope') }}</b>
         <p>
-            {{ $tc('sw-promotion.scopeForm.descriptionTextScope') }}
+            {{ $tc('sw-promotion.detail.main.preconditions.descriptionTextScope') }}
             <router-link :to="{ name: 'sw.settings.rule.index' }">
-                {{ $tc('sw-promotion.scopeForm.ruleModuleLink') }}
+                {{ $tc('sw-promotion.detail.main.preconditions.ruleModuleLink') }}
             </router-link>
         </p>
-
         {% block sw_promotion_settings_form_scope_rule_id_field %}
             <sw-select
                     id="rule"
-                    class="sw-product-detail__select-visibility"
+                    class="sw-promotion-scope__rules"
                     :store="ruleStore"
                     :value="promotion.scopeRuleId"
                     @input="onScopeRuleChange($event, promotion.scopeRuleId)"
-                    :label="$tc('sw-promotion.scopeForm.labelScopeRule')">
+                    :label="$tc('sw-promotion.detail.main.preconditions.labelScopeRule')">
                 <template slot="result_items" slot-scope="{ item, index }">
                     <sw-select-option
                             :index="index"
@@ -25,11 +24,10 @@
                 </template>
             </sw-select>
         {% endblock %}
-
         {% block sw_promotion_settings_form_category_field %}
             <sw-select id="rule" :store="categoryStore"
-                       class="sw-product-detail__select-visibility"
-                       :label="$tc('sw-promotion.scopeForm.labelCategory')">
+                       class="sw-promotion-scope__categories"
+                       :label="$tc('sw-promotion.detail.main.preconditions.labelCategory')">
                 <template slot="result_items" slot-scope="{ item, index }">
                     <sw-select-option
                             :index="index"
@@ -39,11 +37,10 @@
                 </template>
             </sw-select>
         {% endblock %}
-
         {% block sw_promotion_settings_form_product_field %}
             <sw-select id="rule" :store="productStore"
-                       class="sw-product-detail__select-visibility"
-                       :label="$tc('sw-promotion.scopeForm.labelProduct')">
+                       class="sw-promotion-scope__product-rules"
+                       :label="$tc('sw-promotion.detail.main.preconditions.labelProduct')">
                 <template slot="result_items" slot-scope="{ item, index }">
                     <sw-select-option
                             :index="index"

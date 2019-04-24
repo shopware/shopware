@@ -3,7 +3,7 @@
 
     {% block sw_settings_privacy_item %}
         <template v-if="next2539">
-            <sw-settings-item :label="$tc('sw-settings-privacy.general.mainMenuItemGeneral')" :to="{ name: 'sw.settings.privacy.index' }">
+            <sw-settings-item id="sw-settings-privacy" :label="$tc('sw-settings-privacy.general.mainMenuItemGeneral')" :to="{ name: 'sw.settings.privacy.index' }">
                 <template slot="icon">
                     <sw-icon name="default-basic-shape-heart" size="45"></sw-icon>
                 </template>

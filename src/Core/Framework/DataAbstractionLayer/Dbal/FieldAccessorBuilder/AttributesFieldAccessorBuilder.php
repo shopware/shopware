@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Attribute\AttributeServiceInterface;
+use Shopware\Core\Framework\Attribute\AttributeService;
 use Shopware\Core\Framework\Attribute\AttributeTypes;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 class AttributesFieldAccessorBuilder extends JsonFieldAccessorBuilder
 {
     /**
-     * @var AttributeServiceInterface
+     * @var AttributeService
      */
     private $attributeService;
 
@@ -22,7 +22,7 @@ class AttributesFieldAccessorBuilder extends JsonFieldAccessorBuilder
      */
     private $connection;
 
-    public function __construct(AttributeServiceInterface $attributeService, Connection $connection)
+    public function __construct(AttributeService $attributeService, Connection $connection)
     {
         parent::__construct($connection);
 

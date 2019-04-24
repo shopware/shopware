@@ -22,7 +22,17 @@ Component.register('sw-manufacturer-detail', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
     computed: {
+        identifier() {
+            return this.placeholder(this.manufacturer, 'name');
+        },
+
         manufacturerStore() {
             return State.getStore('product_manufacturer');
         },

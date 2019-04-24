@@ -12,17 +12,21 @@ module.exports = {
 
         browser
             .openMainMenuEntry({
-                targetPath: '#/sw/settings/language/index',
-                mainMenuId: 'sw-settings',
-                subMenuId: 'sw-settings-language'
+                targetPath: '#/sw/settings/index',
+                mainMenuId: 'sw-settings'
             })
+            .click('#sw-settings-language')
+            .assert.urlContains('#/sw/settings/language/index')
             .expect.element(`${page.elements.gridRow}--2 ${page.elements.languageColumnName}`).to.have.text.that.contains(global.LanguageFixtureService.getLanguageName());
     },
     'delete language': (browser) => {
         const page = settingsPage(browser);
 
         browser
-            .clickContextMenuItem('.sw-context-menu-item--danger', page.elements.contextMenuButton, `${page.elements.gridRow}--2`)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-context-menu-item--danger',
+                scope: `${page.elements.gridRow}--2`
+            })
             .expect.element('.sw-modal .sw-modal__body').to.have.text.that.contains('Are you sure you want to delete the language "Philippine English"?');
 
         browser

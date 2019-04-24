@@ -24,6 +24,7 @@ export default class GeneralPageObject {
             gridRowInlineEdit: '.sw-grid-row__inline-edit-action',
 
             dataGridRow: '.sw-data-grid__row',
+            dataGridHeader: '.sw-data-grid__header',
             dataGridColumn: '.sw-data-grid__cell',
             dataGridInlineEditSave: '.sw-data-grid__inline-edit-save',
 

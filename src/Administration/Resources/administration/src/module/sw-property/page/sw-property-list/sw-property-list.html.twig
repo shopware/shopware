@@ -60,14 +60,14 @@
                                         {% block sw_property_list_grid_columns_name %}
                                             <sw-grid-column flex="minmax(100px, 1fr)" :label="$tc('sw-property.list.columnName')" dataIndex="name" truncate sortable>
                                                 <router-link :to="{ name: 'sw.property.detail', params: { id: item.id } }">
-                                                    {{ item.name }}
+                                                    {{ item.translated.name }}
                                                 </router-link>
                                             </sw-grid-column>
                                         {% endblock %}
 
                                         {% block sw_property_list_grid_columns_options %}
                                             <sw-grid-column flex="minmax(200px, 2fr)" :label="$tc('sw-property.list.columnOptions')" truncate>
-                                                <span v-for="(option, index) in item.options" :key="option.id" v-if="index < 4">{{ (index > 0) ?`, ${option.name}`:`${option.name}`}}</span>
+                                                <span v-for="(option, index) in item.options" :key="option.id" v-if="index < 4">{{ (index > 0) ?`, ${option.translated.name}`:`${option.translated.name}`}}</span>
                                                 <span v-if="item.options.length >= 5">
                                                     , ...
                                                 </span>
@@ -105,7 +105,7 @@
 
                                     <sw-modal v-if="showDeleteModal === item.id" @closeModal="onCloseDeleteModal" :title="$tc('sw-property.list.modalTitleDelete')" variant="small">
                                         <p class="sw-property-list__confirm-delete-text">
-                                            {{ $tc('sw-property.list.textDeleteConfirm', 0, { name: item.name }) }}
+                                            {{ $tc('sw-property.list.textDeleteConfirm', 0, { name: item.translated.name }) }}
                                         </p>
 
                                         <template slot="modal-footer">

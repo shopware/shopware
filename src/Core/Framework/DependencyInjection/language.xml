@@ -9,6 +9,10 @@
             <tag name="shopware.entity.definition" entity="language"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Language\SalesChannel\SalesChannelLanguageDefinition">
+            <tag name="shopware.sales_channel.entity.definition" entity="language"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Language\LanguageValidator">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="shopware.validator"/>

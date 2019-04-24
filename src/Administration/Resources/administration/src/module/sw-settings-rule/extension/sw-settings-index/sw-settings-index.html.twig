@@ -2,7 +2,8 @@
     {% parent %}
 
     {% block sw_settings_rule_item %}
-        <sw-settings-item :label="$tc('sw-settings-rule.general.mainMenuItemGeneral')"
+        <sw-settings-item id="sw-settings-rule"
+                          :label="$tc('sw-settings-rule.general.mainMenuItemGeneral')"
                           :to="{ name: 'sw.settings.rule.index' }">
             <template slot="icon">
                 <svg width="80px" height="80px" viewBox="0 0 80 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">

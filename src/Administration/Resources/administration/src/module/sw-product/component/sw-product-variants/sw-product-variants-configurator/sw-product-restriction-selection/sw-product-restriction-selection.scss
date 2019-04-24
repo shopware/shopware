@@ -1,0 +1,128 @@
+@import "~scss/variables";
+
+.sw-product-restriction-selection {
+    .sw-product-restriction-selection__container {
+        box-sizing: border-box;
+        background-color: transparent;
+        margin-bottom: 10px;
+
+        .sw-product-restriction-selection__select-group-wrapper {
+            display: grid;
+            box-sizing: border-box;
+            grid-template-columns: minmax(150px, 200px) minmax(120px, 150px);
+            background-color: $color-white;
+            max-height: 47px;
+            border-radius: 4px;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+            border-top: 1px solid $color-steam-cloud;
+            border-bottom: 1px solid $color-steam-cloud;
+        }
+
+        .sw-field.sw-product-restriction-selection__select-group {
+            margin-bottom: 0;
+        }
+
+        .sw-field.sw-product-restriction-selection__select-group select {
+            color: $color-white;
+            background-color: #758CA3;
+            border-width: 0;
+        }
+
+        .sw-field.sw-product-restriction-selection__select-group .sw-field__select select:focus {
+            color: $color-white;
+        }
+
+        .sw-field.sw-product-restriction-selection__select-group .sw-field__input {
+            display: flex;
+            position: relative;
+        }
+
+        .sw-field.sw-product-restriction-selection__select-group .sw-field__input::before {
+            content: '';
+            box-sizing: border-box;
+            position: absolute;
+            height: 45px;
+            width: 25px;
+            right: 0;
+        }
+
+        .sw-field.sw-product-restriction-selection__select-group .sw-field__input::after {
+            content: '';
+            position: relative;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 24px 0 21px 16px;
+            border-color: transparent transparent transparent #758ca3;
+            right: 2px;
+        }
+
+        .sw-field.sw-product-restriction-selection__select-group .sw-icon {
+            color: $color-white;
+        }
+
+        .sw-field.sw-product-restriction-selection__select-group .sw-field__select select:focus + .sw-icon {
+            color: $color-white;
+        }
+
+        .sw-product-restriction-selection__isFrom {
+            display: flex;
+            position: relative;
+            z-index: 1;
+            justify-content: center;
+            align-items: center;
+            height: 45px;
+            margin-right: 16px;
+            padding-right: 8px;
+        }
+
+        .sw-product-restriction-selection__isFrom::after, .sw-product-restriction-selection__isFrom::before {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 24px 0 21px 16px;
+            border-color: transparent transparent transparent $color-steam-cloud;
+            right: 0px;
+            transform: translate(calc(100% + 1px), 0);
+        }
+        .sw-product-restriction-selection__isFrom::before {
+            background-color: #fff;
+        }
+        .sw-product-restriction-selection__isFrom::after {
+            border-color: transparent transparent transparent $color-white;
+            right: 1px;
+        }
+
+        .sw-multi-select.sw-multi-select--multi .sw-multi-select__inner {
+            height: 100%;
+            border: 1px solid $color-steam-cloud;
+            border-radius: 0;
+        }
+
+        .sw-multi-select.sw-multi-select--multi .sw-multi-select__selection-item-input {
+            max-width: 0;
+        }
+
+        .sw-multi-select.sw-multi-select--multi .sw-multi-select__results {
+            border-color: $color-steam-cloud;
+        }
+
+        .sw-multi-select.sw-multi-select--multi .sw-multi-select__results-list {
+            max-height: 140px;
+        }
+
+        .sw-product-restriction-selection__select-option-wrapper .sw-context-button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: $color-white;
+            border: 1px solid $color-steam-cloud;
+            border-left-width: 0;
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+    }
+}

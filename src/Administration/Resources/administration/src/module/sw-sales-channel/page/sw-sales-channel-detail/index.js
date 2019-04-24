@@ -19,7 +19,17 @@ Component.register('sw-sales-channel-detail', {
             attributeSets: []
         };
     },
+
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
     computed: {
+        identifier() {
+            return this.placeholder(this.salesChannel, 'name');
+        },
         salesChannelStore() {
             return State.getStore('sales_channel');
         },

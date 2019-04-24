@@ -27,6 +27,12 @@ Component.register('sw-profile-index', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    },
+
     computed: {
         isDisabled() {
             return true; // TODO use ACL here with NEXT-1653

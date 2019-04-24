@@ -90,4 +90,9 @@ class ManyToManyAssociationField extends AssociationField
     {
         return $this->referenceColumn;
     }
+
+    public function setReferenceDefinition(string $referenceDefinition): void
+    {
+        $this->referenceDefinition = $referenceDefinition;
+    }
 }

@@ -3,7 +3,7 @@
 
         {% block sw_promotion_detail_header %}
             <template slot="smart-bar-header">
-                <h2>{{ placeholder(promotion, 'name', $tc('sw-promotion.detail.textHeadline')) }}</h2>
+                <h2>{{ placeholder(promotion, 'name', $tc('sw-promotion.detail.header.titleEdit')) }}</h2>
             </template>
         {% endblock %}
 
@@ -11,13 +11,13 @@
             <template slot="smart-bar-actions">
                 {% block sw_promotion_detail_actions_abort %}
                     <sw-button :disabled="promotion.isLoading" :routerLink="{ name: 'sw.promotion.index' }">
-                        {{ $tc('sw-promotion.detail.buttonCancel') }}
+                        {{ $tc('sw-promotion.detail.header.buttonCancel') }}
                     </sw-button>
                 {% endblock %}
 
                 {% block sw_promotion_detail_actions_save %}
                     <sw-button variant="primary" class="sw-promotion-detail__save-action" :disabled="promotion.isLoading" @click.prevent="onSave">
-                        {{ $tc('sw-promotion.detail.buttonSave') }}
+                        {{ $tc('sw-promotion.detail.header.buttonSave') }}
                     </sw-button>
                 {% endblock %}
             </template>
@@ -36,7 +36,7 @@
 
                 {% block sw_promotion_detail_content_language_info %}
                     <sw-language-info
-                            :entityDescription="placeholder(promotion, 'name', $tc('sw-promotion.detail.textHeadline'))">
+                            :entityDescription="placeholder(promotion, 'name', $tc('sw-promotion.detail.header.titleEdit'))">
                     </sw-language-info>
                 {% endblock %}
 
@@ -44,22 +44,22 @@
                     <sw-tabs class="sw-promotion-detail-page__tabs">
                         {% block sw_promotion_detail_content_tabs_general %}
                             <sw-tabs-item :route="{ name: 'sw.promotion.detail.base', params: { id: $route.params.id } }"
-                                          :title="$tc('sw-promotion.detail.tabGeneral')">
-                                {{ $tc('sw-promotion.detail.tabGeneral') }}
+                                          :title="$tc('sw-promotion.detail.tabs.tabGeneral')">
+                                {{ $tc('sw-promotion.detail.tabs.tabGeneral') }}
                             </sw-tabs-item>
                         {% endblock %}
 
                         {% block sw_promotion_detail_content_tabs_restrictions %}
                             <sw-tabs-item :route="{ name: 'sw.promotion.detail.restrictions', params: { id: $route.params.id } }"
-                                          :title="$tc('sw-promotion.detail.tabRestrictions')">
-                                {{ $tc('sw-promotion.detail.tabRestrictions') }}
+                                          :title="$tc('sw-promotion.detail.tabs.tabPreconditions')">
+                                {{ $tc('sw-promotion.detail.tabs.tabPreconditions') }}
                             </sw-tabs-item>
                         {% endblock %}
 
                         {% block sw_promotion_detail_content_tabs_rebate %}
                             <sw-tabs-item :route="{ name: 'sw.promotion.detail.rebate', params: { id: $route.params.id } }"
-                                          :title="$tc('sw-promotion.detail.tabRebate')">
-                                {{ $tc('sw-promotion.detail.tabRebate') }}
+                                          :title="$tc('sw-promotion.detail.tabs.tabRebate')">
+                                {{ $tc('sw-promotion.detail.tabs.tabRebate') }}
                             </sw-tabs-item>
                         {% endblock %}
                     </sw-tabs>

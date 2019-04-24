@@ -7,8 +7,8 @@
                 :presentation="presentation"
                 :sorting="sorting"
                 :hidePresentation="compact"
-                @sw-media-presentation-changed="presentation = $event"
-                @sw-media-sorting-changed="sorting = $event">
+                @media-presentation-change="presentation = $event"
+                @media-sorting-change="sorting = $event">
             </sw-media-display-options>
 
             {% block sw_media_index_create_folder %}
@@ -38,7 +38,7 @@
                             class="sw-media-library_media-grid"
                             :presentation="gridPresentation"
                             ref="mediaGrid"
-                            @sw-media-grid-selection-clear="clearSelection">
+                            @media-grid-selection-clear="clearSelection">
 
                             {% block sw_media_library_back_to_parent_item %}
                                 <sw-media-folder-item

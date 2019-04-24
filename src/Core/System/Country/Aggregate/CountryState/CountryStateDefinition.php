@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\System\Country\Aggregate\CountryState\SalesChannel\SalesChannelCountryStateDefinition;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationDefinition;
 use Shopware\Core\System\Country\CountryDefinition;
 
@@ -29,6 +30,11 @@ class CountryStateDefinition extends EntityDefinition
     public static function getEntityName(): string
     {
         return 'country_state';
+    }
+
+    public static function getSalesChannelDecorationDefinition(): string
+    {
+        return SalesChannelCountryStateDefinition::class;
     }
 
     public static function getCollectionClass(): string

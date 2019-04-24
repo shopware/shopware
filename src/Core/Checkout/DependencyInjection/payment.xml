@@ -9,6 +9,10 @@
             <tag name="shopware.entity.definition" entity="payment_method"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Payment\SalesChannel\SalesChannelPaymentMethodDefinition">
+            <tag name="shopware.sales_channel.entity.definition" entity="payment_method"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationDefinition">
             <tag name="shopware.entity.definition" entity="payment_method_translation"/>
         </service>

@@ -12,19 +12,23 @@ module.exports = {
 
         browser
             .openMainMenuEntry({
-                targetPath: '#/sw/settings/country/index',
-                mainMenuId: 'sw-settings',
-                subMenuId: 'sw-settings-country'
+                targetPath: '#/sw/settings/index',
+                mainMenuId: 'sw-settings'
             })
+            .click('#sw-settings-country')
+            .assert.urlContains('#/sw/settings/country/index')
             .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
     },
     'delete country': (browser) => {
         const page = settingsPage(browser);
 
         browser
-            .clickContextMenuItem('.sw-context-menu-item--danger', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
-            .expect.element(`${page.elements.modal} .sw-modal__body`).to.have.text.that
-            .contains(`Are you sure you want to delete the country "${global.AdminFixtureService.basicFixture.name}"?`);
+            .waitForElementNotPresent(page.elements.loader)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-context-menu-item--danger',
+                scope: `${page.elements.gridRow}--0`
+            })
+            .expect.element(`${page.elements.modal} .sw-modal__body`).to.have.text.that.contains(`Are you sure you want to delete the country "${global.AdminFixtureService.basicFixture.name}"?`);
 
         browser
             .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)

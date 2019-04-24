@@ -10,10 +10,11 @@ module.exports = {
     'navigate to rule index': (browser) => {
         browser
             .openMainMenuEntry({
-                targetPath: '#/sw/settings/rule/index',
-                mainMenuId: 'sw-settings',
-                subMenuId: 'sw-settings-rule'
-            });
+                targetPath: '#/sw/settings/index',
+                mainMenuId: 'sw-settings'
+            })
+            .click('#sw-settings-rule')
+            .assert.urlContains('#/sw/settings/rule/index');
     },
     'find rule to be deleted': (browser) => {
         const page = ruleBuilderPage(browser);
@@ -30,7 +31,10 @@ module.exports = {
 
 
         browser
-            .clickContextMenuItem('.sw-context-menu-item--danger', `${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-context-menu-item--danger',
+                scope: `${page.elements.gridRow}--0`
+            })
             .waitForElementVisible('.sw-modal')
             .expect.element('.sw-settings-rule-list__confirm-delete-text').to.have.text.that.contains(`Are you sure you want to delete the rule "${global.AdminFixtureService.basicFixture.name}"?`);
 

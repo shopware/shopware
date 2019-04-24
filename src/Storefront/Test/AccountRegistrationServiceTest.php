@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Test;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Defaults;
@@ -84,8 +84,9 @@ class AccountRegistrationServiceTest extends TestCase
         $customers = $this->accountService->getCustomersByEmail($data->get('email'), $this->salesChannelContext, false);
         static::assertCount(1, $customers);
 
-        $this->expectException(CustomerNotFoundException::class);
-        $this->accountService->getCustomerByEmail($data->get('email'), $this->salesChannelContext, true);
+        /** @var CustomerEntity $customer */
+        $customer = $this->accountService->getCustomerByEmail($data->get('email'), $this->salesChannelContext, true);
+        static::assertTrue($customer->getGuest());
     }
 
     public function testLoginWithAdditionalGuestAccount(): void

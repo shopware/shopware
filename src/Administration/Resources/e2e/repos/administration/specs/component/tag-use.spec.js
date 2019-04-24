@@ -23,7 +23,10 @@ module.exports = {
         const page = productPage(browser);
 
         browser
-            .clickContextMenuItem('.sw-product-list__edit-action', page.elements.contextMenuButton, `${page.elements.dataGridRow}--0`)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-product-list__edit-action',
+                scope: `${page.elements.dataGridRow}--0`
+            })
             .waitForElementNotPresent(`.product-basic-form ${page.elements.loader}`)
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(global.ProductFixtureService.productFixture.name);
     },

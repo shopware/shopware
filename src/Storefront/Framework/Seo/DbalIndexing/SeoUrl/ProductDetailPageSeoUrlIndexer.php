@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Framework\Seo\DbalIndexing\SeoUrl;
 use Shopware\Core\Content\Product\Util\EventIdExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactoryInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Storefront\Framework\Seo\SeoService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -22,7 +22,7 @@ class ProductDetailPageSeoUrlIndexer extends SeoUrlIndexer
         EntityRepositoryInterface $salesChannelRepository,
         EventDispatcherInterface $eventDispatcher,
         SeoService $seoService,
-        SalesChannelContextFactoryInterface $salesChannelContextFactory,
+        SalesChannelContextFactory $salesChannelContextFactory,
         EntityRepositoryInterface $entityRepository,
         EventIdExtractor $idExtractor
     ) {

@@ -17,7 +17,9 @@ class CustomerPageObject extends GeneralPageObject {
                 languageColumnName: '.sw-language-list__column-name',
 
                 taxSaveAction: '.sw-settings-tax-detail__save-action',
-                taxColumnName: '.sw-tax-list__column-name'
+                taxColumnName: '.sw-tax-list__column-name',
+
+                customerGroupSaveAction: '.sw-settings-customer-group-detail__save'
             }
         };
     }

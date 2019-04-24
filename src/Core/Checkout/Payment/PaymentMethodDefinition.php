@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Payment;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationDefinition;
+use Shopware\Core\Checkout\Payment\SalesChannel\SalesChannelPaymentMethodDefinition as SalesChannelApiPaymentMethodDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\Context;
@@ -38,6 +39,11 @@ class PaymentMethodDefinition extends EntityDefinition
     public static function getEntityName(): string
     {
         return 'payment_method';
+    }
+
+    public static function getSalesChannelDecorationDefinition(): string
+    {
+        return SalesChannelApiPaymentMethodDefinition::class;
     }
 
     public static function getCollectionClass(): string

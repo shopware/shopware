@@ -21,6 +21,12 @@ Component.register('sw-customer-list', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    },
+
     computed: {
         customerStore() {
             return Shopware.State.getStore('customer');

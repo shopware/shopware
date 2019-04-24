@@ -150,7 +150,7 @@ class ProductVisibilityTest extends TestCase
             ['salesChannelId' => $this->salesChannelId2, 'productId' => $this->productId4, 'visible' => false],
         ];
 
-        foreach ($cases as $case) {
+        foreach ($cases as $index => $case) {
             $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $case['salesChannelId']);
 
             $request = new Request([], [], ['productId' => $case['productId']]);
@@ -167,7 +167,7 @@ class ProductVisibilityTest extends TestCase
                 continue;
             }
 
-            static::assertInstanceOf(ProductNotFoundException::class, $e);
+            static::assertInstanceOf(ProductNotFoundException::class, $e, 'case #' . $index);
         }
     }
 

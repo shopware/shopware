@@ -12,10 +12,11 @@ module.exports = {
 
         browser
             .openMainMenuEntry({
-                targetPath: '#/sw/settings/country/index',
-                mainMenuId: 'sw-settings',
-                subMenuId: 'sw-settings-country'
+                targetPath: '#/sw/settings/index',
+                mainMenuId: 'sw-settings'
             })
+            .click('#sw-settings-country')
+            .assert.urlContains('#/sw/settings/country/index')
             .waitForElementNotPresent(`${page.elements.alert}__message`)
             .expect.element(`${page.elements.gridRow}--0 ${page.elements.countryColumnName}`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
     },
@@ -23,7 +24,10 @@ module.exports = {
         const page = settingsPage(browser);
 
         browser
-            .clickContextMenuItem('.sw-country-list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-country-list__edit-action',
+                scope: `${page.elements.gridRow}--0`
+            })
             .fillField('input[name=sw-field--country-name]', '1.Niemandsland x2', true)
             .click(page.elements.countrySaveAction)
             .checkNotification('Country "1.Niemandsland x2" has been saved successfully.')

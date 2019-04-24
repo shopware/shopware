@@ -22,6 +22,14 @@
             <tag name="shopware.entity.definition" entity="promotion_order_rule"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Promotion\Aggregate\PromotionPersonaCustomer\PromotionPersonaCustomerDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Promotion\Aggregate\PromotionPersonaRule\PromotionPersonaRuleDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Promotion\PromotionGateway">
             <argument type="service" id="promotion.repository"/>
         </service>

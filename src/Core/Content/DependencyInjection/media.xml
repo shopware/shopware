@@ -100,7 +100,6 @@
             <argument type="service" id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaRepositoryDecorator.inner"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
-            <argument type="service" id="shopware.filesystem.public"/>
             <argument type="service" id="media_thumbnail.repository"/>
             <argument type="service" id="messenger.bus.shopware"/>
         </service>
@@ -109,7 +108,6 @@
             <argument type="service" id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepositoryDecorator.inner"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
-            <argument type="service" id="shopware.filesystem.public"/>
             <argument type="service" id="messenger.bus.shopware"/>
         </service>
 

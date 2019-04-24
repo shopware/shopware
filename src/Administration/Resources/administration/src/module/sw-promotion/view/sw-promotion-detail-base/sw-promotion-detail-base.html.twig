@@ -1,7 +1,7 @@
 {% block sw_promotion_detail_base %}
     <div class="sw-promotion-detail-base">
         {% block sw_promotion_detail_base_basic_info_card %}
-            <sw-card :title="$tc('sw-promotion.detailBase.cardTitlePromotionInfo')" :isLoading="promotion.isLoading">
+            <sw-card :title="$tc('sw-promotion.detail.main.general.cardTitlePromotionInfo')" :isLoading="promotion.isLoading">
                 {% block sw_promotion_detail_base_basic_info_form %}
                     <sw-promotion-basic-form :promotion="promotion"></sw-promotion-basic-form>
                 {% endblock %}
@@ -9,7 +9,7 @@
         {% endblock %}
 
         {% block sw_promotion_detail_base_code_card %}
-            <sw-card :title="$tc('sw-promotion.detailBase.cardTitleCode')" :isLoading="promotion.isLoading">
+            <sw-card :title="$tc('sw-promotion.detail.main.general.cardTitleCode')" :isLoading="promotion.isLoading">
                 {% block sw_promotion_detail_base_code_form %}
                     <sw-promotion-code-form :promotion="promotion"></sw-promotion-code-form>
                 {% endblock %}

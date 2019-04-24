@@ -126,14 +126,20 @@ class AccountService
     {
         $customers = $this->getCustomersByEmail($email, $context, $includeGuest);
 
-        if ($customers->count() !== 1) {
-            throw new CustomerNotFoundException($email);
+        $customerCount = $customers->count();
+        if ($customerCount === 1) {
+            return $customers->first();
         }
 
-        /** @var CustomerEntity $customer */
-        $customer = $customers->first();
+        if ($includeGuest && $customerCount) {
+            $customers->sort(static function (CustomerEntity $a, CustomerEntity $b) {
+                return $a->getCreatedAt() <=> $b->getCreatedAt();
+            });
 
-        return $customer;
+            return $customers->last();
+        }
+
+        throw new CustomerNotFoundException($email);
     }
 
     public function getCustomersByEmail(string $email, SalesChannelContext $context, bool $includeGuests = true): EntitySearchResult
@@ -263,14 +269,14 @@ class AccountService
      * @throws BadCredentialsException
      * @throws UnauthorizedHttpException
      */
-    public function login(string $email, SalesChannelContext $context): string
+    public function login(string $email, SalesChannelContext $context, bool $includeGuest = false): string
     {
         if (empty($email)) {
             throw new BadCredentialsException();
         }
 
         try {
-            $customer = $this->getCustomerByEmail($email, $context);
+            $customer = $this->getCustomerByEmail($email, $context, $includeGuest);
         } catch (CustomerNotFoundException | BadCredentialsException $exception) {
             throw new UnauthorizedHttpException('json', $exception->getMessage());
         }

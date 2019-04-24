@@ -68,7 +68,10 @@ module.exports = {
         const page = productPage(browser);
 
         browser
-            .clickContextMenuItem('.sw-product-list__edit-action', page.elements.contextMenuButton, `${page.elements.dataGridRow}--0`)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-product-list__edit-action',
+                scope: `${page.elements.dataGridRow}--0`
+            })
             .expect.element('.sw-text-editor__content-editor').to.have.text.that.equals('My very first description');
 
         browser

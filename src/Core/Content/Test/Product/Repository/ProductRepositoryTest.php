@@ -1620,8 +1620,8 @@ class ProductRepositoryTest extends TestCase
         $blue = $configuratorSettings->get($blueId);
         $red = $configuratorSettings->get($redId);
 
-        static::assertEquals(new Price(25, 50, false), $red->getPrice());
-        static::assertEquals(new Price(90, 100, false), $blue->getPrice());
+        static::assertEquals(['gross' => 50, 'net' => 25, 'linked' => false], $red->getPrice());
+        static::assertEquals(['gross' => 100, 'net' => 90, 'linked' => false], $blue->getPrice());
 
         static::assertEquals('red', $red->getOption()->getName());
         static::assertEquals('blue', $blue->getOption()->getName());
@@ -1841,13 +1841,17 @@ class ProductRepositoryTest extends TestCase
             'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
         ];
 
-        $withRules = array_merge($default, ['blacklistIds' => [$ruleId]]);
+        $withRules = array_merge($default, ['blacklistIds' => [$ruleId], 'productNumber' => Uuid::randomHex()]);
+
+        $withRules2 = array_merge($default, ['blacklistIds' => [$ruleId], 'productNumber' => Uuid::randomHex()]);
+
+        $default2 = array_merge($default, ['productNumber' => Uuid::randomHex()]);
 
         $products = [
             $default,
             $withRules,
-            $withRules,
-            $default,
+            $withRules2,
+            $default2,
         ];
 
         $this->repository->create($products, Context::createDefaultContext());

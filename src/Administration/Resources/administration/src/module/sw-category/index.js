@@ -5,6 +5,8 @@ import './component/sw-category-view';
 import './component/sw-category-select';
 import './component/sw-category-leave-page-modal';
 import './page/sw-category-detail';
+import './view/sw-category-detail-base';
+import './view/sw-category-detail-cms';
 
 import deDE from './snippet/de_DE.json';
 import enGB from './snippet/en_GB.json';
@@ -12,7 +14,7 @@ import enGB from './snippet/en_GB.json';
 Module.register('sw-category', {
     flag: NEXT716,
     type: 'core',
-    name: 'Categories',
+    name: 'sw-category.general.mainMenuItemIndex',
     description: 'The module for managing categories.',
     version: '1.0.0',
     targetVersion: '1.0.0',
@@ -34,11 +36,29 @@ Module.register('sw-category', {
                 parentPath: 'sw.category.index'
             }
         },
+
         detail: {
             component: 'sw-category-detail',
             path: 'index/:id',
-            meta: {
-                parentPath: 'sw.category.index'
+            redirect: {
+                name: 'sw.category.detail.base'
+            },
+
+            children: {
+                base: {
+                    component: 'sw-category-detail-base',
+                    path: 'base',
+                    meta: {
+                        parentPath: 'sw.category.index'
+                    }
+                },
+                cms: {
+                    component: 'sw-category-detail-cms',
+                    path: 'cms',
+                    meta: {
+                        parentPath: 'sw.category.index'
+                    }
+                }
             }
         }
     },

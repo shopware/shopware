@@ -1,42 +1,48 @@
 {% block sw_promotion_persona_form %}
-    <div class="promotion-persona-form">
-        <b>{{ $tc('sw-promotion.personaForm.descriptionTitlePersona') }}</b>
-        <p>
-            {{ $tc('sw-promotion.personaForm.descriptionTextPersona') }}
-            <router-link :to="{ name: 'sw.settings.rule.index' }">
-                {{ $tc('sw-promotion.personaForm.ruleModuleLink') }}
-            </router-link>
-        </p>
+<div class="sw-promotion-persona-form">
+    <h4>{{ $tc('sw-promotion.detail.main.preconditions.persona.title') }}</h4>
+    <p>
+        {{ $tc('sw-promotion.detail.main.preconditions.persona.text') }}
+        <router-link :to="{ name: 'sw.settings.rule.index' }">
+            {{ $tc('sw-promotion.detail.main.preconditions.ruleModuleLink') }}
+        </router-link>
+    </p>
 
-        {% block sw_promotion_persona_form_persona_rule_id_field %}
-            <sw-select id="rule"
-                       class="sw-product-detail__select-visibility"
-                       :store="ruleStore"
-                       :value="promotion.personaRuleId"
-                       @input="onPersonaRuleChange($event, promotion.personaRuleId)"
-                       :label="$tc('sw-promotion.personaForm.labelPersonaRule')">
-                <template slot="result_items" slot-scope="{ item, index }">
-                    <sw-select-option
-                            :index="index"
-                            :item="item">
-                        {{ item.name }}
-                    </sw-select-option>
-                </template>
-            </sw-select>
-        {% endblock %}
+    {% block sw_promotion_persona_form_persona_rule_id_field %}
+        <sw-select id="personaRuleIds"
+                   multi
+                   class="sw-promotion-persona-form__persona-rules"
+                   :label="$tc('sw-promotion.detail.main.preconditions.persona.labelRules')"
+                   :placeholder="$tc('sw-promotion.detail.main.preconditions.persona.placeholderRules')"
+                   :store="ruleStore"
+                   :associationStore="personaRulesAssociationStore">
+            <template slot="result_items" slot-scope="{ item, index }">
+                <sw-select-option :index="index" :item="item">
+                    {{ item.name }}
+                </sw-select-option>
+            </template>
+        </sw-select>
+    {% endblock %}
 
-        {% block sw_promotion_persona_form_customer_field %}
-            <sw-select id="rule" :store="customerStore"
-                       class="sw-product-detail__select-visibility"
-                       :label="$tc('sw-promotion.personaForm.labelCustomer')">
-                <template slot="result_items" slot-scope="{ item, index }">
-                    <sw-select-option
-                            :index="index"
-                            :item="item">
-                        {{ item.firstName }} {{ item.lastName }}
-                    </sw-select-option>
-                </template>
-            </sw-select>
-        {% endblock %}
-    </div>
+    {% block sw_promotion_persona_form_customer_field %}
+        <sw-select id="personaCustomerIds"
+                   multi
+                   class="sw-promotion-persona-form__persona-customers"
+                   :label="$tc('sw-promotion.detail.main.preconditions.persona.labelCustomers')"
+                   :placeholder="$tc('sw-promotion.detail.main.preconditions.persona.placeholderCustomers')"
+                   :store="customerStore"
+                   :associationStore="personaCustomerAssociationStore"
+                   displayName="lastName">
+            <template slot="displayName" slot-scope="{ item, index }">
+                {{ item.firstName }} {{ item.lastName }}
+            </template>
+            <template slot="result_items" slot-scope="{ item, index }">
+                <sw-select-option :index="index" :item="item">
+                    {{ item.firstName }} {{ item.lastName }}
+                </sw-select-option>
+            </template>
+        </sw-select>
+    {% endblock %}
+
+</div>
 {% endblock %}

@@ -5,30 +5,15 @@
             "mainMenuItemList": "Übersicht",
             "headlineCategories": "Kategorien",
             "placeholderSearchBar": "Durchsuche alle Kategorien",
-            "headlineInformationCard": "Kategorieinformationen",
             "buttonCreate": "Kategorie erstellen",
             "buttonSafeCategory": "Speichern",
-            "isCategoryActiveLabel": "Kategorien ist aktiv",
             "descriptionLabel": "Beschreibung",
-            "imageLabel": "Anzeigebild",
-            "showSubcategoryProductsLabel": "Enthält Produkte aus Subkategorien",
-            "categoryNameLabel": "Name",
             "titleSaveSuccess": "Erfolg",
             "messageSaveSuccess": "Die Kategorie \"{name}\" wurde erfolgreich gespeichert.",
             "useAsLogo": "Als Anzeigebild verwenden",
             "treeHeadline": "Kategoriestruktur",
-            "columnNameLabel": "Name",
-            "columnManufacturerLabel": "Hersteller",
             "treeHeadSelected": "{count} selektiert",
             "emptyStateHeadline": "Keine Kategorie ausgewählt",
-            "productAssignmentHeadline": "Produktzuweisung",
-            "productAssignmentPlaceholder": "Produkte durchsuchen und zuweisen...",
-            "productAssignmentActionDetails": "Details",
-            "productAssignmentActionRemove": "Entfernen",
-            "productAssignmentActionUndo": "Rückgängig machen",
-            "productAssignmentEmptyText": "Keine Produkte gefunden",
-            "productAssignmentEmptyStateTitle": "Keine Produkte zugewiesen",
-            "productAssignmentEmptyStateSubline": "Füge über die Suche neue Produkte hinzu",
 
             "leavePageModal": {
                 "headline": "Warnung",
@@ -43,6 +28,59 @@
                 "createAfter": "Neue Kategorie danach"
             }
         },
+
+        "base": {
+          "general": {
+            "categoryNameLabel": "Name",
+            "linkLabel": "Linkziel",
+            "headlineInformationCard": "Kategorieinformationen",
+            "isCategoryActiveLabel": "Kategorie ist aktiv",
+            "showSubcategoryProductsLabel": "Enthält Produkte aus Subkategorien",
+            "useAsLink": "Als Link verwenden"
+          },
+
+          "mount": {
+            "title": "Einhängepunkt",
+            "descriptionGeneral": "Du hast diesen Knoten in folgenden Verkaufskanälen als Einhängepunkt für die Hauptnavigation zugewiesen:",
+            "descriptionMenu": "Der Einhängepunkt ist auch automatisch die Startseite dieser Verkaufskanäle. Soll das nicht der Fall sein und stattdessen der erste, aktive Hauptmenüpunkt deine Startseite sein, kannst du das hier ändern:",
+            "useAsHomepage": "Als Startseite verwenden",
+            "showHomepageAsMainMenuEntry": "Startseite als Hauptmenüpunkt anzeigen"
+          },
+
+          "menu": {
+            "title": "Menü-Einstellungen",
+            "notClickable": "Nicht klickbar",
+            "imageLabel": "Anzeigebild",
+            "description": "Beschreibung"
+          },
+
+          "cms": {
+            "title": "CMS-Layout",
+            "changeLayout": "Layout ändern",
+            "editInPagebuilder": "Im Pagebuilder bearbeiten",
+            "editContent": "Content bearbeiten"
+          },
+
+          "seo": {
+            "title": "SEO-Einstellungen",
+            "name": "Meta-Name",
+            "description": "Meta-Beschreibung"
+          },
+
+          "products": {
+            "productAssignmentHeadline": "Produktzuweisung",
+            "productAssignmentPlaceholder": "Produkte durchsuchen und zuweisen...",
+            "productAssignmentActionDetails": "Details",
+            "productAssignmentActionRemove": "Entfernen",
+            "productAssignmentActionUndo": "Rückgängig machen",
+            "productAssignmentEmptyText": "Keine Produkte gefunden",
+            "productAssignmentEmptyStateTitle": "Keine Produkte zugewiesen",
+            "productAssignmentEmptyStateSubline": "Füge über die Suche neue Produkte hinzu",
+            "columnNameLabel": "Name",
+            "columnManufacturerLabel": "Hersteller"
+          }
+        },
+
         "modal": {
             "modalTitleDelete": "Kategorie löschen",
             "textDeleteConfirm": "Möchtest Du die Kategorie \"{name}\" wirklich löschen?",

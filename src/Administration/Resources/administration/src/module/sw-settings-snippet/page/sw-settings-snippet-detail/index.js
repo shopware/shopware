@@ -16,7 +16,7 @@ Component.register('sw-settings-snippet-detail', {
             isLoading: true,
             isCreate: false,
             isAddedSnippet: false,
-            isSavable: false,
+            isSavable: true,
             isInvalidKey: false,
             queryIds: this.$route.query.ids,
             page: this.$route.query.page,
@@ -29,7 +29,17 @@ Component.register('sw-settings-snippet-detail', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
     computed: {
+        identifier() {
+            return this.translationKey;
+        },
+
         snippetSetStore() {
             return State.getStore('snippet_set');
         },
@@ -65,11 +75,12 @@ Component.register('sw-settings-snippet-detail', {
 
     created() {
         this.translationKeyOrigin = this.$route.params.origin;
-        this.createdComponent();
+        this.prepareContent();
     },
 
     methods: {
-        createdComponent() {
+        prepareContent() {
+            this.isLoading = true;
             this.userService.getUser().then((response) => {
                 this.currentAuthor = `user/${response.data.username}`;
             });
@@ -140,10 +151,12 @@ Component.register('sw-settings-snippet-detail', {
                 }
 
                 if (!snippet.hasOwnProperty('value') || snippet.value === null) {
+                    // If you clear the input-box, reset it to its origin value
                     snippet.value = snippet.origin;
                 }
 
                 if (snippet.translationKey !== this.translationKey) {
+                    // On TranslationKey change, delete old snippets, but insert a copy with the new translationKey
                     if (snippet.id !== null) {
                         responses.push(this.snippetService.delete(snippet.id));
                     }
@@ -156,14 +169,17 @@ Component.register('sw-settings-snippet-detail', {
                     snippet.id = null;
                     responses.push(this.snippetService.save(snippet));
                 } else if (snippet.origin !== snippet.value) {
+                    // Only save if values differs from origin
                     responses.push(this.snippetService.save(snippet));
                 } else if (snippet.hasOwnProperty('id') && snippet.id !== null) {
+                    // There's no need to keep a snippet which is exactly like the file-snippet, so delete
                     responses.push(this.snippetService.delete(snippet.id));
                 }
             });
 
             Promise.all(responses).then(() => {
                 this.onNewKeyRedirect(true);
+                this.prepareContent();
                 this.createNotificationSuccess({
                     title: this.$tc('sw-settings-snippet.detail.titleSaveSuccess'),
                     message: this.$tc(
@@ -173,6 +189,7 @@ Component.register('sw-settings-snippet-detail', {
                     )
                 });
             }).catch(() => {
+                this.prepareContent();
                 this.createNotificationError({
                     title: this.$tc('sw-settings-snippet.detail.titleSaveError'),
                     message: this.$tc(
@@ -181,8 +198,6 @@ Component.register('sw-settings-snippet-detail', {
                         { key: this.translationKey }
                     )
                 });
-            }).finally(() => {
-                this.createdComponent();
             });
         },
 
@@ -199,7 +214,6 @@ Component.register('sw-settings-snippet-detail', {
         },
 
         doChange: utils.debounce(function executeChange() {
-            this.isLoading = false;
             this.getCustomList().then((response) => {
                 if (!response.total || Object.keys(response.data)[0] === this.translationKeyOrigin) {
                     this.isSavable = this.isSaveable();
@@ -208,8 +222,6 @@ Component.register('sw-settings-snippet-detail', {
 
                 this.isInvalidKey = true;
                 this.isSavable = false;
-            }).finally(() => {
-                this.isLoading = false;
             });
 
             if (!this.isSavable) {
@@ -231,7 +243,7 @@ Component.register('sw-settings-snippet-detail', {
             this.isCreate = false;
             this.$router.push({
                 name: 'sw.settings.snippet.detail',
-                params: params,
+                params,
                 query: {
                     ids: this.queryIds,
                     page: this.page,
@@ -241,13 +253,7 @@ Component.register('sw-settings-snippet-detail', {
         },
 
         getCustomList() {
-            return this.snippetSetService.getCustomList(
-                1,
-                25,
-                {
-                    translationKey: [this.translationKey]
-                }
-            );
+            return this.snippetSetService.getCustomList(1, 25, { translationKey: [this.translationKey] });
         },
 
         isSaveable() {

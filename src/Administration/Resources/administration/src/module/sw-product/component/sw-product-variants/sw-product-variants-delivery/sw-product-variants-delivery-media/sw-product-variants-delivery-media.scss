@@ -1,0 +1,45 @@
+@import "~scss/variables";
+
+.sw-product-variants-delivery-media {
+    display: flex;
+    height: 100%;
+    padding: 0;
+
+    .sw-product-variants-delivery-media__groups {
+        font-size: 14px;
+        flex-basis: 270px;
+        height: 100%;
+        overflow: auto;
+        border-right: 1px solid $color-steam-cloud;
+        padding: 20px 0;
+        .sw-icon {
+            margin-right: 8px;
+        }
+    }
+
+    .sw-product-variants-delivery-media__groupElement {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        min-height: 34px;
+        line-height: 34px;
+        list-style: none;
+        padding-left: 20px;
+
+        &:hover {
+            background-color: lighten($color-cadet-blue, 2.5);
+        }
+        &.is--selected {
+            background-color: #f8f9fa;
+        }
+    }
+
+    .sw-product-variants-delivery-media__media {
+        position: relative;
+        flex: 1;
+    }
+
+    .sw-media-upload {
+        width: 100%;
+    }
+}

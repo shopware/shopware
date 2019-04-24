@@ -12,7 +12,7 @@ class PackageProvider
     /**
      * @throws PluginComposerJsonInvalidException
      */
-    public function getPluginInformation(string $pluginPath, IOInterface $composerIO): RootPackageInterface
+    public function getPluginComposerPackage(string $pluginPath, IOInterface $composerIO): RootPackageInterface
     {
         $composerJsonPath = $pluginPath . '/composer.json';
         $validator = new ConfigValidator($composerIO);

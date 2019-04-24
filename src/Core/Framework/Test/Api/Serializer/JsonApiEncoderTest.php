@@ -164,6 +164,12 @@ class JsonApiEncoderTest extends TestCase
                             'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/payment-methods',
                         ],
                     ],
+                    'productConfiguratorSettings' => [
+                        'data' => [],
+                        'links' => [
+                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/product-configurator-settings',
+                        ],
+                    ],
                 ],
                 'meta' => null,
             ],

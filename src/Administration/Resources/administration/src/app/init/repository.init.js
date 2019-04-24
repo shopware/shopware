@@ -5,12 +5,11 @@ import RepositoryFactory from 'src/core/data-new/repository-factory.data';
 
 export default function initializeRepositoryFactory(container) {
     const httpClient = container.httpClient;
-    const view = container.view;
 
     return httpClient.get('_info/entity-schema.json').then((schema) => {
-        const hydrator = new EntityHydrator(schema.data, view);
+        const hydrator = new EntityHydrator(schema.data);
         const changesetGenerator = new ChangesetGenerator(schema.data);
-        const entityFactory = new EntityFactory(schema.data, view);
+        const entityFactory = new EntityFactory(schema.data);
 
         this.addServiceProvider('repositoryFactory', () => {
             return new RepositoryFactory(hydrator, changesetGenerator, entityFactory, schema.data, httpClient);

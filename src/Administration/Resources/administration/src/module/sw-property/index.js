@@ -13,7 +13,7 @@ import { NEXT719 } from '../../flag/feature_next719';
 
 Module.register('sw-property', {
     type: 'core',
-    name: 'Property',
+    name: 'sw-property.general.mainMenuItemGeneral',
     description: 'sw-property.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',

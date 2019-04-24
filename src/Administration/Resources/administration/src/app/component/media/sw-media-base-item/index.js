@@ -15,12 +15,12 @@ export default {
     name: 'sw-media-base-item',
     template,
 
-    inject: [
-        'renameEntity',
-        'rejectRenaming'
-    ],
-
     props: {
+        item: {
+            type: Object,
+            required: true
+        },
+
         isList: {
             type: Boolean,
             required: false,
@@ -39,26 +39,10 @@ export default {
             default: true
         },
 
-        isLoading: {
-            type: Boolean,
-            required: false,
-            default: false
-        },
-
         selected: {
             type: Boolean,
             required: false,
             default: false
-        },
-
-        displayName: {
-            type: String,
-            required: true
-        },
-
-        editValue: {
-            type: String,
-            required: true
         },
 
         editable: {
@@ -71,14 +55,18 @@ export default {
             type: Boolean,
             required: false,
             default: true
+        },
+
+        truncateRight: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
     data() {
         return {
-            isInlineEdit: false,
-            lastContent: '',
-            renamingCanceled: false
+            isInlineEdit: false
         };
     },
 
@@ -87,6 +75,12 @@ export default {
             return {
                 'is--list': this.isList,
                 'is--selected': this.selected || this.isInlineEdit
+            };
+        },
+
+        mediaNameContainerClasses() {
+            return {
+                'is--truncate-right': this.truncateRight
             };
         },
 
@@ -101,45 +95,22 @@ export default {
                 'selected-indicator--checked': this.listSelected,
                 'selected-indicator--is-allowed': this.allowMultiSelect
             };
+        },
+
+        isLoading() {
+            return this.item.isLoading;
         }
     },
 
-    mounted() {
-        this.componentMounted();
-    },
-
-    updated() {
-        this.componentUpdated();
-    },
-
     methods: {
-        componentMounted() {
-            this.computeLastContent();
-        },
-
-        componentUpdated() {
-            this.computeLastContent();
-        },
-
-        computeLastContent() {
-            if (this.isInlineEdit) {
-                return;
-            }
-
-            const el = this.$refs.itemName;
-            if (el.offsetWidth < el.scrollWidth) {
-                this.lastContent = this.displayName.slice(-3);
-                return;
-            }
-
-            this.lastContent = '';
-        },
-
         handleItemClick(originalDomEvent) {
             if (this.isSelectionIndicatorClicked(originalDomEvent.composedPath())) {
                 return;
             }
-            this.$emit('sw-media-item-clicked', originalDomEvent);
+            this.$emit('sw-media-item-clicked', {
+                originalDomEvent,
+                item: this.item
+            });
         },
 
         isSelectionIndicatorClicked(path) {
@@ -160,60 +131,27 @@ export default {
         },
 
         selectItem(originalDomEvent) {
-            this.$emit('sw-media-item-selection-add', originalDomEvent);
+            this.$emit('sw-media-item-selection-add', {
+                originalDomEvent,
+                item: this.item
+            });
         },
 
         removeFromSelection(originalDomEvent) {
-            this.$emit('sw-media-item-selection-remove', originalDomEvent);
+            this.$emit('media-item-selection-remove', {
+                originalDomEvent,
+                item: this.item
+            });
         },
 
-        startInlineEdit(event) {
+        startInlineEdit() {
             if (this.editable) {
                 this.isInlineEdit = true;
-
-                if (event) {
-                    event.stopPropagation();
-                }
             }
         },
 
         endInlineEdit() {
             this.isInlineEdit = false;
-        },
-
-        onCancelRenaming() {
-            this.renamingCanceled = true;
-            this.endInlineEdit();
-            this.$nextTick(() => {
-                this.rejectRenaming('canceled');
-            });
-        },
-
-        onDoRenaming() {
-            this.renamingCanceled = false;
-            this.onBlurInlineEdit();
-        },
-
-        onBlurInlineEdit() {
-            if (this.isInlineEdit === false) {
-                return;
-            }
-            this.isInlineEdit = false;
-
-            const inputField = this.$refs.inputItemName;
-            if (!inputField.currentValue || !inputField.currentValue.trim()) {
-                this.endInlineEdit();
-                this.$nextTick(() => {
-                    this.rejectRenaming('empty-name');
-                });
-                return;
-            }
-
-            this.renameEntity(inputField.currentValue).then(() => {
-                this.endInlineEdit();
-            }).catch(() => {
-                this.endInlineEdit();
-            });
         }
     }
 };

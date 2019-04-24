@@ -10,10 +10,11 @@ module.exports = {
     'open snippet module': (browser) => {
         browser
             .openMainMenuEntry({
-                targetPath: '#/sw/settings/snippet/index',
-                mainMenuId: 'sw-settings',
-                subMenuId: 'sw-settings-snippet'
-            });
+                targetPath: '#/sw/settings/index',
+                mainMenuId: 'sw-settings'
+            })
+            .click('#sw-settings-snippet')
+            .assert.urlContains('#/sw/settings/snippet/index');
     },
     'open snippet set': (browser) => {
         const page = settingsPage(browser);
@@ -32,17 +33,16 @@ module.exports = {
         const page = settingsPage(browser);
 
         browser
-            .expect.element(`${page.elements.gridRow}--0 .sw-settings-snippet-list__column-name`).to.have.text.that.equals(global.SnippetFixtureService.snippetFixture.translationKey);
+            .expect.element(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--id`).to.have.text.that.equals(global.SnippetFixtureService.snippetFixture.translationKey);
     },
     'edit snippet': (browser) => {
         const page = settingsPage(browser);
 
         browser
-            .clickContextMenuItem(
-                '.sw-settings-snippet-list__edit-action',
-                page.elements.contextMenuButton,
-                `${page.elements.gridRow}--0`
-            )
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-settings-snippet-list__edit-action',
+                scope: `${page.elements.dataGridRow}--0`
+            })
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(global.SnippetFixtureService.snippetFixture.translationKey);
 
         browser
@@ -62,6 +62,6 @@ module.exports = {
 
         browser
             .click(page.elements.smartBarBack)
-            .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains('Mine yours theirs');
+            .expect.element(`${page.elements.dataGridRow}--0`).to.have.text.that.contains('Mine yours theirs');
     }
 };

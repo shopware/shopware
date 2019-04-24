@@ -36,7 +36,10 @@ module.exports = {
 
         browser
             .refresh()
-            .clickContextMenuItem('.sw-manufacturer-list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-manufacturer-list__edit-action',
+                scope: `${page.elements.gridRow}--0`
+            })
             .waitForElementNotPresent(page.elements.loader)
             .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('MAN-U-FACTURE');
     },

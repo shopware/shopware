@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEnt
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Language\LanguageEntity;
@@ -218,6 +219,11 @@ class CustomerEntity extends Entity
      * @var TagCollection|null
      */
     protected $tags;
+
+    /**
+     * @var PromotionCollection|null
+     */
+    protected $promotions;
 
     /**
      * @var array|null
@@ -650,5 +656,23 @@ class CustomerEntity extends Entity
     public function setTags(TagCollection $tags): void
     {
         $this->tags = $tags;
+    }
+
+    /**
+     * Gets a list of all promotions where the customer
+     * is assigned to within the "persona" conditions.
+     */
+    public function getPromotions(): ?PromotionCollection
+    {
+        return $this->promotions;
+    }
+
+    /**
+     * Sets a list of all promotions where the customer
+     * should be assigned to within the "persona" conditions.
+     */
+    public function setPromotions(?PromotionCollection $promotions): void
+    {
+        $this->promotions = $promotions;
     }
 }

@@ -229,6 +229,7 @@
         <service id="Shopware\Core\Framework\Api\Route\ApiRouteLoader">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
             <tag name="routing.loader"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionRegistry"/>
         </service>
 
         <service id="Shopware\Core\Framework\Validation\DataValidator">

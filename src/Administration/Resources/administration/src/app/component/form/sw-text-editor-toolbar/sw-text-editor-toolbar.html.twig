@@ -1,0 +1,59 @@
+{% block sw_text_editor_toolbar %}
+    <div class="sw-text-editor-toolbar" :style="position" :class="classes" @click="handleToolbarClick">
+        {% block sw_text_editor_toolbar_item %}
+            <div class="sw-text-editor-toolbar__item"
+                 v-for="(button, index) in buttonConfig"
+                 :key="index"
+                 v-on="button.children || button.type === 'link' ? { click: (event) => onToggleMenu(event, button) } : { click: () => handleButtonClick(button) }">
+
+                {% block sw_text_editor_toolbar_item_button %}
+                    <template v-if="button.icon">
+                        <div class="sw-text-editor-toolbar__item-button">
+                            <sw-icon :name="button.icon" size="12"></sw-icon>
+                            <sw-icon v-if="button.children" name="default-arrow-head-down" size="8"></sw-icon>
+                        </div>
+                    </template>
+                {% endblock %}
+
+                {% block sw_text_editor_toolbar_item_name %}
+                    <div v-else-if="button.name">{{ button.name }}</div>
+                {% endblock %}
+
+                {% block sw_text_editor_toolbar_item_child %}
+                    <div v-if="button.children && button.expanded" class="sw-text-editor-toolbar__item-children">
+                        <div v-for="(child, childIndex) in button.children"
+                             :key="childIndex"
+                             class="sw-text-editor-toolbar__item-children-child">
+                            {% block sw_text_editor_toolbar_item_child_item %}
+                                <div @click="handleButtonClick(child)">
+                                    <sw-icon v-if="child.icon" :name="child.icon" size="16"></sw-icon>
+                                    <div v-else>{{ child.name }}</div>
+                                </div>
+                            {% endblock %}
+                        </div>
+                    </div>
+                {% endblock %}
+
+                {% block sw_text_editor_toolbar_item_link_menu %}
+                    <div v-if="button.type === 'link' && button.expanded"
+                         class="sw-text-editor-toolbar__item-children sw-text-editor-toolbar__link-menu">
+                        {% block sw_text_editor_toolbar_item_link_menu_content %}
+                            <p class="sw-text-editor-toolbar__link-menu-text">{{ $tc('sw-text-editor-toolbar.link.linkTo') }}</p>
+                            <sw-field v-model="button.value" type="text" :placeholder="$tc('sw-text-editor-toolbar.link.placeholder')"></sw-field>
+                            <sw-field v-model="button.newTab" type="switch" :label="$tc('sw-text-editor-toolbar.link.openInNewTab')"></sw-field>
+                            <div class="sw-text-editor-toolbar__link-menu-buttons">
+                                {% block sw_text_editor_toolbar_item_link_menu_buttons %}
+                                    <sw-button size="small" varian="primary" @click="handleTextStyleChangeLink(button)">{{ $tc('sw-text-editor-toolbar.link.insert') }}</sw-button>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+
+            {% block sw_text_editor_toolbar_additional_items_slot %}
+                <slot name="items"></slot>
+            {% endblock %}
+        {% endblock %}
+    </div>
+{% endblock %}

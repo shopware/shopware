@@ -1,6 +1,7 @@
 {
   "sw-profile": {
     "general": {
+      "mainMenuItemGeneral": "Profiles",
       "headlineProfile": "Your profile"
     },
     "index": {

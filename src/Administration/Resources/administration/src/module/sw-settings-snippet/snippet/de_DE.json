@@ -30,6 +30,7 @@
       "titleSaveSuccess": "Erfolg"
     },
     "list": {
+      "identifier": "{setName} | Textbaustein-Set-Vergleich",
       "buttonAdd": "Neuer Textbaustein",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen | Zurücksetzen",

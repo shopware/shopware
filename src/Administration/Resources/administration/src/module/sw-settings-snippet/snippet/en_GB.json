@@ -30,6 +30,7 @@
       "titleSaveSuccess": "Success"
     },
     "list": {
+      "identifier": "{setName} | Snippet set comparison",
       "buttonAdd": "New Snippet",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete",

@@ -4,10 +4,12 @@ namespace Shopware\Core\Content\Product\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
-use Shopware\Core\Content\Product\ProductEntity as ApiStruct;
+use Shopware\Core\Content\Product\ProductEntity;
 
-class SalesChannelProductEntity extends ApiStruct
+class SalesChannelProductEntity extends ProductEntity
 {
+    public const VISIBILITY_FILTERED = 'product-visibility';
+
     /**
      * @var CalculatedPrice
      */

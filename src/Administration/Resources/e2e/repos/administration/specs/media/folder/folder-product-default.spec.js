@@ -79,7 +79,10 @@ module.exports = {
         page.openMediaIndex();
         browser
             .waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
-            .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton, `${page.elements.gridItem}--0`)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: page.elements.showMediaAction,
+                scope: `${page.elements.gridItem}--0`
+            })
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(fixtures.name);
 
         browser.expect.element(page.elements.mediaNameLabel).to.have.text.that.equals('sw-login-background.png');

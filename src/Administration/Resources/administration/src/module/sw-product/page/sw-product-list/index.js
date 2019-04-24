@@ -22,6 +22,12 @@ Component.register('sw-product-list', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    },
+
     computed: {
         productStore() {
             return State.getStore('product');

@@ -6,3 +6,4 @@ import './sw-cms-toolbar';
 import './sw-cms-list-item';
 import './sw-cms-stage-add-block';
 import './sw-cms-page-form';
+import './sw-cms-layout-modal';

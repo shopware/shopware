@@ -2,13 +2,13 @@
 	{% if page.header.currencies.elements|length > 1 %}
 		<div class="top-bar-nav-item top-bar-currency">
 			{% block base_header_actions_currency_widget_form %}
-			{#TODO: NEXT-2513 - add form functionality#}
 				<form method="post"
+					  action="{{ path('frontend.checkout.configure') }}"
 					  class="currency-form">
 					{% block base_header_actions_currency_widget_content %}
 						<div class="top-bar-select">
 							{% block base_header_actions_currency_widget_form_select %}
-								<select name="__currency"
+								<select name="currencyId"
 										class="top-bar-select-field form-control-sm">
 										{% for currency in page.header.currencies.elements %}
 											<option value="{{ currency.id }}"
@@ -18,6 +18,12 @@
 										{% endfor %}
 								</select>
 							{% endblock %}
+
+							<input name="redirectTo" type="hidden" value="{{ app.request.get('_route') }}"/>
+
+							{% for key, value in app.request.attributes.get('_route_params') %}
+								<input name="redirectParameters[{{ key }}]" type="hidden" value="{{ value }}">
+							{% endfor %}
 
 							{% block base_header_actions_currency_widget_form_select_icon %}
 								<i class="select-arrow-down fas fa-chevron-down"></i>

@@ -23,7 +23,7 @@ use Twig\Environment;
 use Twig\Error\SyntaxError;
 use Twig\Loader\ArrayLoader;
 
-class SeoService implements SeoServiceInterface
+class SeoService
 {
     /**
      * @var Connection

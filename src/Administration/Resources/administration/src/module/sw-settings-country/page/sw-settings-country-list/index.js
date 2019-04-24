@@ -9,6 +9,12 @@ Component.register('sw-settings-country-list', {
         Mixin.getByName('sw-settings-list')
     ],
 
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    },
+
     data() {
         return {
             entityName: 'country',

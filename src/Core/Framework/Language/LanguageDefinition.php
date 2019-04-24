@@ -39,6 +39,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Language\SalesChannel\SalesChannelLanguageDefinition as SalesChannelApiLanguageDefinition;
 use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationDefinition;
 use Shopware\Core\Framework\Search\SearchDocumentDefinition;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationDefinition;
@@ -62,6 +63,11 @@ class LanguageDefinition extends EntityDefinition
     public static function getEntityName(): string
     {
         return 'language';
+    }
+
+    public static function getSalesChannelDecorationDefinition(): string
+    {
+        return SalesChannelApiLanguageDefinition::class;
     }
 
     public static function getCollectionClass(): string

@@ -235,10 +235,12 @@ export default {
             window.localStorage.setItem(this.localStorageItemKey, JSON.stringify(this.currentColumns));
         },
 
-        getHeaderCellClasses(column) {
-            return {
+        getHeaderCellClasses(column, index) {
+            return [{
                 'sw-data-grid__cell--sortable': column.dataIndex
-            };
+            },
+            `sw-data-grid__cell--${index}`
+            ];
         },
 
         getRowClasses(item, itemIndex) {

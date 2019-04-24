@@ -3,28 +3,28 @@
     <sw-container columns="1fr 1fr" gap="0px 30px">
         {% block sw_promotion_code_form_code_type_field %}
         <sw-field type="select"
-                  :label="$tc('sw-promotion.codeForm.labelCodeType')"
-                  :placeholder="$tc('sw-promotion.codeForm.placeholderCodeType')"
+                  :label="$tc('sw-promotion.detail.main.general.labelCodeType')"
+                  :placeholder="$tc('sw-promotion.detail.main.general.placeholderCodeType')"
                   validation="required"
                   v-model="promotion.codeType">
-            <option value="no_code" selected="selected">{{ $tc('sw-promotion.codeForm.codeType.no_code') }}</option>
-            <option value="standard">{{ $tc('sw-promotion.codeForm.codeType.standard') }}</option>
-            <option value="individual">{{ $tc('sw-promotion.codeForm.codeType.individual') }}</option>
+            <option value="no_code" selected="selected">{{ $tc('sw-promotion.detail.main.general.codeType.no_code') }}</option>
+            <option value="standard">{{ $tc('sw-promotion.detail.main.general.codeType.standard') }}</option>
+            <option value="individual">{{ $tc('sw-promotion.detail.main.general.codeType.individual') }}</option>
         </sw-field>
         {% endblock %}
 
         {% block sw_promotion_code_form_code_field %}
         <sw-field type="text"
                   v-if="promotion.codeType === 'standard'"
-                  :label="$tc('sw-promotion.codeForm.labelCode')"
-                  :placeholder="placeholder(promotion, 'code', $tc('sw-promotion.codeForm.placeholderCode'))"
+                  :label="$tc('sw-promotion.detail.main.general.labelCode')"
+                  :placeholder="placeholder(promotion, 'code', $tc('sw-promotion.detail.main.general.placeholderCode'))"
                   v-model="promotion.code">
         </sw-field>
         {% endblock %}
 
         {% block sw_promotion_code_form_individual_codes %}
         <a v-if="promotion.codeType === 'individual'" class="sw-card__quick-link advanced-visibility">
-            {{ $tc('sw-promotion.codeForm.labelIndividualCodeLink') }}
+            {{ $tc('sw-promotion.detail.main.general.labelIndividualCodeLink') }}
             <sw-icon name="default-arrow-simple-right" small></sw-icon>
         </a>
         {% endblock %}

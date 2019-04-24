@@ -17,7 +17,17 @@ Component.register('sw-settings-attribute-set-detail', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
     computed: {
+        identifier() {
+            return this.getInlineSnippet(this.set.config.label) || this.set.name;
+        },
+
         attributeSetStore() {
             return State.getStore('attribute_set');
         }
@@ -40,7 +50,7 @@ Component.register('sw-settings-attribute-set-detail', {
         },
 
         onSave() {
-            const setLabel = this.getInlineSnippet(this.set.config.label) || this.set.name;
+            const setLabel = this.identifier;
             const titleSaveSuccess = this.$tc('sw-settings-attribute.set.detail.titleSaveSuccess');
             const messageSaveSuccess = this.$tc('sw-settings-attribute.set.detail.messageSaveSuccess', 0, {
                 name: setLabel

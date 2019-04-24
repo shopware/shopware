@@ -19,7 +19,17 @@ Component.register('sw-order-detail', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
     computed: {
+        identifier() {
+            return this.order !== null ? this.order.orderNumber : '';
+        },
+
         orderStore() {
             return State.getStore('order');
         },

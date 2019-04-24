@@ -22,10 +22,21 @@ Component.register('sw-settings-salutation-detail', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
     computed: {
+        identifier() {
+            return this.placeholder(this.salutation, 'displayName');
+        },
+
         salutationStore() {
             return State.getStore('salutation');
         },
+
         entityDescription() {
             return this.placeholder(
                 this.salutation,
@@ -33,6 +44,7 @@ Component.register('sw-settings-salutation-detail', {
                 this.$tc('sw-settings-salutation.detail.placeholderNewSalutation')
             );
         },
+
         invalidKeyErrorMessage() {
             if (this.invalidKey && !this.isKeyChecking) {
                 return this.$tc('sw-settings-salutation.detail.invalidKeyMessage');

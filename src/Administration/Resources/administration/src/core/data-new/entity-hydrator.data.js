@@ -4,9 +4,8 @@ import EntityCollection from './entity-collection.data';
 import SearchResult from './search-result.data';
 
 export default class EntityHydrator {
-    constructor(schema, view) {
+    constructor(schema) {
         this.schema = schema;
-        this.view = view;
         this.toOne = ['one_to_one', 'many_to_one'];
         this.toMany = ['one_to_many', 'many_to_many'];
     }
@@ -26,12 +25,11 @@ export default class EntityHydrator {
         return new SearchResult(
             route,
             entityName,
-            collection.elements,
+            collection.items,
             response.data.meta.total,
             criteria,
             context,
-            response.aggregations,
-            this.view
+            response.aggregations
         );
     }
 
@@ -48,7 +46,7 @@ export default class EntityHydrator {
     hydrate(route, entityName, data, context, criteria) {
         this.cache = {};
 
-        const collection = new EntityCollection(route, entityName, context, criteria, this.view);
+        const collection = new EntityCollection(route, entityName, context, criteria);
 
         data.data.forEach((row) => {
             collection.add(
@@ -111,7 +109,7 @@ export default class EntityHydrator {
             return true;
         });
 
-        const entity = new Entity(id, entityName, data, this.view);
+        const entity = new Entity(id, entityName, data);
 
         this.cache[cacheKey] = entity;
 
@@ -157,13 +155,7 @@ export default class EntityHydrator {
             context.apiResourcePath.length
         );
 
-        const collection = new EntityCollection(
-            url,
-            field.entity,
-            context,
-            associationCriteria,
-            this.view
-        );
+        const collection = new EntityCollection(url, field.entity, context, associationCriteria);
 
         if (value.data === null) {
             return collection;

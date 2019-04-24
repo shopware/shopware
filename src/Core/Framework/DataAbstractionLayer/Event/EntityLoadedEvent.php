@@ -82,7 +82,7 @@ class EntityLoadedEvent extends NestedEvent
 
         /** @var string|EntityDefinition $definition */
         foreach ($associations as $definition => $entities) {
-            $events[] = new EntityLoadedEvent($definition, $entities, $this->context, false);
+            $events[] = $this->createNested($definition, $entities);
         }
 
         return new NestedEventCollection($events);
@@ -179,5 +179,10 @@ class EntityLoadedEvent extends NestedEvent
         }
 
         return $events;
+    }
+
+    protected function createNested(string $definition, array $entities): EntityLoadedEvent
+    {
+        return new EntityLoadedEvent($definition, $entities, $this->context, false);
     }
 }

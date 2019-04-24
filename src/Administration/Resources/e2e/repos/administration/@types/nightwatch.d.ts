@@ -2171,6 +2171,16 @@ interface openMainMenuEntryOptions {
     subMenuId?: string
 }
 
+interface clickContextMenuItemOptions {
+    menuActionSelector?: string,
+    scope?: string
+}
+
+interface dragAndDropOptions {
+    xDrag?: number,
+    yDrag?: number
+}
+
 export interface NightwatchCustomCommands {
     /**
      * Finds a form field in the Administration using the provided css selector. It tries to find the element on the page,
@@ -2316,11 +2326,32 @@ export interface NightwatchCustomCommands {
      * browser.clickContextMenuItem('.sw-context-menu-item--danger','.sw-grid-row:first-child')
      * ```
      *
-     * @param {String} menuButtonSelector
      * @param {String} menuOpenSelector
-     * @param {String|null} [scope=null]
+     * @param {Object} [obj=null]
+     * @param {String} obj.menuActionSelector
+     * @param {String} obj.scope
      */
-    clickContextMenuItem(menuButtonSelector: string, menuOpenSelector: string, scope?: string | null): this,
+    clickContextMenuItem(menuOpenSelector: string, obj?: clickContextMenuItemOptions | null): this,
+
+    /**
+     * Drags one element and drops it on another
+     *
+     * Usage:
+     * ```
+     * .dragAndDrop(
+     *      `${page.elements.dataGridColumn}--2 ${page.elements.dataGridColumn}-resize`,
+     *      `${page.elements.dataGridColumn}--2 ${page.elements.contextMenuButton}`,
+     *      { xDrag: 0 }
+     * );
+     * ```
+     *
+     * @param {String} draggableElement
+     * @param {String} elementToDropTo
+     * @param {Object} [obj=null]
+     * @param {String} obj.xDrag
+     * @param {String} obj.xDrop
+     */
+    dragAndDrop(draggableElement: string, elementToDropTo: string, obj?: dragAndDropOptions | null): this,
 
     /**
      * Clears an input field and making sure that the field is in fact empty afterwards
@@ -2329,7 +2360,6 @@ export interface NightwatchCustomCommands {
      * @param {String} type
      */
     clearField(selector: string, type: string): this,
-
 
     /**
      * Checks if an element is existent, without causing the test to fail

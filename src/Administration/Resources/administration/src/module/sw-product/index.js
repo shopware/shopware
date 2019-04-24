@@ -1,13 +1,21 @@
 import { Module } from 'src/core/shopware';
 import './component/sw-product-basic-form';
 import './component/sw-product-category-form';
+import './component/sw-product-variants/sw-product-modal-variant-generation';
+import './component/sw-product-variants/sw-product-modal-delivery';
 import './component/sw-product-price-form';
 import './component/sw-product-settings-form';
 import './component/sw-product-media-form';
 import './component/sw-product-visibility-select';
 import './component/sw-product-visibility-detail';
-import './component/sw-product-variants-configurator-selection';
-import './component/sw-product-variants-overview';
+import './component/sw-product-variants/sw-product-variants-configurator/sw-product-restriction-selection';
+import './component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-selection';
+import './component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-prices';
+import './component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-restrictions';
+import './component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-order';
+import './component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-media';
+import './component/sw-product-variants/sw-product-variants-overview';
+import './component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-price-field';
 import './view/sw-product-detail-base';
 import './view/sw-product-create-base';
 import './view/sw-product-detail-context-prices';
@@ -22,7 +30,7 @@ import enGB from './snippet/en_GB.json';
 
 Module.register('sw-product', {
     type: 'core',
-    name: 'Products',
+    name: 'sw-product.general.mainMenuItemGeneral',
     description: 'sw-product.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
@@ -35,7 +43,6 @@ Module.register('sw-product', {
         'de-DE': deDE,
         'en-GB': enGB
     },
-
 
     routes: {
         index: {

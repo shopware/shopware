@@ -28,4 +28,9 @@ class AssociationField extends Field
     {
         return $this->autoload;
     }
+
+    public function setReferenceClass(string $referenceClass): void
+    {
+        $this->referenceClass = $referenceClass;
+    }
 }

@@ -5,7 +5,6 @@ namespace Shopware\Storefront\PageletController;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
-use Shopware\Storefront\Framework\Controller\XmlHttpRequestableInterface;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Shopware\Storefront\Pagelet\Listing\ListingPageletLoader;
@@ -13,7 +12,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class ListingPageletController extends StorefrontController implements XmlHttpRequestableInterface
+class ListingPageletController extends StorefrontController
 {
     /**
      * @var ListingPageletLoader|PageLoaderInterface
@@ -26,7 +25,7 @@ class ListingPageletController extends StorefrontController implements XmlHttpRe
     }
 
     /**
-     * @Route("/widgets/listing/list/{categoryId}", name="widgets_listing_list", methods={"GET"})
+     * @Route("/widgets/listing/list/{categoryId}", name="widgets_listing_list", methods={"GET"}, defaults={"XmlHttpRequest"=true})
      */
     public function listAction(Request $request, SalesChannelContext $context): JsonResponse
     {
@@ -48,7 +47,7 @@ class ListingPageletController extends StorefrontController implements XmlHttpRe
     }
 
     /**
-     * @Route("/widgets/listing/search", name="widgets_listing_search", methods={"GET"})
+     * @Route("/widgets/listing/search", name="widgets_listing_search", methods={"GET"}, defaults={"XmlHttpRequest"=true})
      */
     public function searchAction(Request $request, SalesChannelContext $context): JsonResponse
     {

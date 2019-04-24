@@ -13,7 +13,14 @@ Component.register('sw-manufacturer-list', {
             manufacturers: [],
             showDeleteModal: false,
             isLoading: false,
+            entityName: 'manufacturer',
             sortBy: 'name'
+        };
+    },
+
+    metaInfo() {
+        return {
+            title: this.$createTitle()
         };
     },
 

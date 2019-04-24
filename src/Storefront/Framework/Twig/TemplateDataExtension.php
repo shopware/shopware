@@ -112,6 +112,9 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
                 'instockinfo' => false,
                 'maxQuantity' => 100,
             ],
+            'listing' => [
+                'allowBuyInListing' => true,
+            ],
         ];
     }
 

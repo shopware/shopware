@@ -241,7 +241,9 @@
         "boxLabelTopseller": "Tipp!",
         "boxLabelNew": "Neu",
         "listingTextSite": "Seite",
-        "listingTextFrom": "von"
+        "listingTextFrom": "von",
+        "boxAddProduct": "In den Warenkorb",
+        "boxProductDetails": "Details"
     },
     "newsletter": {
         "subscriptionPersistedSuccess": "Sie haben gerade unseren Newsletter abonniert.\n Um die Registrierung abzuschließen, suchen Sie in Ihrer E-Mail-Box nach einer Bestätigungsmail.",

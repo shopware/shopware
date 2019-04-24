@@ -44,7 +44,30 @@
                         {% endblock %}
 
                         {% block component_product_box_action %}
-                            {#TODO: NEXT-2675 - add product button#}
+							{% if shopware.config.listing.allowBuyInListing %}
+								<div class="product-btn">
+									{% if not product.variantRestrictions %}
+										{% block component_product_box_action_buy %}
+											<form action="{{ path('sales-channel-api.checkout.frontend.cart.product.add', {'version': 1, 'id': product.id}) }}"
+												  method="post"
+												  data-add-to-cart="true">
+													<button class="btn btn-block buy-widget-submit"
+															title="{{ "listing.boxAddProduct"|trans }}">
+														{{ "listing.boxAddProduct"|trans }}
+													</button>
+											</form>
+										{% endblock %}
+									{% else %}
+										{% block component_product_box_action_detail %}
+											<a href="{{ path('frontend.detail.page', {'productId': product.id}) }}"
+											   class="btn btn-block btn-light"
+											   title="{{ "listing.boxProductDetails"|trans }}">
+												{{ "listing.boxProductDetails"|trans }}
+											</a>
+										{% endblock %}
+									{% endif %}
+								</div>
+							{% endif %}
                         {% endblock %}
                     </div>
                 {% endblock %}

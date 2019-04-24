@@ -606,7 +606,6 @@ class SalesChannelCheckoutControllerTest extends TestCase
 
     public function testUnavailableShippingMethodIsBlock(): void
     {
-        static::markTestSkipped('This tests needs the recalculation of the cart');
         $productId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
@@ -615,10 +614,14 @@ class SalesChannelCheckoutControllerTest extends TestCase
                 'id' => $productId,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9],
+                'stock' => 42,
+                'productNumber' => Uuid::randomHex(),
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
         ], $context);
+
+        $availableShippingMethodId = $this->getAvailableShippingMethodId();
 
         $unavailableShippingMethodId = Uuid::randomHex();
 
@@ -628,17 +631,29 @@ class SalesChannelCheckoutControllerTest extends TestCase
                 'name' => 'Unavailable',
                 'calculation' => 0,
                 'bindShippingfree' => false,
-                'availabilityRules' => [
+                'deliveryTime' => [
+                    'name' => 'test',
+                    'min' => 1,
+                    'max' => 1,
+                    'unit' => 'seconds',
+                ],
+                'prices' => [
                     [
-                        'name' => 'Cart > 50',
-                        'priority' => 100,
-                        'conditions' => [
-                            [
-                                'type' => (new CartAmountRule())->getName(),
-                                'value' => [
-                                    'amount' => 50,
-                                    'operator' => '>',
-                                ],
+                        'currencyId' => Defaults::CURRENCY,
+                        'calculation' => 0,
+                        'quantityStart' => 0,
+                        'price' => 0,
+                    ],
+                ],
+                'availabilityRule' => [
+                    'name' => 'Cart > 50',
+                    'priority' => 100,
+                    'conditions' => [
+                        [
+                            'type' => (new CartAmountRule())->getName(),
+                            'value' => [
+                                'amount' => 50,
+                                'operator' => '>',
                             ],
                         ],
                     ],
@@ -651,6 +666,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $rulesProperty->setValue($ruleLoader, null);
 
         $client = $this->createCart();
+        $this->setShippingMethod($availableShippingMethodId, $client);
         $this->addProduct($client, $productId);
         $content = json_decode($client->getResponse()->getContent(), true);
         static::assertArrayHasKey('errors', $content['data']);
@@ -671,8 +687,6 @@ class SalesChannelCheckoutControllerTest extends TestCase
 
     public function testUnavailablePaymentMethodIsBlock(): void
     {
-        static::markTestSkipped('This tests needs the recalculation of the cart');
-
         $productId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
@@ -681,6 +695,8 @@ class SalesChannelCheckoutControllerTest extends TestCase
                 'id' => $productId,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9],
+                'stock' => 42,
+                'productNumber' => Uuid::randomHex(),
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],

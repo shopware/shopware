@@ -400,9 +400,11 @@ class Migration1536233420BasicData extends MigrationStep
 
         $connection->insert('shipping_method', ['id' => $standard, 'type' => 0, 'active' => 1, 'position' => 1, 'calculation' => 1, 'bind_shippingfree' => 0, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
         $connection->insert('shipping_method_translation', ['shipping_method_id' => $standard, 'language_id' => $languageEN, 'name' => 'Standard', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('shipping_method_price', ['id' => Uuid::randomBytes(), 'shipping_method_id' => $standard, 'calculation' => 0, 'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY), 'price' => 0, 'quantity_start' => 0, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
 
         $connection->insert('shipping_method', ['id' => $express, 'type' => 0, 'active' => 1, 'position' => 2, 'calculation' => 1, 'surcharge_calculation' => 5, 'bind_shippingfree' => 0, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
         $connection->insert('shipping_method_translation', ['shipping_method_id' => $express, 'language_id' => $languageEN, 'name' => 'Express', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('shipping_method_price', ['id' => Uuid::randomBytes(), 'shipping_method_id' => $express, 'calculation' => 0, 'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY), 'price' => 0, 'quantity_start' => 0, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
     }
 
     private function createTax(Connection $connection): void

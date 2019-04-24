@@ -40,7 +40,12 @@ trait BasicTestDataBehaviour
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('shipping_method.repository');
 
-        $shippingMethods = $repository->search(new Criteria(), Context::createDefaultContext())->getEntities();
+        $shippingMethods = $repository->search(
+            (new Criteria())
+                ->addAssociation('prices')
+                ->addFilter(new EqualsFilter('shipping_method.prices.calculation', 0)),
+            Context::createDefaultContext()
+        )->getEntities();
 
         /** @var ShippingMethodEntity $shippingMethod */
         foreach ($shippingMethods as $shippingMethod) {

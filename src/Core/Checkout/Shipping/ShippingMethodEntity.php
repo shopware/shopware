@@ -98,7 +98,7 @@ class ShippingMethodEntity extends Entity
     protected $availabilityRule;
 
     /**
-     * @var string|null
+     * @var string
      */
     protected $availabilityRuleId;
 
@@ -297,7 +297,7 @@ class ShippingMethodEntity extends Entity
         $this->availabilityRule = $availabilityRule;
     }
 
-    public function getAvailabilityRuleId(): ?string
+    public function getAvailabilityRuleId(): string
     {
         return $this->availabilityRuleId;
     }

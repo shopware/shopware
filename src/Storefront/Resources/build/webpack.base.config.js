@@ -119,7 +119,7 @@ const plugins = [
     new CopyPlugin([
         {
             from: getPath('assets/media'),
-            to: 'img',
+            to: 'media',
         },
     ]),
     new MiniCssExtractPlugin({

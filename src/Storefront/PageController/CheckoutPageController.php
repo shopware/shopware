@@ -269,19 +269,15 @@ class CheckoutPageController extends StorefrontController
      */
     public function configure(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
-        try {
-            $route = $request->get('redirectTo', 'frontend.checkout.cart.page');
-            $parameters = $request->get('redirectParameters', []);
+        $route = $request->get('redirectTo', 'frontend.checkout.cart.page');
+        $parameters = $request->get('redirectParameters', []);
 
-            //since the keys "redirectTo" and "redirectParameters" are used to configure this action, the shall not be persisted
-            $data->remove('redirectTo');
-            $data->remove('redirectParameters');
+        //since the keys "redirectTo" and "redirectParameters" are used to configure this action, the shall not be persisted
+        $data->remove('redirectTo');
+        $data->remove('redirectParameters');
 
-            $this->contextSwitcher->update($data, $context);
+        $this->contextSwitcher->update($data, $context);
 
-            return $this->redirectToRoute($route, $parameters);
-        } catch (\Exception $exception) {
-            return $this->forward("Shopware\Storefront\PageController\ErrorPageController::message");
-        }
+        return $this->redirectToRoute($route, $parameters);
     }
 }

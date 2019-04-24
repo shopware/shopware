@@ -126,9 +126,13 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
     public function showHtmlExceptionResponse(GetResponseForExceptionEvent $event): void
     {
-        if ($event->getRequest()->attributes->has(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
+        if ($event->getRequest()->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)) {
             $event->stopPropagation();
-            $content = $this->errorController->error($event->getException(), $this->requestStack->getMasterRequest());
+            $content = $this->errorController->error(
+                $event->getException(),
+                $this->requestStack->getMasterRequest(),
+                $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)
+            );
             $event->setResponse($content);
         }
     }

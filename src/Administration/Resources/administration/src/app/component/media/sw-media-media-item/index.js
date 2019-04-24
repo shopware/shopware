@@ -74,7 +74,7 @@ export default {
                 });
 
                 endInlineEdit();
-                this.$emit('sw-media-item-rename-successful', item);
+                this.$emit('media-item-rename-success', item);
             }).catch(() => {
                 item.isLoading = false;
                 endInlineEdit();

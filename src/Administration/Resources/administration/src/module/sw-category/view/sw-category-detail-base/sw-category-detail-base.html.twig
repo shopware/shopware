@@ -89,8 +89,8 @@
                         :uploadTag="category.id"
                         :allowMultiSelect="false"
                         :defaultFolder="category.getEntityName()"
-                        @sw-media-upload-open-sidebar="openMediaSidebar"
-                        @sw-media-upload-remove-image="removeMediaItem">
+                        @media-upload-sidebar-open="openMediaSidebar"
+                        @media-upload-remove-image="removeMediaItem">
                     </sw-media-upload>
                 {% endblock %}
 

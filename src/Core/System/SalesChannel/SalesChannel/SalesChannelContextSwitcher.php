@@ -46,7 +46,16 @@ class SalesChannelContextSwitcher
     {
         $definition = new DataValidationDefinition('context_switch');
 
-        $parameters = $data->all();
+        $parameters = $data->only(
+            self::SHIPPING_METHOD_ID,
+            self::PAYMENT_METHOD_ID,
+            self::BILLING_ADDRESS_ID,
+            self::SHIPPING_ADDRESS_ID,
+            self::COUNTRY_ID,
+            self::STATE_ID,
+            self::CURRENCY_ID,
+            self::LANGUAGE_ID
+        );
 
         $addressCriteria = new Criteria();
         if ($context->getCustomer()) {

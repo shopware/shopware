@@ -21,12 +21,6 @@ Component.extend('sw-product-create', 'sw-product-detail', {
         };
     },
 
-    metaInfo() {
-        return {
-            title: this.$createTitle()
-        };
-    },
-
     computed: {
         languageStore() {
             return State.getStore('language');

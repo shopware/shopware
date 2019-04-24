@@ -17,7 +17,7 @@ import enGB from './snippet/en_GB.json';
 
 Module.register('sw-customer', {
     type: 'core',
-    name: 'Customers',
+    name: 'sw-customer.general.mainMenuItemGeneral',
     description: 'sw-customer.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',

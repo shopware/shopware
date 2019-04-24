@@ -20,7 +20,7 @@ import enGB from './snippet/en_GB.json';
 
 Module.register('sw-order', {
     type: 'core',
-    name: 'Orders',
+    name: 'sw-order.general.mainMenuItemGeneral',
     description: 'sw-order.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',

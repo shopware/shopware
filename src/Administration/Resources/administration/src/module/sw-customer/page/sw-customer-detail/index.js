@@ -34,7 +34,17 @@ Component.register('sw-customer-detail', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
     computed: {
+        identifier() {
+            return this.customer !== null ? this.salutation(this.customer) : '';
+        },
+
         customerStore() {
             return State.getStore('customer');
         },

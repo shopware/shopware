@@ -1,3 +1,5 @@
+const checkoutPage = require('./../../page-objects/checkout.page-object.js');
+
 let currentProduct = '';
 
 module.exports = {
@@ -32,50 +34,61 @@ module.exports = {
             .assert.containsText('.product-detail-ordernumber', currentProduct.attributes.productNumber);
     },
     'add product to card': (browser) => {
+        const page = checkoutPage(browser);
+
         browser
             .click('.buy-widget-submit')
-            .waitForElementVisible('.js-off-canvas.is-open');
+            .waitForElementVisible(`${page.elements.offCanvasCart}.is-open`);
     },
     'check off-canvas cart and continue': (browser) => {
+        const page = checkoutPage(browser);
+
         browser
-            .assert.containsText('.cart-item-link-name', currentProduct.attributes.name)
-            .assert.containsText('.cart-item-link-price', currentProduct.attributes.price.gross)
+            .waitForElementVisible(page.elements.cartItem)
+            .assert.containsText(`${page.elements.cartItem}-link-name`, currentProduct.attributes.name)
+            .assert.containsText(`${page.elements.cartItem}-link-price`, currentProduct.attributes.price.gross)
             .assert.containsText('.cart-prices-subtotal', currentProduct.attributes.price.gross)
-            .click('.cart-actions .btn-light');
+            .click(`${page.elements.cartActions} ${page.elements.lightButton}`);
     },
     'check card widget': (browser) => {
-        browser
-            .waitForElementVisible('.cart-widget')
-            .assert.containsText('.cart-widget-total', currentProduct.attributes.price.gross)
-            .assert.containsText('.cart-widget-badge', '1');
+        const page = checkoutPage(browser);
+
+        browser.expect.element(`${page.elements.cardWidget}-total`).to.have.text.that.contains(currentProduct.attributes.price.gross);
+        browser.expect.element(`${page.elements.cardWidget}-badge`).to.have.text.that.contains('1');
     },
     'check checkout page and continue': (browser) => {
+        const page = checkoutPage(browser);
+
         browser
             .waitForElementVisible('.card-body')
-            .assert.containsText('.cart-item-label', currentProduct.attributes.name)
-            .assert.containsText('.cart-item-unit-price', currentProduct.attributes.price.gross)
+            .assert.containsText(`${page.elements.cartItem}-label`, currentProduct.attributes.name)
+            .assert.containsText(`${page.elements.cartItem}-unit-price`, currentProduct.attributes.price.gross)
             .assert.containsText('.checkout-summary-value', currentProduct.attributes.price.gross)
-            .click('.checkout-sidebar .btn-primary');
+            .click(`.checkout-sidebar ${page.elements.primaryButton}`);
     },
     'log in customer': (browser) => {
+        const page = checkoutPage(browser);
+
         browser
             .waitForElementVisible('.checkout.is-register')
             .click('.login-collapse-toggle')
             .waitForElementVisible('.login-form')
             .fillField('#loginMail', 'test@example.com')
             .fillField('#loginPassword', 'shopware')
-            .click('.login-submit .btn-primary');
+            .click(`.login-submit ${page.elements.primaryButton}`);
     },
-    'check checkout finish page': (browser) => {
-        browser.expect.element('.card-title').to.have.text.that.contains('Terms, conditions and cancellation policy');
+    'check checkout confirm page': (browser) => {
+        const page = checkoutPage(browser);
+
+        browser.expect.element(page.elements.cardTitle).to.have.text.that.contains('Terms, conditions and cancellation policy');
 
         browser
             .waitForElementVisible('.confirm-address')
             .assert.containsText('.confirm-address', 'Pep Eroni')
             .getLocationInView('.checkout-main')
             .waitForElementVisible('.checkout-main')
-            .assert.containsText('.cart-item-label', currentProduct.attributes.name)
-            .assert.containsText('.cart-item-total-price', currentProduct.attributes.price.gross)
+            .assert.containsText(`${page.elements.cartItem}-label`, currentProduct.attributes.name)
+            .assert.containsText(`${page.elements.cartItem}-total-price`, currentProduct.attributes.price.gross)
             .assert.containsText('.checkout-summary-item:nth-of-type(1) .checkout-summary-value', currentProduct.attributes.price.gross)
             .assert.containsText('.checkout-summary-total .checkout-summary-value', currentProduct.attributes.price.gross)
             .click('#confirmFormSubmit');
@@ -86,7 +99,7 @@ module.exports = {
             .moveToElement('.confirm-terms label', 1, 1).mouseButtonClick('left')
             .getLocationInView('#confirmFormSubmit')
             .click('#confirmFormSubmit')
-            .waitForElementVisible('.nav-main');
+            .expect.element('.finish-header').to.have.text.that.contains('Thank you for your order with Shopware Storefront!');
     },
     after: (browser) => {
         browser.end();

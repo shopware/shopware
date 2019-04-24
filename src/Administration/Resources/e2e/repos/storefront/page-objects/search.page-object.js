@@ -1,9 +1,15 @@
-class SearchPageObject {
+const GeneralPageObject = require('./general.page-object');
+
+class SearchPageObject extends GeneralPageObject {
     constructor(browser) {
+        super(browser);
         this.browser = browser;
 
         this.elements = {
-            searchInput: '.form-inline input[type="text"]'
+            ...this.elements,
+            ...{
+                searchInput: '.form-inline input[type="text"]'
+            }
         };
     }
 }

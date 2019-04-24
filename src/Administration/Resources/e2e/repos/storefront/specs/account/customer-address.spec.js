@@ -1,3 +1,5 @@
+const accountPage = require('./../../page-objects/account.page-object.js');
+
 module.exports = {
     '@tags': ['account', 'address'],
     before: (browser, done) => {
@@ -6,39 +8,57 @@ module.exports = {
         });
     },
     'find login form': (browser) => {
+        const page = accountPage(browser);
+
         browser
             .click('#accountWidget')
-            .waitForElementVisible('.js-account-widget-dropdown')
+            .waitForElementVisible(page.elements.accountMenu)
             .click('.account-widget-register a')
             .assert.urlContains('/account/login');
     },
     'login as customer': (browser) => {
-        browser
-            .waitForElementVisible('.register-card')
-            .fillField('#loginMail', 'test@example.com')
-            .fillField('#loginPassword', 'shopware')
-            .click('.login-submit .btn-primary');
-    },
-    'change street in address': (browser) => {
-        browser
-            .waitForElementVisible('.account')
-            .waitForElementVisible('.account-sidebar .list-group-item:nth-of-type(3)')
-            .click('.account-sidebar .list-group-item:nth-of-type(3)')
-            .waitForElementVisible('.account-address')
-            .click('.address-item-card .btn-light')
-            .waitForElementVisible('.account-address-form')
-            .fillField('#addressAddressStreet', '12th Ebbinghoff Street', true)
-            .click('.address-form-submit.btn-primary')
-            .expect.element('.alert-success').to.have.text.that.contains('Address saved successfully');
-    },
-    'add new address': (browser) => {
-        browser
-            .waitForElementVisible('.account-address')
-            .click('.address-item-create .btn-primary')
-            .expect.element('.account-welcome').to.have.text.that.contains('Create a new Address');
+        const page = accountPage(browser);
 
         browser
-            .waitForElementVisible('.account-address-form')
+            .waitForElementVisible(page.elements.registerCard)
+            .fillField('#loginMail', 'test@example.com')
+            .fillField('#loginPassword', 'shopware')
+            .click(`.login-submit ${page.elements.primaryButton}`);
+    },
+    'verify first address in overview': (browser) => {
+        const page = accountPage(browser);
+
+        browser
+            .waitForElementVisible(page.elements.accountRoot)
+            .waitForElementVisible(page.elements.overViewBillingAddress)
+            .assert.containsText(`${page.elements.overViewBillingAddress} ${page.elements.cardTitle}`, 'Primary billing address')
+            .assert.containsText(`${page.elements.overViewBillingAddress} address`, 'Pep Eroni')
+            .assert.containsText(`${page.elements.overViewShippingAddress} p`, 'Equal to the billing address');
+    },
+    'change street in address': (browser) => {
+        const page = accountPage(browser);
+
+        browser
+            .waitForElementVisible(page.elements.accountRoot)
+            .waitForElementVisible(`${page.elements.accountSidebar} .list-group-item:nth-of-type(3)`)
+            .click(`${page.elements.accountSidebar} .list-group-item:nth-of-type(3)`)
+            .waitForElementVisible(page.elements.addressRoot)
+            .click(`.address-item-card ${page.elements.lightButton}`)
+            .waitForElementVisible(page.elements.addressForm)
+            .fillField('#addressAddressStreet', '12th Ebbinghoff Street', true)
+            .click(`.address-form-submit${page.elements.primaryButton}`)
+            .expect.element(page.elements.alertSuccess).to.have.text.that.contains('Address saved successfully');
+    },
+    'add new address': (browser) => {
+        const page = accountPage(browser);
+
+        browser
+            .waitForElementVisible(page.elements.addressRoot)
+            .click(`.address-item-create ${page.elements.primaryButton}`)
+            .expect.element(page.elements.accountHeadline).to.have.text.that.contains('Create a new Address');
+
+        browser
+            .waitForElementVisible(page.elements.addressForm)
             .fillSelectField('#addresspersonalSalutation', 'Mr.')
             .fillField('#addresspersonalFirstName', 'Max')
             .fillField('#addresspersonalLastName', 'Monstermann')
@@ -46,23 +66,39 @@ module.exports = {
             .fillField('#addressAddressZipcode', '14432')
             .fillField('#addressAddressCity', 'Somewhere')
             .fillSelectField('#addressAddressCountry', 'Germany')
-            .click('.address-form-submit.btn-primary')
-            .waitForElementVisible('.address-box:nth-of-type(1)')
-            .expect.element('.alert-success').to.have.text.that.contains('Address saved successfully');
+            .click(`.address-form-submit${page.elements.primaryButton}`)
+            .expect.element(page.elements.alertSuccess).to.have.text.that.contains('Address saved successfully');
     },
     'check main address to be both shipping and billing address': (browser) => {
         browser
-            .expect.element('.address-front').to.have.text.that.contains('Default shipping address');
-        browser.expect.element('.address-front').to.have.text.that.contains('Default billing address');
+            .expect.element('.default-shipping-address').to.have.text.that.contains('Default shipping address');
+        browser.expect.element('.default-billing-address').to.have.text.that.contains('Default billing address');
     },
     'set new address as shipping address': (browser) => {
+        const page = accountPage(browser);
+
         browser
-            .waitForElementVisible('.address-box:not(.address-front)')
+            .waitForElementVisible(`${page.elements.addressBox}:not(.address-front)`)
             .click(
-                '.address-box:not(.address-front) .address-actions-set-defaults form:nth-of-type(1) .btn'
+                `${page.elements.addressBox}:not(.address-front) .address-actions-set-defaults form:nth-of-type(1) .btn`
             )
-            .expect.element('.alert-success').to.have.text.that.contains('Changed default address successfully.');
-        browser.waitForElementNotPresent('.address-box:not(.address-front)');
+            .expect.element(page.elements.alertSuccess).to.have.text.that.contains('Changed default address successfully.');
+        browser
+            .waitForElementNotPresent(`${page.elements.addressBox}:not(.address-front)`)
+            .assert.containsText('.default-billing-address', 'Pep Eroni')
+            .assert.containsText('.default-shipping-address', 'Max Monstermann');
+    },
+    'verify addresses in account index': (browser) => {
+        const page = accountPage(browser);
+
+        browser
+            .waitForElementVisible(`${page.elements.accountSidebar} .list-group-item:nth-of-type(1)`)
+            .click(`${page.elements.accountSidebar} .list-group-item:nth-of-type(1)`)
+            .waitForElementVisible(page.elements.accountRoot)
+            .waitForElementVisible(page.elements.overViewBillingAddress)
+            .assert.containsText(`${page.elements.overViewBillingAddress} .card-title`, 'Primary billing address')
+            .assert.containsText(`${page.elements.overViewBillingAddress} address`, 'Pep Eroni')
+            .assert.containsText(`${page.elements.overViewShippingAddress} address`, 'Max Monstermann');
     },
     after: (browser) => {
         browser.end();

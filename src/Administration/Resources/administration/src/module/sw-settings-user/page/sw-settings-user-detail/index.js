@@ -12,10 +12,6 @@ Component.register('sw-settings-user-detail', {
         Mixin.getByName('notification')
     ],
 
-    props: {
-
-    },
-
     data() {
         return {
             currentUser: null,
@@ -29,7 +25,17 @@ Component.register('sw-settings-user-detail', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
     computed: {
+        identifier() {
+            return this.username;
+        },
+
         userStore() {
             return State.getStore('user');
         },

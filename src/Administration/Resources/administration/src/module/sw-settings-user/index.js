@@ -12,7 +12,7 @@ import enGB from './snippet/en_GB.json';
 Module.register('sw-settings-user', {
     type: 'core',
     flag: NEXT681,
-    name: 'User',
+    name: 'sw-settings-user.general.mainMenuItemGeneral',
     description: 'sw-settings-user.general.mainMenuItemGeneral',
     version: '1.0.0',
     targetVersion: '1.0.0',

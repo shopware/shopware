@@ -11,17 +11,20 @@ Component.register('sw-settings-user-list', {
         Mixin.getByName('notification')
     ],
 
-    props: {
-
-    },
-
     data() {
         return {
             currentUser: null,
+            total: 0,
             user: [],
             term: this.$route.query ? this.$route.query.searchTerm : '',
             isLoading: false,
             itemToDelete: null
+        };
+    },
+
+    metaInfo() {
+        return {
+            title: this.$createTitle()
         };
     },
 
@@ -90,6 +93,7 @@ Component.register('sw-settings-user-list', {
 
             return this.userStore.getList(params).then((response) => {
                 this.user = response.items;
+                this.total = response.total;
                 this.isLoading = false;
 
                 return this.user;

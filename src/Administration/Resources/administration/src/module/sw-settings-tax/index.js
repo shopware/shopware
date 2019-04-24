@@ -10,7 +10,7 @@ import enGB from './snippet/en_GB.json';
 
 Module.register('sw-settings-tax', {
     type: 'core',
-    name: 'Tax settings',
+    name: 'sw-settings-tax.general.mainMenuItemGeneral',
     description: 'Tax section in the settings module',
     color: '#9AA8B5',
     icon: 'default-action-settings',

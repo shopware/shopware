@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Pricing;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
@@ -42,19 +41,6 @@ class PriceRuleCollection extends EntityCollection
         return $this->filter(function (PriceRuleEntity $priceRule) use ($id) {
             return $priceRule->getRuleId() === $id;
         });
-    }
-
-    public function getPricesForContext(Context $context): ?self
-    {
-        foreach ($context->getRules() as $ruleId) {
-            $rules = $this->filterByRuleId($ruleId);
-
-            if ($rules->count() > 0) {
-                return $rules;
-            }
-        }
-
-        return null;
     }
 
     protected function getExpectedClass(): string

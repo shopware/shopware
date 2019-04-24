@@ -12,6 +12,7 @@ use Shopware\Core\Content\Product\Cart\Struct\ProductFetchDefinition;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\SalesChannel\ProductPriceDefinitionBuilderInterface;
 use Shopware\Core\Framework\Struct\StructCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -25,9 +26,15 @@ class ProductCollector implements CollectorInterface
      */
     private $productGateway;
 
-    public function __construct(ProductGatewayInterface $productGateway)
+    /**
+     * @var ProductPriceDefinitionBuilderInterface
+     */
+    private $priceDefinitionBuilder;
+
+    public function __construct(ProductGatewayInterface $productGateway, ProductPriceDefinitionBuilderInterface $priceDefinitionBuilder)
     {
         $this->productGateway = $productGateway;
+        $this->priceDefinitionBuilder = $priceDefinitionBuilder;
     }
 
     public function prepare(StructCollection $definitions, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
@@ -141,8 +148,9 @@ class ProductCollector implements CollectorInterface
 
             if (!$lineItem->getPriceDefinition() && !$lineItem->getPrice()) {
                 $lineItem->setPriceDefinition(
-                    $product->getPriceDefinitionForQuantity(
-                        $context->getContext(),
+                    $this->priceDefinitionBuilder->buildPriceDefinitionForQuantity(
+                        $product,
+                        $context,
                         $lineItem->getQuantity()
                     )
                 );

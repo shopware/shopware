@@ -62,11 +62,12 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CollectorInterface;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\System\SalesChannel\CheckoutContext;
 use Shopware\Core\Content\Product\Cart\Struct\ProductFetchDefinition;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\SalesChannel\ProductPriceDefinitionBuilderInterface;
 use Shopware\Core\Framework\Struct\StructCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ProductCollector implements CollectorInterface
 {
@@ -77,13 +78,19 @@ class ProductCollector implements CollectorInterface
      * @var ProductGatewayInterface
      */
     private $productGateway;
+    
+    /**
+      * @var ProductPriceDefinitionBuilderInterface
+      */
+    private $priceDefinitionBuilder;
 
-    public function __construct(ProductGatewayInterface $productGateway)
+    public function __construct(ProductGatewayInterface $productGateway, ProductPriceDefinitionBuilderInterface $priceDefinitionBuilder)
     {
         $this->productGateway = $productGateway;
+        $this->priceDefinitionBuilder = $priceDefinitionBuilder;
     }
 
-    public function prepare(StructCollection $definitions, Cart $cart, CheckoutContext $context): void
+    public function prepare(StructCollection $definitions, Cart $cart, SalesChannelContext $context): void
     {
         // get all line items with type 'product' (including children)
         $lineItems = array_filter(
@@ -115,7 +122,7 @@ class ProductCollector implements CollectorInterface
         $definitions->add(new ProductFetchDefinition($ids));
     }
 
-    public function collect(StructCollection $fetchDefinitions, StructCollection $data, Cart $cart, CheckoutContext $context): void
+    public function collect(StructCollection $fetchDefinitions, StructCollection $data, Cart $cart, SalesChannelContext $context): void
     {
         $productDefinitions = $fetchDefinitions->filterInstance(ProductFetchDefinition::class);
 
@@ -141,7 +148,7 @@ class ProductCollector implements CollectorInterface
         $data->add($products, self::DATA_KEY);
     }
 
-    public function enrich(StructCollection $data, Cart $cart, CheckoutContext $context): void
+    public function enrich(StructCollection $data, Cart $cart, SalesChannelContext $context): void
     {
         // skip if not data is given
         if (!$data->has(self::DATA_KEY)) {
@@ -204,8 +211,9 @@ class ProductCollector implements CollectorInterface
 
             if (!$lineItem->getPriceDefinition() && !$lineItem->getPrice()) {
                 $lineItem->setPriceDefinition(
-                    $product->getPriceDefinitionForQuantity(
-                        $context->getContext(),
+                    $this->priceDefinitionBuilder->getPriceDefinitionForQuantity(
+                        $product,
+                        $context,
                         $lineItem->getQuantity()
                     )
                 );

@@ -8,6 +8,7 @@
         <service id="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductSubscriber">
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductPriceDefinitionBuilderInterface"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\ProductDefinition">
@@ -146,6 +147,10 @@
 
         <service id="Shopware\Core\Content\Product\Cms\Type\ProductSliderTypeDataResolver">
             <tag name="shopware.cms.data_resolver"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\ProductPriceDefinitionBuilderInterface"
+                 class="Shopware\Core\Content\Product\SalesChannel\ProductPriceDefinitionBuilder">
         </service>
     </services>
 </container>                

@@ -36,17 +36,13 @@ class ProductPriceCollection extends PriceRuleCollection
         });
     }
 
-    public function getQuantityPrice(int $quantity): ProductPriceEntity
+    public function getQuantityPrices(int $quantity): self
     {
-        foreach ($this->getIterator() as $price) {
+        return $this->filter(function (ProductPriceEntity $price) use ($quantity) {
             $end = $price->getQuantityEnd() ?? $quantity + 1;
 
-            if ($price->getQuantityStart() <= $quantity && $end >= $quantity) {
-                return $price;
-            }
-        }
-
-        throw new \RuntimeException(sprintf('CalculatedPrice for quantity %s not found', $quantity));
+            return $price->getQuantityStart() <= $quantity && $end >= $quantity;
+        });
     }
 
     protected function getExpectedClass(): string

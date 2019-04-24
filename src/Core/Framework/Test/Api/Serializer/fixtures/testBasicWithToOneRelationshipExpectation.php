@@ -114,6 +114,12 @@ return [
                     'related' => '/api/media/548faa1f7846436c85944f4aea792d96/product-configurator-settings',
                 ],
             ],
+            'orderLineItems' => [
+                'data' => [],
+                'links' => [
+                    'related' => '/api/media/548faa1f7846436c85944f4aea792d96/order-line-items',
+                ],
+            ],
         ],
         'meta' => null,
     ],

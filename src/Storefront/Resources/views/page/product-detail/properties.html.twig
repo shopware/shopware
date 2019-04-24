@@ -1,13 +1,7 @@
 {% block page_product_detail_properties_inner %}
-    {% set propertyItems = page.product.properties.elements %}
-    {% set propertyGroups = [] %}
+    {% set propertyItems = page.product.sortedProperties.elements %}
 
     {% if propertyItems|length > 0 %}
-{#TODO: NEXT-1923 - remove group sorting from template #}
-        {% for property in propertyItems if property.groupId not in propertyGroups %}
-            {% set propertyGroups = propertyGroups|merge({ (property.groupId) : property.group.name }) %}
-        {% endfor %}
-
         <div class="product-detail-properties">
             {% block page_product_detail_properties_container %}
                 <div class="row product-detail-properties-container">
@@ -15,19 +9,18 @@
                         {% block page_product_detail_properties_table %}
                             <table class="table table-striped table-bordered properties-table">
                                 <tbody>
-                                    {% for key, groupName in propertyGroups|sort %}
+                                    {# @var product \Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity #}
+                                    {% for group in page.product.sortedProperties %}
                                         {% block page_product_detail_properties_table_row %}
                                             <tr class="properties-row">
                                                 {% block page_product_detail_properties_item_label %}
-                                                    <th class="properties-label">{{ groupName|e }}:</th>
+                                                    <th class="properties-label">{{ group.translated.name|e }}:</th>
                                                 {% endblock %}
                                                 {% block page_product_detail_properties_item_value %}
                                                     <td class="properties-value">{% spaceless %}
-                                                        {% for property in propertyItems %}
-                                                            {% if key == property.groupId %}
-                                                                {% set i = ( i | default(0) ) + 1 %}
-                                                                <span>{% if i > 1 %}, {% endif %}{{ property.name|e }}</span>
-                                                            {% endif %}
+                                                        {% for option in group.options %}
+                                                            {% set i = ( i | default(0) ) + 1 %}
+                                                            <span>{% if i > 1 %}, {% endif %}{{ option.translated.name|e }}</span>
                                                         {% endfor %}
                                                     {% endspaceless %}</td>
                                                 {% endblock %}

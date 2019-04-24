@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product\SalesChannel;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Property\PropertyGroupCollection;
 
 class SalesChannelProductEntity extends ProductEntity
 {
@@ -24,6 +25,11 @@ class SalesChannelProductEntity extends ProductEntity
      * @var CalculatedPrice
      */
     protected $calculatedPrice;
+
+    /**
+     * @var PropertyGroupCollection|null
+     */
+    protected $sortedProperties;
 
     public function isAvailable(): bool
     {
@@ -62,5 +68,15 @@ class SalesChannelProductEntity extends ProductEntity
     public function setCalculatedPrice(CalculatedPrice $calculatedPrice): void
     {
         $this->calculatedPrice = $calculatedPrice;
+    }
+
+    public function getSortedProperties(): ?PropertyGroupCollection
+    {
+        return $this->sortedProperties;
+    }
+
+    public function setSortedProperties(?PropertyGroupCollection $sortedProperties): void
+    {
+        $this->sortedProperties = $sortedProperties;
     }
 }

@@ -54,7 +54,7 @@ class NewsletterReceiverDefinition extends EntityDefinition
 
             new ManyToManyAssociationField('tags', TagDefinition::class, NewsletterReceiverTagDefinition::class, 'newsletter_receiver_id', 'tag_id'),
 
-            (new FkField('salutation_id', 'salutationId', SalutationDefinition::class))->addFlags(new Required()),
+            new FkField('salutation_id', 'salutationId', SalutationDefinition::class),
             new ManyToOneAssociationField('salutation', 'salutation_id', SalutationDefinition::class, 'id', true),
 
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new Required()),

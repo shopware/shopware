@@ -2,10 +2,10 @@ import { Component, Mixin, State } from 'src/core/shopware';
 import LocalStore from 'src/core/data/LocalStore';
 import EntityCollection from 'src/core/data-new/entity-collection.data';
 import Criteria from 'src/core/data-new/criteria.data';
-import template from './sw-settings-newsletter-receiver-list.twig';
-import './sw-settings-newsletter-receiver-list.scss';
+import template from './sw-newsletter-receiver-list.twig';
+import './sw-newsletter-receiver-list.scss';
 
-Component.register('sw-settings-newsletter-receiver-list', {
+Component.register('sw-newsletter-receiver-list', {
     template,
 
     inject: [
@@ -32,7 +32,7 @@ Component.register('sw-settings-newsletter-receiver-list', {
     },
 
     created() {
-        this.createComponent();
+        this.createdComponent();
     },
 
     computed: {
@@ -53,13 +53,12 @@ Component.register('sw-settings-newsletter-receiver-list', {
         },
 
         tagAssociationStore() {
-            // return new EntityCollection('/tag', 'tag', this.context, new Criteria());
             return new LocalStore([], 'id', 'name');
         }
     },
 
     methods: {
-        createComponent() {
+        createdComponent() {
             this.tagCollection = new EntityCollection('/tag', 'tag', this.context, new Criteria());
 
             const criteria = new Criteria(1, 100);
@@ -95,11 +94,14 @@ Component.register('sw-settings-newsletter-receiver-list', {
         handleTagFilter(filter) {
             if (filter.length === 0) {
                 delete this.internalFilters.tags;
-                this.getList();
                 return;
             }
 
-            this.internalFilters.tags = Criteria.equalsAny('tags.id', filter);
+            const ids = filter.map((item) => {
+                return item.id;
+            });
+
+            this.internalFilters.tags = Criteria.equalsAny('tags.id', ids);
         },
 
         handleBooleanFilter(filter) {
@@ -153,44 +155,44 @@ Component.register('sw-settings-newsletter-receiver-list', {
             return [{
                 property: 'email',
                 dataIndex: 'email',
-                label: this.$tc('sw-settings-newsletter-receiver.list.email'),
+                label: this.$tc('sw-newsletter-receiver.list.email'),
                 allowResize: true,
                 align: 'left',
                 inlineEdit: 'string'
             }, {
                 property: 'status',
                 dataIndex: 'status',
-                label: this.$tc('sw-settings-newsletter-receiver.list.status'),
+                label: this.$tc('sw-newsletter-receiver.list.status'),
                 allowResize: true,
                 align: 'left'
             }, {
                 property: 'firstName',
                 dataIndex: 'firstName',
-                label: this.$tc('sw-settings-newsletter-receiver.list.firstName'),
+                label: this.$tc('sw-newsletter-receiver.list.firstName'),
                 allowResize: true,
                 align: 'left'
             }, {
                 property: 'lastName',
                 dataIndex: 'lastName',
-                label: this.$tc('sw-settings-newsletter-receiver.list.lastName'),
+                label: this.$tc('sw-newsletter-receiver.list.lastName'),
                 allowResize: true,
                 align: 'left'
             }, {
                 property: 'zipCode',
                 dataIndex: 'zipCode',
-                label: this.$tc('sw-settings-newsletter-receiver.list.zipCode'),
+                label: this.$tc('sw-newsletter-receiver.list.zipCode'),
                 allowResize: true,
                 align: 'right'
             }, {
                 property: 'city',
                 dataIndex: 'city',
-                label: this.$tc('sw-settings-newsletter-receiver.list.city'),
+                label: this.$tc('sw-newsletter-receiver.list.city'),
                 allowResize: true,
                 align: 'left'
             }, {
                 property: 'street',
                 dataIndex: 'street',
-                label: this.$tc('sw-settings-newsletter-receiver.list.street'),
+                label: this.$tc('sw-newsletter-receiver.list.street'),
                 allowResize: true,
                 align: 'left'
             }];

@@ -1,0 +1,13 @@
+{% block sw_newsletter_receiver_boolean_filter %}
+    <div class="sw-newsletter-receiver-boolean-filter">
+        {% block sw_newsletter_receiver_boolean_filter_field %}
+            <slot name="field">
+                <sw-field type="switch"
+                          :name="id"
+                          @change="onChange"
+                          :label="label">
+                </sw-field>
+            </slot>
+        {% endblock %}
+    </div>
+{% endblock %}

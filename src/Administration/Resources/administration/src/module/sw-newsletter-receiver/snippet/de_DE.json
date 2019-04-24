@@ -1,5 +1,5 @@
 {
-  "sw-settings-newsletter-receiver": {
+  "sw-newsletter-receiver": {
     "general": {
       "description": "Das Modul zur Verwaltung von Newsletter-Empfängern.",
       "information": "Informationen",

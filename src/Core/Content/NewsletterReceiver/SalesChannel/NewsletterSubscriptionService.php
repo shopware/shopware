@@ -52,7 +52,7 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
 
     public function subscribe(DataBag $dataBag, SalesChannelContext $context): void
     {
-        $validator = $this->getOptInValidator($context);
+        $validator = $this->getOptInValidator();
         $this->validator->validate($dataBag->all(), $validator);
 
         $data = $this->completeData($dataBag->all(), $context);
@@ -97,7 +97,7 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
     public function unsubscribe(DataBag $dataBag, SalesChannelContext $context): void
     {
         $data = $dataBag->all();
-        $data['id'] = $this->getNewsletterReceiverId($data['email'], $context->getContext());
+        $data['id'] = $this->getNewsletterReceiverId($data['email'], $context);
 
         if (empty($data['id'])) {
             throw new NewsletterReceiverNotFoundException('email', $data['email']);
@@ -154,7 +154,7 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
 
     private function completeData(array $data, SalesChannelContext $context): array
     {
-        $id = $this->getNewsletterReceiverId($data['email'], $context->getContext());
+        $id = $this->getNewsletterReceiverId($data['email'], $context);
 
         $data['id'] = $id ?: Uuid::randomHex();
         $data['languageId'] = $context->getContext()->getLanguageId();
@@ -171,16 +171,16 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
         return $data;
     }
 
-    private function getNewsletterReceiverId(string $email, Context $context): ?string
+    private function getNewsletterReceiverId(string $email, SalesChannelContext $context): ?string
     {
         $criteria = new Criteria();
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND),
             new EqualsFilter('email', $email),
-            new EqualsFilter('salesChannelId', $context->getSalesChannelId())
+            new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId())
         );
         $criteria->setLimit(1);
 
-        $ids = $this->newsletterReceiverRepository->searchIds($criteria, $context)->getIds();
+        $ids = $this->newsletterReceiverRepository->searchIds($criteria, $context->getContext())->getIds();
 
         return array_shift(
             $ids

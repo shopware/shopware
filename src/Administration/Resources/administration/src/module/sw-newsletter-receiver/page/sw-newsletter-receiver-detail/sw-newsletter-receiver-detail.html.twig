@@ -1,32 +1,32 @@
-{% block sw_settings_newsletter_receiver_detail %}
-    <sw-page class="sw-settings-newsletter-receiver-detail">
-        {% block sw_settings_newsletter_receiver_detail_header %}
+{% block sw_newsletter_receiver_detail %}
+    <sw-page class="sw-newsletter-receiver-detail">
+        {% block sw_newsletter_receiver_detail_header %}
             <template slot="smart-bar-header">
                 <h2 v-if="newsletterReceiver">{{ newsletterReceiver.email }}</h2>
             </template>
         {% endblock %}
 
-        {% block sw_settings_newsletter_receiver_detail_actions %}
+        {% block sw_newsletter_receiver_detail_actions %}
             <template slot="smart-bar-actions">
-                {% block sw_settings_newsletter_receiver_detail_actions_edit %}
-                    <sw-button class="sw-settings-newsletter-receiver-detail__open-edit-mode-action"
+                {% block sw_newsletter_receiver_detail_actions_edit %}
+                    <sw-button class="sw-newsletter-receiver-detail__open-edit-mode-action"
                                variant="primary"
                                :disabled="isLoading"
                                @click="onClickSave">
-                        {{ $tc('sw-settings-newsletter-receiver.general.buttonSave') }}
+                        {{ $tc('sw-newsletter-receiver.general.buttonSave') }}
                     </sw-button>
                 {% endblock %}
             </template>
         {% endblock %}
 
-        {% block sw_settings_newsletter_receiver_detail_content %}
+        {% block sw_newsletter_receiver_detail_content %}
             <sw-card-view slot="content">
-                <sw-card v-if="newsletterReceiver" :title="$tc('sw-settings-newsletter-receiver.general.information')">
-                    {% block sw_settings_newsletter_receiver_detail_form %}
+                <sw-card v-if="newsletterReceiver" :title="$tc('sw-newsletter-receiver.general.information')">
+                    {% block sw_newsletter_receiver_detail_form %}
 
-                        {% block sw_settings_newsletter_receiver_detail_form_salutation %}
+                        {% block sw_newsletter_receiver_detail_form_salutation %}
                             <sw-entity-single-select
-                                    :label="$tc('sw-settings-newsletter-receiver.general.salutation')"
+                                    :label="$tc('sw-newsletter-receiver.general.salutation')"
                                     :value="newsletterReceiver.salutationId"
                                     labelProperty="displayName"
                                     entity="salutation">
@@ -34,63 +34,65 @@
                         {% endblock %}
 
                         <sw-container columns="1fr 1fr" gap="10px">
-                            {% block sw_settings_newsletter_receiver_detail_form_first_name %}
-                                <sw-field :label="$tc('sw-settings-newsletter-receiver.list.firstName')"
+                            {% block sw_newsletter_receiver_detail_form_first_name %}
+                                <sw-field :label="$tc('sw-newsletter-receiver.list.firstName')"
                                           v-model="newsletterReceiver.firstName">
                                 </sw-field>
                             {% endblock %}
 
-                            {% block sw_settings_newsletter_receiver_detail_form_last_name %}
-                                <sw-field :label="$tc('sw-settings-newsletter-receiver.list.lastName')"
+                            {% block sw_newsletter_receiver_detail_form_last_name %}
+                                <sw-field :label="$tc('sw-newsletter-receiver.list.lastName')"
                                           v-model="newsletterReceiver.lastName">
                                 </sw-field>
                             {% endblock %}
                         </sw-container>
 
-                        {% block sw_settings_newsletter_receiver_detail_form_email %}
-                            <sw-field :label="$tc('sw-settings-newsletter-receiver.list.email')"
+                        {% block sw_newsletter_receiver_detail_form_email %}
+                            <sw-field :label="$tc('sw-newsletter-receiver.list.email')"
                                       v-model="newsletterReceiver.email">
                             </sw-field>
                         {% endblock %}
 
-                        {% block sw_settings_newsletter_receiver_detail_form_street %}
-                            <sw-field :label="$tc('sw-settings-newsletter-receiver.list.street')"
+                        {% block sw_newsletter_receiver_detail_form_street %}
+                            <sw-field :label="$tc('sw-newsletter-receiver.list.street')"
                                       v-model="newsletterReceiver.street">
                             </sw-field>
                         {% endblock %}
 
                          <sw-container columns="1fr 1fr" gap="10px">
-                            {% block sw_settings_newsletter_receiver_detail_form_zip_code %}
-                                <sw-field :label="$tc('sw-settings-newsletter-receiver.list.zipCode')"
+                            {% block sw_newsletter_receiver_detail_form_zip_code %}
+                                <sw-field :label="$tc('sw-newsletter-receiver.list.zipCode')"
                                           v-model="newsletterReceiver.zipCode">
                                 </sw-field>
                             {% endblock %}
 
-                            {% block sw_settings_newsletter_receiver_detail_form_city %}
-                                <sw-field :label="$tc('sw-settings-newsletter-receiver.list.city')"
+                            {% block sw_newsletter_receiver_detail_form_city %}
+                                <sw-field :label="$tc('sw-newsletter-receiver.list.city')"
                                           v-model="newsletterReceiver.city">
                                 </sw-field>
                             {% endblock %}
                          </sw-container>
 
-                        {% block sw_settings_newsletter_receiver_detail_form_language %}
+                        {% block sw_newsletter_receiver_detail_form_language %}
                             <sw-entity-single-select
-                                    :label="$tc('sw-settings-newsletter-receiver.general.language')"
+                                    :label="$tc('sw-newsletter-receiver.general.language')"
                                     :value="newsletterReceiver.languageId"
                                     entity="language">
                             </sw-entity-single-select>
                         {% endblock %}
 
-                        {% block sw_settings_newsletter_receiver_detail_form_sales_channel %}
+                        {% block sw_newsletter_receiver_detail_form_sales_channel %}
                             <sw-entity-single-select
-                                    :label="$tc('sw-settings-newsletter-receiver.general.salesChannel')"
+                                    disabled
+                                    labelProperty="name"
+                                    :label="$tc('sw-newsletter-receiver.general.salesChannel')"
                                     :value="newsletterReceiver.salesChannelId"
                                     entity="sales_channel">
                             </sw-entity-single-select>
                         {% endblock %}
 
-                        {% block sw_settings_newsletter_receiver_detail_form_tags %}
-{#                            <sw-tag-field :entity="newsletterReceiver"></sw-tag-field>#}
+                        {% block sw_newsletter_receiver_detail_form_tags %}
+                            <sw-tag-multi-select :entity="newsletterReceiver"></sw-tag-multi-select>
                         {% endblock %}
 
                     {% endblock %}

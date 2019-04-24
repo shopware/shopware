@@ -18,8 +18,6 @@ class Migration1555421378NewsletterReceiverTags extends MigrationStep
             CREATE TABLE `newsletter_receiver_tag` (
               `newsletter_receiver_id` BINARY(16) NOT NULL,
               `tag_id` BINARY(16) NOT NULL,
-              `created_at` DATETIME(3) NOT NULL,
-              `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`newsletter_receiver_id`, `tag_id`),
               CONSTRAINT `fk.newsletter_receiver_tag.id` FOREIGN KEY (`newsletter_receiver_id`)
                 REFERENCES `newsletter_receiver` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,

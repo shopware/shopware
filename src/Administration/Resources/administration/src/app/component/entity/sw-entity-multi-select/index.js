@@ -109,6 +109,8 @@ export default {
                 return id !== identifier;
             });
 
+            this.$emit('input', this.visibleValues);
+
             return Promise.resolve();
         },
 
@@ -120,6 +122,8 @@ export default {
 
             this.visibleValues.push(item);
             this.selectedIds.push(item[this.valueProperty]);
+
+            this.$emit('input', this.visibleValues);
 
             return Promise.resolve();
         },

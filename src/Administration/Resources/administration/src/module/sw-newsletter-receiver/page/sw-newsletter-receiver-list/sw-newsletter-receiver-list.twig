@@ -1,0 +1,169 @@
+{% block sw_newsletter_receiver_list %}
+    <sw-page class="sw-newsletter-receiver-list">
+        {% block sw_newsletter_receiver_list_search_bar %}
+            <template slot="search-bar">
+                <sw-search-bar :initialSearchType="$tc('sw-newsletter-receiver.general.mainMenuItemGeneral')"
+                               :placeholder="$tc('sw-newsletter-receiver.general.placeholderSearchBarSnippets')"
+                               :initialSearch="term"
+                               @search="onSearch">
+                </sw-search-bar>
+            </template>
+        {% endblock %}
+
+        {% block sw_newsletter_receiver_list_smart_bar_header %}
+            <template slot="smart-bar-header">
+                {% block sw_newsletter_receiver_list_smart_bar_header_title %}
+                    <h2>
+                        {% block sw_newsletter_receiverlist_list_smart_bar_header_title_text %}
+                            {{ $tc('global.sw-admin-menu.navigation.mainMenuItemMarketing') }}
+                            <sw-icon name="small-arrow-medium-right" small></sw-icon> {{ $tc('sw-newsletter-receiver.list.textHeadline') }}
+                        {% endblock %}
+                    </h2>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_newsletter_receiverlist_list_content %}
+            <template slot="content">
+                {% block sw_newsletter_receiverlist_list_content_card %}
+                    {% block sw_newsletter_receiverlist_list_grid %}
+                        <sw-entity-listing slot="grid"
+                                           ref="swNewsletterReceiverGrid"
+                                           v-if="items"
+                                           :showSelection="false"
+                                           class="sw-newsletter-receiver-list-grid"
+                                           :items="items"
+                                           :columns="columns"
+                                           :repository="repository"
+                                           detailRoute="sw.newsletter.receiver.detail">
+                            <template slot="column-status" slot-scope="{ item, compact, isInlineEdit }">
+                                <template v-if="item.status === 'notSet'">
+                                    {{ $tc('sw-newsletter-receiver.list.notSet') }}
+                                </template>
+                                <template v-else-if="item.status === 'optIn'">
+                                    {{ $tc('sw-newsletter-receiver.list.optIn') }}
+                                </template>
+                                <template v-else-if="item.status === 'optOut'">
+                                    {{ $tc('sw-newsletter-receiver.list.optOut') }}
+                                </template>
+                                <template v-else-if="item.status === 'direct'">
+                                    {{ $tc('sw-newsletter-receiver.list.direct') }}
+                                </template>
+                            </template>
+                        </sw-entity-listing>
+                    {% endblock %}
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_newsletter_receiver_list_sidebar %}
+        <sw-sidebar slot="sidebar">
+            {% block sw_newsletter_receiver_list_sidebar_refresh %}
+                <sw-sidebar-item
+                        icon="default-arrow-360-left"
+                        :title="$tc('sw-newsletter-receiver.list.titleSidebarItemRefresh')"
+                        @click="onRefresh">
+                </sw-sidebar-item>
+            {% endblock %}
+
+            {% block sw_newsletter_receiver_list_sidebar_filter %}
+                <sw-sidebar-item
+                        ref="filterSideBar"
+                        icon="default-action-filter"
+                        :title="$tc('sw-newsletter-receiver.list.titleSidebarItemFilter')"
+                        @sw-sidebar-item-close-content="closeContent"
+                        @click="closeContent">
+
+                    {% block sw_newsletter_receiver_list_sidebar_filter_status %}
+                        <sw-sidebar-collapse>
+                            <template slot="header">{{ $tc('sw-newsletter-receiver.list.status') }}</template>
+                            <template slot="content">
+                                {% block sw_newsletter_receiver_list_sidebar_filter_status_not_set %}
+                                    <sw-newsletter-receiver-boolean-filter
+                                            id="notSet"
+                                            group="status"
+                                            :label="$tc('sw-newsletter-receiver.list.notSet')"
+                                            @change="onChange">
+                                    </sw-newsletter-receiver-boolean-filter>
+                                {% endblock %}
+                                {% block sw_newsletter_receiver_list_sidebar_filter_status_direct %}
+                                    <sw-newsletter-receiver-boolean-filter
+                                            id="direct"
+                                            group="status"
+                                            :label="$tc('sw-newsletter-receiver.list.direct')"
+                                            @change="onChange">
+                                    </sw-newsletter-receiver-boolean-filter>
+                                {% endblock %}
+                                {% block sw_newsletter_receiver_list_sidebar_filter_status_opt_in %}
+                                    <sw-newsletter-receiver-boolean-filter
+                                            id="optIn"
+                                            group="status"
+                                            :label="$tc('sw-newsletter-receiver.list.optIn')"
+                                            @change="onChange">
+                                    </sw-newsletter-receiver-boolean-filter>
+                                {% endblock %}
+                                {% block sw_newsletter_receiver_list_sidebar_filter_status_opt_out %}
+                                    <sw-newsletter-receiver-boolean-filter
+                                            id="optOut"
+                                            group="status"
+                                            :label="$tc('sw-newsletter-receiver.list.optOut')"
+                                            @change="onChange">
+                                    </sw-newsletter-receiver-boolean-filter>
+                                {% endblock %}
+                            </template>
+                        </sw-sidebar-collapse>
+                    {% endblock %}
+
+                    {% block sw_newsletter_receiver_list_sidebar_filter_language %}
+                        <sw-sidebar-collapse>
+                            <template slot="header">{{ $tc('sw-newsletter-receiver.general.language') }}</template>
+                            <template slot="content">
+                                {% block sw_newsletter_receiver_list_sidebar_filter_language_items %}
+                                    <div v-for="(item, index) in languageFilters">
+                                        <sw-newsletter-receiver-boolean-filter
+                                                :id="item.id"
+                                                group="languageId"
+                                                :label="item.name"
+                                                @change="onChange">
+                                        </sw-newsletter-receiver-boolean-filter>
+                                    </div>
+                                {% endblock %}
+                            </template>
+                        </sw-sidebar-collapse>
+                    {% endblock %}
+
+                    {% block sw_newsletter_receiver_list_sidebar_filter_sales_channel %}
+                        <sw-sidebar-collapse>
+                            <template slot="header">{{ $tc('sw-newsletter-receiver.general.salesChannel') }}</template>
+                            <template slot="content">
+                                {% block sw_newsletter_receiver_list_sidebar_filter_sales_channel_items %}
+                                    <div v-for="(item, index) in salesChannelFilters">
+                                        <sw-newsletter-receiver-boolean-filter
+                                                :id="item.id"
+                                                group="salesChannelId"
+                                                :label="item.translated.name"
+                                                @change="onChange">
+                                        </sw-newsletter-receiver-boolean-filter>
+                                    </div>
+                                {% endblock %}
+                            </template>
+                        </sw-sidebar-collapse>
+                    {% endblock %}
+
+                    {% block sw_newsletter_receiver_list_sidebar_filter_sales_tags %}
+                        <sw-sidebar-collapse>
+                            <template slot="header">{{ $tc('sw-newsletter-receiver.general.tags') }}</template>
+                            <template slot="content">
+                                {% block sw_newsletter_receiver_list_sidebar_filter_sales_tags_select %}
+                                    <sw-entity-multi-select entity="tag" @input="onChange"></sw-entity-multi-select>
+                                {% endblock %}
+                            </template>
+                        </sw-sidebar-collapse>
+                    {% endblock %}
+                </sw-sidebar-item>
+            {% endblock %}
+
+        </sw-sidebar>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

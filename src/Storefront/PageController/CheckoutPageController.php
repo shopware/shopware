@@ -294,4 +294,28 @@ class CheckoutPageController extends StorefrontController
 
         return $this->createActionResponse($request);
     }
+
+    /**
+     * @Route("/checkout/line-item/update/{id}", name="frontend.checkout.line-item.update", defaults={"XmlHttpRequest": true}, methods={"POST"})
+     */
+    public function updateLineItem(string $id, Request $request, SalesChannelContext $context): Response
+    {
+        $token = $request->request->getAlnum('token', $context->getToken());
+
+        $quantity = $request->get('quantity', null);
+
+        if ($quantity === null) {
+            throw new \Exception('quantity field is required');
+        }
+
+        $cart = $this->cartService->getCart($token, $context);
+
+        if (!$cart->has($id)) {
+            throw new LineItemNotFoundException($id);
+        }
+
+        $this->cartService->changeQuantity($cart, $id, (int) $quantity, $context);
+
+        return $this->createActionResponse($request);
+    }
 }

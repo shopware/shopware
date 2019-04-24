@@ -38,7 +38,7 @@ Component.extend('sw-product-variants-configurator-selection', 'sw-property-sear
          * Reason: Is extended from sw-property-search
          */
         addOptionCount() {
-            const optionStore = Object.values(this.options);
+            const optionStore = Object.values(this.options.items);
 
             this.groups.forEach((group) => {
                 const optionCount = optionStore.filter((configurator) => {
@@ -91,7 +91,7 @@ Component.extend('sw-product-variants-configurator-selection', 'sw-property-sear
         findConfiguratorForOptionId(optionId) {
             let found = null;
 
-            Object.entries(this.options).forEach((item) => {
+            Object.entries(this.options.items).forEach((item) => {
                 if (optionId === item[1].optionId) {
                     found = item;
                 }

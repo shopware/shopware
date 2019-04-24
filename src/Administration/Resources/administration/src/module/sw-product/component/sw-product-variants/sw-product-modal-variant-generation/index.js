@@ -113,7 +113,7 @@ Component.register('sw-product-modal-variant-generation', {
 
         calcVariantsNumber() {
             // Group all option ids
-            const groupedData = Object.values(this.product.configuratorSettings).reduce((accumulator, element) => {
+            const groupedData = Object.values(this.product.configuratorSettings.items).reduce((accumulator, element) => {
                 const groupId = element.option.groupId;
                 const grouped = accumulator[groupId];
 

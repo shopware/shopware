@@ -9,7 +9,7 @@
         {% endblock %}
 
         {% block sw_promotion_detail_base_code_card %}
-            <sw-card :title="$tc('sw-promotion.detail.main.general.cardTitleCode')" :isLoading="promotion.isLoading">
+            <sw-card :title="$tc('sw-promotion.detail.main.general.codes.card')" :isLoading="promotion.isLoading">
                 {% block sw_promotion_detail_base_code_form %}
                     <sw-promotion-code-form :promotion="promotion"></sw-promotion-code-form>
                 {% endblock %}

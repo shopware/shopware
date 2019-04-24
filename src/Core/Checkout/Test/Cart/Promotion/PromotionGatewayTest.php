@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Test\Cart\Promotion;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Promotion\PromotionGateway;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Fakes\FakePromotionRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -61,10 +60,10 @@ class PromotionGatewayTest extends TestCase
             MultiFilter::CONNECTION_AND,
             [
                 new EqualsFilter('active', true),
+                new EqualsFilter('useCodes', false),
                 new EqualsFilter('promotion.salesChannels.salesChannelId', 'CH1'),
                 $this->getExpectedDateRangeFilter(),
                 $this->getExpectedRuleConditionFilters([]),
-                new EqualsFilter('codeType', PromotionEntity::CODE_TYPE_NO_CODE),
             ]
         ));
 
@@ -95,9 +94,10 @@ class PromotionGatewayTest extends TestCase
         $expectedCriteria = new Criteria([]);
         $expectedCriteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
             new EqualsFilter('active', true),
+            new EqualsFilter('useCodes', true),
+            $this->getExpectedCodesFilter(['CODE-1', 'CODE-2']),
             new EqualsFilter('promotion.salesChannels.salesChannelId', 'CH1'),
             $this->getExpectedDateRangeFilter(),
-            $this->getExpectedCodesFilter(['CODE-1', 'CODE-2']),
         ]));
 
         $expectedCriteria->addAssociation('personaRules');

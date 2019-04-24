@@ -1,5 +1,5 @@
 {% block sw_promotion_basic_form %}
-    <div class="promotion-basic-form">
+    <div class="sw-promotion-basic-form">
         <sw-container columns="3fr 1fr" gap="0px 30px">
             {% block sw_promotion_basic_form_title_field %}
                 <sw-field type="text"
@@ -22,7 +22,7 @@
             {% block sw_promotion_basic_form_sales_channels %}
                 <sw-promotion-sales-channel-select
                     multi
-                    class="sw-promotion-basic__select-sales-channels"
+                    class="sw-promotion-basic-form__select-sales-channels"
                     :label="$tc('sw-promotion.detail.main.general.labelSalesChannels')"
                     :placeholder="$tc('sw-promotion.detail.main.general.placeholderSalesChannels')"
                     :associationStore="salesChannelAssociationStore"
@@ -63,6 +63,16 @@
                 </sw-field>
             {% endblock %}
         </sw-container>
+
+        <sw-container columns="1fr" gap="0px 30px">
+            {% block sw_promotion_basic_form_use_codes %}
+                <sw-switch-field class="sw-promotion-basic-form__switch-codes"
+                                 :label="$tc('sw-promotion.detail.main.general.codes.switchUseCodes')"
+                                 v-model="promotion.useCodes">
+                </sw-switch-field>
+            {% endblock %}
+        </sw-container>
+
     </div>
 {% endblock %}
 

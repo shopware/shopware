@@ -53,16 +53,12 @@
           "labelValidUntil": "Aktiv bis:",
           "labelPriority": "Priorität",
           "labelRedeemable": "Anzahl",
-          "codeType": {
-            "no_code": "automatisch aktivieren",
-            "standard": "über Code aktivieren",
-            "individual": "über individuellen Code aktivieren"
-          },
-          "placeholderCode": "Gib den Code der Rabattaktion an ...",
-          "placeholderCodeType": "Codetyp wählen ...",
-          "labelCode": "Code",
-          "labelCodeType": "Code Typ",
-          "labelIndividualCodeLink": "Individuelle Aktionscodes verwalten"
+          "codes" : {
+            "card" : "Aktionscodes",
+            "labelCode" : "Allgemeiner Aktionscode",
+            "placeholderCode": "Gib einen Code für die Rabattaktion an",
+            "switchUseCodes" : "Aktionscodes verwenden"
+          }
         },
         "preconditions": {
           "ruleModuleLink": "Regelmodul öffnen",

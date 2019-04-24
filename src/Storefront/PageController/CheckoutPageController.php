@@ -278,7 +278,7 @@ class CheckoutPageController extends StorefrontController
     }
 
     /**
-     * @Route("/checkout/line-item/delete/{id}", name="frontend.checkout.line-item.delete", defaults={"XmlHttpRequest": true}, methods={"POST"})
+     * @Route("/checkout/line-item/delete/{id}", name="frontend.checkout.line-item.delete", defaults={"XmlHttpRequest": true}, methods={"POST", "DELETE"})
      */
     public function removeLineItem(string $id, Request $request, SalesChannelContext $context): Response
     {

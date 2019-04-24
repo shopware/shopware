@@ -1,19 +1,19 @@
 {% block sw_promotion_order_condition_form %}
     <div class="promotion-order-condition-form">
-        <h4>{{ $tc('sw-promotion.orderCondition.title') }}</h4>
+        <h4>{{ $tc('sw-promotion.detail.main.preconditions.order.title') }}</h4>
         <p>
-            {{ $tc('sw-promotion.orderCondition.subheading') }}
+            {{ $tc('sw-promotion.detail.main.preconditions.order.text') }}
             <router-link :to="{ name: 'sw.settings.rule.index' }">
-                {{ $tc('sw-promotion.orderCondition.linkRuleBuilder') }}
+                {{ $tc('sw-promotion.detail.main.preconditions.order.rulesModuleLink') }}
             </router-link>
         </p>
 
         {% block sw_promotion_order_condition_form_rules_field %}
             <sw-select
                 multi
-                class="sw-promotion-detail__select-order-rules"
-                :label="$tc('sw-promotion.orderCondition.rules.caption')"
-                :placeholder="$tc('sw-promotion.orderCondition.rules.placeholder')"
+                class="sw-promotion-order-condition-form__order-rules"
+                :label="$tc('sw-promotion.detail.main.preconditions.order.rulesCaption')"
+                :placeholder="$tc('sw-promotion.detail.main.preconditions.order.rulesPlaceholder')"
                 :store="rulesStore"
                 :associationStore="orderRulesAssociationStore">
                 <template slot="result_items" slot-scope="{ item, index }">

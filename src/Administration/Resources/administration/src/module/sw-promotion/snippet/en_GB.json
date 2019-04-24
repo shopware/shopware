@@ -1,114 +1,103 @@
 {
-    "sw-promotion": {
-        "basicForm": {
-            "labelActive": "Active",
-            "labelPriority": "priority",
-            "labelRedeemable": "redeemable",
-            "labelTitle": "Title",
-            "labelValidFrom": "valid from",
-            "labelValidUntil": "valid until",
-            "placeholderName": "Enter promotion title",
-            "labelSalesChannels" : "Sales Channels",
-            "placeholderSalesChannels" : "Add Sales Channel..."
-        },
-
-        "codeForm": {
-            "codeType": {
-                "no_code": "automativ activation",
-                "standard": "activate with code",
-                "individual": "activate with individual code"
-            },
-            "placeholderCode": "Enter promotion code",
-            "placeholderCodeType": "Select Codetyp",
-            "labelCode": "code",
-            "labelCodeType": "code type",
-            "labelIndividualCodeLink": "manage individual codes"
-        },
-
-        "detail": {
-            "buttonCancel": "Cancel",
-            "buttonSave": "Save",
-            "tabGeneral": "General",
-            "tabRebate": "Rebate",
-            "tabRestrictions": "Restrictions",
-            "textHeadline": "new Promotion",
-            "titleSaveSuccess": "Success",
-            "messageSaveSuccess": "Promotion \"{name}\" has been saved successfully."
-        },
-
-        "detailBase": {
-            "cardTitleCode": "Codes",
-            "cardTitlePromotionInfo": "Basic information"
-        },
-
-        "detailRebate": {
-            "cardTitleRebate": "Rebate"
-        },
-
-        "detailRestrictions": {
-            "cardTitleDiscountRules": "Order",
-            "cardTitlePersonaRules": "Customer",
-            "cardTitleScopeRules": "Cart"
-        },
-
-        "orderCondition": {
-            "title": "Determine which properties an order additionally has to have for this promotion.",
-            "subheading": "Use order type rules to define which conditions must be met for this discount promotion to be applied.",
-            "linkRuleBuilder": "Open rule builder",
-            "rules": {
-                "caption" : "Order Rules",
-                "placeholder" : "Assign Order Rules..."
-            }
-        },
-
+  "sw-promotion": {
+    "general": {
+      "module" : "Promotions",
+      "description": "Promotions",
+      "mainMenu": {
+        "root": "Promotions",
+        "list": "Overview"
+      }
+    },
+    "list": {
+      "textTitle": "Promotions",
+      "buttonAddPromotion": "Add Promotion",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete",
+      "columnActive": "Active",
+      "columnName": "Name",
+      "columnValidFrom": "Valid from:",
+      "columnValidUntil": "Valid until:",
+      "contextMenuDelete": "Delete",
+      "contextMenuDuplicate": "Duplicate",
+      "contextMenuEdit": "Edit",
+      "messageEmpty": "No promotions yet",
+      "modalTitleDelete": "Delete Promotion",
+      "placeholderSearchBar": "Search Promotions",
+      "textDeleteConfirm": "Are you sure you want to delete the promotion \"{name}\"?",
+      "titleSidebarItemRefresh": "Refresh"
+    },
+    "detail": {
+      "header": {
+        "titleCreate": "New Promotion",
+        "titleEdit": "Promotion",
+        "buttonCancel": "Cancel",
+        "buttonSave": "Save",
+        "titleSaveSuccess": "Success",
+        "messageSaveSuccess": "Promotion \"{name}\" has been saved successfully."
+      },
+      "tabs": {
+        "tabGeneral": "General",
+        "tabPreconditions": "Preconditions",
+        "tabRebate": "Discounts"
+      },
+      "main": {
         "general": {
-            "descriptionModule": "Promotions",
-            "mainMenuItemGeneral": "Promotions",
-            "mainMenuItemList": "Overview"
+          "cardTitlePromotionInfo": "Settings",
+          "cardTitleCode": "Promotion Codes",
+          "labelTitle": "Name",
+          "placeholderName": "Name",
+          "labelActive": "Active",
+          "labelSalesChannels" : "Sales Channels",
+          "placeholderSalesChannels" : "Add Sales Channel...",
+          "labelValidFrom": "Valid from:",
+          "labelValidUntil": "Valid until:",
+          "labelPriority": "priority",
+          "labelRedeemable": "redeemable",
+          "codeType": {
+            "no_code": "automatic activation",
+            "standard": "activate with code",
+            "individual": "activate with individual code"
+          },
+          "placeholderCode": "Enter promotion code",
+          "placeholderCodeType": "Select Codetyp",
+          "labelCode": "code",
+          "labelCodeType": "code type",
+          "labelIndividualCodeLink": "manage individual codes"
         },
-
-        "list": {
-            "buttonAddPromotion": "Add promotion",
-            "buttonCancel": "Cancel",
-            "buttonDelete": "Delete",
-            "columnActive": "Active",
-            "columnName": "Name",
-            "columnValidFrom": "Active from:",
-            "columnValidUntil": "Active until:",
-            "contextMenuDelete": "Delete",
-            "contextMenuDuplicate": "Duplicate",
-            "contextMenuEdit": "Edit",
-            "messageEmpty": "No promotions yet",
-            "modalTitleDelete": "Delete Promotion",
-            "placeholderSearchBar": "Search promotions",
-            "textDeleteConfirm": "Are you sure you want to delete the promotion \"{name}\"?",
-            "textPromotionOverview": "Promotions",
-            "titleSidebarItemRefresh": "Refresh"
+        "preconditions": {
+          "ruleModuleLink": "Open rule builder",
+          "labelDiscountRule": "Discount rule",
+          "descriptionTextScope": "Use rules from the rules builder to define the promotion cart for this marketing action. Without a limitation, the action will be applied to all shopping carts.",
+          "descriptionTitleScope": "Which shopping carts are affected by this discount promotion?",
+          "labelCategory": "Category",
+          "labelProduct": "Product",
+          "labelScopeRule": "Scope rule",
+          "cardTitleScopeRules": "Cart",
+          "persona": {
+            "card": "Target Group",
+            "title": "Determine which customers benefit from this promotion",
+            "text": "Use rules from the rule builder to narrow down the audience for this marketing action. Without a limitation, all your customers have access to this action.",
+            "labelRules": "Customer Rules",
+            "placeholderRules" : "Add Rules...",
+            "labelCustomers": "Assign to specific customers",
+            "placeholderCustomers" : "Add Customers..."
+          },
+          "order": {
+            "card": "Order",
+            "title": "Determine which properties an order additionally has to have for this promotion.",
+            "text": "Use order type rules to define which conditions must be met for this discount promotion to be applied.",
+            "rulesModuleLink": "Open rule builder",
+            "rulesCaption" : "Order Rules",
+            "rulesPlaceholder" : "Assign Order Rules..."
+          }
         },
-
-        "personaForm": {
-            "descriptionTextPersona": "Use rules from the rule builder to narrow down the audience for this marketing action. Without a limitation, all your customers have access to this action.",
-            "descriptionTitlePersona": "Determine which customers benefit from this promotion",
-            "labelCustomer": "Assign to specific customers",
-            "labelPersonaRule": "Customer Rule",
-            "ruleModuleLink": "Open rule builder",
-            "placeholderPersonaRules": "Add Rules...",
-            "placeholderPersonaCustomers" : "Assign Customers..."
-        },
-
-        "rebateForm": {
-            "labelPercental": "percental",
-            "labelValue": "Value",
-            "placeholderValue": "Enter the value of the promotion"
-        },
-
-        "scopeForm": {
-            "descriptionTextScope": "Use rules from the rules builder to define the promotion cart for this marketing action. Without a limitation, the action will be applied to all shopping carts.",
-            "descriptionTitleScope": "Which shopping carts are affected by this discount promotion?",
-            "labelCategory": "Categorie",
-            "labelProduct": "Product",
-            "labelScopeRule": "Scope rule",
-            "ruleModuleLink": "Open rule builder"
+        "discounts": {
+          "cardTitleRebate": "Rebate",
+          "labelPercental": "percental",
+          "labelValue": "Value",
+          "placeholderValue": "Enter the value of the promotion"
         }
+      }
     }
+  }
 }

@@ -15,6 +15,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -1691,5 +1692,54 @@ class EntityReaderTest extends TestCase
         /** @var CategoryTranslationEntity $transSystem */
         $transSystem = $cat->getTranslations()->filterByLanguageId(Defaults::LANGUAGE_SYSTEM)->first();
         static::assertEquals('system', $transSystem->getName());
+    }
+
+    public function testPricesAreConvertedWithCurrencyFactor(): void
+    {
+        $productId = Uuid::randomHex();
+
+        $product = [
+            [
+                'id' => $productId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 1,
+                'price' => ['gross' => 10, 'net' => 7, 'linked' => false],
+                'manufacturer' => ['name' => 'test'],
+                'tax' => ['name' => 'test', 'taxRate' => 10],
+                'name' => 'test',
+            ],
+            [
+                'id' => Uuid::randomHex(),
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 1,
+                'price' => ['gross' => 8, 'net' => 6, 'linked' => false],
+                'manufacturer' => ['name' => 'test'],
+                'tax' => ['name' => 'test', 'taxRate' => 10],
+                'name' => 'test',
+            ],
+        ];
+
+        $context = Context::createDefaultContext();
+
+        $this->productRepository->create($product, $context);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('product.price', 8.0));
+
+        $searchContext = new Context(
+            new AdminApiSource(null, null),
+            $context->getRules(),
+            Uuid::randomHex(),
+            $context->getLanguageIdChain(),
+            $context->getVersionId(),
+            0.8
+        );
+
+        $products = $this->productRepository->search($criteria, $searchContext);
+        static::assertSame(1, $products->getTotal());
+
+        /** @var ProductEntity $product */
+        $product = $products->get($productId);
+        static::assertInstanceOf(ProductEntity::class, $product);
     }
 }

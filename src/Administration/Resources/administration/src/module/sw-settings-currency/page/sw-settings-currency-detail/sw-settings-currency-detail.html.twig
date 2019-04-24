@@ -73,7 +73,8 @@
                                 <sw-field type="number"
                                           :label="$tc('sw-settings-currency.detail.labelFactor')"
                                           :placeholder="$tc('sw-settings-currency.detail.placeholderFactor')"
-                                          v-model="currency.factor">
+                                          v-model="currency.factor"
+                                          :disabled="currency.isDefault">
                                 </sw-field>
                             {% endblock %}
 

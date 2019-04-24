@@ -132,6 +132,7 @@
 
         <service id="Shopware\Core\Content\Product\Cart\ProductCollector">
             <argument type="service" id="Shopware\Core\Content\Product\Cart\ProductGateway"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductPriceDefinitionBuilderInterface"/>
             <tag name="shopware.cart.collector"/>
         </service>
 

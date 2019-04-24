@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Framework\Pricing;
 
-use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Struct;
 
 class Price extends Struct
@@ -28,15 +26,6 @@ class Price extends Struct
         $this->net = $net;
         $this->gross = $gross;
         $this->linked = $linked;
-    }
-
-    public function getPriceForContext(Context $context): float
-    {
-        if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
-            return $this->gross;
-        }
-
-        return $this->net;
     }
 
     public function getNet(): float

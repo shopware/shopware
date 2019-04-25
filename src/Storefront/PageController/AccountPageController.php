@@ -140,7 +140,7 @@ class AccountPageController extends StorefrontController
         $redirect = $request->get('redirectTo', 'frontend.account.home.page');
 
         if ($context->getCustomer()) {
-            return $this->redirect($redirect);
+            return $this->redirectToRoute($redirect);
         }
 
         $page = $this->loginPageLoader->load($request, $context);
@@ -175,13 +175,13 @@ class AccountPageController extends StorefrontController
         $redirect = $request->get('redirectTo', 'frontend.account.home.page');
 
         if ($context->getCustomer()) {
-            return $this->redirect($redirect);
+            return $this->redirectToRoute($redirect);
         }
 
         try {
             $token = $this->accountService->loginWithPassword($data, $context);
             if (!empty($token)) {
-                return new RedirectResponse($redirect);
+                return $this->redirectToRoute($redirect);
             }
         } catch (BadCredentialsException | UnauthorizedHttpException $e) {
         }
@@ -232,7 +232,7 @@ class AccountPageController extends StorefrontController
 
         $redirectTo = $request->get('redirectTo', 'frontend.account.home.page');
 
-        return new RedirectResponse($this->generateUrl($redirectTo));
+        return $this->redirectToRoute($redirectTo);
     }
 
     /**

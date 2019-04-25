@@ -28,7 +28,7 @@ export default class ApiService {
         return this.delete(action).catch((err) => {
             global.logger.error(err);
             global.logger.lineBreak();
-        })
+        });
     }
 
     get(url, params = {}) {
@@ -81,16 +81,16 @@ export default class ApiService {
         });
     }
 
-    path(url, data, params = {}) {
+    patch(url, data, params = {}) {
         return this.request({
-            method: 'put',
+            method: 'patch',
             data,
             url,
             params
         });
     }
 
-    request({url, method, params, data}) {
+    request({ url, method, params, data }) {
         throw new Error('Implement method request()');
     }
 }

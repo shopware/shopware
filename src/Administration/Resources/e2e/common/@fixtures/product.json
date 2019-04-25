@@ -2,6 +2,7 @@
   "name": "Product name",
   "stock": 1,
   "descriptionLong": "Product description",
+  "active": true,
   "price": {
     "net": 42,
     "gross": 64

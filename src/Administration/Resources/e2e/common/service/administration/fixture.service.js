@@ -39,10 +39,21 @@ export default class AdminFixtureService {
                 const endTime = new Date() - startTime;
                 global.logger.success(`${data.id} (${endTime / 1000}s)`);
                 global.logger.lineBreak();
+                return data;
             }).catch((err) => {
                 global.logger.error(err);
                 global.logger.lineBreak();
             });
+    }
+
+    update(userData) {
+        if (userData.id) {
+            return this.apiClient.patch(`/v1/${userData.type}/${userData.id}?_response=true`, userData.data);
+        }
+
+        return this.search(userData.type, userData.data).then((result) => {
+            this.apiClient.patch(`/v1/${userData.type}/${result.id}?_response=true`, userData.data);
+        });
     }
 
     search(type, filter) {
@@ -80,7 +91,7 @@ export default class AdminFixtureService {
                 value: salesChannelName
             }]
         }).then((result) => {
-            return result['attributes'].accessKey;
+            return result.attributes.accessKey;
         });
     }
 }

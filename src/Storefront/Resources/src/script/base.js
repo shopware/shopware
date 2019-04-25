@@ -87,7 +87,7 @@ PluginManager.register('SearchWidget', SearchWidgetPlugin, '[data-search-form]')
 PluginManager.register('CartWidget', CartWidgetPlugin, '[data-cart-widget]');
 PluginManager.register('OffCanvasCart', OffCanvasCartPlugin, '[data-offcanvas-cart]');
 PluginManager.register('CollapseFooterColumns', CollapseFooterColumnsPlugin, '[data-collapse-footer]');
-PluginManager.register('FlyoutMenu', FlyoutMenuPlugin, '[data-offcanvas-menu]');
+PluginManager.register('FlyoutMenu', FlyoutMenuPlugin, '[data-flyout-menu]');
 PluginManager.register('OffcanvasMenu', OffcanvasMenuPlugin, '[data-offcanvas-menu]');
 PluginManager.register('FormValidation', FormValidationPlugin, '[data-form-validation]');
 PluginManager.register('ScrollToInvalidField', ScrollToInvalidFieldPlugin, 'form');
@@ -112,7 +112,6 @@ add configurations
 /*
 pages
  */
-import 'src/script/page/account/addressbook.page';
 import 'src/script/page/account/profile.page';
 
 /*

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Pagelet\Checkout;
+namespace Shopware\Storefront\PageletController;
 
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;

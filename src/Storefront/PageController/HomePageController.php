@@ -1,10 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Page\Home;
+namespace Shopware\Storefront\PageController;
 
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
+use Shopware\Storefront\Page\Home\HomePageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;

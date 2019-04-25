@@ -50,7 +50,7 @@
                                                 dataIndex="amountTotal"
                                                 sortable
                                                 align="right">
-                                    {{ item.amountTotal }} {{ item.currency.symbol }}
+                                    {{ item.amountTotal | currency }}
                                 </sw-grid-column>
                             {% endblock %}
                             {% block sw_customer_detail_order_card_grid_columns_state %}

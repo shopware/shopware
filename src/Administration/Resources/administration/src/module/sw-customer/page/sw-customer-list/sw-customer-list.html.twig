@@ -42,20 +42,17 @@
             {% block sw_customer_list_content %}
                 <div class="sw-customer-list__content">
                     {% block sw_customer_list_grid %}
-                        <sw-data-grid :dataSource="customers"
-                                      :columns="customerColumns"
-                                      :showSelection="false"
-                                      :fullPage="true"
-                                      :showSettings="true"
-                                      :sortBy="sortBy"
-                                      :sortDirection="sortDirection"
-                                      :isLoading="isLoading"
-                                      :allowInlineEdit="true"
-                                      :allowColumnEdit="true"
-                                      identifier="sw-customer-list"
-                                      @column-sort="onSortColumn"
-                                      @inline-edit-save="onInlineEditSave"
-                                      @inline-edit-cancel="onInlineEditCancel">
+
+                        <sw-entity-listing ref="swCustomerGrid"
+                                           v-if="customers"
+                                           class="sw-customer-list-grid"
+                                           :items="customers"
+                                           :columns="customerColumns"
+                                           :repository="customerRepository"
+                                           detailRoute="sw.customer.detail"
+                                           :showSelection="false"
+                                           :isLoading="isLoading"
+                                           @inline-edit-save="onInlineEditSave">
 
                             {% block sw_customer_list_grid_columns %}
                                 {% block sw_customer_list_grid_columns_name %}
@@ -161,7 +158,7 @@
                                     </sw-pagination>
                                 {% endblock %}
                             </template>
-                        </sw-data-grid>
+                        </sw-entity-listing>
                     {% endblock %}
 
                     {% block sw_customer_list_empty_state %}

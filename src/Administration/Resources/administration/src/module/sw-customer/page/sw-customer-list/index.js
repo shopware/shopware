@@ -1,9 +1,15 @@
 import { Component, Mixin } from 'src/core/shopware';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-customer-list.html.twig';
 import './sw-customer-list.scss';
 
 Component.register('sw-customer-list', {
     template,
+
+    inject: [
+        'repositoryFactory',
+        'context'
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -13,7 +19,7 @@ Component.register('sw-customer-list', {
 
     data() {
         return {
-            customers: [],
+            customers: null,
             sortBy: 'customerNumber',
             sortDirection: 'DESC',
             isLoading: false,
@@ -28,8 +34,8 @@ Component.register('sw-customer-list', {
     },
 
     computed: {
-        customerStore() {
-            return Shopware.State.getStore('customer');
+        customerRepository() {
+            return this.repositoryFactory.create('customer');
         },
 
         customerColumns() {
@@ -38,15 +44,14 @@ Component.register('sw-customer-list', {
     },
 
     methods: {
-        onInlineEditSave(customer) {
-            return customer.save().then(() => {
+        onInlineEditSave(promise, customer) {
+            promise.then(() => {
                 this.createNotificationSuccess({
                     title: this.$tc('sw-customer.detail.titleSaveSuccess'),
                     message: this.$tc('sw-customer.detail.messageSaveSuccess', 0, { name: this.salutation(customer) })
                 });
             }).catch(() => {
-                customer.discardChanges();
-
+                this.getList();
                 this.createNotificationError({
                     title: this.$tc('sw-customer.detail.titleSaveError'),
                     message: this.$tc('sw-customer.detail.messageSaveError')
@@ -54,37 +59,20 @@ Component.register('sw-customer-list', {
             });
         },
 
-        onInlineEditCancel(customer) {
-            customer.discardChanges();
-        },
-
         getList() {
             this.isLoading = true;
-            const params = this.getListingParams();
+            const criteria = new Criteria(this.page, this.limit, this.term);
+            const naturalSort = this.sortBy === 'customerNumber';
+            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, naturalSort));
 
-            this.customers = [];
-
-            // Use the customer number as the default sorting
-            if (!params.sortBy && !params.sortDirection) {
-                params.sortBy = 'customerNumber';
-                params.sortDirection = 'DESC';
-            }
-
-            // Use natural sorting when using customer number
-            if (params.sortBy === 'customerNumber') {
-                params.sortings = [{
-                    field: 'customerNumber',
-                    order: params.sortDirection,
-                    naturalSorting: true
-                }];
-            }
-
-            return this.customerStore.getList(params).then((response) => {
-                this.total = response.total;
-                this.customers = response.items;
+            this.customerRepository.search(criteria, this.context).then((items) => {
+                this.total = items.total;
+                this.customers = items;
                 this.isLoading = false;
 
-                return this.customers;
+                return items;
+            }).catch(() => {
+                this.isLoading = false;
             });
         },
 
@@ -108,6 +96,7 @@ Component.register('sw-customer-list', {
             return [{
                 property: 'customerNumber',
                 dataIndex: 'customerNumber',
+                naturalSort: true,
                 label: this.$tc('sw-customer.list.columnCustomerNumber'),
                 allowResize: true,
                 inlineEdit: 'string',

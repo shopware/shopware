@@ -5,7 +5,7 @@ import Debouncer from 'src/script/helper/debouncer.helper';
  * this plugin scrolls to invalid form fields
  * when the form is submitted
  */
-export default class ScrollToInvalidFieldPlugin extends Plugin {
+export default class FormScrollToInvalidFieldPlugin extends Plugin {
 
     static options = {
 
@@ -21,8 +21,10 @@ export default class ScrollToInvalidFieldPlugin extends Plugin {
     };
 
     init() {
-        if (!this._getForm()) {
-            return;
+        this._getForm();
+
+        if (!this._form) {
+            throw new Error(`No form found for the plugin: ${this.constructor.name}`);
         }
 
         this._formFields = this._getFormFields();
@@ -43,12 +45,9 @@ export default class ScrollToInvalidFieldPlugin extends Plugin {
     _getForm() {
         if (this.el && this.el.nodeType === 'FORM') {
             this._form = this.el;
-            return true;
+        } else {
+            this._form = this.el.closest('form');
         }
-
-        this._form = this.el.closest('form');
-
-        return this._form;
     }
 
     /**
@@ -67,7 +66,7 @@ export default class ScrollToInvalidFieldPlugin extends Plugin {
         const formFieldsById = document.querySelectorAll(`input[form="${id}"], select[form="${id}"], textarea[form="${id}"]`);
         if (!formFieldsById) return formFields;
 
-        return ScrollToInvalidFieldPlugin._mergeNodeList(formFields, formFieldsById);
+        return FormScrollToInvalidFieldPlugin._mergeNodeList(formFields, formFieldsById);
     }
 
     /**
@@ -114,7 +113,7 @@ export default class ScrollToInvalidFieldPlugin extends Plugin {
         }
 
         this._getFirstInvalidFormFields(event);
-        this._scrollToInvalidFormFields()
+        this._scrollToInvalidFormFields();
     }
 
     /**
@@ -164,7 +163,7 @@ export default class ScrollToInvalidFieldPlugin extends Plugin {
         } else {
             window.scrollTo({
                 top: offset,
-                behavior: 'smooth'
+                behavior: 'smooth',
             });
         }
     }

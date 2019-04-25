@@ -41,12 +41,13 @@ import CookiePermissionPlugin from 'src/script/plugin/cookie-permission/cookie-p
 import CollapseFooterColumnsPlugin from 'src/script/plugin/collapse/collapse-footer-columns.plugin';
 import FlyoutMenuPlugin from 'src/script/plugin/main-menu/flyout-menu.plugin';
 import OffcanvasMenuPlugin from 'src/script/plugin/main-menu/offcanvas-menu.plugin';
+import FormAutoSubmitPlugin from 'src/script/plugin/forms/form-auto-submit.plugin';
 import FormValidationPlugin from 'src/script/plugin/forms/form-validation.plugin';
 import FormSubmitLoaderPlugin from 'src/script/plugin/forms/from-submit-loader.plugin';
-import FieldTogglePlugin from 'src/script/plugin/forms/field-toggle.plugin';
+import FormFieldTogglePlugin from 'src/script/plugin/forms/form-field-toggle.plugin';
+import FromScrollToInvalidFieldPlugin from 'src/script/plugin/forms/form-scroll-to-invalid-field.plugin';
 import OffCanvasTabsPlugin from 'src/script/plugin/offcanvas-tabs/offcanvas-tabs.plugin';
 import ImageSliderPlugin from 'src/script/plugin/image-slider/image-slider.plugin';
-import ScrollToInvalidFieldPlugin from 'src/script/plugin/forms/scroll-to-invalid-field.plugin';
 import ZoomModalPlugin from 'src/script/plugin/zoom-modal/zoom-modal.plugin';
 import MagnifierPlugin from 'src/script/plugin/magnifier/magnifier.plugin';
 import ImageZoomPlugin from 'src/script/plugin/image-zoom/image-zoom.plugin';
@@ -90,9 +91,10 @@ PluginManager.register('CollapseFooterColumns', CollapseFooterColumnsPlugin, '[d
 PluginManager.register('FlyoutMenu', FlyoutMenuPlugin, '[data-flyout-menu]');
 PluginManager.register('OffcanvasMenu', OffcanvasMenuPlugin, '[data-offcanvas-menu]');
 PluginManager.register('FormValidation', FormValidationPlugin, '[data-form-validation]');
-PluginManager.register('ScrollToInvalidField', ScrollToInvalidFieldPlugin, 'form');
+PluginManager.register('FormScrollToInvalidField', FromScrollToInvalidFieldPlugin, 'form');
 PluginManager.register('FormSubmitLoader', FormSubmitLoaderPlugin, '[data-form-submit-loader]');
-PluginManager.register('FieldToggle', FieldTogglePlugin, '[data-field-toggle]');
+PluginManager.register('FormFieldToggle', FormFieldTogglePlugin, '[data-form-field-toggle]');
+PluginManager.register('FormAutoSubmit', FormAutoSubmitPlugin, '[data-form-auto-submit]');
 PluginManager.register('AccountMenu', AccountMenuPlugin, '[data-offcanvas-account-menu]');
 PluginManager.register('OffCanvasTabs', OffCanvasTabsPlugin, '[data-offcanvas-tab]');
 PluginManager.register('ImageSlider', ImageSliderPlugin, '[data-image-slider]');

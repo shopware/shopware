@@ -2,7 +2,7 @@ import Plugin from 'src/script/helper/plugin/plugin.class';
 import DomAccess from 'src/script/helper/dom-access.helper';
 
 
-export default class FieldTogglePlugin extends Plugin {
+export default class FormFieldTogglePlugin extends Plugin {
 
     static options = {
 
@@ -15,12 +15,12 @@ export default class FieldTogglePlugin extends Plugin {
         /**
          * the attribute for the target selector
          */
-        targetDataAttribute: 'data-field-toggle-target',
+        targetDataAttribute: 'data-form-field-toggle-target',
 
         /**
          * on which value the target should be hidden
          */
-        valueDataAttribute: 'data-field-toggle-value',
+        valueDataAttribute: 'data-form-field-toggle-value',
 
         /**
          * the class which gets applied

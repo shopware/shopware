@@ -4,7 +4,8 @@
 			{% block layout_header_actions_language_widget_form %}
 				<form method="post"
 					  action="{{ path('frontend.checkout.configure') }}"
-					  class="language-form">
+                      class="language-form"
+                      data-form-auto-submit="true">
 					{% block layout_header_actions_language_widget_content %}
 					    {% set isoCode = page.header.activeLanguage.translationCode.code|lower|split('_') %}
                         {% set country = isoCode[0] %}

@@ -58,7 +58,7 @@
                                         </div>
                                     {% endblock %}
 
-                                    <div class="js-field-toggle-guest-mode">
+                                    <div class="js-form-field-toggle-guest-mode">
                                         {% block component_account_register_personal_mail_confirmation %}
                                             {% if shopware.config.register.emailConfirmation %}
                                                 <div class="form-group">
@@ -195,9 +195,9 @@
                                                            value="1"
                                                            id="differentShippingAddress"
                                                            {% if data.get('differentShippingAddress') %}checked="checked"{% endif %}
-                                                           data-field-toggle="true"
-                                                           data-field-toggle-target=".js-field-toggle-shipping-address"
-                                                           data-field-toggle-value="false">
+                                                           data-form-field-toggle="true"
+                                                           data-form-field-toggle-target=".js-form-field-toggle-shipping-address"
+                                                           data-form-field-toggle-value="false">
                                                 {% endblock %}
 
                                                 {% block component_account_register_address_different_shipping_label %}
@@ -210,7 +210,7 @@
                                         {% endblock %}
 
                                         {% block component_account_register_address_shipping %}
-                                            <div class="register-shipping d-none js-field-toggle-shipping-address">
+                                            <div class="register-shipping d-none js-form-field-toggle-shipping-address">
                                                 {% block component_account_register_address_shipping_header %}
                                                     <h2 class="card-title">
                                                         {{ "account.registerAddressShippingHeader"|trans }}

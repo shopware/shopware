@@ -10,9 +10,9 @@
                        value="1"
                        id="personalGuest"
                        {% if data.get('guest') %}checked="checked"{% endif %}
-                       data-field-toggle="true"
-                       data-field-toggle-target=".js-field-toggle-guest-mode"
-                       data-field-toggle-value="true">
+                       data-form-field-toggle="true"
+                       data-form-field-toggle-target=".js-form-field-toggle-guest-mode"
+                       data-form-field-toggle-value="true">
             {% endblock %}
 
             {% block page_checkout_register_personal_guest_label %}

@@ -130,6 +130,11 @@ class ProductPageLoader implements PageLoaderInterface
         $criteria->addAssociation('cover');
         $criteria->addAssociationPath('properties.group');
 
+        $this->eventDispatcher->dispatch(
+            ProductPageCriteriaEvent::NAME,
+            new ProductPageCriteriaEvent($criteria, $context)
+        );
+
         /** @var SalesChannelProductEntity|null $product */
         $product = $this->productRepository->search($criteria, $context)->get($productId);
 

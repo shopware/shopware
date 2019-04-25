@@ -2,13 +2,13 @@
 
 namespace Shopware\Storefront\Page\Navigation;
 
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageRepository;
 use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver;
-use Shopware\Core\Content\Navigation\NavigationEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
@@ -54,20 +54,22 @@ class NavigationPageLoader implements PageLoaderInterface
         $page = $this->genericLoader->load($request, $context);
         $page = NavigationPage::createFrom($page);
 
-        /** @var NavigationEntity $navigation */
-        // step 1, load navigation
-        $navigation = $page->getHeader()->getNavigation()->getActive();
+        /** @var CategoryEntity $category */
+        // step 1, load category
+        $category = $page->getHeader()->getNavigation()->getActive();
 
-        // step 2, load cms structure
-        $cmsPage = $this->getCmsPage($navigation->getCmsPageId(), $context);
+        if ($category->getCmsPageId()) {
+            // step 2, load cms structure
+            $cmsPage = $this->getCmsPage($category->getCmsPageId(), $context);
 
-        // step 3, overwrite slot config
-        $this->overwriteSlotConfig($cmsPage, $navigation);
+            // step 3, overwrite slot config
+            $this->overwriteSlotConfig($cmsPage, $category);
 
-        // step 4, resolve slot data
-        $this->loadSlotData($cmsPage, $request, $context);
+            // step 4, resolve slot data
+            $this->loadSlotData($cmsPage, $request, $context);
 
-        $page->setCmsPage($cmsPage);
+            $page->setCmsPage($cmsPage);
+        }
 
         $this->eventDispatcher->dispatch(
             NavigationPageLoadedEvent::NAME,
@@ -77,9 +79,9 @@ class NavigationPageLoader implements PageLoaderInterface
         return $page;
     }
 
-    private function overwriteSlotConfig(CmsPageEntity $page, NavigationEntity $navigation): void
+    private function overwriteSlotConfig(CmsPageEntity $page, CategoryEntity $category): void
     {
-        $config = $navigation->getSlotConfig();
+        $config = $category->getSlotConfig();
 
         if (!$config || !$page->getBlocks()) {
             return;

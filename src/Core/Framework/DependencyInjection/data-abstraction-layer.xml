@@ -528,7 +528,5 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
             <tag name="validator.constraint_validator"/>
         </service>
-
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Util\Tree\TreeBuilder"/>
     </services>
 </container>

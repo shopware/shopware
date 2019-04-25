@@ -17,11 +17,6 @@ class ProductPageTest extends TestCase
     use IntegrationTestBehaviour,
         StorefrontPageTestBehaviour;
 
-    public function testItThrowsWithoutNavigation(): void
-    {
-        $this->assertFailsWithoutNavigation();
-    }
-
     public function testItRequiresProductParam(): void
     {
         $request = new Request();

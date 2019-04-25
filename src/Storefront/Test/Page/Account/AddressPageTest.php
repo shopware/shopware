@@ -17,11 +17,6 @@ class AddressPageTest extends TestCase
     use IntegrationTestBehaviour,
         StorefrontPageTestBehaviour;
 
-    public function testItThrowsWithoutNavigation(): void
-    {
-        $this->assertFailsWithoutNavigation();
-    }
-
     public function testItLoadsAddressesAndCountriesForACustomer(): void
     {
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();

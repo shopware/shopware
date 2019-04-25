@@ -15,11 +15,6 @@ class NavigationPageTest extends TestCase
     use IntegrationTestBehaviour,
         StorefrontPageTestBehaviour;
 
-    public function testItThrowsWithoutNavigation(): void
-    {
-        $this->assertFailsWithoutNavigation();
-    }
-
     public function testItDoesLoadAPage(): void
     {
         $request = new Request();
@@ -29,7 +24,6 @@ class NavigationPageTest extends TestCase
         $event = null;
         $this->catchEvent(NavigationPageLoadedEvent::NAME, $event);
 
-        $this->expectException(\TypeError::class);
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(NavigationPage::class, $page);

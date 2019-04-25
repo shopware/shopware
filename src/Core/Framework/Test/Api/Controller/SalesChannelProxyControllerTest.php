@@ -244,6 +244,8 @@ class SalesChannelProxyControllerTest extends TestCase
             'paymentMethodVersionId' => Defaults::LIVE_VERSION,
             'shippingMethodId' => $this->getValidShippingMethodId(),
             'shippingMethodVersionId' => Defaults::LIVE_VERSION,
+            'categoryId' => $this->getValidCategoryId(),
+            'categoryVersionId' => Defaults::LIVE_VERSION,
             'countryId' => $this->getValidCountryId(),
             'countryVersionId' => Defaults::LIVE_VERSION,
             'currencies' => [['id' => Defaults::CURRENCY]],

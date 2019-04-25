@@ -21,5 +21,9 @@
         <service id="Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryDefinition">
             <tag name="shopware.sales_channel.entity.definition" entity="category"/>
         </service>
+
+        <service id="Shopware\Core\Content\Category\Service\NavigationLoader">
+            <argument type="service" id="sales_channel.category.repository"/>
+        </service>
     </services>
 </container>                

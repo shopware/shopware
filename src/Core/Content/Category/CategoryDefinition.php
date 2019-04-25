@@ -5,11 +5,12 @@ namespace Shopware\Core\Content\Category;
 use Shopware\Core\Content\Category\Aggregate\CategoryTag\CategoryTagDefinition;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryDefinition;
+use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
-use Shopware\Core\Content\Navigation\NavigationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
@@ -38,6 +39,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 
 class CategoryDefinition extends EntityDefinition
@@ -87,26 +89,33 @@ class CategoryDefinition extends EntityDefinition
 
             (new BoolField('display_nested_products', 'displayNestedProducts'))->addFlags(new Required()),
             (new IntField('auto_increment', 'autoIncrement'))->addFlags(new WriteProtected()),
-            new TreePathField('path', 'path'),
-            new TreeLevelField('level', 'level'),
-            new BoolField('active', 'active'),
+
+            (new TreeLevelField('level', 'level'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new TreePathField('path', 'path'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             new ChildCountField(),
+
+            new BoolField('active', 'active'),
             new CreatedAtField(),
             new UpdatedAtField(),
 
             (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new TranslatedField('attributes'),
+            new TranslatedField('slotConfig'),
 
             new ParentAssociationField(self::class, 'id'),
-            new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false),
             new ChildrenAssociationField(self::class),
-            (new TranslationsAssociationField(CategoryTranslationDefinition::class, 'category_id'))->addFlags(new Required()),
 
-            (new OneToManyAssociationField('navigations', NavigationDefinition::class, 'category_id'))->addFlags(new CascadeDelete()),
+            new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false),
+            (new TranslationsAssociationField(CategoryTranslationDefinition::class, 'category_id'))->addFlags(new Required()),
 
             (new ManyToManyAssociationField('products', ProductDefinition::class, ProductCategoryDefinition::class, 'category_id', 'product_id'))->addFlags(new CascadeDelete(), new ReverseInherited('categories')),
             (new ManyToManyAssociationField('nestedProducts', ProductDefinition::class, ProductCategoryTreeDefinition::class, 'category_id', 'product_id'))->addFlags(new CascadeDelete(), new WriteProtected()),
             new ManyToManyAssociationField('tags', TagDefinition::class, CategoryTagDefinition::class, 'category_id', 'tag_id'),
+
+            new FkField('cms_page_id', 'cmsPageId', CmsPageDefinition::class),
+            new ManyToOneAssociationField('cmsPage', 'cms_page_id', CmsPageDefinition::class, 'id', false),
+
+            new OneToManyAssociationField('salesChannels', SalesChannelDefinition::class, 'category_id'),
         ]);
     }
 }

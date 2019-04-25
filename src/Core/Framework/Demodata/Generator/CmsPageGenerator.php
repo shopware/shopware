@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Demodata\Generator;
 
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\Cms\SlotDataResolver\FieldConfig;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -73,6 +74,7 @@ class CmsPageGenerator implements DemodataGeneratorInterface
             'id' => Uuid::randomHex(),
             'name' => $context->getFaker()->company,
             'type' => 'listing_page',
+            'categories' => [['id' => $context->getFaker()->randomElement($context->getIds(CategoryDefinition::class))]],
             'blocks' => [
                 [
                     'type' => 'image-text',

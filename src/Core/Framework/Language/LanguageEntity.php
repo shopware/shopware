@@ -13,7 +13,6 @@ use Shopware\Core\Content\DeliveryTime\DeliveryTimeCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
-use Shopware\Core\Content\Navigation\Aggregate\NavigationTranslation\NavigationTranslationCollection;
 use Shopware\Core\Content\NewsletterReceiver\NewsletterReceiverCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
@@ -255,11 +254,6 @@ class LanguageEntity extends Entity
      * @var Collection|null
      */
     protected $cmsSlotTranslations;
-
-    /**
-     * @var NavigationTranslationCollection|null
-     */
-    protected $navigationTranslations;
 
     /**
      * @var MailTemplateCollection|null
@@ -719,16 +713,6 @@ class LanguageEntity extends Entity
     public function setAttributes(?array $attributes): void
     {
         $this->attributes = $attributes;
-    }
-
-    public function getNavigationTranslations(): ?NavigationTranslationCollection
-    {
-        return $this->navigationTranslations;
-    }
-
-    public function setNavigationTranslations(NavigationTranslationCollection $navigationTranslations): void
-    {
-        $this->navigationTranslations = $navigationTranslations;
     }
 
     public function getMailTemplateTranslations(): ?MailTemplateCollection

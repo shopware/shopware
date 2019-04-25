@@ -28,6 +28,7 @@
             <argument type="service" id="shipping_method.repository"/>
             <argument type="service" id="country.repository"/>
             <argument type="service" id="snippet_set.repository"/>
+            <argument type="service" id="category.repository"/>
 
             <tag name="console.command"/>
         </service>
@@ -51,7 +52,7 @@
 
         <service id="Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoader">
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Content\Navigation\Service\NavigationTreeLoader"/>
+            <argument type="service" id="Shopware\Core\Content\Category\Service\NavigationLoader"/>
         </service>
 
         <service id="Shopware\Storefront\Pagelet\Suggest\SuggestPageletLoader">
@@ -67,7 +68,7 @@
         <service id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader">
             <argument type="service" id="language.repository"/>
             <argument type="service" id="currency.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Navigation\Service\NavigationTreeLoader"/>
+            <argument type="service" id="Shopware\Core\Content\Category\Service\NavigationLoader"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 

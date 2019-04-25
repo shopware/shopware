@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Pagelet\Menu\Offcanvas;
 
-use Shopware\Core\Content\Navigation\NavigationEntity;
-use Shopware\Core\Content\Navigation\Service\NavigationTreeLoader;
-use Shopware\Core\Framework\DataAbstractionLayer\Util\Tree\Tree;
+use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\Service\NavigationLoader;
+use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
@@ -19,11 +19,11 @@ class MenuOffcanvasPageletLoader implements PageLoaderInterface
     private $eventDispatcher;
 
     /**
-     * @var NavigationTreeLoader
+     * @var NavigationLoader
      */
     private $navigationLoader;
 
-    public function __construct(EventDispatcherInterface $eventDispatcher, NavigationTreeLoader $navigationLoader)
+    public function __construct(EventDispatcherInterface $eventDispatcher, NavigationLoader $navigationLoader)
     {
         $this->eventDispatcher = $eventDispatcher;
         $this->navigationLoader = $navigationLoader;
@@ -31,15 +31,12 @@ class MenuOffcanvasPageletLoader implements PageLoaderInterface
 
     public function load(Request $request, SalesChannelContext $context): MenuOffcanvasPagelet
     {
-        $activeId = $context->getSalesChannel()->getNavigationId();
-        $navigationId = $request->query->get('navigationId', $activeId);
-
+        $navigationId = $request->query->get('navigationId', $context->getSalesChannel()->getCategoryId());
         if (!$navigationId) {
             throw new MissingRequestParameterException('navigationId');
         }
 
         $navigation = $this->getCategoryTree((string) $navigationId, $context);
-
         $page = new MenuOffcanvasPagelet($navigation);
 
         $this->eventDispatcher->dispatch(
@@ -58,14 +55,14 @@ class MenuOffcanvasPageletLoader implements PageLoaderInterface
      */
     private function getCategoryTree(string $navigationId, SalesChannelContext $context)
     {
-        /** @var Tree $navigation */
-        $navigation = $this->navigationLoader->loadLevel($navigationId, $context);
+        /** @var Tree $category */
+        $category = $this->navigationLoader->loadLevel($navigationId, $context);
 
-        /** @var NavigationEntity $active */
-        $active = $navigation->getActive();
+        /** @var CategoryEntity $active */
+        $active = $category->getActive();
 
-        if ($active->getChildCount() > 0) {
-            return $navigation;
+        if ($active->getChildCount() > 0 || $active->getParentId() === null) {
+            return $category;
         }
 
         return $this->navigationLoader->loadLevel($active->getParentId(), $context);

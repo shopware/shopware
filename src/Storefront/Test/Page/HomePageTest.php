@@ -15,11 +15,6 @@ class HomePageTest extends TestCase
     use IntegrationTestBehaviour,
         StorefrontPageTestBehaviour;
 
-    public function testItThrowsWithoutNavigation(): void
-    {
-        $this->assertFailsWithoutNavigation();
-    }
-
     public function testHomepageLoading(): void
     {
         $request = new Request();

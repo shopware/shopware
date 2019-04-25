@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Pagelet\Menu\Offcanvas;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Util\Tree\Tree;
+use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Framework\Struct\Struct;
 
 class MenuOffcanvasPagelet extends Struct

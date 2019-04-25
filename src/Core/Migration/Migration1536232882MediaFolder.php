@@ -5,11 +5,11 @@ namespace Shopware\Core\Migration;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-class Migration1536233080MediaFolder extends MigrationStep
+class Migration1536232882MediaFolder extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
-        return 1536233080;
+        return 1536232882;
     }
 
     public function update(Connection $connection): void

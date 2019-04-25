@@ -3,11 +3,12 @@
 namespace Shopware\Core\Content\Category;
 
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
+use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Navigation\NavigationCollection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Tag\TagCollection;
 
 class CategoryEntity extends Entity
@@ -109,14 +110,29 @@ class CategoryEntity extends Entity
     protected $attributes;
 
     /**
-     * @var NavigationCollection|null
-     */
-    protected $navigations;
-
-    /**
      * @var TagCollection|null
      */
     protected $tags;
+
+    /**
+     * @var string|null
+     */
+    protected $cmsPageId;
+
+    /**
+     * @var CmsPageEntity|null
+     */
+    protected $cmsPage;
+
+    /**
+     * @var array|null
+     */
+    protected $slotConfig;
+
+    /**
+     * @var SalesChannelCollection|null
+     */
+    protected $salesChannels;
 
     public function getParentId(): ?string
     {
@@ -308,16 +324,6 @@ class CategoryEntity extends Entity
         $this->attributes = $attributes;
     }
 
-    public function getNavigations(): ?NavigationCollection
-    {
-        return $this->navigations;
-    }
-
-    public function setNavigations(NavigationCollection $navigations): void
-    {
-        $this->navigations = $navigations;
-    }
-
     public function getTags(): ?TagCollection
     {
         return $this->tags;
@@ -326,5 +332,45 @@ class CategoryEntity extends Entity
     public function setTags(TagCollection $tags): void
     {
         $this->tags = $tags;
+    }
+
+    public function getCmsPage(): ?CmsPageEntity
+    {
+        return $this->cmsPage;
+    }
+
+    public function setCmsPage(CmsPageEntity $cmsPage): void
+    {
+        $this->cmsPage = $cmsPage;
+    }
+
+    public function getCmsPageId(): ?string
+    {
+        return $this->cmsPageId;
+    }
+
+    public function setCmsPageId(string $cmsPageId): void
+    {
+        $this->cmsPageId = $cmsPageId;
+    }
+
+    public function getSlotConfig(): ?array
+    {
+        return $this->slotConfig;
+    }
+
+    public function setSlotConfig(array $slotConfig): void
+    {
+        $this->slotConfig = $slotConfig;
+    }
+
+    public function getSalesChannels(): ?SalesChannelCollection
+    {
+        return $this->salesChannels;
+    }
+
+    public function setSalesChannels(SalesChannelCollection $salesChannels): void
+    {
+        $this->salesChannels = $salesChannels;
     }
 }

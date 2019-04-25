@@ -57,9 +57,9 @@
                                             <li class="footer-link-list list-group-item">
                                                 {% block base_footer_navigation_service_link %}
                                                     <a class="footer-link"
-                                                       href="{{ path('frontend.navigation.page', {'navigationId': treeItem.entity.id}) }}"
-                                                       title="{{ treeItem.entity.name }}">
-                                                        {{ treeItem.entity.name }}
+                                                       href="{{ path('frontend.navigation.page', {'navigationId': treeItem.category.id}) }}"
+                                                       title="{{ treeItem.category.name }}">
+                                                        {{ treeItem.category.name }}
                                                     </a>
                                                 {% endblock %}
                                             </li>
@@ -100,9 +100,9 @@
                                             <li class="footer-link-list list-group-item">
                                                 {% block base_footer_navigation_information_link %}
                                                     <a class="footer-link"
-                                                       href="{{ path('frontend.navigation.page', {'navigationId': treeItem.entity.id}) }}"
-                                                       title="{{ treeItem.entity.name }}">
-                                                        {{ treeItem.entity.name }}
+                                                       href="{{ path('frontend.navigation.page', {'navigationId': treeItem.category.id}) }}"
+                                                       title="{{ treeItem.category.name }}">
+                                                        {{ treeItem.category.name }}
                                                     </a>
                                                 {% endblock %}
                                             </li>

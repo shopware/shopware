@@ -3,25 +3,16 @@
 namespace Shopware\Storefront\Page\Navigation;
 
 use Shopware\Core\Content\Cms\CmsPageEntity;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageWithHeader;
-use Shopware\Storefront\Pagelet\Header\HeaderPagelet;
 
 class NavigationPage extends PageWithHeader
 {
     /**
-     * @var CmsPageEntity
+     * @var CmsPageEntity|null
      */
     protected $cmsPage;
 
-    public function __construct(HeaderPagelet $header, SalesChannelContext $context, CmsPageEntity $cmsPage)
-    {
-        $this->cmsPage = $cmsPage;
-
-        parent::__construct($header, $context);
-    }
-
-    public function getCmsPage(): CmsPageEntity
+    public function getCmsPage(): ?CmsPageEntity
     {
         return $this->cmsPage;
     }

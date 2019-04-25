@@ -11,9 +11,9 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSalesChannelCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
-use Shopware\Core\Content\Navigation\NavigationEntity;
 use Shopware\Core\Content\NewsletterReceiver\NewsletterReceiverCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -67,7 +67,7 @@ class SalesChannelEntity extends Entity
     /**
      * @var string|null
      */
-    protected $navigationId;
+    protected $categoryId;
 
     /**
      * @var string|null
@@ -195,9 +195,9 @@ class SalesChannelEntity extends Entity
     protected $attributes;
 
     /**
-     * @var NavigationEntity|null
+     * @var CategoryEntity|null
      */
-    protected $navigation;
+    protected $category;
 
     /**
      * @var ProductVisibilityCollection|null
@@ -579,24 +579,24 @@ class SalesChannelEntity extends Entity
         $this->attributes = $attributes;
     }
 
-    public function getNavigationId(): ?string
+    public function getCategoryId(): ?string
     {
-        return $this->navigationId;
+        return $this->categoryId;
     }
 
-    public function setNavigationId(?string $navigationId): void
+    public function setCategoryId(string $categoryId): void
     {
-        $this->navigationId = $navigationId;
+        $this->categoryId = $categoryId;
     }
 
-    public function getNavigation(): ?NavigationEntity
+    public function getCategory(): ?CategoryEntity
     {
-        return $this->navigation;
+        return $this->category;
     }
 
-    public function setNavigation(?NavigationEntity $navigation): void
+    public function setCategory(CategoryEntity $category): void
     {
-        $this->navigation = $navigation;
+        $this->category = $category;
     }
 
     public function getProductVisibilities(): ?ProductVisibilityCollection

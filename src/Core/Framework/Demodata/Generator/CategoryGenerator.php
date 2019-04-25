@@ -4,7 +4,11 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 
 use Faker\Generator;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -21,9 +25,15 @@ class CategoryGenerator implements DemodataGeneratorInterface
      */
     private $categoryRepository;
 
-    public function __construct(EntityRepositoryInterface $categoryRepository)
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $cmsPageRepository;
+
+    public function __construct(EntityRepositoryInterface $categoryRepository, EntityRepositoryInterface $cmsPageRepository)
     {
         $this->categoryRepository = $categoryRepository;
+        $this->cmsPageRepository = $cmsPageRepository;
     }
 
     public function getDefinition(): string
@@ -34,6 +44,8 @@ class CategoryGenerator implements DemodataGeneratorInterface
     public function generate(int $numberOfItems, DemodataContext $context, array $options = []): void
     {
         $numberOfSubCategories = 0;
+        $rootCategoryId = $this->getRootCategoryId($context->getContext());
+        $pageIds = $this->getCmsPageIds($context->getContext());
 
         $payload = [];
         $lastId = null;
@@ -42,8 +54,11 @@ class CategoryGenerator implements DemodataGeneratorInterface
 
             $payload[] = [
                 'id' => $id,
+                'parentId' => $rootCategoryId,
                 'name' => $this->randomDepartment($context->getFaker()),
                 'afterCategoryId' => $lastId,
+                'active' => true,
+                'cmsPageId' => $context->getFaker()->randomElement($pageIds),
             ];
 
             $lastId = $id;
@@ -61,6 +76,8 @@ class CategoryGenerator implements DemodataGeneratorInterface
                     'name' => $this->randomDepartment($context->getFaker()),
                     'parentId' => $category['id'],
                     'afterCategoryId' => $lastId,
+                    'active' => true,
+                    'cmsPageId' => $context->getFaker()->randomElement($pageIds),
                 ];
 
                 $lastId = $id;
@@ -110,5 +127,25 @@ class CategoryGenerator implements DemodataGeneratorInterface
         $this->categories[] = $categoryName;
 
         return $categoryName;
+    }
+
+    private function getRootCategoryId(Context $context): string
+    {
+        $criteria = new Criteria();
+        $criteria->setLimit(1);
+        $criteria->addFilter(new EqualsFilter('category.parentId', null));
+        $criteria->addSorting(new FieldSorting('category.createdAt', FieldSorting::ASCENDING));
+
+        $categories = $this->categoryRepository->searchIds($criteria, $context)->getIds();
+
+        return array_shift($categories);
+    }
+
+    private function getCmsPageIds(Context $getContext): array
+    {
+        $criteria = new Criteria();
+        $criteria->setLimit(500);
+
+        return $this->cmsPageRepository->searchIds($criteria, $getContext)->getIds();
     }
 }

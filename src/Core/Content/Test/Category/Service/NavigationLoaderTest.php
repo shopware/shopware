@@ -1,18 +1,25 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Util\Tree;
+namespace Shopware\Core\Content\Test\Category\Service;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Util\Tree\TreeAwareInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Util\Tree\TreeBuilder;
+use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\Service\NavigationLoader;
+use Shopware\Core\Content\Category\Tree\TreeItem;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 
-class TreeBuilderTest extends TestCase
+class NavigationLoaderTest extends TestCase
 {
-    public function testTreeBuilderwithSimpleTree()
+    public function testTreeBuilderwithSimpleTree(): void
     {
-        $treeItems = (new TreeBuilder())->buildTree('1', $this->createSimpleTreeEntityCollection());
+        $loader = new NavigationLoader($this->createMock(EntityRepositoryInterface::class));
+
+        $method = ReflectionHelper::getMethod(NavigationLoader::class, 'buildTree');
+
+        /** @var TreeItem[] $treeItems */
+        $treeItems = $method->invoke($loader, '1', $this->createSimpleTreeEntityCollection());
 
         static::assertCount(3, $treeItems);
         static::assertCount(2, $treeItems['1.1']->getChildren());
@@ -24,9 +31,9 @@ class TreeBuilderTest extends TestCase
         static::assertCount(0, $treeItems['1.3']->getChildren());
     }
 
-    private function createSimpleTreeEntityCollection(): EntityCollection
+    private function createSimpleTreeEntityCollection(): CategoryCollection
     {
-        return new EntityCollection([
+        return new CategoryCollection([
             new TestTreeAware('1.1', '1'),
             new TestTreeAware('1.1.1', '1.1'),
             new TestTreeAware('1.1.2', '1.1'),
@@ -40,16 +47,16 @@ class TreeBuilderTest extends TestCase
     }
 }
 
-class TestTreeAware extends Entity implements TreeAwareInterface
+class TestTreeAware extends CategoryEntity
 {
     /**
      * @var string
      */
-    private $id;
+    protected $id;
     /**
      * @var string
      */
-    private $parentId;
+    protected $parentId;
 
     public function __construct(string $id, string $parentId)
     {

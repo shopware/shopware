@@ -16,11 +16,6 @@ class AddressListPageTest extends TestCase
     use IntegrationTestBehaviour,
         StorefrontPageTestBehaviour;
 
-    public function testItThrowsWithoutNavigation(): void
-    {
-        $this->assertFailsWithoutNavigation();
-    }
-
     public function testLoginRequirement(): void
     {
         $this->assertLoginRequirement();

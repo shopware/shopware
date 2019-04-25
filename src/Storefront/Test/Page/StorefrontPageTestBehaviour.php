@@ -48,7 +48,7 @@ trait StorefrontPageTestBehaviour
     protected function assertFailsWithoutNavigation(): void
     {
         $request = new Request();
-        $context = $this->createSalesChannelContext();
+        $context = $this->createSalesChannelContextWithLoggedInCustomer();
 
         $this->expectNavigationMissingException();
         $this->getPageLoader()->load($request, $context);
@@ -131,7 +131,6 @@ trait StorefrontPageTestBehaviour
             'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
             'name' => 'store front',
             'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
-            'navigationId' => $this->getNavigationId(),
             'languageId' => Defaults::LANGUAGE_SYSTEM,
             'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
             'currencyId' => Defaults::CURRENCY,
@@ -140,6 +139,8 @@ trait StorefrontPageTestBehaviour
             'paymentMethodVersionId' => Defaults::LIVE_VERSION,
             'shippingMethodId' => $shippingMethodId,
             'shippingMethodVersionId' => Defaults::LIVE_VERSION,
+            'categoryId' => $this->getValidCategoryId(),
+            'categoryVersionId' => Defaults::LIVE_VERSION,
             'countryId' => $countryId,
             'countryVersionId' => Defaults::LIVE_VERSION,
             'currencies' => [['id' => Defaults::CURRENCY]],
@@ -161,7 +162,6 @@ trait StorefrontPageTestBehaviour
             'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
             'name' => 'store front',
             'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
-            'navigationId' => $this->getNavigationId(),
             'languageId' => Defaults::LANGUAGE_SYSTEM,
             'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
             'currencyId' => Defaults::CURRENCY,
@@ -170,6 +170,7 @@ trait StorefrontPageTestBehaviour
             'paymentMethodVersionId' => Defaults::LIVE_VERSION,
             'shippingMethodId' => $shippingMethodId,
             'shippingMethodVersionId' => Defaults::LIVE_VERSION,
+            'categoryId' => $this->getValidCategoryId(),
             'countryId' => $countryId,
             'countryVersionId' => Defaults::LIVE_VERSION,
             'currencies' => [['id' => Defaults::CURRENCY]],
@@ -201,6 +202,8 @@ trait StorefrontPageTestBehaviour
             'paymentMethodVersionId' => Defaults::LIVE_VERSION,
             'shippingMethodId' => $shippingMethodId,
             'shippingMethodVersionId' => Defaults::LIVE_VERSION,
+            'categoryId' => $this->getValidCategoryId(),
+            'categoryVersionId' => Defaults::LIVE_VERSION,
             'countryId' => $countryId,
             'countryVersionId' => Defaults::LIVE_VERSION,
             'currencies' => [['id' => Defaults::CURRENCY]],
@@ -280,12 +283,5 @@ trait StorefrontPageTestBehaviour
         $ruleLoader->loadByToken($context, $context->getToken());
 
         return $context;
-    }
-
-    private function getNavigationId(): string
-    {
-        $navigationRepo = $this->getContainer()->get('navigation.repository');
-
-        return $navigationRepo->search(new Criteria(), Context::createDefaultContext())->first()->getId();
     }
 }

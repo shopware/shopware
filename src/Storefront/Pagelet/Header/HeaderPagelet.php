@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Pagelet\Header;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Util\Tree\Tree;
+use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Framework\Language\LanguageCollection;
 use Shopware\Core\Framework\Language\LanguageEntity;
 use Shopware\Core\Framework\Struct\Struct;
@@ -12,7 +12,7 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 class HeaderPagelet extends Struct
 {
     /**
-     * @var \Shopware\Core\Framework\DataAbstractionLayer\Util\Tree\Tree
+     * @var \Shopware\Core\Content\Category\Tree\Tree
      */
     private $navigation;
 

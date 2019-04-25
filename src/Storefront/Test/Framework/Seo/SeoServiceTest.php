@@ -162,6 +162,7 @@ class SeoServiceTest extends TestCase
             'currencyId' => Defaults::CURRENCY,
             'paymentMethodId' => $this->getValidPaymentMethodId(),
             'shippingMethodId' => $this->getValidShippingMethodId(),
+            'categoryId' => $this->getValidCategoryId(),
             'countryId' => $this->getValidCountryId(),
             'currencies' => [['id' => Defaults::CURRENCY]],
             'languages' => $languages,

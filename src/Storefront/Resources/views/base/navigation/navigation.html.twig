@@ -30,14 +30,14 @@
                         {% block base_main_navigation_menu_items %}
                             {% for treeItem in page.header.navigation.tree %}
                                 {% block base_main_navigation_menu_item %}
-                                    <a class="nav-item nav-link{% if treeItem.entity.id is same as(page.header.navigation.active.id) %} active{% endif %}"
-                                        href="{{ path('frontend.navigation.page', {'navigationId': treeItem.entity.id}) }}"
+                                    <a class="nav-item nav-link{% if treeItem.category.id is same as(page.header.navigation.active.id) %} active{% endif %}"
+                                        href="{{ path('frontend.navigation.page', {'navigationId': treeItem.category.id}) }}"
                                         itemprop="url"
                                         {% if treeItem.children|length > 0 %}
-                                            data-menu-flyout-trigger="{{ treeItem.entity.id }}"
+                                            data-menu-flyout-trigger="{{ treeItem.category.id }}"
                                         {% endif %}
-                                        title="{{ treeItem.entity.name }}">
-                                        <span itemprop="name">{{ treeItem.entity.name }}</span>
+                                        title="{{ treeItem.category.name }}">
+                                        <span itemprop="name">{{ treeItem.category.name }}</span>
                                     </a>
                                 {% endblock %}
                             {% endfor %}
@@ -51,7 +51,7 @@
 
             {% set navigationChildrenCount = 0 %}
             {% for treeItem in page.header.navigation.tree %}
-                {% if treeItem.entity.childCount > 0 %}
+                {% if treeItem.category.childCount > 0 %}
                     {% set navigationChildrenCount = navigationChildrenCount + 1 %}
                 {% endif %}
             {% endfor %}
@@ -63,7 +63,7 @@
                             {% for treeItem in page.header.navigation.tree %}
                                 {% if treeItem.children|length > 0 %}
                                     {% block base_main_navigation_menu_flyout %}
-                                        <div class="navigation-flyout" data-menu-flyout-id="{{ treeItem.entity.id }}">
+                                        <div class="navigation-flyout" data-menu-flyout-id="{{ treeItem.category.id }}">
                                             {% block base_main_navigation_menu_flyout_include %}
                                                 {% sw_include '@Storefront/base/navigation/flyout.html.twig' with {navigationTree: treeItem, level: level+1} only %}
                                             {% endblock %}

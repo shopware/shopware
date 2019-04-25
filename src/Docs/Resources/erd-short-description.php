@@ -98,8 +98,6 @@ return [
     Shopware\Core\Framework\Search\SearchDocumentDefinition::class => 'Composite search',
     Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition::class => 'Translations',
     Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition::class => 'Visibility in sales channels',
-    Shopware\Core\Content\Navigation\NavigationDefinition::class => 'SalesChannel Navigation',
-    Shopware\Core\Content\Navigation\Aggregate\NavigationTranslation\NavigationTranslationDefinition::class => 'Translations',
     Shopware\Core\Content\Rule\RuleDefinition::class => 'Rule',
     Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition::class => 'Rule condition',
     Shopware\Core\Content\ProductStream\ProductStreamDefinition::class => 'Product streams',

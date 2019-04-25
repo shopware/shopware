@@ -11,12 +11,12 @@
             {% block base_navigation_categories_item %}
                 <li>
                     {% block base_navigation_categories_item_link %}
-                        <a class="nav-item nav-link navigation-flyout-link level-{{ level }}{% if treeItem.entity.id is same as(page.header.navigation.active.id) %} active{% endif %}"
-                            href="{{ path('frontend.navigation.page', {'navigationId': treeItem.entity.id}) }}"
+                        <a class="nav-item nav-link navigation-flyout-link level-{{ level }}{% if treeItem.category.id is same as(page.header.navigation.active.id) %} active{% endif %}"
+                            href="{{ path('frontend.navigation.page', {'navigationId': treeItem.category.id}) }}"
                             itemprop="url"
-                            title="{{ treeItem.entity.name }}">
+                            title="{{ treeItem.category.name }}">
                             {% block base_navigation_categories_item_link_text %}
-                                <span itemprop="name">{{ treeItem.entity.name }}</span>
+                                <span itemprop="name">{{ treeItem.category.name }}</span>
                             {% endblock %}
                         </a>
                     {% endblock %}

@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\Cms;
 
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
-use Shopware\Core\Content\Navigation\NavigationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -38,9 +38,9 @@ class CmsPageEntity extends Entity
     protected $translations;
 
     /**
-     * @var NavigationCollection|null
+     * @var CategoryCollection|null
      */
-    protected $navigations;
+    protected $categories;
 
     /**
      * @var array|null
@@ -142,14 +142,14 @@ class CmsPageEntity extends Entity
         $this->attributes = $attributes;
     }
 
-    public function getNavigations(): ?NavigationCollection
+    public function getCategories(): ?CategoryCollection
     {
-        return $this->navigations;
+        return $this->categories;
     }
 
-    public function setNavigations(NavigationCollection $navigations): void
+    public function setCategories(CategoryCollection $categories): void
     {
-        $this->navigations = $navigations;
+        $this->categories = $categories;
     }
 
     public function getConfig(): ?array

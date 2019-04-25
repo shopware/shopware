@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Pagelet\Header;
 
-use Shopware\Core\Content\Navigation\Service\NavigationTreeLoader;
+use Shopware\Core\Content\Category\Service\NavigationLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -28,19 +28,19 @@ class HeaderPageletLoader implements PageLoaderInterface
     private $currencyRepository;
 
     /**
-     * @var NavigationTreeLoader
-     */
-    private $navigationLoader;
-
-    /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
 
+    /**
+     * @var NavigationLoader
+     */
+    private $navigationLoader;
+
     public function __construct(
         EntityRepositoryInterface $languageRepository,
         EntityRepositoryInterface $currencyRepository,
-        NavigationTreeLoader $navigationLoader,
+        NavigationLoader $navigationLoader,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->languageRepository = $languageRepository;
@@ -53,14 +53,14 @@ class HeaderPageletLoader implements PageLoaderInterface
     {
         $navigationId = $request->get(
             'navigationId',
-            $context->getSalesChannel()->getNavigationId()
+            $context->getSalesChannel()->getCategoryId()
         );
 
         if (!$navigationId) {
             throw new MissingRequestParameterException('navigationId');
         }
 
-        $navigation = $this->navigationLoader->load((string) $navigationId, $context);
+        $category = $this->navigationLoader->load((string) $navigationId, $context);
 
         /** @var LanguageCollection $languages */
         $languages = $this->loadLanguages($context);
@@ -69,7 +69,7 @@ class HeaderPageletLoader implements PageLoaderInterface
         $currencies = $this->loadCurrencies($context);
 
         $page = new HeaderPagelet(
-            $navigation,
+            $category,
             $languages,
             $currencies,
             $languages->get($context->getContext()->getLanguageId()),

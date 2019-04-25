@@ -19,7 +19,7 @@
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="request_stack"/>
             <argument type="service" id="router"/>
-            <argument type="service" id="Shopware\Storefront\Page\ErrorPageController"/>
+            <argument type="service" id="Shopware\Storefront\PageController\ErrorPageController"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Command\SalesChannelCreateStorefrontCommand">
@@ -220,24 +220,24 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\Checkout\CheckoutPageletController" public="true">
+        <service id="Shopware\Storefront\PageletController\CheckoutPageletController" public="true">
             <argument type="service" id="Shopware\Storefront\Pagelet\Checkout\Info\CheckoutInfoPageletLoader"/>
             <argument type="service" id="Shopware\Storefront\Pagelet\Checkout\AjaxCart\CheckoutAjaxCartPageletLoader"/>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\Listing\ListingPageletController" public="true">
+        <service id="Shopware\Storefront\PageletController\ListingPageletController" public="true">
             <argument type="service" id="Shopware\Storefront\Pagelet\Listing\ListingPageletLoader"/>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\Menu\MenuPageletController" public="true">
+        <service id="Shopware\Storefront\PageletController\MenuPageletController" public="true">
             <argument type="service" id="Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoader"/>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\Suggest\SuggestPageletController" public="true">
+        <service id="Shopware\Storefront\PageletController\SuggestPageletController" public="true">
             <argument type="service" id="Shopware\Storefront\Pagelet\Suggest\SuggestPageletLoader"/>
         </service>
 
-        <service id="Shopware\Storefront\Page\Account\AccountPageController" public="true">
+        <service id="Shopware\Storefront\PageController\AccountPageController" public="true">
             <argument type="service" id="Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\AddressList\AccountAddressListPageLoader"/>
@@ -259,7 +259,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
         </service>
 
-        <service id="Shopware\Storefront\Page\Checkout\CheckoutPageController" public="true">
+        <service id="Shopware\Storefront\PageController\CheckoutPageController" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <argument type="service" id="Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader"/>
@@ -272,23 +272,23 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelContextSwitcher"/>
         </service>
 
-        <service id="Shopware\Storefront\Page\ErrorPageController" public="true">
+        <service id="Shopware\Storefront\PageController\ErrorPageController" public="true">
             <argument type="service" id="Shopware\Storefront\Framework\Twig\ErrorTemplateResolver"/>
         </service>
 
-        <service id="Shopware\Storefront\Page\Home\HomePageController" public="true">
+        <service id="Shopware\Storefront\PageController\HomePageController" public="true">
             <argument type="service" id="Shopware\Storefront\Page\Home\HomePageLoader"/>
         </service>
 
-        <service id="Shopware\Storefront\Page\Product\ProductPageController" public="true">
+        <service id="Shopware\Storefront\PageController\ProductPageController" public="true">
             <argument type="service" id="Shopware\Storefront\Page\Product\ProductPageLoader"/>
         </service>
 
-        <service id="Shopware\Storefront\Page\Search\SearchPageController" public="true">
+        <service id="Shopware\Storefront\PageController\SearchPageController" public="true">
             <argument type="service" id="Shopware\Storefront\Page\Search\SearchPageLoader"/>
         </service>
 
-        <service id="Shopware\Storefront\Page\Navigation\NavigationPageController" public="true">
+        <service id="Shopware\Storefront\PageController\NavigationPageController" public="true">
             <argument type="service" id="Shopware\Storefront\Page\Navigation\NavigationPageLoader"/>
         </service>
 
@@ -313,7 +313,7 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Storefront\Page\Newsletter\NewsletterController" public="true">
+        <service id="Shopware\Storefront\PageController\NewsletterController" public="true">
             <argument type="service" id="Shopware\Storefront\Page\Newsletter\Register\NewsletterRegisterLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Newsletter\Confirm\NewsletterConfirmPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Newsletter\ConfirmSubscribe\NewsletterConfirmSubscribePageLoader"/>

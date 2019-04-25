@@ -48,7 +48,12 @@
     "error": {
         "VIOLATION::IS_BLANK_ERROR": "%field% darf nicht leer sein.",
         "VIOLATION::TOO_LOW_ERROR": "%field% darf nicht leer sein.",
-        "VIOLATION::STRICT_CHECK_FAILED_ERROR": "%field% ist ungültig"
+        "VIOLATION::STRICT_CHECK_FAILED_ERROR": "%field% ist ungültig",
+        "message-default": "Leider ist etwas ist schief gelaufen",
+        "message-404": "Die angeforderte Seite kann nicht gefunden werden.",
+        "addToCartError": "Beim Hinzufügen zum Warenkorb ist ein Fehler aufgetreten.",
+        "FRAMEWORK__INVALID_UUID": "Die gewählte Zahlungsart konnte nicht gefunden werden.",
+        "CHECKOUT__UNKNOWN_PAYMENT_METHOD": "Die gewählte Zahlungsart konnte nicht gefunden werden."
     },
     "account": {
         "myAccount": "Mein Konto",
@@ -173,6 +178,8 @@
         "orderActionSlide": "Anzeigen",
         "orderInfoNoDispatch": "Nicht angegeben",
         "orderLinkRepeat": "Bestellung wiederholen",
+        "newsletterTitle": "Ihre Newslettereinstellungen",
+        "newsletterSettings": "Ja, ich möchte den kostenlosen %shopname% Newsletter erhalten. Sie können sich jederzeit wieder abmelden!",
         "passwordResetTitle": "Passwort vergessen?",
         "passwordResetInfo": "Wenn Sie das Passwort für Ihr Konto vergessen haben, können Sie hier ein neues definieren. Wenn Sie das neue Passwort speichern, wird Ihr altes Passwort ungültig.",
         "passwordOptInInfo": "Wir senden Ihnen eine Bestätigungs-E-Mail. Klicken Sie auf den darin enthaltenen Link, um Ihr Passwort zu ändern.",
@@ -258,13 +265,6 @@
         "tabsDescription": "Beschreibung",
         "descriptionTitle": "Produktinformationen",
         "priceUnitName": "Inhalt:"
-    },
-    "error": {
-        "message-default": "Leider ist etwas ist schief gelaufen",
-        "message-404": "Die angeforderte Seite kann nicht gefunden werden.",
-        "addToCartError": "Beim Hinzufügen zum Warenkorb ist ein Fehler aufgetreten.",
-        "FRAMEWORK__INVALID_UUID": "Die gewählte Zahlungsart konnte nicht gefunden werden.",
-        "CHECKOUT__UNKNOWN_PAYMENT_METHOD": "Die gewählte Zahlungsart konnte nicht gefunden werden."
     },
     "footer": {
         "serviceHotlineHeadline": "Service Hotline",

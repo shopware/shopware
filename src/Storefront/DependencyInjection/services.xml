@@ -102,9 +102,15 @@
 
         <service id="Shopware\Storefront\Page\Search\SearchPageLoader" public="true">
             <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
-            <argument type="service" id="Shopware\Storefront\Pagelet\Listing\ListingPageletLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\Search\ProductSearchGateway"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
+
+        <service id="Shopware\Storefront\Page\Search\ProductSearchGateway">
+            <argument id="sales_channel.product.repository" type="service"/>
+            <argument id="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface" type="service"/>
+        </service>
+
 
         <service id="Shopware\Storefront\Page\Product\ProductPageLoader">
             <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>

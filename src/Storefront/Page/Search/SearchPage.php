@@ -10,21 +10,21 @@ class SearchPage extends PageWithHeader
     /**
      * @var StorefrontSearchResult
      */
-    protected $listing;
+    protected $searchResult;
 
     /**
      * @var string
      */
     protected $searchTerm;
 
-    public function getListing(): StorefrontSearchResult
+    public function getSearchResult(): StorefrontSearchResult
     {
-        return $this->listing;
+        return $this->searchResult;
     }
 
-    public function setListing(StorefrontSearchResult $listing): void
+    public function setSearchResult(StorefrontSearchResult $searchResult): void
     {
-        $this->listing = $listing;
+        $this->searchResult = $searchResult;
     }
 
     public function getSearchTerm(): string

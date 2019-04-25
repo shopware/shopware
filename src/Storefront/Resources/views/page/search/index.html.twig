@@ -1,5 +1,15 @@
 {% sw_extends '@Storefront/base.html.twig' %}
 
 {% block base_content %}
-
+    <div class="cms-page search-page">
+        <div class="col-12 listing-wrapper">
+            <div class="row">
+                {% for product in page.searchResult %}
+                    <div class="listing-col col-sm-6 col-lg-3">
+                        {% sw_include '@Storefront/component/product/widget/box.html.twig' with {layout: 'minimal'} %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 {% endblock %}

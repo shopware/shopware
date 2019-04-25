@@ -125,16 +125,16 @@ class ProductVisibilityTest extends TestCase
         /** @var SearchPage $page */
         $page = $this->searchPageLoader->load($request, $salesChannelContext);
 
-        static::assertCount(2, $page->getListing());
-        static::assertTrue($page->getListing()->has($this->productId2));
-        static::assertTrue($page->getListing()->has($this->productId3));
+        static::assertCount(2, $page->getSearchResult());
+        static::assertTrue($page->getSearchResult()->has($this->productId2));
+        static::assertTrue($page->getSearchResult()->has($this->productId3));
 
         $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId2);
         $page = $this->searchPageLoader->load($request, $salesChannelContext);
 
-        static::assertCount(2, $page->getListing());
-        static::assertTrue($page->getListing()->has($this->productId1));
-        static::assertTrue($page->getListing()->has($this->productId2));
+        static::assertCount(2, $page->getSearchResult());
+        static::assertTrue($page->getSearchResult()->has($this->productId1));
+        static::assertTrue($page->getSearchResult()->has($this->productId2));
     }
 
     public function testVisibilityOnProductPage()
@@ -180,16 +180,16 @@ class ProductVisibilityTest extends TestCase
         /** @var SearchPage $page */
         $page = $this->suggestPageletLoader->load($request, $salesChannelContext);
 
-        static::assertCount(2, $page->getListing());
-        static::assertTrue($page->getListing()->has($this->productId2));
-        static::assertTrue($page->getListing()->has($this->productId3));
+        static::assertCount(2, $page->getSearchResult());
+        static::assertTrue($page->getSearchResult()->has($this->productId2));
+        static::assertTrue($page->getSearchResult()->has($this->productId3));
 
         $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId2);
         $page = $this->searchPageLoader->load($request, $salesChannelContext);
 
-        static::assertCount(2, $page->getListing());
-        static::assertTrue($page->getListing()->has($this->productId1));
-        static::assertTrue($page->getListing()->has($this->productId2));
+        static::assertCount(2, $page->getSearchResult());
+        static::assertTrue($page->getSearchResult()->has($this->productId1));
+        static::assertTrue($page->getSearchResult()->has($this->productId2));
     }
 
     private function insertData()

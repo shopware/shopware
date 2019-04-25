@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Context\AdminApiSource;
 use Shopware\Core\Framework\Context\ContextSource;
 use Shopware\Core\Framework\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context\SystemSource;
@@ -184,15 +183,6 @@ class Context extends Struct
         }
 
         return Defaults::SALES_CHANNEL;
-    }
-
-    public function getUserId(): ?string
-    {
-        if ($this->source instanceof AdminApiSource) {
-            return $this->source->getUserId();
-        }
-
-        return null;
     }
 
     public function getCurrencyPrecision(): int

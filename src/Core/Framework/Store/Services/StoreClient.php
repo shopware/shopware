@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Store\Services;
 use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Framework;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Exception\StoreHostMissingException;
+use Shopware\Core\Framework\Store\Exception\StoreNotInAdminContextException;
 use Shopware\Core\Framework\Store\Exception\StoreSignatureValidationException;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
 use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
@@ -67,13 +69,17 @@ final class StoreClient
 
     public function loginWithShopwareId(string $shopwareId, string $password, string $language, Context $context): AccessTokenStruct
     {
+        if (!$context->getSource() instanceof AdminApiSource) {
+            throw new StoreNotInAdminContextException();
+        }
+
         $response = $this->client->post(
             '/swplatform/login',
             [
                 'body' => \json_encode([
                     'shopwareId' => $shopwareId,
                     'password' => $password,
-                    'shopwareUserId' => $context->getUserId(),
+                    'shopwareUserId' => $context->getSource()->getUserId(),
                 ]),
                 'query' => $this->getDefaultQueryParameters($language, $context),
             ]

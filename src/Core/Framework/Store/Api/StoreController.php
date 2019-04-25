@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Store\Api;
 
 use GuzzleHttp\Exception\ClientException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Store\Exception\CanNotDownloadPluginManagedByCompose
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
 use Shopware\Core\Framework\Store\Exception\StoreNotAvailableException;
+use Shopware\Core\Framework\Store\Exception\StoreNotInAdminContextException;
 use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Store\StoreSettingsEntity;
@@ -102,7 +104,10 @@ class StoreController extends AbstractController
             throw new StoreInvalidCredentialsException();
         }
 
-        $userId = $context->getUserId();
+        if (!$context->getSource() instanceof AdminApiSource) {
+            throw new StoreNotInAdminContextException();
+        }
+
         try {
             $accessTokenStruct = $this->storeClient->loginWithShopwareId($shopwareId, $password, $language, $context);
         } catch (ClientException $exception) {
@@ -139,6 +144,7 @@ class StoreController extends AbstractController
         ];
         $this->storeSettingsRepo->upsert($data, $context);
 
+        $userId = $context->getSource()->getUserId();
         $this->userRepository->update([
             ['id' => $userId, 'storeToken' => $accessTokenStruct->getShopUserToken()->getToken()],
         ], $context);
@@ -151,7 +157,11 @@ class StoreController extends AbstractController
      */
     public function checkLogin(Context $context): Response
     {
-        $userId = $context->getUserId();
+        if (!$context->getSource() instanceof AdminApiSource) {
+            throw new StoreNotInAdminContextException();
+        }
+
+        $userId = $context->getSource()->getUserId();
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('id', $userId));
@@ -170,8 +180,11 @@ class StoreController extends AbstractController
      */
     public function logout(Context $context): Response
     {
-        $userId = $context->getUserId();
+        if (!$context->getSource() instanceof AdminApiSource) {
+            throw new StoreNotInAdminContextException();
+        }
 
+        $userId = $context->getSource()->getUserId();
         $this->userRepository->update([
             ['id' => $userId, 'storeToken' => null],
         ], $context);
@@ -268,7 +281,11 @@ class StoreController extends AbstractController
 
     private function getUserStoreToken(Context $context): string
     {
-        $userId = $context->getUserId();
+        if (!$context->getSource() instanceof AdminApiSource) {
+            throw new StoreNotInAdminContextException();
+        }
+
+        $userId = $context->getSource()->getUserId();
 
         /** @var UserEntity|null $user */
         $user = $this->userRepository->search(new Criteria([$userId]), $context)->first();

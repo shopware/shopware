@@ -311,11 +311,17 @@ EOL;
     {
         $fields = $definition::getFields()->filterInstance(JsonField::class);
 
-        $template = '    CONSTRAINT `json.#column#` CHECK (JSON_VALID(`#column#`))';
+        $template = '    CONSTRAINT `json.#entity#.#column#` CHECK (JSON_VALID(`#column#`))';
         $checks = [];
+
         /** @var JsonField $field */
         foreach ($fields as $field) {
-            $checks[] = str_replace('#column#', $field->getStorageName(), $template);
+            $parameters = [
+                '#entity#' => $definition::getEntityName(),
+                '#column#' => $field->getStorageName(),
+            ];
+
+            $checks[] = str_replace(array_keys($parameters), array_values($parameters), $template);
         }
 
         return implode(",\n", $checks);

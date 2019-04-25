@@ -12,8 +12,8 @@
             </sw-media-upload>
             <sw-upload-store-listener
                 :uploadTag="uploadTag"
-                @sw-media-upload-added="onChangeMedia"
-                @sw-media-upload-finished="onImageUpload">
+                @media-upload-add="onChangeMedia"
+                @media-upload-finish="onImageUpload">
             </sw-upload-store-listener>
         {% endblock %}
 

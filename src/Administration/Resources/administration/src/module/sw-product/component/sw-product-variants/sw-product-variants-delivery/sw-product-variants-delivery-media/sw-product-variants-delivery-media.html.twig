@@ -38,8 +38,8 @@
                                 {% block sw_product_variants_delivery_media_data_grid_column_option_media_listener %}
                                     <sw-upload-store-listener
                                             :uploadTag="item.id"
-                                            @sw-media-upload-added="onUploadsAdded"
-                                            @sw-media-upload-finished="successfulUpload">
+                                            @media-upload-add="onUploadsAdded"
+                                            @media-upload-finish="successfulUpload">
                                     </sw-upload-store-listener>
                                 {% endblock %}
                                 {% block sw_product_variants_delivery_media_data_grid_column_option_media_upload %}

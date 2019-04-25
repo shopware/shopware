@@ -6,8 +6,8 @@ import UploadTask from 'src/core/helper/uploadTask.helper';
 import { fileReader } from 'src/core/service/util.service';
 
 const UploadEvents = {
-    UPLOAD_ADDED: 'sw-media-upload-added',
-    UPLOAD_FINISHED: 'sw-media-upload-finished',
+    UPLOAD_ADDED: 'media-upload-add',
+    UPLOAD_FINISHED: 'media-upload-finish',
     UPLOAD_FAILED: 'media-upload-fail'
 };
 

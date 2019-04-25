@@ -1,6 +1,6 @@
 {% block sw_product_stream_modal_preview %}
     <sw-modal class="sw-product-stream-modal-preview"
-              :title="$tc('sw-product-stream.previewModal.title')"
+              :title="$tc('sw-product-stream.previewModal.title') + ' (' + (total || 0 )+ ')'"
               :isLoading="isLoading"
               variant="large"
               @modal-close="closeModal">

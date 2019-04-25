@@ -28,8 +28,45 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             fieldPath: [],
             negatedCondition: null,
             definitionBlacklist: {},
-            filterValue: null,
-            types: [
+            filterValue: null
+        };
+    },
+
+    computed: {
+        fieldNames() {
+            return ['type', 'field', 'operator', 'value', 'parameters', 'position', 'attributes'];
+        },
+        definitions() {
+            return this.getDefinitions();
+        },
+        definition() {
+            return this.definitions[this.definitions.length - 1];
+        },
+        actualCondition() {
+            return this.negatedCondition || this.condition;
+        },
+        conditionFieldPath() {
+            return this.actualCondition.field.split('.');
+        },
+        selectValues() {
+            const values = [
+                {
+                    label: this.$tc('global.sw-condition.condition.yes'),
+                    value: '1'
+                },
+                {
+                    label: this.$tc('global.sw-condition.condition.no'),
+                    value: '0'
+                }
+            ];
+
+            return new LocalStore(values, 'value');
+        },
+        conditionClass() {
+            return 'sw-product-stream-filter';
+        },
+        types() {
+            return [
                 {
                     type: TYPES.TYPE_RANGE,
                     name: this.$tc('sw-product-stream.filter.type.range')
@@ -77,42 +114,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                     name: this.$tc('sw-product-stream.filter.type.notEqualsAny'),
                     not: TYPES.TYPE_EQUALS_ANY
                 }
-            ]
-        };
-    },
-
-    computed: {
-        fieldNames() {
-            return ['type', 'field', 'operator', 'value', 'parameters', 'position', 'customFields'];
-        },
-        definitions() {
-            return this.getDefinitions();
-        },
-        definition() {
-            return this.definitions[this.definitions.length - 1];
-        },
-        actualCondition() {
-            return this.negatedCondition || this.condition;
-        },
-        conditionFieldPath() {
-            return this.actualCondition.field.split('.');
-        },
-        selectValues() {
-            const values = [
-                {
-                    label: this.$tc('global.sw-condition.condition.yes'),
-                    value: '1'
-                },
-                {
-                    label: this.$tc('global.sw-condition.condition.no'),
-                    value: '0'
-                }
             ];
-
-            return new LocalStore(values, 'value');
-        },
-        conditionClass() {
-            return 'sw-product-stream-filter';
         }
     },
 
@@ -244,17 +246,18 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                 }
 
                 store[key] = definition.properties[key];
-                if (!store[key].label) {
-                    let label = '';
-                    if (key === 'id' && definition.name === productDefinitionName) {
-                        label = this.$tc('sw-product-stream.filter.values.product');
-                    } else if (key === 'id') {
-                        label = this.$tc('sw-product-stream.filter.values.choose');
-                    } else {
-                        label = this.$tc(`sw-product-stream.filter.values.${key}`);
-                    }
-                    store[key].label = label;
+                let label = '';
+                if (key === 'id' && definition.name === productDefinitionName) {
+                    label = this.$tc('sw-product-stream.filter.values.product');
+                } else if (key === 'id') {
+                    label = this.$tc('sw-product-stream.filter.values.choose');
+                } else {
+                    label = this.$tc(`sw-product-stream.filter.values.${key}`);
                 }
+                if (label === `sw-product-stream.filter.values.${key}` && store[key].label) {
+                    label = store[key].label;
+                }
+                store[key].label = label;
                 store[key].name = key;
                 store[key].translated = {
                     label: store[key].label,
@@ -598,9 +601,12 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             case 'object':
                 return [
                     TYPES.TYPE_EQUALS,
-                    TYPES.TYPE_EQUALS_ANY,
+                    TYPES.TYPE_GREATER_THAN,
+                    TYPES.TYPE_GREATER_THAN_EQUALS,
+                    TYPES.TYPE_LESS_THAN,
+                    TYPES.TYPE_LESS_THAN_EQUALS,
                     TYPES.TYPE_NOT_EQUALS,
-                    TYPES.TYPE_NOT_EQUALS_ANY
+                    TYPES.TYPE_RANGE
                 ];
             default:
                 return [

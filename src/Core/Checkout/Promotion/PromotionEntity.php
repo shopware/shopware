@@ -440,4 +440,35 @@ class PromotionEntity extends Entity
 
         return false;
     }
+
+    /**
+     * Gets if the promotion is valid in the current context
+     * based on its Order Rule configuration.
+     */
+    public function isOrderConditionValid(SalesChannelContext $context): bool
+    {
+        /** @var bool $hasRuleRestriction */
+        $hasRuleRestriction = $this->getOrderRules() instanceof RuleCollection && count($this->getOrderRules()->getElements()) > 0;
+
+        // check if we even have a restriction
+        // otherwise the order condition is valid
+        if (!$hasRuleRestriction) {
+            return true;
+        }
+
+        /** @var string $ruleID */
+        foreach ($this->getOrderRules()->getKeys() as $ruleID) {
+            // verify if our rule from our promotion
+            // is part of our existing rules within the checkout context
+            if (in_array($ruleID, $context->getRuleIds(), true)) {
+                // ok at least 1 rule is valid
+                // then this is ok
+                return true;
+            }
+        }
+
+        // as fallback, always
+        // make sure its invalid
+        return false;
+    }
 }

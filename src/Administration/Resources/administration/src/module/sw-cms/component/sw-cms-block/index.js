@@ -1,4 +1,4 @@
-import { Component, Entity } from 'src/core/shopware';
+import { Component } from 'src/core/shopware';
 import template from './sw-cms-block.html.twig';
 import './sw-cms-block.scss';
 
@@ -22,6 +22,12 @@ Component.register('sw-cms-block', {
         }
     },
 
+    data() {
+        return {
+            backgroundUrl: null
+        };
+    },
+
     computed: {
         cmsBlocks() {
             return this.cmsService.getCmsBlockRegistry();
@@ -33,22 +39,24 @@ Component.register('sw-cms-block', {
 
         blockClasses() {
             return {
-                'is--boxed': this.block.config.sizingMode === 'boxed'
+                'is--boxed': this.block.sizingMode === 'boxed'
             };
         },
 
         blockStyles() {
             return {
-                'background-color': this.block.config.backgroundColor || 'transparent'
+                'background-color': this.block.backgroundColor || 'transparent',
+                'background-image': this.backgroundUrl,
+                'background-size': this.block.backgroundMediaMode
             };
         },
 
         blockPadding() {
             return {
-                'padding-top': this.block.config.marginTop || '0px',
-                'padding-bottom': this.block.config.marginBottom || '0px',
-                'padding-left': this.block.config.marginLeft || '0px',
-                'padding-right': this.block.config.marginRight || '0px'
+                'padding-top': this.block.marginTop || '0px',
+                'padding-bottom': this.block.marginBottom || '0px',
+                'padding-left': this.block.marginLeft || '0px',
+                'padding-right': this.block.marginRight || '0px'
             };
         },
 
@@ -65,22 +73,25 @@ Component.register('sw-cms-block', {
         }
     },
 
+    watch: {
+        'block.backgroundMedia': {
+            handler() {
+                this.getBackgroundMedia();
+            }
+        }
+    },
+
     created() {
         this.createdComponent();
     },
 
     methods: {
         createdComponent() {
-            if (!this.block.config || this.block.config === null) {
-                const blockSchema = Entity.getDefinition('cms_block');
-                this.block.config = Entity.getRawEntityObject(blockSchema.properties.config);
-
-                this.block.config.sizingMode = 'boxed';
-
-                if (!this.block.config.name) {
-                    this.block.config.name = null;
-                }
+            if (!this.block.backgroundMediaMode) {
+                this.block.backgroundMediaMode = 'cover';
             }
+
+            this.getBackgroundMedia();
         },
 
         onBlockOverlayClick() {
@@ -93,6 +104,15 @@ Component.register('sw-cms-block', {
 
         onBlockDuplicate() {
             this.$emit('onBlockDuplicate');
+        },
+
+        getBackgroundMedia() {
+            if (!this.block.backgroundMedia) {
+                this.backgroundUrl = null;
+                return;
+            }
+
+            this.backgroundUrl = `url(${this.block.backgroundMedia.url})`;
         }
     }
 });

@@ -36,7 +36,7 @@ export default {
 
         variant: {
             type: String,
-            required: true,
+            required: false,
             validValues: ['compact', 'regular'],
             validator(value) {
                 return ['compact', 'regular'].includes(value);

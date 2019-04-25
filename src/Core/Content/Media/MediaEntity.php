@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateMediaCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
@@ -190,6 +191,11 @@ class MediaEntity extends Entity
      * @var OrderLineItemCollection|null
      */
     protected $orderLineItems;
+
+    /**
+     * @var CmsBlockCollection|null
+     */
+    protected $cmsBlocks;
 
     public function get(string $property)
     {
@@ -531,5 +537,15 @@ class MediaEntity extends Entity
     public function setOrderLineItems(OrderLineItemCollection $orderLineItems): void
     {
         $this->orderLineItems = $orderLineItems;
+    }
+
+    public function getCmsBlocks(): ?CmsBlockCollection
+    {
+        return $this->cmsBlocks;
+    }
+
+    public function setCmsBlocks(CmsBlockCollection $cmsBlocks): void
+    {
+        $this->cmsBlocks = $cmsBlocks;
     }
 }

@@ -4,7 +4,11 @@
         {% block sw_colorpicker_field %}
             <div class="sw-colorpicker__field">
                 {% block sw_colorpicker_text_field %}
-                    <sw-text-field class="sw-colorpicker__textfield" v-model="color" :label="label" :disabled="disabled">
+                    <sw-text-field class="sw-colorpicker__textfield"
+                                   v-model="color"
+                                   :label="label"
+                                   :disabled="disabled"
+                                   :placeholder="placeholder">
                         {% block sw_colorpicker_preview %}
                             <div slot="prefix" class="sw-colorpicker__previewWrapper">
                                 {% block sw_colorpicker_preview_color %}

@@ -21,14 +21,6 @@ ADD CONSTRAINT `json.cms_page.config` CHECK (JSON_VALID(`config`))
 SQL;
 
         $connection->exec($sql);
-
-        $sql = <<<SQL
-ALTER TABLE `cms_block`
-ADD COLUMN `config` JSON AFTER `type`,
-ADD CONSTRAINT `json.cms_block.config` CHECK (JSON_VALID(`config`))
-SQL;
-
-        $connection->exec($sql);
     }
 
     public function updateDestructive(Connection $connection): void

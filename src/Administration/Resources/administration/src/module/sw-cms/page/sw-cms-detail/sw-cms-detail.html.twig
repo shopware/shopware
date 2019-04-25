@@ -269,7 +269,7 @@
                                                         {% block sw_cms_detail_sidebar_block_settings_header %}
                                                             <span slot="header">
                                                                 {{ $tc('sw-cms.detail.sidebarHeaderBlockSettings') }}
-                                                                {{ currentBlock.config.name ? currentBlock.config.name : cmsBlocks[currentBlock.type].label }}
+                                                                {{ currentBlock.name ? currentBlock.name : cmsBlocks[currentBlock.type].label }}
                                                             </span>
                                                         {% endblock %}
 
@@ -311,7 +311,7 @@
 
                                                         {% block sw_cms_detail_sidebar_navigator_element_label %}
                                                             <div class="navigator-element__label">
-                                                                {{ block.config.name ? block.config.name : block.type }}
+                                                                {{ block.name ? block.name : block.type }}
                                                             </div>
                                                         {% endblock %}
 

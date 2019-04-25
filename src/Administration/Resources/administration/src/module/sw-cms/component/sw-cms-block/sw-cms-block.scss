@@ -2,6 +2,8 @@
 
 .sw-cms-block {
     position: relative;
+    background-repeat: no-repeat;
+    background-position: center center;
 
     &:hover {
         .sw-cms-block__config-overlay {

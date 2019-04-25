@@ -1,6 +1,12 @@
 {% block sw_media_upload %}
     <div class="sw-media-upload sw-media-compact-upload">
         {% block sw_media_upload_compact %}
+            {% block sw_media_upload_compact_label %}
+                <label v-if="getInlineSnippet(label)" class="sw-media-compact-upload__label">
+                    {{ getInlineSnippet(label) }}
+                </label>
+            {% endblock %}
+
             <div v-if="variant == 'compact'" class="sw-media-upload__content">
                 <sw-button-group splitButton>
                     {% block sw_media_upload_compact_button_file_upload %}

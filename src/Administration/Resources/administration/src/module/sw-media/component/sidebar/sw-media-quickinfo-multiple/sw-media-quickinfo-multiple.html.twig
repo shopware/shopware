@@ -78,8 +78,8 @@
             <sw-media-modal-folder-dissolve
                 v-if="!hasMedia && showFolderDissolve"
                 :itemsToDissolve="items"
-                @items-dissolve="onFolderDissolved"
-                @close="closeFolderDissolve">
+                @media-folder-dissolve-modal-dissolve="onFolderDissolved"
+                @media-folder-dissolve-modal-close="closeFolderDissolve">
             </sw-media-modal-folder-dissolve>
         {% endblock %}
 

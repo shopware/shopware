@@ -31,7 +31,7 @@ export default {
 
     methods: {
         closeDissolveModal(originalDomEvent) {
-            this.$emit('close', { originalDomEvent });
+            this.$emit('media-folder-dissolve-modal-close', { originalDomEvent });
         },
 
         dissolveSelection() {
@@ -68,7 +68,7 @@ export default {
             });
 
             this.$emit(
-                'items-dissolve',
+                'media-folder-dissolve-modal-dissolve',
                 Promise.all(dissolvePromises).then((ids) => {
                     if (dissolvePromises.length > 1) {
                         this.createNotificationSuccess({

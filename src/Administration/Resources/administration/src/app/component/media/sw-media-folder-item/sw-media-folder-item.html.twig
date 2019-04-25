@@ -127,8 +127,8 @@
                     <sw-media-modal-folder-settings
                             v-if="showSettings"
                             :folder="item"
-                            @save="closeSettings"
-                            @close="closeSettings">
+                            @media-settings-modal-save="closeSettings"
+                            @media-settings-modal-close="closeSettings">
                     </sw-media-modal-folder-settings>
                 {% endblock %}
 

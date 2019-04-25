@@ -16,8 +16,8 @@ import './component/sw-attribute-type-date';
 import './component/sw-attribute-type-checkbox';
 import './component/sw-attribute-type-text-editor';
 
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
 
 Module.register('sw-settings-attribute', {
     flag: NEXT754,

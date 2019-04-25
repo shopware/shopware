@@ -41,13 +41,13 @@ This gives you auto-completion and suggestions.
 
 ## Card Titles
 A `<card>` `<title>` is translatable, this is managed via the `lang` attribute.
-Per default the `lang` argument is set to `en_GB`, to change the locale of a `<title>` just add the attribute as follows.
+Per default the `lang` argument is set to `en-GB`, to change the locale of a `<title>` just add the attribute as follows.
 
 ```xml
     ...
     <card>
         <title>English Title</title>
-        <title lang="de_DE">German Titel</title>
+        <title lang="de-DE">German Titel</title>
     </card>
     ...
 ```
@@ -120,12 +120,12 @@ Below you"ll find an example.
         <option>
             <value>smtp</value>
             <label>English label</label>
-            <label lang="de_DE">German label</label>
+            <label lang="de-DE">German label</label>
         </option>
         <option>
             <value>pop3</value>
             <label>English label</label>
-            <label lang="de_DE">German label</label>
+            <label lang="de-DE">German label</label>
         </option>
     </options>
 </input-field>
@@ -138,17 +138,17 @@ As you can see above, `<label>` elements are translatable via the `lang` attribu
 ## Label, placeholder and help text
 The options `<label>`, `<placeholder>` and `<helpText>` are used to label and explain your `<input-field>` and are translatable.
 You define your `<label>`, `<placeholder>` and `<helpText>` the same way as the `<card><title>`, with the `lang` attribute.
-Please remember, that the `lang` attribute is set to `en_GB` per default.
+Please remember, that the `lang` attribute is set to `en-GB` per default.
 Below you"ll find an example. 
 ```xml
 <input-field>
     <name>test</name>
     <label>English label</label>
-    <label lang="de_DE">German Label</label>          
+    <label lang="de-DE">German Label</label>          
     <placeholder>English placeholder</placeholder>
-    <placeholder lang="de_DE">German placeholder</placeholder>
+    <placeholder lang="de-DE">German placeholder</placeholder>
     <helpText>English help text</helpText>
-    <helpText lang="de_DE">German help text</helpText>
+    <helpText lang="de-DE">German help text</helpText>
 </input-field>
 ```
 
@@ -162,16 +162,16 @@ Now all that's left to do is to present you a working example `config.xml` and s
 
     <card>
         <title>Basic Configuration</title>
-        <title lang="de_DE">Grundeinstellungen</title>
+        <title lang="de-DE">Grundeinstellungen</title>
         <input-field>
             <name>email</name>
             <copyable>true</copyable>
             <label>eMail address</label>
-            <label lang="de_DE">E-Mail Adresse</label>
+            <label lang="de-DE">E-Mail Adresse</label>
             <placeholder>you@example.com</placeholder>
-            <placeholder lang="de_DE">du@beispiel.de</placeholder>
+            <placeholder lang="de-DE">du@beispiel.de</placeholder>
             <helpText>Please fill in your personal eMail address</helpText>
-            <helpText lang="de_DE">Bitte trage deine persönliche E-Mail Adresse ein</helpText>
+            <helpText lang="de-DE">Bitte trage deine persönliche E-Mail Adresse ein</helpText>
         </input-field>
         <input-field type="select">
             <name>mailMethod</name>
@@ -179,27 +179,27 @@ Now all that's left to do is to present you a working example `config.xml` and s
                 <option>
                     <value>smtp</value>
                     <label>English smtp</label>
-                    <label lang="de_DE">German smtp</label>
+                    <label lang="de-DE">German smtp</label>
                 </option>
                 <option>
                     <value>pop3</value>
                     <label>English pop3</label>
-                    <label lang="de_DE">German pop3</label>
+                    <label lang="de-DE">German pop3</label>
                 </option>
             </options>
             <label>Mail method</label>
-            <label lang="de_DE">Versand Protokoll</label>
+            <label lang="de-DE">Versand Protokoll</label>
         </input-field>
     </card>
     <card>
         <title>Advanced Configuration</title>
-        <title lang="de_DE">Erweiterte Einstellungen</title>
+        <title lang="de-DE">Erweiterte Einstellungen</title>
         <input-field type="password">
             <name>secret</name>
             <label>Secret token</label>
-            <label lang="de_DE">Geheim Schlüssel</label>
+            <label lang="de-DE">Geheim Schlüssel</label>
             <helpText>Your secret token for xyz...</helpText>
-            <helpText lang="de_DE">Dein geheimer Schlüssel für xyz...</helpText>
+            <helpText lang="de-DE">Dein geheimer Schlüssel für xyz...</helpText>
         </input-field>
     </card>
 </config>

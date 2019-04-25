@@ -63,8 +63,8 @@ class Migration1536233420BasicData extends MigrationStep
         $languageDe = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE);
 
         // first locales
-        $connection->insert('locale', ['id' => $localeEn, 'code' => 'en_GB', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
-        $connection->insert('locale', ['id' => $localeDe, 'code' => 'de_DE', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('locale', ['id' => $localeEn, 'code' => 'en-GB', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('locale', ['id' => $localeDe, 'code' => 'de-DE', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
 
         // second languages
         $connection->insert('language', [
@@ -123,7 +123,7 @@ class Migration1536233420BasicData extends MigrationStep
         $languageDe = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE);
 
         foreach ($localeData as $locale) {
-            if (\in_array($locale['locale'], ['en_GB', 'de_DE'], true)) {
+            if (\in_array($locale['locale'], ['en-GB', 'de-DE'], true)) {
                 continue;
             }
 
@@ -140,8 +140,8 @@ class Migration1536233420BasicData extends MigrationStep
                     'locale_id' => $localeId,
                     'language_id' => $languageEn,
                     'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
-                    'name' => $locale['name']['en_GB'],
-                    'territory' => $locale['territory']['en_GB'],
+                    'name' => $locale['name']['en-GB'],
+                    'territory' => $locale['territory']['en-GB'],
                 ]
             );
 
@@ -151,8 +151,8 @@ class Migration1536233420BasicData extends MigrationStep
                     'locale_id' => $localeId,
                     'language_id' => $languageDe,
                     'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
-                    'name' => $locale['name']['de_DE'],
-                    'territory' => $locale['territory']['de_DE'],
+                    'name' => $locale['name']['de-DE'],
+                    'territory' => $locale['territory']['de-DE'],
                 ]
             );
         }
@@ -505,8 +505,8 @@ class Migration1536233420BasicData extends MigrationStep
     {
         $queue = new MultiInsertQueryQueue($connection);
 
-        $queue->addInsert('snippet_set', ['id' => Uuid::randomBytes(), 'name' => 'BASE de_DE', 'base_file' => 'messages.de_DE', 'iso' => 'de_DE', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
-        $queue->addInsert('snippet_set', ['id' => Uuid::randomBytes(), 'name' => 'BASE en_GB', 'base_file' => 'messages.en_GB', 'iso' => 'en_GB', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+        $queue->addInsert('snippet_set', ['id' => Uuid::randomBytes(), 'name' => 'BASE de-DE', 'base_file' => 'messages.de-DE', 'iso' => 'de-DE', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+        $queue->addInsert('snippet_set', ['id' => Uuid::randomBytes(), 'name' => 'BASE en-GB', 'base_file' => 'messages.en-GB', 'iso' => 'en-GB', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
 
         $queue->execute();
     }

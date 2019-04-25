@@ -98,12 +98,12 @@ Here's a brief example of how this file could look like:
     "extra": {
         "shopware-plugin-class": "Swag\\PluginQuickStart\\PluginQuickStart",
         "label": {
-            "de_DE": "Beispiel Plugin",
-            "en_GB": "Example Plugin"
+            "de-DE": "Beispiel Plugin",
+            "en-GB": "Example Plugin"
         },
         "description": {
-            "de_DE": "Deutsche Beschreibung des Plugins",
-            "en_GB": "English description of the plugin"
+            "de-DE": "Deutsche Beschreibung des Plugins",
+            "en-GB": "English description of the plugin"
         }
     },
     "autoload": {

@@ -6,8 +6,8 @@ import './component/sw-product-stream-modal-preview';
 import { NEXT739 } from 'src/flag/feature_next739';
 import './component/sw-product-stream-filter';
 
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
 
 Module.register('sw-product-stream', {
     type: 'core',

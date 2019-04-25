@@ -4,8 +4,8 @@ import './page/sw-settings-customer-group-list';
 import './page/sw-settings-customer-group-detail';
 import './page/sw-settings-customer-group-create';
 
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
 
 Module.register('sw-settings-customer-group', {
     type: 'core',

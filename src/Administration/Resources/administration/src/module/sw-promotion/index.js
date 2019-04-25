@@ -1,8 +1,8 @@
 import { Module } from 'src/core/shopware';
 import { NEXT700 } from 'src/flag/feature_next700';
 
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
 
 
 import './component/sw-promotion-sales-channel-select';

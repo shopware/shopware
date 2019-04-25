@@ -61,7 +61,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
                 translations => [['property' => 'translation', 'languageId' => '{languageUuid}']] -> skip
                 translations => [['property' => 'translation', 'language' => ['id' => {languageUuid}'] ]] -> skip
                 translations => ['{languageUuid}' => ['property' => 'translation']] -> skip
-                translations => ['en_GB' => ['property' => 'translation']] -> proceed and use localeLanguageResolver
+                translations => ['en-GB' => ['property' => 'translation']] -> proceed and use localeLanguageResolver
             */
             if (is_numeric($identifier) || Uuid::isValid($identifier)) {
                 continue;

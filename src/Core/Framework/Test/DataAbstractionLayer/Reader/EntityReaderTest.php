@@ -1669,7 +1669,7 @@ class EntityReaderTest extends TestCase
                 'id' => $id,
                 'name' => 'system',
                 'translations' => [
-                    'de_DE' => [
+                    'de-DE' => [
                         'name' => 'deutsch',
                     ],
                 ],

@@ -41,7 +41,7 @@ This enables auto-completion and suggestions for this XML file and will therefor
 ## Card Titles
 
 A `<card>` `<title>` is translatable, this is managed via the `lang` attribute.
-By default the `lang` attribute is set to `en_GB`, to change the locale of a `<title>` just add the attribute as follows:
+By default the `lang` attribute is set to `en-GB`, to change the locale of a `<title>` just add the attribute as follows:
 
 ```xml
     ...
@@ -144,7 +144,7 @@ As you can see above, `<label>` elements are translatable via the `lang` attribu
 
 The options `<label>`, `<placeholder>` and `<helpText>` are used to label and explain your `<input-field>` and are translatable.
 You define your `<label>`, `<placeholder>` and `<helpText>` the same way as the `<card><title>`, with the `lang` attribute.
-Please remember, that the `lang` attribute is set to `en_GB` per default.
+Please remember, that the `lang` attribute is set to `en-GB` per default.
 
 Below you'll find an example.
 ```xml

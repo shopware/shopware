@@ -32,7 +32,7 @@ export default class SnippetFixtureService extends AdminFixtureService {
                 filter: [{
                     field: "name",
                     type: "equals",
-                    value: "BASE en_GB",
+                    value: "BASE en-GB",
                 }]
             })
         }).then((data) => {

@@ -10,8 +10,8 @@ import './page/sw-cms-list';
 import './page/sw-cms-detail';
 import './page/sw-cms-create';
 
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
 
 Module.register('sw-cms', {
     flag: NEXT134,

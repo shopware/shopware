@@ -1,7 +1,7 @@
 import { Module } from 'src/core/shopware';
 import './page/sw-dashboard-index';
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
 
 Module.register('sw-dashboard', {
     type: 'core',

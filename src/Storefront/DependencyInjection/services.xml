@@ -56,7 +56,12 @@
 
         <service id="Shopware\Storefront\Pagelet\Suggest\SuggestPageletLoader">
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Storefront\Pagelet\Listing\ListingPageletLoader"/>
+            <argument type="service" id="Shopware\Storefront\Pagelet\Suggest\ProductSuggestGateway" />
+        </service>
+
+        <service id="Shopware\Storefront\Pagelet\Suggest\ProductSuggestGateway">
+            <argument id="sales_channel.product.repository" type="service"/>
+            <argument id="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface" type="service"/>
         </service>
 
         <service id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader">

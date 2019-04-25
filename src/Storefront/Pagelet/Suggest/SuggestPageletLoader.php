@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Pagelet\Suggest;
 
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
-use Shopware\Storefront\Pagelet\Listing\ListingPageletLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -16,20 +15,20 @@ class SuggestPageletLoader implements PageLoaderInterface
     private $eventDispatcher;
 
     /**
-     * @var ListingPageletLoader|PageLoaderInterface
+     * @var ProductSuggestGatewayInterface
      */
-    private $listingPageletLoader;
+    private $suggestGateway;
 
-    public function __construct(EventDispatcherInterface $eventDispatcher, PageLoaderInterface $listingPageletLoader)
+    public function __construct(EventDispatcherInterface $eventDispatcher, ProductSuggestGatewayInterface $suggestGateway)
     {
         $this->eventDispatcher = $eventDispatcher;
-        $this->listingPageletLoader = $listingPageletLoader;
+        $this->suggestGateway = $suggestGateway;
     }
 
     public function load(Request $request, SalesChannelContext $context): SuggestPagelet
     {
         $page = new SuggestPagelet(
-            $this->listingPageletLoader->load($request, $context),
+            $this->suggestGateway->suggest($request, $context),
             $request->query->get('search')
         );
 

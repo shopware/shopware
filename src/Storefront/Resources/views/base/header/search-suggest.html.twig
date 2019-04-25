@@ -4,7 +4,7 @@
             <ul class="search-suggest-container">
             {# List of found product results #}
                 {% block base_search_suggest_results %}
-                    {% for product in page.listing.elements %}
+                    {% for product in page.searchResult %}
                         {% block base_search_suggest_result_product %}
                             <li class="js-result result-product">
                                 {% block base_search_suggest_result_link %}

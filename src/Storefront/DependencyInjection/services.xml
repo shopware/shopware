@@ -60,8 +60,8 @@
         </service>
 
         <service id="Shopware\Storefront\Pagelet\Suggest\ProductSuggestGateway">
-            <argument id="sales_channel.product.repository" type="service"/>
-            <argument id="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface" type="service"/>
+            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface"/>
         </service>
 
         <service id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader">
@@ -107,8 +107,8 @@
         </service>
 
         <service id="Shopware\Storefront\Page\Search\ProductSearchGateway">
-            <argument id="sales_channel.product.repository" type="service"/>
-            <argument id="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface" type="service"/>
+            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface"/>
         </service>
 
 
@@ -122,12 +122,12 @@
         </service>
 
         <service id="Shopware\Storefront\Page\Product\Configurator\AvailableCombinationLoader">
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Product\Configurator\ProductPageConfiguratorLoader">
-            <argument id="product_configurator_setting.repository" type="service"/>
-            <argument id="Shopware\Storefront\Page\Product\Configurator\AvailableCombinationLoader" type="service"/>
+            <argument type="service" id="product_configurator_setting.repository"/>
+            <argument type="service" id="Shopware\Storefront\Page\Product\Configurator\AvailableCombinationLoader"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Home\HomePageLoader">

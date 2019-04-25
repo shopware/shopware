@@ -40,7 +40,7 @@ class TreeBuilder
                 $this->recursion($entity->getId(), $entities)
             );
 
-            $mapped[] = $item;
+            $mapped[$entity->getId()] = $item;
         }
 
         return $mapped;

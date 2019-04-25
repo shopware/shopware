@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Customer\Exception\CannotDeleteDefaultAddressExceptio
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AddressService;
+use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -263,6 +264,41 @@ class AccountPageController extends StorefrontController
         $page = $this->paymentMethodPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/page/account/payment/index.html.twig', ['page' => $page]);
+    }
+
+    /**
+     * @Route("/account/payment", name="frontend.account.payment.save", methods={"POST"})
+     */
+    public function savePayment(RequestDataBag $requestDataBag, SalesChannelContext $context): Response
+    {
+        if (!$context->getCustomer()) {
+            return $this->redirectToRoute('frontend.account.login.page');
+        }
+
+        try {
+            $paymentMethodId = $requestDataBag->getAlnum('paymentMethodId');
+
+            $this->accountService->changeDefaultPaymentMethod(
+                $paymentMethodId,
+                $requestDataBag,
+                $context->getCustomer(),
+                $context->getContext()
+            );
+        } catch (UnknownPaymentMethodException | InvalidUuidException $exception) {
+            $this->addFlash('danger', $this->translator->trans('error.' . $exception->getErrorCode()));
+
+            return $this->forward('Shopware\Storefront\PageController\AccountPageController::paymentOverview', ['success' => false]);
+        }
+
+        $this->salesChannelContextService->refresh(
+            $context->getSalesChannel()->getId(),
+            $context->getToken(),
+            $context->getContext()->getLanguageId()
+        );
+
+        $this->addFlash('success', $this->translator->trans('account.paymentSuccess'));
+
+        return new RedirectResponse($this->generateUrl('frontend.account.payment.page'));
     }
 
     /**

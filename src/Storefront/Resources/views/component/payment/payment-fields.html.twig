@@ -10,7 +10,7 @@
 									{% block component_payment_method_input %}
 										<input type="radio"
 										       id="paymentMethod{{ loop.index }}"
-										       name="paymentMethod"
+										       name="paymentMethodId"
 										       value="{{ payment.id }}"
 										       {% if payment.id is same as(defaultPaymentMethodId) %}checked="checked"{% endif %}
 										       class="custom-control-input payment-method-input">

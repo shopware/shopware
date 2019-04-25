@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Api\Controller;
+namespace Shopware\Core\Framework\Test\ScheduledTask\Api;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;

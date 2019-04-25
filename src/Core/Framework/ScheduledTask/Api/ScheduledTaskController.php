@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Api\Controller;
+namespace Shopware\Core\Framework\ScheduledTask\Api;
 
 use Shopware\Core\Framework\ScheduledTask\Scheduler\TaskScheduler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

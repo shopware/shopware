@@ -735,7 +735,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $this->addProduct($client, $productId);
         $content = json_decode($client->getResponse()->getContent(), true);
         static::assertArrayHasKey('errors', $content['data']);
-        static::assertCount(0, $content['data']['errors']);
+        static::assertCount(0, $content['data']['errors'], print_r($content['data']['errors'], true));
 
         $this->setPaymentMethod($unavailablePaymentMethodId, $client);
         $this->addProduct($client, $productId);

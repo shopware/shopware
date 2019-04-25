@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -23,6 +24,23 @@ trait BasicTestDataBehaviour
         $criteria = (new Criteria())->setLimit(1);
 
         return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+    }
+
+    protected function getAvailablePaymentMethodId(): ?string
+    {
+        /** @var EntityRepositoryInterface $repository */
+        $repository = $this->getContainer()->get('payment_method.repository');
+
+        $paymentMethods = $repository->search(new Criteria(), Context::createDefaultContext())->getEntities();
+
+        /** @var PaymentMethodEntity $paymentMethod */
+        foreach ($paymentMethods as $paymentMethod) {
+            if ($paymentMethod->getAvailabilityRuleId() === null) {
+                return $paymentMethod->getId();
+            }
+        }
+
+        return null;
     }
 
     protected function getValidShippingMethodId(): string

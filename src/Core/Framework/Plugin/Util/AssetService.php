@@ -14,7 +14,7 @@ class AssetService
     /**
      * @var Filesystem
      */
-    protected $filesystem;
+    private $filesystem;
 
     /**
      * @var KernelInterface
@@ -67,7 +67,7 @@ class AssetService
         $this->filesystem->remove($targetDirectory);
     }
 
-    protected function getTargetDirectory(BundleInterface $bundle): string
+    private function getTargetDirectory(BundleInterface $bundle): string
     {
         $assetDir = preg_replace('/bundle$/', '', strtolower($bundle->getName()));
 

@@ -11,7 +11,7 @@ class ProgressAdvancedEvent extends Event
     /**
      * @var int
      */
-    protected $step;
+    private $step;
 
     public function __construct(int $step = 1)
     {

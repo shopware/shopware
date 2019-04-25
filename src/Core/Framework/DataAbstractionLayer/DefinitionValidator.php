@@ -45,7 +45,7 @@ class DefinitionValidator
     /**
      * @var DefinitionRegistry
      */
-    protected $registry;
+    private $registry;
 
     private static $pluralExceptions = [
         'children', 'categoriesRo', 'properties', 'media',

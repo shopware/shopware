@@ -70,7 +70,7 @@ class DeliveryTransformer
         return $deliveryData;
     }
 
-    public static function getId(Struct $struct): ?string
+    private static function getId(Struct $struct): ?string
     {
         /** @var IdStruct|null $idStruct */
         $idStruct = $struct->getExtensionOfType(OrderConverter::ORIGINAL_ID, IdStruct::class);

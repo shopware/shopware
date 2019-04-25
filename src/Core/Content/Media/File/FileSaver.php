@@ -34,17 +34,17 @@ class FileSaver
     /**
      * @var EntityRepositoryInterface
      */
-    protected $mediaRepository;
+    private $mediaRepository;
 
     /**
      * @var FilesystemInterface
      */
-    protected $filesystem;
+    private $filesystem;
 
     /**
      * @var UrlGeneratorInterface
      */
-    protected $urlGenerator;
+    private $urlGenerator;
 
     /**
      * @var ThumbnailService
@@ -102,8 +102,6 @@ class FileSaver
         string $mediaId,
         Context $context
     ): void {
-        $currentMedia = null;
-
         $currentMedia = $this->findMediaById($mediaId, $context);
         $destination = $this->validateFileName($destination);
         $this->ensureFileNameIsUnique(

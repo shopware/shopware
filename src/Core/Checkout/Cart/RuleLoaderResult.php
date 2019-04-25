@@ -9,12 +9,12 @@ class RuleLoaderResult
     /**
      * @var Cart
      */
-    protected $cart;
+    private $cart;
 
     /**
      * @var RuleCollection
      */
-    protected $matchingRules;
+    private $matchingRules;
 
     public function __construct(Cart $cart, RuleCollection $rules)
     {

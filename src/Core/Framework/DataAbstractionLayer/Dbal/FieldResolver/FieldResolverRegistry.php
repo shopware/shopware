@@ -12,7 +12,7 @@ class FieldResolverRegistry
     /**
      * @var FieldResolverInterface[]
      */
-    protected $resolvers;
+    private $resolvers;
 
     public function __construct(iterable $resolvers)
     {

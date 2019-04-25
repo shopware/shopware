@@ -43,7 +43,7 @@ class DataAbstractionLayerValidateCommand extends Command
         return $errors;
     }
 
-    protected function runNotices(SymfonyStyle $io): int
+    private function runNotices(SymfonyStyle $io): int
     {
         $notices = $this->validator->getNotices();
 
@@ -64,7 +64,7 @@ class DataAbstractionLayerValidateCommand extends Command
         return $count;
     }
 
-    protected function runErrors(SymfonyStyle $io): int
+    private function runErrors(SymfonyStyle $io): int
     {
         $violations = $this->validator->validate();
 

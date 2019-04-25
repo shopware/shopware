@@ -10,17 +10,17 @@ class FieldConfig implements \JsonSerializable
     /**
      * @var string
      */
-    protected $name;
+    private $name;
 
     /**
      * @var string
      */
-    protected $source;
+    private $source;
 
     /**
      * @var mixed
      */
-    protected $value;
+    private $value;
 
     public function __construct(string $name, string $source, $value)
     {

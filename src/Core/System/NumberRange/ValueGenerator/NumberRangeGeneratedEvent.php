@@ -11,7 +11,7 @@ class NumberRangeGeneratedEvent extends Event
     /**
      * @var string
      */
-    protected $generatedValue;
+    private $generatedValue;
 
     public function __construct(string $generatedValue)
     {

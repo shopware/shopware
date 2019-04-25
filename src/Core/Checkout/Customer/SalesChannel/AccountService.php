@@ -96,31 +96,6 @@ class AccountService
 
     /**
      * @throws CustomerNotFoundException
-     * @throws BadCredentialsException
-     */
-    public function getCustomerByLogin(string $email, string $password, SalesChannelContext $context): CustomerEntity
-    {
-        $customer = $this->getCustomerByEmail($email, $context);
-
-        if ($customer->hasLegacyPassword()) {
-            if (!$this->legacyPasswordVerifier->verify($password, $customer)) {
-                throw new BadCredentialsException();
-            }
-
-            $this->updatePasswordHash($password, $customer, $context->getContext());
-
-            return $customer;
-        }
-
-        if (!password_verify($password, $customer->getPassword())) {
-            throw new BadCredentialsException();
-        }
-
-        return $customer;
-    }
-
-    /**
-     * @throws CustomerNotFoundException
      */
     public function getCustomerByEmail(string $email, SalesChannelContext $context, bool $includeGuest = false): CustomerEntity
     {
@@ -353,6 +328,31 @@ class AccountService
 
         $event = new CustomerLogoutEvent($context->getContext(), $context->getCustomer());
         $this->eventDispatcher->dispatch($event->getName(), $event);
+    }
+
+    /**
+     * @throws CustomerNotFoundException
+     * @throws BadCredentialsException
+     */
+    private function getCustomerByLogin(string $email, string $password, SalesChannelContext $context): CustomerEntity
+    {
+        $customer = $this->getCustomerByEmail($email, $context);
+
+        if ($customer->hasLegacyPassword()) {
+            if (!$this->legacyPasswordVerifier->verify($password, $customer)) {
+                throw new BadCredentialsException();
+            }
+
+            $this->updatePasswordHash($password, $customer, $context->getContext());
+
+            return $customer;
+        }
+
+        if (!password_verify($password, $customer->getPassword())) {
+            throw new BadCredentialsException();
+        }
+
+        return $customer;
     }
 
     /**

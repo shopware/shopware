@@ -9,7 +9,7 @@ class RestrictDeleteViolation
      *
      * @var string
      */
-    protected $id;
+    private $id;
 
     /**
      * Contains an array which indexed by definition class.
@@ -29,7 +29,7 @@ class RestrictDeleteViolation
      *
      * @var array[]
      */
-    protected $restrictions;
+    private $restrictions;
 
     public function __construct(string $id, array $restrictions)
     {

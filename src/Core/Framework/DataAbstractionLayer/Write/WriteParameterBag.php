@@ -16,35 +16,35 @@ class WriteParameterBag
      *
      * @var string
      */
-    protected $definition;
+    private $definition;
 
     /**
      * Contains the write context instance of the current write process
      *
      * @var WriteContext
      */
-    protected $context;
+    private $context;
 
     /**
      * Contains the current property path for the proccessed field e.g product/{id}/name
      *
      * @var string
      */
-    protected $path;
+    private $path;
 
     /**
      * Contains all already applied write commands of the current write process
      *
      * @var WriteCommandQueue
      */
-    protected $commandQueue;
+    private $commandQueue;
 
     /**
      * The field exception stack contain all already thrown field exception of the current write process
      *
      * @var FieldExceptionStack
      */
-    protected $exceptionStack;
+    private $exceptionStack;
 
     /**
      * @var string|null

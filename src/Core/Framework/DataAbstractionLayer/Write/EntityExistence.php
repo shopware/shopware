@@ -13,32 +13,32 @@ class EntityExistence
     /**
      * @var array
      */
-    protected $primaryKey;
+    private $primaryKey;
 
     /**
      * @var bool
      */
-    protected $exists;
+    private $exists;
 
     /**
      * @var string|EntityDefinition
      */
-    protected $definition;
+    private $definition;
 
     /**
      * @var bool
      */
-    protected $isChild;
+    private $isChild;
 
     /**
      * @var bool
      */
-    protected $wasChild;
+    private $wasChild;
 
     /**
      * @var array
      */
-    protected $state;
+    private $state;
 
     public function __construct(
         string $definition,

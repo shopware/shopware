@@ -10,7 +10,7 @@ class ExtensionRegistry
     /**
      * @var EntityExtensionInterface[]
      */
-    protected $extensions;
+    private $extensions;
 
     public function __construct(iterable $extensions)
     {

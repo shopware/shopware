@@ -11,7 +11,7 @@ class ProgressFinishedEvent extends Event
     /**
      * @var string
      */
-    protected $message;
+    private $message;
 
     public function __construct(string $message)
     {

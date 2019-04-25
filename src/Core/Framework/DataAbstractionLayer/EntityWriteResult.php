@@ -12,17 +12,17 @@ class EntityWriteResult
     /**
      * @var array|string
      */
-    protected $primaryKey;
+    private $primaryKey;
 
     /**
      * @var array
      */
-    protected $payload;
+    private $payload;
 
     /**
      * @var EntityExistence|null
      */
-    protected $existence;
+    private $existence;
 
     /**
      * @param array|string $primaryKey

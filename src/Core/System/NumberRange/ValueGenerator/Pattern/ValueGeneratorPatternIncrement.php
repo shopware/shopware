@@ -10,7 +10,7 @@ class ValueGeneratorPatternIncrement implements ValueGeneratorPatternInterface
     /**
      * @var IncrementStorageInterface
      */
-    protected $incrementConnector;
+    private $incrementConnector;
 
     public function __construct(IncrementStorageInterface $incrementConnector)
     {

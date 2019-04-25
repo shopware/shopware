@@ -21,7 +21,7 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
     /**
      * @var NumberRangeEntity
      */
-    protected $configuration;
+    private $configuration;
 
     /**
      * @var ValueGeneratorPatternRegistry

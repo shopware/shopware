@@ -11,12 +11,12 @@ class ProgressStartedEvent extends Event
     /**
      * @var string
      */
-    protected $message;
+    private $message;
 
     /**
      * @var int
      */
-    protected $total;
+    private $total;
 
     public function __construct(string $message, int $total)
     {

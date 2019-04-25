@@ -1,28 +1,27 @@
 import { Component } from 'src/core/shopware';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-promotion-detail-discounts.html.twig';
 import DiscountTypes from './../../common/discount-type';
 import DiscountScopes from './../../common/discount-scope';
 import './sw-promotion-detail-discounts.scss';
 
 Component.register('sw-promotion-detail-discounts', {
+    inject: ['repositoryFactory', 'context'],
     template,
 
     props: {
         promotion: {
             type: Object,
-            required: true,
-            default: {}
+            required: true
         }
     },
     data() {
         return {
             discounts: [],
             isLoading: false,
-            deleteDiscountId: null
+            deleteDiscountId: null,
+            repository: null
         };
-    },
-    created() {
-        this.createdComponent();
     },
     computed: {
         discountAssociationStore() {
@@ -35,31 +34,39 @@ Component.register('sw-promotion-detail-discounts', {
             return (this.deleteDiscountId != null);
         }
     },
+    created() {
+        this.createdComponent();
+    },
     methods: {
         createdComponent() {
-            this.loadDiscounts();
-        },
-        // This function loads all discounts of our promotion from the association store.
-        // The loaded discounts will then be assigned to our bound discounts
-        // array that is used to render the discount cards.
-        loadDiscounts() {
-            this.isLoading = true;
-            this.discountAssociationStore.getList().then((response) => {
-                this.discounts = response.items;
+            this.$parent.$parent.$parent.$on('save', this.onSave);
+            this.repository = this.repositoryFactory.create('promotion_discount');
+
+            const criteria = new Criteria();
+            criteria.addFilter(
+                Criteria.equals('promotionId', this.promotion.id)
+            );
+            criteria.addAssociation('discountRules');
+
+            this.repository.search(criteria, this.context).then((response) => {
+                this.discounts = Object.values(response.items);
                 this.isLoading = false;
             });
+        },
+        // This function saves all discounts of our promotion.
+        onSave() {
+            this.repository.sync(this.discounts, this.context);
         },
         // This function adds a new blank discount object to our promotion.
         // It will automatically trigger a rendering of the view which
         // leads to a new card that appears within our discounts area.
         onAddDiscount() {
-            const newDiscount = this.discountAssociationStore.create();
-            newDiscount.setLocalData({
-                scope: DiscountScopes.CART,
-                type: DiscountTypes.PERCENTAGE,
-                value: 0,
-                graduated: false
-            });
+            const newDiscount = this.repository.create(this.context);
+            newDiscount.promotionId = this.promotion.id;
+            newDiscount.scope = DiscountScopes.CART;
+            newDiscount.type = DiscountTypes.PERCENTAGE;
+            newDiscount.value = 0;
+            newDiscount.considerAdvancedRules = false;
 
             this.promotion.discounts.push(newDiscount);
             this.discounts.push(newDiscount);
@@ -83,11 +90,8 @@ Component.register('sw-promotion-detail-discounts', {
             if (this.deleteDiscountId === null) {
                 return;
             }
-            this.discountAssociationStore.forEach((item) => {
-                if (item.id === this.deleteDiscountId) {
-                    item.delete();
-                }
-            });
+
+            this.repository.delete(this.deleteDiscountId, this.context);
             this.discounts = this.discounts.filter((discount) => {
                 return discount.id !== this.deleteDiscountId;
             });

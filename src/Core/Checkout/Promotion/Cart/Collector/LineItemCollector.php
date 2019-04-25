@@ -4,6 +4,12 @@ namespace Shopware\Core\Checkout\Promotion\Cart\Collector;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class LineItemCollector
 {
@@ -15,6 +21,47 @@ class LineItemCollector
     public function __construct(string $promotionLineItemType)
     {
         $this->promotionLineItemPlaceholder = $promotionLineItemType;
+    }
+
+    /**
+     * returns all lineItem keys that match the rules of the promotion
+     */
+    public function getLineItemsByDiscount(PromotionDiscountEntity $discount, Cart $cart, SalesChannelContext $context): array
+    {
+        /** @var array $nonPromotionLineItemsKeys */
+        $nonPromotionLineItemsKeys = $this->getNonPromotionLineItemsKeys($cart);
+
+        if (count($nonPromotionLineItemsKeys) === 0) {
+            return [];
+        }
+
+        if (!$discount->isConsiderAdvancedRules()) {
+            return $nonPromotionLineItemsKeys;
+        }
+
+        /** @var RuleCollection|null $discountRuleCollection */
+        $discountRuleCollection = $discount->getDiscountRules();
+
+        // discount has no rules, therefore all lineItems match discount
+        if (!$discountRuleCollection instanceof RuleCollection) {
+            return $nonPromotionLineItemsKeys;
+        }
+
+        /** @var array $lineItems */
+        $lineItems = $this->getNonPromotionLineItems($cart);
+
+        $matchingLineItems = [];
+
+        // get all lineItems where rule is matching without respecting any advanced rule
+        /** @var LineItem $lineItem */
+        foreach ($lineItems as $lineItem) {
+            $itemScope = new LineItemScope($lineItem, $context);
+            if ($this->doesRuleCollectionMatchsLineItem($discountRuleCollection, $itemScope)) {
+                $matchingLineItems[$lineItem->getKey()] = $lineItem;
+            }
+        }
+
+        return $matchingLineItems;
     }
 
     /**
@@ -49,5 +96,44 @@ class LineItemCollector
         );
 
         return $lineItems;
+    }
+
+    /**
+     * return all LineItem Keys that are no promotions
+     */
+    private function getNonPromotionLineItemsKeys(Cart $cart): array
+    {
+        $lineItems = $this->getNonPromotionLineItems($cart);
+
+        $lineItemKeys = [];
+
+        /** @var LineItem $lineItem */
+        foreach ($lineItems as $lineItem) {
+            $lineItemKeys[] = $lineItem->getKey();
+        }
+
+        return $lineItemKeys;
+    }
+
+    /**
+     * checks if a ruleCollection matches a lineItem. This function returns true if ONE rule in collection matches lineItem,
+     * otherwise returns false
+     */
+    private function doesRuleCollectionMatchsLineItem(RuleCollection $ruleCollection, LineItemScope $lineItemScope): bool
+    {
+        /** @var RuleEntity $discountRule */
+        foreach ($ruleCollection as $discountRule) {
+            $ruleCondition = $discountRule->getPayload();
+
+            if (!$ruleCondition instanceof Rule) {
+                continue;
+            }
+
+            if ($ruleCondition->match($lineItemScope)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

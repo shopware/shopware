@@ -377,8 +377,7 @@ class CartPromotionsCollector implements CollectorInterface
                 $discountItem = $this->itemBuilder->buildDiscountLineItem(
                     $promotion,
                     $discount,
-                    $context->getContext()->getCurrencyPrecision(),
-                    $itemIDs
+                    $context->getContext()->getCurrencyPrecision()
                 );
 
                 $lineItems[] = $discountItem;

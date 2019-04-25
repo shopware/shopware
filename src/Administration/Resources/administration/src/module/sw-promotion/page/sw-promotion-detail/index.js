@@ -69,6 +69,7 @@ Component.register('sw-promotion-detail', {
         },
 
         onSave() {
+            this.$emit('save');
             const promotionName = this.promotion.name;
             const titleSaveSuccess = this.$tc('sw-promotion.detail.header.titleSaveSuccess');
             const messageSaveSuccess = this.$tc('sw-promotion.detail.header.messageSaveSuccess', 0, { name: promotionName });

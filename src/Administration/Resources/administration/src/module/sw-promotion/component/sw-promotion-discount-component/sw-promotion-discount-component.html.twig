@@ -1,5 +1,5 @@
 {% block sw_promotion_discount_component %}
-    <div class="promotion-discount-component">
+    <div class="sw-promotion-discount-component">
         <sw-container columns="1fr 1fr" gap="0px 30px">
             {% block sw_promotion_discount_component_scope %}
                 <sw-select-field v-model="discount.scope"
@@ -10,8 +10,28 @@
                     </option>
                 </sw-select-field>
             {% endblock %}
-            <div></div>
+
+            {% block sw_promotion_discount_condition_consider_product_rules_field %}
+                <sw-field type="boolean"
+                          :label="$tc('sw-promotion.detail.main.discounts.flagProductScopeLabel')"
+                          v-model="discount.considerAdvancedRules">
+                </sw-field>
+            {% endblock %}
+
         </sw-container>
+
+        {% block sw_promotion_discount_condition_rules_form %}
+            <template v-if="discount.considerAdvancedRules === true">
+                <sw-entity-multi-select
+                        class="sw-promotion-discount-component__select-discount-rules"
+                        localMode
+                        :label="$tc('sw-promotion.detail.main.discounts.labelRules')"
+                        :placeholder="$tc('sw-promotion.detail.main.discounts.placeholder')"
+                        :collection="discount.discountRules">
+                </sw-entity-multi-select>
+            </template>
+        {% endblock %}
+
         <sw-container columns="1fr 1fr" gap="0px 30px">
             {% block sw_promotion_discount_component_type %}
                 <sw-select-field v-model="discount.type"

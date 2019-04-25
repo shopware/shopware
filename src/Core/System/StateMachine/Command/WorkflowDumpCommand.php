@@ -3,15 +3,21 @@
 namespace Shopware\Core\System\StateMachine\Command;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\System\StateMachine\StateMachineCollection;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Util\StateMachineGraphvizDumper;
+use Stecman\Component\Symfony\Console\BashCompletion\Completion\CompletionAwareInterface;
+use Stecman\Component\Symfony\Console\BashCompletion\CompletionContext;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class WorkflowDumpCommand extends Command
+class WorkflowDumpCommand extends Command implements CompletionAwareInterface
 {
     protected static $defaultName = 'state-machine:dump';
 
@@ -20,10 +26,46 @@ class WorkflowDumpCommand extends Command
      */
     private $stateMachineRegistry;
 
-    public function __construct(StateMachineRegistry $stateMachineRegistry)
-    {
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $stateMachineRepository;
+
+    public function __construct(
+        StateMachineRegistry $stateMachineRegistry,
+        EntityRepositoryInterface $stateMachineRepository
+    ) {
         parent::__construct();
         $this->stateMachineRegistry = $stateMachineRegistry;
+        $this->stateMachineRepository = $stateMachineRepository;
+    }
+
+    public function completeOptionValues($optionName, CompletionContext $context)
+    {
+        return [];
+    }
+
+    public function completeArgumentValues($argumentName, CompletionContext $context)
+    {
+        if ($argumentName === 'name') {
+            $criteria = new Criteria();
+
+            if (!empty($context->getCurrentWord())) {
+                $criteria->addFilter(new ContainsFilter('technicalName', $context->getCurrentWord()));
+            }
+
+            /** @var StateMachineCollection $stateMachines */
+            $stateMachines = $this->stateMachineRepository->search($criteria, Context::createDefaultContext())->getEntities();
+            $result = [];
+
+            foreach ($stateMachines as $stateMachine) {
+                $result[] = $stateMachine->getTechnicalName();
+            }
+
+            return $result;
+        }
+
+        return [];
     }
 
     protected function configure(): void

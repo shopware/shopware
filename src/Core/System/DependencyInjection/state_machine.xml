@@ -14,6 +14,7 @@
         </service>
         <service id="Shopware\Core\System\StateMachine\Command\WorkflowDumpCommand">
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
+            <argument type="service" id="state_machine.repository"/>
             <tag name="console.command"/>
         </service>
         <service id="Shopware\Core\System\StateMachine\StateMachineDefinition">

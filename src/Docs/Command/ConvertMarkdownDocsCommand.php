@@ -5,6 +5,8 @@ namespace Shopware\Docs\Command;
 use Shopware\Docs\Convert\Document;
 use Shopware\Docs\Convert\DocumentTree;
 use Shopware\Docs\Convert\WikiApiService;
+use Stecman\Component\Symfony\Console\BashCompletion\Completion\CompletionAwareInterface;
+use Stecman\Component\Symfony\Console\BashCompletion\CompletionContext;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -13,13 +15,43 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
-class ConvertMarkdownDocsCommand extends Command
+class ConvertMarkdownDocsCommand extends Command implements CompletionAwareInterface
 {
     private const CATEGORY_SITE_FILENAME = '__categoryInfo.md';
 
     private const BLACKLIST = 'article.blacklist';
 
     private const CREDENTIAL_PATH = __DIR__ . '/wiki.secret';
+
+    public function completeOptionValues($optionName, CompletionContext $context)
+    {
+        if ($optionName === 'input' || $optionName === 'output') {
+            $result = [];
+            $finder = (new Finder())
+                ->in(getcwd())
+                ->directories()
+                ->exclude([
+                    'vendor',
+                    'dev-ops',
+                    'Test*',
+                    'test*',
+                ])
+            ;
+
+            foreach ($finder as $directory) {
+                $result[] = $directory->getRelativePathname();
+            }
+
+            return $result;
+        }
+
+        return [];
+    }
+
+    public function completeArgumentValues($argumentName, CompletionContext $context)
+    {
+        return [];
+    }
 
     protected function configure(): void
     {

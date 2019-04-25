@@ -66,6 +66,7 @@
             <tag name="console.command"/>
             <argument>%kernel.project_dir%</argument>
             <argument>%kernel.plugin_dir%</argument>
+            <argument type="service" id="plugin.repository"/>
         </service>
 
         <service id="Shopware\Core\Framework\Migration\Command\RefreshMigrationCommand">
@@ -264,6 +265,11 @@
             <argument type="service" id="cache_clearer"/>
             <argument type="service" id="filesystem"/>
             <argument>%kernel.cache_dir%</argument>
+        </service>
+
+        <!-- Utility -->
+        <service id="Stecman\Component\Symfony\Console\BashCompletion\CompletionCommand">
+            <tag name="console.command"/>
         </service>
     </services>
 </container>

@@ -2,13 +2,21 @@
 
 namespace Shopware\Core\Framework\Migration\Command;
 
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Plugin\PluginCollection;
+use Stecman\Component\Symfony\Console\BashCompletion\Completion\CompletionAwareInterface;
+use Stecman\Component\Symfony\Console\BashCompletion\CompletionContext;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class CreateMigrationCommand extends Command
+class CreateMigrationCommand extends Command implements CompletionAwareInterface
 {
     /**
      * @var string
@@ -20,11 +28,75 @@ class CreateMigrationCommand extends Command
      */
     private $pluginDir;
 
-    public function __construct(string $projectDir, string $pluginDir)
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $pluginRepository;
+
+    public function __construct(string $projectDir, string $pluginDir, EntityRepositoryInterface $pluginRepository)
     {
         parent::__construct();
         $this->projectDir = $projectDir;
         $this->pluginDir = $pluginDir;
+        $this->pluginRepository = $pluginRepository;
+    }
+
+    public function completeOptionValues($optionName, CompletionContext $context)
+    {
+        if ($optionName === 'plugin') {
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('managedByComposer', 0));
+
+            /** @var PluginCollection $pluginCollection */
+            $pluginCollection = $this->pluginRepository
+                ->search($criteria, Context::createDefaultContext())
+                ->getEntities()
+            ;
+            $result = [];
+
+            foreach ($pluginCollection as $plugin) {
+                if ($plugin->getPath() === null) {
+                    continue;
+                }
+
+                $pathNodes = explode(DIRECTORY_SEPARATOR, $plugin->getPath());
+                $result[] = array_pop($pathNodes);
+            }
+
+            return $result;
+        }
+
+        return [];
+    }
+
+    public function completeArgumentValues($argumentName, CompletionContext $context)
+    {
+        if ($argumentName === 'directory') {
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('managedByComposer', 0));
+
+            if (($pluginNameIndex = array_search('--plugin', $context->getWords(), true)) !== false) {
+                $pluginName = $context->getWordAtIndex($pluginNameIndex + 1);
+                $criteria->addFilter(new ContainsFilter('path', $pluginName));
+            }
+
+            /** @var PluginCollection $pluginCollection */
+            $pluginCollection = $this->pluginRepository
+                ->search($criteria, Context::createDefaultContext())
+                ->getEntities()
+            ;
+            $result = [];
+
+            foreach ($pluginCollection as $plugin) {
+                $result[] = $plugin->getPath();
+            }
+
+            return $result;
+        } elseif ($argumentName === 'namespace') {
+            // TODO find good way to determine the namespace
+        }
+
+        return [];
     }
 
     protected function configure(): void

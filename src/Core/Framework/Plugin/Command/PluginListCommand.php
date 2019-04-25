@@ -10,12 +10,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
+use Stecman\Component\Symfony\Console\BashCompletion\Completion\CompletionAwareInterface;
+use Stecman\Component\Symfony\Console\BashCompletion\CompletionContext;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class PluginListCommand extends Command
+class PluginListCommand extends Command implements CompletionAwareInterface
 {
     /**
      * @var EntityRepositoryInterface
@@ -26,6 +28,44 @@ class PluginListCommand extends Command
     {
         parent::__construct();
         $this->pluginRepo = $pluginRepo;
+    }
+
+    public function completeOptionValues($optionName, CompletionContext $context)
+    {
+        if ($optionName === 'filter') {
+            $criteria = new Criteria();
+
+            if (!empty($context->getCurrentWord())) {
+                $criteria->addFilter(new MultiFilter(
+                    MultiFilter::CONNECTION_OR,
+                    [
+                        new ContainsFilter('name', $context->getCurrentWord()),
+                        new ContainsFilter('label', $context->getCurrentWord()),
+                    ]
+                ));
+            }
+
+            /** @var PluginCollection $plugins */
+            $plugins = $this->pluginRepo->search($criteria, Context::createDefaultContext())->getEntities();
+            $result = [];
+
+            foreach ($plugins as $plugin) {
+                $result = array_merge(
+                    self::getTextParts($plugin->getName()),
+                    self::getTextParts($plugin->getLabel()),
+                    $result
+                );
+            }
+
+            return array_unique($result);
+        }
+
+        return [];
+    }
+
+    public function completeArgumentValues($argumentName, CompletionContext $context)
+    {
+        return [];
     }
 
     /**
@@ -109,5 +149,13 @@ class PluginListCommand extends Command
                 $upgradeable
             )
         );
+    }
+
+    protected static function getTextParts(string $text): array
+    {
+        $text = preg_replace('/[A-Z]/', ' $0', $text);
+        $text = preg_replace('/\\W/', ' ', $text);
+
+        return explode(' ', $text);
     }
 }

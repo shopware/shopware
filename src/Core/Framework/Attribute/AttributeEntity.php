@@ -25,6 +25,11 @@ class AttributeEntity extends Entity
     protected $config;
 
     /**
+     * @var bool
+     */
+    protected $active;
+
+    /**
      * @var string|null
      */
     protected $attributeSetId;
@@ -72,6 +77,16 @@ class AttributeEntity extends Entity
     public function setConfig(?array $config): void
     {
         $this->config = $config;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(bool $active): void
+    {
+        $this->active = $active;
     }
 
     public function getAttributeSetId(): ?string

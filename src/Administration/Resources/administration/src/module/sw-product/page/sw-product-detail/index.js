@@ -121,8 +121,8 @@ Component.register('sw-product-detail', {
                         sort: 'attribute.config.attributePosition'
                     }
                 }
-            }, true).then((response) => {
-                this.attributeSets = response.items;
+            }, true).then(({ items }) => {
+                this.attributeSets = items.filter(set => set.attributes.length > 0);
             });
         },
 

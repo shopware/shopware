@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Attribute\Aggregate\AttributeSet;
 use Shopware\Core\Framework\Attribute\Aggregate\AttributeSetRelation\AttributeSetRelationDefinition;
 use Shopware\Core\Framework\Attribute\AttributeDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -39,6 +40,8 @@ class AttributeSetDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->addFlags(new Required()),
             new JsonField('config', 'config'),
+
+            new BoolField('active', 'active'),
 
             (new OneToManyAssociationField('attributes', AttributeDefinition::class, 'set_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('relations', AttributeSetRelationDefinition::class, 'set_id'))->addFlags(new CascadeDelete()),

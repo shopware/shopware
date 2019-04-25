@@ -1,4 +1,4 @@
-import utils from 'src/core/service/util.service';
+import utils, { debug } from 'src/core/service/util.service';
 
 export default {
     namespaced: true,
@@ -35,12 +35,18 @@ export default {
             state.defaults.duration = duration;
         },
 
-        pushNotification(state, notification) {
-            state.notifications.unshift(notification);
+        upsertNotification(state, notificationUpdate) {
+            const notification = state.notifications.find(n => n.uuid === notificationUpdate.uuid);
+            if (notification !== undefined) {
+                Object.assign(notification, notificationUpdate);
+                return;
+            }
+
+            state.notifications.unshift(notificationUpdate);
         },
 
         removeNotification(state, notification) {
-            const index = state.notifications.findIndex(n => n === notification);
+            const index = state.notifications.findIndex(n => n.uuid === notification.uuid);
             if (index !== -1) {
                 state.notifications.splice(index, 1);
             }
@@ -52,16 +58,21 @@ export default {
             });
         },
 
-        pushGrowlNotification(state, notification) {
-            state.growlNotifications.push(notification);
+        upsertGrowlNotification(state, notificationUpdate) {
+            const notification = state.growlNotifications.find(n => n.uuid === notificationUpdate.uuid);
+            if (notification !== undefined) {
+                Object.assign(notification, notificationUpdate);
+                return;
+            }
 
+            state.growlNotifications.push(notificationUpdate);
             if (state.growlNotifications.length > state.threshold) {
                 state.growlNotifications.splice(0, 1);
             }
         },
 
         removeGrowlNotification(state, notification) {
-            const index = state.growlNotifications.findIndex(n => n === notification);
+            const index = state.growlNotifications.findIndex(n => n.uuid === notification.uuid);
             if (index !== -1) {
                 state.growlNotifications.splice(index, 1);
             }
@@ -71,7 +82,7 @@ export default {
     actions: {
         createNotification({ state, commit }, notification) {
             if (!notification.message) {
-                utils.warn('NotificationStore', 'A message must be specified', notification);
+                debug.warn('NotificationStore', 'A message must be specified', notification);
                 return null;
             }
 
@@ -85,10 +96,10 @@ export default {
                 }
             );
 
-            commit('pushNotification', mergedNotification);
+            commit('upsertNotification', mergedNotification);
 
             if (mergedNotification.growl) {
-                commit('pushGrowlNotification', mergedNotification);
+                commit('upsertGrowlNotification', mergedNotification);
                 if (mergedNotification.autoClose) {
                     setTimeout(() => {
                         commit('removeGrowlNotification', mergedNotification);
@@ -97,6 +108,64 @@ export default {
             }
 
             return mergedNotification.uuid;
+        },
+
+        /**
+         * Updates the notification with the given uuid in the payload. If growl is set to true and the notification
+         * is not currently visible (as growl) it will show the notification as growl. Visited can also be set to
+         * false to notify the user about the update. If the notification was already deleted by the user
+         * it will be created again.
+         *
+         * @param notificationUpdate update payload
+         * @returns {string} uuid
+         */
+        updateNotification({ state, commit }, notificationUpdate) {
+            if (!notificationUpdate.uuid) {
+                debug.warn('NotificationStore', 'Update to an notification must contain the uuid', notificationUpdate);
+                return null;
+            }
+
+            const growlNotificationExists = state.growlNotifications.find(
+                n => n.uuid === notificationUpdate.uuid
+            ) !== undefined;
+            let originalNotification = state.notifications.find(n => n.uuid === notificationUpdate.uuid);
+            if (originalNotification === undefined) {
+                originalNotification = Object.assign(
+                    {},
+                    state.defaults,
+                    {
+                        uuid: notificationUpdate.uuid,
+                        timestamp: new Date()
+                    }
+                );
+            }
+
+            const mergedUpdate = Object.assign(
+                {},
+                originalNotification,
+                notificationUpdate,
+                {
+                    growl: notificationUpdate.growl === undefined ? originalNotification.growl : notificationUpdate.growl
+                }
+            );
+
+            commit('upsertNotification', mergedUpdate);
+            if (growlNotificationExists) {
+                commit('upsertGrowlNotification', mergedUpdate);
+            }
+
+            if (!growlNotificationExists &&
+                notificationUpdate.growl !== undefined &&
+                notificationUpdate.growl === true) {
+                commit('upsertGrowlNotification', mergedUpdate);
+                if (mergedUpdate.autoClose) {
+                    setTimeout(() => {
+                        commit('removeGrowlNotification', mergedUpdate);
+                    }, mergedUpdate.duration);
+                }
+            }
+
+            return originalNotification.uuid;
         },
 
         setAllNotificationsVisited({ commit }) {

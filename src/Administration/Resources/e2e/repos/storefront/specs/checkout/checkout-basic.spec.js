@@ -48,12 +48,15 @@ module.exports = {
             .assert.containsText(`${page.elements.cartItem}-link-name`, currentProduct.attributes.name)
             .assert.containsText(`${page.elements.cartItem}-link-price`, currentProduct.attributes.price.gross)
             .assert.containsText('.cart-prices-subtotal', currentProduct.attributes.price.gross)
-            .click(`${page.elements.cartActions} ${page.elements.lightButton}`);
+            .click(`${page.elements.cartActions} ${page.elements.lightButton}`)
+            .waitForElementVisible('.card-body');
     },
     'check card widget': (browser) => {
         const page = checkoutPage(browser);
 
-        browser.expect.element(`${page.elements.cardWidget}-total`).to.have.text.that.contains(currentProduct.attributes.price.gross);
+        browser
+            .waitForElementVisible('.badge')
+            .expect.element(`${page.elements.cardWidget}-total`).to.have.text.that.contains(currentProduct.attributes.price.gross);
         browser.expect.element(`${page.elements.cardWidget}-badge`).to.have.text.that.contains('1');
     },
     'check checkout page and continue': (browser) => {

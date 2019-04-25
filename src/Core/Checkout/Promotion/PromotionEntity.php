@@ -56,6 +56,11 @@ class PromotionEntity extends Entity
     /**
      * @var bool
      */
+    protected $useCodes;
+
+    /**
+     * @var bool
+     */
     protected $excludeLowerPriority;
 
     /**
@@ -77,11 +82,6 @@ class PromotionEntity extends Entity
      * @var RuleEntity|null
      */
     protected $discountRule;
-
-    /**
-     * @var string
-     */
-    protected $codeType;
 
     /**
      * @var PromotionSalesChannelCollection|null
@@ -183,6 +183,24 @@ class PromotionEntity extends Entity
         $this->priority = $priority;
     }
 
+    /**
+     * Gets if the promotion requires codes
+     * in order to be used
+     */
+    public function isUseCodes(): bool
+    {
+        return $this->useCodes;
+    }
+
+    /**
+     * Sets if the promotion requires a code
+     * to be used.
+     */
+    public function setUseCodes(bool $useCodes): void
+    {
+        $this->useCodes = $useCodes;
+    }
+
     public function isExcludeLowerPriority(): bool
     {
         return $this->excludeLowerPriority;
@@ -231,16 +249,6 @@ class PromotionEntity extends Entity
     public function setDiscountRule(RuleEntity $discountRule): void
     {
         $this->discountRule = $discountRule;
-    }
-
-    public function getCodeType(): string
-    {
-        return $this->codeType;
-    }
-
-    public function setCodeType(string $codeType): void
-    {
-        $this->codeType = $codeType;
     }
 
     public function getDiscounts(): ?PromotionDiscountCollection

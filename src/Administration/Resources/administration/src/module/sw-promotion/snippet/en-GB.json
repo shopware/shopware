@@ -53,16 +53,12 @@
           "labelValidUntil": "Valid until:",
           "labelPriority": "priority",
           "labelRedeemable": "redeemable",
-          "codeType": {
-            "no_code": "automatic activation",
-            "standard": "activate with code",
-            "individual": "activate with individual code"
-          },
-          "placeholderCode": "Enter promotion code",
-          "placeholderCodeType": "Select Codetyp",
-          "labelCode": "code",
-          "labelCodeType": "code type",
-          "labelIndividualCodeLink": "manage individual codes"
+          "codes" : {
+            "card" : "Promotion Codes",
+            "labelCode" : "General Promotion Code",
+            "placeholderCode": "Enter promotion code",
+            "switchUseCodes" : "Use Promotion Codes"
+          }
         },
         "preconditions": {
           "ruleModuleLink": "Open rule builder",

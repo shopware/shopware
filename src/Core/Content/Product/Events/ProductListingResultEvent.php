@@ -1,20 +1,21 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Page\Listing;
+namespace Shopware\Core\Content\Product\Events;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-class ListingPageLoadedEvent extends NestedEvent
+class ProductListingResultEvent extends NestedEvent
 {
-    public const NAME = 'listing.page.loaded';
+    public const NAME = 'product.listing.result';
 
     /**
-     * @var ListingPage
+     * @var Request
      */
-    protected $page;
+    protected $request;
 
     /**
      * @var SalesChannelContext
@@ -22,15 +23,20 @@ class ListingPageLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var Request
+     * @var EntitySearchResult
      */
-    protected $request;
+    protected $result;
 
-    public function __construct(ListingPage $page, SalesChannelContext $context, Request $request)
+    public function __construct(Request $request, EntitySearchResult $result, SalesChannelContext $context)
     {
-        $this->page = $page;
-        $this->context = $context;
         $this->request = $request;
+        $this->context = $context;
+        $this->result = $result;
+    }
+
+    public function getRequest(): Request
+    {
+        return $this->request;
     }
 
     public function getName(): string
@@ -48,13 +54,8 @@ class ListingPageLoadedEvent extends NestedEvent
         return $this->context;
     }
 
-    public function getPage(): ListingPage
+    public function getResult(): EntitySearchResult
     {
-        return $this->page;
-    }
-
-    public function getRequest(): Request
-    {
-        return $this->request;
+        return $this->result;
     }
 }

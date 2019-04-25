@@ -47,14 +47,6 @@
         </service>
 
         <service class="Shopware\Storefront\Framework\Page\PageLoaderProfiler"
-            id="ListingPageLoaderProfiler"
-            decorates="Shopware\Storefront\Page\Listing\ListingPageLoader">
-
-            <argument type="service" id="ListingPageLoaderProfiler.inner" />
-            <argument type="service" id="debug.stopwatch" />
-        </service>
-
-        <service class="Shopware\Storefront\Framework\Page\PageLoaderProfiler"
             id="CheckoutFinishPageLoaderProfiler"
             decorates="Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoader">
 

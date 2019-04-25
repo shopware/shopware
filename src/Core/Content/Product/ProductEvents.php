@@ -2,8 +2,21 @@
 
 namespace Shopware\Core\Content\Product;
 
+use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
+use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
+
 class ProductEvents
 {
+    /**
+     * @Event("Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent")
+     */
+    public const PRODUCT_LISTING_CRITERIA = ProductListingCriteriaEvent::NAME;
+
+    /**
+     * @Event("Shopware\Core\Content\Product\Events\ProductListingResultEvent")
+     */
+    public const PRODUCT_LISTING_RESULT = ProductListingResultEvent::NAME;
+
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent")
      */

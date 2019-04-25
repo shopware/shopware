@@ -59,7 +59,7 @@ class CmsPageGenerator implements DemodataGeneratorInterface
         $pages = [];
 
         for ($i = 0; $i < $numberOfItems; ++$i) {
-            $pages[] = random_int(0, 1) ? $this->createLandingPage($context) : $this->createListingPage($context);
+            $pages[] = $this->createPage($context);
         }
 
         $pages[] = $this->createProductDetailPage($context);
@@ -67,12 +67,12 @@ class CmsPageGenerator implements DemodataGeneratorInterface
         $this->cmsPageRepository->upsert($pages, $context->getContext());
     }
 
-    private function createLandingPage(DemodataContext $context): array
+    protected function createPage(DemodataContext $context): array
     {
         return [
             'id' => Uuid::randomHex(),
             'name' => $context->getFaker()->company,
-            'type' => 'landing_page',
+            'type' => 'listing_page',
             'blocks' => [
                 [
                     'type' => 'image-text',
@@ -83,33 +83,22 @@ class CmsPageGenerator implements DemodataGeneratorInterface
                     ],
                 ],
                 [
-                    'type' => 'image-text',
-                    'position' => 2,
-                    'slots' => [
-                        ['type' => 'text', 'slot' => 'right', 'config' => ['content' => ['source' => FieldConfig::SOURCE_STATIC, 'value' => $context->getFaker()->realText()]]],
-                        ['type' => 'image', 'slot' => 'left', 'config' => ['media' => ['source' => FieldConfig::SOURCE_STATIC, 'value' => $this->getRandomMediaId($context)]]],
-                    ],
-                ],
-            ],
-        ];
-    }
-
-    private function createListingPage(DemodataContext $context): array
-    {
-        return [
-            'id' => Uuid::randomHex(),
-            'name' => $context->getFaker()->company,
-            'type' => 'listing_page',
-            'blocks' => [
-                [
                     'type' => 'product-listing',
-                    'position' => 1,
+                    'position' => 2,
                     'slots' => [
                         [
                             'type' => 'product-listing',
                             'slot' => 'listing',
                             'config' => [],
                         ],
+                    ],
+                ],
+                [
+                    'type' => 'image-text',
+                    'position' => 3,
+                    'slots' => [
+                        ['type' => 'text', 'slot' => 'right', 'config' => ['content' => ['source' => FieldConfig::SOURCE_STATIC, 'value' => $context->getFaker()->realText()]]],
+                        ['type' => 'image', 'slot' => 'left', 'config' => ['media' => ['source' => FieldConfig::SOURCE_STATIC, 'value' => $this->getRandomMediaId($context)]]],
                     ],
                 ],
             ],

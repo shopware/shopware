@@ -7,19 +7,42 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class TreeBuilder
 {
     /**
+     * @var TreeItem
+     */
+    private $item;
+
+    public function __construct()
+    {
+        $this->item = new TreeItem(null, []);
+    }
+
+    /**
      * @return TreeItem[]
      */
     public function buildTree(?string $parentId, EntityCollection $entities): array
     {
-        return $entities->fmap(function (TreeAwareInterface $entity) use ($parentId, $entities): ?TreeItem {
+        return $this->recursion($parentId, $entities->getElements());
+    }
+
+    private function recursion(?string $parentId, array $entities): array
+    {
+        $mapped = [];
+        foreach ($entities as $key => $entity) {
             if ($entity->getParentId() !== $parentId) {
-                return null;
+                continue;
             }
 
-            return new TreeItem(
-                $entity,
-                $this->buildTree($entity->getId(), $entities)
+            unset($entities[$key]);
+
+            $item = clone $this->item;
+            $item->setEntity($entity);
+            $item->setChildren(
+                $this->recursion($entity->getId(), $entities)
             );
-        });
+
+            $mapped[] = $item;
+        }
+
+        return $mapped;
     }
 }

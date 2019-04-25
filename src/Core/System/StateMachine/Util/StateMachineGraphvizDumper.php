@@ -36,10 +36,7 @@ class StateMachineGraphvizDumper
             . $this->endDot();
     }
 
-    /**
-     * @internal
-     */
-    protected function findStates(StateMachineEntity $stateMachine): array
+    private function findStates(StateMachineEntity $stateMachine): array
     {
         $states = [];
 
@@ -59,23 +56,7 @@ class StateMachineGraphvizDumper
         return $states;
     }
 
-    /**
-     * @internal
-     */
-    protected function findTransitions(StateMachineEntity $stateMachine): array
-    {
-        $transitions = [];
-        foreach ($stateMachine->getTransitions() as $transition) {
-            $transitions[] = [
-                'attributes' => ['shape' => 'box', 'regular' => true],
-                'name' => $transition->getName(),
-            ];
-        }
-
-        return $transitions;
-    }
-
-    protected function addStates(array $states): string
+    private function addStates(array $states): string
     {
         $code = '';
         foreach ($states as $id => $state) {
@@ -85,23 +66,7 @@ class StateMachineGraphvizDumper
         return $code;
     }
 
-    /**
-     * @internal
-     */
-    protected function addTransitions(array $transitions): string
-    {
-        $code = '';
-        foreach ($transitions as $place) {
-            $code .= sprintf("  transition_%s [label=\"%s\", shape=box%s];\n", $this->dotize($place['name']), $this->escape($place['name']), $this->addAttributes($place['attributes']));
-        }
-
-        return $code;
-    }
-
-    /**
-     * @internal
-     */
-    protected function startDot(array $options): string
+    private function startDot(array $options): string
     {
         return sprintf("digraph workflow {\n  %s\n  node [%s];\n  edge [%s];\n\n",
             $this->addOptions($options['graph']),
@@ -110,31 +75,22 @@ class StateMachineGraphvizDumper
         );
     }
 
-    /**
-     * @internal
-     */
-    protected function endDot(): string
+    private function endDot(): string
     {
         return "}\n";
     }
 
-    /**
-     * @internal
-     */
-    protected function dotize($id): string
+    private function dotize($id): string
     {
         return hash('sha1', $id);
     }
 
-    /**
-     * @internal
-     */
-    protected function escape(string $string): string
+    private function escape(string $string): string
     {
         return addslashes($string);
     }
 
-    protected function findEdges(StateMachineEntity $stateMachine): array
+    private function findEdges(StateMachineEntity $stateMachine): array
     {
         $edges = [];
 
@@ -149,7 +105,7 @@ class StateMachineGraphvizDumper
         return $edges;
     }
 
-    protected function addEdges(array $edges): string
+    private function addEdges(array $edges): string
     {
         $code = '';
 

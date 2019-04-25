@@ -18,7 +18,7 @@ class Sha256 implements LegacyEncoderInterface
         return hash_equals($hash, $verifyHash);
     }
 
-    protected function generateInternal(string $password, string $salt, int $iterations): string
+    private function generateInternal(string $password, string $salt, int $iterations): string
     {
         $hash = '';
         for ($i = 0; $i <= $iterations; ++$i) {

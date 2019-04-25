@@ -11,17 +11,17 @@ class DataMappingEvent extends Event implements ShopwareEvent
     /**
      * @var DataBag
      */
-    protected $input;
+    private $input;
 
     /**
      * @var array
      */
-    protected $output;
+    private $output;
 
     /**
      * @var Context
      */
-    protected $context;
+    private $context;
 
     /**
      * @var string

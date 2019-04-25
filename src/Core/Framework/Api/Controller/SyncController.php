@@ -20,7 +20,7 @@ class SyncController extends AbstractController
     /**
      * @var DefinitionRegistry
      */
-    protected $definitionRegistry;
+    private $definitionRegistry;
 
     /**
      * @var Serializer

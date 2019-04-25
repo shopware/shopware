@@ -10,7 +10,7 @@ class ResolverContext
     /**
      * @var SalesChannelContext
      */
-    protected $context;
+    private $context;
 
     /**
      * @var Request

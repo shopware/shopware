@@ -11,7 +11,7 @@ class FieldAccessorBuilderRegistry
     /**
      * @var FieldAccessorBuilderInterface[]
      */
-    protected $builders;
+    private $builders;
 
     public function __construct(iterable $builders)
     {

@@ -11,12 +11,12 @@ class RestrictDeleteViolationException extends ShopwareHttpException
     /**
      * @var RestrictDeleteViolation[]
      */
-    protected $restrictions;
+    private $restrictions;
 
     /**
      * @var string|EntityDefinition
      */
-    protected $definition;
+    private $definition;
 
     /**
      * @param EntityDefinition|string   $definition

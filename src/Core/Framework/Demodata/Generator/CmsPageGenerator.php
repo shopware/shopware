@@ -67,7 +67,7 @@ class CmsPageGenerator implements DemodataGeneratorInterface
         $this->cmsPageRepository->upsert($pages, $context->getContext());
     }
 
-    protected function createLandingPage(DemodataContext $context): array
+    private function createLandingPage(DemodataContext $context): array
     {
         return [
             'id' => Uuid::randomHex(),
@@ -94,7 +94,7 @@ class CmsPageGenerator implements DemodataGeneratorInterface
         ];
     }
 
-    protected function createListingPage(DemodataContext $context): array
+    private function createListingPage(DemodataContext $context): array
     {
         return [
             'id' => Uuid::randomHex(),
@@ -116,7 +116,7 @@ class CmsPageGenerator implements DemodataGeneratorInterface
         ];
     }
 
-    protected function createProductDetailPage(DemodataContext $context): array
+    private function createProductDetailPage(DemodataContext $context): array
     {
         return [
             'name' => 'Product detail page',

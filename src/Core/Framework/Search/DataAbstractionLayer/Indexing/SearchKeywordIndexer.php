@@ -150,15 +150,6 @@ class SearchKeywordIndexer implements IndexerInterface
         }
     }
 
-    public static function stringReverse($keyword)
-    {
-        $keyword = (string) $keyword;
-        $peaces = preg_split('//u', $keyword, -1, PREG_SPLIT_NO_EMPTY);
-        $peaces = array_reverse($peaces);
-
-        return implode('', $peaces);
-    }
-
     private function indexContext(Context $context, \DateTimeInterface $timestamp): void
     {
         foreach ($this->registry->getDefinitions() as $definition) {
@@ -251,7 +242,7 @@ class SearchKeywordIndexer implements IndexerInterface
             $perPoint = 1000 / $total;
 
             foreach ($keywords as $keyword => $ranking) {
-                $reversed = static::stringReverse($keyword);
+                $reversed = $this->stringReverse($keyword);
 
                 $ranking = $perPoint * $ranking;
 
@@ -278,5 +269,14 @@ class SearchKeywordIndexer implements IndexerInterface
         }
 
         $queue->execute();
+    }
+
+    private function stringReverse($keyword)
+    {
+        $keyword = (string) $keyword;
+        $peaces = preg_split('//u', $keyword, -1, PREG_SPLIT_NO_EMPTY);
+        $peaces = array_reverse($peaces);
+
+        return implode('', $peaces);
     }
 }

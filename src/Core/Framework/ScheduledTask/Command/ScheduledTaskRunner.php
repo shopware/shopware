@@ -73,7 +73,7 @@ class ScheduledTaskRunner extends Command
         }
     }
 
-    protected function convertToBytes(string $memoryLimit): int
+    private function convertToBytes(string $memoryLimit): int
     {
         $memoryLimit = strtolower($memoryLimit);
         $max = (int) strtolower(ltrim($memoryLimit, '+'));

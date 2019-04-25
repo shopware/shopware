@@ -21,17 +21,17 @@ class StateMachineRegistry
     /**
      * @var EntityRepositoryInterface
      */
-    protected $stateMachineRepository;
+    private $stateMachineRepository;
 
     /**
      * @var EntityRepositoryInterface
      */
-    protected $stateMachineHistoryRepository;
+    private $stateMachineHistoryRepository;
 
     /**
      * @var StateMachineEntity[]
      */
-    protected $stateMachines;
+    private $stateMachines;
 
     public function __construct(EntityRepositoryInterface $stateMachineRepository, EntityRepositoryInterface $stateMachineHistoryRepository)
     {

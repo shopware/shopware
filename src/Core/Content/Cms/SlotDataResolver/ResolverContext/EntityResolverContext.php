@@ -12,12 +12,12 @@ class EntityResolverContext extends ResolverContext
     /**
      * @var Entity
      */
-    protected $entity;
+    private $entity;
 
     /**
      * @var EntityDefinition|string
      */
-    protected $definition;
+    private $definition;
 
     public function __construct(SalesChannelContext $context, Request $request, string $definition, Entity $entity)
     {

@@ -24,22 +24,22 @@ class Calculator
     /**
      * @var QuantityPriceCalculator
      */
-    protected $quantityPriceCalculator;
+    private $quantityPriceCalculator;
 
     /**
      * @var PercentagePriceCalculator
      */
-    protected $percentagePriceCalculator;
+    private $percentagePriceCalculator;
 
     /**
      * @var AbsolutePriceCalculator
      */
-    protected $absolutePriceCalculator;
+    private $absolutePriceCalculator;
 
     /**
      * @var AmountCalculator
      */
-    protected $amountCalculator;
+    private $amountCalculator;
 
     public function __construct(
         QuantityPriceCalculator $quantityPriceCalculator,

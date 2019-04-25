@@ -12,14 +12,14 @@ class DemodataContext
     /**
      * @var Context
      */
-    protected $context;
+    private $context;
 
     /**
      * List of created entities for definition
      *
      * @var string[][]
      */
-    protected $entities = [];
+    private $entities = [];
 
     /**
      * @var SymfonyStyle

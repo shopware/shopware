@@ -238,6 +238,9 @@
         "descriptionTitle": "Produktinformationen",
         "priceUnitName": "Inhalt:"
     },
+    "error": {
+        "message-default": "Leider ist etwas ist schief gelaufen"
+    },
     "footer": {
         "serviceHotlineHeadline": "Service Hotline",
         "shopServiceHeadline": "Shop Service",

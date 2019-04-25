@@ -6,7 +6,8 @@ use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Twig\ErrorTemplateResolver;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ErrorPageController extends StorefrontController
 {
@@ -15,23 +16,38 @@ class ErrorPageController extends StorefrontController
      */
     protected $errorTemplateResolver;
 
-    public function __construct(ErrorTemplateResolver $errorTemplateResolver)
+    /**
+     * @var FlashBagInterface
+     */
+    private $flashBag;
+
+    /**
+     * @var TranslatorInterface
+     */
+    private $translator;
+
+    public function __construct(ErrorTemplateResolver $errorTemplateResolver, FlashBagInterface $flashBag, TranslatorInterface $translator)
     {
         $this->errorTemplateResolver = $errorTemplateResolver;
+        $this->flashBag = $flashBag;
+        $this->translator = $translator;
     }
 
     public function error(\Exception $exception, Request $request): Response
     {
-        $response = $this->forward("Shopware\Storefront\PageController\HomePageController:index");
+        try {
+            if (!$this->flashBag->has('danger')) {
+                $this->flashBag->add('danger', $this->translator->trans('error.message-default'));
+            }
 
-        $code = 500;
+            $errorTemplate = $this->errorTemplateResolver->resolve($exception, $request);
 
-        if ($exception instanceof HttpException) {
-            $code = $exception->getStatusCode();
+            return $this->renderStorefront($errorTemplate->getTemplateName(), $errorTemplate->getArguments());
+        } catch (\Exception $e) { //final Fallback
+            return $this->renderStorefront(
+                '@Storefront/page/error/index.html.twig',
+                ['exception' => $exception, 'followingException' => $e]
+            );
         }
-
-        $response->setStatusCode($code);
-
-        return $response;
     }
 }

@@ -268,13 +268,18 @@ class CheckoutPageController extends StorefrontController
     /**
      * @Route("/checkout/configure", name="frontend.checkout.configure", options={"seo"="false"}, methods={"POST"})
      */
-    public function configure(Request $request, RequestDataBag $data, SalesChannelContext $context): RedirectResponse
+    public function configure(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
+        $route = $request->get('redirectTo', 'frontend.checkout.cart.page');
+        $parameters = $request->get('redirectParameters', []);
+
+        //since the keys "redirectTo" and "redirectParameters" are used to configure this action, the shall not be persisted
+        $data->remove('redirectTo');
+        $data->remove('redirectParameters');
+
         $this->contextSwitcher->update($data, $context);
 
-        $route = $request->get('redirectTo', 'frontend.checkout.cart.page');
-
-        return $this->redirectToRoute($route);
+        return $this->redirectToRoute($route, $parameters);
     }
 
     /**

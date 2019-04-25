@@ -1,4 +1,4 @@
-import PluginConfigRegistry from 'asset/script/helper/plugin/plugin.config.registry';
+import PluginConfigRegistry from 'src/script/helper/plugin/plugin.config.registry';
 
 
 class PluginConfigManagerSingleton {

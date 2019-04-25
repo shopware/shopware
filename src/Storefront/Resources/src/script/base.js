@@ -105,7 +105,7 @@ add configurations
 */
 // // applicable via data-simple-plugin-config="myConfig"
 // window.PluginConfigManager.add('SimplePlugin', 'myConfig', { some: 'options' });
-// import ExtendedSimplePluginConfig from 'asset/script/config/_example/extended-simple-plugin.config';
+// import ExtendedSimplePluginConfig from 'src/script/config/_example/extended-simple-plugin.config';
 // window.PluginConfigManager.add('SimplePlugin', 'extendedConfig', ExtendedSimplePluginConfig);
 
 

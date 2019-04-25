@@ -31,25 +31,28 @@ class ConfigurationService
      */
     public function getConfiguration(string $domain): array
     {
-        $parts = explode('.', $domain, 2);
-        if (count($parts) === 1 && $parts[0] !== '') {
-            $scope = 'bundle';
-            [$bundleName] = $parts;
-        } elseif (count($parts) === 2) {
-            [$scope, $bundleName] = $parts;
-        } else {
+        $validDomain = preg_match('/^([\w-]+)\.?([\w-]*)$/', $domain, $match);
+
+        if (!$validDomain) {
             throw new \InvalidArgumentException('Expected domain');
         }
 
-        $bundle = $this->getBundle($bundleName);
+        $scope = $match[1];
+        $configName = $match[2] !== '' ? $match[2] : null;
 
-        if (!($bundle instanceof Bundle)) {
-            throw new BundleNotFoundException($bundleName);
+        if ($scope === 'core') {
+            $config = $this->configReader->getCoreConfig(__DIR__ . '/../Resources/config/' . $configName);
+        } else {
+            $bundle = $this->getBundle($scope);
+
+            if (!($bundle instanceof Bundle)) {
+                throw new BundleNotFoundException($scope);
+            }
+
+            $config = $this->configReader->getConfigFromBundle($bundle, $configName);
         }
 
-        // TODO: NEXT-2809 - allow custom config loading
-        $config = $this->configReader->getConfigFromBundle($bundle);
-        $domain = $scope . '.' . $bundle->getName() . '.';
+        $domain = rtrim($domain, '.') . '.';
 
         foreach ($config as $i => $card) {
             foreach ($card['elements'] as $j => $field) {

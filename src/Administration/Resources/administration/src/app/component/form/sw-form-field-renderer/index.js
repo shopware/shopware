@@ -97,25 +97,12 @@ export default {
 
     data() {
         return {
+            currentComponentName: '',
             swFieldConfig: {},
             currentConfig: {},
             currentValue: '',
             bind: {}
         };
-    },
-
-    computed: {
-        component() {
-            if (this.componentName) {
-                return this.validateComponentName(this.componentName);
-            }
-
-            if (this.config && this.config.componentName) {
-                return this.validateComponentName(this.config.componentName);
-            }
-
-            return this.getComponentFromType();
-        }
     },
 
     watch: {
@@ -149,7 +136,19 @@ export default {
             this.currentValue = this.value;
             this.currentConfig = Object.assign({}, this.config);
 
+            this.currentComponentName = this.getComponentName();
             this.createBind();
+        },
+        getComponentName() {
+            if (this.componentName) {
+                return this.validateComponentName(this.componentName);
+            }
+
+            if (this.config && this.config.componentName) {
+                return this.validateComponentName(this.config.componentName);
+            }
+
+            return this.getComponentFromType();
         },
         getComponentFromType() {
             if (this.type === 'int') {
@@ -162,7 +161,7 @@ export default {
                 return 'sw-field';
             }
             if (this.type === 'bool') {
-                this.swFieldConfig = { ...this.swFieldConfig, ...{ type: 'checkbox' } };
+                this.swFieldConfig = { ...this.swFieldConfig, ...{ type: 'boolean' } };
                 return 'sw-field';
             }
             if (this.type === 'float') {
@@ -174,12 +173,26 @@ export default {
                 this.swFieldConfig = { ...this.swFieldConfig, ...{ type: 'date', dateType: 'datetime' } };
                 return 'sw-field';
             }
-            if (this.type === 'password') {
-                this.swFieldConfig = { ...this.swFieldConfig, ...{ type: 'password' } };
-                return 'sw-field';
-            }
             if (this.type === 'select') {
                 return 'sw-select';
+            }
+            const swFieldTypes = [
+                'text',
+                'boolean',
+                'checkbox',
+                'switch',
+                'number',
+                'radio',
+                'textarea',
+                'date',
+                'colorpicker',
+                'confirm',
+                'password',
+                'url'
+            ];
+            if (swFieldTypes.includes(this.type)) {
+                this.swFieldConfig = { ...this.swFieldConfig, ...{ type: this.type } };
+                return 'sw-field';
             }
 
             throw new Error(`sw-form-field-renderer - No suitable component for type "${this.type}" found`);

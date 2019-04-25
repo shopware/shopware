@@ -51,7 +51,7 @@ class SystemConfigController extends AbstractController
     public function getConfigurationValues(Request $request): JsonResponse
     {
         $domain = $request->query->get('domain');
-        $salesChannelId = $request->query->get('sales_channel_id');
+        $salesChannelId = $request->query->get('salesChannelId');
 
         if (!$domain) {
             throw new MissingRequestParameterException('domain');
@@ -77,6 +77,25 @@ class SystemConfigController extends AbstractController
 
         foreach ($kvs as $key => $value) {
             $this->systemConfig->set($key, $value, $salesChannelId);
+        }
+
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * @Route("/api/v{version}/_action/system-config/batch", name="api.action.core.save.system-config.batch", methods={"POST"})
+     */
+    public function batchSaveConfiguration(Request $request): JsonResponse
+    {
+        $kvs = $request->request->all();
+
+        foreach ($kvs as $salesChannelId => $values) {
+            if ($salesChannelId === 'null') {
+                $salesChannelId = null;
+            }
+            foreach ($values as $key => $value) {
+                $this->systemConfig->set($key, $value, $salesChannelId);
+            }
         }
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);

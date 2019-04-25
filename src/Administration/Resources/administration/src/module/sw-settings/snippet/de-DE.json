@@ -5,6 +5,9 @@
     },
     "index": {
       "title": "Einstellungen"
+    },
+    "system-config": {
+      "labelSalesChannelSelect": "Verkaufskanal"
     }
   }
 }

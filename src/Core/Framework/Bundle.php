@@ -64,7 +64,7 @@ abstract class Bundle extends SymfonyBundle
 
     public function getConfigPath(): string
     {
-        return 'Resources/config/config.xml';
+        return 'Resources/config';
     }
 
     public function getMigrationNamespace(): string

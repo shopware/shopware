@@ -18,12 +18,28 @@ Component.register('sw-system-config', {
         domain: {
             required: true,
             type: String
+        },
+        salesChannelId: {
+            required: false,
+            type: String,
+            default: null
+        },
+        salesChannelSwitchable: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+        // Shows the value of salesChannel=null as placeholder when the salesChannelSwitchable prop is true
+        inherit: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
     data() {
         return {
-            salesChannelId: null,
+            currentSalesChannelId: this.salesChannelId,
             isLoading: false,
             config: {},
             actualConfigData: {}
@@ -36,8 +52,13 @@ Component.register('sw-system-config', {
 
     methods: {
         createdComponent() {
+            this.isLoading = true;
             this.readConfig()
-                .then(this.readAll)
+                .then(() => {
+                    this.readAll().then(() => {
+                        this.isLoading = false;
+                    });
+                })
                 .catch(({ response: { data } }) => {
                     if (data && data.errors) {
                         this.createErrorNotification(data.errors);
@@ -45,20 +66,24 @@ Component.register('sw-system-config', {
                 });
         },
         readConfig() {
-            this.isLoading = true;
             return this.systemConfigApiService
-                .getConfig(this.domain, this.salesChannelId)
+                .getConfig(this.domain)
                 .then(data => {
                     this.config = data;
-                }).finally(() => {
-                    this.isLoading = false;
                 });
         },
         readAll() {
+            // Return when data for this salesChannel was already loaded
+            if (this.actualConfigData.hasOwnProperty(this.currentSalesChannelId)) {
+                return Promise.resolve();
+            }
+
             this.isLoading = true;
-            return this.systemConfigApiService.getValues(this.domain, this.salesChannelId)
+
+
+            return this.systemConfigApiService.getValues(this.domain, this.currentSalesChannelId)
                 .then(values => {
-                    this.actualConfigData = values;
+                    this.$set(this.actualConfigData, this.currentSalesChannelId, values);
                 })
                 .finally(() => {
                     this.isLoading = false;
@@ -67,7 +92,7 @@ Component.register('sw-system-config', {
         saveAll() {
             this.isLoading = true;
             return this.systemConfigApiService
-                .saveValues(this.actualConfigData, this.salesChannelId)
+                .batchSave(this.actualConfigData)
                 .finally(() => {
                     this.isLoading = false;
                 });
@@ -88,6 +113,20 @@ Component.register('sw-system-config', {
                 message: message,
                 autoClose: false
             });
+        },
+        onSalesChannelChanged(salesChannelId) {
+            this.currentSalesChannelId = salesChannelId;
+            this.readAll();
+        },
+        getElementBind(element) {
+            // Replace the placeholder with inherited if possible/needed
+            if (this.currentSalesChannelId !== null
+                    && this.inherit
+                    && this.actualConfigData.hasOwnProperty('null')) {
+                element.placeholder = this.actualConfigData.null[element.name];
+            }
+
+            return element;
         }
     }
 });

@@ -5,6 +5,9 @@
     },
     "index": {
       "title": "Settings"
+    },
+    "system-config": {
+      "labelSalesChannelSelect": "Saleschannel"
     }
   }
 }

@@ -22,7 +22,7 @@
                            :title="product.name"
                            class="sw-cms-el-product-box__image-link">
                             <img class="sw-cms-el-product-box__image"
-                                 :src="product.cover.media.url"
+                                 :src="product.cover.media.url | asset"
                                  :alt="product.cover.media.alt">
                         </a>
                     </div>

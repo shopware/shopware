@@ -33,7 +33,12 @@ Component.register('sw-cms-block', {
 
         blockStyles() {
             return {
-                'background-color': this.block.config.backgroundColor || 'transparent',
+                'background-color': this.block.config.backgroundColor || 'transparent'
+            };
+        },
+
+        blockPadding() {
+            return {
                 'padding-top': this.block.config.marginTop || '0px',
                 'padding-bottom': this.block.config.marginBottom || '0px',
                 'padding-left': this.block.config.marginLeft || '0px',

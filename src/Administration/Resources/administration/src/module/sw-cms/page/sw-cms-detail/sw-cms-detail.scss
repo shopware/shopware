@@ -75,16 +75,16 @@
         }
 
         .sw-cms-detail__stage {
+            padding: 50px 0 100px 0;
             overflow-y: auto;
             overflow-x: hidden;
             position: relative;
-            padding: 50px 30px;
             background: #fafbfc;
         }
 
         .sw-cms-detail__empty-stage {
-            width: 100%;
             height: 400px;
+            margin: 50px 30px;
             display: grid;
             align-items: center;
             align-content: center;
@@ -116,7 +116,6 @@
             margin: auto;
             transition: max-width 0.4s ease-in-out, border-width 0.4s ease-in-out;
             box-sizing: content-box;
-            overflow: hidden;
 
             &.is--mobile,
             &.is--tablet-portrait,

@@ -57,6 +57,7 @@ class ListingGateway implements ListingGatewayInterface
         $request = $this->requestStack->getMasterRequest();
 
         $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('product.parentId', null));
 
         $this->handleNavigationFilter($request, $criteria);
 

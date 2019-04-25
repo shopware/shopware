@@ -191,7 +191,11 @@ class CheckoutPageController extends StorefrontController
         $redirect = $request->get('redirectTo', 'frontend.checkout.confirm.page');
 
         if ($context->getCustomer()) {
-            return $this->redirect($redirect);
+            return $this->redirectToRoute($redirect);
+        }
+
+        if ($this->cartService->getCart($context->getToken(), $context)->getLineItems()->count() === 0) {
+            return $this->redirectToRoute('frontend.checkout.cart.page');
         }
 
         $page = $this->registerPageLoader->load($request, $context);

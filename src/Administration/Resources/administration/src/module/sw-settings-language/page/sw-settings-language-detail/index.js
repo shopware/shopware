@@ -10,8 +10,7 @@ Component.register('sw-settings-language-detail', {
 
     mixins: [
         Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('discard-detail-page-changes')('language')
+        Mixin.getByName('placeholder')
     ],
 
     props: {
@@ -25,8 +24,6 @@ Component.register('sw-settings-language-detail', {
     data() {
         return {
             language: null,
-            locales: [],
-            languages: [],
             usedLocales: [],
             showAlertForChangeParentLanguage: false,
             isLoading: false,

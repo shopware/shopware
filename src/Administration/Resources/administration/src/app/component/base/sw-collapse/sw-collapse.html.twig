@@ -2,7 +2,7 @@
     <div class="sw-collapse">
         {% block sw_collapse_panel_header %}
             <div @click="collapseItem" class="sw-collapse__header">
-                <slot name="header" :expanded="expanded">{% block sw_collapse_panel_header_slot %}{% endblock %}</slot>
+                <slot name="header" v-bind="{ expanded }">{% block sw_collapse_panel_header_slot %}{% endblock %}</slot>
             </div>
         {% endblock %}
 

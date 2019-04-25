@@ -79,7 +79,7 @@ class TranslationTest extends TestCase
             'symbol' => '$',
             'decimalPrecision' => 2,
             'translations' => [
-                'en_GB' => [
+                'en-GB' => [
                     'name' => 'US Dollar',
                     'shortName' => 'USD',
                 ],
@@ -144,7 +144,7 @@ class TranslationTest extends TestCase
             'decimalPrecision' => 2,
             'symbol' => '$',
             'translations' => [
-                'en_GB' => [
+                'en-GB' => [
                     'name' => $name,
                 ],
 
@@ -179,7 +179,7 @@ class TranslationTest extends TestCase
             'decimalPrecision' => 2,
             'symbol' => '$',
             'translations' => [
-                'en_GB' => [
+                'en-GB' => [
                     'name' => $name,
                     'shortName' => 'should be overwritten',
                 ],
@@ -216,7 +216,7 @@ class TranslationTest extends TestCase
         $this->languageRepository->create(
             [[
                 'id' => $germanLanguageId,
-                'name' => 'de_DE',
+                'name' => 'de-DE',
                 'locale' => [
                     'id' => Uuid::randomHex(),
                     'code' => 'x-tst_DE2',
@@ -238,7 +238,7 @@ class TranslationTest extends TestCase
             'decimalPrecision' => 2,
             'symbol' => '$',
             'translations' => [
-                'en_GB' => [
+                'en-GB' => [
                     'name' => $englishName,
                     'shortName' => $englishShortName,
                 ],
@@ -291,7 +291,7 @@ class TranslationTest extends TestCase
             'symbol' => '$',
             'decimalPrecision' => 2,
             'translations' => [
-                'en_GB' => [
+                'en-GB' => [
                     'name' => $englishName,
                     'shortName' => $englishShortName,
                 ],
@@ -321,7 +321,7 @@ class TranslationTest extends TestCase
                 'territory' => 'Niederlande',
             ],
             'localeId' => $this->getLocaleIdOfSystemLanguage(),
-            'name' => 'nl_NL',
+            'name' => 'nl-NL',
         ];
 
         $this->languageRepository->create([$data], $this->context);
@@ -370,7 +370,7 @@ class TranslationTest extends TestCase
             'factor' => 1,
             'symbol' => '$',
             'translations' => [
-                'en_UK' => [
+                'en-UK' => [
                     'name' => 'US Dollar',
                     'shortName' => 'USD',
                 ],
@@ -388,7 +388,7 @@ class TranslationTest extends TestCase
         $result = $this->languageRepository->create(
             [[
                 'id' => $germanLanguageId,
-                'name' => 'de_DE',
+                'name' => 'de-DE',
                 'locale' => [
                     'id' => Uuid::randomHex(),
                     'code' => 'x-de_DE',

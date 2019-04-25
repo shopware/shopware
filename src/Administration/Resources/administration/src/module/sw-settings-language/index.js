@@ -5,8 +5,8 @@ import './page/sw-settings-language-list';
 import './page/sw-settings-language-detail';
 import './page/sw-settings-language-create';
 
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
 
 Module.register('sw-settings-language', {
     type: 'core',

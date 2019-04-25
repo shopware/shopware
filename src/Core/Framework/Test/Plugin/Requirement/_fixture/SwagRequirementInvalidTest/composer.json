@@ -17,8 +17,8 @@
         "shopware-plugin-class": "SwagRequirement\\SwagRequirement",
         "copyright": "(c) by shopware AG",
         "label": {
-            "de_DE": "Test für Requirement Validator",
-            "en_GB": "Test for requirement validator"
+            "de-DE": "Test für Requirement Validator",
+            "en-GB": "Test for requirement validator"
         }
     }
 }

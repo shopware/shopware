@@ -4,8 +4,8 @@ import './page/sw-settings-privacy-index';
 
 import { NEXT2539 } from '../../flag/feature_next2539';
 
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
 
 
 Module.register('sw-settings-privacy', {

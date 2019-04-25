@@ -95,15 +95,15 @@ class AttributesFieldTranslationTest extends TestCase
             'id' => $id,
             'name' => 'translated',
             'translations' => [
-                'en_GB' => [
+                'en-GB' => [
                     'translatedAttributes' => [
-                        'code' => 'en_GB',
+                        'code' => 'en-GB',
                         'system' => 'system',
                     ],
                 ],
-                'de_DE' => [
+                'de-DE' => [
                     'translatedAttributes' => [
-                        'code' => 'de_DE',
+                        'code' => 'de-DE',
                         'de' => 'de',
                     ],
                 ],
@@ -131,7 +131,7 @@ class AttributesFieldTranslationTest extends TestCase
 
         /** @var Entity $result */
         $result = $repo->search(new Criteria([$id]), $context)->first();
-        $expected = ['code' => 'en_GB', 'system' => 'system'];
+        $expected = ['code' => 'en-GB', 'system' => 'system'];
         static::assertEquals($expected, $result->getTranslated()['translatedAttributes']);
 
         $expectedViewData = $expected;
@@ -141,10 +141,10 @@ class AttributesFieldTranslationTest extends TestCase
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
         $result = $repo->search(new Criteria([$id]), $context)->first();
 
-        $expected = ['code' => 'de_DE', 'de' => 'de'];
+        $expected = ['code' => 'de-DE', 'de' => 'de'];
         static::assertEquals($expected, $result->get('translatedAttributes'));
 
-        $expectedViewData = ['code' => 'de_DE', 'de' => 'de', 'system' => 'system'];
+        $expectedViewData = ['code' => 'de-DE', 'de' => 'de', 'system' => 'system'];
         static::assertEquals($expectedViewData, $result->getTranslated()['translatedAttributes']);
 
         $chain = [$rootLanguageId, Defaults::LANGUAGE_SYSTEM];

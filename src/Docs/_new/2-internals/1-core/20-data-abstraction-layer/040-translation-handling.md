@@ -19,7 +19,7 @@ You can either write the fields on the base definition directly or use the `tran
 If you are writing the fields directly, the language of the current context will be used:
 
 ```php
-// given $context will contain de_DE as language
+// given $context will contain de-DE as language
 
 $repository->create(
     [
@@ -37,7 +37,7 @@ $repository->create(
     [
         'stock' => 10,
         'translations' => [
-            'en_GB' => [
+            'en-GB' => [
                 'description' => 'This is an example',
             ],
         ]
@@ -57,10 +57,10 @@ $repository->create(
     [
         'stock' => 10,
         'translations' => [
-            'de_DE' => [
+            'de-DE' => [
                 'description' => 'Das ist eine Beschreibung',
             ],
-            'en_GB' => [
+            'en-GB' => [
                 'description' => 'This is a description',
             ],
             '04ed51ccbb2341bc9b352d78e64213fb' => [

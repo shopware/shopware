@@ -18,7 +18,7 @@ class SnippetFile_de implements SnippetFileInterface
 
     public function getIso(): string
     {
-        return 'de_DE';
+        return 'de-DE';
     }
 
     public function getAuthor(): string

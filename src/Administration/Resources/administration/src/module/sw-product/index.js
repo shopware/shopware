@@ -25,8 +25,8 @@ import './page/sw-product-list';
 import './page/sw-product-detail';
 import './page/sw-product-create';
 
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
 
 Module.register('sw-product', {
     type: 'core',

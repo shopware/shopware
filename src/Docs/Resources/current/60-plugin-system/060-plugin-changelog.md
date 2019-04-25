@@ -27,7 +27,7 @@ All you need to do is to create a `CHANGELOG.md` in the root of your plugin and 
 
 ## Translation
 Your goal should be to keep these files simple and clean. Translations are split up in separate files.
-The file `CHANGELOG.md` is for the locale `en_GB`.
-If you want to maintain another locale the format looks like this: `CHANGELOG-??_??.md`.
-Whereas `??_??` represents the locale you want to create.
-For example, a changelog for German would be `CHANGELOG-de_DE.md`.
+The file `CHANGELOG.md` is for the locale `en-GB`.
+If you want to maintain another locale the format looks like this: `CHANGELOG_??-??.md`.
+Whereas `??-??` represents the locale you want to create.
+For example, a changelog for German would be `CHANGELOG_de-DE.md`.

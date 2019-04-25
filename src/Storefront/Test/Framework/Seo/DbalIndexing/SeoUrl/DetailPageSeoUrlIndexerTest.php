@@ -504,7 +504,7 @@ class DetailPageSeoUrlIndexerTest extends TestCase
             'accessKey' => 'foobar',
             'secretAccessKey' => 'foobar',
             'languageId' => $defaultLanguageId,
-            'snippetSetId' => $this->getSnippetSetIdForLocale('en_GB'),
+            'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
             'currencyId' => Defaults::CURRENCY,
             'paymentMethodId' => $paymentMethod,
             'shippingMethodId' => $shippingMethod,

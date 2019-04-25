@@ -31,7 +31,7 @@ module.exports = {
                 '.sw-settings-language-detail__select-locale',
                 {
                     value: 'English, Philippines',
-                    searchTerm: 'en_PH'
+                    searchTerm: 'en-PH'
                 }
             )
             .fillSwSelectComponent(

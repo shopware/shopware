@@ -13,8 +13,8 @@
         "shopware-plugin-class": "SwagSnippetExample\\SwagSnippetExample",
         "copyright": "(c) by shopware AG",
         "label": {
-            "de_DE": "Beispiel-Textbausteine für Shopware",
-            "en_GB": "Example snippets for Shopware"
+            "de-DE": "Beispiel-Textbausteine für Shopware",
+            "en-GB": "Example snippets for Shopware"
         }
     }
 }

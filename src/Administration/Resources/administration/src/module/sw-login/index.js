@@ -5,8 +5,8 @@ import './view/sw-login-recovery';
 import './view/sw-login-recovery-info';
 import './view/sw-login-recovery-recovery';
 
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
 
 Module.register('sw-login', {
     type: 'core',

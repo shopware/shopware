@@ -48,13 +48,13 @@ public static function allowInheritance(): bool
 ## Translations
 
 This concept also supports translations. Given a parent/child entity with an
-inherited language (de_CH *inherits from* de_DE), the resolution of the 
+inherited language (de-CH *inherits from* de-DE), the resolution of the 
 values will be:
 
-1. Child (de_CH)
-2. Child (de_DE)
-3. Parent (de_CH)
-4. Parent (de_DE)
+1. Child (de-CH)
+2. Child (de-DE)
+3. Parent (de-CH)
+4. Parent (de-DE)
 
 If an inheritance is not found, the next translation in the chain above will
 be used.

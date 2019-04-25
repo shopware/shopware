@@ -124,7 +124,7 @@ class SeoResolverTest extends TestCase
             'accessKey' => Uuid::randomHex(),
             'secretAccessKey' => 'foobar',
             'languageId' => $defaultLanguageId,
-            'snippetSetId' => $this->getSnippetSetIdForLocale('en_GB'),
+            'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
             'currencyId' => Defaults::CURRENCY,
             'paymentMethodId' => $this->getValidPaymentMethodId(),
             'shippingMethodId' => $this->getValidShippingMethodId(),

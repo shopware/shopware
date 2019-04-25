@@ -38,7 +38,7 @@ class SnippetServiceTest extends TestCase
     {
         $service = $this->getSnippetService(new SnippetFile_de(), new SnippetFile_en());
 
-        $result = $service->getStorefrontSnippets($catalog, $this->getSnippetSetIdForLocale('en_GB'));
+        $result = $service->getStorefrontSnippets($catalog, $this->getSnippetSetIdForLocale('en-GB'));
 
         static::assertSame($expectedResult, $result);
     }
@@ -46,9 +46,9 @@ class SnippetServiceTest extends TestCase
     public function dataProviderForTestGetStoreFrontSnippets(): array
     {
         return [
-            [$this->getCatalog([], 'en_GB'), []],
-            [$this->getCatalog(['messages' => ['a' => 'a']], 'en_GB'), ['a' => 'a']],
-            [$this->getCatalog(['messages' => ['a' => 'a', 'b' => 'b']], 'en_GB'), ['a' => 'a', 'b' => 'b']],
+            [$this->getCatalog([], 'en-GB'), []],
+            [$this->getCatalog(['messages' => ['a' => 'a']], 'en-GB'), ['a' => 'a']],
+            [$this->getCatalog(['messages' => ['a' => 'a', 'b' => 'b']], 'en-GB'), ['a' => 'a', 'b' => 'b']],
         ];
     }
 
@@ -58,7 +58,7 @@ class SnippetServiceTest extends TestCase
 
         $service = $this->getSnippetService();
 
-        $service->getStorefrontSnippets($this->getCatalog([], 'en_GB'), Uuid::randomHex());
+        $service->getStorefrontSnippets($this->getCatalog([], 'en-GB'), Uuid::randomHex());
     }
 
     public function testGetRegionFilterItems(): void

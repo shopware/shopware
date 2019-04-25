@@ -7,8 +7,8 @@ import './page/sw-settings-rule-create';
 import './component/sw-condition-not-found';
 import './component/sw-condition-operator-select';
 
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
 
 Module.register('sw-settings-rule', {
     type: 'core',

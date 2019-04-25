@@ -12,8 +12,8 @@ import './component/sw-customer-address-form';
 import './component/sw-customer-address-form-options';
 import './component/sw-customer-default-addresses';
 import './component/sw-customer-card';
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
 
 Module.register('sw-customer', {
     type: 'core',

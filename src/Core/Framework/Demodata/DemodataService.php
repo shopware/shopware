@@ -74,7 +74,7 @@ class DemodataService
 
     private function getFaker(): Generator
     {
-        $faker = Factory::create('de_DE');
+        $faker = Factory::create('de-DE');
         $faker->addProvider(new Commerce($faker));
         $faker->addProvider(new ImagesGeneratorProvider($faker));
 

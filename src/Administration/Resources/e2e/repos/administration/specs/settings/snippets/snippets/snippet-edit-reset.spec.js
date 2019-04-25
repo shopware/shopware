@@ -22,7 +22,7 @@ module.exports = {
 
         browser
             .click('.sw-settings-snippet-set-list__edit-set-action')
-            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Snippets of "BASE en_GB"');
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Snippets of "BASE en-GB"');
     },
     'inline edit first snippet': (browser) => {
         const page = settingsPage(browser);

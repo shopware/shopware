@@ -8,7 +8,7 @@ interface SnippetFileInterface
      * Returns the displayed name.
      *
      * Example:
-     * messages.en_GB
+     * messages.en-GB
      */
     public function getName(): string;
 
@@ -16,7 +16,7 @@ interface SnippetFileInterface
      * Returns the path to the json language file.
      *
      * Example:
-     * /appPath/subDirectory/messages.en_GB.json
+     * /appPath/subDirectory/messages.en-GB.json
      */
     public function getPath(): string;
 
@@ -24,8 +24,8 @@ interface SnippetFileInterface
      * Returns the associated language ISO.
      *
      * Example:
-     * en_GB
-     * de_DE
+     * en-GB
+     * de-DE
      */
     public function getIso(): string;
 

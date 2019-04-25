@@ -18,8 +18,8 @@ use Symfony\Component\HttpFoundation\Request;
 class RequestTransformerTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    public const LOCALE_DE_DE_ISO = 'de_DE';
-    public const LOCALE_EN_GB_ISO = 'en_GB';
+    public const LOCALE_DE_DE_ISO = 'de-DE';
+    public const LOCALE_EN_GB_ISO = 'en-GB';
 
     /**
      * @var RequestTransformer

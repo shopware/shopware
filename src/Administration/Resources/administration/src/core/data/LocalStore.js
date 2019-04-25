@@ -76,7 +76,7 @@ export default class LocalStore {
             if (params.term) {
                 const searchTerm = params.term.toLowerCase();
                 store = store.filter((value) => {
-                    // For inline snippets - example: value[searchProperty] = { 'de_DE': 'Größe', 'en_GB': 'Size' }
+                    // For inline snippets - example: value[searchProperty] = { 'de-DE': 'Größe', 'en-GB': 'Size' }
                     let property = value[this.searchProperty];
 
                     if (types.isObject(value[this.searchProperty])) {

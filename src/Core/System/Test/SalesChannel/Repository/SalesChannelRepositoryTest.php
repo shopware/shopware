@@ -99,7 +99,7 @@ class SalesChannelRepositoryTest extends TestCase
             'accessKey' => $accessKey,
             'secretAccessKey' => $secretKey,
             'languageId' => Defaults::LANGUAGE_SYSTEM,
-            'snippetSetId' => $this->getSnippetSetIdForLocale('en_GB'),
+            'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
             'currencyId' => Defaults::CURRENCY,
             'paymentMethodId' => $this->getValidPaymentMethodId(),
             'shippingMethodId' => $this->getValidShippingMethodId(),

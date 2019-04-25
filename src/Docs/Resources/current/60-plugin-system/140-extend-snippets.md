@@ -13,7 +13,7 @@ locations and names of these files are arbitrary, but we suggest the following s
         └── Resources
             └── SnippetFiles
                 ├── SnippetFile_Tyrolean_de_DE.php
-                └── messages.tyrolean.de_DE.json
+                └── messages.tyrolean.de-DE.json
 ```
 
 ## SnippetFile.php

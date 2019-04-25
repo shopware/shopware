@@ -2,8 +2,8 @@ import { Module } from 'src/core/shopware';
 
 import './extension/sw-settings-index';
 import './page/sw-integration-list';
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
 
 Module.register('sw-integration', {
     type: 'core',

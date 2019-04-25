@@ -4,8 +4,8 @@ import './page/sw-settings-salutation-list';
 import './page/sw-settings-salutation-detail';
 import './page/sw-settings-salutation-create';
 
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
 
 Module.register('sw-settings-salutation', {
     type: 'core',

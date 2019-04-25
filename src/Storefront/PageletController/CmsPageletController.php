@@ -23,7 +23,7 @@ class CmsPageletController extends StorefrontController
     }
 
     /**
-     * @Route("/widgets/cms-pages/{id}", name="widgets.cms.detail.page", methods={"GET"}, defaults={"XmlHttpRequest"=true})
+     * @Route("/widget/cms/{id}", name="widgets.cms.detail", methods={"GET"}, defaults={"XmlHttpRequest"=true})
      */
     public function detail(Request $request, SalesChannelContext $context): Response
     {

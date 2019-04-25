@@ -8,6 +8,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class CmsPageletLoadedEvent extends NestedEvent
 {
+    public const NAME = 'cms.pagelet.loaded.event';
+
     /**
      * @var SalesChannelContext
      */
@@ -26,7 +28,7 @@ class CmsPageletLoadedEvent extends NestedEvent
 
     public function getName(): string
     {
-        return 'cms.pagelet.loaded.event';
+        return self::NAME;
     }
 
     public function getContext(): Context

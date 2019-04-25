@@ -64,7 +64,6 @@ class CmsPageletLoader implements PageLoaderInterface
     {
         $cmsPageCriteria = new Criteria();
         $cmsPageCriteria->addFilter(new EqualsFilter('id', $id));
-        $cmsPageCriteria->addAssociation('blocks');
         $cmsPageCriteria->addAssociationPath('blocks.slots');
 
         /** @var CmsPageCollection $cmsPageCollection */

@@ -50,6 +50,12 @@
 {% block page_checkout_sidebar_actions %}
 	{% block page_checkout_sidebar_actions_add_voucher %}
 		{#TODO: NEXT-1955 - add voucher#}
+{#		<form action="{{ path('frontend.checkout.promotion.add') }}"#}
+{#			  method="post">#}
+{#			<input type="text" name="code">#}
+{#			<input type="hidden" name="forwardTo" value="frontend.checkout.cart.page">#}
+{#			<button type="submit">add code</button>#}
+{#		</form>#}
 	{% endblock %}
 
 	{% block page_checkout_sidebar_actions_proceed %}

@@ -270,6 +270,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelContextSwitcher"/>
+            <argument type="service" id="translator"/>
         </service>
 
         <service id="Shopware\Storefront\PageController\ErrorPageController" public="true">

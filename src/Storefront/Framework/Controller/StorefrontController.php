@@ -35,7 +35,14 @@ abstract class StorefrontController extends AbstractController
 
             $url = $this->generateUrl($request->get('forwardTo'));
 
+            // for the route matching the request method is set to "GET" because
+            // this method is not ought to be used as a post passthrough
+            // rather it shall return templates or redirects to display results of the request ahead
+            $method = $router->getContext()->getMethod();
+            $router->getContext()->setMethod(Request::METHOD_GET);
+
             $route = $router->match($url);
+            $router->getContext()->setMethod($method);
 
             return $this->forward($route['_controller']);
         }

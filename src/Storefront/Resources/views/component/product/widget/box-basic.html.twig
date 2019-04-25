@@ -5,7 +5,7 @@
                 {% block component_product_box_badges %}
                     {% sw_include '@Storefront/component/product/widget/badges.html.twig' %}
                 {% endblock %}
-
+                
                 {% block component_product_box_image %}
                     <div class="product-image-wrapper">
                         <a href="{{ path('frontend.detail.page', {'productId': product.id}) }}"
@@ -22,7 +22,7 @@
                         </a>
                     </div>
                 {% endblock %}
-
+                
                 {% block component_product_box_info %}
                     <div class="product-info">
                         {% block component_product_box_name %}
@@ -32,26 +32,25 @@
                                 {{ product.name }}
                             </a>
                         {% endblock %}
-
+                        
                         {% block component_product_box_description %}
                             <div class="product-description">
                                 {{ product.description }}
                             </div>
                         {% endblock %}
-
+                        
                         {% block component_product_box_price %}
                             {% sw_include '@Storefront/component/product/widget/price-unit.html.twig' %}
                         {% endblock %}
-
+                        
                         {% block component_product_box_action %}
                             {% if shopware.config.listing.allowBuyInListing %}
                                 <div class="product-btn">
                                     {% if not product.variantRestrictions %}
                                         {% block component_product_box_action_buy %}
-                                            <form
-                                                action="{{ path('sales-channel-api.checkout.frontend.cart.product.add', {'version': 1, 'id': product.id}) }}"
-                                                method="post"
-                                                data-add-to-cart="true">
+                                            <form action="{{ path('sales-channel-api.checkout.frontend.cart.product.add', {'version': 1, 'id': product.id}) }}"
+                                                  method="post"
+                                                  class="buy-widget js-add-to-cart">
                                                 <button class="btn btn-block buy-widget-submit"
                                                         title="{{ "listing.boxAddProduct"|trans }}">
                                                     {{ "listing.boxAddProduct"|trans }}

@@ -17,7 +17,7 @@ class Migration1550589360AddModuleTypesToRule extends MigrationStep
         $connection->query('
             ALTER TABLE rule
             ADD COLUMN `module_types` JSON NULL AFTER `updated_at`,
-            ADD CONSTRAINT `json.module_types` CHECK (JSON_VALID(`module_types`));           
+            ADD CONSTRAINT `json.rule.module_types` CHECK (JSON_VALID(`module_types`));           
         ');
     }
 

@@ -19,7 +19,7 @@ class Migration1536232740StorefrontApiContext extends MigrationStep
               `token` BINARY(16) NOT NULL,
               `payload` JSON NOT NULL,
               PRIMARY KEY (`token`),
-              CONSTRAINT `json.payload` CHECK (JSON_VALID(`payload`))
+              CONSTRAINT `json.storefront_api_context.payload` CHECK (JSON_VALID(`payload`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

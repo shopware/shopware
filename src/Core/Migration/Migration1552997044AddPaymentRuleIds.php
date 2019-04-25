@@ -20,7 +20,7 @@ class Migration1552997044AddPaymentRuleIds extends MigrationStep
         $connection->exec(
             'ALTER TABLE `payment_method`
              ADD `availability_rule_ids` MEDIUMTEXT NULL,
-             ADD CONSTRAINT `json.availability_rule_ids` CHECK (JSON_VALID(`availability_rule_ids`));'
+             ADD CONSTRAINT `json.payment_method.availability_rule_ids` CHECK (JSON_VALID(`availability_rule_ids`));'
         );
 
         // TODO: When merging migrations --> Add to Migration1536233420BasicData

@@ -17,7 +17,7 @@ class Migration1551687891AddAdditionalCmsProperties extends MigrationStep
         $sql = <<<SQL
 ALTER TABLE `cms_page`
 ADD COLUMN `config` JSON AFTER `entity`,
-ADD CONSTRAINT `json.config` CHECK (JSON_VALID(`config`))
+ADD CONSTRAINT `json.cms_page.config` CHECK (JSON_VALID(`config`))
 SQL;
 
         $connection->exec($sql);
@@ -25,7 +25,7 @@ SQL;
         $sql = <<<SQL
 ALTER TABLE `cms_block`
 ADD COLUMN `config` JSON AFTER `type`,
-ADD CONSTRAINT `json.config` CHECK (JSON_VALID(`config`))
+ADD CONSTRAINT `json.cms_block.config` CHECK (JSON_VALID(`config`))
 SQL;
 
         $connection->exec($sql);

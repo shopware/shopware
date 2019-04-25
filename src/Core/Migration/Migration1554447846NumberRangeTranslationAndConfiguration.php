@@ -113,7 +113,7 @@ SQL;
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`number_range_id`, `language_id`),
-              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.number_range_translation.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.number_range_translation.number_range_id`   FOREIGN KEY (`number_range_id`)
                 REFERENCES `number_range` (`id`)  ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.number_range_translation.language_id`     FOREIGN KEY (`language_id`)
@@ -163,7 +163,7 @@ SQL;
                 REFERENCES `number_range_type` (`id`)  ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.number_range_type_translation.language_id`     FOREIGN KEY (`language_id`)
                 REFERENCES `language` (`id`)    ON DELETE CASCADE ON UPDATE CASCADE,
-              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`))
+              CONSTRAINT `json.number_range_type_translation.attributes` CHECK (JSON_VALID(`attributes`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
 

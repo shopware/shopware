@@ -40,10 +40,10 @@ class Migration1536233040OrderLineItem extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`, `version_id`),
-              CONSTRAINT `json.payload` CHECK(JSON_VALID(`payload`)),
-              CONSTRAINT `json.price` CHECK(JSON_VALID(`price`)),
-              CONSTRAINT `json.price_definition` CHECK(JSON_VALID(`price_definition`)),
-              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.order_line_item.payload` CHECK(JSON_VALID(`payload`)),
+              CONSTRAINT `json.order_line_item.price` CHECK(JSON_VALID(`price`)),
+              CONSTRAINT `json.order_line_item.price_definition` CHECK(JSON_VALID(`price_definition`)),
+              CONSTRAINT `json.order_line_item.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.order_line_item.order_id` FOREIGN KEY (`order_id`, `order_version_id`) 
                 REFERENCES `order` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.order_line_item.parent_id` FOREIGN KEY (`parent_id`, `parent_version_id`) 

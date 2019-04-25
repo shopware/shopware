@@ -26,7 +26,7 @@ class Migration1536233190ProductMedia extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`, `version_id`),
-              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.product_media.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.product_media.media_id` FOREIGN KEY (`media_id`) 
                 REFERENCES `media` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.product_media.product_id` FOREIGN KEY (`product_id`, `product_version_id`) 

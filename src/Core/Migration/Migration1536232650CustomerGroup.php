@@ -38,7 +38,7 @@ class Migration1536232650CustomerGroup extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`customer_group_id`, `language_id`),
-              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.customer_group_translation.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.customer_group_translation.language_id`
                 FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.customer_group_translation.customer_group_id`

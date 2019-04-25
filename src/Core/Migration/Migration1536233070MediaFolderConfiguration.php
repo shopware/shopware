@@ -24,7 +24,7 @@ class Migration1536233070MediaFolderConfiguration extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`),
-              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`))
+              CONSTRAINT `json.media_folder_configuration.attributes` CHECK (JSON_VALID(`attributes`))
             );
         ');
     }

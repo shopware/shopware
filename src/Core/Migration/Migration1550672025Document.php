@@ -24,7 +24,7 @@ CREATE TABLE `document` (
   `sent` TINYINT(1) NOT NULL DEFAULT 0,
   `created_at` DATETIME(3) NOT NULL,
   PRIMARY KEY (`id`),
-  CONSTRAINT `json.config` CHECK (JSON_VALID(`config`)),
+  CONSTRAINT `json.document.config` CHECK (JSON_VALID(`config`)),
   CONSTRAINT `fk.document.order_id` FOREIGN KEY (`order_id`,`order_version_id`)
     REFERENCES `order` (`id`,`version_id`) ON DELETE RESTRICT ON UPDATE CASCADE  
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci

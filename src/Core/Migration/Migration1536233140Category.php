@@ -43,8 +43,8 @@ class Migration1536233140Category extends MigrationStep
               KEY `idx.position` (`position`),
               KEY `idx.level` (`level`),
               KEY `idx.auto_increment` (`auto_increment`),
-              CONSTRAINT `json.sorting_ids` CHECK (JSON_VALID(`sorting_ids`)),
-              CONSTRAINT `json.facet_ids` CHECK (JSON_VALID(`facet_ids`)),
+              CONSTRAINT `json.category.sorting_ids` CHECK (JSON_VALID(`sorting_ids`)),
+              CONSTRAINT `json.category.facet_ids` CHECK (JSON_VALID(`facet_ids`)),
               CONSTRAINT `fk.category.media_id` FOREIGN KEY (`media_id`)
                 REFERENCES `media` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
               CONSTRAINT `fk.category.parent_id` FOREIGN KEY (`parent_id`, `parent_version_id`)
@@ -67,7 +67,7 @@ class Migration1536233140Category extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`category_id`, `category_version_id`, `language_id`),
-              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.category_translation.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.category_translation.language_id` FOREIGN KEY (`language_id`)
                 REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.category_translation.category_id` FOREIGN KEY (`category_id`, `category_version_id`)

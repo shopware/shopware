@@ -34,7 +34,7 @@ class Migration1551969523SeoUrlTemplate extends MigrationStep
                 UNIQUE (`sales_channel_id`, `route_name`),
               CONSTRAINT `fk.seo_url_template.sales_channel_id` FOREIGN KEY (`sales_channel_id`)
                 REFERENCES `sales_channel` (`id`) ON UPDATE CASCADE ON DELETE CASCADE,
-              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`))
+              CONSTRAINT `json.seo_url_template.attributes` CHECK (JSON_VALID(`attributes`))
             )
         ');
 

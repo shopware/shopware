@@ -33,7 +33,7 @@ class Migration1536232880PaymentMethod extends MigrationStep
                 UNIQUE KEY `uniq.name` (`technical_name`),
                 CONSTRAINT `fk.payment_method.plugin_id` FOREIGN KEY (plugin_id)
                   REFERENCES plugin (id) ON UPDATE CASCADE ON DELETE SET NULL,
-                CONSTRAINT `json.risk_rules` CHECK (JSON_VALID(`risk_rules`))
+                CONSTRAINT `json.payment_method.risk_rules` CHECK (JSON_VALID(`risk_rules`))
                 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
         ');
 
@@ -47,7 +47,7 @@ class Migration1536232880PaymentMethod extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`payment_method_id`, `language_id`),
-              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.payment_method_translation.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.payment_method_translation.language_id` FOREIGN KEY (`language_id`)
                 REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.payment_method_translation.payment_method_id` FOREIGN KEY (`payment_method_id`)

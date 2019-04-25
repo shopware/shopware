@@ -42,7 +42,7 @@ class Migration1553672162RemoveSystemConfigurationNamespace extends MigrationSte
             ALTER TABLE `system_config`
             DROP COLUMN `namespace`,
             MODIFY COLUMN `configuration_value` JSON NOT NULL,
-            ADD CONSTRAINT `json.configuration_value` CHECK (JSON_VALID(`configuration_value`))
+            ADD CONSTRAINT `json.system_config.configuration_value` CHECK (JSON_VALID(`configuration_value`))
         ');
     }
 }

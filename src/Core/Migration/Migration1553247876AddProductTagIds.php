@@ -16,7 +16,7 @@ class Migration1553247876AddProductTagIds extends MigrationStep
     {
         $connection->exec('ALTER TABLE product
 	                       ADD tag_ids JSON NULL,
-                           ADD CONSTRAINT `json.tag_ids` CHECK (JSON_VALID(`tag_ids`));
+                           ADD CONSTRAINT `json.product.tag_ids` CHECK (JSON_VALID(`tag_ids`));
         ');
     }
 

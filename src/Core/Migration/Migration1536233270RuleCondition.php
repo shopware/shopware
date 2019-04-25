@@ -24,8 +24,8 @@ class Migration1536233270RuleCondition extends MigrationStep
               `position` INT(11) DEFAULT 0 NOT NULL,
               `attributes` JSON NULL,
               PRIMARY KEY (`id`),
-              CONSTRAINT `json.value` CHECK (JSON_VALID (`value`)),
-              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.rule_condition.value` CHECK (JSON_VALID (`value`)),
+              CONSTRAINT `json.rule_condition.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.rule_condition.rule_id` FOREIGN KEY (`rule_id`)
                 REFERENCES `rule` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.rule_condition.parent_id` FOREIGN KEY (`parent_id`)

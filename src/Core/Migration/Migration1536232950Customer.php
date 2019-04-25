@@ -57,8 +57,8 @@ class Migration1536232950Customer extends MigrationStep
               KEY `idx.validation` (`validation`),
               KEY `idx.customer.default_billing_address_id` (`default_billing_address_id`),
               KEY `idx.customer.default_shipping_address_id` (`default_shipping_address_id`),
-              CONSTRAINT `check.password` CHECK(`password` IS NOT NULL OR `guest` = 1),
-              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `check.customer.password` CHECK(`password` IS NOT NULL OR `guest` = 1),
+              CONSTRAINT `json.customer.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.customer.customer_group_id` FOREIGN KEY (`customer_group_id`)
                 REFERENCES `customer_group` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
               CONSTRAINT `fk.customer.default_payment_method_id` FOREIGN KEY (`default_payment_method_id`)

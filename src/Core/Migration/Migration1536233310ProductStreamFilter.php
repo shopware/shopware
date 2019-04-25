@@ -29,8 +29,8 @@ class Migration1536233310ProductStreamFilter extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`),
-              CONSTRAINT `json.parameters` CHECK (JSON_VALID(`parameters`)),
-              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.product_stream_filter.parameters` CHECK (JSON_VALID(`parameters`)),
+              CONSTRAINT `json.product_stream_filter.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.product_stream_filter.product_stream_id` FOREIGN KEY (`product_stream_id`)
                 REFERENCES `product_stream` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.product_stream_filter.parent_id` FOREIGN KEY (`parent_id`)

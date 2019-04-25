@@ -19,7 +19,7 @@ class Migration1550570085AddThumbanilSizesToDefaultFolder extends MigrationStep
         $connection->exec('
             ALTER TABLE `media_default_folder`
             ADD COLUMN `thumbnail_sizes` LONGTEXT AFTER association_fields,
-            ADD CONSTRAINT `json.thumbnail_sizes` CHECK (JSON_VALID(`thumbnail_sizes`));
+            ADD CONSTRAINT `json.media_default_folder.thumbnail_sizes` CHECK (JSON_VALID(`thumbnail_sizes`));
             '
         );
 

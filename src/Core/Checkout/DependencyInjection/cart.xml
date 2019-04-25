@@ -159,7 +159,7 @@
 
         <service id="Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor"/>
 
-        <service id="Shopware\Core\Checkout\Cart\Order\OrderConverterController" public="true">
+        <service id="Shopware\Core\Checkout\Cart\Order\Api\OrderConverterController" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
             <argument type="service" id="order.repository"/>
@@ -168,7 +168,7 @@
             </call>
         </service>
 
-        <service id="Shopware\Core\Checkout\Cart\Order\OrderRecalculationController" public="true">
+        <service id="Shopware\Core\Checkout\Cart\Order\Api\OrderRecalculationController" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\RecalculationService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

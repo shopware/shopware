@@ -1,7 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Order;
+namespace Shopware\Core\Checkout\Order\Api;
 
+use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;

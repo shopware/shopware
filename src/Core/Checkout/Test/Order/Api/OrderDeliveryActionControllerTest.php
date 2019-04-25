@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Order;
+namespace Shopware\Core\Checkout\Test\Order\Api;
 
 use Composer\Repository\RepositoryInterface;
 use PHPUnit\Framework\TestCase;

@@ -5,6 +5,6 @@
         https://symfony.com/schema/routing/routing-1.0.xsd">
 
     <import resource="../../Framework/Seo/Api/" type="annotation" />
-    <import resource="../../PageController/" type="annotation" />
-    <import resource="../../PageletController/" type="annotation" />
+    <import resource="../../Page/" type="annotation" />
+    <import resource="../../Pagelet/" type="annotation" />
 </routes>

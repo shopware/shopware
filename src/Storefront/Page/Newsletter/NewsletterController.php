@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\PageController;
+namespace Shopware\Storefront\Page\Newsletter;
 
 use Shopware\Core\Content\NewsletterReceiver\SalesChannel\NewsletterSubscriptionServiceInterface;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
@@ -90,7 +90,7 @@ class NewsletterController extends StorefrontController
             }
         } catch (\Exception $exception) {
             if ($subscribe) {
-                return $this->forward('Shopware\Storefront\PageController\NewsletterController::index', ['errors' => $exception]);
+                return $this->forward(self::class . '::index', ['errors' => $exception]);
             }
         }
 
@@ -115,7 +115,7 @@ class NewsletterController extends StorefrontController
         try {
             $this->newsletterService->confirm($queryDataBag, $context->getContext());
         } catch (\Exception $exception) {
-            return $this->forward('Shopware\Storefront\PageController\NewsletterController::error', ['errors' => $exception]);
+            return $this->forward(self::class . '::error', ['errors' => $exception]);
         }
 
         $page = $this->newsletterConfirmRegisterPageLoader->load($request, $context);

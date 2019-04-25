@@ -1,5 +1,5 @@
 {% block sw_cms_element_product_box %}
-    <div class="sw-cms-el-product-box" :class="`box-${element.data.boxLayout}`" v-if="product">
+    <div class="sw-cms-el-product-box" :class="`box-${element.config.boxLayout.value}`" v-if="product">
 
         {% block sw_cms_element_product_box_content %}
             <div class="sw-cms-el-product-box__content">
@@ -38,7 +38,7 @@
                         {% endblock %}
 
                         {% block sw_cms_element_product_box_description %}
-                            <div class="sw-cms-el-product-box__description">
+                            <div class="sw-cms-el-product-box__description" v-if="element.config.boxLayout.value !== 'minimal'">
                                 {{ product.description | truncate(200, true, '...') }}
                             </div>
                         {% endblock %}

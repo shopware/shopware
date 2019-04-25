@@ -22,6 +22,7 @@ Component.register('sw-cms-el-product-box', {
     methods: {
         createdComponent() {
             this.initElementConfig('product-box');
+            this.initElementData('product-box');
         }
     }
 });

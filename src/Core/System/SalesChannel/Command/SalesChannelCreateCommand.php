@@ -15,13 +15,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Stecman\Component\Symfony\Console\BashCompletion\Completion\CompletionAwareInterface;
+use Stecman\Component\Symfony\Console\BashCompletion\CompletionContext;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class SalesChannelCreateCommand extends Command
+class SalesChannelCreateCommand extends Command implements CompletionAwareInterface
 {
     protected static $defaultName = 'sales-channel:create';
 
@@ -60,6 +62,16 @@ class SalesChannelCreateCommand extends Command
      */
     private $categoryRepository;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $customerGroupRepository;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $currencyRepository;
+
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
         EntityRepositoryInterface $salesChannelRepository,
@@ -67,7 +79,9 @@ class SalesChannelCreateCommand extends Command
         EntityRepositoryInterface $shippingMethodRepository,
         EntityRepositoryInterface $countryRepository,
         EntityRepositoryInterface $snippetSetRepository,
-        EntityRepositoryInterface $categoryRepository
+        EntityRepositoryInterface $categoryRepository,
+        EntityRepositoryInterface $customerGroupRepository,
+        EntityRepositoryInterface $currencyRepository
     ) {
         $this->definitionRegistry = $definitionRegistry;
         $this->salesChannelRepository = $salesChannelRepository;
@@ -76,8 +90,46 @@ class SalesChannelCreateCommand extends Command
         $this->countryRepository = $countryRepository;
         $this->snippetSetRepository = $snippetSetRepository;
         $this->categoryRepository = $categoryRepository;
+        $this->customerGroupRepository = $customerGroupRepository;
+        $this->currencyRepository = $currencyRepository;
 
         parent::__construct();
+    }
+
+    public function completeOptionValues($optionName, CompletionContext $context)
+    {
+        if ($optionName === 'languageId') {
+        } elseif ($optionName === 'snippetSetId') {
+            return $this->snippetSetRepository->searchIds(new Criteria(), Context::createDefaultContext())->getIds();
+        } elseif ($optionName === 'currencyId') {
+            return $this->currencyRepository->searchIds(new Criteria(), Context::createDefaultContext())->getIds();
+        } elseif ($optionName === 'paymentMethodId') {
+            $criteria = (new Criteria())->addFilter(new EqualsFilter('active', true));
+
+            return $this->paymentMethodRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+        } elseif ($optionName === 'shippingMethodId') {
+            $criteria = (new Criteria())->addFilter(new EqualsFilter('active', true));
+
+            return $this->shippingMethodRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+        } elseif ($optionName === 'countryId') {
+            $criteria = (new Criteria())->addFilter(new EqualsFilter('active', true));
+
+            return $this->countryRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+        } elseif ($optionName === 'typeId') {
+            return [
+                Defaults::SALES_CHANNEL_TYPE_API,
+                Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
+            ];
+        } elseif ($optionName === 'customerGroupId') {
+            return $this->customerGroupRepository->searchIds(new Criteria(), Context::createDefaultContext())->getIds();
+        }
+
+        return [];
+    }
+
+    public function completeArgumentValues($argumentName, CompletionContext $context)
+    {
+        return [];
     }
 
     protected function configure(): void

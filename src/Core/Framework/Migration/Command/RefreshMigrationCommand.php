@@ -2,14 +2,40 @@
 
 namespace Shopware\Core\Framework\Migration\Command;
 
+use Stecman\Component\Symfony\Console\BashCompletion\Completion\CompletionAwareInterface;
+use Stecman\Component\Symfony\Console\BashCompletion\CompletionContext;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Finder\Finder;
 
-class RefreshMigrationCommand extends Command
+class RefreshMigrationCommand extends Command implements CompletionAwareInterface
 {
     protected static $defaultName = 'database:refresh-migration';
+
+    public function completeOptionValues($optionName, CompletionContext $context)
+    {
+        return [];
+    }
+
+    public function completeArgumentValues($argumentName, CompletionContext $context)
+    {
+        $finder = new Finder();
+        $finder->in(getcwd())
+            ->name('Migration*.php')
+            ->exclude('vendor')
+            ->exclude(['dev-ops', 'test*', 'Test*'])
+        ;
+
+        $result = [];
+
+        foreach ($finder as $migrationFile) {
+            $result[] = $migrationFile->getRelativePathname();
+        }
+
+        return $result;
+    }
 
     protected function configure(): void
     {

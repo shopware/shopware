@@ -142,6 +142,8 @@
             <argument type="service" id="country.repository"/>
             <argument type="service" id="snippet_set.repository"/>
             <argument type="service" id="category.repository"/>
+            <argument type="service" id="customer_group.repository"/>
+            <argument type="service" id="currency.repository"/>
 
             <tag name="console.command"/>
         </service>

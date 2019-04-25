@@ -13,6 +13,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
+use Stecman\Component\Symfony\Console\BashCompletion\Completion\CompletionAwareInterface;
+use Stecman\Component\Symfony\Console\BashCompletion\CompletionContext;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -23,7 +25,7 @@ use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-abstract class AbstractPluginLifecycleCommand extends Command
+abstract class AbstractPluginLifecycleCommand extends Command implements CompletionAwareInterface
 {
     /**
      * @var PluginLifecycleService
@@ -50,6 +52,28 @@ abstract class AbstractPluginLifecycleCommand extends Command
         $this->pluginLifecycleService = $pluginLifecycleService;
         $this->pluginRepo = $pluginRepo;
         $this->cacheClearer = $cacheClearer;
+    }
+
+    public function completeOptionValues($optionName, CompletionContext $context)
+    {
+        return [];
+    }
+
+    public function completeArgumentValues($argumentName, CompletionContext $context)
+    {
+        if ($argumentName === 'plugins') {
+            $plugins = $this->pluginRepo->search(new Criteria(), Context::createDefaultContext())->getEntities();
+            $result = [];
+
+            foreach ($plugins as $plugin) {
+                $cleanName = preg_replace('/\\W/', ' ', $plugin->getName());
+                $result[] = explode(' ', $cleanName);
+            }
+
+            return array_merge([], ...$result);
+        }
+
+        return [];
     }
 
     protected function configureCommand(string $lifecycleMethod): void

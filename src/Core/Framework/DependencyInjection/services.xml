@@ -98,11 +98,10 @@
         </service>
 
         <service id="Shopware\Core\Framework\Migration\Command\CreateMigrationCommand">
-            <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginCollection"/>
-            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
-            <argument>%kernel.project_dir%</argument>
-
             <tag name="console.command"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginCollection"/>
+            <argument>%kernel.project_dir%</argument>
+            <argument type="service" id="plugin.repository"/>
         </service>
 
         <service id="Shopware\Core\Framework\Migration\Command\RefreshMigrationCommand">
@@ -411,6 +410,10 @@
         <!-- Util -->
         <service id="Shopware\Core\Framework\Log\LoggerFactory">
             <argument type="string">%kernel.logs_dir%/%%s_%kernel.environment%.log</argument>
+        </service>
+
+        <service id="Stecman\Component\Symfony\Console\BashCompletion\CompletionCommand">
+            <tag name="console.command"/>
         </service>
 
         <!--SnippetFiles-->

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Commands;
 
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\Message\UpdateThumbnailsMessage;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
@@ -9,9 +10,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
+use Stecman\Component\Symfony\Console\BashCompletion\Completion\CompletionAwareInterface;
+use Stecman\Component\Symfony\Console\BashCompletion\CompletionContext;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -19,7 +23,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-class GenerateThumbnailsCommand extends Command
+class GenerateThumbnailsCommand extends Command implements CompletionAwareInterface
 {
     protected static $defaultName = 'media:generate-thumbnails';
 
@@ -75,6 +79,34 @@ class GenerateThumbnailsCommand extends Command
         $this->mediaRepository = $mediaRepository;
         $this->mediaFolderRepository = $mediaFolderRepository;
         $this->messageBus = $messageBus;
+    }
+
+    public function completeOptionValues($optionName, CompletionContext $context)
+    {
+        if ($optionName === 'folder-name') {
+            $criteria = new Criteria();
+
+            if (!empty($context->getCurrentWord())) {
+                $criteria->addFilter(new ContainsFilter('name', $context->getCurrentWord()));
+            }
+
+            $searchResult = $this->mediaFolderRepository->search($criteria, Context::createDefaultContext());
+            $result = [];
+
+            /** @var MediaFolderEntity $mediaFolder */
+            foreach ($searchResult->getEntities() as $mediaFolder) {
+                $result[] = $mediaFolder->getName();
+            }
+
+            return $result;
+        }
+
+        return [];
+    }
+
+    public function completeArgumentValues($argumentName, CompletionContext $context)
+    {
+        return [];
     }
 
     /**

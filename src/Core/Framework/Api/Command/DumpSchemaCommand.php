@@ -3,13 +3,16 @@
 namespace Shopware\Core\Framework\Api\Command;
 
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
+use Stecman\Component\Symfony\Console\BashCompletion\Completion\CompletionAwareInterface;
+use Stecman\Component\Symfony\Console\BashCompletion\Completion\ShellPathCompletion;
+use Stecman\Component\Symfony\Console\BashCompletion\CompletionContext;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class DumpSchemaCommand extends Command
+class DumpSchemaCommand extends Command implements CompletionAwareInterface
 {
     protected static $defaultName = 'framework:schema';
 
@@ -23,6 +26,27 @@ class DumpSchemaCommand extends Command
         parent::__construct();
 
         $this->definitionService = $definitionService;
+    }
+
+    public function completeOptionValues($optionName, CompletionContext $context)
+    {
+        if ($optionName === 'schema-format') {
+            return [
+                'simple',
+                'openapi3',
+            ];
+        }
+
+        return [];
+    }
+
+    public function completeArgumentValues($argumentName, CompletionContext $context)
+    {
+        if ($argumentName === 'outfile') {
+            exit(ShellPathCompletion::PATH_COMPLETION_EXIT_CODE);
+        }
+
+        return [];
     }
 
     protected function configure(): void

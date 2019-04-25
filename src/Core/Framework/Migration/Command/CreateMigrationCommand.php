@@ -2,16 +2,23 @@
 
 namespace Shopware\Core\Framework\Migration\Command;
 
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
-use Shopware\Core\Framework\Plugin\PluginService;
+use Shopware\Core\Framework\Plugin\PluginCollection;
+use Stecman\Component\Symfony\Console\BashCompletion\Completion\CompletionAwareInterface;
+use Stecman\Component\Symfony\Console\BashCompletion\CompletionContext;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class CreateMigrationCommand extends Command
+class CreateMigrationCommand extends Command implements CompletionAwareInterface
 {
     protected static $defaultName = 'database:create-migration';
 
@@ -21,21 +28,82 @@ class CreateMigrationCommand extends Command
     private $projectDir;
 
     /**
-     * @var PluginService
-     */
-    private $pluginService;
-
-    /**
      * @var KernelPluginCollection
      */
     private $kernelPluginCollection;
 
-    public function __construct(KernelPluginCollection $kernelPluginCollection, PluginService $pluginService, string $projectDir)
-    {
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $pluginRepository;
+
+    public function __construct(
+        KernelPluginCollection $kernelPluginCollection,
+        string $projectDir,
+        EntityRepositoryInterface $pluginRepository
+    ) {
         parent::__construct();
         $this->projectDir = $projectDir;
-        $this->pluginService = $pluginService;
         $this->kernelPluginCollection = $kernelPluginCollection;
+        $this->pluginRepository = $pluginRepository;
+    }
+
+    public function completeOptionValues($optionName, CompletionContext $context)
+    {
+        if ($optionName === 'plugin') {
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('managedByComposer', 0));
+
+            /** @var PluginCollection $pluginCollection */
+            $pluginCollection = $this->pluginRepository
+                ->search($criteria, Context::createDefaultContext())
+                ->getEntities()
+            ;
+            $result = [];
+
+            foreach ($pluginCollection as $plugin) {
+                if ($plugin->getPath() === null) {
+                    continue;
+                }
+
+                $pathNodes = explode(DIRECTORY_SEPARATOR, $plugin->getPath());
+                $result[] = array_pop($pathNodes);
+            }
+
+            return $result;
+        }
+
+        return [];
+    }
+
+    public function completeArgumentValues($argumentName, CompletionContext $context)
+    {
+        if ($argumentName === 'directory') {
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('managedByComposer', 0));
+
+            if (($pluginNameIndex = array_search('--plugin', $context->getWords(), true)) !== false) {
+                $pluginName = $context->getWordAtIndex($pluginNameIndex + 1);
+                $criteria->addFilter(new ContainsFilter('path', $pluginName));
+            }
+
+            /** @var PluginCollection $pluginCollection */
+            $pluginCollection = $this->pluginRepository
+                ->search($criteria, Context::createDefaultContext())
+                ->getEntities()
+            ;
+            $result = [];
+
+            foreach ($pluginCollection as $plugin) {
+                $result[] = $plugin->getPath();
+            }
+
+            return $result;
+        } elseif ($argumentName === 'namespace') {
+            // TODO find good way to determine the namespace
+        }
+
+        return [];
     }
 
     protected function configure(): void

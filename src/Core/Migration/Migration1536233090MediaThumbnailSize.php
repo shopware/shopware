@@ -24,7 +24,7 @@ class Migration1536233090MediaThumbnailSize extends MigrationStep
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`),
               CONSTRAINT `uniq.width` UNIQUE (`width`, `height`),
-              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`))
+              CONSTRAINT `json.media_thumbnail_size.attributes` CHECK (JSON_VALID(`attributes`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

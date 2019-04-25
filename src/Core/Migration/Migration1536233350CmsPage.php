@@ -36,7 +36,7 @@ SQL;
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`cms_page_id`, `language_id`),
-              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.cms_page_translation.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.cms_page_translation.cms_page_id` FOREIGN KEY (`cms_page_id`)
                 REFERENCES `cms_page` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.cms_page_translation.language_id` FOREIGN KEY (`language_id`)

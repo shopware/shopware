@@ -24,7 +24,7 @@ class Migration1551101450EventAction extends MigrationStep
               `updated_at` DATETIME(3) NULL,
               INDEX `idx.event_name` (`event_name`),
               INDEX `idx.action_name` (`action_name`),
-              CONSTRAINT `json.config` CHECK(JSON_VALID(`config`))
+              CONSTRAINT `json.event_action.config` CHECK(JSON_VALID(`config`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
 

@@ -31,7 +31,7 @@ class Migration1536233000OrderCustomer extends MigrationStep
               PRIMARY KEY (`id`, `version_id`),
               CONSTRAINT `fk.order_customer.customer_id` FOREIGN KEY (`customer_id`)
                 REFERENCES `customer` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`))
+              CONSTRAINT `json.order_customer.attributes` CHECK (JSON_VALID(`attributes`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

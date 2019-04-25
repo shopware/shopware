@@ -25,7 +25,7 @@ class Migration1536232870SearchDocument extends MigrationStep
               `attributes` JSON NULL,
               PRIMARY KEY (`id`),
               INDEX `idx.entity_id` (`entity_id`),
-              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.search_document.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `uniq.language_keyword_entity_ranking` UNIQUE KEY (`language_id`, `keyword`, `entity`, `entity_id`, `ranking`),
               CONSTRAINT `fk.search_document.language_id` FOREIGN KEY (`language_id`) 
                 REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE

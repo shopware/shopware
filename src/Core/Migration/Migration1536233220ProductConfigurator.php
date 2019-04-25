@@ -27,9 +27,9 @@ class Migration1536233220ProductConfigurator extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`, `version_id`),
-              CONSTRAINT `json.price` CHECK (JSON_VALID(`price`)),
-              CONSTRAINT `json.prices` CHECK (JSON_VALID(`prices`)),
-              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.product_configurator_setting.price` CHECK (JSON_VALID(`price`)),
+              CONSTRAINT `json.product_configurator_setting.prices` CHECK (JSON_VALID(`prices`)),
+              CONSTRAINT `json.product_configurator_setting.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.product_configurator_setting.product_id` FOREIGN KEY (`product_id`, `product_version_id`) 
                 REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.product_configurator_setting.property_group_option_id` FOREIGN KEY (`property_group_option_id`) 

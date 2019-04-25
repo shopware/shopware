@@ -33,7 +33,7 @@ class Migration1536232700Unit extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`unit_id`,`language_id`),
-              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.unit_translation.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.unit_translation.language_id` FOREIGN KEY (`language_id`)
                 REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.unit_translation.unit_id` FOREIGN KEY (`unit_id`)

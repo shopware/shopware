@@ -38,7 +38,7 @@ class Migration1536232630PropertyGroup extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`property_group_id`, `language_id`),
-              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.property_group_translation.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.property_group_translation.language_id` FOREIGN KEY (`language_id`)
                 REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.property_group_translation.property_group_id` FOREIGN KEY (`property_group_id`)

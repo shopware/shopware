@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Cart\Order;
+namespace Shopware\Core\Checkout\Cart\Order\Api;
 
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MissingOrderRelationException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
+use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Framework\Context;

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Cart\Order;
+namespace Shopware\Core\Checkout\Cart\Order\Api;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Exception\MissingOrderRelationException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\Exception\OrderRecalculationException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Order\RecalculationService;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;

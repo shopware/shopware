@@ -52,5 +52,12 @@
             <tag name="shopware.value_generator_pattern"/>
         </service>
 
+        <service id="Shopware\Core\System\NumberRange\Api\NumberRangeController" public="true">
+            <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface" />
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
     </services>
 </container>

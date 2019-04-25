@@ -40,14 +40,10 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
             <argument type="service" id="serializer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\Search\CompositeEntitySearcher"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
-            <argument type="service" id="Shopware\Core\Framework\Search\CompositeEntitySearcher"/>
-        </service>
-
-        <service id="Shopware\Core\System\NumberRange\NumberRangeController" public="true">
-            <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface" />
         </service>
 
         <service id="Shopware\Core\Framework\Search\CompositeEntitySearcher">

@@ -1,9 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\SystemConfig;
+namespace Shopware\Core\System\SystemConfig\Api;
 
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;

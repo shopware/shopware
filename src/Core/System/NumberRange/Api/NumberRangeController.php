@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\NumberRange;
+namespace Shopware\Core\System\NumberRange\Api;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
 use Shopware\Core\Framework\Context;

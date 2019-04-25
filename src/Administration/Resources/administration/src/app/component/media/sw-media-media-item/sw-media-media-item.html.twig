@@ -8,7 +8,7 @@
             <template #preview="{ item }">
                 <sw-media-preview
                     :source="item.id"
-                    @play="emitPlayEvent($event, item)">
+                    @media-preview-play="emitPlayEvent($event, item)">
                 </sw-media-preview>
             </template>
         {% endblock %}

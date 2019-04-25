@@ -317,11 +317,25 @@ export default class Criteria {
      *
      * @param {string} field
      * @param {string} order - ASC/DESC
+     * @param {boolean} naturalSorting
      *
      * @returns {Object}
      */
-    static sort(field, order = 'ASC') {
-        return { field, order };
+    static sort(field, order = 'ASC', naturalSorting = false) {
+        return { field, order, naturalSorting };
+    }
+
+    /**
+     * Creates a object for  \Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting.
+     * Allows to sort the documents by the provided field naturally
+     *
+     * @param {string} field
+     * @param {string} order - ASC/DESC
+     *
+     * @returns {Object}
+     */
+    static naturalSort(field, order = 'ASC') {
+        return { field, order, naturalSorting: true };
     }
 
     /**

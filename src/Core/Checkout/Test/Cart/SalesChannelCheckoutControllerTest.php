@@ -816,7 +816,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
 
         $this->customerRepository->create([
             [
-                'salesChannelId' => $context->getSalesChannelId(),
+                'salesChannelId' => Defaults::SALES_CHANNEL,
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'not',

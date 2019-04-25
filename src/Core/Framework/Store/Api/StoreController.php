@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Store\Api;
 use GuzzleHttp\Exception\ClientException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Context\AdminApiSource;
+use Shopware\Core\Framework\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -16,7 +17,6 @@ use Shopware\Core\Framework\Store\Exception\CanNotDownloadPluginManagedByCompose
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
 use Shopware\Core\Framework\Store\Exception\StoreNotAvailableException;
-use Shopware\Core\Framework\Store\Exception\StoreNotInAdminContextException;
 use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Store\StoreSettingsEntity;
@@ -105,7 +105,7 @@ class StoreController extends AbstractController
         }
 
         if (!$context->getSource() instanceof AdminApiSource) {
-            throw new StoreNotInAdminContextException();
+            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
         }
 
         try {
@@ -158,7 +158,7 @@ class StoreController extends AbstractController
     public function checkLogin(Context $context): Response
     {
         if (!$context->getSource() instanceof AdminApiSource) {
-            throw new StoreNotInAdminContextException();
+            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
         }
 
         $userId = $context->getSource()->getUserId();
@@ -181,7 +181,7 @@ class StoreController extends AbstractController
     public function logout(Context $context): Response
     {
         if (!$context->getSource() instanceof AdminApiSource) {
-            throw new StoreNotInAdminContextException();
+            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
         }
 
         $userId = $context->getSource()->getUserId();
@@ -282,7 +282,7 @@ class StoreController extends AbstractController
     private function getUserStoreToken(Context $context): string
     {
         if (!$context->getSource() instanceof AdminApiSource) {
-            throw new StoreNotInAdminContextException();
+            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
         }
 
         $userId = $context->getSource()->getUserId();

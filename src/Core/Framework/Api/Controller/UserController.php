@@ -6,6 +6,7 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Context\AdminApiSource;
+use Shopware\Core\Framework\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\User\UserDefinition;
@@ -33,7 +34,7 @@ class UserController extends AbstractController
     public function me(Context $context, Request $request, ResponseFactoryInterface $responseFactory): Response
     {
         if (!$context->getSource() instanceof AdminApiSource) {
-            throw new \RuntimeException('Me call unavailable outside of AdminApiContext');
+            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
         }
 
         $userId = $context->getSource()->getUserId();

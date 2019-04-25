@@ -19,7 +19,7 @@
             <tag name="messenger.message_handler" />
         </service>
 
-        <service id="Shopware\Core\Content\NewsletterReceiver\Service\NewsletterSubscriptionService">
+        <service id="Shopware\Core\Content\NewsletterReceiver\SalesChannel\NewsletterSubscriptionService">
             <argument type="service" id="newsletter_receiver.repository" />
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="event_dispatcher"/>

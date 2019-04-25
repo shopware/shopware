@@ -225,6 +225,12 @@
         "listingTextSite": "Page",
         "listingTextFrom": "from"
     },
+    "newsletter": {
+        "subscriptionPersistedSuccess": "You have just subscribed to our newsletter.\n To complete the registration look in your e-mail box for a confirmation mail.",
+        "subscriptionPersistedInfo": "If you have not received a mail please repeat the process or contact the shop operator.",
+        "subscriptionRevokeSuccess": "You have successfully unsubscribed from the newsletter.",
+        "subscriptionConfirmationFailed": "newsletter subscription did not work properly, please contact us"
+    },
     "detail": {
         "ordernumberLabel": "Order number: ",
         "addProduct": "Add to shopping cart",

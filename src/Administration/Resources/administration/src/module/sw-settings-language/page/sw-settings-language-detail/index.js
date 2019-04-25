@@ -1,9 +1,12 @@
 import { Component, State, Mixin } from 'src/core/shopware';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-settings-language-detail.html.twig';
 import './sw-settings-language-detail.scss';
 
 Component.register('sw-settings-language-detail', {
     template,
+
+    inject: ['repositoryFactory', 'context'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -11,9 +14,17 @@ Component.register('sw-settings-language-detail', {
         Mixin.getByName('discard-detail-page-changes')('language')
     ],
 
+    props: {
+        languageId: {
+            type: String,
+            required: false,
+            default: null
+        }
+    },
+
     data() {
         return {
-            language: {},
+            language: null,
             locales: [],
             languages: [],
             usedLocales: [],
@@ -31,19 +42,42 @@ Component.register('sw-settings-language-detail', {
 
     computed: {
         identifier() {
-            return this.language.name || '';
+            return this.languageHasName ? this.language.name : '';
+        },
+
+        languageRepository() {
+            return this.repositoryFactory.create('language');
         },
 
         languageStore() {
             return State.getStore('language');
         },
 
-        localeStore() {
-            return State.getStore('locale');
+        isIsoCodeRequired() {
+            return !this.language.parentId;
         },
 
-        isIsoCodeRequired() {
-            return !this.language.parentId || this.language.parentId.length < 1;
+        languageHasName() {
+            return this.language !== null && this.language.name;
+        },
+
+        isNewLanguage() {
+            return this.language && this.language.isNew();
+        },
+
+        usedLocaleCriteria() {
+            return (new Criteria(1, 1)).addAggregation(
+                Criteria.valueCount('usedLocales', 'language.locale.code')
+            );
+        }
+    },
+
+    watch: {
+        languageId() {
+            // reset current page if user navigates back to create
+            if (this.languageId === null) {
+                this.createdComponent();
+            }
         }
     },
 
@@ -53,32 +87,41 @@ Component.register('sw-settings-language-detail', {
 
     methods: {
         createdComponent() {
-            if (this.$route.params.id) {
-                this.languageId = this.$route.params.id;
+            if (!this.languageId) {
+                if (this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId) {
+                    this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+                }
+
+                this.language = this.languageRepository.create(this.context);
+            } else {
                 this.loadEntityData();
             }
 
-            this.languageStore.getList({
-                page: 1,
-                limit: 1,
-                aggregations: {
-                    usedLocales: { name: 'usedLocales', type: 'value_count', field: 'language.locale.code' }
-                }
-            }).then((response) => {
-                this.usedLocales = response.aggregations.usedLocales[0].values;
+            this.languageRepository.search(
+                this.usedLocaleCriteria,
+                this.context
+            ).then(({ aggregations }) => {
+                this.usedLocales = aggregations.usedLocales[0].values;
             });
         },
 
         loadEntityData() {
-            this.language = this.languageStore.getById(this.languageId);
+            this.isLoading = true;
+            this.languageRepository.get(this.languageId, this.context).then((language) => {
+                this.isLoading = false;
+                this.language = language;
+            }).catch(() => {
+                this.isLoading = false;
+            });
         },
 
         onInputLanguage() {
-            if (this.language.isLocal || !this.language.original.parentId) {
+            const origin = this.language.getOrigin();
+            if (this.language.isNew() || !origin.parentId) {
                 return;
             }
 
-            this.showAlertForChangeParentLanguage = this.language.getChanges().hasOwnProperty('parentId');
+            this.showAlertForChangeParentLanguage = origin.parentId !== this.language.parentId;
         },
 
         showOption(item) {
@@ -86,30 +129,31 @@ Component.register('sw-settings-language-detail', {
         },
 
         isLocaleAlreadyUsed(item) {
-            if (item.code === this.language.locale.code) {
-                return false;
-            }
-
-            const foundLocale = this.usedLocales.find((locale) => {
+            const usedByAnotherLanguage = this.usedLocales.some((locale) => {
                 return item.code === locale.key;
             });
 
-            return foundLocale !== undefined;
-        },
+            if (usedByAnotherLanguage) {
+                return true;
+            }
 
-        saveFinish() {
-            this.isSaveSuccessful = false;
+            if (!this.language.locale) {
+                return false;
+            }
+
+            return item.code === this.language.locale.code;
         },
 
         onSave() {
-            this.isSaveSuccessful = false;
             this.isLoading = true;
-
-            return this.language.save().then(() => {
+            this.languageRepository.save(this.language, this.context).then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
-            }).catch(() => {
-                this.isLoading = false;
+                if (!this.languageId) {
+                    this.$router.push({ name: 'sw.settings.language.detail', params: { id: this.language.id } });
+                }
+            }).then(() => {
+                this.loadEntityData();
             });
         },
 

@@ -121,7 +121,7 @@ Component.register('sw-sales-channel-detail', {
          * need to add the missing ones, that are only set in the domains.
          */
         syncWithDomains() {
-            if (!this.next1387 || !this.isStoreFront || !this.salesChannel.domains) {
+            if (!this.isStoreFront || !this.salesChannel.domains) {
                 return;
             }
             this.salesChannel.domains.forEach((domain) => {

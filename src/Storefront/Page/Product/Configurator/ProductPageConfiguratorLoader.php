@@ -44,7 +44,7 @@ class ProductPageConfiguratorLoader
         $groups = $this->sortSettings($product, $groups);
 
         $combinations = $this->combinationLoader->load(
-            $product->getParentId() ?? $product->getId(),
+            $product->getParentId(),
             $context->getContext()
         );
 

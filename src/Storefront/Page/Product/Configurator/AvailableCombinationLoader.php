@@ -45,13 +45,13 @@ class AvailableCombinationLoader
         $combinations = $query->execute()->fetchAll();
         $combinations = FetchModeHelper::groupUnique($combinations);
 
-        $hashes = [];
-        $optionIds = [];
+        $available = [];
 
-        foreach ($combinations as $key => &$combination) {
+        foreach ($combinations as $key => $combination) {
             $combination['options'] = json_decode($combination['options'], true);
 
             if (!$combination['isCloseout']) {
+                $available[] = $combination;
                 continue;
             }
 
@@ -60,20 +60,18 @@ class AvailableCombinationLoader
             $minPurchase = (int) $combination['minPurchase'];
 
             if ($stock < $minPurchase) {
-                unset($combinations[$key]);
+                continue;
             }
+
+            $available[] = $combination;
         }
 
-        foreach ($combinations as $combination) {
-            sort($combination['options']);
-            $hash = md5(json_encode($combination['options']));
+        $result = new AvailableCombinationResult();
 
-            $hashes[$hash] = true;
-            foreach ($combination['options'] as $optionId) {
-                $optionIds[$optionId] = true;
-            }
+        foreach ($available as $combination) {
+            $result->addCombination($combination['options']);
         }
 
-        return new AvailableCombinationResult($hashes, $optionIds);
+        return $result;
     }
 }

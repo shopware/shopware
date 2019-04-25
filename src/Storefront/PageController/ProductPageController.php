@@ -48,10 +48,13 @@ class ProductPageController extends StorefrontController
      */
     public function switch(string $productId, RequestDataBag $data, SalesChannelContext $context): RedirectResponse
     {
+        $switchedOption = $data->get('switched');
+        $newOptions = json_decode($data->get('options'), true);
+
         $redirect = $this->combinationFinder->find(
             $productId,
-            $data->get('switched'),
-            $data->get('options'),
+            $switchedOption,
+            $newOptions,
             $context
         );
 

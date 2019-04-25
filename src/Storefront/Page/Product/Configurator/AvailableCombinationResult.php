@@ -7,18 +7,12 @@ class AvailableCombinationResult
     /**
      * @var array
      */
-    protected $hashes;
+    protected $hashes = [];
 
     /**
-     * @var string[]
+     * @var array
      */
-    protected $optionIds;
-
-    public function __construct(array $hashes, array $optionIds)
-    {
-        $this->hashes = $hashes;
-        $this->optionIds = $optionIds;
-    }
+    protected $optionIds = [];
 
     public function hasCombination(array $optionIds): bool
     {
@@ -27,12 +21,21 @@ class AvailableCombinationResult
 
         $hash = md5(json_encode($optionIds));
 
-        return $this->hasHash($hash);
+        return isset($this->hashes[$hash]);
     }
 
-    public function hasHash(string $hash): bool
+    public function addCombination(array $optionIds): void
     {
-        return isset($this->hashes[$hash]);
+        $optionIds = array_values($optionIds);
+        sort($optionIds);
+
+        $hash = md5(json_encode($optionIds));
+
+        $this->hashes[$hash] = true;
+
+        foreach ($optionIds as $id) {
+            $this->optionIds[$id] = true;
+        }
     }
 
     public function hasOptionId(string $optionId): bool
@@ -43,20 +46,5 @@ class AvailableCombinationResult
     public function getHashes(): array
     {
         return $this->hashes;
-    }
-
-    public function setHashes(array $hashes): void
-    {
-        $this->hashes = $hashes;
-    }
-
-    public function getOptionIds(): array
-    {
-        return $this->optionIds;
-    }
-
-    public function setOptionIds(array $optionIds): void
-    {
-        $this->optionIds = $optionIds;
     }
 }

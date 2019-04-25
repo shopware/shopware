@@ -188,7 +188,7 @@ class CheckoutPageController extends StorefrontController
     public function register(Request $request, SalesChannelContext $context): Response
     {
         /** @var string $redirect */
-        $redirect = $request->get('redirectTo', $this->generateUrl('frontend.checkout.confirm.page'));
+        $redirect = $request->get('redirectTo', 'frontend.checkout.confirm.page');
 
         if ($context->getCustomer()) {
             return $this->redirect($redirect);

@@ -20,7 +20,9 @@
 }
 
 .product-detail-image-container {
-    height: 430px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     position: relative;
 
     .product-detail-image {
@@ -115,6 +117,10 @@
         .card-tabs .nav-link-icon {
             display: none;
         }
+    }
+
+    .product-detail-image-container {
+        height: 430px;
     }
 }
 

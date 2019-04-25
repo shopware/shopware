@@ -81,6 +81,14 @@ export default {
             type: Boolean,
             required: false,
             default: true
+        },
+
+        additionalContextMenuClasses: {
+            type: Object,
+            required: false,
+            default() {
+                return {};
+            }
         }
     },
 
@@ -121,7 +129,8 @@ export default {
         contextMenuClass() {
             return {
                 'is--left-align': this.menuHorizontalAlign === 'left',
-                'is--top-align': this.menuVerticalAlign === 'top'
+                'is--top-align': this.menuVerticalAlign === 'top',
+                ...this.additionalContextMenuClasses
             };
         }
     },
@@ -165,6 +174,7 @@ export default {
 
             this.addMenuToBody();
             this.showMenu = true;
+            this.$emit('context-menu-after-open');
         },
 
         closeMenu(event) {
@@ -177,6 +187,7 @@ export default {
             if ((el !== target) && !el.contains(target) && excludedElements) {
                 this.showMenu = false;
                 this.removeMenuFromBody();
+                this.$emit('context-menu-after-close');
             }
         },
 

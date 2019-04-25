@@ -6,6 +6,10 @@
       "notificationSaveSuccessTitle": "Erfolg",
       "notificationSaveSuccessMessage": "Die Entität \"{entityName}\" wurde erfolgreich gespeichert."
     },
+    "notification-center": {
+      "title": "Mitteilungen",
+      "emptyText": "Bravo, alles erledigt."
+    },
     "sw-admin-menu": {
       "linkChangeLanguage": "Sprache wechseln",
       "linkLogout": "Abmelden",

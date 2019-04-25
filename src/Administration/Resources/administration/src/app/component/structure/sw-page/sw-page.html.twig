@@ -10,6 +10,13 @@
                             {% endblock %}
                         </slot>
                     </div>
+                    {% block sw_page_top_bar_actions %}
+                        <div class="sw-page__top-bar-actions">
+                            {% block sw_page_notification_center %}
+                                <sw-notification-center></sw-notification-center>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
                 {% endblock %}
 
                 {% block sw_page_smart_bar %}

@@ -4,12 +4,15 @@ export default {
     namespaced: true,
     state: {
         notifications: [],
+        growlNotifications: [],
         threshold: 5,
         defaults: {
             system: false,
             variant: 'info', // success, info, warning, error
             autoClose: true,
-            duration: 5000
+            duration: 5000,
+            growl: true,
+            visited: false
         }
     },
 
@@ -33,17 +36,34 @@ export default {
         },
 
         pushNotification(state, notification) {
-            state.notifications.push(notification);
-
-            if (state.notifications.length > state.threshold) {
-                state.notifications.splice(0, 1);
-            }
+            state.notifications.unshift(notification);
         },
 
         removeNotification(state, notification) {
             const index = state.notifications.findIndex(n => n === notification);
             if (index !== -1) {
                 state.notifications.splice(index, 1);
+            }
+        },
+
+        setAllNotificationsVisited(state) {
+            state.notifications.forEach((notification) => {
+                notification.visited = true;
+            });
+        },
+
+        pushGrowlNotification(state, notification) {
+            state.growlNotifications.push(notification);
+
+            if (state.growlNotifications.length > state.threshold) {
+                state.growlNotifications.splice(0, 1);
+            }
+        },
+
+        removeGrowlNotification(state, notification) {
+            const index = state.growlNotifications.findIndex(n => n === notification);
+            if (index !== -1) {
+                state.growlNotifications.splice(index, 1);
             }
         }
     },
@@ -52,7 +72,7 @@ export default {
         createNotification({ state, commit }, notification) {
             if (!notification.message) {
                 utils.warn('NotificationStore', 'A message must be specified', notification);
-                return;
+                return null;
             }
 
             const mergedNotification = Object.assign(
@@ -60,16 +80,27 @@ export default {
                 state.defaults,
                 notification,
                 {
-                    uuid: utils.createId()
+                    uuid: utils.createId(),
+                    timestamp: new Date()
                 }
             );
 
             commit('pushNotification', mergedNotification);
-            if (mergedNotification.autoClose) {
-                setTimeout(() => {
-                    commit('removeNotification', mergedNotification);
-                }, mergedNotification.duration);
+
+            if (mergedNotification.growl) {
+                commit('pushGrowlNotification', mergedNotification);
+                if (mergedNotification.autoClose) {
+                    setTimeout(() => {
+                        commit('removeGrowlNotification', mergedNotification);
+                    }, mergedNotification.duration);
+                }
             }
+
+            return mergedNotification.uuid;
+        },
+
+        setAllNotificationsVisited({ commit }) {
+            commit('setAllNotificationsVisited');
         }
     }
 };

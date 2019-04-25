@@ -40,6 +40,15 @@ $sw-page-smart-bar-headline-font-weight: 600;
         }
     }
 
+    .sw-page__top-bar-actions {
+        grid-row: 1;
+        grid-column: header-content-end / smart-bar-end;
+        display: flex;
+        align-content: flex-end;
+        justify-content: flex-end;
+        padding-right: 32px;
+    }
+
     .sw-page__smart-bar-divider {
         position: absolute;
         top: 80px;

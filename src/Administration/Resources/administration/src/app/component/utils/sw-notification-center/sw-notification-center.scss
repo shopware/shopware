@@ -1,0 +1,45 @@
+@import "~scss/variables";
+
+.sw-notification-center__context-button.is--active {
+    color: $color-shopware-blue;
+}
+
+.sw-notification-center__context-button--new-available::after {
+    content: '';
+    display: block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: $color-crimson;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.sw-notification-center__context-container {
+    .sw-context-menu__content {
+        padding: 0;
+    }
+
+    .sw-notification-center__content {
+        .sw-notification-center__header {
+            border-bottom: 1px solid $color-steam-cloud;
+        }
+
+        .sw-notification-center__title {
+            padding: 20px 24px 16px 24px;
+            margin: 0;
+            font-size: $font-size-large;
+        }
+
+        .sw-notification-center__notification-container {
+            overflow-y: auto;
+            max-height: 600px;
+        }
+
+        .sw-notification-center__empty-text {
+            padding: 24px;
+            font-size: $font-size-small;
+        }
+    }
+}

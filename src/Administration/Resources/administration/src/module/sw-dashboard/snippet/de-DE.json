@@ -3,6 +3,32 @@
     "general": {
       "mainMenuItemGeneral": "Dashboard",
       "descriptionTextModule": "Startseite, Statistiken und Systeminformationen"
+    },
+    "welcome": {
+      "header": "Willkommen {firstName}",
+      "subHeader": "schön, dass Du hier bist.",
+      "text": "Entdecke und erlebe die neue Shopware Generation. Wir freuen uns",
+      "subText": "auf Dein Feedback. Über unsere transparente Roadmap kannst",
+      "subSubText": "Du jederzeit den aktuellen Entwicklungsstand verfolgen.",
+      "roadmapButton": "Roadmap",
+      "issueTrackerButton": "Feedback senden",
+      "roadmapLink": "https://www.shopware.com/de/roadmap/"
+    },
+    "paypal": {
+      "buttonText": "PayPal einrichten"
+    },
+    "documentation":{
+      "header": "Dokumentation",
+      "pluginLinkLabel": "Plugin Dokumentation",
+      "devLinkLabel": "Technische Dokumentation",
+      "userLinkLabel": "Endbenutzer Dokumentation"
+    },
+    "migration":{
+      "header": "Teste die Migration aus Shopware 5",
+      "description": "Erkunde die Möglichkeiten von Shopware mit echten Daten. Gemeinsam stellen wir eine Verbindung der Systeme her. Im Anschluss hast Du die Möglichkeit mit dem Migrationsassistenten Deine Daten zu migrieren.",
+      "githubLinkLabel": "Migration Plugin auf Github",
+      "sw5pluginLinkLabel": "Plugin für Shopware 5",
+      "buttonText": "Meine Daten migrieren"
     }
   }
 }

@@ -1,0 +1,15 @@
+@import "~scss/variables";
+
+.sw-dashboard-external-link {
+    display: block;
+    margin-bottom: 8px;
+    color: $color-shopware-blue;
+    text-decoration: none;
+}
+
+.sw-dashboard-external-link:hover {
+    text-decoration: underline;
+    .sw-icon svg {
+        color: $color-shopware-blue;
+    }
+}

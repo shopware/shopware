@@ -2,17 +2,17 @@
     <div class="sw-cms-el-config-product-box">
         <sw-select :multi="false"
                    ref="cmsProductSelection"
-                   label="Product"
-                   placeholder="Select a product"
+                   :label="$tc('sw-cms.elements.labelProductSelection')"
+                   :placeholder="$tc('sw-cms.elements.placeholderProductSelection')"
                    :store="productStore"
                    @input="onProductChange"
                    v-model="element.config.product.value">
         </sw-select>
 
-        <sw-select-field label="Box layout" v-model="element.config.boxLayout.value">
-            <option value="standard">Standard</option>
-            <option value="image">Big image</option>
-            <option value="minimal">Minimal content</option>
+        <sw-select-field :label="$tc('sw-cms.elements.labelProductLayoutType')" v-model="element.config.boxLayout.value">
+            <option value="standard">{{ $tc('sw-cms.elements.labelProductLayoutTypeStandard') }}</option>
+            <option value="image">{{ $tc('sw-cms.elements.labelProductLayoutTypeImage') }}</option>
+            <option value="minimal">{{ $tc('sw-cms.elements.labelProductLayoutTypeMinimal') }}</option>
         </sw-select-field>
     </div>
 {% endblock %}

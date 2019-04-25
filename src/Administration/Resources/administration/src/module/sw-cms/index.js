@@ -30,25 +30,20 @@ Module.register('sw-cms', {
     routes: {
         index: {
             component: 'sw-cms-list',
-            path: 'index',
-            meta: {
-                noNav: true
-            }
+            path: 'index'
         },
         detail: {
             component: 'sw-cms-detail',
             path: 'detail/:id',
             meta: {
-                parentPath: 'sw.cms.index',
-                noNav: true
+                parentPath: 'sw.cms.index'
             }
         },
         create: {
             component: 'sw-cms-create',
             path: 'create',
             meta: {
-                parentPath: 'sw.cms.index',
-                noNav: true
+                parentPath: 'sw.cms.index'
             }
         }
     },

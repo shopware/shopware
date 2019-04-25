@@ -38,8 +38,10 @@
       "sidebarHeaderBlockSettings": "Block:",
       "sidebarTitleNavigator": "Navigator",
       "labelBlockCategorySelection": "Block category",
-      "labelBlockCategoryStandard": "Standard",
-      "labelBlockCategoryEcommerce": "eCommerce",
+      "labelBlockCategoryText": "Text",
+      "labelBlockCategoryTextImage": "Text & Images",
+      "labelBlockCategoryImage": "Images",
+      "labelBlockCategoryCommerce": "Commerce",
       "titleElementSettingsModal": "Element settings",
       "labelButtonElementSettingsConfirm": "Ok",
       "titleElementChangeModal": "Change element",
@@ -70,7 +72,13 @@
       "labelProductActionBuy": "Add to cart",
       "labelProductBadgeTopseller": "Topseller",
       "labelProductBadgeNew": "New",
-      "labelProductPriceUnitContent": "Content:"
+      "labelProductPriceUnitContent": "Content:",
+      "labelProductSelection": "Product",
+      "placeholderProductSelection": "Select a product",
+      "labelProductLayoutType": "Layout type",
+      "labelProductLayoutTypeStandard": "Standard",
+      "labelProductLayoutTypeImage": "Big image",
+      "labelProductLayoutTypeMinimal": "Minimal content"
     },
     "components": {
       "cmsLayoutModal": {

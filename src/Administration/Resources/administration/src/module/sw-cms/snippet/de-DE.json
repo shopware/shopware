@@ -37,9 +37,11 @@
       "sidebarTitleBlockSettings": "Block Einstellungen",
       "sidebarHeaderBlockSettings": "Block:",
       "sidebarTitleNavigator": "Navigator",
-      "labelBlockCategorySelection": "Block category",
-      "labelBlockCategoryStandard": "Standard",
-      "labelBlockCategoryEcommerce": "eCommerce",
+      "labelBlockCategorySelection": "Block Kategorie",
+      "labelBlockCategoryText": "Text",
+      "labelBlockCategoryTextImage": "Text & Bilder",
+      "labelBlockCategoryImage": "Bilder",
+      "labelBlockCategoryCommerce": "Commerce",
       "titleElementSettingsModal": "Element Einstellungen",
       "labelButtonElementSettingsConfirm": "Ok",
       "titleElementChangeModal": "Element austauschen",
@@ -70,7 +72,13 @@
       "labelProductActionBuy": "In den Warenkorb",
       "labelProductBadgeTopseller": "Topseller",
       "labelProductBadgeNew": "Neu",
-      "labelProductPriceUnitContent": "Inhalt:"
+      "labelProductPriceUnitContent": "Inhalt:",
+      "labelProductSelection": "Produkt",
+      "placeholderProductSelection": "Wähle ein Produkt",
+      "labelProductLayoutType": "Layout Typ",
+      "labelProductLayoutTypeStandard": "Standard",
+      "labelProductLayoutTypeImage": "Großes Bild",
+      "labelProductLayoutTypeMinimal": "Minimaler Inhalt"
     },
     "components": {
       "cmsLayoutModal": {

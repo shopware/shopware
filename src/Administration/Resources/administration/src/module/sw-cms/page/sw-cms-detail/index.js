@@ -27,7 +27,7 @@ Component.register('sw-cms-detail', {
             currentSalesChannelKey: null,
             currentDeviceView: 'desktop',
             currentBlock: null,
-            currentBlockCategory: 'standard',
+            currentBlockCategory: 'text',
             currentSkin: 'default',
             currentMappingEntity: null,
             currentMappingEntityStore: null,
@@ -107,10 +107,10 @@ Component.register('sw-cms-detail', {
         blockConfigDefaults() {
             return {
                 name: null,
-                marginBottom: '40px',
-                marginTop: '40px',
-                marginLeft: '20px',
-                marginRight: '20px',
+                marginBottom: null,
+                marginTop: null,
+                marginLeft: null,
+                marginRight: null,
                 sizingMode: 'boxed'
             };
         }
@@ -136,6 +136,9 @@ Component.register('sw-cms-detail', {
 
     methods: {
         createdComponent() {
+            // ToDo: Make the navigation state accessible via global state
+            this.$root.$children[0].$children[2].$children[0].isExpanded = false;
+
             this.cmsPageState.currentPage = null;
 
             if (this.$route.params.id) {

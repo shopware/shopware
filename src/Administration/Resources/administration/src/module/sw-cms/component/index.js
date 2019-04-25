@@ -1,9 +1,11 @@
 import './sw-cms-block';
 import './sw-cms-block-config';
+import './sw-cms-block-layout-config';
 import './sw-cms-slot';
 import './sw-cms-mapping-field';
 import './sw-cms-toolbar';
 import './sw-cms-list-item';
 import './sw-cms-stage-add-block';
 import './sw-cms-page-form';
+import './sw-cms-product-box-preview';
 import './sw-cms-layout-modal';

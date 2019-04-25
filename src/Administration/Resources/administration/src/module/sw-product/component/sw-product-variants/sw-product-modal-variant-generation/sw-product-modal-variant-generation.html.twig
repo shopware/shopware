@@ -12,6 +12,7 @@
 
                             {% block sw_product_modal_variant_generation_sidebar_tabs_item_options %}
                                 <sw-tabs-item
+                                        class="sw-variant-modal__option-selection"
                                         :active="activeTab == 'options'"
                                         @click="activeTab = 'options'">
                                     {{ $tc('sw-product.variations.configuratorModal.selectOptions') }}
@@ -20,6 +21,7 @@
 
                             {% block sw_product_modal_variant_generation_sidebar_tabs_item_prices %}
                                 <sw-tabs-item
+                                        class="sw-variant-modal__surcharge-configuration"
                                         :active="activeTab == 'prices'"
                                         @click="activeTab = 'prices'"
                                         v-show="variantsNumber">
@@ -29,6 +31,7 @@
 
                             {% block sw_product_modal_variant_generation_sidebar_tabs_item_restrictions %}
                                 <sw-tabs-item
+                                        class="sw-variant-modal__restriction-configuration"
                                         :active="activeTab == 'restrictions'"
                                         @click="activeTab = 'restrictions'"
                                         v-show="variantsNumber">

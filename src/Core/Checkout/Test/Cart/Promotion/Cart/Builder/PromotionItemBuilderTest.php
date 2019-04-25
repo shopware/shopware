@@ -3,21 +3,21 @@
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Cart\Builder;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Rule\LineItemRule;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Builder\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Framework\Rule\Rule;
 
+/**
+ * @copyright dasistweb GmbH (http://www.dasistweb.de)
+ */
 class PromotionItemBuilderTest extends TestCase
 {
-    /**
-     * @var PromotionEntity
-     */
+    /** @var PromotionEntity */
     private $promotion = null;
 
     public function setUp(): void
@@ -33,73 +33,48 @@ class PromotionItemBuilderTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
      */
     public function testLineItemType()
     {
         $builder = new PromotionItemBuilder('My-TYPE');
 
-        $this->promotion->setPercental(true);
-        $this->promotion->setValue(10);
+        $discount = new PromotionDiscountEntity();
+        $discount->setId('D5');
+        $discount->setType(PromotionDiscountEntity::TYPE_PERCENTAGE);
+        $discount->setValue(50);
 
-        $item = $builder->buildPromotionItem($this->promotion, 1, []);
+        $item = $builder->buildDiscountLineItem($this->promotion, $discount, 1, []);
 
         static::assertEquals('My-TYPE', $item->getType());
     }
 
     /**
-     * This test verifies that our LineItem contains a payload
-     * with all product item IDs that are eligible for
-     * the current promotion entity.
-     * Every payload entry is also prefixed with "item-".
+     * This test verifies that we always use the id of the
+     * discount and not from the promotion for the item key.
+     * If we have multiple discounts in a single promotion and use the promotion
+     * id for the key, then we get duplicate key entries which leads to
+     * errors like "line item not stackable".
      *
      * @test
      * @group promotions
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
      */
-    public function testPayloadContainsProductItems()
+    public function testLineItemKey()
     {
         $builder = new PromotionItemBuilder('My-TYPE');
 
-        $this->promotion->setPercental(true);
-        $this->promotion->setValue(10);
+        $discount = new PromotionDiscountEntity();
+        $discount->setId('D5');
+        $discount->setType(PromotionDiscountEntity::TYPE_PERCENTAGE);
+        $discount->setValue(50);
 
-        $item = $builder->buildPromotionItem($this->promotion, 1, ['P1', 'P2']);
+        $item = $builder->buildDiscountLineItem($this->promotion, $discount, 1, []);
 
-        $expectedPayload = [
-            'item-P1' => 'P1',
-            'item-P2' => 'P2',
-            'code' => '',
-        ];
-
-        static::assertEquals($expectedPayload, $item->getPayload());
-    }
-
-    /**
-     * This test verifies that our payload does also contain
-     * the code property which allows us to identify the entered
-     * code later on.
-     *
-     * @test
-     * @group promotions
-     *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
-     */
-    public function testPayloadContainsCode()
-    {
-        $builder = new PromotionItemBuilder('My-TYPE');
-
-        $this->promotion->setPercental(true);
-        $this->promotion->setValue(10);
-        $this->promotion->setCode('CODE-123');
-
-        $item = $builder->buildPromotionItem($this->promotion, 1, ['P1', 'P2']);
-
-        static::assertEquals('CODE-123', $item->getPayload()['code']);
+        static::assertEquals('D5', $item->getKey());
     }
 
     /**
@@ -110,19 +85,25 @@ class PromotionItemBuilderTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
      */
-    public function testPercentagePriceDefinition()
+    public function testPriceTypePercentage()
     {
         $builder = new PromotionItemBuilder('My-TYPE');
 
-        $this->promotion->setPercental(true);
-        $this->promotion->setValue(10);
+        $discount = new PromotionDiscountEntity();
+        $discount->setId('D5');
+        $discount->setType(PromotionDiscountEntity::TYPE_PERCENTAGE);
+        $discount->setValue(10);
 
-        $item = $builder->buildPromotionItem($this->promotion, 1, []);
+        $item = $builder->buildDiscountLineItem($this->promotion, $discount, 1, []);
 
-        $expectedPriceDefinition = new PercentagePriceDefinition(-10, 1);
+        // build our expected price definition
+        // including the line item filter rule for our eligible item IDs
+        $filter = new LineItemRule();
+        $filter->assign(['identifiers' => [], 'operator' => Rule::OPERATOR_EQ]);
+        $expectedPriceDefinition = new PercentagePriceDefinition(-10, 1, $filter);
 
         static::assertEquals($expectedPriceDefinition, $item->getPriceDefinition());
     }
@@ -135,21 +116,59 @@ class PromotionItemBuilderTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
      */
-    public function testAbsolutePriceDefinition()
+    public function testPriceTypeAbsolute()
     {
         $builder = new PromotionItemBuilder('My-TYPE');
 
-        $this->promotion->setPercental(false);
-        $this->promotion->setValue(50);
+        $discount = new PromotionDiscountEntity();
+        $discount->setId('D5');
+        $discount->setType(PromotionDiscountEntity::TYPE_ABSOLUTE);
+        $discount->setValue(50);
 
-        $item = $builder->buildPromotionItem($this->promotion, 1, []);
+        $item = $builder->buildDiscountLineItem($this->promotion, $discount, 1, []);
 
-        $expectedPriceDefinition = new AbsolutePriceDefinition(-50, 1);
+        // build our expected price definition
+        // including the line item filter rule for our eligible item IDs
+        $filter = new LineItemRule();
+        $filter->assign(['identifiers' => [], 'operator' => Rule::OPERATOR_EQ]);
+        $expectedPriceDefinition = new AbsolutePriceDefinition(-50, 1, $filter);
 
         static::assertEquals($expectedPriceDefinition, $item->getPriceDefinition());
+    }
+
+    /**
+     * This test verifies that our LineItem contains a payload
+     * with all product item IDs that are eligible for
+     * the current promotion entity.
+     * Every payload entry is also prefixed with "item-".
+     *
+     * @test
+     * @group promotions
+     *
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
+     */
+    public function testPayloadContainsProductItems()
+    {
+        $builder = new PromotionItemBuilder('My-TYPE');
+
+        $discount = new PromotionDiscountEntity();
+        $discount->setId('D5');
+        $discount->setType(PromotionDiscountEntity::TYPE_PERCENTAGE);
+        $discount->setValue(10);
+
+        $item = $builder->buildDiscountLineItem($this->promotion, $discount, 1, ['P1', 'P2']);
+
+        $expectedPayload = [
+            'item-P1' => 'P1',
+            'item-P2' => 'P2',
+            'code' => '',
+        ];
+
+        static::assertEquals($expectedPayload, $item->getPayload());
     }
 
     /**
@@ -161,17 +180,19 @@ class PromotionItemBuilderTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
      */
     public function testEligibleItemsGetDiscount()
     {
         $builder = new PromotionItemBuilder('My-TYPE');
 
-        $this->promotion->setPercental(false);
-        $this->promotion->setValue(50);
+        $discount = new PromotionDiscountEntity();
+        $discount->setId('D5');
+        $discount->setType(PromotionDiscountEntity::TYPE_ABSOLUTE);
+        $discount->setValue(50);
 
-        $item = $builder->buildPromotionItem($this->promotion, 1, ['P1', 'P2']);
+        $item = $builder->buildDiscountLineItem($this->promotion, $discount, 1, ['P1', 'P2']);
 
         $itemRule = new LineItemRule();
         $itemRule->assign(['identifiers' => ['P1', 'P2'], 'operator' => Rule::OPERATOR_EQ]);
@@ -188,17 +209,19 @@ class PromotionItemBuilderTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
      */
     public function testPriority()
     {
         $builder = new PromotionItemBuilder('My-TYPE');
 
-        $this->promotion->setPercental(false);
-        $this->promotion->setValue(50);
+        $discount = new PromotionDiscountEntity();
+        $discount->setId('D5');
+        $discount->setType(PromotionDiscountEntity::TYPE_ABSOLUTE);
+        $discount->setValue(50);
 
-        $item = $builder->buildPromotionItem($this->promotion, 1, []);
+        $item = $builder->buildDiscountLineItem($this->promotion, $discount, 1, []);
 
         static::assertEquals(LineItem::VOUCHER_PRIORITY, $item->getPriority());
     }

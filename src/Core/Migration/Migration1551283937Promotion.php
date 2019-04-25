@@ -19,8 +19,6 @@ class Migration1551283937Promotion extends MigrationStep
               `id` BINARY(16) NOT NULL,
               `name` VARCHAR(255) NOT NULL,
               `active` TINYINT(1) NOT NULL DEFAULT 0,
-              `value` FLOAT NOT NULL DEFAULT 0,
-              `percental` TINYINT(1) NOT NULL DEFAULT 0,
               `valid_from` DATETIME NULL,
               `valid_until` DATETIME NULL,
               `redeemable` INT NULL DEFAULT 1,

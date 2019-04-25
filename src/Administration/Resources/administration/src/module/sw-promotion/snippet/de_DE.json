@@ -1,7 +1,7 @@
 {
   "sw-promotion": {
     "general": {
-      "module" : "Promotions",
+      "module": "Promotions",
       "description": "Rabattaktionen",
       "mainMenu": {
         "root": "Rabattaktionen",
@@ -38,7 +38,7 @@
       "tabs": {
         "tabGeneral": "Allgemein",
         "tabPreconditions": "Bedingungen",
-        "tabRebate": "Rabatt"
+        "tabDiscounts": "Rabatte"
       },
       "main": {
         "general": {
@@ -47,8 +47,8 @@
           "labelTitle": "Name",
           "placeholderName": "Name",
           "labelActive": "Aktiv",
-          "labelSalesChannels" : "Verkaufskanäle",
-          "placeholderSalesChannels" : "Verkaufskanal hinzufügen...",
+          "labelSalesChannels": "Verkaufskanäle",
+          "placeholderSalesChannels": "Verkaufskanal hinzufügen...",
           "labelValidFrom": "Aktiv von:",
           "labelValidUntil": "Aktiv bis:",
           "labelPriority": "Priorität",
@@ -78,24 +78,36 @@
             "title": "Bestimme welche Kunden von dieser Rabattaktion profitieren",
             "text": "Nutze Regeln aus dem Regelmodul, um die Zielgruppe dieser Marketingaktion einzugrenzen. Ohne eine Eingrenzung haben alle deine Kunden Zugriff auf diese Aktion.",
             "labelRules": "Kundenregeln",
-            "placeholderRules" : "Regel hinzufügen...",
+            "placeholderRules": "Regel hinzufügen...",
             "labelCustomers": "Spezifischen Kunden zuweisen",
-            "placeholderCustomers" : "Kunden hinzufügen..."
+            "placeholderCustomers": "Kunden hinzufügen..."
           },
           "order": {
             "card": "Bestellung",
             "title": "Bestimme welche Eigenschaften eine Bestellung zusätzlich für diese Rabattaktion aufweisen muss.",
             "text": "Nutze Regeln des Typs 'Bestellung' um zu definieren, welche Bediungen erfüllt sein müssen, damit diese Rabattaktion angewendet wird.",
             "rulesModuleLink": "Regelmodul öffnen",
-            "rulesCaption" : "Bestellregeln",
-            "rulesPlaceholder" : "Bestellregel zuweisen..."
+            "rulesCaption": "Bestellregeln",
+            "rulesPlaceholder": "Bestellregel zuweisen..."
           }
         },
         "discounts": {
-          "cardTitleRebate": "Rabatt",
-          "labelPercental": "prozentual",
+          "card": "Rabatt",
           "labelValue": "Wert",
-          "placeholderValue": "Gib den Wert der Rabattaktion an..."
+          "placeholderValue": "Gib den Wert der Rabattaktion an...",
+          "labelScope": "Bezieht sich auf:",
+          "labelType": "Art",
+          "valueScopeCart": "Gesamter Warenkorb",
+          "valueTypeAbsolute": "Absolut",
+          "valueTypePercentage": "Prozentual",
+          "buttonAddDiscount": "+ Rabatt hinzufügen",
+          "buttonDeleteDiscount": "Rabatt entfernen",
+          "delete": {
+            "confirmTitle": "Rabatt entfernen",
+            "confirmText": "Möchtest du den Rabatt wirklich aus der Rabattaktion entfernen?",
+            "buttonCancel": "Abbrechen",
+            "buttonDelete": "Rabatt entfernen"
+          }
         }
       }
     }

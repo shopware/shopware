@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Rule\LineItemRule;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Framework\Rule\Rule;
 
@@ -58,36 +59,48 @@ class PromotionItemBuilder
     }
 
     /**
-     * Builds a new promotion line item from the provided promotion entity.
+     * Builds a new Line Item for the provided discount and its promotion.
+     * It will automatically reference all provided "product" item Ids within the payload.
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
      */
-    public function buildPromotionItem(PromotionEntity $promotion, int $currencyPrecision, array $eligibleItemIds): LineItem
+    public function buildDiscountLineItem(PromotionEntity $promotion, PromotionDiscountEntity $discount, int $currencyPrecision, array $eligibleItemIds): LineItem
     {
         $itemFilterRule = null;
 
-        if (count($eligibleItemIds) > 0) {
-            // if we have a valid array of items that do
-            // get the discount, then create a new filter rule
-            // that only uses the promotion price definition on these line items
-            $itemFilterRule = new LineItemRule();
-            $itemFilterRule->assign(['identifiers' => $eligibleItemIds, 'operator' => Rule::OPERATOR_EQ]);
-        }
+        //  if (count($eligibleItemIds) > 0) {
+        // if we have a valid array of items that do
+        // get the discount, then create a new filter rule
+        // that only uses the promotion price definition on these line items
+        $itemFilterRule = new LineItemRule();
+        $itemFilterRule->assign(['identifiers' => $eligibleItemIds, 'operator' => Rule::OPERATOR_EQ]);
+        //   }
 
         // our promotion values are always negative values.
         // either type percentage or absolute needs to be negative to get
         // automatically subtracted within the calculation process
-        $promotionValue = -$promotion->getValue();
+        $promotionValue = -$discount->getValue();
 
-        if ($promotion->isPercental()) {
-            $promotionDefinition = new PercentagePriceDefinition($promotionValue, $currencyPrecision, $itemFilterRule);
-        } else {
-            $promotionDefinition = new AbsolutePriceDefinition($promotionValue, $currencyPrecision, $itemFilterRule);
+        switch ($discount->getType()) {
+            case PromotionDiscountEntity::TYPE_ABSOLUTE:
+                $promotionDefinition = new AbsolutePriceDefinition($promotionValue, $currencyPrecision, $itemFilterRule);
+                break;
+
+            case PromotionDiscountEntity::TYPE_PERCENTAGE:
+                $promotionDefinition = new PercentagePriceDefinition($promotionValue, $currencyPrecision, $itemFilterRule);
+                break;
+
+            default:
+                $promotionDefinition = null;
+        }
+
+        if ($promotionDefinition === null) {
+            throw new \Exception('No Promotion Discount Type set');
         }
 
         $promotionItem = new LineItem(
-            $promotion->getId(),
+            $discount->getId(),
             $this->lineItemType,
             1,
             LineItem::VOUCHER_PRIORITY

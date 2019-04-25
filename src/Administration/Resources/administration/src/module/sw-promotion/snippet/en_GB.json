@@ -38,7 +38,7 @@
       "tabs": {
         "tabGeneral": "General",
         "tabPreconditions": "Preconditions",
-        "tabRebate": "Discounts"
+        "tabDiscounts": "Discounts"
       },
       "main": {
         "general": {
@@ -92,10 +92,22 @@
           }
         },
         "discounts": {
-          "cardTitleRebate": "Rebate",
-          "labelPercental": "percental",
+          "card": "Discount",
           "labelValue": "Value",
-          "placeholderValue": "Enter the value of the promotion"
+          "placeholderValue": "Enter the value of the promotion",
+          "labelScope" : "Discount on:",
+          "labelType" : "Type",
+          "valueScopeCart" : "Entire Cart",
+          "valueTypeAbsolute" : "Absolute",
+          "valueTypePercentage": "Percentage",
+          "buttonAddDiscount" : "+ Add Discount",
+          "buttonDeleteDiscount" : "Delete Discount",
+          "delete" : {
+            "confirmTitle" : "Delete Discount",
+            "confirmText" : "Do you really want to delete this discount from the promotion?",
+            "buttonCancel" : "Cancel",
+            "buttonDelete" : "Delete Discount"
+          }
         }
       }
     }

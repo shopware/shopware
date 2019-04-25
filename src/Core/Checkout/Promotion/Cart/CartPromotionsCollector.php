@@ -9,8 +9,11 @@ use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Builder\PromotionItemBuilder;
-use Shopware\Core\Checkout\Promotion\Cart\Validator\LineItemRuleValidator;
+use Shopware\Core\Checkout\Promotion\Cart\Collector\LineItemCollector;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Promotion\PromotionGatewayInterface;
@@ -35,9 +38,9 @@ class CartPromotionsCollector implements CollectorInterface
     private $itemBuilder;
 
     /**
-     * @var LineItemRuleValidator
+     * @var LineItemCollector
      */
-    private $itemValidator;
+    private $itemCollector;
 
     /**
      * @var bool
@@ -48,7 +51,7 @@ class CartPromotionsCollector implements CollectorInterface
     {
         $this->promotionGateway = $promotionGateway;
         $this->itemBuilder = new PromotionItemBuilder(self::LINE_ITEM_TYPE);
-        $this->itemValidator = new LineItemRuleValidator(self::LINE_ITEM_TYPE);
+        $this->itemCollector = new LineItemCollector(self::LINE_ITEM_TYPE);
     }
 
     /**
@@ -157,12 +160,11 @@ class CartPromotionsCollector implements CollectorInterface
                 continue;
             }
 
-            /** @var string[] $eligibleItemIds */
-            $eligibleItemIds = $this->itemValidator->getEligibleItemIds($promotion, $cart, $context);
+            /** @var PromotionDiscountCollection|null $collection */
+            $collection = $promotion->getDiscounts();
 
-            // promotions that do not discount any items, make no sense...
-            // so skip that one too
-            if (count($eligibleItemIds) <= 0) {
+            if (!$collection instanceof PromotionDiscountCollection || count($collection->getElements()) <= 0) {
+                // no discounts have been set
                 continue;
             }
 
@@ -231,23 +233,13 @@ class CartPromotionsCollector implements CollectorInterface
         // valid promotions to the cart
         /** @var PromotionEntity $promotion */
         foreach ($promotionData->getPromotions() as $promotion) {
-            // skip if already added! we do not update existing items!
-            // depending on our recalculation mode, all promotion items have been removed anyway by now.
-            // in recalculation mode, we only add NEW items...and not edit existing ones!
-            if ($cart->has($promotion->getId())) {
-                continue;
-            }
+            // lets build separate line items for each
+            // of the available discounts within the current promotion
+            /** @var array $lineItems */
+            $lineItems = $this->buildDiscountLineItems($promotion, $cart, $context);
 
-            /** @var string[] $eligibleItemIds */
-            $eligibleItemIds = $this->itemValidator->getEligibleItemIds($promotion, $cart, $context);
-
-            $lineItem = $this->itemBuilder->buildPromotionItem(
-                $promotion,
-                $context->getContext()->getCurrencyPrecision(),
-                $eligibleItemIds
-            );
-
-            $cart->add($lineItem);
+            // ...and finally add our new line items to the cart
+            $cart->addLineItems(new LineItemCollection($lineItems));
         }
     }
 
@@ -359,5 +351,67 @@ class CartPromotionsCollector implements CollectorInterface
         $listPromotionsAutomatic = $automaticPromotions->getElements();
 
         return array_merge($listPromotionsAdded, $listPromotionsAutomatic);
+    }
+
+    /**
+     * This function builds separate line items for each of the
+     * available discounts within the provided promotion.
+     * Every item will be built with a corresponding price definition based
+     * on the configuration of a discount entity.
+     * The resulting list of line items will then be returned and can
+     * be added to the cart.
+     * The function will already avoid duplicate entries.
+     *
+     * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
+     */
+    private function buildDiscountLineItems(PromotionEntity $promotion, Cart $cart, SalesChannelContext $context): array
+    {
+        /** @var PromotionDiscountCollection|null $collection */
+        $collection = $promotion->getDiscounts();
+
+        if (!$collection instanceof PromotionDiscountCollection) {
+            return [];
+        }
+
+        $lineItems = [];
+
+        /** @var PromotionDiscountEntity $discount */
+        foreach ($collection->getElements() as $discount) {
+            // skip if already added! we do not update existing items!
+            // depending on our recalculation mode, all promotion items have been removed anyway by now.
+            // in recalculation mode, we only add NEW items...and not edit existing ones!
+            if ($cart->has($discount->getId())) {
+                continue;
+            }
+
+            $itemIDs = [];
+
+            // check what type of discount we have.
+            // with this, we know how we have to apply our discount.
+            // either add discount line items with filter rules
+            // or reduce shipping costs, and so on...
+            switch ($discount->getScope()) {
+                case PromotionDiscountEntity::SCOPE_CART:
+                    $itemIDs = $this->itemCollector->getAllLineItemIDs($cart);
+                    break;
+            }
+
+            // add a new discount line item for this discount
+            // if we have at least one valid item that will be discounted.
+            if (count($itemIDs) > 0) {
+                /* @var LineItem $discountItem */
+                $discountItem = $this->itemBuilder->buildDiscountLineItem(
+                    $promotion,
+                    $discount,
+                    $context->getContext()->getCurrencyPrecision(),
+                    $itemIDs
+                );
+
+                $lineItems[] = $discountItem;
+            }
+        }
+
+        return $lineItems;
     }
 }

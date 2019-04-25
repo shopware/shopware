@@ -38,14 +38,14 @@ class PromotionDiscountDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('promotion_id', 'promotionId', PromotionDefinition::class, 'id'))->addFlags(new Required()),
+            (new StringField('scope', 'scope'))->addFlags(new Required()),
             (new StringField('type', 'type', 32))->addFlags(new Required()),
             (new FloatField('value', 'value'))->addFlags(new Required()),
             (new BoolField('graduated', 'graduated'))->addFlags(new Required()),
             new IntField('graduation_step', 'graduationStep'),
             new StringField('graduation_order', 'graduationOrder', 32),
-            new ManyToOneAssociationField('promotion', 'promotion_id', PromotionDefinition::class, 'id', false),
 
-            (new StringField('apply_towards', 'applyTowards'))->addFlags(new Required()),
+            new ManyToOneAssociationField('promotion', 'promotion_id', PromotionDefinition::class, 'id'),
             // TODO FK apply_towards_single_group_id, once promotion-group entity is defined
         ]);
     }

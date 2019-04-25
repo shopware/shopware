@@ -29,16 +29,6 @@ class PromotionEntity extends Entity
     protected $active;
 
     /**
-     * @var float
-     */
-    protected $value;
-
-    /**
-     * @var bool
-     */
-    protected $percental;
-
-    /**
      * @var \DateTimeInterface|null
      */
     protected $validFrom;
@@ -98,7 +88,9 @@ class PromotionEntity extends Entity
      */
     protected $salesChannels;
 
-    /** @var string|null */
+    /**
+     * @var string|null
+     */
     protected $code;
 
     /**
@@ -139,26 +131,6 @@ class PromotionEntity extends Entity
     public function setActive(bool $active): void
     {
         $this->active = $active;
-    }
-
-    public function getValue(): float
-    {
-        return $this->value;
-    }
-
-    public function setValue(float $value): void
-    {
-        $this->value = $value;
-    }
-
-    public function isPercental(): bool
-    {
-        return $this->percental;
-    }
-
-    public function setPercental(bool $percental): void
-    {
-        $this->percental = $percental;
     }
 
     public function getValidFrom(): ?\DateTimeInterface

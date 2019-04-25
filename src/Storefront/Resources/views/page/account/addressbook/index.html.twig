@@ -78,10 +78,10 @@
                                                 {% if defaultBillingAddress is same as(address.id) or defaultShippingAddress is same as(address.id) %}
                                                     <div class="card-title">
                                                         {% if defaultShippingAddress is same as(address.id) %}
-                                                                <div>{{ "account.addressesTitleDefaultShippingAddress"|trans }}</div>
+                                                            <div>{{ "account.addressesTitleDefaultShippingAddress"|trans }}</div>
                                                         {% endif %}
                                                         {% if defaultBillingAddress is same as(address.id) %}
-                                                                <div>{{ "account.addressesTitleDefaultBillingAddress"|trans }}</div>
+                                                            <div>{{ "account.addressesTitleDefaultBillingAddress"|trans }}</div>
                                                         {% endif %}
                                                     </div>
                                                 {% endif %}

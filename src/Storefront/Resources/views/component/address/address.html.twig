@@ -1,34 +1,34 @@
 {% block component_address %}
-	<address>
-		{% if address.company %}
-			<p>
-				{{ address.company }}{% if address.department %} - {{ address.department }}{% endif %}
-			</p>
-		{% endif %}
-		<p>
-			{{ address.salutation.name }}
-			{% if address.title %}
-				{{ address.title }}<br/>
-			{% endif %}
-			{{ address.firstName }} {{ address.lastName }}<br/>
-			{% if address.additionalAddressLine1 %}
-				{{ address.additionalAddressLine1 }}<br/>
-			{% endif %}
-			{% if address.additionalAddressLine2 %}
-				{{ address.additionalAddressLine2 }}<br/>
-			{% endif %}
-			{% if address.phoneNumber %}
-				{{ address.phoneNumber }}<br/>
-			{% endif %}
-			{% if shopware.config.address.zipBeforeCity %}
-				{{ address.zipcode }} {{ address.city }}<br/>
-			{% else %}
-				{{ address.zipcode }} {{ address.city }}<br/>
-			{% endif %}
-			{% if address.countryState %}
-				{{ address.countryState.name }}<br/>
-			{% endif %}
-			{{ address.country.name }}
-		</p>
-	</address>
+    <address>
+        {% if address.company %}
+            <p>
+                {{ address.company }}{% if address.department %} - {{ address.department }}{% endif %}
+            </p>
+        {% endif %}
+        <p>
+            {{ address.salutation.name }}
+            {% if address.title %}
+                {{ address.title }}<br/>
+            {% endif %}
+            {{ address.firstName }} {{ address.lastName }}<br/>
+            {% if address.additionalAddressLine1 %}
+                {{ address.additionalAddressLine1 }}<br/>
+            {% endif %}
+            {% if address.additionalAddressLine2 %}
+                {{ address.additionalAddressLine2 }}<br/>
+            {% endif %}
+            {% if address.phoneNumber %}
+                {{ address.phoneNumber }}<br/>
+            {% endif %}
+            {% if shopware.config.address.zipBeforeCity %}
+                {{ address.zipcode }} {{ address.city }}<br/>
+            {% else %}
+                {{ address.zipcode }} {{ address.city }}<br/>
+            {% endif %}
+            {% if address.countryState %}
+                {{ address.countryState.name }}<br/>
+            {% endif %}
+            {{ address.country.name }}
+        </p>
+    </address>
 {% endblock %}

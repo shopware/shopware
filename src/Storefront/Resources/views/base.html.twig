@@ -20,10 +20,10 @@
     {% block base_body_inner %}
         {% block base_noscript %}
             <noscript class="noscript-main">
-	            {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with {
-		            type: 'info',
-		            content: 'general.noscriptNotice'|trans
-	            } %}
+                {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with {
+                    type: 'info',
+                    content: 'general.noscriptNotice'|trans
+                } %}
             </noscript>
         {% endblock %}
 
@@ -99,47 +99,49 @@
     {% endblock %}
 
     {% block base_body_script %}
-        {% block base_script_token %}
-            <script>
-                window.accessKey = '{{ page.context.salesChannel.accessKey }}';
-                window.contextToken = '{{ page.context.token }}';
-            </script>
-        {% endblock %}
+    {% block base_script_token %}
+        <script>
+            window.accessKey = '{{ page.context.salesChannel.accessKey }}';
+            window.contextToken = '{{ page.context.token }}';
+        </script>
+    {% endblock %}
 
-        {% block base_script_router %}
-            {# Register all routes that will be needed in JavaScript to the window.router object #}
-            <script>
-                window.activeNavigationId = '{{ page.header.navigation.active.id }}';
-                window.router = {
-                    "frontend.cart.detail": '{{ path('frontend.cart.detail') }}',
-                    "frontend.checkout.finish.page": '{{ path('frontend.checkout.finish.page') }}',
-                    "widgets.checkout.info": '{{ path('widgets.checkout.info') }}',
-                    "widgets.menu.offcanvas": '{{ path('widgets.menu.offcanvas') }}',
-                    "widgets.detail.images": '{{ path('widgets.detail.images') }}'
-                };
-            </script>
-        {% endblock %}
+    {% block base_script_router %}
+        {# Register all routes that will be needed in JavaScript to the window.router object #}
+        <script>
+            window.activeNavigationId = '{{ page.header.navigation.active.id }}';
+            window.router = {
+                'frontend.cart.detail': '{{ path('frontend.cart.detail') }}',
+                'frontend.checkout.finish.page': '{{ path('frontend.checkout.finish.page') }}',
+                'widgets.checkout.info': '{{ path('widgets.checkout.info') }}',
+                'widgets.menu.offcanvas': '{{ path('widgets.menu.offcanvas') }}',
+                'widgets.detail.images': '{{ path('widgets.detail.images') }}',
+            };
+        </script>
+    {% endblock %}
 
-        {% block base_script_breakpoints %}
-            {# Register the available viewport breakpoints the window.breakpoints object #}
-            <script>
-                window.breakpoints = {
-                    xs: 0,
-                    sm: 576,
-                    md: 768,
-                    lg: 992,
-                    xl: 1200,
-                };
-            </script>
-        {% endblock %}
+    {% block base_script_breakpoints %}
+        {# Register the available viewport breakpoints the window.breakpoints object #}
+        <script>
+            window.breakpoints = {
+                xs: 0,
+                sm: 576,
+                md: 768,
+                lg: 992,
+                xl: 1200,
+            };
+        </script>
+    {% endblock %}
 
-        {% block base_script_hmr_mode %}
-            {% if isHMRMode %}
-                <script type="text/javascript" src="{{ app.request.server.get('APP_URL') }}:9999/js/main.bundle.js"></script>
-            {% else %}
-                <script type="text/javascript" src="{{ asset('js/main.bundle.js') }}"></script>
-            {% endif %}
-        {% endblock %}
+    {% block base_script_hmr_mode %}
+        {% if isHMRMode %}
+        <script type="text/javascript"
+                src="{{ app.request.server.get('APP_URL') }}:9999/js/main.bundle.js"></script>
+        {% else %}
+        <script type="text/javascript"
+                src="{{ asset('js/main.bundle.js') }}"></script>
+        {% endif %}
+    {% endblock %}
     {% endblock %}
     </body>
 {% endblock %}

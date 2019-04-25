@@ -1,13 +1,16 @@
 {% block layout_footer_inner_container %}
     {% block layout_footer_navigation %}
-        <div id="footerColumns" class="row footer-columns" data-collapse-footer="true">
+        <div id="footerColumns"
+             class="row footer-columns"
+             data-collapse-footer="true">
             {% block layout_footer_navigation_hotline %}
                 <div class="col-md-4 footer-column js-footer-column">
                     {% block layout_footer_navigation_hotline_headline %}
-                        <div class="footer-column-headline footer-headline js-footer-column-headline js-collapse-footer-column-trigger"
-                             data-target="#collapseOneFooter"
-                             aria-expanded="true"
-                             aria-controls="collapseOneFooter">
+                        <div
+                            class="footer-column-headline footer-headline js-footer-column-headline js-collapse-footer-column-trigger"
+                            data-target="#collapseOneFooter"
+                            aria-expanded="true"
+                            aria-controls="collapseOneFooter">
                             {{ 'footer.serviceHotlineHeadline'|trans }}
                             {% block layout_footer_navigation_hotline_icons %}
                                 <div class="toggle-icon">

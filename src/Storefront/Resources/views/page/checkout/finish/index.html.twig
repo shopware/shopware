@@ -1,119 +1,119 @@
 {% sw_extends '@Storefront/page/checkout/_page.html.twig' %}
 
 {% block base_header %}
-	{% sw_include '@Storefront/layout/header/header-minimal.html.twig' %}
+    {% sw_include '@Storefront/layout/header/header-minimal.html.twig' %}
 {% endblock %}
 
 {% block base_navigation %}{% endblock %}
 
 {% block page_checkout_container %}
-	{% block page_checkout_finish_teaser %}
-		<div class="card finish-teaser">
-			<div class="card-body">
-				{% block page_checkout_finish_header %}
-					<h1 class="finish-header">
-						{{ "checkout.finishHeader"|trans({
-							'%shop%': shopware.config.shopName
-						}) }}
-					</h1>
-				{% endblock %}
+    {% block page_checkout_finish_teaser %}
+        <div class="card finish-teaser">
+            <div class="card-body">
+                {% block page_checkout_finish_header %}
+                    <h1 class="finish-header">
+                        {{ "checkout.finishHeader"|trans({
+                            '%shop%': shopware.config.shopName
+                        }) }}
+                    </h1>
+                {% endblock %}
 
-				{% block page_checkout_finish_teaser_content %}
-					{% block page_checkout_finish_teaser_text %}
-						{#TODO: NEXT-2529 - check if confirmMailDeliveryFailed should be checked here #}
-						<p>{{ "checkout.finishInfoConfirmationMail"|trans }}</p>
-					{% endblock %}
+                {% block page_checkout_finish_teaser_content %}
+                    {% block page_checkout_finish_teaser_text %}
+                        {#TODO: NEXT-2529 - check if confirmMailDeliveryFailed should be checked here #}
+                        <p>{{ "checkout.finishInfoConfirmationMail"|trans }}</p>
+                    {% endblock %}
 
-					{% block page_checkout_finish_teaser_actions %}
-						<div class="finish-actions">
-							{% block page_checkout_finish_teaser_actions_back %}
-								<a href="{{ path('frontend.home.page') }}"
-								   class="btn btn-light finish-back-button"
-								   title="{{ "checkout.finishButtonBackToShop"|trans }}">
-									{{ "checkout.finishButtonBackToShop"|trans }}
-								</a>
-							{% endblock %}
-						</div>
-					{% endblock %}
-				{% endblock %}
-			</div>
-		</div>
-	{% endblock %}
+                    {% block page_checkout_finish_teaser_actions %}
+                        <div class="finish-actions">
+                            {% block page_checkout_finish_teaser_actions_back %}
+                                <a href="{{ path('frontend.home.page') }}"
+                                   class="btn btn-light finish-back-button"
+                                   title="{{ "checkout.finishButtonBackToShop"|trans }}">
+                                    {{ "checkout.finishButtonBackToShop"|trans }}
+                                </a>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                {% endblock %}
+            </div>
+        </div>
+    {% endblock %}
 
-	{% block page_checkout_finish_info %}
-		<div class="row finish-info">
-			{% block page_checkout_finish_address %}
-				<div class="col-md-8 finish-address">
-					{% sw_include '@Storefront/page/checkout/finish/finish-address.html.twig' %}
-				</div>
-			{% endblock %}
+    {% block page_checkout_finish_info %}
+        <div class="row finish-info">
+            {% block page_checkout_finish_address %}
+                <div class="col-md-8 finish-address">
+                    {% sw_include '@Storefront/page/checkout/finish/finish-address.html.twig' %}
+                </div>
+            {% endblock %}
 
-			{% block page_checkout_finish_order_details %}
-				<div class="col-md-4 finish-order-details">
-					<div class="card finish-card">
-						<div class="card-body finish-card-body">
-							{% block page_checkout_finish_order_details_title %}
-								<div class="card-title">
-									{{ "checkout.finishInfoHeader"|trans }}
-								</div>
-							{% endblock %}
+            {% block page_checkout_finish_order_details %}
+                <div class="col-md-4 finish-order-details">
+                    <div class="card finish-card">
+                        <div class="card-body finish-card-body">
+                            {% block page_checkout_finish_order_details_title %}
+                                <div class="card-title">
+                                    {{ "checkout.finishInfoHeader"|trans }}
+                                </div>
+                            {% endblock %}
 
-							{% block page_checkout_finish_order_details_ordernumber %}
-								<p>
-									<strong>{{ "checkout.finishInfoOrdernumber"|trans }}</strong>
-									{{ page.order.orderNumber }}
-								</p>
-							{% endblock %}
+                            {% block page_checkout_finish_order_details_ordernumber %}
+                                <p>
+                                    <strong>{{ "checkout.finishInfoOrdernumber"|trans }}</strong>
+                                    {{ page.order.orderNumber }}
+                                </p>
+                            {% endblock %}
 
-							{% block page_checkout_finish_order_details_payment_method %}
-								<p>
-									<strong>{{ "checkout.confirmPaymentMethod"|trans }}</strong>
-									{{ page.context.paymentMethod.name }}
-								</p>
-							{% endblock %}
+                            {% block page_checkout_finish_order_details_payment_method %}
+                                <p>
+                                    <strong>{{ "checkout.confirmPaymentMethod"|trans }}</strong>
+                                    {{ page.context.paymentMethod.name }}
+                                </p>
+                            {% endblock %}
 
-							{% block page_checkout_finish_order_details_dispatch_method %}
-								<p>
-									<strong>{{ "checkout.confirmDispatchMethod"|trans }}</strong>
-									{{ page.context.shippingMethod.name }}
-								</p>
-							{% endblock %}
-						</div>
-					</div>
-				</div>
-			{% endblock %}
-		</div>
-	{% endblock %}
+                            {% block page_checkout_finish_order_details_dispatch_method %}
+                                <p>
+                                    <strong>{{ "checkout.confirmDispatchMethod"|trans }}</strong>
+                                    {{ page.context.shippingMethod.name }}
+                                </p>
+                            {% endblock %}
+                        </div>
+                    </div>
+                </div>
+            {% endblock %}
+        </div>
+    {% endblock %}
 
-	{{ parent() }}
+    {{ parent() }}
 {% endblock %}
 
 {% block page_checkout_main_content %}
-	{% block page_checkout_finish %}
-		<div class="checkout-finish">
-			{% block page_checkout_finish_main %}
-				{% if page.order.lineItems.elements %}
-					<div class="card cart-table">
-						<div class="card-body cart-table-body">
-							{% block page_checkout_finish_table_header %}
-								{% sw_include '@Storefront/page/checkout/confirm/confirm-header.html.twig' %}
-							{% endblock %}
+    {% block page_checkout_finish %}
+        <div class="checkout-finish">
+            {% block page_checkout_finish_main %}
+                {% if page.order.lineItems.elements %}
+                    <div class="card cart-table">
+                        <div class="card-body cart-table-body">
+                            {% block page_checkout_finish_table_header %}
+                                {% sw_include '@Storefront/page/checkout/confirm/confirm-header.html.twig' %}
+                            {% endblock %}
 
-							{% block page_checkout_finish_items %}
-								{% for lineItem in page.order.lineItems.elements %}
-									{% block page_checkout_finish_item %}
-										{% sw_include '@Storefront/page/checkout/finish/finish-item.html.twig' %}
-									{% endblock %}
-								{% endfor %}
-							{% endblock %}
-						</div>
-					</div>
-				{% endif %}
-			{% endblock %}
-		</div>
-	{% endblock %}
+                            {% block page_checkout_finish_items %}
+                                {% for lineItem in page.order.lineItems.elements %}
+                                    {% block page_checkout_finish_item %}
+                                        {% sw_include '@Storefront/page/checkout/finish/finish-item.html.twig' %}
+                                    {% endblock %}
+                                {% endfor %}
+                            {% endblock %}
+                        </div>
+                    </div>
+                {% endif %}
+            {% endblock %}
+        </div>
+    {% endblock %}
 {% endblock %}
 
 {% block base_footer %}
-	{% sw_include '@Storefront/layout/footer/footer-minimal.html.twig' %}
+    {% sw_include '@Storefront/layout/footer/footer-minimal.html.twig' %}
 {% endblock %}

@@ -5,25 +5,30 @@
 
     <tr>
         <td class="col order-item-detail">
-            <div class="collapse" id="order{{ order.orderNumber }}">
+            <div class="collapse"
+                 id="order{{ order.orderNumber }}">
                 <table class="table order-detail-table">
                     {% block page_account_order_item_detail_table_header %}
                         <thead class="order-detail-table-header">
                         <tr>
                             {% block page_account_order_item_detail_table_header_name %}
-                                <th class="col-6 order-header-name" scope="col">{{ "account.orderItemColumnName"|trans }}</th>
+                                <th class="col-6 order-header-name"
+                                    scope="col">{{ "account.orderItemColumnName"|trans }}</th>
                             {% endblock %}
 
                             {% block page_account_order_item_detail_table_header_quantity %}
-                                <th class="col-2 order-header-quantity" scope="col">{{ "account.orderItemColumnQuantity"|trans }}</th>
+                                <th class="col-2 order-header-quantity"
+                                    scope="col">{{ "account.orderItemColumnQuantity"|trans }}</th>
                             {% endblock %}
 
                             {% block page_account_order_item_detail_table_header_price %}
-                                <th class="col-2 order-header-price" scope="col">{{ "account.orderItemColumnPrice"|trans }}</th>
+                                <th class="col-2 order-header-price"
+                                    scope="col">{{ "account.orderItemColumnPrice"|trans }}</th>
                             {% endblock %}
 
                             {% block page_account_order_item_detail_table_header_total %}
-                                <th class="col-2 order-header-total" scope="col">{{ "account.orderItemColumnTotal"|trans }}</th>
+                                <th class="col-2 order-header-total"
+                                    scope="col">{{ "account.orderItemColumnTotal"|trans }}</th>
                             {% endblock %}
                         </tr>
                         </thead>
@@ -44,14 +49,17 @@
                                             {% if product.purchaseunit %}
                                                 <div class="order-price-unit">
                                                     {% block page_account_order_item_detail_purchaseunit %}
-                                                        <p>{{ "account.orderItemInfoContent"|trans }}: {{ product.purchaseunit }} {{ product.packUnit }}</p>
+                                                        <p>{{ "account.orderItemInfoContent"|trans }}
+                                                            : {{ product.purchaseunit }} {{ product.packUnit }}</p>
                                                     {% endblock %}
 
                                                     {% block page_account_order_item_detail_referenceunit %}
                                                         {% if product.purchaseunit != product.referenceunit %}
                                                             <p>
                                                                 {% if product.referenceunit %}
-                                                                    <span class="order-base-price">{{ "account.orderItemInfoBaseprice"|trans }}:</span>
+                                                                    <span
+                                                                        class="order-base-price">{{ "account.orderItemInfoBaseprice"|trans }}
+                                                                        :</span>
                                                                     {{ product.referenceunit }} {{ product.packUnit }} = {{ product.referencePrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}{{ "general.star"|trans }}
                                                                 {% endif %}
                                                             </p>
@@ -83,11 +91,13 @@
                                 {% block page_account_order_item_detail_quantity %}
                                     <td class="col-12 col-md-2 order-item order-item-quantity">
                                         {% block page_account_order_item_detail_quantity_label %}
-                                            <strong class="order-item-label order-item-quantity-label">{{ "account.orderItemColumnQuantity"|trans }}</strong>
+                                            <strong
+                                                class="order-item-label order-item-quantity-label">{{ "account.orderItemColumnQuantity"|trans }}</strong>
                                         {% endblock %}
 
                                         {% block page_account_order_item_detail_quantity_value %}
-                                            <span class="order-item-value order-item-quantity-value">{{ product.quantity }}</span>
+                                            <span
+                                                class="order-item-value order-item-quantity-value">{{ product.quantity }}</span>
                                         {% endblock %}
                                     </td>
                                 {% endblock %}
@@ -95,7 +105,8 @@
                                 {% block page_account_order_item_detail_price %}
                                     <td class="col-12 col-md-2 order-item order-item-price">
                                         {% block page_account_order_item_detail_price_label %}
-                                            <strong class="order-item-label order-item-price-label">{{ "account.orderItemColumnPrice"|trans }}</strong>
+                                            <strong
+                                                class="order-item-label order-item-price-label">{{ "account.orderItemColumnPrice"|trans }}</strong>
                                         {% endblock %}
 
                                         {% block page_account_order_item_detail_price_value %}
@@ -113,7 +124,8 @@
                                 {% block page_account_order_item_detail_total %}
                                     <td class="col-12 col-md-2 order-item order-item-total">
                                         {% block page_account_order_item_detail_total_label %}
-                                            <strong class="order-item-label order-item-total-label">{{ "account.orderItemColumnTotal"|trans }}</strong>
+                                            <strong
+                                                class="order-item-label order-item-total-label">{{ "account.orderItemColumnTotal"|trans }}</strong>
                                         {% endblock %}
 
                                         {% block page_account_order_item_detail_total_value %}
@@ -247,16 +259,23 @@
                                     <td class="col order-detail-repeat">
                                         {% block page_account_order_item_detail_table_repeat_order_form %}
                                             {#TODO: NEXT-2695 - form action and hidden input names#}
-                                            <form method="post" action="#">
+                                            <form method="post"
+                                                  action="#">
                                                 {% for product in orderDetails %}
                                                     {% if product.orderLineItem.type == "product" %}
-                                                        <input name="sAddAccessories[]" type="hidden" value="{{ product.orderLineItem.identifier }}" />
-                                                        <input name="sAddAccessoriesQuantity[]" type="hidden" value="{{ product.orderLineItem.quantity }}" />
+                                                        <input name="sAddAccessories[]"
+                                                               type="hidden"
+                                                               value="{{ product.orderLineItem.identifier }}"/>
+                                                        <input name="sAddAccessoriesQuantity[]"
+                                                               type="hidden"
+                                                               value="{{ product.orderLineItem.quantity }}"/>
                                                     {% endif %}
                                                 {% endfor %}
 
                                                 {% block page_account_order_item_detail_table_repeat_order_button %}
-                                                    <input type="submit" class="btn btn-primary btn-sm" value="{{ "account.orderLinkRepeat"|trans }}" />
+                                                    <input type="submit"
+                                                           class="btn btn-primary btn-sm"
+                                                           value="{{ "account.orderLinkRepeat"|trans }}"/>
                                                 {% endblock %}
                                             </form>
                                         {% endblock %}

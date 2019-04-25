@@ -2,7 +2,8 @@
 
 {% block base_content %}
     {# TODO: @Benjamin_Ott (Formular ersetzen) #}
-    <form action="{{ path('frontend.newsletter.register.handle') }}" method="post">
+    <form action="{{ path('frontend.newsletter.register.handle') }}"
+          method="post">
         <label for="salutation">option</label>
         <select name="option">
             <option value="subscribe">subscribe newsletter</option>
@@ -15,7 +16,10 @@
         <br/>
 
         <label for="email">email</label>
-        <input type="email" name="email" placeholder="email" required>
+        <input type="email"
+               name="email"
+               placeholder="email"
+               required>
         {% for error in app.request.get('errors').getViolations('/email') %}
             <p>{{ error.message }}</p>
         {% endfor %}
@@ -33,23 +37,33 @@
         <br/>
 
         <label for="firstName">firstName</label>
-        <input type="text" name="firstName" placeholder="firstName">
+        <input type="text"
+               name="firstName"
+               placeholder="firstName">
         <br/>
 
         <label for="lastName">lastName</label>
-        <input type="text" name="lastName" placeholder="lastName">
+        <input type="text"
+               name="lastName"
+               placeholder="lastName">
         <br/>
 
         <label for="zipCode">zipCode</label>
-        <input type="text" name="zipCode" placeholder="zipCode">
+        <input type="text"
+               name="zipCode"
+               placeholder="zipCode">
         <br/>
 
         <label for="city">city</label>
-        <input type="text" name="city" placeholder="city">
+        <input type="text"
+               name="city"
+               placeholder="city">
         <br/>
 
         <label for="street">street</label>
-        <input type="text" name="street" placeholder="street">
+        <input type="text"
+               name="street"
+               placeholder="street">
         <br/>
 
         <input type="submit">

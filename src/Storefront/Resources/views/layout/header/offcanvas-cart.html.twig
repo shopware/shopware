@@ -83,7 +83,8 @@
                     <div class="cart-prices">
 						<span class="cart-prices-text">
 							{{ "checkout.subtotalAmount"|trans }}
-						</span> <span class="cart-prices-subtotal">
+						</span>
+                        <span class="cart-prices-subtotal">
 							{{ page.cart.price.positionPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}
 						</span>
                     </div>

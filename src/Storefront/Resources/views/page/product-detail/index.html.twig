@@ -1,49 +1,51 @@
 {% sw_extends '@Storefront/base.html.twig' %}
 
 {% block base_head %}
-	{% sw_include '@Storefront/page/product-detail/meta.html.twig' %}
+    {% sw_include '@Storefront/page/product-detail/meta.html.twig' %}
 {% endblock %}
 
 {% block base_content %}
-	{% block page_product_detail %}
-		<div class="product-detail" itemscope itemtype="http://schema.org/Product">
-			{% block page_product_detail_inner %}
-				{% block page_product_detail_content %}
-					<div class="product-detail-content">
-						{% block page_product_detail_headline %}
-							<div class="row align-items-center product-detail-headline">
-								{% sw_include '@Storefront/page/product-detail/headline.html.twig' %}
-							</div>
-						{% endblock %}
+    {% block page_product_detail %}
+        <div class="product-detail"
+             itemscope
+             itemtype="http://schema.org/Product">
+            {% block page_product_detail_inner %}
+                {% block page_product_detail_content %}
+                    <div class="product-detail-content">
+                        {% block page_product_detail_headline %}
+                            <div class="row align-items-center product-detail-headline">
+                                {% sw_include '@Storefront/page/product-detail/headline.html.twig' %}
+                            </div>
+                        {% endblock %}
 
-						{% block page_product_detail_main %}
-							<div class="row product-detail-main">
-								{% block page_product_detail_media %}
-									<div class="col-lg-7 product-detail-media">
-										{% if page.product.media %}
-											{% sw_include '@Storefront/page/product-detail/media.html.twig' %}
-										{% endif %}
-									</div>
-								{% endblock %}
+                        {% block page_product_detail_main %}
+                            <div class="row product-detail-main">
+                                {% block page_product_detail_media %}
+                                    <div class="col-lg-7 product-detail-media">
+                                        {% if page.product.media %}
+                                            {% sw_include '@Storefront/page/product-detail/media.html.twig' %}
+                                        {% endif %}
+                                    </div>
+                                {% endblock %}
 
-								{% block page_product_detail_buy %}
-									<div class="col-lg-5 product-detail-buy">
-										{% sw_include '@Storefront/page/product-detail/buy-widget.html.twig' %}
-									</div>
-								{% endblock %}
-							</div>
-						{% endblock %}
-					</div>
-				{% endblock %}
+                                {% block page_product_detail_buy %}
+                                    <div class="col-lg-5 product-detail-buy">
+                                        {% sw_include '@Storefront/page/product-detail/buy-widget.html.twig' %}
+                                    </div>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
 
-				{% block page_product_detail_tabs %}
-					{% if page.product.description %}
-						<div class="product-detail-tabs">
-							{% sw_include '@Storefront/page/product-detail/tabs.html.twig' %}
-						</div>
-					{% endif %}
-				{% endblock %}
-			{% endblock %}
-		</div>
-	{% endblock %}
+                {% block page_product_detail_tabs %}
+                    {% if page.product.description %}
+                        <div class="product-detail-tabs">
+                            {% sw_include '@Storefront/page/product-detail/tabs.html.twig' %}
+                        </div>
+                    {% endif %}
+                {% endblock %}
+            {% endblock %}
+        </div>
+    {% endblock %}
 {% endblock %}

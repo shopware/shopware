@@ -74,11 +74,11 @@ To display a dismissible button set the value of "dismissible" to true.
 #}
 
 {% block layout_utilities_alert %}
-    <div class="alert alert-{% if type %}{{ type }}{% else %}success{% endif %}{% if dismissible %} alert-dismissible fade show{% endif %}{% if icon %} alert-has-icon{% endif %}"
-         role="alert">
+    <div role="alert"
+         class="alert alert-{% if type %}{{ type }}{% else %}success{% endif %}{% if dismissible %} alert-dismissible fade show{% endif %}{% if icon %} alert-has-icon{% endif %}">
         {% block layout_utilities_alert_icon %}
             {% if icon %}
-                {%  set iconClass = "check-circle" %} {# primary, secondary, succes #}
+                {% set iconClass = "check-circle" %} {# primary, secondary, succes #}
 
                 {% if type is same as("danger") %}
                     {% set iconClass = "exclamation-circle" %}

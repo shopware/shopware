@@ -1,10 +1,10 @@
 {% sw_extends '@Storefront/page/checkout/confirm/confirm-product.html.twig' %}
 
 {% block page_checkout_item_product_info_inner %}
-	{% set productId = lineItem.identifier %}
-	{{ parent() }}
+    {% set productId = lineItem.identifier %}
+    {{ parent() }}
 {% endblock %}
 
 {% block page_checkout_item_product_quantity_form %}
-	{{ lineItem.quantity }}
+    {{ lineItem.quantity }}
 {% endblock %}

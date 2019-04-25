@@ -14,99 +14,100 @@
     {% endblock %}
 
     {% block page_checkout_confirm_errors %}
-		{% for violation in formViolations.getViolations() %}
-			{% set snippetName = "error.#{violation.code}" %}
-			{% set fieldName = violation.propertyPath|trim('/', 'left') %}
+        {% for violation in formViolations.getViolations() %}
+            {% set snippetName = "error.#{violation.code}" %}
+            {% set fieldName = violation.propertyPath|trim('/', 'left') %}
 
-			{% sw_include '@Storefront/layout/_utilities/alert.html.twig' with {
-				type: "danger",
-				content: snippetName|trans({'%field%': fieldName})
-			} %}
-		{% endfor %}
-	{% endblock %}
+            {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with {
+                type: "danger",
+                content: snippetName|trans({'%field%': fieldName})
+            } %}
+        {% endfor %}
+    {% endblock %}
 
     {% block page_checkout_confirm_tos %}
         <div class="card confirm-terms">
             <div class="card-body">
-				{% block page_checkout_confirm_tos_header %}
+                {% block page_checkout_confirm_tos_header %}
                     <div class="card-title">
-						{{ "checkout.confirmTermsHeader"|trans }}
+                        {{ "checkout.confirmTermsHeader"|trans }}
                     </div>
-				{% endblock %}
+                {% endblock %}
 
-				{% block page_checkout_confirm_revocation_notice %}
-					{% if shopware.config.confirm.revocationNotice %}
-						{#TODO: NEXT-2667, NEXT-2783 - add link to shop page in snippet and open content in modal #}
+                {% block page_checkout_confirm_revocation_notice %}
+                    {% if shopware.config.confirm.revocationNotice %}
+                        {#TODO: NEXT-2667, NEXT-2783 - add link to shop page in snippet and open content in modal #}
                         <p>{{ "checkout.confirmRevocationNotice"|trans }}</p>
-					{% endif %}
-				{% endblock %}
+                    {% endif %}
+                {% endblock %}
 
-				{% block page_checkout_confirm_tos_control %}
+                {% block page_checkout_confirm_tos_control %}
                     <div class="custom-control custom-checkbox">
-						{% block page_checkout_confirm_tos_control_checkbox %}
+                        {% block page_checkout_confirm_tos_control_checkbox %}
                             <input type="checkbox"
                                    class="custom-control-input{% if formViolations.getViolations('/tos') is not empty %} is-invalid{% endif %}"
                                    required="required"
                                    id="tos"
                                    form="confirmOrderForm"
                                    name="tos"/>
-						{% endblock %}
+                        {% endblock %}
 
-						{% block page_checkout_confirm_tos_control_label %}
-							{#TODO: NEXT-2667, NEXT-2783 - add link to shop page in snippet and open content in modal #}
-                            <label for="tos" class="custom-control-label">
-								{{ "checkout.confirmTerms"|trans|raw }}
+                        {% block page_checkout_confirm_tos_control_label %}
+                            {#TODO: NEXT-2667, NEXT-2783 - add link to shop page in snippet and open content in modal #}
+                            <label for="tos"
+                                   class="custom-control-label">
+                                {{ "checkout.confirmTerms"|trans|raw }}
                             </label>
-						{% endblock %}
+                        {% endblock %}
                     </div>
-				{% endblock %}
+                {% endblock %}
             </div>
         </div>
-	{% endblock %}
+    {% endblock %}
 
-	{% block page_checkout_confirm_address %}
+    {% block page_checkout_confirm_address %}
         <div class="confirm-address">
-			{% sw_include '@Storefront/page/checkout/confirm/confirm-address.html.twig' %}
+            {% sw_include '@Storefront/page/checkout/confirm/confirm-address.html.twig' %}
         </div>
-	{% endblock %}
+    {% endblock %}
 
-	{% block page_checkout_confirm_payment %}
+    {% block page_checkout_confirm_payment %}
         <div class="confirm-payment">
-			{% sw_include '@Storefront/page/checkout/confirm/confirm-payment.html.twig' %}
+            {% sw_include '@Storefront/page/checkout/confirm/confirm-payment.html.twig' %}
         </div>
-	{% endblock %}
+    {% endblock %}
 
-	{% block page_checkout_confirm_shipping %}
+    {% block page_checkout_confirm_shipping %}
         <div class="confirm-shipping">
-			{% sw_include '@Storefront/page/checkout/confirm/confirm-shipping.html.twig' %}
+            {% sw_include '@Storefront/page/checkout/confirm/confirm-shipping.html.twig' %}
         </div>
-	{% endblock %}
+    {% endblock %}
 
-	{#TODO: NEXT-1950 - order comment#}
+    {#TODO: NEXT-1950 - order comment#}
 
-	{{ parent() }}
+    {{ parent() }}
 {% endblock %}
 
 {% block page_checkout_main_content %}
-	{% block page_checkout_confirm %}
-		{% block page_checkout_confirm_table %}
+    {% block page_checkout_confirm %}
+        {% block page_checkout_confirm_table %}
             <div class="card cart-table confirm-table">
                 <div class="card-body cart-table-body">
-					{% block page_checkout_confirm_table_header %}
-						{% sw_include '@Storefront/page/checkout/confirm/confirm-header.html.twig' %}
-					{% endblock %}
+                    {% block page_checkout_confirm_table_header %}
+                        {% sw_include '@Storefront/page/checkout/confirm/confirm-header.html.twig' %}
+                    {% endblock %}
 
-					{% block page_checkout_confirm_items %}
-						{% for lineItem in page.cart.lineItems.elements %}
-							{% block page_checkout_confirm_item %}
-								{% sw_include '@Storefront/page/checkout/confirm/confirm-item.html.twig' %}
-							{% endblock %}
-						{% endfor %}
-					{% endblock %}
+                    {% block page_checkout_confirm_items %}
+                        {% for lineItem in page.cart.lineItems.elements %}
+                            {% block page_checkout_confirm_item %}
+                                {% sw_include '@Storefront/page/checkout/confirm/confirm-item.html.twig' %}
+                            {% endblock %}
+                        {% endfor %}
+                    {% endblock %}
                 </div>
             </div>
-		{% endblock %}
-	{% endblock %}
+        {% endblock %}
+    {% endblock %}
 {% endblock %}
 
 {% block page_checkout_sidebar_actions %}
@@ -114,17 +115,17 @@
           data-form-submit-loader="true"
           action="{{ path('frontend.checkout.finish.order') }}"
           method="post">
-		{% block page_checkout_confirm_form_submit %}
+        {% block page_checkout_confirm_form_submit %}
             <button id="confirmFormSubmit"
                     class="btn btn-primary btn-block btn-lg"
                     form="confirmOrderForm"
                     type="submit">
-				{{ "checkout.confirmSubmit"|trans }}
+                {{ "checkout.confirmSubmit"|trans }}
             </button>
-		{% endblock %}
+        {% endblock %}
     </form>
 {% endblock %}
 
 {% block base_footer %}
-	{% sw_include '@Storefront/layout/footer/footer-minimal.html.twig' %}
+    {% sw_include '@Storefront/layout/footer/footer-minimal.html.twig' %}
 {% endblock %}

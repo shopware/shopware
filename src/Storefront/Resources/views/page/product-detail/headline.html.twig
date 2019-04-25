@@ -1,35 +1,36 @@
 {% block page_product_detail_headline_inner %}
-	{% block page_product_detail_name_container %}
-		<div class="col product-detail-name-container">
-			{% block page_product_detail_name %}
-				<h1 class="product-detail-name" itemprop="name">
-					{{ page.product.name }}
-				</h1>
-			{% endblock %}
-		</div>
-	{% endblock %}
+    {% block page_product_detail_name_container %}
+        <div class="col product-detail-name-container">
+            {% block page_product_detail_name %}
+                <h1 class="product-detail-name"
+                    itemprop="name">
+                    {{ page.product.name }}
+                </h1>
+            {% endblock %}
+        </div>
+    {% endblock %}
 
-	{% block page_product_detail_manufacturer %}
-		<div class="col-md-auto product-detail-manufacturer">
-			{% block page_product_detail_manufacturer_inner %}
-				{% block page_product_detail_manufacturer_link %}
-					<a href="{{ page.product.manufacturer.link }}"
-					   class="product-detail-manufacturer-link"
-					   title="{{ page.product.manufacturer.name }}">
-						{% if page.product.manufacturer.media %}
-							{% block page_product_detail_manufacturer_logo %}
-								<img src="{{ page.product.manufacturer.media.url }}"
-								     class="product-detail-manufacturer-logo"
-								     alt="{{ page.product.manufacturer.name }}"/>
-							{% endblock %}
-						{% else %}
-							{% block page_product_detail_manufacturer_text %}
-								{{ page.product.manufacturer.name }}
-							{% endblock %}
-						{% endif %}
-					</a>
-				{% endblock %}
-			{% endblock %}
-		</div>
-	{% endblock %}
+    {% block page_product_detail_manufacturer %}
+        <div class="col-md-auto product-detail-manufacturer">
+            {% block page_product_detail_manufacturer_inner %}
+                {% block page_product_detail_manufacturer_link %}
+                    <a href="{{ page.product.manufacturer.link }}"
+                       class="product-detail-manufacturer-link"
+                       title="{{ page.product.manufacturer.name }}">
+                        {% if page.product.manufacturer.media %}
+                            {% block page_product_detail_manufacturer_logo %}
+                                <img src="{{ page.product.manufacturer.media.url }}"
+                                     class="product-detail-manufacturer-logo"
+                                     alt="{{ page.product.manufacturer.name }}"/>
+                            {% endblock %}
+                        {% else %}
+                            {% block page_product_detail_manufacturer_text %}
+                                {{ page.product.manufacturer.name }}
+                            {% endblock %}
+                        {% endif %}
+                    </a>
+                {% endblock %}
+            {% endblock %}
+        </div>
+    {% endblock %}
 {% endblock %}

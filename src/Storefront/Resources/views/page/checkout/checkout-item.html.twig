@@ -1,12 +1,12 @@
 {% block page_checkout_item %}
-	{% if lineItem.type == 'product' %}
-		{% block page_checkout_item_product %}
-			{% sw_include '@Storefront/page/checkout/items/product.html.twig' %}
-		{% endblock %}
-	{% elseif lineItem.type == 'promotion' %}
-		{% block page_checkout_item_promotion %}
-			{% sw_include '@Storefront/page/checkout/items/promotion.html.twig' %}
-		{% endblock %}
-	{% endif %}
+    {% if lineItem.type == 'product' %}
+        {% block page_checkout_item_product %}
+            {% sw_include '@Storefront/page/checkout/items/product.html.twig' %}
+        {% endblock %}
+    {% elseif lineItem.type == 'promotion' %}
+        {% block page_checkout_item_promotion %}
+            {% sw_include '@Storefront/page/checkout/items/promotion.html.twig' %}
+        {% endblock %}
+    {% endif %}
 {% endblock %}
 

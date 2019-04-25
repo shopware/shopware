@@ -63,12 +63,16 @@
             {% block page_checkout_item_product_quantity %}
                 <div class="col-12 col-sm-4 col-md-auto cart-item-quantity">
                     {% block page_checkout_item_product_quantity_form %}
+
                         <form action="#"
                             {#TODO: use after NEXT-2501 is finished#}
                             {#<form action="{{ path('frontend.checkout.line-item.update', {'id': productId}) }}"#}
-                              class="cart-item-quantity-container" method="post">
+                              class="cart-item-quantity-container"
+                              method="post">
                             {% block page_checkout_item_quantity_redirect %}
-                                <input type="hidden" name="redirectTo" value="frontend.checkout.cart.page">
+                                <input type="hidden"
+                                       name="redirectTo"
+                                       value="frontend.checkout.cart.page">
                             {% endblock %}
 
                             <div class="row cart-item-quantity-row">
@@ -91,7 +95,8 @@
                                         {% endif %}
 
                                         {% block page_product_detail_buy_quantity %}
-                                            <select name="quantity" class="custom-select quantity-select">
+                                            <select name="quantity"
+                                                    class="custom-select quantity-select">
                                                 {% for quantity in range(lineItem.quantityInformation.minPurchase, maxQuantity, lineItem.quantityInformation.purchaseSteps) %}
                                                     <option value="{{ i }}"
                                                         {% if quantity == lineItem.quantity %} selected="selected"{% endif %}>
@@ -146,9 +151,12 @@
                         {% if lineItem.isRemovable() %}
                             {#TODO: use after NEXT-2501 is finished#}
                             {#<form action="{{ path('frontend.checkout.line-item.delete', {'id': productId}) }}"#}
-                            <form action="#" method="post">
+                            <form action="#"
+                                  method="post">
                                 {% block page_checkout_item_remove_redirect %}
-                                    <input type="hidden" name="redirectTo" value="frontend.checkout.cart.page">
+                                    <input type="hidden"
+                                           name="redirectTo"
+                                           value="frontend.checkout.cart.page">
                                 {% endblock %}
 
                                 {% block page_checkout_item_product_remove_submit %}

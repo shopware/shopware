@@ -1,8 +1,8 @@
 {% sw_extends '@Storefront/component/account/register.html.twig' %}
 
 {% block component_account_register_personal_account_fields %}
-	{% block page_checkout_register_personal_guest %}
-		<div class="custom-control custom-checkbox register-guest-control">
+    {% block page_checkout_register_personal_guest %}
+        <div class="custom-control custom-checkbox register-guest-control">
             {% block page_checkout_register_personal_guest_input %}
                 <input type="checkbox"
                        class="custom-control-input"
@@ -15,14 +15,14 @@
                        data-field-toggle-value="true">
             {% endblock %}
 
-			{% block page_checkout_register_personal_guest_label %}
-				<label class="custom-control-label"
-				       for="personalGuest">
-					{{ "checkout.registerGuestmodeLabel"|trans }}
-				</label>
-			{% endblock %}
-		</div>
-	{% endblock %}
+            {% block page_checkout_register_personal_guest_label %}
+                <label class="custom-control-label"
+                       for="personalGuest">
+                    {{ "checkout.registerGuestmodeLabel"|trans }}
+                </label>
+            {% endblock %}
+        </div>
+    {% endblock %}
 
-	{{ parent() }}
+    {{ parent() }}
 {% endblock %}

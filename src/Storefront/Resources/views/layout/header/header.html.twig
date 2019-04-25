@@ -53,7 +53,8 @@
                     {% endblock %}
 
                     {% block layout_header_actions_cart %}
-                        <div class="cart-widget" data-offcanvas-cart="true">
+                        <div class="cart-widget"
+                             data-offcanvas-cart="true">
                             {% sw_include '@Storefront/layout/header/actions/cart-widget.html.twig' %}
                         </div>
                     {% endblock %}
@@ -61,8 +62,10 @@
                     {% block layout_header_tablet_main_navigation_toggle_button %}
                         <div class="menu-button">
                             {% block layout_header_tablet_main_navigation_toggle_button_inner %}
-                                <button class="btn btn-light nav-main-toggle-btn header-actions-btn" type="button"
-                                        data-offcanvas-menu="true" aria-label="{{ "general.menuLink"|trans }}">
+                                <button class="btn btn-light nav-main-toggle-btn header-actions-btn"
+                                        type="button"
+                                        data-offcanvas-menu="true"
+                                        aria-label="{{ "general.menuLink"|trans }}">
                                     {% block layout_header_tablet_main_navigation_toggle_button_icon %}
                                         <i class="fas fa-bars"></i>
                                     {% endblock %}

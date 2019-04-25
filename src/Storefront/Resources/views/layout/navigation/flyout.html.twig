@@ -6,7 +6,7 @@
                 <div class="navigation-flyout-category-link">
                     {% block layout_navigation_flyout_bar_category_link %}
                         <a class="nav-item nav-link"
-                           href="{{ path('frontend.navigation.page', {'navigationId': navigationTree.category.id}) }}"
+                           href="{{ path('frontend.navigation.page', {'navigationId': navigationTree.entity.id}) }}"
                            itemprop="url"
                            title="{{ navigationTree.category.name }}">
                             {% block layout_navigation_flyout_bar_category_link_text %}
@@ -43,9 +43,10 @@
                 {# @TODO NEXT-1994: add if and category content variables #}
                 <div class="navigation-flyout-teaser">
                     {% block layout_navigation_flyout_teaser_image %}
-                        <a class="teaser-image" href="/beach-und-relax/tag-am-meer/"
-                            title="Zur Kategorie Beach &amp; Relax"
-                            style="background-image: url(https://www.shopwaredemo.de/media/image/7b/f2/97/teaser-beach.png);"></a>
+                        <a class="teaser-image"
+                           href="/beach-und-relax/tag-am-meer/"
+                           title="Zur Kategorie Beach &amp; Relax"
+                           style="background-image: url(https://www.shopwaredemo.de/media/image/7b/f2/97/teaser-beach.png);"></a>
                     {% endblock %}
                     {% block layout_navigation_flyout_teaser_headline %}
                         <div class="teaser-headline">Beach &amp; Relax</div>
@@ -57,8 +58,9 @@
                             die
                             Wellen. In der Mittagssonne bietet Dir ein ausgiebiger...
                             {% block layout_navigation_flyout_teaser_link %}
-                                <a class="teaser-text-link" href="/beach-und-relax/tag-am-meer/"
-                                    title="{{ 'readMore'|trans }}">
+                                <a class="teaser-text-link"
+                                   href="/beach-und-relax/tag-am-meer/"
+                                   title="{{ 'readMore'|trans }}">
                                     {% block layout_navigation_flyout_teaser_link_text %}
                                         {{ 'readMore'|trans }}
                                     {% endblock %}

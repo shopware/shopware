@@ -38,11 +38,11 @@
                         {% block page_account_payment_form %}
                             <form action="{{ path('frontend.account.payment.save') }}" method="post">
                                 <input type="hidden" name="redirectTo" value="frontend.account.payment.page">
-	                            {% block page_account_payment_fields %}
+                                {% block page_account_payment_fields %}
                                     {% sw_include '@Storefront/component/payment/payment-fields.html.twig' with {
                                         'defaultPaymentMethodId': page.customer.defaultPaymentMethodId,
                                     } %}
-	                            {% endblock %}
+                                {% endblock %}
 
                                 {% block page_account_payment_actions %}
                                     <button class="btn btn-primary"

@@ -102,7 +102,8 @@
                                             {% block page_account_profile_current_mail %}
                                                 <div class="form-group">
                                                     {% block page_account_profile_mail_label %}
-                                                        <label class="form-label" for="personalMail">
+                                                        <label class="form-label"
+                                                               for="personalMail">
                                                             {{ "account.personalMailLabel"|trans }}
                                                         </label>
                                                     {% endblock %}
@@ -120,11 +121,11 @@
                                                 </div>
                                             {% endblock %}
 
-
                                             {% block page_account_profile_mail_confirmation %}
                                                 <div class="form-group">
                                                     {% block page_account_profile_personal_mail_confirmation_label %}
-                                                        <label class="form-label" for="personalMailConfirmation">
+                                                        <label class="form-label"
+                                                               for="personalMailConfirmation">
                                                             {{ "account.personalMailConfirmationLabel"|trans }}
                                                         </label>
                                                     {% endblock %}
@@ -146,7 +147,8 @@
                                             {% block page_account_profile_mail_password %}
                                                 <div class="form-group">
                                                     {% block page_account_profile_password_label %}
-                                                        <label class="form-label" for="personalMailPassword">
+                                                        <label class="form-label"
+                                                               for="personalMailPassword">
                                                             {{ "account.personalPasswordLabel"|trans }}
                                                         </label>
                                                     {% endblock %}
@@ -203,7 +205,8 @@
                                             {% block page_account_profile_new_password %}
                                                 <div class="form-group">
                                                     {% block page_account_profile_new_password_label %}
-                                                        <label class="form-label" for="newPassword">
+                                                        <label class="form-label"
+                                                               for="newPassword">
                                                             {{ "account.profilePasswordCreateNew"|trans }}
                                                         </label>
                                                     {% endblock %}
@@ -215,7 +218,7 @@
                                                                id="newPassword"
                                                                placeholder="{{ "account.profilePasswordCreateNew"|trans }}{{ "account.required"|trans }}"
                                                                name="newPassword"
-                                                                data-form-validation-equal="newPassword"
+                                                               data-form-validation-equal="newPassword"
                                                                data-form-validation-length="{{ shopware.config.register.minPasswordLength }}"
                                                                data-form-validation-length-message=" {{ "account.personalPasswordDescription"|trans({
                                                                    '%minLength%': shopware.config.register.minPasswordLength
@@ -228,7 +231,8 @@
                                             {% block page_account_profile_new_password_confirmation %}
                                                 <div class="form-group">
                                                     {% block page_account_profile_new_password_confirmation_label %}
-                                                        <label class="form-label" for="passwordConfirmation">
+                                                        <label class="form-label"
+                                                               for="passwordConfirmation">
                                                             {{ "account.personalPasswordConfirmationLabel"|trans }}
                                                         </label>
                                                     {% endblock %}
@@ -250,7 +254,8 @@
                                             {% block page_account_profile_current_password %}
                                                 <div class="form-group">
                                                     {% block page_account_profile_current_password_label %}
-                                                        <label class="form-label" for="personalPasswordCurrent">
+                                                        <label class="form-label"
+                                                               for="personalPasswordCurrent">
                                                             {{ "account.profilePasswordCurrent"|trans }}
                                                         </label>
                                                     {% endblock %}

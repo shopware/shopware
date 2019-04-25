@@ -2,7 +2,7 @@
     <div class="product-price-info">
         {% block component_product_box_price_unit %}
             <p class="product-price-unit">
-				{# Price is based on the purchase unit #}
+                {# Price is based on the purchase unit #}
                 {% block component_product_box_price_purchase_unit %}
                     {% if product.purchaseUnit and product.purchaseUnit != 0 %}
                         <span class="product-unit-label">

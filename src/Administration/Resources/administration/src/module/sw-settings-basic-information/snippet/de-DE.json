@@ -1,0 +1,13 @@
+{
+  "sw-settings-basic-information": {
+    "general": {
+      "mainMenuItemGeneral": "Stammdaten",
+      "description": "Hier können Einstellungen an den Stammdaten vorgenommen werden.",
+      "textHeadline": "Stammdaten",
+      "buttonSave": "Speichern",
+      "titleSaveSuccess": "Konfiguration gespeichert",
+      "messageSaveSuccess": "Die Konfiguration wurde erfolgreich gespeichert.",
+      "titleSaveError": "Fehler beim Speichern der Konfiguration"
+    }
+  }
+}

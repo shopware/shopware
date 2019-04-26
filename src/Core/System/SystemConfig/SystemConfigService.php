@@ -34,15 +34,18 @@ class SystemConfigService
         $this->systemConfigRepository = $systemConfigRepository;
     }
 
-    public function get(string $key, ?string $salesChannelId = null)
+    public function get(string $key, ?string $salesChannelId = null, bool $inherit = true)
     {
         $criteria = new Criteria();
+
+        $defaultFilter = [new EqualsFilter('salesChannelId', $salesChannelId)];
+        if ($inherit) {
+            $defaultFilter[] = new EqualsFilter('salesChannelId', null);
+        }
+
         $criteria->addFilter(new MultiFilter(
             MultiFilter::CONNECTION_OR,
-            [
-                new EqualsFilter('salesChannelId', null),
-                new EqualsFilter('salesChannelId', $salesChannelId),
-            ]
+            $defaultFilter
         ));
         $criteria->addFilter(new EqualsFilter('configurationKey', $key));
         $criteria->addSorting(new FieldSorting('salesChannelId', FieldSorting::ASCENDING));
@@ -60,7 +63,7 @@ class SystemConfigService
         return $default ? $default->getConfigurationValue() : null;
     }
 
-    public function getDomain(string $domain, ?string $salesChannelId = null): array
+    public function getDomain(string $domain, ?string $salesChannelId = null, bool $inherit = false): array
     {
         $domain = trim($domain);
         if ($domain === '') {
@@ -69,16 +72,27 @@ class SystemConfigService
         $domain = rtrim($domain, '.') . '.';
 
         $escapedDomain = str_replace('%', '\\%', $domain);
-        $ids = $this->connection->executeQuery('
-            SELECT LOWER(HEX(id))
-            FROM system_config
-            WHERE (sales_channel_id IS NULL OR sales_channel_id = :sales_channel_id)
-            AND configuration_key LIKE :prefix
-            ORDER BY configuration_key, sales_channel_id ASC',
-            [
-                'sales_channel_id' => $salesChannelId ? Uuid::fromHexToBytes($salesChannelId) : null,
-                'prefix' => $escapedDomain . '%',
-            ])->fetchAll(FetchMode::COLUMN);
+
+        $queryBuilder = $this->connection->createQueryBuilder()
+            ->select('LOWER(HEX(id))')
+            ->from('system_config');
+
+        if ($inherit) {
+            $queryBuilder->where('sales_channel_id IS NULL OR sales_channel_id = :salesChannelId');
+        } elseif ($salesChannelId === null) {
+            $queryBuilder->where('sales_channel_id IS NULL');
+        } else {
+            $queryBuilder->where('sales_channel_id = :salesChannelId');
+        }
+
+        $salesChannelId = $salesChannelId ? Uuid::fromHexToBytes($salesChannelId) : null;
+
+        $queryBuilder->andWhere('configuration_key LIKE :prefix')
+            ->orderBy('configuration_key', 'ASC')
+            ->addOrderBy('sales_channel_id', 'ASC')
+            ->setParameter('prefix', $escapedDomain . '%')
+            ->setParameter('salesChannelId', $salesChannelId);
+        $ids = $queryBuilder->execute()->fetchAll(FetchMode::COLUMN);
 
         if (empty($ids)) {
             return [];

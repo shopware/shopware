@@ -5,12 +5,20 @@
                      :key="index"
                      :isLoading="isLoading"
                      :title="getInlineSnippet(card.title)">
-                <template v-for="element in card.elements">
+                <template #toolbar
+                          v-if="salesChannelSwitchable">
+                    <sw-sales-channel-switch
+                            :label="$tc('sw-settings.system-config.labelSalesChannelSelect')"
+                            @change-sales-channel-id="onSalesChannelChanged">
+                    </sw-sales-channel-switch>
+                </template>
+                <template v-for="element in card.elements"
+                          v-if="!isLoading">
                     {% block sw_system_config_content_card_field %}
                         <sw-form-field-renderer :config="element"
                                                 :key="element.name"
-                                                v-model="actualConfigData[element.name]"
-                                                v-bind="element">
+                                                v-model="actualConfigData[currentSalesChannelId][element.name]"
+                                                v-bind="getElementBind(element)">
                         </sw-form-field-renderer>
                     {% endblock %}
                 </template>

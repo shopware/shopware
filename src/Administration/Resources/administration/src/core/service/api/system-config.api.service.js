@@ -7,10 +7,10 @@ class SystemConfigApiService extends ApiService {
         this.name = 'systemConfigApiService';
     }
 
-    getConfig(domain, salesChannelId = null, additionalParams = {}, additionalHeaders = {}) {
+    getConfig(domain, additionalParams = {}, additionalHeaders = {}) {
         return this.httpClient
             .get('_action/system-config/schema', {
-                params: { domain, salesChannelId, ...additionalParams },
+                params: { domain, ...additionalParams },
                 headers: this.getBasicHeaders(additionalHeaders)
             })
             .then((response) => {
@@ -35,6 +35,19 @@ class SystemConfigApiService extends ApiService {
                 values,
                 {
                     params: { salesChannelId, ...additionalParams },
+                    headers: this.getBasicHeaders(additionalHeaders)
+                })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
+    batchSave(values, additionalParams = {}, additionalHeaders = {}) {
+        return this.httpClient
+            .post('_action/system-config/batch',
+                values,
+                {
+                    params: { ...additionalParams },
                     headers: this.getBasicHeaders(additionalHeaders)
                 })
             .then((response) => {

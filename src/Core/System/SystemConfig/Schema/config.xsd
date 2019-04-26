@@ -47,6 +47,7 @@
             <xs:enumeration value="datetime"/>
             <xs:enumeration value="password"/>
             <xs:enumeration value="select"/>
+            <xs:enumeration value="textarea"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:complexType name="translatableString">

@@ -63,7 +63,7 @@ class SystemConfigServiceTest extends TestCase
     public function testSetGetSalesChannel(): void
     {
         $this->systemConfigService->set('foo.bar', 'test');
-        $actual = $this->systemConfigService->get('foo.bar', Defaults::SALES_CHANNEL);
+        $actual = $this->systemConfigService->get('foo.bar', Defaults::SALES_CHANNEL, true);
         static::assertEquals('test', $actual);
 
         $this->systemConfigService->set('foo.bar', 'override', Defaults::SALES_CHANNEL);
@@ -100,7 +100,13 @@ class SystemConfigServiceTest extends TestCase
             'foo.b' => 'b',
             'foo.c' => 'c override',
         ];
-        $actual = $this->systemConfigService->getDomain('foo', Defaults::SALES_CHANNEL);
+        $actual = $this->systemConfigService->getDomain('foo', Defaults::SALES_CHANNEL, true);
+        static::assertEquals($expected, $actual);
+
+        $expected = [
+            'foo.c' => 'c override',
+        ];
+        $actual = $this->systemConfigService->getDomain('foo', Defaults::SALES_CHANNEL, false);
         static::assertEquals($expected, $actual);
     }
 

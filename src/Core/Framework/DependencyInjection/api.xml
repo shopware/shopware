@@ -120,6 +120,7 @@
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService"/>
             <argument type="service" id="parameter_bag"/>
             <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventRegistry"/>
+            <argument>%shopware.api.api_browser.public%</argument>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

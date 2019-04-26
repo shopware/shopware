@@ -81,9 +81,15 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
             ->arrayNode('allowed_limits')
-            ->prototype('scalar')->end()
+                ->prototype('scalar')->end()
             ->end()
             ->integerNode('max_limit')->end()
+            ->arrayNode('api_browser')
+                ->children()
+                ->booleanNode('public')
+                    ->defaultFalse()
+                ->end()
+            ->end()
             ->end()
         ;
 

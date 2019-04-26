@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Api\Controller;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
+use Shopware\Core\Framework\Api\Exception\ApiBrowserNotPublicException;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -29,11 +30,17 @@ class InfoController extends AbstractController
      */
     private $actionEventRegistry;
 
-    public function __construct(DefinitionService $definitionService, ParameterBagInterface $params, BusinessEventRegistry $actionEventRegistry)
+    /**
+     * @var bool
+     */
+    private $isApiBrowserPublic;
+
+    public function __construct(DefinitionService $definitionService, ParameterBagInterface $params, BusinessEventRegistry $actionEventRegistry, bool $isApiBrowserPublic)
     {
         $this->definitionService = $definitionService;
         $this->params = $params;
         $this->actionEventRegistry = $actionEventRegistry;
+        $this->isApiBrowserPublic = $isApiBrowserPublic;
     }
 
     /**
@@ -43,6 +50,10 @@ class InfoController extends AbstractController
      */
     public function info(): JsonResponse
     {
+        if (!$this->isApiBrowserPublic) {
+            throw new ApiBrowserNotPublicException();
+        }
+
         $data = $this->definitionService->generate(OpenApi3Generator::FORMAT);
 
         return $this->json($data);
@@ -53,6 +64,10 @@ class InfoController extends AbstractController
      */
     public function openApiSchema(): JsonResponse
     {
+        if (!$this->isApiBrowserPublic) {
+            throw new ApiBrowserNotPublicException();
+        }
+
         $data = $this->definitionService->getSchema(OpenApi3Generator::FORMAT);
 
         return $this->json($data);
@@ -73,6 +88,10 @@ class InfoController extends AbstractController
      */
     public function infoHtml(): Response
     {
+        if (!$this->isApiBrowserPublic) {
+            throw new ApiBrowserNotPublicException();
+        }
+
         return $this->render('@Shopware/swagger.html.twig', ['schemaUrl' => 'api.info.openapi3']);
     }
 

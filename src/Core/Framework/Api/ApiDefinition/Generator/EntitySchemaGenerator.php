@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
 use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlacklistRuleField;
@@ -69,7 +68,6 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
 
         ksort($definitions);
 
-        /** @var EntityDefinition $definition */
         foreach ($definitions as $definition) {
             if (preg_match('/_translation$/', $definition->getEntityName())) {
                 continue;

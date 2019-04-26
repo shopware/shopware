@@ -28,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -44,7 +45,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
     {
         $url = getenv('APP_URL');
 
-        $forSalesChannel = is_subclass_of(current($definitions), SalesChannelDefinitionInterface::class);
+        $forSalesChannel = $this->containsSalesChannelDefinition($definitions);
 
         $openapi = [
             'openapi' => '3.0.0',
@@ -55,33 +56,12 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 'title' => 'Shopware ' . ($forSalesChannel ? 'Sales-Channel' : 'Management') . ' API',
                 'version' => '1.0.0',
             ],
-            'security' => [
-                ['oAuth' => ['write']],
-            ],
+            'security' => $this->createSecurity($forSalesChannel),
             'tags' => [],
             'paths' => [],
             'components' => [
                 'schemas' => $this->getDefaultSchemas(),
-                'securitySchemes' => [
-                    'oAuth' => [
-                        'type' => 'oauth2',
-                        'description' => 'Authentication API',
-                        'flows' => [
-                            'password' => [
-                                'tokenUrl' => $url . '/api/oauth/token',
-                                'scopes' => [
-                                    'write' => 'Full write access',
-                                ],
-                            ],
-                            'clientCredentials' => [
-                                'tokenUrl' => $url . '/api/oauth/token',
-                                'scopes' => [
-                                    'write' => 'Full write access',
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
+                'securitySchemes' => $this->createSecurityScheme($forSalesChannel),
                 'responses' => [
                     Response::HTTP_NOT_FOUND => $this->createErrorResponse(Response::HTTP_NOT_FOUND, 'Not Found', 'Resource with given parameter was not found.'),
                     Response::HTTP_UNAUTHORIZED => $this->createErrorResponse(Response::HTTP_UNAUTHORIZED, 'Unauthorized', 'Authorization information is missing or invalid.'),
@@ -94,6 +74,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         ksort($definitions);
 
         foreach ($definitions as $definition) {
+            $onlyReference = false;
             if (preg_match('/_translation$/', $definition->getEntityName())) {
                 continue;
             }
@@ -102,20 +83,34 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            /* @var EntityDefinition $definition */
             try {
                 $class = new \ReflectionClass($definition);
                 if ($class->isSubclassOf(MappingEntityDefinition::class)) {
-                    continue;
+                    $onlyReference = true;
                 }
             } catch (\ReflectionException $e) {
                 continue;
             }
 
+            if ($forSalesChannel && !is_subclass_of($definition, SalesChannelDefinitionInterface::class)) {
+                $onlyReference = true;
+            }
+
+            $schema = $this->getSchemaByDefinition($definition);
+
+            if ($onlyReference) {
+                // if the definition is only used for references we just need the flat schema
+                unset($schema[$definition->getEntityName()]);
+            }
+
             $openapi['components']['schemas'] = array_merge(
                 $openapi['components']['schemas'],
-                $this->getSchemaByDefinition($definition)
+                $schema
             );
+
+            if ($onlyReference) {
+                continue;
+            }
 
             $openapi = $this->addPathActions($openapi, $definition);
 
@@ -138,7 +133,6 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            /* @var EntityDefinition $definition */
             try {
                 $definition->getEntityName();
             } catch (\Exception $e) {
@@ -287,6 +281,12 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         }
         if (\is_a($fieldClass, BoolField::class, true)) {
             return 'boolean';
+        }
+        if (\is_a($fieldClass, ListField::class, true)) {
+            return 'array';
+        }
+        if (\is_a($fieldClass, JsonField::class, true)) {
+            return 'object';
         }
 
         return 'string';
@@ -637,8 +637,10 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
         if (is_subclass_of($definition, SalesChannelDefinitionInterface::class)) {
             unset($openapi['paths'][$path]['post']);
+            unset($openapi['paths'][$path]['get']['responses'][Response::HTTP_OK]['content']['application/vnd.api+json']);
             unset($openapi['paths'][$path . '/{id}']['patch']);
             unset($openapi['paths'][$path . '/{id}']['delete']);
+            unset($openapi['paths'][$path . '/{id}']['get']['responses'][Response::HTTP_OK]['content']['application/vnd.api+json']);
         }
 
         return $openapi;
@@ -1122,5 +1124,61 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         }
 
         return $attributes;
+    }
+
+    private function createSecurity(bool $forSalesChannel): array
+    {
+        if ($forSalesChannel) {
+            return ['ApiKey' => []];
+        }
+
+        return ['oAuth' => ['write']];
+    }
+
+    private function createSecurityScheme(bool $forSalesChannel): array
+    {
+        if ($forSalesChannel) {
+            return [
+                'ApiKey' => [
+                    'type' => 'apiKey',
+                    'in' => 'header',
+                    'name' => PlatformRequest::HEADER_ACCESS_KEY,
+                ],
+            ];
+        }
+
+        $url = getenv('APP_URL');
+
+        return [
+            'oAuth' => [
+                'type' => 'oauth2',
+                'description' => 'Authentication API',
+                'flows' => [
+                    'password' => [
+                        'tokenUrl' => $url . '/api/oauth/token',
+                        'scopes' => [
+                            'write' => 'Full write access',
+                        ],
+                    ],
+                    'clientCredentials' => [
+                        'tokenUrl' => $url . '/api/oauth/token',
+                        'scopes' => [
+                            'write' => 'Full write access',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    private function containsSalesChannelDefinition(array $definitions): bool
+    {
+        foreach ($definitions as $definition) {
+            if (is_subclass_of($definition, SalesChannelDefinitionInterface::class)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Api\ApiDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 
 class DefinitionService
 {
@@ -63,7 +64,7 @@ class DefinitionService
     /**
      * @throws ApiDefinitionGeneratorNotFoundException
      *
-     * @return EntityDefinition[]
+     * @return EntityDefinition[]|SalesChannelDefinitionInterface[]
      */
     private function getDefinitions(string $type): array
     {
@@ -72,7 +73,7 @@ class DefinitionService
         }
 
         if ($type === self::SALES_CHANNEL_API) {
-            return $this->salesChannelDefinitionRegistry->getSalesChannelDefinitions();
+            return $this->salesChannelDefinitionRegistry->getDefinitions();
         }
 
         throw new ApiDefinitionGeneratorNotFoundException($type);

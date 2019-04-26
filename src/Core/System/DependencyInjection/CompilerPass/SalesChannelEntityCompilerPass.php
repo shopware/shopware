@@ -37,6 +37,7 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
             // if extended -> set up
             if (isset($definitions['extended'])) {
                 $serviceId = $definitions['extended'];
+                $entityNameMap[$entityName] = $serviceId;
 
                 $this->setUpEntityDefinitionService($container, $serviceId);
                 $container->setAlias(self::PREFIX . $serviceId, new Alias($serviceId, true));
@@ -55,13 +56,14 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
                 $clone->removeMethodCall('compile');
                 $container->setDefinition(self::PREFIX . $definitions['base'], $clone);
                 $this->setUpEntityDefinitionService($container, self::PREFIX . $definitions['base']);
+
+                $entityNameMap[$entityName] = $definitions['base'];
             }
         }
 
         /** @var string $serviceId */
         foreach ($salesChannelDefinitions as $entityName => $serviceId) {
             $service = $container->getDefinition($serviceId);
-            $entityNameMap[$entityName] = $serviceId;
 
             $repositoryId = 'sales_channel.' . $entityName . '.repository';
             try {

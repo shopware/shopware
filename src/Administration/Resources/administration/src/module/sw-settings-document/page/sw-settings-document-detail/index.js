@@ -28,8 +28,8 @@ Component.register('sw-settings-document-detail', {
                 name: 'Document Konfiguration',
                 config: {
                     label: {
-                        'de-DE': 'Dokumentenkonfiguration',
-                        'en-GB': 'Document configuration'
+                        'de-DE': 'Dokumente',
+                        'en-GB': 'Documents'
                     }
                 },
                 formFields: [

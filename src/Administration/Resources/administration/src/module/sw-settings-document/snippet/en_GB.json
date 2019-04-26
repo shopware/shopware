@@ -1,27 +1,27 @@
 {
   "sw-settings-document": {
     "general": {
-      "mainMenuItemGeneral": "Document configuration",
-      "placeholderSearchBar": "Search number ranges"
+      "mainMenuItemGeneral": "Documents",
+      "placeholderSearchBar": "Search configurations"
     },
     "list": {
-      "textHeadline": "Document configuration",
+      "textHeadline": "Configurations",
       "textDeleteConfirm": "Are you sure you want to delete the document configuration \"{name}\"?",
       "columnName": "Name",
       "columnType": "Type",
       "columnUsedIn": "Used in:",
       "columnAssignment": "Assignment",
-      "buttonAddDocument": "Add document configuration",
+      "buttonAddDocument": "Add configuration",
       "contextMenuEdit": "Edit",
-      "modalTitleDelete": "Delete document configuration",
+      "modalTitleDelete": "Delete configuration",
       "titleDeleteSuccess": "Success",
-      "messageDeleteSuccess": "Document configuration \"{name}\" has been deleted successfully.",
+      "messageDeleteSuccess": "Configuration \"{name}\" has been deleted successfully.",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete",
       "global": "Global"
     },
     "detail": {
-      "textHeadline": "New document configuration",
+      "textHeadline": "New configuration",
       "configCard": "Settings",
       "assignmentCard": "Assignment",
       "titleSaveSuccess": "Success",

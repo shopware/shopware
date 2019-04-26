@@ -86,20 +86,10 @@
                                     </template>
                                 {% endblock %}
 
-                                {% block sw_product_list_grid_columns_stock %}
-                                    <template slot="column-stock" slot-scope="{ item, isInlineEdit, compact }">
-                                        {% block sw_product_list_grid_columns_stock_inline_edit %}
-                                            <template v-if="isInlineEdit">
-                                                <sw-number-field :size="compact ? 'small' : 'default'" v-model="item.stock"></sw-number-field>
-                                            </template>
-                                        {% endblock %}
-
-                                        {% block sw_product_list_grid_columns_stock_content %}
-                                            <template v-else>
-                                                {{ item.stock }}
-                                                <sw-color-badge :variant="item.stock | stockColorVariant"></sw-color-badge>
-                                            </template>
-                                        {% endblock %}
+                                {% block sw_product_list_grid_columns_available_stock %}
+                                    <template slot="column-availableStock" slot-scope="{ item }">
+                                        {{ item.availableStock }}
+                                        <sw-color-badge :variant="item.availableStock | stockColorVariant"></sw-color-badge>
                                     </template>
                                 {% endblock %}
                             {% endblock %}

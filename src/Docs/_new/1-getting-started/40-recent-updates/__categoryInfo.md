@@ -9,6 +9,523 @@
 
 <h2>April 2019</h2>
 
+<h3>2019-04-25: Vue Vuex in the Administration</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>Vuex is a Vue.js plugin and library that allows you to share state between components. This is done by using a single object which is accessible by all component via the <code>$store</code> property. Vuex applies a flux pattern on this store which means every change of the store's state must be done via commits (synchronous changes) or actions (asynchronous changes).</p>
+<p>Well this is not completely true because we deactivated strict mode (more on this later).</p>
+<p>This is not a documentation about Vuex but an overview how we want to use Vuex in our application. If you are not familiar with Vuex I strongly recommend reading the documentation at <a href="vuex.vuejs.org">vuex.vuejs.org</a>.</p>
+<h3>Define Own Store Modules</h3>
+<p>Store modules should only be registered by the top-level components of complex structures (e.g. your <code>sw-page</code> component or things like the <code>sw-component-tree</code>). Keep in mind that the preferred way to share state in Vue.js still is passing properties to children and emitting events back.</p>
+<p>We recommend to create your module in a separate Javascript file in your components folder named <code>state.js</code> that exports your state definition</p>
+<pre><code class="language-javascript">// state.js
+export default {
+   namespaced: true,
+   state: { },
+   mutations: { ... }
+}</code></pre>
+<p>To register the module use the <code>registerModule</code> function of the Vuex store in the <code>beforeCreated</code> lifecycle hook of your component. Also don't forget to clean up your state when your component is destroyed.</p>
+<p>If you register a module on the store keep in mind that it follows the same rules as if you would create a component. That means that store modules which are created from the same source share a static state. if you need a &quot;clean&quot; store module every time you register it and (in most cases this is exactly what you want) define your state property as a function. see <a href="https://vuex.vuejs.org/guide/modules.html#module-reuse">https://vuex.vuejs.org/guide/modules.html#module-reuse</a> for an explanation</p>
+<pre><code class="language-javascript">export default {
+  state() {
+      return { ... };
+  }  </code></pre>
+<p>As convention your store module name should be your component's name in camelcase (because you must be able to access the name in object notation).</p>
+<pre><code class="language-javascript">import componentNameState from './state.js'
+
+export default {
+  name: 'component-name'
+
+  beforeCreated() {
+    this.$store.registerModule('componentName', componentNameState);
+    }
+  beforeDestroye() {
+    this.$store.unregisterModule('componentName');
+    }</code></pre>
+<p>You may note that we don't follow our usual convention to wrap the functionality of the lifecyclehook in an extra method. This is because the registration of your state is mandatory and should not be overwritten by components extending your component.</p>
+<h3>Strict mode and Problems with v-model</h3>
+<p>Because Vuex does not work well with Vue.js' <code>v-model</code> directive we turned off strict mode. That means that state can be written directly. However, avoid changing the state directly as much as possible because it could cause problems with Vue.js' reactivity. At least first level properties of your module must be commited.</p>
+<pre><code class="language-javascript">// state.js
+export default {
+   state: {
+    // product is a first level property
+    product {
+      // id may be changed directly with full reactivity
+      id: ''
+    }
+   },
+   mutations: { ... }
+}</code></pre>
+<h3>Global State</h3>
+<p>Right now we're migration global state to vuex stores. This includes the current language and admin locale as well as notification management and error handling. All global actions and mutations will be documented in the component library eventually.</p>
+<p>If you need to create global state on your own you can create an Vuex module in the <code>/src/app/state/</code> folder of the application. Because the Vuex modules must be named we could not apply automatic registration (yet). So You must add your global module manually in <code>/src/app/state/index.js</code> .</p>
+<h3>2019-04-25: Naming database constraints</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>With the newest MySQL version <code>CONSTRAINTS</code> must be unique across all tables. This means that</p>
+<p><code>CONSTRAINT json.attributes CHECK (JSON_VALID(attributes))</code> is no longer valid. The new constraint name should be:</p>
+<p><code>CONSTRAINT json.table_name.attributes CHECK (JSON_VALID(attributes))</code>. This is true for all CONSTRAINT, not only JSON_VALID().</p>
+<h3>2019-04-25: Consistent locale codes</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>Until now we used two locale code standards.</p>
+<p>Bcp-47 inside vue.js (administration) and IEC_15897 inside the Php backend.</p>
+<p>Now we use the BCP-47 standard for both. This means, that the locale codes changed from <code>en_GB</code> to <code>en-GB</code>.</p>
+<p>Where does this effect you?</p>
+<ul>
+<li>First you need to reinitialize your Shopware installation after you pulled these changes (./psh.phar init)</li>
+<li>composer.json of your plugins</li>
+<li>Changelogs of your plugins</li>
+<li>Locale Repository</li>
+<li>Snippet files of all modules</li>
+</ul>
+<h3>composer.json</h3>
+<p>You have to change the locale codes inside the extra section of your plugin composer.json from:</p>
+<pre><code class="language-json">"extra": {
+  "shopware-plugin-class": "Swag\\Example",
+  "copyright": "(c) by shopware AG",
+  "label": {
+    "de_DE": "Example Produkte für Shopware",
+    "en_GB": "Example Products for Shopware"
+  }
+},</code></pre>
+<p>to:</p>
+<pre><code class="language-json">
+"extra": {
+  "shopware-plugin-class": "Swag\\Example",
+  "copyright": "(c) by shopware AG",
+  "label": {
+    "de-DE": "Example Produkte für Shopware",
+    "en-GB": "Example Products for Shopware"
+  }
+},</code></pre>
+<h3>Changelogs</h3>
+<p>The <code>en-GB</code> changelog file still is: <code>CHANGELOG.md</code>.</p>
+<p>The format for all other locales changed from <code>CHANGELOG-??_??.md</code> to <code>CHANGELOG_??-??.md</code>. For example a german changelog file changed from <code>CHANGELOG-de_DE.md</code> to <code>CHANGELOG_de-DE.md</code>.</p>
+<h3>Locale Repository</h3>
+<p>If you use the locale repository inside your code, the locale codes will now return in the new format.</p>
+<h3>Snippet files of all modules</h3>
+<p>We renamed all snippet files, from <code>en_GB.json</code> to <code>en-GB.json</code>.</p>
+<p>For consistency, you should do the same in your plugins.</p>
+<h3>2019-04-18: Document title using VueMeta</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>We just implemented VueMeta 1.6.0 to shopware!</p>
+<p>For now, it's only used to configure dynamic document titles in addition to the recently implemented favicons per module and will be added to every, already implemented module. Please be sure to add it to every new module! Additonally: Every Moduels <code>name</code> property has been refactored in the style of its identifier. (If its <code>sw-product-stream</code> the name now is <code>product-stream</code>.)</p>
+<p>To provide more detailed information, we added the <code>this.$createTitle()</code> method to get an easily generated document title like <code>Customers | Shopware administration or Awesome Product | Products | Shopware administration</code></p>
+<p>Therefore every Module should set a <code>title</code> property with a snippet for its in the modules <code>index.js</code>:</p>
+<pre><code class="language-javascript">
+Module.register('sw-product', {
+    name: 'sw-product.general.mainMenuItemGeneral',
+    ...</code></pre>
+<p>And also add the <code>metaInfo</code> property on <strong>every pages</strong> <code>index.js</code>:</p>
+<pre><code class="language-javascript">
+...
+metaInfo() {
+    return {
+        title: this.$createTitle()
+    };
+},
+
+computed: {
+    ...</code></pre>
+<p>Alternativly <strong>for every detail page</strong> add an identifier (e.g. using the placeholder mixin to ensure fallback-translations):</p>
+<pre><code class="language-javascript">...
+mixins: [
+    Mixin.getByName('placeholder')
+],
+
+metaInfo() {
+    return {
+        title: this.$createTitle(this.identifier)
+    };
+},
+
+computed: {
+    identifier() {
+        return this.placeholder(this.product, 'name');
+    },
+},
+...</code></pre>
+<p>The <code>$createTitle(String = null, ...String)</code> method uses the current page component to read its module title. The first parameter should be used in detail pages to also display its identifier like the product name or a full customer name to add it to the title. Every following parameter is fully optional and not in use yet, but if used would be added to the title in the same fashion.</p>
+<h3>2019-04-18: Storefront page ajax</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>To secure the Storefront we made every Controller-Action inside the StorefrontBundle not requestable via XmlHttpRequests/AJAX.</p>
+<p>You can override this by allowing XmlHttpRequests in the Route Annotation</p>
+<p>with the <code>defaults={"XmlHttpRequest"=true}</code> Option.</p>
+<p>Example:</p>
+<pre><code class="language-php">/**
+@Route("/widgets/listing/list/{categoryId}", name="widgets_listing_list", methods={"GET"}, defaults={"XmlHttpRequest"=true})
+*/
+public function listAction(Request $request, SalesChannelContext $context): JsonResponse</code></pre>
+<p>For more Examples take a look inside the PageletControllers.</p>
+<h3>2019-04-18: SalesChannel Entity definition</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>We impemented a central way to define entities which should be available over the <code>sales-channel-api</code>.</p>
+<p>An EntityDefinition can now define a decoration definition for the <code>sales-channel-api</code>:</p>
+<pre><code class="language-php">&lt;?php
+// ...
+class ProductDefinition extends EntityDefinition
+{
+    public static function getEntityName(): string
+    {
+        return 'product';
+    }
+
+    public static function getSalesChannelDecorationDefinition()
+    {
+        return SalesChannelProductDefinition::class;
+    }
+}</code></pre>
+<h3>Declaring the SalesChannelDefinition</h3>
+<p>A decorating sales channel definition for an entity should extend the original definition class.</p>
+<pre><code class="language-php">&lt;?php declare(strict_types=1);
+
+namespace Shopware\Core\Content\Product\SalesChannel;
+
+class SalesChannelProductDefinition 
+    extends ProductDefinition 
+    implements SalesChannelDefinitionInterface
+{
+    use SalesChannelDefinitionTrait;
+}</code></pre>
+<p>These declaration allows to replace different functionalities for an entity:</p>
+<ul>
+<li>Rewriting the storage - getEntityName()
+<ul>
+<li>Example usage: I want to denormalize my entities in a different table for better performance</li>
+</ul></li>
+<li>Rewriting the DTO classes - getEntityClass getEntityCollection
+<ul>
+<li>Example usage: I want to provide some helper functions or more properties in the storefront</li>
+</ul></li>
+<li>Adding or removing some fields - defineFields
+<ul>
+<li>Example usage: I can add more fields for an entity which will be displayed in a storefront or in other clients</li>
+</ul></li>
+</ul>
+<h3>Association Handling</h3>
+<p>It is import to override the defineFields function to rewrite association fields with their sales channel decoration definition:</p>
+<pre><code class="language-php">protected static function defineFields(): FieldCollection
+{
+    $fields = parent::defineFields();
+
+    self::decorateDefinitions($fields);
+
+    return $fields;
+}</code></pre>
+<p>This decoration call replaces all entity definition classes of the defined association fields with the decorated definition.</p>
+<h3>Basic filters</h3>
+<p>Additionally by implementing the <code>\Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface</code> interface the developer has the opportunity to add some basic filters if the entity will be fetched for a sales channel:</p>
+<pre><code class="language-php">public static function processCriteria(
+    Criteria $criteria, 
+    SalesChannelContext $context
+) : void {
+    $criteria-&gt;addFilter(
+        new EqualsFilter('product.active', true)
+    );
+}</code></pre>
+<h3>Reigster the definition</h3>
+<p>Like the EntityDefinition classes the Definition classes for sales channel entities has to be registered over the Dependency Injection Container by tagging the definition with the <code>shopware.sales_channel.entity.definition</code> tag.</p>
+<pre><code class="language-xml">&lt;service 
+        id="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition"&gt;
+
+&lt;tag name="shopware.sales_channel.entity.definition" entity="product"/&gt;
+
+&lt;/service&gt;</code></pre>
+<h3>Repository registration</h3>
+<p>Like the entity repository for the DAL, the each registered sales channel entity definition gets an own registered repository. The repository is registered like the original entity definition but with an additional <code>sales_channel.</code> prefix:</p>
+<p>Example: <code>sales_channel.product.repository</code></p>
+<p>The registered class is an instance of <code>\Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository</code>.</p>
+<p>This repository provides only a read functions:</p>
+<pre><code class="language-php">public function search(
+    Criteria $criteria, 
+    SalesChannelContext $context
+) : EntitySearchResult
+
+public function aggregate(
+    Criteria $criteria, 
+    SalesChannelContext $context
+) : AggregatorResult
+
+public function searchIds(
+    Criteria $criteria, 
+    SalesChannelContext $context
+) : IdSearchResult</code></pre>
+<h3>Api Routes</h3>
+<p>All registered sales channel definitions has registered api routes: (example for product)</p>
+<pre><code class="language-php">sales-channel-api.product.detail
+    /sales-channel-api/v{version}/product/{id}
+
+sales-channel-api.product.search-ids
+    /sales-channel-api/v{version}/search-ids/product
+
+sales-channel-api.product.search
+    /sales-channel-api/v{version}/product</code></pre>
+<h3>Event Registration</h3>
+<p>Entities which loaded for a sales channel has own events. All Events of the Data Abstraction Layer are prefixed with sales_channel. (Example for product):</p>
+<ul>
+<li><code>sales_channel.product.loaded</code></li>
+<li><code>sales_channel.search.result.loaded</code></li>
+<li><code>sales_channel.product.id.search.result.loaded</code></li>
+<li><code>sales_channel.product.aggregation.result.loaded</code></li>
+</ul>
+<h3>2019-04-17: Refactored rules match function</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>The Rules were refactored, so that the match function not longer returns a reason object which contains the debug messages. Instead the match function directly returns a bool if the rule is matching or not.</p>
+<h3>2019-04-17: Internal request removed</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>The <code>InternalRequest</code> class alternative to the Symfony Request has been removed as it is not required anymore.</p>
+<p>To check required parameters etc. use the Symfony Request or even better the <code>RequestDataBag</code> or <code>QueryDataBag</code> and validate your input using the <code>DataValidator</code>. You can see some examples in the <code>AccountService</code>.</p>
+<h3>2019-04-17: Administration open API Housekeeping</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>We are currently working on a lot of housekeeping tasks to make the administration code base as clean as possible. It should be easier for new developers to spot best practices inside the code. This is why we have to adjust some general things like events.</p>
+<p><em>This changes are not merged yet! We will write more update logs when some of the mentioned topics are inside the master branch.</em></p>
+<p>Here are the most important changes:</p>
+<h3>Custom Vue events</h3>
+<ul>
+<li>All custom Vue events will be kebab-case.</li>
+<li>This is also a Vue.js best practice: <a href="https://vuejs.org/v2/guide/components-custom-events.html#Event-Names">https://vuejs.org/v2/guide/components-custom-events.html#Event-Names</a> camelCase and snake_case are not allowed.</li>
+<li>We don't put the whole component name inside the event name any longer. The event can only be used on the component itself in most cases. So there should be no duplicate issues whatsoever. For more complex &quot;flows&quot; you can add names like &quot;folder-item&quot; or &quot;selection&quot; inside your event name.</li>
+<li>The event name itself should follow this order: object -&gt; prefix -&gt; action</li>
+</ul>
+<p>For example:</p>
+<pre><code class="language-javascript">// product (object)
+// before (prefix)
+// load (action)
+
+this.$emit('product-before-load');</code></pre>
+<p>Object and prefix are only needed in more complex scenarios when more events are involved in one context. E.g. events for &quot;folders&quot; and &quot;products&quot; being called on a single component. When you just want to trigger a single save action on one small component a simple 'save' as an event name should be fine.</p>
+<p>More examples:</p>
+<pre><code class="language-javascript">// Bad
+this.$emit('itemSelect'); // No camel case
+this.$emit('item_select'); // No snake case
+this.$emit('item--select'); // No double dash
+this.$emit('sw-component-item-select'); // No component names
+this.$emit('select-item'); // Object always before action
+
+// Good
+this.$emit('item-select');
+
+/* ----------------------- */
+
+// Bad
+this.$emit('folder-saving');
+this.$emit('column-sorting');
+
+// Good
+this.$emit('folder-save');
+this.$emit('folder-sort');
+
+/* ----------------------- */
+
+// Bad
+this.$emit('customer-saved'); // No past tense
+
+// Good
+this.$emit('customer-save')
+this.$emit('customer-finish-save'); // Or use success prefix instead
+
+/* ----------------------- */
+
+// Bad
+this.$emit('on-save'); // No filler or stateul words like "on" or "is"
+
+// Good
+this.$emit('save')</code></pre>
+<h3>SCSS Variables</h3>
+<p>We will remove the scoped / re-mapped color variables from all components. <strong>From now on you can use the color variables directly.</strong> Component specific variables should only be used when you really have multiple usages of a value e.g. &quot;$sw-card-base-width: 800px&quot;.</p>
+<p>We decided to remove this pattern because plugin developers are not able to override those variables anyway. For us internally the benefit isn't that great because we are not changing component colors all the time.</p>
+<h3>SCSS Code style</h3>
+<p>Improve and fix some more code style rules:</p>
+<ul>
+<li>Only use spaces, not tabs</li>
+<li>Always indent 4 spaces</li>
+<li>No !important when possible</li>
+<li>No camelCase or snake_case in selectors</li>
+</ul>
+<h3>JS/Vue.js Code style and housekeeping</h3>
+<ul>
+<li>Empty lines after methods and props</li>
+<li>No methods with complex logic inside &quot;data&quot;</li>
+<li>Remove unused props</li>
+<li>Remove default value for required props</li>
+<li>Check usage of methods for lifecycle hooks (createdComponent etc.)</li>
+</ul>
+<h3>2019-04-16: Configuration files</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>For the extraction of a production-ready community edition template, some configuration variables will be moved into the platform.</p>
+<p>The routing configuration has already been moved into the bundles of the platform and they will be registered automatically. You can find the configuration file in the same folder structure like our plugins: <code>Resources/config/route.xml</code></p>
+<p>More configuration files will most likely follow in the near future.</p>
+<h3>2019-04-16: Composer dependencies</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>To ensure every bundle inside our mono-repository can be used standalone, their dependencies in the bundles <code>composer.json</code> must be maintained. Therefore we no longer update the platform's <code>composer.json</code> manually, except for metadata updates.</p>
+<p>There is a new script ran as pre-commit hook, which collects every dependency of the bundles and merges them into the platforms <code>composer.json</code>. If the script notices any difference, you'll get a warning and have to review the changes:</p>
+<blockquote>
+<p>ERROR! The platform composer.json file has changed. Please review your commit and add the changes.</p>
+</blockquote>
+<h3>2019-04-15: Storefront-API is now SalesChannel-API</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>For plausibility reasons we removed the Storefront term from the core bundles and named it SalesChannel. The idea beeing:</p>
+<p>The Core knows about sales channels and exposes an API for SalesChannels. All customer facing applications then connect to this SalesChannel-API.Doesn't matter whether its a fully featured store front, a buy button, something with voice or whatever.</p>
+<p>Therefore:</p>
+<ul>
+<li>All former storefront-controllers now reside in a <code>SalesChannel</code> Namespace as <code>SalesChannel</code> controllers</li>
+<li>The api is now under <code>.../sales-channel-api/...</code></li>
+<li>A test exists to secure this</li>
+</ul>
 <h3>2019-04-11: Roadmap update</h3>
 
 <style type="text/css">
@@ -92,6 +609,275 @@ These epics are finished</p>
 	<li>Background processes</li>
 </ul>
 
+<h3>2019-04-09: Product table renaming</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>We renamed the following tables as follow:</p>
+<ul>
+<li>product.variatios =&gt; product.options
+<ul>
+<li>Relation between variants and their options which used for the generation.
+*product.configurators =&gt; product.configuratorSettings</li>
+<li>Relation between products and the configurator settings. This table are used for the administration configurator wizard</li>
+</ul></li>
+<li>product.datasheet =&gt; product.properties
+<ul>
+<li>Relation between products and their property options. This options are not related to physical variants with own order numbers</li>
+</ul></li>
+<li>configuration_group =&gt; property_group
+<ul>
+<li>Defines a group for possible options like color, size, ...</li>
+</ul></li>
+<li>configuration_group_option =&gt; property_group_option</li>
+</ul>
+<p>All related api routes and associations are renamed too:</p>
+<ul>
+<li>/api/v1/property-group</li>
+<li>/api/v1/property-group-option</li>
+<li>/api/v1/product/{id}/options</li>
+<li>...</li>
+</ul>
+<p>Detail changes can be found here: <a href="https://github.com/shopware/platform/commit/1d8af890792df21bed13ef94afa1ac684d6d7f7d">https://github.com/shopware/platform/commit/1d8af890792df21bed13ef94afa1ac684d6d7f7d</a></p>
+<h3>2019-04-09: Plugin structure refactoring</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>We made a refactoring of the plugin structure which affect ALL plugins!</p>
+<ul>
+<li>The &quot;type&quot; in the composer.json must now be <code>shopware-platform-plugin</code>. This is necessary to differentiate between Shopware 5 and Shopware platform plugins</li>
+<li>You now have to provide the whole FQN of your plugin base class in the composer.json. Add something like this to the &quot;extra&quot; part of the composer.json: <code>"shopware-plugin-class": "SwagTest\\SwagTest"</code>, The old identifier <code>installer-name</code> is no longer used</li>
+<li>You now have to provide valid autoload information about your plugin with the composer.json:</li>
+</ul>
+<pre><code class="language-json">"autoload": {
+    "psr-4": {
+        "SwagTest\\": ""
+    }
+}</code></pre>
+<p>This give also the opportunity to do something like this:</p>
+<pre><code class="language-json">"autoload": {
+    "psr-4": {
+        "Swag\\Test\\": "src/"
+    }
+}</code></pre>
+<p>Which should really tidy up the root directory of a plugin</p>
+<ul>
+<li>If you want to provide a plugin icon, you have to specify the path of the icon relative to your plugin base class in the composer.json. Add a new field to the &quot;extra&quot; part of the composer.json: <code>"plugin-icon": "Resources/public/plugin.png",</code></li>
+<li>We introduced a default path for the plugin config file. It points to <code>Resources/config/config.xml</code> relative from your plugin base class. So if you put your config there, Shopware will automatically generated a configuration form for your plugin. If you want another path, just overwrite the <code>\Shopware\Core\Framework\Bundle::getConfigPath</code> method</li>
+<li>We introduced some more defaults path which could all be changed by overwriting the appropriate method. The &quot;Resources&quot; directory is always relative to the base class of your plugin
+<ul>
+<li><code>Resources/config/services.xml</code> path to your default services.xml to register your custom services</li>
+<li><code>[Resources/views]</code> Array of views directorys of your plugin</li>
+<li><code>Resources/adminstration</code> the location of your administration files and entry point of extensions of the administration</li>
+<li><code>Resources/storefront</code> same for the storefront</li>
+<li><code>Resources/config/</code> directory which will be used to look for route config files</li>
+</ul></li>
+</ul>
+<p>All in all, the composer.json should contain descriptive information and the plugin base class the runtime configuration</p>
+<h3>2019-04-08: Unique default ids</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>We made all IDs defined in <code>Shopware\Core\Defaults.php</code> unique, so the Ids changed.</p>
+<p>If you experience some problems with logging in to the Admin after rebasing your branch please check the localStorage for the key sw-admin-current-language and delete this key.</p>
+<p>After that it should work as before.</p>
+<h3>2019-04-08: Jest as testing framework (admin)</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>We made the shift from Karma (including Chai, Jasmine and Sinon) to Jest as our primary JavaScript testing framework. Jest provides us with a lot of functionality:</p>
+<ul>
+<li>Snapshot testing using the offical @vue/test-utils tool</li>
+<li>Mocks for ES6 classes, Timers including automatic mocking &amp; clearing</li>
+<li>Spies are part of Jest, we don't need a separate framework anymore</li>
+<li>Running tests in parallel</li>
+<li>Debugging Support using Chrome Inspect</li>
+<li>Code Coverage report using Istanbul with a Clover Report + inline in the terminal</li>
+</ul>
+<p>Documentation links:</p>
+<ul>
+<li>Matchers / expect: <a href="https://jestjs.io/docs/en/expect">https://jestjs.io/docs/en/expect</a></li>
+<li>Vue Test Utils: <a href="https://vue-test-utils.vuejs.org/guides/">https://vue-test-utils.vuejs.org/guides/</a></li>
+</ul>
+<p>The existing tests have been converted to Jest' Matcher API using <a href="https://github.com/skovhus/jest-codemods">https://github.com/skovhus/jest-codemods</a></p>
+<p>The test specs can be found in <code>Administration/Resources/administration/test</code></p>
+<h3>Running tests</h3>
+<pre><code class="language-bash">./psh.phar administration:unit
+./psh.phar administration:unit-watch # Watch mode</code></pre>
+<h3>Snapshot Testing</h3>
+<p><img src="https://jestjs.io/img/content/failedSnapshotTest.png" alt="snapshot testing" /></p>
+<p>Snapshot tests are a very useful tool whenever you want to make sure your UI does not change unexpectedly. It's supported using @vue/test-utils:</p>
+<pre><code class="language-javascript">import { shallowMount } from '@vue/test-utils';
+import swAlert from 'src/app/component/base/sw-alert';
+
+it('should render correctly', () =&gt; {
+    const title = 'Alert title';
+    const message = '&lt;p&gt;Alert message&lt;/p&gt;';
+
+    const wrapper = shallowMount(swAlert, {
+        stubs: ['sw-icon'],
+        props: {
+            title
+        },
+        slots: {
+            default: message
+        }
+    });
+    expect(wrapper.element).toMatchSnapshot();
+});</code></pre>
+<p>Snapshots are specialized files from Jest which are representing the actual DOM structure. If a refactoring changes the DOM structure unintentionally, the test will fail. The developer can either update the snapshot to reflect the new DOM structure when the structure change was intended or fix the structure until the test passes again.</p>
+<h3>Shallow Mounting</h3>
+<p>Please consider prefering shallowMount instead of mount. Shallow mounting a component lets you stub additional components, fill slots, set props etc. Here's the documentation: <a href="https://vue-test-utils.vuejs.org/api/#shallowmount">https://vue-test-utils.vuejs.org/api/#shallowmount</a></p>
+<h3>Vue Router Support</h3>
+<p>If your compomnent is using router-link or router-view, you can simply stub them:</p>
+<pre><code class="language-javascript">import { shallowMount } from '@vue/test-utils'
+
+shallowMount(Component, {
+    stubs: ['router-link', 'router-view']
+});</code></pre>
+<h4>INSTALLING VUE ROUTER FOR A TEST</h4>
+<pre><code class="language-javascript">import { shallowMount, createLocalVue } from '@vue/test-utils'
+import VueRouter from 'vue-router'
+
+const localVue = createLocalVue()
+localVue.use(VueRouter)
+
+shallowMount(Component, {
+    localVue
+});</code></pre>
+<h4>MOCKING $ROUTE</h4>
+<pre><code class="language-javascript">import { shallowMount } from '@vue/test-utils'
+
+const $route = {
+    path: '/some/path'
+};
+
+const wrapper = shallowMount(Component, {
+    mocks: {
+      $route
+    }
+});
+
+console.log(wrapper.vm.$route.path);</code></pre>
+<h4>Triggering events</h4>
+<pre><code class="language-javascript">const wrapper = shallowMount(Component);
+
+wrapper.trigger('click');
+
+// With options
+wrapper.trigger('click', { button: 0 })</code></pre>
+<h3>2019-04-08: Association loading</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>With the latest DAL change, you are no longer able to auto-load <code>toMany</code> associations as they have a huge performance impact. From now on, please enrich your criteria object by adding associations like:</p>
+<pre><code class="language-php">$criteria-&gt;addAssociation('comments');</code></pre>
+<p><strong>Please think about when to load toMany associations and if they are really necessary there.</strong></p>
+<p>Every <code>toOne</code> association will be fetched automatically unless you've disabled it. Some fields like the <code>ParentAssociationField</code> are disabled by default because they may lead to a circular read operation.</p>
+<h3>AssociationInterface</h3>
+<p>The <code>AssociationInterface</code> has been removed in favor of the abstract <code>AssociationField</code> class because there were some useless type-hints in the code and it just feels right now.</p>
+<h3>2019-04-05: Favicons for each module</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>It is now possible to define a favicon for each module in the administration. The favicon, which is just a .png version of the module-icon, is switched dynamically depending on what module is active at the moment. Currently there are 7 favicons that are located in <code>administration/static/img/favicon/modules/</code>.</p>
+<p>When no favicon is defined for the module the default shopware signet is used as a fallback.</p>
+<p>The favicon can be defined in the module registration.</p>
+<pre><code class="language-javascript">Module.register('sw-category', {
+    name: 'Categories',
+    icon: 'default-package-closed',
+    favicon: 'icon-module-products.png'
+});</code></pre>
+<h3>2019-04-05: Renamed CheckoutContext to SalesChannelContext</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>We renamed the <code>CheckoutContext</code> to <code>SalesChannelContext</code> and moved <code>Checkout\Context</code> to `System\SalesChannelConte</p>
+<p>In perspective it is planned to</p>
+<ul>
+<li>move all SalesChannel related classes from <code>Framework</code> to <code>System\SalesChannel</code></li>
+<li>Rename the StoreFront files in the Core to SalesChannel</li>
+<li>Rename the API-Routes</li>
+<li>but keep the Controllers / Services / Repositories in the corresponding domain modules</li>
+</ul>
+<p>As always: <strong>sorry for the inconvenience!</strong></p>
 <h3>2019-04-04: Refactored viewData (Breaking change)</h3>
 
 <style type="text/css">

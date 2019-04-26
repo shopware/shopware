@@ -2,9 +2,12 @@
 
 namespace Shopware\Storefront\Pagelet\Detail\Images;
 
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -22,11 +25,11 @@ class DetailImagesPageletLoader implements PageLoaderInterface
     /**
      * @var EntityRepositoryInterface
      */
-    private $productRepository;
+    private $productMediaRepository;
 
-    public function __construct(EntityRepositoryInterface $productRepository, EventDispatcherInterface $eventDispatcher)
+    public function __construct(EntityRepositoryInterface $productMediaRepository, EventDispatcherInterface $eventDispatcher)
     {
-        $this->productRepository = $productRepository;
+        $this->productMediaRepository = $productMediaRepository;
         $this->eventDispatcher = $eventDispatcher;
     }
 
@@ -44,17 +47,16 @@ class DetailImagesPageletLoader implements PageLoaderInterface
             throw new MissingRequestParameterException('productId');
         }
 
-        $criteria = new Criteria([$productId]);
+        $criteria = new Criteria();
+        $criteria
+            ->addFilter(new EqualsFilter('productId', $productId))
+            ->addAssociation('media')
+            ->addSorting(new FieldSorting('position'));
 
-        $product = $this->productRepository->search($criteria, $context->getContext())->get($productId);
+        /** @var ProductMediaCollection $productMediaCollection */
+        $productMediaCollection = $this->productMediaRepository->search($criteria, $context->getContext())->getEntities();
 
-        if (!$product) {
-            throw new ProductNotFoundException($productId);
-        }
-
-        if ($product->getMedia()) {
-            $page->setProductMedia($product->getMedia());
-        }
+        $page->setProductMedia($productMediaCollection);
 
         $this->eventDispatcher->dispatch(
             DetailImagesPageletLoadedEvent::NAME,

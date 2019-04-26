@@ -4,9 +4,6 @@ namespace Shopware\Storefront\Event;
 
 use Shopware\Storefront\Pagelet\Cms\CmsPageletLoadedEvent;
 
-/**
- * @copyright 2019 dasistweb GmbH (https://www.dasistweb.de)
- */
 class CmsEvents
 {
     /**

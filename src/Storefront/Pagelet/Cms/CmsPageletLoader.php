@@ -4,11 +4,13 @@ namespace Shopware\Storefront\Pagelet\Cms;
 
 use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
+use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -44,7 +46,7 @@ class CmsPageletLoader implements PageLoaderInterface
         $id = $request->get('id', null);
 
         if ($id === null) {
-            throw new \Exception('cms_page id is missing');
+            throw new MissingRequestParameterException('id');
         }
         /** @var CmsPageEntity $cmsPage */
         $cmsPage = $this->loadCmsPage($id, $context);
@@ -72,7 +74,7 @@ class CmsPageletLoader implements PageLoaderInterface
         $cmsPageOrNull = $cmsPageCollection->first();
 
         if ($cmsPageOrNull === null) {
-            throw new \Exception(sprintf('no cms_page found by id %s', $id));
+            throw new PageNotFoundException($id);
         }
 
         return $cmsPageOrNull;

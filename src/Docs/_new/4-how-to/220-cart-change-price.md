@@ -90,7 +90,7 @@ It only shows how to overwrite the price of an item in the cart due to some cond
 
 ## Changing the price
 
-To accomplish the goal of changing an item in the cart, you should use the [enrichment pattern](010-fix-me.md).
+To accomplish the goal of changing an item in the cart, you should use the enrichment pattern.
 For this you need to create your own cart collector.
 
 The collector basically compares the product IDs of the products in the cart with the product IDs from the custom table.

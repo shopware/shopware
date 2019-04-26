@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Plugin\Composer;
 
 use Composer\IO\IOInterface;
-use Composer\Package\RootPackageInterface;
+use Composer\Package\CompletePackageInterface;
 use Composer\Util\ConfigValidator;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 
@@ -12,7 +12,7 @@ class PackageProvider
     /**
      * @throws PluginComposerJsonInvalidException
      */
-    public function getPluginComposerPackage(string $pluginPath, IOInterface $composerIO): RootPackageInterface
+    public function getPluginComposerPackage(string $pluginPath, IOInterface $composerIO): CompletePackageInterface
     {
         $composerJsonPath = $pluginPath . '/composer.json';
         $validator = new ConfigValidator($composerIO);

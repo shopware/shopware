@@ -47,7 +47,8 @@ module.exports = {
         browser
             .openMainMenuEntry({
                 targetPath: '#/sw/product/index',
-                mainMenuId: 'sw-catalogue'
+                mainMenuId: 'sw-catalogue',
+                subMenuId: 'sw-product'
             })
             .waitForElementPresent('.smart-bar__actions a[href="#/sw/product/create"]')
             .click('.smart-bar__actions a[href="#/sw/product/create"]')

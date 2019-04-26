@@ -26,7 +26,7 @@ Module.register('sw-media', {
     description: 'sw-media.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#FFD700',
+    color: '#ff68b4',
     icon: 'default-object-image',
     favicon: 'icon-module-media.png',
     entity: 'media',
@@ -55,7 +55,7 @@ Module.register('sw-media', {
     navigation: [{
         id: 'sw-media',
         label: 'sw-media.general.mainMenuItemGeneral',
-        color: '#FFD700',
+        color: '#ff68b4',
         icon: 'default-object-image',
         path: 'sw.media.index',
         position: 20,

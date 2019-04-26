@@ -11,7 +11,12 @@
       "linkLogout": "Abmelden",
       "linkMinimizeMenu": "Menü minimieren",
       "textShopwareAdmin": "Shopware Administration",
-      "textProjectName": "Administration"
+      "textProjectName": "Administration",
+      "navigation": {
+        "mainMenuItemCatalogue": "Kataloge",
+        "mainMenuItemContent": "Inhalte",
+        "mainMenuItemMarketing": "Marketing"
+      }
     },
     "sw-address": {
       "edit": "Bearbeiten"

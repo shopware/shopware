@@ -57,6 +57,7 @@ module.exports = {
                 subMenuId: 'sw-product'
             })
             .waitForElementPresent('.smart-bar__actions a[href="#/sw/product/create"]')
+            .click(productPageObject.elements.smartBarHeader)
             .expect.element(`${productPageObject.elements.productListName}`).to.have.text.that.contains(global.ProductFixtureService.productFixture.name);
 
         browser

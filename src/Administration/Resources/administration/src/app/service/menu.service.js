@@ -2,6 +2,7 @@
  * @module app/service/menu
  */
 import FlatTree from 'src/core/helper/flattree.helper';
+import navigation from 'src/app/navigation';
 import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 
 /**
@@ -29,6 +30,10 @@ export default function createMenuService(moduleFactory) {
      */
     function getMainMenu() {
         const modules = moduleFactory.getModuleRegistry();
+
+        navigation.forEach((navItem) => {
+            flatTree.add(navItem);
+        });
 
         modules.forEach((module) => {
             if (!hasOwnProperty(module, 'navigation') || !module.navigation) {

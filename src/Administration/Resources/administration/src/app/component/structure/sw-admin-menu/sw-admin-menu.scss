@@ -229,7 +229,7 @@ $sw-admin-menu-shop-status-ok: $color-emerald;
 
     .sw-admin-menu__flyout {
         background-color: $sw-admin-menu-color-active;
-        width: $sw-admin-menu-width-flyout;
+        min-width: $sw-admin-menu-width-flyout;
         z-index: $sw-admin-menu-z-index-flyout;
         position: absolute;
         top: 0;
@@ -243,6 +243,7 @@ $sw-admin-menu-shop-status-ok: $color-emerald;
                 height: 48px;
                 line-height: 48px;
                 font-weight: normal;
+                text-overflow: ellipsis;
 
                 &:hover {
                     background-color: $sw-admin-menu-color-hover;

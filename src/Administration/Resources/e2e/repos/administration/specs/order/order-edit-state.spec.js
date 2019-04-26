@@ -81,6 +81,15 @@ module.exports = {
             signal: 'neutral'
         });
     },
+    'check that status \"Done\" is disabled': (browser) => {
+        const page = orderPage(browser);
+        const orderStateSelect = '.sw-order-state-select__order-state select[name=sw-field--selectedActionName]';
+
+        browser
+            .click(orderStateSelect)
+            .expect.element(`${orderStateSelect} option:nth-of-type(3)`).to.not.be.enabled;
+        browser.click(page.elements.smartBarHeader);
+    },
     'verify reopened order in listing': (browser) => {
         const page = orderPage(browser);
 

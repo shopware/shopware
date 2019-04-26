@@ -42,8 +42,7 @@
         </service>
 
         <service id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageController" public="true">
-            <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageRepository" />
-            <argument type="service" id="Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver" />
+            <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader"/>
             <call method="setContainer">
                 <argument type="service" id="service_container" />
             </call>
@@ -54,6 +53,11 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder" />
             <argument type="service" id="validator" />
             <tag name="shopware.field_serializer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader">
+            <argument id="cms_page.repository" type="service"/>
+            <argument id="Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver" type="service"/>
         </service>
     </services>
 </container>

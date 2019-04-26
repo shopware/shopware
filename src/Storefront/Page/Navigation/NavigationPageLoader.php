@@ -3,12 +3,9 @@
 namespace Shopware\Storefront\Page\Navigation;
 
 use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
-use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
-use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageRepository;
-use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
-use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver;
+use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
@@ -18,14 +15,9 @@ use Symfony\Component\HttpFoundation\Request;
 class NavigationPageLoader implements PageLoaderInterface
 {
     /**
-     * @var SalesChannelCmsPageRepository
+     * @var SalesChannelCmsPageLoader
      */
-    private $cmsPageRepository;
-
-    /**
-     * @var SlotDataResolver
-     */
-    private $slotDataResolver;
+    private $cmsPageLoader;
 
     /**
      * @var PageWithHeaderLoader|PageLoaderInterface
@@ -38,15 +30,13 @@ class NavigationPageLoader implements PageLoaderInterface
     private $eventDispatcher;
 
     public function __construct(
+        SalesChannelCmsPageLoader $cmsPageLoader,
         PageLoaderInterface $genericLoader,
-        EventDispatcherInterface $eventDispatcher,
-        SalesChannelCmsPageRepository $storefrontCmsPageRepository,
-        SlotDataResolver $slotDataResolver
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->genericLoader = $genericLoader;
         $this->eventDispatcher = $eventDispatcher;
-        $this->cmsPageRepository = $storefrontCmsPageRepository;
-        $this->slotDataResolver = $slotDataResolver;
+        $this->cmsPageLoader = $cmsPageLoader;
     }
 
     public function load(Request $request, SalesChannelContext $context): NavigationPage
@@ -55,75 +45,24 @@ class NavigationPageLoader implements PageLoaderInterface
         $page = NavigationPage::createFrom($page);
 
         /** @var CategoryEntity $category */
-        // step 1, load category
         $category = $page->getHeader()->getNavigation()->getActive();
 
-        if ($category->getCmsPageId()) {
-            // step 2, load cms structure
-            $cmsPage = $this->getCmsPage($category->getCmsPageId(), $context);
+        $pageId = $category->getCmsPageId();
 
-            // step 3, overwrite slot config
-            $this->overwriteSlotConfig($cmsPage, $category);
+        if ($pageId) {
+            $pages = $this->cmsPageLoader->load($request, new Criteria([$pageId]), $context, $category->getSlotConfig());
 
-            // step 4, resolve slot data
-            $this->loadSlotData($cmsPage, $request, $context);
+            if (!$pages->has($pageId)) {
+                throw new PageNotFoundException($pageId);
+            }
 
-            $page->setCmsPage($cmsPage);
+            $page->setCmsPage($pages->get($pageId));
         }
 
         $this->eventDispatcher->dispatch(
             NavigationPageLoadedEvent::NAME,
             new NavigationPageLoadedEvent($page, $context, $request)
         );
-
-        return $page;
-    }
-
-    private function overwriteSlotConfig(CmsPageEntity $page, CategoryEntity $category): void
-    {
-        $config = $category->getSlotConfig();
-
-        if (!$config || !$page->getBlocks()) {
-            return;
-        }
-
-        /** @var CmsSlotEntity $slot */
-        foreach ($page->getBlocks()->getSlots() as $slot) {
-            if (!isset($config[$slot->getId()])) {
-                continue;
-            }
-
-            $merged = array_replace_recursive(
-                $slot->getConfig(),
-                $config[$slot->getId()]
-            );
-
-            $slot->setConfig($merged);
-        }
-    }
-
-    private function loadSlotData(CmsPageEntity $page, Request $request, SalesChannelContext $context): void
-    {
-        if (!$page->getBlocks()) {
-            return;
-        }
-
-        $resolverContext = new ResolverContext($context, $request);
-        $slots = $this->slotDataResolver->resolve($page->getBlocks()->getSlots(), $resolverContext);
-
-        $page->getBlocks()->setSlots($slots);
-    }
-
-    private function getCmsPage(string $pageId, SalesChannelContext $context): CmsPageEntity
-    {
-        $pages = $this->cmsPageRepository->read([$pageId], $context);
-
-        if ($pages->count() === 0) {
-            throw new PageNotFoundException($pageId);
-        }
-
-        /** @var CmsPageEntity $page */
-        $page = $pages->first();
 
         return $page;
     }

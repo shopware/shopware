@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Pagelet\Cms;
 use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
+use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader;
 use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -19,70 +20,42 @@ use Symfony\Component\HttpFoundation\Request;
 class CmsPageletLoader implements PageLoaderInterface
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var SalesChannelCmsPageLoader
      */
-    private $cmsPageRepository;
-
-    /**
-     * @var SlotDataResolver
-     */
-    private $slotDataResolver;
+    private $cmsPageLoader;
 
     /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
 
-    public function __construct(EntityRepositoryInterface $cmsPageRepository, SlotDataResolver $slotDataResolver, EventDispatcherInterface $eventDispatcher)
+    public function __construct(SalesChannelCmsPageLoader $cmsPageLoader, EventDispatcherInterface $eventDispatcher)
     {
-        $this->cmsPageRepository = $cmsPageRepository;
-        $this->slotDataResolver = $slotDataResolver;
         $this->eventDispatcher = $eventDispatcher;
+        $this->cmsPageLoader = $cmsPageLoader;
     }
 
     public function load(Request $request, SalesChannelContext $context): CmsPagelet
     {
         /** @var string|null $id */
-        $id = $request->get('id', null);
+        $id = $request->get('id');
 
         if ($id === null) {
             throw new MissingRequestParameterException('id');
         }
-        /** @var CmsPageEntity $cmsPage */
-        $cmsPage = $this->loadCmsPage($id, $context);
 
-        $this->resolveSlots($cmsPage, $request, $context);
+        $pages = $this->cmsPageLoader->load($request, new Criteria([$id]), $context);
 
-        $result = new CmsPagelet($cmsPage);
+        if (!$pages->has($id)) {
+            throw new PageNotFoundException($id);
+        }
+
+        $result = new CmsPagelet($pages->get($id));
 
         $event = new CmsPageletLoadedEvent($result, $context);
 
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
-    }
-
-    private function loadCmsPage(string $id, SalesChannelContext $context): CmsPageEntity
-    {
-        $cmsPageCriteria = new Criteria();
-        $cmsPageCriteria->addFilter(new EqualsFilter('id', $id));
-        $cmsPageCriteria->addAssociationPath('blocks.slots');
-
-        /** @var CmsPageCollection $cmsPageCollection */
-        $cmsPageCollection = $this->cmsPageRepository->search($cmsPageCriteria, $context->getContext())->getEntities();
-
-        $cmsPageOrNull = $cmsPageCollection->first();
-
-        if ($cmsPageOrNull === null) {
-            throw new PageNotFoundException($id);
-        }
-
-        return $cmsPageOrNull;
-    }
-
-    private function resolveSlots(CmsPageEntity $cmsPage, Request $request, SalesChannelContext $context): void
-    {
-        $context = new ResolverContext($context, $request);
-        $this->slotDataResolver->resolve($cmsPage->getBlocks()->getSlots(), $context);
     }
 }

@@ -19,7 +19,7 @@
 {% endblock %}
 
 {% block sw_data_grid_slot_action_modals %}
-    <sw-modal v-if="deleteId === item.id" @closeModal="closeModal" :title="$tc('global.entity-components.deleteTitle')" variant="small">
+    <sw-modal v-if="deleteId === item.id" @modal-close="closeModal" :title="$tc('global.entity-components.deleteTitle')" variant="small">
         <p class="sw-listing__confirm-delete-text">
             <slot name="delete-confirm-text" v-bind="{ item }">
                 {{ $tc('global.entity-components.deleteMessage') }}

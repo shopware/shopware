@@ -1,7 +1,7 @@
 {% block sw_category_leave_page_modal %}
     <sw-modal class="sw-category-leave-page-modal" :title="$tc('sw-category.general.leavePageModal.headline')"
         variant="small"
-        @closeModal="onCancel">
+        @modal-close="onCancel">
 
         {% block sw_category_leave_page_modal_content %}
             {{ $tc('sw-category.general.leavePageModal.description') }}

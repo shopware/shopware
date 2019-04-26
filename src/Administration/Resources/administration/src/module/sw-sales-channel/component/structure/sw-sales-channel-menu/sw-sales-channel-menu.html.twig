@@ -1,7 +1,7 @@
 {% block sw_sales_channel_menu %}
     <div class="sw-sales-channel-menu">
         {% block sw_sales_channel_menu_modal %}
-            <sw-sales-channel-modal v-if="showModal" @closeModal="showModal=false"></sw-sales-channel-modal>
+            <sw-sales-channel-modal v-if="showModal" @modal-close="showModal=false"></sw-sales-channel-modal>
         {% endblock %}
 
         {% block sw_sales_channel_menu_headline %}

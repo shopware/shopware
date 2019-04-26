@@ -1,5 +1,5 @@
 {% block sw_plugin_store_login_modal %}
-    <sw-modal class="sw-plugin-store-login" @closeModal="onCloseModal()" :showHeader="false">
+    <sw-modal class="sw-plugin-store-login" @modal-close="onCloseModal()" :showHeader="false">
         {% block sw_plugin_store_login_modal_close %}
             <div class="sw-plugin-store-login__close-button-container">
                 {% block sw_plugin_store_login_modal_close_button %}

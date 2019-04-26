@@ -1,5 +1,5 @@
 {% block sw_property_option_detail %}
-    <sw-modal @closeModal="onCancel" :title="currentOption.name ? currentOption.name : $tc('sw-property.detail.textOptionHeadline')">
+    <sw-modal @modal-close="onCancel" :title="currentOption.name ? currentOption.name : $tc('sw-property.detail.textOptionHeadline')">
         {% block sw_property_option_detail_name %}
             <sw-field v-model="currentOption.name" type="text" validation="required" :label="$tc('sw-property.detail.labelOptionName')" :placeholder="$tc('sw-property.detail.placeholderOptionName')" ></sw-field>
         {% endblock %}

@@ -1,7 +1,7 @@
 {% block sw_media_modal_move %}
     <sw-modal variant="default"
               class="sw-media-modal-move"
-              @closeModal="closeMoveModal"
+              @modal-close="closeMoveModal"
               :title="$tc('global.sw-media-modal-move.titleModal', itemsToMove.length, { mediaName: this.mediaNameFilter(itemsToMove[0]), count: itemsToMove.length }) ">
 
         {% block sw_media_modal_body %}

@@ -3,7 +3,7 @@
               :title="$tc('sw-product-stream.previewModal.title')"
               :isLoading="isLoading"
               variant="large"
-              @closeModal="closeModal">
+              @modal-close="closeModal">
         {% block sw_product_stream_modal_preview_content %}
         <div class="sw-product-stream-modal-preview__content">
             {% block sw_product_stream_modal_preview_search_field_label %}

@@ -1,7 +1,7 @@
 {% block sw_rule_modal %}
     <sw-modal class="sw-rule-modal"
               variant="large"
-              @closeModal="$emit('closeModal')"
+              @modal-close="$emit('closeModal')"
               :title="modalTitle">
         {% block sw_rule_modal_basic_info %}
             <sw-container columns="2fr 1fr" gap="0px 32px">

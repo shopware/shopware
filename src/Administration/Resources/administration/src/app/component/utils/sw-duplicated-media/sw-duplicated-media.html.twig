@@ -1,7 +1,7 @@
 {% block sw_duplicated_media %}
     <sw-modal v-if="showModal"
               class="sw-duplicated-media"
-              @closeModal="skipAll"
+              @modal-close="skipAll"
               :title="$tc('global.sw-duplicated-media.titleModal')">
         {% block sw_duplicated_media_body %}
             {% block sw_duplicated_media_body_description %}

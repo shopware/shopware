@@ -1,6 +1,6 @@
 {% block sw_order_document_settings_modal %}
     <sw-modal :title="$tc('sw-order.documentModal.modalTitle')"
-        @closeModal="onCancel"
+        @modal-close="onCancel"
         class="sw-order-document-settings-modal__settings-modal">
         {% block sw_order_document_settings_modal_form_first_row %}
             <sw-container columns="1fr 1fr" gap="0px 10px">

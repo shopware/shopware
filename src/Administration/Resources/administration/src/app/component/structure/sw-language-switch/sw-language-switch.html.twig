@@ -2,7 +2,7 @@
     <div class="sw-language-switch">
         {% block sw_language_switch_modal %}
             <sw-modal v-if="showUnsavedChangesModal"
-                      @closeModal="onCloseChangesModal"
+                      @modal-close="onCloseChangesModal"
                       :title="$tc('sw-language-switch.titleModalUnsavedChanges')"
                       variant="small">
                 {% block sw_language_switch_message %}

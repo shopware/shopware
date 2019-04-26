@@ -105,7 +105,7 @@
 
                             {% block sw_settings_user_detail_content_password_modal %}
                                 <sw-modal v-if="changePasswordModal"
-                                          @closeModal="onClosePasswordModal"
+                                          @modal-close="onClosePasswordModal"
                                           :title="$tc('sw-settings-user.user-detail.labelNewPassword')"
                                           variant="small">
                                     {{ $tc('sw-settings-user.user-detail.textChangePassword') }}

@@ -2,7 +2,7 @@
     <div class="sw-sales-channel-switch">
         {% block sw_sales_channel_switch_modal %}
             <sw-modal v-if="showUnsavedChangesModal"
-                      @closeModal="onCloseChangesModal"
+                      @modal-close="onCloseChangesModal"
                       :title="$tc('sw-sales-channel-switch.titleModalUnsavedChanges')"
                       variant="small">
                 {% block sw_sales_channel_switch_message %}

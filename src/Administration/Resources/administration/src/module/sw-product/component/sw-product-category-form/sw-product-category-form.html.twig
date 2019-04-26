@@ -33,7 +33,7 @@
                 </a>
             </sw-container>
 
-            <sw-modal v-if="displayVisibilityDetail" @closeModal="closeAdvancedVisibility" :title="$tc('sw-product.visibility.textHeadline')" class="sw-product-category-form__visibility_modal">
+            <sw-modal v-if="displayVisibilityDetail" @modal-close="closeAdvancedVisibility" :title="$tc('sw-product.visibility.textHeadline')" class="sw-product-category-form__visibility_modal">
                 <sw-product-visibility-detail :visibilities="visibilityAssociationStore" />
 
                 <template slot="modal-footer">

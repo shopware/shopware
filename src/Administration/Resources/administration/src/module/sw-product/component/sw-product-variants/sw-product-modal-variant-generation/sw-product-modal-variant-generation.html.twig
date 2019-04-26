@@ -1,7 +1,7 @@
 {% block sw_product_modal_variant_generation %}
     <sw-modal
             title="Varianten generieren"
-            @closeModal="$emit('modal-close')"
+            @modal-close="$emit('modal-close')"
             class="sw-product-modal-variant-generation">
 
         {% block sw_product_modal_variant_generation_sidebar %}
@@ -83,7 +83,7 @@
 
         {% block sw_product_modal_variant_generation_warning_modal %}
             <sw-modal v-if="warningModal"
-                      @closeModal="onCloseWarningModal"
+                      @modal-close="onCloseWarningModal"
                       title="Warnung!"
                       variant="small">
 

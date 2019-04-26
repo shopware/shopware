@@ -55,10 +55,10 @@
                 </div>
             </div>
         {% endblock %}
-        
+
         {% block sw_tree_delete_modal %}
             <sw-modal v-if="showDeleteModal"
-                      @closeModal="onCloseDeleteModal"
+                      @modal-close="onCloseDeleteModal"
                       :title="$tc(`${translationContext}.modal.modalTitleDelete`)"
                       variant="small">
                 {% block sw_tree_delete_modal_confirm_delete_text %}
@@ -81,7 +81,7 @@
                         </p>
                     </div>
                 {% endblock %}
-    
+
                 {% block sw_tree_delete_modal_footer %}
                     <template slot="modal-footer">
                         {% block sw_tree_delete_modal_cancel %}
@@ -90,7 +90,7 @@
                                 {{ $tc('sw-tree.modal.buttonCancel') }}
                             </sw-button>
                         {% endblock %}
-        
+
                         {% block sw_tree_delete_modal_confirm %}
                             <sw-button @click="onConfirmDelete()"
                                        variant="danger"

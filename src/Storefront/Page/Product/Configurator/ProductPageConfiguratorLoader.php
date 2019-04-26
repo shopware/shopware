@@ -57,13 +57,13 @@ class ProductPageConfiguratorLoader
             }
 
             foreach ($group->getOptions() as $option) {
-                try {
-                    $option->setCombinable(
-                        $this->isCombinable($option, $current, $combinations)
-                    );
-                } catch (\Exception $e) {
+                $combinable = $this->isCombinable($option, $current, $combinations);
+                if ($combinable === null) {
                     $group->getOptions()->remove($option->getId());
+                    continue;
                 }
+
+                $option->setCombinable($combinable);
             }
         }
 
@@ -149,7 +149,7 @@ class ProductPageConfiguratorLoader
         return new PropertyGroupCollection($sorted);
     }
 
-    private function isCombinable(PropertyGroupOptionEntity $option, array $current, AvailableCombinationResult $combinations): bool
+    private function isCombinable(PropertyGroupOptionEntity $option, array $current, AvailableCombinationResult $combinations): ?bool
     {
         unset($current[$option->getGroupId()]);
         $current[] = $option->getId();
@@ -164,11 +164,10 @@ class ProductPageConfiguratorLoader
             return false;
         }
 
-        // not buyable - out of stock
-        throw new \Exception();
+        return null;
     }
 
-    private function buildCurrentOptions(SalesChannelProductEntity $product, PropertyGroupCollection $groups): ?array
+    private function buildCurrentOptions(SalesChannelProductEntity $product, PropertyGroupCollection $groups): array
     {
         $keyMap = $groups->getOptionIdMap();
 

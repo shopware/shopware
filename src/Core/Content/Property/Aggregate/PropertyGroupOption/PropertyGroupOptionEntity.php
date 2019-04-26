@@ -245,7 +245,7 @@ class PropertyGroupOptionEntity extends Entity
         $this->configuratorSetting = $configuratorSetting;
     }
 
-    public function isCombinable(): bool
+    public function getCombinable(): bool
     {
         return $this->combinable;
     }

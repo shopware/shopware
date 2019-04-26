@@ -11,3 +11,4 @@ shopware:
 
     admin_worker:
         poll_interval: 1
+

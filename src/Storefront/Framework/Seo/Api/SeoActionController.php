@@ -8,12 +8,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Storefront\Framework\Seo\Exception\InvalidTemplateException;
 use Shopware\Storefront\Framework\Seo\Exception\SeoUrlRouteNotFoundException;
 use Shopware\Storefront\Framework\Seo\SeoUrlGenerator;
+use Shopware\Storefront\Framework\Seo\SeoUrlPersister;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Storefront\Framework\Seo\SeoUrlTemplate\TemplateGroup;
+use Shopware\Storefront\Framework\Seo\Validation\SeoUrlValidationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,12 +38,34 @@ class SeoActionController extends AbstractController
      * @var SeoUrlRouteRegistry
      */
     private $seoUrlRouteRegistry;
+    /**
+     * @var SeoUrlPersister
+     */
+    private $seoUrlPersister;
 
-    public function __construct(SeoUrlGenerator $seoUrlGenerator, DefinitionInstanceRegistry $definitionRegistry, SeoUrlRouteRegistry $seoUrlRouteRegistry)
-    {
+    /**
+     * @var SeoUrlValidationService
+     */
+    private $seoUrlValidator;
+    /**
+     * @var DataValidator
+     */
+    private $validator;
+
+    public function __construct(
+        SeoUrlGenerator $seoUrlGenerator,
+        SeoUrlPersister $seoUrlPersister,
+        DefinitionInstanceRegistry $definitionRegistry,
+        SeoUrlRouteRegistry $seoUrlRouteRegistry,
+        SeoUrlValidationService $seoUrlValidation,
+        DataValidator $validator
+    ) {
         $this->seoUrlGenerator = $seoUrlGenerator;
         $this->definitionRegistry = $definitionRegistry;
         $this->seoUrlRouteRegistry = $seoUrlRouteRegistry;
+        $this->seoUrlPersister = $seoUrlPersister;
+        $this->seoUrlValidator = $seoUrlValidation;
+        $this->validator = $validator;
     }
 
     /**
@@ -96,6 +121,28 @@ class SeoActionController extends AbstractController
         $mapping = $seoUrlRoute->getMapping($entity);
 
         return new JsonResponse($mapping->getSeoPathInfoContext());
+    }
+
+    /**
+     * @Route("/api/v{version}/_action/seo-url/canonical", name="api.seo-url.canonical", methods={"PATCH"}, requirements={"version"="\d+"})
+     */
+    public function updateCanonicalUrl(RequestDataBag $seoUrl, Context $context): Response
+    {
+        $seoUrlRoute = $this->seoUrlRouteRegistry->findByRouteName($seoUrl->get('routeName') ?? '');
+        if (!$seoUrlRoute) {
+            throw new SeoUrlRouteNotFoundException($seoUrl->get('routeName') ?? '');
+        }
+
+        $this->seoUrlValidator->setSeoUrlRouteConfig($seoUrlRoute->getConfig());
+        $validation = $this->seoUrlValidator->buildUpdateValidation($context);
+
+        $seoUrlData = $seoUrl->all();
+        $this->validator->validate($seoUrlData, $validation);
+        $seoUrlData['isModified'] = $seoUrlData['isModified'] ?? true;
+
+        $this->seoUrlPersister->updateSeoUrls($context, $seoUrlData['routeName'], [$seoUrlData['foreignKey']], [$seoUrlData]);
+
+        return new Response('', Response::HTTP_NO_CONTENT);
     }
 
     private function validateSeoUrlTemplate(Request $request): void

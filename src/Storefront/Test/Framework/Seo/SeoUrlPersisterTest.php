@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Storefront\Framework\Seo\SeoUrlGenerator;
@@ -21,6 +20,7 @@ use Shopware\Storefront\Framework\Seo\SeoUrlPersister;
 class SeoUrlPersisterTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use StorefrontSalesChannelTestHelper;
 
     /**
      * @var EntityRepositoryInterface
@@ -96,19 +96,20 @@ class SeoUrlPersisterTest extends TestCase
 
     public function testDuplicatesSameSalesChannel(): void
     {
-        $salesChannel = $this->createSalesChannel(Uuid::randomHex(), 'test');
+        $salesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
 
         $fk1 = Uuid::randomHex();
         $fk2 = Uuid::randomHex();
         $seoUrlUpdates = [
             [
-                'salesChannelId' => $salesChannel->getId(),
+                'salesChannelId' => $salesChannelId,
                 'foreignKey' => $fk1,
                 'pathInfo' => 'normal/path',
                 'seoPathInfo' => 'fancy-path',
             ],
             [
-                'salesChannelId' => $salesChannel->getId(),
+                'salesChannelId' => $salesChannelId,
                 'foreignKey' => $fk2,
                 'pathInfo' => 'normal/path',
                 'seoPathInfo' => 'fancy-path',
@@ -174,8 +175,11 @@ class SeoUrlPersisterTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        $salesChannelA = $this->createSalesChannel(Uuid::randomHex(), 'test a');
-        $salesChannelB = $this->createSalesChannel(Uuid::randomHex(), 'test b');
+        $salesChannelAId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelAId, 'test a');
+
+        $salesChannelBId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelBId, 'test b');
 
         $fk = Uuid::randomHex();
         $seoUrlUpdates = [
@@ -191,7 +195,7 @@ class SeoUrlPersisterTest extends TestCase
         $seoUrlUpdates = [
             [
                 'foreignKey' => $fk,
-                'salesChannelId' => $salesChannelA->getId(),
+                'salesChannelId' => $salesChannelAId,
                 'pathInfo' => 'normal/path',
                 'seoPathInfo' => 'fancy-path',
             ],
@@ -202,7 +206,7 @@ class SeoUrlPersisterTest extends TestCase
         $seoUrlUpdates = [
             [
                 'foreignKey' => $fk,
-                'salesChannelId' => $salesChannelB->getId(),
+                'salesChannelId' => $salesChannelBId,
                 'pathInfo' => 'normal/path',
                 'seoPathInfo' => 'fancy-path',
             ],
@@ -221,39 +225,57 @@ class SeoUrlPersisterTest extends TestCase
         static::assertCount(0, $invalidSeoUrls);
     }
 
-    private function createSalesChannel(string $id, string $name, string $defaultLanguageId = Defaults::LANGUAGE_SYSTEM, array $languageIds = []): SalesChannelEntity
+    public function testUpdateDefaultIsModified(): void
     {
-        /** @var EntityRepositoryInterface $repo */
-        $repo = $this->getContainer()->get('sales_channel.repository');
-        $languageIds[] = $defaultLanguageId;
-        $languageIds = array_unique($languageIds);
+        $context = Context::createDefaultContext();
 
-        $languages = [];
-        foreach ($languageIds as $langId) {
-            $languages[] = ['id' => $langId];
-        }
+        $fk = Uuid::randomHex();
+        $seoUrlUpdates = [
+            [
+                'foreignKey' => $fk,
+                'pathInfo' => 'normal/path',
+                'seoPathInfo' => 'default',
+                'isModified' => false,
+            ],
+        ];
+        $this->seoUrlPersister->updateSeoUrls($context, 'foo.route', array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates);
+        $seoUrls = $this->seoUrlRepository->search(new Criteria(), Context::createDefaultContext())->getEntities();
+        static::assertCount(1, $seoUrls);
 
-        $repo->upsert([[
-            'id' => $id,
-            'name' => $name,
-            'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
-            'accessKey' => Uuid::randomHex(),
-            'secretAccessKey' => 'foobar',
-            'languageId' => $defaultLanguageId,
-            'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
-            'currencyId' => Defaults::CURRENCY,
-            'paymentMethodId' => $this->getValidPaymentMethodId(),
-            'shippingMethodId' => $this->getValidShippingMethodId(),
-            'navigationCategoryId' => $this->getValidCategoryId(),
-            'countryId' => $this->getValidCountryId(),
-            'currencies' => [['id' => Defaults::CURRENCY]],
-            'languages' => $languages,
-            'paymentMethods' => [['id' => $this->getValidPaymentMethodId()]],
-            'shippingMethods' => [['id' => $this->getValidShippingMethodId()]],
-            'countries' => [['id' => $this->getValidCountryId()]],
-            'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-        ]], Context::createDefaultContext());
+        $seoUrlUpdates = [
+            [
+                'foreignKey' => $fk,
+                'pathInfo' => 'normal/path',
+                'seoPathInfo' => 'fancy-override',
+                'isModified' => true,
+            ],
+        ];
+        $this->seoUrlPersister->updateSeoUrls($context, 'foo.route', array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates);
+        $seoUrls = $this->seoUrlRepository->search(new Criteria(), Context::createDefaultContext())->getEntities();
 
-        return $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
+        static::assertCount(2, $seoUrls);
+        $canon = $seoUrls->filterByProperty('isCanonical', true)->first();
+        static::assertNotNull($canon);
+
+        static::assertTrue($canon->getIsModified());
+        static::assertEquals('fancy-override', $canon->getSeoPathInfo());
+
+        $seoUrlUpdates = [
+            [
+                'foreignKey' => $fk,
+                'pathInfo' => 'normal/path',
+                'seoPathInfo' => 'no-effect',
+            ],
+        ];
+
+        $this->seoUrlPersister->updateSeoUrls($context, 'foo.route', array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates);
+        $seoUrls = $this->seoUrlRepository->search(new Criteria(), Context::createDefaultContext())->getEntities();
+
+        static::assertCount(2, $seoUrls);
+        $canon = $seoUrls->filterByProperty('isCanonical', true)->first();
+        static::assertNotNull($canon);
+
+        static::assertTrue($canon->getIsModified());
+        static::assertNotEquals('no-effect', $canon->getSeoPathInfo());
     }
 }

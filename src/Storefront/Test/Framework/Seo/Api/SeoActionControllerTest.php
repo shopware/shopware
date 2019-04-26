@@ -2,6 +2,8 @@
 
 namespace Shopware\Storefront\Test\Framework\Seo\Api;
 
+use Doctrine\DBAL\Connection;
+use function Flag\skipTestNext741;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -10,10 +12,18 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Seo\Exception\SeoUrlRouteNotFoundException;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Shopware\Storefront\Framework\Seo\SeoUrlTemplate\SeoUrlTemplateEntity;
+use Shopware\Storefront\Test\Framework\Seo\StorefrontSalesChannelTestHelper;
 
 class SeoActionControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
+    use StorefrontSalesChannelTestHelper;
+
+    public function setUp(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+        $connection->exec('DELETE FROM sales_channel');
+    }
 
     public function testValidateEmpty(): void
     {
@@ -142,5 +152,152 @@ class SeoActionControllerTest extends TestCase
         static::assertEquals(404, $response->getStatusCode());
 
         static::assertEquals(SeoUrlRouteNotFoundException::ERROR_CODE, $result['errors'][0]['code']);
+    }
+
+    public function testUpdateDefaultCanonical(): void
+    {
+        skipTestNext741($this);
+
+        $id = Uuid::randomHex();
+        $product = [
+            'id' => $id,
+            'productNumber' => Uuid::randomHex(),
+            'name' => 'test',
+            'price' => [
+                'gross' => 10,
+                'net' => 20,
+                'linked' => false,
+            ],
+            'manufacturer' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'test',
+            ],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+            'stock' => 0,
+        ];
+        $this->getClient()->request('POST', '/api/v1/product', $product);
+
+        $seoUrls = $this->getSeoUrls($id, true);
+        static::assertCount(1, $seoUrls);
+
+        $seoUrl = $seoUrls[0]['attributes'];
+        static::assertFalse($seoUrl['isModified']);
+
+        $newSeoPathInfo = 'my-awesome-seo-path';
+        $seoUrl['seoPathInfo'] = $newSeoPathInfo;
+        $seoUrl['isModified'] = true;
+
+        // modify canonical
+        $this->getClient()->request('PATCH', '/api/v1/_action/seo-url/canonical', $seoUrl);
+        $response = $this->getClient()->getResponse();
+        static::assertEquals(204, $response->getStatusCode(), $response->getContent());
+
+        $seoUrls = $this->getSeoUrls($id, true);
+        static::assertCount(1, $seoUrls);
+        $seoUrl = $seoUrls[0]['attributes'];
+        static::assertTrue($seoUrl['isModified']);
+        static::assertEquals($newSeoPathInfo, $seoUrl['seoPathInfo']);
+
+        $productUpdate = [
+            'id' => $id,
+            'name' => 'unused name',
+        ];
+        $this->getClient()->request('PATCH', '/api/v1/product/' . $id, $productUpdate);
+
+        // seo url is not updated with the product
+        $seoUrls = $this->getSeoUrls($id, true);
+        static::assertCount(1, $seoUrls);
+        $seoUrl = $seoUrls[0]['attributes'];
+        static::assertTrue($seoUrl['isModified']);
+        static::assertEquals($newSeoPathInfo, $seoUrl['seoPathInfo']);
+    }
+
+    public function testUpdateCanonicalWithCustomSalesChannel(): void
+    {
+        skipTestNext741($this);
+
+        $salesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+
+        $id = Uuid::randomHex();
+        $product = [
+            'id' => $id,
+            'productNumber' => Uuid::randomHex(),
+            'name' => 'test',
+            'price' => [
+                'gross' => 10,
+                'net' => 20,
+                'linked' => false,
+            ],
+            'manufacturer' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'test',
+            ],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+            'stock' => 0,
+        ];
+        $this->getClient()->request('POST', '/api/v1/product', $product);
+
+        $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
+        static::assertCount(1, $seoUrls);
+
+        $seoUrl = $seoUrls[0]['attributes'];
+        static::assertFalse($seoUrl['isModified']);
+
+        $newSeoPathInfo = 'my-awesome-seo-path';
+        $seoUrl['seoPathInfo'] = $newSeoPathInfo;
+        $seoUrl['isModified'] = true;
+        $seoUrl['salesChannelId'] = $salesChannelId;
+
+        // modify canonical
+        $this->getClient()->request('PATCH', '/api/v1/_action/seo-url/canonical', $seoUrl);
+        $response = $this->getClient()->getResponse();
+        static::assertEquals(204, $response->getStatusCode(), $response->getContent());
+
+        $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
+        static::assertCount(1, $seoUrls);
+        $seoUrl = $seoUrls[0]['attributes'];
+        static::assertTrue($seoUrl['isModified']);
+        static::assertEquals($newSeoPathInfo, $seoUrl['seoPathInfo']);
+
+        $productUpdate = [
+            'id' => $id,
+            'name' => 'updated-name',
+        ];
+        $this->getClient()->request('PATCH', '/api/v1/product/' . $id, $productUpdate);
+
+        // seoPathInfo for the custom sales_channel is not updated with the product
+        $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
+        static::assertCount(1, $seoUrls);
+        $seoUrl = $seoUrls[0]['attributes'];
+        static::assertTrue($seoUrl['isModified']);
+        static::assertEquals($newSeoPathInfo, $seoUrl['seoPathInfo']);
+
+        // the seoPathInfo for the default sales channel is updated
+        $seoUrls = $this->getSeoUrls($id, true, null);
+        static::assertCount(1, $seoUrls);
+        $seoUrl = $seoUrls[0]['attributes'];
+        static::assertFalse($seoUrl['isModified']);
+        $expectedPath = $productUpdate['name'] . '/' . $product['productNumber'];
+        static::assertEquals($expectedPath, $seoUrl['seoPathInfo']);
+    }
+
+    public function getSeoUrls(string $id, ?bool $canonical = null, ?string $salesChannelId = null): array
+    {
+        $params = [];
+        if ($canonical !== null) {
+            $params = [
+                'filter' => [
+                    'isCanonical' => $canonical,
+                    'salesChannelId' => $salesChannelId,
+                ],
+            ];
+        }
+        $this->getClient()->request('GET', '/api/v1/product/' . $id . '/seoUrls', $params);
+        static::assertEquals(200, $this->getClient()->getResponse()->getStatusCode());
+
+        $content = $this->getClient()->getResponse()->getContent();
+
+        return json_decode($content, true)['data'];
     }
 }

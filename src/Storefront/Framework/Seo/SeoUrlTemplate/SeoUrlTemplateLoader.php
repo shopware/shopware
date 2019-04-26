@@ -68,7 +68,7 @@ class SeoUrlTemplateLoader
             foreach ($salesChannels as $salesChannel) {
                 $template = $salesChannel['template'] ?? $defaultTemplate;
 
-                if (!isset($templateGroups[$template])) {
+                if (!isset($tmpGroups[$template])) {
                     $tmpGroups[$template] = [];
                 }
                 $tmpGroups[$template][] = $salesChannel['salesChannelId'];

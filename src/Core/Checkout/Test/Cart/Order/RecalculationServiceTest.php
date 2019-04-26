@@ -927,7 +927,6 @@ class RecalculationServiceTest extends TestCase
         );
         $cart = $this->getContainer()->get(Enrichment::class)->enrich($cart, $this->salesChannelContext, new CartBehavior());
         $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->salesChannelContext, new CartBehavior());
-        print_r($cart);
 
         return $cart;
     }

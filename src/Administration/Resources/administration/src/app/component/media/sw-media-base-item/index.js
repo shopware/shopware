@@ -107,7 +107,7 @@ export default {
             if (this.isSelectionIndicatorClicked(originalDomEvent.composedPath())) {
                 return;
             }
-            this.$emit('sw-media-item-clicked', {
+            this.$emit('media-item-click', {
                 originalDomEvent,
                 item: this.item
             });
@@ -131,7 +131,7 @@ export default {
         },
 
         selectItem(originalDomEvent) {
-            this.$emit('sw-media-item-selection-add', {
+            this.$emit('media-item-selection-add', {
                 originalDomEvent,
                 item: this.item
             });

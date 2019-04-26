@@ -55,7 +55,7 @@
                                 <sw-upload-store-listener
                                     :uploadTag="uploadTag"
                                     autoUpload
-                                    @sw-media-upload-finished="setMediaItem">
+                                    @media-upload-finish="setMediaItem">
                                 </sw-upload-store-listener>
                                 <sw-media-upload
                                     :uploadTag="uploadTag"
@@ -65,8 +65,8 @@
                                     variant="regular"
                                     :label="$tc('sw-profile.index.labelUploadAvatar')"
                                     :defaultFolder="userStore.getEntityName()"
-                                    @sw-media-upload-open-sidebar="openMediaSidebar"
-                                    @sw-media-upload-remove-image="onUnlinkAvatar">
+                                    @media-upload-sidebar-open="openMediaSidebar"
+                                    @media-upload-remove-image="onUnlinkAvatar">
                                 </sw-media-upload>
                             {% endblock %}
                         </sw-card>

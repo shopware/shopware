@@ -23,9 +23,9 @@ function isDuplicationException(error) {
  * @description
  * component that listens to mutations of the upload store and transforms them back into the vue.js event system.
  * @status ready
- * @event sw-media-upload-added { UploadTask[]: data }
- * @event sw-media-upload-finished { string: targetId }
- * @event sw-media-upload-failed UploadTask UploadTask
+ * @event media-upload-add { UploadTask[]: data }
+ * @event media-upload-finish { string: targetId }
+ * @event media-upload-fail UploadTask UploadTask
  * @example code-only
  * @component-example
  * <sw-upload-store-listener @sw-uploads-added="..."></sw-upload-store-listener>

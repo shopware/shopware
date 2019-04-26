@@ -25,8 +25,8 @@
                             :showContextMenuButton="true"
                             :selected="false"
                             :isList="true"
-                            @sw-media-item-clicked="onNavigateToFolder(folder.id)"
-                            @sw-media-folder-item-delete="handleFolderGridItemDelete">
+                            @media-item-click="onNavigateToFolder(folder.id)"
+                            @media-folder-delete="handleFolderGridItemDelete">
                         </sw-media-folder-item>
                     {% endblock %}
 
@@ -39,7 +39,7 @@
                             :showContextMenuButton="true"
                             :selected="false"
                             :isList="true"
-                            @sw-media-media-item-delete="handleMediaGridItemDelete">
+                            @media-item-delete="handleMediaGridItemDelete">
 
                             {% block sw_sidebar_media_item_context_items %}
                                 <slot name="context-menu-items" :mediaItem="mediaItem"></slot>

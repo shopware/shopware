@@ -8,7 +8,7 @@
             <template #preview="{ item }">
                 <sw-media-preview
                     :source="item.id"
-                    @sw-media-preview-play="emitPlayEvent($event, item)">
+                    @media-preview-play="emitPlayEvent($event, item)">
                 </sw-media-preview>
             </template>
         {% endblock %}
@@ -91,7 +91,7 @@
                 <sw-media-modal-replace
                     v-if="showModalReplace"
                     :itemToReplace="item"
-                    @sw-media-modal-replace-close="closeModalReplace">
+                    @media-replace-modal-close="closeModalReplace">
                 </sw-media-modal-replace>
             {% endblock %}
 
@@ -99,8 +99,8 @@
                 <sw-media-modal-delete
                     v-if="showModalDelete"
                     :itemsToDelete="[item]"
-                    @sw-media-modal-delete-items-deleted="emitItemDeleted"
-                    @sw-media-modal-delete-close="closeModalDelete">
+                    @media-delete-modal-items-delete="emitItemDeleted"
+                    @media-delete-modal-close="closeModalDelete">
                 </sw-media-modal-delete>
             {% endblock %}
 
@@ -108,8 +108,8 @@
                 <sw-media-modal-move
                     v-if="showModalMove"
                     :itemsToMove="[item]"
-                    @sw-media-modal-move-close="closeModalMove"
-                    @sw-media-modal-move-items-moved="onMediaItemMoved">
+                    @media-move-modal-close="closeModalMove"
+                    @media-move-modal-items-move="onMediaItemMoved">
                 </sw-media-modal-move>
             {% endblock %}
         </template>

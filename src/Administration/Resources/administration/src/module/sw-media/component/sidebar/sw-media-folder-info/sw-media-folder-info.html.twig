@@ -81,8 +81,8 @@
             <sw-media-modal-folder-settings
                 v-if="showFolderSettings"
                 :folder="mediaFolder"
-                @sw-media-modal-folder-settings-save="closeFolderSettings"
-                @sw-media-modal-folder-settings-close="closeFolderSettings">
+                @media-settings-modal-save="closeFolderSettings"
+                @media-settings-modal-close="closeFolderSettings">
             </sw-media-modal-folder-settings>
         {% endblock %}
 
@@ -90,8 +90,8 @@
             <sw-media-modal-folder-dissolve
                 v-if="showFolderDissolve"
                 :itemsToDissolve="[mediaFolder]"
-                @sw-media-modal-folder-dissolve-items-dissolved="onFolderDissolved"
-                @sw-media-modal-folder-dissolve-close="closeFolderDissolve">
+                @media-folder-dissolve-modal-dissolve="onFolderDissolved"
+                @media-folder-dissolve-modal-close="closeFolderDissolve">
             </sw-media-modal-folder-dissolve>
         {% endblock %}
 
@@ -99,8 +99,8 @@
             <sw-media-modal-move
                 v-if="showModalMove"
                 :itemsToMove="[mediaFolder]"
-                @sw-media-modal-move-close="closeModalMove"
-                @sw-media-modal-move-items-moved="onFolderMoved">
+                @media-move-modal-close="closeModalMove"
+                @media-move-modal-items-move="onFolderMoved">
             </sw-media-modal-move>
         {% endblock %}
 
@@ -108,8 +108,8 @@
             <sw-media-modal-delete
                     v-if="showModalDelete"
                     :itemsToDelete="[mediaFolder]"
-                    @sw-media-modal-delete-close="closeModalDelete"
-                    @sw-media-modal-delete-items-deleted="deleteSelectedItems">
+                    @media-delete-modal-close="closeModalDelete"
+                    @media-delete-modal-items-delete="deleteSelectedItems">
             </sw-media-modal-delete>
         {% endblock %}
     </div>

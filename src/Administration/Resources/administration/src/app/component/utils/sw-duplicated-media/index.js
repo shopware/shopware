@@ -156,7 +156,7 @@ export default {
         },
 
         handleUploadStoreEvent({ action, payload }) {
-            if (action !== 'sw-media-upload-failed') {
+            if (action !== 'media-upload-fail') {
                 return;
             }
 

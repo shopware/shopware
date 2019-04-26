@@ -79,7 +79,7 @@
                 {% block sw_category_detail_menu_media %}
                     <sw-upload-store-listener
                         :uploadTag="category.id"
-                        @sw-media-upload-finished="setMediaItem"
+                        @media-upload-finish="setMediaItem"
                         autoUpload>
                     </sw-upload-store-listener>
                     <sw-media-upload
@@ -89,8 +89,8 @@
                         :uploadTag="category.id"
                         :allowMultiSelect="false"
                         :defaultFolder="category.getEntityName()"
-                        @sw-media-upload-open-sidebar="openMediaSidebar"
-                        @sw-media-upload-remove-image="removeMediaItem">
+                        @media-upload-sidebar-open="openMediaSidebar"
+                        @media-upload-remove-image="removeMediaItem">
                     </sw-media-upload>
                 {% endblock %}
 

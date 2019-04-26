@@ -17,7 +17,7 @@ export default {
 
     model: {
         prop: 'mediaId',
-        event: 'mediaIdChanged'
+        event: 'media-id-change'
     },
 
     mixins: [
@@ -55,7 +55,7 @@ export default {
     watch: {
         mediaId(newValue) {
             this.fetchItem(newValue);
-            this.$emit('mediaIdChanged', newValue);
+            this.$emit('media-id-change', newValue);
         },
 
         searchTerm() {
@@ -132,12 +132,12 @@ export default {
         },
 
         mediaItemChanged(newMediaId) {
-            this.$emit('mediaIdChanged', newMediaId);
+            this.$emit('media-id-change', newMediaId);
             this.onTogglePicker();
         },
 
         removeLink() {
-            this.$emit('mediaIdChanged', null);
+            this.$emit('media-id-change', null);
         },
 
         computePickerPositionAndStyle() {
@@ -157,7 +157,7 @@ export default {
         },
 
         exposeNewId({ targetId }) {
-            this.$emit('mediaIdChanged', targetId);
+            this.$emit('media-id-change', targetId);
             this.showUploadField = false;
             this.showPicker = false;
         }

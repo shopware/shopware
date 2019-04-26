@@ -48,7 +48,7 @@ export default {
         },
 
         emitCloseReplaceModal() {
-            this.$emit('sw-media-modal-replace-close');
+            this.$emit('media-replace-modal-close');
         },
 
         replaceMediaItem() {

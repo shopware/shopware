@@ -38,7 +38,7 @@ export default {
         },
 
         onAdd() {
-            this.$emit('sw-media-add-thumbnail-form-size-added', { width: this.width, height: this.height });
+            this.$emit('thumbnail-form-size-add', { width: this.width, height: this.height });
             this.width = null;
             this.height = null;
         }

@@ -38,7 +38,7 @@ export default {
 
     methods: {
         onModalClosed(selection) {
-            this.$emit('selectionChange', selection, this.uploadTag);
+            this.$emit('selection-change', selection, this.uploadTag);
         }
     }
 };

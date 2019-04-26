@@ -29,7 +29,7 @@
                         v-if="showUrlInput"
                         variant="modal"
                         @closeModal="closeUrlModal"
-                        @sw-media-url-form-submit="onUrlUpload">
+                        @media-url-form-submit="onUrlUpload">
                     </sw-media-url-form>
                 {% endblock %}
             </div>
@@ -102,7 +102,7 @@
                                             class="sw-media-upload__url-form"
                                             v-if="showUrlInput"
                                             variant="inline"
-                                            @sw-media-url-form-submit="onUrlUpload">
+                                            @media-url-form-submit="onUrlUpload">
                                         </sw-media-url-form>
                                     {% endblock %}
 

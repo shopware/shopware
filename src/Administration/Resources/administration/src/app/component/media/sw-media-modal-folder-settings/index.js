@@ -242,7 +242,7 @@ export default {
                         });
                     });
 
-                this.$emit('sw-media-modal-folder-settings-save', this.folder);
+                this.$emit('media-settings-modal-save', this.folder);
             });
         },
 
@@ -271,7 +271,7 @@ export default {
         },
 
         closeModal(originalDomEvent) {
-            this.$emit('sw-media-modal-folder-settings-close', { originalDomEvent });
+            this.$emit('media-settings-modal-close', { originalDomEvent });
         },
 
         onInputDefaultFolder(defaultFolderId) {

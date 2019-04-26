@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -151,21 +152,21 @@ class SalesChannelCartController extends AbstractController
      * @throws InvalidPayloadException
      * @throws CartTokenNotFoundException
      */
-    public function addLineItem(string $id, Request $request, SalesChannelContext $context): JsonResponse
+    public function addLineItem(string $id, RequestDataBag $requestDataBag, SalesChannelContext $context): JsonResponse
     {
         // todo support price definition (NEXT-573)
-        $token = $request->request->getAlnum('token', $context->getToken());
+        $token = $requestDataBag->getAlnum('token', $context->getToken());
 
-        $type = $request->request->getAlnum('type');
-        $quantity = $request->request->getInt('quantity', 1);
-        $request->request->remove('quantity');
+        $type = $requestDataBag->getAlnum('type');
+        $quantity = $requestDataBag->getInt('quantity', 1);
+        $requestDataBag->remove('quantity');
 
         if (!$type) {
             throw new MissingRequestParameterException('type');
         }
 
         $lineItem = new LineItem($id, $type, $quantity);
-        $this->updateLineItemByRequest($lineItem, $request, $context->getContext());
+        $this->updateLineItemByRequest($lineItem, $requestDataBag, $context->getContext());
 
         $cart = $this->cartService->add($this->cartService->getCart($token, $context), $lineItem, $context);
 
@@ -204,9 +205,9 @@ class SalesChannelCartController extends AbstractController
      * @throws CartTokenNotFoundException
      * @throws InvalidPayloadException
      */
-    public function updateLineItem(string $id, Request $request, SalesChannelContext $context): JsonResponse
+    public function updateLineItem(string $id, RequestDataBag $requestDataBag, SalesChannelContext $context): JsonResponse
     {
-        $token = $request->request->getAlnum('token', $context->getToken());
+        $token = $requestDataBag->getAlnum('token', $context->getToken());
         $cart = $this->cartService->getCart($token, $context);
 
         if (!$cart->has($id)) {
@@ -215,7 +216,7 @@ class SalesChannelCartController extends AbstractController
 
         $lineItem = $this->cartService->getCart($token, $context)->getLineItems()->get($id);
 
-        $this->updateLineItemByRequest($lineItem, $request, $context->getContext());
+        $this->updateLineItemByRequest($lineItem, $requestDataBag, $context->getContext());
 
         $cart = $this->cartService->recalculate($cart, $context);
 
@@ -228,16 +229,16 @@ class SalesChannelCartController extends AbstractController
      * @throws LineItemNotStackableException
      * @throws InvalidPayloadException
      */
-    private function updateLineItemByRequest(LineItem $lineItem, Request $request, Context $context): void
+    private function updateLineItemByRequest(LineItem $lineItem, RequestDataBag $requestDataBag, Context $context): void
     {
-        $quantity = $request->request->get('quantity');
-        $payload = $request->request->get('payload', []);
+        $quantity = $requestDataBag->get('quantity');
+        $payload = $requestDataBag->get('payload', []);
         $payload = array_replace_recursive(['id' => $lineItem->getKey()], $payload);
-        $stackable = $request->request->get('stackable');
-        $removable = $request->request->get('removable');
-        $label = $request->request->get('label');
-        $description = $request->request->get('description');
-        $coverId = $request->request->get('coverId');
+        $stackable = $requestDataBag->get('stackable');
+        $removable = $requestDataBag->get('removable');
+        $label = $requestDataBag->get('label');
+        $description = $requestDataBag->get('description');
+        $coverId = $requestDataBag->get('coverId');
 
         $lineItem->setPayload($payload);
 

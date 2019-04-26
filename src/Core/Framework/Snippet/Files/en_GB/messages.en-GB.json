@@ -217,7 +217,8 @@
         "finishInfoOrdernumber": "Order number: ",
         "finishInfoConfirmationMail": "We have sent you the order confirmation by email.",
         "finishButtonBackToShop": "Back to the shop",
-        "codeAddedSuccessful": "Code was added successfully"
+        "codeAddedSuccessful": "Code was added successfully",
+        "addToCartSuccess": "Item(s) successfully added to cart."
     },
     "listing": {
         "boxUnitLabel": "Content:",
@@ -240,7 +241,8 @@
         "priceUnitName": "Content:"
     },
     "error": {
-        "message-default": "Unfortunately, something went wrong."
+        "message-default": "Unfortunately, something went wrong.",
+        "addToCartError": "An error occurred while adding the item(s) to cart."
     },
     "footer": {
         "serviceHotlineHeadline": "Service Hotline",

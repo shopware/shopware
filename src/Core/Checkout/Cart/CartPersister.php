@@ -34,7 +34,7 @@ class CartPersister implements CartPersisterInterface
             throw new CartTokenNotFoundException($token);
         }
 
-        $cart = unserialize((string) $content);
+        $cart = \unserialize((string) $content);
         if (!$cart instanceof Cart) {
             throw new CartDeserializeFailedException();
         }
@@ -88,7 +88,7 @@ class CartPersister implements CartPersisterInterface
     {
         $errors = $cart->getErrors();
         $cart->setErrors(new ErrorCollection());
-        $serializedCart = serialize($cart);
+        $serializedCart = \serialize($cart);
         $cart->setErrors($errors);
 
         return $serializedCart;

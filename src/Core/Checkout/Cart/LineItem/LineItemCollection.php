@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
@@ -93,11 +94,26 @@ class LineItemCollection extends Collection
 
     public function sortByPriority(): void
     {
-        $this->sort(
-            function (LineItem $a, LineItem $b) {
-                return $b->getPriority() <=> $a->getPriority();
+        $lineItemsByPricePriority = [];
+        /** @var LineItem $lineItem */
+        foreach ($this->elements as $lineItem) {
+            $priceDefinitionPriority = QuantityPriceDefinition::SORTING_PRIORITY;
+            if ($lineItem->getPriceDefinition()) {
+                $priceDefinitionPriority = $lineItem->getPriceDefinition()->getPriority();
             }
-        );
+
+            if (!array_key_exists($priceDefinitionPriority, $lineItemsByPricePriority)) {
+                $lineItemsByPricePriority[$priceDefinitionPriority] = [];
+            }
+            $lineItemsByPricePriority[$priceDefinitionPriority][] = $lineItem;
+        }
+
+        // Sort all line items by their price definition priority
+        krsort($lineItemsByPricePriority);
+
+        if (count($lineItemsByPricePriority)) {
+            $this->elements = array_merge(...$lineItemsByPricePriority);
+        }
     }
 
     public function filterGoods(): self

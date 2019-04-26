@@ -152,6 +152,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
             'decimalPrecision' => 2,
             'factor' => 131.06,
             'shortName' => 'Yen',
+            'isoCode' => 'JPY',
             'name' => 'japanese Yen',
         ];
         $context = Context::createDefaultContext();

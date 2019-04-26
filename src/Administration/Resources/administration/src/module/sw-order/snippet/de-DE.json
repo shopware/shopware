@@ -62,6 +62,7 @@
       "buttonDelete" : "Bestellung löschen",
       "buttonAddProduct" :"Produkt hinzufügen",
       "buttonAddBlankProduct" :"Leere Position hinzufügen",
+      "buttonAddCredit" :"Gutschrift hinzufügen",
       "buttonEditAddress" : "Bearbeiten",
       "labelNoPhoneNumber" :"Keine",
       "labelCustomerPhoneNumber":"Telefonnummer",
@@ -112,6 +113,36 @@
       "headlineErrorStateChange":"Fehler",
       "labelErrorStateChange":"Beim setzen des Status ist ein Fehler aufgetreten. Zusätzliche Informationen:",
       "labelErrorNoAction":"Kein neuer Zustand gewählt."
+    },
+    "documentCard": {
+      "searchBarPlaceholder": "Suche nach Belegen",
+      "cardTitle": "Belege",
+      "labelDate": "Datum",
+      "labelNumber": "Nummer",
+      "labelType": "Typ",
+      "labelSent": "Gesendet",
+      "labelAmount": "Betrag",
+      "labelDownloadPdf": "Als PDF herunterladen",
+      "labelCreateNew": "Neu erstellen"
+    },
+    "documentModal": {
+      "modalTitle": "Dokument anlegen",
+      "labelDocumentDate": "Datum",
+      "labelDeliveryDate": "Lieferdatum",
+      "labelDocumentNumber": "Nummer",
+      "labelDocumentStornoNumber": "Stornonummer",
+      "labelInvoiceNumber": "Rechnungsnummer",
+      "selectInvoiceNumber": "Rechnungsnummer wählen",
+      "labelDeliveryNoteNumber": "Lieferscheinnummer",
+      "labelDocumentComment": "Kommentar",
+      "labelCreateDownloadPdf": "Erstellen und als PDF herunterladen",
+      "labelCreateSend": "Beleg erstellen und senden",
+      "labelCreate": "Beleg erstellen",
+      "labelCancel": "Schließen",
+      "labelPreview": "Vorschau",
+      "labelHighlightedItemsHeader":"Name",
+      "labelHighlightedItemsEntry":"Gesamt",
+      "labelNoItems":"Keine Gutschriften hinzugefügt"
     }
   }
 }

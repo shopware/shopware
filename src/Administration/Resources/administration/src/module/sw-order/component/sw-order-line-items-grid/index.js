@@ -63,29 +63,31 @@ Component.register('sw-order-line-items-grid', {
             });
         },
         onInlineEditSave(item) {
+            this.saveLineItem(item).then(() => {
+                this.$emit('item-edited');
+            });
+        },
+        saveLineItem(item) {
+            let returnVal = false;
             if (item.isLocal === true) {
                 // The item is a custom item
-                if (item.type === 'custom') {
-                    this.orderService.addCustomLineItemToOrder(this.order.id,
-                        this.order.versionId,
-                        item).then(() => {
-                        this.$emit('sw-order-line-items-grid-item-edited');
-                    });
-                } else {
-                    // The is item is based on a product
-                    this.orderService.addProductToOrder(this.order.id,
+                if (item.type === '') {
+                    // This item is based on a product
+                    returnVal = this.orderService.addProductToOrder(this.order.id,
                         this.order.versionId,
                         item.identifier,
-                        item.quantity).then(() => {
-                        this.$emit('sw-order-line-items-grid-item-edited');
-                    });
+                        item.quantity);
+                } else if (item.type === 'credit') {
+                    returnVal = this.orderService.addCreditItemToOrder(this.order.id, this.order.versionId, item);
+                } else {
+                    // This item not based on an existing product (blank item)
+                    returnVal = this.orderService.addCustomLineItemToOrder(this.order.id, this.order.versionId, item);
                 }
             } else {
                 // The item already existed in the order
-                item.save().then(() => {
-                    this.$emit('sw-order-line-items-grid-item-edited');
-                });
+                returnVal = item.save();
             }
+            return returnVal;
         },
         onInlineEditCancel(item) {
             item.discardChanges();
@@ -101,13 +103,23 @@ Component.register('sw-order-line-items-grid', {
             item.type = 'custom';
             this.orderLineItems.unshift(item);
         },
-
         onInsertExistingItem() {
             const item = this.lineItemsStore.create();
             item.versionId = this.order.versionId;
             item.priceDefinition.taxRules = [];
             item.priceDefinition.taxRules.push({ taxRate: 0 });
             item.quantity = 1;
+            this.orderLineItems.unshift(item);
+        },
+        onInsertCreditItem() {
+            const item = this.lineItemsStore.create();
+            item.versionId = this.order.versionId;
+            item.price.taxRules = [];
+            item.price.taxRules.push({ taxRate: 0, percentage: 100 });
+            item.priceDefinition.isCalculated = false;
+            item.description = 'credit line item';
+            item.quantity = 1;
+            item.type = 'credit';
             this.orderLineItems.unshift(item);
         },
         onSelectionChanged() {
@@ -122,12 +134,28 @@ Component.register('sw-order-line-items-grid', {
             });
 
             Promise.all(deletionPromises).then(() => {
-                this.$emit('sw-order-line-items-grid-item-edited');
+                this.$emit('item-deleted');
             });
         },
         itemCreatedFromProduct(id) {
             const item = this.orderLineItems.find((elem) => { return elem.id === id; });
-            return item.isLocal && item.type !== 'custom';
+            return item.isLocal && item.type === '';
+        },
+        itemIsCredit(id) {
+            const item = this.orderLineItems.find((elem) => { return elem.id === id; });
+            return item.type === 'credit';
+        },
+        getMinItemPrice(id) {
+            if (this.itemIsCredit(id)) {
+                return null;
+            }
+            return 0;
+        },
+        getMaxItemPrice(id) {
+            if (!this.itemIsCredit(id)) {
+                return null;
+            }
+            return 0;
         }
     }
 });

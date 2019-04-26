@@ -16,7 +16,7 @@ $sw-order-detail-base-select-status-delivery-link: #23BE2F;
         grid-area: summary;
         font-size: 15px;
         display: grid;
-        
+
         dt,
         dd {
             line-height: 49px;
@@ -42,5 +42,9 @@ $sw-order-detail-base-select-status-delivery-link: #23BE2F;
     .sw-order-detail-base__line-item-grid-card .sw-card__content {
         padding: 0;
     }
+
+  .sw-order-detail-base__document-card .sw-card__content {
+    padding: 0;
+  }
 
 }

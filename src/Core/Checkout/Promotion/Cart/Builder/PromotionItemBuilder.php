@@ -44,7 +44,7 @@ class PromotionItemBuilder
         // that might not be from the promotion scope
         $uniqueKey = self::PLACEHOLDER_PREFIX . $code;
 
-        $item = new LineItem($uniqueKey, $this->lineItemType, 1, LineItem::VOUCHER_PRIORITY);
+        $item = new LineItem($uniqueKey, $this->lineItemType, 1);
         $item->setLabel($uniqueKey);
         $item->setGood(false);
 
@@ -102,8 +102,7 @@ class PromotionItemBuilder
         $promotionItem = new LineItem(
             $discount->getId(),
             $this->lineItemType,
-            1,
-            LineItem::VOUCHER_PRIORITY
+            1
         );
 
         $promotionItem->setLabel($promotion->getName());

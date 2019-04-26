@@ -1,0 +1,13 @@
+@import "~scss/variables";
+
+.sw-document-download-button {
+    text-decoration: none;
+    color: $color-gutenberg;
+}
+
+.sw-order-document-card {
+
+    .sw-card__content {
+        margin-bottom: 150px; //fix until context menu recognizes bottom of page
+    }
+}

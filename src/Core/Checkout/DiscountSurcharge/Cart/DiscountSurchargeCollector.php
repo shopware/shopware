@@ -101,8 +101,7 @@ class DiscountSurchargeCollector implements CollectorInterface
 
             $lineItem = (new LineItem($key, 'discount_surcharge'))
                 ->setLabel($discount->getName())
-                ->setPayload(['id' => $discount->getId(), 'ruleId' => $discount->getRuleId()])
-                ->setPriority(LineItem::DISCOUNT_PRIORITY);
+                ->setPayload(['id' => $discount->getId(), 'ruleId' => $discount->getRuleId()]);
 
             if ($discount->getType() === self::ABSOLUTE_MODIFIER) {
                 $lineItem->setPriceDefinition(

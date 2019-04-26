@@ -21,9 +21,12 @@ class LineItemUnitPriceRule extends Rule
      */
     protected $operator;
 
-    public function __construct()
+    public function __construct(string $operator = self::OPERATOR_EQ, ?float $amount = null)
     {
-        $this->operator = self::OPERATOR_EQ;
+        parent::__construct();
+
+        $this->operator = $operator;
+        $this->amount = $amount;
     }
 
     /**

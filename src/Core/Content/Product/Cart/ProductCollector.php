@@ -19,7 +19,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class ProductCollector implements CollectorInterface
 {
     public const DATA_KEY = 'products';
-    public const LINE_ITEM_TYPE = 'product';
 
     /**
      * @var ProductGatewayInterface
@@ -42,7 +41,7 @@ class ProductCollector implements CollectorInterface
         $lineItems = array_filter(
             $cart->getLineItems()->getFlat(),
             function (LineItem $lineItem) {
-                return $lineItem->getType() === self::LINE_ITEM_TYPE;
+                return $lineItem->getType() === LineItem::PRODUCT_LINE_ITEM_TYPE;
             }
         );
 
@@ -99,7 +98,7 @@ class ProductCollector implements CollectorInterface
         $flat = array_filter(
             $cart->getLineItems()->getFlat(),
             function (LineItem $lineItem) {
-                return $lineItem->getType() === self::LINE_ITEM_TYPE;
+                return $lineItem->getType() === LineItem::PRODUCT_LINE_ITEM_TYPE;
             }
         );
 

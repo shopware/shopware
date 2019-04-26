@@ -26,6 +26,8 @@ const autoOpenBrowser = !!config.dev.autoOpenBrowser;
 const app = express();
 const compiler = webpack(webpackConfig);
 
+app.use('/api', proxy({ target: process.argv[2], changeOrigin: true }));
+
 // Open files in phpstorm while using the dev mode, the sw-devmode-loader needs to be in place
 app.use('/__open-in-editor', openInEditor(config.dev.editor));
 

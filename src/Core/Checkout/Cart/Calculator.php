@@ -60,11 +60,12 @@ class Calculator
 
     private function calculateLineItems(Cart $cart, LineItemCollection $lineItems, SalesChannelContext $context, CartBehavior $behavior): LineItemCollection
     {
-        $lineItems->sortByPriority();
+        $workingSet = clone $lineItems;
+        $workingSet->sortByPriority();
 
         $calculated = new LineItemCollection();
 
-        foreach ($lineItems as $original) {
+        foreach ($workingSet as $original) {
             $lineItem = LineItem::createFromLineItem($original);
 
             if (!$this->isValid($lineItem, $calculated, $context, $behavior)) {

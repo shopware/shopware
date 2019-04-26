@@ -19,6 +19,7 @@ module.exports = {
             .waitForElementVisible('.sw-settings-currency-detail .sw-card__content')
             .assert.urlContains('#/sw/settings/currency/create')
             .fillField('input[name=sw-field--currency-name]', 'Yen')
+            .fillField('input[name=sw-field--currency-isoCode]', 'JPY')
             .fillField('input[name=sw-field--currency-shortName]', 'JPY')
             .fillField('input[name=sw-field--currency-symbol]', '¥')
             .fillField('input[name=sw-field--currency-decimalPrecision]', '2')

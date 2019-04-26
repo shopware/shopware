@@ -56,7 +56,6 @@ class Processor
         $cart->setLineItems(
             $this->calculator->calculate($original, $context, $behavior)
         );
-
         //add line items to deliveries and calculate deliveries
         $cart->setDeliveries(
             $this->deliveryProcessor->process(

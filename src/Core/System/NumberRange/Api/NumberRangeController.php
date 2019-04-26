@@ -24,7 +24,7 @@ class NumberRangeController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_action/number-range/reserve/{type}/{saleschannel}", defaults={"saleschannel"=null}, name="api.action.number-range.reserve", methods={"GET"})
+     * @Route("/api/v{version}/_action/number-range/reserve/{type}/{saleschannel?}", name="api.action.number-range.reserve", methods={"GET"})
      * @Cache(mustRevalidate=true)
      */
     public function reserve(string $type, ?string $saleschannel, Context $context, Request $request): JsonResponse

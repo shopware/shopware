@@ -42,7 +42,7 @@
             <sw-card :title="$tc('sw-order.detailBase.cardTitleLineItems')"
                 v-if="hasAssociations"
                 :isLoading="isLoading"
-                class = "sw-order-detail-base__line-item-grid-card">
+                class="sw-order-detail-base__line-item-grid-card">
                 {% block sw_order_detail_base_line_items_card_rows %}
                     <sw-container isLoading="isLoading"
                             slot="grid"
@@ -51,7 +51,8 @@
                             <sw-order-line-items-grid :order="currentOrder"
                                 :editable="isEditing"
                                 ref="sw-order-line-item-grid"
-                                @sw-order-line-items-grid-item-edited="onRecalculateOrder">
+                                @item-deleted="onLineItemsDeleted"
+                                @item-edited="onLineItemsEdited">
                             </sw-order-line-items-grid>
                         {% endblock %}
                         {% block sw_order_detail_base_line_items_summary %}
@@ -74,7 +75,7 @@
                                                             message: shippingCostsDetail,
                                                         }"
                                                         :editable="isEditing"
-                                                        :value="currentOrder.deliveries[0].shippingCosts.unitPrice | currency(order.currency.shortName)"
+                                                        :value="currentOrder.deliveries[0].shippingCosts.unitPrice"
                                                         @valueChanged="onShippingChargeEdited">
                                                     </sw-order-saveable-field>
                                                 </dd>
@@ -127,15 +128,21 @@
                 :delivery="currentOrder.deliveries[0]">
             </sw-order-delivery-metadata>
         {% endblock %}
-
+        {% block sw_order_detail_base_document_grid %}
+            <sw-order-document-card v-if="hasAssociations && !isEditing"
+                class="sw-order-detail-base__document-grid"
+                :order="currentOrder"
+                :isLoading="isLoading">
+            </sw-order-document-card>
+        {% endblock %}
         {% block sw_order_detail_attribute_sets %}
-            <sw-card :title="$tc('sw-settings-attribute.general.mainMenuItemGeneral')"
-                     v-if="next754 && attributeSets.length > 0"
-                     :isLoading="order.isLoading">
+            <sw-card v-if="next754 && attributeSets.length > 0 && !isEditing"
+                :title="$tc('sw-settings-attribute.general.mainMenuItemGeneral')"
+                :isLoading="order.isLoading">
                 <sw-attribute-set-renderer
-                        :disabled="!isEditing"
-                        :entity="order"
-                        :sets="attributeSets">
+                    :disabled="!isEditing"
+                    :entity="order"
+                    :sets="attributeSets">
                 </sw-attribute-set-renderer>
             </sw-card>
         {% endblock %}

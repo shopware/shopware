@@ -1,13 +1,14 @@
 import { Component, State, Mixin } from 'src/core/shopware';
 import LocalStore from 'src/core/data/LocalStore';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-settings-number-range-detail.html.twig';
 import './sw-settings-number-range-detail.scss';
 
 Component.register('sw-settings-number-range-detail', {
     template,
 
-    inject: ['numberRangeService'],
+    inject: ['numberRangeService', 'repositoryFactory', 'context'],
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('placeholder')
@@ -181,31 +182,63 @@ Component.register('sw-settings-number-range-detail', {
                 return;
             }
             this.selectedType = this.numberRangeTypeStore.getById(id);
-            this.salesChannelsTypeCriteria = CriteriaFactory.multi('OR',
-                CriteriaFactory.equals('numberRangeSalesChannels.numberRangeTypeId', null),
-                CriteriaFactory.not(
-                    'AND',
-                    CriteriaFactory.equals('numberRangeSalesChannels.numberRangeTypeId', this.selectedType.id),
-                ),
-                CriteriaFactory.equals('numberRangeSalesChannels.numberRange.id', this.numberRange.id));
+            const numberRangeSalesChannels = this.repositoryFactory.create('number_range_sales_channel');
+            const numberRangeSalesChannelCriteria = new Criteria();
+            numberRangeSalesChannelCriteria.addFilter(
+                Criteria.equals('numberRangeTypeId', id)
+            );
+            numberRangeSalesChannels.search(numberRangeSalesChannelCriteria, this.context).then((responseSalesChannels) => {
+                const assignedSalesChannelIds = [];
+                responseSalesChannels.forEach((salesChannel) => {
+                    assignedSalesChannelIds.push(salesChannel.salesChannel.id);
+                });
+                this.getPossibleSalesChannels(assignedSalesChannelIds);
+            });
+        },
+        getPossibleSalesChannels(assignedSalesChannelIds) {
+            this.setSalesChannelCriteria(assignedSalesChannelIds);
             if (this.numberRange.global === false) {
                 this.salesChannelAssociationStore.getList({
                     associations: { salesChannel: {} }
                 }).then((responseAssoc) => {
-                    this.numberRangeSalesChannels = [];
-                    // get all salesChannels which are not assigned to this numberRangeType
-                    // and all SalesChannels already assigned to the current NumberRange
-                    this.numberRangeSalesChannelsAssoc = responseAssoc;
-                    this.numberRangeSalesChannelsAssoc.items.forEach((salesChannelAssoc) => {
-                        if (salesChannelAssoc.salesChannelId !== null) {
-                            this.numberRangeSalesChannelsStore.add(salesChannelAssoc.salesChannel);
-                            this.numberRangeSalesChannels.push(salesChannelAssoc.salesChannel.id);
-                        }
-                    });
-                    if (this.$refs.numberRangeSalesChannel) {
-                        this.$refs.numberRangeSalesChannel.loadSelected(true);
-                    }
+                    this.enrichAssocStores(responseAssoc);
                 });
+            }
+        },
+        setSalesChannelCriteria(assignedSalesChannelIds) {
+            this.salesChannelsTypeCriteria = null;
+            if (assignedSalesChannelIds.length > 0) {
+                // get all salesChannels which are not assigned to this numberRangeType
+                // and all SalesChannels already assigned to the current NumberRange if type not changed
+                if (this.numberRange.typeId === this.selectedType.id) {
+                    this.salesChannelsTypeCriteria = CriteriaFactory.multi('OR',
+                        CriteriaFactory.equals('numberRangeSalesChannels.numberRangeTypeId', null),
+                        CriteriaFactory.not(
+                            'AND',
+                            CriteriaFactory.equalsAny('id', assignedSalesChannelIds)
+                        ),
+                        CriteriaFactory.equals('numberRangeSalesChannels.numberRange.id', this.numberRange.id));
+                } else { // type changed so only get free saleschannels
+                    this.salesChannelsTypeCriteria = CriteriaFactory.multi('OR',
+                        CriteriaFactory.equals('numberRangeSalesChannels.numberRangeTypeId', null),
+                        CriteriaFactory.not(
+                            'AND',
+                            CriteriaFactory.equalsAny('id', assignedSalesChannelIds)
+                        ));
+                }
+            }
+        },
+        enrichAssocStores(responseAssoc) {
+            this.numberRangeSalesChannels = [];
+            this.numberRangeSalesChannelsAssoc = responseAssoc;
+            this.numberRangeSalesChannelsAssoc.items.forEach((salesChannelAssoc) => {
+                if (salesChannelAssoc.salesChannelId !== null) {
+                    this.numberRangeSalesChannelsStore.add(salesChannelAssoc.salesChannel);
+                    this.numberRangeSalesChannels.push(salesChannelAssoc.salesChannel.id);
+                }
+            });
+            if (this.$refs.numberRangeSalesChannel) {
+                this.$refs.numberRangeSalesChannel.loadSelected(true);
             }
         },
         onChangeSalesChannel() {

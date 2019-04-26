@@ -14,6 +14,7 @@ import './component/sw-order-state-history-card-entry';
 import './component/sw-order-state-select';
 import './component/sw-order-inline-field';
 import './component/sw-order-user-card';
+import './component/sw-order-document-card';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';

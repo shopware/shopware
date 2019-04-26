@@ -1,0 +1,160 @@
+<style type="text/css">
+    {% block document_style %}
+        /* Fonts */
+        @font-face {
+            font-family: 'Source Sans Pro';
+            font-style: normal;
+            font-weight: normal;
+            src: url('https://fonts.googleapis.com/css?family=Source+Sans+Pro:400') format('truetype');
+        }
+
+        body {
+            font-family: 'Source Sans Pro', sans-serif;
+            font-size: 12px;
+            line-height: 12px;
+            width: 100%;
+        }
+
+        .letter-header {
+            position: absolute;
+            top: -100px;
+        }
+
+        .letter-body {
+            margin-top: 200px;
+        }
+
+        div.page_break {
+            page-break-before: always;
+        }
+
+        div.page_break + div.page_break {
+            page-break-before: always;
+        }
+
+        h1 {
+            line-height: 24px;
+        }
+
+        /* Helper classes */
+        .align-right {
+            text-align: right;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .small-padding-top {
+            padding-top: 15px;
+        }
+
+        /*Page */
+        @page {
+            margin-top: 200px;
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: -175px;
+        }
+
+        .logo {
+            width: 30%;
+            max-height: 150px;
+        }
+
+        /* Document title */
+        .document-title-container {
+            margin: 45px 0 20px 0;
+        }
+
+        /* Sender info section (top right) */
+        .sender-address-container {
+            top: 0;
+            right: 30px;
+            position: absolute;
+        }
+
+        /* Receipt address section */
+        .recipient-address-container {
+            margin-top: 100px;
+        }
+
+        /* Line item section */
+        .line-item-table {
+            width: 100%;
+            border-spacing: 0 2px;
+        }
+
+
+        .line-item-table-header > th, .line-item-table:last-child {
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+        }
+
+        .line-item-table-header > th.numbers{
+            text-align: right;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+        }
+
+        .line-item, .sum-container, .payment-shipping-container {
+            line-height: 16px;
+        }
+
+        .line-item.first > td {
+            padding-top: 20px;
+        }
+
+        .line-item-breakable {
+            word-wrap: break-word;
+        }
+
+        /* Payment/shipping details*/
+        .payment-shipping-container {
+            padding-top: 25px;
+        }
+
+        /* Page count */
+        .page-count {
+            width: 100%;
+            text-align: center;
+        }
+
+        .pagenum:after {
+            content: counter(page);
+        }
+
+        /* Subtotal/Total section */
+        .sum-container {
+            margin-top: 20px;
+            text-align: right;
+            float: right;
+            right: 30px;
+        }
+
+        .sum-table {
+            border-spacing: 20px 0;
+        }
+
+        /* Footer */
+        footer {
+            position: fixed;
+            bottom: 50px;
+            margin-left: auto;
+            margin-right: auto;
+            font-size: 8px;
+        }
+
+        footer:after {
+            clear: both;
+        }
+
+        footer > ul {
+            list-style-type: none;
+            float: left;
+        }
+    {% endblock %}
+</style>

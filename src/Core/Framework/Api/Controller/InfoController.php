@@ -37,7 +37,7 @@ class InfoController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_info/openapi3.json", name="api.info.openapi3", methods={"GET"})
+     * @Route("/api/v{version}/_info/openapi3.json", defaults={"auth_required"=false}, name="api.info.openapi3", methods={"GET"})
      *
      * @throws \Exception
      */
@@ -49,7 +49,7 @@ class InfoController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_info/open-api-schema.json", name="api.info.open-api-schema", methods={"GET"})
+     * @Route("/api/v{version}/_info/open-api-schema.json", defaults={"auth_required"=false}, name="api.info.open-api-schema", methods={"GET"})
      */
     public function openApiSchema(): JsonResponse
     {
@@ -59,7 +59,7 @@ class InfoController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_info/entity-schema.json", name="api.info.entity-schema", methods={"GET"})
+     * @Route("/api/v{version}/_info/entity-schema.json", defaults={"auth_required"=false}, name="api.info.entity-schema", methods={"GET"})
      */
     public function entitySchema(): JsonResponse
     {
@@ -69,7 +69,7 @@ class InfoController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_info/swagger.html", name="api.info.swagger", methods={"GET"})
+     * @Route("/api/v{version}/_info/swagger.html", defaults={"auth_required"=false}, name="api.info.swagger", methods={"GET"})
      */
     public function infoHtml(): Response
     {
@@ -90,7 +90,7 @@ class InfoController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_info/events.json", name="api.info.events", methods={"GET"})
+     * @Route("/api/v{version}/_info/events.json", defaults={"auth_required"=false}, name="api.info.events", methods={"GET"})
      */
     public function events(): JsonResponse
     {

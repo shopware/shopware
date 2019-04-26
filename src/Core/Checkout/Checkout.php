@@ -19,13 +19,14 @@ class Checkout extends Bundle
         parent::build($container);
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
+        $loader->load('cart.xml');
         $loader->load('customer.xml');
+        $loader->load('discount_surcharge.xml');
+        $loader->load('document.xml');
         $loader->load('order.xml');
         $loader->load('payment.xml');
-        $loader->load('shipping.xml');
-        $loader->load('cart.xml');
-        $loader->load('discount_surcharge.xml');
         $loader->load('rule.xml');
         $loader->load('promotion.xml');
+        $loader->load('shipping.xml');
     }
 }

@@ -29,14 +29,14 @@ class AuthController extends AbstractController
     }
 
     /**
-     * @Route("/api/oauth/authorize", name="api.oauth.authorize", methods={"POST"})
+     * @Route("/api/oauth/authorize", name="api.oauth.authorize", defaults={"auth_required"=false}, methods={"POST"})
      */
     public function authorize(Request $request): void
     {
     }
 
     /**
-     * @Route("/api/oauth/token", name="api.oauth.token", methods={"POST"})
+     * @Route("/api/oauth/token", name="api.oauth.token", defaults={"auth_required"=false}, methods={"POST"})
      */
     public function token(Request $request): Response
     {

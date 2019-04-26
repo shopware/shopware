@@ -17,7 +17,6 @@ use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsCollector;
 use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsDataDefinition;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Fakes\FakePromotionGateway;
-use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Struct\StructCollection;
@@ -61,10 +60,10 @@ class CartPromotionsCollectorTest extends TestCase
 
         $this->cart = new Cart('C1', 'TOKEN-1');
         // add a prepared placeholder promotion
-        $this->cart->add(new LineItem('CODE-123', CartPromotionsCollector::LINE_ITEM_TYPE, 1, LineItem::GOODS_PRIORITY));
+        $this->cart->add(new LineItem('CODE-123', CartPromotionsCollector::LINE_ITEM_TYPE, 1));
         // add product items
-        $this->cart->add(new LineItem('P1', ProductCollector::LINE_ITEM_TYPE, 1, LineItem::GOODS_PRIORITY));
-        $this->cart->add(new LineItem('P2', ProductCollector::LINE_ITEM_TYPE, 1, LineItem::GOODS_PRIORITY));
+        $this->cart->add(new LineItem('P1', LineItem::PRODUCT_LINE_ITEM_TYPE, 1));
+        $this->cart->add(new LineItem('P2', LineItem::PRODUCT_LINE_ITEM_TYPE, 1));
 
         $this->promotionGlobal = new PromotionEntity();
         $this->promotionGlobal->setId('PROM-GLOBAL');

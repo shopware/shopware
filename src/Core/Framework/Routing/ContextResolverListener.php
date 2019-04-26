@@ -2,10 +2,9 @@
 
 namespace Shopware\Core\Framework\Routing;
 
-use Shopware\Core\Framework\Api\EventListener\ErrorResponseFactory;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class ContextResolverListener implements EventSubscriberInterface
@@ -38,21 +37,17 @@ class ContextResolverListener implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::REQUEST => [
+            KernelEvents::CONTROLLER => [
                 ['resolveContext', 5],
             ],
         ];
     }
 
-    public function resolveContext(GetResponseEvent $event): void
+    public function resolveContext(FilterControllerEvent $event): void
     {
-        try {
-            $this->requestContextResolver->resolve(
-                $this->requestStack->getMasterRequest(),
-                $event->getRequest()
-            );
-        } catch (\Throwable $e) {
-            $event->setResponse((new ErrorResponseFactory())->getResponseFromException($e, $this->debug));
-        }
+        $this->requestContextResolver->resolve(
+            $this->requestStack->getMasterRequest(),
+            $event->getRequest()
+        );
     }
 }

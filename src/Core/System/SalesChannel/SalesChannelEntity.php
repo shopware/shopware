@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
+use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
@@ -242,6 +243,11 @@ class SalesChannelEntity extends Entity
      * @var PromotionSalesChannelCollection|null
      */
     protected $promotionSalesChannels;
+
+    /**
+     * @var DocumentBaseConfigDefinition|null
+     */
+    protected $documentBaseConfigSalesChannels;
 
     public function getMailHeaderFooter(): ?MailHeaderFooterEntity
     {
@@ -661,5 +667,15 @@ class SalesChannelEntity extends Entity
     public function setNumberRangeSalesChannels(?NumberRangeSalesChannelCollection $numberRangeSalesChannels): void
     {
         $this->numberRangeSalesChannels = $numberRangeSalesChannels;
+    }
+
+    public function getDocumentBaseConfigSalesChannels(): ?DocumentBaseConfigDefinition
+    {
+        return $this->documentBaseConfigSalesChannels;
+    }
+
+    public function setDocumentBaseConfigSalesChannels(?DocumentBaseConfigDefinition $documentBaseConfigSalesChannels): void
+    {
+        $this->documentBaseConfigSalesChannels = $documentBaseConfigSalesChannels;
     }
 }

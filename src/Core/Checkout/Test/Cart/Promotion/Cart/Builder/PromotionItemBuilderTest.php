@@ -200,29 +200,4 @@ class PromotionItemBuilderTest extends TestCase
 
         static::assertEquals($expectedPriceDefinition, $item->getPriceDefinition());
     }
-
-    /**
-     * This test verifies that the correct priority value
-     * is being used for the promotion line item.
-     * This should be the voucher constant from the line items.
-     *
-     * @test
-     * @group promotions
-     *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     */
-    public function testPriority()
-    {
-        $builder = new PromotionItemBuilder('My-TYPE');
-
-        $discount = new PromotionDiscountEntity();
-        $discount->setId('D5');
-        $discount->setType(PromotionDiscountEntity::TYPE_ABSOLUTE);
-        $discount->setValue(50);
-
-        $item = $builder->buildDiscountLineItem($this->promotion, $discount, 1, []);
-
-        static::assertEquals(LineItem::VOUCHER_PRIORITY, $item->getPriority());
-    }
 }

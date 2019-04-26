@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Language;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation\DiscountSurchargeTranslationCollection;
+use Shopware\Core\Checkout\Document\Aggregate\DocumentTypeTranslation\DocumentTypeTranslationCollection;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationCollection;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
@@ -269,6 +270,11 @@ class LanguageEntity extends Entity
      * @var MailHeaderFooterCollection|null
      */
     protected $mailHeaderFooterTranslations;
+
+    /**
+     * @var DocumentTypeTranslationCollection|null
+     */
+    protected $documentTypeTranslations;
 
     /**
      * @var DeliveryTimeCollection|null
@@ -733,6 +739,16 @@ class LanguageEntity extends Entity
     public function setMailTemplateTranslations(?MailTemplateCollection $mailTemplateTranslations): void
     {
         $this->mailTemplateTranslations = $mailTemplateTranslations;
+    }
+
+    public function getDocumentTypeTranslations(): ?DocumentTypeTranslationCollection
+    {
+        return $this->documentTypeTranslations;
+    }
+
+    public function setDocumentTypeTranslations(DocumentTypeTranslationCollection $documentTypeTranslations): void
+    {
+        $this->documentTypeTranslations = $documentTypeTranslations;
     }
 
     public function getDeliveryTimeTranslations(): ?DeliveryTimeCollection

@@ -59,7 +59,6 @@
         "psr/http-factory": "1.0.0",
         "psr/http-message": "1.0.1",
         "psr/log": "1.1.0",
-        "ramsey/uuid": "3.8.0",
         "sensio/framework-extra-bundle": "5.2.4",
         "smalot/pdfparser": "0.14.0",
         "superbalist/flysystem-google-storage": "7.2.1",

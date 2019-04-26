@@ -1,5 +1,5 @@
 {% block sw_settings_shipping_price_matrix %}
-    <sw-card :title="placeholder(priceGroup.rule, 'name', $tc('sw-settings-shipping.priceMatrix.placeholderName'))"
+    <sw-card :title="priceGroup.rule ? priceGroup.rule.name : $tc('sw-settings-shipping.priceMatrix.placeholderName')"
              class="sw-settings-shipping-price-matrix">
         {% block sw_settings_shipping_price_matrix_topbar %}
             <sw-container columns="1fr 160px 35px"
@@ -55,7 +55,7 @@
                             </sw-context-menu-item>
                         {% endblock %}
                         {% block sw_settings_shipping_price_matrix_topbar_context_button_delete %}
-                            <sw-context-menu-item @click="$emit('delete-price-matrix', priceGroup)"
+                            <sw-context-menu-item @click="onDeletePriceMatrix"
                                                   class="sw-settings-shipping-price-matrix__action-delete"
                                                   variant="danger">
                                 {{ $tc('sw-settings-shipping.priceMatrix.deleteMatrixContextLabel') }}
@@ -74,6 +74,16 @@
                           :showSettings="true"
                           :allowInlineEdit="allowInlineEdit"
                           @inline-edit-save="onSaveInlineEdit">
+                {% block sw_settings_shipping_price_matrix_price_grid_column_quantity_end %}
+                    <template slot="column-quantityEnd" slot-scope="{ item, isInlineEdit, compact }">
+                        <template v-if="isInlineEdit">
+                            <sw-number-field :size="compact ? 'small' : 'default'" v-model="item.quantityEnd"></sw-number-field>
+                        </template>
+                        <template v-else>
+                            {{ item.quantityEnd !== null ? item.quantityEnd : $tc('sw-settings-shipping.priceMatrix.any') }}
+                        </template>
+                    </template>
+                {% endblock %}
                 {% block sw_settings_shipping_price_matrix_price_grid_column_price %}
                     <template slot="column-price" slot-scope="{ item, isInlineEdit, compact }">
                         <template v-if="isInlineEdit">
@@ -155,6 +165,35 @@
                            @save="onSaveRule"
                            @closeModal="onCloseRuleModal">
             </sw-rule-modal>
+        {% endblock %}
+
+        {% block sw_settings_shipping_price_matrix_delete_modal %}
+            <sw-modal v-if="showDeleteModal"
+                      @closeModal="onCloseDeleteModal"
+                      :title="$tc('sw-settings-shipping.priceMatrix.modalTitleDelete')"
+                      variant="small">
+                {% block sw_settings_shipping_price_matrix_delete_modal_confirm_delete_text %}
+                    <p class="sw-settings-shipping-price-matrix__confirm-delete-text">
+                        {{ confirmDeleteText }}
+                    </p>
+                {% endblock %}
+
+                {% block sw_settings_shipping_price_matrix_delete_modal_footer %}
+                    <template slot="modal-footer">
+                        {% block sw_settings_shipping_price_matrix_delete_modal_cancel %}
+                            <sw-button @click="onCloseDeleteModal" size="small">
+                                {{ $tc('sw-settings-shipping.priceMatrix.buttonCancel') }}
+                            </sw-button>
+                        {% endblock %}
+
+                        {% block sw_settings_shipping_price_matrix_delete_modal_confirm %}
+                            <sw-button @click="onConfirmDeletePriceRule" variant="primary" size="small">
+                                {{ $tc('sw-settings-shipping.priceMatrix.buttonDelete') }}
+                            </sw-button>
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+            </sw-modal>
         {% endblock %}
     </sw-card>
 {% endblock %}

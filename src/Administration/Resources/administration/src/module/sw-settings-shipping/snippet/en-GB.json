@@ -84,7 +84,12 @@
       "columnVolumeEnd": "Volume end",
       "columnPrice": "Price (gross)",
       "columnCalculationRule": "Rule",
-      "buttonAddAdditionalPriceRule": "Add additional price rule"
+      "buttonAddAdditionalPriceRule": "Add additional price rule",
+      "any": "any",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete",
+      "modalTitleDelete": "Delete price matrix",
+      "textDeleteConfirm": "Are you sure you really want to delete the price matrix \"{name}\"? | Are you sure you really want to delete the price matrix?"
     },
     "sidebar": {
       "labelUseAsLogo": "Use as logo"

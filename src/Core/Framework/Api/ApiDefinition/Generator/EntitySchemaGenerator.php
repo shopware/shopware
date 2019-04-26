@@ -53,31 +53,20 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
 {
     public const FORMAT = 'entity-schema';
 
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $registry;
-
-    public function __construct(DefinitionInstanceRegistry $registry)
-    {
-        $this->registry = $registry;
-    }
-
     public function supports(string $format): bool
     {
         return $format === self::FORMAT;
     }
 
-    public function generate(): array
+    public function generate(array $definitions): array
     {
-        return $this->getSchema();
+        return $this->getSchema($definitions);
     }
 
-    public function getSchema(): array
+    public function getSchema(array $definitions): array
     {
         $schema = [];
 
-        $definitions = $this->registry->getDefinitions();
         ksort($definitions);
 
         /** @var EntityDefinition $definition */

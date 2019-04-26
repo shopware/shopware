@@ -2,11 +2,20 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition;
 
+
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+
 interface ApiDefinitionGeneratorInterface
 {
     public function supports(string $format): bool;
 
-    public function generate(): array;
+    /**
+     * @param EntityDefinition[] $definitions
+     */
+    public function generate(array $definitions): array;
 
-    public function getSchema(): array;
+    /**
+     * @param EntityDefinition[] $definitions
+     */
+    public function getSchema(array $definitions): array;
 }

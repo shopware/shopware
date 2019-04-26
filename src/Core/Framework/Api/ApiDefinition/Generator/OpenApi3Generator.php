@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
 use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -29,38 +28,31 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 {
     public const FORMAT = 'openapi-3';
 
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $registry;
-
-    public function __construct(DefinitionInstanceRegistry $registry)
-    {
-        $this->registry = $registry;
-    }
-
     public function supports(string $format): bool
     {
         return $format === self::FORMAT;
     }
 
-    public function generate(): array
+    public function generate(array $definitions): array
     {
         $url = getenv('APP_URL');
+
+        $forSalesChannel = is_subclass_of(current($definitions), SalesChannelDefinitionInterface::class);
 
         $openapi = [
             'openapi' => '3.0.0',
             'servers' => [
-                ['url' => $url . '/api/v1'],
+                ['url' => $url . ($forSalesChannel ? 'sales-channel-api/v1' : 'api/v1')],
             ],
             'info' => [
-                'title' => 'Shopware API',
+                'title' => 'Shopware ' . ($forSalesChannel ? 'Sales-Channel' : 'Management') . ' API',
                 'version' => '1.0.0',
             ],
             'security' => [
@@ -99,11 +91,9 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             ],
         ];
 
-        $elements = $this->registry->getDefinitions();
+        ksort($definitions);
 
-        ksort($elements);
-
-        foreach ($elements as $definition) {
+        foreach ($definitions as $definition) {
             if (preg_match('/_translation$/', $definition->getEntityName())) {
                 continue;
             }
@@ -137,14 +127,13 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         return $openapi;
     }
 
-    public function getSchema(): array
+    public function getSchema(array $definitions): array
     {
         $schemaDefinitions = [];
-        $elements = $this->registry->getDefinitions();
 
-        ksort($elements);
+        ksort($definitions);
 
-        foreach ($elements as $definition) {
+        foreach ($definitions as $definition) {
             if (preg_match('/_translation$/', $definition->getEntityName())) {
                 continue;
             }
@@ -645,6 +634,12 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 ],
             ],
         ];
+
+        if (is_subclass_of($definition, SalesChannelDefinitionInterface::class)) {
+            unset($openapi['paths'][$path]['post']);
+            unset($openapi['paths'][$path . '/{id}']['patch']);
+            unset($openapi['paths'][$path . '/{id}']['delete']);
+        }
 
         return $openapi;
     }

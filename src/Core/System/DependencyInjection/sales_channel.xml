@@ -79,6 +79,13 @@
             </call>
         </service>
 
+        <service id="Shopware\Core\System\SalesChannel\Entity\SalesChannelApiSchemaController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <service id="Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelContextSwitcher">
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>

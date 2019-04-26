@@ -73,7 +73,7 @@ class InfoController extends AbstractController
      */
     public function infoHtml(): Response
     {
-        return $this->render('@Shopware/swagger.html.twig');
+        return $this->render('@Shopware/swagger.html.twig', ['schemaUrl' => 'api.info.openapi3']);
     }
 
     /**

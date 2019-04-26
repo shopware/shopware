@@ -44,17 +44,16 @@
             "useAsLink": "Use as link"
           },
 
-          "mount": {
-            "title": "Mount",
-            "descriptionGeneral": "You have assigned this node in the following sales channels as a mounting point for the main navigation:",
-            "descriptionMenu": "The mounting point is also automatically the home page of these sales channels. If this should not be the case and instead the first active main menu item should be your start page, you can change this here: All subcategories will be deleted, too.",
-            "useAsHomepage": "Use as homepage",
-            "showHomepageAsMainMenuEntry": "Show homepage as main-menu entry"
+          "entry-point": {
+            "title": "Entry point",
+            "descriptionGeneral": "You have assigned this node in the following sales channels as a entry point for the main navigation:",
+            "descriptionMenu": "The entry point is also automatically the home page of these sales channels. If this should not be the case and instead the first active main menu item should be your start page, you can change this here: All subcategories will be deleted, too."
           },
 
           "menu": {
             "title": "Menü-Settings",
-            "notClickable": "Not clickable",
+            "hideInNavigation": "Hide in navigation",
+            "useAsStructureCategory": "Use as structural category",
             "imageLabel": "Display image",
             "description": "Description"
           },

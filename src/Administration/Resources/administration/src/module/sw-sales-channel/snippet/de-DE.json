@@ -54,7 +54,7 @@
       "buttonCloseDeleteDomainModal": "Abbrechen",
       "buttonConfirmDeleteDomain": "Löschen",
       "customerGroup": "Kundengruppe",
-      "navigations": "Navigationseinstellungen",
+      "navigation": "Navigation",
       "navigationCategoryId": "Einstiegspunkt Hauptnavigation"
     }
   }

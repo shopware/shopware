@@ -39,17 +39,16 @@
             "useAsLink": "Als Link verwenden"
           },
 
-          "mount": {
-            "title": "Einhängepunkt",
-            "descriptionGeneral": "Du hast diesen Knoten in folgenden Verkaufskanälen als Einhängepunkt für die Hauptnavigation zugewiesen:",
-            "descriptionMenu": "Der Einhängepunkt ist auch automatisch die Startseite dieser Verkaufskanäle. Soll das nicht der Fall sein und stattdessen der erste, aktive Hauptmenüpunkt deine Startseite sein, kannst du das hier ändern:",
-            "useAsHomepage": "Als Startseite verwenden",
-            "showHomepageAsMainMenuEntry": "Startseite als Hauptmenüpunkt anzeigen"
+          "entry-point": {
+            "title": "Einstiegspunkt",
+            "descriptionGeneral": "Du hast diesen Knoten in folgenden Verkaufskanälen als Einstiegspunkt für die Hauptnavigation zugewiesen:",
+            "descriptionMenu": "Der Einstiegspunkt ist auch automatisch die Startseite dieser Verkaufskanäle. Soll das nicht der Fall sein und stattdessen der erste, aktive Hauptmenüpunkt deine Startseite sein, kannst du das hier ändern:"
           },
 
           "menu": {
             "title": "Menü-Einstellungen",
-            "notClickable": "Nicht klickbar",
+            "hideInNavigation": "In der Navigation ausblenden",
+            "useAsStructureCategory": "Als Gliederungskategorie verwenden",
             "imageLabel": "Anzeigebild",
             "description": "Beschreibung"
           },

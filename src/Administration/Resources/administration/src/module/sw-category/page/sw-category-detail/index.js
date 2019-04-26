@@ -16,6 +16,7 @@ Component.register('sw-category-detail', {
     data() {
         return {
             category: null,
+            cmsPage: null,
             categories: [],
             isLoading: false,
             mediaItem: null,
@@ -40,6 +41,10 @@ Component.register('sw-category-detail', {
 
         categoryStore() {
             return State.getStore('category');
+        },
+
+        cmsPageStore() {
+            return State.getStore('cms_page');
         },
 
         mediaStore() {
@@ -108,15 +113,45 @@ Component.register('sw-category-detail', {
 
         getCategories(parentId = null) {
             this.isLoading = true;
-            return this.categoryStore.getList({
+
+            const params = {
                 page: 1,
                 limit: 500,
-                criteria: CriteriaFactory.equals('category.parentId', parentId)
-            }).then((response) => {
-                this.isLoading = false;
+                criteria: CriteriaFactory.equals('category.parentId', parentId),
+                associations: {
+                    navigationSalesChannels: {},
+                    serviceSalesChannels: {},
+                    footerSalesChannels: {}
+                }
+            };
+            return this.categoryStore.getList(params, true).then((response) => {
                 this.categories = Object.values(this.categoryStore.store);
+                this.isLoading = false;
                 return response.items;
             });
+        },
+
+        getAssignedCmsPage(cmsPageId) {
+            const params = {
+                criteria: CriteriaFactory.equals('cms_page.id', cmsPageId),
+                associations: {
+                    blocks: {
+                        associations: {
+                            slots: { }
+                        }
+                    }
+                }
+            };
+            return this.cmsPageStore.getList(params, true).then((response) => {
+                console.log('response', response);
+                const cmsPage = response.items[0];
+                this.cmsPage = cmsPage;
+                return cmsPage;
+            });
+        },
+
+        onCmsLayoutChange(cmsPageId) {
+            return this.getAssignedCmsPage(cmsPageId);
         },
 
         setCategory() {
@@ -130,6 +165,10 @@ Component.register('sw-category-detail', {
             if (this.$route.params.id) {
                 this.getCategory(categoryId).then(response => {
                     this.category = response;
+                    this.getAssignedCmsPage(this.category.cmsPageId);
+                    this.onCmsLayoutChange(this.category.cmsPageId);
+                    console.log(this.category);
+
                     this.mediaItem = this.category.mediaId
                         ? this.mediaStore.getById(this.category.mediaId) : null;
                     this.isLoading = false;

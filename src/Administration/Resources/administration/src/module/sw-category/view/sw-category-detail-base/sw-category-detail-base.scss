@@ -1,24 +1,19 @@
  @import "~scss/variables";
 
 .sw-category-detail__base {
+    .sw-category-detail__base-entry-point {
 
-    .sw-category-detail__base-mount {
-        .base-mount__link {
-            text-decoration: none;
-            font-style: italic;
-            line-height: 2.2;
+        .base-entry-point__sales-channels {
+            margin: 16px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
         }
 
-        .base-mount__options {
-            margin-top: 12px;
-
-            .sw-field:nth-child(2) {
-                margin-top: 16px;
-            }
-
-            .sw-field {
-                margin-bottom: 0;
-            }
+        .base-entry-point__link {
+            line-height: 24px;
+            text-decoration: none;
+            color: $color-shopware-blue;
         }
     }
 
@@ -46,12 +41,15 @@
             font-weight: 600;
             font-size: 14px;
         }
+
         .layout-desc__subheadline {
             font-size: 14px;
         }
+
         .layout-desc__info {
             margin-bottom: 16px;
         }
+
         .layout-desc__actions {
             display: grid;
             grid-auto-flow: column dense;
@@ -59,6 +57,7 @@
             width: min-content;
             gap: 12px;
         }
+
         .layout-desc__link {
             display: flex;
             align-items: center;
@@ -72,15 +71,6 @@
                 margin-left: 8px;
             }
         }
-    }
-
-    .sw-category-detail__seo-preview {
-        background: $color-light-gray;
-        border-radius: $border-radius-default;
-        border: 1px solid $color-steam-cloud;
-        margin-top: 32px;
-        display: flex;
-        height: 140px;
     }
 
     &.sw-card-detail .sw-card-detail__content {

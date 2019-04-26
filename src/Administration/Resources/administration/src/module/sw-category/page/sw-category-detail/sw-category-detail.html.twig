@@ -64,11 +64,13 @@
             <template slot="content">
 
                 {% block sw_category_content_view %}
-                    <sw-category-view v-if="!isMobileViewport && category || isMobileViewport && category"
+                    <sw-category-view v-if="!isMobileViewport && (category && cmsPage) || isMobileViewport && (category && cmsPage)"
                         ref="categoryView"
                         :category="category"
+                        :cmsPage="cmsPage"
                         :mediaItem="mediaItem"
                         :isLoading="isLoading"
+                        @sw-category-view-on-page-change="onCmsLayoutChange"
                         @sw-category-view-on-open-sidebar="openSidebar"
                         @sw-category-view-on-set-media="setMediaItem"
                         @sw-category-view-on-upload-media="onUploadAdded"

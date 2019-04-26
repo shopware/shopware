@@ -2,8 +2,8 @@
   "sw-cms": {
     "general": {
       "placeholderSearchBar": "Search for a Layout",
-      "mainMenuItemGeneral": "Pages",
-      "moduleTitle": "Content Management",
+      "mainMenuItemGeneral": "Experience Designer",
+      "moduleTitle": "Experience Designer",
       "greeting": "Welcome",
       "createNewLayout": "Create new Layout"
     },

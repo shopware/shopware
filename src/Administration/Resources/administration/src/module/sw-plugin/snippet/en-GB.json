@@ -1,7 +1,7 @@
 {
   "sw-plugin":{
     "general":{
-      "mainMenuItemGeneral":"Plugin Manager",
+      "mainMenuItemGeneral":"Plugins",
       "mainMenuPluginList":"Installed",
       "mainMenuLicenseList":"My licenses",
       "descriptionTextModule":"Manage plugins here",
@@ -57,7 +57,7 @@
       "registerAccountUrl":"https://account.shopware.com/register?lang=en"
     },
     "list":{
-      "textPluginManager":"Plugin Manager",
+      "textPluginManager":"Plugins",
       "messageEmpty":"You have not yet uploaded a plugin",
       "columnPluginName":"Plugin",
       "columnVersion":"Version",

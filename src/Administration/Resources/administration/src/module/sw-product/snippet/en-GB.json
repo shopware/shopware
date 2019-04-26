@@ -11,8 +11,8 @@
       "closeModal": "Apply"
     },
     "general": {
-      "mainMenuItemGeneral": "Products",
-      "mainMenuItemList": "Overview",
+      "mainMenuItemGeneral": "Catalogues",
+      "mainMenuItemList": "Products",
       "mainMenuItemAdd": "Add product",
       "descriptionTextModule": "Manage products here.",
       "placeholderSearchBar": "Search products"

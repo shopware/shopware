@@ -1,18 +1,18 @@
 {
   "sw-product-stream": {
     "general": {
-      "mainMenuItemGeneral": "Product-Streams",
-      "placeholderSearchBar": "Durchsuche alle Product-Streams",
-      "descriptionTextModule": "Verwaltung von Product-Streams."
+      "mainMenuItemGeneral": "Dynamische Produktgruppen",
+      "placeholderSearchBar": "Durchsuche alle dynamischen Produktgruppen",
+      "descriptionTextModule": "Verwaltung von dynamischen Produktgruppen."
     },
     "list": {
-      "textProductStreamOverview": "Product-Streams",
+      "textProductStreamOverview": "Dynamische Produktgruppen",
       "columnName": "Name",
       "columnDescription": "Beschreibung",
       "columnDateUpdated": "Änderungsdatum",
       "columnStatus": "Status",
       "titleSidebarItemRefresh": "Refresh",
-      "buttonAddProductStream": "Product-Stream anlegen",
+      "buttonAddProductStream": "Produktgruppe anlegen",
       "status": {
         "valid": "Valide",
         "invalid": "Invalide"
@@ -20,14 +20,14 @@
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDuplicate": "Duplizieren",
       "contextMenuDelete": "Löschen",
-      "messageEmpty": "Noch keine Product-Streams",
-      "modalTitleDelete": "Product-Stream löschen",
-      "textDeleteConfirm": "Möchtest Du den Product-Stream \"{name}\" wirklich löschen?",
+      "messageEmpty": "Noch keine Produktgruppe",
+      "modalTitleDelete": "Produktgruppe löschen",
+      "textDeleteConfirm": "Möchtest Du die Produktgruppe \"{name}\" wirklich löschen?",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen"
     },
     "filter": {
-      "valid": "Nur valide Product-Streams anzeigen",
+      "valid": "Nur valide Produktgruppen anzeigen",
       "type": {
         "equals": "Gleich",
         "equalsAny": "Einer von",
@@ -103,11 +103,11 @@
       "placeholderName": "Gib einen Namen ein",
       "labelDescription": "Beschreibung",
       "placeholderDescription": "Gib eine Beschreibung ein",
-      "textHeadline": "Neuer Product-Stream",
+      "textHeadline": "Neue Produktgruppe",
       "titleFilter": "Filter",
       "titleResult": "Produkte",
       "titleSaveSuccess": "Erfolg",
-      "messageSaveSuccess": "Der Product-Stream \"{name}\" wurde erfolgreich gespeichert.",
+      "messageSaveSuccess": "Die Produktgruppe \"{name}\" wurde erfolgreich gespeichert.",
       "buttonOpenPreview": "Vorschau"
     },
     "previewModal": {

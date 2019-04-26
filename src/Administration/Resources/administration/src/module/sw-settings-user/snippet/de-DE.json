@@ -1,9 +1,9 @@
 {
   "sw-settings-user": {
     "general": {
-      "mainMenuItemGeneral": "Benutzer",
+      "mainMenuItemGeneral": "Benutzer & Rechte",
       "placeholderSearchBar": "Finde Benutzer",
-      "labelUserList": "Benutzerverwaltung",
+      "labelUserList": "Benutzer & Rechte",
       "labelCreateNewUser": "Neuer Benutzer"
     },
     "user-grid": {

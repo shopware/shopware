@@ -1,14 +1,14 @@
 {
   "sw-settings-attribute": {
     "general": {
-      "description": "Freitextfelder Verwaltung",
-      "mainMenuItemGeneral": "Freitextfelder",
-      "placeholderSearchBar": "Durchsuche alle Freitextfelder",
+      "description": "Zusatzfelder",
+      "mainMenuItemGeneral": "Zusatzfelder",
+      "placeholderSearchBar": "Durchsuche alle Zusatzfelder",
       "tooltipTechnicalName": "Der technische Name muss eindeutig sein und kann nach dem Speichern nicht mehr verändert werden"
     },
     "set": {
       "list": {
-        "textHeadline": "Freitextfelder",
+        "textHeadline": "Zusatzfelder",
         "titleModalDelete": "Set löschen",
         "textDeleteConfirm": "Möchtest Du das Set \"{name}\" wirklich löschen?",
         "buttonCancel": "Abbrechen",
@@ -22,17 +22,17 @@
       },
       "detail": {
         "labelTechnicalName": "Technischer Name",
-        "textHeadline": "Freitextfeld-Set",
+        "textHeadline": "Zusatzfeld-Set",
         "buttonCancel": "Abbrechen",
         "buttonSave": "Speichern",
         "titleCardInformation": "Set Informationen",
         "labelName": "Set Name",
         "placeholderName": "Name eingeben...",
         "labelCheckboxTranslated": "In allen Administrationssprachen pflegen",
-        "titleSaveSuccess": "Freitextfeld-Set",
+        "titleSaveSuccess": "Zusatzfeld-Set",
         "messageSaveSuccess": "Das Set \"{name}\" wurde erfolgreich gespeichert.",
-        "messageAttributesEmpty": "Noch keine Freitextfelder.",
-        "addAttribute": "Neues Freitextfeld",
+        "messageAttributesEmpty": "Noch keine Zusatzfelder.",
+        "addAttribute": "Neues Zusatzfeld",
         "buttonApply": "Speichern",
         "labelEntities": "Verwenden für:",
         "placeholderEntities": "Verwendung hinzufügen...",
@@ -42,8 +42,8 @@
     },
     "attribute": {
       "detail":{
-        "titleNewAttribute": "Neues Freitextfeld anlegen",
-        "titleEditAttribute": "Freitextfeld bearbeiten",
+        "titleNewAttribute": "Neues Zusatzfeld anlegen",
+        "titleEditAttribute": "Zusatzfeld bearbeiten",
         "buttonSaveApply": "Hinzufügen",
         "buttonEditApply": "Änderungen übernehmen",
         "buttonCancel": "Abbrechen",
@@ -72,8 +72,8 @@
         "labelNo": "Nein",
         "labelAttributePosition": "Position",
         "labelMultiSelect": "Mehrfachauswahl",
-        "tooltipAttributePosition": "Steuert die Position des Freitextfeldes auf den Detailseiten.",
-        "tooltipRequired": "Macht dieses Freitextfeld zu einem Pflichtfeld auf Detailseiten."
+        "tooltipAttributePosition": "Steuert die Position des Zusatzfelder auf den Detailseiten.",
+        "tooltipRequired": "Macht dieses Zusatzfeld zu einem Pflichtfeld auf Detailseiten."
       },
       "list": {
         "labelAttributeLabel": "Label",

@@ -11,8 +11,8 @@
       "closeModal": "Übernehmen"
     },
     "general": {
-      "mainMenuItemGeneral": "Produkte",
-      "mainMenuItemList": "Übersicht",
+      "mainMenuItemGeneral": "Kataloge",
+      "mainMenuItemList": "Produkte",
       "mainMenuItemAdd": "Produkt anlegen",
       "descriptionTextModule": "Verwaltung von Produkten.",
       "placeholderSearchBar": "Durchsuche alle Produkte"

@@ -6,7 +6,7 @@
             </p>
         {% endif %}
         <p>
-            {{ address.salutation.name }}
+            {{ address.salutation.translated.name }}
             {% if address.title %}
                 {{ address.title }}<br/>
             {% endif %}
@@ -26,9 +26,9 @@
                 {{ address.zipcode }} {{ address.city }}<br/>
             {% endif %}
             {% if address.countryState %}
-                {{ address.countryState.name }}<br/>
+                {{ address.countryState.translated.name }}<br/>
             {% endif %}
-            {{ address.country.name }}
+            {{ address.country.translated.name }}
         </p>
     </address>
 {% endblock %}

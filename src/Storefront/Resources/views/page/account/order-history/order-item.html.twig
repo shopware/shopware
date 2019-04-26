@@ -58,7 +58,7 @@
                 {% endblock %}
 
                 {% block page_account_order_item_status_value %}
-                    <span class="order-item-value order-item-status-value">{{ order.stateMachineState.name }}</span>
+                    <span class="order-item-value order-item-status-value">{{ order.stateMachineState.translated.name }}</span>
                 {% endblock %}
             </td>
         {% endblock %}

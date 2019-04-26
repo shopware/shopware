@@ -28,9 +28,9 @@
 										{% if treeItem.children|length > 0 %}
 											data-flyout-menu-trigger="{{ treeItem.category.id }}"
 										{% endif %}
-										title="{{ treeItem.category.name }}">
+										title="{{ treeItem.category.translated.name }}">
 										<div class="main-navigation-link-inner">
-											<span itemprop="name">{{ treeItem.category.name }}</span>
+											<span itemprop="name">{{ treeItem.category.translated.name }}</span>
 										</div>
 									</a>
 								{% endblock %}

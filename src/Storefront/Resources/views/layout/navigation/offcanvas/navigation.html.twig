@@ -41,7 +41,7 @@
                                    itemprop="url">
                                     {% block layout_navigation_offcanvas_navigation_category_headline_text %}
                                         <span itemprop="name">
-                                            {{ activeItem.name }}
+                                            {{ activeItem.translated.name }}
                                         </span>
                                     {% endblock %}
                                 </a>
@@ -83,7 +83,7 @@
                                                 <a class="offcanvas-menu-list-item-link nav-item nav-link current-category"
                                                    href="{{ path('frontend.navigation.page', {'navigationId': activeItem.id}) }}"
                                                    itemprop="url"
-                                                   title="{{ activeItem.name }}">
+                                                   title="{{ activeItem.translated.name }}">
                                                     {% block layout_navigation_offcanvas_navigation_categories_list_current_category_item_text %}
                                                         <span itemprop="name">
                                                             {{ "general.showCategory"|trans({"%category%": activeItem.name}) }}
@@ -114,9 +114,9 @@
                                                         {% endif %}
 
                                                        itemprop="url"
-                                                       title="{{ entity.name }}">
+                                                       title="{{ entity.translated.name }}">
                                                         {% block layout_navigation_offcanvas_navigation_categories_list_category_item_link_text %}
-                                                            <span itemprop="name">{{ entity.name }}</span>
+                                                            <span itemprop="name">{{ entity.translated.name }}</span>
                                                             {% if hasChildren %}
                                                                 {% block layout_navigation_offcanvas_navigation_categories_list_category_item_link_icon %}
                                                                     <span

@@ -46,7 +46,7 @@
 
                                         {% block page_account_overview_profile_content %}
                                             <p>
-                                                {{ page.customer.salutation.name }}
+                                                {{ page.customer.salutation.translated.name }}
                                                 {% if page.customer.title %}
                                                     {{ page.customer.title }}<br/>
                                                 {% endif %}
@@ -86,7 +86,7 @@
                                         {% endblock %}
 
                                         {% block page_account_overview_payment_content %}
-                                            <strong>{{ page.customer.defaultPaymentMethod.name }}</strong>
+                                            <strong>{{ page.customer.defaultPaymentMethod.translated.name }}</strong>
                                             <p>{{ page.customer.defaultPaymentMethod.additionalDescription }}</p>
                                         {% endblock %}
 

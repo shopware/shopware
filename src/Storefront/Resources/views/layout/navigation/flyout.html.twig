@@ -8,9 +8,9 @@
                             <a class="nav-link"
                                href="{{ path('frontend.navigation.page', {'navigationId': navigationTree.category.id}) }}"
                                itemprop="url"
-                               title="{{ navigationTree.category.name }}">
+                               title="{{ navigationTree.category.translated.name }}">
 								{% block layout_navigation_flyout_bar_category_link_text %}
-									{{ "general.toCategory"|trans }} {{ navigationTree.category.name }}
+									{{ "general.toCategory"|trans }} {{ navigationTree.category.translated.name }}
                                     <i class="fas fa-chevron-right"></i>
 								{% endblock %}
                             </a>

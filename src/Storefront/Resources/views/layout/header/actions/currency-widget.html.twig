@@ -17,7 +17,7 @@
                                         aria-expanded="false">
                                     {% block layout_header_actions_currency_widget_dropdown_toggle_name %}
                                         {{ page.header.activeCurrency.symbol }}
-                                        <span class="top-bar-nav-name">{{ page.header.activeCurrency.name }}</span>
+                                        <span class="top-bar-nav-name">{{ page.header.activeCurrency.translated.name }}</span>
                                     {% endblock %}
                                 </button>
                             {% endblock %}
@@ -41,7 +41,7 @@
                                                                            name="currencyId"
                                                                            type="radio"
                                                                         {% if currency.id is same as(page.header.activeCurrency.id) %} checked{% endif %}>
-                                                                    {{ currency.symbol }} {{ currency.shortName }}
+                                                                    {{ currency.symbol }} {{ currency.translated.shortName }}
                                                                 {% endblock %}
                                                             </label>
                                                         {% endblock %}

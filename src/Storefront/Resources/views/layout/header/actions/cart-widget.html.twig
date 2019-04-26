@@ -10,7 +10,7 @@
             <span class="badge badge-primary cart-widget-badge">{{ page.cart.lineItems|length }}</span>
         {% endif %}
         <span class="cart-widget-total">
-            {{ page.cart.price.positionPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}{{ "general.star"|trans }}
+            {{ page.cart.price.positionPrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
         </span>
     </a>
 {% endblock %}

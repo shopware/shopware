@@ -11,8 +11,8 @@
                             <li class="footer-minimal-item">
                                 <a class="footer-minimal-link"
                                    href="{{ path('frontend.navigation.page', {'navigationId': treeItem.category.id}) }}"
-                                   title="{{ treeItem.category.name }}">
-                                    {{ treeItem.category.name }}
+                                   title="{{ treeItem.category.translated.name }}">
+                                    {{ treeItem.category.translated.name }}
                                 </a>
                             </li>
                         {% endblock %}

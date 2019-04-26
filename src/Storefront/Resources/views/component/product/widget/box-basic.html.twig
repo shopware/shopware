@@ -9,7 +9,7 @@
                 {% block component_product_box_image %}
                     <div class="product-image-wrapper">
                         <a href="{{ path('frontend.detail.page', {'productId': product.id}) }}"
-                           title="{{ product.name }}"
+                           title="{{ product.translated.name }}"
                            class="product-image-link">
                             {% if product.cover.media.url %}
                                 {% set imgSrc = product.cover.media.url %}
@@ -28,8 +28,8 @@
                         {% block component_product_box_name %}
                             <a href="{{ path('frontend.detail.page', {'productId': product.id}) }}"
                                class="product-name"
-                               title="{{ product.name }}">
-                                {{ product.name }}
+                               title="{{ product.translated.name }}">
+                                {{ product.translated.name }}
                             </a>
                         {% endblock %}
                         

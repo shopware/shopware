@@ -4,7 +4,7 @@
             {% block page_product_detail_name %}
                 <h1 class="product-detail-name"
                     itemprop="name">
-                    {{ page.product.name }}
+                    {{ page.product.translated.name }}
                 </h1>
             {% endblock %}
         </div>
@@ -16,16 +16,16 @@
                 {% block page_product_detail_manufacturer_link %}
                     <a href="{{ page.product.manufacturer.link }}"
                        class="product-detail-manufacturer-link"
-                       title="{{ page.product.manufacturer.name }}">
+                       title="{{ page.product.manufacturer.translated.name }}">
                         {% if page.product.manufacturer.media %}
                             {% block page_product_detail_manufacturer_logo %}
                                 <img src="{{ page.product.manufacturer.media.url }}"
                                      class="product-detail-manufacturer-logo"
-                                     alt="{{ page.product.manufacturer.name }}"/>
+                                     alt="{{ page.product.manufacturer.translated.name }}"/>
                             {% endblock %}
                         {% else %}
                             {% block page_product_detail_manufacturer_text %}
-                                {{ page.product.manufacturer.name }}
+                                {{ page.product.manufacturer.translated.name }}
                             {% endblock %}
                         {% endif %}
                     </a>

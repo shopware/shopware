@@ -1,7 +1,7 @@
 {% sw_extends '@Storefront/layout/meta.html.twig' %}
 
 {#TODO: NEXT-2787 - show meta title if available #}
-{% block base_head_title_inner %}{{ page.product.name }} | {{ parent() }}{% endblock %}
+{% block base_head_title_inner %}{{ page.product.translated.name }} | {{ parent() }}{% endblock %}
 
 {% block base_head_meta_tags_opengraph %}
     {% set metaDescription = page.product.descriptionLong|striptags|trim|truncate(shopware.config.seo.descriptionMaxLength) %}
@@ -13,7 +13,7 @@
     <meta property="og:url"
           content="{{ url('frontend.detail.page', {'productId': page.product.id}) }}"/>
     <meta property="og:title"
-          content="{{ page.product.name }}"/>
+          content="{{ page.product.translated.name }}"/>
 
     <meta property="og:description"
           content="{{ metaDescription }}"/>
@@ -21,7 +21,7 @@
           content="{{ asset(page.product.cover.media.url) }}"/>
 
     <meta property="product:brand"
-          content="{{ page.product.manufacturer.name }}"/>
+          content="{{ page.product.manufacturer.translated.name }}"/>
     <meta property="product:price"
           content="{{ page.product.price.gross|localizedcurrency(page.context.currency.shortName, app.request.locale) }}"/>
     <meta property="product:product_link"
@@ -32,7 +32,7 @@
     <meta name="twitter:site"
           content="{{ shopware.config.shopName }}"/>
     <meta name="twitter:title"
-          content="{{ page.product.name }}"/>
+          content="{{ page.product.translated.name }}"/>
     <meta name="twitter:description"
           content="{{ metaDescription }}"/>
     <meta name="twitter:image"

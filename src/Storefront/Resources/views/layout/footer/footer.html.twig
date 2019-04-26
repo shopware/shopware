@@ -61,8 +61,8 @@
                                                 {% block layout_footer_navigation_service_link %}
                                                     <a class="footer-link"
                                                        href="{{ path('frontend.navigation.page', {'navigationId': treeItem.category.id}) }}"
-                                                       title="{{ treeItem.category.name }}">
-                                                        {{ treeItem.category.name }}
+                                                       title="{{ treeItem.category.translated.name }}">
+                                                        {{ treeItem.category.translated.name }}
                                                     </a>
                                                 {% endblock %}
                                             </li>
@@ -104,8 +104,8 @@
                                                 {% block layout_footer_navigation_information_link %}
                                                     <a class="footer-link"
                                                        href="{{ path('frontend.navigation.page', {'navigationId': treeItem.category.id}) }}"
-                                                       title="{{ treeItem.category.name }}">
-                                                        {{ treeItem.category.name }}
+                                                       title="{{ treeItem.category.translated.name }}">
+                                                        {{ treeItem.category.translated.name }}
                                                     </a>
                                                 {% endblock %}
                                             </li>

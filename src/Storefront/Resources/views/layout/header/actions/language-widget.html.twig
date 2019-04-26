@@ -27,7 +27,7 @@
 									{% for language in  page.header.languages.elements %}
 										<li>
                                             <div class="top-bar-list-item dropdown-item{% if language.id is same as(page.header.activeLanguage.id) %} item-checked{% endif %}"
-                                                 title="{{ language.name }}">
+                                                 title="{{ language.translated.name }}">
                                                 
                                                 {% block layout_header_actions_languages_widget_form_items_flag %}
                                                     {% set isoCode = language.translationCode.code|lower|split('-') %}

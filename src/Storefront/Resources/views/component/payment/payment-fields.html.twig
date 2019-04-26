@@ -19,7 +19,7 @@
                                     {% block component_payment_method_label %}
                                         <label class="custom-control-label payment-method-label"
                                                for="paymentMethod{{ loop.index }}">
-                                            <strong>{{ payment.name }}</strong>
+                                            <strong>{{ payment.translated.name }}</strong>
 
                                             {% block component_payment_method_description %}
                                                 {% if payment.description %}

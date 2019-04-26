@@ -14,18 +14,18 @@
                             {% if breadcrumb.link %}
                                 <a href="{{ breadcrumb.link }}"
                                    class="breadcrumb-link"
-                                   title="{{ breadcrumb.name }}"
+                                   title="{{ breadcrumb.translated.name }}"
                                    itemprop="item">
                                     <link itemprop="url"
                                           href="{{ breadcrumb.link }}"/>
                                     <span class="breadcrumb-title"
-                                          itemprop="name">{{ breadcrumb.name }}</span>
+                                          itemprop="name">{{ breadcrumb.translated.name }}</span>
                                 </a>
                             {% else %}
                                 <span class="breadcrumb-link"
                                       itemprop="item">
                                 <span class="breadcrumb-title"
-                                      itemprop="name">{{ breadcrumb.name }}</span>
+                                      itemprop="name">{{ breadcrumb.translated.name }}</span>
                             </span>
                             {% endif %}
                             <meta itemprop="position"

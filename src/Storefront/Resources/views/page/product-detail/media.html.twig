@@ -19,7 +19,7 @@
                                             <img src="{{ image.media.url }}"
                                                  class="img-fluid image-slider-image magnifier-image js-magnifier-image"
                                                  data-full-image="{{ image.media.url }}"
-                                                 alt="{{ page.product.name }}"/>
+                                                 alt="{{ page.product.translated.name }}"/>
                                         </div>
                                     {% endblock %}
                                 {% endfor %}
@@ -54,7 +54,7 @@
                                 <img src="{{ imgSrc }}"
                                      class="img-fluid image-slider-image magnifier-image js-magnifier-image"
                                      data-full-image="{{ imgSrc }}"
-                                     alt="{{ page.product.name }}"/>
+                                     alt="{{ page.product.translated.name }}"/>
                             </div>
                         {% endblock %}
                     {% endif %}
@@ -75,7 +75,7 @@
                                             <div class="image-slider-thumbnails-item-inner">
                                                 <img src="{{ thumb.media.url }}"
                                                      class="image-slider-thumbnails-image"
-                                                     alt="{{ page.product.name }}"/>
+                                                     alt="{{ page.product.translated.name }}"/>
                                             </div>
                                         {% endblock %}
                                     </li>

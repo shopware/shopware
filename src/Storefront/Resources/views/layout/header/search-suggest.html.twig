@@ -9,7 +9,7 @@
                             <li class="js-result result-product">
                                 {% block layout_search_suggest_result_link %}
                                     <a href="{{ path('frontend.detail.page', {'productId': product.id}) }}"
-                                       title="{{ product.name }}"
+                                       title="{{ product.translated.name }}"
                                        class="result-link">
                                         {% block layout_search_suggest_result_image %}
                                             <span class="result-image">
@@ -19,12 +19,12 @@
                                                     {% set imgSrc = asset(shopware.theme.general.noPicture) %}
                                                 {% endif %}
                                                 <img src="{{ imgSrc }}"
-                                                     alt="{{ product.name }}">
+                                                     alt="{{ product.translated.name }}">
                                             </span>
                                         {% endblock %}
 
                                         {% block layout_search_suggest_result_name %}
-                                            <span class="result-name">{{ product.name }}</span>
+                                            <span class="result-name">{{ product.translated.name }}</span>
                                         {% endblock %}
 
                                         {% block layout_search_suggest_result_price %}

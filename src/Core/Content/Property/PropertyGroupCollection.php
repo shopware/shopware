@@ -15,6 +15,23 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class PropertyGroupCollection extends EntityCollection
 {
+    public function getOptionIdMap(): array
+    {
+        $map = [];
+        /** @var PropertyGroupEntity $group */
+        foreach ($this->elements as $group) {
+            if (!$group->getOptions()) {
+                continue;
+            }
+
+            foreach ($group->getOptions() as $option) {
+                $map[$option->getId()] = $group->getId();
+            }
+        }
+
+        return $map;
+    }
+
     protected function getExpectedClass(): string
     {
         return PropertyGroupEntity::class;

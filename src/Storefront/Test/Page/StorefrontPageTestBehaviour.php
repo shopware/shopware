@@ -109,14 +109,12 @@ trait StorefrontPageTestBehaviour
             'categories' => [
                 ['id' => Uuid::randomHex(), 'name' => 'asd'],
             ],
+            'visibilities' => [
+                ['salesChannelId' => $context->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+            ],
         ];
 
         $productRepository->create([$data], $context->getContext());
-        $productVisibilityRepository->create([[
-            'productId' => $id,
-            'salesChannelId' => $context->getSalesChannel()->getId(),
-            'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
-        ]], $context->getContext());
 
         /** @var SalesChannelRepository $storefrontProductRepository */
         $storefrontProductRepository = $this->getContainer()->get('sales_channel.product.repository');

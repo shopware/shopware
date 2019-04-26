@@ -3,9 +3,6 @@
 namespace Shopware\Storefront\Pagelet\Listing;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
@@ -15,8 +12,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class ListingPageletLoader implements PageLoaderInterface
 {
-    public const PRODUCT_VISIBILITY = 'product-min-visibility';
-
     /**
      * @var SalesChannelRepository
      */
@@ -38,18 +33,6 @@ class ListingPageletLoader implements PageLoaderInterface
     public function load(Request $request, SalesChannelContext $context): StorefrontSearchResult
     {
         $criteria = new Criteria();
-
-        if ($visibility = $request->get(self::PRODUCT_VISIBILITY)) {
-            $criteria->addFilter(
-                new MultiFilter(
-                    MultiFilter::CONNECTION_AND,
-                    [
-                        new RangeFilter('product.visibilities.visibility', [RangeFilter::GTE => (int) $visibility]),
-                        new EqualsFilter('product.visibilities.salesChannelId', $context->getSalesChannel()->getId()),
-                    ]
-                )
-            );
-        }
 
         $this->eventDispatcher->dispatch(
             ListingPageletCriteriaCreatedEvent::NAME,

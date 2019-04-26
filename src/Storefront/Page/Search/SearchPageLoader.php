@@ -2,13 +2,11 @@
 
 namespace Shopware\Storefront\Page\Search;
 
-use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
-use Shopware\Storefront\Pagelet\Listing\ListingPageletLoader;
-use Shopware\Storefront\Pagelet\Listing\Subscriber\SearchTermSubscriber;
+use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -25,18 +23,18 @@ class SearchPageLoader implements PageLoaderInterface
     private $pageWithHeaderLoader;
 
     /**
-     * @var ListingPageletLoader|PageLoaderInterface
+     * @var ProductSearchGatewayInterface
      */
-    private $listingPageletLoader;
+    private $searchGateway;
 
     public function __construct(
         PageLoaderInterface $pageWithHeaderLoader,
-        PageLoaderInterface $listingPageletLoader,
+        ProductSearchGatewayInterface $searchGateway,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->pageWithHeaderLoader = $pageWithHeaderLoader;
         $this->eventDispatcher = $eventDispatcher;
-        $this->listingPageletLoader = $listingPageletLoader;
+        $this->searchGateway = $searchGateway;
     }
 
     public function load(Request $request, SalesChannelContext $context): SearchPage
@@ -44,18 +42,16 @@ class SearchPageLoader implements PageLoaderInterface
         $page = $this->pageWithHeaderLoader->load($request, $context);
         $page = SearchPage::createFrom($page);
 
-        if (!$request->query->has(SearchTermSubscriber::TERM_PARAMETER)) {
-            throw new MissingRequestParameterException(SearchTermSubscriber::TERM_PARAMETER);
+        if (!$request->query->has('search')) {
+            throw new MissingRequestParameterException('search');
         }
 
-        $request->request->set('product-min-visibility', ProductVisibilityDefinition::VISIBILITY_SEARCH);
+        $result = $this->searchGateway->search($request, $context);
 
-        $page->setListing(
-            $this->listingPageletLoader->load($request, $context)
-        );
+        $page->setSearchResult(StorefrontSearchResult::createFrom($result));
 
         $page->setSearchTerm(
-            (string) $request->query->get(SearchTermSubscriber::TERM_PARAMETER)
+            (string) $request->query->get('search')
         );
 
         $this->eventDispatcher->dispatch(

@@ -25,7 +25,7 @@ class MenuPageletController extends StorefrontController
     /**
      * @Route("/widgets/menu/offcanvas", name="widgets.menu.offcanvas", methods={"GET"}, defaults={"XmlHttpRequest"=true})
      */
-    public function menuOffcanvasAction(Request $request, SalesChannelContext $context): Response
+    public function offcanvasMenu(Request $request, SalesChannelContext $context): Response
     {
         $page = $this->offcanvasLoader->load($request, $context);
 

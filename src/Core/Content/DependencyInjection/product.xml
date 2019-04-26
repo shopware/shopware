@@ -132,6 +132,8 @@
 
         <service id="Shopware\Core\Content\Product\Cms\ListingGateway">
             <argument type="service" id="sales_channel.product.repository" />
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Cms\ListingGatewayInterface" alias="Shopware\Core\Content\Product\Cms\ListingGateway" />

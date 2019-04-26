@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Property\Aggregate\PropertyGroupOption;
 
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingEntity;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOptionTranslation\PropertyGroupOptionTranslationCollection;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
@@ -83,6 +84,16 @@ class PropertyGroupOptionEntity extends Entity
      * @var array|null
      */
     protected $attributes;
+
+    /**
+     * @var ProductConfiguratorSettingEntity|null
+     */
+    private $configuratorSetting;
+
+    /**
+     * @var bool
+     */
+    private $combinable;
 
     public function getCreatedAt(): \DateTimeInterface
     {
@@ -222,5 +233,25 @@ class PropertyGroupOptionEntity extends Entity
     public function setAttributes(?array $attributes): void
     {
         $this->attributes = $attributes;
+    }
+
+    public function getConfiguratorSetting(): ?ProductConfiguratorSettingEntity
+    {
+        return $this->configuratorSetting;
+    }
+
+    public function setConfiguratorSetting(ProductConfiguratorSettingEntity $configuratorSetting): void
+    {
+        $this->configuratorSetting = $configuratorSetting;
+    }
+
+    public function getCombinable(): bool
+    {
+        return $this->combinable;
+    }
+
+    public function setCombinable(bool $combinable): void
+    {
+        $this->combinable = $combinable;
     }
 }

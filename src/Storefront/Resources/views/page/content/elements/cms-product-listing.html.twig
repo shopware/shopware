@@ -3,7 +3,7 @@
 		{% block page_content_element_product_listing_row %}
 			<div class="row">
 				{% block page_content_element_product_listing_col %}
-					{% for product in element.data.searchResult.entities.elements %}
+					{% for product in element.data.listing.entities.elements %}
 						<div class="listing-col col-sm-6 col-lg-3">
 							{% block page_content_element_product_listing_box %}
 								{% sw_include '@Storefront/component/product/widget/box.html.twig' with {layout: 'minimal'} %}

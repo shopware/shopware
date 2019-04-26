@@ -1,4 +1,4 @@
-import { Component, Mixin } from 'src/core/shopware';
+import { Application, Component, Mixin } from 'src/core/shopware';
 import template from './sw-cms-el-image.html.twig';
 import './sw-cms-el-image.scss';
 
@@ -14,6 +14,21 @@ Component.register('sw-cms-el-image', {
             return {
                 'is--cover': this.element.config.displayMode.value === 'cover'
             };
+        },
+
+        mediaUrl() {
+            const initContainer = Application.getContainer('init');
+            const context = initContainer.contextService;
+
+            if (this.element.data.media) {
+                if (this.element.data.media.id) {
+                    return this.element.data.media.url;
+                }
+
+                return `${context.assetsPath}${this.element.data.media.url}`;
+            }
+
+            return `${context.assetsPath}/administration/static/img/cms/preview_mountain_large.jpg`;
         }
     },
 

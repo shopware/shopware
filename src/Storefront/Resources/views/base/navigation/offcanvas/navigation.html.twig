@@ -91,7 +91,7 @@
 
                                 {% set firstCategoryItem = page.navigation.tree|first %}
                                 {% for treeItem in  firstCategoryItem.children %}
-                                    {% set entity = treeItem.entity %}
+                                    {% set entity = treeItem.category %}
 
                                     {% if entity.id is not same as( activeItem.id) %}
                                         {% block base_navigation_offcanvas_navigation_categories_list_category_item %}
@@ -104,7 +104,7 @@
                                                         {% if hasChildren %}
                                                             href="{{ path('widgets.menu.offcanvas', {'navigationId': entity.id}) }}"
                                                         {% else %}
-                                                            href="{{ path('frontend.navigation.page', {'navigationId': treeItem.entity.id}) }}"
+                                                            href="{{ path('frontend.navigation.page', {'navigationId': treeItem.category.id}) }}"
                                                         {% endif %}
 
                                                         itemprop="url"

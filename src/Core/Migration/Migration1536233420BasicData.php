@@ -39,6 +39,7 @@ class Migration1536233420BasicData extends MigrationStep
         $this->createPaymentMethod($connection);
         $this->createShippingMethod($connection);
         $this->createTax($connection);
+        $this->createRootCategory($connection);
         $this->createSalesChannelTypes($connection);
         $this->createSalesChannel($connection);
         $this->createProductManufacturer($connection);
@@ -446,6 +447,16 @@ class Migration1536233420BasicData extends MigrationStep
         $connection->insert('product_manufacturer_translation', ['product_manufacturer_id' => $id, 'product_manufacturer_version_id' => $versionId, 'language_id' => $languageEN, 'name' => 'shopware AG', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
     }
 
+    private function createRootCategory(Connection $connection): void
+    {
+        $id = Uuid::randomBytes();
+        $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
+        $versionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
+
+        $connection->insert('category', ['id' => $id, 'version_id' => $versionId, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('category_translation', ['category_id' => $id, 'category_version_id' => $versionId, 'language_id' => $languageEN, 'name' => 'Root category', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+    }
+
     private function createSalesChannel(Connection $connection): void
     {
         $currencies = $connection->executeQuery('SELECT id FROM currency')->fetchAll(FetchMode::COLUMN);
@@ -456,6 +467,7 @@ class Migration1536233420BasicData extends MigrationStep
         $defaultShippingMethod = $connection->executeQuery('SELECT id FROM shipping_method WHERE active = 1 ORDER BY `position`')->fetchColumn();
         $countryStatement = $connection->executeQuery('SELECT id FROM country WHERE active = 1 ORDER BY `position`');
         $defaultCountry = $countryStatement->fetchColumn();
+        $rootCategoryId = $connection->executeQuery('SELECT id FROM category')->fetchColumn();
 
         $id = Uuid::fromHexToBytes(Defaults::SALES_CHANNEL);
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
@@ -471,6 +483,8 @@ class Migration1536233420BasicData extends MigrationStep
             'payment_method_id' => $defaultPaymentMethod,
             'shipping_method_id' => $defaultShippingMethod,
             'country_id' => $defaultCountry,
+            'navigation_category_id' => $rootCategoryId,
+            'navigation_category_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
         ]);
 

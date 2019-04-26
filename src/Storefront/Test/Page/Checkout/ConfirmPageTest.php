@@ -22,11 +22,6 @@ class ConfirmPageTest extends TestCase
     use IntegrationTestBehaviour,
         StorefrontPageTestBehaviour;
 
-    public function testItThrowsWithoutNavigation(): void
-    {
-        $this->assertFailsWithoutNavigation();
-    }
-
     public function testItLoadsTheConfirmPage(): void
     {
         $request = new Request();

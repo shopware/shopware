@@ -1917,6 +1917,7 @@ class ProductRepositoryTest extends TestCase
                 ['name' => 'category_name'],
             ],
         ];
+        $this->connection->executeUpdate('DELETE FROM sales_channel');
         $this->connection->executeUpdate('DELETE FROM category');
 
         $this->repository->create([$data], Context::createDefaultContext());

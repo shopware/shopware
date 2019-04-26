@@ -9,10 +9,10 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSalesChannelDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateSalesChannel\MailTemplateSalesChannelDefinition;
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
-use Shopware\Core\Content\Navigation\NavigationDefinition;
 use Shopware\Core\Content\NewsletterReceiver\NewsletterReceiverDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -75,8 +75,16 @@ class SalesChannelDefinition extends EntityDefinition
             (new FkField('payment_method_id', 'paymentMethodId', PaymentMethodDefinition::class))->addFlags(new Required()),
             (new FkField('shipping_method_id', 'shippingMethodId', ShippingMethodDefinition::class))->addFlags(new Required()),
             (new FkField('country_id', 'countryId', CountryDefinition::class))->addFlags(new Required()),
-            new FkField('navigation_id', 'navigationId', NavigationDefinition::class),
-            new ReferenceVersionField(NavigationDefinition::class, 'navigation_version_id'),
+
+            (new FkField('navigation_category_id', 'navigationCategoryId', CategoryDefinition::class))->addFlags(new Required()),
+            (new ReferenceVersionField(CategoryDefinition::class, 'navigation_category_version_id'))->addFlags(new Required()),
+
+            new FkField('footer_category_id', 'footerCategoryId', CategoryDefinition::class),
+            new ReferenceVersionField(CategoryDefinition::class, 'footer_category_version_id'),
+
+            new FkField('service_category_id', 'serviceCategoryId', CategoryDefinition::class),
+            new ReferenceVersionField(CategoryDefinition::class, 'service_category_version_id'),
+
             new FkField('mail_header_footer_id', 'mailHeaderFooterId', MailHeaderFooterDefinition::class),
             (new StringField('type', 'type'))->addFlags(new Required()),
             new TranslatedField('name'),
@@ -105,7 +113,9 @@ class SalesChannelDefinition extends EntityDefinition
             new OneToManyAssociationField('customers', CustomerDefinition::class, 'sales_channel_id', 'id'),
             (new OneToManyAssociationField('domains', SalesChannelDomainDefinition::class, 'sales_channel_id', 'id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('systemConfigs', SystemConfigDefinition::class, 'sales_channel_id'))->addFlags(new CascadeDelete()),
-            new ManyToOneAssociationField('navigation', 'navigation_id', NavigationDefinition::class, 'id', false),
+            new ManyToOneAssociationField('navigationCategory', 'navigation_category_id', CategoryDefinition::class, 'id', false),
+            new ManyToOneAssociationField('footerCategory', 'footer_category_id', CategoryDefinition::class, 'id', false),
+            new ManyToOneAssociationField('serviceCategory', 'service_category_id', CategoryDefinition::class, 'id', false),
             (new OneToManyAssociationField('productVisibilities', ProductVisibilityDefinition::class, 'sales_channel_id'))->addFlags(new CascadeDelete()),
             new ManyToOneAssociationField('mailHeaderFooter', 'mail_header_footer_id', MailHeaderFooterDefinition::class, 'id', true),
             new OneToManyAssociationField('newsletterReceivers', NewsletterReceiverDefinition::class, 'sales_channel_id', 'id'),

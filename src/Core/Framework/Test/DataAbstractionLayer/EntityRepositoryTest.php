@@ -10,12 +10,12 @@ use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
-use Shopware\Core\Content\Navigation\NavigationDefinition;
-use Shopware\Core\Content\Navigation\NavigationEntity;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -344,7 +344,7 @@ class EntityRepositoryTest extends TestCase
             ],
         ];
 
-        $repository = $this->createRepository(NavigationDefinition::class);
+        $repository = $this->createRepository(CategoryDefinition::class);
         $context = Context::createDefaultContext();
 
         $repository->create([$data], $context);
@@ -353,7 +353,7 @@ class EntityRepositoryTest extends TestCase
         $result = $repository->clone($id, $context, $newId);
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
-        $written = $result->getEventByDefinition(NavigationDefinition::class);
+        $written = $result->getEventByDefinition(CategoryDefinition::class);
         static::assertCount(3, $written->getIds());
         static::assertContains($newId, $written->getIds());
 
@@ -363,13 +363,13 @@ class EntityRepositoryTest extends TestCase
         static::assertTrue($entities->has($id));
         static::assertTrue($entities->has($newId));
 
-        /** @var NavigationEntity $old */
+        /** @var CategoryEntity $old */
         $old = $entities->get($id);
-        /** @var NavigationEntity $new */
+        /** @var CategoryEntity $new */
         $new = $entities->get($newId);
 
-        static::assertInstanceOf(NavigationEntity::class, $old);
-        static::assertInstanceOf(NavigationEntity::class, $new);
+        static::assertInstanceOf(CategoryEntity::class, $old);
+        static::assertInstanceOf(CategoryEntity::class, $new);
 
         static::assertSame($old->getName(), $new->getName());
         static::assertSame($old->getChildren(), $new->getChildren());
@@ -387,7 +387,7 @@ class EntityRepositoryTest extends TestCase
             ],
         ];
 
-        $repository = $this->createRepository(NavigationDefinition::class);
+        $repository = $this->createRepository(CategoryDefinition::class);
         $context = Context::createDefaultContext();
 
         $repository->create([$data], $context);
@@ -396,10 +396,10 @@ class EntityRepositoryTest extends TestCase
 
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
-        $written = $result->getEventByDefinition(NavigationDefinition::class);
+        $written = $result->getEventByDefinition(CategoryDefinition::class);
 
         static::assertCount(3, $written->getIds());
-        $newId = $result->getEventByDefinition(NavigationDefinition::class)->getIds();
+        $newId = $result->getEventByDefinition(CategoryDefinition::class)->getIds();
         $newId = array_shift($newId);
         static::assertNotEquals($id, $newId);
 
@@ -411,13 +411,13 @@ class EntityRepositoryTest extends TestCase
         static::assertTrue($entities->has($id));
         static::assertTrue($entities->has($newId));
 
-        /** @var NavigationEntity $old */
+        /** @var CategoryEntity $old */
         $old = $entities->get($id);
-        /** @var NavigationEntity $new */
+        /** @var CategoryEntity $new */
         $new = $entities->get($newId);
 
-        static::assertInstanceOf(NavigationEntity::class, $old);
-        static::assertInstanceOf(NavigationEntity::class, $new);
+        static::assertInstanceOf(CategoryEntity::class, $old);
+        static::assertInstanceOf(CategoryEntity::class, $new);
 
         static::assertSame($old->getName(), $new->getName());
         static::assertCount($old->getChildren()->count(), $new->getChildren());
@@ -592,7 +592,7 @@ class EntityRepositoryTest extends TestCase
         ];
 
         /** @var EntityRepository $repo */
-        $repo = $this->getContainer()->get('navigation.repository');
+        $repo = $this->getContainer()->get('category.repository');
 
         $context = Context::createDefaultContext();
 
@@ -604,7 +604,7 @@ class EntityRepositoryTest extends TestCase
 
         $childrenIds = $this->getContainer()->get(Connection::class)
             ->fetchAll(
-                'SELECT id FROM navigation WHERE parent_id IN (:ids)',
+                'SELECT id FROM category WHERE parent_id IN (:ids)',
                 ['ids' => [Uuid::fromHexToBytes($id), Uuid::fromHexToBytes($newId)]],
                 ['ids' => Connection::PARAM_STR_ARRAY]
             );
@@ -613,10 +613,10 @@ class EntityRepositoryTest extends TestCase
 
         $Criteria = new Criteria([$newId]);
         $Criteria->addAssociation('children');
-        /** @var NavigationEntity $navigation */
-        $navigation = $repo->search($Criteria, $context)->get($newId);
+        /** @var CategoryEntity $category */
+        $category = $repo->search($Criteria, $context)->get($newId);
 
-        static::assertCount(2, $navigation->getChildren());
+        static::assertCount(2, $category->getChildren());
     }
 
     public function testCloneWithNestedChildren(): void

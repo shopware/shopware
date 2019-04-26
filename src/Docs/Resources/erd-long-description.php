@@ -329,10 +329,6 @@ EOD
 Set the visibility of a single product in a sales channel
 EOD
     ,
-    Shopware\Core\Content\Navigation\NavigationDefinition::class => <<<'EOD'
-Represents the navigation of a particular SalesChannel, can either be associated to a CMS page or a product category.
-EOD
-    ,
     Shopware\Core\Content\Rule\RuleDefinition::class => <<<'EOD'
 A rule is the collection of a complex set of conditions, that can be used to influence multiple workflows of the order process.
 EOD

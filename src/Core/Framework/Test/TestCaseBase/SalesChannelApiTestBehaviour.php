@@ -118,6 +118,7 @@ trait SalesChannelApiTestBehaviour
             'currencyId' => Defaults::CURRENCY,
             'paymentMethodId' => $this->getAvailablePaymentMethodId() ?? $this->getValidPaymentMethodId(),
             'shippingMethodId' => $this->getAvailableShippingMethodId(),
+            'navigationCategoryId' => $this->getValidCategoryId(),
             'countryId' => $this->getValidCountryId(),
             'currencies' => [['id' => Defaults::CURRENCY]],
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],

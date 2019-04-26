@@ -6,11 +6,11 @@
                 <div class="navigation-flyout-category-link">
                     {% block base_navigation_flyout_bar_category_link %}
                         <a class="nav-item nav-link"
-                            href="{{ path('frontend.navigation.page', {'navigationId': navigationTree.entity.id}) }}"
+                            href="{{ path('frontend.navigation.page', {'navigationId': navigationTree.category.id}) }}"
                             itemprop="url"
-                            title="{{ navigationTree.entity.name }}">
+                            title="{{ navigationTree.category.name }}">
                             {% block base_navigation_flyout_bar_category_link_text %}
-                                {{ "general.toCategory"|trans }} {{ navigationTree.entity.name }}
+                                {{ "general.toCategory"|trans }} {{ navigationTree.category.name }}
                                 <i class="fas fa-chevron-right"></i>
                             {% endblock %}
                         </a>

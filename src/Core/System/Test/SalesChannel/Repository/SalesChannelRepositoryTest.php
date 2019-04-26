@@ -103,6 +103,7 @@ class SalesChannelRepositoryTest extends TestCase
             'currencyId' => Defaults::CURRENCY,
             'paymentMethodId' => $this->getValidPaymentMethodId(),
             'shippingMethodId' => $this->getValidShippingMethodId(),
+            'navigationCategoryId' => $this->getValidCategoryId(),
             'countryId' => $this->getValidCountryId(),
             'currencies' => [['id' => Defaults::CURRENCY]],
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],

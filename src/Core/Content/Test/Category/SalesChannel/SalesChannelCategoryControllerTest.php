@@ -89,7 +89,13 @@ class SalesChannelCategoryControllerTest extends TestCase
             ['id' => $categoryB, 'name' => 'Category B', 'active' => true],
         ], $this->context);
 
-        $params = ['sort' => 'name'];
+        $params = [
+            'sort' => 'name',
+            'filter' => [
+                ['type' => 'equalsAny', 'field' => 'category.id', 'value' => [$categoryA, $categoryB, $categoryC]],
+            ],
+        ];
+
         $this->getSalesChannelClient()->request('GET', '/sales-channel-api/v1/category', $params);
 
         $response = $this->getSalesChannelClient()->getResponse();
@@ -202,7 +208,7 @@ class SalesChannelCategoryControllerTest extends TestCase
                 [
                     'type' => 'equals',
                     'field' => 'category.displayNestedProducts',
-                    'value' => true,
+                    'value' => false,
                 ],
             ],
             'sort' => [
@@ -217,7 +223,7 @@ class SalesChannelCategoryControllerTest extends TestCase
         static::assertSame(200, $response->getStatusCode());
         static::assertSame(2, $content['total']);
         $ids = array_column($content['data'], 'id');
-        static::assertSame([$categoryA, $categoryC], $ids);
+        static::assertSame([$categoryA2, $categoryB], $ids);
 
         $body = [
             'filter' => [
@@ -225,7 +231,7 @@ class SalesChannelCategoryControllerTest extends TestCase
                     'type' => 'multi',
                     'operator' => 'OR',
                     'queries' => [
-                        ['type' => 'equals', 'field' => 'category.displayNestedProducts', 'value' => true],
+                        ['type' => 'equals', 'field' => 'category.displayNestedProducts', 'value' => false],
                         ['type' => 'equals', 'field' => 'category.name', 'value' => 'B'],
                     ],
                 ],
@@ -237,16 +243,15 @@ class SalesChannelCategoryControllerTest extends TestCase
         $content = json_decode($response->getContent(), true);
 
         static::assertSame(200, $response->getStatusCode());
-        static::assertSame(3, $content['total']);
+        static::assertSame(2, $content['total']);
         $ids = array_column($content['data'], 'id');
 
-        static::assertContains($categoryA, $ids);
+        static::assertContains($categoryA2, $ids);
         static::assertContains($categoryB, $ids);
-        static::assertContains($categoryC, $ids);
 
         $body = [
             'post-filter' => [
-                ['type' => 'equals', 'field' => 'category.displayNestedProducts', 'value' => true],
+                ['type' => 'equals', 'field' => 'category.displayNestedProducts', 'value' => false],
             ],
             'aggregations' => [
                 [
@@ -266,8 +271,8 @@ class SalesChannelCategoryControllerTest extends TestCase
 
         $ids = array_column($content['data'], 'id');
 
-        static::assertContains($categoryA, $ids);
-        static::assertContains($categoryC, $ids);
+        static::assertContains($categoryA2, $ids);
+        static::assertContains($categoryB, $ids);
 
         static::assertArrayHasKey('aggregations', $content);
         static::assertArrayHasKey('category-names', $content['aggregations']);

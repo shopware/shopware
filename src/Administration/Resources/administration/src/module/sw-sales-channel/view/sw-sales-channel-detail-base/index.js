@@ -46,6 +46,10 @@ Component.register('sw-sales-channel-detail-base', {
             return this.showSecretAccessKey ? 'text' : 'password';
         },
 
+        categoryStore() {
+            return State.getStore('category');
+        },
+
         countryStore() {
             return State.getStore('country');
         },

@@ -10,9 +10,9 @@
                         {% block base_footer_minimal_item %}
                             <li class="footer-minimal-item">
                                 <a class="footer-minimal-link"
-                                   href="{{ path('frontend.navigation.page', {'navigationId': treeItem.entity.id}) }}"
-                                   title="{{ treeItem.entity.name }}">
-                                    {{ treeItem.entity.name }}
+                                   href="{{ path('frontend.navigation.page', {'navigationId': treeItem.category.id}) }}"
+                                   title="{{ treeItem.category.name }}">
+                                    {{ treeItem.category.name }}
                                 </a>
                             </li>
                         {% endblock %}

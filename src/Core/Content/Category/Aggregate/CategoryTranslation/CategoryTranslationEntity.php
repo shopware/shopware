@@ -38,6 +38,11 @@ class CategoryTranslationEntity extends TranslationEntity
      */
     protected $attributes;
 
+    /**
+     * @var array|null
+     */
+    protected $slotConfig;
+
     public function getCategoryId(): string
     {
         return $this->categoryId;
@@ -86,5 +91,15 @@ class CategoryTranslationEntity extends TranslationEntity
     public function setAttributes(?array $attributes): void
     {
         $this->attributes = $attributes;
+    }
+
+    public function getSlotConfig(): ?array
+    {
+        return $this->slotConfig;
+    }
+
+    public function setSlotConfig(array $slotConfig): void
+    {
+        $this->slotConfig = $slotConfig;
     }
 }

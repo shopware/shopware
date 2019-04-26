@@ -1,6 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\DataAbstractionLayer\Util\Tree;
+namespace Shopware\Core\Content\Category\Tree;
+
+use Shopware\Core\Content\Category\CategoryEntity;
 
 class Tree
 {
@@ -10,25 +12,25 @@ class Tree
     protected $tree;
 
     /**
-     * @var TreeAwareInterface
+     * @var CategoryEntity
      */
     protected $active;
 
-    public function __construct(TreeAwareInterface $active, array $tree)
+    public function __construct(CategoryEntity $active, array $tree)
     {
         $this->tree = $tree;
         $this->active = $active;
     }
 
-    public function isSelected(TreeAwareInterface $navigation): bool
+    public function isSelected(CategoryEntity $category): bool
     {
-        if ($navigation->getId() === $this->active->getId()) {
+        if ($category->getId() === $this->active->getId()) {
             return true;
         }
 
         $ids = explode('|', $this->active->getPath());
 
-        return \in_array($navigation->getId(), $ids, true);
+        return \in_array($category->getId(), $ids, true);
     }
 
     public function getTree(): array
@@ -41,12 +43,12 @@ class Tree
         $this->tree = $tree;
     }
 
-    public function getActive(): TreeAwareInterface
+    public function getActive(): CategoryEntity
     {
         return $this->active;
     }
 
-    public function setActive(TreeAwareInterface $active): void
+    public function setActive(CategoryEntity $active): void
     {
         $this->active = $active;
     }

@@ -24,6 +24,7 @@ export default class AdminSalesChannelFixtureService extends AdminFixtureService
         let languageId = '';
         let salesChannelTypeId = '';
         let customerGroupId = '';
+        let navigationCategoryId = '';
 
         return this.apiClient.post('/v1/search/shipping-method?response=true', {
             filter: [{
@@ -105,6 +106,18 @@ export default class AdminSalesChannelFixtureService extends AdminFixtureService
                 customerGroupId = customerGroup.id;
             })
             .then(() => {
+                return this.apiClient.post('/v1/search/category?response=true', {
+                    filter: [{
+                        field: 'name',
+                        type: 'equals',
+                        value: 'Root category'
+                    }]
+                });
+            })
+            .then((category) => {
+                navigationCategoryId = category.id;
+            })
+            .then(() => {
                 return this.mergeFixtureWithData(jsonData, {
                     currencyId: currencyId,
                     paymentMethodId: paymentMethodId,
@@ -112,7 +125,8 @@ export default class AdminSalesChannelFixtureService extends AdminFixtureService
                     countryId: countryId,
                     languageId: languageId,
                     typeId: salesChannelTypeId,
-                    customerGroupId: customerGroupId
+                    customerGroupId: customerGroupId,
+                    navigationCategoryId: navigationCategoryId
                 }, userData);
             })
             .then((finalChannelData) => {

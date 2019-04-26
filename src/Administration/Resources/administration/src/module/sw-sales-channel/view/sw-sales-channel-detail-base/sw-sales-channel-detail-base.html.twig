@@ -101,6 +101,20 @@
             </sw-card>
         {% endblock %}
 
+        {% block sw_sales_channel_detail_base_general_input_navigation %}
+            <sw-card :title="$tc('sw-sales-channel.detail.navigations')" :isLoading="salesChannel.isLoading">
+                {% block sw_sales_channel_detail_base_general_input_navigation_category %}
+                    <sw-select id="navigationCategoryId"
+                                class="sw-sales-channel-detail__select-navigation-category-id"
+                                validation="required"
+                                :label="$tc('sw-sales-channel.detail.navigationCategoryId')"
+                                :store="categoryStore"
+                                v-model="salesChannel.navigationCategoryId">
+                    </sw-select>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
+
         {% block sw_sales_channel_detail_base_domains %}
             <sw-card :isLoading="isLoadingDomains" :title="$tc('sw-sales-channel.detail.titleDomains')" v-if="next1387 && isStoreFront">
                 <div class="sw-sales-channel-detail-base__domain-container" v-for="domain, index in salesChannel.domains">

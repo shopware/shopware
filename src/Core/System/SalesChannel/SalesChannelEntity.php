@@ -11,9 +11,9 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSalesChannelCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
-use Shopware\Core\Content\Navigation\NavigationEntity;
 use Shopware\Core\Content\NewsletterReceiver\NewsletterReceiverCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -65,9 +65,19 @@ class SalesChannelEntity extends Entity
     protected $countryId;
 
     /**
+     * @var string
+     */
+    protected $navigationCategoryId;
+
+    /**
      * @var string|null
      */
-    protected $navigationId;
+    protected $footerCategoryId;
+
+    /**
+     * @var string|null
+     */
+    protected $serviceCategoryId;
 
     /**
      * @var string|null
@@ -195,9 +205,19 @@ class SalesChannelEntity extends Entity
     protected $attributes;
 
     /**
-     * @var NavigationEntity|null
+     * @var CategoryEntity|null
      */
-    protected $navigation;
+    protected $navigationCategory;
+
+    /**
+     * @var CategoryEntity|null
+     */
+    protected $footerCategory;
+
+    /**
+     * @var CategoryEntity|null
+     */
+    protected $serviceCategory;
 
     /**
      * @var ProductVisibilityCollection|null
@@ -579,24 +599,24 @@ class SalesChannelEntity extends Entity
         $this->attributes = $attributes;
     }
 
-    public function getNavigationId(): ?string
+    public function getNavigationCategoryId(): string
     {
-        return $this->navigationId;
+        return $this->navigationCategoryId;
     }
 
-    public function setNavigationId(?string $navigationId): void
+    public function setNavigationCategoryId(string $navigationCategoryId): void
     {
-        $this->navigationId = $navigationId;
+        $this->navigationCategoryId = $navigationCategoryId;
     }
 
-    public function getNavigation(): ?NavigationEntity
+    public function getNavigationCategory(): ?CategoryEntity
     {
-        return $this->navigation;
+        return $this->navigationCategory;
     }
 
-    public function setNavigation(?NavigationEntity $navigation): void
+    public function setNavigationCategory(CategoryEntity $navigationCategory): void
     {
-        $this->navigation = $navigation;
+        $this->navigationCategory = $navigationCategory;
     }
 
     public function getProductVisibilities(): ?ProductVisibilityCollection
@@ -669,12 +689,52 @@ class SalesChannelEntity extends Entity
         $this->numberRangeSalesChannels = $numberRangeSalesChannels;
     }
 
+    public function getFooterCategoryId(): ?string
+    {
+        return $this->footerCategoryId;
+    }
+
+    public function setFooterCategoryId(string $footerCategoryId): void
+    {
+        $this->footerCategoryId = $footerCategoryId;
+    }
+
+    public function getServiceCategoryId(): ?string
+    {
+        return $this->serviceCategoryId;
+    }
+
+    public function setServiceCategoryId(string $serviceCategoryId): void
+    {
+        $this->serviceCategoryId = $serviceCategoryId;
+    }
+
+    public function getFooterCategory(): ?CategoryEntity
+    {
+        return $this->footerCategory;
+    }
+
+    public function setFooterCategory(CategoryEntity $footerCategory): void
+    {
+        $this->footerCategory = $footerCategory;
+    }
+
+    public function getServiceCategory(): ?CategoryEntity
+    {
+        return $this->serviceCategory;
+    }
+
+    public function setServiceCategory(CategoryEntity $serviceCategory): void
+    {
+        $this->serviceCategory = $serviceCategory;
+    }
+
     public function getDocumentBaseConfigSalesChannels(): ?DocumentBaseConfigDefinition
     {
         return $this->documentBaseConfigSalesChannels;
     }
 
-    public function setDocumentBaseConfigSalesChannels(?DocumentBaseConfigDefinition $documentBaseConfigSalesChannels): void
+    public function setDocumentBaseConfigSalesChannels(DocumentBaseConfigDefinition $documentBaseConfigSalesChannels): void
     {
         $this->documentBaseConfigSalesChannels = $documentBaseConfigSalesChannels;
     }

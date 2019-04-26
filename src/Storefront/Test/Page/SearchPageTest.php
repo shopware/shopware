@@ -17,11 +17,6 @@ class SearchPageTest extends TestCase
 
     const TEST_TERM = 'foo';
 
-    public function testItThrowsWithoutNavigation(): void
-    {
-        $this->assertFailsWithoutNavigation();
-    }
-
     public function testitRequiresSearchParam(): void
     {
         $request = new Request();

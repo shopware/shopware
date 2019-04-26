@@ -17,11 +17,6 @@ class LoginPageTest extends TestCase
     use IntegrationTestBehaviour,
         StorefrontPageTestBehaviour;
 
-    public function testItThrowsWithoutNavigation(): void
-    {
-        $this->assertFailsWithoutNavigation();
-    }
-
     public function testItLoadsWithACustomer(): void
     {
         $request = new Request();

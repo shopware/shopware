@@ -71,6 +71,14 @@ class SalesChannelPageObject extends GeneralPageObject {
                     searchTerm: 'Standard customer group'
                 }
             )
+            .fillSwSelectComponent(
+                '.sw-sales-channel-detail__select-navigation-category-id',
+                {
+                    value: 'Root category',
+                    isMulti: false,
+                    searchTerm: 'Root category'
+                }
+            )
             .click(this.elements.salesChannelSaveAction)
             .checkNotification(`Sales channel "${salesChannelName}" has been saved successfully.`);
     }

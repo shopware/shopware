@@ -5,11 +5,11 @@ namespace Shopware\Core\Migration;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-class Migration1536233140Category extends MigrationStep
+class Migration1536232885Category extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
-        return 1536233140;
+        return 1536232885;
     }
 
     public function update(Connection $connection): void

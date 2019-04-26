@@ -47,6 +47,7 @@
 
         <service id="Shopware\Core\Framework\Demodata\Generator\CategoryGenerator">
             <argument type="service" id="category.repository"/>
+            <argument type="service" id="cms_page.repository"/>
             <tag name="shopware.demodata_generator"/>
         </service>
 
@@ -72,13 +73,6 @@
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver" />
             <argument type="service" id="Shopware\Core\Content\Media\File\FileNameProvider" />
             <tag name="shopware.demodata_generator"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Demodata\Generator\NavigationGenerator">
-            <argument type="service" id="navigation.repository"/>
-            <argument type="service" id="category.repository"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <tag name="shopware.demodata_generator" priority="-100"/>
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\Generator\ProductStreamGenerator">

@@ -40,7 +40,7 @@ class Migration1549283461Navigation extends MigrationStep
 ALTER TABLE `sales_channel`
 ADD `navigation_id` binary(16) NULL AFTER `tax_calculation_type`,
 ADD `navigation_version_id` binary(16) NULL AFTER `navigation_id`,
-ADD FOREIGN KEY `fk.sales_channel.navigation_id` (`navigation_id`, `navigation_version_id`) REFERENCES `navigation` (`id`, `version_id`) ON DELETE NO ACTION ON UPDATE CASCADE;        
+ADD CONSTRAINT `fk.sales_channel.navigation_id` FOREIGN KEY (`navigation_id`, `navigation_version_id`) REFERENCES `navigation` (`id`, `version_id`) ON DELETE NO ACTION ON UPDATE CASCADE;        
         ');
 
         $connection->executeQuery('

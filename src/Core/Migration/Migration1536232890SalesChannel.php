@@ -25,6 +25,12 @@ class Migration1536232890SalesChannel extends MigrationStep
               `payment_method_id` BINARY(16) NOT NULL,
               `shipping_method_id` BINARY(16) NOT NULL,
               `country_id` BINARY(16) NOT NULL,
+              `navigation_category_id` BINARY(16) NOT NULL,
+              `navigation_category_version_id` BINARY(16) NOT NULL,
+              `footer_category_id` BINARY(16) NULL,
+              `footer_category_version_id` BINARY(16) NULL,
+              `service_category_id` BINARY(16) NULL,
+              `service_category_version_id` BINARY(16) NULL,
               `active` TINYINT(1) NOT NULL DEFAULT '1',
               `tax_calculation_type` VARCHAR(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'vertical',
               `created_at` DATETIME(3) NOT NULL,
@@ -43,7 +49,13 @@ class Migration1536232890SalesChannel extends MigrationStep
               CONSTRAINT `fk.sales_channel.shipping_method_id` FOREIGN KEY (`shipping_method_id`)
                 REFERENCES `shipping_method` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
               CONSTRAINT `fk.sales_channel.type_id` FOREIGN KEY (`type_id`)
-                REFERENCES `sales_channel_type` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+                REFERENCES `sales_channel_type` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+              CONSTRAINT `fk.sales_channel.navigation_category_id` FOREIGN KEY (`navigation_category_id`, `navigation_category_version_id`)
+                REFERENCES `category` (`id`, `version_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+              CONSTRAINT `fk.sales_channel.footer_category_id` FOREIGN KEY (`footer_category_id`, `footer_category_version_id`)
+                REFERENCES `category` (`id`, `version_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+              CONSTRAINT `fk.sales_channel.service_category_id` FOREIGN KEY (`service_category_id`, `service_category_version_id`)
+                REFERENCES `category` (`id`, `version_id`) ON DELETE RESTRICT ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
 

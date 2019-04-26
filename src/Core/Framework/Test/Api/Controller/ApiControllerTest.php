@@ -860,16 +860,20 @@ EOF;
         static::assertArrayHasKey('data', $respData);
         static::assertArrayHasKey('links', $respData);
         static::assertArrayHasKey('included', $respData);
-        static::assertCount(2, $respData['data']);
+        static::assertCount(3, $respData['data']);
 
         $data = $respData['data'];
         static::assertEquals('category', $data[0]['type']);
-        static::assertEquals($insertData[0]['name'], $data[0]['attributes']['name']);
-        static::assertEquals($insertData[0]['name'], $data[0]['attributes']['translated']['name']);
+        static::assertEquals('Root category', $data[0]['attributes']['name']);
+        static::assertEquals('Root category', $data[0]['attributes']['translated']['name']);
 
         static::assertEquals('category', $data[1]['type']);
-        static::assertEquals($insertData[1]['name'], $data[1]['attributes']['name']);
-        static::assertEquals($insertData[1]['name'], $data[1]['attributes']['translated']['name']);
+        static::assertEquals($insertData[0]['name'], $data[1]['attributes']['name']);
+        static::assertEquals($insertData[0]['name'], $data[1]['attributes']['translated']['name']);
+
+        static::assertEquals('category', $data[2]['type']);
+        static::assertEquals($insertData[1]['name'], $data[2]['attributes']['name']);
+        static::assertEquals($insertData[1]['name'], $data[2]['attributes']['translated']['name']);
     }
 
     public function testCreateNewVersion(): void

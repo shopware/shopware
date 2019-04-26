@@ -137,7 +137,7 @@ $sw-login-error-animation-duration: .15s;
         display: flex;
         flex-direction: row;
         overflow: hidden;
-        background: lighten($sw-login-color-background, 10%) url('../img/sw-login-background.png') center center;
+        background: lighten($sw-login-color-background, 10%) url('https://login-image.shopware.com/login/login.jpg') center center;
         background-size: cover;
         opacity: 1;
         transition: opacity $sw-login-success-animation-duration ease-in-out,

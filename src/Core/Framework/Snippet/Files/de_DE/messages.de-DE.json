@@ -217,7 +217,8 @@
         "finishInfoOrdernumber": "Bestellnummer:",
         "finishInfoConfirmationMail": "Wir haben Ihnen eine Bestellbestätigung per E-Mail geschickt.",
         "finishButtonBackToShop": "Zurück zum Shop",
-        "codeAddedSuccessful": "Code wurde erfolgreich hinzugefügt"
+        "codeAddedSuccessful": "Code wurde erfolgreich hinzugefügt",
+        "addToCartSuccess": "Items erfolgreich zum Warenkorb hinzugefügt."
     },
     "listing": {
         "boxUnitLabel": "Inhalt:",
@@ -240,7 +241,8 @@
         "priceUnitName": "Inhalt:"
     },
     "error": {
-        "message-default": "Leider ist etwas ist schief gelaufen"
+        "message-default": "Leider ist etwas ist schief gelaufen",
+        "addToCartError": "Beim Hinzufügen zum Warenkorb ist ein Fehler aufgetreten."
     },
     "footer": {
         "serviceHotlineHeadline": "Service Hotline",

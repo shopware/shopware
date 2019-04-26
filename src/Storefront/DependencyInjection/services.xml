@@ -270,6 +270,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelContextSwitcher"/>
             <argument type="service" id="translator"/>
+            <argument type="service" id="media.repository"/>
         </service>
 
         <service id="Shopware\Storefront\PageController\ErrorPageController" public="true">

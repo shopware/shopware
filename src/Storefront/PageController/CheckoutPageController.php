@@ -2,15 +2,26 @@
 
 namespace Shopware\Storefront\PageController;
 
+use function array_replace_recursive;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemCoverNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AddressService;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Promotion\Cart\Builder\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsCollector;
+use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -87,6 +98,11 @@ class CheckoutPageController extends StorefrontController
      */
     private $translator;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $mediaRepository;
+
     public function __construct(
         CartService $cartService,
         PageLoaderInterface $cartPageLoader,
@@ -98,7 +114,8 @@ class CheckoutPageController extends StorefrontController
         AddressService $addressService,
         OrderService $orderService,
         SalesChannelContextSwitcher $contextSwitcher,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        EntityRepositoryInterface $mediaRepository
     ) {
         $this->cartService = $cartService;
         $this->cartPageLoader = $cartPageLoader;
@@ -111,6 +128,7 @@ class CheckoutPageController extends StorefrontController
         $this->addressService = $addressService;
         $this->contextSwitcher = $contextSwitcher;
         $this->translator = $translator;
+        $this->mediaRepository = $mediaRepository;
     }
 
     /**
@@ -371,5 +389,112 @@ class CheckoutPageController extends StorefrontController
         $this->cartService->changeQuantity($cart, $id, (int) $quantity, $context);
 
         return $this->createActionResponse($request);
+    }
+
+    /**
+     * @Route("/checkout/line-item/add", name="frontend.checkout.line-item.add", methods={"POST"}, defaults={"XmlHttpRequest"=true})
+     *
+     * requires the provided items in the following form
+     * 'lineItems' => [
+     *     'anyKey' => [
+     *         'id' => 'someKey'
+     *         'quantity' => 2,
+     *         'type' => 'someType'
+     *     ],
+     *     'randomKey' => [
+     *         'id' => 'otherKey'
+     *         'quantity' => 2,
+     *         'type' => 'otherType'
+     *     ]
+     * ]
+     */
+    public function addLineItems(RequestDataBag $requestDataBag, Request $request, SalesChannelContext $context): Response
+    {
+        /** @var RequestDataBag|null $lineItems */
+        $lineItems = $requestDataBag->get('lineItems');
+        if (!$lineItems) {
+            throw new MissingRequestParameterException('lineItems');
+        }
+
+        $collection = new LineItemCollection();
+
+        /** @var RequestDataBag $lineItemData */
+        foreach ($lineItems as $lineItemData) {
+            $lineItem = new LineItem(
+                $lineItemData->getAlnum('id'),
+                $lineItemData->getAlnum('type'),
+                $lineItemData->getInt('quantity')
+            );
+
+            $lineItemData->remove('quantity');
+
+            $this->updateLineItemByRequest($lineItem, $lineItemData, $context->getContext());
+
+            $collection->add($lineItem);
+        }
+
+        try {
+            $this->cartService->fill($this->cartService->getCart($context->getToken(), $context), $collection, $context);
+
+            $this->addFlash('success', $this->translator->trans('checkout.addToCartSuccess'));
+        } catch (ProductNotFoundException $exception) {
+            $this->addFlash('danger', $this->translator->trans('error.addToCartError'));
+        }
+
+        if ($request->headers->contains('x-requested-with', 'XMLHttpRequest')) {
+            // TODO NEXT-2497 return template
+        }
+
+        return $this->createActionResponse($request);
+    }
+
+    /**
+     * @throws InvalidQuantityException
+     * @throws LineItemCoverNotFoundException
+     * @throws LineItemNotStackableException
+     * @throws InvalidPayloadException
+     */
+    private function updateLineItemByRequest(LineItem $lineItem, RequestDataBag $requestDataBag, Context $context): void
+    {
+        $quantity = (int) $requestDataBag->get('quantity');
+        $payload = $requestDataBag->get('payload', []);
+        $payload = array_replace_recursive(['id' => $lineItem->getKey()], $payload);
+        $stackable = $requestDataBag->get('stackable');
+        $removable = $requestDataBag->get('removable');
+        $label = $requestDataBag->get('label');
+        $description = $requestDataBag->get('description');
+        $coverId = $requestDataBag->get('coverId');
+
+        $lineItem->setPayload($payload);
+
+        if ($quantity) {
+            $lineItem->setQuantity($quantity);
+        }
+
+        if ($stackable !== null) {
+            $lineItem->setStackable((bool) $stackable);
+        }
+
+        if ($removable !== null) {
+            $lineItem->setRemovable((bool) $removable);
+        }
+
+        if ($label !== null) {
+            $lineItem->setLabel($label);
+        }
+
+        if ($description !== null) {
+            $lineItem->setDescription($description);
+        }
+
+        if ($coverId !== null) {
+            $cover = $this->mediaRepository->search(new Criteria([$coverId]), $context)->get($coverId);
+
+            if (!$cover) {
+                throw new LineItemCoverNotFoundException($coverId, $lineItem->getKey());
+            }
+
+            $lineItem->setCover($cover);
+        }
     }
 }

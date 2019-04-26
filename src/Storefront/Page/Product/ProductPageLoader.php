@@ -188,7 +188,7 @@ class ProductPageLoader implements PageLoaderInterface
         usort(
             $sorted,
             function (PropertyGroupEntity $a, PropertyGroupEntity $b) {
-                return strnatcmp($a->getName(), $b->getName());
+                return strnatcmp($a->getTranslation('name'), $b->getTranslation('name'));
             }
         );
 
@@ -197,11 +197,11 @@ class ProductPageLoader implements PageLoaderInterface
             $group->getOptions()->sort(
                 function (PropertyGroupOptionEntity $a, PropertyGroupOptionEntity $b) use ($group) {
                     if ($group->getSortingType() === PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC) {
-                        return strnatcmp($a->getName(), $b->getName());
+                        return strnatcmp($a->getTranslation('name'), $b->getTranslation('name'));
                     }
 
                     if ($group->getSortingType() === PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC) {
-                        return $a->getName() <=> $b->getName();
+                        return $a->getTranslation('name') <=> $b->getTranslation('name');
                     }
 
                     return $a->getPosition() <=> $b->getPosition();

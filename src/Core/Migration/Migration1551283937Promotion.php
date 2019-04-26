@@ -17,7 +17,6 @@ class Migration1551283937Promotion extends MigrationStep
         $connection->executeQuery('
         CREATE TABLE IF NOT EXISTS `promotion` (
               `id` BINARY(16) NOT NULL,
-              `name` VARCHAR(255) NOT NULL,
               `active` TINYINT(1) NOT NULL DEFAULT 0,
               `valid_from` DATETIME NULL,
               `valid_until` DATETIME NULL,

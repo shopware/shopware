@@ -25,9 +25,7 @@ Component.register('sw-promotion-detail', {
 
     computed: {
         identifier() {
-            // ToDo: If 'name' is translatable, please update:
-            // ToDo: return this.placeholder(this.promotion, 'name');
-            return this.promotion.name;
+            return this.placeholder(this.promotion, 'name');
         },
         promotionStore() {
             return State.getStore('promotion');

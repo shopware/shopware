@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\CustomerNumberRule;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSalesChannelCollection;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionTranslation\PromotionTranslationCollection;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -115,6 +116,11 @@ class PromotionEntity extends Entity
      * @var RuleCollection|null
      */
     protected $cartRules;
+
+    /**
+     * @var PromotionTranslationCollection|null
+     */
+    protected $translations;
 
     public function getName(): ?string
     {
@@ -354,6 +360,16 @@ class PromotionEntity extends Entity
     public function setCartRules(?RuleCollection $cartRules): void
     {
         $this->cartRules = $cartRules;
+    }
+
+    public function getTranslations(): ?PromotionTranslationCollection
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(PromotionTranslationCollection $translations): void
+    {
+        $this->translations = $translations;
     }
 
     /**

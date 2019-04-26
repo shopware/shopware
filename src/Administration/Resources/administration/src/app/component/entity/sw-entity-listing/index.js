@@ -16,8 +16,9 @@ export default {
             type: Object
         },
         items: {
-            required: true,
-            type: Object
+            type: Object,
+            required: false,
+            default: null
         },
         dataSource: {
             type: [Array, Object],
@@ -54,14 +55,23 @@ export default {
         };
     },
 
+    watch: {
+        items() {
+            this.applyResult(this.items);
+        }
+    },
+
     methods: {
         createdComponent() {
             this.$super.createdComponent();
-            this.applyResult(this.items);
+
+            if (this.items) {
+                this.applyResult(this.items);
+            }
         },
 
         applyResult(result) {
-            this.records = result.items;
+            this.records = result;
             this.total = result.total;
             this.page = result.criteria.page;
             this.limit = result.criteria.limit;

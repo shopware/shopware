@@ -174,6 +174,7 @@ export default class Criteria {
      */
     addAggregation(aggregation) {
         this.aggregations.push(aggregation);
+        return this;
     }
 
     /**

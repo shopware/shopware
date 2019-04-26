@@ -74,10 +74,7 @@ class SystemConfigController extends AbstractController
     {
         $salesChannelId = $request->query->get('salesChannelId');
         $kvs = $request->request->all();
-
-        foreach ($kvs as $key => $value) {
-            $this->systemConfig->set($key, $value, $salesChannelId);
-        }
+        $this->saveKeyValues($salesChannelId, $kvs);
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
@@ -87,17 +84,20 @@ class SystemConfigController extends AbstractController
      */
     public function batchSaveConfiguration(Request $request): JsonResponse
     {
-        $kvs = $request->request->all();
-
-        foreach ($kvs as $salesChannelId => $values) {
+        foreach ($request->request->all() as $salesChannelId => $kvs) {
             if ($salesChannelId === 'null') {
                 $salesChannelId = null;
             }
-            foreach ($values as $key => $value) {
-                $this->systemConfig->set($key, $value, $salesChannelId);
-            }
+            $this->saveKeyValues($salesChannelId, $kvs);
         }
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    }
+
+    private function saveKeyValues(?string $salesChannelId, array $kvs): void
+    {
+        foreach ($kvs as $key => $value) {
+            $this->systemConfig->set($key, $value, $salesChannelId);
+        }
     }
 }

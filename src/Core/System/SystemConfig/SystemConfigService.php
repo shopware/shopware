@@ -7,7 +7,6 @@ use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -38,29 +37,23 @@ class SystemConfigService
     {
         $criteria = new Criteria();
 
-        $defaultFilter = [new EqualsFilter('salesChannelId', $salesChannelId)];
+        $filter = [new EqualsFilter('salesChannelId', $salesChannelId)];
         if ($inherit) {
-            $defaultFilter[] = new EqualsFilter('salesChannelId', null);
+            $filter[] = new EqualsFilter('salesChannelId', null);
         }
 
         $criteria->addFilter(new MultiFilter(
             MultiFilter::CONNECTION_OR,
-            $defaultFilter
+            $filter
         ));
         $criteria->addFilter(new EqualsFilter('configurationKey', $key));
         $criteria->addSorting(new FieldSorting('salesChannelId', FieldSorting::ASCENDING));
 
-        // this should return at most two entities
-        /** @var EntitySearchResult $result */
-        $result = $this->systemConfigRepository->search($criteria, Context::createDefaultContext());
-        $default = $result->first();
-        $override = $result->last();
+        $last = $this->systemConfigRepository
+            ->search($criteria, Context::createDefaultContext())
+            ->last();
 
-        if ($override) {
-            return $override->getConfigurationValue();
-        }
-
-        return $default ? $default->getConfigurationValue() : null;
+        return $last ? $last->getConfigurationValue() : null;
     }
 
     public function getDomain(string $domain, ?string $salesChannelId = null, bool $inherit = false): array
@@ -69,9 +62,6 @@ class SystemConfigService
         if ($domain === '') {
             throw new InvalidDomainException('Empty domain');
         }
-        $domain = rtrim($domain, '.') . '.';
-
-        $escapedDomain = str_replace('%', '\\%', $domain);
 
         $queryBuilder = $this->connection->createQueryBuilder()
             ->select('LOWER(HEX(id))')
@@ -84,6 +74,9 @@ class SystemConfigService
         } else {
             $queryBuilder->where('sales_channel_id = :salesChannelId');
         }
+
+        $domain = rtrim($domain, '.') . '.';
+        $escapedDomain = str_replace('%', '\\%', $domain);
 
         $salesChannelId = $salesChannelId ? Uuid::fromHexToBytes($salesChannelId) : null;
 
@@ -116,13 +109,44 @@ class SystemConfigService
     public function set(string $key, $value, ?string $salesChannelId = null): void
     {
         $key = trim($key);
+        $this->validate($key, $salesChannelId);
+
+        $id = $this->getId($key, $salesChannelId);
+        if ($value === null) {
+            if ($id) {
+                $this->systemConfigRepository->delete([['id' => $id]], Context::createDefaultContext());
+            }
+
+            return;
+        }
+
+        $data = [
+            'id' => $id ?? Uuid::randomHex(),
+            'configurationKey' => $key,
+            'configurationValue' => $value,
+            'salesChannelId' => $salesChannelId,
+        ];
+        $this->systemConfigRepository->upsert([$data], Context::createDefaultContext());
+    }
+
+    public function delete(string $key, ?string $salesChannel = null): void
+    {
+        $this->set($key, null, $salesChannel);
+    }
+
+    private function validate(string $key, ?string $salesChannelId): void
+    {
+        $key = trim($key);
         if ($key === '') {
             throw new InvalidKeyException('key may not be empty');
         }
         if ($salesChannelId && !Uuid::isValid($salesChannelId)) {
             throw new InvalidUuidException($salesChannelId);
         }
+    }
 
+    private function getId($key, ?string $salesChannelId = null): ?string
+    {
         $criteria = new Criteria();
         $criteria->addFilter(
             new EqualsFilter('configurationKey', $key),
@@ -130,12 +154,7 @@ class SystemConfigService
         );
 
         $ids = $this->systemConfigRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
-        $data = [
-            'id' => $ids[0] ?? Uuid::randomHex(),
-            'configurationKey' => $key,
-            'configurationValue' => $value,
-            'salesChannelId' => $salesChannelId,
-        ];
-        $this->systemConfigRepository->upsert([$data], Context::createDefaultContext());
+
+        return array_shift($ids);
     }
 }

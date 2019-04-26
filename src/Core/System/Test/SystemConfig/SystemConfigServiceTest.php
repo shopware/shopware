@@ -63,7 +63,7 @@ class SystemConfigServiceTest extends TestCase
     public function testSetGetSalesChannel(): void
     {
         $this->systemConfigService->set('foo.bar', 'test');
-        $actual = $this->systemConfigService->get('foo.bar', Defaults::SALES_CHANNEL, true);
+        $actual = $this->systemConfigService->get('foo.bar', Defaults::SALES_CHANNEL);
         static::assertEquals('test', $actual);
 
         $this->systemConfigService->set('foo.bar', 'override', Defaults::SALES_CHANNEL);
@@ -71,12 +71,29 @@ class SystemConfigServiceTest extends TestCase
         static::assertEquals('override', $actual);
     }
 
+    public function testSetGetSalesChannelNoInherit(): void
+    {
+        $this->systemConfigService->set('foo.bar', 'test');
+        $actual = $this->systemConfigService->get('foo.bar', Defaults::SALES_CHANNEL, false);
+        static::assertNull($actual);
+
+        $this->systemConfigService->set('foo.bar', 'override', Defaults::SALES_CHANNEL, false);
+        $actual = $this->systemConfigService->get('foo.bar', Defaults::SALES_CHANNEL);
+        static::assertEquals('override', $actual);
+    }
+
     public function testGetDomainNoData(): void
     {
-        $actual = $this->systemConfigService->getDomain('foo');
+        $actual = $this->systemConfigService->getDomain('foo', null, false);
         static::assertEquals([], $actual);
 
-        $actual = $this->systemConfigService->getDomain('foo', Defaults::SALES_CHANNEL);
+        $actual = $this->systemConfigService->getDomain('foo', null, true);
+        static::assertEquals([], $actual);
+
+        $actual = $this->systemConfigService->getDomain('foo', Defaults::SALES_CHANNEL, false);
+        static::assertEquals([], $actual);
+
+        $actual = $this->systemConfigService->getDomain('foo', Defaults::SALES_CHANNEL, true);
         static::assertEquals([], $actual);
     }
 
@@ -115,6 +132,31 @@ class SystemConfigServiceTest extends TestCase
         $this->systemConfigService->set('foo.a', 'a');
         $actual = $this->systemConfigService->getDomain('foo.');
         static::assertEquals(['foo.a' => 'a'], $actual);
+    }
+
+    public function testDeleteNonExisting(): void
+    {
+        $this->systemConfigService->delete('not.found', null);
+        $this->systemConfigService->delete('not.found', Defaults::SALES_CHANNEL);
+
+        // does not throw
+        static::assertTrue(true);
+    }
+
+    public function testDelete(): void
+    {
+        $this->systemConfigService->set('foo', 'bar', null);
+        $this->systemConfigService->set('foo', 'bar override', Defaults::SALES_CHANNEL);
+
+        $this->systemConfigService->delete('foo', null);
+        $actual = $this->systemConfigService->get('foo', null);
+        static::assertNull($actual);
+        $actual = $this->systemConfigService->get('foo', Defaults::SALES_CHANNEL);
+        static::assertEquals('bar override', $actual);
+
+        $this->systemConfigService->delete('foo', Defaults::SALES_CHANNEL);
+        $actual = $this->systemConfigService->get('foo', Defaults::SALES_CHANNEL);
+        static::assertNull($actual);
     }
 
     public function testGetDomainEmptyThrows(): void

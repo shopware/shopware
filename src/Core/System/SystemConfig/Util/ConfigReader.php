@@ -25,25 +25,10 @@ class ConfigReader extends XmlReader
         } else {
             $bundleConfigName = $bundle->getConfigPath() . '/' . rtrim($bundleConfigName, '.xml') . '.xml';
         }
-
         $configPath = $bundle->getPath() . '/' . ltrim($bundleConfigName, '/');
 
         if (!is_file($configPath)) {
             throw new BundleConfigNotFoundException($bundleConfigName, $bundle->getName());
-        }
-
-        return $this->read($configPath);
-    }
-
-    /**
-     * @throws BundleConfigNotFoundException
-     */
-    public function getCoreConfig(string $configPath): array
-    {
-        $configPath = rtrim($configPath, '.xml') . '.xml';
-
-        if (!is_file($configPath)) {
-            throw new BundleConfigNotFoundException($configPath, 'core');
         }
 
         return $this->read($configPath);

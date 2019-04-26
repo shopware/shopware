@@ -160,6 +160,10 @@ class CartPromotionsCollector implements CollectorInterface
                 continue;
             }
 
+            if (!$promotion->isOrderConditionValid($context)) {
+                continue;
+            }
+
             /** @var PromotionDiscountCollection|null $collection */
             $collection = $promotion->getDiscounts();
 

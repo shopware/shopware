@@ -69,6 +69,7 @@ class PromotionGatewayTest extends TestCase
 
         $expectedCriteria->addAssociation('personaRules');
         $expectedCriteria->addAssociation('personaCustomers');
+        $expectedCriteria->addAssociation('orderRules');
         $expectedCriteria->addAssociation('discounts');
 
         static::assertEquals($expectedCriteria, $fakeRepo->getSearchedCriteria());
@@ -102,6 +103,7 @@ class PromotionGatewayTest extends TestCase
 
         $expectedCriteria->addAssociation('personaRules');
         $expectedCriteria->addAssociation('personaCustomers');
+        $expectedCriteria->addAssociation('orderRules');
         $expectedCriteria->addAssociation('discounts');
 
         static::assertEquals($expectedCriteria, $fakeRepo->getSearchedCriteria());

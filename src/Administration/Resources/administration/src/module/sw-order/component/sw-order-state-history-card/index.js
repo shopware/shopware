@@ -146,8 +146,17 @@ Component.register('sw-order-state-history-card', {
             const criteriaState =
                     CriteriaFactory.equals('state_machine_state.stateMachine.technicalName', stateMachineName);
 
+            const sortings = [{
+                field: 'name',
+                order: 'ASC',
+                naturalSorting: false
+            }];
+
             return this.stateMachineStateStore.getList(
-                { criteria: criteriaState }
+                {
+                    criteria: criteriaState,
+                    sortings: sortings
+                }
             ).then((entries) => {
                 const options = [];
                 entries.items.forEach((state) => {

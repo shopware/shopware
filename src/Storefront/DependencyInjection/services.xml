@@ -214,6 +214,15 @@
             <argument type="service" id="Shopware\Storefront\Pagelet\Checkout\AjaxCart\CheckoutAjaxCartPageletLoader"/>
         </service>
 
+        <service id="Shopware\Storefront\Pagelet\Cms\CmsPageletLoader">
+            <argument type="service" id="cms_page.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver"/>
+        </service>
+
+        <service id="Shopware\Storefront\PageletController\CmsPageletController" public="true">
+            <argument type="service" id="Shopware\Storefront\Pagelet\Cms\CmsPageletLoader"/>
+        </service>
+
         <service id="Shopware\Storefront\PageletController\ListingPageletController" public="true">
             <argument type="service" id="Shopware\Storefront\Pagelet\Listing\ListingPageletLoader"/>
         </service>

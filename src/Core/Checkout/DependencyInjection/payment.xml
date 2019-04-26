@@ -73,12 +73,6 @@
             <tag name="shopware.payment.method.sync"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SEPAPayment">
-            <argument type="service" id="order_transaction.repository"/>
-            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
-            <tag name="shopware.payment.method.sync"/>
-        </service>
-
         <service id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DefaultPayment">
             <argument type="service" id="order_transaction.repository"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>

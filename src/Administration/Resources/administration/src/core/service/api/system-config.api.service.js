@@ -7,6 +7,10 @@ class SystemConfigApiService extends ApiService {
         this.name = 'systemConfigApiService';
     }
 
+    getDomainFromNamespace(namespace) {
+        return `bundle.${namespace.split('\\').slice(-1)[0]}`;
+    }
+
     getConfig(domain, additionalParams = {}, additionalHeaders = {}) {
         return this.httpClient
             .get('_action/system-config/schema', {

@@ -50,7 +50,8 @@
       "columnPrice": "Price",
       "columnFactor": "Factor",
       "topRule": "Availability rule",
-      "labelLogoUpload": "Upload logo"
+      "labelLogoUpload": "Upload logo",
+      "addNewRule": "Add new rule"
     },
     "constants": {
       "weight": "Weight",

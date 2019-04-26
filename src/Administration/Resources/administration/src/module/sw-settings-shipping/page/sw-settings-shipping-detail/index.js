@@ -1,5 +1,6 @@
 import { Component, Mixin, State } from 'src/core/shopware';
 import { warn } from 'src/core/service/utils/debug.utils';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-settings-shipping-detail.html.twig';
 import './sw-settings-shipping-detail.scss';
 
@@ -26,7 +27,17 @@ Component.register('sw-settings-shipping-detail', {
         return {
             shippingMethod: {},
             logoMediaItem: null,
-            uploadTag: 'sw-shipping-method-upload-tag'
+            uploadTag: 'sw-shipping-method-upload-tag',
+            showRuleModal: false,
+            itemAddNewRule: {
+                index: -1,
+                id: ''
+            },
+            ruleFilter: CriteriaFactory.multi(
+                'OR',
+                CriteriaFactory.contains('rule.moduleTypes.types', 'shipping'),
+                CriteriaFactory.equals('rule.moduleTypes', null)
+            )
         };
     },
 
@@ -77,6 +88,26 @@ Component.register('sw-settings-shipping-detail', {
                 this.shippingMethodId = this.$route.params.id;
                 this.loadEntityData();
             }
+        },
+
+        onSaveRule(rule) {
+            this.shippingMethod.availabilityRuleId = rule.id;
+        },
+
+        onSelectRule(event) {
+            if (event.item.index !== -1) {
+                this.onSaveRule(event.item);
+                return;
+            }
+
+            this.openCreateRuleModal();
+        },
+
+        openCreateRuleModal() {
+            this.showRuleModal = true;
+        },
+        onCloseRuleModal() {
+            this.showRuleModal = false;
         },
 
         loadEntityData() {

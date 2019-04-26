@@ -5,6 +5,8 @@ import './sw-plugin-box.scss';
 Component.register('sw-plugin-box', {
     template,
 
+    inject: ['systemConfigApiService'],
+
     props: {
         pluginId: {
             type: String,
@@ -12,15 +14,29 @@ Component.register('sw-plugin-box', {
         }
     },
 
+
     data() {
         return {
-            plugin: {}
+            plugin: {},
+            hasPluginConfig: false
         };
     },
 
     computed: {
         pluginStore() {
             return State.getStore('plugin');
+        }
+    },
+
+    watch: {
+        'plugin.name': {
+            handler() {
+                if (!this.plugin.name || this.hasPluginConfig) {
+                    return;
+                }
+
+                this.checkPluginConfig();
+            }
         }
     },
 
@@ -31,6 +47,15 @@ Component.register('sw-plugin-box', {
     methods: {
         createdComponent() {
             this.plugin = this.pluginStore.getById(this.pluginId);
+        },
+
+        checkPluginConfig() {
+            // TODO: problem with check for config since 25.04.19 => have to wait for solution
+            // const domain = this.systemConfigApiService.getDomainFromNamespace(this.plugin.name);
+            //
+            // this.systemConfigApiService.getConfig(domain).then(() => {
+            //     this.hasPluginConfig = true;
+            // });
         }
     }
 });

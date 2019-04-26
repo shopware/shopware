@@ -24,10 +24,11 @@
                     </sw-container>
                 {% endblock %}
                 {% block sw_plugin_box_container_button %}
-                    <sw-button variant="ghost"
+                    <sw-button v-if="hasPluginConfig"
+                               variant="ghost"
                                size="small"
                                class="sw-plugin-box__button"
-                               :routerLink="{ name: 'sw.plugin.settings', params: { id: plugin.id } }">
+                               :routerLink="{ name: 'sw.plugin.settings', params: { namespace: plugin.name } }">
                         {{ $tc('sw-plugin-box.buttonPluginSettings') }}
                     </sw-button>
                 {% endblock %}

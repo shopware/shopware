@@ -32,12 +32,13 @@
       "sidebar": {
         "labelUseAsLogo": "Als Logo benutzen"
       },
-      "topRule": "Regel",
+      "topRule": "Verfügbarkeitsregel",
       "placeholderName": "Namen eingeben...",
       "placeholderPosition": "Position eingeben...",
       "placeholderDescription": "Beschreibung eingeben...",
       "buttonCancel": "Abbrechen",
-      "buttonSave": "Speichern"
+      "buttonSave": "Speichern",
+      "addNewRule": "Neue Regel erstellen"
     }
   },
   "sw-plugin-box": {

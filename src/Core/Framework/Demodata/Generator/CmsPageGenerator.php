@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Demodata\Generator;
 
-use Shopware\Core\Content\Category\CategoryDefinition;
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\Cms\SlotDataResolver\FieldConfig;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -40,14 +40,21 @@ class CmsPageGenerator implements DemodataGeneratorInterface
      */
     private $mediaIds = [];
 
+    /**
+     * @var Connection
+     */
+    private $connection;
+
     public function __construct(
         EntityRepositoryInterface $cmsPageRepository,
         EntityRepositoryInterface $productRepository,
-        EntityRepositoryInterface $mediaRepository
+        EntityRepositoryInterface $mediaRepository,
+        Connection $connection
     ) {
         $this->cmsPageRepository = $cmsPageRepository;
         $this->productRepository = $productRepository;
         $this->mediaRepository = $mediaRepository;
+        $this->connection = $connection;
     }
 
     public function getDefinition(): string
@@ -66,6 +73,8 @@ class CmsPageGenerator implements DemodataGeneratorInterface
         $pages[] = $this->createProductDetailPage($context);
 
         $this->cmsPageRepository->upsert($pages, $context->getContext());
+
+        $this->connection->executeUpdate("UPDATE category SET cms_page_id = (SELECT id FROM cms_page WHERE type = 'listing_page' ORDER BY RAND() LIMIT 1)");
     }
 
     protected function createPage(DemodataContext $context): array
@@ -74,7 +83,6 @@ class CmsPageGenerator implements DemodataGeneratorInterface
             'id' => Uuid::randomHex(),
             'name' => $context->getFaker()->company,
             'type' => 'listing_page',
-            'categories' => [['id' => $context->getFaker()->randomElement($context->getIds(CategoryDefinition::class))]],
             'blocks' => [
                 [
                     'type' => 'image-text',

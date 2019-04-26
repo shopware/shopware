@@ -1,0 +1,13 @@
+{
+  "sw-marketing": {
+    "general": {
+      "mainMenuItemGeneral": "Marketing"
+    },
+    "index": {
+      "title": "Marketing"
+    },
+    "system-config": {
+      "labelSalesChannelSelect": "Verkaufskanal"
+    }
+  }
+}

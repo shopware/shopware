@@ -53,7 +53,8 @@ module.exports = {
         browser
             .openMainMenuEntry({
                 targetPath: '#/sw/product/index',
-                mainMenuId: 'sw-product'
+                mainMenuId: 'sw-catalogue',
+                subMenuId: 'sw-product'
             })
             .waitForElementPresent('.smart-bar__actions a[href="#/sw/product/create"]')
             .expect.element(`${productPageObject.elements.productListName}`).to.have.text.that.contains(global.ProductFixtureService.productFixture.name);

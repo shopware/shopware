@@ -18,7 +18,7 @@ module.exports = {
         browser
             .openMainMenuEntry({
                 targetPath: '#/sw/product/stream/index',
-                mainMenuId: 'sw-product',
+                mainMenuId: 'sw-catalogue',
                 subMenuId: 'sw-product-stream'
             })
             .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);

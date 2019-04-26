@@ -7,7 +7,7 @@ module.exports = {
         browser
             .openMainMenuEntry({
                 targetPath: '#/sw/product/stream/index',
-                mainMenuId: 'sw-product',
+                mainMenuId: 'sw-catalogue',
                 subMenuId: 'sw-product-stream'
             })
             .click('.sw-product-stream-list__create-action');
@@ -26,7 +26,7 @@ module.exports = {
         browser
             .openMainMenuEntry({
                 targetPath: '#/sw/product/stream/index',
-                mainMenuId: 'sw-product',
+                mainMenuId: 'sw-catalogue',
                 subMenuId: 'sw-product-stream'
             })
             .refresh()

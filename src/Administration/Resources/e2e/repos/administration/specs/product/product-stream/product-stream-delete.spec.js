@@ -12,7 +12,7 @@ module.exports = {
         browser
             .openMainMenuEntry({
                 targetPath: '#/sw/product/stream/index',
-                mainMenuId: 'sw-product',
+                mainMenuId: 'sw-catalogue',
                 subMenuId: 'sw-product-stream'
             });
     },
@@ -43,7 +43,7 @@ module.exports = {
         browser
             .openMainMenuEntry({
                 targetPath: '#/sw/product/stream/index',
-                mainMenuId: 'sw-product',
+                mainMenuId: 'sw-catalogue',
                 subMenuId: 'sw-product-stream'
             })
             .waitForElementVisible(page.elements.smartBarAmount)

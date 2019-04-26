@@ -6,7 +6,7 @@ module.exports = {
         browser
             .openMainMenuEntry({
                 targetPath: '#/sw/manufacturer/index',
-                mainMenuId: 'sw-product',
+                mainMenuId: 'sw-catalogue',
                 subMenuId: 'sw-manufacturer'
             })
             .waitForElementPresent('.sw-button__content')
@@ -23,7 +23,7 @@ module.exports = {
         browser
             .openMainMenuEntry({
                 targetPath: '#/sw/manufacturer/index',
-                mainMenuId: 'sw-product',
+                mainMenuId: 'sw-catalogue',
                 subMenuId: 'sw-manufacturer'
             })
             .refresh()
@@ -47,7 +47,7 @@ module.exports = {
         browser
             .openMainMenuEntry({
                 targetPath: '#/sw/product/index',
-                mainMenuId: 'sw-product'
+                mainMenuId: 'sw-catalogue'
             })
             .waitForElementPresent('.smart-bar__actions a[href="#/sw/product/create"]')
             .click('.smart-bar__actions a[href="#/sw/product/create"]')

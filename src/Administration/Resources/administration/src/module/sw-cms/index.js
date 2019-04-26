@@ -55,6 +55,7 @@ Module.register('sw-cms', {
         color: '#ff68b4',
         path: 'sw.cms.index',
         icon: 'default-object-marketing',
-        position: 45
+        position: 10,
+        parent: 'sw-content'
     }]
 });

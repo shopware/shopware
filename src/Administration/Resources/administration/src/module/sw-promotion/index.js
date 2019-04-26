@@ -32,6 +32,7 @@ Module.register('sw-promotion', {
     targetVersion: '1.0.0',
     color: '#DE94DE',
     icon: 'default-package-gift',
+    favicon: 'icon-module-settings.png',
     entity: 'promotion',
 
     snippets: {
@@ -44,7 +45,10 @@ Module.register('sw-promotion', {
             components: {
                 default: 'sw-promotion-list'
             },
-            path: 'index'
+            path: 'index',
+            meta: {
+                parentPath: 'sw.promotion.detail'
+            }
         },
 
         create: {
@@ -102,10 +106,7 @@ Module.register('sw-promotion', {
         label: 'sw-promotion.general.mainMenuItemGeneral',
         color: '#DE94DE',
         icon: 'default-package-gift',
-        position: 20
-    }, {
-        path: 'sw.promotion.index',
-        label: 'sw-promotion.general.mainMenuItemList',
-        parent: 'sw-promotion'
+        position: 100,
+        parent: 'sw-marketing'
     }]
 });

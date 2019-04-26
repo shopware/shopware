@@ -11,7 +11,7 @@ module.exports = {
         browser
             .openMainMenuEntry({
                 targetPath: '#/sw/manufacturer/index',
-                mainMenuId: 'sw-product',
+                mainMenuId: 'sw-catalogue',
                 subMenuId: 'sw-manufacturer'
             })
             .waitForElementVisible('.sw-button__content');

@@ -58,6 +58,7 @@ Module.register('sw-media', {
         color: '#FFD700',
         icon: 'default-object-image',
         path: 'sw.media.index',
-        position: 50
+        position: 20,
+        parent: 'sw-content'
     }]
 });

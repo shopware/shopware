@@ -115,10 +115,7 @@ Module.register('sw-product', {
         color: '#57D9A3',
         path: 'sw.product.index',
         icon: 'default-symbol-products',
-        position: 20
-    }, {
-        path: 'sw.product.index',
-        label: 'sw-product.general.mainMenuItemList',
-        parent: 'sw-product'
+        parent: 'sw-catalogue',
+        position: 10
     }]
 });

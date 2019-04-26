@@ -44,6 +44,7 @@ Module.register('sw-navigation', {
         id: 'sw-navigation',
         path: 'sw.navigation.index',
         label: 'sw-navigation.general.mainMenuItemIndex',
-        parent: 'sw-product'
+        parent: 'sw-catalogue',
+        position: 60
     }]
 });

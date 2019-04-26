@@ -1,0 +1,13 @@
+{
+  "sw-content": {
+    "general": {
+      "mainMenuItemGeneral": "Inhalte"
+    },
+    "index": {
+      "title": "Inhalte"
+    },
+    "system-config": {
+      "labelSalesChannelSelect": "Verkaufskanal"
+    }
+  }
+}

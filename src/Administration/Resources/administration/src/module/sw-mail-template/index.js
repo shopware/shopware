@@ -19,8 +19,8 @@ Module.register('sw-mail-template', {
     description: 'Manages the mail templates of the application',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#c64e3f',
-    icon: 'default-symbol-products',
+    color: '#9AA8B5',
+    icon: 'default-action-settings',
     entity: 'mail_template',
 
     snippets: {
@@ -33,7 +33,10 @@ Module.register('sw-mail-template', {
             components: {
                 default: 'sw-mail-template-index'
             },
-            path: 'index'
+            path: 'index',
+            meta: {
+                parentPath: 'sw.settings.index'
+            }
         },
         create: {
             component: 'sw-mail-template-create',
@@ -68,13 +71,9 @@ Module.register('sw-mail-template', {
     navigation: [{
         id: 'sw-mail-template',
         label: 'sw-mail-template.general.mainMenuItemGeneral',
-        color: '#c64e3f',
+        color: '#9AA8B5',
         path: 'sw.mail.template.index',
-        icon: 'default-symbol-products',
-        position: 80
-    }, {
-        path: 'sw.mail.template.index',
-        label: 'sw-mail-template.general.mainMenuItemList',
-        parent: 'sw-mail-template'
+        icon: 'default-action-settings',
+        parent: 'sw-settings'
     }]
 });

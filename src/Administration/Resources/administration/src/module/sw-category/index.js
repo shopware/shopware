@@ -68,6 +68,7 @@ Module.register('sw-category', {
         id: 'sw-category',
         path: 'sw.category.index',
         label: 'sw-category.general.mainMenuItemIndex',
-        parent: 'sw-product'
+        parent: 'sw-catalogue',
+        position: 20
     }]
 });

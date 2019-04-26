@@ -1,0 +1,13 @@
+{
+  "sw-catalogue": {
+    "general": {
+      "mainMenuItemGeneral": "Kataloge"
+    },
+    "index": {
+      "title": "Kataloge"
+    },
+    "system-config": {
+      "labelSalesChannelSelect": "Verkaufskanal"
+    }
+  }
+}

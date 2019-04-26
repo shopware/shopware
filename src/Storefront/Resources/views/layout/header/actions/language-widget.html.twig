@@ -7,7 +7,7 @@
                       class="language-form"
                       data-form-auto-submit="true">
 					{% block layout_header_actions_language_widget_content %}
-					    {% set isoCode = page.header.activeLanguage.translationCode.code|lower|split('_') %}
+					    {% set isoCode = page.header.activeLanguage.translationCode.code|lower|split('-') %}
                         {% set country = isoCode[0] %}
                         {% set language = isoCode[1] %}
 
@@ -26,27 +26,27 @@
 									aria-labelledby="languagesDropdown">
 									{% for language in  page.header.languages.elements %}
 										<li>
-											<a class="top-bar-list-item dropdown-item{% if language.id is same as(page.header.activeLanguage.id) %} item-checked{% endif %}"
-											   href="#"
-											   title="{{ language.name }}">
-
-												{% block layout_header_actions_languages_widget_form_items_flag %}
-													{% set isoCode = language.translationCode.code|lower|split('_') %}
-													{% set flagCountry = isoCode[0] %}
-													{% set flagLanguage = isoCode[1] %}
-													<label class="top-bar-list-label"
-														   for="{{ language.id }}">
-														<input id="{{ language.id }}"
-															   class="top-bar-list-input"
-															   value="{{ language.id }}"
-															   name="languageId"
-															   type="radio"
-															   {% if language.id is same as(page.header.activeLanguage.id) %} checked{% endif %}>
-														<div class="language-flag country-{{ flagCountry }} language-{{ flagLanguage }}"></div>
-														{{ language.name }}
-													</label>
-												{% endblock %}
-											</a>
+                                            <div class="top-bar-list-item dropdown-item{% if language.id is same as(page.header.activeLanguage.id) %} item-checked{% endif %}"
+                                                 title="{{ language.name }}">
+                                                
+                                                {% block layout_header_actions_languages_widget_form_items_flag %}
+                                                    {% set isoCode = language.translationCode.code|lower|split('-') %}
+                                                    {% set flagCountry = isoCode[0] %}
+                                                    {% set flagLanguage = isoCode[1] %}
+        
+                                                    <label class="top-bar-list-label"
+                                                           for="{{ language.id }}">
+                                                        <input id="{{ language.id }}"
+                                                               class="top-bar-list-input"
+                                                               value="{{ language.id }}"
+                                                               name="languageId"
+                                                               type="radio"
+                                                            {% if language.id is same as(page.header.activeLanguage.id) %} checked{% endif %}>
+                                                        <div class="language-flag country-{{ flagCountry }} language-{{ flagLanguage }}"></div>
+                                                        {{ language.name }}
+                                                    </label>
+                                                {% endblock %}
+                                            </div>
 										</li>
 									{% endfor %}
 								</ul>

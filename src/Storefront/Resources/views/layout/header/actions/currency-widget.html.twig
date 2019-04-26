@@ -15,8 +15,10 @@
                                         data-toggle="dropdown"
                                         aria-haspopup="true"
                                         aria-expanded="false">
-                                    {{ page.header.activeCurrency.symbol }}
-                                    <span class="top-bar-nav-name">{{ page.header.activeCurrency.name }}</span>
+                                    {% block layout_header_actions_currency_widget_dropdown_toggle_name %}
+                                        {{ page.header.activeCurrency.symbol }}
+                                        <span class="top-bar-nav-name">{{ page.header.activeCurrency.name }}</span>
+                                    {% endblock %}
                                 </button>
                             {% endblock %}
 
@@ -24,22 +26,29 @@
                                 <ul class="top-bar-list dropdown-menu dropdown-menu-right"
                                     aria-labelledby="currenciesDropdown">
                                     {% for currency in page.header.currencies.elements %}
-                                        <li>
-                                            <a class="top-bar-list-item dropdown-item{% if currency.id is same as(page.header.activeCurrency.id) %} item-checked{% endif %}"
-                                               href="#"
-                                               title="{{ currency.shortName }}">
-                                                <label class="top-bar-list-label"
-                                                       for="{{ currency.id }}">
-                                                    <input class="top-bar-list-input"
-                                                           id="{{ currency.id }}"
-                                                           value="{{ currency.id }}"
-                                                           name="currencyId"
-                                                           type="radio"
-                                                        {% if currency.id is same as(page.header.activeCurrency.id) %} checked{% endif %}>
-                                                    {{ currency.symbol }} {{ currency.shortName }}
-                                                </label>
-                                            </a>
-                                        </li>
+                                        {% block layout_header_actions_currency_widget_form_items_element %}
+                                            <li>
+                                                {% block layout_header_actions_currency_widget_form_items_element_data %}
+                                                    <div class="top-bar-list-item dropdown-item{% if currency.id is same as(page.header.activeCurrency.id) %} item-checked{% endif %}"
+                                                         title="{{ currency.shortName }}">
+                                                        {% block layout_header_actions_currency_widget_form_items_element_label %}
+                                                            <label class="top-bar-list-label"
+                                                                   for="{{ currency.id }}">
+                                                                {% block layout_header_actions_currency_widget_form_items_element_input %}
+                                                                    <input class="top-bar-list-input"
+                                                                           id="{{ currency.id }}"
+                                                                           value="{{ currency.id }}"
+                                                                           name="currencyId"
+                                                                           type="radio"
+                                                                        {% if currency.id is same as(page.header.activeCurrency.id) %} checked{% endif %}>
+                                                                    {{ currency.symbol }} {{ currency.shortName }}
+                                                                {% endblock %}
+                                                            </label>
+                                                        {% endblock %}
+                                                    </div>
+                                                {% endblock %}
+                                            </li>
+                                        {% endblock %}
                                     {% endfor %}
                                 </ul>
                             {% endblock %}

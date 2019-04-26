@@ -70,7 +70,7 @@ class NewsletterController extends StorefrontController
     /**
      * @Route("/newsletter", name="frontend.newsletter.register.handle", methods={"POST"})
      */
-    public function handle(Request $request, SalesChannelContext $context, RequestDataBag $requestDataBag): Response
+    public function handle(SalesChannelContext $context, RequestDataBag $requestDataBag): Response
     {
         $subscribe = $requestDataBag->get('option') === 'subscribe';
         $requestDataBag->add([
@@ -98,7 +98,7 @@ class NewsletterController extends StorefrontController
             }
         }
 
-        return $this->createActionResponse($request);
+        return $this->forward('Shopware\Storefront\PageController\NewsletterController::index');
     }
 
     /**

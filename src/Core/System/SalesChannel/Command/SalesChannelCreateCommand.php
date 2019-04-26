@@ -189,7 +189,7 @@ class SalesChannelCreateCommand extends Command
     {
         $criteria = (new Criteria())
             ->setLimit(1)
-            ->addFilter(new EqualsFilter('iso', 'en_GB'));
+            ->addFilter(new EqualsFilter('iso', 'en-GB'));
 
         $id = $this->snippetSetRepository->searchIds($criteria, Context::createDefaultContext())->getIds()[0] ?? null;
 

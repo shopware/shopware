@@ -15,6 +15,12 @@ Component.register('sw-settings-payment-list', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    },
+
     computed: {
         store() {
             return State.getStore('payment_method');

@@ -29,16 +29,6 @@ class PromotionEntity extends Entity
     protected $active;
 
     /**
-     * @var float
-     */
-    protected $value;
-
-    /**
-     * @var bool
-     */
-    protected $percental;
-
-    /**
      * @var \DateTimeInterface|null
      */
     protected $validFrom;
@@ -66,6 +56,11 @@ class PromotionEntity extends Entity
     /**
      * @var bool
      */
+    protected $useCodes;
+
+    /**
+     * @var bool
+     */
     protected $excludeLowerPriority;
 
     /**
@@ -81,24 +76,16 @@ class PromotionEntity extends Entity
     /**
      * @var RuleEntity|null
      */
-    protected $scopeRule;
-
-    /**
-     * @var RuleEntity|null
-     */
     protected $discountRule;
-
-    /**
-     * @var string
-     */
-    protected $codeType;
 
     /**
      * @var PromotionSalesChannelCollection|null
      */
     protected $salesChannels;
 
-    /** @var string|null */
+    /**
+     * @var string|null
+     */
     protected $code;
 
     /**
@@ -121,6 +108,11 @@ class PromotionEntity extends Entity
      */
     protected $personaCustomers;
 
+    /**
+     * @var RuleCollection|null
+     */
+    protected $cartRules;
+
     public function getName(): ?string
     {
         return $this->name;
@@ -139,26 +131,6 @@ class PromotionEntity extends Entity
     public function setActive(bool $active): void
     {
         $this->active = $active;
-    }
-
-    public function getValue(): float
-    {
-        return $this->value;
-    }
-
-    public function setValue(float $value): void
-    {
-        $this->value = $value;
-    }
-
-    public function isPercental(): bool
-    {
-        return $this->percental;
-    }
-
-    public function setPercental(bool $percental): void
-    {
-        $this->percental = $percental;
     }
 
     public function getValidFrom(): ?\DateTimeInterface
@@ -211,6 +183,24 @@ class PromotionEntity extends Entity
         $this->priority = $priority;
     }
 
+    /**
+     * Gets if the promotion requires codes
+     * in order to be used
+     */
+    public function isUseCodes(): bool
+    {
+        return $this->useCodes;
+    }
+
+    /**
+     * Sets if the promotion requires a code
+     * to be used.
+     */
+    public function setUseCodes(bool $useCodes): void
+    {
+        $this->useCodes = $useCodes;
+    }
+
     public function isExcludeLowerPriority(): bool
     {
         return $this->excludeLowerPriority;
@@ -241,16 +231,6 @@ class PromotionEntity extends Entity
         $this->discountRuleId = $discountRuleId;
     }
 
-    public function getScopeRule(): ?RuleEntity
-    {
-        return $this->scopeRule;
-    }
-
-    public function setScopeRule(RuleEntity $scopeRule): void
-    {
-        $this->scopeRule = $scopeRule;
-    }
-
     public function getDiscountRule(): ?RuleEntity
     {
         return $this->discountRule;
@@ -259,16 +239,6 @@ class PromotionEntity extends Entity
     public function setDiscountRule(RuleEntity $discountRule): void
     {
         $this->discountRule = $discountRule;
-    }
-
-    public function getCodeType(): string
-    {
-        return $this->codeType;
-    }
-
-    public function setCodeType(string $codeType): void
-    {
-        $this->codeType = $codeType;
     }
 
     public function getDiscounts(): ?PromotionDiscountCollection
@@ -366,6 +336,24 @@ class PromotionEntity extends Entity
     }
 
     /**
+     * Gets a list of "cart" related rules that need to
+     * be valid for this promotion.
+     */
+    public function getCartRules(): ?RuleCollection
+    {
+        return $this->cartRules;
+    }
+
+    /**
+     * Sets what products are affected by the applied
+     * cart conditions for this promotion.
+     */
+    public function setCartRules(?RuleCollection $cartRules): void
+    {
+        $this->cartRules = $cartRules;
+    }
+
+    /**
      * Gets if the promotion is valid in the current context
      * based on its Persona Rule configuration.
      */
@@ -425,16 +413,62 @@ class PromotionEntity extends Entity
 
     /**
      * Gets if the promotion is valid in the current context
-     * based on its Scope Rule configuration.
+     * based on its Cart Condition Rule configuration.
      */
-    public function isScopeValid(SalesChannelContext $context): bool
+    public function isCartConditionValid(SalesChannelContext $context): bool
     {
-        if ($this->getScopeRule() === null) {
+        /** @var bool $hasRuleRestriction */
+        $hasRuleRestriction = $this->getCartRules() instanceof RuleCollection && count($this->getCartRules()->getElements()) > 0;
+
+        // if there are no rules, the cart is considered as valid
+        if (!$hasRuleRestriction) {
             return true;
         }
 
-        // verify if our scope rule from our promotion
-        // is part of our existing rules within the checkout context
-        return in_array($this->getScopeRule()->getId(), $context->getRuleIds(), true);
+        // check if we have a list of rules
+        // and if any of them is in our current context
+        /** @var string $ruleID */
+        foreach ($this->getCartRules()->getKeys() as $ruleID) {
+            // verify if our cart rules from our promotion
+            // is part of our existing rules within the checkout context
+            if (in_array($ruleID, $context->getRuleIds(), true)) {
+                // ok at least 1 rule is valid
+                // then this is ok
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Gets if the promotion is valid in the current context
+     * based on its Order Rule configuration.
+     */
+    public function isOrderConditionValid(SalesChannelContext $context): bool
+    {
+        /** @var bool $hasRuleRestriction */
+        $hasRuleRestriction = $this->getOrderRules() instanceof RuleCollection && count($this->getOrderRules()->getElements()) > 0;
+
+        // check if we even have a restriction
+        // otherwise the order condition is valid
+        if (!$hasRuleRestriction) {
+            return true;
+        }
+
+        /** @var string $ruleID */
+        foreach ($this->getOrderRules()->getKeys() as $ruleID) {
+            // verify if our rule from our promotion
+            // is part of our existing rules within the checkout context
+            if (in_array($ruleID, $context->getRuleIds(), true)) {
+                // ok at least 1 rule is valid
+                // then this is ok
+                return true;
+            }
+        }
+
+        // as fallback, always
+        // make sure its invalid
+        return false;
     }
 }

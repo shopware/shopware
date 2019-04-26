@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\PageletController;
 
-use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
@@ -30,7 +29,6 @@ class ListingPageletController extends StorefrontController
     public function listAction(Request $request, SalesChannelContext $context): JsonResponse
     {
         $request->request->set('no-aggregations', true);
-        $request->request->set('product-min-visibility', ProductVisibilityDefinition::VISIBILITY_ALL);
 
         /** @var StorefrontSearchResult $page */
         $page = $this->listingPageletLoader->load($request, $context);
@@ -52,7 +50,6 @@ class ListingPageletController extends StorefrontController
     public function searchAction(Request $request, SalesChannelContext $context): JsonResponse
     {
         $request->request->set('no-aggregations', true);
-        $request->request->set('product-min-visibility', ProductVisibilityDefinition::VISIBILITY_SEARCH);
 
         /** @var StorefrontSearchResult $page */
         $page = $this->listingPageletLoader->load($request, $context);

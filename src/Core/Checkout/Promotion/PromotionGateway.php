@@ -44,15 +44,17 @@ class PromotionGateway implements PromotionGatewayInterface
             MultiFilter::CONNECTION_AND,
             [
                 new EqualsFilter('active', true),
+                new EqualsFilter('useCodes', false),
                 new EqualsFilter('promotion.salesChannels.salesChannelId', $context->getSalesChannel()->getId()),
                 $this->getDateRangeFilter(),
                 $this->getRuleConditionFilters($contextRules),
-                new EqualsFilter('codeType', PromotionEntity::CODE_TYPE_NO_CODE),
             ]
         ));
 
         $criteria->addAssociation('personaRules');
         $criteria->addAssociation('personaCustomers');
+        $criteria->addAssociation('orderRules');
+        $criteria->addAssociation('discounts');
 
         /* @var EntityCollection $result */
         $result = $this->promotionRepository->search($criteria, $context->getContext())->getEntities();
@@ -75,15 +77,18 @@ class PromotionGateway implements PromotionGatewayInterface
                 MultiFilter::CONNECTION_AND,
                 [
                     new EqualsFilter('active', true),
+                    new EqualsFilter('useCodes', true),
+                    new EqualsAnyFilter('code', $codes),
                     new EqualsFilter('promotion.salesChannels.salesChannelId', $context->getSalesChannel()->getId()),
                     $this->getDateRangeFilter(),
-                    new EqualsAnyFilter('code', $codes),
                 ]
             )
         );
 
         $criteria->addAssociation('personaRules');
         $criteria->addAssociation('personaCustomers');
+        $criteria->addAssociation('orderRules');
+        $criteria->addAssociation('discounts');
 
         /* @var EntityCollection $result */
         $result = $this->promotionRepository->search($criteria, $context->getContext())->getEntities();
@@ -161,15 +166,15 @@ class PromotionGateway implements PromotionGatewayInterface
                 new MultiFilter(
                     MultiFilter::CONNECTION_AND,
                     [
-                        new EqualsFilter('scopeRuleId', null),
                         new EqualsFilter('promotion.orderRules.id', null),
+                        new EqualsFilter('promotion.cartRules.id', null),
                     ]
                 ),
                 new MultiFilter(
                     MultiFilter::CONNECTION_OR,
                     [
-                        new EqualsAnyFilter('scopeRuleId', $contextRuleIds),
                         new EqualsAnyFilter('promotion.orderRules.id', $contextRuleIds),
+                        new EqualsAnyFilter('promotion.cartRules.id', $contextRuleIds),
                     ]
                 ),
             ]

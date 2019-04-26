@@ -13,7 +13,6 @@ use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Builder\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsCollector;
-use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -102,7 +101,7 @@ class SalesChannelCartController extends AbstractController
         $payload = $request->request->get('payload', []);
         $payload = array_replace_recursive(['id' => $id], $payload);
 
-        $lineItem = (new LineItem($id, ProductCollector::LINE_ITEM_TYPE, $quantity))
+        $lineItem = (new LineItem($id, LineItem::PRODUCT_LINE_ITEM_TYPE, $quantity))
             ->setPayload($payload)
             ->setRemovable(true)
             ->setStackable(true);
@@ -236,7 +235,6 @@ class SalesChannelCartController extends AbstractController
         $payload = array_replace_recursive(['id' => $lineItem->getKey()], $payload);
         $stackable = $request->request->get('stackable');
         $removable = $request->request->get('removable');
-        $priority = $request->request->get('priority');
         $label = $request->request->get('label');
         $description = $request->request->get('description');
         $coverId = $request->request->get('coverId');
@@ -253,10 +251,6 @@ class SalesChannelCartController extends AbstractController
 
         if ($removable !== null) {
             $lineItem->setRemovable($removable);
-        }
-
-        if ($priority !== null) {
-            $lineItem->setPriority($priority);
         }
 
         if ($label !== null) {

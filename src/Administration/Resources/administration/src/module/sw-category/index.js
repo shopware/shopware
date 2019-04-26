@@ -8,13 +8,14 @@ import './page/sw-category-detail';
 import './view/sw-category-detail-base';
 import './view/sw-category-detail-cms';
 
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
 
 Module.register('sw-category', {
     flag: NEXT716,
     type: 'core',
-    name: 'sw-category.general.mainMenuItemIndex',
+    name: 'category',
+    title: 'sw-category.general.mainMenuItemIndex',
     description: 'The module for managing categories.',
     version: '1.0.0',
     targetVersion: '1.0.0',

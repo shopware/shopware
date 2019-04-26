@@ -1,7 +1,7 @@
 import { Module } from 'src/core/shopware';
 
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
 
 import './page/sw-property-list';
 import './page/sw-property-detail';
@@ -13,7 +13,8 @@ import { NEXT719 } from '../../flag/feature_next719';
 
 Module.register('sw-property', {
     type: 'core',
-    name: 'sw-property.general.mainMenuItemGeneral',
+    name: 'property',
+    title: 'sw-property.general.mainMenuItemGeneral',
     description: 'sw-property.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',

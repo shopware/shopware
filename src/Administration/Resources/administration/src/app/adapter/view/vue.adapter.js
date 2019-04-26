@@ -378,10 +378,10 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
          */
         Vue.prototype.$createTitle = function createTitle(identifier = null, ...additionalParams) {
             const baseTitle = this.$tc('global.sw-admin-menu.textShopwareAdmin');
-            const pageTitle = this.$tc(this.$route.meta.$module.name);
+            const pageTitle = this.$tc(this.$route.meta.$module.title);
 
             const params = [baseTitle, pageTitle, identifier, ...additionalParams].filter((item) => {
-                return item !== null && item !== '';
+                return item !== null && item.trim() !== '';
             });
 
             return params.reverse().join(' | ');

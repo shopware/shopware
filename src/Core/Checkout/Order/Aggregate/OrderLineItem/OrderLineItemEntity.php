@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
@@ -58,14 +59,14 @@ class OrderLineItemEntity extends Entity
     protected $removable;
 
     /**
+     * @var string|null
+     */
+    protected $coverId;
+
+    /**
      * @var bool
      */
     protected $stackable;
-
-    /**
-     * @var int
-     */
-    protected $priority;
 
     /**
      * @var CalculatedPrice|null
@@ -126,6 +127,11 @@ class OrderLineItemEntity extends Entity
      * @var array|null
      */
     protected $attributes;
+
+    /**
+     * @var MediaEntity|null
+     */
+    protected $cover;
 
     public function getOrderId(): string
     {
@@ -225,16 +231,6 @@ class OrderLineItemEntity extends Entity
     public function setStackable(bool $stackable): void
     {
         $this->stackable = $stackable;
-    }
-
-    public function getPriority(): int
-    {
-        return $this->priority;
-    }
-
-    public function setPriority(int $priority): void
-    {
-        $this->priority = $priority;
     }
 
     public function getPrice(): ?CalculatedPrice
@@ -355,5 +351,25 @@ class OrderLineItemEntity extends Entity
     public function setAttributes(?array $attributes): void
     {
         $this->attributes = $attributes;
+    }
+
+    public function getCoverId(): ?string
+    {
+        return $this->coverId;
+    }
+
+    public function setCoverId(?string $coverId): void
+    {
+        $this->coverId = $coverId;
+    }
+
+    public function getCover(): ?MediaEntity
+    {
+        return $this->cover;
+    }
+
+    public function setCover(?MediaEntity $cover): void
+    {
+        $this->cover = $cover;
     }
 }

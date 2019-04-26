@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Order\OrderDefinition;
-use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
@@ -88,7 +87,7 @@ SQL;
 
                 $quantity = random_int(1, 10);
 
-                return (new LineItem($id, ProductCollector::LINE_ITEM_TYPE, $quantity))
+                return (new LineItem($id, LineItem::PRODUCT_LINE_ITEM_TYPE, $quantity))
                     ->setPayload(['id' => $id])
                     ->setStackable(true)
                     ->setRemovable(true);

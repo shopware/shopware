@@ -15,7 +15,17 @@ Component.register('sw-settings-tax-detail', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
     computed: {
+        identifier() {
+            return this.tax.name || '';
+        },
+
         taxStore() {
             return State.getStore('tax');
         }

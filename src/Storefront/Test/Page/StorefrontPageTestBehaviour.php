@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
@@ -78,7 +77,7 @@ trait StorefrontPageTestBehaviour
     {
         $product = $this->getRandomProduct($context);
 
-        $lineItem = (new LineItem($product->getId(), ProductCollector::LINE_ITEM_TYPE, 1))
+        $lineItem = (new LineItem($product->getId(), LineItem::PRODUCT_LINE_ITEM_TYPE, 1))
                     ->setPayload(['id' => $product->getId()])
                     ->setRemovable(true)
                     ->setStackable(true);
@@ -109,14 +108,12 @@ trait StorefrontPageTestBehaviour
             'categories' => [
                 ['id' => Uuid::randomHex(), 'name' => 'asd'],
             ],
+            'visibilities' => [
+                ['salesChannelId' => $context->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+            ],
         ];
 
         $productRepository->create([$data], $context->getContext());
-        $productVisibilityRepository->create([[
-            'productId' => $id,
-            'salesChannelId' => $context->getSalesChannel()->getId(),
-            'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
-        ]], $context->getContext());
 
         /** @var SalesChannelRepository $storefrontProductRepository */
         $storefrontProductRepository = $this->getContainer()->get('sales_channel.product.repository');
@@ -136,7 +133,7 @@ trait StorefrontPageTestBehaviour
             'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
             'navigationId' => $this->getNavigationId(),
             'languageId' => Defaults::LANGUAGE_SYSTEM,
-            'snippetSetId' => $this->getSnippetSetIdForLocale('en_GB'),
+            'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
             'currencyId' => Defaults::CURRENCY,
             'currencyVersionId' => Defaults::LIVE_VERSION,
             'paymentMethodId' => $paymentMethodId,
@@ -166,7 +163,7 @@ trait StorefrontPageTestBehaviour
             'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
             'navigationId' => $this->getNavigationId(),
             'languageId' => Defaults::LANGUAGE_SYSTEM,
-            'snippetSetId' => $this->getSnippetSetIdForLocale('en_GB'),
+            'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
             'currencyId' => Defaults::CURRENCY,
             'currencyVersionId' => Defaults::LIVE_VERSION,
             'paymentMethodId' => $paymentMethodId,
@@ -197,7 +194,7 @@ trait StorefrontPageTestBehaviour
             'name' => 'store front',
             'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
             'languageId' => Defaults::LANGUAGE_SYSTEM,
-            'snippetSetId' => $this->getSnippetSetIdForLocale('en_GB'),
+            'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
             'currencyId' => Defaults::CURRENCY,
             'currencyVersionId' => Defaults::LIVE_VERSION,
             'paymentMethodId' => $paymentMethodId,

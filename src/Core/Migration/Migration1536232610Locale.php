@@ -45,7 +45,7 @@ class Migration1536232610Locale extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`locale_id`, `language_id`),
-              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.locale_translation.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.locale_translation.language_id` FOREIGN KEY (`language_id`)
                 REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.locale_translation.locale_id` FOREIGN KEY (`locale_id`)

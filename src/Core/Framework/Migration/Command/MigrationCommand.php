@@ -29,6 +29,7 @@ class MigrationCommand extends Command
      * @var SymfonyStyle
      */
     protected $io;
+
     /**
      * @var TagAwareAdapterInterface
      */

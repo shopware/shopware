@@ -4,13 +4,14 @@ import './component/sw-navigation-view';
 import './page/sw-navigation-detail';
 import { NEXT1594 } from '../../flag/feature_next1594';
 
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
 
 Module.register('sw-navigation', {
     type: 'core',
     flag: NEXT1594,
-    name: 'sw-navigation.general.mainMenuItemIndex',
+    name: 'navigation',
+    title: 'sw-navigation.general.mainMenuItemIndex',
     description: 'sw-navigation.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',

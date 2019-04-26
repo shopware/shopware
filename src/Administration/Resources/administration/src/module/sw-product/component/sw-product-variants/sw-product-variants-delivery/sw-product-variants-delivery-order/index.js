@@ -108,7 +108,7 @@ Component.register('sw-product-variants-delivery-order', {
         },
 
         getOptionsForGroup(groupId) {
-            return Object.values(this.product.configuratorSettings).filter((element) => {
+            return Object.values(this.product.configuratorSettings.items).filter((element) => {
                 return !element.isDeleted && element.option.groupId === groupId;
             });
         },

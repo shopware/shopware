@@ -50,12 +50,12 @@ own `composer.json` as a key value pair:
     "extra": {
         "shopware-plugin-class": "Swag\\PluginDependency\\PluginDependency",
         "label": {
-            "de_DE": "Plugin mit Plugin-Abhängigkeiten",
-            "en_GB": "Plugin with plugin dependencies"
+            "de-DE": "Plugin mit Plugin-Abhängigkeiten",
+            "en-GB": "Plugin with plugin dependencies"
         },
         "description": {
-            "de_DE": "Plugin mit Plugin-Abhängigkeiten",
-            "en_GB": "Plugin with plugin dependencies"
+            "de-DE": "Plugin mit Plugin-Abhängigkeiten",
+            "en-GB": "Plugin with plugin dependencies"
         }
     },
     "autoload": {

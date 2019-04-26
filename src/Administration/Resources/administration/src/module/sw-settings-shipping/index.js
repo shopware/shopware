@@ -9,13 +9,14 @@ import './component/sw-price-rule-modal';
 import './component/sw-settings-shipping-price-matrices';
 import './component/sw-settings-shipping-price-matrix';
 
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
 
 Module.register('sw-settings-shipping', {
     type: 'core',
     flag: NEXT688,
-    name: 'Shipping settings',
+    name: 'settings-shipping',
+    title: 'sw-settings-shipping.general.mainMenuItemGeneral',
     description: 'Shipping section in the settings module',
     color: '#9AA8B5',
     icon: 'default-action-settings',

@@ -14,27 +14,27 @@ class Trigger
     /**
      * @var string
      */
-    protected $name;
+    private $name;
 
     /**
      * @var string
      */
-    protected $table;
+    private $table;
 
     /**
      * @var string
      */
-    protected $onTrigger;
+    private $onTrigger;
 
     /**
      * @var string
      */
-    protected $time;
+    private $time;
 
     /**
      * @var string
      */
-    protected $event;
+    private $event;
 
     public function __construct(string $name, string $table, string $time, string $event, string $onTrigger)
     {

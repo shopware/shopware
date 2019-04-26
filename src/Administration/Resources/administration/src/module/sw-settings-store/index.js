@@ -3,12 +3,13 @@ import { Module } from 'src/core/shopware';
 import './extension/sw-settings-index';
 import './page/sw-settings-store';
 
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
 
 Module.register('sw-settings-store', {
     type: 'core',
-    name: 'Store settings',
+    name: 'settings-store',
+    title: 'sw-settings-store.general.mainMenuItemGeneral',
     description: 'Store specific settings',
     color: '#9AA8B5',
     icon: 'default-action-settings',

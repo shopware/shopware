@@ -42,11 +42,11 @@ class Migration1536232760Country extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`country_id`, `language_id`),
+              CONSTRAINT `json.country_translation.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.country_translation.language_id` FOREIGN KEY (`language_id`)
                 REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.country_translation.country_id` FOREIGN KEY (`country_id`)
-                REFERENCES `country` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`))
+                REFERENCES `country` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

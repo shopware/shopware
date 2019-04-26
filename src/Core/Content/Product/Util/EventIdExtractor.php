@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\Util;
 
-use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTag\ProductTagDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -34,15 +33,5 @@ class EventIdExtractor
         }
 
         return $ids;
-    }
-
-    public function getCategoryIds(EntityWrittenContainerEvent $generic): array
-    {
-        $event = $generic->getEventByDefinition(CategoryDefinition::class);
-        if ($event) {
-            return $event->getIds();
-        }
-
-        return [];
     }
 }

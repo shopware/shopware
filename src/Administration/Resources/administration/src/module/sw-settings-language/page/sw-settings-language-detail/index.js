@@ -21,13 +21,25 @@ Component.register('sw-settings-language-detail', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
     computed: {
+        identifier() {
+            return this.language.name || '';
+        },
+
         languageStore() {
             return State.getStore('language');
         },
+
         localeStore() {
             return State.getStore('locale');
         },
+
         isIsoCodeRequired() {
             return !this.language.parentId || this.language.parentId.length < 1;
         }

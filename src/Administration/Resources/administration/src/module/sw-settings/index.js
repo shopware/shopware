@@ -4,12 +4,13 @@ import './component/sw-system-config';
 import './page/sw-settings-index';
 import './mixin/sw-settings-list.mixin';
 
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
 
 Module.register('sw-settings', {
     type: 'core',
-    name: 'sw-settings.general.mainMenuItemGeneral',
+    name: 'settings',
+    title: 'sw-settings.general.mainMenuItemGeneral',
     description: 'Settings Module',
     color: '#9AA8B5',
     icon: 'default-action-settings',

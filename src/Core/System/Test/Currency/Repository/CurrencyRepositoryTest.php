@@ -27,11 +27,11 @@ class CurrencyRepositoryTest extends TestCase
     /**
      * @var EntityRepositoryInterface
      */
-    private $repository;
+    private $currencyRepository;
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('currency.repository');
+        $this->currencyRepository = $this->getContainer()->get('currency.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
@@ -41,11 +41,11 @@ class CurrencyRepositoryTest extends TestCase
         $recordB = Uuid::randomHex();
 
         $records = [
-            ['id' => $recordA, 'decimalPrecision' => 2, 'name' => 'match', 'shortName' => 'test', 'factor' => 1, 'symbol' => 'A'],
-            ['id' => $recordB, 'decimalPrecision' => 2, 'name' => 'not', 'shortName' => 'match', 'factor' => 1, 'symbol' => 'A'],
+            ['id' => $recordA, 'decimalPrecision' => 2, 'name' => 'match', 'isoCode' => 'USD', 'shortName' => 'test', 'factor' => 1, 'symbol' => 'A'],
+            ['id' => $recordB, 'decimalPrecision' => 2, 'name' => 'not', 'isoCode' => 'EUR', 'shortName' => 'match', 'factor' => 1, 'symbol' => 'A'],
         ];
 
-        $this->repository->create($records, Context::createDefaultContext());
+        $this->currencyRepository->create($records, Context::createDefaultContext());
 
         $criteria = new Criteria();
 
@@ -54,7 +54,7 @@ class CurrencyRepositoryTest extends TestCase
         $queries = $builder->buildScoreQueries($pattern, CurrencyDefinition::class, CurrencyDefinition::getEntityName());
         $criteria->addQuery(...$queries);
 
-        $result = $this->repository->searchIds($criteria, Context::createDefaultContext());
+        $result = $this->currencyRepository->searchIds($criteria, Context::createDefaultContext());
 
         static::assertCount(2, $result->getIds());
 

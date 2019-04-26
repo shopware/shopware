@@ -226,7 +226,6 @@ class OrderRepositoryTest extends TestCase
                         'label' => 'test',
                         'price' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
                         'priceDefinition' => new QuantityPriceDefinition(10, new TaxRuleCollection(), 2),
-                        'priority' => 100,
                         'good' => true,
                     ],
                 ],

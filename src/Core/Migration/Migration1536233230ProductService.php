@@ -28,9 +28,9 @@ class Migration1536233230ProductService extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`, `version_id`),
-              CONSTRAINT `json.price` CHECK (JSON_VALID(`price`)),
-              CONSTRAINT `json.prices` CHECK (JSON_VALID(`prices`)),
-              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.product_service.price` CHECK (JSON_VALID(`price`)),
+              CONSTRAINT `json.product_service.prices` CHECK (JSON_VALID(`prices`)),
+              CONSTRAINT `json.product_service.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.product_service.product_id` FOREIGN KEY (`product_id`, `product_version_id`) 
                 REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.product_service.property_group_option_id` FOREIGN KEY (`property_group_option_id`) 

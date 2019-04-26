@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
 use Shopware\Core\Checkout\Shipping\Cart\ShippingMethodValidator;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\DeliveryTime\DeliveryTimeEntity;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ShippingMethodValidatorTest extends TestCase
@@ -68,6 +69,7 @@ class ShippingMethodValidatorTest extends TestCase
 
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId('1');
+        $shippingMethod->setAvailabilityRuleId(Uuid::randomHex());
         $shippingMethod->setDeliveryTime($deliveryTime);
         $deliveryDate = new DeliveryDate(new \DateTime(), new \DateTime());
         $delivery = new Delivery(
@@ -128,6 +130,7 @@ class ShippingMethodValidatorTest extends TestCase
         $shippingMethod->setId('1');
         $shippingMethod->setName('Express');
         $shippingMethod->setDeliveryTime($deliveryTime);
+        $shippingMethod->setAvailabilityRuleId(Uuid::randomHex());
         $shippingMethod->setAvailabilityRuleId('1');
         $deliveryDate = new DeliveryDate(new \DateTime(), new \DateTime());
         $delivery = new Delivery(
@@ -160,6 +163,7 @@ class ShippingMethodValidatorTest extends TestCase
         $shippingMethod->setId('1');
         $shippingMethod->setName('Express');
         $shippingMethod->setDeliveryTime($deliveryTime);
+        $shippingMethod->setAvailabilityRuleId(Uuid::randomHex());
         $deliveryDate = new DeliveryDate(new \DateTime(), new \DateTime());
         $delivery = new Delivery(
             new DeliveryPositionCollection(),
@@ -199,6 +203,7 @@ class ShippingMethodValidatorTest extends TestCase
         $shippingMethod->setId('1');
         $shippingMethod->setName('Express');
         $shippingMethod->setDeliveryTime($deliveryTime);
+        $shippingMethod->setAvailabilityRuleId(Uuid::randomHex());
         $deliveryDate = new DeliveryDate(new \DateTime(), new \DateTime());
         $delivery = new Delivery(
             new DeliveryPositionCollection(),
@@ -211,6 +216,7 @@ class ShippingMethodValidatorTest extends TestCase
         $shippingMethod2 = new ShippingMethodEntity();
         $shippingMethod2->setId('3');
         $shippingMethod2->setName('Standard');
+        $shippingMethod2->setAvailabilityRuleId(Uuid::randomHex());
         $shippingMethod2->setDeliveryTime($deliveryTime);
 
         $delivery2 = new Delivery(

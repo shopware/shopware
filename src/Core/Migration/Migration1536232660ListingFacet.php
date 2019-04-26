@@ -28,7 +28,7 @@ class Migration1536232660ListingFacet extends MigrationStep
               PRIMARY KEY (`id`),
               UNIQUE KEY `uniq.unique_key` (`unique_key`),
               KEY `idx.sorting` (`display_in_categories`,`position`),
-              CONSTRAINT `json.payload` CHECK (JSON_VALID(`payload`))
+              CONSTRAINT `json.listing_facet.payload` CHECK (JSON_VALID(`payload`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
@@ -41,7 +41,7 @@ class Migration1536232660ListingFacet extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`listing_facet_id`, `language_id`),
-              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.listing_facet_translation.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.listing_facet_translation.language_id` FOREIGN KEY (`language_id`)
                 REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.listing_facet_translation.listing_facet_id` FOREIGN KEY (`listing_facet_id`)

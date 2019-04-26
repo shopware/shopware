@@ -44,6 +44,17 @@ Mixin.register('cms-element', {
             this.element.config = Object.assign(cloneDeep(defaultConfig), this.element.config || {});
         },
 
+        initElementData(elementName) {
+            if (typeof this.element.data === 'object' && Object.keys(this.element.data).length > 0) {
+                return;
+            }
+
+            const elementConfig = this.cmsElements[elementName];
+            const defaultData = elementConfig.defaultData;
+
+            this.element.data = Object.assign(cloneDeep(defaultData), this.element.data || {});
+        },
+
         getDemoValue(mappingPath) {
             return this.cmsService.getPropertyByMappingPath(this.cmsPageState.currentDemoEntity, mappingPath);
         }

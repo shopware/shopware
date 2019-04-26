@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceEntity;
+use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class DeliveryCalculator
@@ -60,18 +61,37 @@ class DeliveryCalculator
             return;
         }
 
-        foreach ($delivery->getShippingMethod()->getPrices() as $priceRule) {
-            // TODO: Ticket number: NEXT-2360, Price rules shouldn't be loaded in general (access price rules different at this point)
-            if (!in_array($priceRule->getRuleId(), $context->getRuleIds(), true)) {
+        if ($this->hasDeliveryShippingFreeItems($delivery)) {
+            $costs = $this->calculateShippingCosts(
+                0,
+                $delivery->getPositions()->getLineItems(),
+                $context
+            );
+
+            $delivery->setShippingCosts($costs);
+
+            return;
+        }
+
+        $shippingMethod = $delivery->getShippingMethod();
+        $prices = $shippingMethod->getPrices();
+        $prices->sort(
+            function (ShippingMethodPriceEntity $priceEntityA, ShippingMethodPriceEntity $priceEntityB) {
+                return $priceEntityA->getPrice() <=> $priceEntityB->getPrice();
+            }
+        );
+
+        foreach ($prices as $price) {
+            if ($price->getRuleId() !== null && !in_array($price->getRuleId(), $context->getRuleIds(), true)) {
                 continue;
             }
 
-            if (!$this->matchesQuantity($delivery, $priceRule)) {
+            if (!$this->matches($delivery, $price, $context)) {
                 continue;
             }
 
             $costs = $this->calculateShippingCosts(
-                $priceRule->getPrice(),
+                $price->getPrice(),
                 $delivery->getPositions()->getLineItems(),
                 $context
             );
@@ -79,14 +99,31 @@ class DeliveryCalculator
         }
 
         if (!$costs) {
+            $delivery->setError(new ShippingMethodBlockedError($shippingMethod->getName() ?? $shippingMethod->getId()));
+
             return;
         }
 
         $delivery->setShippingCosts($costs);
     }
 
-    private function matchesQuantity(Delivery $delivery, ShippingMethodPriceEntity $shippingMethodPrice): bool
+    private function hasDeliveryShippingFreeItems(Delivery $delivery): bool
     {
+        foreach ($delivery->getPositions()->getLineItems()->getIterator() as $lineItem) {
+            if ($lineItem->getDeliveryInformation() && $lineItem->getDeliveryInformation()->getFreeDelivery()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function matches(Delivery $delivery, ShippingMethodPriceEntity $shippingMethodPrice, SalesChannelContext $context): bool
+    {
+        if ($shippingMethodPrice->getCalculationRuleId()) {
+            return in_array($shippingMethodPrice->getCalculationRuleId(), $context->getRuleIds(), true);
+        }
+
         $start = $shippingMethodPrice->getQuantityStart();
         $end = $shippingMethodPrice->getQuantityEnd();
 
@@ -105,7 +142,8 @@ class DeliveryCalculator
                 break;
         }
 
-        return ($value >= $start) && (!$end || $value <= $end);
+        // $end (optional) exclusive
+        return ($value >= $start) && (!$end || $value < $end);
     }
 
     private function calculateShippingCosts(float $price, LineItemCollection $calculatedLineItems, SalesChannelContext $context): CalculatedPrice

@@ -25,12 +25,13 @@ import './page/sw-product-list';
 import './page/sw-product-detail';
 import './page/sw-product-create';
 
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
 
 Module.register('sw-product', {
     type: 'core',
-    name: 'sw-product.general.mainMenuItemGeneral',
+    name: 'product',
+    title: 'sw-product.general.mainMenuItemGeneral',
     description: 'sw-product.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',

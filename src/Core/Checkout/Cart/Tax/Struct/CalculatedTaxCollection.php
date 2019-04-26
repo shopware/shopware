@@ -32,6 +32,15 @@ class CalculatedTaxCollection extends Collection
         return $this->has($this->getKey($calculatedTax));
     }
 
+    public function sortByTax(): CalculatedTaxCollection
+    {
+        $this->sort(function (CalculatedTax $a, CalculatedTax $b) {
+            return $a->getTaxRate() <=> $b->getTaxRate();
+        });
+
+        return $this;
+    }
+
     /**
      * Returns the total calculated tax for this item
      */

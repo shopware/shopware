@@ -19,11 +19,8 @@ use Shopware\Core\Framework\Struct\Struct;
 
 class LineItem extends Struct
 {
-    public const GOODS_PRIORITY = 100;
-
-    public const VOUCHER_PRIORITY = 50;
-
-    public const DISCOUNT_PRIORITY = 25;
+    public const CREDIT_LINE_ITEM_TYPE = 'credit';
+    public const PRODUCT_LINE_ITEM_TYPE = 'product';
 
     /**
      * @var string
@@ -64,11 +61,6 @@ class LineItem extends Struct
      * @var bool
      */
     protected $good = true;
-
-    /**
-     * @var int
-     */
-    protected $priority = self::GOODS_PRIORITY;
 
     /**
      * @var string|null
@@ -113,11 +105,10 @@ class LineItem extends Struct
     /**
      * @throws InvalidQuantityException
      */
-    public function __construct(string $key, string $type, int $quantity = 1, int $priority = self::GOODS_PRIORITY)
+    public function __construct(string $key, string $type, int $quantity = 1)
     {
         $this->key = $key;
         $this->type = $type;
-        $this->priority = $priority;
         $this->children = new LineItemCollection();
 
         if ($quantity < 1) {
@@ -131,7 +122,7 @@ class LineItem extends Struct
      */
     public static function createFromLineItem(LineItem $lineItem): self
     {
-        $self = new static($lineItem->key, $lineItem->type, $lineItem->quantity, $lineItem->priority);
+        $self = new static($lineItem->key, $lineItem->type, $lineItem->quantity);
 
         $vars = get_object_vars($lineItem);
         foreach ($vars as $property => $value) {
@@ -307,18 +298,6 @@ class LineItem extends Struct
     public function setGood(bool $good): self
     {
         $this->good = $good;
-
-        return $this;
-    }
-
-    public function getPriority(): int
-    {
-        return $this->priority;
-    }
-
-    public function setPriority(int $priority): self
-    {
-        $this->priority = $priority;
 
         return $this;
     }

@@ -19,21 +19,24 @@ class SalesChannelRule extends Rule
      */
     protected $operator;
 
-    public function __construct()
+    public function __construct(string $operator = self::OPERATOR_EQ, ?array $salesChannelIds = null)
     {
-        $this->operator = self::OPERATOR_EQ;
+        parent::__construct();
+
+        $this->operator = $operator;
+        $this->salesChannelIds = $salesChannelIds;
     }
 
     public function match(RuleScope $scope): bool
     {
-        $context = $scope->getContext();
+        $salesChannelId = $scope->getSalesChannelContext()->getSalesChannel()->getId();
 
         switch ($this->operator) {
             case self::OPERATOR_EQ:
-                return \in_array($context->getSalesChannelId(), $this->salesChannelIds, true);
+                return \in_array($salesChannelId, $this->salesChannelIds, true);
 
             case self::OPERATOR_NEQ:
-                return !\in_array($context->getSalesChannelId(), $this->salesChannelIds, true);
+                return !\in_array($salesChannelId, $this->salesChannelIds, true);
 
             default:
                 throw new UnsupportedOperatorException($this->operator, __CLASS__);

@@ -65,7 +65,7 @@ class CheckoutFinishPageLoader implements PageLoaderInterface
             throw new CustomerNotLoggedInException();
         }
 
-        $orderId = $request->attributes->get('orderId');
+        $orderId = $request->get('orderId');
         if (!$orderId) {
             throw new MissingRequestParameterException('orderId', '/orderId');
         }
@@ -73,7 +73,7 @@ class CheckoutFinishPageLoader implements PageLoaderInterface
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $customer->getId()));
         $criteria->addFilter(new EqualsFilter('order.id', $orderId));
-        $criteria->addAssociation('order.lineItems');
+        $criteria->addAssociationPath('lineItems.cover');
 
         try {
             $searchResult = $this->orderRepository->search($criteria, $context->getContext());

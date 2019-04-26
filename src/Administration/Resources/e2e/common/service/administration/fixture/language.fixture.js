@@ -13,7 +13,7 @@ export default class LanguageFixtureService extends AdminFixtureService {
             filter: [{
                 field: 'code',
                 type: 'equals',
-                value: 'en_PH'
+                value: 'en-PH'
             }]
         }).then((data) => {
             return {

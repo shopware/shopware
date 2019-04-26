@@ -4,14 +4,15 @@ import './page/sw-settings-privacy-index';
 
 import { NEXT2539 } from '../../flag/feature_next2539';
 
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
 
 
 Module.register('sw-settings-privacy', {
     type: 'core',
     flag: NEXT2539,
-    name: 'Privacy settings',
+    name: 'settings-privacy',
+    title: 'sw-settings-privacy.general.mainMenuItemGeneral',
     description: 'sw-settings-privacy.general.description',
     version: '1.0.0',
     targetVersion: '1.0.0',

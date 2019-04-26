@@ -81,8 +81,22 @@
                                                 </sw-grid-column>
                                             {% endblock %}
 
+                                            {% block sw_settings_currency_list_columns_iso_code %}
+                                                <sw-grid-column flex="minmax(70px, 1fr)"
+                                                                editable
+                                                                :label="$tc('sw-settings-currency.list.columnIsoCode')">
+                                                    {% block sw_settings_currency_list_columns_iso_code_label %}
+                                                        {{ item.isoCode }}
+                                                    {% endblock %}
+
+                                                    {% block sw_settings_currency_list_grid_columns_iso_code_editor %}
+                                                        <sw-field type="text" v-model="item.isoCode" slot="inline-edit"></sw-field>
+                                                    {% endblock %}
+                                                </sw-grid-column>
+                                            {% endblock %}
+
                                             {% block sw_settings_currency_list_columns_short_name %}
-                                                <sw-grid-column flex="minmax(180px, 1fr)"
+                                                <sw-grid-column flex="minmax(130px, 1fr)"
                                                                 editable
                                                                 :label="$tc('sw-settings-currency.list.columnShortName')">
                                                     {% block sw_settings_currency_list_columns_short_name_label %}
@@ -96,7 +110,7 @@
                                             {% endblock %}
 
                                             {% block sw_settings_currency_list_columns_symbol %}
-                                                <sw-grid-column flex="minmax(80px, 1fr)"
+                                                <sw-grid-column flex="minmax(70px, 1fr)"
                                                                 editable
                                                                 :label="$tc('sw-settings-currency.list.columnSymbol')">
                                                     {% block sw_settings_currency_list_columns_symbol_label %}
@@ -110,7 +124,7 @@
                                             {% endblock %}
 
                                             {% block sw_settings_currency_list_columns_factor %}
-                                                <sw-grid-column flex="minmax(80px, 1fr)"
+                                                <sw-grid-column flex="minmax(70px, 1fr)"
                                                                 editable
                                                                 :label="$tc('sw-settings-currency.list.columnFactor')">
                                                     {% block sw_settings_currency_list_columns_factor_label %}

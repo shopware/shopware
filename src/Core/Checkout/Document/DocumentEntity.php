@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document;
 
+use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -18,7 +19,17 @@ class DocumentEntity extends Entity
     /**
      * @var string
      */
-    protected $type;
+    protected $orderVersionId;
+
+    /**
+     * @var string
+     */
+    protected $documentTypeId;
+
+    /**
+     * @var string
+     */
+    protected $fileType;
 
     /**
      * @var OrderEntity|null
@@ -35,14 +46,34 @@ class DocumentEntity extends Entity
      */
     protected $sent;
 
-    public function getType(): string
+    /**
+     * @var string
+     */
+    protected $deepLinkCode;
+
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
+    /**
+     * @var DocumentTypeEntity
+     */
+    protected $documentType;
+
+    /**
+     * @var \DateTimeInterface|null
+     */
+    protected $createdAt;
+
+    public function getFileType(): string
     {
-        return $this->type;
+        return $this->fileType;
     }
 
-    public function setType(string $type): void
+    public function setFileType(string $fileType): void
     {
-        $this->type = $type;
+        $this->fileType = $fileType;
     }
 
     public function getOrder(): ?OrderEntity
@@ -53,6 +84,16 @@ class DocumentEntity extends Entity
     public function setOrder(?OrderEntity $order): void
     {
         $this->order = $order;
+    }
+
+    public function getOrderVersionId(): string
+    {
+        return $this->orderVersionId;
+    }
+
+    public function setOrderVersionId(string $orderVersionId): void
+    {
+        $this->orderVersionId = $orderVersionId;
     }
 
     public function getOrderId(): string
@@ -83,5 +124,55 @@ class DocumentEntity extends Entity
     public function setSent(bool $sent): void
     {
         $this->sent = $sent;
+    }
+
+    public function getDeepLinkCode(): string
+    {
+        return $this->deepLinkCode;
+    }
+
+    public function setDeepLinkCode(string $deepLinkCode): void
+    {
+        $this->deepLinkCode = $deepLinkCode;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
+    }
+
+    public function getDocumentType(): DocumentTypeEntity
+    {
+        return $this->documentType;
+    }
+
+    public function setDocumentType(DocumentTypeEntity $documentType): void
+    {
+        $this->documentType = $documentType;
+    }
+
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(?\DateTimeInterface $createdAt): void
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    public function getDocumentTypeId(): string
+    {
+        return $this->documentTypeId;
+    }
+
+    public function setDocumentTypeId(string $documentTypeId): void
+    {
+        $this->documentTypeId = $documentTypeId;
     }
 }

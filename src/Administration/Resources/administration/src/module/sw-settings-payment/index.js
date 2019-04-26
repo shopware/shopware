@@ -7,13 +7,14 @@ import './page/sw-settings-payment-list';
 import './page/sw-settings-payment-detail';
 import './page/sw-settings-payment-create';
 
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
 
 Module.register('sw-settings-payment', {
     type: 'core',
     flag: NEXT687,
-    name: 'Payment settings',
+    name: 'settings-payment',
+    title: 'sw-settings-payment.general.mainMenuItemGeneral',
     description: 'Payment section in the settings module',
     color: '#9AA8B5',
     icon: 'default-action-settings',

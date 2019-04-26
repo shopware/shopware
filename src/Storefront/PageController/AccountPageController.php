@@ -137,10 +137,10 @@ class AccountPageController extends StorefrontController
     public function login(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         /** @var string $redirect */
-        $redirect = $request->get('redirectTo', $this->generateUrl('frontend.account.home.page'));
+        $redirect = $request->get('redirectTo', 'frontend.account.home.page');
 
         if ($context->getCustomer()) {
-            return $this->redirect($redirect);
+            return $this->redirectToRoute($redirect);
         }
 
         $page = $this->loginPageLoader->load($request, $context);
@@ -172,16 +172,16 @@ class AccountPageController extends StorefrontController
      */
     public function loginCustomer(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
-        $redirect = $request->get('redirectTo', $this->generateUrl('frontend.account.home.page'));
+        $redirect = $request->get('redirectTo', 'frontend.account.home.page');
 
         if ($context->getCustomer()) {
-            return $this->redirect($redirect);
+            return $this->redirectToRoute($redirect);
         }
 
         try {
             $token = $this->accountService->loginWithPassword($data, $context);
             if (!empty($token)) {
-                return new RedirectResponse($redirect);
+                return $this->redirectToRoute($redirect);
             }
         } catch (BadCredentialsException | UnauthorizedHttpException $e) {
         }
@@ -202,7 +202,7 @@ class AccountPageController extends StorefrontController
             return $this->redirectToRoute('frontend.account.home.page');
         }
 
-        $redirect = $request->query->get('redirectTo', $this->generateUrl('frontend.account.home.page'));
+        $redirect = $request->query->get('redirectTo', 'frontend.account.home.page');
 
         $page = $this->loginPageLoader->load($request, $context);
 
@@ -230,7 +230,9 @@ class AccountPageController extends StorefrontController
 
         $this->accountService->login($data->get('email'), $context, $data->has('guest'));
 
-        return new RedirectResponse($this->generateUrl('frontend.account.home.page'));
+        $redirectTo = $request->get('redirectTo', 'frontend.account.home.page');
+
+        return $this->redirectToRoute($redirectTo);
     }
 
     /**

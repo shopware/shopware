@@ -44,10 +44,10 @@ class Migration1536233010Order extends MigrationStep
                INDEX `idx.state_index` (`state_id`),
                UNIQUE `uniq.auto_increment` (`auto_increment`),
                UNIQUE `uniq.deep_link_code` (`deep_link_code`, `version_id`),
-               CONSTRAINT `char_length.deep_link_code` CHECK (CHAR_LENGTH(`deep_link_code`) = 32),
-               CONSTRAINT `json.price` CHECK  (JSON_VALID(`price`)),
-               CONSTRAINT `json.shipping_costs` CHECK (JSON_VALID(`shipping_costs`)),
-               CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
+               CONSTRAINT `char_length.order.deep_link_code` CHECK (CHAR_LENGTH(`deep_link_code`) = 32),
+               CONSTRAINT `json.order.price` CHECK  (JSON_VALID(`price`)),
+               CONSTRAINT `json.order.shipping_costs` CHECK (JSON_VALID(`shipping_costs`)),
+               CONSTRAINT `json.order.attributes` CHECK (JSON_VALID(`attributes`)),
                CONSTRAINT `fk.order.currency_id` FOREIGN KEY (`currency_id`)
                  REFERENCES `currency` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
                CONSTRAINT `fk.order.order_customer_id` FOREIGN KEY (`order_customer_id`, `order_customer_version_id`)

@@ -5,12 +5,13 @@ import './page/sw-settings-number-range-list';
 import './page/sw-settings-number-range-detail';
 import './page/sw-settings-number-range-create';
 
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
 
 Module.register('sw-settings-number-range', {
     type: 'core',
-    name: 'Number Range settings',
+    name: 'settings-number-range',
+    title: 'sw-settings-number-range.general.mainMenuItemGeneral',
     description: 'Number Range section in the settings module',
     color: '#9AA8B5',
     icon: 'default-action-settings',

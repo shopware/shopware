@@ -57,7 +57,7 @@ class Migration1536232680ShippingMethod extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`shipping_method_id`, `language_id`),
-              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.shipping_method_translation.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.shipping_method_translation.language_id` FOREIGN KEY (`language_id`)
                 REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.shipping_method_translation.shipping_method_id` FOREIGN KEY (`shipping_method_id`)

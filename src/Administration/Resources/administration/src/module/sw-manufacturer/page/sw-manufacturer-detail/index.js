@@ -91,7 +91,7 @@ Component.register('sw-manufacturer-detail', {
                     }
                 }
             }, true).then(({ items }) => {
-                this.attributeSets = items;
+                this.attributeSets = items.filter(set => set.attributes.length > 0);
             });
         },
 

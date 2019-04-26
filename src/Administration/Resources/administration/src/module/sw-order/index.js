@@ -14,13 +14,15 @@ import './component/sw-order-state-history-card-entry';
 import './component/sw-order-state-select';
 import './component/sw-order-inline-field';
 import './component/sw-order-user-card';
+import './component/sw-order-document-card';
 
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
 
 Module.register('sw-order', {
     type: 'core',
-    name: 'sw-order.general.mainMenuItemGeneral',
+    name: 'order',
+    title: 'sw-order.general.mainMenuItemGeneral',
     description: 'sw-order.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',

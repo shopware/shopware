@@ -73,6 +73,8 @@ class JsonFieldSerializer implements FieldSerializerInterface
             $constraints = $this->getConstraints($parameters);
 
             $this->validate($this->validator, $constraints, $data->getKey(), $value, $parameters->getPath());
+        } elseif ($value === null) {
+            $value = $field->getDefault();
         }
 
         if ($value !== null && !empty($field->getPropertyMapping())) {
@@ -93,7 +95,7 @@ class JsonFieldSerializer implements FieldSerializerInterface
         }
 
         if ($value === null) {
-            return null;
+            return $field->getDefault();
         }
 
         $raw = json_decode($value, true);

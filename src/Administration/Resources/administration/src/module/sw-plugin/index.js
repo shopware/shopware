@@ -14,13 +14,14 @@ import './component/sw-plugin-table-entry';
 import './extension/sw-settings-index';
 import pluginSettings from './component/sw-plugin-config';
 
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
 
 Module.register('sw-plugin', {
     flag: NEXT1223,
     type: 'core',
-    name: 'sw-plugin.general.mainMenuItemGeneral',
+    name: 'plugin',
+    title: 'sw-plugin.general.mainMenuItemGeneral',
     description: 'sw-plugin.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',

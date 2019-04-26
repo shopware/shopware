@@ -38,13 +38,13 @@ class LineItemTransformer
             'type' => $lineItem->getType(),
             'label' => $lineItem->getLabel(),
             'description' => $lineItem->getDescription(),
-            'priority' => $lineItem->getPriority(),
             'good' => $lineItem->isGood(),
             'removable' => $lineItem->isRemovable(),
             'stackable' => $lineItem->isStackable(),
             'price' => $lineItem->getPrice(),
             'priceDefinition' => $lineItem->getPriceDefinition(),
             'parentId' => $parentId,
+            'coverId' => $lineItem->getCover() ? $lineItem->getCover()->getId() : null,
             'payload' => $lineItem->getPayload(),
         ];
 

@@ -16,15 +16,23 @@ Component.register('sw-settings-number-range-list', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    },
+
     computed: {
         filters() {
             return [];
         },
+
         expandButtonClass() {
             return {
                 'is--hidden': this.expanded
             };
         },
+
         collapseButtonClass() {
             return {
                 'is--hidden': !this.expanded

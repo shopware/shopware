@@ -98,6 +98,12 @@ return [
                         'related' => '/api/media/3e352be2d85846dd97529c0f6b544870/mail-template-media',
                     ],
                 ],
+                'documentBaseConfigs' => [
+                    'data' => [],
+                    'links' => [
+                        'related' => '/api/media/3e352be2d85846dd97529c0f6b544870/document-base-configs',
+                    ],
+                ],
                 'shippingMethods' => [
                     'data' => [],
                     'links' => [
@@ -114,6 +120,12 @@ return [
                     'data' => [],
                     'links' => [
                         'related' => '/api/media/3e352be2d85846dd97529c0f6b544870/product-configurator-settings',
+                    ],
+                ],
+                'orderLineItems' => [
+                    'data' => [],
+                    'links' => [
+                        'related' => '/api/media/3e352be2d85846dd97529c0f6b544870/order-line-items',
                     ],
                 ],
             ],
@@ -213,6 +225,12 @@ return [
                         'related' => '/api/media/f1ad1d0c02454a40abf250f764d16248/mail-template-media',
                     ],
                 ],
+                'documentBaseConfigs' => [
+                    'data' => [],
+                    'links' => [
+                        'related' => '/api/media/f1ad1d0c02454a40abf250f764d16248/document-base-configs',
+                    ],
+                ],
                 'shippingMethods' => [
                     'data' => [],
                     'links' => [
@@ -229,6 +247,12 @@ return [
                     'data' => [],
                     'links' => [
                         'related' => '/api/media/f1ad1d0c02454a40abf250f764d16248/product-configurator-settings',
+                    ],
+                ],
+                'orderLineItems' => [
+                    'data' => [],
+                    'links' => [
+                        'related' => '/api/media/f1ad1d0c02454a40abf250f764d16248/order-line-items',
                     ],
                 ],
             ],

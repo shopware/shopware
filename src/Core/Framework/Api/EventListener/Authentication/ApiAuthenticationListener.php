@@ -11,6 +11,7 @@ use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use League\OAuth2\Server\ResourceServer;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
@@ -25,21 +26,6 @@ class ApiAuthenticationListener implements EventSubscriberInterface
      * @var string
      */
     private static $routePrefix = '/api/';
-
-    /**
-     * @var string[]
-     */
-    private static $unprotectedRoutes = [
-        '/api/oauth/',
-        '/api/v1/_info/swagger.html',
-        '/api/v1/_info/openapi3.json',
-        '/api/v1/_info/entity-schema.json',
-        '/api/v1/_info/open-api-schema.json',
-        '/api/v1/_info/events.json',
-        '/api/v1/_action/user/user-recovery',
-        '/api/v1/_action/user/user-recovery/hash',
-        '/api/v1/_action/user/user-recovery/password',
-    ];
 
     /**
      * @var AuthorizationServer
@@ -80,6 +66,8 @@ class ApiAuthenticationListener implements EventSubscriberInterface
         return [
             KernelEvents::REQUEST => [
                 ['setupOAuth', 128],
+            ],
+            KernelEvents::CONTROLLER => [
                 ['validateRequest', 32],
             ],
         ];
@@ -105,14 +93,12 @@ class ApiAuthenticationListener implements EventSubscriberInterface
         $this->authorizationServer->enableGrantType(new ClientCredentialsGrant(), $hourInterval);
     }
 
-    public function validateRequest(GetResponseEvent $event): void
+    public function validateRequest(FilterControllerEvent $event): void
     {
         $request = $event->getRequest();
 
-        foreach (self::$unprotectedRoutes as $route) {
-            if (stripos($request->getPathInfo(), $route) === 0) {
-                return;
-            }
+        if ($request->attributes->get('auth_required', null) === false) {
+            return;
         }
 
         if (stripos($request->getPathInfo(), self::$routePrefix) !== 0) {

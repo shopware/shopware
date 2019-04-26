@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Test\Cart;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\Cart\ProductCollector;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
@@ -411,7 +411,7 @@ class SalesChannelCartControllerTest extends TestCase
         $client = $this->createCart();
 
         $quantity = 10;
-        $type = ProductCollector::LINE_ITEM_TYPE;
+        $type = LineItem::PRODUCT_LINE_ITEM_TYPE;
         $stackable = true;
         $removable = true;
         $priority = 500;
@@ -426,7 +426,6 @@ class SalesChannelCartControllerTest extends TestCase
                 'quantity' => $quantity,
                 'stackable' => $stackable,
                 'removable' => $removable,
-                'priority' => $priority,
                 'label' => $label,
                 'description' => $description,
                 'coverId' => $mediaId,
@@ -453,7 +452,6 @@ class SalesChannelCartControllerTest extends TestCase
 
         static::assertEquals($stackable, $product['stackable']);
         static::assertEquals($removable, $product['removable']);
-        static::assertEquals($priority, $product['priority']);
         static::assertEquals($label, $product['label']);
         static::assertEquals($description, $product['description']);
 
@@ -513,7 +511,6 @@ class SalesChannelCartControllerTest extends TestCase
                 'quantity' => $quantity,
                 'stackable' => $stackable,
                 'removable' => $removable,
-                'priority' => $priority,
                 'label' => $label,
                 'description' => $description,
                 'coverId' => $mediaId,
@@ -530,12 +527,11 @@ class SalesChannelCartControllerTest extends TestCase
         $product = array_shift($cart['lineItems']);
 
         static::assertEquals($productId, $product['key']);
-        static::assertEquals(ProductCollector::LINE_ITEM_TYPE, $product['type']);
+        static::assertEquals(LineItem::PRODUCT_LINE_ITEM_TYPE, $product['type']);
         static::assertEquals($quantity, $product['quantity']);
 
         static::assertEquals($stackable, $product['stackable']);
         static::assertEquals($removable, $product['removable']);
-        static::assertEquals($priority, $product['priority']);
         static::assertEquals($label, $product['label']);
         static::assertEquals($description, $product['description']);
 

@@ -94,7 +94,7 @@ class ConfigurationServiceTest extends TestCase
                 'elements' => [
                     0 => [
                         'type' => 'text',
-                        'name' => 'bundle.SwagExampleTest.email',
+                        'name' => 'SwagExampleTest.email',
                         'copyable' => true,
                         'label' => [
                             'en-GB' => 'eMail',
@@ -107,7 +107,7 @@ class ConfigurationServiceTest extends TestCase
                     ],
                     1 => [
                         'type' => 'select',
-                        'name' => 'bundle.SwagExampleTest.mailMethod',
+                        'name' => 'SwagExampleTest.mailMethod',
                         'options' => [
                             0 => [
                                 'id' => 'smtp',

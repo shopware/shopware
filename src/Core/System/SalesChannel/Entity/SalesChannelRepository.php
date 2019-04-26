@@ -6,6 +6,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityAggregationResultLoadedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchResultLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositorySearchDetector;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregatorResult;
@@ -106,6 +108,9 @@ class SalesChannelRepository
 
         $result = new EntitySearchResult($ids->getTotal(), $entities, $aggregations, $criteria, $context->getContext());
 
+        $event = new EntitySearchResultLoadedEvent($this->definition, $result);
+        $this->eventDispatcher->dispatch($event->getName(), $event);
+
         $event = new SalesChannelEntitySearchResultLoadedEvent($this->definition, $result, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
@@ -146,6 +151,9 @@ class SalesChannelRepository
     {
         /** @var EntityCollection $entities */
         $entities = $this->reader->read($this->definition, $criteria, $context->getContext());
+
+        $event = new EntityLoadedEvent($this->definition, $entities->getElements(), $context->getContext());
+        $this->eventDispatcher->dispatch($event->getName(), $event);
 
         $event = new SalesChannelEntityLoadedEvent($this->definition, $entities->getElements(), $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);

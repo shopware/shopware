@@ -32,6 +32,7 @@ class DefinitionValidator
 {
     private const IGNORE_FIELDS = [
         'product.cover',
+        'order_line_item.cover',
         'customer.defaultBillingAddress',
         'customer.defaultShippingAddress',
         'customer.activeShippingAddress',
@@ -44,7 +45,7 @@ class DefinitionValidator
     /**
      * @var DefinitionRegistry
      */
-    protected $registry;
+    private $registry;
 
     private static $pluralExceptions = [
         'children', 'categoriesRo', 'properties', 'media',
@@ -61,7 +62,7 @@ class DefinitionValidator
     ];
 
     private static $ignoredInPrefixCheck = [
-        'properties', 'options', 'translationcode', 'blocks',
+        'properties', 'options', 'translationcode', 'blocks', 'logo',
     ];
 
     private static $tablesWithoutDefinition = [

@@ -14,9 +14,10 @@ class DifferentAddressesRule extends Rule
      */
     protected $isDifferent;
 
-    public function __construct()
+    public function __construct(bool $isDifferent = true)
     {
-        $this->isDifferent = true;
+        parent::__construct();
+        $this->isDifferent = $isDifferent;
     }
 
     public function match(RuleScope $scope): bool

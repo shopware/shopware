@@ -102,13 +102,11 @@ class CalculatorTest extends TestCase
         $cart = new Cart('test', 'test');
 
         $lineItem = (new LineItem('A', 'test', 2))
-            ->setPriority(LineItem::GOODS_PRIORITY)
             ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection([]), 2, 2));
 
         $cart->add($lineItem);
 
         $lineItem = (new LineItem('B', 'test', 1))
-            ->setPriority(LineItem::GOODS_PRIORITY + 1)
             ->setPriceDefinition(new PercentagePriceDefinition(-10, 2, null));
 
         $cart->add($lineItem);
@@ -117,7 +115,7 @@ class CalculatorTest extends TestCase
 
         static::assertCount(2, $calculated);
         static::assertSame(200.0, $calculated->get('A')->getPrice()->getTotalPrice());
-        static::assertSame(0.0, $calculated->get('B')->getPrice()->getTotalPrice());
+        static::assertSame(-20.0, $calculated->get('B')->getPrice()->getTotalPrice());
     }
 
     public function testCalculateAbsolutePrice(): void
@@ -287,18 +285,18 @@ class CalculatorTest extends TestCase
         $root = $calculated->get('A');
         static::assertSame(100.0, $root->getChildren()->get('P1')->getPrice()->getTotalPrice());
         static::assertSame(100.0, $root->getChildren()->get('P2')->getPrice()->getTotalPrice());
-        static::assertSame(-20.0, $root->getChildren()->get('D')->getPrice()->getTotalPrice());
+        static::assertSame(-54.2, $root->getChildren()->get('D')->getPrice()->getTotalPrice());
 
         $root = $root->getChildren()->get('B');
         static::assertSame(100.0, $root->getChildren()->get('P1')->getPrice()->getTotalPrice());
         static::assertSame(100.0, $root->getChildren()->get('P2')->getPrice()->getTotalPrice());
-        static::assertSame(-20.0, $root->getChildren()->get('D')->getPrice()->getTotalPrice());
+        static::assertSame(-38.0, $root->getChildren()->get('D')->getPrice()->getTotalPrice());
 
         $root = $root->getChildren()->get('C');
         static::assertSame(100.0, $root->getChildren()->get('P1')->getPrice()->getTotalPrice());
         static::assertSame(100.0, $root->getChildren()->get('P2')->getPrice()->getTotalPrice());
         static::assertSame(-20.0, $root->getChildren()->get('D')->getPrice()->getTotalPrice());
 
-        static::assertSame(540.0, $calculated->get('A')->getPrice()->getTotalPrice());
+        static::assertSame(487.8, $calculated->get('A')->getPrice()->getTotalPrice());
     }
 }

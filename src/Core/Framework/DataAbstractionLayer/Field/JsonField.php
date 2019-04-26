@@ -14,10 +14,16 @@ class JsonField extends Field implements StorageAware
      */
     protected $propertyMapping;
 
-    public function __construct(string $storageName, string $propertyName, array $propertyMapping = [])
+    /**
+     * @var array|null
+     */
+    protected $default;
+
+    public function __construct(string $storageName, string $propertyName, array $propertyMapping = [], ?array $default = null)
     {
         $this->storageName = $storageName;
         $this->propertyMapping = $propertyMapping;
+        $this->default = $default;
         parent::__construct($propertyName);
     }
 
@@ -32,5 +38,10 @@ class JsonField extends Field implements StorageAware
     public function getPropertyMapping(): array
     {
         return $this->propertyMapping;
+    }
+
+    public function getDefault(): ?array
+    {
+        return $this->default;
     }
 }

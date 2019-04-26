@@ -22,7 +22,7 @@ module.exports = {
 
         browser
             .click('.sw-settings-snippet-set-list__edit-set-action')
-            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Snippets of "BASE en_GB"');
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Snippets of "BASE en-GB"');
     },
     'inline edit first snippet': (browser) => {
         const page = settingsPage(browser);
@@ -39,11 +39,9 @@ module.exports = {
             .waitForElementVisible(`${page.elements.dataGridRow}--0 ${page.elements.dataGridInlineEditSave}`)
             .click(`${page.elements.dataGridRow}--0 ${page.elements.dataGridInlineEditSave}`)
             .waitForElementNotPresent('.is--inline-edit')
-            .expect.element(`${page.elements.dataGridRow}--0`).to.have.text.that.contains('- some more');
-
-        browser
             .waitForElementNotPresent(page.elements.loader)
-            .checkNotification('has been saved successfully.');
+            .checkNotification('has been saved successfully.')
+            .expect.element(`${page.elements.dataGridRow}--0`).to.have.text.that.contains('- some more');
     },
     'reset first snippet': (browser) => {
         const page = settingsPage(browser);

@@ -28,7 +28,7 @@ class Migration1536232600Language extends MigrationStep
               UNIQUE `uniq.translation_code_id` (translation_code_id),
               KEY `idx.language.translation_code_id` (`translation_code_id`),
               KEY `idx.language.language_id_parent_language_id` (`id`, `parent_id`),
-              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.language.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.language.parent_id` FOREIGN KEY (`parent_id`)
                 REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

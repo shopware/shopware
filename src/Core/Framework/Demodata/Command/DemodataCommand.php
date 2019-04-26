@@ -131,7 +131,7 @@ class DemodataCommand extends Command
         );
     }
 
-    protected function getProductOptions(InputInterface $input): array
+    private function getProductOptions(InputInterface $input): array
     {
         $productOptions = [];
 
@@ -142,7 +142,7 @@ class DemodataCommand extends Command
         return $productOptions;
     }
 
-    protected function getAttributeOptions(InputInterface $input): array
+    private function getAttributeOptions(InputInterface $input): array
     {
         return [
             'relations' => [

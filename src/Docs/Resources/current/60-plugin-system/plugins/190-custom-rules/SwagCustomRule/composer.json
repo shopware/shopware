@@ -16,20 +16,20 @@
         "shopware-plugin-class": "SwagCustomRule\\SwagCustomRule",
         "copyright": "(c) by shopware AG",
         "label": {
-            "de_DE": "Weitere Regeln für Shopware",
-            "en_GB": "More rules for Shopware"
+            "de-DE": "Weitere Regeln für Shopware",
+            "en-GB": "More rules for Shopware"
         },
         "description": {
-            "de_DE": "Fügt weitere Regeln hinzu, die im Regelsystem genutzt werden.",
-            "en_GB": "Add more rules, which are used by the rule system."
+            "de-DE": "Fügt weitere Regeln hinzu, die im Regelsystem genutzt werden.",
+            "en-GB": "Add more rules, which are used by the rule system."
         },
         "manufacturerLink": {
-            "de_DE": "https://store.shopware.com/shopware-ag.html",
-            "en_GB": "https://store.shopware.com/en/shopware-ag.html"
+            "de-DE": "https://store.shopware.com/shopware-ag.html",
+            "en-GB": "https://store.shopware.com/en/shopware-ag.html"
         },
         "supportLink": {
-            "de_DE": "https://docs.shopware.com/de",
-            "en_GB": "https://docs.shopware.com/en"
+            "de-DE": "https://docs.shopware.com/de",
+            "en-GB": "https://docs.shopware.com/en"
         }
     }
 }

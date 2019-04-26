@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Order;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
+use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Enrichment;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
@@ -21,7 +22,6 @@ use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
-use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -74,6 +74,11 @@ class RecalculationService
      */
     protected $processor;
 
+    /**
+     * @var CartRuleLoader
+     */
+    private $cartRuleLoader;
+
     public function __construct(
         EntityRepositoryInterface $orderRepository,
         OrderConverter $orderConverter,
@@ -82,7 +87,8 @@ class RecalculationService
         EntityRepositoryInterface $orderAddressRepository,
         EntityRepositoryInterface $customerAddressRepository,
         Enrichment $enrichment,
-        Processor $processor
+        Processor $processor,
+        CartRuleLoader $cartRuleLoader
     ) {
         $this->orderRepository = $orderRepository;
         $this->orderConverter = $orderConverter;
@@ -92,6 +98,7 @@ class RecalculationService
         $this->customerAddressRepository = $customerAddressRepository;
         $this->enrichment = $enrichment;
         $this->processor = $processor;
+        $this->cartRuleLoader = $cartRuleLoader;
     }
 
     /**
@@ -149,7 +156,7 @@ class RecalculationService
     public function addProductToOrder(string $orderId, string $productId, int $quantity, Context $context): void
     {
         $this->validateProduct($productId, $context);
-        $lineItem = (new LineItem($productId, ProductCollector::LINE_ITEM_TYPE, $quantity))
+        $lineItem = (new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, $quantity))
             ->setRemovable(true)
             ->setStackable(true)
             ->setPayload(['id' => $productId]);
@@ -184,8 +191,9 @@ class RecalculationService
 
         $salesChannelContext = $this->orderConverter->assembleSalesChannelContext($order, $context);
         $cart = $this->orderConverter->convertToCart($order, $context);
+        $cart->add($lineItem);
 
-        $recalculatedCart = $this->cartService->add($cart, $lineItem, $salesChannelContext);
+        $recalculatedCart = $this->recalculateCart($cart, $salesChannelContext);
 
         $conversionContext = (new OrderConversionContext())
             ->setIncludeCustomer(false)
@@ -283,5 +291,24 @@ class RecalculationService
         }
 
         $this->checkVersion($address);
+    }
+
+    private function recalculateCart(Cart $cart, SalesChannelContext $context): Cart
+    {
+        $behavior = new CartBehavior();
+        $behavior->setIsRecalculation(true);
+
+        // enrich line items with missing data, e.g products which added in the call are enriched with their prices and labels
+        $cart = $this->enrichment->enrich($cart, $context, $behavior);
+
+        // all prices are now prepared for calculation -  starts the cart calculation
+        $cart = $this->processor->process($cart, $context, $behavior);
+
+        // validate cart against the context rules
+        $validated = $this->cartRuleLoader->loadByCart($context, $cart, $behavior);
+
+        $cart = $validated->getCart();
+
+        return $cart;
     }
 }

@@ -9,4 +9,7 @@
     <import resource="../../Attribute/" type="annotation" />
     <import resource="../../Plugin/" type="annotation" />
     <import resource="../../Store/" type="annotation" />
+    <import resource="../../MessageQueue/" type="annotation" />
+    <import resource="../../Migration/" type="annotation" />
+    <import resource="../../ScheduledTask/" type="annotation" />
 </routes>

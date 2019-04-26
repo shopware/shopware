@@ -41,6 +41,7 @@ class TimeRangeRule extends Rule
 
     public function __construct(?\DateTimeInterface $now = null)
     {
+        parent::__construct();
         $this->now = $now ?? new \DateTimeImmutable();
     }
 

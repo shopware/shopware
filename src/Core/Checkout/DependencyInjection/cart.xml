@@ -132,6 +132,7 @@
 
         <service id="Shopware\Core\Content\Product\Cart\ProductCollector">
             <argument type="service" id="Shopware\Core\Content\Product\Cart\ProductGateway"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductPriceDefinitionBuilderInterface"/>
             <tag name="shopware.cart.collector"/>
         </service>
 
@@ -158,7 +159,7 @@
 
         <service id="Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor"/>
 
-        <service id="Shopware\Core\Checkout\Cart\Order\OrderConverterController" public="true">
+        <service id="Shopware\Core\Checkout\Cart\Order\Api\OrderConverterController" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
             <argument type="service" id="order.repository"/>
@@ -167,7 +168,7 @@
             </call>
         </service>
 
-        <service id="Shopware\Core\Checkout\Cart\Order\OrderRecalculationController" public="true">
+        <service id="Shopware\Core\Checkout\Cart\Order\Api\OrderRecalculationController" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\RecalculationService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -183,6 +184,7 @@
             <argument type="service" id="customer_address.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Enrichment"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\CartRuleLoader">

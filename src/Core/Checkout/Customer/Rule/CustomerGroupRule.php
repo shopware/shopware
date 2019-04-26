@@ -22,9 +22,11 @@ class CustomerGroupRule extends Rule
      */
     protected $operator;
 
-    public function __construct()
+    public function __construct(string $operator = self::OPERATOR_EQ, ?array $customerGroupIds = null)
     {
-        $this->operator = self::OPERATOR_EQ;
+        parent::__construct();
+        $this->operator = $operator;
+        $this->customerGroupIds = $customerGroupIds;
     }
 
     public function match(RuleScope $scope): bool

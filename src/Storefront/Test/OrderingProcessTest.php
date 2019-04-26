@@ -226,7 +226,7 @@ class OrderingProcessTest extends TestCase
     private function payOrder(): string
     {
         $data = [
-            'sAGB' => 'on',
+            'tos' => 'on',
         ];
 
         $this->getSalesChannelClient()->request('POST', '/checkout/pay', $data);

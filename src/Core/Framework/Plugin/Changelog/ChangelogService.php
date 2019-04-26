@@ -7,7 +7,7 @@ use Symfony\Component\Finder\Finder;
 
 class ChangelogService
 {
-    private const FALLBACK_LOCALE = 'en_GB';
+    private const FALLBACK_LOCALE = 'en-GB';
 
     /**
      * @var ChangelogParser
@@ -23,7 +23,7 @@ class ChangelogService
     {
         $finder = new Finder();
 
-        $finder->files()->in($pluginPath)->name('CHANGELOG.md')->name('CHANGELOG-??_??.md')->depth(0);
+        $finder->files()->in($pluginPath)->name('CHANGELOG.md')->name('CHANGELOG_??-??.md')->depth(0);
 
         $files = [];
 
@@ -42,7 +42,7 @@ class ChangelogService
             return self::FALLBACK_LOCALE;
         }
 
-        return substr($fileName, strpos($fileName, '-') + 1, 5);
+        return substr($fileName, strpos($fileName, '_') + 1, 5);
     }
 
     /**

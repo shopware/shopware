@@ -20,7 +20,7 @@ class Migration1536233380AttributeSet extends MigrationStep
               `config` JSON NULL,
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3),
-              CONSTRAINT `json.config` CHECK(JSON_VALID(`config`))
+              CONSTRAINT `json.attribute_set.config` CHECK(JSON_VALID(`config`))
             );
         ');
     }

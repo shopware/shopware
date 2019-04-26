@@ -8,12 +8,12 @@ class ValueGeneratorPatternRegistry
     /**
      * @var ValueGeneratorPatternInterface[]
      */
-    protected $pattern = [];
+    private $pattern = [];
 
     /**
      * @var ValueGeneratorPatternInterface[]
      */
-    protected $mapped;
+    private $mapped;
 
     public function __construct(iterable $pattern)
     {

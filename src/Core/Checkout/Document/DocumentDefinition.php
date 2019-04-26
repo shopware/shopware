@@ -2,13 +2,16 @@
 
 namespace Shopware\Core\Checkout\Document;
 
+use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -38,15 +41,20 @@ class DocumentDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
 
-            (new StringField('type', 'type'))->addFlags(new Required()),
+            (new FkField('document_type_id', 'documentTypeId', DocumentTypeDefinition::class))->addFlags(new Required()),
+            (new StringField('file_type', 'fileType'))->addFlags(new Required()),
 
             (new FkField('order_id', 'orderId', OrderDefinition::class))->addFlags(new Required()),
             (new ReferenceVersionField(OrderDefinition::class, 'order_version_id'))->addFlags(new Required()),
 
             new JsonField('config', 'config'),
             new BoolField('sent', 'sent'),
-            new CreatedAtField(),
+            (new StringField('deep_link_code', 'deepLinkCode'))->addFlags(new Required()),
+            (new CreatedAtField())->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
 
+            new AttributesField(),
+
+            (new ManyToOneAssociationField('documentType', 'document_type_id', DocumentTypeDefinition::class, 'id'))->addFlags(new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
             new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, 'id', false),
         ]);
     }

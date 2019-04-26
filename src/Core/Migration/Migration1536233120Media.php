@@ -46,7 +46,7 @@ class Migration1536233120Media extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`media_id`, `language_id`),
-              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.media_translation.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.media_translation.language_id` FOREIGN KEY (`language_id`)
                 REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.media_translation.media_id` FOREIGN KEY (`media_id`)

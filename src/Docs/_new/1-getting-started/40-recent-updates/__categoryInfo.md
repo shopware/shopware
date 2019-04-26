@@ -9,7 +9,539 @@
 
 <h2>April 2019</h2>
 
+<h3>2019-04-25: Vue Vuex in the Administration</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>Vuex is a Vue.js plugin and library that allows you to share state between components. This is done by using a single object which is accessible by all component via the <code>$store</code> property. Vuex applies a flux pattern on this store which means every change of the store's state must be done via commits (synchronous changes) or actions (asynchronous changes).</p>
+<p>Well this is not completely true because we deactivated strict mode (more on this later).</p>
+<p>This is not a documentation about Vuex but an overview how we want to use Vuex in our application. If you are not familiar with Vuex I strongly recommend reading the documentation at <a href="vuex.vuejs.org">vuex.vuejs.org</a>.</p>
+<h3>Define Own Store Modules</h3>
+<p>Store modules should only be registered by the top-level components of complex structures (e.g. your <code>sw-page</code> component or things like the <code>sw-component-tree</code>). Keep in mind that the preferred way to share state in Vue.js still is passing properties to children and emitting events back.</p>
+<p>We recommend to create your module in a separate Javascript file in your components folder named <code>state.js</code> that exports your state definition</p>
+<pre><code class="language-javascript">// state.js
+export default {
+   namespaced: true,
+   state: { },
+   mutations: { ... }
+}</code></pre>
+<p>To register the module use the <code>registerModule</code> function of the Vuex store in the <code>beforeCreated</code> lifecycle hook of your component. Also don't forget to clean up your state when your component is destroyed.</p>
+<p>If you register a module on the store keep in mind that it follows the same rules as if you would create a component. That means that store modules which are created from the same source share a static state. if you need a &quot;clean&quot; store module every time you register it and (in most cases this is exactly what you want) define your state property as a function. see <a href="https://vuex.vuejs.org/guide/modules.html#module-reuse">https://vuex.vuejs.org/guide/modules.html#module-reuse</a> for an explanation</p>
+<pre><code class="language-javascript">export default {
+  state() {
+      return { ... };
+  }  </code></pre>
+<p>As convention your store module name should be your component's name in camelcase (because you must be able to access the name in object notation).</p>
+<pre><code class="language-javascript">import componentNameState from './state.js'
+
+export default {
+  name: 'component-name'
+
+  beforeCreated() {
+    this.$store.registerModule('componentName', componentNameState);
+    }
+  beforeDestroye() {
+    this.$store.unregisterModule('componentName');
+    }</code></pre>
+<p>You may note that we don't follow our usual convention to wrap the functionality of the lifecyclehook in an extra method. This is because the registration of your state is mandatory and should not be overwritten by components extending your component.</p>
+<h3>Strict mode and Problems with v-model</h3>
+<p>Because Vuex does not work well with Vue.js' <code>v-model</code> directive we turned off strict mode. That means that state can be written directly. However, avoid changing the state directly as much as possible because it could cause problems with Vue.js' reactivity. At least first level properties of your module must be commited.</p>
+<pre><code class="language-javascript">// state.js
+export default {
+   state: {
+    // product is a first level property
+    product {
+      // id may be changed directly with full reactivity
+      id: ''
+    }
+   },
+   mutations: { ... }
+}</code></pre>
+<h3>Global State</h3>
+<p>Right now we're migration global state to vuex stores. This includes the current language and admin locale as well as notification management and error handling. All global actions and mutations will be documented in the component library eventually.</p>
+<p>If you need to create global state on your own you can create an Vuex module in the <code>/src/app/state/</code> folder of the application. Because the Vuex modules must be named we could not apply automatic registration (yet). So You must add your global module manually in <code>/src/app/state/index.js</code> .</p>
+<h3>2019-04-25: Naming database constraints</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>With the newest MySQL version <code>CONSTRAINTS</code> must be unique across all tables. This means that</p>
+<p><code>CONSTRAINT json.attributes CHECK (JSON_VALID(attributes))</code> is no longer valid. The new constraint name should be:</p>
+<p><code>CONSTRAINT json.table_name.attributes CHECK (JSON_VALID(attributes))</code>. This is true for all CONSTRAINT, not only JSON_VALID().</p>
+<h3>2019-04-25: Consistent locale codes</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>Until now we used two locale code standards.</p>
+<p>Bcp-47 inside vue.js (administration) and IEC_15897 inside the Php backend.</p>
+<p>Now we use the BCP-47 standard for both. This means, that the locale codes changed from <code>en_GB</code> to <code>en-GB</code>.</p>
+<p>Where does this effect you?</p>
+<ul>
+<li>First you need to reinitialize your Shopware installation after you pulled these changes (./psh.phar init)</li>
+<li>composer.json of your plugins</li>
+<li>Changelogs of your plugins</li>
+<li>Locale Repository</li>
+<li>Snippet files of all modules</li>
+</ul>
+<h3>composer.json</h3>
+<p>You have to change the locale codes inside the extra section of your plugin composer.json from:</p>
+<pre><code class="language-json">"extra": {
+  "shopware-plugin-class": "Swag\\Example",
+  "copyright": "(c) by shopware AG",
+  "label": {
+    "de_DE": "Example Produkte für Shopware",
+    "en_GB": "Example Products for Shopware"
+  }
+},</code></pre>
+<p>to:</p>
+<pre><code class="language-json">
+"extra": {
+  "shopware-plugin-class": "Swag\\Example",
+  "copyright": "(c) by shopware AG",
+  "label": {
+    "de-DE": "Example Produkte für Shopware",
+    "en-GB": "Example Products for Shopware"
+  }
+},</code></pre>
+<h3>Changelogs</h3>
+<p>The <code>en-GB</code> changelog file still is: <code>CHANGELOG.md</code>.</p>
+<p>The format for all other locales changed from <code>CHANGELOG-??_??.md</code> to <code>CHANGELOG_??-??.md</code>. For example a german changelog file changed from <code>CHANGELOG-de_DE.md</code> to <code>CHANGELOG_de-DE.md</code>.</p>
+<h3>Locale Repository</h3>
+<p>If you use the locale repository inside your code, the locale codes will now return in the new format.</p>
+<h3>Snippet files of all modules</h3>
+<p>We renamed all snippet files, from <code>en_GB.json</code> to <code>en-GB.json</code>.</p>
+<p>For consistency, you should do the same in your plugins.</p>
+<h3>2019-04-18: Document title using VueMeta</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>We just implemented VueMeta 1.6.0 to shopware!</p>
+<p>For now, it's only used to configure dynamic document titles in addition to the recently implemented favicons per module and will be added to every, already implemented module. Please be sure to add it to every new module! Additonally: Every Moduels <code>name</code> property has been refactored in the style of its identifier. (If its <code>sw-product-stream</code> the name now is <code>product-stream</code>.)</p>
+<p>To provide more detailed information, we added the <code>this.$createTitle()</code> method to get an easily generated document title like <code>Customers | Shopware administration or Awesome Product | Products | Shopware administration</code></p>
+<p>Therefore every Module should set a <code>title</code> property with a snippet for its in the modules <code>index.js</code>:</p>
+<pre><code class="language-javascript">
+Module.register('sw-product', {
+    name: 'sw-product.general.mainMenuItemGeneral',
+    ...</code></pre>
+<p>And also add the <code>metaInfo</code> property on <strong>every pages</strong> <code>index.js</code>:</p>
+<pre><code class="language-javascript">
+...
+metaInfo() {
+    return {
+        title: this.$createTitle()
+    };
+},
+
+computed: {
+    ...</code></pre>
+<p>Alternativly <strong>for every detail page</strong> add an identifier (e.g. using the placeholder mixin to ensure fallback-translations):</p>
+<pre><code class="language-javascript">...
+mixins: [
+    Mixin.getByName('placeholder')
+],
+
+metaInfo() {
+    return {
+        title: this.$createTitle(this.identifier)
+    };
+},
+
+computed: {
+    identifier() {
+        return this.placeholder(this.product, 'name');
+    },
+},
+...</code></pre>
+<p>The <code>$createTitle(String = null, ...String)</code> method uses the current page component to read its module title. The first parameter should be used in detail pages to also display its identifier like the product name or a full customer name to add it to the title. Every following parameter is fully optional and not in use yet, but if used would be added to the title in the same fashion.</p>
+<h3>2019-04-18: Storefront page ajax</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>To secure the Storefront we made every Controller-Action inside the StorefrontBundle not requestable via XmlHttpRequests/AJAX.</p>
+<p>You can override this by allowing XmlHttpRequests in the Route Annotation</p>
+<p>with the <code>defaults={"XmlHttpRequest"=true}</code> Option.</p>
+<p>Example:</p>
+<pre><code class="language-php">/**
+@Route("/widgets/listing/list/{categoryId}", name="widgets_listing_list", methods={"GET"}, defaults={"XmlHttpRequest"=true})
+*/
+public function listAction(Request $request, SalesChannelContext $context): JsonResponse</code></pre>
+<p>For more Examples take a look inside the PageletControllers.</p>
+<h3>2019-04-18: SalesChannel Entity definition</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>We impemented a central way to define entities which should be available over the <code>sales-channel-api</code>.</p>
+<p>An EntityDefinition can now define a decoration definition for the <code>sales-channel-api</code>:</p>
+<pre><code class="language-php">&lt;?php
+// ...
+class ProductDefinition extends EntityDefinition
+{
+    public static function getEntityName(): string
+    {
+        return 'product';
+    }
+
+    public static function getSalesChannelDecorationDefinition()
+    {
+        return SalesChannelProductDefinition::class;
+    }
+}</code></pre>
+<h3>Declaring the SalesChannelDefinition</h3>
+<p>A decorating sales channel definition for an entity should extend the original definition class.</p>
+<pre><code class="language-php">&lt;?php declare(strict_types=1);
+
+namespace Shopware\Core\Content\Product\SalesChannel;
+
+class SalesChannelProductDefinition 
+    extends ProductDefinition 
+    implements SalesChannelDefinitionInterface
+{
+    use SalesChannelDefinitionTrait;
+}</code></pre>
+<p>These declaration allows to replace different functionalities for an entity:</p>
+<ul>
+<li>Rewriting the storage - getEntityName()
+<ul>
+<li>Example usage: I want to denormalize my entities in a different table for better performance</li>
+</ul></li>
+<li>Rewriting the DTO classes - getEntityClass getEntityCollection
+<ul>
+<li>Example usage: I want to provide some helper functions or more properties in the storefront</li>
+</ul></li>
+<li>Adding or removing some fields - defineFields
+<ul>
+<li>Example usage: I can add more fields for an entity which will be displayed in a storefront or in other clients</li>
+</ul></li>
+</ul>
+<h3>Association Handling</h3>
+<p>It is import to override the defineFields function to rewrite association fields with their sales channel decoration definition:</p>
+<pre><code class="language-php">protected static function defineFields(): FieldCollection
+{
+    $fields = parent::defineFields();
+
+    self::decorateDefinitions($fields);
+
+    return $fields;
+}</code></pre>
+<p>This decoration call replaces all entity definition classes of the defined association fields with the decorated definition.</p>
+<h3>Basic filters</h3>
+<p>Additionally by implementing the <code>\Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface</code> interface the developer has the opportunity to add some basic filters if the entity will be fetched for a sales channel:</p>
+<pre><code class="language-php">public static function processCriteria(
+    Criteria $criteria, 
+    SalesChannelContext $context
+) : void {
+    $criteria-&gt;addFilter(
+        new EqualsFilter('product.active', true)
+    );
+}</code></pre>
+<h3>Reigster the definition</h3>
+<p>Like the EntityDefinition classes the Definition classes for sales channel entities has to be registered over the Dependency Injection Container by tagging the definition with the <code>shopware.sales_channel.entity.definition</code> tag.</p>
+<pre><code class="language-xml">&lt;service 
+        id="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition"&gt;
+
+&lt;tag name="shopware.sales_channel.entity.definition" entity="product"/&gt;
+
+&lt;/service&gt;</code></pre>
+<h3>Repository registration</h3>
+<p>Like the entity repository for the DAL, the each registered sales channel entity definition gets an own registered repository. The repository is registered like the original entity definition but with an additional <code>sales_channel.</code> prefix:</p>
+<p>Example: <code>sales_channel.product.repository</code></p>
+<p>The registered class is an instance of <code>\Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository</code>.</p>
+<p>This repository provides only a read functions:</p>
+<pre><code class="language-php">public function search(
+    Criteria $criteria, 
+    SalesChannelContext $context
+) : EntitySearchResult
+
+public function aggregate(
+    Criteria $criteria, 
+    SalesChannelContext $context
+) : AggregatorResult
+
+public function searchIds(
+    Criteria $criteria, 
+    SalesChannelContext $context
+) : IdSearchResult</code></pre>
+<h3>Api Routes</h3>
+<p>All registered sales channel definitions has registered api routes: (example for product)</p>
+<pre><code class="language-php">sales-channel-api.product.detail
+    /sales-channel-api/v{version}/product/{id}
+
+sales-channel-api.product.search-ids
+    /sales-channel-api/v{version}/search-ids/product
+
+sales-channel-api.product.search
+    /sales-channel-api/v{version}/product</code></pre>
+<h3>Event Registration</h3>
+<p>Entities which loaded for a sales channel has own events. All Events of the Data Abstraction Layer are prefixed with sales_channel. (Example for product):</p>
+<ul>
+<li><code>sales_channel.product.loaded</code></li>
+<li><code>sales_channel.search.result.loaded</code></li>
+<li><code>sales_channel.product.id.search.result.loaded</code></li>
+<li><code>sales_channel.product.aggregation.result.loaded</code></li>
+</ul>
+<h3>2019-04-17: Refactored rules match function</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>The Rules were refactored, so that the match function not longer returns a reason object which contains the debug messages. Instead the match function directly returns a bool if the rule is matching or not.</p>
+<h3>2019-04-17: Internal request removed</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>The <code>InternalRequest</code> class alternative to the Symfony Request has been removed as it is not required anymore.</p>
+<p>To check required parameters etc. use the Symfony Request or even better the <code>RequestDataBag</code> or <code>QueryDataBag</code> and validate your input using the <code>DataValidator</code>. You can see some examples in the <code>AccountService</code>.</p>
+<h3>2019-04-17: Administration open API Housekeeping</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>We are currently working on a lot of housekeeping tasks to make the administration code base as clean as possible. It should be easier for new developers to spot best practices inside the code. This is why we have to adjust some general things like events.</p>
+<p><em>This changes are not merged yet! We will write more update logs when some of the mentioned topics are inside the master branch.</em></p>
+<p>Here are the most important changes:</p>
+<h3>Custom Vue events</h3>
+<ul>
+<li>All custom Vue events will be kebab-case.</li>
+<li>This is also a Vue.js best practice: <a href="https://vuejs.org/v2/guide/components-custom-events.html#Event-Names">https://vuejs.org/v2/guide/components-custom-events.html#Event-Names</a> camelCase and snake_case are not allowed.</li>
+<li>We don't put the whole component name inside the event name any longer. The event can only be used on the component itself in most cases. So there should be no duplicate issues whatsoever. For more complex &quot;flows&quot; you can add names like &quot;folder-item&quot; or &quot;selection&quot; inside your event name.</li>
+<li>The event name itself should follow this order: object -&gt; prefix -&gt; action</li>
+</ul>
+<p>For example:</p>
+<pre><code class="language-javascript">// product (object)
+// before (prefix)
+// load (action)
+
+this.$emit('product-before-load');</code></pre>
+<p>Object and prefix are only needed in more complex scenarios when more events are involved in one context. E.g. events for &quot;folders&quot; and &quot;products&quot; being called on a single component. When you just want to trigger a single save action on one small component a simple 'save' as an event name should be fine.</p>
+<p>More examples:</p>
+<pre><code class="language-javascript">// Bad
+this.$emit('itemSelect'); // No camel case
+this.$emit('item_select'); // No snake case
+this.$emit('item--select'); // No double dash
+this.$emit('sw-component-item-select'); // No component names
+this.$emit('select-item'); // Object always before action
+
+// Good
+this.$emit('item-select');
+
+/* ----------------------- */
+
+// Bad
+this.$emit('folder-saving');
+this.$emit('column-sorting');
+
+// Good
+this.$emit('folder-save');
+this.$emit('folder-sort');
+
+/* ----------------------- */
+
+// Bad
+this.$emit('customer-saved'); // No past tense
+
+// Good
+this.$emit('customer-save')
+this.$emit('customer-finish-save'); // Or use success prefix instead
+
+/* ----------------------- */
+
+// Bad
+this.$emit('on-save'); // No filler or stateul words like "on" or "is"
+
+// Good
+this.$emit('save')</code></pre>
+<h3>SCSS Variables</h3>
+<p>We will remove the scoped / re-mapped color variables from all components. <strong>From now on you can use the color variables directly.</strong> Component specific variables should only be used when you really have multiple usages of a value e.g. &quot;$sw-card-base-width: 800px&quot;.</p>
+<p>We decided to remove this pattern because plugin developers are not able to override those variables anyway. For us internally the benefit isn't that great because we are not changing component colors all the time.</p>
+<h3>SCSS Code style</h3>
+<p>Improve and fix some more code style rules:</p>
+<ul>
+<li>Only use spaces, not tabs</li>
+<li>Always indent 4 spaces</li>
+<li>No !important when possible</li>
+<li>No camelCase or snake_case in selectors</li>
+</ul>
+<h3>JS/Vue.js Code style and housekeeping</h3>
+<ul>
+<li>Empty lines after methods and props</li>
+<li>No methods with complex logic inside &quot;data&quot;</li>
+<li>Remove unused props</li>
+<li>Remove default value for required props</li>
+<li>Check usage of methods for lifecycle hooks (createdComponent etc.)</li>
+</ul>
+<h3>2019-04-16: Configuration files</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>For the extraction of a production-ready community edition template, some configuration variables will be moved into the platform.</p>
+<p>The routing configuration has already been moved into the bundles of the platform and they will be registered automatically. You can find the configuration file in the same folder structure like our plugins: <code>Resources/config/route.xml</code></p>
+<p>More configuration files will most likely follow in the near future.</p>
+<h3>2019-04-16: Composer dependencies</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>To ensure every bundle inside our mono-repository can be used standalone, their dependencies in the bundles <code>composer.json</code> must be maintained. Therefore we no longer update the platform's <code>composer.json</code> manually, except for metadata updates.</p>
+<p>There is a new script ran as pre-commit hook, which collects every dependency of the bundles and merges them into the platforms <code>composer.json</code>. If the script notices any difference, you'll get a warning and have to review the changes:</p>
+<blockquote>
+<p>ERROR! The platform composer.json file has changed. Please review your commit and add the changes.</p>
+</blockquote>
+<h3>2019-04-15: Storefront-API is now SalesChannel-API</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>For plausibility reasons we removed the Storefront term from the core bundles and named it SalesChannel. The idea beeing:</p>
+<p>The Core knows about sales channels and exposes an API for SalesChannels. All customer facing applications then connect to this SalesChannel-API.Doesn't matter whether its a fully featured store front, a buy button, something with voice or whatever.</p>
+<p>Therefore:</p>
+<ul>
+<li>All former storefront-controllers now reside in a <code>SalesChannel</code> Namespace as <code>SalesChannel</code> controllers</li>
+<li>The api is now under <code>.../sales-channel-api/...</code></li>
+<li>A test exists to secure this</li>
+</ul>
 <h3>2019-04-11: Roadmap update</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
 
 <p>Here you will find a current overview of the epics that are currently being implemented, which have been completed and which will be implemented next.</p>
 
@@ -77,7 +609,291 @@ These epics are finished</p>
 	<li>Background processes</li>
 </ul>
 
+<h3>2019-04-09: Product table renaming</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>We renamed the following tables as follow:</p>
+<ul>
+<li>product.variatios =&gt; product.options
+<ul>
+<li>Relation between variants and their options which used for the generation.
+*product.configurators =&gt; product.configuratorSettings</li>
+<li>Relation between products and the configurator settings. This table are used for the administration configurator wizard</li>
+</ul></li>
+<li>product.datasheet =&gt; product.properties
+<ul>
+<li>Relation between products and their property options. This options are not related to physical variants with own order numbers</li>
+</ul></li>
+<li>configuration_group =&gt; property_group
+<ul>
+<li>Defines a group for possible options like color, size, ...</li>
+</ul></li>
+<li>configuration_group_option =&gt; property_group_option</li>
+</ul>
+<p>All related api routes and associations are renamed too:</p>
+<ul>
+<li>/api/v1/property-group</li>
+<li>/api/v1/property-group-option</li>
+<li>/api/v1/product/{id}/options</li>
+<li>...</li>
+</ul>
+<p>Detail changes can be found here: <a href="https://github.com/shopware/platform/commit/1d8af890792df21bed13ef94afa1ac684d6d7f7d">https://github.com/shopware/platform/commit/1d8af890792df21bed13ef94afa1ac684d6d7f7d</a></p>
+<h3>2019-04-09: Plugin structure refactoring</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>We made a refactoring of the plugin structure which affect ALL plugins!</p>
+<ul>
+<li>The &quot;type&quot; in the composer.json must now be <code>shopware-platform-plugin</code>. This is necessary to differentiate between Shopware 5 and Shopware platform plugins</li>
+<li>You now have to provide the whole FQN of your plugin base class in the composer.json. Add something like this to the &quot;extra&quot; part of the composer.json: <code>"shopware-plugin-class": "SwagTest\\SwagTest"</code>, The old identifier <code>installer-name</code> is no longer used</li>
+<li>You now have to provide valid autoload information about your plugin with the composer.json:</li>
+</ul>
+<pre><code class="language-json">"autoload": {
+    "psr-4": {
+        "SwagTest\\": ""
+    }
+}</code></pre>
+<p>This give also the opportunity to do something like this:</p>
+<pre><code class="language-json">"autoload": {
+    "psr-4": {
+        "Swag\\Test\\": "src/"
+    }
+}</code></pre>
+<p>Which should really tidy up the root directory of a plugin</p>
+<ul>
+<li>If you want to provide a plugin icon, you have to specify the path of the icon relative to your plugin base class in the composer.json. Add a new field to the &quot;extra&quot; part of the composer.json: <code>"plugin-icon": "Resources/public/plugin.png",</code></li>
+<li>We introduced a default path for the plugin config file. It points to <code>Resources/config/config.xml</code> relative from your plugin base class. So if you put your config there, Shopware will automatically generated a configuration form for your plugin. If you want another path, just overwrite the <code>\Shopware\Core\Framework\Bundle::getConfigPath</code> method</li>
+<li>We introduced some more defaults path which could all be changed by overwriting the appropriate method. The &quot;Resources&quot; directory is always relative to the base class of your plugin
+<ul>
+<li><code>Resources/config/services.xml</code> path to your default services.xml to register your custom services</li>
+<li><code>[Resources/views]</code> Array of views directorys of your plugin</li>
+<li><code>Resources/adminstration</code> the location of your administration files and entry point of extensions of the administration</li>
+<li><code>Resources/storefront</code> same for the storefront</li>
+<li><code>Resources/config/</code> directory which will be used to look for route config files</li>
+</ul></li>
+</ul>
+<p>All in all, the composer.json should contain descriptive information and the plugin base class the runtime configuration</p>
+<h3>2019-04-08: Unique default ids</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>We made all IDs defined in <code>Shopware\Core\Defaults.php</code> unique, so the Ids changed.</p>
+<p>If you experience some problems with logging in to the Admin after rebasing your branch please check the localStorage for the key sw-admin-current-language and delete this key.</p>
+<p>After that it should work as before.</p>
+<h3>2019-04-08: Jest as testing framework (admin)</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>We made the shift from Karma (including Chai, Jasmine and Sinon) to Jest as our primary JavaScript testing framework. Jest provides us with a lot of functionality:</p>
+<ul>
+<li>Snapshot testing using the offical @vue/test-utils tool</li>
+<li>Mocks for ES6 classes, Timers including automatic mocking &amp; clearing</li>
+<li>Spies are part of Jest, we don't need a separate framework anymore</li>
+<li>Running tests in parallel</li>
+<li>Debugging Support using Chrome Inspect</li>
+<li>Code Coverage report using Istanbul with a Clover Report + inline in the terminal</li>
+</ul>
+<p>Documentation links:</p>
+<ul>
+<li>Matchers / expect: <a href="https://jestjs.io/docs/en/expect">https://jestjs.io/docs/en/expect</a></li>
+<li>Vue Test Utils: <a href="https://vue-test-utils.vuejs.org/guides/">https://vue-test-utils.vuejs.org/guides/</a></li>
+</ul>
+<p>The existing tests have been converted to Jest' Matcher API using <a href="https://github.com/skovhus/jest-codemods">https://github.com/skovhus/jest-codemods</a></p>
+<p>The test specs can be found in <code>Administration/Resources/administration/test</code></p>
+<h3>Running tests</h3>
+<pre><code class="language-bash">./psh.phar administration:unit
+./psh.phar administration:unit-watch # Watch mode</code></pre>
+<h3>Snapshot Testing</h3>
+<p><img src="https://jestjs.io/img/content/failedSnapshotTest.png" alt="snapshot testing" /></p>
+<p>Snapshot tests are a very useful tool whenever you want to make sure your UI does not change unexpectedly. It's supported using @vue/test-utils:</p>
+<pre><code class="language-javascript">import { shallowMount } from '@vue/test-utils';
+import swAlert from 'src/app/component/base/sw-alert';
+
+it('should render correctly', () =&gt; {
+    const title = 'Alert title';
+    const message = '&lt;p&gt;Alert message&lt;/p&gt;';
+
+    const wrapper = shallowMount(swAlert, {
+        stubs: ['sw-icon'],
+        props: {
+            title
+        },
+        slots: {
+            default: message
+        }
+    });
+    expect(wrapper.element).toMatchSnapshot();
+});</code></pre>
+<p>Snapshots are specialized files from Jest which are representing the actual DOM structure. If a refactoring changes the DOM structure unintentionally, the test will fail. The developer can either update the snapshot to reflect the new DOM structure when the structure change was intended or fix the structure until the test passes again.</p>
+<h3>Shallow Mounting</h3>
+<p>Please consider prefering shallowMount instead of mount. Shallow mounting a component lets you stub additional components, fill slots, set props etc. Here's the documentation: <a href="https://vue-test-utils.vuejs.org/api/#shallowmount">https://vue-test-utils.vuejs.org/api/#shallowmount</a></p>
+<h3>Vue Router Support</h3>
+<p>If your compomnent is using router-link or router-view, you can simply stub them:</p>
+<pre><code class="language-javascript">import { shallowMount } from '@vue/test-utils'
+
+shallowMount(Component, {
+    stubs: ['router-link', 'router-view']
+});</code></pre>
+<h4>INSTALLING VUE ROUTER FOR A TEST</h4>
+<pre><code class="language-javascript">import { shallowMount, createLocalVue } from '@vue/test-utils'
+import VueRouter from 'vue-router'
+
+const localVue = createLocalVue()
+localVue.use(VueRouter)
+
+shallowMount(Component, {
+    localVue
+});</code></pre>
+<h4>MOCKING $ROUTE</h4>
+<pre><code class="language-javascript">import { shallowMount } from '@vue/test-utils'
+
+const $route = {
+    path: '/some/path'
+};
+
+const wrapper = shallowMount(Component, {
+    mocks: {
+      $route
+    }
+});
+
+console.log(wrapper.vm.$route.path);</code></pre>
+<h4>Triggering events</h4>
+<pre><code class="language-javascript">const wrapper = shallowMount(Component);
+
+wrapper.trigger('click');
+
+// With options
+wrapper.trigger('click', { button: 0 })</code></pre>
+<h3>2019-04-08: Association loading</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>With the latest DAL change, you are no longer able to auto-load <code>toMany</code> associations as they have a huge performance impact. From now on, please enrich your criteria object by adding associations like:</p>
+<pre><code class="language-php">$criteria-&gt;addAssociation('comments');</code></pre>
+<p><strong>Please think about when to load toMany associations and if they are really necessary there.</strong></p>
+<p>Every <code>toOne</code> association will be fetched automatically unless you've disabled it. Some fields like the <code>ParentAssociationField</code> are disabled by default because they may lead to a circular read operation.</p>
+<h3>AssociationInterface</h3>
+<p>The <code>AssociationInterface</code> has been removed in favor of the abstract <code>AssociationField</code> class because there were some useless type-hints in the code and it just feels right now.</p>
+<h3>2019-04-05: Favicons for each module</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>It is now possible to define a favicon for each module in the administration. The favicon, which is just a .png version of the module-icon, is switched dynamically depending on what module is active at the moment. Currently there are 7 favicons that are located in <code>administration/static/img/favicon/modules/</code>.</p>
+<p>When no favicon is defined for the module the default shopware signet is used as a fallback.</p>
+<p>The favicon can be defined in the module registration.</p>
+<pre><code class="language-javascript">Module.register('sw-category', {
+    name: 'Categories',
+    icon: 'default-package-closed',
+    favicon: 'icon-module-products.png'
+});</code></pre>
+<h3>2019-04-05: Renamed CheckoutContext to SalesChannelContext</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>We renamed the <code>CheckoutContext</code> to <code>SalesChannelContext</code> and moved <code>Checkout\Context</code> to `System\SalesChannelConte</p>
+<p>In perspective it is planned to</p>
+<ul>
+<li>move all SalesChannel related classes from <code>Framework</code> to <code>System\SalesChannel</code></li>
+<li>Rename the StoreFront files in the Core to SalesChannel</li>
+<li>Rename the API-Routes</li>
+<li>but keep the Controllers / Services / Repositories in the corresponding domain modules</li>
+</ul>
+<p>As always: <strong>sorry for the inconvenience!</strong></p>
 <h3>2019-04-04: Refactored viewData (Breaking change)</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
 
 <p>We have completely removed the<strong> Entity::viewData </strong>property.</p>
 
@@ -106,10 +922,25 @@ These epics are finished</p>
 <p>This value is initialized for the following routes as follows</p>
 
 <p><strong>/api </strong>Default <strong>false</strong><br />
-<strong>/storefront-api </strong>Default <strong>true</strong><br />
+<strong>/sales-channel-api </strong>Default <strong>true</strong><br />
 <strong>twig-frontend</strong> Default <strong>true</strong></p>
 
 <h3>2019-04-03: Rename product_price_rule to product_price</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
 
 <p>We changed the naming of product_price_rule table and all corresponding php classes, api routes, php properties.</p>
 
@@ -122,7 +953,47 @@ These epics are finished</p>
 	<li>/api/v1/product/{id}/prices</li>
 </ul>
 
+<h3>2019-04-03: LESS has been removed</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
+<ul>
+	<li>LESS has been removed from the administration source code</li>
+	<li>The duplicated LESS base variables are no longer available. Components LESS which uses base variables will not be functional.</li>
+	<li>Please do not use LESS inside core components any longer because it is also no longer supported by the component library.</li>
+	<li>However the package.json dependency has not been completely removed. External plugins should still have the posibility to use LESS. But we will recommend SCSS in our documentation.</li>
+	<li>Some documentation markdown files may still include LESS examples. Those will be edited by the documentation squad soon.</li>
+</ul>
+
 <h3>2019-04-03: Admin scaffolding components</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
 
 <p>With the new data handling, we implemented a list of scaffolding components to prevent boiler plate code and keep data handling as simple as possible.</p>
 
@@ -303,36 +1174,22 @@ A decoration of <strong>sw-multi-select.</strong> This component is mostly used 
 <ul>
 </ul>
 
-<h3>2019-04-03: LESS has been removed</h3>
-
-<ul>
-	<li>LESS has been removed from the administration source code</li>
-	<li>The duplicated LESS base variables are no longer available. Components LESS which uses base variables will not be functional.</li>
-	<li>Please do not use LESS inside core components any longer because it is also no longer supported by the component library.</li>
-	<li>However the package.json dependency has not been completely removed. External plugins should still have the posibility to use LESS. But we will recommend SCSS in our documentation.</li>
-	<li>Some documentation markdown files may still include LESS examples. Those will be edited by the documentation squad soon.</li>
-</ul>
-
-<h3>2019-04-02: Default constants removed</h3>
-
-<p>We removed a ton of constants from our super global <strong>Defaults-object.</strong></p>
-
-<p>Please rebase your branch and run <strong>phpstan</strong> to check that you don&#39;t use any of the removed constants.</p>
-
-<p>If you use some <strong>stateMachineConstants</strong> -&gt;<br />
-They are moved to its own classes:</p>
-
-<p><strong>OrderStates</strong></p>
-
-<ul>
-	<li>Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates</li>
-	<li>Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates</li>
-	<li>Shopware\Core\Checkout\Order\OrderStates</li>
-</ul>
-
-<p>&nbsp;If you used some other constants, you have to replace them by a query to get the correct <strong>Id</strong></p>
-
 <h3>2019-04-02: New admin data handling</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
 
 <p>The new data handling was created to remove the active record pattern in the admininstration. It uses a repository pattern which is strongly based on the DAL from the PHP part.</p>
 
@@ -845,23 +1702,56 @@ Component.register(&#39;sw-show-case-list&#39;, {
     }
 });</pre>
 
-<h3>2019-04-01: Payment handler exception</h3>
+<h3>2019-04-02: Default constants removed</h3>
 
-<p>Payment handler are now able to throw special exceptions if certain error cases occur.</p>
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
+<p>We removed a ton of constants from our super global <strong>Defaults-object.</strong></p>
+
+<p>Please rebase your branch and run <strong>phpstan</strong> to check that you don&#39;t use any of the removed constants.</p>
+
+<p>If you use some <strong>stateMachineConstants</strong> -&gt;<br />
+They are moved to its own classes:</p>
+
+<p><strong>OrderStates</strong></p>
 
 <ul>
-	<li><strong>Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface::pay </strong>should throw the<strong> SyncPaymentProcessException</strong> if something goes wrong.</li>
-	<li>Same for the <strong>Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface::pay</strong> Throw an <strong>AsyncPaymentProcessException</strong> e.g. if a call to an external API fails</li>
-	<li>The finalize method of the <strong>AsynchronousPaymentHandlerInterface</strong> could also throw an <strong>AsyncPaymentFinalizeException</strong>. Additionally it could throw a <strong>CustomerCanceledAsyncPaymentException</strong> if the customer canceled the process on the payment provider page.</li>
+	<li>Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates</li>
+	<li>Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates</li>
+	<li>Shopware\Core\Checkout\Order\OrderStates</li>
 </ul>
 
-<p>In every case, Shopware catches these exceptions and set the transaction state to <strong>canceled</strong> before the exceptions are thrown again. So a caller of the Shopware pay API route will get an exception message, if something goes wrong during the payment process and could react accordingly.</p>
-
-<p>Soonish it will be possible to transform the order into a cart again and let the customer update the payment method or something like that. Afterwards the order will be updatet und persisted again.</p>
-
-<p>Have a look at the <a href="https://github.com/shopware/platform/blob/master/src/Docs/_new/4-how-to/010-payment-plugin.md">Docs</a> or at our <a href="https://github.com/shopwareLabs/SwagPayPal/blob/master/Core/Checkout/Payment/Cart/PaymentHandler/PayPalPayment.php">PayPal Plugin</a> for examples</p>
+<p>&nbsp;If you used some other constants, you have to replace them by a query to get the correct <strong>Id</strong></p>
 
 <h3>2019-04-01: sw-icon update</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
 
 <p>The icon system in the administration has been updated.</p>
 
@@ -905,9 +1795,55 @@ The icon bug in Google Chrome has been fixed. The SVG&#39;s source code is now d
 	<li>No extra repository required</li>
 </ul>
 
+<h3>2019-04-01: Payment handler exception</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
+<p>Payment handler are now able to throw special exceptions if certain error cases occur.</p>
+
+<ul>
+	<li><strong>Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface::pay </strong>should throw the<strong> SyncPaymentProcessException</strong> if something goes wrong.</li>
+	<li>Same for the <strong>Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface::pay</strong> Throw an <strong>AsyncPaymentProcessException</strong> e.g. if a call to an external API fails</li>
+	<li>The finalize method of the <strong>AsynchronousPaymentHandlerInterface</strong> could also throw an <strong>AsyncPaymentFinalizeException</strong>. Additionally it could throw a <strong>CustomerCanceledAsyncPaymentException</strong> if the customer canceled the process on the payment provider page.</li>
+</ul>
+
+<p>In every case, Shopware catches these exceptions and set the transaction state to <strong>canceled</strong> before the exceptions are thrown again. So a caller of the Shopware pay API route will get an exception message, if something goes wrong during the payment process and could react accordingly.</p>
+
+<p>Soonish it will be possible to transform the order into a cart again and let the customer update the payment method or something like that. Afterwards the order will be updatet und persisted again.</p>
+
+<p>Have a look at the <a href="https://github.com/shopware/platform/blob/master/src/Docs/_new/4-how-to/010-payment-plugin.md">Docs</a> or at our <a href="https://github.com/shopwareLabs/SwagPayPal/blob/master/Core/Checkout/Payment/Cart/PaymentHandler/PayPalPayment.php">PayPal Plugin</a> for examples</p>
+
 <h2>March 2019</h2>
 
 <h3>2019-03-29: Exception Locations</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
 
 <p>Just removed the last of the global exceptions. From now on, please move custom exceptions into the <strong>module that throws it.</strong></p>
 
@@ -932,6 +1868,21 @@ In Perspective all Exception will move to a <strong>\Exception</strong> Folder, 
 
 <h3>2019-03-29: Backend UUID</h3>
 
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
 <p>The Uuid class was moved from <strong>FrameworkStruct\Uuid </strong>to<strong> Framework\Uuid\Uuid </strong>please adjust your branches.</p>
 
 <p><strong>Changes:</strong></p>
@@ -947,41 +1898,22 @@ Backwards Compatibility:</p>
 
 <p>You can still use the old class, but it is deprecated and will be removed next week.</p>
 
-<h3>2019-03-28: Payment refactoring</h3>
-
-<p>We deleted the entity properties:</p>
-
-<ul>
-	<li>template</li>
-	<li>class</li>
-	<li>percentageSurcharge</li>
-	<li>absoluteSurcharge</li>
-	<li>surchargeText</li>
-</ul>
-
-<p>and renamed the <strong>technicalName</strong> to <strong>handlerIdentifier</strong>, which isn&acute;t unique anymore.</p>
-
-<p>The <strong>handlerIdentifier</strong> is only internal and can not be written by the API. It contains the class of the identifier. If a plugin is created via the admin, the <strong>Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DefaultPayment</strong> handler will be choosed.</p>
-
-<p>Also we divided the <strong>PaymentHandlerInterface</strong> into two payment handler interfaces:</p>
-
-<ul>
-	<li>AsynchronousPaymentHandlerInterface</li>
-	<li>SynchronousPaymentHandlerInterface</li>
-</ul>
-
-<p>and also added the two new structs:</p>
-
-<ul>
-	<li>AsyncPaymentTransactionStruct</li>
-	<li>SyncPaymentTransactionStruct</li>
-</ul>
-
-<p>The <strong>AsynchronousPaymentHandlerInterface</strong> has a <strong>finalize</strong> Method and the <strong>pay</strong> Method returns a <strong>RedirectResponse</strong>. In the <strong>SynchronousPaymentHandlerInterface</strong> we only have the <strong>pay</strong> Methods wich has no return.</p>
-
-<p>Another change is a decoration of the payment repository which prevents to delete a plugin payment via API. Payments without a plugin id can be deleted via API. For plugin payments deletions, the plugin itself has to use the new method <strong>internalDelete</strong>, which uses the normal undecorated delete method without restrictions.</p>
-
 <h3>2019-03-28: Validation / input validation</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
 
 <p><strong>#1 Request / Query data</strong><br />
 Request data from either the body (POST) or from the query string (GET) is now wrapped in a <strong>DataBag</strong>. It&#39;s an extension to Symfony&#39;s <strong>ParameterBag</strong> with some sugar for arrays. This allows you to access nested arrays more fluently:</p>
@@ -1049,7 +1981,71 @@ $mapped = $mappingEvent-&gt;getOutput();</pre>
 <p><br />
 The $mapped variable will then be passed to the DAL repository.</p>
 
+<h3>2019-03-28: Payment refactoring</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
+<p>We deleted the entity properties:</p>
+
+<ul>
+	<li>template</li>
+	<li>class</li>
+	<li>percentageSurcharge</li>
+	<li>absoluteSurcharge</li>
+	<li>surchargeText</li>
+</ul>
+
+<p>and renamed the <strong>technicalName</strong> to <strong>handlerIdentifier</strong>, which isn&acute;t unique anymore.</p>
+
+<p>The <strong>handlerIdentifier</strong> is only internal and can not be written by the API. It contains the class of the identifier. If a plugin is created via the admin, the <strong>Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DefaultPayment</strong> handler will be choosed.</p>
+
+<p>Also we divided the <strong>PaymentHandlerInterface</strong> into two payment handler interfaces:</p>
+
+<ul>
+	<li>AsynchronousPaymentHandlerInterface</li>
+	<li>SynchronousPaymentHandlerInterface</li>
+</ul>
+
+<p>and also added the two new structs:</p>
+
+<ul>
+	<li>AsyncPaymentTransactionStruct</li>
+	<li>SyncPaymentTransactionStruct</li>
+</ul>
+
+<p>The <strong>AsynchronousPaymentHandlerInterface</strong> has a <strong>finalize</strong> Method and the <strong>pay</strong> Method returns a <strong>RedirectResponse</strong>. In the <strong>SynchronousPaymentHandlerInterface</strong> we only have the <strong>pay</strong> Methods wich has no return.</p>
+
+<p>Another change is a decoration of the payment repository which prevents to delete a plugin payment via API. Payments without a plugin id can be deleted via API. For plugin payments deletions, the plugin itself has to use the new method <strong>internalDelete</strong>, which uses the normal undecorated delete method without restrictions.</p>
+
 <h3>2019-03-28: Exception conventions</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
 
 <p><strong>Error codes</strong><br />
 Exceptions are not translated when they are thrown. There there must be an identifier to translate them in the clients. Every exception in Shopware should implement <strong>ShopwareException</strong> or better extend from <strong>ShopwareHttpException</strong>. The interface now requires an getErrorCode() method, which returns an unique identifier for this exception.</p>
@@ -1069,6 +2065,21 @@ parent::__construct(
 
 <h3>2019-03-27: BC: SourceContext removed</h3>
 
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
 <p>We&#39;ve removed the <strong>SourceContext</strong> as it was global mutable State.</p>
 
 <p>Now the <strong>Context</strong> has a <strong>Source</strong>, that is either a <strong>SystemSource</strong>, <strong>AdminApiSource</strong> or <strong>SalesChannelSource</strong>.</p>
@@ -1079,21 +2090,41 @@ parent::__construct(
 
 <h3>2019-03-27: Plugin system: New flag managed_by_composer on plugin table</h3>
 
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
 <p>The entity for plugins got a new boolean field <strong>managedByComposer</strong> which determines if a plugin is required with composer. The field is set during <strong>bin/console plugin:refresh</strong></p>
 
 <p>So if you are currently developing or working with plugins you might need to recreate your database.</p>
 
-<h3>2019-03-20: !!! Public admin component library available !!!</h3>
-
-<p>The component library is now public on <a href="https://component-library.shopware.com">https://component-library.shopware.com</a> !</p>
-
-<h3>2019-03-20: PaymentMethodEntity changed</h3>
-
-<p>We changed the properties of <strong>src/Core/Checkout/Payment/PaymentMethodEntity.php</strong> from <strong>additionalDescription</strong> to <strong>description</strong> and <strong>surcharge_string</strong> to <strong>surcharge_text</strong>. <strong>surcharge_text</strong> is also now translateable.</p>
-
-<p>Further changes of the <strong>PaymentHandler</strong> and the <strong>PaymentMethodEntity</strong> are in development.</p>
-
 <h3>2019-03-20: PaymentTransactionStruct changed</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
 
 <p>We changed the contents of the <strong>\Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct</strong></p>
 
@@ -1101,7 +2132,62 @@ parent::__construct(
 
 <p>Due to this change, you need to adjust your PaymentHandler. Have a look at our PayPal plugins which changes are necessary: <a href="https://github.com/shopwareLabs/SwagPayPal/commit/af5532361be7d0d54c055896a340ee7574df2d66">https://github.com/shopwareLabs/SwagPayPal/commit/af5532361be7d0d54c055896a340ee7574df2d66</a></p>
 
+<h3>2019-03-20: PaymentMethodEntity changed</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
+<p>We changed the properties of <strong>src/Core/Checkout/Payment/PaymentMethodEntity.php</strong> from <strong>additionalDescription</strong> to <strong>description</strong> and <strong>surcharge_string</strong> to <strong>surcharge_text</strong>. <strong>surcharge_text</strong> is also now translateable.</p>
+
+<p>Further changes of the <strong>PaymentHandler</strong> and the <strong>PaymentMethodEntity</strong> are in development.</p>
+
+<h3>2019-03-20: !!! Public admin component library available !!!</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
+<p>The component library is now public on <a href="https://component-library.shopware.com">https://component-library.shopware.com</a> !</p>
+
 <h3>2019-03-20: Major issues fixed in admin data handling</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
 
 <p>We fixed two issues in the current data handling of the administration.</p>
 
@@ -1132,6 +2218,21 @@ product = {
 
 <h3>2019-03-19: First plugin-manager version</h3>
 
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
 <p>The first Plugin-Manager version is now merged, but it&#39;s behind the <strong>NEXT-1223</strong> feature flag.</p>
 
 <p>Before you can use the Plugin-Manager, you have to set your host in the shopware.yml file. Additionally, you have to change the Framework Version in Framework.php to a version that the SBP knows.</p>
@@ -1159,6 +2260,21 @@ product = {
 
 <h3>2019-03-14: sw-tree refactoring</h3>
 
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
 <p>The <strong>sw-tree</strong> was refactored again, due to the changing of the sorting.</p>
 
 <p>To use the tree, each item should have an <strong>afterIdProperty</strong> which should contain the id of the element which is before the current item.</p>
@@ -1177,60 +2293,22 @@ product = {
 
 <p>A visual example can be found in the <strong>sw-category-tree</strong></p>
 
-<h3>2019-03-12: Number ranges added</h3>
-
-<p>We implemented a configurable number range.</p>
-
-<p>Number ranges are defined unique identifiers for specific entities.</p>
-
-<p>The new NumberRangeValueGenerator is used to generate a unique identifier for a given entity with a given configuration.</p>
-
-<p>The configuration will be provided in the administration where you can provide a pattern for a specific entity in a specific sales channel.</p>
-
-<p>You can reserve a new value for a number range by calling the route /api/v1/number-range/reserve/{entity}/{salesChannelId} with the name of the entity like product or order and, for sales channel dependent number ranges, also the salesChannelId</p>
-
-<p>In-Code reservation of a new value for a number range can be done by using the NumberRangeValueGenerator method getValue(string $definition, Context $context, ?string $salesChannelId) directly.</p>
-
-<p><strong>PATTERNS</strong><br />
-Build-In patterns are the following:</p>
-
-<p>increment(&#39;n&#39;): Generates a consecutive number, the value to start with can be defined in the configuration</p>
-
-<p>date(&#39;date&#39;,&#39;date_ymd&#39;): Generates the date by time of generation. The standard format is &#39;y-m-d&#39;. The format can be overwritten by passing the format as part of the pattern. The pattern date_ymd generates a date in the Format 190231. This pattern accepts a PHP Dateformat-String</p>
-
-<p><strong>PATTERN EXAMPLE</strong><br />
-Order{date_dmy}_{n} will generate a value like Order310219_5489</p>
-
-<p><strong>ValueGeneratorPattern</strong></p>
-
-<p>The ValueGeneratorPattern is a resolver for a part of the whole pattern configured for a given number range.</p>
-
-<p>The build-in patterns mentioned above have a corresponding pattern resolver which is responsible for resolving the pattern to the correct value.</p>
-
-<p>A ValueGeneratorPattern can easily be added to extend the possibilities for specific requirements.</p>
-
-<p>You only need to derive a class from ValueGeneratorPattern and implement your custom rules to the resolve-method.</p>
-
-<p><strong>IncrementConnector</strong><br />
-<br />
-The increment pattern is somewhat special because it needs to communicate with a persistence layer in some way.</p>
-
-<p>The IncrementConnector allows you to overwrite the connection interface for the increment pattern to switch to a more perfomant solution for this specific task.</p>
-
-<p>If you want to overwrite the IncrementConnector you have to implement the IncrementConnectorInterface in your new connector class and register your new class with the id of the interface.</p>
-
-<p>&nbsp;</p>
-
-<pre>
-&lt;service class=&quot;MyNewIncrementConnector&quot; id=&quot;Shopware\Core\System\NumberRange\ValueGenerator\IncrementConnectorInterface&quot;&gt;
-&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&lt;tag name=&quot;shopware.value_generator_connector&quot;/&gt;
-&lt;/service&gt;</pre>
-
-<h3>2019-03-12: Details column removed from OrderTransaction</h3>
-
-<p>We removed the details column from the order_transaction table. It was introduced in the past, to store additional data to the transaction, e.g. from external payment providers. This is now unnecessary since the introduction of the attribute field. If you stored data to the details field, create a new attribute and store the data in this attribute field. An example migration could be found in our <a href="https://github.com/shopwareLabs/SwagPayPal/commit/a09beec33c5ebe8247d259e970dfcc09ee9c8f13">PayPal integration</a></p>
-
 <h3>2019-03-12: Updates for upload handling</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
 
 <p>In order to react to upload events and errors globally, we made some changes how uploads are stored and run.</p>
 
@@ -1310,7 +2388,105 @@ function myListener({action, uploadTag, payload }) {...}</pre>
 
 <p>The action and payload is similar to the vue.js event name and $event data described above.</p>
 
+<h3>2019-03-12: Number ranges added</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
+<p>We implemented a configurable number range.</p>
+
+<p>Number ranges are defined unique identifiers for specific entities.</p>
+
+<p>The new NumberRangeValueGenerator is used to generate a unique identifier for a given entity with a given configuration.</p>
+
+<p>The configuration will be provided in the administration where you can provide a pattern for a specific entity in a specific sales channel.</p>
+
+<p>You can reserve a new value for a number range by calling the route /api/v1/number-range/reserve/{entity}/{salesChannelId} with the name of the entity like product or order and, for sales channel dependent number ranges, also the salesChannelId</p>
+
+<p>In-Code reservation of a new value for a number range can be done by using the NumberRangeValueGenerator method getValue(string $definition, Context $context, ?string $salesChannelId) directly.</p>
+
+<p><strong>PATTERNS</strong><br />
+Build-In patterns are the following:</p>
+
+<p>increment(&#39;n&#39;): Generates a consecutive number, the value to start with can be defined in the configuration</p>
+
+<p>date(&#39;date&#39;,&#39;date_ymd&#39;): Generates the date by time of generation. The standard format is &#39;y-m-d&#39;. The format can be overwritten by passing the format as part of the pattern. The pattern date_ymd generates a date in the Format 190231. This pattern accepts a PHP Dateformat-String</p>
+
+<p><strong>PATTERN EXAMPLE</strong><br />
+Order{date_dmy}_{n} will generate a value like Order310219_5489</p>
+
+<p><strong>ValueGeneratorPattern</strong></p>
+
+<p>The ValueGeneratorPattern is a resolver for a part of the whole pattern configured for a given number range.</p>
+
+<p>The build-in patterns mentioned above have a corresponding pattern resolver which is responsible for resolving the pattern to the correct value.</p>
+
+<p>A ValueGeneratorPattern can easily be added to extend the possibilities for specific requirements.</p>
+
+<p>You only need to derive a class from ValueGeneratorPattern and implement your custom rules to the resolve-method.</p>
+
+<p><strong>IncrementConnector</strong><br />
+<br />
+The increment pattern is somewhat special because it needs to communicate with a persistence layer in some way.</p>
+
+<p>The IncrementConnector allows you to overwrite the connection interface for the increment pattern to switch to a more perfomant solution for this specific task.</p>
+
+<p>If you want to overwrite the IncrementConnector you have to implement the IncrementConnectorInterface in your new connector class and register your new class with the id of the interface.</p>
+
+<p>&nbsp;</p>
+
+<pre>
+&lt;service class=&quot;MyNewIncrementConnector&quot; id=&quot;Shopware\Core\System\NumberRange\ValueGenerator\IncrementConnectorInterface&quot;&gt;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&lt;tag name=&quot;shopware.value_generator_connector&quot;/&gt;
+&lt;/service&gt;</pre>
+
+<h3>2019-03-12: Details column removed from OrderTransaction</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
+<p>We removed the details column from the order_transaction table. It was introduced in the past, to store additional data to the transaction, e.g. from external payment providers. This is now unnecessary since the introduction of the attribute field. If you stored data to the details field, create a new attribute and store the data in this attribute field. An example migration could be found in our <a href="https://github.com/shopwareLabs/SwagPayPal/commit/a09beec33c5ebe8247d259e970dfcc09ee9c8f13">PayPal integration</a></p>
+
 <h3>2019-03-11: sw-data-grid update</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
 
 <ul>
 	<li>The prop &quot;identifier&quot; is no longer required. When no identifier is set the grid will not save any settings to the localStorage.</li>
@@ -1319,9 +2495,22 @@ function myListener({action, uploadTag, payload }) {...}</pre>
 	<li>Accidental sorting when doing a column resize should now be fixed.</li>
 </ul>
 
-<p>&nbsp;</p>
-
 <h3>2019-03-11: New component sw-data-grid</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
 
 <p>The sw-data-grid is a new component to render tables with data. It works similar to the sw-grid component but it has some additional features like hiding columns or scrolling horizontally.</p>
 
@@ -1526,6 +2715,21 @@ Every column creates a dynamic slot in which you can put custom HTML. This dynam
 
 <h3>2019-03-08: Module specific snippets</h3>
 
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
 <p>We had the problem that our two big snippets files for the administration caused a bunch of merge conflicts in the past.</p>
 
 <p>Now it&#39;s possible to register module specific snippets, e.g. each module can have their own snippet files.</p>
@@ -1556,35 +2760,22 @@ Module.register(&#39;sw-configuration&#39;, {
 
 <p>The usage inside components and component templates haven&#39;t changed.</p>
 
-<h3>2019-03-06: AttributesField</h3>
+<h3>2019-03-06: JsonField-Serializer changes</h3>
 
-<p>We added an easy way to add custom attributes to entities. The AttributesField is like the JsonField only dynamically typed. To save attributes to entities you first have to define the attribute:</p>
+<style type="text/css">
 
-<pre>
-$attributesRepository-&gt;create([[
-&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;id&#39; =&gt; &#39;&lt;uuid&gt;&#39;,
-&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;name&#39; =&gt; &#39;sw_test_float&#39;,
-&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;type&#39; =&gt; AttributeType::Float,
-&nbsp;&nbsp; &nbsp;]],
-&nbsp;&nbsp; &nbsp;$context
-);
-</pre>
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
 
-<p>Then you can save it like a normal json field</p>
+dl dd {
+    padding-left: 2rem;
+}
 
-<pre>
-$entityRepository-&gt;update([[
-&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;id&#39; =&gt; &#39;&lt;entity id&#39;&gt;&#39;,
-&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;attributes&#39; =&gt; [
-&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;sw_test_float&#39; =&gt; 10.1
-&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;]
-&nbsp;&nbsp; &nbsp;]],
-&nbsp;&nbsp; &nbsp;$context
-);</pre>
+</style>
 
-<p>Unlike the JsonField, the AttributesField patchs the data instead of replacing it completely. So you dont need to send the whole object to update one property.</p>
 
-<h3>2019-03-06: JsonField(-Serializer) changes</h3>
 
 <p>It&#39;s already possible to define types for the values in the json object by passing an array of Fields into propertyMapping. The values are then validated and encoded by the corresponding FieldSerializer.</p>
 
@@ -1619,7 +2810,65 @@ props: {
 &nbsp; &nbsp; }
 }</pre>
 
+<h3>2019-03-06: AttributesField</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
+<p>We added an easy way to add custom attributes to entities. The AttributesField is like the JsonField only dynamically typed. To save attributes to entities you first have to define the attribute:</p>
+
+<pre>
+$attributesRepository-&gt;create([[
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;id&#39; =&gt; &#39;&lt;uuid&gt;&#39;,
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;name&#39; =&gt; &#39;sw_test_float&#39;,
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;type&#39; =&gt; AttributeType::Float,
+&nbsp;&nbsp; &nbsp;]],
+&nbsp;&nbsp; &nbsp;$context
+);
+</pre>
+
+<p>Then you can save it like a normal json field</p>
+
+<pre>
+$entityRepository-&gt;update([[
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;id&#39; =&gt; &#39;&lt;entity id&#39;&gt;&#39;,
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;attributes&#39; =&gt; [
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;sw_test_float&#39; =&gt; 10.1
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;]
+&nbsp;&nbsp; &nbsp;]],
+&nbsp;&nbsp; &nbsp;$context
+);</pre>
+
+<p>Unlike the JsonField, the AttributesField patchs the data instead of replacing it completely. So you dont need to send the whole object to update one property.</p>
+
 <h3>2019-03-05: New tab component</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
 
 <p>The new tab component got a redesign. It supports now horizontal and vertical mode. The vertical mode looks and works like the side-navigation component. This is the reason why it was replaced with this component. You can switch between a left and right alignment.</p>
 
@@ -1639,7 +2888,44 @@ props: {
 &lt;/sw-tabs&gt;
 </pre>
 
+<h3>2019-03-01: NPM dependency</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+
+<p>Recently we used an npm feature (clean-install) which is available since version 6.5.0</p>
+
+<p>We already updated the docs accordingly, but the npm dependency in the package.json was still wrong. this is fixed now. so please check the npm version on your machine!</p>
+
+
 <h3>2019-03-01: New code style fixer rules</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
 
 <p>We added the following new rules to our coding style rule set</p>
 
@@ -1657,13 +2943,22 @@ props: {
 
 <p>Additionally the option &quot;allow-risky&quot; is now part of the php_cs.dist config. So it is not necessary anymore to call the cs-fixer with the &quot;&ndash;allow-risky&quot; parameter</p>
 
-<h3>2019-03-01: NPM dependency</h3>
-
-<p>Recently we used an npm feature (clean-install) which is available since version 6.5.0</p>
-
-<p>We already updated the docs accordingly, but the npm dependency in the package.json was still wrong. this is fixed now. so please check the npm version on your machine!</p>
-
 <h3>2019-03-01: Breaking change -&nbsp;GroupBy-Aggregations</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
 
 <p>It is now possible to group aggregations by the value of given fields. Just like GROUP BY in SQL works.</p>
 
@@ -2343,7 +3638,7 @@ These epics are planned as the very next one</p>
 <ul>
 	<li>Products</li>
 	<li>Variants / Properties</li>
-	<li>Storefront API / Page, Pagelets</li>
+	<li>SalesChannel API / Page, Pagelets</li>
 	<li>Order</li>
 	<li>CMS</li>
 	<li>Categories</li>
@@ -2849,9 +4144,4 @@ class OrderStateTranslationDefinition extends EntityTranslationDefinition
 		<li>Have a look here, how it have to look like: src/Docs/60-plugin-system/05-plugin-information.md</li>
 	</ul>
 	</li>
-</ul>
-
-<h3>&nbsp;</h3>
-
-<ul>
 </ul>

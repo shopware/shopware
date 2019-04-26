@@ -115,7 +115,10 @@ export default {
                 };
             }
 
-            const nameLength = this.firstName.length + this.lastName.length;
+            const firstNameLength = this.firstName ? this.firstName.length : 0;
+            const lastNameLength = this.lastName ? this.lastName.length : 0;
+
+            const nameLength = firstNameLength + lastNameLength;
             const color = colors[nameLength % colors.length];
 
             return {

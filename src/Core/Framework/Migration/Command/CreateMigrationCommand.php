@@ -84,7 +84,7 @@ class CreateMigrationCommand extends Command
         $this->createMigrationFile($name, $output, $directory, $namespace);
     }
 
-    protected function createMigrationFile(string $name, OutputInterface $output, string $directory, string $namespace): void
+    private function createMigrationFile(string $name, OutputInterface $output, string $directory, string $namespace): void
     {
         if (!preg_match('/^[a-zA-Z0-9\_]*$/', $name)) {
             throw new \InvalidArgumentException('Migrationname contains forbidden characters!');

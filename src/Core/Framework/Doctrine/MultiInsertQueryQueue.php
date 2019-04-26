@@ -10,22 +10,23 @@ class MultiInsertQueryQueue
     /**
      * @var array[]
      */
-    protected $inserts = [];
+    private $inserts = [];
 
     /**
      * @var Connection
      */
-    protected $connection;
+    private $connection;
 
     /**
      * @var int
      */
-    protected $chunkSize;
+    private $chunkSize;
 
     /**
      * @var bool
      */
-    protected $ignoreErrors;
+    private $ignoreErrors;
+
     /**
      * @var bool
      */

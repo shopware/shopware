@@ -26,8 +26,8 @@ class Migration1536233100MediaDefaultFolder extends MigrationStep
               PRIMARY KEY (`id`),
               UNIQUE KEY `uniq.entity` (`entity`),
               UNIQUE KEY `uniq.media_folder_id` (`media_folder_id`),
-              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
-              CONSTRAINT `json.association_fields` CHECK (JSON_VALID(`association_fields`)),
+              CONSTRAINT `json.media_default_folder.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.media_default_folder.association_fields` CHECK (JSON_VALID(`association_fields`)),
               CONSTRAINT `fk.media_default_folder.media_folder_id` FOREIGN KEY (`media_folder_id`) 
                 REFERENCES `media_folder` (`id`) ON DELETE SET NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

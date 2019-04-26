@@ -12,27 +12,27 @@ class Processor
     /**
      * @var Calculator
      */
-    protected $calculator;
+    private $calculator;
 
     /**
      * @var DeliveryProcessor
      */
-    protected $deliveryProcessor;
+    private $deliveryProcessor;
 
     /**
      * @var Validator
      */
-    protected $validator;
+    private $validator;
 
     /**
      * @var AmountCalculator
      */
-    protected $amountCalculator;
+    private $amountCalculator;
 
     /**
      * @var TransactionProcessor
      */
-    protected $transactionProcessor;
+    private $transactionProcessor;
 
     public function __construct(
         Calculator $calculator,
@@ -56,7 +56,6 @@ class Processor
         $cart->setLineItems(
             $this->calculator->calculate($original, $context, $behavior)
         );
-
         //add line items to deliveries and calculate deliveries
         $cart->setDeliveries(
             $this->deliveryProcessor->process(

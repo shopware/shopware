@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Attribute;
 
 use Shopware\Core\Framework\Attribute\Aggregate\AttributeSet\AttributeSetDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -38,7 +39,9 @@ class AttributeDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->addFlags(new Required()),
             (new StringField('type', 'type'))->addFlags(new Required()),
-            new JsonField('config', 'config'),
+            new JsonField('config', 'config', [], []),
+
+            new BoolField('active', 'active'),
 
             new FkField('set_id', 'attributeSetId', AttributeSetDefinition::class),
             new ManyToOneAssociationField('attributeSet', 'set_id', AttributeSetDefinition::class, 'id', false),

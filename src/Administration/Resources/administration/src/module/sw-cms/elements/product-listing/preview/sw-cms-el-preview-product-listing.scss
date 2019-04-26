@@ -1,14 +1,31 @@
 @import "~scss/variables";
 
 .sw-cms-el-preview-product-listing {
-    min-height: 200px;
-    padding: 10px;
     display: grid;
-    align-items: center;
-    align-content: center;
-    justify-items: center;
-    justify-content: center;
-    background: $color-light-gray;
-    border: 1px dashed $color-steam-cloud;
-    border-radius: 4px;
+    justify-items: start;
+    justify-content: stretch;
+    align-items: start;
+    align-content: stretch;
+    grid-template-columns: 60px 1fr 1fr;
+    grid-gap: 10px;
+    height: 100%;
+
+    .sw-cms-el-preview-product-listing__filter-panel {
+        width: 100%;
+        padding: 5px;
+        background: $color-light-gray;
+        border: 1px solid $color-steam-cloud;
+        border-radius: 3px;
+    }
+
+    .sw-cms-el-preview-product-listing__filter {
+        height: 12px;
+        margin-bottom: 8px;
+        background: $color-steam-cloud;
+        border-radius: 3px;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
 }

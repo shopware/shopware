@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin\Struct;
 
-use Composer\Package\RootPackageInterface;
+use Composer\Package\CompletePackageInterface;
 use Shopware\Core\Framework\Struct\Struct;
 
 class PluginFromFileSystemStruct extends Struct
@@ -23,7 +23,7 @@ class PluginFromFileSystemStruct extends Struct
     protected $managedByComposer;
 
     /**
-     * @var RootPackageInterface
+     * @var CompletePackageInterface
      */
     protected $composerPackage;
 
@@ -42,7 +42,7 @@ class PluginFromFileSystemStruct extends Struct
         return $this->managedByComposer;
     }
 
-    public function getComposerPackage(): RootPackageInterface
+    public function getComposerPackage(): CompletePackageInterface
     {
         return $this->composerPackage;
     }

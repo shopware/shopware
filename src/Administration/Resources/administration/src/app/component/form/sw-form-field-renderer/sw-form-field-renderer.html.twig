@@ -1,5 +1,5 @@
 {% block sw_form_field_renderer %}
-    <component v-bind:is="component"
+    <component v-bind:is="currentComponentName"
                v-bind="bind"
                ref="component"
                v-model="currentValue">

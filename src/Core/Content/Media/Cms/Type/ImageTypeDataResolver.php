@@ -65,11 +65,13 @@ class ImageTypeDataResolver extends TypeDataResolver
     private function addMediaEntity(CmsSlotEntity $slot, ImageStruct $image, SlotDataResolveResult $result, FieldConfig $config, ResolverContext $resolverContext): void
     {
         if ($config->isMapped() && $resolverContext instanceof EntityResolverContext) {
-            /** @var MediaEntity $media */
+            /** @var MediaEntity|null $media */
             $media = $this->resolveEntityValue($resolverContext->getEntity(), $config->getValue());
 
-            $image->setMediaId($media->getUniqueIdentifier());
-            $image->setMedia($media);
+            if ($media !== null) {
+                $image->setMediaId($media->getUniqueIdentifier());
+                $image->setMedia($media);
+            }
         }
 
         if ($config->isStatic()) {

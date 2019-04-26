@@ -18,13 +18,13 @@ class Migration1552555409PromotionDiscount extends MigrationStep
         CREATE TABLE IF NOT EXISTS `promotion_discount` (
           `id` BINARY(16) NOT NULL,
           `promotion_id` BINARY(16) NOT NULL,
+          `scope` VARCHAR(32) NOT NULL,
           `type` VARCHAR(32) NOT NULL,
           `value` DOUBLE NOT NULL,
           `graduated` TINYINT(1) NOT NULL DEFAULT 0,
           `graduation_step` INT NULL,
           `graduation_order` VARCHAR(32) NULL,
-          `apply_towards` VARCHAR(32) NOT NULL,
-          PRIMARY KEY (`promotion_id`),
+          PRIMARY KEY (`id`),
           INDEX `idx.promotion_discount.promotion_id` (`promotion_id` ASC),
           CONSTRAINT `fk.promotion_discount.promotion_id`
             FOREIGN KEY (`promotion_id`)

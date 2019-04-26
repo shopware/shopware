@@ -74,7 +74,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Rule\LineItemOfTypeRule;
 use Shopware\Core\Content\Product\Cart\ProductCollector;
 
-$productRule = (new LineItemOfTypeRule())->assign(['lineItemType' => ProductCollector::LINE_ITEM_TYPE]);
+$productRule = (new LineItemOfTypeRule())->assign(['lineItemType' => LineItem::PRODUCT_LINE_ITEM_TYPE]);
 $priceDefinition = new PercentagePriceDefinition(10, $productRule);
 ```
 Example: Restrict surcharge to products.

@@ -57,7 +57,7 @@ class DeliveryBuilder
             );
 
             //completely in stock?
-            if ($item->getDeliveryInformation()->getAvailableStock() >= $quantity || $allowSplitting === false) {
+            if ($allowSplitting === false || $item->getDeliveryInformation()->getAvailableStock() >= $quantity) {
                 $this->addGoodsToDelivery(
                     $deliveries,
                     $position,

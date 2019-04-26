@@ -26,32 +26,32 @@ class EntityRepository implements EntityRepositoryInterface
     /**
      * @var EntityReaderInterface
      */
-    protected $reader;
+    private $reader;
 
     /**
      * @var EntitySearcherInterface
      */
-    protected $searcher;
+    private $searcher;
 
     /**
      * @var EntityAggregatorInterface
      */
-    protected $aggregator;
+    private $aggregator;
 
     /**
      * @var EventDispatcherInterface
      */
-    protected $eventDispatcher;
+    private $eventDispatcher;
 
     /**
      * @var VersionManager
      */
-    protected $versionManager;
+    private $versionManager;
 
     /**
      * @var string|EntityDefinition
      */
-    protected $definition;
+    private $definition;
 
     public function __construct(
         string $definition,

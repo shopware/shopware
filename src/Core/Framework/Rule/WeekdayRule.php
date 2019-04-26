@@ -19,9 +19,12 @@ class WeekdayRule extends Rule
      */
     protected $dayOfWeek;
 
-    public function __construct()
+    public function __construct(string $operator = self::OPERATOR_EQ, ?int $dayOfWeek = null)
     {
-        $this->operator = self::OPERATOR_EQ;
+        parent::__construct();
+
+        $this->operator = $operator;
+        $this->dayOfWeek = $dayOfWeek;
     }
 
     public function getName(): string

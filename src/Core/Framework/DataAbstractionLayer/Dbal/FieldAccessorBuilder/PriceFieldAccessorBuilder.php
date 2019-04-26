@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
@@ -26,6 +27,11 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
          *
          * We can indirectly cast to float by adding 0.0
          */
-        return sprintf('(JSON_UNQUOTE(JSON_EXTRACT(`%s`.`%s`, "$.%s")) + 0.0)', $root, $field->getStorageName(), $jsonAccessor);
+        $currencyFactor = '+ 0.0';
+        if ($context->getCurrencyId() !== Defaults::CURRENCY) {
+            $currencyFactor = sprintf('* %F', $context->getCurrencyFactor());
+        }
+
+        return sprintf('(JSON_UNQUOTE(JSON_EXTRACT(`%s`.`%s`, "$.%s")) %s)', $root, $field->getStorageName(), $jsonAccessor, $currencyFactor);
     }
 }

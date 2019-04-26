@@ -14,7 +14,7 @@ class DeleteNotUsedMediaService
     /**
      * @var EntityRepositoryInterface
      */
-    protected $mediaRepo;
+    private $mediaRepo;
 
     /**
      * @var EntityRepositoryInterface
@@ -47,7 +47,7 @@ class DeleteNotUsedMediaService
         $this->mediaRepo->delete($ids, $context);
     }
 
-    protected function createFilterForNotUsedMedia(Context $context): Criteria
+    private function createFilterForNotUsedMedia(Context $context): Criteria
     {
         $criteria = new Criteria();
         $iterator = new RepositoryIterator($this->defaultFolderRepo, $context);

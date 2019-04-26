@@ -11,11 +11,12 @@ use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsCollector;
 use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsDataDefinition;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Fakes\FakePromotionGateway;
-use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Struct\StructCollection;
@@ -59,27 +60,39 @@ class CartPromotionsCollectorTest extends TestCase
 
         $this->cart = new Cart('C1', 'TOKEN-1');
         // add a prepared placeholder promotion
-        $this->cart->add(new LineItem('CODE-123', CartPromotionsCollector::LINE_ITEM_TYPE, 1, LineItem::GOODS_PRIORITY));
+        $this->cart->add(new LineItem('CODE-123', CartPromotionsCollector::LINE_ITEM_TYPE, 1));
         // add product items
-        $this->cart->add(new LineItem('P1', ProductCollector::LINE_ITEM_TYPE, 1, LineItem::GOODS_PRIORITY));
-        $this->cart->add(new LineItem('P2', ProductCollector::LINE_ITEM_TYPE, 1, LineItem::GOODS_PRIORITY));
+        $this->cart->add(new LineItem('P1', LineItem::PRODUCT_LINE_ITEM_TYPE, 1));
+        $this->cart->add(new LineItem('P2', LineItem::PRODUCT_LINE_ITEM_TYPE, 1));
 
         $this->promotionGlobal = new PromotionEntity();
         $this->promotionGlobal->setId('PROM-GLOBAL');
-        $this->promotionGlobal->setPercental(true);
-        $this->promotionGlobal->setValue(10);
+        $discount1 = new PromotionDiscountEntity();
+        $discount1->setId('D1');
+        $discount1->setValue(100);
+        $discount1->setType(PromotionDiscountEntity::TYPE_PERCENTAGE);
+        $discount1->setScope(PromotionDiscountEntity::SCOPE_CART);
+        $this->promotionGlobal->setDiscounts(new PromotionDiscountCollection([$discount1]));
 
         $this->promotionPersona = new PromotionEntity();
         $this->promotionPersona->setId('PROM-PERSONA');
-        $this->promotionPersona->setPercental(true);
-        $this->promotionPersona->setValue(10);
         $this->promotionPersona->setPersonaRules(new RuleCollection([$this->getFakeRule()]));
+        $discount2 = new PromotionDiscountEntity();
+        $discount2->setId('D2');
+        $discount2->setValue(100);
+        $discount2->setType(PromotionDiscountEntity::TYPE_PERCENTAGE);
+        $discount2->setScope(PromotionDiscountEntity::SCOPE_CART);
+        $this->promotionPersona->setDiscounts(new PromotionDiscountCollection([$discount2]));
 
         $this->promotionScope = new PromotionEntity();
         $this->promotionScope->setId('PROM-SCOPE');
-        $this->promotionScope->setPercental(true);
-        $this->promotionScope->setValue(10);
-        $this->promotionScope->setScopeRule($this->getFakeRule());
+        $this->promotionScope->setCartRules(new RuleCollection([$this->getFakeRule()]));
+        $discount3 = new PromotionDiscountEntity();
+        $discount3->setId('D3');
+        $discount3->setValue(100);
+        $discount3->setType(PromotionDiscountEntity::TYPE_PERCENTAGE);
+        $discount3->setScope(PromotionDiscountEntity::SCOPE_CART);
+        $this->promotionScope->setDiscounts(new PromotionDiscountCollection([$discount3]));
     }
 
     /**
@@ -167,10 +180,12 @@ class CartPromotionsCollectorTest extends TestCase
 
         /** @var LineItemCollection $promoLineItem */
         $promoLineItem = $this->cart->getLineItems();
-        /** @var LineItem $item */
-        $item = $promoLineItem->getElements()['PROM-GLOBAL'];
 
-        static::assertEquals('PROM-GLOBAL', $item->getKey());
+        // discount of promotion 1 PROM-GLOBAL should exist (D1)
+        /** @var LineItem $item */
+        $item = $promoLineItem->getElements()['D1'];
+
+        static::assertEquals('D1', $item->getKey());
     }
 
     private function getFakeRule(): RuleEntity

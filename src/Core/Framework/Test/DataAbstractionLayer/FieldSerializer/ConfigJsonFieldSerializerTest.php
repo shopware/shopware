@@ -87,8 +87,6 @@ class ConfigJsonFieldSerializerTest extends TestCase
      */
     public function testSerializer($input): void
     {
-        static::assertTrue(true);
-
         $kvPair = new KeyValuePair('password', $input, true);
         $encoded = $this->serializer->encode($this->field, $this->existence, $kvPair, $this->parameters)->current();
         $decoded = $this->serializer->decode($this->field, $encoded);

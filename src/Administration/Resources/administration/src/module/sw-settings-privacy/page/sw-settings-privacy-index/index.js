@@ -1,7 +1,7 @@
 import { Component, Mixin, State } from 'src/core/shopware';
-import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-settings-privacy-index.html.twig';
 
+// ToDo: Delete/Refactor with NEXT-2612 - Temporary Module, just for development
 Component.register('sw-settings-privacy-index', {
     template,
 
@@ -14,7 +14,6 @@ Component.register('sw-settings-privacy-index', {
         return {
             entityName: 'system_config',
             isLoading: false,
-            namespaces: ['privacy'],
             items: [],
             salesChannels: null,
             skeletonItemAmount: 2
@@ -22,9 +21,6 @@ Component.register('sw-settings-privacy-index', {
     },
 
     computed: {
-        namespaceCriteria() {
-            return this.createNamespaceCriteria();
-        },
         columns() {
             return this.getColumns();
         },
@@ -85,7 +81,6 @@ Component.register('sw-settings-privacy-index', {
             const config = {
                 page: 1,
                 limit: 500,
-                criteria: this.namespaceCriteria,
                 associations: { salesChannel: {} }
             };
 
@@ -128,16 +123,6 @@ Component.register('sw-settings-privacy-index', {
         onInlineEditCancel(setting) {
             setting.discardChanges();
             this.getList();
-        },
-
-        createNamespaceCriteria() {
-            const namespaceFilters = [];
-
-            this.namespaces.forEach((item) => {
-                namespaceFilters.push(CriteriaFactory.equals('namespace', item));
-            });
-
-            return CriteriaFactory.multi('OR', ...namespaceFilters);
         }
     }
 });

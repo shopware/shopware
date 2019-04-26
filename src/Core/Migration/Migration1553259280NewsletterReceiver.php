@@ -33,13 +33,13 @@ class Migration1553259280NewsletterReceiver extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`),
+              CONSTRAINT `json.newsletter_receiver.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.newsletter_receiver.salutation_id` FOREIGN KEY (`salutation_id`)
                 REFERENCES `salutation` (`id`) ON DELETE RESTRICT,
               CONSTRAINT `fk.newsletter_receiver.language_id` FOREIGN KEY (`language_id`)
                 REFERENCES `language` (`id`) ON DELETE RESTRICT,
               CONSTRAINT `fk.newsletter_receiver.sales_channel_id` FOREIGN KEY (`sales_channel_id`)
-                REFERENCES `sales_channel` (`id`) ON DELETE RESTRICT,
-              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)) 
+                REFERENCES `sales_channel` (`id`) ON DELETE RESTRICT
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

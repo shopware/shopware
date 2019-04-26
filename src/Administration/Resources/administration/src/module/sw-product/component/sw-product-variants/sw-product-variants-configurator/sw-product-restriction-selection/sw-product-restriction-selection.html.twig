@@ -14,7 +14,7 @@
                                         v-for="item in availableGroups"
                                         :key="item.group.id"
                                         :value="item.group.id">
-                                    {{ item.group.name }}
+                                    {{ item.group.translated.name }}
                                 </option>
                             </sw-field>
                         {% endblock %}
@@ -38,9 +38,10 @@
                             v-if="!optionLoading"
                             v-model="selectedOptions"
                             :options="options"
-                            keyProperty="optionId">
-                            <template slot="valueProperty" slot-scope="{ item }">
-                                {{ item.option.name }}
+                            valueProperty="optionId">
+
+                            <template slot="labelProperty" slot-scope="{ item }">
+                                {{ item.option.translated.name }}
                             </template>
                         </sw-multi-select>
                     {% endblock %}

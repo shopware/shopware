@@ -246,6 +246,10 @@ class ProductGenerator implements DemodataGeneratorInterface
 
     private function getTaxes(Context $context)
     {
+        $this->taxRepository->create([
+            ['name' => 'High tax', 'taxRate' => 19],
+        ], $context);
+
         return array_values($this->taxRepository->search(new Criteria(), $context)->getIds());
     }
 

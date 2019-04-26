@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSalesChannelDefinition;
@@ -76,7 +77,7 @@ class SalesChannelDefinition extends EntityDefinition
             (new FkField('country_id', 'countryId', CountryDefinition::class))->addFlags(new Required()),
             new FkField('navigation_id', 'navigationId', NavigationDefinition::class),
             new ReferenceVersionField(NavigationDefinition::class, 'navigation_version_id'),
-            (new FkField('mail_header_footer_id', 'mailHeaderFooterId', MailHeaderFooterDefinition::class)),
+            new FkField('mail_header_footer_id', 'mailHeaderFooterId', MailHeaderFooterDefinition::class),
             (new StringField('type', 'type'))->addFlags(new Required()),
             new TranslatedField('name'),
             new StringField('short_name', 'shortName'),
@@ -111,6 +112,7 @@ class SalesChannelDefinition extends EntityDefinition
             new ManyToManyAssociationField('mailTemplates', MailTemplateDefinition::class, MailTemplateSalesChannelDefinition::class, 'sales_channel_id', 'mail_template_id'),
             new OneToManyAssociationField('numberRangeSalesChannels', NumberRangeSalesChannelDefinition::class, 'sales_channel_id'),
             new OneToManyAssociationField('promotionSalesChannels', PromotionSalesChannelDefinition::class, 'sales_channel_id', 'id'),
+            new OneToManyAssociationField('documentBaseConfigSalesChannels', DocumentBaseConfigSalesChannelDefinition::class, 'sales_channel_id', 'id'),
         ]);
     }
 }

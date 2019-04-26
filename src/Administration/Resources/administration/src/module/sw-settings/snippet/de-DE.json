@@ -1,0 +1,13 @@
+{
+  "sw-settings": {
+    "general": {
+      "mainMenuItemGeneral": "Einstellungen"
+    },
+    "index": {
+      "title": "Einstellungen"
+    },
+    "system-config": {
+      "labelSalesChannelSelect": "Verkaufskanal"
+    }
+  }
+}

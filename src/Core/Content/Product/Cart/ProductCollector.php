@@ -12,22 +12,28 @@ use Shopware\Core\Content\Product\Cart\Struct\ProductFetchDefinition;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\SalesChannel\ProductPriceDefinitionBuilderInterface;
 use Shopware\Core\Framework\Struct\StructCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ProductCollector implements CollectorInterface
 {
     public const DATA_KEY = 'products';
-    public const LINE_ITEM_TYPE = 'product';
 
     /**
      * @var ProductGatewayInterface
      */
     private $productGateway;
 
-    public function __construct(ProductGatewayInterface $productGateway)
+    /**
+     * @var ProductPriceDefinitionBuilderInterface
+     */
+    private $priceDefinitionBuilder;
+
+    public function __construct(ProductGatewayInterface $productGateway, ProductPriceDefinitionBuilderInterface $priceDefinitionBuilder)
     {
         $this->productGateway = $productGateway;
+        $this->priceDefinitionBuilder = $priceDefinitionBuilder;
     }
 
     public function prepare(StructCollection $definitions, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
@@ -35,7 +41,7 @@ class ProductCollector implements CollectorInterface
         $lineItems = array_filter(
             $cart->getLineItems()->getFlat(),
             function (LineItem $lineItem) {
-                return $lineItem->getType() === self::LINE_ITEM_TYPE;
+                return $lineItem->getType() === LineItem::PRODUCT_LINE_ITEM_TYPE;
             }
         );
 
@@ -92,7 +98,7 @@ class ProductCollector implements CollectorInterface
         $flat = array_filter(
             $cart->getLineItems()->getFlat(),
             function (LineItem $lineItem) {
-                return $lineItem->getType() === self::LINE_ITEM_TYPE;
+                return $lineItem->getType() === LineItem::PRODUCT_LINE_ITEM_TYPE;
             }
         );
 
@@ -141,8 +147,9 @@ class ProductCollector implements CollectorInterface
 
             if (!$lineItem->getPriceDefinition() && !$lineItem->getPrice()) {
                 $lineItem->setPriceDefinition(
-                    $product->getPriceDefinitionForQuantity(
-                        $context->getContext(),
+                    $this->priceDefinitionBuilder->buildPriceDefinitionForQuantity(
+                        $product,
+                        $context,
                         $lineItem->getQuantity()
                     )
                 );

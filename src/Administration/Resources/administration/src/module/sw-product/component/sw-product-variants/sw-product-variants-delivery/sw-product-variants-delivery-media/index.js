@@ -49,7 +49,7 @@ Component.register('sw-product-variants-delivery-media', {
         },
 
         activeOptions() {
-            return Object.values(this.product.configuratorSettings).filter((element) => {
+            return Object.values(this.product.configuratorSettings.items).filter((element) => {
                 return !element.isDeleted && element.option.groupId === this.activeGroup.id;
             });
         }

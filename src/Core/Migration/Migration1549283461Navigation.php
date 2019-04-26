@@ -53,7 +53,7 @@ ADD FOREIGN KEY `fk.sales_channel.navigation_id` (`navigation_id`, `navigation_v
               `created_at` datetime(3) NOT NULL,
               `updated_at` datetime(3),
               PRIMARY KEY (`navigation_id`, `navigation_version_id`, `language_id`),
-              CONSTRAINT `json.slot_config` CHECK (JSON_VALID(`slot_config`)),
+              CONSTRAINT `json.navigation_translation.slot_config` CHECK (JSON_VALID(`slot_config`)),
               CONSTRAINT `fk.navigation_translation.language_id` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.navigation_translation.navigation_id` FOREIGN KEY (`navigation_id`, `navigation_version_id`) REFERENCES `navigation` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

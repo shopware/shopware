@@ -8,6 +8,7 @@ use Shopware\Core\Content\NewsletterReceiver\Exception\NewsletterReceiverNotFoun
 use Shopware\Core\Content\NewsletterReceiver\NewsletterReceiverEntity;
 use Shopware\Core\Content\NewsletterReceiver\SalesChannel\NewsletterSubscriptionService;
 use Shopware\Core\Content\NewsletterReceiver\SalesChannel\NewsletterSubscriptionServiceInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 
 class NewsletterReceiverServiceTest extends TestCase
 {
@@ -33,7 +35,9 @@ class NewsletterReceiverServiceTest extends TestCase
 
         self::expectException(ConstraintViolationException::class);
 
-        $this->getService()->subscribe($dataBag, Context::createDefaultContext());
+        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $this->getService()->subscribe($dataBag, $context);
     }
 
     public function dataProvider_testSubscribeNewsletterExpectsConstraintViolationException(): array
@@ -83,7 +87,6 @@ class NewsletterReceiverServiceTest extends TestCase
     public function testSubscribeNewsletterShouldSaveReceiverToDatabase(): void
     {
         $this->installTestData();
-        $context = Context::createDefaultContext();
         $email = 'valid@email.foo';
         $dataBag = new RequestDataBag([
             'email' => $email,
@@ -94,13 +97,8 @@ class NewsletterReceiverServiceTest extends TestCase
             'lastName' => '',
         ]);
 
-        $languageId = Uuid::fromBytesToHex(
-            $this->getContainer()->get(Connection::class)->fetchColumn('SELECT `id` FROM `language` LIMIT 1')
-        );
-
-        $property = ReflectionHelper::getProperty(Context::class, 'languageIdChain');
-        $property->setValue($context, [$languageId]);
-
+        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
         $this->getService()->subscribe($dataBag, $context);
 
         /** @var EntityRepositoryInterface $repository */
@@ -109,7 +107,7 @@ class NewsletterReceiverServiceTest extends TestCase
         $criteria->addFilter(new EqualsFilter('email', $email));
 
         /** @var NewsletterReceiverEntity $result */
-        $result = $repository->search($criteria, $context)->getEntities()->first();
+        $result = $repository->search($criteria, $context->getContext())->getEntities()->first();
 
         static::assertInstanceOf(NewsletterReceiverEntity::class, $result);
         static::assertSame($email, $result->getEmail());
@@ -122,7 +120,9 @@ class NewsletterReceiverServiceTest extends TestCase
 
         self::expectException(NewsletterReceiverNotFoundException::class);
 
-        $this->getService()->confirm($dataBag, Context::createDefaultContext());
+        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $this->getService()->confirm($dataBag, $context);
     }
 
     public function testConfirmSubscribeNewsletterExpectsConstraintViolationException(): void
@@ -133,7 +133,9 @@ class NewsletterReceiverServiceTest extends TestCase
 
         self::expectException(ConstraintViolationException::class);
 
-        $this->getService()->confirm($dataBag, Context::createDefaultContext());
+        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $this->getService()->confirm($dataBag, $context);
     }
 
     public function testConfirmSubscribeNewsletterExpectedUpdatedDatabaseRow(): void
@@ -150,7 +152,8 @@ class NewsletterReceiverServiceTest extends TestCase
             $this->getContainer()->get(Connection::class)->fetchColumn('SELECT `id` FROM `language` LIMIT 1')
         );
 
-        $context = Context::createDefaultContext();
+        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
         $property = ReflectionHelper::getProperty(Context::class, 'languageIdChain');
         $property->setValue($context, [$languageId]);
 
@@ -183,7 +186,9 @@ class NewsletterReceiverServiceTest extends TestCase
 
         self::expectException(NewsletterReceiverNotFoundException::class);
 
-        $this->getService()->unsubscribe($dataBag, Context::createDefaultContext());
+        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $this->getService()->unsubscribe($dataBag, $context);
     }
 
     /**
@@ -196,7 +201,9 @@ class NewsletterReceiverServiceTest extends TestCase
 
         self::expectException(ConstraintViolationException::class);
 
-        $this->getService()->unsubscribe($dataBag, Context::createDefaultContext());
+        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $this->getService()->unsubscribe($dataBag, $context);
     }
 
     public function dataProviderTestUnsubscribeNewsletterExpectsConstraintViolationException(): array
@@ -220,7 +227,9 @@ class NewsletterReceiverServiceTest extends TestCase
             'option' => 'unsubscribe',
         ]);
 
-        $this->getService()->unsubscribe($dataBag, Context::createDefaultContext());
+        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $this->getService()->unsubscribe($dataBag, $context);
 
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('newsletter_receiver.repository');

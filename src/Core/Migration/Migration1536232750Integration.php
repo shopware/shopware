@@ -27,7 +27,7 @@ class Migration1536232750Integration extends MigrationStep
               `last_usage_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`),
               INDEX `idx.access_key` (`access_key`),
-              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`))
+              CONSTRAINT `json.integration.attributes` CHECK (JSON_VALID(`attributes`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

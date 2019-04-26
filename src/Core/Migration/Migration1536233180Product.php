@@ -73,13 +73,13 @@ class Migration1536233180Product extends MigrationStep
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`, `version_id`),
               KEY `idx.auto_increment` (`auto_increment`),
-              CONSTRAINT `json.category_tree` CHECK (JSON_VALID(`category_tree`)),
-              CONSTRAINT `json.option_ids` CHECK (JSON_VALID(`option_ids`)),
-              CONSTRAINT `json.property_ids` CHECK (JSON_VALID(`property_ids`)),
-              CONSTRAINT `json.price` CHECK (JSON_VALID(`price`)),
-              CONSTRAINT `json.listing_prices` CHECK (JSON_VALID(`listing_prices`)),
-              CONSTRAINT `json.blacklist_ids` CHECK (JSON_VALID(`blacklist_ids`)),
-              CONSTRAINT `json.whitelist_ids` CHECK (JSON_VALID(`whitelist_ids`)),
+              CONSTRAINT `json.product.category_tree` CHECK (JSON_VALID(`category_tree`)),
+              CONSTRAINT `json.product.option_ids` CHECK (JSON_VALID(`option_ids`)),
+              CONSTRAINT `json.product.property_ids` CHECK (JSON_VALID(`property_ids`)),
+              CONSTRAINT `json.product.price` CHECK (JSON_VALID(`price`)),
+              CONSTRAINT `json.product.listing_prices` CHECK (JSON_VALID(`listing_prices`)),
+              CONSTRAINT `json.product.blacklist_ids` CHECK (JSON_VALID(`blacklist_ids`)),
+              CONSTRAINT `json.product.whitelist_ids` CHECK (JSON_VALID(`whitelist_ids`)),
               CONSTRAINT `fk.product.product_manufacturer_id` FOREIGN KEY (`product_manufacturer_id`, `product_manufacturer_version_id`)
                 REFERENCES `product_manufacturer` (`id`, `version_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
               CONSTRAINT `fk.product.tax_id` FOREIGN KEY (`tax_id`)
@@ -107,7 +107,7 @@ class Migration1536233180Product extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`product_id`, `product_version_id`, `language_id`),
-              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.product_translation.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.product_translation.language_id` FOREIGN KEY (`language_id`)
                 REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.product_translation.product_id` FOREIGN KEY (`product_id`, `product_version_id`)

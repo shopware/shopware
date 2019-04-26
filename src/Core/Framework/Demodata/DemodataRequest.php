@@ -9,12 +9,12 @@ class DemodataRequest
      *
      * @var int[]
      */
-    protected $numberOfItems = [];
+    private $numberOfItems = [];
 
     /**
      * @var array
      */
-    protected $options = [];
+    private $options = [];
 
     public function get(string $definition): int
     {

@@ -27,8 +27,8 @@ class Migration1536233290PluginTranslation extends MigrationStep
                 `created_at`         DATETIME(3) NOT NULL,
                 `updated_at`         DATETIME(3) NULL,
                 PRIMARY KEY (`plugin_id`, `language_id`),
-                CONSTRAINT `json.changelog` CHECK (JSON_VALID(`changelog`)),
-                CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
+                CONSTRAINT `json.plugin_translation.changelog` CHECK (JSON_VALID(`changelog`)),
+                CONSTRAINT `json.plugin_translation.attributes` CHECK (JSON_VALID(`attributes`)),
                 CONSTRAINT `fk.plugin_translation.plugin_id` FOREIGN KEY (`plugin_id`) 
                   REFERENCES `plugin` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
                 CONSTRAINT `fk.plugin_translation.language_id` FOREIGN KEY (`language_id`) 

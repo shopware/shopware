@@ -27,20 +27,20 @@ Have a look at the [composer schema](https://getcomposer.org/doc/04-schema.md), 
         "shopware-plugin-class": "SwagPayPal\\SwagPayPal",
         "copyright": "(c) by shopware AG",
         "label": {
-            "de_DE": "PayPal Produkte für Shopware",
-            "en_GB": "PayPal Products for Shopware"
+            "de-DE": "PayPal Produkte für Shopware",
+            "en-GB": "PayPal Products for Shopware"
         },
         "description": {
-            "de_DE": "Deutsche Beschreibung des Plugins",
-            "en_GB": "English Description of Plugin"
+            "de-DE": "Deutsche Beschreibung des Plugins",
+            "en-GB": "English Description of Plugin"
         },
         "manufacturerLink": {
-            "de_DE": "https://store.shopware.com/shopware-ag.html",
-            "en_GB": "https://store.shopware.com/en/shopware-ag.html"
+            "de-DE": "https://store.shopware.com/shopware-ag.html",
+            "en-GB": "https://store.shopware.com/en/shopware-ag.html"
         },
         "supportLink": {
-            "de_DE": "https://docs.shopware.com/de",
-            "en_GB": "https://docs.shopware.com/en"
+            "de-DE": "https://docs.shopware.com/de",
+            "en-GB": "https://docs.shopware.com/en"
         }
     }
 }
@@ -69,5 +69,5 @@ Have a look at the [composer schema](https://getcomposer.org/doc/04-schema.md), 
 Some fields of the plugin entity are translatable.
 Shopware will try to match each of your provided translations with an existing language in the system.
 For more information about the translation system in Shopware have look [here](../20-data-abstraction-layer/9-translations.md).
-Your translation locale code must look like that "de_DE", "en_GB", "de_CH", etc.
+Your translation locale code must look like that "de-DE", "en-GB", "de-CH", etc.
 If a language with this locale is not available, the translation will not be written.

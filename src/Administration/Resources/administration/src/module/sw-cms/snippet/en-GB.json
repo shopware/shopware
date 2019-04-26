@@ -1,0 +1,92 @@
+{
+  "sw-cms": {
+    "general": {
+      "placeholderSearchBar": "Search for a Layout",
+      "mainMenuItemGeneral": "Pages",
+      "moduleTitle": "Content Management",
+      "greeting": "Welcome",
+      "createNewLayout": "Create new Layout"
+    },
+    "sorting": {
+      "labelSort": "Sort by:",
+      "labelSortByCreatedAsc": "Creation date, ascending",
+      "labelSortByCreatedDsc": "Creation date, descending",
+      "labelSortByUpdatedAsc": "Modification date, ascending",
+      "labelSortByUpdatedDsc": "Modification date, descending",
+      "labelSortByAllPages": "All types",
+      "labelSortByShopPages": "Shop pages",
+      "labelSortByLandingPages": "Landingpages",
+      "labelSortByProductPages": "Product pages",
+      "labelSortByCategoryPages": "Category pages"
+    },
+    "detail": {
+      "labelButtonSave": "Save",
+      "headlineEmptyState": "Space for creativity",
+      "claimEmptyState": "Design you layout by placing new blocks on the stage.",
+      "actionEmptyState": "Add first block",
+      "sidebarTitlePageSettings": "Settings",
+      "sidebarHeaderPageSettings": "Basic information",
+      "labelPageName": "Name",
+      "labelPageType": "Layout type",
+      "labelDemoEntity": "Demo entity",
+      "placeholderDemoEntity": "Select a demo entity",
+      "labelPageTypeLandingpage": "Landingpage",
+      "labelPageTypeCategory": "Listing page",
+      "labelPageTypeProduct": "Product page",
+      "sidebarTitleBlockOverview": "Blocks",
+      "sidebarTitleBlockSettings": "Block settings",
+      "sidebarHeaderBlockSettings": "Block:",
+      "sidebarTitleNavigator": "Navigator",
+      "labelBlockCategorySelection": "Block category",
+      "labelBlockCategoryText": "Text",
+      "labelBlockCategoryTextImage": "Text & Images",
+      "labelBlockCategoryImage": "Images",
+      "labelBlockCategoryCommerce": "Commerce",
+      "titleElementSettingsModal": "Element settings",
+      "labelButtonElementSettingsConfirm": "Ok",
+      "titleElementChangeModal": "Change element",
+      "labelButtonElementChangeAbort": "Cancel",
+      "labelBlockNameField": "Block name",
+      "tooltipBlockNameField": "You can define a name for your block, for better usage.",
+      "labelBlockSizingField": "Sizing mode",
+      "labelBlockSizingOptionBoxed": "Boxed content",
+      "labelBlockSizingOptionFull": "Full width",
+      "labelBlockBackgroundColorField": "Background color",
+      "labelBlockTopMarginField": "Top margin",
+      "labelBlockBottomMarginField": "Bottom margin",
+      "labelBlockLeftMarginField": "Left margin",
+      "labelBlockRightMarginField": "Right margin",
+      "labelButtonMappingAction": "Data mapping",
+      "labelButtonMappingRemoveAction": "Remove mapping",
+      "labelMappingPreview": "Field mapped to:",
+      "notificationTitleMissingFields": "Missing configuration",
+      "notificationMessageMissingFields": "Please fill out the required configuration fields."
+    },
+    "elements": {
+      "captionMediaUpload": "Upload an image",
+      "labelMediaDisplayMode": "Display mode",
+      "labelMediaDisplayModeStandard": "Standard",
+      "labelMediaDisplayModeCover": "Cover",
+      "labelTextElementContent": "Text content",
+      "labelProductActionDetail": "Details",
+      "labelProductActionBuy": "Add to cart",
+      "labelProductBadgeTopseller": "Topseller",
+      "labelProductBadgeNew": "New",
+      "labelProductPriceUnitContent": "Content:",
+      "labelProductSelection": "Product",
+      "placeholderProductSelection": "Select a product",
+      "labelProductLayoutType": "Layout type",
+      "labelProductLayoutTypeStandard": "Standard",
+      "labelProductLayoutTypeImage": "Big image",
+      "labelProductLayoutTypeMinimal": "Minimal content"
+    },
+    "components": {
+      "cmsLayoutModal": {
+        "actionCancel": "Cancel",
+        "actionConfirm": "Confirm layout",
+        "modalTitle": "Select layout",
+        "headline": "Landing page / product listing"
+      }
+    }
+  }
+}

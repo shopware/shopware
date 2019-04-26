@@ -37,32 +37,6 @@
             <tag name="controller.argument_value_resolver" priority="1000"/>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\Listing\Subscriber\CategorySubscriber">
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Storefront\Pagelet\Listing\Subscriber\PropertiesAggregationSubscriber">
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Storefront\Pagelet\Listing\Subscriber\PaginationSubscriber">
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Storefront\Pagelet\Listing\Subscriber\ManufacturerAggregationSubscriber">
-            <argument type="service" id="product_manufacturer.repository"/>
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Storefront\Pagelet\Listing\Subscriber\PriceAggregationSubscriber">
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Storefront\Pagelet\Listing\Subscriber\SearchTermSubscriber">
-            <tag name="kernel.event_subscriber"/>
-            <argument type="service" id="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface"/>
-        </service>
-
         <service id="Shopware\Storefront\Page\Navigation\NavigationPageLoader">
             <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader" />
             <argument type="service" id="event_dispatcher" />
@@ -82,7 +56,12 @@
 
         <service id="Shopware\Storefront\Pagelet\Suggest\SuggestPageletLoader">
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Storefront\Pagelet\Listing\ListingPageletLoader"/>
+            <argument type="service" id="Shopware\Storefront\Pagelet\Suggest\ProductSuggestGateway" />
+        </service>
+
+        <service id="Shopware\Storefront\Pagelet\Suggest\ProductSuggestGateway">
+            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface"/>
         </service>
 
         <service id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader">
@@ -123,9 +102,15 @@
 
         <service id="Shopware\Storefront\Page\Search\SearchPageLoader" public="true">
             <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
-            <argument type="service" id="Shopware\Storefront\Pagelet\Listing\ListingPageletLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\Search\ProductSearchGateway"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
+
+        <service id="Shopware\Storefront\Page\Search\ProductSearchGateway">
+            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface"/>
+        </service>
+
 
         <service id="Shopware\Storefront\Page\Product\ProductPageLoader">
             <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
@@ -133,12 +118,16 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageRepository"/>
             <argument type="service" id="Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver"/>
+            <argument type="service" id="Shopware\Storefront\Page\Product\Configurator\ProductPageConfiguratorLoader"/>
         </service>
 
-        <service id="Shopware\Storefront\Page\Listing\ListingPageLoader" public="true">
-            <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Storefront\Pagelet\Listing\ListingPageletLoader"/>
+        <service id="Shopware\Storefront\Page\Product\Configurator\AvailableCombinationLoader">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Storefront\Page\Product\Configurator\ProductPageConfiguratorLoader">
+            <argument type="service" id="product_configurator_setting.repository"/>
+            <argument type="service" id="Shopware\Storefront\Page\Product\Configurator\AvailableCombinationLoader"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Home\HomePageLoader">
@@ -225,6 +214,15 @@
             <argument type="service" id="Shopware\Storefront\Pagelet\Checkout\AjaxCart\CheckoutAjaxCartPageletLoader"/>
         </service>
 
+        <service id="Shopware\Storefront\Pagelet\Cms\CmsPageletLoader">
+            <argument type="service" id="cms_page.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver"/>
+        </service>
+
+        <service id="Shopware\Storefront\PageletController\CmsPageletController" public="true">
+            <argument type="service" id="Shopware\Storefront\Pagelet\Cms\CmsPageletLoader"/>
+        </service>
+
         <service id="Shopware\Storefront\PageletController\ListingPageletController" public="true">
             <argument type="service" id="Shopware\Storefront\Pagelet\Listing\ListingPageletLoader"/>
         </service>
@@ -256,6 +254,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
         </service>
 
         <service id="Shopware\Storefront\PageController\CheckoutPageController" public="true">
@@ -273,6 +272,8 @@
 
         <service id="Shopware\Storefront\PageController\ErrorPageController" public="true">
             <argument type="service" id="Shopware\Storefront\Framework\Twig\ErrorTemplateResolver"/>
+            <argument type="service" id="session.flash_bag"/>
+            <argument type="service" id="translator"/>
         </service>
 
         <service id="Shopware\Storefront\PageController\HomePageController" public="true">
@@ -281,6 +282,7 @@
 
         <service id="Shopware\Storefront\PageController\ProductPageController" public="true">
             <argument type="service" id="Shopware\Storefront\Page\Product\ProductPageLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder" />
         </service>
 
         <service id="Shopware\Storefront\PageController\SearchPageController" public="true">
@@ -297,28 +299,22 @@
             <argument type="service" id="salutation.repository"/>
         </service>
 
-        <service id="Shopware\Storefront\Page\Newsletter\Confirm\NewsletterConfirmPageLoader">
-            <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
         <service id="Shopware\Storefront\Page\Newsletter\ConfirmSubscribe\NewsletterConfirmSubscribePageLoader">
-            <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service id="Shopware\Storefront\Page\Newsletter\Error\NewsletterErrorPageLoader">
             <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Storefront\PageController\NewsletterController" public="true">
             <argument type="service" id="Shopware\Storefront\Page\Newsletter\Register\NewsletterRegisterLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\Newsletter\Confirm\NewsletterConfirmPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Newsletter\ConfirmSubscribe\NewsletterConfirmSubscribePageLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\Newsletter\Error\NewsletterErrorPageLoader"/>
-            <argument type="service" id="Shopware\Core\Content\NewsletterReceiver\Service\NewsletterSubscriptionService" />
+            <argument type="service" id="Shopware\Core\Content\NewsletterReceiver\SalesChannel\NewsletterSubscriptionService" />
             <argument type="service" id="request_stack"/>
         </service>
+
+        <service id="Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder" public="true">
+            <argument type="service" id="sales_channel.product.repository" />
+        </service>
+
+
     </services>
 </container>

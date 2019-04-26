@@ -10,13 +10,14 @@ import './page/sw-cms-list';
 import './page/sw-cms-detail';
 import './page/sw-cms-create';
 
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
 
 Module.register('sw-cms', {
     flag: NEXT134,
     type: 'core',
-    name: 'sw-cms.general.mainMenuItemGeneral',
+    name: 'cms',
+    title: 'sw-cms.general.mainMenuItemGeneral',
     description: 'The module for creating content.',
     color: '#ff68b4',
     icon: 'default-object-marketing',
@@ -30,25 +31,20 @@ Module.register('sw-cms', {
     routes: {
         index: {
             component: 'sw-cms-list',
-            path: 'index',
-            meta: {
-                noNav: true
-            }
+            path: 'index'
         },
         detail: {
             component: 'sw-cms-detail',
             path: 'detail/:id',
             meta: {
-                parentPath: 'sw.cms.index',
-                noNav: true
+                parentPath: 'sw.cms.index'
             }
         },
         create: {
             component: 'sw-cms-create',
             path: 'create',
             meta: {
-                parentPath: 'sw.cms.index',
-                noNav: true
+                parentPath: 'sw.cms.index'
             }
         }
     },

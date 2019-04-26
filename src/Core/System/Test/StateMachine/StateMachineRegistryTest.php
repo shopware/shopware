@@ -141,8 +141,8 @@ EOF;
                 'id' => $this->stateMachineId,
                 'technicalName' => $this->stateMachineName,
                 'translations' => [
-                    'en_GB' => ['name' => 'Order state'],
-                    'de_DE' => ['name' => 'Bestellungsstatus'],
+                    'en-GB' => ['name' => 'Order state'],
+                    'de-DE' => ['name' => 'Bestellungsstatus'],
                 ],
                 'states' => [
                     ['id' => $this->openId, 'technicalName' => 'open', 'name' => 'Open'],
@@ -168,8 +168,8 @@ EOF;
                 'id' => $this->stateMachineWithoutInitialId,
                 'technicalName' => $this->stateMachineWithoutInitialName,
                 'translations' => [
-                    'en_GB' => ['name' => 'Order state'],
-                    'de_DE' => ['name' => 'Bestellungsstatus'],
+                    'en-GB' => ['name' => 'Order state'],
+                    'de-DE' => ['name' => 'Bestellungsstatus'],
                 ],
             ],
         ], $context);

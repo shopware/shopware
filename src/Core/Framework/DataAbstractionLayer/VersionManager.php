@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
@@ -253,7 +254,7 @@ class VersionManager
         $commit = [
             'versionId' => Defaults::LIVE_VERSION,
             'data' => $newData,
-            'userId' => $writeContext->getContext()->getUserId(),
+            'userId' => $writeContext->getContext()->getSource() instanceof AdminApiSource ? $writeContext->getContext()->getSource()->getUserId() : null,
             'isMerge' => true,
             'message' => 'merge commit ' . (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
         ];
@@ -443,7 +444,10 @@ class VersionManager
 
         $date = (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT);
 
-        $userId = $writeContext->getContext()->getUserId() ? Uuid::fromHexToBytes($writeContext->getContext()->getUserId()) : null;
+        $userId = $writeContext->getContext()->getSource() instanceof AdminApiSource
+            ? Uuid::fromHexToBytes($writeContext->getContext()->getSource()->getUserId())
+            : null;
+
         $insert = new InsertCommand(
             VersionCommitDefinition::class,
             [

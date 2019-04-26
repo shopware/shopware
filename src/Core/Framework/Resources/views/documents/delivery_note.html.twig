@@ -1,0 +1,31 @@
+{% sw_extends '@Shopware/documents/base.html.twig' %}
+
+{% block document_title_tag %}
+    {% trans with {'%deliveryNoteNumber%': config.custom.deliveryNoteNumber, '%orderNumber%':  order.orderNumber} %}document.deliveryNoteHeadline{% endtrans %}
+{% endblock %}
+
+{% block document_headline %}
+    <h1>{% trans with {'%deliveryNoteNumber%': config.custom.deliveryNoteNumber, '%orderNumber%': order.orderNumber} %}document.deliveryNoteHeadline{% endtrans %}</h1>
+{% endblock %}
+
+{% block document_side_info %}
+    <table>
+        <tr><td>{% trans with {'%customerNumber%': customer.customerNumber} %}document.customerNumber{% endtrans %}</td></tr>
+        <tr><td>{% trans with {'%orderNumber%': order.orderNumber | truncate(10)} %}document.orderNumber{% endtrans %}</td></tr>
+        <tr><td>{% trans with {'%date%': document.custom.deliveryNoteDate|localizeddate('medium', 'none', order.saleschannel.language.locale.code)} %}document.date{% endtrans %}</td></tr>
+        <tr><td>{% trans with {'%orderDate%': order.date|localizeddate('medium', 'none', order.saleschannel.language.locale.code)} %}document.orderDate{% endtrans %}</td></tr>
+        <tr><td>{% trans with {'%deliveryDate%': document.custom.deliveryDate|localizeddate('medium', 'none', order.saleschannel.language.locale.code)} %}document.deliveryDate{% endtrans %}</td></tr>
+    </table><br/>
+{% endblock %}
+
+{% block document_line_item_list %}
+    {% set lineItems = [] %}
+    {% for entry in orderDelivery.positions %}
+        {% set lineItems = lineItems | merge([entry.orderLineItem]) %}
+    {% endfor %}
+    {{ parent() }}
+{% endblock %}
+
+
+{% block document_sum %}
+{% endblock %}

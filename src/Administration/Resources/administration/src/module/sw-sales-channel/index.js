@@ -7,12 +7,13 @@ import './page/sw-sales-channel-create';
 import './view/sw-sales-channel-detail-base';
 import './view/sw-sales-channel-create-base';
 
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
 
 Module.register('sw-sales-channel', {
     type: 'core',
-    name: 'sw-sales-channel.general.titleMenuItems',
+    name: 'sales-channel',
+    title: 'sw-sales-channel.general.titleMenuItems',
     description: 'The module for managing sales channels.',
     version: '1.0.0',
     targetVersion: '1.0.0',

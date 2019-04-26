@@ -6,13 +6,14 @@ import './component/sw-product-stream-modal-preview';
 import { NEXT739 } from 'src/flag/feature_next739';
 import './component/sw-product-stream-filter';
 
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
 
 Module.register('sw-product-stream', {
     type: 'core',
     flag: NEXT739,
-    name: 'sw-product-stream.general.mainMenuItemGeneral',
+    name: 'product-stream',
+    title: 'sw-product-stream.general.mainMenuItemGeneral',
     description: 'sw-product-stream.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',

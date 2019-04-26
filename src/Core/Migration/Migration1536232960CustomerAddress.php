@@ -37,13 +37,13 @@ class Migration1536232960CustomerAddress extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
                PRIMARY KEY (`id`),
+               CONSTRAINT `json.customer_address.attributes` CHECK (JSON_VALID(`attributes`)),
                CONSTRAINT `fk.customer_address.country_id` FOREIGN KEY (`country_id`)
                  REFERENCES `country` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
                CONSTRAINT `fk.customer_address.country_state_id` FOREIGN KEY (`country_state_id`)
                  REFERENCES `country_state` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
                CONSTRAINT `fk.customer_address.customer_id` FOREIGN KEY (`customer_id`)
-                 REFERENCES `customer` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-               CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`))
+                 REFERENCES `customer` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

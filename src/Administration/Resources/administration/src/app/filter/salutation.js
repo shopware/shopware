@@ -1,12 +1,15 @@
 import { Filter } from 'src/core/shopware';
 
 Filter.register('salutation', (entity, fallbackSnippet = '') => {
-    if (!entity.salutation) {
+    if (!entity) {
         return fallbackSnippet;
     }
 
-    const hideSalutation = ['not_specified']
-        .some((item) => item === entity.salutation.salutationKey);
+    let hideSalutation = true;
+    if (entity.salutation) {
+        hideSalutation = ['not_specified']
+            .some((item) => item === entity.salutation.salutationKey);
+    }
 
     const params = {
         salutation: !hideSalutation ? entity.salutation.displayName : '',

@@ -4,8 +4,7 @@
         xsi:schemaLocation="http://symfony.com/schema/routing
         https://symfony.com/schema/routing/routing-1.0.xsd">
 
-    <import resource="../../Framework/Controller/" type="annotation" />
-    <import resource="../../Framework/Seo/Controller/" type="annotation" />
+    <import resource="../../Framework/Seo/Api/" type="annotation" />
     <import resource="../../PageController/" type="annotation" />
     <import resource="../../PageletController/" type="annotation" />
 </routes>

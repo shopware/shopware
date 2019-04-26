@@ -30,7 +30,7 @@ class Migration1536232850ShippingMethodPrice extends MigrationStep
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`),
               CONSTRAINT `uniq.shipping_method_quantity_start` UNIQUE KEY (`shipping_method_id`, `rule_id`, `currency_id`, `quantity_start`),
-              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.shipping_method_price.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.shipping_method_price.shipping_method_id` FOREIGN KEY (`shipping_method_id`) 
                 REFERENCES `shipping_method` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.shipping_method_price.currency_id` FOREIGN KEY (`currency_id`) 

@@ -12,9 +12,33 @@ class PromotionDiscountEntity extends Entity
     use EntityIdTrait;
 
     /**
+     * This scope defines promotion discounts on
+     * the entire cart and its line items.
+     */
+    public const SCOPE_CART = 'cart';
+
+    /**
+     * This type defines a percentage
+     * price definition of the discount.
+     */
+    public const TYPE_PERCENTAGE = 'percentage';
+
+    /**
+     * This type defines an absolute price
+     * definition of the discount in the
+     * current context currency.
+     */
+    public const TYPE_ABSOLUTE = 'absolute';
+
+    /**
      * @var string
      */
     protected $promotionId;
+
+    /**
+     * @var string
+     */
+    protected $scope;
 
     /**
      * @var string
@@ -46,13 +70,6 @@ class PromotionDiscountEntity extends Entity
      */
     protected $promotion;
 
-    /**
-     * @var string
-     */
-    protected $applyTowards;
-
-    // TODO $applyTowardsSingleGroupId, once promotion-group entity exists
-
     public function getPromotionId(): string
     {
         return $this->promotionId;
@@ -61,6 +78,25 @@ class PromotionDiscountEntity extends Entity
     public function setPromotionId(string $promotionId): void
     {
         $this->promotionId = $promotionId;
+    }
+
+    /**
+     * Gets the scope of this discount.
+     * This is basically the affected area where the
+     * discount is being used on.
+     */
+    public function getScope(): string
+    {
+        return $this->scope;
+    }
+
+    /**
+     * Sets the scope that is being affected
+     * by the value of this discount.
+     */
+    public function setScope(string $scope): void
+    {
+        $this->scope = $scope;
     }
 
     public function getType(): string
@@ -121,15 +157,5 @@ class PromotionDiscountEntity extends Entity
     public function setPromotion(PromotionEntity $promotion): void
     {
         $this->promotion = $promotion;
-    }
-
-    public function getApplyTowards(): string
-    {
-        return $this->applyTowards;
-    }
-
-    public function setApplyTowards(string $applyTowards): void
-    {
-        $this->applyTowards = $applyTowards;
     }
 }

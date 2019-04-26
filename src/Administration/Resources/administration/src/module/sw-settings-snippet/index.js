@@ -8,12 +8,13 @@ import './page/sw-settings-snippet-create';
 import './component/sidebar/sw-settings-snippet-sidebar';
 import './component/sidebar/sw-settings-snippet-boolean-filter-item';
 
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
 
 Module.register('sw-settings-snippet', {
     type: 'core',
-    name: 'sw-settings-snippet.general.mainMenuItemGeneral',
+    name: 'settings-snippet',
+    title: 'sw-settings-snippet.general.mainMenuItemGeneral',
     description: 'sw-settings-snippet.general.description',
     version: '1.0.0',
     targetVersion: '1.0.0',

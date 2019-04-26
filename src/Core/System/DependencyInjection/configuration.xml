@@ -17,7 +17,7 @@
 
         <service id="Shopware\Core\System\SystemConfig\Util\ConfigReader"/>
 
-        <service id="Shopware\Core\System\SystemConfig\SystemConfigController" public="true">
+        <service id="Shopware\Core\System\SystemConfig\Api\SystemConfigController" public="true">
             <argument type="service" id="Shopware\Core\System\SystemConfig\Service\ConfigurationService"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>

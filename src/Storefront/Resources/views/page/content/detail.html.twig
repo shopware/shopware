@@ -1,0 +1,24 @@
+{% for block in page.cmsPage.blocks.elements %}
+    {% block page_content_block %}
+        <div class="row cms-row">
+            {% block page_content_elements %}
+                {% for element in block.slots.elements %}
+                    {% block page_content_element %}
+                        {% if element.type == 'text' %}
+                            {% sw_include "@Storefront/page/content/elements/cms-text.html.twig" %}
+                        {% elseif element.type == 'product-box' %}
+                            {% sw_include "@Storefront/page/content/elements/cms-product-box.html.twig" %}
+                        {% elseif element.type == 'product-listing' %}
+                            {% sw_include "@Storefront/page/content/elements/cms-product-listing.html.twig" %}
+                        {% elseif element.type == 'image' %}
+                            {% sw_include "@Storefront/page/content/elements/cms-image.html.twig" %}
+                        {% else %}
+                            {#TODO: NEXT-1903 - check why include with dynamic path isn't working anymore#}
+                            {#{% sw_include '@Storefront/page/content/elements/cms-' ~ element.type ~  '.html.twig' ignore missing %}#}
+                        {% endif %}
+                    {% endblock %}
+                {% endfor %}
+            {% endblock %}
+        </div>
+    {% endblock %}
+{% endfor %}

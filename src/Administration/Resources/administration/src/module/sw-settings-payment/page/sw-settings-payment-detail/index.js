@@ -26,6 +26,12 @@ Component.register('sw-settings-payment-detail', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
     watch: {
         'paymentMethod.mediaId'() {
             if (this.paymentMethod.mediaId) {
@@ -35,12 +41,18 @@ Component.register('sw-settings-payment-detail', {
     },
 
     computed: {
+        identifier() {
+            return this.placeholder(this.paymentMethod, 'name');
+        },
+
         paymentMethodStore() {
             return State.getStore('payment_method');
         },
+
         ruleStore() {
             return State.getStore('rule');
         },
+
         mediaStore() {
             return State.getStore('media');
         }

@@ -14,9 +14,15 @@ class SalesChannelProductSubscriber implements EventSubscriberInterface
      */
     private $priceCalculator;
 
-    public function __construct(QuantityPriceCalculator $priceCalculator)
+    /**
+     * @var ProductPriceDefinitionBuilderInterface
+     */
+    private $priceDefinitionBuilder;
+
+    public function __construct(QuantityPriceCalculator $priceCalculator, ProductPriceDefinitionBuilderInterface $priceDefinitionBuilder)
     {
         $this->priceCalculator = $priceCalculator;
+        $this->priceDefinitionBuilder = $priceDefinitionBuilder;
     }
 
     public static function getSubscribedEvents()
@@ -37,17 +43,17 @@ class SalesChannelProductSubscriber implements EventSubscriberInterface
     private function calculatePrices(SalesChannelContext $context, SalesChannelProductEntity $product): void
     {
         //calculate listing price
-        $listingPriceDefinition = $product->getListingPriceDefinition($context->getContext());
+        $listingPriceDefinition = $this->priceDefinitionBuilder->buildListingPriceDefinition($product, $context);
         $listingPrice = $this->priceCalculator->calculate($listingPriceDefinition, $context);
         $product->setCalculatedListingPrice($listingPrice);
 
         //calculate context prices
-        $priceRuleDefinitions = $product->getPriceDefinitions($context->getContext());
+        $priceRuleDefinitions = $this->priceDefinitionBuilder->buildPriceDefinitions($product, $context);
         $prices = $this->priceCalculator->calculateCollection($priceRuleDefinitions, $context);
         $product->setCalculatedPriceRules($prices);
 
         //calculate simple price
-        $priceDefinition = $product->getPriceDefinition($context->getContext());
+        $priceDefinition = $this->priceDefinitionBuilder->buildPriceDefinition($product, $context);
         $price = $this->priceCalculator->calculate($priceDefinition, $context);
         $product->setCalculatedPrice($price);
     }

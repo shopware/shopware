@@ -26,7 +26,7 @@ class Migration1536233080MediaFolder extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`),
-              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.media_folder.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.media_folder.parent_id` FOREIGN KEY (`parent_id`) 
                 REFERENCES `media_folder` (`id`) ON DELETE SET NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

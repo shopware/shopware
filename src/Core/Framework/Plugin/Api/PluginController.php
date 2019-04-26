@@ -19,8 +19,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class PluginController extends AbstractController
 {
-    private const LAST_UPDATES_DAYS = 7;
-
     /**
      * @var PluginService
      */

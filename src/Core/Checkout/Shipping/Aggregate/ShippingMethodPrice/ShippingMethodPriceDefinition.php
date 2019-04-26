@@ -59,7 +59,6 @@ class ShippingMethodPriceDefinition extends EntityDefinition
             new ManyToOneAssociationField('shippingMethod', 'shipping_method_id', ShippingMethodDefinition::class, 'id', false),
             new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, 'id', false),
             new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, 'id', false),
-            // TODO: Remove loadInBasic
             new ManyToOneAssociationField('calculationRule', 'calculation_rule_id', RuleDefinition::class, 'id', false),
         ]);
     }

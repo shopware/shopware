@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -25,6 +26,23 @@ trait BasicTestDataBehaviour
         return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
     }
 
+    protected function getAvailablePaymentMethodId(): ?string
+    {
+        /** @var EntityRepositoryInterface $repository */
+        $repository = $this->getContainer()->get('payment_method.repository');
+
+        $paymentMethods = $repository->search(new Criteria(), Context::createDefaultContext())->getEntities();
+
+        /** @var PaymentMethodEntity $paymentMethod */
+        foreach ($paymentMethods as $paymentMethod) {
+            if ($paymentMethod->getAvailabilityRuleId() === null) {
+                return $paymentMethod->getId();
+            }
+        }
+
+        return null;
+    }
+
     protected function getValidShippingMethodId(): string
     {
         /** @var EntityRepositoryInterface $repository */
@@ -40,7 +58,12 @@ trait BasicTestDataBehaviour
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('shipping_method.repository');
 
-        $shippingMethods = $repository->search(new Criteria(), Context::createDefaultContext())->getEntities();
+        $shippingMethods = $repository->search(
+            (new Criteria())
+                ->addAssociation('prices')
+                ->addFilter(new EqualsFilter('shipping_method.prices.calculation', 0)),
+            Context::createDefaultContext()
+        )->getEntities();
 
         /** @var ShippingMethodEntity $shippingMethod */
         foreach ($shippingMethods as $shippingMethod) {

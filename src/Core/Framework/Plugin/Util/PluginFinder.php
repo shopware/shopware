@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Plugin\Util;
 
 use Composer\Composer;
 use Composer\IO\IOInterface;
-use Composer\Package\PackageInterface;
+use Composer\Package\CompletePackageInterface;
 use Shopware\Core\Framework\Plugin\Composer\Factory;
 use Shopware\Core\Framework\Plugin\Composer\PackageProvider;
 use Shopware\Core\Framework\Plugin\Exception\ExceptionCollection;
@@ -79,18 +79,18 @@ class PluginFinder
         return $plugins;
     }
 
-    private function isShopwarePluginType(PackageInterface $package): bool
+    private function isShopwarePluginType(CompletePackageInterface $package): bool
     {
         return $package->getType() === self::COMPOSER_TYPE;
     }
 
-    private function isPluginComposerValid(PackageInterface $package): bool
+    private function isPluginComposerValid(CompletePackageInterface $package): bool
     {
         return isset($package->getExtra()[self::SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER])
             && $package->getExtra()[self::SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER] !== '';
     }
 
-    private function getPluginNameFromPackage(PackageInterface $pluginPackage): string
+    private function getPluginNameFromPackage(CompletePackageInterface $pluginPackage): string
     {
         return $pluginPackage->getExtra()[self::SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER];
     }
@@ -103,6 +103,7 @@ class PluginFinder
         $plugins = [];
         $composer = Factory::createComposer($projectDir, $composerIO);
 
+        /** @var CompletePackageInterface[] $composerPackages */
         $composerPackages = $composer
             ->getRepositoryManager()
             ->getLocalRepository()
@@ -131,7 +132,7 @@ class PluginFinder
         return $plugins;
     }
 
-    private function getVendorPluginPath(PackageInterface $pluginPackage, Composer $composer): string
+    private function getVendorPluginPath(CompletePackageInterface $pluginPackage, Composer $composer): string
     {
         return $composer->getConfig()->get('vendor-dir') . '/' . $pluginPackage->getPrettyName();
     }

@@ -1,21 +1,10 @@
-import { Component, Mixin, State, Application } from 'src/core/shopware';
+import { Component, Mixin, State } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-cms-list.html.twig';
 import './sw-cms-list.scss';
 
 Component.register('sw-cms-list', {
     template,
-
-    beforeRouteEnter(to, from, next) {
-        const serviceContainer = Application.getContainer('service');
-        const contextService = serviceContainer.context;
-        if (!from.path.includes('/cms') && to.path !== from.path && from.path !== '/') {
-            window.open(`${contextService.installationPath}${contextService.pathInfo}/#${to.path}`, '_blank');
-            return next(false);
-        }
-
-        return next();
-    },
 
     mixins: [
         Mixin.getByName('listing')
@@ -69,7 +58,16 @@ Component.register('sw-cms-list', {
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            // ToDo: Make the navigation state accessible via global state
+            this.$root.$children[0].$children[2].$children[0].isExpanded = false;
+        },
+
         handleScroll(event) {
             const scrollTop = event.srcElement.scrollTop;
             const scrollHeight = event.srcElement.scrollHeight;

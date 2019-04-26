@@ -23,12 +23,6 @@ export default function createSearchTypeService() {
             placeholderSnippet: 'sw-customer.general.placeholderSearchBar',
             listingRoute: 'sw.customer.index'
         },
-        category: {
-            entityName: 'category',
-            entityService: 'categoryService',
-            placeholderSnippet: 'sw-category.general.placeholderSearchBar',
-            listingRoute: 'sw.category.index'
-        },
         order: {
             entityName: 'order',
             entityService: 'orderService',

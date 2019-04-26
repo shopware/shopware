@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Attribute\AttributeService;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
@@ -102,7 +103,8 @@ class AttributesFieldSerializer extends JsonFieldSerializer
     {
         $fields = [];
         foreach ($attributeNames as $attributeName) {
-            $fields[] = $this->attributeService->getAttributeField($attributeName);
+            $fields[] = $this->attributeService->getAttributeField($attributeName)
+                ?? new JsonField($attributeName, $attributeName);
         }
 
         return $fields;

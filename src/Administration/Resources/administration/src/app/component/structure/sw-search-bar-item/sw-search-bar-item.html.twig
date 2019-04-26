@@ -12,7 +12,7 @@
                     <span class="sw-search-bar-item__label">
                         <sw-highlight-text
                                 :searchTerm="searchTerm"
-                                :text="`${item.firstName} ${item.lastName}`">
+                                :text="`${item.customerNumber} - ${item.firstName} ${item.lastName}`">
                         </sw-highlight-text>
                     </span>
                 {% endblock %}
@@ -28,7 +28,7 @@
                     <span class="sw-search-bar-item__label">
                         <sw-highlight-text
                                 :searchTerm="searchTerm"
-                                :text="item.name">
+                                :text="`${item.productNumber} - ${item.name}`">
                         </sw-highlight-text>
                     </span>
                 {% endblock %}

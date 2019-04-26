@@ -47,7 +47,10 @@ Component.register('sw-order-detail-base', {
             return `${this.$tc('sw-order.detailBase.tax')}<br>${formattedTaxes}`;
         },
         sortedCalculatedTaxes() {
-            return this.sortByTaxRate(this.currentOrder.price.calculatedTaxes);
+            return this.sortByTaxRate(this.currentOrder.price.calculatedTaxes).filter(price => price.tax !== 0);
+        },
+        documentStore() {
+            return this.currentOrder.getAssociation('documents');
         },
         transactionOptionPlaceholder() {
             if (this.isLoading) return null;
@@ -124,7 +127,7 @@ Component.register('sw-order-detail-base', {
                 { page: 1, limit: 50, versionId: this.currentOrder.versionId }
             );
 
-            const delivieries = this.currentOrder.getAssociation('deliveries').getList(
+            const deliveries = this.currentOrder.getAssociation('deliveries').getList(
                 { page: 1, limit: 50, versionId: this.currentOrder.versionId }
             );
 
@@ -132,7 +135,11 @@ Component.register('sw-order-detail-base', {
                 { page: 1, limit: 50, versionId: this.currentOrder.versionId }
             );
 
-            return Promise.all([addresses, delivieries, transactions]).then(() => {
+            const documents = this.currentOrder.getAssociation('documents').getList(
+                { page: 1, limit: 50, versionId: this.currentOrder.versionId }
+            );
+
+            return Promise.all([addresses, deliveries, transactions, documents]).then(() => {
                 this.isLoading = false;
                 this.hasAssociations = true;
                 return Promise.resolve();
@@ -176,7 +183,7 @@ Component.register('sw-order-detail-base', {
                 this.nextRoute();
             });
         },
-        onRecalculateOrder() {
+        onLineItemsDeleted() {
             this.isLoading = true;
 
             this.orderService.recalculateOrder(this.currentOrder.id, this.currentOrder.versionId, {}, {}).then(() => {
@@ -184,6 +191,9 @@ Component.register('sw-order-detail-base', {
             }).catch((error) => {
                 this.$emit('sw-order-detail-base-error', error);
             });
+        },
+        onLineItemsEdited() {
+            this.reloadVersionedOrder(this.currentOrder.versionId);
         },
         onShippingChargeEdited(amount) {
             this.currentOrder.deliveries[0].shippingCosts.unitPrice = amount;

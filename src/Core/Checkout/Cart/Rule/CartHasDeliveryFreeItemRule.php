@@ -14,9 +14,11 @@ class CartHasDeliveryFreeItemRule extends Rule
      */
     protected $allowed;
 
-    public function __construct()
+    public function __construct(bool $allowed = true)
     {
-        $this->allowed = true;
+        parent::__construct();
+
+        $this->allowed = $allowed;
     }
 
     public function getName(): string

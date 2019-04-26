@@ -14,6 +14,12 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 class CurrencyEntity extends Entity
 {
     use EntityIdTrait;
+
+    /**
+     * @var string
+     */
+    protected $isoCode;
+
     /**
      * @var float
      */
@@ -98,6 +104,16 @@ class CurrencyEntity extends Entity
      * @var bool|null
      */
     protected $isDefault;
+
+    public function getIsoCode(): string
+    {
+        return $this->isoCode;
+    }
+
+    public function setIsoCode(string $isoCode): void
+    {
+        $this->isoCode = $isoCode;
+    }
 
     public function getFactor(): float
     {

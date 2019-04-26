@@ -19,6 +19,16 @@ abstract class Rule extends Struct
     public const OPERATOR_NEQ = '!=';
 
     /**
+     * @var string
+     */
+    protected $_name;
+
+    public function __construct()
+    {
+        $this->_name = $this->getName();
+    }
+
+    /**
      * Returns the api name for this rule. The name has to be unique in the system.
      */
     abstract public function getName(): string;
@@ -37,4 +47,13 @@ abstract class Rule extends Struct
      *  ]
      */
     abstract public function getConstraints(): array;
+
+    public function jsonSerialize(): array
+    {
+        $data = parent::jsonSerialize();
+        unset($data['extensions'], $data['_class']);
+        $data['_name'] = $this->getName();
+
+        return $data;
+    }
 }

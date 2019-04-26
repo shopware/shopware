@@ -6,14 +6,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Rule\LineItemOfTypeRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
-use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class LineItemOfTypeRuleTest extends TestCase
 {
     public function testRuleWithProductTypeMatch(): void
     {
-        $rule = (new LineItemOfTypeRule())->assign(['lineItemType' => ProductCollector::LINE_ITEM_TYPE]);
+        $rule = (new LineItemOfTypeRule())->assign(['lineItemType' => LineItem::PRODUCT_LINE_ITEM_TYPE]);
 
         $context = $this->createMock(SalesChannelContext::class);
 

@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class AttributeService implements EventSubscriberInterface
@@ -32,12 +33,12 @@ class AttributeService implements EventSubscriberInterface
         $this->attributeRepository = $attributeRepository;
     }
 
-    public function getAttributeField(string $attributeName): Field
+    public function getAttributeField(string $attributeName): ?Field
     {
         /** @var AttributeEntity|null $attribute */
         $attribute = $this->getAttributes()[$attributeName] ?? null;
         if (!$attribute) {
-            return new JsonField($attributeName, $attributeName);
+            return null;
         }
 
         switch ($attribute->getType()) {
@@ -91,8 +92,13 @@ class AttributeService implements EventSubscriberInterface
         }
 
         $this->attributes = [];
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('active', true));
+
         // attributes should not be context dependent
-        $result = $this->attributeRepository->search(new Criteria(), Context::createDefaultContext());
+        $result = $this->attributeRepository->search($criteria, Context::createDefaultContext());
+
         /** @var AttributeEntity $attribute */
         foreach ($result as $attribute) {
             $this->attributes[$attribute->getName()] = $attribute;

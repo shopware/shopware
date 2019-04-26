@@ -174,8 +174,8 @@ Component.register('sw-customer-detail', {
                         sort: 'attribute.config.attributePosition'
                     }
                 }
-            }, true).then((response) => {
-                this.customerAttributeSets = response.items;
+            }, true).then(({ items }) => {
+                this.customerAttributeSets = items.filter(set => set.attributes.length > 0);
             });
 
             this.attributeSetStore.getList({
@@ -188,8 +188,8 @@ Component.register('sw-customer-detail', {
                         sort: 'attribute.config.attributePosition'
                     }
                 }
-            }, true).then((response) => {
-                this.customerAddressAttributeSets = response.items;
+            }, true).then(({ items }) => {
+                this.customerAddressAttributeSets = items.filter(set => set.attributes.length > 0);
             });
         },
 

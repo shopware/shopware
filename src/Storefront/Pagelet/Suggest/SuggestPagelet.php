@@ -2,35 +2,35 @@
 
 namespace Shopware\Storefront\Pagelet\Suggest;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 
 class SuggestPagelet extends Struct
 {
-    /**
-     * @var StorefrontSearchResult
-     */
-    protected $listing;
-
     /**
      * @var string
      */
     protected $searchTerm;
 
-    public function __construct(StorefrontSearchResult $listing, string $searchTerm)
+    /**
+     * @var EntitySearchResult
+     */
+    protected $searchResult;
+
+    public function __construct(EntitySearchResult $searchResult, string $searchTerm)
     {
-        $this->listing = $listing;
         $this->searchTerm = $searchTerm;
+        $this->searchResult = $searchResult;
     }
 
-    public function getListing(): StorefrontSearchResult
+    public function getSearchResult(): EntitySearchResult
     {
-        return $this->listing;
+        return $this->searchResult;
     }
 
-    public function setListing(StorefrontSearchResult $listing): void
+    public function setSearchResult(EntitySearchResult $searchResult): void
     {
-        $this->listing = $listing;
+        $this->searchResult = $searchResult;
     }
 
     public function getSearchTerm(): string

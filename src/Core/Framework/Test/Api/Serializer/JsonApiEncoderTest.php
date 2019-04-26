@@ -152,6 +152,12 @@ class JsonApiEncoderTest extends TestCase
                             'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/mail-template-media',
                         ],
                     ],
+                    'documentBaseConfigs' => [
+                        'data' => [],
+                        'links' => [
+                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/document-base-configs',
+                        ],
+                    ],
                     'shippingMethods' => [
                         'data' => [],
                         'links' => [
@@ -168,6 +174,12 @@ class JsonApiEncoderTest extends TestCase
                         'data' => [],
                         'links' => [
                             'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/product-configurator-settings',
+                        ],
+                    ],
+                    'orderLineItems' => [
+                        'data' => [],
+                        'links' => [
+                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/order-line-items',
                         ],
                     ],
                 ],

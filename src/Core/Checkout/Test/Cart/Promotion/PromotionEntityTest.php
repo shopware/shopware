@@ -30,11 +30,15 @@ class PromotionEntityTest extends TestCase
         $rulePersona->setId('PERSONA-1');
 
         $ruleScope = new RuleEntity();
-        $ruleScope->setId('SCOPE-1');
+        $ruleScope->setId('CART-1');
+
+        $ruleOrder = new RuleEntity();
+        $ruleOrder->setId('ORDER-1');
 
         $this->promotion = new PromotionEntity();
         $this->promotion->setPersonaRules(new RuleCollection([$rulePersona]));
-        $this->promotion->setScopeRule($ruleScope);
+        $this->promotion->setCartRules(new RuleCollection([$ruleScope]));
+        $this->promotion->setOrderRules(new RuleCollection([$ruleOrder]));
 
         $this->checkoutContext = $this->getMockBuilder(SalesChannelContext::class)->disableOriginalConstructor()->getMock();
     }
@@ -108,35 +112,35 @@ class PromotionEntityTest extends TestCase
 
     /**
      * This test verifies that our validation allows the
-     * promotion based on the scope rule. For this, the ruleID
+     * promotion based on the cart rule. For this, the ruleID
      * has to occur in the current checkout context.
      *
      * @test
      * @group promotions
      */
-    public function testScopeRuleIsRecognizedInContext()
+    public function testCartRuleIsRecognizedInContext()
     {
         $checkoutRuleIds = [
             'OTHER-RULE',
-            'SCOPE-1',
+            'CART-1',
         ];
 
         $this->checkoutContext->expects(static::any())->method('getRuleIds')->willReturn($checkoutRuleIds);
 
-        $isValid = $this->promotion->isScopeValid($this->checkoutContext);
+        $isValid = $this->promotion->isCartConditionValid($this->checkoutContext);
 
         static::assertTrue($isValid);
     }
 
     /**
      * This test verifies that our validation prohibits the
-     * promotion based on the scope rule.
+     * promotion based on the cart rule.
      * In this case, our rule does not occur in the checkout context.
      *
      * @test
      * @group promotions
      */
-    public function testScopeRuleIsNotInContext()
+    public function testCartRuleIsNotInContext()
     {
         $checkoutRuleIDs = [
             'OTHER-RULE1',
@@ -145,20 +149,20 @@ class PromotionEntityTest extends TestCase
 
         $this->checkoutContext->expects(static::any())->method('getRuleIds')->willReturn($checkoutRuleIDs);
 
-        $isValid = $this->promotion->isScopeValid($this->checkoutContext);
+        $isValid = $this->promotion->isCartConditionValid($this->checkoutContext);
 
         static::assertFalse($isValid);
     }
 
     /**
      * If no scope rule has been set, then the promotion is always
-     * valid within the scope check.
+     * valid within the cart check.
      * This does just mean we have no restriction.
      *
      * @test
      * @group promotions
      */
-    public function testScopeRuleValidIfEmpty()
+    public function testCartRuleValidIfEmpty()
     {
         $checkoutRuleIDs = [
             'OTHER-RULE',
@@ -168,7 +172,74 @@ class PromotionEntityTest extends TestCase
 
         $this->checkoutContext->expects(static::any())->method('getRuleIds')->willReturn($checkoutRuleIDs);
 
-        $isValid = $promotionWithoutRule->isScopeValid($this->checkoutContext);
+        $isValid = $promotionWithoutRule->isCartConditionValid($this->checkoutContext);
+
+        static::assertTrue($isValid);
+    }
+
+    /**
+     * This test verifies that our validation allows the
+     * promotion based on the order rule. For this, the ruleID
+     * has to occur in the current checkout context.
+     *
+     * @test
+     * @group promotions
+     */
+    public function testOrderRuleIsRecognizedInContext()
+    {
+        $checkoutRuleIds = [
+            'OTHER-RULE',
+            'ORDER-1',
+        ];
+
+        $this->checkoutContext->expects(static::any())->method('getRuleIds')->willReturn($checkoutRuleIds);
+
+        $isValid = $this->promotion->isOrderConditionValid($this->checkoutContext);
+
+        static::assertTrue($isValid);
+    }
+
+    /**
+     * This test verifies that our validation prohibits the
+     * promotion based on the order rule.
+     * In this case, our rule does not occur in the checkout context
+     *
+     * @test
+     * @group promotions
+     */
+    public function testOrderRuleIsNotInContext()
+    {
+        $contextRuleIDs = [
+            'OTHER-RULE1',
+            'OTHER-RULE2',
+        ];
+
+        $this->checkoutContext->expects(static::any())->method('getRuleIds')->willReturn($contextRuleIDs);
+
+        $isValid = $this->promotion->isOrderConditionValid($this->checkoutContext);
+
+        static::assertFalse($isValid);
+    }
+
+    /**
+     * If no order rule has been set, then the
+     * promotion is always valid.
+     * This does just mean we have no restriction.
+     *
+     * @test
+     * @group promotions
+     */
+    public function testOrderRulesValidIfEmpty()
+    {
+        $checkoutRuleIDs = [
+            'OTHER-RULE',
+        ];
+
+        $promotionWithoutRule = new PromotionEntity();
+
+        $this->checkoutContext->expects(static::any())->method('getRuleIds')->willReturn($checkoutRuleIDs);
+
+        $isValid = $promotionWithoutRule->isOrderConditionValid($this->checkoutContext);
 
         static::assertTrue($isValid);
     }

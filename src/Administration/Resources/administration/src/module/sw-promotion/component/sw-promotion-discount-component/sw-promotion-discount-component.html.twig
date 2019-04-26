@@ -1,0 +1,37 @@
+{% block sw_promotion_discount_component %}
+    <div class="promotion-discount-component">
+        <sw-container columns="1fr 1fr" gap="0px 30px">
+            {% block sw_promotion_discount_component_scope %}
+                <sw-select-field v-model="discount.scope"
+                                 validation="required"
+                                 :label="$tc('sw-promotion.detail.main.discounts.labelScope')">
+                    <option v-for="scope in getScopes()" :value="scope.key">
+                        {{ scope.name }}
+                    </option>
+                </sw-select-field>
+            {% endblock %}
+            <div></div>
+        </sw-container>
+        <sw-container columns="1fr 1fr" gap="0px 30px">
+            {% block sw_promotion_discount_component_type %}
+                <sw-select-field v-model="discount.type"
+                                 :label="$tc('sw-promotion.detail.main.discounts.labelType')">
+                    <option v-for="type in getTypes()" :value="type.key">
+                        {{ type.name }}
+                    </option>
+                </sw-select-field>
+            {% endblock %}
+            {% block sw_promotion_discount_component_value %}
+                <sw-field type="number"
+                          validation="required"
+                          v-model="discount.value"
+                          :suffix="getValueSuffix()"
+                          :min="getValueMin()"
+                          :max="getValueMax()"
+                          :label="$tc('sw-promotion.detail.main.discounts.labelValue')"
+                          :placeholder="$tc('sw-promotion.detail.main.discounts.placeholderValue')">
+                </sw-field>
+            {% endblock %}
+        </sw-container>
+    </div>
+{% endblock %}

@@ -354,6 +354,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
             <argument type="service" id="validator" />
             <tag name="shopware.field_serializer"/>
+            <argument type="service" id="Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\BoolFieldSerializer">

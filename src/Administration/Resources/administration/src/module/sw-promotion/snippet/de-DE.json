@@ -1,0 +1,117 @@
+{
+  "sw-promotion": {
+    "general": {
+      "mainMenuItemGeneral" : "Rabattaktionen",
+      "mainMenuItemList" : "Übersicht",
+      "description": "Rabattaktionen"
+    },
+    "list": {
+      "textTitle": "Rabattaktionen",
+      "buttonAddPromotion": "Aktion anlegen",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen",
+      "columnActive": "Aktiv",
+      "columnName": "Name",
+      "columnValidFrom": "Aktiv von:",
+      "columnValidUntil": "Aktiv bis:",
+      "contextMenuDelete": "Löschen",
+      "contextMenuDuplicate": "Duplizieren",
+      "contextMenuEdit": "Bearbeiten",
+      "messageEmpty": "Noch keine Rabattaktionen",
+      "modalTitleDelete": "Rabattaktion löschen",
+      "placeholderSearchBar": "Durchsuchen aller Rabattaktionen",
+      "textDeleteConfirm": "Möchtest Du die Rabattaktion \"{name}\" wirklich löschen?",
+      "titleSidebarItemRefresh": "Aktualisieren"
+    },
+    "detail": {
+      "header": {
+        "titleCreate": "Neue Aktion",
+        "titleEdit": "Aktion",
+        "buttonCancel": "Abbrechen",
+        "buttonSave": "Speichern",
+        "titleSaveSuccess": "Erfolg",
+        "messageSaveSuccess": "Die Rabattaktion {name} wurde erfolgreich gespeichert."
+      },
+      "tabs": {
+        "tabGeneral": "Allgemein",
+        "tabPreconditions": "Bedingungen",
+        "tabDiscounts": "Rabatte"
+      },
+      "main": {
+        "general": {
+          "cardTitlePromotionInfo": "Einstellungen",
+          "cardTitleCode": "Aktionscodes",
+          "labelTitle": "Name",
+          "placeholderName": "Name",
+          "labelActive": "Aktiv",
+          "labelSalesChannels": "Verkaufskanäle",
+          "placeholderSalesChannels": "Verkaufskanal hinzufügen...",
+          "labelValidFrom": "Aktiv von:",
+          "labelValidUntil": "Aktiv bis:",
+          "labelPriority": "Priorität",
+          "labelRedeemable": "Anzahl",
+          "codes" : {
+            "card" : "Aktionscodes",
+            "labelCode" : "Allgemeiner Aktionscode",
+            "placeholderCode": "Gib einen Code für die Rabattaktion an",
+            "switchUseCodes" : "Aktionscodes verwenden"
+          }
+        },
+        "preconditions": {
+          "ruleModuleLink": "Regelmodul öffnen",
+          "descriptionTextScope": "Nutze Regeln aus dem Regelmodul, um die Aktionswarenkörbe dieser Marketingaktion zu definieren.\n            Ohne eine Eingrenzung wird die Aktion auf alle Warenkörbe angewendet.",
+          "descriptionTitleScope": "Welche Warenkörbe sind von dieser Rabattaktion betroffen?",
+          "labelCategory": "Kategorie",
+          "labelProduct": "Produkt",
+          "labelCart": "Warenkorb",
+          "labelScopeRule": "Scope Regel",
+          "labelDiscountRule": "Discount Regel",
+          "cardTitleScopeRules": "Warenkorb",
+          "persona": {
+            "card": "Zielgruppe",
+            "title": "Bestimme welche Kunden von dieser Rabattaktion profitieren",
+            "text": "Nutze Regeln aus dem Regelmodul, um die Zielgruppe dieser Marketingaktion einzugrenzen. Ohne eine Eingrenzung haben alle deine Kunden Zugriff auf diese Aktion.",
+            "labelRules": "Kundenregeln",
+            "placeholderRules": "Regel hinzufügen...",
+            "labelCustomers": "Spezifischen Kunden zuweisen",
+            "placeholderCustomers": "Kunden hinzufügen..."
+          },
+          "order": {
+            "card": "Bestellung",
+            "title": "Bestimme welche Eigenschaften eine Bestellung zusätzlich für diese Rabattaktion aufweisen muss.",
+            "text": "Nutze Regeln des Typs 'Bestellung' um zu definieren, welche Bediungen erfüllt sein müssen, damit diese Rabattaktion angewendet wird.",
+            "rulesModuleLink": "Regelmodul öffnen",
+            "rulesCaption": "Bestellregeln",
+            "rulesPlaceholder": "Bestellregel zuweisen..."
+          },
+          "cart": {
+            "card": "Warenkorb",
+            "title": "Welche Warenkörbe sind von dieser Rabattaktion betroffen?",
+            "text": "Nutze Regeln aus dem Regelmodul, um die Aktionswarenkörbe dieser Marketingaktion zu definieren.\n            Ohne eine Eingrenzung wird die Aktion auf alle Warenkörbe angewendet.",
+            "rulesModuleLink": "Regelmodul öffnen",
+            "rulesCaption": "Warenkorbregeln",
+            "rulesPlaceholder": "Warenkorbregel zuweisen..."
+          }
+        },
+        "discounts": {
+          "card": "Rabatt",
+          "labelValue": "Wert",
+          "placeholderValue": "Gib den Wert der Rabattaktion an...",
+          "labelScope": "Bezieht sich auf:",
+          "labelType": "Art",
+          "valueScopeCart": "Gesamter Warenkorb",
+          "valueTypeAbsolute": "Absolut",
+          "valueTypePercentage": "Prozentual",
+          "buttonAddDiscount": "+ Rabatt hinzufügen",
+          "buttonDeleteDiscount": "Rabatt entfernen",
+          "delete": {
+            "confirmTitle": "Rabatt entfernen",
+            "confirmText": "Möchtest du den Rabatt wirklich aus der Rabattaktion entfernen?",
+            "buttonCancel": "Abbrechen",
+            "buttonDelete": "Rabatt entfernen"
+          }
+        }
+      }
+    }
+  }
+}

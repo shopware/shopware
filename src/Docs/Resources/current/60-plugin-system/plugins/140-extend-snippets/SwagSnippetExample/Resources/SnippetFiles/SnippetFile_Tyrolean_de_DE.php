@@ -8,17 +8,17 @@ class SnippetFile_Tyrolean_de_DE implements SnippetFileInterface
 {
     public function getName(): string
     {
-        return 'messages.tyrolean.de_DE';
+        return 'messages.tyrolean.de-DE';
     }
 
     public function getPath(): string
     {
-        return __DIR__ . '/messages.tyrolean.de_DE.json';
+        return __DIR__ . '/messages.tyrolean.de-DE.json';
     }
 
     public function getIso(): string
     {
-        return 'de_DE';
+        return 'de-DE';
     }
 
     public function getAuthor(): string

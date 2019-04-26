@@ -14,10 +14,15 @@ class TreeItem
      */
     protected $children;
 
-    public function __construct(TreeAwareInterface $entity, array $children)
+    public function __construct(?TreeAwareInterface $entity, array $children)
     {
         $this->entity = $entity;
         $this->children = $children;
+    }
+
+    public function setEntity(TreeAwareInterface $entity): void
+    {
+        $this->entity = $entity;
     }
 
     public function getEntity(): TreeAwareInterface
@@ -32,6 +37,13 @@ class TreeItem
 
     public function addChildren(TreeItem ...$items): void
     {
-        $this->children = array_merge($this->children, $items);
+        foreach ($items as $item) {
+            $this->children[] = $item;
+        }
+    }
+
+    public function setChildren(array $children): void
+    {
+        $this->children = $children;
     }
 }

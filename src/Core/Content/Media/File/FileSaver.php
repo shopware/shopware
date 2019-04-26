@@ -22,6 +22,7 @@ use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -34,17 +35,17 @@ class FileSaver
     /**
      * @var EntityRepositoryInterface
      */
-    protected $mediaRepository;
+    private $mediaRepository;
 
     /**
      * @var FilesystemInterface
      */
-    protected $filesystem;
+    private $filesystem;
 
     /**
      * @var UrlGeneratorInterface
      */
-    protected $urlGenerator;
+    private $urlGenerator;
 
     /**
      * @var ThumbnailService
@@ -102,8 +103,6 @@ class FileSaver
         string $mediaId,
         Context $context
     ): void {
-        $currentMedia = null;
-
         $currentMedia = $this->findMediaById($mediaId, $context);
         $destination = $this->validateFileName($destination);
         $this->ensureFileNameIsUnique(
@@ -279,7 +278,7 @@ class FileSaver
     ): MediaEntity {
         $data = [
             'id' => $media->getId(),
-            'userId' => $context->getUserId(),
+            'userId' => $context->getSource() instanceof AdminApiSource ? $context->getSource()->getUserId() : null,
             'mimeType' => $mediaFile->getMimeType(),
             'fileExtension' => $mediaFile->getFileExtension(),
             'fileSize' => $mediaFile->getFileSize(),

@@ -4,11 +4,11 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItem;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CalculatedPriceField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
@@ -22,7 +22,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceDefinitionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
@@ -65,6 +64,9 @@ class OrderLineItemDefinition extends EntityDefinition
             new ParentFkField(self::class),
             (new ReferenceVersionField(self::class, 'parent_version_id'))->addFlags(new Required()),
 
+            new FkField('cover_id', 'coverId', MediaDefinition::class),
+            new ManyToOneAssociationField('cover', 'cover_id', MediaDefinition::class, 'id', false),
+
             (new StringField('identifier', 'identifier'))->addFlags(new Required()),
             (new IntField('quantity', 'quantity'))->addFlags(new Required()),
             (new StringField('label', 'label'))->addFlags(new Required()),
@@ -72,7 +74,6 @@ class OrderLineItemDefinition extends EntityDefinition
             new BoolField('good', 'good'),
             new BoolField('removable', 'removable'),
             new BoolField('stackable', 'stackable'),
-            new IntField('priority', 'priority'),
 
             (new CalculatedPriceField('price', 'price'))->setFlags(new Required()),
             (new PriceDefinitionField('price_definition', 'priceDefinition'))->setFlags(new Required()),
@@ -86,8 +87,6 @@ class OrderLineItemDefinition extends EntityDefinition
             new UpdatedAtField(),
             new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, 'id', false),
             (new OneToManyAssociationField('orderDeliveryPositions', OrderDeliveryPositionDefinition::class, 'order_line_item_id', 'id'))->addFlags(new CascadeDelete(), new WriteProtected()),
-            new ParentAssociationField(self::class, 'id'),
-            new ChildrenAssociationField(self::class),
         ]);
     }
 }

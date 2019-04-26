@@ -188,10 +188,14 @@ class CheckoutPageController extends StorefrontController
     public function register(Request $request, SalesChannelContext $context): Response
     {
         /** @var string $redirect */
-        $redirect = $request->get('redirectTo', $this->generateUrl('frontend.checkout.confirm.page'));
+        $redirect = $request->get('redirectTo', 'frontend.checkout.confirm.page');
 
         if ($context->getCustomer()) {
-            return $this->redirect($redirect);
+            return $this->redirectToRoute($redirect);
+        }
+
+        if ($this->cartService->getCart($context->getToken(), $context)->getLineItems()->count() === 0) {
+            return $this->redirectToRoute('frontend.checkout.cart.page');
         }
 
         $page = $this->registerPageLoader->load($request, $context);
@@ -268,17 +272,22 @@ class CheckoutPageController extends StorefrontController
     /**
      * @Route("/checkout/configure", name="frontend.checkout.configure", options={"seo"="false"}, methods={"POST"})
      */
-    public function configure(Request $request, RequestDataBag $data, SalesChannelContext $context): RedirectResponse
+    public function configure(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
+        $route = $request->get('redirectTo', 'frontend.checkout.cart.page');
+        $parameters = $request->get('redirectParameters', []);
+
+        //since the keys "redirectTo" and "redirectParameters" are used to configure this action, the shall not be persisted
+        $data->remove('redirectTo');
+        $data->remove('redirectParameters');
+
         $this->contextSwitcher->update($data, $context);
 
-        $route = $request->get('redirectTo', 'frontend.checkout.cart.page');
-
-        return $this->redirectToRoute($route);
+        return $this->redirectToRoute($route, $parameters);
     }
 
     /**
-     * @Route("/checkout/line-item/delete/{id}", name="frontend.checkout.line-item.delete", defaults={"XmlHttpRequest": true}, methods={"POST"})
+     * @Route("/checkout/line-item/delete/{id}", name="frontend.checkout.line-item.delete", defaults={"XmlHttpRequest": true}, methods={"POST", "DELETE"})
      */
     public function removeLineItem(string $id, Request $request, SalesChannelContext $context): Response
     {
@@ -291,6 +300,30 @@ class CheckoutPageController extends StorefrontController
         }
 
         $this->cartService->remove($cart, $id, $context);
+
+        return $this->createActionResponse($request);
+    }
+
+    /**
+     * @Route("/checkout/line-item/update/{id}", name="frontend.checkout.line-item.update", defaults={"XmlHttpRequest": true}, methods={"POST"})
+     */
+    public function updateLineItem(string $id, Request $request, SalesChannelContext $context): Response
+    {
+        $token = $request->request->getAlnum('token', $context->getToken());
+
+        $quantity = $request->get('quantity', null);
+
+        if ($quantity === null) {
+            throw new \Exception('quantity field is required');
+        }
+
+        $cart = $this->cartService->getCart($token, $context);
+
+        if (!$cart->has($id)) {
+            throw new LineItemNotFoundException($id);
+        }
+
+        $this->cartService->changeQuantity($cart, $id, (int) $quantity, $context);
 
         return $this->createActionResponse($request);
     }

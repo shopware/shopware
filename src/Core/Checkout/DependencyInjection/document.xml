@@ -1,0 +1,88 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="Shopware\Core\Checkout\Document\FileGenerator\PdfGenerator">
+            <tag name="file.generator"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Document\FileGenerator\FileGeneratorRegistry">
+            <argument type="tagged" tag="file.generator"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator">
+            <argument type="service" id="templating"/>
+            <argument>%kernel.root_dir%</argument>
+            <tag name="document.generator"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator">
+            <argument type="service" id="templating"/>
+            <argument>%kernel.root_dir%</argument>
+            <tag name="document.generator"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Document\DocumentGenerator\StornoGenerator">
+            <argument type="service" id="templating"/>
+            <argument>%kernel.root_dir%</argument>
+            <tag name="document.generator"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Document\DocumentGenerator\CreditNoteGenerator">
+            <argument type="service" id="templating"/>
+            <argument>%kernel.root_dir%</argument>
+            <tag name="document.generator"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Document\DocumentGenerator\DocumentGeneratorRegistry">
+            <argument type="tagged" tag="document.generator"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Document\DocumentDefinition">
+            <tag name="shopware.entity.definition" entity="document"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition">
+            <tag name="shopware.entity.definition" entity="document_type"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Document\Aggregate\DocumentTypeTranslation\DocumentTypeTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="document_type_translation"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition">
+            <tag name="shopware.entity.definition" entity="document_base_config"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition">
+            <tag name="shopware.entity.definition" entity="document_base_config_sales_channel"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Document\DocumentService">
+            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentGenerator\DocumentGeneratorRegistry"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\FileGenerator\FileGeneratorRegistry"/>
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="document.repository"/>
+            <argument type="service" id="document_type.repository"/>
+            <argument type="service" id="document_base_config.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Document\DocumentGeneratorController" public="true">
+            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Document\Controller\DocumentController" public="true">
+            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
+            <argument type="service" id="document.repository"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+    </services>
+</container>

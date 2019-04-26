@@ -9,12 +9,9 @@ Component.register('sw-settings-user-detail', {
     inject: ['userService', 'userValidationService'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
+        Mixin.getByName('salutation')
     ],
-
-    props: {
-
-    },
 
     data() {
         return {
@@ -29,7 +26,17 @@ Component.register('sw-settings-user-detail', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
     computed: {
+        identifier() {
+            return this.salutation(this.user);
+        },
+
         userStore() {
             return State.getStore('user');
         },
@@ -39,11 +46,7 @@ Component.register('sw-settings-user-detail', {
         },
 
         username() {
-            if (this.user) {
-                return `${this.user.firstName} ${this.user.lastName} `;
-            }
-
-            return '';
+            return this.salutation(this.user, this.$tc('sw-settings-user.user-detail.labelNewUser'));
         },
 
         avatarMedia() {

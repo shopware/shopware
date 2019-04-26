@@ -26,6 +26,9 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
 
     methods: {
         createdComponent() {
+            // ToDo: Make the navigation state accessible via global state
+            this.$root.$children[0].$children[2].$children[0].isExpanded = false;
+
             if (this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId) {
                 this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
             }

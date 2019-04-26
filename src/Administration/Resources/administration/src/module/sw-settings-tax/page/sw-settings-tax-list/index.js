@@ -13,5 +13,11 @@ Component.register('sw-settings-tax-list', {
             entityName: 'tax',
             sortBy: 'tax.name'
         };
+    },
+
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
     }
 });

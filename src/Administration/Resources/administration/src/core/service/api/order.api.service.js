@@ -39,7 +39,6 @@ class OrderApiService extends ApiService {
 
     addCustomLineItemToOrder(orderId, versionId, item, additionalParams = {}, additionalHeaders = {}) {
         const route = `_action/order/${orderId}/lineItem`;
-
         const headers = Object.assign(ApiService.getVersionHeader(versionId), this.getBasicHeaders(additionalHeaders));
 
         const dummyPrice = deepCopyObject(item.priceDefinition);
@@ -50,7 +49,26 @@ class OrderApiService extends ApiService {
                 JSON.stringify(
                     { label: item.label,
                         quantity: item.quantity,
-                        // identifier: item.identifier,
+                        type: item.type,
+                        identifier: utils.createId(),
+                        description: item.description,
+                        priceDefinition: dummyPrice }
+                ), {
+                    additionalParams,
+                    headers
+                });
+    }
+
+    addCreditItemToOrder(orderId, versionId, item, additionalParams = {}, additionalHeaders = {}) {
+        const route = `_action/order/${orderId}/creditItem`;
+        const headers = Object.assign(ApiService.getVersionHeader(versionId), this.getBasicHeaders(additionalHeaders));
+
+        const dummyPrice = deepCopyObject(item.priceDefinition);
+        return this.httpClient
+            .post(route,
+                JSON.stringify(
+                    { label: item.label,
+                        quantity: item.quantity,
                         type: item.type,
                         identifier: utils.createId(),
                         description: item.description,

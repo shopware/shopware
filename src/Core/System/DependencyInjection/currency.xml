@@ -24,5 +24,8 @@
         <service id="Shopware\Core\System\Currency\Rule\CurrencyRule">
             <tag name="shopware.rule.definition"/>
         </service>
+        <service id="Shopware\Core\System\Currency\CurrencyFormatter" public="true">
+            <argument type="service" id="language.repository"/>
+        </service>
     </services>
 </container>                

@@ -56,11 +56,11 @@ class TranslatorTest extends TestCase
 
         // fake request
         $request = new Request();
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID, $this->getSnippetSetIdForLocale('en_GB'));
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE, 'en_GB');
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID, $this->getSnippetSetIdForLocale('en-GB'));
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE, 'en-GB');
 
         $stack->push($request);
-        $result = $this->translator->getCatalogue('en_GB')->get('frontend.note.item.NoteLinkZoom');
+        $result = $this->translator->getCatalogue('en-GB')->get('frontend.note.item.NoteLinkZoom');
         $prop->setValue($stack, []);
 
         static::assertEquals(
@@ -76,7 +76,7 @@ class TranslatorTest extends TestCase
         $snippet = [
             'translationKey' => 'new.unit.test.key',
             'value' => 'Realisiert mit Unit test',
-            'setId' => $this->getSnippetSetIdForLocale('en_GB'),
+            'setId' => $this->getSnippetSetIdForLocale('en-GB'),
             'author' => 'Shopware',
         ];
         $this->snippetRepository->create([$snippet], $context);
@@ -84,15 +84,15 @@ class TranslatorTest extends TestCase
         // fake request
         $request = new Request();
 
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID, $this->getSnippetSetIdForLocale('en_GB'));
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE, 'en_GB');
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID, $this->getSnippetSetIdForLocale('en-GB'));
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE, 'en-GB');
 
         $this->getContainer()->get(RequestStack::class)->push($request);
 
         // get overwritten string
         static::assertEquals(
             $snippet['value'],
-            $this->translator->getCatalogue('en_GB')->get('new.unit.test.key')
+            $this->translator->getCatalogue('en-GB')->get('new.unit.test.key')
         );
         static::assertSame(
             $request,
@@ -107,7 +107,7 @@ class TranslatorTest extends TestCase
             'id' => Uuid::randomHex(),
             'translationKey' => 'foo',
             'value' => 'bar',
-            'setId' => $this->getSnippetSetIdForLocale('en_GB'),
+            'setId' => $this->getSnippetSetIdForLocale('en-GB'),
             'author' => 'Shopware',
         ];
 

@@ -10,7 +10,7 @@ class SearchAnalyzerRegistry
     /**
      * @var SearchAnalyzerInterface[]
      */
-    protected $analyzers;
+    private $analyzers;
 
     public function __construct(iterable $analyzers)
     {

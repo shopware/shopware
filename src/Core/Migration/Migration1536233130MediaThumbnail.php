@@ -24,7 +24,7 @@ class Migration1536233130MediaThumbnail extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
                PRIMARY KEY (`id`),
-               CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
+               CONSTRAINT `json.media_thumbnail.attributes` CHECK (JSON_VALID(`attributes`)),
                CONSTRAINT `fk.media_thumbnail.media_id` FOREIGN KEY (`media_id`)
                  REFERENCES `media` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Test\Snippet\Files;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Snippet\Exception\InvalidSnippetFileException;
 use Shopware\Core\Framework\Snippet\Files\de_DE\SnippetFile_de_DE;
-use Shopware\Core\Framework\Snippet\Files\en_EN\SnippetFile_en_GB;
+use Shopware\Core\Framework\Snippet\Files\en_GB\SnippetFile_en_GB;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\MockSnippetFile;
 use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;

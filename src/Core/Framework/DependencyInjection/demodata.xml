@@ -93,6 +93,7 @@
             <argument type="service" id="cms_page.repository" />
             <argument type="service" id="product.repository" />
             <argument type="service" id="media.repository" />
+            <argument type="service" id="Doctrine\DBAL\Connection" />
             <tag name="shopware.demodata_generator" />
         </service>
 

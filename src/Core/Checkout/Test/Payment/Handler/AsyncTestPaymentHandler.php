@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\Checkout\Test\Payment\Handler;
 
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -17,21 +15,13 @@ class AsyncTestPaymentHandler implements AsynchronousPaymentHandlerInterface
     public const REDIRECT_URL = 'https://shopware.com';
 
     /**
-     * @var EntityRepositoryInterface
+     * @var OrderTransactionStateHandler
      */
-    private $transactionRepository;
+    private $transactionStateHandler;
 
-    /**
-     * @var StateMachineRegistry
-     */
-    private $stateMachineRegistry;
-
-    public function __construct(
-        EntityRepositoryInterface $transactionRepository,
-        StateMachineRegistry $stateMachineRegistry
-    ) {
-        $this->transactionRepository = $transactionRepository;
-        $this->stateMachineRegistry = $stateMachineRegistry;
+    public function __construct(OrderTransactionStateHandler $transactionStateHandler)
+    {
+        $this->transactionStateHandler = $transactionStateHandler;
     }
 
     public function pay(AsyncPaymentTransactionStruct $transaction, SalesChannelContext $salesChannelContext): RedirectResponse
@@ -52,17 +42,6 @@ class AsyncTestPaymentHandler implements AsynchronousPaymentHandlerInterface
         }
 
         $context = $salesChannelContext->getContext();
-        $completeStateId = $this->stateMachineRegistry->getStateByTechnicalName(
-            OrderTransactionStates::STATE_MACHINE,
-            OrderTransactionStates::STATE_PAID,
-            $context
-        )->getId();
-
-        $transactionData = [
-            'id' => $transaction->getOrderTransaction()->getId(),
-            'stateId' => $completeStateId,
-        ];
-
-        $this->transactionRepository->update([$transactionData], $context);
+        $this->transactionStateHandler->complete($transaction->getOrderTransaction()->getId(), $context);
     }
 }

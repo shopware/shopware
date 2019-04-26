@@ -84,5 +84,10 @@
                 <argument type="service" id="service_container" />
             </call>
         </service>
+
+        <service id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler">
+            <argument type="service" id="order_transaction.repository"/>
+            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
+        </service>
     </services>
 </container>

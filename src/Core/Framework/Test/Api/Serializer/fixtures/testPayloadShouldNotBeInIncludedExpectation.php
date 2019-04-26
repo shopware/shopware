@@ -45,10 +45,6 @@ return [
                     'data' => [],
                     'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/persona-promotions'],
                 ],
-                'scopePromotions' => [
-                    'data' => [],
-                    'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/scope-promotions'],
-                ],
                 'discountPromotions' => [
                     'data' => [],
                     'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/discount-promotions'],
@@ -60,6 +56,10 @@ return [
                 'orderPromotions' => [
                     'data' => [],
                     'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/order-promotions'],
+                ],
+                'cartPromotions' => [
+                    'data' => [],
+                    'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/cart-promotions'],
                 ],
             ],
             'meta' => null,

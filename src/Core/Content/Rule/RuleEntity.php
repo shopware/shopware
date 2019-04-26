@@ -117,6 +117,11 @@ class RuleEntity extends Entity
      */
     protected $orderPromotions;
 
+    /**
+     * @var PromotionCollection|null
+     */
+    protected $cartPromotions;
+
     public function getName(): string
     {
         return $this->name;
@@ -331,5 +336,23 @@ class RuleEntity extends Entity
     public function setOrderPromotions(?PromotionCollection $orderPromotions): void
     {
         $this->orderPromotions = $orderPromotions;
+    }
+
+    /**
+     * Gets a list of all promotions where this rule is
+     * being used within the Cart Conditions.
+     */
+    public function getCartPromotions(): ?PromotionCollection
+    {
+        return $this->cartPromotions;
+    }
+
+    /**
+     * Sets a list of all promotions where this rule should be
+     * used as Cart Condition.
+     */
+    public function setCartPromotions(?PromotionCollection $cartPromotions): void
+    {
+        $this->cartPromotions = $cartPromotions;
     }
 }

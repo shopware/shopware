@@ -18,22 +18,14 @@ Component.register('sw-promotion-scope-form', {
     },
 
     computed: {
-        ruleStore() {
+
+        rulesStore() {
             return State.getStore('rule');
         },
 
-        categoryStore() {
-            return State.getStore('category');
-        },
-
-        productStore() {
-            return State.getStore('product');
+        cartRulesAssociationStore() {
+            return this.promotion.getAssociation('cartRules');
         }
-    },
 
-    methods: {
-        onScopeRuleChange(ruleId) {
-            this.promotion.scopeRuleId = ruleId;
-        }
     }
 });

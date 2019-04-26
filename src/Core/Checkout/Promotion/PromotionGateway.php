@@ -164,15 +164,15 @@ class PromotionGateway implements PromotionGatewayInterface
                 new MultiFilter(
                     MultiFilter::CONNECTION_AND,
                     [
-                        new EqualsFilter('scopeRuleId', null),
                         new EqualsFilter('promotion.orderRules.id', null),
+                        new EqualsFilter('promotion.cartRules.id', null),
                     ]
                 ),
                 new MultiFilter(
                     MultiFilter::CONNECTION_OR,
                     [
-                        new EqualsAnyFilter('scopeRuleId', $contextRuleIds),
                         new EqualsAnyFilter('promotion.orderRules.id', $contextRuleIds),
+                        new EqualsAnyFilter('promotion.cartRules.id', $contextRuleIds),
                     ]
                 ),
             ]

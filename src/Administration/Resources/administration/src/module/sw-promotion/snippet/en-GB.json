@@ -67,6 +67,7 @@
           "descriptionTitleScope": "Which shopping carts are affected by this discount promotion?",
           "labelCategory": "Category",
           "labelProduct": "Product",
+          "labelCart": "Cart",
           "labelScopeRule": "Scope rule",
           "cardTitleScopeRules": "Cart",
           "persona": {
@@ -85,6 +86,14 @@
             "rulesModuleLink": "Open rule builder",
             "rulesCaption" : "Order Rules",
             "rulesPlaceholder" : "Assign Order Rules..."
+          },
+          "cart": {
+            "card": "Cart",
+            "title": "Which shopping carts are affected by this discount promotion?",
+            "text": "Use rules from the rules builder to define the promotion cart for this marketing action. Without a limitation, the action will be applied to all shopping carts.",
+            "rulesModuleLink": "Open rule builder",
+            "rulesCaption": "Cart Rules",
+            "rulesPlaceholder": "Assign Cart Rules..."
           }
         },
         "discounts": {

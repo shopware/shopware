@@ -87,7 +87,7 @@ class CartPromotionsCollectorTest extends TestCase
 
         $this->promotionScope = new PromotionEntity();
         $this->promotionScope->setId('PROM-SCOPE');
-        $this->promotionScope->setScopeRule($this->getFakeRule());
+        $this->promotionScope->setCartRules(new RuleCollection([$this->getFakeRule()]));
         $discount3 = new PromotionDiscountEntity();
         $discount3->setId('D3');
         $discount3->setValue(100);

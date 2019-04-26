@@ -66,6 +66,7 @@
           "descriptionTitleScope": "Welche Warenkörbe sind von dieser Rabattaktion betroffen?",
           "labelCategory": "Kategorie",
           "labelProduct": "Produkt",
+          "labelCart": "Warenkorb",
           "labelScopeRule": "Scope Regel",
           "labelDiscountRule": "Discount Regel",
           "cardTitleScopeRules": "Warenkorb",
@@ -85,6 +86,14 @@
             "rulesModuleLink": "Regelmodul öffnen",
             "rulesCaption": "Bestellregeln",
             "rulesPlaceholder": "Bestellregel zuweisen..."
+          },
+          "cart": {
+            "card": "Warenkorb",
+            "title": "Welche Warenkörbe sind von dieser Rabattaktion betroffen?",
+            "text": "Nutze Regeln aus dem Regelmodul, um die Aktionswarenkörbe dieser Marketingaktion zu definieren.\n            Ohne eine Eingrenzung wird die Aktion auf alle Warenkörbe angewendet.",
+            "rulesModuleLink": "Regelmodul öffnen",
+            "rulesCaption": "Warenkorbregeln",
+            "rulesPlaceholder": "Warenkorbregel zuweisen..."
           }
         },
         "discounts": {

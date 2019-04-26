@@ -62,6 +62,11 @@ class Entity extends Struct
         return $this->translated;
     }
 
+    public function getTranslation(string $field)
+    {
+        return $this->translated[$field] ?? null;
+    }
+
     public function setTranslated(array $translated): void
     {
         $this->translated = $translated;

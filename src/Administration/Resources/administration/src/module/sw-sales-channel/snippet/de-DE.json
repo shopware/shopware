@@ -53,7 +53,9 @@
       "textConfirmDeleteDomain": "Möchtest Du diese Domäne wirklich löschen? Der Verkaufskanal ist dann nicht mehr über \"{url}\" zugänglich!",
       "buttonCloseDeleteDomainModal": "Abbrechen",
       "buttonConfirmDeleteDomain": "Löschen",
-      "customerGroup": "Kundengruppe"
+      "customerGroup": "Kundengruppe",
+      "navigations": "Navigationseinstellungen",
+      "navigationCategoryId": "Einstiegspunkt Hauptnavigation"
     }
   }
 }

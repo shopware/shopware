@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Store\Services;
 use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Context\AdminApiSource;
+use Shopware\Core\Framework\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -67,13 +69,17 @@ final class StoreClient
 
     public function loginWithShopwareId(string $shopwareId, string $password, string $language, Context $context): AccessTokenStruct
     {
+        if (!$context->getSource() instanceof AdminApiSource) {
+            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
+        }
+
         $response = $this->client->post(
             '/swplatform/login',
             [
                 'body' => \json_encode([
                     'shopwareId' => $shopwareId,
                     'password' => $password,
-                    'shopwareUserId' => $context->getUserId(),
+                    'shopwareUserId' => $context->getSource()->getUserId(),
                 ]),
                 'query' => $this->getDefaultQueryParameters($language, $context),
             ]

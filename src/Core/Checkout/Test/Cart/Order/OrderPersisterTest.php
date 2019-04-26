@@ -19,6 +19,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -127,7 +128,7 @@ class OrderPersisterTest extends TestCase
         $salesChannelContext->method('getCustomer')->willReturn($customer);
 
         $context = Context::createDefaultContext();
-        $salesChannel->setId($context->getSalesChannelId());
+        $salesChannel->setId(Defaults::SALES_CHANNEL);
         $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
         $salesChannelContext->method('getContext')->willReturn($context);
 

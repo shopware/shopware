@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Email;
@@ -49,31 +50,31 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function subscribe(DataBag $dataBag, Context $context): void
+    public function subscribe(DataBag $dataBag, SalesChannelContext $context): void
     {
-        $validator = $this->getOptInValidator($context);
+        $validator = $this->getOptInValidator($context->getContext());
         $this->validator->validate($dataBag->all(), $validator);
 
         $data = $this->completeData($dataBag->all(), $context);
 
-        $this->newsletterReceiverRepository->upsert([$data], $context);
+        $this->newsletterReceiverRepository->upsert([$data], $context->getContext());
 
-        $receiver = $this->getNewsletterReceiver('email', $data['email'], $context);
+        $receiver = $this->getNewsletterReceiver('email', $data['email'], $context->getContext());
 
         if ($data['status'] === self::STATUS_DIRECT) {
-            $event = new NewsletterConfirmEvent($context, $receiver);
+            $event = new NewsletterConfirmEvent($context->getContext(), $receiver);
             $this->eventDispatcher->dispatch(NewsletterConfirmEvent::EVENT_NAME, $event);
 
             return;
         }
 
-        $event = new NewsletterRegisterEvent($context, $receiver, $data['url']);
+        $event = new NewsletterRegisterEvent($context->getContext(), $receiver, $data['url']);
         $this->eventDispatcher->dispatch(NewsletterRegisterEvent::EVENT_NAME, $event);
     }
 
-    public function confirm(DataBag $dataBag, Context $context): void
+    public function confirm(DataBag $dataBag, SalesChannelContext $context): void
     {
-        $receiver = $this->getNewsletterReceiver('hash', $dataBag->get('hash'), $context);
+        $receiver = $this->getNewsletterReceiver('hash', $dataBag->get('hash'), $context->getContext());
 
         $data = [
             'id' => $receiver->getId(),
@@ -87,16 +88,16 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
         $data['status'] = self::STATUS_OPT_IN;
         $data['confirmedAt'] = new \DateTime();
 
-        $this->newsletterReceiverRepository->update([$data], $context);
+        $this->newsletterReceiverRepository->update([$data], $context->getContext());
 
-        $event = new NewsletterConfirmEvent($context, $receiver);
+        $event = new NewsletterConfirmEvent($context->getContext(), $receiver);
         $this->eventDispatcher->dispatch(NewsletterConfirmEvent::EVENT_NAME, $event);
     }
 
-    public function unsubscribe(DataBag $dataBag, Context $context): void
+    public function unsubscribe(DataBag $dataBag, SalesChannelContext $context): void
     {
         $data = $dataBag->all();
-        $data['id'] = $this->getNewsletterReceiverId($data['email'], $context);
+        $data['id'] = $this->getNewsletterReceiverId($data['email'], $context->getContext());
 
         if (empty($data['id'])) {
             throw new NewsletterReceiverNotFoundException('email', $data['email']);
@@ -108,7 +109,7 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
         $validator = $this->getOptOutValidation();
         $this->validator->validate($data, $validator);
 
-        $this->newsletterReceiverRepository->update([$data], $context);
+        $this->newsletterReceiverRepository->update([$data], $context->getContext());
     }
 
     private function getOptionSelection(): array
@@ -152,13 +153,13 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
         return $definition;
     }
 
-    private function completeData(array $data, Context $context): array
+    private function completeData(array $data, SalesChannelContext $context): array
     {
-        $id = $this->getNewsletterReceiverId($data['email'], $context);
+        $id = $this->getNewsletterReceiverId($data['email'], $context->getContext());
 
         $data['id'] = $id ?: Uuid::randomHex();
-        $data['languageId'] = $context->getLanguageId();
-        $data['salesChannelId'] = $context->getSalesChannelId();
+        $data['languageId'] = $context->getContext()->getLanguageId();
+        $data['salesChannelId'] = $context->getSalesChannel()->getId();
         $data['status'] = $this->getOptionSelection()[$data['option']];
         $data['hash'] = Uuid::randomHex();
         $data['url'] = sprintf(

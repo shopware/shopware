@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\StateMachine;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -242,7 +243,7 @@ class StateMachineRegistry
                 'fromStateId' => $fromPlace->getId(),
                 'toStateId' => $toPlace->getId(),
                 'transitionActionName' => $transitionName,
-                'userId' => $context->getUserId(),
+                'userId' => $context->getSource() instanceof AdminApiSource ? $context->getSource()->getUserId() : null,
             ],
         ], $context);
     }

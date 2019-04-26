@@ -79,12 +79,12 @@ class NewsletterController extends StorefrontController
 
         try {
             if ($subscribe) {
-                $this->newsletterService->subscribe($requestDataBag, $context->getContext());
+                $this->newsletterService->subscribe($requestDataBag, $context);
 
                 $this->addFlash('success', $this->translator->trans('newsletter.subscriptionPersistedSuccess'));
                 $this->addFlash('info', $this->translator->trans('newsletter.subscriptionPersistedInfo'));
             } else {
-                $this->newsletterService->unsubscribe($requestDataBag, $context->getContext());
+                $this->newsletterService->unsubscribe($requestDataBag, $context);
 
                 $this->addFlash('success', $this->translator->trans('newsletter.subscriptionRevokeSuccess'));
             }
@@ -107,7 +107,7 @@ class NewsletterController extends StorefrontController
     public function confirmSubscribe(SalesChannelContext $context, Request $request, QueryDataBag $queryDataBag)
     {
         try {
-            $this->newsletterService->confirm($queryDataBag, $context->getContext());
+            $this->newsletterService->confirm($queryDataBag, $context);
         } catch (\Throwable $throwable) {
             $this->addFlash('danger', $this->translator->trans('newsletter.subscriptionConfirmationFailed'));
 

@@ -1,0 +1,62 @@
+{% block page_product_detail_configurator %}
+    <div class="detail-configurator">
+        {% block page_product_detail_configurator_form %}
+            <form action="{{ path('frontend.detail.switch', { productId: page.product.parentId }) }}"
+                  method="post"
+                  data-variant-switch="true">
+                {% block page_product_detail_configurator_groups %}
+                    {% for group in page.configuratorSettings.elements %}
+                        {% block page_product_detail_configurator_group %}
+                            <div class="configurator-option-group">
+                                {% block page_product_detail_configurator_group_title %}
+                                    <div class="configurator-option-group-title">
+                                        {% block page_product_detail_configurator_group_title_text %}
+                                            {{ group.translated.name }}
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
+
+                                {% block page_product_detail_configurator_options %}
+                                    {% for option in group.options %}
+
+                                        {% set optionIdentifier = [group.id, option.id]|join('-') %}
+                                        {% set isActiveAttr = '' %}
+                                        {% set isCombinableCls = 'is-combinable' %}
+
+                                        {% if option.id in page.product.optionIds %}
+                                            {% set isActiveAttr = 'checked' %}
+                                        {% endif %}
+
+                                        {% if not option.combinable %}
+                                            {% set isCombinableCls = '' %}
+                                        {% endif %}
+
+                                        {% block page_product_detail_configurator_option %}
+                                            <div class="configurator-option">
+                                                {% block page_product_detail_configurator_option_radio %}
+                                                    <input type="radio"
+                                                           name="{{ group.id }}"
+                                                           value="{{ option.id }}"
+                                                           class="{{ isCombinableCls }}"
+                                                           title="{{ optionIdentifier }}"
+                                                           id="{{ optionIdentifier }}"
+                                                        {{ isActiveAttr }}>
+                                                    {% block page_product_detail_configurator_option_radio_label %}
+                                                        <label class="{{ isCombinableCls }}"
+                                                               for="{{ optionIdentifier }}">
+                                                            {{ option.translated.name }}
+                                                        </label>
+                                                    {% endblock %}
+                                                {% endblock %}
+                                            </div>
+                                        {% endblock %}
+                                    {% endfor %}
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    {% endfor %}
+                {% endblock %}
+            </form>
+        {% endblock %}
+    </div>
+{% endblock %}

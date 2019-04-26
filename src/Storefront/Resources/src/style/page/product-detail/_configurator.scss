@@ -1,0 +1,43 @@
+.detail-configurator {
+    .configurator-option-group {
+        padding-top: $spacer-md;
+    }
+
+    .configurator-option-group-title {
+        @extend h4;
+    }
+
+    .configurator-option {
+        display: inline-block;
+        padding-right: $spacer-xs;
+    }
+
+    input[type='radio'] {
+        display: none;
+
+        + label {
+            cursor: pointer;
+            padding: 5px 10px;
+            border: 1px solid $border-color;
+            background-color: $white;
+            opacity: 0.35;
+            transition: border-color 0.45s cubic-bezier(0.3, 0, 0.15, 1), background-color 0.45s cubic-bezier(0.3, 0, 0.15, 1);
+
+            &:hover,
+            &:active,
+            &:focus {
+                border: 1px solid $primary;
+            }
+        }
+
+        &:checked + label {
+            border: 1px solid $primary;
+            background-color: $primary;
+            color: $white;
+        }
+
+        &.is-combinable + label {
+            opacity: 1;
+        }
+    }
+}

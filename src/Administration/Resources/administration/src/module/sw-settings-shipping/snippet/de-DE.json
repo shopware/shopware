@@ -50,8 +50,7 @@
       "columnPrice": "Preis",
       "columnFactor": "Faktor",
       "topRule": "Verfügbarkeitsregel",
-      "labelLogoUpload": "Logo hochladen",
-      "addNewRule": "Neue Regel erstellen"
+      "labelLogoUpload": "Logo hochladen"
     },
     "constants": {
       "weight": "Gewicht",

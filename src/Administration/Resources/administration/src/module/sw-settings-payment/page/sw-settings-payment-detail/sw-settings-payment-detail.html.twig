@@ -112,38 +112,13 @@
                     <sw-card class="sw-settings-payment-detail__condition_container"
                              :title="$tc('sw-settings-payment.detail.topRule')">
                         {% block sw_settings_payment_detail_top_rule_select %}
-                            <sw-select :store="ruleStore"
-                                       :value="paymentMethod.availabilityRuleId"
-                                       :criteria="ruleFilter"
-                                       @input="onRuleSelectInput"
-                                       @sw-select-option-clicked="onSelectRule">
-                                <template slot="sw_select_list_before">
-                                    {% block sw_settings_payment_detail_top_rule_select_before %}
-                                    <sw-select-option :index="-1"
-                                                      :item="itemAddNewRule">
-                                        {{ $tc('sw-settings-payment.detail.addNewRule') }}
-                                    </sw-select-option>
-                                    {% endblock %}
-                                </template>
-                                <template slot="result_items" slot-scope="{ item, index }">
-                                    {% block sw_settings_payment_detail_top_rule_select_result %}
-                                    <sw-select-option
-                                            :index="index"
-                                            :item="item">
-                                        {{ item.name }}
-                                    </sw-select-option>
-                                    {% endblock %}
-                                </template>
-                            </sw-select>
+                            <sw-select-rule-create :ruleId="paymentMethod.availabilityRuleId"
+                                                   :ruleFilter="ruleFilter"
+                                                   @save-rule="onSaveRule"
+                                                   @dismiss-rule="onDismissRule">
+                            </sw-select-rule-create>
                         {% endblock %}
                     </sw-card>
-                {% endblock %}
-                
-                {% block sw_settings_payment_detail_rule_modal %}
-                <sw-rule-modal v-if="showRuleModal"
-                               @save="onSaveRule"
-                               @closeModal="onCloseRuleModal">
-                </sw-rule-modal>
                 {% endblock %}
             </sw-card-view>
         {% endblock %}

@@ -122,17 +122,12 @@ Component.register('sw-settings-shipping-price-matrix', {
                 CriteriaFactory.contains('rule.moduleTypes.types', 'price'),
                 CriteriaFactory.equals('rule.moduleTypes', null)
             ),
-            itemAddNewRule: {
-                index: -1,
-                id: ''
-            },
             propertyStore: new LocalStore([
                 { name: this.$tc('sw-settings-shipping.priceMatrix.calculationLineItemCount'), value: 1 },
                 { name: this.$tc('sw-settings-shipping.priceMatrix.calculationPrice'), value: 2 },
                 { name: this.$tc('sw-settings-shipping.priceMatrix.calculationWeight'), value: 3 },
                 { name: this.$tc('sw-settings-shipping.priceMatrix.calculationVolume'), value: 4 }
             ], 'value'),
-            showRuleModal: false,
             showDeleteModal: false,
             showPriceRuleModal: false,
             priceRuleId: null,
@@ -157,13 +152,6 @@ Component.register('sw-settings-shipping-price-matrix', {
                 });
             });
         },
-        onSelectRule(event) {
-            if (event.item.index !== -1) {
-                return;
-            }
-
-            this.openCreateRuleModal();
-        },
 
         onAddNewPriceRule() {
             const price = this.priceGroup.prices[this.priceGroup.prices.length - 1];
@@ -186,11 +174,8 @@ Component.register('sw-settings-shipping-price-matrix', {
 
             this.shippingMethod.prices.push(newPriceRule);
         },
-        openCreateRuleModal() {
-            this.showRuleModal = true;
-        },
-        onSaveRule(rule) {
-            this.$nextTick(() => this.$emit('rule-change', rule.id, this.priceGroup.ruleId));
+        onSaveRule(ruleId) {
+            this.$nextTick(() => this.$emit('rule-change', ruleId, this.priceGroup.ruleId));
         },
         onSavePriceRule(newPriceRule) {
             newPriceRule.shippingMethodId = this.shippingMethod.id;
@@ -214,9 +199,6 @@ Component.register('sw-settings-shipping-price-matrix', {
         onClosePriceRuleModal() {
             this.showPriceRuleModal = false;
             this.priceRule = null;
-        },
-        onCloseRuleModal() {
-            this.showRuleModal = false;
         },
         openCreatePriceRuleModal() {
             this.priceRuleId = null;

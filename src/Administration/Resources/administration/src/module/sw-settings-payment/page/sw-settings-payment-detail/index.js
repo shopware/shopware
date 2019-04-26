@@ -22,12 +22,7 @@ Component.register('sw-settings-payment-detail', {
                 'OR',
                 CriteriaFactory.contains('rule.moduleTypes.types', 'payment'),
                 CriteriaFactory.equals('rule.moduleTypes', null)
-            ),
-            showRuleModal: false,
-            itemAddNewRule: {
-                index: -1,
-                id: ''
-            }
+            )
         };
     },
 
@@ -75,31 +70,12 @@ Component.register('sw-settings-payment-detail', {
             }
         },
 
-        onSaveRule(rule) {
-            this.paymentMethod.availabilityRuleId = rule.id;
+        onSaveRule(ruleId) {
+            this.paymentMethod.availabilityRuleId = ruleId;
         },
 
-        onSelectRule(event) {
-            if (event.item.index !== -1) {
-                this.onSaveRule(event.item);
-                return;
-            }
-
-
-            this.openCreateRuleModal();
-        },
-
-        openCreateRuleModal() {
-            this.showRuleModal = true;
-        },
-        onCloseRuleModal() {
-            this.showRuleModal = false;
-        },
-
-        onRuleSelectInput(event) {
-            if (!event) {
-                this.paymentMethod.availabilityRuleId = null;
-            }
+        onDismissRule() {
+            this.paymentMethod.availabilityRuleId = null;
         },
 
         abortOnLanguageChange() {

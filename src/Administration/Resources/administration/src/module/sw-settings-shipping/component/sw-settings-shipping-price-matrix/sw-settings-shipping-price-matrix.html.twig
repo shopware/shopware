@@ -6,33 +6,13 @@
                           gap="0px 24px"
                           class="sw-settings-shipping-price-matrix__top-container">
                 {% block sw_settings_shipping_price_matrix_topbar_rule_select %}
-                    <sw-select :store="ruleStore"
-                               size="small"
-                               :criteria="ruleFilter"
-                               :value="priceGroup.ruleId"
-                               :placeholder="$tc('sw-settings-shipping.priceMatrix.noRestriction')"
-                               @input="$emit('rule-change', $event, priceGroup.ruleId)"
-                               @sw-select-option-clicked="onSelectRule">
-                        <template slot="sw_select_list_before">
-                            {% block sw_settings_shipping_price_matrix_topbar_rule_select_before %}
-                                <sw-select-option :index="-1"
-                                                  :item="itemAddNewRule"
-                                                  class="sw-settings-shipping-price-matrix__add-rule">
-                                    {{ $tc('sw-settings-shipping.priceMatrix.addNewRule') }}
-                                </sw-select-option>
-                            {% endblock %}
-                        </template>
-                        <template slot="result_items" slot-scope="{ item, index }">
-                            {% block sw_settings_shipping_price_matrix_topbar_rule_select_result %}
-                                <sw-select-option
-                                        :disabled="!!priceRuleGroups[item.id]"
-                                        :index="index"
-                                        :item="item">
-                                    {{ item.name }}
-                                </sw-select-option>
-                            {% endblock %}
-                        </template>
-                    </sw-select>
+                    <sw-select-rule-create :ruleId="priceGroup.ruleId"
+                                           :ruleFilter="ruleFilter"
+                                           size="small"
+                                           :placeholder="$tc('sw-settings-shipping.priceMatrix.noRestriction')"
+                                           @save-rule="onSaveRule"
+                                           @dismiss-rule="$emit('rule-change', $event, priceGroup.ruleId)">
+                    </sw-select-rule-create>
                 {% endblock %}
 
                 {% block sw_settings_shipping_price_matrix_topbar_new_price %}
@@ -158,13 +138,6 @@
                                  @save="onSavePriceRule"
                                  @modal-close="onClosePriceRuleModal">
             </sw-price-rule-modal>
-        {% endblock %}
-
-        {% block sw_settings_shipping_price_matrix_rule_modal %}
-            <sw-rule-modal v-if="showRuleModal"
-                           @save="onSaveRule"
-                           @modal-close="onCloseRuleModal">
-            </sw-rule-modal>
         {% endblock %}
 
         {% block sw_settings_shipping_price_matrix_delete_modal %}

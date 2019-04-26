@@ -28,11 +28,6 @@ Component.register('sw-settings-shipping-detail', {
             shippingMethod: {},
             logoMediaItem: null,
             uploadTag: 'sw-shipping-method-upload-tag',
-            showRuleModal: false,
-            itemAddNewRule: {
-                index: -1,
-                id: ''
-            },
             ruleFilter: CriteriaFactory.multi(
                 'OR',
                 CriteriaFactory.contains('rule.moduleTypes.types', 'shipping'),
@@ -90,24 +85,8 @@ Component.register('sw-settings-shipping-detail', {
             }
         },
 
-        onSaveRule(rule) {
-            this.shippingMethod.availabilityRuleId = rule.id;
-        },
-
-        onSelectRule(event) {
-            if (event.item.index !== -1) {
-                this.onSaveRule(event.item);
-                return;
-            }
-
-            this.openCreateRuleModal();
-        },
-
-        openCreateRuleModal() {
-            this.showRuleModal = true;
-        },
-        onCloseRuleModal() {
-            this.showRuleModal = false;
+        onSaveRule(ruleId) {
+            this.shippingMethod.availabilityRuleId = ruleId;
         },
 
         loadEntityData() {

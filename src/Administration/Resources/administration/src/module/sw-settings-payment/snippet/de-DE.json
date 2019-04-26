@@ -37,8 +37,7 @@
       "placeholderPosition": "Position eingeben...",
       "placeholderDescription": "Beschreibung eingeben...",
       "buttonCancel": "Abbrechen",
-      "buttonSave": "Speichern",
-      "addNewRule": "Neue Regel erstellen"
+      "buttonSave": "Speichern"
     }
   },
   "sw-plugin-box": {

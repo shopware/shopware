@@ -37,8 +37,7 @@
       "placeholderPosition": "Enter position",
       "placeholderDescription": "Enter description",
       "buttonCancel": "Cancel",
-      "buttonSave": "Save",
-      "addNewRule": "Add new rule"
+      "buttonSave": "Save"
     }
   },
   "sw-plugin-box": {

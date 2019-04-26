@@ -9,12 +9,10 @@ export default {
         Mixin.getByName('sw-inline-snippet')
     ],
 
-    inject: ['systemConfigApiService'],
-
     template,
 
     data() {
-        const domain = this.systemConfigApiService.getDomainFromNamespace(this.$route.params.namespace);
+        const domain = `bundle.${this.$route.params.namespace.split('\\').slice(-1)[0]}`;
         return {
             namespace: this.$route.params.namespace,
             domain: domain,

@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMet
 use Shopware\Core\Checkout\Payment\SalesChannel\SalesChannelPaymentMethodDefinition as SalesChannelApiPaymentMethodDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
@@ -61,7 +60,7 @@ class PaymentMethodDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new FkField('plugin_id', 'pluginId', PluginDefinition::class),
-            (new StringField('handler_identifier', 'handlerIdentifier'))->addFlags(new Internal(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new StringField('handler_identifier', 'handlerIdentifier'))->addFlags(new Internal()),
             (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new TranslatedField('description'),
             new IntField('position', 'position'),

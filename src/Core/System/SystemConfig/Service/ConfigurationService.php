@@ -40,17 +40,13 @@ class ConfigurationService
         $scope = $match[1];
         $configName = $match[2] !== '' ? $match[2] : null;
 
-        if ($scope === 'core') {
-            $config = $this->configReader->getCoreConfig(__DIR__ . '/../Resources/config/' . $configName);
-        } else {
-            $bundle = $this->getBundle($scope);
+        $bundle = $this->getBundle($scope === 'core' ? 'System' : $scope);
 
-            if (!($bundle instanceof Bundle)) {
-                throw new BundleNotFoundException($scope);
-            }
-
-            $config = $this->configReader->getConfigFromBundle($bundle, $configName);
+        if (!($bundle instanceof Bundle)) {
+            throw new BundleNotFoundException($scope);
         }
+
+        $config = $this->configReader->getConfigFromBundle($bundle, $configName);
 
         $domain = rtrim($domain, '.') . '.';
 

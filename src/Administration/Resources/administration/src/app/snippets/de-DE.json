@@ -156,7 +156,10 @@
           "message": {
             "media": "Dateien erfolgreich gelöscht.",
             "folder": "Ordner erfolgreich gelöscht.",
-            "mediaAndFolder": "Dateien und Ordner erfolgreich gelöscht."
+            "mediaAndFolder": "Dateien und Ordner erfolgreich gelöscht.",
+            "media": "Keine Datei erfolgreich gelöscht. | Eine Datei erfolgreich gelöscht. | {count} / {total} Dateien erfolgreich gelöscht.",
+            "folder": "Kein Ordner erfolgreich gelöscht. | Ein Ordner erfolgreich gelöscht. | {count} / {total} Ordner erfolgreich gelöscht.",
+            "mediaAndFolder": "Keine Dateien bzw. kein Ordner erfolgreich gelöscht. | Eine Datei bzw. ein Ordner erfolgreich gelöscht. | {count} / {total} Dateien bzw. Ordner erfolgreich gelöscht."
           }
         },
         "errorOverall": {
@@ -249,7 +252,7 @@
       "notification": {
         "success": {
           "title": "Erfolg",
-          "message": "Datei erfolgreich gespeichert."
+          "message": "Keine Datei erfolgreich gespeichert | Eine Datei erfolgreich gespeichert | {count} / {total} Dateien erfolgreich gespeichert."
         },
         "failure": {
           "title": "Fehler",

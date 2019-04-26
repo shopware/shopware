@@ -114,6 +114,9 @@ class UploadStore {
             return Promise.resolve();
         }
 
+        const totalUploads = affectedUploads.length;
+        let successUploads = 0;
+        let failureUploads = 0;
         return Promise.all(affectedUploads.map((task) => {
             if (task.running) {
                 return Promise.resolve();
@@ -122,16 +125,26 @@ class UploadStore {
             task.running = true;
             return this._startUpload(task).then(() => {
                 task.running = false;
+                successUploads += 1;
                 affectedListeners.forEach((listener) => {
                     listener(this._createUploadEvent(
                         UploadEvents.UPLOAD_FINISHED,
                         tag,
-                        { targetId: task.targetId }
+                        {
+                            targetId: task.targetId,
+                            successAmount: successUploads,
+                            failureAmount: failureUploads,
+                            totalAmount: totalUploads
+                        }
                     ));
                 });
             }).catch((cause) => {
                 task.error = cause;
                 task.running = false;
+                failureUploads += 1;
+                task.successAmount = successUploads;
+                task.failureAmount = failureUploads;
+                task.totalAmount = totalUploads;
                 affectedListeners.forEach((listener) => {
                     listener(this._createUploadEvent(
                         UploadEvents.UPLOAD_FAILED,

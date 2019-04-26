@@ -30,7 +30,8 @@ export default {
     data() {
         return {
             mediaItems: [],
-            folders: []
+            folders: [],
+            notificationId: null
         };
     },
 
@@ -42,9 +43,7 @@ export default {
         snippets() {
             if (this.mediaItems.length > 0 && this.folders.length > 0) {
                 return {
-                    successOverall: this.$tc(
-                        'global.sw-media-modal-delete.notification.successOverall.message.mediaAndFolder'
-                    ),
+                    successOverall: 'global.sw-media-modal-delete.notification.successOverall.message.mediaAndFolder',
                     errorOverall: this.$tc(
                         'global.sw-media-modal-delete.notification.errorOverall.message.mediaAndFolder'
                     ),
@@ -62,7 +61,7 @@ export default {
 
             if (this.mediaItems.length > 0) {
                 return {
-                    successOverall: this.$tc('global.sw-media-modal-delete.notification.successOverall.message.media'),
+                    successOverall: 'global.sw-media-modal-delete.notification.successOverall.message.media',
                     errorOverall: this.$tc('global.sw-media-modal-delete.notification.errorOverall.message.media'),
                     modalTitle: this.$tc('global.sw-media-modal-delete.titleModal.media'),
                     deleteMessage: this.$tc(
@@ -77,7 +76,7 @@ export default {
             }
 
             return {
-                successOverall: this.$tc('global.sw-media-modal-delete.notification.successOverall.message.folder'),
+                successOverall: 'global.sw-media-modal-delete.notification.successOverall.message.folder',
                 errorOverall: this.$tc('global.sw-media-modal-delete.notification.errorOverall.message.folder'),
                 modalTitle: this.$tc('global.sw-media-modal-delete.titleModal.folder'),
                 deleteMessage: this.$tc(
@@ -113,28 +112,25 @@ export default {
         deleteSelection() {
             const deletePromises = [];
 
+            const totalAmount = this.itemsToDelete.length;
+            let successAmount = 0;
+            let failureAmount = 0;
             this.itemsToDelete.forEach((item) => {
                 item.isLoading = true;
 
                 deletePromises.push(
                     item.delete(true).then(() => {
                         item.isLoading = false;
-                        this.createNotificationSuccess({
-                            title: this.$root.$tc('global.sw-media-modal-delete.notification.successSingle.title'),
-                            message: item.getEntityName() === 'media' ?
-                                this.$root.$tc(
-                                    'global.sw-media-modal-delete.notification.successSingle.message.media',
-                                    1,
-                                    { name: this.mediaNameFilter(item) }
-                                ) :
-                                this.$root.$tc(
-                                    'global.sw-media-modal-delete.notification.successSingle.message.folder',
-                                    1,
-                                    { name: item.name }
-                                )
-                        });
+                        successAmount += 1;
+                        this.updateSuccessNotification(successAmount, failureAmount, totalAmount);
                     }).catch(() => {
                         item.isLoading = false;
+                        failureAmount += 1;
+                        if (successAmount + failureAmount === totalAmount &&
+                            totalAmount !== failureAmount) {
+                            this.updateSuccessNotification(successAmount, failureAmount, totalAmount);
+                        }
+
                         this.createNotificationError({
                             title: this.$root.$tc('global.sw-media-modal-delete.notification.errorSingle.title'),
                             message: item.getEntityName() === 'media' ?
@@ -156,10 +152,6 @@ export default {
             this.$emit(
                 'media-delete-modal-items-delete',
                 Promise.all(deletePromises).then(() => {
-                    this.createNotificationSuccess({
-                        title: this.$root.$tc('global.sw-media-modal-delete.notification.successOverall.title'),
-                        message: this.snippets.successOverall
-                    });
                     return {
                         mediaIds: this.mediaItems.map((media) => { return media.id; }),
                         folderIds: this.folders.map((folder) => { return folder.id; })
@@ -171,6 +163,42 @@ export default {
                     });
                 })
             );
+        },
+
+        updateSuccessNotification(successAmount, failureAmount, totalAmount) {
+            const notification = {
+                title: this.$root.$tc('global.sw-media-modal-delete.notification.successOverall.title'),
+                message: this.$root.$tc(
+                    this.snippets.successOverall,
+                    successAmount,
+                    {
+                        count: successAmount,
+                        total: totalAmount
+                    }
+                ),
+                growl: successAmount + failureAmount === totalAmount
+            };
+
+            if (this.notificationId !== null) {
+                this.$store.dispatch('notification/updateNotification', {
+                    uuid: this.notificationId,
+                    ...notification
+                }).then(() => {
+                    if (successAmount + failureAmount === totalAmount) {
+                        this.notificationId = null;
+                    }
+                });
+                return;
+            }
+
+            this.$store.dispatch('notification/createNotification', {
+                variant: 'success',
+                ...notification
+            }).then((newNotificationId) => {
+                if (successAmount + failureAmount < totalAmount) {
+                    this.notificationId = newNotificationId;
+                }
+            });
         }
     }
 };

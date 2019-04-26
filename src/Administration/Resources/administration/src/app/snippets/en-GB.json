@@ -153,9 +153,9 @@
         "successOverall": {
           "title": "Success",
           "message": {
-            "media": "Files have been deleted successfully.",
-            "folder": "Folders have been deleted successfully.",
-            "mediaAndFolder": "Files and folders have been deleted successfully."
+            "media": "No file has been successfully deleted. | A file has been successfully deleted. | {count} / {total} files have been successfully deleted.",
+            "folder": "No folder has been successfully deleted. | A folder has been successfully deleted. | {count} / {total} folders have been successfully deleted.",
+            "mediaAndFolder": "No file or folder has been successfully deleted. | A file or a folder has been successfully deleted. | {count} / {total} files or folders have been successfully deleted."
           }
         },
         "errorOverall": {
@@ -248,7 +248,7 @@
       "notification": {
         "success": {
           "title": "Success",
-          "message": "File has been saved successfully."
+          "message": "No file has been saved successfully. | A file has been saved successfully. | {count} / {total} files have been saved successfully."
         },
         "failure": {
           "title": "Error",

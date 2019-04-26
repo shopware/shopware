@@ -5,9 +5,12 @@ namespace Shopware\Core\Content\Product\Service;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 
 class ProductAvailableStockCalculationService
 {
+    public const ORDER_LINE_ITEM_TYPE_PRODUCT = 'product';
+
     /**
      * @var Connection
      */
@@ -18,13 +21,17 @@ class ProductAvailableStockCalculationService
         $this->connection = $connection;
     }
 
+    /**
+     * Recalcualtes the available stock of a given set of products by inspecting all order deliveries related to
+     * these products. For each product the set of related order deliveries with state 'open' is determined. The
+     * delivered quantities of the respective product within those order deliveries are than subtracted from the
+     * current stock of the product to calculate its available stock.
+     */
     public function recalculate(array $productIds, Context $context): void
     {
         if (empty($productIds)) {
             return;
         }
-
-        // TODO: Add version join conditions
 
         $sql = <<<SQL
 UPDATE `product`
@@ -40,8 +47,8 @@ LEFT JOIN (
     LEFT JOIN `product`
         ON LOWER(HEX(`product`.`id`)) = TRIM(BOTH '"' FROM JSON_EXTRACT(`order_line_item`.`payload`, '$.id'))
     WHERE
-        `order_line_item`.`type` = 'product'
-        AND `product`.`id` IN (:ids)
+        `order_line_item`.`type` = :order_line_item_type
+        AND `product`.`id` IN (:productIds)
         AND `order_delivery`.`state_id` = (
             # Select ID of the 'open' delivery state
             SELECT `state_machine_state`.`id`
@@ -49,17 +56,29 @@ LEFT JOIN (
             LEFT JOIN `state_machine`
                 ON `state_machine`.`id` = `state_machine_state`.`state_machine_id`
             WHERE
-                `state_machine`.`technical_name` = 'order_delivery.state'
-                AND `state_machine_state`.`technical_name` = 'open'
+                `state_machine`.`technical_name` = :state_machine
+                AND `state_machine_state`.`technical_name` = :delivery_state_open
         )
     GROUP BY `product`.`id`
 ) AS `calculated_available_stock`
     ON `calculated_available_stock`.`product_id` = `product`.`id`
-SET `product`.`available_stock` = IFNULL(`calculated_available_stock`.`available_stock`, `product`.`stock`)
-WHERE `product`.`id` IN (:ids)
+SET 
+    `product`.`available_stock` = IFNULL(`calculated_available_stock`.`available_stock`, `product`.`stock`)
+WHERE 
+    `product`.`id` IN (:productIds); 
 SQL;
 
-        $ids = array_map([Uuid::class, 'fromHexToBytes'], $productIds);
-        $this->connection->executeUpdate($sql, ['ids' => $ids], ['ids' => Connection::PARAM_STR_ARRAY]);
+        $this->connection->executeQuery(
+            $sql,
+            [
+                'order_line_item_type' => self::ORDER_LINE_ITEM_TYPE_PRODUCT,
+                'state_machine' => OrderDeliveryStates::STATE_MACHINE,
+                'delivery_state_open' => OrderDeliveryStates::STATE_OPEN,
+                'productIds' => array_map([Uuid::class, 'fromHexToBytes'], $productIds),
+            ],
+            [
+                'productIds' => Connection::PARAM_STR_ARRAY,
+            ]
+        );
     }
 }

@@ -7,7 +7,10 @@
         {% endblock %}
 
         {% block sw_order_state_card_entry_history %}
-            <div v-for="entry in history" class='sw-order-state-card__history-entry'>
+            <div v-for="(entry, index) in history"
+                 class="sw-order-state-card__history-entry"
+                 :class="`sw-order-state-history__entry--${index}`">
+
 
                 {% block sw_order_state_card_entry_icon %}
                     <sw-label circle :class="getBackgroundColorFromState(entry.state.technicalName)">

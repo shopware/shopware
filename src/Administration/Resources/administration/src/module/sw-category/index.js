@@ -14,7 +14,8 @@ import enGB from './snippet/en-GB.json';
 Module.register('sw-category', {
     flag: NEXT716,
     type: 'core',
-    name: 'sw-category.general.mainMenuItemIndex',
+    name: 'category',
+    title: 'sw-category.general.mainMenuItemIndex',
     description: 'The module for managing categories.',
     version: '1.0.0',
     targetVersion: '1.0.0',

@@ -12,7 +12,8 @@ import enGB from './snippet/en-GB.json';
 Module.register('sw-product-stream', {
     type: 'core',
     flag: NEXT739,
-    name: 'sw-product-stream.general.mainMenuItemGeneral',
+    name: 'product-stream',
+    title: 'sw-product-stream.general.mainMenuItemGeneral',
     description: 'sw-product-stream.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',

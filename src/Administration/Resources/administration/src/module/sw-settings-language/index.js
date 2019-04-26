@@ -10,7 +10,8 @@ import enGB from './snippet/en-GB.json';
 
 Module.register('sw-settings-language', {
     type: 'core',
-    name: 'sw-settings-language.general.mainMenuItemGeneral',
+    name: 'settings-language',
+    title: 'sw-settings-language.general.mainMenuItemGeneral',
     description: 'Language section in the settings module',
     color: '#9AA8B5',
     icon: 'default-action-settings',

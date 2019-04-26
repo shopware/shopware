@@ -20,7 +20,8 @@ import enGB from './snippet/en-GB.json';
 Module.register('sw-plugin', {
     flag: NEXT1223,
     type: 'core',
-    name: 'sw-plugin.general.mainMenuItemGeneral',
+    name: 'plugin',
+    title: 'sw-plugin.general.mainMenuItemGeneral',
     description: 'sw-plugin.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',

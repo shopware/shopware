@@ -13,7 +13,8 @@ import enGB from './snippet/en-GB.json';
 
 Module.register('sw-settings-snippet', {
     type: 'core',
-    name: 'sw-settings-snippet.general.mainMenuItemGeneral',
+    name: 'settings-snippet',
+    title: 'sw-settings-snippet.general.mainMenuItemGeneral',
     description: 'sw-settings-snippet.general.description',
     version: '1.0.0',
     targetVersion: '1.0.0',

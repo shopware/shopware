@@ -1,12 +1,9 @@
 {
   "sw-promotion": {
     "general": {
-      "module": "Promotions",
-      "description": "Rabattaktionen",
-      "mainMenu": {
-        "root": "Rabattaktionen",
-        "list": "Übersicht"
-      }
+      "mainMenuItemGeneral" : "Rabattaktionen",
+      "mainMenuItemList" : "Übersicht",
+      "description": "Rabattaktionen"
     },
     "list": {
       "textTitle": "Rabattaktionen",

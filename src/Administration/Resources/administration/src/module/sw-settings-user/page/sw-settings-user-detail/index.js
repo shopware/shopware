@@ -9,7 +9,8 @@ Component.register('sw-settings-user-detail', {
     inject: ['userService', 'userValidationService'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
+        Mixin.getByName('salutation')
     ],
 
     data() {
@@ -33,7 +34,7 @@ Component.register('sw-settings-user-detail', {
 
     computed: {
         identifier() {
-            return this.username;
+            return this.salutation(this.user);
         },
 
         userStore() {
@@ -45,11 +46,7 @@ Component.register('sw-settings-user-detail', {
         },
 
         username() {
-            if (this.user) {
-                return `${this.user.firstName} ${this.user.lastName} `;
-            }
-
-            return '';
+            return this.salutation(this.user, this.$tc('sw-settings-user.user-detail.labelNewUser'));
         },
 
         avatarMedia() {

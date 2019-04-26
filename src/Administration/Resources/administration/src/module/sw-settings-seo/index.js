@@ -9,7 +9,8 @@ import enGB from './snippet/en-GB.json';
 Module.register('sw-settings-seo', {
     flag: NEXT741,
     type: 'core',
-    name: 'sw-settings-seo.general.mainMenuItemGeneral',
+    name: 'settings-seo',
+    title: 'sw-settings-seo.general.mainMenuItemGeneral',
     description: 'SEO section in the settings module',
     color: '#9AA8B5',
     icon: 'default-action-settings',

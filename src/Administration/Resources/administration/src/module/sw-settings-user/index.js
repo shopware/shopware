@@ -12,7 +12,8 @@ import enGB from './snippet/en-GB.json';
 Module.register('sw-settings-user', {
     type: 'core',
     flag: NEXT681,
-    name: 'sw-settings-user.general.mainMenuItemGeneral',
+    name: 'settings-user',
+    title: 'sw-settings-user.general.mainMenuItemGeneral',
     description: 'sw-settings-user.general.mainMenuItemGeneral',
     version: '1.0.0',
     targetVersion: '1.0.0',

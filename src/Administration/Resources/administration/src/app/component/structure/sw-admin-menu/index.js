@@ -11,7 +11,8 @@ export default {
     template,
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
+        Mixin.getByName('salutation')
     ],
 
     inject: ['menuService', 'loginService', 'userService'],
@@ -71,7 +72,7 @@ export default {
         },
 
         userName() {
-            return `${this.user.firstName} ${this.user.lastName} `;
+            return this.salutation(this.user);
         },
 
         avatarUrl() {

@@ -11,7 +11,8 @@ import enGB from './snippet/en-GB.json';
 Module.register('sw-settings-privacy', {
     type: 'core',
     flag: NEXT2539,
-    name: 'Privacy settings',
+    name: 'settings-privacy',
+    title: 'sw-settings-privacy.general.mainMenuItemGeneral',
     description: 'sw-settings-privacy.general.description',
     version: '1.0.0',
     targetVersion: '1.0.0',

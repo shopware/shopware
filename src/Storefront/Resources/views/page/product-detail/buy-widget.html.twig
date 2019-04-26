@@ -51,9 +51,10 @@
                     {% endblock %}
 
                     {% block page_product_detail_tax %}
-                        {#TODO: NEXT-2783 - open modal with shop page content #}
                         <div class="product-detail-tax-container">
-                            <p class="product-detail-tax">
+                            <p class="product-detail-tax"
+                               data-toggle="modal"
+                               data-url="{{ path('widgets.cms.detail',{ id: shopware.config.cms.taxCmsPageId }) }}">
                                 {% if context.taxState == "gross" %}
                                     {{ "general.grossTaxInformation"|trans }}
                                 {% else %}

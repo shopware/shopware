@@ -3,7 +3,8 @@ import DeviceDetection from 'src/script/helper/device-detection.helper';
 const SELECTOR_CLASS = 'modal-backdrop';
 const BACKDROP_OPEN_CLASS = 'modal-backdrop-open';
 const NO_SCROLL_CLASS = 'no-scroll';
-const REMOVE_BACKDROP_DELAY = 350;
+
+export const REMOVE_BACKDROP_DELAY = 350;
 
 export const BACKDROP_EVENT = {
     ON_CLICK: 'backdrop/onclick'

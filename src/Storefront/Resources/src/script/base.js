@@ -23,7 +23,7 @@ import ViewportDetection from 'src/script/helper/viewport-detection.helper';
 /*
 import utils
  */
-import ModalExtensionUtil from 'src/script/utility/modal-extension/modal-extension.util';
+import AjaxModalExtensionUtil from 'src/script/utility/modal-extension/ajax-modal-extension.util';
 
 /*
 import plugins
@@ -126,4 +126,4 @@ document.addEventListener('DOMContentLoaded', () => PluginManager.executePlugins
 /*
 run utils
 */
-new ModalExtensionUtil();
+new AjaxModalExtensionUtil();

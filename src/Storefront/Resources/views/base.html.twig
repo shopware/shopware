@@ -121,13 +121,7 @@
     {% block base_script_breakpoints %}
         {# Register the available viewport breakpoints the window.breakpoints object #}
         <script>
-            window.breakpoints = {
-                xs: 0,
-                sm: 576,
-                md: 768,
-                lg: 992,
-                xl: 1200,
-            };
+            window.breakpoints = {{ shopware.theme.breakpoint|json_encode()|raw }};
         </script>
     {% endblock %}
 

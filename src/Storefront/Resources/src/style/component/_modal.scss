@@ -1,0 +1,10 @@
+.modal {
+    .modal-header {
+        &.only-close {
+            position: absolute;
+            z-index: 2;
+            width: 100%;
+            border-bottom-color: transparent;
+        }
+    }
+}

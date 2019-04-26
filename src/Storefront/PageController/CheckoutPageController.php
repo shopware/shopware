@@ -9,6 +9,8 @@ use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AddressService;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
+use Shopware\Core\Checkout\Promotion\Cart\Builder\PromotionItemBuilder;
+use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsCollector;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -26,6 +28,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Exception\InvalidParameterException;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CheckoutPageController extends StorefrontController
 {
@@ -79,6 +82,11 @@ class CheckoutPageController extends StorefrontController
      */
     private $contextSwitcher;
 
+    /**
+     * @var TranslatorInterface
+     */
+    private $translator;
+
     public function __construct(
         CartService $cartService,
         PageLoaderInterface $cartPageLoader,
@@ -89,7 +97,8 @@ class CheckoutPageController extends StorefrontController
         PageLoaderInterface $addressPageLoader,
         AddressService $addressService,
         OrderService $orderService,
-        SalesChannelContextSwitcher $contextSwitcher
+        SalesChannelContextSwitcher $contextSwitcher,
+        TranslatorInterface $translator
     ) {
         $this->cartService = $cartService;
         $this->cartPageLoader = $cartPageLoader;
@@ -101,6 +110,7 @@ class CheckoutPageController extends StorefrontController
         $this->orderService = $orderService;
         $this->addressService = $addressService;
         $this->contextSwitcher = $contextSwitcher;
+        $this->translator = $translator;
     }
 
     /**
@@ -300,6 +310,41 @@ class CheckoutPageController extends StorefrontController
         }
 
         $this->cartService->remove($cart, $id, $context);
+
+        return $this->createActionResponse($request);
+    }
+
+    /**
+     * @Route("/checkout/promotion/add", name="frontend.checkout.promotion.add", defaults={"XmlHttpRequest": true}, methods={"POST"})
+     */
+    public function addCode(Request $request, SalesChannelContext $context): Response
+    {
+        try {
+            /** @var string $token */
+            $token = $request->request->getAlnum('token', $context->getToken());
+
+            /** @var string|null $code */
+            $code = $request->request->getAlnum('code');
+
+            if ($code === null) {
+                throw new \Exception('Code is required');
+            }
+            $itemBuilder = new PromotionItemBuilder(CartPromotionsCollector::LINE_ITEM_TYPE);
+
+            $lineItem = $itemBuilder->buildPlaceholderItem(
+                $code,
+                $context->getContext()->getCurrencyPrecision()
+            );
+
+            $cart = $this->cartService->add($this->cartService->getCart($token, $context), $lineItem, $context);
+
+            if (!$cart->has($lineItem->getKey())) {
+                throw new \Exception('code was not added');
+            }
+            $this->addFlash('success', $this->translator->trans('checkout.codeAddedSuccessful'));
+        } catch (\Exception $exception) {
+            $this->addFlash('danger', $this->translator->trans('error.message-default'));
+        }
 
         return $this->createActionResponse($request);
     }

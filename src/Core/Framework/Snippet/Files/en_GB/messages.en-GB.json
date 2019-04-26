@@ -216,7 +216,8 @@
         "finishInfoHeader": "Information",
         "finishInfoOrdernumber": "Order number: ",
         "finishInfoConfirmationMail": "We have sent you the order confirmation by email.",
-        "finishButtonBackToShop": "Back to the shop"
+        "finishButtonBackToShop": "Back to the shop",
+        "codeAddedSuccessful": "Code was added successfully"
     },
     "listing": {
         "boxUnitLabel": "Content:",

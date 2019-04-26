@@ -132,7 +132,17 @@ class CategoryEntity extends Entity
     /**
      * @var SalesChannelCollection|null
      */
-    protected $salesChannels;
+    protected $navigationSalesChannels;
+
+    /**
+     * @var SalesChannelCollection|null
+     */
+    protected $footerSalesChannels;
+
+    /**
+     * @var SalesChannelCollection|null
+     */
+    protected $serviceSalesChannels;
 
     public function getParentId(): ?string
     {
@@ -364,13 +374,33 @@ class CategoryEntity extends Entity
         $this->slotConfig = $slotConfig;
     }
 
-    public function getSalesChannels(): ?SalesChannelCollection
+    public function getNavigationSalesChannels(): ?SalesChannelCollection
     {
-        return $this->salesChannels;
+        return $this->navigationSalesChannels;
     }
 
-    public function setSalesChannels(SalesChannelCollection $salesChannels): void
+    public function setNavigationSalesChannels(SalesChannelCollection $navigationSalesChannels): void
     {
-        $this->salesChannels = $salesChannels;
+        $this->navigationSalesChannels = $navigationSalesChannels;
+    }
+
+    public function getFooterSalesChannels(): ?SalesChannelCollection
+    {
+        return $this->footerSalesChannels;
+    }
+
+    public function setFooterSalesChannels(SalesChannelCollection $footerSalesChannels): void
+    {
+        $this->footerSalesChannels = $footerSalesChannels;
+    }
+
+    public function getServiceSalesChannels(): ?SalesChannelCollection
+    {
+        return $this->serviceSalesChannels;
+    }
+
+    public function setServiceSalesChannels(SalesChannelCollection $serviceSalesChannels): void
+    {
+        $this->serviceSalesChannels = $serviceSalesChannels;
     }
 }

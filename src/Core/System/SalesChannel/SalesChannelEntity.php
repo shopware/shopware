@@ -65,9 +65,19 @@ class SalesChannelEntity extends Entity
     protected $countryId;
 
     /**
+     * @var string
+     */
+    protected $navigationCategoryId;
+
+    /**
      * @var string|null
      */
-    protected $categoryId;
+    protected $footerCategoryId;
+
+    /**
+     * @var string|null
+     */
+    protected $serviceCategoryId;
 
     /**
      * @var string|null
@@ -197,7 +207,17 @@ class SalesChannelEntity extends Entity
     /**
      * @var CategoryEntity|null
      */
-    protected $category;
+    protected $navigationCategory;
+
+    /**
+     * @var CategoryEntity|null
+     */
+    protected $footerCategory;
+
+    /**
+     * @var CategoryEntity|null
+     */
+    protected $serviceCategory;
 
     /**
      * @var ProductVisibilityCollection|null
@@ -579,24 +599,24 @@ class SalesChannelEntity extends Entity
         $this->attributes = $attributes;
     }
 
-    public function getCategoryId(): ?string
+    public function getNavigationCategoryId(): string
     {
-        return $this->categoryId;
+        return $this->navigationCategoryId;
     }
 
-    public function setCategoryId(string $categoryId): void
+    public function setNavigationCategoryId(string $navigationCategoryId): void
     {
-        $this->categoryId = $categoryId;
+        $this->navigationCategoryId = $navigationCategoryId;
     }
 
-    public function getCategory(): ?CategoryEntity
+    public function getNavigationCategory(): ?CategoryEntity
     {
-        return $this->category;
+        return $this->navigationCategory;
     }
 
-    public function setCategory(CategoryEntity $category): void
+    public function setNavigationCategory(CategoryEntity $navigationCategory): void
     {
-        $this->category = $category;
+        $this->navigationCategory = $navigationCategory;
     }
 
     public function getProductVisibilities(): ?ProductVisibilityCollection
@@ -669,12 +689,52 @@ class SalesChannelEntity extends Entity
         $this->numberRangeSalesChannels = $numberRangeSalesChannels;
     }
 
+    public function getFooterCategoryId(): ?string
+    {
+        return $this->footerCategoryId;
+    }
+
+    public function setFooterCategoryId(string $footerCategoryId): void
+    {
+        $this->footerCategoryId = $footerCategoryId;
+    }
+
+    public function getServiceCategoryId(): ?string
+    {
+        return $this->serviceCategoryId;
+    }
+
+    public function setServiceCategoryId(string $serviceCategoryId): void
+    {
+        $this->serviceCategoryId = $serviceCategoryId;
+    }
+
+    public function getFooterCategory(): ?CategoryEntity
+    {
+        return $this->footerCategory;
+    }
+
+    public function setFooterCategory(CategoryEntity $footerCategory): void
+    {
+        $this->footerCategory = $footerCategory;
+    }
+
+    public function getServiceCategory(): ?CategoryEntity
+    {
+        return $this->serviceCategory;
+    }
+
+    public function setServiceCategory(CategoryEntity $serviceCategory): void
+    {
+        $this->serviceCategory = $serviceCategory;
+    }
+
     public function getDocumentBaseConfigSalesChannels(): ?DocumentBaseConfigDefinition
     {
         return $this->documentBaseConfigSalesChannels;
     }
 
-    public function setDocumentBaseConfigSalesChannels(?DocumentBaseConfigDefinition $documentBaseConfigSalesChannels): void
+    public function setDocumentBaseConfigSalesChannels(DocumentBaseConfigDefinition $documentBaseConfigSalesChannels): void
     {
         $this->documentBaseConfigSalesChannels = $documentBaseConfigSalesChannels;
     }

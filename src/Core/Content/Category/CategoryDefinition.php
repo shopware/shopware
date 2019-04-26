@@ -115,7 +115,9 @@ class CategoryDefinition extends EntityDefinition
             new FkField('cms_page_id', 'cmsPageId', CmsPageDefinition::class),
             new ManyToOneAssociationField('cmsPage', 'cms_page_id', CmsPageDefinition::class, 'id', false),
 
-            new OneToManyAssociationField('salesChannels', SalesChannelDefinition::class, 'category_id'),
+            new OneToManyAssociationField('navigationSalesChannels', SalesChannelDefinition::class, 'navigation_category_id'),
+            new OneToManyAssociationField('footerSalesChannels', SalesChannelDefinition::class, 'footer_category_id'),
+            new OneToManyAssociationField('serviceSalesChannels', SalesChannelDefinition::class, 'service_category_id'),
         ]);
     }
 }

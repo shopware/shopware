@@ -3,23 +3,22 @@
 namespace Shopware\Core\Content\Test\Category\Service;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\NavigationLoader;
 use Shopware\Core\Content\Category\Tree\TreeItem;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 
 class NavigationLoaderTest extends TestCase
 {
     public function testTreeBuilderwithSimpleTree(): void
     {
-        $loader = new NavigationLoader($this->createMock(EntityRepositoryInterface::class));
+        $loader = new NavigationLoader($this->createMock(SalesChannelRepository::class));
 
         $method = ReflectionHelper::getMethod(NavigationLoader::class, 'buildTree');
 
         /** @var TreeItem[] $treeItems */
-        $treeItems = $method->invoke($loader, '1', $this->createSimpleTreeEntityCollection());
+        $treeItems = $method->invoke($loader, '1', $this->createSimpleTree());
 
         static::assertCount(3, $treeItems);
         static::assertCount(2, $treeItems['1.1']->getChildren());
@@ -31,9 +30,9 @@ class NavigationLoaderTest extends TestCase
         static::assertCount(0, $treeItems['1.3']->getChildren());
     }
 
-    private function createSimpleTreeEntityCollection(): CategoryCollection
+    private function createSimpleTree(): array
     {
-        return new CategoryCollection([
+        return [
             new TestTreeAware('1.1', '1'),
             new TestTreeAware('1.1.1', '1.1'),
             new TestTreeAware('1.1.2', '1.1'),
@@ -43,7 +42,7 @@ class NavigationLoaderTest extends TestCase
             new TestTreeAware('1.2.2', '1.2'),
             new TestTreeAware('1.2.2.1', '1.2.2'),
             new TestTreeAware('1.3', '1'),
-        ]);
+        ];
     }
 }
 

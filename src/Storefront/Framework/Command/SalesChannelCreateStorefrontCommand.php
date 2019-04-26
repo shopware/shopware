@@ -59,7 +59,7 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
                     'currencyId' => $input->getOption('currencyId'),
                 ],
             ],
-            'categoryId' => $this->getRootCategoryId(),
+            'navigationCategoryId' => $this->getRootCategoryId(),
         ];
     }
 

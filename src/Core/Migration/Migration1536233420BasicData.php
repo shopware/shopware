@@ -483,8 +483,8 @@ class Migration1536233420BasicData extends MigrationStep
             'payment_method_id' => $defaultPaymentMethod,
             'shipping_method_id' => $defaultShippingMethod,
             'country_id' => $defaultCountry,
-            'category_id' => $rootCategoryId,
-            'category_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            'navigation_category_id' => $rootCategoryId,
+            'navigation_category_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
         ]);
 

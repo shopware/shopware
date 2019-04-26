@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Uuid;
 
-use Ramsey\Uuid\Uuid as RamseyUuid;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidLengthException;
 
@@ -15,12 +14,29 @@ class Uuid
 
     public static function randomHex(): string
     {
-        return RamseyUuid::uuid4()->getHex();
+        $hex = bin2hex(random_bytes(16));
+        $timeHi = self::applyVersion(substr($hex, 12, 4), 4);
+        $clockSeqHi = self::applyVariant(hexdec(substr($hex, 16, 2)));
+
+        return sprintf('%08s%04s%04s%02s%02s%012s',
+            // time low
+            substr($hex, 0, 8),
+            // time mid
+            substr($hex, 8, 4),
+            // time high and version
+            str_pad(dechex($timeHi), 4, '0', STR_PAD_LEFT),
+            // clk_seq_hi_res
+            str_pad(dechex($clockSeqHi), 2, '0', STR_PAD_LEFT),
+            // clock_seq_low
+            substr($hex, 18, 2),
+            // node
+            substr($hex, 20, 12)
+        );
     }
 
     public static function randomBytes(): string
     {
-        return RamseyUuid::uuid4()->getBytes();
+        return hex2bin(self::randomHex());
     }
 
     /**
@@ -61,5 +77,24 @@ class Uuid
         }
 
         return true;
+    }
+
+    private static function applyVersion(string $timeHi, int $version): int
+    {
+        $timeHi = hexdec($timeHi) & 0x0fff;
+        $timeHi &= ~(0xf000);
+        $timeHi |= $version << 12;
+
+        return $timeHi;
+    }
+
+    private static function applyVariant(int $clockSeqHi): int
+    {
+        // Set the variant to RFC 4122
+        $clockSeqHi = $clockSeqHi & 0x3f;
+        $clockSeqHi &= ~(0xc0);
+        $clockSeqHi |= 0x80;
+
+        return $clockSeqHi;
     }
 }

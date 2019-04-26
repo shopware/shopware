@@ -42,4 +42,16 @@ class UuidTest extends TestCase
         $this->expectException(InvalidUuidLengthException::class);
         Uuid::fromBytesToHex('a');
     }
+
+    public function testUuidFormat()
+    {
+        for ($i = 0; $i < 100; ++$i) {
+            $uuid = Uuid::randomHex();
+            static::assertSame(32, strlen($uuid));
+            // uuid 4 is mostly random except the version is at pos 13 and pos 17 is either 8, 9, a or b
+            static::assertSame('4', $uuid[12]);
+            static::assertContains($uuid[16], ['8', '9', 'a', 'b']);
+            static::assertTrue($uuid === strtolower($uuid));
+        }
+    }
 }

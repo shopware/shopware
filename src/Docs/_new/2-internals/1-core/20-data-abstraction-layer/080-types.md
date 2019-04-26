@@ -56,13 +56,6 @@ new IdField('id', 'id')
 
 1. `$storageName` is the name in your storage.
 2. `$propertyName` is the name used in your struct and used to search, write and work.
-
-**Optional**
-
-3. `$generatorClass` references a `Shopware\Core\Framework\DataAbstractionLayer\Write\IdGenerator\Generator` class
-which will be used to convert a value back and forth to the storage layer. It defaults to
-`Shopware\Core\Framework\DataAbstractionLayer\Write\IdGenerator\RamseyGenerator` which generates a UUID.
-
 ### StringField
 
 ```php

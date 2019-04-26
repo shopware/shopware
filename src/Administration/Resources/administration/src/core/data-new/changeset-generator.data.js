@@ -113,7 +113,7 @@ export default class ChangesetGenerator {
         const originIds = Object.keys(origin.items);
 
         Object.keys(draft.items).forEach((key) => {
-            const entity = draft[key];
+            const entity = draft.items[key];
 
             if (!originIds.includes(entity.id)) {
                 changes.push({ id: entity.id });

@@ -26,33 +26,30 @@ class PromotionGateway implements PromotionGatewayInterface
     }
 
     /**
-     * Gets a list of all available promotions
-     * within the current checkout context.
+     * Gets a list of all available active promotions that do not
+     * require a code within the current checkout context.
      *
      * @throws InconsistentCriteriaIdsException
      * @throws \Exception
      */
-    public function getByContext(SalesChannelContext $context): EntityCollection
+    public function getAutomaticPromotions(SalesChannelContext $context): EntityCollection
     {
-        /** @var array $contextRules */
-        $contextRules = $context->getRuleIds();
-
         // add conditional OR filter to either get an entry that matches any existing rule,
         // or promotions that don't have ANY rules and thus are used globally
         $criteria = new Criteria([]);
         $criteria->addFilter(new MultiFilter(
             MultiFilter::CONNECTION_AND,
             [
-                new EqualsFilter('active', true),
                 new EqualsFilter('useCodes', false),
+                new EqualsFilter('active', true),
                 new EqualsFilter('promotion.salesChannels.salesChannelId', $context->getSalesChannel()->getId()),
                 $this->getDateRangeFilter(),
-                $this->getRuleConditionFilters($contextRules),
             ]
         ));
 
         $criteria->addAssociation('personaRules');
         $criteria->addAssociation('personaCustomers');
+        $criteria->addAssociation('cartRules');
         $criteria->addAssociation('orderRules');
         $criteria->addAssociation('discounts');
 
@@ -76,9 +73,9 @@ class PromotionGateway implements PromotionGatewayInterface
             new MultiFilter(
                 MultiFilter::CONNECTION_AND,
                 [
-                    new EqualsFilter('active', true),
                     new EqualsFilter('useCodes', true),
                     new EqualsAnyFilter('code', $codes),
+                    new EqualsFilter('active', true),
                     new EqualsFilter('promotion.salesChannels.salesChannelId', $context->getSalesChannel()->getId()),
                     $this->getDateRangeFilter(),
                 ]
@@ -87,6 +84,7 @@ class PromotionGateway implements PromotionGatewayInterface
 
         $criteria->addAssociation('personaRules');
         $criteria->addAssociation('personaCustomers');
+        $criteria->addAssociation('cartRules');
         $criteria->addAssociation('orderRules');
         $criteria->addAssociation('discounts');
 
@@ -151,35 +149,5 @@ class PromotionGateway implements PromotionGatewayInterface
         );
 
         return $dateFilter;
-    }
-
-    /**
-     * Gets the filter for the provided context rules.
-     * This will build a filter that allows promotions without any rule set
-     * or with any matching one from the provided list.
-     */
-    private function getRuleConditionFilters(array $contextRuleIds): Filter
-    {
-        $filterRules = new MultiFilter(
-            MultiFilter::CONNECTION_OR,
-            [
-                new MultiFilter(
-                    MultiFilter::CONNECTION_AND,
-                    [
-                        new EqualsFilter('promotion.orderRules.id', null),
-                        new EqualsFilter('promotion.cartRules.id', null),
-                    ]
-                ),
-                new MultiFilter(
-                    MultiFilter::CONNECTION_OR,
-                    [
-                        new EqualsAnyFilter('promotion.orderRules.id', $contextRuleIds),
-                        new EqualsAnyFilter('promotion.cartRules.id', $contextRuleIds),
-                    ]
-                ),
-            ]
-        );
-
-        return $filterRules;
     }
 }

@@ -47,28 +47,28 @@ class PromotionGatewayTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testByContextCriteria()
+    public function testGetAutomaticPromotionsCriteria()
     {
         $fakeRepo = new FakePromotionRepository();
         $gateway = new PromotionGateway($fakeRepo);
 
         /* @var SalesChannelContext $checkoutContext */
-        $gateway->getByContext($this->checkoutContext);
+        $gateway->getAutomaticPromotions($this->checkoutContext);
 
         $expectedCriteria = new Criteria([]);
         $expectedCriteria->addFilter(new MultiFilter(
             MultiFilter::CONNECTION_AND,
             [
-                new EqualsFilter('active', true),
                 new EqualsFilter('useCodes', false),
+                new EqualsFilter('active', true),
                 new EqualsFilter('promotion.salesChannels.salesChannelId', 'CH1'),
                 $this->getExpectedDateRangeFilter(),
-                $this->getExpectedRuleConditionFilters([]),
             ]
         ));
 
         $expectedCriteria->addAssociation('personaRules');
         $expectedCriteria->addAssociation('personaCustomers');
+        $expectedCriteria->addAssociation('cartRules');
         $expectedCriteria->addAssociation('orderRules');
         $expectedCriteria->addAssociation('discounts');
 
@@ -94,15 +94,16 @@ class PromotionGatewayTest extends TestCase
 
         $expectedCriteria = new Criteria([]);
         $expectedCriteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
-            new EqualsFilter('active', true),
             new EqualsFilter('useCodes', true),
             $this->getExpectedCodesFilter(['CODE-1', 'CODE-2']),
+            new EqualsFilter('active', true),
             new EqualsFilter('promotion.salesChannels.salesChannelId', 'CH1'),
             $this->getExpectedDateRangeFilter(),
         ]));
 
         $expectedCriteria->addAssociation('personaRules');
         $expectedCriteria->addAssociation('personaCustomers');
+        $expectedCriteria->addAssociation('cartRules');
         $expectedCriteria->addAssociation('orderRules');
         $expectedCriteria->addAssociation('discounts');
 

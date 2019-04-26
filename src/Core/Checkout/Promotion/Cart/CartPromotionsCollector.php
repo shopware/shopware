@@ -81,30 +81,11 @@ class CartPromotionsCollector implements CollectorInterface
         /** @var array $promotionLineItems */
         $promotionLineItems = $this->getPromotionLineItems($cart);
 
-        if ($behavior->isRecalculation()) {
-            // if we are in recalculation mode, we must not touch any existing items!
-            // we do only search for new promotion placeholders and extract their IDs.
-            /** @var LineItem $lineItem */
-            foreach ($promotionLineItems as $lineItem) {
-                if ($this->isPromotionPlaceholder($lineItem)) {
-                    $placeholderItemIds[] = $lineItem->getKey();
-                }
-            }
-
-            $definitions->add(new CartPromotionsFetchDefinition($placeholderItemIds));
-
-            return;
-        }
-
-        // in "live checkout mode", we have to ensure we also REMOVE line items
-        // if conditions are not met anymore for a promotion!
-        // thus we collect all our existing promotion line items (placeholders and real ones)
-        // to re-apply them again if still valid...or remove them later on.
+        // We must not touch any existing items!
+        // we do only search for new promotion placeholders and extract their IDs.
         /** @var LineItem $lineItem */
         foreach ($promotionLineItems as $lineItem) {
             if ($this->isPromotionPlaceholder($lineItem)) {
-                $placeholderItemIds[] = $lineItem->getKey();
-            } elseif ($this->isRealPromotionItem($lineItem)) {
                 $placeholderItemIds[] = $lineItem->getKey();
             }
         }
@@ -131,7 +112,7 @@ class CartPromotionsCollector implements CollectorInterface
         $promotionDefinitions = $fetchDefinitions->filterInstance(CartPromotionsFetchDefinition::class);
 
         // verify if we even have to collect data.
-        // if not, then simply skip this step.
+        // if no definition object exists (not prepared), then simply skip this step.
         if ($promotionDefinitions->count() <= 0) {
             return;
         }
@@ -148,27 +129,15 @@ class CartPromotionsCollector implements CollectorInterface
         $newPromotions = [];
 
         // we now have a list of promotions that could be added to our cart.
-        // we still need to verify a few things, to be sure they are really valid.
-        // if so, add them to our collection list.
+        // verify if they have any discounts. if so, add them to our
+        // data struct, which ensures that they will be added later in the enrichment process.
         /** @var PromotionEntity $promotion */
         foreach ($promotions as $promotion) {
-            if (!$promotion->isPersonaConditionValid($context)) {
-                continue;
-            }
-
-            if (!$promotion->isCartConditionValid($context)) {
-                continue;
-            }
-
-            if (!$promotion->isOrderConditionValid($context)) {
-                continue;
-            }
-
             /** @var PromotionDiscountCollection|null $collection */
             $collection = $promotion->getDiscounts();
 
+            // check if no discounts have been set
             if (!$collection instanceof PromotionDiscountCollection || count($collection->getElements()) <= 0) {
-                // no discounts have been set
                 continue;
             }
 
@@ -200,24 +169,24 @@ class CartPromotionsCollector implements CollectorInterface
         /** @var array $promotionLineItems */
         $promotionLineItems = $this->getPromotionLineItems($cart);
 
-        if ($behavior->isRecalculation()) {
-            // we are in recalculation mode
-            // this means we must not remove any already added line items!
-            // so we only touch new ones, which means, we have to remove their placeholders (only)
-            /** @var LineItem $lineItem */
-            foreach ($promotionLineItems as $lineItem) {
-                if ($this->isPromotionPlaceholder($lineItem)) {
-                    $cart->getLineItems()->removeElement($lineItem);
-                }
+        // first thing is, to remove all promotion placeholder items.
+        // the real line items will be added later in here
+        //  we only touch new ones, which means, we have to remove their placeholders (only)
+        /** @var LineItem $lineItem */
+        foreach ($promotionLineItems as $lineItem) {
+            if ($this->isPromotionPlaceholder($lineItem)) {
+                $cart->getLineItems()->removeElement($lineItem);
             }
-        } else {
+        }
+
+        if (!$behavior->isRecalculation()) {
             // we are in "live checkout mode", which means, we also have to ensure
             // that promotions get removed again if the condition isn't met anymore.
             // this could be due to removing a minimum quantity of a product, or anything else.
             // so we remove every item and re-add our valid promotions from the "collect" step again.
             /** @var LineItem $lineItem */
             foreach ($promotionLineItems as $lineItem) {
-                if ($this->isPromotionPlaceholder($lineItem) || $this->isRealPromotionItem($lineItem)) {
+                if ($this->isRealPromotionItem($lineItem)) {
                     $cart->getLineItems()->removeElement($lineItem);
                 }
             }
@@ -346,7 +315,7 @@ class CartPromotionsCollector implements CollectorInterface
         $codePromotions = $this->promotionGateway->getByCodes($codes, $context);
 
         /** @var PromotionCollection $automaticPromotions */
-        $automaticPromotions = $this->promotionGateway->getByContext($context);
+        $automaticPromotions = $this->promotionGateway->getAutomaticPromotions($context);
 
         /** @var array $listPromotionsAdded */
         $listPromotionsAdded = $codePromotions->getElements();

@@ -47,7 +47,7 @@ class CartPromotionsCollectorTest extends TestCase
     /**
      * @var PromotionEntity
      */
-    private $promotionScope = null;
+    private $promotionCart = null;
 
     /**
      * @throws \ReflectionException
@@ -84,25 +84,21 @@ class CartPromotionsCollectorTest extends TestCase
         $discount2->setScope(PromotionDiscountEntity::SCOPE_CART);
         $this->promotionPersona->setDiscounts(new PromotionDiscountCollection([$discount2]));
 
-        $this->promotionScope = new PromotionEntity();
-        $this->promotionScope->setId('PROM-SCOPE');
-        $this->promotionScope->setCartRules(new RuleCollection([$this->getFakeRule()]));
+        $this->promotionCart = new PromotionEntity();
+        $this->promotionCart->setId('PROM-CART');
+        $this->promotionCart->setCartRules(new RuleCollection([$this->getFakeRule()]));
         $discount3 = new PromotionDiscountEntity();
         $discount3->setId('D3');
         $discount3->setValue(100);
         $discount3->setType(PromotionDiscountEntity::TYPE_PERCENTAGE);
         $discount3->setScope(PromotionDiscountEntity::SCOPE_CART);
-        $this->promotionScope->setDiscounts(new PromotionDiscountCollection([$discount3]));
+        $this->promotionCart->setDiscounts(new PromotionDiscountCollection([$discount3]));
     }
 
     /**
-     * This test verifies that our collect function does correctly
-     * iterate through all available promotions and does only return the
-     * valid promotions in the data struct.
-     * Thus we build a fake promotion gateway, that returns 3 promotions
-     * with a persona and scope rule restriction and an additional one without any restrictions.
-     * Our Checkout Context does not have any rules applied, so our collect
-     * function should only return the global promotion in the end.
+     * This test verifies that our collect function returns all promotions from the gateway.
+     * No additional assertion of soft conditions are allowed.
+     * These do all need to be inside the Requirements of the Line Item.
      *
      * @test
      * @group promotions
@@ -110,13 +106,12 @@ class CartPromotionsCollectorTest extends TestCase
      * @throws InvalidPayloadException
      * @throws InvalidQuantityException
      */
-    public function testCollectOnlyReturnsValidPromotions()
+    public function testCollectReturnsAllGatewayPromotions()
     {
         $fakePromotionGateway = new FakePromotionGateway(
             [
                 $this->promotionPersona,
-                $this->promotionScope,
-                $this->promotionGlobal,
+                $this->promotionCart,
             ],
             []
         );
@@ -139,13 +134,11 @@ class CartPromotionsCollectorTest extends TestCase
         /** @var array $collectedPromotions */
         $collectedPromotions = $collectData->getPromotions();
 
-        /** @var PromotionEntity $promotion */
-        $promotion = $collectedPromotions[0];
-
-        // now assert that we have only 1 promotion.
-        // this one should be the global one
-        static::assertEquals(1, count($collectedPromotions));
-        static::assertEquals('PROM-GLOBAL', $promotion->getId());
+        // now assert that we have both promotions
+        // with the correct IDs.
+        static::assertEquals(2, count($collectedPromotions));
+        static::assertEquals('PROM-PERSONA', $collectedPromotions[0]->getId());
+        static::assertEquals('PROM-CART', $collectedPromotions[1]->getId());
     }
 
     /**

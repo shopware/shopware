@@ -14,7 +14,7 @@ class CustomerPageObject extends GeneralPageObject {
                 currencyColumnName: '.sw-currency-list__column-name',
 
                 languageSaveAction: '.sw-settings-language-detail__save-action',
-                languageColumnName: '.sw-language-list__column-name',
+                languageColumnName: '.sw-data-grid__cell--name', // .sw-language-list__column-name',
 
                 taxSaveAction: '.sw-settings-tax-detail__save-action',
                 taxColumnName: '.sw-tax-list__column-name',

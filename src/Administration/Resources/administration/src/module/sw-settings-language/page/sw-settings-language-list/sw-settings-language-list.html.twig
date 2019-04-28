@@ -56,7 +56,9 @@
                         detailRoute="sw.settings.language.detail"
                         :repository="languageRepository"
                         :columns="getColumns"
-                        :items="languages">
+                        :items="languages"
+                        :sortBy="sortBy"
+                        :sortDirection="sortDirection">
 
                         <template #column-name="{ item, column, compact, isInlineEdit }">
                             <sw-field v-if="isInlineEdit" :size="compact ? 'small' : 'default'" v-model="item.name"></sw-field>

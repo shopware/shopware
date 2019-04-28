@@ -20,16 +20,13 @@ module.exports = {
         const page = settingsPage(browser);
 
         browser
-            .waitForElementVisible(`${page.elements.gridRow}--0`)
-            .moveToElement(`${page.elements.gridRow}--0`, 5, 5).doubleClick()
-            .fillField(`${page.elements.gridRow}--0 input[name=sw-field--item-name]`, 'Nordfriesisch', true)
-            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
-            .click(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
-            .waitForElementNotPresent('.is--inline-editing');
-    },
-    'verify edited language': (browser) => {
-        const page = settingsPage(browser);
-
-        browser.expect.element(`${page.elements.gridRow}--0 ${page.elements.languageColumnName}`).to.have.text.that.contains('Nordfriesisch');
+            .waitForElementVisible(`${page.elements.dataGridRow}--0`)
+            .moveToElement(`${page.elements.dataGridRow}--0 ${page.elements.languageColumnName}`, 5, 5).doubleClick()
+            .waitForElementVisible('.is--inline-edit')
+            .fillField(`${page.elements.dataGridRow}--0 input[name=sw-field--item-name]`, 'Nordfriesisch', true)
+            .waitForElementVisible(`${page.elements.dataGridRow}--0 ${page.elements.dataGridInlineEditSave}`)
+            .click(`${page.elements.dataGridRow}--0 ${page.elements.dataGridInlineEditSave}`)
+            .waitForElementPresent(`${page.elements.dataGridRow}--0 ${page.elements.languageColumnName}`)
+            .expect.element(`${page.elements.dataGridRow}--0 ${page.elements.languageColumnName}`).to.have.text.that.contains('Nordfriesisch');
     }
 };

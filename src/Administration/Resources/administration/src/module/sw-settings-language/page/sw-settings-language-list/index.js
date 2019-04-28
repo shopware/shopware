@@ -19,7 +19,8 @@ Component.register('sw-settings-language-list', {
             parentLanguages: null,
             filterRootLanguages: false,
             filterInheritedLanguages: false,
-            isLoading: true
+            isLoading: true,
+            sortBy: this.$route.params.sortBy || 'name'
         };
     },
 
@@ -56,6 +57,7 @@ Component.register('sw-settings-language-list', {
             return [{
                 property: 'name',
                 label: this.$tc('sw-settings-language.list.columnName'),
+                dataIndex: 'name',
                 inlineEdit: true
             }, {
                 property: 'locale',

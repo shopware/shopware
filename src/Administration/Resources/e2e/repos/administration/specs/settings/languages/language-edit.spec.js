@@ -17,15 +17,15 @@ module.exports = {
             })
             .click('#sw-settings-language')
             .assert.urlContains('#/sw/settings/language/index')
-            .expect.element(`${page.elements.gridRow}--2 ${page.elements.languageColumnName}`).to.have.text.that.contains(global.LanguageFixtureService.getLanguageName());
+            .expect.element(`${page.elements.dataGridRow}--2 ${page.elements.languageColumnName}`).to.have.text.that.contains(global.LanguageFixtureService.getLanguageName());
     },
     'edit language': (browser) => {
         const page = settingsPage(browser);
 
         browser
             .clickContextMenuItem(page.elements.contextMenuButton, {
-                menuActionSelector: '.sw-language-list__edit-action',
-                scope: `${page.elements.gridRow}--2`
+                menuActionSelector: '.sw-entity-listing__context-menu-edit-action',
+                scope: `${page.elements.dataGridRow}--2`
             })
             .waitForElementVisible('.sw-settings-language-detail .sw-card__content')
             .fillField('input[name=sw-field--language-name]', 'Very Philippine English', true)
@@ -39,6 +39,6 @@ module.exports = {
 
         browser
             .click(page.elements.smartBarBack)
-            .expect.element(`${page.elements.gridRow}--2 ${page.elements.languageColumnName}`).to.have.text.that.contains('Very Philippine English');
+            .expect.element(`${page.elements.dataGridRow}--2 ${page.elements.languageColumnName}`).to.have.text.that.contains('Very Philippine English');
     }
 };

@@ -528,5 +528,18 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
             <tag name="validator.constraint_validator"/>
         </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory">
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\ManyToManyIdFieldIndexer">
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <argument id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry" type="service"/>
+            <argument id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" type="service"/>
+            <tag name="shopware.dbal_indexing.indexer" priority="400"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
     </services>
 </container>

@@ -73,20 +73,6 @@
             <argument type="service" id="product.repository"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductOptionIndexer">
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <tag name="shopware.dbal_indexing.indexer" priority="900"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductPropertyIndexer">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
-            <tag name="shopware.dbal_indexing.indexer" priority="400"/>
-        </service>
-
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductListingPriceIndexer">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
@@ -116,14 +102,6 @@
 
         <service id="Shopware\Core\Content\Product\Util\VariantCombinationLoader">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductTagIndexer">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
-
-            <tag name="shopware.dbal_indexing.indexer"/>
         </service>
 
         <service id="Shopware\Core\Content\DeliveryTime\DeliveryTimeDefinition">

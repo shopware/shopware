@@ -35,7 +35,7 @@ class IteratorFactory
             return new LastIdQuery($query);
         }
 
-        $query->select([$escaped . '.id', $escaped . '.id AS entityId']);
+        $query->select([$escaped . '.id', 'LOWER(HEX(' . $escaped . '.id))']);
         $query->setFirstResult(0);
 
         return new OffsetQuery($query);

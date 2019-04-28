@@ -125,6 +125,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IndexTableOperator"/>
             <argument type="service" id="language.repository"/>
             <tag name="shopware.dbal_indexing.indexer" priority="200"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder">
@@ -287,6 +288,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
             <argument type="service" id="shopware.cache"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\TreeIndexer">
@@ -295,6 +297,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
             <argument type="service" id="shopware.cache"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <tag name="shopware.dbal_indexing.indexer" priority="1000"/>
         </service>
 
@@ -319,6 +322,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager">

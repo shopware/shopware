@@ -8,7 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Context\SystemSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IndexTableOperator;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\LastIdQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
@@ -66,6 +66,10 @@ class SearchKeywordIndexer implements IndexerInterface
      * @var DefinitionRegistry
      */
     private $definitionRegistry;
+    /**
+     * @var IteratorFactory
+     */
+    private $iteratorFactory;
 
     public function __construct(
         Connection $connection,
@@ -74,7 +78,8 @@ class SearchKeywordIndexer implements IndexerInterface
         EventDispatcherInterface $eventDispatcher,
         SearchAnalyzerRegistry $analyzerRegistry,
         IndexTableOperator $indexTableOperator,
-        EntityRepositoryInterface $languageRepository
+        EntityRepositoryInterface $languageRepository,
+        IteratorFactory $iteratorFactory
     ) {
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
@@ -83,6 +88,7 @@ class SearchKeywordIndexer implements IndexerInterface
         $this->languageRepository = $languageRepository;
         $this->registry = $registry;
         $this->definitionRegistry = $definitionRegistry;
+        $this->iteratorFactory = $iteratorFactory;
     }
 
     public function index(\DateTimeInterface $timestamp): void
@@ -158,7 +164,7 @@ class SearchKeywordIndexer implements IndexerInterface
                 continue;
             }
 
-            $iterator = $this->createIterator($definition);
+            $iterator = $this->iteratorFactory->createIterator($definition);
 
             $this->eventDispatcher->dispatch(
                 ProgressStartedEvent::NAME,
@@ -172,10 +178,6 @@ class SearchKeywordIndexer implements IndexerInterface
             $documentTable = $this->indexTableOperator->getIndexName(self::DOCUMENT_TABLE, $timestamp->getTimestamp());
 
             while ($ids = $iterator->fetch()) {
-                $ids = array_map(function ($id) {
-                    return Uuid::fromBytesToHex($id);
-                }, $ids);
-
                 $this->indexEntities($definition, $context, $ids, $table, $documentTable);
 
                 $this->eventDispatcher->dispatch(
@@ -189,27 +191,6 @@ class SearchKeywordIndexer implements IndexerInterface
                 new ProgressFinishedEvent(sprintf('Finished analyzing search keywords for entity %s for language %s', $definition::getEntityName(), $context->getLanguageId()))
             );
         }
-    }
-
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    private function createIterator(string $definition): LastIdQuery
-    {
-        $query = $this->connection->createQueryBuilder();
-
-        $escaped = EntityDefinitionQueryHelper::escape($definition::getEntityName());
-
-        $query->select([$escaped . '.auto_increment', $escaped . '.id']);
-        $query->from($escaped);
-        $query->andWhere($escaped . '.auto_increment > :lastId');
-        $query->addOrderBy($escaped . '.auto_increment');
-
-        $query->setMaxResults(50);
-
-        $query->setParameter('lastId', 0);
-
-        return new LastIdQuery($query);
     }
 
     /**

@@ -3,9 +3,10 @@
 namespace Shopware\Core\Content\Product\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\Util\EventIdExtractor;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\LastIdQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceRulesJsonFieldSerializer;
@@ -32,22 +33,28 @@ class ProductListingPriceIndexer implements IndexerInterface
      * @var Connection
      */
     private $connection;
+    /**
+     * @var IteratorFactory
+     */
+    private $iteratorFactory;
 
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         EventIdExtractor $eventIdExtractor,
-        Connection $connection
+        Connection $connection,
+        IteratorFactory $iteratorFactory
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->eventIdExtractor = $eventIdExtractor;
         $this->connection = $connection;
+        $this->iteratorFactory = $iteratorFactory;
     }
 
     public function index(\DateTimeInterface $timestamp): void
     {
         $context = Context::createDefaultContext();
 
-        $iterator = $this->createIterator();
+        $iterator = $this->iteratorFactory->createIterator(ProductDefinition::class);
 
         $this->eventDispatcher->dispatch(
             ProgressStartedEvent::NAME,
@@ -55,10 +62,6 @@ class ProductListingPriceIndexer implements IndexerInterface
         );
 
         while ($ids = $iterator->fetch()) {
-            $ids = array_map(function ($id) {
-                return Uuid::fromBytesToHex($id);
-            }, $ids);
-
             $this->update($ids, $context);
 
             $this->eventDispatcher->dispatch(
@@ -173,20 +176,5 @@ class ProductListingPriceIndexer implements IndexerInterface
         }
 
         return $cheapest;
-    }
-
-    private function createIterator(): LastIdQuery
-    {
-        $query = $this->connection->createQueryBuilder();
-        $query->select(['product.auto_increment', 'product.id']);
-        $query->from('product');
-        $query->andWhere('product.auto_increment > :lastId');
-        $query->addOrderBy('product.auto_increment');
-
-        $query->setMaxResults(50);
-
-        $query->setParameter('lastId', 0);
-
-        return new LastIdQuery($query);
     }
 }

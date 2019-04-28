@@ -6,9 +6,8 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\ProductStream\Util\EventIdExtractor;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -60,6 +59,10 @@ class ProductStreamIndexer implements IndexerInterface
      * @var EntityRepositoryInterface
      */
     private $repository;
+    /**
+     * @var IteratorFactory
+     */
+    private $iteratorFactory;
 
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
@@ -68,7 +71,8 @@ class ProductStreamIndexer implements IndexerInterface
         Connection $connection,
         Serializer $serializer,
         EntityCacheKeyGenerator $cacheKeyGenerator,
-        TagAwareAdapter $cache
+        TagAwareAdapter $cache,
+        IteratorFactory $iteratorFactory
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->eventIdExtractor = $eventIdExtractor;
@@ -77,20 +81,19 @@ class ProductStreamIndexer implements IndexerInterface
         $this->serializer = $serializer;
         $this->cacheKeyGenerator = $cacheKeyGenerator;
         $this->cache = $cache;
+        $this->iteratorFactory = $iteratorFactory;
     }
 
     public function index(\DateTimeInterface $timestamp): void
     {
-        $context = Context::createDefaultContext();
-
-        $iterator = $this->createIterator($context);
+        $iterator = $this->iteratorFactory->createIterator(ProductStreamDefinition::class);
 
         $this->eventDispatcher->dispatch(
             ProgressStartedEvent::NAME,
-            new ProgressStartedEvent('Start indexing product streams', $iterator->getTotal())
+            new ProgressStartedEvent('Start indexing product streams', $iterator->fetchCount())
         );
 
-        while ($ids = $iterator->fetchIds()) {
+        while ($ids = $iterator->fetch()) {
             $this->update($ids);
             $this->eventDispatcher->dispatch(
                 ProgressAdvancedEvent::NAME,
@@ -201,11 +204,6 @@ class ProductStreamIndexer implements IndexerInterface
         json_decode($string);
 
         return json_last_error() === JSON_ERROR_NONE;
-    }
-
-    private function createIterator(Context $context): RepositoryIterator
-    {
-        return new RepositoryIterator($this->repository, $context);
     }
 
     private function isMultiFilter(string $type): bool

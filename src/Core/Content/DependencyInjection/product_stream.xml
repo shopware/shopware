@@ -24,6 +24,7 @@
             <argument type="service" id="serializer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
             <argument type="service" id="shopware.cache"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
 
             <tag name="shopware.dbal_indexing.indexer"/>
         </service>

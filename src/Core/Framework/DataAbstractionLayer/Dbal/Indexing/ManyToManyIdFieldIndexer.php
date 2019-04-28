@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
@@ -49,6 +50,7 @@ class ManyToManyIdFieldIndexer implements IndexerInterface
     public function index(\DateTimeInterface $timestamp): void
     {
         $context = Context::createDefaultContext();
+        /** @var string|EntityDefinition $definition */
         foreach ($this->registry->getDefinitions() as $definition) {
             $fields = $definition::getFields()->filterInstance(ManyToManyIdField::class);
 

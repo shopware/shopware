@@ -6,9 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\LastIdQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\OffsetQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -48,19 +46,25 @@ class ChildCountIndexer implements IndexerInterface
      * @var TagAwareAdapter
      */
     private $cache;
+    /**
+     * @var IteratorFactory
+     */
+    private $iteratorFactory;
 
     public function __construct(
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
         DefinitionRegistry $definitionRegistry,
         EntityCacheKeyGenerator $cacheKeyGenerator,
-        TagAwareAdapter $cache
+        TagAwareAdapter $cache,
+        IteratorFactory $iteratorFactory
     ) {
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
         $this->definitionRegistry = $definitionRegistry;
         $this->cacheKeyGenerator = $cacheKeyGenerator;
         $this->cache = $cache;
+        $this->iteratorFactory = $iteratorFactory;
     }
 
     public function index(\DateTimeInterface $timestamp): void
@@ -74,7 +78,7 @@ class ChildCountIndexer implements IndexerInterface
             }
 
             $entityName = $definition::getEntityName();
-            $iterator = $this->createIterator($entityName, $definition);
+            $iterator = $this->iteratorFactory->createIterator($definition);
 
             $this->eventDispatcher->dispatch(
                 ProgressStartedEvent::NAME,
@@ -82,10 +86,6 @@ class ChildCountIndexer implements IndexerInterface
             );
 
             while ($ids = $iterator->fetch()) {
-                $ids = array_map(function ($id) {
-                    return Uuid::fromBytesToHex($id);
-                }, $ids);
-
                 $this->updateChildCount($definition, $ids, $definition::isVersionAware(), $context);
 
                 $this->eventDispatcher->dispatch(
@@ -215,28 +215,6 @@ class ChildCountIndexer implements IndexerInterface
         return array_map(function (string $id) {
             return Uuid::fromBytesToHex($id);
         }, $parents);
-    }
-
-    private function createIterator(string $entityName, string $definition): IterableQuery
-    {
-        $query = $this->connection->createQueryBuilder();
-
-        $query->from($entityName);
-
-        $query->setMaxResults(50);
-
-        /** @var EntityDefinition|string $definition */
-        if ($definition::getFields()->has('autoIncrement')) {
-            $query->select(['auto_increment', 'id']);
-            $query->andWhere('auto_increment > :lastId');
-            $query->addOrderBy('auto_increment');
-            $query->setParameter('lastId', 0);
-
-            return new LastIdQuery($query);
-        }
-        $query->select('id', 'id AS entityId');
-
-        return new OffsetQuery($query);
     }
 
     private function validateTableName(string $tableName): void

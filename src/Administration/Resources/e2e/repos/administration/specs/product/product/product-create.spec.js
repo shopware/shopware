@@ -88,15 +88,8 @@ module.exports = {
         browser.click(page.elements.smartBarBack);
     },
     'check product in storefront': (browser) => {
-        browser
-            .url(process.env.APP_URL)
-            .waitForElementVisible('input[name=search]')
-            .setValue('input[name=search]', 'Marci Darci')
-            .expect.element('.result-product .result-link').to.have.text.that.contains('Marci Darci');
-
-        browser
-            .click('.result-product .result-link')
-            .expect.element('.product-detail-name').to.have.text.that.contains('Marci Darci');
+        const page = productPage(browser);
+        page.findInStorefront('Marci Darci');
         browser.expect.element('.product-detail-price').to.have.text.that.contains('99');
     }
 };

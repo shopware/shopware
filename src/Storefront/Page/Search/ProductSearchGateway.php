@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Page\Search;
 
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
+use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
-use Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,11 +22,11 @@ class ProductSearchGateway implements ProductSearchGatewayInterface
     private $repository;
 
     /**
-     * @var KeywordSearchTermInterpreterInterface
+     * @var \Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreterInterface
      */
     private $interpreter;
 
-    public function __construct(SalesChannelRepository $repository, KeywordSearchTermInterpreterInterface $interpreter)
+    public function __construct(SalesChannelRepository $repository, ProductSearchTermInterpreterInterface $interpreter)
     {
         $this->repository = $repository;
         $this->interpreter = $interpreter;
@@ -36,6 +35,7 @@ class ProductSearchGateway implements ProductSearchGatewayInterface
     public function search(Request $request, SalesChannelContext $context): EntitySearchResult
     {
         $criteria = new Criteria();
+        $criteria->setLimit(20);
 
         $term = trim((string) $request->query->get('search'));
 
@@ -43,11 +43,7 @@ class ProductSearchGateway implements ProductSearchGatewayInterface
             throw new MissingRequestParameterException('search');
         }
 
-        $pattern = $this->interpreter->interpret(
-            $term,
-            SalesChannelProductDefinition::getEntityName(),
-            $context->getContext()
-        );
+        $pattern = $this->interpreter->interpret($term, $context->getContext());
 
         foreach ($pattern->getTerms() as $searchTerm) {
             $criteria->addQuery(

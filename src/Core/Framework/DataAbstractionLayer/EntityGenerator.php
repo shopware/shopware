@@ -53,7 +53,8 @@ class #entity#Entity extends Entity
     use EntityIdTrait;
     
     #properties#
-    #functions#
+
+#functions#
 }
 EOF;
 
@@ -155,9 +156,9 @@ EOF;
         $parameters = [
             '#domain#' => $domain,
             '#uses#' => implode(";\n", $uses) . ';',
-            '#entity#' => lcfirst($entity),
-            '#property#' => implode("\n", $properties),
-            '#functions#' => implode("\n", $functions),
+            '#entity#' => ucfirst($entity),
+            '#properties#' => implode("\n\n    ", $properties),
+            '#functions#' => implode("\n\n", $functions),
         ];
 
         return str_replace(

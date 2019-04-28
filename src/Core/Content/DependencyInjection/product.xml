@@ -40,6 +40,14 @@
             <tag name="shopware.entity.definition" entity="product_property"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition">
+            <tag name="shopware.entity.definition" entity="product_search_keyword"/>
+        </service>
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary\ProductKeywordDictionaryDefinition">
+            <tag name="shopware.entity.definition" entity="product_keyword_dictionary"/>
+        </service>
+
+
         <service id="Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition">
             <tag name="shopware.entity.definition" entity="product_manufacturer"/>
             <tag name="shopware.composite_search.definition"  priority="300"/>
@@ -51,10 +59,6 @@
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition">
             <tag name="shopware.entity.definition" entity="product_media"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Search\SearchDocumentDefinition">
-            <tag name="shopware.entity.definition" entity="search_document"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition">
@@ -79,6 +83,21 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="shopware.dbal_indexing.indexer" priority="300"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer">
+            <argument id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer" type="service"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordIndexer" public="true">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+            <argument type="service" id="language.repository"/>
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer"/>
+            <tag name="shopware.dbal_indexing.indexer"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Api\ProductActionController" public="true">

@@ -5,11 +5,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Term;
 class SearchPattern
 {
     /**
-     * @var string
-     */
-    protected $scope;
-
-    /**
      * @var SearchTerm
      */
     protected $original;
@@ -19,10 +14,9 @@ class SearchPattern
      */
     protected $terms = [];
 
-    public function __construct(SearchTerm $original, string $scope)
+    public function __construct(SearchTerm $original)
     {
         $this->original = $original;
-        $this->scope = $scope;
     }
 
     public function getOriginal(): SearchTerm
@@ -51,10 +45,5 @@ class SearchPattern
         }
 
         return $terms;
-    }
-
-    public function getScope(): string
-    {
-        return $this->scope;
     }
 }

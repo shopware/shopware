@@ -21,14 +21,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\SearchKeywordAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
@@ -381,10 +379,6 @@ class EntityReader implements EntityReaderInterface
         $fieldCriteria = new Criteria();
         if ($criteria->hasAssociation($association->getPropertyName(), $definition)) {
             $fieldCriteria = $criteria->getAssociation($association->getPropertyName(), $definition);
-        }
-
-        if ($association instanceof SearchKeywordAssociationField) {
-            $fieldCriteria->addFilter(new EqualsFilter('search_document.entity', $definition::getEntityName()));
         }
 
         //association should not be paginated > load data over foreign key condition

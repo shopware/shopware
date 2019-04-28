@@ -87,45 +87,10 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder"/>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\SearchBuilder">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder"/>
-            <argument type="service" id="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface"/>
-        </service>
-
-        <service class="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreter" id="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface">
+        <service id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer"/>
             <argument type="service" id="logger"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Search\Util\CachedKeywordSearchTermInterpreter"
-                 decorates="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface">
-
-            <argument type="service" id="Shopware\Core\Framework\Search\Util\CachedKeywordSearchTermInterpreter.inner"/>
-            <argument type="service" id="shopware.cache"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Search\Util\LanguageAnalyzer">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\StopWordFilter"/>
-            <tag name="shopware.search_analyzer"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Search\Util\SearchAnalyzerRegistry">
-            <argument type="tagged" tag="shopware.search_analyzer"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Search\DataAbstractionLayer\Indexing\SearchKeywordIndexer">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Framework\Search\Util\SearchAnalyzerRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IndexTableOperator"/>
-            <argument type="service" id="language.repository"/>
-            <tag name="shopware.dbal_indexing.indexer" priority="200"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder">
@@ -218,10 +183,6 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\OneToManyAssociationFieldResolver">
             <tag name="shopware.field_resolver" priority="-50"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\SearchKeywordAssociationFieldResolver">
-            <tag name="shopware.field_resolver" priority="-30"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\ManyToManyAssociationFieldResolver">

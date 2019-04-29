@@ -12,6 +12,7 @@
       "columnAmount": "Betrag",
       "columnState": "Bestellstatus",
       "columnOrderNumber": "Bestellnummer",
+      "columnSalesChannel": "Verkaufskanal",
       "orderDate": "Bestelldatum",
       "buttonAddOrder": "Bestellung anlegen",
       "textOrders": "Bestellungen",

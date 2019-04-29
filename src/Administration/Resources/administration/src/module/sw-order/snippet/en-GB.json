@@ -12,6 +12,7 @@
       "columnAmount": "Amount",
       "columnState": "Order status",
       "columnOrderNumber": "Order number",
+      "columnSalesChannel": "Sales channel",
       "orderDate": "Order date",
       "buttonAddOrder": "Add order",
       "textOrders": "Orders",

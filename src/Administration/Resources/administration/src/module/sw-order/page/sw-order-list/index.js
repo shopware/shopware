@@ -96,6 +96,11 @@ Component.register('sw-order-list', {
                 allowResize: true,
                 primary: true
             }, {
+                property: 'salesChannel.name',
+                dataIndex: 'salesChannel.name',
+                label: this.$tc('sw-order.list.columnSalesChannel'),
+                allowResize: true
+            }, {
                 property: 'orderCustomer.firstName',
                 dataIndex: 'orderCustomer.firstName,orderCustomer.lastName',
                 label: this.$tc('sw-order.list.columnCustomerName'),

@@ -33,7 +33,7 @@ module.exports = {
     },
     'attempt to log in with correct user name, leaving password field blank': (browser) => {
         const page = loginPage(browser);
-        page.login('admin', '');
+        page.login('admin', null);
         page.verifyFailedLogin('Incorrect user credentials.');
     },
     'attempt to log in using invalid credentials': (browser) => {
@@ -43,7 +43,7 @@ module.exports = {
     },
     'attempt to log in with correct password leaving user name field blank': (browser) => {
         const page = loginPage(browser);
-        page.login('', 'shopware');
+        page.login(null,'shopware');
         page.verifyFailedLogin('Incorrect user credentials.');
     },
     'attempt to log in using invalid code credentials': (browser) => {

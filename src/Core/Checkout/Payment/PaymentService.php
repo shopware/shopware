@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Payment;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
@@ -23,7 +23,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -55,9 +54,9 @@ class PaymentService
     private $orderTransactionRepository;
 
     /**
-     * @var StateMachineRegistry
+     * @var OrderTransactionStateHandler
      */
-    private $stateMachineRegistry;
+    private $transactionStateHandler;
 
     public function __construct(
         PaymentTransactionChainProcessor $paymentProcessor,
@@ -65,14 +64,14 @@ class PaymentService
         EntityRepositoryInterface $paymentMethodRepository,
         PaymentHandlerRegistry $paymentHandlerRegistry,
         EntityRepositoryInterface $orderTransactionRepository,
-        StateMachineRegistry $stateMachineRegistry
+        OrderTransactionStateHandler $transactionStateHandler
     ) {
         $this->paymentProcessor = $paymentProcessor;
         $this->tokenFactory = $tokenFactory;
         $this->paymentMethodRepository = $paymentMethodRepository;
         $this->paymentHandlerRegistry = $paymentHandlerRegistry;
         $this->orderTransactionRepository = $orderTransactionRepository;
-        $this->stateMachineRegistry = $stateMachineRegistry;
+        $this->transactionStateHandler = $transactionStateHandler;
     }
 
     /**
@@ -177,16 +176,6 @@ class PaymentService
 
     private function cancelOrderTransaction(string $transactionId, Context $context): void
     {
-        $stateId = $this->stateMachineRegistry->getStateByTechnicalName(
-            OrderTransactionStates::STATE_MACHINE,
-            OrderTransactionStates::STATE_CANCELLED,
-            $context
-        )->getId();
-
-        $transaction = [
-            'id' => $transactionId,
-            'stateId' => $stateId,
-        ];
-        $this->orderTransactionRepository->update([$transaction], $context);
+        $this->transactionStateHandler->cancel($transactionId, $context);
     }
 }

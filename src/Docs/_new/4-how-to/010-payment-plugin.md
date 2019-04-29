@@ -73,31 +73,20 @@ use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 class ExamplePayment implements AsynchronousPaymentHandlerInterface
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var OrderTransactionStateHandler
      */
-    private $orderTransactionRepo;
+    private $transactionStateHandler;
 
-    /**
-     * @var StateMachineRegistry
-     */
-    private $stateMachineRegistry;
-
-    public function __construct(
-        EntityRepositoryInterface $orderTransactionRepo,
-        StateMachineRegistry $stateMachineRegistry
-    ) {
-        $this->orderTransactionRepo = $orderTransactionRepo;
-        $this->stateMachineRegistry = $stateMachineRegistry;
+    public function __construct(OrderTransactionStateHandler $transactionStateHandler) {
+        $this->transactionStateHandler = $transactionStateHandler;
     }
 
     /**
@@ -139,26 +128,11 @@ class ExamplePayment implements AsynchronousPaymentHandlerInterface
         $context = $salesChannelContext->getContext();
         if ($paymentState === 'completed') {
             // Payment completed, set transaction status to "paid"
-            $stateId = $this->stateMachineRegistry->getStateByTechnicalName(
-                OrderTransactionStates::STATE_MACHINE,
-                OrderTransactionStates::STATE_PAID,
-                $context
-            )->getId();
+            $this->transactionStateHandler->complete($transaction->getOrderTransaction()->getId(), $context);
         } else {
             // Payment not completed, set transaction status to "open"
-            $stateId = $this->stateMachineRegistry->getStateByTechnicalName(
-                OrderTransactionStates::STATE_MACHINE,
-                OrderTransactionStates::STATE_OPEN,
-                $context
-            )->getId();
+            $this->transactionStateHandler->open($transaction->getOrderTransaction()->getId(), $context);
         }
-
-        $transactionUpdate = [
-            'id' => $transactionId,
-            'stateId' => $stateId,
-        ];
-
-        $this->orderTransactionRepo->update([$transactionUpdate], $context);
     }
 
     private function sendReturnUrlToExternalGateway(string $getReturnUrl): string
@@ -185,44 +159,25 @@ namespace PaymentPlugin\Service;
 
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\SyncPaymentTransactionStruct;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\StateMachine\StateMachineRegistry;
 
 class ExamplePayment implements SynchronousPaymentHandlerInterface
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var OrderTransactionStateHandler
      */
-    private $orderTransactionRepo;
+    private $transactionStateHandler;
 
-    /**
-     * @var StateMachineRegistry
-     */
-    private $stateMachineRegistry;
-
-    public function __construct(EntityRepositoryInterface $orderTransactionRepo, StateMachineRegistry $stateMachineRegistry)
+    public function __construct(OrderTransactionStateHandler $transactionStateHandler)
     {
-        $this->orderTransactionRepo = $orderTransactionRepo;
-        $this->stateMachineRegistry = $stateMachineRegistry;
+        $this->transactionStateHandler = $transactionStateHandler;
     }
 
     public function pay(SyncPaymentTransactionStruct $transaction, SalesChannelContext $salesChannelContext): void
     {
         $context = $salesChannelContext->getContext();
-        $stateId = $this->stateMachineRegistry->getStateByTechnicalName(
-            OrderTransactionStates::STATE_MACHINE,
-            OrderTransactionStates::STATE_PAID,
-            $context
-        )->getId();
-
-        $transactionData = [
-            'id' => $transaction->getOrderTransaction()->getId(),
-            'stateId' => $stateId,
-        ];
-
-        $this->orderTransactionRepo->update([$transactionData], $context);
+        $this->transactionStateHandler->complete($transaction->getOrderTransaction()->getId(), $context);
     }
 }
 ```

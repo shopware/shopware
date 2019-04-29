@@ -37,11 +37,10 @@ An implementation can look like this:
 
 namespace Plugin\Core\Checkout\Payment\Cart\PaymentHandler;
 
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\StateMachine\StateMachineRegistry;
 use SwagPayPal\PayPal\Payment\PaymentBuilderInterface;
 use SwagPayPal\PayPal\PaymentStatus;
@@ -52,10 +51,10 @@ use Symfony\Component\HttpFoundation\Request;
 class PayPalPayment implements PaymentHandlerInterface
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var OrderTransactionStateHandler
      */
-    private $orderTransactionRepo;
-
+    private $transactionStateHandler;
+    
     /**
      * @var PaymentResource
      */
@@ -66,21 +65,14 @@ class PayPalPayment implements PaymentHandlerInterface
      */
     private $paymentBuilder;
 
-    /**
-     * @var StateMachineRegistry
-     */
-    private $stateMachineRegistry;
-
     public function __construct(
-        EntityRepositoryInterface $orderTransactionRepo,
+        OrderTransactionStateHandler $transactionStateHandler,
         PaymentResource $paymentResource,
-        PaymentBuilderInterface $paymentBuilder,
-        StateMachineRegistry $stateMachineRegistry
+        PaymentBuilderInterface $paymentBuilder
     ) {
-        $this->orderTransactionRepo = $orderTransactionRepo;
+        $this->transactionStateHandler = $transactionStateHandler;
         $this->paymentResource = $paymentResource;
         $this->paymentBuilder = $paymentBuilder;
-        $this->stateMachineRegistry = $stateMachineRegistry;
     }
 
     public function pay(PaymentTransactionStruct $transaction, Context $context): ?RedirectResponse
@@ -95,13 +87,7 @@ class PayPalPayment implements PaymentHandlerInterface
     public function finalize(string $transactionId, Request $request, Context $context): void
     {
         if ($request->query->getBoolean('cancel')) {
-            $stateId = $this->stateMachineRegistry->getStateByTechnicalName(Defaults::ORDER_TRANSACTION_STATE_MACHINE, Defaults::ORDER_TRANSACTION_STATES_CANCELLED, $context)->getId();
-
-            $transaction = [
-                'id' => $transactionId,
-                'stateId' => $stateId,
-            ];
-            $this->orderTransactionRepo->update([$transaction], $context);
+            $this->transactionStateHandler->complete($transactionId, $context);
 
             return;
         }
@@ -113,17 +99,10 @@ class PayPalPayment implements PaymentHandlerInterface
         $paymentState = $this->getPaymentState($response);
 
         if ($paymentState === PaymentStatus::PAYMENT_COMPLETED) {
-            $stateId = $this->stateMachineRegistry->getStateByTechnicalName(Defaults::ORDER_TRANSACTION_STATE_MACHINE, Defaults::ORDER_TRANSACTION_STATES_PAID, $context)->getId();
+            $this->transactionStateHandler->complete($transactionId, $context);
         } else {
-            $stateId = $this->stateMachineRegistry->getStateByTechnicalName(Defaults::ORDER_TRANSACTION_STATE_MACHINE, Defaults::ORDER_TRANSACTION_STATES_OPEN, $context)->getId();
+            $this->transactionStateHandler->open($transactionId, $context);
         }
-
-        $transaction = [
-            'id' => $transactionId,
-            'stateId' => $stateId,
-        ];
-
-        $this->orderTransactionRepo->update([$transaction], $context);
     }
 }
 ```

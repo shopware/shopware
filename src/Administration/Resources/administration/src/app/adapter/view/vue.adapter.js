@@ -7,6 +7,7 @@ import VueRouter from 'vue-router';
 import VueI18n from 'vue-i18n';
 import VueMeta from 'vue-meta';
 import DeviceHelper from 'src/core/plugins/device-helper.plugin';
+import SanitizePlugin from 'src/core/plugins/sanitize.plugin';
 import { Component, State, Mixin } from 'src/core/shopware';
 import EntityStore from 'src/core/data/EntityStore';
 import { warn } from 'src/core/service/utils/debug.utils';
@@ -79,7 +80,6 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
 
         const store = initStore();
         const i18n = initLocales(store);
-
         const components = getComponents();
 
         // Enable performance measurements in development mode
@@ -195,6 +195,7 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
         Vue.use(VueI18n);
         Vue.use(DeviceHelper);
         Vue.use(VueMeta);
+        Vue.use(SanitizePlugin);
     }
 
     /**

@@ -101,7 +101,7 @@
                                                 {% block sw_multi_select_results_list_item_slot %}
                                                     <sw-multi-select-option ref="swSelectOption" :index="index" :item="item">
                                                         <slot name="labelProperty" :item="item">
-                                                            <span v-html="getInlineSnippet(item[labelProperty])">
+                                                            <span v-html="$sanitize(getInlineSnippet(item[labelProperty]))">
                                                                 {{ getInlineSnippet(item[labelProperty]) }}
                                                             </span>
                                                         </slot>

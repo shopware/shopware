@@ -11,7 +11,7 @@
                       :closable="true"
                       @swAlertClose="onClose(notification)">
 
-                <div slot="default" v-html="notification.message"></div>
+                <div slot="default" v-html="$sanitize(notification.message)"></div>
             </sw-alert>
         </transition-group>
     </div>

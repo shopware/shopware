@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Language\LanguageEntity;
-use Shopware\Core\Framework\Search\SearchDocumentCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Salutation\SalutationEntity;
 use Shopware\Core\System\Tag\TagCollection;
@@ -199,11 +198,6 @@ class CustomerEntity extends Entity
      * @var int
      */
     protected $autoIncrement;
-
-    /**
-     * @var SearchDocumentCollection|null
-     */
-    protected $searchKeywords;
 
     /**
      * @var TagCollection|null
@@ -596,16 +590,6 @@ class CustomerEntity extends Entity
     public function setAutoIncrement(int $autoIncrement): void
     {
         $this->autoIncrement = $autoIncrement;
-    }
-
-    public function getSearchKeywords(): ?SearchDocumentCollection
-    {
-        return $this->searchKeywords;
-    }
-
-    public function setSearchKeywords(?SearchDocumentCollection $searchKeywords): void
-    {
-        $this->searchKeywords = $searchKeywords;
     }
 
     public function getAttributes(): ?array

@@ -40,13 +40,13 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
             <argument type="service" id="serializer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
-            <argument type="service" id="Shopware\Core\Framework\Search\CompositeEntitySearcher"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CompositeEntitySearcher"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
         </service>
 
-        <service id="Shopware\Core\Framework\Search\CompositeEntitySearcher">
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\CompositeEntitySearcher">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder"/>

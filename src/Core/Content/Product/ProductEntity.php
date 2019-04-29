@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
@@ -18,7 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Pricing\PriceRuleCollection;
-use Shopware\Core\Framework\Search\SearchDocumentCollection;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\System\Unit\UnitEntity;
@@ -273,7 +273,7 @@ class ProductEntity extends Entity
     protected $media;
 
     /**
-     * @var SearchDocumentCollection|null
+     * @var ProductSearchKeywordCollection|null
      */
     protected $searchKeywords;
 
@@ -826,12 +826,12 @@ class ProductEntity extends Entity
         $this->media = $media;
     }
 
-    public function getSearchKeywords(): ?SearchDocumentCollection
+    public function getSearchKeywords(): ?ProductSearchKeywordCollection
     {
         return $this->searchKeywords;
     }
 
-    public function setSearchKeywords(SearchDocumentCollection $searchKeywords): void
+    public function setSearchKeywords(ProductSearchKeywordCollection $searchKeywords): void
     {
         $this->searchKeywords = $searchKeywords;
     }

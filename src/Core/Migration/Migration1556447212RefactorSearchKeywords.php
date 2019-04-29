@@ -30,11 +30,11 @@ CREATE TABLE `product_search_keyword` (
     `keyword` VARCHAR(255) NOT NULL,
     `ranking` DOUBLE NOT NULL,
     `created_at` DATETIME(3) NOT NULL,
-    `updated_at` DATETIME(3) NOT NULL,
+    `updated_at` DATETIME(3) NULL,
     PRIMARY KEY (`id`,`version_id`,`language_id`),
     KEY `fk.product_search_keyword.product_id` (`product_id`,`product_version_id`),
     KEY `fk.product_search_keyword.language_id` (`language_id`),
-    CONSTRAINT `fk.product_search_keyword.product_id` FOREIGN KEY (`product_id`,`product_version_id`) REFERENCES `product` (`id`,`version_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT `fk.product_search_keyword.product_id` FOREIGN KEY (`product_id`,`product_version_id`) REFERENCES `product` (`id`,`version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT `fk.product_search_keyword.language_id` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -45,7 +45,7 @@ CREATE TABLE `product_keyword_dictionary` (
     `reversed` VARCHAR(500) GENERATED ALWAYS AS (REVERSE(keyword)) STORED NOT NULL,
     PRIMARY KEY (`id`,`language_id`),
     KEY `fk.product_keyword_dictionary.language_id` (`language_id`),
-    CONSTRAINT `fk.product_keyword_dictionary.language_id` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT `fk.product_keyword_dictionary.language_id` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

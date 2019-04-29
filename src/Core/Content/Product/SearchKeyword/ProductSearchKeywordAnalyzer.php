@@ -23,7 +23,16 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
         $keywords = new AnalyzedKeywordCollection();
 
         $keywords->add(new AnalyzedKeyword($product->getProductNumber(), 1000));
-        $keywords->add(new AnalyzedKeyword($product->getTranslated()['name'], 1000));
+
+        $name = $product->getTranslated()['name'];
+        if ($name) {
+            $keywords->add(new AnalyzedKeyword($name, 1000));
+
+            $tokens = $this->tokenizer->tokenize($name);
+            foreach ($tokens as $token) {
+                $keywords->add(new AnalyzedKeyword((string) $token, 700));
+            }
+        }
 
         if ($product->getManufacturer()) {
             $keywords->add(new AnalyzedKeyword($product->getManufacturer()->getTranslated()['name'], 500));
@@ -33,11 +42,6 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
         }
         if ($product->getEan()) {
             $keywords->add(new AnalyzedKeyword($product->getEan(), 500));
-        }
-
-        $tokens = $this->tokenizer->tokenize($product->getTranslated()['name']);
-        foreach ($tokens as $token) {
-            $keywords->add(new AnalyzedKeyword((string) $token, 700));
         }
 
         return $keywords;

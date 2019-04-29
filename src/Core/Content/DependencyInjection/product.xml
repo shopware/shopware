@@ -86,7 +86,7 @@
         </service>
 
         <service id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer">
-            <argument id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer" type="service"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordIndexer" public="true">

@@ -163,7 +163,6 @@ class ProductSearchKeywordIndexer implements IndexerInterface
                         'keyword' => $keyword->getKeyword(),
                         'ranking' => $keyword->getRanking(),
                         'created_at' => $now,
-                        'updated_at' => $now,
                     ]
                 );
 

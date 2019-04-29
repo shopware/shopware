@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Test;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreterInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -28,7 +29,7 @@ class KeywordSearchTermInterpreterTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
-        $this->interpreter = $this->getContainer()->get(ProductSearchTermInterpreterInterface::class);
+        $this->interpreter = $this->getContainer()->get(ProductSearchTermInterpreter::class);
         $this->setupKeywords();
     }
 
@@ -113,10 +114,8 @@ class KeywordSearchTermInterpreterTest extends TestCase
         foreach ($keywords as $keyword) {
             preg_match_all('/./us', $keyword, $ar);
 
-            $this->connection->insert('search_dictionary', [
-                'scope' => 'product',
+            $this->connection->insert('product_keyword_dictionary', [
                 'keyword' => $keyword,
-                'reversed' => implode('', array_reverse($ar[0])),
                 'language_id' => $languageId,
             ]);
         }

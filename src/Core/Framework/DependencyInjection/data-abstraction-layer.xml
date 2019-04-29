@@ -495,14 +495,14 @@
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory">
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\ManyToManyIdFieldIndexer">
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
-            <argument id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry" type="service"/>
-            <argument id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" type="service"/>
             <tag name="shopware.dbal_indexing.indexer" priority="400"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 

@@ -202,7 +202,7 @@ class ProductDefinition extends EntityDefinition
 
             (new OneToManyAssociationField('visibilities', ProductVisibilityDefinition::class, 'product_id'))->addFlags(new CascadeDelete(), new Inherited()),
 
-            //association for special keyword mapping for search algorithm
+            //association for keyword mapping for search algorithm
             (new OneToManyAssociationField('searchKeywords', ProductSearchKeywordDefinition::class, 'product_id'))->addFlags(new CascadeDelete(), new Inherited()),
         ]);
     }

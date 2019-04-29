@@ -18,10 +18,7 @@ class SearchTermInterpreter
     {
         $terms = $this->tokenizer->tokenize($term);
 
-        $pattern = new SearchPattern(
-            new SearchTerm($term),
-            ''
-        );
+        $pattern = new SearchPattern(new SearchTerm($term));
 
         if (\count($terms) === 1) {
             return $pattern;

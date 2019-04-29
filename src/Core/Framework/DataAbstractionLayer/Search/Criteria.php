@@ -236,19 +236,20 @@ class Criteria extends Struct
     /**
      * Allows to add a nested association
      */
-    public function addAssociationPath(string $path): void
+    public function addAssociationPath(string $path): self
     {
         $parts = explode('.', $path);
 
         $criteria = $this;
         foreach ($parts as $part) {
-            $nested = $this->getAssociation($part);
-            $nested = $nested ?? new Criteria();
+            if (!$criteria->hasAssociation($part)) {
+                $criteria->addAssociation($part);
+            }
 
-            $criteria->addAssociation($part, $nested);
-
-            $criteria = $nested;
+            $criteria = $criteria->getAssociation($part);
         }
+
+        return $this;
     }
 
     public function hasAssociation(string $field, ?string $definition = null): bool

@@ -4,7 +4,7 @@
     {% block page_content %}
         <div class="cms-page">
             {% block page_content_blocks %}
-                {% sw_include "@Storefront/page/content/detail.html.twig" %}
+                {% sw_include "@Storefront/page/content/detail.html.twig" with {'cmsPage': page.cmsPage} %}
             {% endblock %}
         </div>
     {% endblock %}

@@ -23,6 +23,16 @@ class NavigationPageController extends StorefrontController
     }
 
     /**
+     * @Route("/", name="frontend.home.page", methods={"GET"})
+     */
+    public function home(Request $request, SalesChannelContext $context): ?Response
+    {
+        $data = $this->navigationPageLoader->load($request, $context);
+
+        return $this->renderStorefront('@Storefront/page/content/index.html.twig', ['page' => $data]);
+    }
+
+    /**
      * @Route("/navigation/{navigationId}", name="frontend.navigation.page", options={"seo"=true}, methods={"GET"})
      */
     public function index(SalesChannelContext $context, Request $request): Response

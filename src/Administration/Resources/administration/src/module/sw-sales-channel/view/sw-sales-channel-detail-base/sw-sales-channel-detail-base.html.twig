@@ -70,8 +70,7 @@
                                :associationStore="currencyAssociationStore"
                                :store="currencyStore"
                                :defaultItemId="salesChannel.currencyId"
-                               @default_changed="changeDefaultCurrency"
-                               v-if="!next1387 || !isStoreFront">
+                               @default_changed="changeDefaultCurrency">
                     </sw-select>
                 {% endblock %}
 
@@ -84,8 +83,7 @@
                                :associationStore="languageAssociationStore"
                                :store="languageStore"
                                :defaultItemId="salesChannel.languageId"
-                               @default_changed="changeDefaultLanguage"
-                               v-if="!next1387 || !isStoreFront">
+                               @default_changed="changeDefaultLanguage">
                     </sw-select>
                 {% endblock %}
 
@@ -116,7 +114,7 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_domains %}
-            <sw-card :isLoading="isLoadingDomains" :title="$tc('sw-sales-channel.detail.titleDomains')" v-if="next1387 && isStoreFront">
+            <sw-card :isLoading="isLoadingDomains" :title="$tc('sw-sales-channel.detail.titleDomains')" v-if="isStoreFront">
                 <div class="sw-sales-channel-detail-base__domain-container" v-for="domain, index in salesChannel.domains">
                     {% block sw_sales_channel_detail_base_domains_input_url %}
                         <sw-field type="text" label="Url" v-model="domain.url"></sw-field>

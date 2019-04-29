@@ -73,8 +73,6 @@ export default {
                 this.currentOptions.push(item);
             });
 
-            this.initPlaceholder();
-
             this.total = result.total;
             this.page = result.criteria.page;
             this.limit = result.criteria.limit;
@@ -83,6 +81,8 @@ export default {
         openResultList() {
             if (this.isExpanded === false) {
                 this.currentOptions = [];
+                this.initPlaceholder();
+
                 this.page = 1;
 
                 this.$super.openResultList();

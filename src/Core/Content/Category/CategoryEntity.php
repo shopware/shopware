@@ -134,6 +134,21 @@ class CategoryEntity extends Entity
      */
     protected $serviceSalesChannels;
 
+    /**
+     * @var string|null
+     */
+    protected $externalLink;
+
+    /**
+     * @var bool
+     */
+    protected $visible;
+
+    /**
+     * @var string
+     */
+    protected $type;
+
     public function getParentId(): ?string
     {
         return $this->parentId;
@@ -372,5 +387,35 @@ class CategoryEntity extends Entity
     public function setServiceSalesChannels(SalesChannelCollection $serviceSalesChannels): void
     {
         $this->serviceSalesChannels = $serviceSalesChannels;
+    }
+
+    public function getExternalLink(): ?string
+    {
+        return $this->externalLink;
+    }
+
+    public function setExternalLink(string $externalLink): void
+    {
+        $this->externalLink = $externalLink;
+    }
+
+    public function getVisible(): bool
+    {
+        return $this->visible;
+    }
+
+    public function setVisible(bool $visible): void
+    {
+        $this->visible = $visible;
+    }
+
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): void
+    {
+        $this->type = $type;
     }
 }

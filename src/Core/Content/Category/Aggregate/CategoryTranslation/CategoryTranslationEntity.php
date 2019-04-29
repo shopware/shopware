@@ -43,6 +43,11 @@ class CategoryTranslationEntity extends TranslationEntity
      */
     protected $slotConfig;
 
+    /**
+     * @var string|null
+     */
+    protected $externalLink;
+
     public function getCategoryId(): string
     {
         return $this->categoryId;
@@ -101,5 +106,15 @@ class CategoryTranslationEntity extends TranslationEntity
     public function setSlotConfig(array $slotConfig): void
     {
         $this->slotConfig = $slotConfig;
+    }
+
+    public function getExternalLink(): ?string
+    {
+        return $this->externalLink;
+    }
+
+    public function setExternalLink(string $externalLink): void
+    {
+        $this->externalLink = $externalLink;
     }
 }

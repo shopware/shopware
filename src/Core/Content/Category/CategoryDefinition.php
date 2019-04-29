@@ -30,6 +30,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
@@ -42,6 +43,10 @@ use Shopware\Core\System\Tag\TagDefinition;
 
 class CategoryDefinition extends EntityDefinition
 {
+    public const TYPE_PAGE = 'page';
+    public const TYPE_LINK = 'link';
+    public const TYPE_FOLDER = 'folder';
+
     public static function getEntityName(): string
     {
         return 'category';
@@ -65,8 +70,11 @@ class CategoryDefinition extends EntityDefinition
     public static function getDefaults(EntityExistence $existence): array
     {
         $defaults = parent::getDefaults($existence);
-        $defaults['displayNestedProducts'] = true;
-        $defaults['active'] = false;
+
+        if (!$existence->exists()) {
+            $defaults['displayNestedProducts'] = true;
+            $defaults['type'] = self::TYPE_PAGE;
+        }
 
         return $defaults;
     }
@@ -92,11 +100,14 @@ class CategoryDefinition extends EntityDefinition
             (new TreePathField('path', 'path'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             new ChildCountField(),
 
+            (new StringField('type', 'type'))->addFlags(new Required()),
+            new BoolField('visible', 'visible'),
             new BoolField('active', 'active'),
 
             (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new TranslatedField('attributes'),
             new TranslatedField('slotConfig'),
+            new TranslatedField('externalLink'),
 
             new ParentAssociationField(self::class, 'id'),
             new ChildrenAssociationField(self::class),

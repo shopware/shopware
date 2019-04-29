@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DebitPayment;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\InvoicePayment;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SEPAPayment;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Doctrine\MultiInsertQueryQueue;
@@ -453,7 +454,7 @@ class Migration1536233420BasicData extends MigrationStep
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
         $versionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
-        $connection->insert('category', ['id' => $id, 'version_id' => $versionId, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('category', ['id' => $id, 'version_id' => $versionId, 'type' => CategoryDefinition::TYPE_PAGE, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
         $connection->insert('category_translation', ['category_id' => $id, 'category_version_id' => $versionId, 'language_id' => $languageEN, 'name' => 'Root category', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
     }
 

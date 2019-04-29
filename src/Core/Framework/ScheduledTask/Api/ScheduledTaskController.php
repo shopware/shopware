@@ -26,7 +26,7 @@ class ScheduledTaskController extends AbstractController
     {
         $this->taskScheduler->queueScheduledTasks();
 
-        return $this->json(['message' => 'Added scheduledTasks to the run queue']);
+        return $this->json(['message' => 'Success']);
     }
 
     /**

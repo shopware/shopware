@@ -43,7 +43,7 @@ class ScheduledTaskControllerTest extends TestCase
         $client->request('POST', $url);
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
-        static::assertSame(json_encode(['message' => 'Added scheduledTasks to the run queue']), $client->getResponse()->getContent());
+        static::assertSame(json_encode(['message' => 'Success']), $client->getResponse()->getContent());
 
         /** @var ScheduledTaskEntity $task */
         $task = $repo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);

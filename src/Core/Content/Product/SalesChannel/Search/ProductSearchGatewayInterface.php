@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Page\Search;
+namespace Shopware\Core\Content\Product\SalesChannel\Search;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;

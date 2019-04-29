@@ -4,10 +4,6 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderEntity;
-use Shopware\Core\Content\Media\File\FileNameProvider;
-use Shopware\Core\Content\Media\File\FileSaver;
-use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -16,7 +12,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
@@ -24,7 +20,6 @@ use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
-use Symfony\Component\Finder\Finder;
 
 class ProductGenerator implements DemodataGeneratorInterface
 {
@@ -38,32 +33,7 @@ class ProductGenerator implements DemodataGeneratorInterface
     /**
      * @var EntityRepositoryInterface
      */
-    private $defaultFolderRepository;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
     private $taxRepository;
-
-    /**
-     * @var FileSaver
-     */
-    private $fileSaver;
-
-    /**
-     * @var FileNameProvider
-     */
-    private $fileNameProvider;
-
-    /**
-     * @var array
-     */
-    private $tmpImages = [];
-
-    /**
-     * @var string[]
-     */
-    private $productImages = [];
 
     /**
      * @var Connection
@@ -71,14 +41,14 @@ class ProductGenerator implements DemodataGeneratorInterface
     private $connection;
 
     /**
-     * @var EntityRepositoryInterface
-     */
-    private $folderRepository;
-
-    /**
      * @var NumberRangeValueGeneratorInterface
      */
     private $numberRangeValueGenerator;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $mediaRepository;
 
     /**
      * @var ProductDefinition
@@ -87,23 +57,17 @@ class ProductGenerator implements DemodataGeneratorInterface
 
     public function __construct(
         EntityWriterInterface $writer,
-        EntityRepositoryInterface $defaultFolderRepository,
         EntityRepositoryInterface $taxRepository,
-        EntityRepositoryInterface $folderRepository,
-        FileSaver $fileSaver,
-        FileNameProvider $fileNameProvider,
         Connection $connection,
         NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
+        EntityRepositoryInterface $mediaRepository,
         ProductDefinition $productDefinition
     ) {
         $this->writer = $writer;
-        $this->defaultFolderRepository = $defaultFolderRepository;
         $this->taxRepository = $taxRepository;
-        $this->folderRepository = $folderRepository;
-        $this->fileSaver = $fileSaver;
-        $this->fileNameProvider = $fileNameProvider;
         $this->connection = $connection;
         $this->numberRangeValueGenerator = $numberRangeValueGenerator;
+        $this->mediaRepository = $mediaRepository;
         $this->productDefinition = $productDefinition;
     }
 
@@ -114,23 +78,11 @@ class ProductGenerator implements DemodataGeneratorInterface
 
     public function generate(int $numberOfItems, DemodataContext $context, array $options = []): void
     {
-        $this->createProduct(
-            $context,
-            $numberOfItems,
-            isset($options[self::OPTIONS_WITH_MEDIA])
-        );
-
-        $context->getConsole()->comment('Deleting temporary images...');
-        $this->cleanupImages();
+        $this->createProduct($context, $numberOfItems);
     }
 
-    private function createProduct(
-        DemodataContext $context,
-        $count = 500,
-        bool $withMedia = false
-    ): void {
-        $mediaFolderId = $this->getOrCreateDefaultFolder($context);
-
+    private function createProduct(DemodataContext $context, $count = 500): void
+    {
         $visibilities = $this->buildVisibilities();
 
         $taxes = $this->getTaxes($context->getContext());
@@ -138,23 +90,17 @@ class ProductGenerator implements DemodataGeneratorInterface
 
         $context->getConsole()->progressStart($count);
 
+        $mediaIds = $this->getMediaIds($context->getContext());
+
         $payload = [];
         for ($i = 0; $i < $count; ++$i) {
             $product = $this->createSimpleProduct($context, $taxes);
             $product['visibilities'] = $visibilities;
 
-            if ($withMedia) {
-                $imagePath = $this->getRandomImage($context, $product['name']);
-                $mediaId = Uuid::randomHex();
+            if ($mediaIds) {
                 $product['cover'] = [
-                    'media' => [
-                        'id' => $mediaId,
-                        'name' => 'Product image of ' . $product['name'],
-                        'mediaFolderId' => $mediaFolderId,
-                    ],
+                    'mediaId' => Random::getRandomArrayElement($mediaIds),
                 ];
-
-                $this->productImages[$mediaId] = $imagePath;
             }
 
             $productProperties = \array_slice(
@@ -188,67 +134,8 @@ class ProductGenerator implements DemodataGeneratorInterface
         $writeContext = WriteContext::createFromContext($context->getContext());
 
         $this->writer->upsert($this->productDefinition, $payload, $writeContext);
-        $this->importImages($context);
 
         $context->add(ProductDefinition::class, ...array_column($payload, 'id'));
-    }
-
-    private function importImages(DemodataContext $context): void
-    {
-        foreach ($this->productImages as $id => $file) {
-            $this->fileSaver->persistFileToMedia(
-                new MediaFile(
-                    $file,
-                    mime_content_type($file),
-                    pathinfo($file, PATHINFO_EXTENSION),
-                    filesize($file)
-                ),
-                $this->fileNameProvider->provide(
-                    pathinfo($file, PATHINFO_FILENAME),
-                    pathinfo($file, PATHINFO_EXTENSION),
-                    $id,
-                    $context->getContext()
-                ),
-                $id,
-                $context->getContext()
-            );
-        }
-    }
-
-    private function getOrCreateDefaultFolder(DemodataContext $context): ?string
-    {
-        $mediaFolderId = null;
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('entity', 'product'));
-        $criteria->addAssociation('folder', new Criteria());
-        $criteria->setLimit(1);
-
-        $defaultFolders = $this->defaultFolderRepository->search($criteria, $context->getContext());
-
-        if ($defaultFolders->count() > 0) {
-            /** @var MediaDefaultFolderEntity $defaultFolder */
-            $defaultFolder = $defaultFolders->first();
-
-            if ($defaultFolder->getFolder()) {
-                return $defaultFolder->getFolder()->getId();
-            }
-
-            $mediaFolderId = Uuid::randomHex();
-            $this->folderRepository->upsert([
-                [
-                    'id' => $mediaFolderId,
-                    'defaultFolderId' => $defaultFolder->getId(),
-                    'name' => 'Product Media',
-                    'useParentConfiguration' => false,
-                    'configuration' => [],
-                ],
-            ], $context->getContext());
-
-            $context->add(MediaDefaultFolderEntity::class, $mediaFolderId);
-        }
-
-        return $mediaFolderId;
     }
 
     private function getTaxes(Context $context)
@@ -258,6 +145,11 @@ class ProductGenerator implements DemodataGeneratorInterface
         ], $context);
 
         return array_values($this->taxRepository->search(new Criteria(), $context)->getIds());
+    }
+
+    private function getMediaIds(Context $context)
+    {
+        return array_values($this->mediaRepository->search(new PaginationCriteria(200), $context)->getIds());
     }
 
     private function createSimpleProduct(DemodataContext $context, array $taxes): array
@@ -336,46 +228,6 @@ class ProductGenerator implements DemodataGeneratorInterface
         }
 
         return $prices;
-    }
-
-    private function getRandomImage(DemodataContext $context, ?string $text): string
-    {
-        $images = array_values(
-            iterator_to_array(
-                (new Finder())
-                    ->files()
-                    ->in($context->getProjectDir() . '/build/media')
-                    ->name('/\.(jpg|png)$/')
-                    ->getIterator()
-            )
-        );
-
-        if (\count($images)) {
-            return $images[array_rand($images)]->getPathname();
-        }
-
-        if (!$text) {
-            /** @var string $text */
-            $text = $context->getFaker()->words(1, true);
-        }
-
-        return $this->tmpImages[] = $context->getFaker()->imageGenerator(
-            null,
-            $context->getFaker()->numberBetween(600, 800),
-            $context->getFaker()->numberBetween(400, 600),
-            'jpg',
-            true,
-            $text,
-            '#d8dde6',
-            '#333333'
-        );
-    }
-
-    private function cleanupImages(): void
-    {
-        foreach ($this->tmpImages as $image) {
-            unlink($image);
-        }
     }
 
     private function getProperties()

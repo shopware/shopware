@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
+use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilderInterface;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -42,19 +43,21 @@ class SalesChannelProductSubscriber implements EventSubscriberInterface
 
     private function calculatePrices(SalesChannelContext $context, SalesChannelProductEntity $product): void
     {
+        $prices = $this->priceDefinitionBuilder->build($product, $context);
+
         //calculate listing price
-        $listingPriceDefinition = $this->priceDefinitionBuilder->buildListingPriceDefinition($product, $context);
-        $listingPrice = $this->priceCalculator->calculate($listingPriceDefinition, $context);
-        $product->setCalculatedListingPrice($listingPrice);
+        $product->setCalculatedListingPrice(
+            $this->priceCalculator->calculate($prices->getListingPrice(), $context)
+        );
 
         //calculate context prices
-        $priceRuleDefinitions = $this->priceDefinitionBuilder->buildPriceDefinitions($product, $context);
-        $prices = $this->priceCalculator->calculateCollection($priceRuleDefinitions, $context);
-        $product->setCalculatedPrices($prices);
+        $product->setCalculatedPrices(
+            $this->priceCalculator->calculateCollection($prices->getPrices(), $context)
+        );
 
         //calculate simple price
-        $priceDefinition = $this->priceDefinitionBuilder->buildPriceDefinition($product, $context);
-        $price = $this->priceCalculator->calculate($priceDefinition, $context);
-        $product->setCalculatedPrice($price);
+        $product->setCalculatedPrice(
+            $this->priceCalculator->calculate($prices->getPrice(), $context)
+        );
     }
 }

@@ -8,11 +8,10 @@ use Shopware\Core\Checkout\Cart\CollectorInterface;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\Struct\QuantityInformation;
-use Shopware\Core\Content\Product\Cart\Struct\ProductFetchDefinition;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Content\Product\SalesChannel\ProductPriceDefinitionBuilderInterface;
+use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilderInterface;
 use Shopware\Core\Framework\Struct\StructCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -26,7 +25,7 @@ class ProductCollector implements CollectorInterface
     private $productGateway;
 
     /**
-     * @var ProductPriceDefinitionBuilderInterface
+     * @var \Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilderInterface
      */
     private $priceDefinitionBuilder;
 
@@ -142,13 +141,9 @@ class ProductCollector implements CollectorInterface
             }
 
             if (!$lineItem->getPriceDefinition() && !$lineItem->getPrice()) {
-                $lineItem->setPriceDefinition(
-                    $this->priceDefinitionBuilder->buildPriceDefinitionForQuantity(
-                        $product,
-                        $context,
-                        $lineItem->getQuantity()
-                    )
-                );
+                $prices = $this->priceDefinitionBuilder->build($product, $context, $lineItem->getQuantity());
+
+                $lineItem->setPriceDefinition($prices->getQuantityPrice());
             }
 
             if (!$lineItem->getQuantityInformation()) {

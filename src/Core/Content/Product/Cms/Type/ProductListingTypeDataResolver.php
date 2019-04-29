@@ -8,16 +8,16 @@ use Shopware\Core\Content\Cms\SlotDataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolveResult;
 use Shopware\Core\Content\Cms\SlotDataResolver\Type\TypeDataResolver;
-use Shopware\Core\Content\Product\Cms\ListingGatewayInterface;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingGatewayInterface;
 
 class ProductListingTypeDataResolver extends TypeDataResolver
 {
     /**
-     * @var ListingGatewayInterface
+     * @var ProductListingGatewayInterface
      */
     private $listingGateway;
 
-    public function __construct(ListingGatewayInterface $listingGateway)
+    public function __construct(ProductListingGatewayInterface $listingGateway)
     {
         $this->listingGateway = $listingGateway;
     }

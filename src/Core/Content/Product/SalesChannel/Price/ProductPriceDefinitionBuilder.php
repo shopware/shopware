@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product\SalesChannel;
+namespace Shopware\Core\Content\Product\SalesChannel\Price;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionCollection;
@@ -16,7 +16,17 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInterface
 {
-    public function buildPriceDefinitions(ProductEntity $product, SalesChannelContext $context): PriceDefinitionCollection
+    public function build(ProductEntity $product, SalesChannelContext $context, int $quantity = 1): ProductPriceDefinitions
+    {
+        return new ProductPriceDefinitions(
+            $this->buildPriceDefinition($product, $context),
+            $this->buildPriceDefinitions($product, $context),
+            $this->buildListingPriceDefinition($product, $context),
+            $this->buildPriceDefinitionForQuantity($product, $context, $quantity)
+        );
+    }
+
+    private function buildPriceDefinitions(ProductEntity $product, SalesChannelContext $context): PriceDefinitionCollection
     {
         $taxRules = $product->getTaxRuleCollection();
 
@@ -51,7 +61,7 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
         return new PriceDefinitionCollection($definitions);
     }
 
-    public function buildPriceDefinition(ProductEntity $product, SalesChannelContext $context): QuantityPriceDefinition
+    private function buildPriceDefinition(ProductEntity $product, SalesChannelContext $context): QuantityPriceDefinition
     {
         return new QuantityPriceDefinition(
             $this->getPriceForTaxState($product->getPrice(), $context) * $context->getContext()->getCurrencyFactor(),
@@ -62,7 +72,7 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
         );
     }
 
-    public function buildListingPriceDefinition(ProductEntity $product, SalesChannelContext $context): QuantityPriceDefinition
+    private function buildListingPriceDefinition(ProductEntity $product, SalesChannelContext $context): QuantityPriceDefinition
     {
         $taxRules = $product->getTaxRuleCollection();
 
@@ -95,7 +105,7 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
         );
     }
 
-    public function buildPriceDefinitionForQuantity(ProductEntity $product, SalesChannelContext $context, int $quantity): QuantityPriceDefinition
+    private function buildPriceDefinitionForQuantity(ProductEntity $product, SalesChannelContext $context, int $quantity): QuantityPriceDefinition
     {
         $taxRules = $product->getTaxRuleCollection();
 

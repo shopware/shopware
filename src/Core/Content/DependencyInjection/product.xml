@@ -8,7 +8,7 @@
         <service id="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductSubscriber">
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductPriceDefinitionBuilderInterface"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilderInterface"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\ProductDefinition">
@@ -135,19 +135,17 @@
             <tag name="shopware.entity.definition" entity="delivery_time"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\Cms\ListingGateway">
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingGateway">
             <argument type="service" id="sales_channel.product.repository" />
             <argument type="service" id="event_dispatcher"/>
         </service>
-
-        <service id="Shopware\Core\Content\Product\Cms\ListingGatewayInterface" alias="Shopware\Core\Content\Product\Cms\ListingGateway" />
 
         <service id="Shopware\Core\Content\Product\Cms\Type\ProductBoxTypeDataResolver">
             <tag name="shopware.cms.data_resolver" />
         </service>
 
         <service id="Shopware\Core\Content\Product\Cms\Type\ProductListingTypeDataResolver">
-            <argument type="service" id="Shopware\Core\Content\Product\Cms\ListingGatewayInterface" />
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingGateway" />
             <tag name="shopware.cms.data_resolver" />
         </service>
 
@@ -155,8 +153,24 @@
             <tag name="shopware.cms.data_resolver"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\SalesChannel\ProductPriceDefinitionBuilderInterface"
-                 class="Shopware\Core\Content\Product\SalesChannel\ProductPriceDefinitionBuilder">
+        <service id="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilderInterface"
+                 class="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilder">
+        </service>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingFeaturesSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestGateway">
+            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchGateway">
+            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
     </services>
 </container>                

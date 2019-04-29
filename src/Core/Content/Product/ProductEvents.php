@@ -4,6 +4,10 @@ namespace Shopware\Core\Content\Product;
 
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
+use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
+use Shopware\Core\Content\Product\Events\ProductSearchResultEvent;
+use Shopware\Core\Content\Product\Events\ProductSuggestCriteriaEvent;
+use Shopware\Core\Content\Product\Events\ProductSuggestResultEvent;
 
 class ProductEvents
 {
@@ -13,9 +17,29 @@ class ProductEvents
     public const PRODUCT_LISTING_CRITERIA = ProductListingCriteriaEvent::NAME;
 
     /**
+     * @Event("Shopware\Core\Content\Product\Events\ProductSuggestCriteriaEvent")
+     */
+    public const PRODUCT_SUGGEST_CRITERIA = ProductSuggestCriteriaEvent::NAME;
+
+    /**
+     * @Event("Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent")
+     */
+    public const PRODUCT_SEARCH_CRITERIA = ProductSearchCriteriaEvent::NAME;
+
+    /**
      * @Event("Shopware\Core\Content\Product\Events\ProductListingResultEvent")
      */
     public const PRODUCT_LISTING_RESULT = ProductListingResultEvent::NAME;
+
+    /**
+     * @Event("Shopware\Core\Content\Product\Events\ProductSuggestResultEvent")
+     */
+    public const PRODUCT_SUGGEST_RESULT = ProductSuggestResultEvent::NAME;
+
+    /**
+     * @Event("Shopware\Core\Content\Product\Events\ProductSearchResultEvent")
+     */
+    public const PRODUCT_SEARCH_RESULT = ProductSearchResultEvent::NAME;
 
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent")

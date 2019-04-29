@@ -1,7 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Pagelet\Suggest;
+namespace Shopware\Core\Content\Product\SalesChannel\Search;
 
+use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
+use Shopware\Core\Content\Product\Events\ProductSearchResultEvent;
+use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -12,9 +15,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class ProductSuggestGateway implements ProductSuggestGatewayInterface
+class ProductSearchGateway implements ProductSearchGatewayInterface
 {
     /**
      * @var SalesChannelRepository
@@ -26,18 +30,25 @@ class ProductSuggestGateway implements ProductSuggestGatewayInterface
      */
     private $interpreter;
 
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
     public function __construct(
         SalesChannelRepository $repository,
-        ProductSearchTermInterpreterInterface $interpreter
+        ProductSearchTermInterpreterInterface $interpreter,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->repository = $repository;
         $this->interpreter = $interpreter;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function suggest(Request $request, SalesChannelContext $context): EntitySearchResult
+    public function search(Request $request, SalesChannelContext $context): EntitySearchResult
     {
         $criteria = new Criteria();
-        $criteria->setLimit(15);
+        $criteria->setLimit(20);
 
         $term = trim((string) $request->query->get('search'));
 
@@ -45,10 +56,7 @@ class ProductSuggestGateway implements ProductSuggestGatewayInterface
             throw new MissingRequestParameterException('search');
         }
 
-        $pattern = $this->interpreter->interpret(
-            $term,
-            $context->getContext()
-        );
+        $pattern = $this->interpreter->interpret($term, $context->getContext());
 
         foreach ($pattern->getTerms() as $searchTerm) {
             $criteria->addQuery(
@@ -70,6 +78,18 @@ class ProductSuggestGateway implements ProductSuggestGatewayInterface
         $criteria->addFilter(new EqualsAnyFilter('product.searchKeywords.keyword', array_values($pattern->getAllTerms())));
         $criteria->addFilter(new EqualsFilter('product.searchKeywords.languageId', $context->getContext()->getLanguageId()));
 
-        return $this->repository->search($criteria, $context);
+        $this->eventDispatcher->dispatch(
+            ProductEvents::PRODUCT_SEARCH_CRITERIA,
+            new ProductSearchCriteriaEvent($request, $criteria, $context)
+        );
+
+        $result = $this->repository->search($criteria, $context);
+
+        $this->eventDispatcher->dispatch(
+            ProductEvents::PRODUCT_SEARCH_RESULT,
+            new ProductSearchResultEvent($request, $result, $context)
+        );
+
+        return $result;
     }
 }

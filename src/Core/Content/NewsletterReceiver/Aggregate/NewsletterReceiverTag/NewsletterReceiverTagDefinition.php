@@ -22,9 +22,7 @@ class NewsletterReceiverTagDefinition extends MappingEntityDefinition
     {
         return new FieldCollection([
             (new FkField('newsletter_receiver_id', 'newsletterReceiverId', NewsletterReceiverDefinition::class))->addFlags(new PrimaryKey(), new Required()),
-
             (new FkField('tag_id', 'tagId', TagDefinition::class))->addFlags(new PrimaryKey(), new Required()),
-
             new ManyToOneAssociationField('newsletterReceiver', 'newsletter_receiver_id', NewsletterReceiverDefinition::class, 'id', false),
             new ManyToOneAssociationField('tag', 'tag_id', TagDefinition::class, 'id', false),
         ]);

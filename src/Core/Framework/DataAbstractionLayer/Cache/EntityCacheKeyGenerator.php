@@ -36,7 +36,7 @@ class EntityCacheKeyGenerator
      */
     public function getEntityContextCacheKey(string $id, EntityDefinition $definition, Context $context, ?Criteria $criteria = null): string
     {
-        $keys = [$definition->getEntityName(), $id, $this->getContextHash($context)];
+        $keys = [$this->getDefinitionCacheKey($definition), $id, $this->getContextHash($context)];
 
         if ($criteria && \count($criteria->getAssociations()) > 0) {
             $keys[] = md5(json_encode($criteria->getAssociations()));
@@ -51,7 +51,7 @@ class EntityCacheKeyGenerator
      */
     public function getReadCriteriaCacheKey(EntityDefinition $definition, Criteria $criteria, Context $context): string
     {
-        $keys = [$definition->getEntityName(), $this->getReadCriteriaHash($criteria), $this->getContextHash($context)];
+        $keys = [$this->getDefinitionCacheKey($definition), $this->getReadCriteriaHash($criteria), $this->getContextHash($context)];
 
         return md5(implode('-', $keys));
     }
@@ -61,7 +61,7 @@ class EntityCacheKeyGenerator
      */
     public function getSearchCacheKey(EntityDefinition $definition, Criteria $criteria, Context $context): string
     {
-        $keys = [$definition->getEntityName(), $this->getCriteriaHash($criteria), $this->getContextHash($context)];
+        $keys = [$this->getDefinitionCacheKey($definition), $this->getCriteriaHash($criteria), $this->getContextHash($context)];
 
         return md5(implode('-', $keys));
     }
@@ -73,7 +73,7 @@ class EntityCacheKeyGenerator
     {
         $keys = [
             md5(json_encode($aggregation)),
-            $definition->getEntityName(),
+            $this->getDefinitionCacheKey($definition),
             $this->getAggregationHash($criteria),
             $this->getContextHash($context),
         ];
@@ -198,6 +198,16 @@ class EntityCacheKeyGenerator
         return array_keys(array_flip($keys));
     }
 
+    public function getFieldTag(EntityDefinition $definition, string $fieldName): string
+    {
+        return $definition->getEntityName() . '.' . $fieldName;
+    }
+
+    private function getDefinitionCacheKey(EntityDefinition $definition): string
+    {
+        return str_replace('\\', '-', $definition->getClass());
+    }
+
     private function getReadCriteriaHash(Criteria $criteria): string
     {
         return md5(json_encode([
@@ -231,7 +241,7 @@ class EntityCacheKeyGenerator
             }
 
             if ($field instanceof StorageAware) {
-                $associations[] = $source->getEntityName() . '.' . $field->getStorageName();
+                $associations[] = $this->getFieldTag($source, $field->getStorageName());
             }
 
             if (!$field instanceof AssociationField) {
@@ -241,12 +251,12 @@ class EntityCacheKeyGenerator
             $target = $field->getReferenceDefinition();
 
             if ($field instanceof OneToManyAssociationField) {
-                $associations[] = $target->getEntityName() . '.' . $field->getReferenceField();
+                $associations[] = $this->getFieldTag($target, $field->getReferenceField());
             } elseif ($field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField) {
                 /* @var ManyToOneAssociationField $field */
-                $associations[] = $source->getEntityName() . '.' . $field->getStorageName();
+                $associations[] = $this->getFieldTag($source, $field->getStorageName());
             } elseif ($field instanceof ManyToManyAssociationField) {
-                $associations[] = $field->getMappingDefinition()->getEntityName() . '.' . $field->getMappingReferenceColumn();
+                $associations[] = $this->getFieldTag($field->getMappingDefinition(), $field->getMappingReferenceColumn());
                 $target = $field->getToManyReferenceDefinition();
             } else {
                 break;

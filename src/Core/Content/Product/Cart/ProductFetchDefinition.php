@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product\Cart\Struct;
+namespace Shopware\Core\Content\Product\Cart;
 
 use Shopware\Core\Framework\Struct\Struct;
 

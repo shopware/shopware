@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product\Cms;
+namespace Shopware\Core\Content\Product\SalesChannel\Suggest;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-interface ListingGatewayInterface
+interface ProductSuggestGatewayInterface
 {
-    public function search(Request $request, SalesChannelContext $context): EntitySearchResult;
+    public function suggest(Request $request, SalesChannelContext $context): EntitySearchResult;
 }

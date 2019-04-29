@@ -285,7 +285,7 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
             messages[key] = localeMessages;
         });
 
-        store.commit('setAdminLocale', localeFactory.getLastKnownLocale());
+        store.dispatch('setAdminLocale', localeFactory.getLastKnownLocale());
         store.commit('setAdminFallbackLocale', 'en-GB');
 
         const i18n = new VueI18n({

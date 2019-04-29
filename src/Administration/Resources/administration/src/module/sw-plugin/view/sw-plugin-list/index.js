@@ -12,7 +12,7 @@ Component.register('sw-plugin-list', {
         }
     },
 
-    inject: ['pluginService', 'systemConfigApiService'],
+    inject: ['pluginService', 'systemConfigApiService', 'context'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -39,11 +39,15 @@ Component.register('sw-plugin-list', {
 
         showPagination() {
             return (this.total >= 25);
+        },
+
+        currentLocale() {
+            return this.$store.state.adminLocale.currentLocale;
         }
     },
 
     watch: {
-        '$root.$i18n.locale'() {
+        currentLocale() {
             this.getList();
         },
 
@@ -131,7 +135,7 @@ Component.register('sw-plugin-list', {
 
             const params = this.getListingParams();
 
-            this.pluginsStore.getList(params).then((response) => {
+            this.pluginsStore.getList(params, false, this.$store.state.adminLocale.languageId).then((response) => {
                 this.plugins = response.items;
                 this.isConfigAvailableForPlugins();
                 this.total = response.total;

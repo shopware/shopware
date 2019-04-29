@@ -707,7 +707,7 @@ class WriterTest extends TestCase
         $context = Context::createDefaultContext();
         $context = new Context(
             $context->getSource(),
-            $context->getRules(),
+            $context->getRuleIds(),
             $context->getCurrencyId(),
             [Defaults::LANGUAGE_SYSTEM_DE, Defaults::LANGUAGE_SYSTEM]
         );

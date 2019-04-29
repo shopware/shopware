@@ -160,7 +160,7 @@ class EntityReaderTest extends TestCase
 
         $context = new Context(
             $context->getSource(),
-            $context->getRules(),
+            $context->getRuleIds(),
             $context->getCurrencyId(),
             [$subLanguageId, Defaults::LANGUAGE_SYSTEM]
         );
@@ -207,7 +207,7 @@ class EntityReaderTest extends TestCase
 
         $context = new Context(
             $context->getSource(),
-            $context->getRules(),
+            $context->getRuleIds(),
             $context->getCurrencyId(),
             [$subLanguageId, Defaults::LANGUAGE_SYSTEM]
         );
@@ -1728,7 +1728,7 @@ class EntityReaderTest extends TestCase
 
         $searchContext = new Context(
             new AdminApiSource(null, null),
-            $context->getRules(),
+            $context->getRuleIds(),
             Uuid::randomHex(),
             $context->getLanguageIdChain(),
             $context->getVersionId(),

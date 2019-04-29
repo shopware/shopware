@@ -19,8 +19,6 @@ class Migration1552377321CategoryTag extends MigrationStep
               `category_id` BINARY(16) NOT NULL,
               `category_version_id` BINARY(16) NOT NULL,
               `tag_id` BINARY(16) NOT NULL,
-              `created_at` DATETIME(3) NOT NULL,
-              `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`category_id`, `category_version_id`, `tag_id`),
               CONSTRAINT `fk.category_tag.category_tag__category_version_id` FOREIGN KEY (`category_id`, `category_version_id`)
                 REFERENCES `category` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,

@@ -30,4 +30,9 @@ class WriteProtectedTranslationDefinition extends EntityTranslationDefinition
             new StringField('system_protected', 'systemProtected'),
         ]);
     }
+
+    protected static function defaultFields(): array
+    {
+        return [];
+    }
 }

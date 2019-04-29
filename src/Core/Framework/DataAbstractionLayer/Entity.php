@@ -21,6 +21,16 @@ class Entity extends Struct
      */
     protected $translated = [];
 
+    /**
+     * @var \DateTimeInterface|null
+     */
+    protected $createdAt;
+
+    /**
+     * @var \DateTimeInterface|null
+     */
+    protected $updatedAt;
+
     public function setUniqueIdentifier(string $identifier): void
     {
         $this->_uniqueIdentifier = $identifier;
@@ -75,5 +85,25 @@ class Entity extends Struct
     public function addTranslated(string $key, $value): void
     {
         $this->translated[$key] = $value;
+    }
+
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeInterface $createdAt): void
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
     }
 }

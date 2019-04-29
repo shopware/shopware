@@ -33,4 +33,9 @@ class WriteProtectedTranslatedDefinition extends EntityDefinition
             new TranslationsAssociationField(WriteProtectedTranslationDefinition::class, 'wp_id'),
         ]);
     }
+
+    protected static function defaultFields(): array
+    {
+        return [];
+    }
 }

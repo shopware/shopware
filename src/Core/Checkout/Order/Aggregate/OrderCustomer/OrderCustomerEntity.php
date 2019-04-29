@@ -52,16 +52,6 @@ class OrderCustomerEntity extends Entity
     protected $customerId;
 
     /**
-     * @var \DateTimeInterface
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface
-     */
-    protected $updatedAt;
-
-    /**
      * @var CustomerEntity|null
      */
     protected $customer;
@@ -149,26 +139,6 @@ class OrderCustomerEntity extends Entity
     public function setCustomerId(string $customerId): void
     {
         $this->customerId = $customerId;
-    }
-
-    public function getCreatedAt(): \DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): \DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getCustomer(): ?CustomerEntity

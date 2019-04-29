@@ -18,7 +18,6 @@ class Migration1536233110MediaFolderConfigurationThumbnailSize extends Migration
             CREATE TABLE `media_folder_configuration_thumbnail_size` (
               `media_folder_configuration_id` BINARY(16) NOT NULL,
               `media_thumbnail_size_id` BINARY(16) NOT NULL,
-              `created_at` DATETIME(3) NOT NULL,
               PRIMARY KEY (`media_folder_configuration_id`, `media_thumbnail_size_id`),
               CONSTRAINT `fk.media_folder_configuration_thumbnail_size.conf_id` FOREIGN KEY (`media_folder_configuration_id`)
                 REFERENCES `media_folder_configuration` (`id`) ON DELETE CASCADE,

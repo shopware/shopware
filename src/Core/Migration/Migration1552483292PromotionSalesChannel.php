@@ -21,6 +21,7 @@ class Migration1552483292PromotionSalesChannel extends MigrationStep
           `sales_channel_id` BINARY(16) NOT NULL,
           `priority` INT NOT NULL DEFAULT 0,
           `created_at` DATETIME(3) NOT NULL,
+          `updated_at` DATETIME(3) NULL,
           PRIMARY KEY (`id`),
           INDEX `idx.promotion_sales_channel.sales_channel_id` (`sales_channel_id` ASC),
           INDEX `idx.promotion_sales_channel.promotion_id` (`promotion_id` ASC),

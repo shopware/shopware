@@ -43,16 +43,6 @@ class StateMachineEntity extends Entity
     protected $translations;
 
     /**
-     * @var \DateTimeInterface
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
-    /**
      * @var StateMachineHistoryCollection|null
      */
     protected $historyEntries;
@@ -141,26 +131,6 @@ class StateMachineEntity extends Entity
     public function setTranslations(StateMachineTranslationCollection $translations): void
     {
         $this->translations = $translations;
-    }
-
-    public function getCreatedAt(): \DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getAttributes(): ?array

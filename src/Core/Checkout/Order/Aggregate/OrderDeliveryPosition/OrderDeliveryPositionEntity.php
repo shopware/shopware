@@ -42,16 +42,6 @@ class OrderDeliveryPositionEntity extends Entity
     protected $quantity;
 
     /**
-     * @var \DateTimeInterface|null
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
-    /**
      * @var OrderLineItemEntity
      */
     protected $orderLineItem;
@@ -124,26 +114,6 @@ class OrderDeliveryPositionEntity extends Entity
     public function setQuantity(int $quantity): void
     {
         $this->quantity = $quantity;
-    }
-
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getOrderLineItem(): OrderLineItemEntity

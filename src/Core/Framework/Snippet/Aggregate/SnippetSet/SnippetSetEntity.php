@@ -28,16 +28,6 @@ class SnippetSetEntity extends Entity
     protected $iso;
 
     /**
-     * @var \DateTimeInterface|null
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
-    /**
      * @var SnippetCollection|null
      */
     protected $snippets;
@@ -85,26 +75,6 @@ class SnippetSetEntity extends Entity
     public function setIso(string $iso): void
     {
         $this->iso = $iso;
-    }
-
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getSnippets(): ?SnippetCollection

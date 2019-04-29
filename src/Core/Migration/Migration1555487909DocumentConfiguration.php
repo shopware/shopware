@@ -32,6 +32,7 @@ class Migration1555487909DocumentConfiguration extends MigrationStep
       `logo_id` BINARY(16) NULL,
       `config` JSON NULL,
       `created_at` DATETIME(3) NOT NULL,
+      `updated_at` DATETIME(3) NULL,
       PRIMARY KEY (`id`),
       KEY `idx.document_base_config.type_id` (`document_type_id`),
       CONSTRAINT `json.config` CHECK (JSON_VALID(`config`)),
@@ -47,6 +48,8 @@ SQL;
       `document_base_config_id` BINARY(16) NOT NULL,
       `document_type_id` BINARY(16) NOT NULL,
       `sales_channel_id` BINARY(16) NULL,
+      `created_at` DATETIME(3) NOT NULL,
+      `updated_at` DATETIME(3) NULL,
       UNIQUE `uniq.document_base_configuration_id__sales_channel_id` (`document_type_id`, `sales_channel_id`),
       CONSTRAINT `fk.document_base_config_sales_channel.document_base_config_id`
       FOREIGN KEY (document_base_config_id) REFERENCES `document_base_config` (id) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -107,10 +110,10 @@ SQL;
         $connection->insert('document_base_config', ['id' => $deliveryConfigId, 'name' => DeliveryNoteGenerator::DELIVERY_NOTE, 'global' => 1, 'filename_prefix' => DeliveryNoteGenerator::DELIVERY_NOTE . '_', 'document_type_id' => $deliverNoteId, 'config' => $deliveryNoteConfigJson, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);
         $connection->insert('document_base_config', ['id' => $creditConfigId, 'name' => CreditNoteGenerator::CREDIT_NOTE, 'global' => 1, 'filename_prefix' => CreditNoteGenerator::CREDIT_NOTE . '_', 'document_type_id' => $creditNoteId, 'config' => $configJson, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);
 
-        $connection->insert('document_base_config_sales_channel', ['id' => Uuid::randomBytes(), 'document_base_config_id' => $stornoConfigId, 'document_type_id' => $stornoId]);
-        $connection->insert('document_base_config_sales_channel', ['id' => Uuid::randomBytes(), 'document_base_config_id' => $invoiceConfigId, 'document_type_id' => $invoiceId]);
-        $connection->insert('document_base_config_sales_channel', ['id' => Uuid::randomBytes(), 'document_base_config_id' => $deliveryConfigId, 'document_type_id' => $deliverNoteId]);
-        $connection->insert('document_base_config_sales_channel', ['id' => Uuid::randomBytes(), 'document_base_config_id' => $creditConfigId, 'document_type_id' => $creditNoteId]);
+        $connection->insert('document_base_config_sales_channel', ['id' => Uuid::randomBytes(), 'document_base_config_id' => $stornoConfigId, 'document_type_id' => $stornoId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('document_base_config_sales_channel', ['id' => Uuid::randomBytes(), 'document_base_config_id' => $invoiceConfigId, 'document_type_id' => $invoiceId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('document_base_config_sales_channel', ['id' => Uuid::randomBytes(), 'document_base_config_id' => $deliveryConfigId, 'document_type_id' => $deliverNoteId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('document_base_config_sales_channel', ['id' => Uuid::randomBytes(), 'document_base_config_id' => $creditConfigId, 'document_type_id' => $creditNoteId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);
     }
 
     public function updateDestructive(Connection $connection): void

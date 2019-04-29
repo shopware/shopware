@@ -18,8 +18,6 @@ class Migration1536232920SalesChannelCountry extends MigrationStep
             CREATE TABLE `sales_channel_country` (
               `sales_channel_id` BINARY(16) NOT NULL,
               `country_id` BINARY(16) NOT NULL,
-              `created_at` DATETIME(3) NOT NULL,
-              `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`sales_channel_id`, `country_id`),
               CONSTRAINT `fk.sales_channel_country.sales_channel_id` FOREIGN KEY (`sales_channel_id`)
                 REFERENCES `sales_channel` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,

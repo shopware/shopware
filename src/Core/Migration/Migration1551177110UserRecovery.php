@@ -19,7 +19,8 @@ CREATE TABLE IF NOT EXISTS `user_recovery` (
     `id` BINARY(16) NOT NULL,
     `user_id` BINARY(16) NOT NULL,
     `hash` VARCHAR(255) NOT NULL,
-    `created_at` DATETIME(3) NOT NULL
+    `created_at` DATETIME(3) NOT NULL,
+    `updated_at` DATETIME(3) NULL
 )
 SQL;
 

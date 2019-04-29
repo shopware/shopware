@@ -27,16 +27,6 @@ class ProductManufacturerEntity extends Entity
     protected $link;
 
     /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $createdAt;
-
-    /**
      * @var string|null
      */
     protected $description;
@@ -89,26 +79,6 @@ class ProductManufacturerEntity extends Entity
     public function setLink(?string $link): void
     {
         $this->link = $link;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
-    }
-
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
     }
 
     public function getDescription(): ?string

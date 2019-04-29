@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Version\Aggregate\VersionCommit;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -67,7 +66,6 @@ class VersionCommitDefinition extends EntityDefinition
             (new IntField('auto_increment', 'autoIncrement'))->addFlags(new WriteProtected()),
             new BoolField('is_merge', 'isMerge'),
             (new StringField('message', 'message'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            new CreatedAtField(),
             (new OneToManyAssociationField('data', VersionCommitDataDefinition::class, 'version_commit_id'))->addFlags(new CascadeDelete()),
             new ManyToOneAssociationField('version', 'version_id', VersionDefinition::class, 'id', false),
         ]);

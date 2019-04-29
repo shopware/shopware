@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Version\Aggregate\VersionCommitData;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -58,7 +57,6 @@ class VersionCommitDataDefinition extends EntityDefinition
             (new JsonField('entity_id', 'entityId'))->addFlags(new Required()),
             (new StringField('action', 'action'))->addFlags(new Required(), new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
             (new VersionDataPayloadField('payload', 'payload'))->addFlags(new Required(), new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
-            new CreatedAtField(),
         ]);
     }
 }

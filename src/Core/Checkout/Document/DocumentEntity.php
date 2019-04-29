@@ -61,11 +61,6 @@ class DocumentEntity extends Entity
      */
     protected $documentType;
 
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $createdAt;
-
     public function getFileType(): string
     {
         return $this->fileType;
@@ -154,16 +149,6 @@ class DocumentEntity extends Entity
     public function setDocumentType(DocumentTypeEntity $documentType): void
     {
         $this->documentType = $documentType;
-    }
-
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(?\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
     }
 
     public function getDocumentTypeId(): string

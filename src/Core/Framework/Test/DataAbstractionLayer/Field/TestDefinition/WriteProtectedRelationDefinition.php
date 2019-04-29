@@ -31,4 +31,9 @@ class WriteProtectedRelationDefinition extends EntityDefinition
             (new ManyToManyAssociationField('systemWps', WriteProtectedDefinition::class, WriteProtectedReferenceDefinition::class, 'system_relation_id', 'system_wp_id'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
         ]);
     }
+
+    protected static function defaultFields(): array
+    {
+        return [];
+    }
 }

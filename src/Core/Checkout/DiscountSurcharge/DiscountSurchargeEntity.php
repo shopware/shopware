@@ -36,16 +36,6 @@ class DiscountSurchargeEntity extends Entity
     protected $amount;
 
     /**
-     * @var \DateTimeInterface
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface
-     */
-    protected $updatedAt;
-
-    /**
      * @var EntitySearchResult|null
      */
     protected $translations;
@@ -103,26 +93,6 @@ class DiscountSurchargeEntity extends Entity
     public function setAmount(float $amount): void
     {
         $this->amount = $amount;
-    }
-
-    public function getCreatedAt(): \DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): \DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getTranslations(): ?EntitySearchResult

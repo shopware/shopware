@@ -18,8 +18,6 @@ class Migration1552292082MediaTag extends MigrationStep
             CREATE TABLE `media_tag` (
               `media_id` BINARY(16) NOT NULL,
               `tag_id` BINARY(16) NOT NULL,
-              `created_at` DATETIME(3) NOT NULL,
-              `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`media_id`, `tag_id`),
               CONSTRAINT `fk.media_tag.id` FOREIGN KEY (`media_id`)
                 REFERENCES `media` (`id`),

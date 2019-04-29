@@ -23,11 +23,6 @@ class PromotionSalesChannelEntity extends Entity
     protected $salesChannelId;
 
     /**
-     * @var \DateTimeInterface
-     */
-    protected $createdAt;
-
-    /**
      * @var int
      */
     protected $priority;
@@ -60,16 +55,6 @@ class PromotionSalesChannelEntity extends Entity
     public function setSalesChannelId(string $salesChannelId): void
     {
         $this->salesChannelId = $salesChannelId;
-    }
-
-    public function getCreatedAt(): \DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
     }
 
     public function getPriority(): int

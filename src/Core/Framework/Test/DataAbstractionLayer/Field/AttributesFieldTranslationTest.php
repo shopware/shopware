@@ -46,7 +46,9 @@ class AttributesFieldTranslationTest extends TestCase
               id BINARY(16) NOT NULL PRIMARY KEY,
               parent_id BINARY(16) NULL,
               name varchar(255) DEFAULT NULL,
-              attributes json DEFAULT NULL
+              attributes json DEFAULT NULL,
+              created_at DATETIME(3) NOT NULL,
+              updated_at DATETIME(3) NULL
         )');
 
         $this->connection->exec('DROP TABLE IF EXISTS `attribute_test_translation`');

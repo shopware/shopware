@@ -21,7 +21,6 @@ class Migration1550484666RenameMediaConigurationThumbnailsizeAssociation extends
             CREATE TABLE `media_folder_configuration_media_thumbnail_size` (
               `media_folder_configuration_id` BINARY(16) NOT NULL,
               `media_thumbnail_size_id` BINARY(16) NOT NULL,
-              `created_at` DATETIME(3) NOT NULL,
               PRIMARY KEY (`media_folder_configuration_id`, `media_thumbnail_size_id`),
               CONSTRAINT `fk.media_folder_configuration_media_thumbnail_size.conf_id` FOREIGN KEY (`media_folder_configuration_id`)
                 REFERENCES `media_folder_configuration` (`id`) ON DELETE CASCADE,
@@ -60,7 +59,7 @@ class Migration1550484666RenameMediaConigurationThumbnailsizeAssociation extends
             'AFTER',
             'INSERT',
             'INSERT INTO `media_folder_configuration_thumbnail_size`
-                       VALUES(NEW.`media_folder_configuration_id`, NEW.`media_thumbnail_size_id`, NEW.`created_at`)'
+                       VALUES(NEW.`media_folder_configuration_id`, NEW.`media_thumbnail_size_id`)'
         );
         $this->addBackwardTrigger(
             $connection,

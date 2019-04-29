@@ -126,16 +126,6 @@ class CustomerEntity extends Entity
     protected $birthday;
 
     /**
-     * @var \DateTimeInterface|null
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
-    /**
      * @var string|null
      */
     protected $legacyEncoder;
@@ -443,26 +433,6 @@ class CustomerEntity extends Entity
     public function setBirthday(?\DateTimeInterface $birthday): void
     {
         $this->birthday = $birthday;
-    }
-
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getLegacyEncoder(): ?string

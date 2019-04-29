@@ -491,27 +491,27 @@ class Migration1536233420BasicData extends MigrationStep
         $connection->insert('sales_channel_translation', ['sales_channel_id' => $id, 'language_id' => $languageEN, 'name' => 'Storefront API', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
 
         // country
-        $connection->insert('sales_channel_country', ['sales_channel_id' => $id, 'country_id' => $defaultCountry, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
-        $connection->insert('sales_channel_country', ['sales_channel_id' => $id, 'country_id' => $countryStatement->fetchColumn(), 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('sales_channel_country', ['sales_channel_id' => $id, 'country_id' => $defaultCountry]);
+        $connection->insert('sales_channel_country', ['sales_channel_id' => $id, 'country_id' => $countryStatement->fetchColumn()]);
 
         // currency
         foreach ($currencies as $currency) {
-            $connection->insert('sales_channel_currency', ['sales_channel_id' => $id, 'currency_id' => $currency, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+            $connection->insert('sales_channel_currency', ['sales_channel_id' => $id, 'currency_id' => $currency]);
         }
 
         // language
         foreach ($languages as $language) {
-            $connection->insert('sales_channel_language', ['sales_channel_id' => $id, 'language_id' => $language, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+            $connection->insert('sales_channel_language', ['sales_channel_id' => $id, 'language_id' => $language]);
         }
 
         // currency
         foreach ($shippingMethods as $shippingMethod) {
-            $connection->insert('sales_channel_shipping_method', ['sales_channel_id' => $id, 'shipping_method_id' => $shippingMethod, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+            $connection->insert('sales_channel_shipping_method', ['sales_channel_id' => $id, 'shipping_method_id' => $shippingMethod]);
         }
 
         // currency
         foreach ($paymentMethods as $paymentMethod) {
-            $connection->insert('sales_channel_payment_method', ['sales_channel_id' => $id, 'payment_method_id' => $paymentMethod, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+            $connection->insert('sales_channel_payment_method', ['sales_channel_id' => $id, 'payment_method_id' => $paymentMethod]);
         }
     }
 

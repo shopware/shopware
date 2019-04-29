@@ -46,16 +46,6 @@ class MediaFolderConfigurationEntity extends Entity
      */
     protected $mediaThumbnailSizesRo;
 
-    /**
-     * @var \DateTimeInterface
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
     public function getMediaFolders(): ?MediaFolderCollection
     {
         return $this->mediaFolders;
@@ -104,26 +94,6 @@ class MediaFolderConfigurationEntity extends Entity
     public function setThumbnailQuality(int $thumbnailQuality): void
     {
         $this->thumbnailQuality = $thumbnailQuality;
-    }
-
-    public function getCreatedAt(): \DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(?\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getAttributes(): ?array

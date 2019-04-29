@@ -3,7 +3,6 @@
 namespace Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -54,8 +53,6 @@ class StateMachineHistoryDefinition extends EntityDefinition
 
             new FkField('user_id', 'userId', UserDefinition::class),
             new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id', true),
-
-            new CreatedAtField(),
         ]);
     }
 }

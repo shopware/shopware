@@ -18,8 +18,6 @@ class Migration1536232940SalesChannelPaymentMethod extends MigrationStep
             CREATE TABLE `sales_channel_payment_method` (
               `sales_channel_id` BINARY(16) NOT NULL,
               `payment_method_id` BINARY(16) NOT NULL,
-              `created_at` DATETIME(3) NOT NULL,
-              `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`sales_channel_id`, `payment_method_id`),
               CONSTRAINT `fk.sales_channel_payment_method.sales_channel_id` FOREIGN KEY (`sales_channel_id`)
                 REFERENCES `sales_channel` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,

@@ -46,16 +46,6 @@ class SalesChannelTypeEntity extends Entity
     protected $screenshotUrls;
 
     /**
-     * @var \DateTimeInterface|null
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
-    /**
      * @var SalesChannelCollection|null
      */
     protected $salesChannels;
@@ -138,26 +128,6 @@ class SalesChannelTypeEntity extends Entity
     public function setScreenshotUrls(array $screenshotUrls): void
     {
         $this->screenshotUrls = $screenshotUrls;
-    }
-
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getSalesChannels(): ?SalesChannelCollection

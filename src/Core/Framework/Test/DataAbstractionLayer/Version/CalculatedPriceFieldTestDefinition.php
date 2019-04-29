@@ -20,6 +20,8 @@ CREATE TABLE `calculated_price_field_test` (
   `id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
   `calculated_price` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` DATETIME(3) NOT NULL,
+  `updated_at` DATETIME(3) NULL,
   PRIMARY KEY (`id`, `version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ';

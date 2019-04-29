@@ -23,6 +23,8 @@ class Migration1536233270RuleCondition extends MigrationStep
               `value` JSON NULL,
               `position` INT(11) DEFAULT 0 NOT NULL,
               `attributes` JSON NULL,
+              `created_at` DATETIME(3) NOT NULL,
+              `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`),
               CONSTRAINT `json.rule_condition.value` CHECK (JSON_VALID (`value`)),
               CONSTRAINT `json.rule_condition.attributes` CHECK (JSON_VALID(`attributes`)),

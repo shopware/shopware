@@ -38,6 +38,8 @@ EOF;
 CREATE TABLE `named_optional_group` (
     `id` binary(16) NOT NULL,
     `name` varchar(255) NOT NULL,
+    `created_at` DATETIME(3) NOT NULL,
+    `updated_at` DATETIME(3) NULL,
     PRIMARY KEY `id` (`id`)
 );
 EOF;
@@ -46,7 +48,9 @@ EOF;
 CREATE TABLE `named` (
     `id` binary(16) NOT NULL,
     `name` varchar(255) NOT NULL,    
-    `optional_group_id` varbinary(16) NULL,    
+    `optional_group_id` varbinary(16) NULL,   
+    `created_at` DATETIME(3) NOT NULL,
+    `updated_at` DATETIME(3) NULL, 
     PRIMARY KEY `id` (`id`),  
     CONSTRAINT `fk` FOREIGN KEY (`optional_group_id`) REFERENCES `named_optional_group` (`id`) ON DELETE SET NULL
 );

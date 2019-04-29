@@ -67,11 +67,6 @@ class StateMachineHistoryEntity extends Entity
      */
     protected $transitionActionName;
 
-    /**
-     * @var \DateTimeInterface
-     */
-    protected $createdAt;
-
     public function getTransitionActionName(): string
     {
         return $this->transitionActionName;
@@ -180,15 +175,5 @@ class StateMachineHistoryEntity extends Entity
     public function setFromStateMachineState(StateMachineStateEntity $fromStateMachineState): void
     {
         $this->fromStateMachineState = $fromStateMachineState;
-    }
-
-    public function getCreatedAt(): \DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
     }
 }

@@ -22,11 +22,6 @@ class VersionCommitEntity extends Entity
     protected $message;
 
     /**
-     * @var \DateTimeInterface
-     */
-    protected $createdAt;
-
-    /**
      * @var string
      */
     protected $versionId;
@@ -74,16 +69,6 @@ class VersionCommitEntity extends Entity
     public function setMessage(?string $message): void
     {
         $this->message = $message;
-    }
-
-    public function getCreatedAt(): \DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
     }
 
     public function getUserId(): ?string

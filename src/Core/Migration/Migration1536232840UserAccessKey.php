@@ -24,6 +24,7 @@ class Migration1536232840UserAccessKey extends MigrationStep
               `last_usage_at` DATETIME(3) NULL,
               `attributes` JSON NULL,
               `created_at` DATETIME(3) NOT NULL,
+              `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`),
               INDEX `idx.user_id_user_tenant_id` (`user_id`),
               INDEX `idx.access_key` (`access_key`),

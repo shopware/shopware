@@ -73,7 +73,9 @@ DROP TABLE IF EXISTS `root_sub`;
 CREATE TABLE `root` (
   `id` binary(16) NOT NULL,
   `name` varchar(255) NOT NULL,
-  `version_id` binary(16) NOT NULL
+  `version_id` binary(16) NOT NULL,
+  `created_at` DATETIME(3) NOT NULL,
+  `updated_at` DATETIME(3) NULL
 );
 CREATE TABLE `root_sub` (
   `id` binary(16) NOT NULL,
@@ -81,7 +83,9 @@ CREATE TABLE `root_sub` (
   `root_version_id` binary(16),
   `root_id` binary(16),
   `name` varchar(255) NULL,
-  `stock` int NULL
+  `stock` int NULL,
+  `created_at` DATETIME(3) NOT NULL,
+  `updated_at` DATETIME(3) NULL
 );
 
 CREATE TABLE `root_sub_many` (
@@ -89,7 +93,9 @@ CREATE TABLE `root_sub_many` (
   `version_id` binary(16) NOT NULL,
   `root_sub_version_id` binary(16) NOT NULL,
   `root_sub_id` binary(16) NOT NULL,
-  `name` varchar(255) NULL
+  `name` varchar(255) NULL,
+  `created_at` DATETIME(3) NOT NULL,
+  `updated_at` DATETIME(3) NULL
 );
 
 ALTER TABLE `root_sub`

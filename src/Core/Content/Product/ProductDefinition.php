@@ -20,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlacklistRuleField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
@@ -46,7 +45,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\SearchKeywordAssociationF
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\WhitelistRuleField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -119,9 +117,6 @@ class ProductDefinition extends EntityDefinition
             //not inherited fields
             new BoolField('active', 'active'),
             (new IntField('stock', 'stock'))->addFlags(new Required()),
-
-            new CreatedAtField(),
-            new UpdatedAtField(),
 
             new JsonField('variant_restrictions', 'variantRestrictions'),
             new ListField('configurator_group_sorting', 'configuratorGroupSorting', IdField::class),

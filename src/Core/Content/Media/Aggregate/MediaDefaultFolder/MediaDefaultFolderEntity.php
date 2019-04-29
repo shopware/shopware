@@ -30,16 +30,6 @@ class MediaDefaultFolderEntity extends Entity
      */
     protected $attributes;
 
-    /**
-     * @var \DateTimeInterface
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
     public function getAssociationFields(): array
     {
         return $this->associationFields;
@@ -68,26 +58,6 @@ class MediaDefaultFolderEntity extends Entity
     public function setFolder(?MediaFolderEntity $folder): void
     {
         $this->folder = $folder;
-    }
-
-    public function getCreatedAt(): \DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(?\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getAttributes(): ?array

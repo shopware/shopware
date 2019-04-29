@@ -16,7 +16,7 @@ class PriceRuleFieldAccessorBuilder implements FieldAccessorBuilderInterface
             return null;
         }
 
-        $keys = $context->getRules();
+        $keys = $context->getRuleIds();
 
         $jsonField = 'net';
         if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {

@@ -17,7 +17,7 @@ class ContextTest extends TestCase
 
         static::assertInstanceOf(SystemSource::class, $context->getSource());
         static::assertEquals(Context::SYSTEM_SCOPE, $context->getScope());
-        static::assertEquals([], $context->getRules());
+        static::assertEquals([], $context->getRuleIds());
         static::assertEquals(Defaults::LIVE_VERSION, $context->getVersionId());
     }
 

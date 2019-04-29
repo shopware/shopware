@@ -46,7 +46,7 @@ class Context extends Struct
     /**
      * @var array
      */
-    protected $rules;
+    protected $ruleIds;
 
     /**
      * @var ContextSource
@@ -67,7 +67,7 @@ class Context extends Struct
 
     public function __construct(
         ContextSource $source,
-        array $rules = [],
+        array $ruleIds = [],
         string $currencyId = Defaults::CURRENCY,
         array $languageIdChain = [Defaults::LANGUAGE_SYSTEM],
         string $versionId = Defaults::LIVE_VERSION,
@@ -82,7 +82,7 @@ class Context extends Struct
             $this->scope = self::SYSTEM_SCOPE;
         }
 
-        $this->rules = $rules;
+        $this->ruleIds = $ruleIds;
         $this->currencyId = $currencyId;
 
         $this->versionId = $versionId;
@@ -129,9 +129,9 @@ class Context extends Struct
         return $this->currencyFactor;
     }
 
-    public function getRules(): array
+    public function getRuleIds(): array
     {
-        return $this->rules;
+        return $this->ruleIds;
     }
 
     public function getLanguageIdChain(): array
@@ -143,7 +143,7 @@ class Context extends Struct
     {
         $context = new self(
             $this->source,
-            $this->rules,
+            $this->ruleIds,
             $this->currencyId,
             $this->languageIdChain,
             $versionId,

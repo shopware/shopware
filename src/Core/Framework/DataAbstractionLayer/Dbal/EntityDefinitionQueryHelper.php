@@ -276,12 +276,12 @@ class EntityDefinitionQueryHelper
         $conditions = [];
 
         /** @var string|EntityDefinition $definition */
-        if ($definition::isBlacklistAware() && $context->getRules()) {
+        if ($definition::isBlacklistAware() && $context->getRuleIds()) {
             $accessor = self::escape($alias) . '.' . self::escape('blacklist_ids');
 
             $wheres = [];
 
-            foreach ($context->getRules() as $ruleId) {
+            foreach ($context->getRuleIds() as $ruleId) {
                 if (!Uuid::isValid($ruleId)) {
                     throw new InvalidUuidException($ruleId);
                 }
@@ -307,7 +307,7 @@ class EntityDefinitionQueryHelper
         ];
 
         $wheres = [];
-        foreach ($context->getRules() as $ruleId) {
+        foreach ($context->getRuleIds() as $ruleId) {
             if (!Uuid::isValid($ruleId)) {
                 throw new InvalidUuidException($ruleId);
             }
@@ -537,12 +537,12 @@ class EntityDefinitionQueryHelper
     private function addRuleCondition(QueryBuilder $query, string $definition, Context $context): void
     {
         /** @var string|EntityDefinition $definition */
-        if ($definition::isBlacklistAware() && $context->getRules()) {
+        if ($definition::isBlacklistAware() && $context->getRuleIds()) {
             $wheres = [];
 
             $accessor = $this->getFieldAccessor('blacklistIds', $definition, $definition::getEntityName(), $context);
 
-            foreach ($context->getRules() as $ruleId) {
+            foreach ($context->getRuleIds() as $ruleId) {
                 if (!Uuid::isValid($ruleId)) {
                     throw new InvalidUuidException($ruleId);
                 }
@@ -563,7 +563,7 @@ class EntityDefinitionQueryHelper
         $accessor = $this->getFieldAccessor('whitelistIds', $definition, $definition::getEntityName(), $context);
 
         $wheres = [];
-        foreach ($context->getRules() as $id) {
+        foreach ($context->getRuleIds() as $id) {
             if (!Uuid::isValid($id)) {
                 throw new InvalidUuidException($id);
             }

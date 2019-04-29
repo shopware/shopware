@@ -441,10 +441,6 @@ class CheckoutPageController extends StorefrontController
             $this->addFlash('danger', $this->translator->trans('error.addToCartError'));
         }
 
-        if ($request->headers->contains('x-requested-with', 'XMLHttpRequest')) {
-            // TODO NEXT-2497 return template
-        }
-
         return $this->createActionResponse($request);
     }
 

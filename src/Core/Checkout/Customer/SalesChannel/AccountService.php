@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Composer\Semver\Constraint\ConstraintInterface;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
@@ -16,7 +15,6 @@ use Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerPasswordMatches;
 use Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationService;
-use Shopware\Core\Checkout\Customer\Validation\CustomerValidationService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -74,10 +72,6 @@ class AccountService
     private $validator;
 
     /**
-     * @var CustomerValidationService
-     */
-    private $customerValidationService;
-    /**
      * @var LegacyPasswordVerifier
      */
     private $legacyPasswordVerifier;
@@ -94,7 +88,6 @@ class AccountService
         SalesChannelContextPersister $contextPersister,
         EventDispatcherInterface $eventDispatcher,
         DataValidator $validator,
-        CustomerValidationService $customerValidationService,
         CustomerProfileValidationService $customerProfileValidationService,
         LegacyPasswordVerifier $legacyPasswordVerifier
     ) {
@@ -104,7 +97,6 @@ class AccountService
         $this->contextPersister = $contextPersister;
         $this->eventDispatcher = $eventDispatcher;
         $this->validator = $validator;
-        $this->customerValidationService = $customerValidationService;
         $this->legacyPasswordVerifier = $legacyPasswordVerifier;
         $this->customerProfileValidationService = $customerProfileValidationService;
     }
@@ -343,26 +335,11 @@ class AccountService
         $this->eventDispatcher->dispatch($event->getName(), $event);
     }
 
-    private function validateEmail(DataBag $data, SalesChannelContext $context): void
-    {
-        $validation = new DataValidationDefinition('customer.email.update');
-
-        $validation
-            ->add('email', new CustomerEmailUnique(['context' => $context->getContext()]), new EqualTo(['propertyPath' => 'emailConfirmation']))
-            ->add('password', new CustomerPasswordMatches(['context' => $context]));
-
-        $this->dispatchValidationEvent($validation, $context->getContext());
-
-        $this->validator->validate($data->all(), $validation);
-
-        $this->tryValidateEqualtoConstraint($data->all(), 'email', $validation);
-    }
-
     /**
      * @throws CustomerNotFoundException
      * @throws BadCredentialsException
      */
-    private function getCustomerByLogin(string $email, string $password, SalesChannelContext $context): CustomerEntity
+    public function getCustomerByLogin(string $email, string $password, SalesChannelContext $context): CustomerEntity
     {
         $customer = $this->getCustomerByEmail($email, $context);
 
@@ -383,34 +360,53 @@ class AccountService
         return $customer;
     }
 
+    private function validateEmail(DataBag $data, SalesChannelContext $context): void
+    {
+        $validation = new DataValidationDefinition('customer.email.update');
+
+        $validation
+            ->add('email', new CustomerEmailUnique(['context' => $context->getContext()]), new EqualTo(['propertyPath' => 'emailConfirmation']))
+            ->add('password', new CustomerPasswordMatches(['context' => $context]));
+
+        $this->dispatchValidationEvent($validation, $context->getContext());
+
+        $this->validator->validate($data->all(), $validation);
+
+        $this->tryValidateEqualtoConstraint($data->all(), 'email', $validation);
+    }
+
     /**
      * @throws CustomerNotLoggedInException
      */
     private function validateCustomer(SalesChannelContext $context): void
     {
-        if (!$context->getCustomer()) {
-            throw new CustomerNotLoggedInException();
+        if ($context->getCustomer()) {
+            return;
         }
+
+        throw new CustomerNotLoggedInException();
     }
 
     /**
      * @throws AddressNotFoundException
      * @throws InvalidUuidException
      */
-    private function validateAddressId(string $addressId, SalesChannelContext $context): CustomerAddressEntity
+    private function validateAddressId(string $addressId, SalesChannelContext $context): void
     {
         if (!Uuid::isValid($addressId)) {
             throw new InvalidUuidException($addressId);
         }
 
-        /** @var CustomerAddressEntity|null $address */
-        $address = $this->customerAddressRepository->search(new Criteria([$addressId]), $context->getContext())->get($addressId);
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('id', $addressId));
+        $criteria->addFilter(new EqualsFilter('customerId', $context->getCustomer()->getId()));
 
-        if (!$address || $address->getCustomerId() !== $context->getCustomer()->getId()) {
-            throw new AddressNotFoundException($addressId);
+        $searchResult = $this->customerAddressRepository->searchIds($criteria, $context->getContext());
+        if ($searchResult->getTotal()) {
+            return;
         }
 
-        return $address;
+        throw new AddressNotFoundException($addressId);
     }
 
     private function getBirthday(DataBag $data): ?\DateTimeInterface

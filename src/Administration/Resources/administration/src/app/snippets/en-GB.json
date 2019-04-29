@@ -8,7 +8,15 @@
     },
     "notification-center": {
       "title": "Notifications",
-      "emptyText": "Congratulations, all done."
+      "emptyText": "Congratulations, all done.",
+      "worker-listener": {
+        "thumbnailGeneration": {
+          "title": "Thumbnails are being generated",
+          "message": "No thumbnails remains. | One thumbnail remains. | {n} Thumbnails remains.",
+          "titleSuccess": "Thumbnails finished",
+          "messageSuccess": "Generation of the thumbnails was completed."
+        }
+      }
     },
     "sw-admin-menu": {
       "linkChangeLanguage": "Change language",
@@ -247,8 +255,9 @@
       "buttonOpenMedia": "Open media",
       "notification": {
         "success": {
-          "title": "Success",
-          "message": "No file has been saved successfully. | A file has been saved successfully. | {count} / {total} files have been saved successfully."
+          "title": "Media upload",
+          "message": "No file has been saved successfully. | A file has been saved successfully. | {count} / {total} files have been saved successfully.",
+          "titleSuccess": "Media upload finished"
         },
         "failure": {
           "title": "Error",

@@ -11,7 +11,7 @@
                         </slot>
                     </div>
                     {% block sw_page_top_bar_actions %}
-                        <div class="sw-page__top-bar-actions">
+                        <div class="sw-page__top-bar-actions" :style="topBarActionStyles">
                             {% block sw_page_notification_center %}
                                 <sw-notification-center></sw-notification-center>
                             {% endblock %}

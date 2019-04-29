@@ -72,9 +72,21 @@
 
     .sw-notification-center-item__content {
         margin: 8px 0;
+        display: grid;
+        grid-template-columns: 1fr min-content;
+        grid-gap: 16px;
     }
 
     .sw-notification-center-item__message {
         font-size: 12px;
+    }
+
+    .sw-notification-center-item__loader {
+        position: initial;
+
+        .sw-loader__container {
+            top: 0;
+            transform: translateX(-50%);
+        }
     }
 }

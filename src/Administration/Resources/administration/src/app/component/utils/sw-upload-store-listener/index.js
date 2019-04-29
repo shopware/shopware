@@ -147,6 +147,10 @@ export default {
                 growl: payload.successAmount + payload.failureAmount === payload.totalAmount
             };
 
+            if (payload.successAmount + payload.failureAmount === payload.totalAmount) {
+                notification.title = this.$root.$t('global.sw-media-upload.notification.success.titleSuccess');
+            }
+
             if (this.notificationId !== null) {
                 this.$store.dispatch('notification/updateNotification', {
                     uuid: this.notificationId,

@@ -12,7 +12,9 @@ export default {
             autoClose: true,
             duration: 5000,
             growl: true,
-            visited: false
+            visited: false,
+            metadata: {},
+            isLoading: false
         }
     },
 
@@ -114,7 +116,7 @@ export default {
          * Updates the notification with the given uuid in the payload. If growl is set to true and the notification
          * is not currently visible (as growl) it will show the notification as growl. Visited can also be set to
          * false to notify the user about the update. If the notification was already deleted by the user
-         * it will be created again.
+         * it will be created again. if metadata changes it will be set to visited false to notify the user again
          *
          * @param notificationUpdate update payload
          * @returns {string} uuid
@@ -143,6 +145,14 @@ export default {
             const mergedUpdate = Object.assign(
                 {},
                 originalNotification,
+                {
+                    visited: notificationUpdate.metadata ?
+                        (
+                            JSON.stringify(originalNotification.metadata) ===
+                            JSON.stringify(notificationUpdate.metadata)
+                        ) :
+                        originalNotification.visited
+                },
                 notificationUpdate,
                 {
                     growl: notificationUpdate.growl === undefined ? originalNotification.growl : notificationUpdate.growl

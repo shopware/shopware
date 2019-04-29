@@ -8,7 +8,15 @@
     },
     "notification-center": {
       "title": "Mitteilungen",
-      "emptyText": "Bravo, alles erledigt."
+      "emptyText": "Bravo, alles erledigt.",
+      "worker-listener": {
+        "thumbnailGeneration": {
+          "title": "Vorschaubilder werden generiert",
+          "message": "Keine Bilder verbleibend. | Ein Bild verbleibend. | {n} Bilder verbleibend.",
+          "titleSuccess": "Vorschaubilder fertiggestellt",
+          "messageSuccess": "Generierung der Vorschaubilder wurde abgeschlossen."
+        }
+      }
     },
     "sw-admin-menu": {
       "linkChangeLanguage": "Sprache wechseln",
@@ -251,8 +259,9 @@
       "buttonOpenMedia": "Medien öffnen",
       "notification": {
         "success": {
-          "title": "Erfolg",
-          "message": "Keine Datei erfolgreich gespeichert | Eine Datei erfolgreich gespeichert | {count} / {total} Dateien erfolgreich gespeichert."
+          "title": "Medienupload",
+          "message": "Keine Datei erfolgreich gespeichert | Eine Datei erfolgreich gespeichert | {count} / {total} Dateien erfolgreich gespeichert.",
+          "titleSuccess": "Medienupload abgeschlossen"
         },
         "failure": {
           "title": "Fehler",

@@ -118,6 +118,12 @@ export default {
             };
         },
 
+        topBarActionStyles() {
+            return {
+                'margin-right': `-${this.pageOffset}`
+            };
+        },
+
         additionalEventListeners() {
             return this.$listeners;
         }

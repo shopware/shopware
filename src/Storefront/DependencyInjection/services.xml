@@ -82,11 +82,6 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\Detail\Images\DetailImagesPageletLoader">
-            <argument type="service" id="product_media.repository"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
         <service id="Shopware\Storefront\Pagelet\Account\PaymentMethod\AccountPaymentMethodPageletLoader">
             <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="event_dispatcher"/>

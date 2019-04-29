@@ -32,7 +32,7 @@
       "sidebar": {
         "labelUseAsLogo": "Use as logo"
       },
-      "topRule": "Rule",
+      "topRule": "Availability rule",
       "placeholderName": "Enter name",
       "placeholderPosition": "Enter position",
       "placeholderDescription": "Enter description",

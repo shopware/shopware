@@ -557,5 +557,8 @@
     "messageSaveSuccess": "The rule \"{name}\" has been saved successfully.",
     "titleSaveError": "Error",
     "messageSaveError": "An error occurred while saving rule \"{name}\"."
+  },
+  "sw-select-rule-create": {
+    "addNewRule": "Neue Regel erstellen"
   }
 }

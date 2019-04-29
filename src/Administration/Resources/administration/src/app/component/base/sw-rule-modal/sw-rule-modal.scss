@@ -1,0 +1,9 @@
+.sw-rule-modal {
+    .sw-modal__body {
+        min-height: 700px;
+
+        .sw-condition-tree > .sw-condition-or-container >.sw-condition-or-container__condition-content {
+            padding: 0;
+        }
+    }
+}

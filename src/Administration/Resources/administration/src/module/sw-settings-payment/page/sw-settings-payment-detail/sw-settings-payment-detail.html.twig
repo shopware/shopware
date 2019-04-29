@@ -111,12 +111,13 @@
                 {% block sw_settings_payment_detail_top_rule %}
                     <sw-card class="sw-settings-payment-detail__condition_container"
                              :title="$tc('sw-settings-payment.detail.topRule')">
-                        <sw-select id="rule"
-                                   required
-                                   v-model="paymentMethod.availabilityRuleId"
-                                   :store="ruleStore"
-                                   :criteria="ruleFilter">
-                        </sw-select>
+                        {% block sw_settings_payment_detail_top_rule_select %}
+                            <sw-select-rule-create :ruleId="paymentMethod.availabilityRuleId"
+                                                   :ruleFilter="ruleFilter"
+                                                   @save-rule="onSaveRule"
+                                                   @dismiss-rule="onDismissRule">
+                            </sw-select-rule-create>
+                        {% endblock %}
                     </sw-card>
                 {% endblock %}
             </sw-card-view>

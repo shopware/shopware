@@ -99,17 +99,20 @@
                     <sw-card class="sw-settings-shipping-detail__condition_container"
                              :title="$tc('sw-settings-shipping.detail.topRule')">
                         {% block sw_settings_shipping_detail_top_rule_select %}
-                            <sw-select id="rule"
-                                       required
-                                       v-model="shippingMethod.availabilityRuleId"
-                                       :store="ruleStore">
-                            </sw-select>
+                            <sw-select-rule-create :ruleId="shippingMethod.availabilityRuleId"
+                                                   :ruleFilter="ruleFilter"
+                                                   :required="true"
+                                                   @save-rule="onSaveRule">
+                            </sw-select-rule-create>
                         {% endblock %}
                     </sw-card>
                 {% endblock %}
 
                 {% block sw_settings_shipping_detail_price_matrices %}
-                    <sw-settings-shipping-price-matrices v-if="!isLoading" :shippingMethod="shippingMethod"></sw-settings-shipping-price-matrices>
+                    <sw-settings-shipping-price-matrices v-if="!isLoading"
+                                                         :shippingMethod="shippingMethod"
+                                                         ref="priceMatrices">
+                    </sw-settings-shipping-price-matrices>
                 {% endblock %}
             </sw-card-view>
         {% endblock %}

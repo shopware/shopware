@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStat
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DebitPayment;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\InvoicePayment;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SEPAPayment;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
@@ -381,16 +380,12 @@ class Migration1536233420BasicData extends MigrationStep
 
         $debit = Uuid::randomBytes();
         $invoice = Uuid::randomBytes();
-        $sepa = Uuid::randomBytes();
 
         $connection->insert('payment_method', ['id' => $debit, 'technical_name' => 'debit', 'template' => 'debit.tpl', 'class' => DebitPayment::class, 'percentage_surcharge' => -10, 'position' => 4, 'active' => 0, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
         $connection->insert('payment_method_translation', ['payment_method_id' => $debit, 'language_id' => $languageEN, 'name' => 'Direct Debit', 'additional_description' => 'Additional text', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
 
         $connection->insert('payment_method', ['id' => $invoice, 'technical_name' => 'invoice', 'template' => 'invoice.tpl', 'class' => InvoicePayment::class, 'position' => 5, 'active' => 1, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
         $connection->insert('payment_method_translation', ['payment_method_id' => $invoice, 'language_id' => $languageEN, 'name' => 'Invoice', 'additional_description' => 'Payment by invoice. Shopware provides automatic invoicing for all customers on orders after the first, in order to avoid defaults on payment.', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
-
-        $connection->insert('payment_method', ['id' => $sepa, 'technical_name' => 'sepa', 'template' => '@Checkout/frontend/sepa.html.twig', 'class' => SEPAPayment::class, 'position' => 0, 'active' => 1, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
-        $connection->insert('payment_method_translation', ['payment_method_id' => $sepa, 'language_id' => $languageEN, 'name' => 'SEPA direct debit', 'additional_description' => 'SEPA invoice', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
     }
 
     private function createShippingMethod(Connection $connection): void

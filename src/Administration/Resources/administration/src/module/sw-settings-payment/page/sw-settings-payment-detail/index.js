@@ -70,6 +70,14 @@ Component.register('sw-settings-payment-detail', {
             }
         },
 
+        onSaveRule(ruleId) {
+            this.paymentMethod.availabilityRuleId = ruleId;
+        },
+
+        onDismissRule() {
+            this.paymentMethod.availabilityRuleId = null;
+        },
+
         abortOnLanguageChange() {
             return this.paymentMethod.hasChanges();
         },

@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\CashPayment;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DebitPayment;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\InvoicePayment;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SEPAPayment;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -29,7 +28,6 @@ class Migration1553679520RefactorPaymentMethods extends MigrationStep
         // TODO: When merging migrations --> Add to Migration1536233420BasicData
         $connection->update('payment_method', ['handler_identifier' => DebitPayment::class], ['technical_name' => 'debit']);
         $connection->update('payment_method', ['handler_identifier' => InvoicePayment::class], ['technical_name' => 'invoice']);
-        $connection->update('payment_method', ['handler_identifier' => SEPAPayment::class], ['technical_name' => 'sepa']);
 
         /** @var string $ruleId */
         $ruleId = $connection->executeQuery("SELECT `id` FROM `rule` WHERE name = 'Cart >= 0 (Payment)'")->fetchColumn();

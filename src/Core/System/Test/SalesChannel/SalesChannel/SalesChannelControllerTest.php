@@ -259,7 +259,7 @@ class SalesChannelControllerTest extends TestCase
 
         $content = json_decode($response->getContent(), true);
 
-        static::assertCount(7, $content['data'], print_r($content['data'], true));
+        static::assertCount(6, $content['data'], print_r($content['data'], true));
 
         foreach ($content['data'] as $paymentMethod) {
             if ($paymentMethod['id'] !== $originalPaymentMethod['id']) {

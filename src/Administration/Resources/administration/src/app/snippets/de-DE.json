@@ -560,5 +560,8 @@
     "ruleCard": "Bedingungen",
     "titleSaveError": "Fehler",
     "messageSaveError": "Beim Speichern der Regel \"{name}\" ist ein Fehler aufgetreten."
+  },
+  "sw-select-rule-create": {
+    "addNewRule": "Neue Regel erstellen"
   }
 }

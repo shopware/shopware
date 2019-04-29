@@ -140,9 +140,9 @@ class PaymentServiceTest extends TestCase
         $transaction->setPaymentMethodId($paymentMethodId);
         $transaction->setOrderId($orderId);
 
-        $token = $this->tokenFactory->generateToken($transaction, $this->context, 'testFinishUrl');
+        $token = $this->tokenFactory->generateToken($transaction, 'testFinishUrl');
         $request = new Request();
-        $tokenStruct = $this->paymentService->finalizeTransaction($token, $request, $this->context);
+        $tokenStruct = $this->paymentService->finalizeTransaction($token, $request, $salesChannelContext);
 
         static::assertSame('testFinishUrl', $tokenStruct->getFinishUrl());
         /** @var OrderTransactionEntity $transactionEntity */
@@ -170,7 +170,7 @@ class PaymentServiceTest extends TestCase
         $token = Uuid::randomHex();
         $request = new Request();
         $this->expectException(InvalidTokenException::class);
-        $this->paymentService->finalizeTransaction($token, $request, $this->context);
+        $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext('paymentMethodId'));
     }
 
     public function testFinalizeTransactionWithExpiredToken(): void
@@ -178,10 +178,10 @@ class PaymentServiceTest extends TestCase
         $request = new Request();
         $transaction = JWTFactoryTest::createTransaction();
 
-        $token = $this->tokenFactory->generateToken($transaction, $this->context, null, -1);
+        $token = $this->tokenFactory->generateToken($transaction, null, -1);
 
         $this->expectException(TokenExpiredException::class);
-        $this->paymentService->finalizeTransaction($token, $request, $this->context);
+        $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext('paymentMethodId'));
     }
 
     public function testFinalizeTransactionCustomerCanceled(): void
@@ -202,11 +202,11 @@ class PaymentServiceTest extends TestCase
         $transaction->setPaymentMethodId($paymentMethodId);
         $transaction->setOrderId($orderId);
 
-        $token = $this->tokenFactory->generateToken($transaction, $this->context, 'testFinishUrl');
+        $token = $this->tokenFactory->generateToken($transaction, 'testFinishUrl');
         $request = new Request();
         $request->query->set('cancel', true);
         try {
-            $this->paymentService->finalizeTransaction($token, $request, $this->context);
+            $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));
             static::fail('exception should be thrown');
         } catch (CustomerCanceledAsyncPaymentException $e) {
         }
@@ -221,7 +221,7 @@ class PaymentServiceTest extends TestCase
     private function getSalesChannelContext(string $paymentMethodId): SalesChannelContext
     {
         return Generator::createSalesChannelContext(
-            null,
+            $this->context,
             null,
             null,
             null,

@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -22,7 +22,7 @@ interface AsynchronousPaymentHandlerInterface
      *
      * @throws AsyncPaymentProcessException
      */
-    public function pay(AsyncPaymentTransactionStruct $transaction, Context $context): RedirectResponse;
+    public function pay(AsyncPaymentTransactionStruct $transaction, SalesChannelContext $salesChannelContext): RedirectResponse;
 
     /**
      * The finalize function will be called when the user is redirected back to shop from the payment gateway.
@@ -34,5 +34,5 @@ interface AsynchronousPaymentHandlerInterface
      * @throws AsyncPaymentFinalizeException
      * @throws CustomerCanceledAsyncPaymentException
      */
-    public function finalize(AsyncPaymentTransactionStruct $transaction, Request $request, Context $context): void;
+    public function finalize(AsyncPaymentTransactionStruct $transaction, Request $request, SalesChannelContext $salesChannelContext): void;
 }

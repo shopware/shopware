@@ -91,7 +91,7 @@ class PaymentService
         }
 
         try {
-            return $this->paymentProcessor->process($orderId, $context->getContext(), $finishUrl);
+            return $this->paymentProcessor->process($orderId, $context, $finishUrl);
         } catch (AsyncPaymentProcessException | SyncPaymentProcessException $e) {
             $this->cancelOrderTransaction($e->getOrderTransactionId(), $context->getContext());
             throw $e;
@@ -105,15 +105,19 @@ class PaymentService
      * @throws TokenExpiredException
      * @throws UnknownPaymentMethodException
      */
-    public function finalizeTransaction(string $paymentToken, Request $request, Context $context): TokenStruct
-    {
-        $paymentTokenStruct = $this->parseToken($paymentToken, $context);
+    public function finalizeTransaction(
+        string $paymentToken,
+        Request $request,
+        SalesChannelContext $salesChannelContext
+    ): TokenStruct {
+        $paymentTokenStruct = $this->parseToken($paymentToken);
         $transactionId = $paymentTokenStruct->getTransactionId();
+        $context = $salesChannelContext->getContext();
         $paymentTransactionStruct = $this->getPaymentTransactionStruct($transactionId, $context);
 
         $paymentHandler = $this->getPaymentHandlerById($paymentTokenStruct->getPaymentMethodId(), $context);
         try {
-            $paymentHandler->finalize($paymentTransactionStruct, $request, $context);
+            $paymentHandler->finalize($paymentTransactionStruct, $request, $salesChannelContext);
         } catch (CustomerCanceledAsyncPaymentException | AsyncPaymentFinalizeException $e) {
             $this->cancelOrderTransaction($e->getOrderTransactionId(), $context);
             throw $e;
@@ -125,15 +129,15 @@ class PaymentService
     /**
      * @throws TokenExpiredException
      */
-    private function parseToken(string $token, Context $context): TokenStruct
+    private function parseToken(string $token): TokenStruct
     {
-        $tokenStruct = $this->tokenFactory->parseToken($token, $context);
+        $tokenStruct = $this->tokenFactory->parseToken($token);
 
         if ($tokenStruct->isExpired()) {
             throw new TokenExpiredException($tokenStruct->getToken());
         }
 
-        $this->tokenFactory->invalidateToken($tokenStruct->getToken(), $context);
+        $this->tokenFactory->invalidateToken($tokenStruct->getToken());
 
         return $tokenStruct;
     }

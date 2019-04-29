@@ -6,8 +6,8 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStat
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,13 +34,16 @@ class AsyncTestPaymentHandler implements AsynchronousPaymentHandlerInterface
         $this->stateMachineRegistry = $stateMachineRegistry;
     }
 
-    public function pay(AsyncPaymentTransactionStruct $transaction, Context $context): RedirectResponse
+    public function pay(AsyncPaymentTransactionStruct $transaction, SalesChannelContext $salesChannelContext): RedirectResponse
     {
         return new RedirectResponse(self::REDIRECT_URL);
     }
 
-    public function finalize(AsyncPaymentTransactionStruct $transaction, Request $request, Context $context): void
-    {
+    public function finalize(
+        AsyncPaymentTransactionStruct $transaction,
+        Request $request,
+        SalesChannelContext $salesChannelContext
+    ): void {
         if ($request->query->getBoolean('cancel')) {
             throw new CustomerCanceledAsyncPaymentException(
                 $transaction->getOrderTransaction()->getId(),
@@ -48,6 +51,7 @@ class AsyncTestPaymentHandler implements AsynchronousPaymentHandlerInterface
             );
         }
 
+        $context = $salesChannelContext->getContext();
         $completeStateId = $this->stateMachineRegistry->getStateByTechnicalName(
             OrderTransactionStates::STATE_MACHINE,
             OrderTransactionStates::STATE_PAID,

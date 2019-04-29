@@ -31,6 +31,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AccountPageController extends StorefrontController
 {
@@ -89,6 +90,11 @@ class AccountPageController extends StorefrontController
      */
     private $salesChannelContextService;
 
+    /**
+     * @var TranslatorInterface
+     */
+    private $translator;
+
     public function __construct(
         PageLoaderInterface $accountLoginPageLoader,
         PageLoaderInterface $accountOverviewPageLoader,
@@ -100,7 +106,8 @@ class AccountPageController extends StorefrontController
         AccountService $accountService,
         AccountRegistrationService $accountRegistrationService,
         SalesChannelContextServiceInterface $salesChannelContextService,
-        AddressService $addressService
+        AddressService $addressService,
+        TranslatorInterface $translator
     ) {
         $this->loginPageLoader = $accountLoginPageLoader;
         $this->addressListPageLoader = $accountAddressPageLoader;
@@ -113,6 +120,7 @@ class AccountPageController extends StorefrontController
         $this->accountRegistrationService = $accountRegistrationService;
         $this->salesChannelContextService = $salesChannelContextService;
         $this->addressService = $addressService;
+        $this->translator = $translator;
     }
 
     /**
@@ -162,9 +170,17 @@ class AccountPageController extends StorefrontController
             return $this->redirectToRoute('frontend.account.login.page');
         }
 
-        $this->accountService->logout($context);
+        try {
+            $this->accountService->logout($context);
 
-        return $this->redirectToRoute('frontend.account.login.page');
+            $this->addFlash('success', $this->translator->trans('account.logoutSucceeded'));
+
+            $parameters = [];
+        } catch (ConstraintViolationException $formViolations) {
+            $parameters = ['formViolations' => $formViolations];
+        }
+
+        return $this->redirectToRoute('frontend.account.login.page', $parameters);
     }
 
     /**
@@ -278,6 +294,75 @@ class AccountPageController extends StorefrontController
     }
 
     /**
+     * @Route("/account/profile", name="frontend.account.profile.save", methods={"POST"})
+     *
+     * @throws CustomerNotLoggedInExceptionAlias
+     */
+    public function saveProfile(RequestDataBag $data, SalesChannelContext $context): Response
+    {
+        $this->denyAccessUnlessLoggedIn();
+
+        try {
+            $this->accountService->saveProfile($data, $context);
+            $this->salesChannelContextService->refresh(
+                $context->getSalesChannel()->getId(),
+                $context->getToken(),
+                $context->getContext()->getLanguageId()
+            );
+        } catch (ConstraintViolationException $formViolations) {
+            return $this->forward(__CLASS__ . '::profileOverview', ['formViolations' => $formViolations]);
+        }
+
+        return $this->redirectToRoute('frontend.account.profile.page');
+    }
+
+    /**
+     * @Route("/account/profile/email", name="frontend.account.profile.email.save", methods={"POST"})
+     *
+     * @throws CustomerNotLoggedInExceptionAlias
+     */
+    public function saveEmail(RequestDataBag $data, SalesChannelContext $context): Response
+    {
+        $this->denyAccessUnlessLoggedIn();
+
+        try {
+            $this->accountService->saveEmail($data, $context);
+            $this->salesChannelContextService->refresh(
+                $context->getSalesChannel()->getId(),
+                $context->getToken(),
+                $context->getContext()->getLanguageId()
+            );
+        } catch (ConstraintViolationException $formViolations) {
+            return $this->forward(__CLASS__ . '::profileOverview', ['formViolations' => $formViolations]);
+        }
+
+        return $this->redirectToRoute('frontend.account.profile.page');
+    }
+
+    /**
+     * @Route("/account/profile/password", name="frontend.account.profile.password.save", methods={"POST"})
+     *
+     * @throws CustomerNotLoggedInExceptionAlias
+     */
+    public function savePassword(RequestDataBag $data, SalesChannelContext $context): Response
+    {
+        $this->denyAccessUnlessLoggedIn();
+
+        try {
+            $this->accountService->savePassword($data, $context);
+            $this->salesChannelContextService->refresh(
+                $context->getSalesChannel()->getId(),
+                $context->getToken(),
+                $context->getContext()->getLanguageId()
+            );
+        } catch (ConstraintViolationException $formViolations) {
+            return $this->forward(__CLASS__ . '::profileOverview', ['formViolations' => $formViolations]);
+        }
+
+        return $this->redirectToRoute('frontend.account.profile.page');
+    }
+
+    /**
      * @Route("/account/address", name="frontend.account.address.page", options={"seo"="false"}, methods={"GET"})
      */
     public function addressOverview(Request $request, SalesChannelContext $context): Response
@@ -317,6 +402,48 @@ class AccountPageController extends StorefrontController
         $page = $this->addressPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/page/account/addressbook/edit.html.twig', ['page' => $page]);
+    }
+
+    /**
+     * @Route("/account/password", name="frontend.account.password.page", options={"seo"="false"}, methods={"GET","POST"})
+     */
+    public function password(Request $request): Response
+    {
+        if ($request->isMethod(Request::METHOD_POST)) {
+            // @todo : send recovery email
+            return $this->renderStorefront('@Storefront/page/account/password-reset/hash-sent.html.twig', ['page' => []]);
+        }
+
+        return $this->renderStorefront('@Storefront/page/account/password-reset/index.html.twig', ['page' => []]);
+    }
+
+    /**
+     * @Route("/account/resetPassword/{hash}", name="frontend.account.password.reset.page", options={"seo"="false"}, methods={"GET","POST"})
+     */
+    public function resetPassword(Request $request): Response
+    {
+        // @todo verify hash and if not valid show error page with message
+
+        if ($request->isMethod(Request::METHOD_POST)) {
+            // @todo: update password, login customer and redirect to account and show success message
+            return $this->redirectToRoute('frontend.account.home.page', []);
+        }
+
+        return $this->renderStorefront('@Storefront/page/account/password-reset/password-reset.html.twig', ['page' => []]);
+    }
+
+    /**
+     * @Route("/account/saveNewsletter", name="frontend.account.newsletter.save", methods={"POST"})
+     *
+     * @throws CustomerNotLoggedInException
+     */
+    public function saveNewsletter()
+    {
+        $this->denyAccessUnlessLoggedIn();
+
+        // @todo update newsletter field in customer entity
+
+        return $this->redirectToRoute('frontend.account.home.page', []);
     }
 
     /**

@@ -22,7 +22,9 @@
         "back": "Zurück",
         "categories": "Kategorien",
         "showCategory": "%category% anzeigen",
-        "requiredFields": "* hierbei handelt es sich um ein Pflichtfeld"
+        "requiredFields": "* hierbei handelt es sich um ein Pflichtfeld",
+        "mailSendButton": "E-Mail senden",
+        "backButton": "Zurück"
     },
     "header": {
         "logoLink": "zur Startseite wechseln",
@@ -98,6 +100,7 @@
         "paymentTitle": "Zahlungsarten",
         "ordersTitle": "Bestellungen",
         "logout": "Abmelden",
+        "logoutSucceeded": "Sie haben sich erfolgreich abgemeldet",
         "overviewWelcome": "Willkommen, ",
         "overviewInfo": "Dies ist Ihr Konto Dashboard, wo Sie die Möglichkeit haben, Ihre letzten Kontoaktivitäten einzusehen.",
         "overviewPaymentHeader": "Gewählte Zahlungsart",
@@ -161,7 +164,11 @@
         "orderItemInfoNotAvailable": "Artikel ist für eine Folgebestellung nicht mehr verfügbar",
         "orderActionSlide": "Anzeigen",
         "orderInfoNoDispatch": "Nicht angegeben",
-        "orderLinkRepeat": "Bestellung wiederholen"
+        "orderLinkRepeat": "Bestellung wiederholen",
+        "passwordResetTitle": "Passwort vergessen?",
+        "passwordResetInfo": "Wenn Sie das Passwort für Ihr Konto vergessen haben, können Sie hier ein neues definieren. Wenn Sie das neue Passwort speichern, wird Ihr altes Passwort ungültig.",
+        "passwordOptInInfo": "Wir senden Ihnen eine Bestätigungs-E-Mail. Klicken Sie auf den darin enthaltenen Link, um Ihr Passwort zu ändern.",
+        "optInSuccessAlert": "Wir haben Ihnen eine Bestätigungs-E-Mail gesendet, sofern die von Ihnen eingegebene E-Mail Adresse registriert ist."
     },
     "address": {
         "streetLabel": "Straße und Nr.",

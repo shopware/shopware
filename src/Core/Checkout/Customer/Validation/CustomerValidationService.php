@@ -2,28 +2,36 @@
 
 namespace Shopware\Core\Checkout\Customer\Validation;
 
-use function date;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\ValidationServiceInterface;
 use Symfony\Component\Validator\Constraints\Email;
-use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
-use Symfony\Component\Validator\Constraints\LessThanOrEqual;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 class CustomerValidationService implements ValidationServiceInterface
 {
+    /**
+     * @todo seems to be the usecase for the shopware api - import or so. maybe rename to CustomerImportValidationService
+     *
+     * @var CustomerProfileValidationService
+     */
+    private $profileValidation;
+
+    public function __construct(CustomerProfileValidationService $profileValidation)
+    {
+        $this->profileValidation = $profileValidation;
+    }
+
     public function buildCreateValidation(Context $context): DataValidationDefinition
     {
         $definition = new DataValidationDefinition('customer.create');
 
-        $this->buildCommon($definition, $context)
-            ->add('firstName', new NotBlank())
-            ->add('lastName', new NotBlank())
-            ->add('email', new NotBlank())
-            ->add('salutationId', new NotBlank());
+        $this->addConstraints($definition, $context);
+
+        $profileDefinition = $this->profileValidation->buildCreateValidation($context);
+
+        $this->merge($definition, $profileDefinition);
 
         return $definition;
     }
@@ -32,19 +40,33 @@ class CustomerValidationService implements ValidationServiceInterface
     {
         $definition = new DataValidationDefinition('customer.update');
 
-        return $this->buildCommon($definition, $context);
-    }
+        $profileDefinition = $this->profileValidation->buildUpdateValidation($context);
 
-    private function buildCommon(DataValidationDefinition $definition, Context $context): DataValidationDefinition
-    {
-        $definition
-            ->add('email', new Email())
-            ->add('salutationId', new EntityExists(['entity' => 'salutation', 'context' => $context]))
-            ->add('active', new Type(['type' => 'boolean']))
-            ->add('birthdayDay', new GreaterThanOrEqual(['value' => 1]), new LessThanOrEqual(['value' => 31]))
-            ->add('birthdayMonth', new GreaterThanOrEqual(['value' => 1]), new LessThanOrEqual(['value' => 12]))
-            ->add('birthdayYear', new LessThanOrEqual(['value' => date('Y')]));
+        $this->merge($definition, $profileDefinition);
+
+        $this->addConstraints($definition, $context);
 
         return $definition;
+    }
+
+    private function addConstraints(DataValidationDefinition $definition, Context $context): void
+    {
+        $definition
+            ->add('email', new NotBlank(), new Email())
+            ->add('active', new Type(['type' => 'boolean']));
+    }
+
+    /**
+     * merges constraints from the second definition into the first validation definition
+     */
+    private function merge(DataValidationDefinition $definition, DataValidationDefinition $profileDefinition): void
+    {
+        foreach ($profileDefinition->getProperties() as $key => $constraints) {
+            $parameters = [];
+            $parameters[] = $key;
+            $parameters = array_merge($parameters, $constraints);
+
+            call_user_func_array([$definition, 'add'], $parameters);
+        }
     }
 }

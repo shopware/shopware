@@ -428,9 +428,15 @@ class SalesChannelCustomerControllerTest extends TestCase
     public function testChangeEmail(): void
     {
         $customerId = $this->createCustomerAndLogin();
-
         $mail = 'test@exapmle.com';
-        $this->getSalesChannelClient()->request('PATCH', '/sales-channel-api/v1/customer/email', ['email' => $mail]);
+
+        $payload = [
+            'email' => $mail,
+            'emailConfirmation' => $mail,
+            'password' => 'shopware',
+        ];
+
+        $this->getSalesChannelClient()->request('PATCH', '/sales-channel-api/v1/customer/email', $payload);
         $response = $this->getSalesChannelClient()->getResponse();
         $content = json_decode($response->getContent(), true);
         static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($content, true));
@@ -446,14 +452,21 @@ class SalesChannelCustomerControllerTest extends TestCase
         $customerId = $this->createCustomerAndLogin();
         $password = '1234';
 
-        $this->getSalesChannelClient()->request('PATCH', '/sales-channel-api/v1/customer/password', ['password' => $password]);
+        $payload = [
+            'password' => 'shopware',
+            'newPassword' => $password,
+            'newPasswordConfirm' => $password,
+        ];
+
+        $this->getSalesChannelClient()->request('PATCH', '/sales-channel-api/v1/customer/password', $payload);
         $response = $this->getSalesChannelClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
-        $hash = $this->readCustomer($customerId)->getPassword();
-
         static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         static::assertNull($content);
+
+        $hash = $this->readCustomer($customerId)->getPassword();
+
         static::assertTrue(password_verify($password, $hash));
     }
 

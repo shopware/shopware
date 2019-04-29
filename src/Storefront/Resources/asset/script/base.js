@@ -38,7 +38,6 @@ import OffCanvasAccountMenu from 'asset/script/plugin/off-canvas-account-menu/of
 // pages
 import 'asset/script/page/product-detail/product-detail.page';
 import 'asset/script/page/account/addressbook.page';
-import 'asset/script/page/account/profile.page';
 import 'asset/script/page/checkout/confirm.page';
 
 /*

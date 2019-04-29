@@ -1,0 +1,31 @@
+{% sw_extends '@Storefront/base.html.twig' %}
+
+{% block base_content %}
+    <div class="account-password">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title">{{ 'account.passwordResetTitle' }}</h2>
+                <form action="{{ path('frontend.account.password.page') }}"
+                      method="post">
+                    <div class="form-group">
+                        <input type="email"
+                               placeholder="{{ 'account.personalMailPlaceholder'|trans }}"
+                               required="required"
+                               class="form-control">
+                    </div>
+                    <p>
+                        {{ 'account.passwordOptInInfo'|trans }}
+                    </p>
+                    <div class="form-group">
+                        <a href="{{ path('frontend.account.login.page') }}" class="btn btn-dark">
+                            <i class="fas fa-chevron-left"></i> {{ 'general.backButton'|trans }}
+                        </a>
+                        <button class="btn btn-primary">
+                            {{ 'general.mailSendButton'|trans }} <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

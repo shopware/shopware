@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
-use Shopware\Storefront\Page\Home\HomePageLoader;
+use Shopware\Storefront\Page\Newsletter\Register\NewsletterRegisterLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,7 +19,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class NewsletterController extends StorefrontController
 {
     /**
-     * @var HomePageLoader|PageLoaderInterface
+     * @var NewsletterRegisterLoader|PageLoaderInterface
      */
     private $newsletterRegisterPageLoader;
 

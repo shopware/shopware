@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Content\Cms\SalesChannel;
 
@@ -31,7 +31,7 @@ class SalesChannelCmsPageLoader
         $this->slotDataResolver = $slotDataResolver;
     }
 
-    public function load(Request $request, Criteria $criteria, SalesChannelContext $context, array $config = null): EntitySearchResult
+    public function load(Request $request, Criteria $criteria, SalesChannelContext $context, ?array $config = null): EntitySearchResult
     {
         $config = $config ?? [];
 
@@ -48,7 +48,7 @@ class SalesChannelCmsPageLoader
             }
 
             // step 2, sort blocks by position for correct order
-            $page->getBlocks()->sort(function(CmsBlockEntity $a, CmsBlockEntity $b) {
+            $page->getBlocks()->sort(function (CmsBlockEntity $a, CmsBlockEntity $b) {
                 return $a->getPosition() <=> $b->getPosition();
             });
 

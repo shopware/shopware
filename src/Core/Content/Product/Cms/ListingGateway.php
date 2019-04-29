@@ -15,9 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
-use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -48,7 +45,7 @@ class ListingGateway implements ListingGatewayInterface
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.parentId', null));
 
-        $this->handleCategoryFilter($request, $criteria);
+        $this->handleCategoryFilter($request, $criteria, $context);
 
         $this->handlePagination($request, $criteria);
 
@@ -152,20 +149,14 @@ class ListingGateway implements ListingGatewayInterface
         $criteria->addPostFilter(new RangeFilter('product.price', $range));
     }
 
-    private function handleCategoryFilter(Request $request, Criteria $criteria): void
+    private function handleCategoryFilter(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
+        $navigationId = $context->getSalesChannel()->getNavigationCategoryId();
+
         $params = $request->attributes->get('_route_params');
-        if (!$params) {
-            throw new MissingRequestParameterException('navigationId');
-        }
 
-        if (!isset($params['navigationId'])) {
-            throw new MissingRequestParameterException('navigationId');
-        }
-
-        $navigationId = $params['navigationId'];
-        if (!Uuid::isValid($navigationId)) {
-            throw new InvalidUuidException($navigationId);
+        if ($params && isset($params['navigationId'])) {
+            $navigationId = $params['navigationId'];
         }
 
         $criteria->addFilter(new EqualsFilter('product.categoriesRo.id', $navigationId));

@@ -56,8 +56,8 @@
         </service>
 
         <service id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader">
-            <argument id="cms_page.repository" type="service"/>
-            <argument id="Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver" type="service"/>
+            <argument type="service" id="cms_page.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver"/>
         </service>
     </services>
 </container>

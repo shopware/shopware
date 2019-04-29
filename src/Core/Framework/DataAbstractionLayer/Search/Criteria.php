@@ -249,7 +249,7 @@ class Criteria extends Struct
             $criteria = $criteria->getAssociation($part);
         }
 
-        return $criteria;
+        return $this;
     }
 
     public function hasAssociation(string $field, ?string $definition = null): bool

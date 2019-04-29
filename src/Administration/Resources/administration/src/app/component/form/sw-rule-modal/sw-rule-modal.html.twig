@@ -1,7 +1,7 @@
 {% block sw_rule_modal %}
     <sw-modal class="sw-rule-modal"
               variant="large"
-              @modal-close="$emit('closeModal')"
+              @modal-close="$emit('modal-close')"
               :title="modalTitle">
         {% block sw_rule_modal_basic_info %}
             <sw-container columns="2fr 1fr" gap="0px 32px">
@@ -44,7 +44,7 @@
         <template slot="modal-footer">
             {% block sw_rule_modal_footer %}
                 {% block sw_rule_modal_footer_button_abort %}
-                    <sw-button @click="$emit('closeModal')" size="small">
+                    <sw-button @click="$emit('modal-close')" size="small">
                         {{ $tc('sw-rule-modal.buttonAbort') }}
                     </sw-button>
                 {% endblock %}

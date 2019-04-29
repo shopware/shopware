@@ -92,7 +92,7 @@ export default {
         },
 
         closeModal() {
-            this.$emit('closeModal');
+            this.$emit('modal-close');
         }
     }
 };

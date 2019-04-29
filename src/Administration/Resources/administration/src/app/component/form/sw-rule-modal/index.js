@@ -135,7 +135,7 @@ export default {
                 });
 
                 this.emitSave();
-                this.$emit('closeModal');
+                this.$emit('modal-close');
             }).catch((exception) => {
                 this.createNotificationError({
                     title: titleSaveError,

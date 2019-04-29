@@ -54,7 +54,7 @@ Component.register('sw-sales-channel-modal', {
         },
 
         onCloseModal() {
-            this.$emit('closeModal');
+            this.$emit('modal-close');
         },
 
         onOpenDetail(id) {

@@ -119,7 +119,7 @@
 
                                             {% block sw_settings_tax_list_delete_modal %}
                                                 <sw-modal v-if="showDeleteModal === item.id"
-                                                          @closeModal="onCloseDeleteModal"
+                                                          @modal-close="onCloseDeleteModal"
                                                           :title="$tc('sw-settings-tax.list.modalTitleDelete')"
                                                           variant="small">
                                                     {% block sw_settings_tax_list_delete_modal_confirm_text %}

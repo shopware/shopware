@@ -1,6 +1,6 @@
 {% block sw_product_modal_delivery %}
     <sw-modal :title="$tc('sw-product.variations.deliveryModal.modalHeadline')"
-              @closeModal="$emit('modal-close')"
+              @modal-close="$emit('modal-close')"
               class="sw-product-modal-delivery"
               :isLoading="isLoading">
 

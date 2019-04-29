@@ -9,7 +9,7 @@ import './sw-rule-modal.scss';
  * @description The <u>sw-rule-modal</u> component is used to create or modify a rule.
  * @example-type code-only
  * @component-example
- * <sw-rule-modal ruleId="0fd38734776f41e9a1ba431f1667e677" @save="onSave" @closeModal="onCloseModal">
+ * <sw-rule-modal ruleId="0fd38734776f41e9a1ba431f1667e677" @save="onSave" @modal-close="onCloseModal">
  * </sw-rule-modal>
  */
 export default {
@@ -135,7 +135,7 @@ export default {
                 });
 
                 this.emitSave();
-                this.$emit('closeModal');
+                this.$emit('modal-close');
             }).catch((exception) => {
                 this.createNotificationError({
                     title: titleSaveError,

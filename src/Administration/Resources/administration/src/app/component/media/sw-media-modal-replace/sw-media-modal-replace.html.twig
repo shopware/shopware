@@ -2,7 +2,7 @@
     <sw-modal class="sw-media-modal-replace"
               size="420px"
               :title="$tc('global.sw-media-modal-replace.titleModal')"
-              @closeModal="emitCloseReplaceModal">
+              @modal-close="emitCloseReplaceModal">
 
         <sw-upload-store-listener
             :uploadTag="itemToReplace.id"

@@ -28,7 +28,7 @@
                     <sw-media-url-form
                             v-if="showUrlInput"
                             variant="modal"
-                            @closeModal="closeUrlModal"
+                            @modal-close="closeUrlModal"
                             @media-url-form-submit="onUrlUpload">
                     </sw-media-url-form>
                 {% endblock %}
@@ -103,7 +103,7 @@
 
                                     <sw-media-modal
                                             v-if="mediaModalIsOpen"
-                                            @closeModal="mediaModalIsOpen = false"
+                                            @modal-close="mediaModalIsOpen = false"
                                             @sw-media-modal-selection-changed="onModalClosed"
                                             :allowMultiSelect="false"
                                     ></sw-media-modal>

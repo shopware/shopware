@@ -1,7 +1,7 @@
 {% block sw_media_modal_delete %}
     <sw-modal variant="small"
               class="sw-media-modal-delete"
-              @closeModal="closeDeleteModal($event)"
+              @modal-close="closeDeleteModal($event)"
               :title="snippets.modalTitle">
 
         {% block sw_media_modal_body %}

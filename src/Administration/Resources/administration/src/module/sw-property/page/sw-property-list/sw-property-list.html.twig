@@ -103,7 +103,7 @@
 
                                     {% endblock %}
 
-                                    <sw-modal v-if="showDeleteModal === item.id" @closeModal="onCloseDeleteModal" :title="$tc('sw-property.list.modalTitleDelete')" variant="small">
+                                    <sw-modal v-if="showDeleteModal === item.id" @modal-close="onCloseDeleteModal" :title="$tc('sw-property.list.modalTitleDelete')" variant="small">
                                         <p class="sw-property-list__confirm-delete-text">
                                             {{ $tc('sw-property.list.textDeleteConfirm', 0, { name: item.translated.name }) }}
                                         </p>

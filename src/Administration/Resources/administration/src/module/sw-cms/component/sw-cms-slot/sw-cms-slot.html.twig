@@ -33,7 +33,7 @@
             <sw-modal class="sw-cms-slot__config-modal"
                       v-if="showElementSettings"
                       :title="$tc('sw-cms.detail.titleElementSettingsModal')"
-                      @closeModal="onCloseSettingsModal">
+                      @modal-close="onCloseSettingsModal">
                 {% block sw_cms_slot_settings_modal_component %}
                     <component :is="elementConfig.configComponent" v-model="element"></component>
                 {% endblock %}
@@ -51,7 +51,7 @@
         {% endblock %}
 
         {% block sw_cms_slot_element_modal %}
-            <sw-modal :title="$tc('sw-cms.detail.titleElementChangeModal')" v-if="showElementSelection" @closeModal="onCloseElementModal">
+            <sw-modal :title="$tc('sw-cms.detail.titleElementChangeModal')" v-if="showElementSelection" @modal-close="onCloseElementModal">
                 {% block sw_cms_slot_element_modal_selection %}
                     <div class="sw-cms-slot__element-selection">
                         {% block sw_cms_slot_element_modal_selection_element %}

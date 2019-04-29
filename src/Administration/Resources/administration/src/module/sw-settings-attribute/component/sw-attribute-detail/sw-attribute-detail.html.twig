@@ -2,7 +2,7 @@
     <sw-modal
             class="sw-attribute-detail"
             :title="modalTitle"
-            @closeModal="onCancel">
+            @modal-close="onCancel">
         {% block sw_attribute_detail_modal %}
             <sw-container columns="1fr 1fr" gap="20px">
                 {% block sw_attribute_detail_modal_type %}

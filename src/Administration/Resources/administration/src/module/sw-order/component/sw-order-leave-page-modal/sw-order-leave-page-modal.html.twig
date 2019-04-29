@@ -1,7 +1,7 @@
 {% block sw_order_leave_page_modal %}
     <sw-modal :title="$tc('sw-order.leavePageModal.headline')"
               variant="small"
-              @closeModal="onCancel">
+              @modal-close="onCancel">
 
         {% block sw_order_leave_page_modal_content %}
             {{ $tc('sw-order.leavePageModal.description') }}

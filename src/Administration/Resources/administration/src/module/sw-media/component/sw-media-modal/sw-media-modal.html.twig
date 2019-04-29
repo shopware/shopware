@@ -1,5 +1,5 @@
 {% block sw_media_modal %}
-    <sw-modal class="sw-media-modal" variant="full" :title="$tc('sw-media.sw-media-modal.titleModal')" @closeModal="onEmitModalClosed">
+    <sw-modal class="sw-media-modal" variant="full" :title="$tc('sw-media.sw-media-modal.titleModal')" @modal-close="onEmitModalClosed">
         {% block sw_media_modal_content %}
             <div class="sw-media-modal__content">
                 {% block sw_media_modal_tabs %}

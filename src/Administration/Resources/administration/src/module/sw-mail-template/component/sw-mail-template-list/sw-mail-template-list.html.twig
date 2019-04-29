@@ -82,7 +82,7 @@
 
                     {% block sw_mail_template_list_delete_modal %}
                         <sw-modal v-if="showDeleteModal === item.id"
-                                  @closeModal="onCloseDeleteModal"
+                                  @modal-close="onCloseDeleteModal"
                                   :title="$tc('sw-mail-template.list.modalTitleDelete')"
                                   variant="small">
                             {% block sw_mail_template_list_delete_modal_confirm_delete_text %}

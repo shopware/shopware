@@ -150,7 +150,7 @@
                         {% block sw_sales_channel_detail_base_domains_delete_modal %}
                             <sw-modal v-if="deleteDomain"
                                       :title="$tc('sw-sales-channel.detail.deleteDomainModalTitle')"
-                                      @closeModal="onCloseDeleteDomainModal">
+                                      @modal-close="onCloseDeleteDomainModal">
                                 {% block sw_sales_channel_detail_base_domains_delete_modal_confirm_text %}
                                     {{  $tc('sw-sales-channel.detail.textConfirmDeleteDomain', 0, { url: deleteDomain.url }) }}
                                 {% endblock %}
@@ -224,7 +224,7 @@
                         <sw-modal v-if="showDeleteModal"
                                   ref="modal"
                                   :title="$tc('sw-sales-channel.detail.deleteModalTitle')"
-                                  @closeModal="onCloseDeleteModal">
+                                  @modal-close="onCloseDeleteModal">
                             {% block sw_sales_channel_detail_options_delete_modal_confirmtext %}
                                 {{ $tc('sw-sales-channel.detail.textConfirmDelete') }}
                                 {{ salesChannel.name }}

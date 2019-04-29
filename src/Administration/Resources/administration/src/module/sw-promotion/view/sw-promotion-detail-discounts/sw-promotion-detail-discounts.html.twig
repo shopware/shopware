@@ -36,7 +36,7 @@
         {% endblock %}
         {% block sw_promotion_detail_discounts_modal_delete %}
         <sw-modal v-if="isDeleting"
-                  @closeModal="onCancelDeleteDiscount()"
+                  @modal-close="onCancelDeleteDiscount()"
                   variant="small"
                   :title="$tc('sw-promotion.detail.main.discounts.delete.confirmTitle')">
             {% block sw_promotion_detail_discounts_modal_delete_text %}

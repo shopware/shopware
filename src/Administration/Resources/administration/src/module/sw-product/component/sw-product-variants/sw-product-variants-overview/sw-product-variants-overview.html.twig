@@ -152,7 +152,7 @@
                 {% block sw_product_variants_overview_data_grid_action_modals %}
                     <template slot="action-modals" slot-scope="{ item }">
                         <sw-modal v-if="showDeleteModal === item.id"
-                                  @closeModal="onCloseDeleteModal"
+                                  @modal-close="onCloseDeleteModal"
                                   title="Variante"
                                   variant="small">
 

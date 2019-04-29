@@ -132,7 +132,7 @@ Component.register('sw-media-modal', {
          * v-model
          */
         onEmitModalClosed() {
-            this.$emit('closeModal');
+            this.$emit('modal-close');
         },
 
         onEmitSelection() {
@@ -142,7 +142,7 @@ Component.register('sw-media-modal', {
             });
 
             this.$emit('media-modal-selection-change', selectedMedia);
-            this.$emit('closeModal');
+            this.$emit('modal-close');
         },
 
         /*

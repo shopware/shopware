@@ -24,7 +24,7 @@
 
                 {% block sw_customer_detail_addresses_add_modal %}
                     <sw-modal v-if="currentAddress"
-                              @closeModal="onCloseAddressModal"
+                              @modal-close="onCloseAddressModal"
                               :title="$tc('sw-customer.detailAddresses.modalTitleAddress')">
 
                         {% block sw_customer_detail_addresses_add_modal_address_form %}
@@ -230,7 +230,7 @@
 
                                 {% block sw_customer_detail_addresses_delete_modal %}
                                     <sw-modal v-if="showDeleteAddressModal === item.id"
-                                              @closeModal="onCloseDeleteAddressModal"
+                                              @modal-close="onCloseDeleteAddressModal"
                                               :title="$tc('sw-customer.detailAddresses.modalTitleDeleteAddress')"
                                               variant="small">
                                         {% block sw_customer_detail_addresses_delete_modal_confirm_delete_text %}

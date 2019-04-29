@@ -133,7 +133,7 @@
                                         <template slot="action-modals" slot-scope="{ item }">
                                             <sw-modal v-if="showDeleteModal === item"
                                                       class="sw-settings-snippet-list__delete-modal"
-                                                      @closeModal="onCloseDeleteModal"
+                                                      @modal-close="onCloseDeleteModal"
                                                       :title="$tc('sw-settings-snippet.list.modalTitleDelete')"
                                                       variant="large">
                                                 {% block sw_settings_snippet_list_delete_modal_text %}

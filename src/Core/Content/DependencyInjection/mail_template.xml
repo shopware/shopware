@@ -12,6 +12,14 @@
 			<tag name="shopware.entity.definition"  entity="mail_template_translation"/>
 		</service>
 
+		<service id="Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeDefinition">
+			<tag name="shopware.entity.definition"  entity="mail_template_type"/>
+		</service>
+
+		<service id="Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTypeTranslation\MailTemplateTypeTranslationDefinition">
+			<tag name="shopware.entity.definition"  entity="mail_template_type_translation"/>
+		</service>
+
 		<service id="Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateSalesChannel\MailTemplateSalesChannelDefinition">
 			<tag name="shopware.entity.definition" entity="mail_template_sales_channel"/>
 		</service>

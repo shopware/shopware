@@ -16,14 +16,14 @@ class Migration1549893754AddMailTemplate extends MigrationStep
     {
         $connection->executeQuery('
             CREATE TABLE `mail_template` (
-              `id` binary(16) NOT NULL,
-              `sender_mail` varchar(255),
-              `mail_type` varchar(255) NULL,
-              `system_default` tinyint(1) unsigned NOT NULL DEFAULT \'0\',
-              `created_at` datetime(3) NOT NULL,
-              `updated_at` datetime(3),
+              `id` BINARY(16) NOT NULL,
+              `sender_mail` VARCHAR(255),
+              `mail_type` VARCHAR(255) NULL,
+              `system_default` TINYINT(1) unsigned NOT NULL DEFAULT \'0\',
+              `created_at` DATETIME(3) NOT NULL,
+              `updated_at` DATETIME(3),
               PRIMARY KEY (`id`)
-            ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }
 

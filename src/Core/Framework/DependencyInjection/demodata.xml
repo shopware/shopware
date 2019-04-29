@@ -106,6 +106,7 @@
 
         <service id="Shopware\Core\Framework\Demodata\Generator\MailTemplateGenerator">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
+            <argument type="service" id="mail_template_type.repository" />
             <tag name="shopware.demodata_generator"/>
         </service>
 

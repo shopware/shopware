@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Shipping
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
 use Shopware\Core\Content\DeliveryTime\DeliveryTimeCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterCollection;
+use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeDefinition;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\NewsletterReceiver\NewsletterReceiverCollection;
@@ -284,6 +285,11 @@ class LanguageEntity extends Entity
      * @var NumberRangeTypeTranslationCollection|null
      */
     protected $numberRangeTypeTranslations;
+
+    /**
+     * @var MailTemplateTypeDefinition|null
+     */
+    protected $mailTemplateTypeTranslations;
 
     public function getMailHeaderFooterTranslations(): ?MailHeaderFooterCollection
     {
@@ -763,5 +769,15 @@ class LanguageEntity extends Entity
     public function setNumberRangeTypeTranslations(?NumberRangeTypeTranslationCollection $numberRangeTypeTranslations): void
     {
         $this->numberRangeTypeTranslations = $numberRangeTypeTranslations;
+    }
+
+    public function getMailTemplateTypeTranslations(): ?MailTemplateTypeDefinition
+    {
+        return $this->mailTemplateTypeTranslations;
+    }
+
+    public function setMailTemplateTypeTranslations(?MailTemplateTypeDefinition $mailTemplateTypeTranslations): void
+    {
+        $this->mailTemplateTypeTranslations = $mailTemplateTypeTranslations;
     }
 }

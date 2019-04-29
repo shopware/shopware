@@ -1,6 +1,8 @@
 import { Component, Mixin, State } from 'src/core/shopware';
 import { warn } from 'src/core/service/utils/debug.utils';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-mail-template-detail.html.twig';
+
 import './sw-mail-template-detail.scss';
 
 Component.register('sw-mail-template-detail', {
@@ -48,6 +50,20 @@ Component.register('sw-mail-template-detail', {
 
         mailTemplateMediaStore() {
             return this.mailTemplate.getAssociation('media');
+        },
+
+        mailTemplateTypeStore() {
+            return State.getStore('mail_template_type');
+        },
+
+        unassignedSalesChannelCriteria() {
+            return CriteriaFactory.multi('OR',
+                CriteriaFactory.not(
+                    'AND', CriteriaFactory.equals('mailTemplates.mailTemplateTypeId', this.mailTemplate.mailTemplateTypeId)
+                ),
+                // The DAL internally uses a left join for many to many relations, so we have to check for null values
+                // separately. Null values occur, when there is no template assigned to a sale channel yet.
+                CriteriaFactory.equals('mailTemplates.mailTemplateTypeId', null));
         }
     },
 
@@ -171,6 +187,12 @@ Component.register('sw-mail-template-detail', {
             return this.mailTemplate.media.some((mailTemplateMedia) => {
                 return mailTemplateMedia.mediaId === mediaId;
             });
+        },
+
+        onMailTemplateTypeChanged() {
+            this.$refs.salesChannelSelect.selections = [];
+            this.$refs.salesChannelSelect.results = [];
+            this.mailTemplate.salesChannels = [];
         }
     }
 });

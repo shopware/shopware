@@ -42,6 +42,10 @@
             <tag name="shopware.entity.definition" entity="promotion_translation"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Promotion\Validator\PromotionValidator">
+            <tag name="shopware.validator"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Promotion\PromotionGateway">
             <argument type="service" id="promotion.repository"/>
         </service>

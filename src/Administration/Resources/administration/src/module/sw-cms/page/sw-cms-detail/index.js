@@ -28,7 +28,6 @@ Component.register('sw-cms-detail', {
             currentDeviceView: 'desktop',
             currentBlock: null,
             currentBlockCategory: 'text',
-            currentSkin: 'default',
             currentMappingEntity: null,
             currentMappingEntityStore: null,
             demoEntityId: null
@@ -216,6 +215,10 @@ Component.register('sw-cms-detail', {
                     });
 
                     this.cmsPageState.currentPage = this.page;
+
+                    if (this.currentBlock !== null) {
+                        this.currentBlock = this.page.blocks.find(block => block.id === this.currentBlock.id);
+                    }
 
                     this.updateDataMapping();
                     this.isLoading = false;

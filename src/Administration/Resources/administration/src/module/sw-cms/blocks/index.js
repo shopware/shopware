@@ -15,6 +15,7 @@ import './image/image-highlight-row';
 import './image/image-simple-grid';
 
 import './text-image/image-text';
+import './text-image/image-text-cover';
 import './text-image/center-text';
 import './text-image/image-text-row';
 import './text-image/image-text-gallery';

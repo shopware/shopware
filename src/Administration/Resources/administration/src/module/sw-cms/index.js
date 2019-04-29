@@ -20,8 +20,8 @@ Module.register('sw-cms', {
     title: 'sw-cms.general.mainMenuItemGeneral',
     description: 'The module for creating content.',
     color: '#ff68b4',
-    icon: 'default-object-marketing',
-    favicon: 'icon-module-marketing.png',
+    icon: 'default-symbol-content',
+    favicon: 'icons-module-content.png',
 
     snippets: {
         'de-DE': deDE,
@@ -54,7 +54,8 @@ Module.register('sw-cms', {
         label: 'sw-cms.general.mainMenuItemGeneral',
         color: '#ff68b4',
         path: 'sw.cms.index',
-        icon: 'default-object-marketing',
-        position: 45
+        icon: 'default-symbol-content',
+        position: 10,
+        parent: 'sw-content'
     }]
 });

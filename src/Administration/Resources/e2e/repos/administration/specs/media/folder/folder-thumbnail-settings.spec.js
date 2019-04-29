@@ -109,7 +109,6 @@ module.exports = {
             .click('.icon--multicolor-folder-breadcrumbs-back-to-root')
             .waitForElementNotPresent(page.elements.loader)
             .waitForElementNotPresent('.icon--multicolor-folder-breadcrumbs-back-to-root')
-            .click('.router-link-active')
             .expect.element(page.elements.folderNameLabel).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
     },
     'verify deactivated inheritance': (browser) => {

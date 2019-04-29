@@ -1,11 +1,11 @@
 {
   "sw-settings-shipping": {
     "general": {
-      "mainMenuItemGeneral": "Versandarten",
+      "mainMenuItemGeneral": "Versand",
       "placeholderSearchBar": "Durchsuche alle Versandarten"
     },
     "list": {
-      "textHeadline": "Versandarten",
+      "textHeadline": "Versand",
       "buttonAddShippingMethod": "Versandart anlegen",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",

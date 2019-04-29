@@ -61,7 +61,8 @@ Module.register('sw-property', {
     navigation: [{
         id: 'sw-property',
         label: 'sw-property.general.mainMenuItemGeneral',
-        parent: 'sw-product',
-        path: 'sw.property.index'
+        parent: 'sw-catalogue',
+        path: 'sw.property.index',
+        position: 40
     }]
 });

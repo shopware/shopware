@@ -58,7 +58,8 @@ module.exports = {
         browser
             .openMainMenuEntry({
                 targetPath: '#/sw/product/index',
-                mainMenuId: 'sw-product'
+                mainMenuId: 'sw-catalogue',
+                subMenuId: 'sw-product'
             })
             .clickContextMenuItem(page.elements.contextMenuButton, {
                 menuActionSelector: '.sw-product-list__edit-action',

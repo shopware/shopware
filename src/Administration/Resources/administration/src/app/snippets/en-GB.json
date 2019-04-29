@@ -11,7 +11,12 @@
       "linkLogout": "Logout",
       "linkMinimizeMenu": "Minimize menu",
       "textShopwareAdmin": "Shopware administration",
-      "textProjectName": "Administration"
+      "textProjectName": "Administration",
+      "navigation": {
+        "mainMenuItemCatalogue": "Catalogues",
+        "mainMenuItemContent": "Content",
+        "mainMenuItemMarketing": "Marketing"
+      }
     },
     "sw-address": {
       "edit": "Edit"
@@ -404,7 +409,7 @@
       "defaultPlaceholder": "Search"
     },
     "entities": {
-      "attribute": "Attribute | Attributes",
+      "attribute": "Custom field | Custom fields",
       "cart": "Cart | Carts",
       "category": "Category | Categories",
       "cms_page": "Page | Pages",
@@ -432,12 +437,12 @@
       "order_transaction": "Transaction | Transactions",
       "order_transaction_state": "Transaction state | Transaction states",
       "payment_method": "Payment method | Payment methods",
-      "plugin_manager": "Plugin manager",
+      "plugin_manager": "Plugins",
       "privacy": "Privacy",
       "product": "Product | Products",
       "product_manufacturer": "Manufacturer | Manufacturers",
       "product_media": "Product media",
-      "product_stream": "Product stream | Product streams",
+      "product_stream": "Product group | Product groups",
       "product_variation": "Variation | Variations",
       "promotion": "Promotion | Promotions",
       "rule": "Rule | Rules",

@@ -43,10 +43,9 @@ class MediaPageObject extends GeneralPageObject {
         this.browser
             .openMainMenuEntry({
                 targetPath: '#/sw/media/index',
-                mainMenuId: 'sw-media'
-            })
-            .assert.containsText(`${this.elements.adminMenu}__navigation-list-item.sw-media span.collapsible-text`, 'Media')
-            .click('a.sw-admin-menu__navigation-link[href="#/sw/media/index"]');
+                mainMenuId: 'sw-content',
+                subMenuId: 'sw-media'
+            });
     }
 
     openMediaModal(action, itemPosition = null) {

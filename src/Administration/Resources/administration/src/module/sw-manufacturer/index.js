@@ -50,7 +50,8 @@ Module.register('sw-manufacturer', {
         path: 'sw.manufacturer.index',
         label: 'sw-manufacturer.general.mainMenuItemList',
         id: 'sw-manufacturer',
-        parent: 'sw-product',
-        color: '#57D9A3'
+        parent: 'sw-catalogue',
+        color: '#57D9A3',
+        position: 50
     }]
 });

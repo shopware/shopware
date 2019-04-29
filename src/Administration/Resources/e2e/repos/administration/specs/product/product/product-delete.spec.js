@@ -17,7 +17,8 @@ module.exports = {
         browser
             .openMainMenuEntry({
                 targetPath: '#/sw/product/index',
-                mainMenuId: 'sw-product'
+                mainMenuId: 'sw-catalogue',
+                subMenuId: 'sw-product'
             })
             .expect.element(page.elements.smartBarAmount).to.have.text.that.equals('(1)');
 

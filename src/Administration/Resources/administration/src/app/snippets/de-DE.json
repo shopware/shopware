@@ -11,7 +11,12 @@
       "linkLogout": "Abmelden",
       "linkMinimizeMenu": "Menü minimieren",
       "textShopwareAdmin": "Shopware Administration",
-      "textProjectName": "Administration"
+      "textProjectName": "Administration",
+      "navigation": {
+        "mainMenuItemCatalogue": "Kataloge",
+        "mainMenuItemContent": "Inhalte",
+        "mainMenuItemMarketing": "Marketing"
+      }
     },
     "sw-address": {
       "edit": "Bearbeiten"
@@ -405,7 +410,7 @@
       "defaultPlaceholder": "Suche"
     },
     "entities": {
-      "attribute": "Freitextfeld | Freitextfelder",
+      "attribute": "Zusatzfeld | Zusatzfelder",
       "cart": "Warenkorb | Warenkörbe",
       "category": "Kategorie | Kategorien",
       "cms_page": "Seite | Seiten",
@@ -434,11 +439,11 @@
       "order_transaction_state": "Zahlungsstatus | Zahlungsstatus",
       "payment_method": "Zahlungsart | Zahlungsarten",
       "privacy": "Datenschutz",
-      "plugin_manager": "Plugin Manager",
+      "plugin_manager": "Plugins",
       "product": "Produkt | Produkte",
       "product_manufacturer": "Hersteller",
       "product_media": "Produktmedium | Produktmedien",
-      "product_stream": "Product Stream | Product Streams",
+      "product_stream": "Produktgruppe | Produktgruppen",
       "product_variation": "Variante | Varianten",
       "promotion": "Promotion | Promotions",
       "rule": "Regel | Regeln",

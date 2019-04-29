@@ -35,6 +35,6 @@ Module.register('sw-settings', {
         color: '#9AA8B5',
         icon: 'default-action-settings',
         path: 'sw.settings.index',
-        position: 70
+        position: 80
     }]
 });

@@ -1,12 +1,12 @@
 {
   "sw-settings-rule": {
     "general": {
-      "mainMenuItemGeneral": "Regeln",
+      "mainMenuItemGeneral": "Rule Builder",
       "placeholderSearchBar": "Durchsuche alle Regeln",
       "descriptionTextModule": "Verwaltung von Regeln."
     },
     "list": {
-      "textHeadline": "Regeln",
+      "textHeadline": "Rule Builder",
       "buttonAddRule": "Regel erstellen",
       "columnName": "Name",
       "columnDescription": "Beschreibung",

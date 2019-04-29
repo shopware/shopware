@@ -1,11 +1,11 @@
 {
   "sw-settings-shipping": {
     "general": {
-      "mainMenuItemGeneral": "Shipping methods",
-      "placeholderSearchBar": "Search shipping methods"
+      "mainMenuItemGeneral": "Shipping",
+      "placeholderSearchBar": "Search shipping"
     },
     "list": {
-      "textHeadline": "Shipping method",
+      "textHeadline": "Shipping",
       "buttonAddShippingMethod": "Add shipping methods",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete",

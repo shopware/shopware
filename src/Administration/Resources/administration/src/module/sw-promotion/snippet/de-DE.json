@@ -1,12 +1,12 @@
 {
   "sw-promotion": {
     "general": {
-      "mainMenuItemGeneral" : "Rabattaktionen",
-      "mainMenuItemList" : "Übersicht",
+      "mainMenuItemGeneral" : "Rabatte & Aktionen",
+      "mainMenuItemList" : "Rabatte & Aktionen",
       "description": "Rabattaktionen"
     },
     "list": {
-      "textTitle": "Rabattaktionen",
+      "textTitle": "Rabatte & Aktionen",
       "buttonAddPromotion": "Aktion anlegen",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",

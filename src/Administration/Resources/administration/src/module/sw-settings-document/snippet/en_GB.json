@@ -2,30 +2,30 @@
   "sw-settings-document": {
     "general": {
       "mainMenuItemGeneral": "Documents",
-      "placeholderSearchBar": "Search configurations"
+      "placeholderSearchBar": "Search documents"
     },
     "list": {
-      "textHeadline": "Configurations",
-      "textDeleteConfirm": "Are you sure you want to delete the document configuration \"{name}\"?",
+      "textHeadline": "Documents",
+      "textDeleteConfirm": "Are you sure you want to delete the document \"{name}\"?",
       "columnName": "Name",
       "columnType": "Type",
       "columnUsedIn": "Used in:",
       "columnAssignment": "Assignment",
-      "buttonAddDocument": "Add configuration",
+      "buttonAddDocument": "Add document",
       "contextMenuEdit": "Edit",
-      "modalTitleDelete": "Delete configuration",
+      "modalTitleDelete": "Delete document",
       "titleDeleteSuccess": "Success",
-      "messageDeleteSuccess": "Configuration \"{name}\" has been deleted successfully.",
+      "messageDeleteSuccess": "Document \"{name}\" has been deleted successfully.",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete",
       "global": "Global"
     },
     "detail": {
-      "textHeadline": "New configuration",
+      "textHeadline": "New document",
       "configCard": "Settings",
       "assignmentCard": "Assignment",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "Document configuration \"{name}\" has been saved successfully.",
+      "messageSaveSuccess": "Document \"{name}\" has been saved successfully.",
       "labelName": "Name",
       "labelFileNamePrefix": "Filename prefix",
       "labelFileNameSuffix": "Filename suffix",

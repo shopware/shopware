@@ -12,7 +12,7 @@
     },
     "general": {
       "mainMenuItemGeneral": "Products",
-      "mainMenuItemList": "Overview",
+      "mainMenuItemList": "Products",
       "mainMenuItemAdd": "Add product",
       "descriptionTextModule": "Manage products here.",
       "placeholderSearchBar": "Search products"

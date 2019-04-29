@@ -33,12 +33,11 @@ module.exports = {
             .waitForElementNotPresent(page.elements.previewItem);
     },
     'check if the folder can be found in other modules': (browser) => {
-        const page = mediaPage(browser);
-
         browser
             .openMainMenuEntry({
                 targetPath: '#/sw/product/index',
-                mainMenuId: 'sw-product'
+                mainMenuId: 'sw-catalogue',
+                subMenuId: 'sw-product'
             })
             .click('.smart-bar__actions a[href="#/sw/product/create"]')
             .click('.sw-sidebar-navigation-item')

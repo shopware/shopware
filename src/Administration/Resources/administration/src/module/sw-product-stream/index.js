@@ -54,7 +54,8 @@ Module.register('sw-product-stream', {
         path: 'sw.product.stream.index',
         label: 'sw-product-stream.general.mainMenuItemGeneral',
         id: 'sw-product-stream',
-        parent: 'sw-product',
-        color: '#57D9A3'
+        parent: 'sw-catalogue',
+        color: '#57D9A3',
+        position: 30
     }]
 });

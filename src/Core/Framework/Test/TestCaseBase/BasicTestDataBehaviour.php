@@ -113,7 +113,7 @@ trait BasicTestDataBehaviour
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('country.repository');
 
-        $criteria = (new Criteria())->setLimit(1);
+        $criteria = (new Criteria())->setLimit(1)->addFilter(new EqualsFilter('taxFree', 0));
 
         return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
     }

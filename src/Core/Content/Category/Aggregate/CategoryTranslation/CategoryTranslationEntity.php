@@ -48,6 +48,11 @@ class CategoryTranslationEntity extends TranslationEntity
      */
     protected $externalLink;
 
+    /**
+     * @var string|null
+     */
+    protected $description;
+
     public function getCategoryId(): string
     {
         return $this->categoryId;
@@ -116,5 +121,15 @@ class CategoryTranslationEntity extends TranslationEntity
     public function setExternalLink(string $externalLink): void
     {
         $this->externalLink = $externalLink;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): void
+    {
+        $this->description = $description;
     }
 }

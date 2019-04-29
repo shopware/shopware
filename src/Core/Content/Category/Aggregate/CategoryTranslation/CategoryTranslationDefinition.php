@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
@@ -38,6 +39,7 @@ class CategoryTranslationDefinition extends EntityTranslationDefinition
             (new StringField('name', 'name'))->addFlags(new Required()),
             new JsonField('slot_config', 'slotConfig'),
             new StringField('external_link', 'externalLink'),
+            new LongTextWithHtmlField('description', 'description'),
 
             new AttributesField(),
         ]);

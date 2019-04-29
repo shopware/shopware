@@ -2368,6 +2368,20 @@ export interface NightwatchCustomCommands {
      * @param callback
      */
     checkIfElementExists(selector: string, callback: () => boolean): this
+
+    /**
+     * @param {String} selector
+     * @param {String} searchTerm
+     * @param {String} value
+     */
+    fillMultiSelect(selector: string, searchTerm: string, value: string): this
+
+    /**
+     * @param {String} selector
+     * @param {String} value
+     * @param {Number} resultPosition
+     */
+    fillSingleSelect(selector: string, value: string, resultPosition?: number): this
 }
 
 /* tslint:disable-next-line:no-empty-interface */

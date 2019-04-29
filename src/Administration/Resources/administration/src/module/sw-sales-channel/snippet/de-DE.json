@@ -15,6 +15,8 @@
     "detail": {
       "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Der Verkaufskanal \"{name}\" wurde erfolgreich gespeichert.",
+      "titleSaveError": "Fehler",
+      "messageSaveError": "Der Verkaufskanal \"{name}\" konnte nicht gespeichert werden. Bitte überprüfe deine Eingaben.",
       "buttonSave": "Speichern",
       "buttonCreateNewApiKeys": "API-Zugangsdaten neu generieren",
       "tabBase": "Allgemein",
@@ -34,6 +36,11 @@
       "labelInputLanguages": "Sprachen",
       "labelInputCategories": "Kategorien",
       "titleOptionsCard": "Optionen",
+      "labelInputDefaultShippingMethod": "Standard Versandart",
+      "labelInputDefaultPaymentMethod": "Standard Zahlungsart",
+      "labelInputDefaultCountry": "Standard Land",
+      "labelInputDefaultCurrency": "Standard Währung",
+      "labelInputDefaultLanguage": "Standard Sprache",
       "textDeleteInfo": "Achtung: Hiermit löschst Du diesen Verkaufskanal vollständig! Der Verkaufskanal wird danach nicht mehr in der Shopware Administration verfügbar sein und kann auch nicht wiederhergestellt werden. Alle vorhandenen Bestellungen bleiben jedoch erhalten. Auch ausgespielte Kataloge werden durch diese Aktion nicht verändert.",
       "buttonDelete": "Verkaufskanal löschen",
       "deleteModalTitle": "Verkaufskanal löschen",
@@ -44,6 +51,7 @@
       "placeholderName": "Gib einen Namen für den Verkaufskanal ein...",
       "placeholderInputCategories": "Kategorien hinzufügen",
       "titleDomains": "Domänen",
+      "titleDomainItem": "URL {index}",
       "labelInputCurrency": "Währung",
       "labelInputLanguage": "Sprache",
       "labelInputSnippet": "Textbaustein-Set",
@@ -55,7 +63,9 @@
       "buttonConfirmDeleteDomain": "Löschen",
       "customerGroup": "Kundengruppe",
       "navigation": "Navigation",
-      "navigationCategoryId": "Einstiegspunkt Hauptnavigation"
+      "navigationCategoryId": "Einstiegspunkt Hauptnavigation",
+      "footerCategory": "Einstiegspunkt Footernavigation",
+      "serviceCategory": "Einstiegspunkt Servicenavigation"
     }
   }
 }

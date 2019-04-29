@@ -15,6 +15,8 @@
     "detail": {
       "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Sales channel \"{name}\" has been saved successfully.",
+      "titleSaveError": "Error",
+      "messageSaveError": "The sales channel \"{name}\" could not be saved. Please check your entries.",
       "buttonSave": "Save",
       "buttonCreateNewApiKeys": "Create new API key",
       "tabBase": "General",
@@ -34,6 +36,11 @@
       "labelInputLanguages": "Languages",
       "labelInputCategories": "Categories",
       "titleOptionsCard": "Options",
+      "labelInputDefaultShippingMethod": "Default Shipping method",
+      "labelInputDefaultPaymentMethod": "Default payment method",
+      "labelInputDefaultCountry": "Default country",
+      "labelInputDefaultCurrency": "Default currency",
+      "labelInputDefaultLanguage": "Default language",
       "textDeleteInfo": "Careful, you are about to delete this sales channel permanently. The sales channel will no longer be available in your Shopware administration if you proceed. However, deleting the sales channel will not affect existing orders and categories.",
       "buttonDelete": "Delete sales channel",
       "deleteModalTitle": "Delete sales channel",
@@ -44,6 +51,7 @@
       "placeholderName": "Enter sales channel name...",
       "placeholderInputCategories": "Add Categories",
       "titleDomains": "Domains",
+      "titleDomainItem": "URL {index}",
       "labelInputCurrency": "Currency",
       "labelInputLanguage": "Language",
       "labelInputSnippet": "Snippet",
@@ -55,7 +63,9 @@
       "buttonConfirmDeleteDomain": "Delete",
       "customerGroup": "Customer group",
       "navigation": "Navigation",
-      "navigationCategoryId": "Entry point main navigation"
+      "navigationCategoryId": "Entry point main navigation",
+      "footerCategory": "Entry point footer navigation",
+      "serviceCategory": "Entry point service navigation"
     }
   }
 }

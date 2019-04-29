@@ -1,10 +1,15 @@
-import { Component, Mixin, State } from 'src/core/shopware';
-import CriteriaFactory from 'src/core/factory/criteria.factory';
+import { Component, Mixin } from 'src/core/shopware';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-sales-channel-detail.html.twig';
 
 Component.register('sw-sales-channel-detail', {
 
     template,
+
+    inject: [
+        'repositoryFactory',
+        'context'
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -14,7 +19,7 @@ Component.register('sw-sales-channel-detail', {
 
     data() {
         return {
-            salesChannel: {},
+            salesChannel: null,
             isLoading: false,
             customFieldSets: [],
             isSaveSuccessful: false
@@ -31,20 +36,17 @@ Component.register('sw-sales-channel-detail', {
         identifier() {
             return this.placeholder(this.salesChannel, 'name');
         },
-        salesChannelStore() {
-            return State.getStore('sales_channel');
-        },
-        salesChannelLanguagesStore() {
-            return this.salesChannel.getAssociation('languages');
-        },
-        salesChannelCurrenciesStore() {
-            return this.salesChannel.getAssociation('currencies');
-        },
+
         isStoreFront() {
             return this.salesChannel.typeId === '8a243080f92e4c719546314b577cf82b';
         },
-        customFieldSetStore() {
-            return State.getStore('custom_field_set');
+
+        salesChannelRepository() {
+            return this.repositoryFactory.create('sales_channel');
+        },
+
+        customFieldRepository() {
+            return this.repositoryFactory.create('custom_field_set');
         }
     },
 
@@ -60,29 +62,59 @@ Component.register('sw-sales-channel-detail', {
 
     methods: {
         createdComponent() {
-            if (!this.$route.params.id) {
-                return;
-            }
-
             this.loadEntityData();
         },
 
         loadEntityData() {
-            this.salesChannel = this.salesChannelStore.getById(this.$route.params.id);
+            if (!this.$route.params.id) {
+                return;
+            }
 
-            this.customFieldSetStore.getList({
-                page: 1,
-                limit: 100,
-                criteria: CriteriaFactory.equals('relations.entityName', 'sales_channel'),
-                associations: {
-                    customFields: {
-                        limit: 100,
-                        sort: 'config.customFieldPosition'
-                    }
-                }
-            }, true).then(({ items }) => {
-                this.customFieldSets = items.filter(set => set.customFields.length > 0);
-            });
+            if (this.$route.params.typeId) {
+                return;
+            }
+
+            if (this.salesChannel) {
+                this.salesChannel = null;
+            }
+
+            this.loadSalesChannel();
+            this.loadCustomFieldSets();
+        },
+
+        loadSalesChannel() {
+            const criteria = new Criteria();
+
+            criteria.addAssociation('paymentMethods');
+            criteria.addAssociation('shippingMethods');
+            criteria.addAssociation('countries');
+            criteria.addAssociation('currencies');
+            criteria.addAssociation('languages');
+            criteria.addAssociation('domains');
+
+            this.isLoading = true;
+            this.salesChannelRepository
+                .get(this.$route.params.id, this.context, criteria)
+                .then((entity) => {
+                    this.salesChannel = entity;
+                    this.isLoading = false;
+                });
+        },
+
+        loadCustomFieldSets() {
+            const criteria = new Criteria(1, 100);
+
+            criteria.addFilter(Criteria.equals('relations.entityName', 'sales_channel'));
+            criteria.addAssociation(
+                'customFields',
+                (new Criteria(1, 100)).addSorting(Criteria.sort('config.customFieldPosition'))
+            );
+
+            this.customFieldRepository
+                .search(criteria, this.context)
+                .then(({ items }) => {
+                    this.customFieldSets = Object.values(items);
+                });
         },
 
         saveFinish() {
@@ -90,19 +122,29 @@ Component.register('sw-sales-channel-detail', {
         },
 
         onSave() {
+            // TODO: Restore sync with domains
+            // this.syncWithDomains();
             this.isLoading = true;
 
             this.isSaveSuccessful = false;
-            this.syncWithDomains();
 
-            return this.salesChannel.save().then(() => {
-                this.isLoading = false;
-                this.isSaveSuccessful = true;
+            return this.salesChannelRepository
+                .save(this.salesChannel, this.context)
+                .then(() => {
+                    this.isLoading = false;
+                    this.isSaveSuccessful = true;
 
-                this.$root.$emit('changed-sales-channel');
-            }).catch(() => {
-                this.isLoading = false;
-            });
+                    this.$root.$emit('changed-sales-channel');
+                }).catch(() => {
+                    this.isLoading = false;
+
+                    this.createNotificationError({
+                        title: this.$tc('sw-sales-channel.detail.titleSaveError'),
+                        message: this.$tc('sw-sales-channel.detail.messageSaveError', 0, {
+                            name: this.salesChannel.name
+                        })
+                    });
+                });
         },
 
         abortOnLanguageChange() {

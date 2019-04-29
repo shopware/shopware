@@ -1,218 +1,346 @@
 {% block sw_sales_channel_detail_base %}
     <div class="sw-sales-channel-detail-base">
-        {% block sw_sales_channel_detail_base_general %}
-            <sw-card :title="$tc('sw-sales-channel.detail.titleGeneralSettings')"
-                     :isLoading="salesChannel.isLoading"
-                     key="edit">
-                <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
-                    {% block sw_sales_channel_detail_base_general_input_name %}
-                        <sw-field type="text"
-                                  validation="required"
-                                  :placeholder="placeholder(salesChannel, 'name', $tc('sw-sales-channel.detail.placeholderName'))"
-                                  :label="$tc('sw-sales-channel.detail.labelInputName')"
-                                  v-model="salesChannel.name">
-                        </sw-field>
-                    {% endblock %}
 
-                    {% block sw_sales_channel_detail_base_general_input_active %}
-                        <sw-field type="switch"
-                                  bordered
-                                  :label="$tc('sw-sales-channel.detail.labelInputActive')"
-                                  v-model="salesChannel.active">
-                        </sw-field>
-                    {% endblock %}
-                </sw-container>
+        {% block sw_sales_channel_detail_base_general %}
+            <sw-card v-if="salesChannel" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.titleGeneralSettings')" key="edit">
+
+                {% block sw_sales_channel_detail_base_general %}
+                    <sw-container columns="1fr 200px" gap="0px 30px">
+                        {% block sw_sales_channel_detail_base_general_input_name %}
+                            <sw-field
+                                type="text"
+                                validation="required"
+                                :placeholder="placeholder(salesChannel, 'name', $tc('sw-sales-channel.detail.placeholderName'))"
+                                :label="$tc('sw-sales-channel.detail.labelInputName')"
+                                v-model="salesChannel.name">
+                            </sw-field>
+                        {% endblock %}
+
+                        {% block sw_sales_channel_detail_base_general_input_active %}
+                            <sw-field
+                                type="switch"
+                                bordered
+                                :label="$tc('sw-sales-channel.detail.labelInputActive')"
+                                v-model="salesChannel.active">
+                            </sw-field>
+                        {% endblock %}
+                    </sw-container>
+                {% endblock %}
 
                 {% block sw_sales_channel_detail_base_general_input_payments_methods %}
-                    <sw-select id="paymentMethodIds"
-                               multi
-                               class="sw-sales-channel-detail__select-payment-method"
-                               :label="$tc('sw-sales-channel.detail.labelInputPaymentMethods')"
-                               validation="required"
-                               :associationStore="paymentMethodAssociationStore"
-                               :store="paymentMethodStore"
-                               :defaultItemId="salesChannel.paymentMethodId"
-                               @default_changed="changeDefaultPaymentMethod">
-                    </sw-select>
+                    <sw-container columns="1fr 200px" gap="0 30px">
+                        {% block sw_sales_channel_detail_base_general_input_payments_methods_selection %}
+                            <sw-many-to-many-select
+                                class="sw-sales-channel-detail__select-payment-method"
+                                :label="$tc('sw-sales-channel.detail.labelInputPaymentMethods')"
+                                :localMode="true"
+                                :collection="salesChannel.paymentMethods"
+                                @item-remove="(removeItemId) => onItemRemove(removeItemId, 'paymentMethodId')">
+                            </sw-many-to-many-select>
+                        {% endblock %}
+
+                        {% block sw_sales_channel_detail_base_general_input_payments_methods_assignment %}
+                            <sw-single-select
+                                class="sw-sales-channel-detail__assign-payment-method"
+                                :label="$tc('sw-sales-channel.detail.labelInputDefaultPaymentMethod')"
+                                :options="salesChannel.paymentMethods"
+                                labelProperty="name"
+                                required
+                                valueProperty="id"
+                                v-model="salesChannel.paymentMethodId">
+                            </sw-single-select>
+                        {% endblock %}
+                    </sw-container>
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_base_general_input_shipping_methods %}
-                    <sw-select id="shippingMethodIds"
-                               multi
-                               class="sw-sales-channel-detail__select-shipping-method"
-                               :label="$tc('sw-sales-channel.detail.labelInputShippingMethods')"
-                               validation="required"
-                               :associationStore="shippingMethodAssociationStore"
-                               :store="shippingMethodStore"
-                               :defaultItemId="salesChannel.shippingMethodId"
-                               @default_changed="changeDefaultShippingMethod">
-                    </sw-select>
+                    <sw-container columns="1fr 200px" gap="0 30px">
+                        {% block sw_sales_channel_detail_base_general_input_shipping_methods_selection %}
+                            <sw-many-to-many-select
+                                class="sw-sales-channel-detail__select-shipping-method"
+                                :label="$tc('sw-sales-channel.detail.labelInputShippingMethods')"
+                                :localMode="true"
+                                :collection="salesChannel.shippingMethods"
+                                @item-remove="(removeItemId) => onItemRemove(removeItemId, 'shippingMethodId')">
+                            </sw-many-to-many-select>
+                        {% endblock %}
+
+                        {% block sw_sales_channel_detail_base_general_input_shipping_methods_assignment %}
+                            <sw-single-select
+                                class="sw-sales-channel-detail__assign-shipping-method"
+                                :label="$tc('sw-sales-channel.detail.labelInputDefaultShippingMethod')"
+                                :options="salesChannel.shippingMethods"
+                                labelProperty="name"
+                                valueProperty="id"
+                                required
+                                v-model="salesChannel.shippingMethodId">
+                            </sw-single-select>
+                        {% endblock %}
+                    </sw-container>
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_base_general_input_countries %}
-                    <sw-select id="countryIds"
-                               multi
-                               class="sw-sales-channel-detail__select-countries"
-                               :label="$tc('sw-sales-channel.detail.labelInputCountries')"
-                               validation="required"
-                               :associationStore="countryAssociationStore"
-                               :store="countryStore"
-                               :defaultItemId="salesChannel.countryId"
-                               @default_changed="changeDefaultCountry">
-                    </sw-select>
+                    <sw-container columns="1fr 200px" gap="0 30px">
+                        {% block sw_sales_channel_detail_base_general_input_countries_selection %}
+                            <sw-many-to-many-select
+                                class="sw-sales-channel-detail__select-countries"
+                                :label="$tc('sw-sales-channel.detail.labelInputCountries')"
+                                :localMode="true"
+                                :collection="salesChannel.countries"
+                                @item-remove="(removeItemId) => onItemRemove(removeItemId, 'countryId')">
+                            </sw-many-to-many-select>
+                        {% endblock %}
+
+                        {% block sw_sales_channel_detail_base_general_input_countries_assignment %}
+                            <sw-single-select
+                                class="sw-sales-channel-detail__assign-countries"
+                                :label="$tc('sw-sales-channel.detail.labelInputDefaultCountry')"
+                                :options="salesChannel.countries"
+                                labelProperty="name"
+                                valueProperty="id"
+                                required
+                                v-model="salesChannel.countryId">
+                            </sw-single-select>
+                        {% endblock %}
+                    </sw-container>
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_base_general_input_currencies %}
-                    <sw-select id="currencyIds"
-                               multi
-                               class="sw-sales-channel-detail__select-currencies"
-                               :label="$tc('sw-sales-channel.detail.labelInputCurrencies')"
-                               validation="required"
-                               :associationStore="currencyAssociationStore"
-                               :store="currencyStore"
-                               :defaultItemId="salesChannel.currencyId"
-                               @default_changed="changeDefaultCurrency">
-                    </sw-select>
+                    <sw-container columns="1fr 200px" gap="0 30px">
+                        {% block sw_sales_channel_detail_base_general_input_currencies_selection %}
+                            <sw-many-to-many-select
+                                class="sw-sales-channel-detail__select-currencies"
+                                :label="$tc('sw-sales-channel.detail.labelInputCurrencies')"
+                                :localMode="true"
+                                :collection="salesChannel.currencies"
+                                @item-remove="(removeItemId) => onItemRemove(removeItemId, 'currencyId')">
+                            </sw-many-to-many-select>
+                        {% endblock %}
+
+                        {% block sw_sales_channel_detail_base_general_input_currencies_assignment %}
+                            <sw-single-select
+                                class="sw-sales-channel-detail__assign-currencies"
+                                :label="$tc('sw-sales-channel.detail.labelInputDefaultCurrency')"
+                                :options="salesChannel.currencies"
+                                labelProperty="name"
+                                valueProperty="id"
+                                required
+                                v-model="salesChannel.currencyId">
+                            </sw-single-select>
+                        {% endblock %}
+                    </sw-container>
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_base_general_input_languages %}
-                    <sw-select id="languageIds"
-                               multi
-                               class="sw-sales-channel-detail__select-languages"
-                               :label="$tc('sw-sales-channel.detail.labelInputLanguages')"
-                               validation="required"
-                               :associationStore="languageAssociationStore"
-                               :store="languageStore"
-                               :defaultItemId="salesChannel.languageId"
-                               @default_changed="changeDefaultLanguage">
-                    </sw-select>
+                    <sw-container columns="1fr 200px" gap="0 30px">
+                        {% block sw_sales_channel_detail_base_general_input_languages_selection %}
+                            <sw-many-to-many-select
+                                class="sw-sales-channel-detail__select-languages"
+                                :label="$tc('sw-sales-channel.detail.labelInputLanguages')"
+                                :localMode="true"
+                                :collection="salesChannel.languages"
+                                @item-remove="(removeItemId) => onItemRemove(removeItemId, 'languageId')">
+                            </sw-many-to-many-select>
+                        {% endblock %}
+
+                        {% block sw_sales_channel_detail_base_general_input_languages_assignment %}
+                            <sw-single-select
+                                class="sw-sales-channel-detail__assign-languages"
+                                :label="$tc('sw-sales-channel.detail.labelInputDefaultLanguage')"
+                                :options="salesChannel.languages"
+                                labelProperty="name"
+                                valueProperty="id"
+                                required
+                                v-model="salesChannel.languageId">
+                            </sw-single-select>
+                        {% endblock %}
+                    </sw-container>
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_base_general_input_customer_group %}
-                    <sw-select id="customerGroup"
-                               class="sw-sales-channel-detail__select-customer-group"
-                               validation="required"
-                               :label="$tc('sw-sales-channel.detail.customerGroup')"
-                               :store="customerGroupStore"
-                               v-model="salesChannel.customerGroupId">
-                    </sw-select>
+                    <sw-entity-single-select
+                        class="sw-sales-channel-detail__select-customer-group"
+                        :label="$tc('sw-sales-channel.detail.customerGroup')"
+                        entity="customer_group"
+                        v-model="salesChannel.customerGroupId">
+                    </sw-entity-single-select>
                 {% endblock %}
             </sw-card>
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_general_input_navigation %}
-            <sw-card :title="$tc('sw-sales-channel.detail.navigation')" :isLoading="salesChannel.isLoading">
+            <sw-card v-if="salesChannel" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.navigation')">
                 {% block sw_sales_channel_detail_base_general_input_navigation_category %}
-                    <sw-select id="navigationCategoryId"
-                                class="sw-sales-channel-detail__select-navigation-category-id"
-                                validation="required"
-                                :label="$tc('sw-sales-channel.detail.navigationCategoryId')"
-                                :store="categoryStore"
-                                v-model="salesChannel.navigationCategoryId">
-                    </sw-select>
+                    <sw-entity-single-select
+                        class="sw-sales-channel-detail__select-navigation-category-id"
+                        id="navigationCategoryId"
+                        :label="$tc('sw-sales-channel.detail.navigationCategoryId')"
+                        v-model="salesChannel.navigationCategoryId"
+                        entity="category">
+                    </sw-entity-single-select>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_general_input_footer_category %}
+                    <sw-entity-single-select
+                        class="sw-sales-channel-detail__select-footer-category-id"
+                        id="footerCategoryId"
+                        :label="$tc('sw-sales-channel.detail.footerCategory')"
+                        v-model="salesChannel.footerCategoryId"
+                        entity="category">
+                    </sw-entity-single-select>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_general_input_service_category %}
+                    <sw-entity-single-select
+                        class="sw-sales-channel-detail__select-service-category-id"
+                        id="serviceCategoryId"
+                        :label="$tc('sw-sales-channel.detail.serviceCategory')"
+                        v-model="salesChannel.serviceCategoryId"
+                        entity="category">
+                    </sw-entity-single-select>
                 {% endblock %}
             </sw-card>
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_domains %}
-            <sw-card :isLoading="isLoadingDomains" :title="$tc('sw-sales-channel.detail.titleDomains')" v-if="isStoreFront">
-                <div class="sw-sales-channel-detail-base__domain-container" v-for="domain, index in salesChannel.domains">
-                    {% block sw_sales_channel_detail_base_domains_input_url %}
-                        <sw-field type="text" label="Url" v-model="domain.url"></sw-field>
-                    {% endblock %}
-                    {% block sw_sales_channel_detail_base_domains_input_language %}
-                        <sw-select
-                                :store="languageStore"
-                                v-model="domain.languageId"
-                                id="domainLanguage"
-                                :label="$tc('sw-sales-channel.detail.labelInputLanguage')">
-                        </sw-select>
-                    {% endblock %}
-                    {% block sw_sales_channel_detail_base_domains_input_currency %}
-                        <sw-select
-                                :store="currencyStore"
-                                v-model="domain.currencyId"
-                                id="domainCurrency"
-                                :label="$tc('sw-sales-channel.detail.labelInputCurrency')">
-                        </sw-select>
-                    {% endblock %}
-                    {% block sw_sales_channel_detail_base_domains_input_snippet_set %}
-                        <sw-select :store="snippetSetStore"
-                                   v-model="domain.snippetSetId"
-                                   id="domainSnippet"
-                                   :label="$tc('sw-sales-channel.detail.labelInputSnippet')">
-                        </sw-select>
-                    {% endblock %}
-                    {% block sw_sales_channel_detail_base_domains_delete %}
-                        <sw-button variant="danger" @click="onClickDeleteDomain(domain)">{{ $tc('sw-sales-channel.detail.buttonDeleteDomain') }}</sw-button>
+            <sw-card v-if="salesChannel" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.titleDomains')">
+
+                {% block sw_sales_channel_detail_base_domains_container %}
+                    <div v-for="(domain, index) in salesChannel.domains"
+                         class="sw-sales-channel-detail-base__domain-container">
+
+                        {% block sw_sales_channel_detail_base_domains_headline %}
+                            <h4 class="sw-sales-channel-detail-base__domain-headline">
+                                {% block sw_sales_channel_detail_base_domains_headline_text %}
+                                    <span class="sw-sales-channel-detail-base__domain-headline-text">
+                                        {{ $tc('sw-sales-channel.detail.titleDomainItem', 0, { index: index + 1 }) }}
+                                    </span>
+                                {% endblock %}
+
+                                {% block sw_sales_channel_detail_base_domains_delete %}
+                                    <button
+                                        class="sw-sales-channel-detail-base__domain-delete"
+                                        @click="onClickDeleteDomain(domain)">
+                                        {{ $tc('sw-sales-channel.detail.buttonDeleteDomain') }}
+                                    </button>
+                                {% endblock %}
+                            </h4>
+                        {% endblock %}
+
+                        <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
+                            {% block sw_sales_channel_detail_base_domains_input_url %}
+                                <sw-field type="text" label="Url" v-model="domain.url"></sw-field>
+                            {% endblock %}
+
+                            {% block sw_sales_channel_detail_base_domains_input_language %}
+                                <sw-single-select
+                                    :label="$tc('sw-sales-channel.detail.labelInputLanguage')"
+                                    :options="salesChannel.languages"
+                                    labelProperty="name"
+                                    valueProperty="id"
+                                    required
+                                    v-model="domain.languageId">
+                                </sw-single-select>
+                            {% endblock %}
+                        </sw-container>
+
+                        <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
+                            {% block sw_sales_channel_detail_base_domains_input_currency %}
+                                <sw-single-select
+                                    :label="$tc('sw-sales-channel.detail.labelInputCurrency')"
+                                    :options="salesChannel.currencies"
+                                    labelProperty="name"
+                                    valueProperty="id"
+                                    required
+                                    v-model="domain.currencyId">
+                                </sw-single-select>
+                            {% endblock %}
+
+                            {% block sw_sales_channel_detail_base_domains_input_snippet_set %}
+                                <sw-entity-single-select
+                                    :label="$tc('sw-sales-channel.detail.labelInputSnippet')"
+                                    v-model="domain.snippetSetId"
+                                    entity="snippet_set">
+                                </sw-entity-single-select>
+                            {% endblock %}
+                        </sw-container>
 
                         {% block sw_sales_channel_detail_base_domains_delete_modal %}
-                            <sw-modal v-if="deleteDomain"
-                                      :title="$tc('sw-sales-channel.detail.deleteDomainModalTitle')"
-                                      @modal-close="onCloseDeleteDomainModal">
+                            <sw-modal
+                                v-if="deleteDomain"
+                                :title="$tc('sw-sales-channel.detail.deleteDomainModalTitle')"
+                                variant="small"
+                                @modal-close="onCloseDeleteDomainModal">
+
                                 {% block sw_sales_channel_detail_base_domains_delete_modal_confirm_text %}
-                                    {{  $tc('sw-sales-channel.detail.textConfirmDeleteDomain', 0, { url: deleteDomain.url }) }}
+                                    {{ $tc('sw-sales-channel.detail.textConfirmDeleteDomain', 0, { url: deleteDomain.url }) }}
                                 {% endblock %}
 
                                 {% block sw_sales_channel_detail_base_domains_delete_modal_footer %}
                                     <template slot="modal-footer">
-                                        <sw-button size="small" @click="onCloseDeleteDomainModal">
-                                            {{ $tc('sw-sales-channel.detail.buttonCloseDeleteDomainModal') }}
-                                        </sw-button>
-                                        <sw-button size="small"
-                                                   variant="danger"
-                                                   @click="onConfirmDeleteDomain(deleteDomain)">
-                                            {{ $tc('sw-sales-channel.detail.buttonConfirmDeleteDomain') }}
-                                        </sw-button>
+                                        {% block sw_sales_channel_detail_base_domains_delete_modal_abort %}
+                                            <sw-button size="small" @click="onCloseDeleteDomainModal">
+                                                {{ $tc('sw-sales-channel.detail.buttonCloseDeleteDomainModal') }}
+                                            </sw-button>
+                                        {% endblock %}
+
+                                        {% block sw_sales_channel_detail_base_domains_delete_modal_confirm %}
+                                            <sw-button
+                                                size="small"
+                                                variant="danger"
+                                                @click="onConfirmDeleteDomain(deleteDomain)">
+                                                {{ $tc('sw-sales-channel.detail.buttonConfirmDeleteDomain') }}
+                                            </sw-button>
+                                        {% endblock %}
                                     </template>
                                 {% endblock %}
                             </sw-modal>
                         {% endblock %}
-                    {% endblock %}
-                </div>
+                    </div>
+                {% endblock %}
 
                 {% block sw_sales_channel_detail_base_domains_add_button %}
-                    <sw-button variant="primary" @click="onClickAddDomain">{{ $tc('sw-sales-channel.detail.buttonAddDomain') }}</sw-button>
+                    <sw-button variant="ghost" size="small" @click="onClickAddDomain">
+                        <sw-icon name="small-default-plus-line-small" size="16"></sw-icon>
+                        {{ $tc('sw-sales-channel.detail.buttonAddDomain') }}
+                    </sw-button>
                 {% endblock %}
             </sw-card>
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_options %}
-            <sw-card :title="$tc('sw-sales-channel.detail.titleOptionsCard')">
+            <sw-card v-if="salesChannel" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.titleOptionsCard')">
                 {% block sw_sales_channel_detail_base_options_api %}
-                    <sw-container columns="1fr auto" gap="30px">
-                        {% block sw_sales_channel_detail_base_options_input_access_key %}
-                            <sw-field :label="$tc('sw-sales-channel.detail.labelAccessKeyField')"
-                                      :disabled="true"
-                                      v-model="salesChannel.accessKey"
-                                      :copyable="true">
-                            </sw-field>
-                        {% endblock %}
+                    {% block sw_sales_channel_detail_base_options_input_access_key %}
+                        <sw-field
+                            :label="$tc('sw-sales-channel.detail.labelAccessKeyField')"
+                            :disabled="true"
+                            v-model="salesChannel.accessKey"
+                            :copyable="true">
+                        </sw-field>
+                    {% endblock %}
 
-                        {% block sw_sales_channel_detail_base_options_input_generate_key %}
-                            <div class="sw-sales-channel-detail__action-button">
-                                <sw-button @click="onGenerateKeys"
-                                           class="sw-sales-channel-detail-base__button-generate-keys">
-                                    <sw-icon name="small-arrow-360-right" size="18"></sw-icon>
-                                    {{ $tc('sw-sales-channel.detail.buttonCreateNewApiKeys') }}
-                                </sw-button>
-                            </div>
-                        {% endblock %}
-                    </sw-container>
+                    {% block sw_sales_channel_detail_base_options_input_generate_key %}
+                        <div class="sw-sales-channel-detail__action-button">
+                            <sw-button
+                                @click="onGenerateKeys"
+                                variant="ghost"
+                                size="small"
+                                class="sw-sales-channel-detail-base__button-generate-keys">
+                                {{ $tc('sw-sales-channel.detail.buttonCreateNewApiKeys') }}
+                            </sw-button>
+                        </div>
+                    {% endblock %}
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_base_options_delete %}
                     <div class="sw-sales-channel-detail-base__delete">
-                        {% block sw_sales_channel_detail_base_options_delete_info %}
-                            <sw-alert variant="error" >
-                                {{ $tc('sw-sales-channel.detail.textDeleteInfo') }}
-                            </sw-alert>
-                        {% endblock %}
-
                         {% block sw_sales_channel_detail_base_options_delete_button %}
                             <div class="sw-sales-channel-detail-base__button-delete">
-                                <sw-button variant="danger"
-                                           @click="showDeleteModal = true">
+                                <sw-button
+                                    variant="danger"
+                                    size="small"
+                                    @click="showDeleteModal = true">
                                     {{ $tc('sw-sales-channel.detail.buttonDelete') }}
                                 </sw-button>
                             </div>
@@ -220,37 +348,49 @@
                     </div>
 
                     {% block sw_sales_channel_detail_base_options_delete_modal %}
-                        <sw-modal v-if="showDeleteModal"
-                                  ref="modal"
-                                  :title="$tc('sw-sales-channel.detail.deleteModalTitle')"
-                                  @modal-close="onCloseDeleteModal">
+                        <sw-modal
+                            v-if="showDeleteModal"
+                            class="sw-sales-channel-detail-base__delete-modal"
+                            ref="modal"
+                            variant="small"
+                            :title="$tc('sw-sales-channel.detail.deleteModalTitle')"
+                            @modal-close="onCloseDeleteModal">
+
                             {% block sw_sales_channel_detail_options_delete_modal_confirmtext %}
-                                {{ $tc('sw-sales-channel.detail.textConfirmDelete') }}
-                                {{ salesChannel.name }}
+                                <p>{{ $tc('sw-sales-channel.detail.textConfirmDelete') }}</p>
+                                <p><strong>{{ salesChannel.name }}</strong></p>
+                                <p>{{ $tc('sw-sales-channel.detail.textDeleteInfo') }}</p>
                             {% endblock %}
 
                             {% block sw_sales_channel_detail_options_delete_modal_footer %}
                                 <template slot="modal-footer">
-                                    <sw-button size="small" @click="onCloseDeleteModal">
-                                        {{ $tc('sw-sales-channel.detail.buttonCloseDeleteModal') }}
-                                    </sw-button>
-                                    <sw-button size="small"
-                                               variant="primary"
-                                               @click="onConfirmDelete">
-                                        {{ $tc('sw-sales-channel.detail.buttonConfirmDelete') }}
-                                    </sw-button>
+                                    {% block sw_sales_channel_detail_options_delete_modal_abort %}
+                                        <sw-button size="small" @click="onCloseDeleteModal">
+                                            {{ $tc('sw-sales-channel.detail.buttonCloseDeleteModal') }}
+                                        </sw-button>
+                                    {% endblock %}
+
+                                    {% block sw_sales_channel_detail_options_delete_modal_confirm %}
+                                        <sw-button
+                                            size="small"
+                                            variant="danger"
+                                            @click="onConfirmDelete">
+                                            {{ $tc('sw-sales-channel.detail.buttonConfirmDelete') }}
+                                        </sw-button>
+                                    {% endblock %}
                                 </template>
                             {% endblock %}
                         </sw-modal>
                     {% endblock %}
                 {% endblock %}
-
             </sw-card>
         {% endblock %}
+
         {% block sw_sales_channel_detail_custom_field_sets %}
-            <sw-card :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
-                 v-if="customFieldSets.length > 0"
-                 :isLoading="salesChannel.isLoading">
+            <sw-card
+                :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                v-if="salesChannel &&  customFieldSets.length > 0"
+                :isLoading="isLoading">
                 <sw-custom-field-set-renderer
                     :entity="salesChannel"
                     :sets="customFieldSets">

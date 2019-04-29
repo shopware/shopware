@@ -116,6 +116,8 @@ export default {
         },
 
         remove(identifier) {
+            this.$emit('item-remove', identifier);
+
             // remove identifier from visible element list
             this.visibleValues = this.visibleValues.filter((item) => {
                 return item[this.valueProperty] !== identifier;
@@ -134,6 +136,8 @@ export default {
         },
 
         addItem({ item }) {
+            this.$emit('item-add', item);
+
             if (this.isSelected(item)) {
                 this.remove(item[this.valueProperty]);
                 return Promise.resolve();
@@ -151,6 +155,8 @@ export default {
         },
 
         sendSearchRequest() {
+            this.isLoading = true;
+
             return this.searchRepository.search(this.searchCriteria, this.context)
                 .then((searchResult) => {
                     if (searchResult.length <= 0) {
@@ -162,10 +168,13 @@ export default {
 
                     return this.repository.searchIds(criteria, this.collection.context).then((assigned) => {
                         assigned.data.forEach((id) => {
-                            this.selectedIds.push(id);
+                            if (!this.selectedIds.includes(id) && !this.localMode) {
+                                this.selectedIds.push(id);
+                            }
                         });
 
                         this.displaySearch(searchResult);
+                        this.isLoading = false;
 
                         return searchResult;
                     });
@@ -178,7 +187,9 @@ export default {
 
         displayAssigned(result) {
             result.forEach((item) => {
-                this.selectedIds.push(item[this.valueProperty]);
+                if (!this.selectedIds.includes(item[this.valueProperty])) {
+                    this.selectedIds.push(item[this.valueProperty]);
+                }
                 this.visibleValues.push(item);
             });
 

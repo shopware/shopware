@@ -116,8 +116,12 @@ export default {
                 this.init();
             }
         },
-        options() {
-            this.init();
+
+        options: {
+            deep: true,
+            handler() {
+                this.init();
+            }
         }
     },
 

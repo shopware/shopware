@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Payment\Cart\PaymentHandler;
 
 use Shopware\Core\Checkout\Payment\Cart\SyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 interface SynchronousPaymentHandlerInterface
 {
@@ -16,5 +16,5 @@ interface SynchronousPaymentHandlerInterface
      *
      * @throws SyncPaymentProcessException
      */
-    public function pay(SyncPaymentTransactionStruct $transaction, Context $context): void;
+    public function pay(SyncPaymentTransactionStruct $transaction, SalesChannelContext $salesChannelContext): void;
 }

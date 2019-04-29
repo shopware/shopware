@@ -6,8 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactory;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
-use Shopware\Core\Checkout\Payment\PaymentService;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -18,23 +16,11 @@ class JWTFactoryTest extends TestCase
     /**
      * @var JWTFactory
      */
-    protected $tokenFactory;
-
-    /**
-     * @var Context
-     */
-    protected $context;
-
-    /**
-     * @var PaymentService
-     */
-    private $paymentService;
+    private $tokenFactory;
 
     protected function setUp(): void
     {
         $this->tokenFactory = $this->getContainer()->get(JWTFactory::class);
-        $this->paymentService = $this->getContainer()->get(PaymentService::class);
-        $this->context = Context::createDefaultContext();
     }
 
     /**
@@ -43,8 +29,8 @@ class JWTFactoryTest extends TestCase
     public function testGenerateAndGetToken(): void
     {
         $transaction = self::createTransaction();
-        $token = $this->tokenFactory->generateToken($transaction, $this->context);
-        $tokenStruct = $this->tokenFactory->parseToken($token, $this->context);
+        $token = $this->tokenFactory->generateToken($transaction);
+        $tokenStruct = $this->tokenFactory->parseToken($token);
 
         static::assertEquals($transaction->getId(), $tokenStruct->getTransactionId());
         static::assertEquals($transaction->getPaymentMethodId(), $tokenStruct->getPaymentMethodId());
@@ -58,7 +44,7 @@ class JWTFactoryTest extends TestCase
     public function testGetInvalidFormattedToken(): void
     {
         $this->expectException(InvalidTokenException::class);
-        $this->tokenFactory->parseToken(Uuid::randomHex(), $this->context);
+        $this->tokenFactory->parseToken(Uuid::randomHex());
     }
 
     /**
@@ -67,16 +53,16 @@ class JWTFactoryTest extends TestCase
     public function testGetTokenWithInvalidSignature(): void
     {
         $transaction = self::createTransaction();
-        $token = $this->tokenFactory->generateToken($transaction, $this->context);
+        $token = $this->tokenFactory->generateToken($transaction);
         $invalidToken = substr($token, 0, -3);
 
         $this->expectException(InvalidTokenException::class);
-        $this->tokenFactory->parseToken($invalidToken, $this->context);
+        $this->tokenFactory->parseToken($invalidToken);
     }
 
     public function testInvalidateToken(): void
     {
-        $success = $this->tokenFactory->invalidateToken(Uuid::randomHex(), $this->context);
+        $success = $this->tokenFactory->invalidateToken(Uuid::randomHex());
         static::assertFalse($success);
     }
 

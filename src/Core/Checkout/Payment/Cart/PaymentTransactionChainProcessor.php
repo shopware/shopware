@@ -10,9 +10,9 @@ use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -57,8 +57,11 @@ class PaymentTransactionChainProcessor
      * @throws SyncPaymentProcessException
      * @throws UnknownPaymentMethodException
      */
-    public function process(string $orderId, Context $context, ?string $finishUrl = null): ?RedirectResponse
-    {
+    public function process(
+        string $orderId,
+        SalesChannelContext $salesChannelContext,
+        ?string $finishUrl = null
+    ): ?RedirectResponse {
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('transactions');
         $criteria->addAssociation('lineItems');
@@ -69,7 +72,7 @@ class PaymentTransactionChainProcessor
         $criteria->addAssociation('order.orderCustomer', $customerCriteria);
 
         /** @var OrderEntity|null $order */
-        $order = $this->orderRepository->search($criteria, $context)->first();
+        $order = $this->orderRepository->search($criteria, $salesChannelContext->getContext())->first();
 
         if (!$order) {
             throw new InvalidOrderException($orderId);
@@ -91,20 +94,20 @@ class PaymentTransactionChainProcessor
             try {
                 $paymentHandler = $this->paymentHandlerRegistry->getSync($paymentMethod->getHandlerIdentifier());
                 $paymentTransaction = new SyncPaymentTransactionStruct($transaction, $order);
-                $paymentHandler->pay($paymentTransaction, $context);
+                $paymentHandler->pay($paymentTransaction, $salesChannelContext);
 
                 return null;
             } catch (UnknownPaymentMethodException $e) {
                 // intentionally empty, try to get an async payment handler instead
             }
 
-            $token = $this->tokenFactory->generateToken($transaction, $context, $finishUrl);
+            $token = $this->tokenFactory->generateToken($transaction, $finishUrl);
             $returnUrl = $this->assembleReturnUrl($token);
             $paymentTransaction = new AsyncPaymentTransactionStruct($transaction, $order, $returnUrl);
 
             $paymentHandler = $this->paymentHandlerRegistry->getAsync($paymentMethod->getHandlerIdentifier());
 
-            return $paymentHandler->pay($paymentTransaction, $context);
+            return $paymentHandler->pay($paymentTransaction, $salesChannelContext);
         }
 
         return null;

@@ -41,8 +41,11 @@ class NavigationLoader
         $active = $this->loadActive($activeId, $context);
         $rootId = $this->getRootId($active, $activeId);
 
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('visible', true));
+
         /** @var CategoryCollection $categories */
-        $categories = $this->categoryRepository->search(new Criteria(), $context)->getEntities();
+        $categories = $this->categoryRepository->search($criteria, $context)->getEntities();
 
         return $this->getTree($rootId, $categories, $active);
     }
@@ -58,6 +61,7 @@ class NavigationLoader
         $active = $this->loadActive($categoryId, $context);
 
         $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('visible', true));
         $criteria->addFilter(new MultiFilter(
             MultiFilter::CONNECTION_OR,
             [

@@ -149,6 +149,11 @@ class CategoryEntity extends Entity
      */
     protected $externalLink;
 
+    /**
+     * @var bool
+     */
+    protected $visible;
+
     public function getParentId(): ?string
     {
         return $this->parentId;
@@ -417,5 +422,15 @@ class CategoryEntity extends Entity
     public function setExternalLink(string $externalLink): void
     {
         $this->externalLink = $externalLink;
+    }
+
+    public function getVisible(): bool
+    {
+        return $this->visible;
+    }
+
+    public function setVisible(bool $visible): void
+    {
+        $this->visible = $visible;
     }
 }

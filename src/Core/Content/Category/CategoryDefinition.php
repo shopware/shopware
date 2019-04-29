@@ -94,6 +94,7 @@ class CategoryDefinition extends EntityDefinition
             (new TreePathField('path', 'path'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             new ChildCountField(),
 
+            new BoolField('visible', 'visible'),
             new BoolField('active', 'active'),
             new CreatedAtField(),
             new UpdatedAtField(),

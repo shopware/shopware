@@ -158,7 +158,7 @@ class RulePayloadSubscriberTest extends TestCase
 
         $this->connection->createQueryBuilder()
             ->insert('rule_condition')
-            ->values(['id' => ':id', 'type' => ':type', 'value' => 'null', 'position' => '0', 'rule_id' => ':ruleId'])
+            ->values(['id' => ':id', 'type' => ':type', 'value' => 'null', 'position' => '0', 'rule_id' => ':ruleId', 'created_at' => 'NOW()'])
             ->setParameter('id', Uuid::randomBytes())
             ->setParameter('type', (new AndRule())->getName())
             ->setParameter('ruleId', Uuid::fromHexToBytes($id))
@@ -195,7 +195,7 @@ class RulePayloadSubscriberTest extends TestCase
 
         $this->connection->createQueryBuilder()
             ->insert('rule_condition')
-            ->values(['id' => ':id', 'type' => ':type', 'value' => 'null', 'position' => '0', 'rule_id' => ':ruleId'])
+            ->values(['id' => ':id', 'type' => ':type', 'value' => 'null', 'position' => '0', 'rule_id' => ':ruleId', 'created_at' => 'NOW()'])
             ->setParameter('id', Uuid::randomBytes())
             ->setParameter('type', 'invalid')
             ->setParameter('ruleId', Uuid::fromHexToBytes($id))

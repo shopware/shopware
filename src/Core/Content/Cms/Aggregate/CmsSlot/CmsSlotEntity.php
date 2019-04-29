@@ -50,16 +50,6 @@ class CmsSlotEntity extends Entity
     protected $translations;
 
     /**
-     * @var \DateTimeInterface
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
-    /**
      * @var array|null
      */
     protected $attributes;
@@ -77,26 +67,6 @@ class CmsSlotEntity extends Entity
     public function setType(string $type): void
     {
         $this->type = $type;
-    }
-
-    public function getCreatedAt(): \DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getSlot(): string

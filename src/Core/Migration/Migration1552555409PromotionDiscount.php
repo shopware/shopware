@@ -24,6 +24,8 @@ class Migration1552555409PromotionDiscount extends MigrationStep
           `graduated` TINYINT(1) NOT NULL DEFAULT 0,
           `graduation_step` INT NULL,
           `graduation_order` VARCHAR(32) NULL,
+          `created_at` DATETIME(3) NOT NULL,
+          `updated_at` DATETIME(3) NULL,
           PRIMARY KEY (`id`),
           INDEX `idx.promotion_discount.promotion_id` (`promotion_id` ASC),
           CONSTRAINT `fk.promotion_discount.promotion_id`

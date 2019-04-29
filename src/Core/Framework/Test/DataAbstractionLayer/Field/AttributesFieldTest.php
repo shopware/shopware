@@ -42,7 +42,9 @@ class AttributesFieldTest extends TestCase
               id BINARY(16) NOT NULL PRIMARY KEY,
               parent_id BINARY(16) NULL,
               name varchar(255) DEFAULT NULL,
-              attributes json DEFAULT NULL
+              attributes json DEFAULT NULL,
+              created_at DATETIME(3) NOT NULL,
+              updated_at DATETIME(3) NULL
         )');
 
         $this->connection->exec('DROP TABLE IF EXISTS `attribute_test_translation`');
@@ -223,7 +225,10 @@ class AttributesFieldTest extends TestCase
         $event = $result->getEventByDefinition(AttributesTestDefinition::class);
         static::assertCount(1, $event->getPayloads());
         $expected = $patch;
-        static::assertEquals($expected, $event->getPayloads()[0]);
+        $payload = $event->getPayloads()[0];
+        unset($payload['updatedAt']);
+
+        static::assertEquals($expected, $payload);
 
         $actual = $repo->search(new Criteria([$entity['id']]), Context::createDefaultContext())->first();
         static::assertEquals($patch['name'], $actual->get('name'));
@@ -694,7 +699,10 @@ class AttributesFieldTest extends TestCase
         $event = $result->getEventByDefinition(AttributesTestDefinition::class);
         static::assertCount(1, $event->getPayloads());
         $expected = $update;
-        static::assertEquals($expected, $event->getPayloads()[0]);
+        $payload = $event->getPayloads()[0];
+        unset($payload['updatedAt']);
+
+        static::assertEquals($expected, $payload);
 
         $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
         static::assertNotNull($first);
@@ -720,7 +728,10 @@ class AttributesFieldTest extends TestCase
         $event = $result->getEventByDefinition(AttributesTestDefinition::class);
         static::assertCount(1, $event->getPayloads());
         $expected = ['id' => $id, 'attributes' => $update['attributes']];
-        static::assertEquals($expected, $event->getPayloads()[0]);
+        $payload = $event->getPayloads()[0];
+        unset($payload['updatedAt']);
+
+        static::assertEquals($expected, $payload);
 
         $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
         static::assertNotNull($first);
@@ -747,7 +758,11 @@ class AttributesFieldTest extends TestCase
         static::assertCount(1, $event->getPayloads());
         $expected = $update;
         $expected['attributes'] = $update['attributes'];
-        static::assertEquals($expected, $event->getPayloads()[0]);
+
+        $payload = $event->getPayloads()[0];
+        unset($payload['updatedAt']);
+
+        static::assertEquals($expected, $payload);
 
         $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
         static::assertNotNull($first);
@@ -767,8 +782,10 @@ class AttributesFieldTest extends TestCase
         $result = $repo->update([$update], Context::createDefaultContext());
         $event = $result->getEventByDefinition(AttributesTestDefinition::class);
         static::assertCount(1, $event->getPayloads());
-        static::assertEquals($update, $event->getPayloads()[0]);
+        $payload = $event->getPayloads()[0];
+        unset($payload['updatedAt']);
 
+        static::assertEquals($update, $payload);
         $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
         static::assertNotNull($first);
         static::assertNull($first->get('attributes'));
@@ -787,7 +804,10 @@ class AttributesFieldTest extends TestCase
         $result = $repo->update([$update], Context::createDefaultContext());
         $event = $result->getEventByDefinition(AttributesTestDefinition::class);
         static::assertCount(1, $event->getPayloads());
-        static::assertEquals(['id' => $id, 'attributes' => []], $event->getPayloads()[0]);
+        $payload = $event->getPayloads()[0];
+        unset($payload['updatedAt']);
+
+        static::assertEquals(['id' => $id, 'attributes' => []], $payload);
 
         $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
         static::assertNotNull($first);
@@ -1001,11 +1021,14 @@ class AttributesFieldTest extends TestCase
     public function testNestedJsonStringValue(): void
     {
         $this->addAttributes(['json' => AttributeTypes::JSON]);
+        $date = new \DateTimeImmutable();
+        $date = (new \DateTimeImmutable('@' . $date->getTimestamp()))->setTimezone($date->getTimezone());
 
         $id = Uuid::randomHex();
         $entity = [
             'id' => $id,
             'attributes' => ['json' => 'string value'],
+            'createdAt' => $date,
         ];
 
         $repo = $this->getTestRepository();
@@ -1026,6 +1049,7 @@ class AttributesFieldTest extends TestCase
         $entity = [
             'id' => $id,
             'attributes' => ['date' => $dateTime],
+            'createdAt' => $dateTime,
         ];
 
         $repo = $this->getTestRepository();

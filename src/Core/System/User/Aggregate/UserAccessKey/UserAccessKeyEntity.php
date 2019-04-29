@@ -31,11 +31,6 @@ class UserAccessKeyEntity extends Entity
     protected $writeAccess;
 
     /**
-     * @var \DateTimeInterface
-     */
-    protected $createdAt;
-
-    /**
      * @var \DateTimeInterface|null
      */
     protected $lastUsageAt;
@@ -88,16 +83,6 @@ class UserAccessKeyEntity extends Entity
     public function setWriteAccess(bool $writeAccess): void
     {
         $this->writeAccess = $writeAccess;
-    }
-
-    public function getCreatedAt(): \DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
     }
 
     public function getLastUsageAt(): ?\DateTimeInterface

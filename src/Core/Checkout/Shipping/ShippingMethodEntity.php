@@ -38,16 +38,6 @@ class ShippingMethodEntity extends Entity
     protected $shippingFree;
 
     /**
-     * @var \DateTimeInterface|null
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
-    /**
      * @var string|null
      */
     protected $description;
@@ -165,26 +155,6 @@ class ShippingMethodEntity extends Entity
     public function setShippingFree(?float $shippingFree): void
     {
         $this->shippingFree = $shippingFree;
-    }
-
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getDescription(): ?string

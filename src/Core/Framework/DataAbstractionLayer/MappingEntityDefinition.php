@@ -15,4 +15,14 @@ abstract class MappingEntityDefinition extends EntityDefinition
     {
         throw new MappingEntityClassesException();
     }
+
+    protected static function getBaseFields(): array
+    {
+        return [];
+    }
+
+    protected static function defaultFields(): array
+    {
+        return [];
+    }
 }

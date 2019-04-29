@@ -44,6 +44,8 @@ CREATE TABLE `_test_nullable` (
   `id` varbinary(16) NOT NULL,
   `data` longtext NULL,
   `root` longtext NULL,
+  `created_at` DATETIME(3) NOT NULL,
+  `updated_at` DATETIME(3) NULL,
   PRIMARY KEY `id` (`id`)
 );
 EOF;

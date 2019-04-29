@@ -23,6 +23,8 @@ class Migration1549531489ScheduledTask extends MigrationStep
               `status` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
               `last_execution_time` DATETIME(3),
               `next_execution_time` DATETIME(3) NOT NULL,
+              `created_at` DATETIME(3) NOT NULL,
+              `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`),
               CONSTRAINT `check.run_interval` CHECK (run_interval >= 1),
               CONSTRAINT `uniq.scheduled_task.scheduled_task_class` UNIQUE (scheduled_task_class)

@@ -94,16 +94,6 @@ class OrderLineItemEntity extends Entity
     protected $type;
 
     /**
-     * @var \DateTimeInterface|null
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
-    /**
      * @var OrderEntity|null
      */
     protected $order;
@@ -281,26 +271,6 @@ class OrderLineItemEntity extends Entity
     public function setType(?string $type): void
     {
         $this->type = $type;
-    }
-
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getOrder(): ?OrderEntity

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deferred;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
@@ -59,6 +61,10 @@ abstract class EntityDefinition
         }
 
         $fields = static::defineFields();
+
+        foreach (static::defaultFields() as $field) {
+            $fields->add($field);
+        }
 
         if (static::getTranslationDefinitionClass()) {
             $fields->add(
@@ -182,6 +188,17 @@ abstract class EntityDefinition
     public static function getSalesChannelDecorationDefinition(): string
     {
         return static::class;
+    }
+
+    /**
+     * @return Field[]
+     */
+    protected static function defaultFields(): array
+    {
+        return [
+            new CreatedAtField(),
+            new UpdatedAtField(),
+        ];
     }
 
     abstract protected static function defineFields(): FieldCollection;

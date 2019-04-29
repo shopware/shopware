@@ -27,16 +27,6 @@ class LocaleEntity extends Entity
     protected $territory;
 
     /**
-     * @var \DateTimeInterface|null
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
-    /**
      * @var LocaleTranslationCollection|null
      */
     protected $translations;
@@ -84,26 +74,6 @@ class LocaleEntity extends Entity
     public function setTerritory(?string $territory): void
     {
         $this->territory = $territory;
-    }
-
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getTranslations(): ?LocaleTranslationCollection

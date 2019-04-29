@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -14,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 
@@ -54,8 +52,6 @@ class ShippingMethodPriceDefinition extends EntityDefinition
             new FloatField('quantity_end', 'quantityEnd'),
             (new FloatField('price', 'price'))->addFlags(new Required()),
             new AttributesField(),
-            new CreatedAtField(),
-            new UpdatedAtField(),
             new ManyToOneAssociationField('shippingMethod', 'shipping_method_id', ShippingMethodDefinition::class, 'id', false),
             new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, 'id', false),
             new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, 'id', false),

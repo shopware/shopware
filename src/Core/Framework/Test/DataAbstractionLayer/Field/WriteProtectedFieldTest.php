@@ -51,8 +51,6 @@ CREATE TABLE `_test_nullable_translation` (
   `language_id` binary(16) NOT NULL,
   `protected` varchar(255) NULL,
   `system_protected` varchar(255) NULL,
-  `created_at` datetime(3) NOT NULL,
-  `updated_at` datetime(3),
   PRIMARY KEY `pk` (`_test_nullable_id`, `language_id`)
 );
 

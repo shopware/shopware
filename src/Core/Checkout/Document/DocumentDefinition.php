@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -50,7 +49,6 @@ class DocumentDefinition extends EntityDefinition
             new JsonField('config', 'config'),
             new BoolField('sent', 'sent'),
             (new StringField('deep_link_code', 'deepLinkCode'))->addFlags(new Required()),
-            (new CreatedAtField())->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
 
             new AttributesField(),
 

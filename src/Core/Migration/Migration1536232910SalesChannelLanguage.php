@@ -18,8 +18,6 @@ class Migration1536232910SalesChannelLanguage extends MigrationStep
             CREATE TABLE `sales_channel_language` (
               `sales_channel_id` BINARY(16) NOT NULL,
               `language_id` BINARY(16) NOT NULL,
-              `created_at` DATETIME(3) NOT NULL,
-              `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`sales_channel_id`, `language_id`),
               CONSTRAINT `fk.sales_channel_language.sales_channel_id` FOREIGN KEY (`sales_channel_id`)
                 REFERENCES `sales_channel` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,

@@ -26,11 +26,6 @@ class UserRecoveryEntity extends Entity
     protected $hash;
 
     /**
-     * @var \DateTimeInterface
-     */
-    protected $createdAt;
-
-    /**
      * @var UserEntity|null
      */
     protected $user;
@@ -63,16 +58,6 @@ class UserRecoveryEntity extends Entity
     public function setHash(string $hash): void
     {
         $this->hash = $hash;
-    }
-
-    public function getCreatedAt(): \DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
     }
 
     public function getUser(): ?UserEntity

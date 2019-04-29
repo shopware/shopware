@@ -47,16 +47,6 @@ class NumberRangeTypeEntity extends Entity
      */
     protected $translations;
 
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
     public function getTypeName(): string
     {
         return $this->typeName;
@@ -105,26 +95,6 @@ class NumberRangeTypeEntity extends Entity
     public function setTranslations(?NumberRangeTypeTranslationCollection $translations): void
     {
         $this->translations = $translations;
-    }
-
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(?\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(?\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getTechnicalName(): string

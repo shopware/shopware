@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deferred;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\Struct\Collection;
 
@@ -29,7 +30,7 @@ class FieldCollection extends Collection
         $this->validateType($field);
 
         $this->elements[$field->getPropertyName()] = $field;
-        if ($field instanceof StorageAware && !$field instanceof AssociationField) {
+        if ($field instanceof StorageAware && !$field->getFlag(Deferred::class)) {
             $this->mapping[$field->getStorageName()] = $field;
         }
     }

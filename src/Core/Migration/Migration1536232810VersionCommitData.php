@@ -26,6 +26,7 @@ class Migration1536232810VersionCommitData extends MigrationStep
               `user_id` BINARY(16) NULL,
               `integration_id` BINARY(16) NULL,
               `created_at` DATETIME(3) NOT NULL,
+              `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`),
               CONSTRAINT `json.version_commit_data.entity_id` CHECK (JSON_VALID(`entity_id`)),
               CONSTRAINT `json.version_commit_data.payload` CHECK (JSON_VALID(`payload`)),

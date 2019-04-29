@@ -60,6 +60,7 @@ CREATE TABLE `document` (
   `deep_link_code` VARCHAR(32) NOT NULL,
   `attributes` JSON NULL,
   `created_at` DATETIME(3) NOT NULL,
+  `updated_at` DATETIME(3) NULL,
   PRIMARY KEY (`id`),
   UNIQUE `uniq.deep_link_code` (`deep_link_code`),
   CONSTRAINT `json.document.attributes` CHECK (JSON_VALID(`attributes`)),

@@ -34,6 +34,8 @@ DROP TABLE IF EXISTS _test_nullable;
 CREATE TABLE `_test_nullable` (
   `id` varbinary(16) NOT NULL,
   `data` json NULL,
+  `created_at` DATETIME(3) NOT NULL,
+  `updated_at` DATETIME(3) NULL,
   PRIMARY KEY `id` (`id`)
 );
 EOF;

@@ -35,16 +35,6 @@ class DeliveryTimeEntity extends Entity
     protected $unit;
 
     /**
-     * @var \DateTimeInterface|null
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
-    /**
      * @var ShippingMethodEntity[]|null
      */
     protected $shippingMethods;
@@ -97,26 +87,6 @@ class DeliveryTimeEntity extends Entity
     public function setUnit(string $unit): void
     {
         $this->unit = $unit;
-    }
-
-    public function getCreatedAt(): \DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(?\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getShippingMethods(): ?array

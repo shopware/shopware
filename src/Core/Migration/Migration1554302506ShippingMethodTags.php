@@ -18,8 +18,6 @@ class Migration1554302506ShippingMethodTags extends MigrationStep
             CREATE TABLE `shipping_method_tag` (
               `shipping_method_id` BINARY(16) NOT NULL,
               `tag_id` BINARY(16) NOT NULL,
-              `created_at` DATETIME(3) NOT NULL,
-              `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`shipping_method_id`, `tag_id`),
               CONSTRAINT `fk.shipping_method_tag.shipping_method_id` FOREIGN KEY (`shipping_method_id`)
                 REFERENCES `shipping_method` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,

@@ -26,16 +26,6 @@ class ProductStreamEntity extends Entity
     protected $apiFilter;
 
     /**
-     * @var \DateTimeInterface
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
-    /**
      * @var ProductStreamFilterCollection|null
      */
     protected $filters;
@@ -75,16 +65,6 @@ class ProductStreamEntity extends Entity
         $this->description = $description;
     }
 
-    public function getCreatedAt(): \DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
     public function getApiFilter(): ?array
     {
         return $this->apiFilter;
@@ -93,16 +73,6 @@ class ProductStreamEntity extends Entity
     public function setApiFilter(?array $apiFilter): void
     {
         $this->apiFilter = $apiFilter;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getFilters(): ?ProductStreamFilterCollection

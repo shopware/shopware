@@ -47,16 +47,6 @@ class ShippingMethodPriceEntity extends Entity
     protected $price;
 
     /**
-     * @var \DateTimeInterface|null
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
-    /**
      * @var ShippingMethodEntity|null
      */
     protected $shippingMethod;
@@ -134,26 +124,6 @@ class ShippingMethodPriceEntity extends Entity
     public function setCalculation(int $calculation): void
     {
         $this->calculation = $calculation;
-    }
-
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getShippingMethod(): ?ShippingMethodEntity

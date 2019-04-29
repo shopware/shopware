@@ -55,16 +55,6 @@ class CountryEntity extends Entity
     protected $forceStateInRegistration;
 
     /**
-     * @var \DateTimeInterface|null
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
-    /**
      * @var CountryStateCollection|null
      */
     protected $states;
@@ -177,26 +167,6 @@ class CountryEntity extends Entity
     public function setForceStateInRegistration(bool $forceStateInRegistration): void
     {
         $this->forceStateInRegistration = $forceStateInRegistration;
-    }
-
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getStates(): ?CountryStateCollection

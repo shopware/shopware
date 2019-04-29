@@ -53,11 +53,6 @@ class DocumentBaseConfigEntity extends Entity
     protected $config;
 
     /**
-     * @var \DateTime|null
-     */
-    protected $createdAt;
-
-    /**
      * @var DocumentBaseConfigSalesChannelCollection
      */
     protected $salesChannels;
@@ -80,16 +75,6 @@ class DocumentBaseConfigEntity extends Entity
     public function setName(string $name): void
     {
         $this->name = $name;
-    }
-
-    public function getCreatedAt(): ?\DateTime
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(?\DateTime $createdAt): void
-    {
-        $this->createdAt = $createdAt;
     }
 
     public function getSalesChannels(): DocumentBaseConfigSalesChannelCollection

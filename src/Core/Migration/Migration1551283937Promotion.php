@@ -28,6 +28,8 @@ class Migration1551283937Promotion extends MigrationStep
               `discount_rule_id` BINARY(16) NULL,
               `code` VARCHAR(255) NULL UNIQUE,
               `use_codes` TINYINT(1) NOT NULL DEFAULT 0,
+              `created_at` DATETIME(3) NOT NULL,
+              `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`),
               INDEX `idx.promotion.discount_rule_id` (`discount_rule_id` ASC),
               CONSTRAINT `fk.promotion.discount_rule_id`

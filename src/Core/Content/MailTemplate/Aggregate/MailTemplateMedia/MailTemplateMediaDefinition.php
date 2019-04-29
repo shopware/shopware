@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia;
 
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -38,7 +37,6 @@ class MailTemplateMediaDefinition extends MappingEntityDefinition
             (new FkField('mail_template_id', 'mailTemplateId', MailTemplateDefinition::class))->addFlags(new Required()),
             (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new Required()),
             new IntField('position', 'position'),
-            new CreatedAtField(),
             new ManyToOneAssociationField('mailTemplate', 'mail_template_id', MailTemplateDefinition::class, 'id', true),
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', true),
         ]);

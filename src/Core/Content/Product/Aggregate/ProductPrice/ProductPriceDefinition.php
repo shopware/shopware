@@ -6,7 +6,6 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -16,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Currency\CurrencyDefinition;
@@ -55,8 +53,6 @@ class ProductPriceDefinition extends EntityDefinition
             (new PriceField('price', 'price'))->addFlags(new Required()),
             (new IntField('quantity_start', 'quantityStart'))->addFlags(new Required()),
             new IntField('quantity_end', 'quantityEnd'),
-            new CreatedAtField(),
-            new UpdatedAtField(),
             (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false))->addFlags(new ReverseInherited('prices')),
             new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, 'id', false),
             new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, 'id', false),

@@ -94,16 +94,6 @@ class CustomerAddressEntity extends Entity
     protected $additionalAddressLine2;
 
     /**
-     * @var \DateTimeInterface|null
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
-    /**
      * @var CountryEntity
      */
     protected $country;
@@ -286,26 +276,6 @@ class CustomerAddressEntity extends Entity
     public function setAdditionalAddressLine2(?string $additionalAddressLine2): void
     {
         $this->additionalAddressLine2 = $additionalAddressLine2;
-    }
-
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getCountry(): CountryEntity

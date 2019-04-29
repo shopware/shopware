@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionPersonaCustomer;
 
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -29,7 +28,6 @@ class PromotionPersonaCustomerDefinition extends MappingEntityDefinition
         return new FieldCollection([
             (new FkField('promotion_id', 'promotionId', PromotionDefinition::class))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('customer_id', 'customerId', CustomerDefinition::class))->addFlags(new PrimaryKey(), new Required()),
-            new CreatedAtField(),
             new ManyToOneAssociationField('promotion', 'promotion_id', PromotionDefinition::class, 'id'),
             new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, 'id'),
         ]);

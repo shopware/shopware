@@ -29,8 +29,6 @@ class Migration1551281937AddTagAndProductTagTables extends MigrationStep
               `product_id` BINARY(16) NOT NULL,
               `product_version_id` BINARY(16) NOT NULL,
               `tag_id` BINARY(16) NOT NULL,
-              `created_at` DATETIME(3) NOT NULL,
-              `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`product_id`, `product_version_id`, `tag_id`),
               CONSTRAINT `fk.product_version_id.product_id` FOREIGN KEY (`product_id`, `product_version_id`)
                 REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,

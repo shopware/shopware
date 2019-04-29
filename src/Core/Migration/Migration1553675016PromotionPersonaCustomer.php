@@ -21,7 +21,6 @@ class Migration1553675016PromotionPersonaCustomer extends MigrationStep
             CREATE TABLE `promotion_persona_customer` (
                 promotion_id BINARY(16) NOT NULL,
                 customer_id BINARY(16) NOT NULL,
-                created_at DATETIME(3) NOT NULL,
                 PRIMARY KEY (`promotion_id`, `customer_id`),
                 CONSTRAINT `fk.promotion_persona_customer.promotion_id` FOREIGN KEY (promotion_id) REFERENCES promotion (id) ON DELETE CASCADE,
                 CONSTRAINT `fk.promotion_persona_customer.customer_id` FOREIGN KEY (customer_id) REFERENCES customer (id) ON DELETE CASCADE

@@ -107,16 +107,6 @@ class PluginEntity extends Entity
     protected $changelog;
 
     /**
-     * @var \DateTimeInterface|null
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
-    /**
      * @var PluginTranslationCollection|null
      */
     protected $translations;
@@ -324,26 +314,6 @@ class PluginEntity extends Entity
     public function setChangelog(array $changelog): void
     {
         $this->changelog = $changelog;
-    }
-
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getTranslations(): ?PluginTranslationCollection

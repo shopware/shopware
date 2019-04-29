@@ -18,8 +18,6 @@ class Migration1552492072CustomerTag extends MigrationStep
             CREATE TABLE `customer_tag` (
               `customer_id` BINARY(16) NOT NULL,
               `tag_id` BINARY(16) NOT NULL,
-              `created_at` DATETIME(3) NOT NULL,
-              `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`customer_id`, `tag_id`),
               CONSTRAINT `fk.customer_tag.customer_id` FOREIGN KEY (`customer_id`)
                 REFERENCES `customer` (`id`),

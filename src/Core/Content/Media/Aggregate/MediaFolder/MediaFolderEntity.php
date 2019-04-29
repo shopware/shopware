@@ -48,16 +48,6 @@ class MediaFolderEntity extends Entity
     protected $configuration;
 
     /**
-     * @var \DateTimeInterface
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
-    /**
      * @var bool
      */
     protected $useParentConfiguration;
@@ -150,26 +140,6 @@ class MediaFolderEntity extends Entity
     public function setConfiguration(?MediaFolderConfigurationEntity $configuration): void
     {
         $this->configuration = $configuration;
-    }
-
-    public function getCreatedAt(): \DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(?\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getUseParentConfiguration(): bool

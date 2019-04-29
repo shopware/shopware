@@ -22,7 +22,6 @@ CREATE TABLE mail_template_media (
   mail_template_id BINARY(16) NOT NULL,
   media_id BINARY(16) NOT NULL,
   position INT(11) NOT NULL DEFAULT 1,
-  created_at DATETIME(3) NOT NULL,
   PRIMARY KEY (id),
   CONSTRAINT `fk.mail_template_attachment.mail_template_id` FOREIGN KEY (`mail_template_id`) REFERENCES `mail_template` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk.mail_template_attachment.media_id` FOREIGN KEY (`media_id`) REFERENCES `media` (`id`) ON DELETE CASCADE ON UPDATE CASCADE

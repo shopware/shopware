@@ -5,14 +5,12 @@ namespace Shopware\Core\System\Integration;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class IntegrationDefinition extends EntityDefinition
@@ -42,8 +40,6 @@ class IntegrationDefinition extends EntityDefinition
             new BoolField('write_access', 'writeAccess'),
             new DateField('last_usage_at', 'lastUsageAt'),
             new AttributesField(),
-            new CreatedAtField(),
-            new UpdatedAtField(),
         ]);
     }
 }

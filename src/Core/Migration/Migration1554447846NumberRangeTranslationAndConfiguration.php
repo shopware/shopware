@@ -127,6 +127,8 @@ SQL;
               `id` BINARY(16) NOT NULL,
               `number_range_id` BINARY(16) NOT NULL,
               `last_value` INTEGER(8) NOT NULL,
+              `created_at` DATETIME(3) NOT NULL,
+              `updated_at` DATETIME(3) NULL,              
               PRIMARY KEY (`number_range_id`),
               UNIQUE `uniq.id` (`id`),
               INDEX `idx.number_range_id` (`number_range_id`)
@@ -175,6 +177,8 @@ SQL;
               `number_range_id` BINARY(16) NOT NULL,
               `sales_channel_id` BINARY(16) NULL,
               `number_range_type_id` BINARY(16) NOT NULL,
+              `created_at` DATETIME(3) NOT NULL,
+              `updated_at` DATETIME(3) NULL, 
               PRIMARY KEY (`id`),
               UNIQUE `uniq.numer_range_id__sales_channel_id` (`number_range_id`, `sales_channel_id`),
               CONSTRAINT `fk.number_range_sales_channel.number_range_id`

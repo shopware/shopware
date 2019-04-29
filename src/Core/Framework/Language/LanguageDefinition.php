@@ -24,7 +24,6 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation\PropertyGr
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -37,7 +36,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Language\SalesChannel\SalesChannelLanguageDefinition as SalesChannelApiLanguageDefinition;
 use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationDefinition;
@@ -91,8 +89,6 @@ class LanguageDefinition extends EntityDefinition
             (new StringField('name', 'name'))->addFlags(new Required()),
             new AttributesField(),
 
-            new CreatedAtField(),
-            new UpdatedAtField(),
             new ParentAssociationField(self::class, 'id'),
 
             new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, 'id', true),

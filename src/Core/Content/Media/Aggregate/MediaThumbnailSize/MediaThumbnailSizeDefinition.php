@@ -6,13 +6,11 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderCo
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfigurationMediaThumbnailSize\MediaFolderConfigurationMediaThumbnailSizeDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class MediaThumbnailSizeDefinition extends EntityDefinition
@@ -48,8 +46,6 @@ class MediaThumbnailSizeDefinition extends EntityDefinition
                 'media_folder_configuration_id'
             ),
             new AttributesField(),
-            new CreatedAtField(),
-            new UpdatedAtField(),
         ]);
     }
 }

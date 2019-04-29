@@ -19,6 +19,8 @@ class Migration1536233320MessageQueueStats extends MigrationStep
             `id` BINARY(16) NOT NULL PRIMARY KEY,          
             `name` VARCHAR(255) NOT NULL,
             `size` INT(11) NOT NULL DEFAULT 0,
+            `created_at` DATETIME(3) NOT NULL,
+            `updated_at` DATETIME(3) NULL,
             CONSTRAINT `uniq.message_queue_stats.name` UNIQUE(`name`),
             CONSTRAINT `check.message_queue_stats.size` CHECK (size >= 0)
         )');

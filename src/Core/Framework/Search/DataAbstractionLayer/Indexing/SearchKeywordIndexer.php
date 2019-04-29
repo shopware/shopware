@@ -249,6 +249,7 @@ class SearchKeywordIndexer implements IndexerInterface
                 $keyword = $this->connection->quote($keyword);
                 $reversed = $this->connection->quote($reversed);
                 $ranking = $this->connection->quote($ranking);
+                $now = $this->connection->quote(date(Defaults::STORAGE_DATE_FORMAT));
 
                 $queue->addInsert($table, [
                     'scope' => $entityName,
@@ -264,6 +265,7 @@ class SearchKeywordIndexer implements IndexerInterface
                     'language_id' => $languageId,
                     'keyword' => $keyword,
                     'ranking' => $ranking,
+                    'created_at' => $now,
                 ], null, true);
             }
         }

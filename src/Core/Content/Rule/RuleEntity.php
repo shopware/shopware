@@ -38,16 +38,6 @@ class RuleEntity extends Entity
     protected $payload;
 
     /**
-     * @var \DateTimeInterface
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
-    /**
      * @var array|null
      */
     protected $moduleTypes;
@@ -152,16 +142,6 @@ class RuleEntity extends Entity
         $this->description = $description;
     }
 
-    public function getCreatedAt(): \DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
     public function getPriority(): int
     {
         return $this->priority;
@@ -170,16 +150,6 @@ class RuleEntity extends Entity
     public function setPriority(int $priority): void
     {
         $this->priority = $priority;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getDiscountSurcharges(): ?DiscountSurchargeCollection

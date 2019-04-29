@@ -26,8 +26,8 @@ class Migration1553593164ShippingAvailabilityRule extends MigrationStep
 
         $ruleId = Uuid::randomBytes();
         $connection->insert('rule', ['id' => $ruleId, 'name' => 'Cart >= 0', 'priority' => 100, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
-        $connection->insert('rule_condition', ['id' => Uuid::randomBytes(), 'rule_id' => $ruleId, 'type' => 'cartCartAmount', 'value' => json_encode(['operator' => '>=', 'amount' => 0])]);
-        $connection->update('shipping_method', ['availability_rule_id' => $ruleId], ['1' => '1']);
+        $connection->insert('rule_condition', ['id' => Uuid::randomBytes(), 'rule_id' => $ruleId, 'type' => 'cartCartAmount', 'value' => json_encode(['operator' => '>=', 'amount' => 0]), 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->update('shipping_method', ['availability_rule_id' => $ruleId, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)], ['1' => '1']);
     }
 
     public function updateDestructive(Connection $connection): void

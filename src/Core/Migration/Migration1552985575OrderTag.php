@@ -19,8 +19,6 @@ class Migration1552985575OrderTag extends MigrationStep
               `order_id` BINARY(16) NOT NULL,
               `order_version_id` BINARY(16) NOT NULL,
               `tag_id` BINARY(16) NOT NULL,
-              `created_at` DATETIME(3) NOT NULL,
-              `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`order_id`, `order_version_id`, `tag_id`),
               CONSTRAINT `fk.order_tag.order_tag__order_version_id` FOREIGN KEY (`order_id`, `order_version_id`)
                 REFERENCES `order` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,

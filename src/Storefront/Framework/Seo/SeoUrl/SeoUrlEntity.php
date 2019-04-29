@@ -61,16 +61,6 @@ class SeoUrlEntity extends Entity
     protected $autoIncrement;
 
     /**
-     * @var \DateTimeInterface|null
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
-    /**
      * @var SalesChannelEntity|null
      */
     protected $salesChannel;
@@ -155,11 +145,6 @@ class SeoUrlEntity extends Entity
         $this->isModified = $isModified;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
     public function getIsDeleted(): bool
     {
         return $this->isDeleted;
@@ -178,21 +163,6 @@ class SeoUrlEntity extends Entity
     public function setIsValid(bool $isValid): void
     {
         $this->isValid = $isValid;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getSalesChannel(): ?SalesChannelEntity

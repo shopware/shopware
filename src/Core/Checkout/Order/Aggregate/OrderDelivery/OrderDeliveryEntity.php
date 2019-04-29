@@ -50,16 +50,6 @@ class OrderDeliveryEntity extends Entity
     protected $shippingCosts;
 
     /**
-     * @var \DateTimeInterface|null
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
-    /**
      * @var OrderAddressEntity
      */
     protected $shippingOrderAddress;
@@ -162,26 +152,6 @@ class OrderDeliveryEntity extends Entity
     public function setShippingCosts(CalculatedPrice $shippingCosts): void
     {
         $this->shippingCosts = $shippingCosts;
-    }
-
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getShippingOrderAddress(): OrderAddressEntity

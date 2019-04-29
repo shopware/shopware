@@ -25,6 +25,7 @@ CREATE TABLE `state_machine_history` (
   `action_name` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `user_id` BINARY(16) NULL,
   `created_at` DATETIME(3) NOT NULL,
+  `updated_at` DATETIME(3) NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `json.state_machine_history.entity_id` CHECK (JSON_VALID(`entity_id`)),
   CONSTRAINT `fk.state_machine_history.state_machine_id` FOREIGN KEY (`state_machine_id`)

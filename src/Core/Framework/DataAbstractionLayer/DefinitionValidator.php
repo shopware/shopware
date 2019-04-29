@@ -91,10 +91,12 @@ class DefinitionValidator
 
         /** @var string|EntityDefinition $definition */
         foreach ($this->registry->getDefinitions() as $definition) {
+            // ignore definitions from a test namespace
+            if (preg_match('/.*\\Test\\.*/', $definition)) {
+                continue;
+            }
             $violations[$definition] = [];
-        }
 
-        foreach ($this->registry->getDefinitions() as $definition) {
             $instance = new $definition();
 
             $struct = ArrayEntity::class;
@@ -652,16 +654,14 @@ class DefinitionValidator
         $columns = $manager->listTableColumns($definition::getEntityName());
 
         $violations = [];
+        $mappedFieldNames = [];
 
         /** @var Column $column */
         foreach ($columns as $column) {
-            if ($this->isVersionIdFieldMappedByFkField($definition, $column)) {
-                continue;
-            }
-
             $field = $definition::getFields()->getByStorageName($column->getName());
 
             if ($field) {
+                $mappedFieldNames[] = $field->getPropertyName();
                 continue;
             }
 
@@ -669,12 +669,30 @@ class DefinitionValidator
             $association = $definition::getFields()->get($column->getName());
 
             if ($association instanceof AssociationField && $association->is(Inherited::class)) {
+                $mappedFieldNames[] = $association->getPropertyName();
                 continue;
             }
 
             $violations[] = sprintf(
                 'Column %s has no configured field',
                 $column->getName()
+            );
+        }
+
+        foreach (array_diff($definition::getFields()->getKeys(), $mappedFieldNames) as $notMapped) {
+            /** @var Field $field */
+            $field = $definition::getFields()->get($notMapped);
+            if (!$field instanceof StorageAware) {
+                continue;
+            }
+
+            if ($field->getFlag(Deferred::class)) {
+                continue;
+            }
+
+            $violations[] = sprintf(
+                'Field %s has no configured column',
+                $notMapped
             );
         }
 
@@ -841,18 +859,5 @@ class DefinitionValidator
     private function getAggregateNamespace(string $definition): string
     {
         return lcfirst(preg_replace('/.*\\\\([^\\\\]+)\\\\Aggregate.*/', '$1', $definition));
-    }
-
-    private function isVersionIdFieldMappedByFkField(string $definition, Column $column): bool
-    {
-        $fkFieldName = preg_replace('/_version_id$/i', '_id', $column->getName());
-
-        $field = $definition::getFields()->getByStorageName($fkFieldName);
-
-        if ($field instanceof FkField) {
-            return true;
-        }
-
-        return false;
     }
 }

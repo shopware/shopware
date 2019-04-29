@@ -18,7 +18,6 @@ class Migration1554898006PromotionOrderRule extends MigrationStep
             CREATE TABLE `promotion_order_rule` (
                 promotion_id BINARY(16) NOT NULL,
                 rule_id BINARY(16) NOT NULL,
-                created_at DATETIME(3) NOT NULL,
                 PRIMARY KEY (`promotion_id`, `rule_id`),
                 CONSTRAINT `fk.promotion_order_rule.promotion_id` FOREIGN KEY (promotion_id) REFERENCES promotion (id) ON DELETE CASCADE,
                 CONSTRAINT `fk.promotion_order_rule.rule_id` FOREIGN KEY (rule_id) REFERENCES rule (id) ON DELETE CASCADE

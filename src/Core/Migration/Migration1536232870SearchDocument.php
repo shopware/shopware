@@ -23,6 +23,8 @@ class Migration1536232870SearchDocument extends MigrationStep
               `entity_id` BINARY(16) NOT NULL,
               `ranking` FLOAT NOT NULL,
               `attributes` JSON NULL,
+              `created_at` DATETIME(3) NOT NULL,
+              `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`),
               INDEX `idx.entity_id` (`entity_id`),
               CONSTRAINT `json.search_document.attributes` CHECK (JSON_VALID(`attributes`)),

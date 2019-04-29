@@ -97,16 +97,6 @@ class OrderEntity extends Entity
     protected $isTaxFree;
 
     /**
-     * @var \DateTimeInterface|null
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
-    /**
      * @var OrderCustomerEntity
      */
     protected $orderCustomer;
@@ -274,26 +264,6 @@ class OrderEntity extends Entity
     public function getShippingTotal(): float
     {
         return $this->shippingTotal;
-    }
-
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getOrderCustomer(): OrderCustomerEntity

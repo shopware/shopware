@@ -515,6 +515,7 @@ class DetailPageSeoUrlIndexerTest extends TestCase
             'shippingMethods' => [['id' => $shippingMethod]],
             'countries' => [['id' => $country]],
             'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'navigationCategoryId' => $this->getValidCategoryId(),
         ]], Context::createDefaultContext());
 
         return $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();

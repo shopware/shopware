@@ -20,8 +20,6 @@ class Migration1536233250ProductCategory extends MigrationStep
               `product_version_id` BINARY(16) NOT NULL,
               `category_id` BINARY(16) NOT NULL,
               `category_version_id` BINARY(16) NOT NULL,
-              `created_at` DATETIME(3) NOT NULL,
-              `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`product_id`, `product_version_id`, `category_id`, `category_version_id`),
               CONSTRAINT `fk.product_category.category_id` FOREIGN KEY (`category_id`, `category_version_id`)
                 REFERENCES `category` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,

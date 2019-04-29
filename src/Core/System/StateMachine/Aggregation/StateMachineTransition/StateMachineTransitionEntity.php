@@ -49,16 +49,6 @@ class StateMachineTransitionEntity extends Entity
      */
     protected $attributes;
 
-    /**
-     * @var \DateTimeInterface
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
     public function getStateMachineId(): string
     {
         return $this->stateMachineId;
@@ -127,26 +117,6 @@ class StateMachineTransitionEntity extends Entity
     public function setAttributes(?array $attributes): void
     {
         $this->attributes = $attributes;
-    }
-
-    public function getCreatedAt(): \DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getActionName(): string

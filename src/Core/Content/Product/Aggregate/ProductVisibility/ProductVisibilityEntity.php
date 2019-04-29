@@ -27,16 +27,6 @@ class ProductVisibilityEntity extends Entity
     protected $salesChannelId;
 
     /**
-     * @var \DateTimeInterface
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
-    /**
      * @var ProductEntity|null
      */
     protected $product;
@@ -94,25 +84,5 @@ class ProductVisibilityEntity extends Entity
     public function setSalesChannel(SalesChannelEntity $salesChannel): void
     {
         $this->salesChannel = $salesChannel;
-    }
-
-    public function getCreatedAt(): \DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(?\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 }

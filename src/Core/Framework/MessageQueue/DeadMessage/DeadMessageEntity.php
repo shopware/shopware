@@ -65,16 +65,6 @@ class DeadMessageEntity extends Entity
     protected $errorCount;
 
     /**
-     * @var \DateTimeInterface
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface
-     */
-    protected $updatedAt;
-
-    /**
      * @var string|null
      */
     protected $scheduledTaskId;
@@ -197,26 +187,6 @@ class DeadMessageEntity extends Entity
     public function setErrorCount(int $errorCount): void
     {
         $this->errorCount = $errorCount;
-    }
-
-    public function getCreatedAt(): \DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): \DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getScheduledTaskId(): ?string

@@ -38,16 +38,6 @@ class SalesChannelDomainEntity extends Entity
     protected $snippetSet;
 
     /**
-     * @var \DateTimeInterface|null
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
-    /**
      * @var string
      */
     protected $salesChannelId;
@@ -120,26 +110,6 @@ class SalesChannelDomainEntity extends Entity
     public function setLanguage(LanguageEntity $language): void
     {
         $this->language = $language;
-    }
-
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getCurrencyId(): ?string

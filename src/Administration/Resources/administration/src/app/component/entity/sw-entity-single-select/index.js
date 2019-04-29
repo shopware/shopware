@@ -36,7 +36,8 @@ export default {
             silent: false,
             page: 1,
             limit: 10,
-            repository: {}
+            repository: {},
+            currentOptions: []
         };
     },
 

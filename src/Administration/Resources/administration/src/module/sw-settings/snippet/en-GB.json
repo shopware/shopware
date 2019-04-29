@@ -7,7 +7,8 @@
       "title": "Settings"
     },
     "system-config": {
-      "labelSalesChannelSelect": "Saleschannel"
+      "labelSalesChannelSelect": "Saleschannel",
+      "inherited": "Inherited"
     }
   }
 }

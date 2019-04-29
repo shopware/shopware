@@ -31,7 +31,7 @@ export default {
             default: ''
         },
         label: {
-            type: String,
+            type: [String, Object],
             default: ''
         },
         helpText: {
@@ -42,12 +42,12 @@ export default {
         labelProperty: {
             type: String,
             required: false,
-            default: 'value'
+            default: 'label'
         },
         valueProperty: {
             type: String,
             required: false,
-            default: 'key'
+            default: 'value'
         },
         required: {
             type: Boolean,
@@ -74,8 +74,7 @@ export default {
             isLoading: false,
             hasError: false,
             singleSelection: null,
-            currentOptions: [],
-            placeholderOption: null
+            currentOptions: []
         };
     },
 
@@ -90,6 +89,14 @@ export default {
         },
         selectId() {
             return `sw-single-select--${utils.createId()}`;
+        },
+        placeholderOption() {
+            if (!this.required) {
+                const label = this.placeholder || this.$tc('global.sw-single-select.valuePlaceholder');
+                return { [this.valueProperty]: null, [this.labelProperty]: label };
+            }
+
+            return null;
         }
     },
 
@@ -114,17 +121,14 @@ export default {
 
     methods: {
         createdComponent() {
-            if (!this.required) {
-                const labelProperty = this.placeholder || this.$tc('global.sw-single-select.valuePlaceholder');
-                this.placeholderOption = { [this.valueProperty]: null, [this.labelProperty]: labelProperty };
-            }
-
             this.init();
             this.addEventListeners();
         },
 
         init() {
-            this.currentOptions = this.options;
+            this.options.forEach((item) => {
+                this.currentOptions.push(item);
+            });
 
             this.initPlaceholder();
 
@@ -154,7 +158,7 @@ export default {
         },
 
         loadSelected() {
-            if (this.value === null || this.value === '') {
+            if (this.value === null || this.value === '' || this.value === undefined) {
                 this.singleSelection = this.placeholderOption;
                 return;
             }

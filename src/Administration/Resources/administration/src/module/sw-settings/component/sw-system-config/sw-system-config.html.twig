@@ -15,10 +15,9 @@
                 <template v-for="element in card.elements"
                           v-if="!isLoading">
                     {% block sw_system_config_content_card_field %}
-                        <sw-form-field-renderer :config="element"
+                        <sw-form-field-renderer v-bind="getElementBind(element)"
                                                 :key="element.name"
-                                                v-model="actualConfigData[currentSalesChannelId][element.name]"
-                                                v-bind="getElementBind(element)">
+                                                v-model="actualConfigData[currentSalesChannelId][element.name]">
                         </sw-form-field-renderer>
                     {% endblock %}
                 </template>

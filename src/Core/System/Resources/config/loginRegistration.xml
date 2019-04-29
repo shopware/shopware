@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/System/SystemConfig/Schema/config.xsd">
+    <card>
+        <title>Login / registration</title>
+        <title lang="de-DE">Anmeldung / Registrierung</title>
+
+        <input-field type="int">
+            <name>passwordMinLength</name>
+            <label>Minimum password length (registration)</label>
+            <label lang="de-DE">Mindestlänge Passwort (Registrierung)</label>
+        </input-field>
+
+        <input-field type="bool">
+            <name>showPhoneNumberField</name>
+            <label>Show phone number field</label>
+            <label lang="de-DE">Telefon anzeigen</label>
+        </input-field>
+
+        <input-field type="bool">
+            <name>phoneNumberFieldRequired</name>
+            <label>Treat phone field as required</label>
+            <label lang="de-DE">Telefon als Pflichtfeld behandeln</label>
+        </input-field>
+
+        <input-field type="bool">
+            <name>showBirthdayField</name>
+            <label>Show birthday field</label>
+            <label lang="de-DE">Geburtstag anzeigen</label>
+        </input-field>
+
+        <input-field type="bool">
+            <name>birthdayFieldRequired</name>
+            <label>Treat birthday field as required</label>
+            <label lang="de-DE">Geburtstag als Pflichtfeld behandeln</label>
+        </input-field>
+
+        <input-field type="bool">
+            <name>showAdditionalAddressField1</name>
+            <label>Show additional address field 1</label>
+            <label lang="de-DE">Adresszusatzzeile 1 anzeigen</label>
+        </input-field>
+
+        <input-field type="bool">
+            <name>additionalAddressField1Required</name>
+            <label>Treat additional address 1 field as required</label>
+            <label lang="de-DE">Adresszusatzzeile 1 als Pflichtfeld behandeln</label>
+        </input-field>
+
+        <input-field type="bool">
+            <name>showAdditionalAddressField2</name>
+            <label>Show additional address field 2</label>
+            <label lang="de-DE">Adresszusatzzeile 2 anzeigen</label>
+        </input-field>
+
+        <input-field type="bool">
+            <name>additionalAddressField2Required</name>
+            <label>Treat additional address 2 field as required</label>
+            <label lang="de-DE">Adresszusatzzeile 1 als Pflichtfeld behandeln</label>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>registrationCaptcha</name>
+            <options>
+                <option>
+                    <id>none</id>
+                    <name>No Captcha</name>
+                    <name lang="de-DE">Kein Captcha</name>
+                </option>
+                <option>
+                    <id>default</id>
+                    <name>Default (Numbers / Letters)</name>
+                    <name lang="de-DE">Standard (Zahlen / Buchstaben)</name>
+                </option>
+                <option>
+                    <id>honeypot</id>
+                    <name>Honeypot (invisible)</name>
+                    <name lang="de-DE">Honeypot (Unsichtbar)</name>
+                </option>
+            </options>
+            <label>Use captcha in registration</label>
+            <label lang="de-DE">Captcha in Registrierung verwenden</label>
+        </input-field>
+    </card>
+</config>

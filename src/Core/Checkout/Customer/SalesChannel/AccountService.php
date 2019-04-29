@@ -191,7 +191,7 @@ class AccountService
 
         $customerData = [
             'id' => $context->getCustomer()->getId(),
-            'password' => $data->get('password'),
+            'password' => $data->get('newPassword'),
         ];
 
         $this->customerRepository->update([$customerData], $context->getContext());
@@ -475,15 +475,12 @@ class AccountService
             return;
         }
 
-        if (!array_key_exists($equalityValidation->propertyPath, $data)) {
-            throw new \Exception('propertyPath to compare with does not exist');
-        }
-
-        if ($data[$field] === $data[$equalityValidation->propertyPath]) {
+        $compareValue = $data[$equalityValidation->propertyPath] ?? null;
+        if ($data[$field] === $compareValue) {
             return;
         }
 
-        $message = str_replace('{{ compared_value }}', $data[$equalityValidation->propertyPath], $equalityValidation->message);
+        $message = str_replace('{{ compared_value }}', $compareValue, $equalityValidation->message);
 
         $violations = new ConstraintViolationList();
         $violations->add(new ConstraintViolation($message, $equalityValidation->message, [], '', $field, $data[$field]));

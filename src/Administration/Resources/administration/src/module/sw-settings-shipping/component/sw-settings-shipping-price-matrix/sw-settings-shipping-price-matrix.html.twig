@@ -12,6 +12,16 @@
                                            :placeholder="$tc('sw-settings-shipping.priceMatrix.noRestriction')"
                                            @save-rule="onSaveRule"
                                            @dismiss-rule="$emit('rule-change', $event, priceGroup.ruleId)">
+                        <template slot="result_items" slot-scope="{ item, index }">
+                            {% block sw_settings_shipping_price_matrix_topbar_rule_select_result %}
+                                <sw-select-option
+                                        :disabled="!!priceRuleGroups[item.id]"
+                                        :index="index"
+                                        :item="item">
+                                    {{ item.name }}
+                                </sw-select-option>
+                            {% endblock %}
+                        </template>
                     </sw-select-rule-create>
                 {% endblock %}
 

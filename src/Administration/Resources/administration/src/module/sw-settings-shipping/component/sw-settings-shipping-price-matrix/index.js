@@ -175,7 +175,10 @@ Component.register('sw-settings-shipping-price-matrix', {
             this.shippingMethod.prices.push(newPriceRule);
         },
         onSaveRule(ruleId) {
-            this.$nextTick(() => this.$emit('rule-change', ruleId, this.priceGroup.ruleId));
+            this.$nextTick(() => {
+                this.$super.$emit('rule-add');
+                this.$emit('rule-change', ruleId, this.priceGroup.ruleId);
+            });
         },
         onSavePriceRule(newPriceRule) {
             newPriceRule.shippingMethodId = this.shippingMethod.id;

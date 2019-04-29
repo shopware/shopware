@@ -95,12 +95,30 @@ Component.register('sw-settings-shipping-price-matrices', {
         this.createdComponent();
     },
 
+    beforeDestroy() {
+        this.$off('rule-add');
+    },
+
     methods: {
         createdComponent() {
             this.priceRuleStore.getList({
                 page: 1,
                 limit: 500
             });
+
+            this.loadRules();
+
+            this.currencyStore.getList({
+                page: 1,
+                limit: 500
+            }).then((response) => {
+                this.currencies = response.items;
+            });
+
+            this.$on('rule-add', this.loadRules);
+        },
+
+        loadRules() {
             this.isLoadingRules = true;
 
             this.ruleStore.getList({
@@ -112,13 +130,6 @@ Component.register('sw-settings-shipping-price-matrices', {
                 this.totalRules = response.total;
 
                 this.isLoadingRules = false;
-            });
-
-            this.currencyStore.getList({
-                page: 1,
-                limit: 500
-            }).then((response) => {
-                this.currencies = response.items;
             });
         },
 

@@ -19,11 +19,13 @@
                 </template>
                 <template slot="result_items" slot-scope="{ item, index }">
                     {% block sw_select_rule_create_select_result %}
-                        <sw-select-option
-                                :index="index"
-                                :item="item">
-                            {{ item.name }}
-                        </sw-select-option>
+                        <slot name="result_items" :item="item" :index="index">
+                            <sw-select-option
+                                    :index="index"
+                                    :item="item">
+                                {{ item.name }}
+                            </sw-select-option>
+                        </slot>
                     {% endblock %}
                 </template>
             </sw-select>

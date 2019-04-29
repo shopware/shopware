@@ -219,6 +219,7 @@
         "cartHeaderTotalPrice": "Summe",
         "cartHeaderTaxIncludeVat": "Enthaltene MwSt.",
         "cartHeaderTaxExcludeVat": "zzgl. Mwst.",
+        "cartItemInfoId": "Artikel-Nr.:",
         "summaryPositionPrice": "Summe:",
         "summaryShipping": "Versandkosten:",
         "summaryTotalPrice": "Gesamtsumme:",

@@ -45,7 +45,11 @@
                                             {% endblock %}
 
                                             {% block page_checkout_item_product_info_ordernumber %}
-                                                {#TODO: NEXT-1946 - ordernumber#}
+                                                {% if lineItem.payload.productNumber %}
+                                                    <div class="cart-item-ordernumber">
+                                                        {{ "checkout.cartItemInfoId"|trans }} {{ lineItem.payload.productNumber }}
+                                                    </div>
+                                                {% endif %}
                                             {% endblock %}
 
                                             {% block page_checkout_item_product_info_delivery_informations %}

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\MessageQueue;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -29,9 +30,9 @@ class MonitoringBusDecoratorTest extends TestCase
             ->with(static::equalTo($testMsg))
             ->willReturn(new Envelope($testMsg));
 
-        $repoDummy = $this->createMock(EntityRepositoryInterface::class);
+        $connectionMock = $this->createMock(Connection::class);
 
-        $decoratedBus = new MonitoringBusDecorator($innerBus, $repoDummy);
+        $decoratedBus = new MonitoringBusDecorator($innerBus, $connectionMock);
         $decoratedBus->dispatch($testMsg);
     }
 
@@ -44,13 +45,14 @@ class MonitoringBusDecoratorTest extends TestCase
             ->method('dispatch')
             ->willReturn(new Envelope($testMsg));
 
-        /** @var EntityRepositoryInterface $queueRepo */
-        $queueRepo = $this->getContainer()->get('message_queue_stats.repository');
-
-        $decoratedBus = new MonitoringBusDecorator($innerBus, $queueRepo);
+        /** @var Connection $connection */
+        $connection = $this->getContainer()->get(Connection::class);
+        $decoratedBus = new MonitoringBusDecorator($innerBus, $connection);
 
         $decoratedBus->dispatch($testMsg);
 
+        /** @var EntityRepositoryInterface $queueRepo */
+        $queueRepo = $this->getContainer()->get('message_queue_stats.repository');
         $context = Context::createDefaultContext();
         $criteria = new Criteria();
         $criteria->setLimit(1)->addFilter(new EqualsFilter('name', TestMessage::class));
@@ -71,11 +73,12 @@ class MonitoringBusDecoratorTest extends TestCase
             ->method('dispatch')
             ->willReturn(new Envelope($testMsg));
 
+        /** @var Connection $connection */
+        $connection = $this->getContainer()->get(Connection::class);
+        $decoratedBus = new MonitoringBusDecorator($innerBus, $connection);
+
         /** @var EntityRepositoryInterface $queueRepo */
         $queueRepo = $this->getContainer()->get('message_queue_stats.repository');
-
-        $decoratedBus = new MonitoringBusDecorator($innerBus, $queueRepo);
-
         $queueRepo->create(
             [[
                 'name' => get_class($testMsg),
@@ -104,14 +107,15 @@ class MonitoringBusDecoratorTest extends TestCase
             ->method('dispatch')
             ->willReturn(new Envelope($testMsg));
 
-        /** @var EntityRepositoryInterface $queueRepo */
-        $queueRepo = $this->getContainer()->get('message_queue_stats.repository');
-
-        $decoratedBus = new MonitoringBusDecorator($innerBus, $queueRepo);
+        /** @var Connection $connection */
+        $connection = $this->getContainer()->get(Connection::class);
+        $decoratedBus = new MonitoringBusDecorator($innerBus, $connection);
 
         $envelope = new Envelope($testMsg);
         $decoratedBus->dispatch($envelope);
 
+        /** @var EntityRepositoryInterface $queueRepo */
+        $queueRepo = $this->getContainer()->get('message_queue_stats.repository');
         $context = Context::createDefaultContext();
         $criteria = new Criteria();
         $criteria->setLimit(1)->addFilter(new EqualsFilter('name', TestMessage::class));

@@ -2,10 +2,8 @@
 
 namespace Shopware\Core\Framework\MessageQueue;
 
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\ReceivedStamp;
@@ -18,16 +16,16 @@ class MonitoringBusDecorator implements MessageBusInterface
     private $innerBus;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var Connection
      */
-    private $messageQueueRepository;
+    private $connection;
 
     public function __construct(
         MessageBusInterface $inner,
-        EntityRepositoryInterface $messageQueueRepository
+        Connection $connection
     ) {
         $this->innerBus = $inner;
-        $this->messageQueueRepository = $messageQueueRepository;
+        $this->connection = $connection;
     }
 
     /**
@@ -66,56 +64,24 @@ class MonitoringBusDecorator implements MessageBusInterface
 
     private function incrementMessageQueueSize(string $name): void
     {
-        $context = Context::createDefaultContext();
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-        $criteria->addFilter(new EqualsFilter('name', $name));
-        /** @var ?MessageQueueStatsEntity $queueSize */
-        $queueSize = $this->messageQueueRepository->search($criteria, $context)->first();
-
-        if (!$queueSize) {
-            $context->scope(Context::SYSTEM_SCOPE, function () use ($name, $context) {
-                $this->messageQueueRepository->create([
-                    [
-                        'name' => $name,
-                        'size' => 1,
-                    ],
-                ], $context);
-            });
-
-            return;
-        }
-
-        $context->scope(Context::SYSTEM_SCOPE, function () use ($queueSize, $context) {
-            $this->messageQueueRepository->update([
-                [
-                    'id' => $queueSize->getId(),
-                    'size' => $queueSize->getSize() + 1,
-                ],
-            ], $context);
-        });
+        $this->connection->executeQuery('
+            INSERT INTO `message_queue_stats` (`id`, `name`, `size`, `created_at`)
+            VALUES (:id, :name, 1, NOW())
+            ON DUPLICATE KEY UPDATE `size` = `size` +1, `updated_at` = NOW()
+        ', [
+            'id' => Uuid::randomBytes(),
+            'name' => $name,
+        ]);
     }
 
     private function decrementMessageQueueSize(string $name): void
     {
-        $context = Context::createDefaultContext();
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-        $criteria->addFilter(new EqualsFilter('name', $name));
-        /** @var MessageQueueStatsEntity|null $queueSize */
-        $queueSize = $this->messageQueueRepository->search($criteria, $context)->first();
-
-        if (!$queueSize) {
-            return;
-        }
-
-        $context->scope(Context::SYSTEM_SCOPE, function () use ($queueSize, $context) {
-            $this->messageQueueRepository->update([
-                [
-                    'id' => $queueSize->getId(),
-                    'size' => $queueSize->getSize() - 1,
-                ],
-            ], $context);
-        });
+        $this->connection->executeUpdate('
+            UPDATE `message_queue_stats`
+            SET `size` = `size` - 1
+            WHERE `name` = :name;
+        ', [
+            'name' => $name,
+        ]);
     }
 }

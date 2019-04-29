@@ -31,6 +31,7 @@
       "labelDemoEntity": "Demo entity",
       "placeholderDemoEntity": "Select a demo entity",
       "labelPageTypeLandingpage": "Landingpage",
+      "labelPageTypeShopPage": "Shop page",
       "labelPageTypeCategory": "Listing page",
       "labelPageTypeProduct": "Product page",
       "sidebarTitleBlockOverview": "Blocks",

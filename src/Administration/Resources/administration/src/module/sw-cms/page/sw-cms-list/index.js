@@ -46,10 +46,10 @@ Component.register('sw-cms-list', {
         sortPageTypes() {
             return [
                 { value: '', name: this.$tc('sw-cms.sorting.labelSortByAllPages'), active: true },
-                { value: 'landing_page', name: this.$tc('sw-cms.sorting.labelSortByLandingPages') },
-                { value: 'shop_page', name: this.$tc('sw-cms.sorting.labelSortByShopPages') },
-                { value: 'product_page', name: this.$tc('sw-cms.sorting.labelSortByProductPages') },
-                { value: 'category_page', name: this.$tc('sw-cms.sorting.labelSortByCategoryPages') }
+                { value: 'page', name: this.$tc('sw-cms.sorting.labelSortByShopPages') },
+                { value: 'landingpage', name: this.$tc('sw-cms.sorting.labelSortByLandingPages') },
+                { value: 'product_list', name: this.$tc('sw-cms.sorting.labelSortByCategoryPages') },
+                { value: 'product_detail', name: this.$tc('sw-cms.sorting.labelSortByProductPages'), disabled: true }
             ];
         },
 

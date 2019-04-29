@@ -285,6 +285,41 @@ Component.register('sw-cms-detail', {
         },
 
         onPageTypeChange() {
+            const blockStore = this.page.getAssociation('blocks');
+
+            if (this.page.blocks.length > 0) {
+                // ToDo: Show modal before deleting blocks.
+                blockStore.forEach((block) => {
+                    block.delete();
+                });
+                this.page.blocks = [];
+            }
+
+            if (this.page.type === 'product_list') {
+                const listingBlock = blockStore.create();
+                const blockConfig = this.cmsBlocks['product-listing'];
+
+                listingBlock.type = 'product-listing';
+                listingBlock.position = 0;
+                listingBlock.pageId = this.page.id;
+
+                Object.assign(
+                    listingBlock.config,
+                    cloneDeep(this.blockConfigDefaults),
+                    cloneDeep(blockConfig.defaultConfig || {})
+                );
+
+                const slotStore = listingBlock.getAssociation('slots');
+                const listingEl = slotStore.create();
+                listingEl.blockId = listingBlock.id;
+                listingEl.slot = 'content';
+                listingEl.type = 'product-listing';
+
+                listingBlock.slots.push(listingEl);
+                this.page.blocks.splice(0, 0, listingBlock);
+                this.updateBlockPositions();
+            }
+
             this.updateDataMapping();
         },
 

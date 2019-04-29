@@ -277,6 +277,10 @@ $sw-field-color-error: $color-crimson;
 
             option {
                 color: $sw-field-color-text;
+
+                &:disabled {
+                    color: $color-steam-cloud;
+                }
             }
 
             &.is--placeholder {

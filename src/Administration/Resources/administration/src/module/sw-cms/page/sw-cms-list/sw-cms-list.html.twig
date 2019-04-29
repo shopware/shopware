@@ -26,6 +26,7 @@
                                             v-for="pageType in sortPageTypes"
                                             @click="onSortPageType(pageType.value)"
                                             :key="pageType.name"
+                                            :disabled="pageType.disabled"
                                             :active="pageType.active">
                                                 {{ pageType.name }}
                                         </sw-tabs-item>

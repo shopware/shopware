@@ -9,6 +9,7 @@ import './image/image';
 import './image/image-cover';
 import './image/image-two-column';
 import './image/image-three-column';
+import './image/image-three-cover';
 import './image/image-four-column';
 import './image/image-bubble-row';
 import './image/image-highlight-row';
@@ -22,3 +23,4 @@ import './text-image/image-text-gallery';
 import './text-image/image-text-bubble';
 
 import './commerce/product-three-column';
+import './commerce/product-listing';

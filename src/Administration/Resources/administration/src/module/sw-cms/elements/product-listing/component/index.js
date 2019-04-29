@@ -15,7 +15,7 @@ Component.register('sw-cms-el-product-listing', {
 
     methods: {
         createdComponent() {
-            this.initElementConfig('product-box');
+            this.initElementConfig('product-listing');
         }
     }
 });

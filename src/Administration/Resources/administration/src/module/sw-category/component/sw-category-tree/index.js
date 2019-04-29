@@ -90,6 +90,7 @@ Component.register('sw-category-tree', {
             newCategory.name = name;
             newCategory.parentId = parentId;
             newCategory.childCount = childCount;
+            newCategory.active = false;
 
             return newCategory;
         },

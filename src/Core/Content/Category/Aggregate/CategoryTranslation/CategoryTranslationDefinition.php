@@ -37,6 +37,7 @@ class CategoryTranslationDefinition extends EntityTranslationDefinition
         return new FieldCollection([
             (new StringField('name', 'name'))->addFlags(new Required()),
             new JsonField('slot_config', 'slotConfig'),
+            new StringField('external_link', 'externalLink'),
 
             new AttributesField(),
         ]);

@@ -63,6 +63,7 @@ class Migration1536232885Category extends MigrationStep
               `meta_description` MEDIUMTEXT COLLATE utf8mb4_unicode_ci NULL,
               `cms_headline` VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL,
               `cms_description` MEDIUMTEXT COLLATE utf8mb4_unicode_ci NULL,
+              `external_link` MEDIUMTEXT COLLATE utf8mb4_unicode_ci NULL,
               `attributes` JSON NULL,
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,

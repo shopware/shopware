@@ -101,6 +101,7 @@ class CategoryDefinition extends EntityDefinition
             (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new TranslatedField('attributes'),
             new TranslatedField('slotConfig'),
+            new TranslatedField('externalLink'),
 
             new ParentAssociationField(self::class, 'id'),
             new ChildrenAssociationField(self::class),

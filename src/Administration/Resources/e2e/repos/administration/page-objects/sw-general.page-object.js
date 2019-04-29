@@ -34,6 +34,7 @@ export default class GeneralPageObject {
 
             // Create/detail components
             primaryButton: '.sw-button--primary',
+            ghostButton: '.sw-button--ghost',
             dangerButton: '.sw-button--danger',
             cardTitle: '.sw-card__title',
 

@@ -43,28 +43,33 @@
                 {% block sw_product_detail_content_tabs %}
                     <sw-tabs class="sw-product-detail-page__tabs">
                         {% block sw_product_detail_content_tabs_general %}
-                            <sw-tabs-item :route="{ name: 'sw.product.detail.base', params: { id: $route.params.id } }"
+                            <sw-tabs-item class="sw-product-detail__tab-general"
+                                          :route="{ name: 'sw.product.detail.base', params: { id: $route.params.id } }"
                                           :title="$tc('sw-product.detail.tabGeneral')">
                                 {{ $tc('sw-product.detail.tabGeneral') }}
                             </sw-tabs-item>
                         {% endblock %}
 
                         {% block sw_product_detail_content_tabs_advanced_prices %}
-                            <sw-tabs-item :route="{ name: 'sw.product.detail.prices', params: { id: $route.params.id } }"
+                            <sw-tabs-item class="sw-product-detail__tab-advanced-prices"
+                                          :route="{ name: 'sw.product.detail.prices', params: { id: $route.params.id } }"
                                           :title="$tc('sw-product.detail.tabAdvancedPrices')">
                                 {{ $tc('sw-product.detail.tabAdvancedPrices') }}
                             </sw-tabs-item>
                         {% endblock %}
 
                         {% block sw_product_detail_content_tabs_advanced_properties %}
-                            <sw-tabs-item :route="{ name: 'sw.product.detail.properties', params: { id: $route.params.id } }"
+                            <sw-tabs-item class="sw-product-detail__tab-properties"
+                                          :route="{ name: 'sw.product.detail.properties', params: { id: $route.params.id } }"
                                           :title="$tc('sw-product.detail.tabProperties')">
                                 {{ $tc('sw-product.detail.tabProperties') }}
                             </sw-tabs-item>
                         {% endblock %}
 
                         {% block sw_product_detail_content_tabs_advanced_variants %}
-                            <sw-tabs-item v-if="next2021" :route="{ name: 'sw.product.detail.variants', params: { id: $route.params.id } }"
+                            <sw-tabs-item v-if="next2021"
+                                          class="sw-product-detail__tab-variants"
+                                          :route="{ name: 'sw.product.detail.variants', params: { id: $route.params.id } }"
                                           :title="$tc('sw-product.detail.tabVariation')">
                                 {{ $tc('sw-product.detail.tabVariation') }}
                             </sw-tabs-item>

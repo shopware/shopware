@@ -65,6 +65,19 @@ class ProductPageObject extends GeneralPageObject {
             .waitForElementNotPresent(`${this.elements.productListName} > a`);
     }
 
+    findInStorefront(name) {
+        this.browser
+            .url(process.env.APP_URL)
+            .waitForElementVisible('input[name=search]')
+            .setValue('input[name=search]', name)
+            .expect.element('.result-product .result-link').to.have.text.that.contains(name);
+
+        this.browser
+            .click('.result-product .result-link')
+            .waitForElementVisible('.product-detail-content')
+            .expect.element('.product-detail-name').to.have.text.that.contains(name);
+    }
+
     changeTranslation(productName, language, position) {
         this.browser
             .waitForElementVisible('.sw-language-switch')

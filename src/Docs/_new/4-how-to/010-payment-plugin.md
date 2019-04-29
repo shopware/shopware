@@ -15,7 +15,7 @@ You can create your own payment handler by implementing one of the following int
 |               Interface             |   DI container tag            |                               Usage                                 |
 |-------------------------------------|-------------------------------|---------------------------------------------------------------------|
 | SynchronousPaymentHandlerInterface  | shopware.payment.method.sync  | A redirect to an external payment provider is required, e.g. PayPal |
-| AsynchronousPaymentHandlerInterface | shopware.payment.method.async | Payment can be handled locally, e.g. SEPA payment                   |
+| AsynchronousPaymentHandlerInterface | shopware.payment.method.async | Payment can be handled locally, e.g. pre-payment                   |
 
 Depending on the interface, those two methods are required:
 
@@ -37,6 +37,9 @@ Similar to the pay action you are able to throw exceptions if some error cases o
 Throw the `CustomerCanceledAsyncPaymentException` if the customer canceled the payment process on the payment provider site.
 If another general error occurs throw the `AsyncPaymentFinalizeException` e.g. if your call to the payment provider API fails.
 Again Shopware will handle these exceptions and will set the transaction to the `cancelled` state.
+
+Both methods get the `\Shopware\Core\System\SalesChannel\SalesChannelContext` injected. Please note, that this class contains properties, which are nullable.
+If you want to use these information, ensure in your code, that they are set and not `NULL` 
 
 You also need to make sure to register your custom payment in the DI container.
 

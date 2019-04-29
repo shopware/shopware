@@ -4,11 +4,10 @@
         {% block sw_category_detail_information %}
             <sw-card :title="$tc('sw-category.base.general.headlineInformationCard')" :isLoading="isLoading || isLoadingProducts">
 
-                <sw-container columns="repeat(auto-fit, minmax(150px, 1fr))" gap="0px 30px" class="sw-category-detail__info">
+                <sw-container columns="repeat(auto-fit, minmax(150px, 1fr))" gap="0px 30px">
                     {% block sw_category_detail_information_name %}
                         <sw-field
                             name="categoryName"
-                            class="sw-category-detail__base-name"
                             v-model="category.name"
                             validation="required"
                             :label="$tc('sw-category.base.general.categoryNameLabel')"
@@ -23,7 +22,6 @@
 
                 {% block sw_category_detail_information_subcategories %}
                     <sw-field
-                        class="sw-category-detail__base-subcategories"
                         name="categoryShowSubcategories"
                         type="boolean"
                         :label="$tc('sw-category.base.general.showSubcategoryProductsLabel')"

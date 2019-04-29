@@ -29,11 +29,16 @@
             }
         },
 
+        "view": {
+          "general": "Allgemein",
+          "cms": "Experience Designer"
+        },
+
         "base": {
           "general": {
             "categoryNameLabel": "Name",
             "linkLabel": "Linkziel",
-            "headlineInformationCard": "Kategorieinformationen",
+            "headlineInformationCard": "Allgemein",
             "isCategoryActiveLabel": "Kategorie ist aktiv",
             "showSubcategoryProductsLabel": "Enthält Produkte aus Subkategorien",
             "useAsLink": "Als Link verwenden"
@@ -54,7 +59,7 @@
           },
 
           "cms": {
-            "title": "CMS-Layout",
+            "title": "Layoutauswahl",
             "changeLayout": "Layout ändern",
             "editInPagebuilder": "Im Pagebuilder bearbeiten",
             "editContent": "Content bearbeiten"

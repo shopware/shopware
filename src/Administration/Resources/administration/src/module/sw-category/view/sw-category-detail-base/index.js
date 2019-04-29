@@ -206,7 +206,6 @@ Component.register('sw-category-detail-base', {
 
         isSalesChannelEntryPoint() {
             this.getCombinedSalesChannels();
-
             return this.category.navigationSalesChannels.length > 0
                 || this.category.serviceSalesChannels.length > 0
                 || this.category.footerSalesChannels.length > 0;

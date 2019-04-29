@@ -143,15 +143,10 @@ Component.register('sw-category-detail', {
                 }
             };
             return this.cmsPageStore.getList(params, true).then((response) => {
-                console.log('response', response);
                 const cmsPage = response.items[0];
                 this.cmsPage = cmsPage;
                 return cmsPage;
             });
-        },
-
-        onCmsLayoutChange(cmsPageId) {
-            return this.getAssignedCmsPage(cmsPageId);
         },
 
         setCategory() {
@@ -166,8 +161,6 @@ Component.register('sw-category-detail', {
                 this.getCategory(categoryId).then(response => {
                     this.category = response;
                     this.getAssignedCmsPage(this.category.cmsPageId);
-                    this.onCmsLayoutChange(this.category.cmsPageId);
-                    console.log(this.category);
 
                     this.mediaItem = this.category.mediaId
                         ? this.mediaStore.getById(this.category.mediaId) : null;

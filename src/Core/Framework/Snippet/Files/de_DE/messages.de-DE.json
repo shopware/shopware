@@ -265,7 +265,12 @@
         "addProduct": "In den Warenkorb",
         "tabsDescription": "Beschreibung",
         "descriptionTitle": "Produktinformationen",
-        "priceUnitName": "Inhalt:"
+        "priceUnitName": "Inhalt:",
+        "priceDataInfoUntil": "bis",
+        "priceDataInfoFrom": "ab",
+        "dataColumnQuantity": "Menge",
+        "dataColumnPrice": "Stückpreis",
+        "dataColumnReferencePrice": "Grundpreis"
     },
     "footer": {
         "serviceHotlineHeadline": "Service Hotline",

@@ -1,7 +1,78 @@
 {% block page_product_detail_price_inner %}
-    {% if page.product.blockprices %}
+    {% if page.product.prices|length > 1 %}
         {% block page_product_detail_price_block %}
-            {#TODO: NEXT-2782 - blockprices (page.product.calculatedPriceRules) #}
+            <div class="product-block-prices">
+                {% block page_product_detail_price_block_table %}
+                    <table class="table table-sm table-bordered product-block-prices-table">
+                        {% block page_product_detail_price_block_table_head %}
+                            <thead class="product-block-prices-head">
+                                {% block page_product_detail_price_block_table_head_inner %}
+                                    <tr class="product-block-prices-row">
+                                        <th scope="col" class="product-block-prices-cell">
+                                            {{ "detail.dataColumnQuantity"|trans }}
+                                        </th>
+                                        <th scope="col" class="product-block-prices-cell">
+                                            {{ "detail.dataColumnPrice"|trans }}
+                                        </th>
+                                        {% if page.product.purchaseUnit %}
+                                            <th scope="col" class="product-block-prices-cell">
+                                                {{ "detail.dataColumnReferencePrice"|trans }}
+                                            </th>
+                                        {% endif %}
+                                    </tr>
+                                {% endblock %}
+                            </thead>
+                        {% endblock %}
+    
+                        {% block page_product_detail_price_block_table_body %}
+                            <tbody class="product-block-prices-body">
+                                {% block page_product_detail_price_block_table_body_inner %}
+                                    {% for blockPrice in page.product.prices %}
+                                        {% block page_product_detail_price_block_table_body_row %}
+                                            <tr class="product-block-prices-row"
+                                                itemprop="offers" itemscope
+                                                itemtype="http://schema.org/Offer">
+                                                
+                                                {% block page_product_detail_price_block_table_body_cell_quantity %}
+                                                    <th scope="row" class="product-block-prices-cell">
+                                                        <meta itemprop="priceCurrency" content="{{ page.header.activeCurrency.id }}" />
+                                                        <meta itemprop="price" content="{{ blockPrice.price.gross }}" />
+                                                        <link itemprop="availability" href="http://schema.org/InStock" />
+                                                        
+                                                        {% if blockPrice.quantityStart == 1 %}
+                                                            {{ "detail.priceDataInfoUntil"|trans }}
+                                                            <span class="product-block-prices-quantity">{{ blockPrice.quantityEnd }}</span>
+                                                        {% else %}
+                                                            {{ "detail.priceDataInfoFrom"|trans }}
+                                                            <span class="product-block-prices-quantity">{{ blockPrice.quantityStart }}</span>
+                                                        {% endif %}
+                                                    </th>
+                                                {% endblock %}
+                                                
+                                                {% block page_product_detail_price_block_table_body_cell_price %}
+                                                    <td class="product-block-prices-cell">
+                                                        {{ blockPrice.price.gross|localizedcurrency(page.context.currency.shortName, app.request.locale) }}{{ "general.star"|trans }}
+                                                    </td>
+                                                {% endblock %}
+                                                
+                                                {% block page_product_detail_price_block_table_body_cell_reference_price %}
+                                                    {% if page.product.purchaseUnit %}
+                                                        <td class="product-block-prices-cell">
+                                                            {% set blockReferencePrice = blockPrice.price.gross * page.product.referenceUnit / page.product.purchaseUnit %}
+                                                            {{ blockReferencePrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}{{ "general.star"|trans }}
+                                                            / {{ page.product.referenceUnit }} {#TODO: NEXT-2781 - add measuring unit (old sArticle.sUnit.description) #}
+                                                        </td>
+                                                    {% endif %}
+                                                {% endblock %}
+                                            </tr>
+                                        {% endblock %}
+                                    {% endfor %}
+                                {% endblock %}
+                            </tbody>
+                        {% endblock %}
+                    </table>
+                {% endblock %}
+            </div>
         {% endblock %}
     {% else %}
         <meta itemprop="price"

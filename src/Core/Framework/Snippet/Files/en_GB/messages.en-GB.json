@@ -265,7 +265,12 @@
         "addProduct": "Add to shopping cart",
         "tabsDescription": "Description",
         "descriptionTitle": "Product information",
-        "priceUnitName": "Content:"
+        "priceUnitName": "Content:",
+        "priceDataInfoUntil": "To",
+        "priceDataInfoFrom": "From",
+        "dataColumnQuantity": "Quantity",
+        "dataColumnPrice": "Unit price",
+        "dataColumnReferencePrice": "Reference price"
     },
     "footer": {
         "serviceHotlineHeadline": "Service Hotline",

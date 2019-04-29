@@ -33,7 +33,7 @@ class Migration1551283937Promotion extends MigrationStep
 
         $connection->executeQuery('
         CREATE TABLE `promotion_translation` (
-            `name` VARCHAR(255) NOT NULL,
+            `name` VARCHAR(255) NULL,
             `promotion_id` BINARY(16) NOT NULL,
             `language_id` BINARY(16) NOT NULL,
             `created_at` DATETIME(3) NOT NULL,

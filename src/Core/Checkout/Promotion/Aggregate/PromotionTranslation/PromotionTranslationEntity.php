@@ -14,7 +14,7 @@ class PromotionTranslationEntity extends TranslationEntity
     protected $promotionId;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
@@ -33,7 +33,7 @@ class PromotionTranslationEntity extends TranslationEntity
         $this->promotionId = $promotionId;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }

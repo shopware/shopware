@@ -30,7 +30,7 @@
                                             <li>
                                                 {% block layout_header_actions_currency_widget_form_items_element_data %}
                                                     <div class="top-bar-list-item dropdown-item{% if currency.id is same as(page.header.activeCurrency.id) %} item-checked{% endif %}"
-                                                         title="{{ currency.shortName }}">
+                                                         title="{{ currency.translated.shortName }}">
                                                         {% block layout_header_actions_currency_widget_form_items_element_label %}
                                                             <label class="top-bar-list-label"
                                                                    for="{{ currency.id }}">

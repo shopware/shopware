@@ -17,7 +17,7 @@
 
                     {% block page_checkout_summary_position_price_value %}
                         <div class="checkout-summary-value">
-                            {{ summary.price.positionPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}{{ "general.star"|trans }}
+                            {{ summary.price.positionPrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
                         </div>
                     {% endblock %}
                 </li>
@@ -35,7 +35,7 @@
 
                             {% block page_checkout_summary_shipping_cost_value %}
                                 <div class="checkout-summary-value">
-                                    {{ delivery.shippingCosts.totalPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}{{ "general.star"|trans }}
+                                    {{ delivery.shippingCosts.totalPrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
                                 </div>
                             {% endblock %}
                         </li>
@@ -53,7 +53,7 @@
 
                     {% block page_checkout_summary_total_price_value %}
                         <div class="checkout-summary-value">
-                            {{ summary.price.totalPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}
+                            {{ summary.price.totalPrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}
                         </div>
                     {% endblock %}
                 </li>
@@ -69,7 +69,7 @@
 
                     {% block page_checkout_summary_net_price_value %}
                         <div class="checkout-summary-value">
-                            {{ summary.price.netPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}
+                            {{ summary.price.netPrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}
                         </div>
                     {% endblock %}
                 </li>
@@ -89,7 +89,7 @@
 
                             {% block page_checkout_summary_tax_value %}
                                 <div class="checkout-summary-value">
-                                    {{ taxItem.tax|localizedcurrency(page.context.currency.shortName, app.request.locale) }}
+                                    {{ taxItem.tax|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}
                                 </div>
                             {% endblock %}
                         </li>

@@ -42,7 +42,7 @@
                  itemtype="http://schema.org/Offer">
                 {% block page_product_detail_data %}
                     <meta itemprop="priceCurrency"
-                          content="{{ page.context.currency.shortName }}"/>
+                          content="{{ page.context.currency.translated.shortName }}"/>
 
                     {% block page_product_detail_price %}
                         <div class="product-detail-price-container">

@@ -7,7 +7,7 @@
         <meta itemprop="price"
               content="{{ page.product.price.gross }}">
         <p class="product-detail-price">
-            {{ page.product.price.gross|localizedcurrency(page.context.currency.shortName, app.request.locale) }}{{ "general.star"|trans }}
+            {{ page.product.price.gross|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
         </p>
 
         {% if page.product.purchaseUnit %}
@@ -29,7 +29,7 @@
                         {% block page_product_detail_price_unit_refrence_content %}
                             <span class="price-unit-reference-content">
                                 {% set referencePrice =  page.product.price.gross * page.product.referenceUnit / page.product.purchaseUnit %}
-                                ({{ referencePrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}{{ "general.star"|trans }}
+                                ({{ referencePrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
                                 / {{ page.product.referenceUnit }} {#TODO: NEXT-2781 - add measuring unit (old sArticle.sUnit.description) #}
                                 )
                             </span>

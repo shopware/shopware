@@ -24,7 +24,7 @@
                                             {% block component_payment_method_description %}
                                                 {% if payment.description %}
                                                     <div class="payment-method-description">
-                                                        {{ payment.description|raw }}
+                                                        {{ payment.translated.description|raw }}
                                                     </div>
                                                 {% endif %}
                                             {% endblock %}

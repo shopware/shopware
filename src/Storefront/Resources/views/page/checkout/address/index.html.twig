@@ -54,7 +54,7 @@
 
                             {% block page_checkout_register_summary_product_price %}
                                 <div class="checkout-summary-value">
-                                    {{ lineItem.price.unitPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}{{ "general.star"|trans }}
+                                    {{ lineItem.price.unitPrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
                                 </div>
                             {% endblock %}
                         </li>

@@ -29,7 +29,7 @@
 
                                         {% block layout_search_suggest_result_price %}
                                             <span
-                                                class="result-price">{{ product.price.gross|localizedcurrency(context.currency.shortName, app.request.locale) }}</span>
+                                                class="result-price">{{ product.price.gross|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}</span>
                                         {% endblock %}
                                     </a>
                                 {% endblock %}

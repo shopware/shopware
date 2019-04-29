@@ -121,7 +121,7 @@
                         {% endblock %}
 
                         {% block page_checkout_item_product_unit_price_inner %}
-                            {{ lineItem.price.unitPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}{% block page_checkout_item_product_unit_price_tax_symbol %}{{ "general.star"|trans }}{% endblock %}
+                            {{ lineItem.price.unitPrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}{% block page_checkout_item_product_unit_price_tax_symbol %}{{ "general.star"|trans }}{% endblock %}
                         {% endblock %}
                     {% endblock %}
                 </div>
@@ -137,7 +137,7 @@
                         {% endblock %}
 
                         {% block page_checkout_item_product_total_price_inner %}
-                            {{ lineItem.price.totalPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}{% block page_checkout_item_product_total_price_tax_symbol %}{{ "general.star"|trans }}{% endblock %}
+                            {{ lineItem.price.totalPrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}{% block page_checkout_item_product_total_price_tax_symbol %}{{ "general.star"|trans }}{% endblock %}
                         {% endblock %}
                     {% endblock %}
                 </div>

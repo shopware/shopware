@@ -62,7 +62,7 @@
 
                                     {% block layout_cart_mini_item_price %}
                                         <span class="cart-item-link-price">
-											{{ lineItem.price.totalPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}{{ "general.star"|trans }}
+											{{ lineItem.price.totalPrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
 										</span>
                                     {% endblock %}
                                 </a>
@@ -83,7 +83,7 @@
 							{{ "checkout.subtotalAmount"|trans }}
 						</span>
                         <span class="cart-prices-subtotal">
-							{{ page.cart.price.positionPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}
+							{{ page.cart.price.positionPrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}
 						</span>
                     </div>
                 {% endblock %}

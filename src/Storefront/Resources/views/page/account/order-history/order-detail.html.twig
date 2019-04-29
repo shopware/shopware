@@ -60,7 +60,7 @@
                                                                     <span
                                                                         class="order-base-price">{{ "account.orderItemInfoBaseprice"|trans }}
                                                                         :</span>
-                                                                    {{ product.referenceunit }} {{ product.packUnit }} = {{ product.referencePrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}{{ "general.star"|trans }}
+                                                                    {{ product.referenceunit }} {{ product.packUnit }} = {{ product.referencePrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
                                                                 {% endif %}
                                                             </p>
                                                         {% endif %}
@@ -75,7 +75,7 @@
                                                 <div class="order-pseudo-price">
                                                     {% block page_account_order_item_detail_pseudoprice_value %}
                                                         <span class="order-pseudo-price-value">
-                                                            {{ product.currentPseudoprice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}{{ "general.star"|trans }}
+                                                            {{ product.currentPseudoprice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
                                                         </span>
                                                     {% endblock %}
                                                 </div>
@@ -112,7 +112,7 @@
                                         {% block page_account_order_item_detail_price_value %}
                                             <span class="order-item-value order-item-price-value">
                                                     {% if product.unitPrice %}
-                                                        {{ product.unitPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}{{ "general.star"|trans }}
+                                                        {{ product.unitPrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
                                                     {% else %}
                                                         {{ "account.orderItemInfoFree"|trans }}
                                                     {% endif %}
@@ -131,7 +131,7 @@
                                         {% block page_account_order_item_detail_total_value %}
                                             <span class="order-item-value order-item-total-value">
                                                     {% if product.totalPrice %}
-                                                        {{ product.totalPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}{{ "general.star"|trans }}
+                                                        {{ product.totalPrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
                                                     {% else %}
                                                         {{ "account.orderItemInfoFree"|trans }}
                                                     {% endif %}
@@ -219,7 +219,7 @@
                                                         {% endblock %}
 
                                                         {% block page_account_order_item_detail_shipping_costs_value %}
-                                                            <dd class="col-6 col-md-4">{{ order.shippingTotal|localizedcurrency(page.context.currency.shortName, app.request.locale) }}</dd>
+                                                            <dd class="col-6 col-md-4">{{ order.shippingTotal|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}</dd>
                                                         {% endblock %}
                                                     {% endblock %}
 
@@ -237,9 +237,9 @@
                                                         {% block page_account_order_item_detail_amount_value %}
                                                             <dd class="col-6 col-md-4">
                                                                 {% if order.isTaxFree %}
-                                                                    {{ order.amountNet|localizedcurrency(page.context.currency.shortName, app.request.locale) }}
+                                                                    {{ order.amountNet|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}
                                                                 {% else %}
-                                                                    {{ order.amountTotal|localizedcurrency(page.context.currency.shortName, app.request.locale) }}
+                                                                    {{ order.amountTotal|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}
                                                                 {% endif %}
                                                             </dd>
                                                         {% endblock %}

@@ -330,6 +330,16 @@ class AccountService
         $this->eventDispatcher->dispatch($event->getName(), $event);
     }
 
+    public function setNewsletterFlag(CustomerEntity $customer, bool $newsletter, SalesChannelContext $context): void
+    {
+        $customer->setNewsletter($newsletter);
+
+        $this->customerRepository->update([[
+            'id' => $customer->getId(),
+            'newsletter' => $newsletter,
+        ]], $context->getContext());
+    }
+
     /**
      * @throws CustomerNotFoundException
      * @throws BadCredentialsException

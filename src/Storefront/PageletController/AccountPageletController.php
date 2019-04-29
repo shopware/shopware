@@ -3,18 +3,17 @@
 namespace Shopware\Storefront\PageletController;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
+use Shopware\Core\Content\NewsletterReceiver\SalesChannel\NewsletterSubscriptionService;
 use Shopware\Core\Content\NewsletterReceiver\SalesChannel\NewsletterSubscriptionServiceInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
-/**
- * @copyright 2019 dasistweb GmbH (https://www.dasistweb.de)
- */
 class AccountPageletController extends StorefrontController
 {
     /**
@@ -23,65 +22,78 @@ class AccountPageletController extends StorefrontController
     private $newsletterSubscriptionService;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var TranslatorInterface
      */
-    private $customerRepository;
+    private $translator;
 
-    public function __construct(NewsletterSubscriptionServiceInterface $newsletterSubscriptionService, EntityRepositoryInterface $customerRepository)
-    {
+    /**
+     * @var AccountService
+     */
+    private $accountService;
+
+    public function __construct(
+        NewsletterSubscriptionServiceInterface $newsletterSubscriptionService,
+        AccountService $accountService,
+        TranslatorInterface $translator
+    ) {
         $this->newsletterSubscriptionService = $newsletterSubscriptionService;
-        $this->customerRepository = $customerRepository;
+        $this->translator = $translator;
+        $this->accountService = $accountService;
     }
 
     /**
-     * @Route(path="/widgets/account/newsletter", name="widgets.account.newsletter", methods={"POST"})
+     * @Route(path="/widgets/account/newsletter", name="widgets.account.newsletter", methods={"POST"}, defaults={"XmlHttpRequest"=true})
      */
     public function newsletter(Request $request, RequestDataBag $dataBag, SalesChannelContext $context): Response
     {
-        //$this->denyAccessUnlessLoggedIn();
+        $this->denyAccessUnlessLoggedIn();
 
         /** @var bool $subscribed */
-        $subscribed = (bool) $request->get('subscribed', false);
+        $subscribed = (bool) ($request->get('option', false) === NewsletterSubscriptionService::STATUS_DIRECT);
 
-        $dataBag->set('option', 'unsubscribe');
-        if ($subscribed) {
-            $dataBag->set('option', 'subscribe');
+        if (!$subscribed) {
+            $dataBag->set('option', 'unsubscribe');
         }
 
-        //if subscribe
+        $messages = [];
+        $success = null;
+
         if ($subscribed) {
             try {
-                $dataBag->set('status', NewsletterSubscriptionServiceInterface::STATUS_DIRECT);
                 $this->newsletterSubscriptionService->subscribe($this->hydrateFromCustomer($dataBag, $context->getCustomer()), $context);
 
-                $this->setNewsletterFlag($context->getCustomer(), true, $context);
+                $this->accountService->setNewsletterFlag($context->getCustomer(), true, $context);
 
-                $this->addFlash('success', 'subscribed! hell yeah!');
+                $success = true;
+                $messages[] = ['type' => 'success', 'text' => $this->translator->trans('newsletter.subscriptionConfirmationSuccess')];
             } catch (\Exception $exception) {
-                $this->addFlash('danger', 'not subscribed! hell no!');
+                $success = false;
+                $messages[] = ['type' => 'danger', 'text' => $this->translator->trans('newsletter.subscriptionConfirmationFailed')];
             }
-        } else {
-            try {
-                $this->newsletterSubscriptionService->unsubscribe($this->hydrateFromCustomer($dataBag, $context->getCustomer()), $context);
-                $this->setNewsletterFlag($context->getCustomer(), false, $context);
 
-                $this->addFlash('success', 'unsubscribed! hell no!');
-            } catch (\Exception $exception) {
-                $this->addFlash('danger', 'not unsubscribed! hell yeah!');
-            }
+            return $this->renderStorefront('@Storefront/page/account/newsletter.html.twig', [
+                'customer' => $context->getCustomer(),
+                'messages' => $messages,
+                'success' => $success,
+            ]);
         }
 
-        $request->attributes->set('forwardTo', 'frontend.account.home.page');
+        try {
+            $this->newsletterSubscriptionService->unsubscribe($this->hydrateFromCustomer($dataBag, $context->getCustomer()), $context);
+            $this->accountService->setNewsletterFlag($context->getCustomer(), false, $context);
 
-        return $this->createActionResponse($request);
-    }
+            $success = true;
+            $messages[] = ['type' => 'success', 'text' => $this->translator->trans('newsletter.subscriptionRevokeSuccess')];
+        } catch (\Exception $exception) {
+            $success = false;
+            $messages[] = ['type' => 'danger', 'text' => $this->translator->trans('error.message-default')];
+        }
 
-    private function setNewsletterFlag(CustomerEntity $customer, bool $newsletter, SalesChannelContext $context): void
-    {
-        $this->customerRepository->update([
-            'id' => $customer->getId(),
-            'newsletter' => $newsletter,
-        ], $context->getContext());
+        return $this->renderStorefront('@Storefront/page/account/newsletter.html.twig', [
+            'customer' => $context->getCustomer(),
+            'messages' => $messages,
+            'success' => $success,
+        ]);
     }
 
     private function hydrateFromCustomer(RequestDataBag $dataBag, CustomerEntity $customer): RequestDataBag

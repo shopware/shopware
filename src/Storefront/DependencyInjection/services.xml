@@ -283,7 +283,8 @@
 
         <service id="Shopware\Storefront\PageletController\AccountPageletController" public="true">
             <argument type="service" id="Shopware\Core\Content\NewsletterReceiver\SalesChannel\NewsletterSubscriptionService"/>
-            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
+            <argument type="service" id="translator"/>
         </service>
 
         <service id="Shopware\Storefront\PageController\ProductPageController" public="true">

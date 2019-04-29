@@ -68,7 +68,14 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
             return;
         }
 
-        $event = new NewsletterRegisterEvent($context->getContext(), $receiver, $data['url']);
+        $url = sprintf(
+            '%s/newsletter/subscribe?em=%s&hash=%s',
+            $data['baseUrl'],
+            hash('sha1', $data['email']),
+            $data['hash']
+        );
+
+        $event = new NewsletterRegisterEvent($context->getContext(), $receiver, $url);
         $this->eventDispatcher->dispatch(NewsletterRegisterEvent::EVENT_NAME, $event);
     }
 
@@ -162,12 +169,6 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
         $data['salesChannelId'] = $context->getSalesChannel()->getId();
         $data['status'] = $this->getOptionSelection()[$data['option']];
         $data['hash'] = Uuid::randomHex();
-        $data['url'] = sprintf(
-            '%s/newsletter/subscribe?em=%s&hash=%s',
-            $data['baseUrl'],
-            hash('sha1', $data['email']),
-            $data['hash']
-        );
 
         return $data;
     }

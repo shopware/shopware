@@ -1,0 +1,22 @@
+{% if success is not null %}
+    <div class="newsletter-alerts">
+        {% for message in messages %}
+            {% sw_include "@Storefront/base/_utilities/alert.html.twig" with { 'type': message.type, 'content': message.text} %}
+        {% endfor %}
+    </div>
+{% endif %}
+
+<form name="newsletterRegister" method="post" action="{{ path("widgets.account.newsletter") }}">
+    <div class="form-check">
+        <input type="checkbox"
+               class="form-check-input"
+               id="newsletterRegister"
+               name="option"
+               value="direct"
+               {% if customer.newsletter %}checked="checked"{% endif %}>
+        <label class="form-check-label" for="newsletterRegister">
+            {{ "account.newsletterSettings"|trans({'%shopname%': shopware.config.shopName}) }}
+        </label>
+    </div>
+    <button type="submit">submit</button>
+</form>

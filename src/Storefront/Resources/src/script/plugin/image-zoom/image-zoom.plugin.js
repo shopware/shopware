@@ -2,6 +2,9 @@ import Plugin from 'src/script/helper/plugin/plugin.class';
 import Hammer from 'hammerjs';
 import DomAccess from 'src/script/helper/dom-access.helper';
 import { Vector2, Vector3 } from 'src/script/helper/vector.helper';
+import PluginManager from 'src/script/helper/plugin/plugin.manager';
+
+const IMAGE_SLIDER_INIT_SELECTOR = '[data-image-slider]';
 
 /**
  * ImageZoomPlugin class
@@ -87,6 +90,7 @@ export default class ImageZoomPlugin extends Plugin {
         this._updateTranslateRange();
         this._initHammer();
         this._registerEvents();
+        this._setActionButtonState();
     }
 
     /**
@@ -118,6 +122,30 @@ export default class ImageZoomPlugin extends Plugin {
         this._zoomInActionElement.addEventListener('click', event => this._onZoomIn(event), false);
         this._zoomResetActionElement.addEventListener('click', event => this._onResetZoom(event), false);
         this._zoomOutActionElement.addEventListener('click', event => this._onZoomOut(event), false);
+
+        this._registerImageZoomButtonUpdate();
+    }
+
+    /**
+     * registers a callback which
+     * sets the button state when an image zoom
+     * element within a slider is active
+     *
+     * @private
+     */
+    _registerImageZoomButtonUpdate() {
+        const slider = this.el.closest(IMAGE_SLIDER_INIT_SELECTOR);
+        if (slider) {
+            const imageSliderPlugin = PluginManager.getPluginInstanceFromElement(slider, 'ImageSlider');
+            if (imageSliderPlugin) {
+                imageSliderPlugin.registerChangeListener(() => {
+                    const activeSlide = imageSliderPlugin.getActiveSlideElement();
+                    const imageZoomElement = activeSlide.querySelector('[data-image-zoom]');
+                    const imageZoomPlugin = PluginManager.getPluginInstanceFromElement(imageZoomElement, 'ImageZoom');
+                    imageZoomPlugin._setActionButtonState();
+                });
+            }
+        }
     }
 
     /**
@@ -298,7 +326,11 @@ export default class ImageZoomPlugin extends Plugin {
     }
 
     _setActionButtonState() {
-        if (this._getMaxZoomValue() === this._transform.z) {
+        if (this._transform.z === 1 && this._getMaxZoomValue() === 1) {
+            this._setButtonDisabledState(this._zoomResetActionElement);
+            this._setButtonDisabledState(this._zoomOutActionElement);
+            this._setButtonDisabledState(this._zoomInActionElement);
+        } else if (this._getMaxZoomValue() === this._transform.z) {
             this._unsetButtonDisabledState(this._zoomResetActionElement);
             this._unsetButtonDisabledState(this._zoomOutActionElement);
             this._setButtonDisabledState(this._zoomInActionElement);

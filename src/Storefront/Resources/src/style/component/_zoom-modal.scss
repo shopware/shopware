@@ -1,3 +1,10 @@
+.zoom-modal-wrapper {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+}
+
 .modal.zoom-modal {
     overflow: hidden;
 
@@ -51,6 +58,7 @@
         bottom: 100px;
         position: absolute;
         height: auto;
+        width: 100%;
     }
 
     .image-slider-thumbnails-item {
@@ -66,9 +74,16 @@
         left: 0;
     }
 
-    &.no-thumbnails {
+}
+
+@include media-breakpoint-down(sm) {
+    .modal.zoom-modal {
         .image-slider {
             bottom: 0;
+        }
+
+        .modal-footer {
+            display: none;
         }
     }
 }

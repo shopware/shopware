@@ -120,22 +120,34 @@ export default class ImageSliderPlugin extends Plugin {
     }
 
     /**
+     * register a listener when the slider changed its index
+     */
+    registerChangeListener(cb) {
+        this._slider.events.on('indexChanged', cb);
+    }
+
+    /**
      * reinitialise the slider
      * with the options for our viewport
      *
      * @param viewport
      */
-    rebuild(viewport) {
-        this._getSettings(viewport);
-        // get the current index and use it as the start index
-        if (this._slider) {
-            const currentIndex = this._getCurrentIndex();
-            this._sliderSettings.startIndex = currentIndex;
-            this._thumbnailSliderSettings.startIndex = currentIndex;
-        }
+    rebuild(viewport = ViewportDetection.getCurrentViewport()) {
+        this._getSettings(viewport.toLowerCase());
 
-        this.destroy();
-        this._initSlider();
+        // get the current index and use it as the start index
+        try {
+            if (this._slider) {
+                const currentIndex = this._getCurrentIndex();
+                this._sliderSettings.startIndex = currentIndex;
+                this._thumbnailSliderSettings.startIndex = currentIndex;
+            }
+
+            this.destroy();
+            this._initSlider();
+        } catch (e) {
+            // something went wrong
+        }
     }
 
     /**
@@ -162,6 +174,28 @@ export default class ImageSliderPlugin extends Plugin {
         const info = this._slider.getInfo();
 
         return info.index;
+    }
+
+    /**
+     * returns the active slider item
+     *
+     * @return {*}
+     */
+    getActiveSlideElement() {
+        const info = this._slider.getInfo();
+
+        return info.slideItems[info.index];
+    }
+
+    /**
+     * returns the active thumbnail slider item
+     *
+     * @return {*}
+     */
+    getActiveThumbnailSlideElement() {
+        const info = this._thumbnailSlider.getInfo();
+
+        return info.slideItems[info.index];
     }
 
     /**

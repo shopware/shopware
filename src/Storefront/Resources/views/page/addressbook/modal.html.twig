@@ -1,0 +1,39 @@
+
+
+<form method="post"
+      action="{{ path('widgets.account.addressbook.post') }}">
+    {% block page_account_address_form_create_personal %}
+        {% sw_include '@Storefront/component/address/address-personal.html.twig' with {
+            'data': page.address,
+            'prefix': 'address'
+        } %}
+    {% endblock %}
+
+    {% block page_account_address_form_create_general %}
+        {% sw_include '@Storefront/component/address/address-form.html.twig' with {
+            'data': page.address,
+            'prefix': 'address'
+        } %}
+    {% endblock %}
+
+    {% block page_account_address_required %}
+        <p class="address-required-info required-fields">
+            {{ "general.requiredFields"|trans }}
+        </p>
+    {% endblock %}
+
+    {% block page_account_address_action_buttons %}
+        <div class="address-form-actions">
+            {% block page_account_address_action_button_send %}
+                <button type="submit"
+                        class="address-form-submit btn btn-primary"
+                        title="{{ "account.addressSaveChange"|trans }}">
+                    {{ "account.addressSaveChange"|trans }}
+                </button>
+            {% endblock %}
+        </div>
+    {% endblock %}
+</form>
+
+{{ dump(page) }}
+

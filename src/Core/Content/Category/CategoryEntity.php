@@ -149,6 +149,11 @@ class CategoryEntity extends Entity
      */
     protected $type;
 
+    /**
+     * @var string|null
+     */
+    protected $description;
+
     public function getParentId(): ?string
     {
         return $this->parentId;
@@ -417,5 +422,15 @@ class CategoryEntity extends Entity
     public function setType(string $type): void
     {
         $this->type = $type;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): void
+    {
+        $this->description = $description;
     }
 }

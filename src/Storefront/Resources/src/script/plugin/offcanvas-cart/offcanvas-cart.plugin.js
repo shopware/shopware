@@ -91,7 +91,7 @@ export default class OffCanvasCartPlugin extends Plugin {
      * @private
      */
     _registerRemoveProductTriggerEvents() {
-        const forms = DomAccess.querySelectorAll(document, this.options.removeProductTriggerSelector);
+        const forms = DomAccess.querySelectorAll(document, this.options.removeProductTriggerSelector, false);
 
         forms.forEach(form => {
             form.addEventListener('submit', this._onRemoveProductFromCart.bind(this));

@@ -5,12 +5,11 @@
 
 This HowTo will tackle the issue of changing the price of an item itself in the cart dynamically.
 The following example is **not** recommended if you want to add a discount / surcharge to your products.
-Make sure to check out the HowTo about [adding a discount into the cart dynamically](010-fix-me.md).
+Make sure to check out the HowTo about [adding a discount into the cart dynamically](./230-cart-add-discount.md).
 
 Changing the price like it's done in the following example should rarely be done and only with great caution.
 A live-shopping plugin would be a good example about when to actually change an item's price instead of adding
 a discount / surcharge.
-
 
 ## Scenario
 
@@ -92,7 +91,7 @@ It only shows how to overwrite the price of an item in the cart due to some cond
 ## Changing the price
 
 To accomplish the goal of changing an item in the cart, you should use the [enrichment pattern](010-fix-me.md).
-For this you need to create your own cart collector, as explained in the documentation linked above.
+For this you need to create your own cart collector.
 
 The collector basically compares the product IDs of the products in the cart with the product IDs from the custom table.
 If there's any match, the price has to be overwritten.
@@ -127,10 +126,10 @@ class OverwrittenPriceCollector implements \Shopware\Core\Checkout\Cart\Collecto
 
     public function prepare(StructCollection $definitions, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
     {
-        // Simply consider all items in the cart and pass it to the collection
+        // Simply consider all products in the cart and pass it to the collection
         // We do not want to filter for the products from our custom database table here, since database actions are supposed to be done
         // in the `collect` method
-        $definitions->add(new OverwrittenPriceFetchDefinition($cart->getLineItems()->filterGoods()->getKeys()));
+        $definitions->add(new OverwrittenPriceFetchDefinition($cart->getLineItems()->filterType(LineItem::PRODUCT_LINE_ITEM_TYPE)->getKeys()));
     }
 
     public function collect(StructCollection $fetchDefinitions, StructCollection $data, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
@@ -255,7 +254,7 @@ And for completion's sake, the respective `services.xml`, which registers the co
     
         <service id="Swag\CartChangePrice\Cart\Checkout\OverwrittenPriceCollector">
             <argument type="service" id="overwritten_price.repository" />
-            <tag name="Shopware\Core\Checkout\Cart\CollectorInterface" />
+            <tag name="shopware.cart.collector" />
         </service>
     </services>
 </container>

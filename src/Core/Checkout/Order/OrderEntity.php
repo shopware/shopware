@@ -12,7 +12,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Search\SearchDocumentCollection;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
@@ -140,11 +139,6 @@ class OrderEntity extends Entity
      * @var int
      */
     protected $autoIncrement;
-
-    /**
-     * @var SearchDocumentCollection|null
-     */
-    protected $searchKeywords;
 
     /**
      * @var StateMachineStateEntity
@@ -354,16 +348,6 @@ class OrderEntity extends Entity
     public function setAutoIncrement(int $autoIncrement): void
     {
         $this->autoIncrement = $autoIncrement;
-    }
-
-    public function getSearchKeywords(): ?SearchDocumentCollection
-    {
-        return $this->searchKeywords;
-    }
-
-    public function setSearchKeywords(?SearchDocumentCollection $searchKeywords): void
-    {
-        $this->searchKeywords = $searchKeywords;
     }
 
     public function getStateMachineState(): StateMachineStateEntity

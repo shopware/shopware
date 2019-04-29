@@ -4,10 +4,11 @@ namespace Shopware\Storefront\Test;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter;
+use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreterInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTerm;
-use Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -21,14 +22,14 @@ class KeywordSearchTermInterpreterTest extends TestCase
     private $connection;
 
     /**
-     * @var KeywordSearchTermInterpreterInterface
+     * @var ProductSearchTermInterpreterInterface
      */
     private $interpreter;
 
     protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
-        $this->interpreter = $this->getContainer()->get(KeywordSearchTermInterpreterInterface::class);
+        $this->interpreter = $this->getContainer()->get(ProductSearchTermInterpreter::class);
         $this->setupKeywords();
     }
 
@@ -39,7 +40,7 @@ class KeywordSearchTermInterpreterTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        $matches = $this->interpreter->interpret($term, 'product', $context);
+        $matches = $this->interpreter->interpret($term, $context);
 
         $keywords = array_map(function (SearchTerm $term) {
             return $term->getTerm();
@@ -113,10 +114,9 @@ class KeywordSearchTermInterpreterTest extends TestCase
         foreach ($keywords as $keyword) {
             preg_match_all('/./us', $keyword, $ar);
 
-            $this->connection->insert('search_dictionary', [
-                'scope' => 'product',
+            $this->connection->insert('product_keyword_dictionary', [
+                'id' => Uuid::randomBytes(),
                 'keyword' => $keyword,
-                'reversed' => implode('', array_reverse($ar[0])),
                 'language_id' => $languageId,
             ]);
         }

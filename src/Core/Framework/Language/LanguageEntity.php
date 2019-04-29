@@ -15,7 +15,9 @@ use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTy
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\NewsletterReceiver\NewsletterReceiverCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary\ProductKeywordDictionaryCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOptionTranslation\PropertyGroupOptionTranslationCollection;
@@ -23,7 +25,6 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation\PropertyGr
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationCollection;
-use Shopware\Core\Framework\Search\SearchDocumentCollection;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationCollection;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationCollection;
@@ -192,11 +193,6 @@ class LanguageEntity extends Entity
     protected $salutationTranslations;
 
     /**
-     * @var SearchDocumentCollection|null
-     */
-    protected $searchDocuments;
-
-    /**
      * @var DiscountSurchargeTranslationCollection| null
      */
     protected $discountSurchargeTranslations;
@@ -275,6 +271,16 @@ class LanguageEntity extends Entity
      * @var NumberRangeTypeTranslationCollection|null
      */
     protected $numberRangeTypeTranslations;
+
+    /**
+     * @var ProductSearchKeywordCollection|null
+     */
+    protected $productSearchKeywords;
+
+    /**
+     * @var ProductKeywordDictionaryCollection|null
+     */
+    protected $productKeywordDictionaries;
 
     /**
      * @var MailTemplateTypeDefinition|null
@@ -581,16 +587,6 @@ class LanguageEntity extends Entity
         $this->salesChannelTypeTranslations = $salesChannelTypeTranslations;
     }
 
-    public function getSearchDocuments(): ?SearchDocumentCollection
-    {
-        return $this->searchDocuments;
-    }
-
-    public function setSearchDocuments(SearchDocumentCollection $searchDocuments): void
-    {
-        $this->searchDocuments = $searchDocuments;
-    }
-
     public function getSalesChannelDomains(): ?SalesChannelDomainCollection
     {
         return $this->salesChannelDomains;
@@ -749,5 +745,25 @@ class LanguageEntity extends Entity
     public function setMailTemplateTypeTranslations(?MailTemplateTypeDefinition $mailTemplateTypeTranslations): void
     {
         $this->mailTemplateTypeTranslations = $mailTemplateTypeTranslations;
+    }
+
+    public function getProductSearchKeywords(): ?ProductSearchKeywordCollection
+    {
+        return $this->productSearchKeywords;
+    }
+
+    public function setProductSearchKeywords(ProductSearchKeywordCollection $productSearchKeywords): void
+    {
+        $this->productSearchKeywords = $productSearchKeywords;
+    }
+
+    public function getProductKeywordDictionaries(): ?ProductKeywordDictionaryCollection
+    {
+        return $this->productKeywordDictionaries;
+    }
+
+    public function setProductKeywordDictionaries(ProductKeywordDictionaryCollection $productKeywordDictionaries): void
+    {
+        $this->productKeywordDictionaries = $productKeywordDictionaries;
     }
 }

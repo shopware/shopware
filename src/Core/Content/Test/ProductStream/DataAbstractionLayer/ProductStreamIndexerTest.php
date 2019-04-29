@@ -11,6 +11,7 @@ use Shopware\Core\Content\ProductStream\Util\EventIdExtractor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -61,16 +62,19 @@ class ProductStreamIndexerTest extends TestCase
     {
         $this->context = Context::createDefaultContext();
         $this->productRepo = $this->getContainer()->get('product.repository');
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->eventIdExtractor = $this->createMock(EventIdExtractor::class);
         $this->repository = $this->getContainer()->get('product_stream.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
-        $serializer = $this->getContainer()->get('serializer');
-        $cacheKeyGenerator = $this->getContainer()->get(EntityCacheKeyGenerator::class);
-        $cache = $this->getContainer()->get('shopware.cache');
+
         $this->indexer = new ProductStreamIndexer(
-            $eventDispatcher, $this->eventIdExtractor, $this->repository, $this->connection,
-            $serializer, $cacheKeyGenerator, $cache
+            $this->createMock(EventDispatcherInterface::class),
+            $this->eventIdExtractor,
+            $this->repository,
+            $this->connection,
+            $this->getContainer()->get('serializer'),
+            $this->getContainer()->get(EntityCacheKeyGenerator::class),
+            $this->getContainer()->get('shopware.cache'),
+            $this->getContainer()->get(IteratorFactory::class)
         );
     }
 

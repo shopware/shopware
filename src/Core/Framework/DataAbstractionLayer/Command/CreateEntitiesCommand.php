@@ -48,6 +48,10 @@ class CreateEntitiesCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $io->title('DAL generate schema');
 
+        if (!file_exists($this->dir)) {
+            mkdir($this->dir);
+        }
+
         $entities = $this->registry->getDefinitions();
         $classes = [];
 
@@ -65,6 +69,11 @@ class CreateEntitiesCommand extends Command
                 if (empty($entityClasses)) {
                     continue;
                 }
+
+                if (!file_exists($this->dir . '/' . $domain)) {
+                    mkdir($this->dir . '/' . $domain);
+                }
+
                 foreach ($entityClasses as $file => $content) {
                     file_put_contents($this->dir . '/' . $domain . '/' . $file, $content);
                 }

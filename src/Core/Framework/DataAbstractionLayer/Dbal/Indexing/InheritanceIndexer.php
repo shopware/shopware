@@ -4,9 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\LastIdQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\OffsetQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -43,11 +41,17 @@ class InheritanceIndexer implements IndexerInterface
      */
     private $eventDispatcher;
 
-    public function __construct(Connection $connection, DefinitionRegistry $registry, EventDispatcherInterface $eventDispatcher)
+    /**
+     * @var IteratorFactory
+     */
+    private $iteratorFactory;
+
+    public function __construct(Connection $connection, DefinitionRegistry $registry, EventDispatcherInterface $eventDispatcher, IteratorFactory $iteratorFactory)
     {
         $this->connection = $connection;
         $this->registry = $registry;
         $this->eventDispatcher = $eventDispatcher;
+        $this->iteratorFactory = $iteratorFactory;
     }
 
     public function index(\DateTimeInterface $timestamp): void
@@ -60,7 +64,7 @@ class InheritanceIndexer implements IndexerInterface
                 continue;
             }
 
-            $iterator = $this->createIterator($definition);
+            $iterator = $this->iteratorFactory->createIterator($definition);
 
             $this->eventDispatcher->dispatch(
                 ProgressStartedEvent::NAME,
@@ -68,10 +72,6 @@ class InheritanceIndexer implements IndexerInterface
             );
 
             while ($ids = $iterator->fetch()) {
-                $ids = array_map(function ($id) {
-                    return Uuid::fromBytesToHex($id);
-                }, $ids);
-
                 $this->update($definition, $ids, $context);
 
                 $this->eventDispatcher->dispatch(
@@ -258,32 +258,5 @@ class InheritanceIndexer implements IndexerInterface
                 ['ids' => Connection::PARAM_STR_ARRAY]
             );
         }
-    }
-
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    private function createIterator(string $definition): IterableQuery
-    {
-        $entity = $definition::getEntityName();
-
-        $escaped = EntityDefinitionQueryHelper::escape($entity);
-        $query = $this->connection->createQueryBuilder();
-        $query->from($escaped);
-        $query->setMaxResults(50);
-
-        if ($definition::getFields()->has('autoIncrement')) {
-            $query->select([$escaped . '.auto_increment', $escaped . '.id']);
-            $query->andWhere($escaped . '.auto_increment > :lastId');
-            $query->addOrderBy($escaped . '.auto_increment');
-            $query->setParameter('lastId', 0);
-
-            return new LastIdQuery($query);
-        }
-
-        $query->select([$escaped . '.id', $escaped . '.id AS entityId']);
-        $query->setFirstResult(0);
-
-        return new OffsetQuery($query);
     }
 }

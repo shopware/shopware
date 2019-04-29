@@ -21,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\SearchKeywordAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
@@ -343,10 +342,6 @@ class DefinitionValidator
         /** @var AssociationField $association */
         foreach ($associations as $association) {
             $key = $definition::getEntityName() . '.' . $association->getPropertyName();
-
-            if ($association instanceof SearchKeywordAssociationField) {
-                continue;
-            }
 
             if (\in_array($key, self::IGNORE_FIELDS, true)) {
                 continue;

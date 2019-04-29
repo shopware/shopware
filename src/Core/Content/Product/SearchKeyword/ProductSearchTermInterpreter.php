@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Search\Util;
+namespace Shopware\Core\Content\Product\SearchKeyword;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTerm;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-class KeywordSearchTermInterpreter implements KeywordSearchTermInterpreterInterface
+class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterface
 {
     /**
      * @var Connection
@@ -35,15 +35,15 @@ class KeywordSearchTermInterpreter implements KeywordSearchTermInterpreterInterf
         $this->logger = $logger;
     }
 
-    public function interpret(string $word, string $scope, Context $context): SearchPattern
+    public function interpret(string $word, Context $context): SearchPattern
     {
         $tokens = $this->tokenizer->tokenize($word);
 
         $slops = $this->slop($tokens);
 
-        $matches = $this->fetchKeywords($context, $scope, $slops);
+        $matches = $this->fetchKeywords($context, $slops);
 
-        $combines = Permute::permute($tokens);
+        $combines = $this->permute($tokens);
         foreach ($combines as $token) {
             $tokens[] = $token;
         }
@@ -57,13 +57,33 @@ class KeywordSearchTermInterpreter implements KeywordSearchTermInterpreterInterf
             $this->logger->debug('Search match: ' . $keyword . ' with score ' . (float) $score);
         }
 
-        $pattern = new SearchPattern(new SearchTerm($word), $scope);
+        $pattern = new SearchPattern(new SearchTerm($word));
 
         foreach ($scoring as $keyword => $score) {
             $pattern->addTerm(new SearchTerm((string) $keyword, $score));
         }
 
         return $pattern;
+    }
+
+    private function permute($arg): array
+    {
+        $array = \is_string($arg) ? str_split($arg) : $arg;
+
+        if (\count($array) === 1) {
+            return $array;
+        }
+
+        $result = [];
+        foreach ($array as $key => $item) {
+            $nested = $this->permute(array_diff_key($array, [$key => $item]));
+
+            foreach ($nested as $p) {
+                $result[] = $item . ' ' . $p;
+            }
+        }
+
+        return $result;
     }
 
     private function slop(array $tokens): array
@@ -110,11 +130,11 @@ class KeywordSearchTermInterpreter implements KeywordSearchTermInterpreterInterf
         return $slops;
     }
 
-    private function fetchKeywords(Context $context, string $scope, array $slops): array
+    private function fetchKeywords(Context $context, array $slops): array
     {
         $query = $this->connection->createQueryBuilder();
         $query->select('keyword');
-        $query->from('search_dictionary');
+        $query->from('product_keyword_dictionary');
 
         $counter = 0;
         $wheres = [];
@@ -129,12 +149,10 @@ class KeywordSearchTermInterpreter implements KeywordSearchTermInterpreterInterf
             $query->setParameter('reg' . $counter, $slop);
         }
 
-        $query->andWhere('scope = :scope');
         $query->andWhere('language_id = :language');
         $query->andWhere('(' . implode(' OR ', $wheres) . ')');
 
         $query->setParameter('language', Uuid::fromHexToBytes($context->getLanguageId()));
-        $query->setParameter('scope', $scope);
 
         return $query->execute()->fetchAll(FetchMode::COLUMN);
     }

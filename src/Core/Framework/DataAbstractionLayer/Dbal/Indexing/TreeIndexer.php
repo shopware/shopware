@@ -6,8 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\OffsetQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -51,18 +50,25 @@ class TreeIndexer implements IndexerInterface
      */
     private $cache;
 
+    /**
+     * @var IteratorFactory
+     */
+    private $iteratorFactory;
+
     public function __construct(
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
         DefinitionRegistry $definitionRegistry,
         EntityCacheKeyGenerator $cacheKeyGenerator,
-        TagAwareAdapter $cache
+        TagAwareAdapter $cache,
+        IteratorFactory $iteratorFactory
     ) {
         $this->definitionRegistry = $definitionRegistry;
         $this->eventDispatcher = $eventDispatcher;
         $this->connection = $connection;
         $this->cacheKeyGenerator = $cacheKeyGenerator;
         $this->cache = $cache;
+        $this->iteratorFactory = $iteratorFactory;
     }
 
     public function index(\DateTimeInterface $timestamp): void
@@ -76,7 +82,7 @@ class TreeIndexer implements IndexerInterface
             }
 
             $entityName = $definition::getEntityName();
-            $iterator = $this->createIterator($entityName);
+            $iterator = $this->iteratorFactory->createIterator($definition);
 
             $this->eventDispatcher->dispatch(
                 ProgressStartedEvent::NAME,
@@ -84,10 +90,6 @@ class TreeIndexer implements IndexerInterface
             );
 
             while ($ids = $iterator->fetch()) {
-                $ids = array_map(function ($id) {
-                    return Uuid::fromBytesToHex($id);
-                }, $ids);
-
                 $this->updateIds($ids, $definition, $context);
 
                 $this->eventDispatcher->dispatch(
@@ -272,21 +274,6 @@ class TreeIndexer implements IndexerInterface
             }, $fields);
 
         return $fields;
-    }
-
-    private function createIterator(string $entityName): IterableQuery
-    {
-        $query = $this->connection->createQueryBuilder();
-        $escaped = EntityDefinitionQueryHelper::escape($entityName);
-
-        $query->from($escaped);
-
-        $query->setMaxResults(50);
-
-        $query->select('id', 'id AS entityId');
-        $query->andWhere('parent_id IS NULL');
-
-        return new OffsetQuery($query);
     }
 
     private function makeQueryVersionAware($definition, string $versionId, QueryBuilder $query): void

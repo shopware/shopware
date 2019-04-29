@@ -3,10 +3,11 @@
 namespace Shopware\Core\Content\Product\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\Util\EventIdExtractor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\LastIdQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
@@ -33,22 +34,28 @@ class ProductCategoryTreeIndexer implements IndexerInterface
      * @var Connection
      */
     private $connection;
+    /**
+     * @var IteratorFactory
+     */
+    private $iteratorFactory;
 
     public function __construct(
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
-        EventIdExtractor $eventIdExtractor
+        EventIdExtractor $eventIdExtractor,
+        IteratorFactory $iteratorFactory
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->eventIdExtractor = $eventIdExtractor;
         $this->connection = $connection;
+        $this->iteratorFactory = $iteratorFactory;
     }
 
     public function index(\DateTimeInterface $timestamp): void
     {
         $context = Context::createDefaultContext();
 
-        $query = $this->createIterator();
+        $query = $this->iteratorFactory->createIterator(ProductDefinition::class);
 
         $this->eventDispatcher->dispatch(
             ProgressStartedEvent::NAME,
@@ -56,10 +63,6 @@ class ProductCategoryTreeIndexer implements IndexerInterface
         );
 
         while ($ids = $query->fetch()) {
-            $ids = array_map(function ($id) {
-                return Uuid::fromBytesToHex($id);
-            }, $ids);
-
             $this->update($ids, $context);
 
             $this->eventDispatcher->dispatch(
@@ -187,20 +190,5 @@ class ProductCategoryTreeIndexer implements IndexerInterface
         $categoryIds = array_map('strtolower', $categoryIds);
 
         return array_keys(array_flip(array_filter($categoryIds)));
-    }
-
-    private function createIterator(): LastIdQuery
-    {
-        $query = $this->connection->createQueryBuilder();
-        $query->select(['product.auto_increment', 'product.id']);
-        $query->from('product');
-        $query->andWhere('product.auto_increment > :lastId');
-        $query->addOrderBy('product.auto_increment');
-
-        $query->setMaxResults(50);
-
-        $query->setParameter('lastId', 0);
-
-        return new LastIdQuery($query);
     }
 }

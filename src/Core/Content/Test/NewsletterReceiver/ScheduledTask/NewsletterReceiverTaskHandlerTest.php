@@ -55,7 +55,9 @@ class NewsletterReceiverTaskHandlerTest extends TestCase
             'b4b45f58088d41289490db956ca19af7',
         ];
 
-        static::assertSame($expectedResult, array_keys($result->getData()));
+        foreach ($expectedResult as $id) {
+            static::assertContains($id, array_keys($result->getData()));
+        }
     }
 
     private function installTestData()

@@ -4,9 +4,9 @@
     .sw-cms-list__content {
         padding: 80px 30px 30px 30px;
         margin: 0 auto;
-        max-width: 1460px;
+        max-width: 1260px;
         display: grid;
-        grid-template-columns: 300px 1fr;
+        grid-template-columns: 240px auto;
         grid-column-gap: 30px;
 
         .sw-search-bar {
@@ -24,7 +24,7 @@
 
     .sw-cms-list__actions {
         display: grid;
-        grid-template-columns: 2fr 1fr;
+        grid-template-columns: auto 330px;
         grid-column-gap: 30px;
         align-items: center;
         align-content: center;

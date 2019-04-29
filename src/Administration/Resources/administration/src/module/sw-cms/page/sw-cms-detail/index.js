@@ -92,6 +92,15 @@ Component.register('sw-cms-detail', {
             };
         },
 
+        cmsPageTypes() {
+            return {
+                page: this.$tc('sw-cms.detail.labelPageTypeShopPage'),
+                landingpage: this.$tc('sw-cms.detail.labelPageTypeLandingpage'),
+                product_list: this.$tc('sw-cms.detail.labelPageTypeCategory'),
+                product_detail: this.$tc('sw-cms.detail.labelPageTypeProduct')
+            };
+        },
+
         cmsPageTypeSettings() {
             if (this.cmsTypeMappingEntities[this.page.type]) {
                 return this.cmsTypeMappingEntities[this.page.type];

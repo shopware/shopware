@@ -6,12 +6,6 @@
 
                 {% block sw_cms_detail_toolbar %}
                     <sw-cms-toolbar>
-                        {% block sw_cms_detail_toolbar_back_button %}
-                            <router-link :to="{ name: 'sw.cms.index' }" slot="back-btn">
-                                <sw-icon name="default-action-log-out"></sw-icon>
-                            </router-link>
-                        {% endblock %}
-
                         {% block sw_cms_detail_toolbar_language_switch %}
                             <sw-language-switch slot="language-switch"
                                                 @on-change="onChangeLanguage"
@@ -21,7 +15,22 @@
                         {% endblock %}
 
                         {% block sw_cms_detail_toolbar_title %}
-                            <h2 slot="title">{{ page.name }}</h2>
+                            <div class="sw-cms-detail__page-info" slot="title">
+                                {% block sw_cms_detail_toolbar_back_button %}
+                                    <router-link :to="{ name: 'sw.cms.index' }" class="sw-cms-detail__back-btn">
+                                        <sw-icon name="default-basic-x-line"></sw-icon>
+                                    </router-link>
+                                {% endblock %}
+
+                                {% block sw_cms_detail_toolbar_page_name %}
+                                    <h2 class="sw-cms-detail__page-name">{{ page.name }}</h2>
+                                {% endblock %}
+
+                                {% block sw_cms_detail_toolbar_page_type %}
+                                    <div class="sw-cms-detail__page-type" v-if="page.type">{{ cmsPageTypes[page.type] }}</div>
+                                {% endblock %}
+                            </div>
+
                         {% endblock %}
 
                         {% block sw_cms_detail_toolbar_device_actions %}

@@ -33,9 +33,7 @@
 
                             {% block layout_cart_mini_item_actions %}
                                 {% if lineItem.isRemovable() %}
-                                    {#TODO: use after NEXT-2501 is finished#}
-                                    {#<form action="{{ path('frontend.checkout.line-item.delete', {'id': lineItem.key}) }}"#}
-                                    <form action="#"
+                                    <form action="{{ path('frontend.checkout.line-item.delete', {'id': lineItem.key}) }}"
                                           class="cart-item-remove js-offcanvas-cart-remove-product"
                                           method="post">
                                         <button type="submit"

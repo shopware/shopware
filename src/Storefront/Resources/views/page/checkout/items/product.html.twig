@@ -51,10 +51,6 @@
                                                     </div>
                                                 {% endif %}
                                             {% endblock %}
-
-                                            {% block page_checkout_item_product_info_delivery_informations %}
-                                                {#TODO: NEXT-1946 - delivery informations#}
-                                            {% endblock %}
                                         </div>
                                     {% endblock %}
                                 </div>
@@ -67,12 +63,10 @@
             {% block page_checkout_item_product_quantity %}
                 <div class="col-12 col-sm-4 col-md-auto cart-item-quantity">
                     {% block page_checkout_item_product_quantity_form %}
-
-                        <form action="#"
-                            {#TODO: use after NEXT-2501 is finished#}
-                            {#<form action="{{ path('frontend.checkout.line-item.update', {'id': productId}) }}"#}
+                        <form action="{{ path('frontend.checkout.line-item.update', {'id': lineItem.key}) }}"
                               class="cart-item-quantity-container"
-                              method="post">
+                              method="post"
+                              data-form-auto-submit="true">
                             {% block page_checkout_item_quantity_redirect %}
                                 <input type="hidden"
                                        name="redirectTo"
@@ -102,7 +96,7 @@
                                             <select name="quantity"
                                                     class="custom-select quantity-select">
                                                 {% for quantity in range(lineItem.quantityInformation.minPurchase, maxQuantity, lineItem.quantityInformation.purchaseSteps) %}
-                                                    <option value="{{ i }}"
+                                                    <option value="{{ quantity }}"
                                                         {% if quantity == lineItem.quantity %} selected="selected"{% endif %}>
                                                         {{ quantity }}
                                                     </option>
@@ -153,10 +147,9 @@
                 <div class="col-2 col-md-1 cart-item-remove">
                     {% block page_checkout_item_product_remove_form %}
                         {% if lineItem.isRemovable() %}
-                            {#TODO: use after NEXT-2501 is finished#}
-                            {#<form action="{{ path('frontend.checkout.line-item.delete', {'id': productId}) }}"#}
-                            <form action="#"
-                                  method="post">
+                            <form action="{{ path('frontend.checkout.line-item.delete', {'id': lineItem.key}) }}"
+                                  method="post"
+                                  data-form-auto-submit="true">
                                 {% block page_checkout_item_remove_redirect %}
                                     <input type="hidden"
                                            name="redirectTo"

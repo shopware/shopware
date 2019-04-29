@@ -7,7 +7,7 @@
                 </p>
             {% endblock %}
         {% endif %}
-        {#TODO: NEXT-1020 - active not available #}
+        {#TODO: NEXT-2898 - active not available #}
         {% if not page.product.active %}
             {% block component_delivery_information_not_available %}
                 <link itemprop="availability"
@@ -25,7 +25,7 @@
                 </p>
             {% endblock %}
 
-            {#TODO: NEXT-1946 - check "cart item type" and "quantity" #}
+            {#TODO: NEXT-2898 - check "cart item type" and "quantity" #}
         {% elseif shopware.config.checkout.instockinfo and page.product.stock > 0 %}
             {% block component_delivery_information_partial_stock %}
                 <link itemprop="availability"

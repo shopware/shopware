@@ -11,7 +11,9 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Event\SalesChannelContextSwitchEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class SalesChannelContextSwitcher
 {
@@ -34,12 +36,19 @@ class SalesChannelContextSwitcher
      */
     protected $validator;
 
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
     public function __construct(
         DataValidator $validator,
-        SalesChannelContextPersister $contextPersister
+        SalesChannelContextPersister $contextPersister,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->contextPersister = $contextPersister;
         $this->validator = $validator;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function update(DataBag $data, SalesChannelContext $context): void
@@ -95,5 +104,8 @@ class SalesChannelContextSwitcher
         $this->validator->validate($parameters, $definition);
 
         $this->contextPersister->save($context->getToken(), $parameters);
+
+        $event = new SalesChannelContextSwitchEvent($context->getContext(), $data, $context->getCustomer());
+        $this->eventDispatcher->dispatch($event->getName(), $event);
     }
 }

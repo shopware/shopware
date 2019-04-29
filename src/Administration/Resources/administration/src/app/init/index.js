@@ -15,6 +15,7 @@ import initComponents from 'src/app/init/component.init';
 import initWorker from 'src/app/init/worker.init';
 import initSvgIcons from 'src/app/init/svg-icons.init';
 import initUserContext from 'src/app/init/user-information.init';
+import initBackgroundCheck from 'src/app/init/login-background-check.init';
 
 export default {
     contextService: initContext,
@@ -33,5 +34,6 @@ export default {
     locale: initLocale,
     worker: initWorker,
     userInfo: initUserContext,
-    repositoryFactory: initRepository
+    repositoryFactory: initRepository,
+    backgroundCheck: initBackgroundCheck
 };

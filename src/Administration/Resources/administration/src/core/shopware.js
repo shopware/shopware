@@ -1,5 +1,10 @@
 // Necessary cause the unit test aren't having the shopware module globally available.
-let Shopware = global.Shopware || window.Shopware;
+let Shopware = global.Shopware;
+
+try {
+    Shopware = window.Shopware;
+} catch (err) {} // eslint-disable-line
+
 if (Shopware === undefined) {
     Shopware = require('src/core/common.js'); // eslint-disable-line
 }

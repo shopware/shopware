@@ -4,13 +4,16 @@ namespace Shopware\Core\Checkout\Promotion;
 
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Rule\CustomerNumberRule;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSalesChannelCollection;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Framework\Rule\Container\AndRule;
+use Shopware\Core\Framework\Rule\Container\OrRule;
+use Shopware\Core\Framework\Rule\Rule;
 
 class PromotionEntity extends Entity
 {
@@ -354,121 +357,87 @@ class PromotionEntity extends Entity
     }
 
     /**
-     * Gets if the promotion is valid in the current context
-     * based on its Persona Rule configuration.
+     * Builds our aggregated precondition rule condition for this promotion.
+     * If this rule matches within all its sub conditions, then the
+     * whole promotion is allowed to be used.
      */
-    public function isPersonaConditionValid(SalesChannelContext $context): bool
+    public function getPreconditionRule(): Rule
     {
-        /** @var bool $hasRuleRestriction */
-        $hasRuleRestriction = $this->getPersonaRules() instanceof RuleCollection && count($this->getPersonaRules()->getElements()) > 0;
+        // we combine each topics with an AND and a OR inside of their rules.
+        // so all topics have to match, and one topic needs at least 1 rule that matches.
+        $requirements = new AndRule(
+            []
+        );
 
-        /** @var bool $hasCustomerRestrictions */
-        $hasCustomerRestrictions = $this->getPersonaCustomers() instanceof CustomerCollection && count($this->getPersonaCustomers()->getElements()) > 0;
+        $personasFound = false;
+        $personaOR = new OrRule();
 
-        // check if we even have a restriction
-        // otherwise the persona is valid
-        if (!$hasRuleRestriction && !$hasCustomerRestrictions) {
-            return true;
-        }
+        // check if we have persona rules and add them
+        // to our persona OR as a separate OR rule with all configured rules
+        if ($this->getPersonaRules() !== null && count($this->getPersonaRules()->getElements()) > 0) {
+            $personaRuleOR = new OrRule();
 
-        // check if we have a list of rules
-        // and if any of them is in our current context
-        if ($hasRuleRestriction) {
-            /** @var string $ruleID */
-            foreach ($this->getPersonaRules()->getKeys() as $ruleID) {
-                // verify if our persona rule from our promotion
-                // is part of our existing rules within the checkout context
-                if (in_array($ruleID, $context->getRuleIds(), true)) {
-                    // ok at least 1 rule is valid
-                    // then this is ok
-                    return true;
-                }
-            }
-        }
-
-        // if we are not already valid due to a rule
-        // then check if our customer might be assigned directly.
-        if ($hasCustomerRestrictions) {
-            /** @var CustomerEntity|null $currentCustomer */
-            $currentCustomer = $context->getCustomer();
-
-            // check if we have a customer.
-            // if we are not logged in, then our restriction is not valid
-            // and thus we return false.
-            if (!$currentCustomer instanceof CustomerEntity) {
-                return false;
+            /** @var RuleEntity $ruleEntity */
+            foreach ($this->getPersonaRules()->getElements() as $ruleEntity) {
+                // add rule our rule and also make sure
+                // we know that at least a persona exists.
+                $personaRuleOR->addRule($ruleEntity->getPayload());
+                $personasFound = true;
             }
 
-            /** @var CustomerCollection|null $customers */
-            $customers = $this->getPersonaCustomers();
-
-            // check if our customer ID exists in the keys of permitted customers of the promotion.
-            return key_exists($context->getCustomer()->getId(), $customers->getElements());
+            $personaOR->addRule($personaRuleOR);
         }
 
-        // as fallback, always
-        // make sure its invalid
-        return false;
-    }
+        // check if we have customers.
+        // if so, create customer rules for it and add that also as
+        // a separate OR condition to our main persona rule
+        if ($this->getPersonaCustomers() !== null) {
+            $personaCustomerOR = new OrRule();
 
-    /**
-     * Gets if the promotion is valid in the current context
-     * based on its Cart Condition Rule configuration.
-     */
-    public function isCartConditionValid(SalesChannelContext $context): bool
-    {
-        /** @var bool $hasRuleRestriction */
-        $hasRuleRestriction = $this->getCartRules() instanceof RuleCollection && count($this->getCartRules()->getElements()) > 0;
+            /* @var CustomerEntity $ruleEntity */
+            foreach ($this->getPersonaCustomers()->getElements() as $customer) {
+                // build our new rule for this
+                // customer and his/her customer number
+                $custRule = new CustomerNumberRule();
+                $custRule->assign(['numbers' => [$customer->getCustomerNumber()], 'operator' => CustomerNumberRule::OPERATOR_EQ]);
 
-        // if there are no rules, the cart is considered as valid
-        if (!$hasRuleRestriction) {
-            return true;
-        }
-
-        // check if we have a list of rules
-        // and if any of them is in our current context
-        /** @var string $ruleID */
-        foreach ($this->getCartRules()->getKeys() as $ruleID) {
-            // verify if our cart rules from our promotion
-            // is part of our existing rules within the checkout context
-            if (in_array($ruleID, $context->getRuleIds(), true)) {
-                // ok at least 1 rule is valid
-                // then this is ok
-                return true;
+                // add rule for customer and make sure
+                // we know that at least a persona exists.
+                $personaCustomerOR->addRule($custRule);
+                $personasFound = true;
             }
+
+            $personaOR->addRule($personaCustomerOR);
         }
 
-        return false;
-    }
-
-    /**
-     * Gets if the promotion is valid in the current context
-     * based on its Order Rule configuration.
-     */
-    public function isOrderConditionValid(SalesChannelContext $context): bool
-    {
-        /** @var bool $hasRuleRestriction */
-        $hasRuleRestriction = $this->getOrderRules() instanceof RuleCollection && count($this->getOrderRules()->getElements()) > 0;
-
-        // check if we even have a restriction
-        // otherwise the order condition is valid
-        if (!$hasRuleRestriction) {
-            return true;
+        // if we have found any persona rule
+        // or customer, then add our main persona rule
+        if ($personasFound) {
+            $requirements->addRule($personaOR);
         }
 
-        /** @var string $ruleID */
-        foreach ($this->getOrderRules()->getKeys() as $ruleID) {
-            // verify if our rule from our promotion
-            // is part of our existing rules within the checkout context
-            if (in_array($ruleID, $context->getRuleIds(), true)) {
-                // ok at least 1 rule is valid
-                // then this is ok
-                return true;
+        if ($this->getCartRules() !== null && count($this->getCartRules()->getElements()) > 0) {
+            $cartOR = new OrRule([]);
+
+            /** @var RuleEntity $ruleEntity */
+            foreach ($this->getCartRules()->getElements() as $ruleEntity) {
+                $cartOR->addRule($ruleEntity->getPayload());
             }
+
+            $requirements->addRule($cartOR);
         }
 
-        // as fallback, always
-        // make sure its invalid
-        return false;
+        if ($this->getOrderRules() !== null && count($this->getOrderRules()->getElements()) > 0) {
+            $orderOR = new OrRule([]);
+
+            /** @var RuleEntity $ruleEntity */
+            foreach ($this->getOrderRules()->getElements() as $ruleEntity) {
+                $orderOR->addRule($ruleEntity->getPayload());
+            }
+
+            $requirements->addRule($orderOR);
+        }
+
+        return $requirements;
     }
 }

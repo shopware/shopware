@@ -25,7 +25,7 @@ class FakePromotionGateway implements PromotionGatewayInterface
         $this->codePromotions = $codePromotions;
     }
 
-    public function getByContext(SalesChannelContext $context): EntityCollection
+    public function getAutomaticPromotions(SalesChannelContext $context): EntityCollection
     {
         return new EntityCollection($this->contextPromotions);
     }

@@ -26,8 +26,6 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
 
         $name = $product->getTranslated()['name'];
         if ($name) {
-            $keywords->add(new AnalyzedKeyword($name, 1000));
-
             $tokens = $this->tokenizer->tokenize($name);
             foreach ($tokens as $token) {
                 $keywords->add(new AnalyzedKeyword((string) $token, 700));

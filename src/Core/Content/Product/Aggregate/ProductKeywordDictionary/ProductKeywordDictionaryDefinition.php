@@ -42,4 +42,9 @@ class ProductKeywordDictionaryDefinition extends EntityDefinition
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false),
         ]);
     }
+
+    protected static function defaultFields(): array
+    {
+        return [];
+    }
 }

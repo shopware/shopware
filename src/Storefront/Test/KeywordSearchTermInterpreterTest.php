@@ -40,7 +40,7 @@ class KeywordSearchTermInterpreterTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        $matches = $this->interpreter->interpret($term, 'product', $context);
+        $matches = $this->interpreter->interpret($term, $context);
 
         $keywords = array_map(function (SearchTerm $term) {
             return $term->getTerm();
@@ -115,6 +115,7 @@ class KeywordSearchTermInterpreterTest extends TestCase
             preg_match_all('/./us', $keyword, $ar);
 
             $this->connection->insert('product_keyword_dictionary', [
+                'id' => Uuid::randomBytes(),
                 'keyword' => $keyword,
                 'language_id' => $languageId,
             ]);

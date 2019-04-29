@@ -4,9 +4,9 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -37,7 +37,7 @@ class ProductKeywordDictionaryDefinition extends EntityDefinition
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new Required()),
 
             (new StringField('keyword', 'keyword'))->addFlags(new Required()),
-            (new StringField('reversed', 'reversed'))->addFlags(new WriteProtected()),
+            (new StringField('reversed', 'reversed'))->addFlags(new Computed()),
 
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false),
         ]);

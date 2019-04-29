@@ -38,6 +38,7 @@ class Migration1536232885Category extends MigrationStep
               `child_count` INT(11) unsigned NOT NULL DEFAULT 0,
               `display_nested_products` TINYINT(1) unsigned NOT NULL DEFAULT 1,
               `visible` TINYINT(1) unsigned NOT NULL DEFAULT 1,
+              `type` varchar(32) NOT NULL,
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`, `version_id`),

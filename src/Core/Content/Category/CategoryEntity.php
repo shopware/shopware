@@ -154,6 +154,11 @@ class CategoryEntity extends Entity
      */
     protected $visible;
 
+    /**
+     * @var string
+     */
+    protected $type;
+
     public function getParentId(): ?string
     {
         return $this->parentId;
@@ -432,5 +437,15 @@ class CategoryEntity extends Entity
     public function setVisible(bool $visible): void
     {
         $this->visible = $visible;
+    }
+
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): void
+    {
+        $this->type = $type;
     }
 }

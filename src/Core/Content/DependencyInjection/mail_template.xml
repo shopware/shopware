@@ -24,6 +24,10 @@
 			<tag name="shopware.entity.definition" entity="mail_template_sales_channel"/>
 		</service>
 
+		<service id="Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateBusinessAction\MailTemplateBusinessActionDefinition">
+			<tag name="shopware.entity.definition" entity="mail_template_business_action"/>
+		</service>
+
 		<service id="Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateMediaDefinition">
 			<tag name="shopware.entity.definition" entity="mail_template_media"/>
 		</service>
@@ -40,6 +44,10 @@
         <service id="Shopware\Core\Content\MailTemplate\Service\MailBuilder">
 			<argument type="service" id="sales_channel.repository"/>
         </service>
+
+		<service id="Shopware\Core\Content\MailTemplate\Service\MailFinder">
+			<argument type="service" id="mail_template.repository"/>
+		</service>
 
         <!-- Controller -->
 		<service id="Shopware\Core\Content\MailTemplate\Api\MailActionController" public="true">
@@ -78,6 +86,18 @@
             <argument type="service" id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepositoryDecorator" />
             <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannelDefinition" />
         </service>
+
+		<service id="Shopware\Core\Content\MailTemplate\ActionMailSendOrderDoneSubscriber">
+			<tag name="kernel.event_subscriber"/>
+			<argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailFinder"/>
+			<argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailService"/>
+		</service>
+
+		<service id="Shopware\Core\Content\MailTemplate\ActionMailSendCustomerRegisteredSubscriber">
+			<tag name="kernel.event_subscriber"/>
+			<argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailFinder"/>
+			<argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailService"/>
+		</service>
 
     </services>
 </container>

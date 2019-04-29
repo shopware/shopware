@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerEvents;
+use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -92,6 +93,9 @@ class AccountRegistrationService
         }
 
         $this->customerRepository->create([$customer], $context->getContext());
+
+        $event = new CustomerRegisterEvent($context->getContext(), $customer);
+        $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $customer['id'];
     }

@@ -69,7 +69,7 @@ class MailService
         $this->salesChannelDefinition = $salesChannelDefinition;
     }
 
-    public function send(DataBag $data, Context $context): \Swift_Message
+    public function send(DataBag $data, Context $context, array $templateData = []): \Swift_Message
     {
         $definition = $this->getValidationDefinition($context);
         $this->dataValidator->validate($data->all(), $definition);
@@ -84,7 +84,7 @@ class MailService
 
         $contents = $this->mailBuilder->buildContents($context, $bodies, $salesChannelId);
         foreach ($contents as $index => $template) {
-            $contents[$index] = $this->templateRenderer->render($template, []);
+            $contents[$index] = $this->templateRenderer->render($template, $templateData);
         }
 
         $mediaUrls = $this->getMediaUrls($data->get('mediaIds', []), $context);
@@ -98,6 +98,8 @@ class MailService
         );
 
         $this->mailSender->send($message);
+
+        return $message;
     }
 
     private function getValidationDefinition(Context $context): DataValidationDefinition

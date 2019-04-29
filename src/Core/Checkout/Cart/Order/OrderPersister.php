@@ -5,10 +5,12 @@ namespace Shopware\Core\Checkout\Cart\Order;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
+use Shopware\Core\Checkout\Cart\Order\Event\OrderDoneEvent;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\Event\BusinessEventDispatcher;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class OrderPersister implements OrderPersisterInterface
@@ -23,10 +25,19 @@ class OrderPersister implements OrderPersisterInterface
      */
     private $converter;
 
-    public function __construct(EntityRepositoryInterface $repository, OrderConverter $converter)
+    /**
+     * @var BusinessEventDispatcher
+     */
+    private $eventDispatcher;
+
+    public function __construct(
+        EntityRepositoryInterface $repository,
+        OrderConverter $converter,
+        BusinessEventDispatcher $eventDispatcher)
     {
         $this->repository = $repository;
         $this->converter = $converter;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -49,6 +60,9 @@ class OrderPersister implements OrderPersisterInterface
         }
 
         $order = $this->converter->convertToOrder($cart, $context, new OrderConversionContext());
+
+        $orderDoneEvent = new OrderDoneEvent($context->getContext(), $order);
+        $this->eventDispatcher->dispatch(OrderDoneEvent::EVENT_NAME, $orderDoneEvent);
 
         return $this->repository->create([$order], $context->getContext());
     }

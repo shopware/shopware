@@ -53,7 +53,7 @@
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService">
             <argument type="service" id="customer.repository"/>
-            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventDispatcher"/>
             <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerValidationService"/>

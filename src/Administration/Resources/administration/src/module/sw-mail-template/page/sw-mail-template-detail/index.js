@@ -1,4 +1,5 @@
-import { Component, Mixin, State } from 'src/core/shopware';
+import { Application, Component, Mixin, State } from 'src/core/shopware';
+import LocalStore from 'src/core/data/LocalStore';
 import { warn } from 'src/core/service/utils/debug.utils';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-mail-template-detail.html.twig';
@@ -21,7 +22,8 @@ Component.register('sw-mail-template-detail', {
             testerMail: '',
             mailTemplateId: null,
             isLoading: false,
-            isSaveSuccessful: false
+            isSaveSuccessful: false,
+            eventAssociationStore: {}
         };
     },
 
@@ -86,7 +88,16 @@ Component.register('sw-mail-template-detail', {
                 this.loadEntityData();
             }
 
-            this.$root.$on('sw-mail-template-media-form-open-sidebar', this.openMediaSidebar);
+            const initContainer = Application.getContainer('init');
+            const httpClient = initContainer.httpClient;
+
+            this.eventAssociationStore = new LocalStore();
+
+            httpClient.get('_info/events.json').then((response) => {
+                Object.keys(response.data.events).forEach((eventName) => {
+                    this.eventAssociationStore.add(eventName);
+                });
+            });
         },
 
         loadEntityData() {

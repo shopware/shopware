@@ -41,7 +41,14 @@
             "headlineInformationCard": "General",
             "isCategoryActiveLabel": "Category is active",
             "showSubcategoryProductsLabel": "Include products from subcategories",
-            "useAsLink": "Use as link"
+            "useAsLink": "Use as link",
+
+            "types": {
+              "title": "Category type",
+              "page": "Category",
+              "folder": "Not-clickable structuring category",
+              "link": "Customizable link"
+            }
           },
 
           "entry-point": {
@@ -52,8 +59,7 @@
 
           "menu": {
             "title": "Menü-Settings",
-            "hideInNavigation": "Hide in navigation",
-            "useAsStructureCategory": "Use as structural category",
+            "visible": "Hide in navigation",
             "imageLabel": "Display image",
             "description": "Description"
           },
@@ -65,10 +71,8 @@
             "editContent": "Edit content"
           },
 
-          "seo": {
-            "title": "SEO-Settings",
-            "name": "Meta-Name",
-            "description": "Meta-Description"
+          "link": {
+            "title": "Benutzerdefinierter Link"
           },
 
           "products": {

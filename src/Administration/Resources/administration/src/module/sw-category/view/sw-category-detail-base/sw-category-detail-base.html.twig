@@ -16,7 +16,12 @@
                     {% endblock %}
 
                     {% block sw_category_detail_information_active %}
-                        <sw-field type="boolean" :label="$tc('sw-category.base.general.isCategoryActiveLabel')" name="categoryActive" v-model="category.active"></sw-field>
+                        <sw-field
+                            type="boolean"
+                            name="categoryActive"
+                            :label="$tc('sw-category.base.general.isCategoryActiveLabel')"
+                            v-model="category.active">
+                        </sw-field>
                     {% endblock %}
                 </sw-container>
 
@@ -29,29 +34,19 @@
                     </sw-field>
                 {% endblock %}
 
-                <sw-container columns="repeat(auto-fit, minmax(150px, 1fr))" gap="0px 30px">
-                    {% block sw_category_detail_information_link %}
-                        <sw-field
-                            v-model="hasCategoryLink"
-                            class="sw-category-detail__base-link"
-                            type="boolean"
-                            :label="$tc('sw-category.base.general.useAsLink')">
-                        </sw-field>
-                    {% endblock %}
 
-                    {% block sw_category_detail_information_link_input %}
-                        <sw-field
-                            :disabled="!hasCategoryLink"
-                            v-model="categoryLink"
-                            :label="$tc('sw-category.base.general.linkLabel')"
-                            :placeholder="$tc('sw-category.base.general.linkLabel')">
-                        </sw-field>
-                    {% endblock %}
-                </sw-container>
+                {% block sw_category_detail_information_type %}
+                    <sw-select-field v-model="category.type" :label="$tc('sw-category.base.general.types.title')">
+                        <option value="page" name="page">{{ $tc('sw-category.base.general.types.page') }}</option>
+                        <option value="folder" name="folder">{{ $tc('sw-category.base.general.types.folder') }}</option>
+                        <option value="link" name="link">{{ $tc('sw-category.base.general.types.link') }}</option>
+                    </sw-select-field>
+                {% endblock %}
 
                 {% block sw_category_detail_information_tags %}
                     <sw-tag-field :entity="category"></sw-tag-field>
                 {% endblock %}
+
             </sw-card>
         {% endblock %}
 
@@ -80,15 +75,27 @@
             </sw-card>
         {% endblock %}
 
-        {% block sw_category_detail_menu %}
-            <sw-card class="sw-category-detail__menu" :title="$tc('sw-category.base.menu.title')" :isLoading="isLoading">
-
-                {% block sw_category_detail_menu_clickable %}
-                    <sw-field class="sw-category-detail__menu-clickable" type="boolean" :label="$tc('sw-category.base.menu.useAsStructureCategory')"></sw-field>
+        {% block sw_category_detail_link %}
+            <sw-card v-if="category.type === 'link'" title="Benutzerdefinierter Link">
+                {% block sw_category_detail_link_field %}
+                    <sw-field
+                        v-model="category.externalLink"
+                        :label="$tc('sw-category.base.general.linkLabel')"
+                        :placeholder="$tc('sw-category.base.general.linkLabel')">
+                    </sw-field>
                 {% endblock %}
+            </sw-card>
+        {% endblock %}
 
-                {% block sw_category_detail_information_visibility %}
-                    <sw-field type="boolean" :label="$tc('sw-category.base.menu.hideInNavigation')"></sw-field>
+        {% block sw_category_detail_menu %}
+            <sw-card v-if="category.type !== 'link'" class="sw-category-detail__menu" :title="$tc('sw-category.base.menu.title')" :isLoading="isLoading">
+
+                {% block sw_category_detail_information_visible %}
+                    <sw-field type="boolean"
+                        @input="onChangeVisibility"
+                        :label="$tc('sw-category.base.menu.visible')"
+                        v-model="reversedVisibility">
+                    </sw-field>
                 {% endblock %}
 
                 {% block sw_category_detail_menu_media %}
@@ -113,6 +120,7 @@
                     <sw-field
                         class="sw-category-detail__description"
                         type="textarea"
+                        v-model="category.description"
                         :label="$tc('sw-category.base.menu.description')"
                         :placeholder="$tc('sw-category.base.menu.description')">
                     </sw-field>
@@ -121,7 +129,7 @@
         {% endblock %}
 
         {% block sw_category_detail_layout %}
-            <sw-card :title="$tc('sw-category.base.cms.title')" :isLoading="isLoading && cmsPages.length">
+            <sw-card v-if="category.type === 'page'" :title="$tc('sw-category.base.cms.title')" :isLoading="isLoading && cmsPages.length">
 
                 <div class="sw-category-detail__layout">
                     {% block sw_category_detail_layout_preview %}
@@ -168,7 +176,7 @@
         {% endblock %}
 
         {% block sw_category_detail_products %}
-            <sw-card :title="$tc('sw-category.base.products.productAssignmentHeadline')" :isLoading="isLoading || isLoadingProducts">
+            <sw-card v-if="category.type !== 'link'" :title="$tc('sw-category.base.products.productAssignmentHeadline')" :isLoading="isLoading || isLoadingProducts">
 
                 {% block sw_category_detail_products_search %}
                     <div class="sw-category-detail__product-search">

@@ -1,8 +1,11 @@
  @import "~scss/variables";
 
 .sw-category-detail__base {
-    .sw-category-detail__base-entry-point {
+    .sw-tag-field {
+        margin-bottom: 14px;
+    }
 
+    .sw-category-detail__base-entry-point {
         .base-entry-point__sales-channels {
             margin: 16px 0;
             display: flex;
@@ -94,10 +97,6 @@
         position: absolute;
         right: 20px;
         top: 122px;
-    }
-
-    .sw-tag-field {
-        margin-top: 20px;
     }
 
     .sw-category-detail__menu {

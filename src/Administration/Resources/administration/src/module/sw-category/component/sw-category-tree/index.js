@@ -91,6 +91,7 @@ Component.register('sw-category-tree', {
             newCategory.parentId = parentId;
             newCategory.childCount = childCount;
             newCategory.active = false;
+            newCategory.visible = true;
 
             return newCategory;
         },

@@ -43,9 +43,7 @@ Component.register('sw-category-detail-base', {
             deleteButtonDisabled: true,
             showLayoutSelectionModal: false,
             cmsPages: [],
-
-            categoryLink: null,
-            hasCategoryLink: null
+            reversedVisibility: null
         };
     },
 
@@ -75,14 +73,12 @@ Component.register('sw-category-detail-base', {
             Promise.all([this.cmsPageStore.getList({}, true), this.categoryProductStore.getList(params)])
                 .then(([cmsPagesResponse, productResponse]) => {
                     this.cmsPages = cmsPagesResponse.items;
-
-                    // @todo remove
-                    this.categoryLink = null;
-                    this.hasCategoryLink = false;
-
                     this.products = productResponse.items;
                     this.total = productResponse.total;
                     this.isLoadingProducts = false;
+
+                    this.reversedVisibility = !this.category.visible;
+
                     this.buildGridArray();
                     return [this.products, this.cmsPages];
                 });
@@ -209,6 +205,11 @@ Component.register('sw-category-detail-base', {
             return this.category.navigationSalesChannels.length > 0
                 || this.category.serviceSalesChannels.length > 0
                 || this.category.footerSalesChannels.length > 0;
+        },
+
+        onChangeVisibility(visibility) {
+            this.reversedVisibility = visibility;
+            this.category.visible = !visibility;
         },
 
         onLayoutSelect(selectedLayout) {

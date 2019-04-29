@@ -16,16 +16,17 @@
             "emptyStateHeadline": "Keine Kategorie ausgewählt",
 
             "leavePageModal": {
-                "headline": "Warnung",
-                "description": "Es existieren ungespeicherte Änderungen. Soll die Seite trotzdem verlassen werden?",
-                "confirmButton": "Seite verlassen",
-                "cancelButton": "Auf Seite bleiben"
+              "headline": "Warnung",
+              "description": "Es existieren ungespeicherte Änderungen. Soll die Seite trotzdem verlassen werden?",
+              "confirmButton": "Seite verlassen",
+              "cancelButton": "Auf Seite bleiben"
             },
+
             "actions": {
-                "actionsDisabledInLanguage": "Kategorien können nur in der Standardsprache erstellt werden",
-                "createSub": "Neue Subkategorie",
-                "createBefore": "Neue Kategorie davor",
-                "createAfter": "Neue Kategorie danach"
+              "actionsDisabledInLanguage": "Kategorien können nur in der Standardsprache erstellt werden",
+              "createSub": "Neue Subkategorie",
+              "createBefore": "Neue Kategorie davor",
+              "createAfter": "Neue Kategorie danach"
             }
         },
 
@@ -41,7 +42,14 @@
             "headlineInformationCard": "Allgemein",
             "isCategoryActiveLabel": "Kategorie ist aktiv",
             "showSubcategoryProductsLabel": "Enthält Produkte aus Subkategorien",
-            "useAsLink": "Als Link verwenden"
+            "useAsLink": "Als Link verwenden",
+
+            "types": {
+              "title": "Kategorietyp",
+              "page": "Kategorie",
+              "folder": "Nicht-Klickbare Strukturierungskategorie",
+              "link": "Benutzerdefinierter Link"
+            }
           },
 
           "entry-point": {
@@ -52,8 +60,7 @@
 
           "menu": {
             "title": "Menü-Einstellungen",
-            "hideInNavigation": "In der Navigation ausblenden",
-            "useAsStructureCategory": "Als Gliederungskategorie verwenden",
+            "visible": "In der Navigation ausblenden",
             "imageLabel": "Anzeigebild",
             "description": "Beschreibung"
           },
@@ -65,10 +72,8 @@
             "editContent": "Content bearbeiten"
           },
 
-          "seo": {
-            "title": "SEO-Einstellungen",
-            "name": "Meta-Name",
-            "description": "Meta-Beschreibung"
+          "link": {
+            "title": "Benutzerdefinierter Link"
           },
 
           "products": {

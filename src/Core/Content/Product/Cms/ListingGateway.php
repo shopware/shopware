@@ -22,7 +22,6 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 class ListingGateway implements ListingGatewayInterface
 {
@@ -32,34 +31,24 @@ class ListingGateway implements ListingGatewayInterface
     private $productRepository;
 
     /**
-     * @var RequestStack
-     */
-    private $requestStack;
-
-    /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
 
     public function __construct(
         SalesChannelRepository $productRepository,
-        RequestStack $requestStack,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->productRepository = $productRepository;
-        $this->requestStack = $requestStack;
         $this->eventDispatcher = $eventDispatcher;
     }
 
     public function search(Request $request, SalesChannelContext $context): EntitySearchResult
     {
-        // todo@jb provide real request in page loader
-        $request = $this->requestStack->getMasterRequest();
-
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.parentId', null));
 
-        $this->handleNavigationFilter($request, $criteria);
+        $this->handleCategoryFilter($request, $criteria);
 
         $this->handlePagination($request, $criteria);
 
@@ -163,7 +152,7 @@ class ListingGateway implements ListingGatewayInterface
         $criteria->addPostFilter(new RangeFilter('product.price', $range));
     }
 
-    private function handleNavigationFilter(Request $request, Criteria $criteria): void
+    private function handleCategoryFilter(Request $request, Criteria $criteria): void
     {
         $params = $request->attributes->get('_route_params');
         if (!$params) {
@@ -179,7 +168,6 @@ class ListingGateway implements ListingGatewayInterface
             throw new InvalidUuidException($navigationId);
         }
 
-        //todo@jb uncomment after navigation and categories merged
-//        $criteria->addFilter(new EqualsFilter('product.categoriesRo.id', $navigationId));
+        $criteria->addFilter(new EqualsFilter('product.categoriesRo.id', $navigationId));
     }
 }

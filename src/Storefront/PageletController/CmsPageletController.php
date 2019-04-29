@@ -4,6 +4,7 @@ namespace Shopware\Storefront\PageletController;
 
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -42,25 +43,25 @@ class CmsPageletController extends StorefrontController
     {
         $page = $this->load($id, $request, $context);
 
-        return $this->renderStorefront('@Storefront/page/content/detail.html.twig', ['page' => $page->get($id)]);
+        return $this->renderStorefront('@Storefront/page/content/detail.html.twig', ['cmsPage' => $page]);
     }
 
     /**
-     * Route to load a cms page which assigned to the provided category id.
-     * Category id is required to load the slot config for the category
+     * Route to load a cms page which assigned to the provided navigation id.
+     * Navigation id is required to load the slot config for the navigation
      *
-     * @Route("/widgets/cms/category/{categoryId}", name="widgets.cms.category.page", methods={"GET"}, defaults={"XmlHttpRequest"=true})
+     * @Route("/widgets/cms/navigation/{navigationId}", name="widgets.cms.navigation.page", methods={"GET"}, defaults={"XmlHttpRequest"=true})
      */
-    public function category(string $categoryId, Request $request, SalesChannelContext $context): Response
+    public function category(string $navigationId, Request $request, SalesChannelContext $context): Response
     {
-        $categories = $this->categoryRepository->search(new Criteria([$categoryId]), $context);
+        $categories = $this->categoryRepository->search(new Criteria([$navigationId]), $context);
 
-        if (!$categories->has($categoryId)) {
-            throw new CategoryNotFoundException($categoryId);
+        if (!$categories->has($navigationId)) {
+            throw new CategoryNotFoundException($navigationId);
         }
 
         /** @var CategoryEntity $category */
-        $category = $categories->get($categoryId);
+        $category = $categories->get($navigationId);
 
         if (!$category->getCmsPageId()) {
             throw new PageNotFoundException('');
@@ -68,10 +69,10 @@ class CmsPageletController extends StorefrontController
 
         $page = $this->load($category->getCmsPageId(), $request, $context, $category->getSlotConfig());
 
-        return $this->renderStorefront('@Storefront/page/content/detail.html.twig', ['page' => $page->get($id)]);
+        return $this->renderStorefront('@Storefront/page/content/detail.html.twig', ['cmsPage' => $page]);
     }
 
-    private function load(string $id, Request $request, SalesChannelContext $context, ?array $config = null)
+    private function load(string $id, Request $request, SalesChannelContext $context, ?array $config = null): ?CmsPageEntity
     {
         $criteria = new Criteria([$id]);
 

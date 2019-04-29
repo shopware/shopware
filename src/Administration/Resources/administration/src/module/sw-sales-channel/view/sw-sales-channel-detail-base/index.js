@@ -54,10 +54,6 @@ Component.register('sw-sales-channel-detail-base', {
             return State.getStore('country');
         },
 
-        categoryStore() {
-            return State.getStore('category');
-        },
-
         countryAssociationStore() {
             return this.salesChannel.getAssociation('countries');
         },

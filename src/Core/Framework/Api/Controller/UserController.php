@@ -47,4 +47,23 @@ class UserController extends AbstractController
 
         return $responseFactory->createDetailResponse($user, UserDefinition::class, $request, $context);
     }
+
+    /**
+     * @Route("/api/v{version}/_info/ping", name="api.info.ping", methods={"GET"})
+     */
+    public function status(Context $context): Response
+    {
+        if (!$context->getSource() instanceof AdminApiSource) {
+            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
+        }
+
+        $userId = $context->getSource()->getUserId();
+        $result = $this->userRepository->searchIds(new Criteria([$userId]), $context);
+
+        if ($result->getTotal() === 0) {
+            throw OAuthServerException::invalidCredentials();
+        }
+
+        return new Response(null, Response::HTTP_NO_CONTENT);
+    }
 }

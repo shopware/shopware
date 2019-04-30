@@ -30,7 +30,6 @@
 
         {% block sw_category_view_content %}
             <router-view
-                v-if="!isLoading"
                 :category="category"
                 :cmsPage="cmsPage"
                 :mediaItem="mediaItem"

@@ -2,7 +2,7 @@
     <div class="sw-category-detail-base">
 
         {% block sw_category_detail_information %}
-            <sw-card :title="$tc('sw-category.base.general.headlineInformationCard')" :isLoading="isLoading || isLoadingProducts">
+            <sw-card :title="$tc('sw-category.base.general.headlineInformationCard')" :isLoading="isLoading">
 
                 <sw-container columns="repeat(auto-fit, minmax(150px, 1fr))" gap="0px 30px">
                     {% block sw_category_detail_information_name %}
@@ -24,7 +24,6 @@
                         </sw-field>
                     {% endblock %}
                 </sw-container>
-
 
                 {% block sw_category_detail_information_type %}
                     <div class="sw-category-detail-base__type-container">
@@ -89,7 +88,7 @@
         {% endblock %}
 
         {% block sw_category_detail_link %}
-            <sw-card v-if="category.type === 'link'" :title="$tc('sw-category.base.link.title')">
+            <sw-card v-if="category.type === 'link'" :title="$tc('sw-category.base.link.title')" :isLoading="isLoading">
                 {% block sw_category_detail_link_field %}
                     <sw-field
                         v-model="category.externalLink"
@@ -100,49 +99,8 @@
             </sw-card>
         {% endblock %}
 
-        {% block sw_category_detail_menu %}
-            <sw-card v-if="category.type !== 'link'" class="sw-category-detail-base__menu" :title="$tc('sw-category.base.menu.title')" :isLoading="isLoading">
-
-                {% block sw_category_detail_information_visible %}
-                    <sw-field type="boolean"
-                        @input="onChangeVisibility"
-                        :label="$tc('sw-category.base.menu.visible')"
-                        v-model="reversedVisibility">
-                    </sw-field>
-                {% endblock %}
-
-                {% block sw_category_detail_menu_media %}
-                    <sw-upload-store-listener
-                        :uploadTag="category.id"
-                        @media-upload-finish="setMediaItem"
-                        autoUpload>
-                    </sw-upload-store-listener>
-                    <sw-media-upload
-                        :label="$tc('sw-category.base.menu.imageLabel')"
-                        variant="regular"
-                        :source="mediaItem"
-                        :uploadTag="category.id"
-                        :allowMultiSelect="false"
-                        :defaultFolder="category.getEntityName()"
-                        @media-upload-sidebar-open="openMediaSidebar"
-                        @media-upload-remove-image="removeMediaItem">
-                    </sw-media-upload>
-                {% endblock %}
-
-                {% block sw_category_detail_menu_description %}
-                    <sw-field
-                        class="sw-category-detail-base__description"
-                        type="textarea"
-                        v-model="category.description"
-                        :label="$tc('sw-category.base.menu.description')"
-                        :placeholder="$tc('sw-category.base.menu.description')">
-                    </sw-field>
-                {% endblock %}
-            </sw-card>
-        {% endblock %}
-
         {% block sw_category_detail_layout %}
-            <sw-card v-if="category.type === 'page'" :title="$tc('sw-category.base.cms.title')" :isLoading="isLoading && cmsPages.length">
+            <sw-card v-if="category.type === 'page'" :title="$tc('sw-category.base.cms.title')" :isLoading="isLoading">
 
                 <div class="sw-category-detail-base__layout">
                     {% block sw_category_detail_layout_preview %}
@@ -199,6 +157,47 @@
                     {% endblock %}
 
                 </div>
+            </sw-card>
+        {% endblock %}
+
+        {% block sw_category_detail_menu %}
+            <sw-card v-if="category.type !== 'link'" class="sw-category-detail-base__menu" :title="$tc('sw-category.base.menu.title')" :isLoading="isLoading">
+
+                {% block sw_category_detail_information_visible %}
+                    <sw-field type="boolean"
+                        @input="onChangeVisibility"
+                        :label="$tc('sw-category.base.menu.visible')"
+                        v-model="reversedVisibility">
+                    </sw-field>
+                {% endblock %}
+
+                {% block sw_category_detail_menu_media %}
+                    <sw-upload-store-listener
+                        :uploadTag="category.id"
+                        @media-upload-finish="setMediaItem"
+                        autoUpload>
+                    </sw-upload-store-listener>
+                    <sw-media-upload
+                        :label="$tc('sw-category.base.menu.imageLabel')"
+                        variant="regular"
+                        :source="mediaItem"
+                        :uploadTag="category.id"
+                        :allowMultiSelect="false"
+                        :defaultFolder="category.getEntityName()"
+                        @media-upload-sidebar-open="openMediaSidebar"
+                        @media-upload-remove-image="removeMediaItem">
+                    </sw-media-upload>
+                {% endblock %}
+
+                {% block sw_category_detail_menu_description %}
+                    <sw-field
+                        class="sw-category-detail-base__description"
+                        type="textarea"
+                        v-model="category.description"
+                        :label="$tc('sw-category.base.menu.description')"
+                        :placeholder="$tc('sw-category.base.menu.description')">
+                    </sw-field>
+                {% endblock %}
             </sw-card>
         {% endblock %}
 

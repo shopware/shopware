@@ -24,7 +24,7 @@
             <div class="sw-cms-layout-modal__content">
 
                 {% block sw_cms_layout_modal_loader %}
-                    <sw-loader v-if="isLoading && this.pages.length < 1"></sw-loader>
+                    <sw-loader v-if="isLoading"></sw-loader>
                 {% endblock %}
 
                 {% block sw_cms_layout_modal_content %}

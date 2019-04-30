@@ -67,26 +67,66 @@
         flex-shrink: 1;
         flex-basis: 0;
 
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 600;
+            color: #52667A;
+            letter-spacing: 0;
+            margin-bottom: 0;
+        }
+
         h1 {
-            margin-bottom: 18px;
+            font-size: 36px;
+            line-height: 40px;
+            margin-top: 36px;
         }
 
-        h2, h3, h4, h5, h6 {
-            margin-bottom: 15px;
+        h2 {
+            font-size: 28px;
+            line-height: 34px;
+            margin-top: 30px;
         }
 
-        p, blockquote, ul, ol {
-            margin-bottom: 20px;
+        h3 {
+            font-size: 24px;
+            line-height: 33px;
+            margin-top: 28px;
         }
 
-        ul, ol {
-            margin-left: 20px;
+        h4 {
+            font-size: 20px;
+            line-height: 24px;
+            margin-top: 24px;
+        }
+
+        h5 {
+            font-size: 16px;
+            line-height: 21px;
+            margin-top: 22px;
+        }
+
+        h6 {
+            font-size: 14px;
+            line-height: 20px;
+            margin-top: 22px;
+        }
+
+        p, div {
+            font-weight: normal;
+            font-size: 16px;
+            line-height: 24px;
+            color: #52667A;
+            letter-spacing: 0;
+            margin-top: 16px;
         }
 
         blockquote {
+            font-size: 16px;
             font-style: italic;
+            line-height: 24px;
+            color: #52667A;
             margin-left: 20px;
             position: relative;
+            margin-top: 16px;
 
             &:before {
                 content: '"';
@@ -99,14 +139,33 @@
             }
         }
 
-        hr {
-            max-width: 160px;
-            margin: 0 auto 20px auto;
-            border: 2px solid $color-steam-cloud;
+        ul, ol {
+            margin-left: 20px;
+            margin-top: 16px;
+
+            li {
+                font-weight: normal;
+                font-size: 16px;
+                line-height: 24px;
+                color: #52667A;
+                margin-bottom: 8px;
+            }
+
+            li:last-child {
+                margin-bottom: 0;
+            }
         }
 
-        *:last-child {
-            margin-bottom: 0;
+        hr {
+            max-width: 160px;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 16px;
+            border: 2px solid #e9edf0;
+        }
+
+        & > *:first-child {
+            margin-top: 0;
         }
     }
 }

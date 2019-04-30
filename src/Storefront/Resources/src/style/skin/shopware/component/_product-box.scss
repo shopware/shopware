@@ -1,6 +1,13 @@
+.product-box {
+    border-color: $border-color;
+
+    .card-body {
+        padding: $spacer;
+    }
+}
+
 .product-name {
     color: $headings-color;
-    font-weight: $headings-font-weight;
     font-size: $font-size-lg;
 
     &:hover {

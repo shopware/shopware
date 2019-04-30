@@ -47,6 +47,7 @@
         "VIOLATION::IS_BLANK_ERROR": "%field% darf nicht leer sein.",
         "VIOLATION::TOO_LOW_ERROR": "%field% darf nicht leer sein.",
         "VIOLATION::STRICT_CHECK_FAILED_ERROR": "%field% ist ungültig",
+        "VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE": "Diese E-Mail-Adresse ist bereits registriert.",
         "message-default": "Leider ist etwas ist schief gelaufen",
         "message-404": "Die angeforderte Seite kann nicht gefunden werden.",
         "addToCartError": "Beim Hinzufügen zum Warenkorb ist ein Fehler aufgetreten.",

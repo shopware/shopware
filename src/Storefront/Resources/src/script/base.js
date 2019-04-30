@@ -112,12 +112,6 @@ add configurations
 // import ExtendedSimplePluginConfig from 'src/script/config/_example/extended-simple-plugin.config';
 // window.PluginConfigManager.add('SimplePlugin', 'extendedConfig', ExtendedSimplePluginConfig);
 
-
-/*
-pages
- */
-import 'src/script/page/account/profile.page';
-
 /*
 run plugins
 */

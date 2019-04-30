@@ -1,0 +1,13 @@
+{% block sw_settings_content_card_slot_default %}
+    {% parent %}
+
+    {% block sw_mail_template_item %}
+        <template v-if="next712">
+            <sw-settings-item id="sw-mail-template" :label="$tc('sw-mail-template.general.mainMenuItemGeneral')" :to="{ name: 'sw.mail.template.index' }">
+                <template slot="icon">
+                    <sw-icon name="default-communication-envelope" size="45"></sw-icon>
+                </template>
+            </sw-settings-item>
+        </template>
+    {% endblock %}
+{% endblock %}

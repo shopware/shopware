@@ -1,4 +1,5 @@
 import { Module } from 'src/core/shopware';
+import './extension/sw-settings-index';
 import './component/sw-mail-template-list';
 import './component/sw-mail-header-footer-list';
 import './component/sw-mail-template-media-form';
@@ -66,14 +67,5 @@ Module.register('sw-mail-template', {
                 parentPath: 'sw.mail.template.index'
             }
         }
-    },
-
-    navigation: [{
-        id: 'sw-mail-template',
-        label: 'sw-mail-template.general.mainMenuItemGeneral',
-        color: '#9AA8B5',
-        path: 'sw.mail.template.index',
-        icon: 'default-action-settings',
-        parent: 'sw-settings'
-    }]
+    }
 });

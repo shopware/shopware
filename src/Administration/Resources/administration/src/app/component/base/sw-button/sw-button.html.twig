@@ -26,13 +26,18 @@
     {% endblock %}
 
     {% block sw_button_button %}
-        <button class="sw-button"
+        <button v-else
+                class="sw-button"
                 :class="buttonClasses"
-                :disabled="disabled"
-                v-on="$listeners"
-                v-else>
+                :disabled="disabled || isLoading"
+                v-on="$listeners">
             {% block sw_button_button_content %}
-                <span class="sw-button__content">
+                <sw-icon name="default-web-loading-circle"
+                         class="sw-button__loader"
+                         v-if="isLoading"
+                         size="20px">
+                </sw-icon>
+                <span class="sw-button__content" :class="contentVisibilityClass">
                     <slot>{% block sw_button_button_slot_default %}{% endblock %}</slot>
                 </span>
             {% endblock %}

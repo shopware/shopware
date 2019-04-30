@@ -40,7 +40,7 @@ module.exports = {
 
         browser
             .click(page.elements.primaryButton)
-            .checkNotification('Product "Ultimate Product" has been saved successfully.');
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium');
     },
     'verify upload in media module': (browser) => {
         const page = mediaPage(browser);

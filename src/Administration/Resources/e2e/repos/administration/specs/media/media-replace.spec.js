@@ -29,8 +29,7 @@ module.exports = {
 
         productPageObject.addProductImageViaUrl(`${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`, global.ProductFixtureService.productFixture.name);
 
-        browser
-            .waitForElementVisible(page.elements.previewItem);
+        browser.waitForElementVisible(page.elements.previewItem);
     },
     'open media listing and navigate to folder if necessary': (browser) => {
         const page = mediaPage(browser);

@@ -20,7 +20,7 @@ module.exports = {
             })
             .expect.element(page.elements.productListName).to.have.text.that.contains(global.ProductFixtureService.productFixture.name);
     },
-    'find product to be translated': (browser) => {
+    'find product to be edited': (browser) => {
         const page = productPage(browser);
 
         browser
@@ -57,7 +57,7 @@ module.exports = {
 
         browser
             .click(page.elements.productSaveAction)
-            .checkNotification('Product "Product name" has been saved successfully.');
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium');
     },
     'remove second tag': (browser) => {
         const page = productPage(browser);
@@ -72,8 +72,9 @@ module.exports = {
         const page = productPage(browser);
 
         browser
+            .waitForElementNotPresent('.sw-product-detail__save-action .icon--small-default-checkmark-line-medium')
             .click(page.elements.productSaveAction)
-            .checkNotification('Product "Product name" has been saved successfully.');
+            .waitForElementVisible('.sw-product-detail__save-action .icon--small-default-checkmark-line-medium');
     },
     'check truncated tag': (browser) => {
         const page = productPage(browser);

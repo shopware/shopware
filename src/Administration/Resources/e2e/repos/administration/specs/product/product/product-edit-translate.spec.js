@@ -52,7 +52,7 @@ module.exports = {
             .fillField('input[name=sw-field--product-name]', 'Echt gutes Produkt', true)
             .fillField('.sw-text-editor__content-editor', 'Siehst du nicht, dass das ein wunderbares Produkt ist?', true, 'editor')
             .click(page.elements.productSaveAction)
-            .checkNotification('Product "Echt gutes Produkt" has been saved successfully.');
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium');
     },
     'verify product in listing': (browser) => {
         const page = productPage(browser);

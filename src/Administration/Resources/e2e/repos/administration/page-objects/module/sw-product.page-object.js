@@ -17,7 +17,6 @@ class ProductPageObject extends GeneralPageObject {
     createBasicProduct(productName) {
         this.browser
             .fillField('input[name=sw-field--product-name]', productName)
-            .fillField('input[name=sw-field--product-stock]', '1')
             .fillField('.sw-text-editor__content-editor', 'My very first description', false, 'editor')
             .fillSwSelectComponent(
                 '.sw-select-product__select_manufacturer',
@@ -27,16 +26,18 @@ class ProductPageObject extends GeneralPageObject {
                     isMulti: false
                 }
             )
-            .fillSelectField('select[name=sw-field--product-taxId]', '19%')
             .fillField('input[name=sw-field--price-gross]', '99')
+            .fillSelectField('select[name=sw-field--product-taxId]', '19%')
+            .fillField('input[name=sw-field--product-stock]', '1')
             .expect.element(this.elements.productSaveAction).to.be.enabled;
 
         this.browser
+            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .click(this.elements.productSaveAction)
-            .checkNotification(`Product "${productName}" has been saved successfully.`);
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium');
     }
 
-    addProductImageViaUrl(imagePath, productName) {
+    addProductImageViaUrl(imagePath) {
         this.browser
             .waitForElementPresent(this.elements.mediaForm)
             .getLocationInView(this.elements.mediaForm)
@@ -47,8 +48,9 @@ class ProductPageObject extends GeneralPageObject {
             .waitForElementNotPresent('input[name=sw-field--url]')
             .waitForElementVisible('.sw-media-preview__item')
             .checkNotification('File has been saved successfully.')
+            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .click(this.elements.productSaveAction)
-            .checkNotification(`Product "${productName}" has been saved successfully.`);
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium');
     }
 
     deleteProduct(productName) {

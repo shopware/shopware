@@ -1,0 +1,16 @@
+.sw-button-process {
+    width: auto;
+
+    .sw-button-process__status-indicator {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .sw-button-process__content.is--hidden {
+        visibility: hidden;
+    }
+}

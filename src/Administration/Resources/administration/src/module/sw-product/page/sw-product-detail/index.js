@@ -21,7 +21,9 @@ Component.register('sw-product-detail', {
             currencies: [],
             taxes: [],
             customFieldSets: [],
-            priceIsCalculating: false
+            priceIsCalculating: false,
+            isLoading: false,
+            isSaveSuccessful: false
         };
     },
 
@@ -142,27 +144,32 @@ Component.register('sw-product-detail', {
             this.$refs.mediaSidebarItem.openContent();
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+        },
+
         onSave() {
+            this.isSaveSuccessful = false;
+
             const productName = this.product.name || this.product.translated.name;
-            const titleSaveSuccess = this.$tc('sw-product.detail.titleSaveSuccess');
-            const messageSaveSuccess = this.$tc('sw-product.detail.messageSaveSuccess', 0, { name: productName });
             const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');
             const messageSaveError = this.$tc(
                 'global.notification.notificationSaveErrorMessage', 0, { entityName: productName }
             );
 
+            this.isLoading = true;
+
             return this.product.save().then(() => {
+                this.isLoading = false;
+                this.isSaveSuccessful = true;
                 this.$refs.mediaSidebarItem.getList();
-                this.createNotificationSuccess({
-                    title: titleSaveSuccess,
-                    message: messageSaveSuccess
-                });
             }).catch((exception) => {
                 this.createNotificationError({
                     title: titleSaveError,
                     message: messageSaveError
                 });
                 warn(this._name, exception.message, exception.response);
+                this.isLoading = false;
                 throw exception;
             });
         },

@@ -61,6 +61,24 @@
                                       @column-sort="onSortColumn"
                                       @inline-edit-save="onInlineEditSave"
                                       @inline-edit-cancel="onInlineEditCancel">
+                            {% block sw_setting_shipping_list_grid_columns %}
+                                {% block sw_settings_shipping_list_grid_columns_active %}
+                                    <template slot="column-active" slot-scope="{ item, isInlineEdit }">
+                                        {% block sw_settings_shipping_list_grid_columns_active_inline_edit %}
+                                        <template v-if="isInlineEdit">
+                                            <sw-checkbox-field v-model="item.active"></sw-checkbox-field>
+                                        </template>
+                                        {% endblock %}
+
+                                        {% block sw_settings_shipping_list_grid_columns_active_content %}
+                                        <template v-else>
+                                            <sw-icon v-if="item.active" name="small-default-checkmark-line-medium" small class="is--active"></sw-icon>
+                                            <sw-icon v-else name="small-default-x-line-medium" small class="is--inactive"></sw-icon>
+                                        </template>
+                                        {% endblock %}
+                                    </template>
+                                {% endblock %}
+                            {% endblock %}
                             {% block sw_settings_shipping_list_grid_columns_actions %}
                                 <template slot="actions" slot-scope="{ item }">
                                     {% block sw_settings_shipping_list_grid_columns_actions_edit %}

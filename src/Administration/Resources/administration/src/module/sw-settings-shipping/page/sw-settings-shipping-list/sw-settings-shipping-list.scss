@@ -1,0 +1,14 @@
+@import "~scss/variables";
+
+$sw-settings-shipping-list-color-error: $color-crimson;
+$sw-settings-shipping-list-color-success: $color-emerald;
+
+.sw-settings-shipping-list {
+    .is--inactive {
+        color: $sw-settings-shipping-list-color-error;
+    }
+
+    .is--active {
+        color: $sw-settings-shipping-list-color-success;
+    }
+}

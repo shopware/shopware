@@ -1,5 +1,6 @@
 import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-settings-shipping-list.html.twig';
+import './sw-settings-shipping-list.scss';
 
 Component.register('sw-settings-shipping-list', {
     template,
@@ -56,6 +57,13 @@ Component.register('sw-settings-shipping-list', {
                 dataIndex: 'description',
                 inlineEdit: 'string',
                 allowResize: true
+            }, {
+                property: 'active',
+                label: this.$tc('sw-settings-shipping.list.columnActive'),
+                dataIndex: 'active',
+                inlineEdit: 'boolean',
+                allowResize: true,
+                align: 'center'
             }];
         },
 

@@ -18,11 +18,6 @@ class ShippingMethodEntity extends Entity
     use EntityIdTrait;
 
     /**
-     * @var bool
-     */
-    protected $bindShippingfree;
-
-    /**
      * @var string|null
      */
     protected $name;
@@ -33,19 +28,9 @@ class ShippingMethodEntity extends Entity
     protected $active;
 
     /**
-     * @var float|null
-     */
-    protected $shippingFree;
-
-    /**
      * @var string|null
      */
     protected $description;
-
-    /**
-     * @var string|null
-     */
-    protected $comment;
 
     /**
      * @var string
@@ -117,16 +102,6 @@ class ShippingMethodEntity extends Entity
         $this->prices = new ShippingMethodPriceCollection();
     }
 
-    public function getBindShippingfree(): bool
-    {
-        return $this->bindShippingfree;
-    }
-
-    public function setBindShippingfree(bool $bindShippingfree): void
-    {
-        $this->bindShippingfree = $bindShippingfree;
-    }
-
     public function getName(): ?string
     {
         return $this->name;
@@ -147,16 +122,6 @@ class ShippingMethodEntity extends Entity
         $this->active = $active;
     }
 
-    public function getShippingFree(): ?float
-    {
-        return $this->shippingFree;
-    }
-
-    public function setShippingFree(?float $shippingFree): void
-    {
-        $this->shippingFree = $shippingFree;
-    }
-
     public function getDescription(): ?string
     {
         return $this->description;
@@ -165,16 +130,6 @@ class ShippingMethodEntity extends Entity
     public function setDescription(?string $description): void
     {
         $this->description = $description;
-    }
-
-    public function getComment(): ?string
-    {
-        return $this->comment;
-    }
-
-    public function setComment(?string $comment): void
-    {
-        $this->comment = $comment;
     }
 
     public function getDeliveryTimeId(): string

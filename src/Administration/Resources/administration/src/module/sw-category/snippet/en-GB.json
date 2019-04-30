@@ -47,7 +47,7 @@
               "page": "Category",
               "folder": "Structuring element",
               "link": "Customizable link",
-              "help": "The 'Category' type describes a shop category that can be called normally. A 'Structure category' cannot be viewed as an actual category, but can be used as a structure point for ordering products. When using the type 'Customizable link' the category can be replaced by an own link to which the category link leads."
+              "help": "A structure category is not callable by itself, but is only used for outlining purposes."
             }
           },
 
@@ -65,10 +65,14 @@
           },
 
           "cms": {
-            "title": "Layout selection",
+            "title": "Layout assignment",
             "changeLayout": "Change layout",
+            "changeLayoutEmpty": "Assign layout",
             "editInPagebuilder": "Edit in designer",
-            "editContent": "Edit content"
+            "editInPagebuilderEmpty": "Create new layout",
+            "editContent": "Edit content",
+            "defaultTitle": "Default layout",
+            "defaultDesc": "Category page"
           },
 
           "link": {

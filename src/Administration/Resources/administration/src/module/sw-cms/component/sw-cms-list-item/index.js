@@ -8,7 +8,8 @@ Component.register('sw-cms-list-item', {
     props: {
         page: {
             type: Object,
-            required: true
+            required: false,
+            default: null
         }
     },
 

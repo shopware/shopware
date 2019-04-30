@@ -48,7 +48,7 @@
               "page": "Kategorie",
               "folder": "Strukturierungselement",
               "link": "Benutzerdefinierter Link",
-              "help": "Der Typ 'Kategorie' beschreibt eine normal aufrufbare Shopkategorie. Eine 'Strukturkategorie' ist nicht als eigentliche Kategorie aufrufbar sondern kann als Strukturpunkt zum Ordnen von Produkten verwendet werden. Beim Typ 'Benutzerdefinierter Link' kann die Kategorie durch einen eigenen Link ersetzt werden zu dem die Kategorieverlinkung führt."
+              "help": "Eine Strukturkategorie ist nicht selbst aufrufbar, sondern dient lediglich der Gliederung."
             }
           },
 
@@ -66,10 +66,14 @@
           },
 
           "cms": {
-            "title": "Layoutauswahl",
+            "title": "Layout Zuweisung",
             "changeLayout": "Layout ändern",
+            "changeLayoutEmpty": "Layout zuweisen",
             "editInPagebuilder": "Im Designer bearbeiten",
-            "editContent": "Inhalte bearbeiten"
+            "editInPagebuilderEmpty": "Neues Layout erstellen",
+            "editContent": "Inhalte bearbeiten",
+            "defaultTitle": "Standard Layout",
+            "defaultDesc": "Kategorieseite"
           },
 
           "link": {

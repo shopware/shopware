@@ -104,7 +104,7 @@
 
                 <div class="sw-category-detail-base__layout">
                     {% block sw_category_detail_layout_preview %}
-                        <sw-cms-list-item v-if="cmsPage" :page="cmsPage"></sw-cms-list-item>
+                        <sw-cms-list-item :page="cmsPage"></sw-cms-list-item>
                     {% endblock %}
 
                     {% block sw_category_detail_layout_modal %}
@@ -119,9 +119,13 @@
                         <div class="sw-category-detail-base__layout-desc">
 
                             {% block sw_category_detail_layout_desc_info %}
-                                <div class="sw-category-detail-base__layout-desc-info" v-if="cmsPage">
-                                    <div class="sw-category-detail-base__layout-desc-headline">{{ cmsPage.name }}</div>
-                                    <div class="sw-category-detail-base__layout-desc-subheadline">{{ cmsPage.type }}</div>
+                                <div class="sw-category-detail-base__layout-desc-info">
+                                    <div class="sw-category-detail-base__layout-desc-headline">
+                                        {{ cmsPage ? cmsPage.name : $tc('sw-category.base.cms.defaultTitle') }}
+                                    </div>
+                                    <div class="sw-category-detail-base__layout-desc-subheadline">
+                                        {{ cmsPage ? cmsPage.type : $tc('sw-category.base.cms.defaultDesc') }}
+                                    </div>
                                 </div>
                             {% endblock %}
 
@@ -130,13 +134,13 @@
 
                                     {% block sw_category_detail_layout_desc_actions_layout %}
                                         <sw-button size="small" @click="openLayoutModal()">
-                                            {{ $tc('sw-category.base.cms.changeLayout') }}
+                                            {{ cmsPage ? $tc('sw-category.base.cms.changeLayout') : $tc('sw-category.base.cms.changeLayoutEmpty') }}
                                         </sw-button>
                                     {% endblock %}
 
                                     {% block sw_category_detail_layout_desc_actions_designer %}
-                                        <sw-button v-if="cmsPage" size="small" @click="openInPagebuilder()">
-                                            {{ $tc('sw-category.base.cms.editInPagebuilder') }}
+                                        <sw-button size="small" @click="openInPagebuilder()">
+                                            {{ cmsPage ? $tc('sw-category.base.cms.editInPagebuilder'): $tc('sw-category.base.cms.editInPagebuilderEmpty') }}
                                         </sw-button>
                                     {% endblock %}
 

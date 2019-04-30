@@ -65,13 +65,13 @@ The customer endpoint is used to register and log in customers. It can also be u
 | username | string | By default, the e-mail address is used as username  |    ✔     |
 | password | string | Plain password. Hashing will be handled by Shopware |    ✔     |
 
-**Response:** If successful, the x-sw-context-token will be returned. Include this token as a HTTP header for all future requests.
+**Response:** If successful, the sw-context-token will be returned. Include this token as a HTTP header for all future requests.
 
 ### Log out a customer
 
 **POST  /sales-channel-api/v1/customer/logout**
 
-**Header:** x-sw-context-token is required
+**Header:** sw-context-token is required
 
 **Response:** Empty response if successful
 
@@ -86,7 +86,7 @@ The customer endpoint is used to register and log in customers. It can also be u
 | limit | int  | Default: 10 |          |
 | page  | int  | Default: 1  |          |
 
-**Header:** x-sw-context-token is required
+**Header:** sw-context-token is required
 
 **Response:** List of the orders
 
@@ -101,7 +101,7 @@ The customer endpoint is used to register and log in customers. It can also be u
 | email             | string |       |    ✔     |
 | emailConfirmation | string |       |    ✔     |
 
-**Header:** x-sw-context-token is required
+**Header:** sw-context-token is required
 
 **Response:** Empty response if successful
 
@@ -115,7 +115,7 @@ The customer endpoint is used to register and log in customers. It can also be u
 | -------- | ------ | ----- | :------: |
 | password | string |       |    ✔     |
 
-**Header:** x-sw-context-token is required
+**Header:** sw-context-token is required
 
 **Response:** Empty response if successful
 
@@ -136,7 +136,7 @@ The customer endpoint is used to register and log in customers. It can also be u
 | birthdayMonth | int    | Required if one of the other birthday fields is set |          |
 | birthdayYear  | int    | Required if one of the other birthday fields is set |          |
 
-**Header:** x-sw-context-token is required
+**Header:** sw-context-token is required
 
 **Response:** Empty response if successful
 
@@ -144,7 +144,7 @@ The customer endpoint is used to register and log in customers. It can also be u
 
 **GET  /sales-channel-api/v1/customer**
 
-**Header:** x-sw-context-token is required
+**Header:** sw-context-token is required
 
 **Response:** List of all customer related information
 
@@ -154,7 +154,7 @@ The customer endpoint is used to register and log in customers. It can also be u
 
 **GET /sales-channel-api/v1/customer/address**
 
-**Header:** x-sw-context-token is required
+**Header:** sw-context-token is required
 
 **Response:** List of all customer addresses
 
@@ -162,7 +162,7 @@ The customer endpoint is used to register and log in customers. It can also be u
 
 **GET /sales-channel-api/v1/customer/address/{id}**
 
-**Header:** x-sw-context-token is required
+**Header:** sw-context-token is required
 
 **Response:** Detailed information about the specified address id.
 Note: The address id must be assigned with the customer currently logged in.
@@ -171,7 +171,7 @@ Note: The address id must be assigned with the customer currently logged in.
 
 **POST /sales-channel-api/v1/customer/address**
 
-**Header:** x-sw-context-token is required
+**Header:** sw-context-token is required
 
 **Parameter:**
 
@@ -191,13 +191,13 @@ Note: The address id must be assigned with the customer currently logged in.
 
 **Note:** You can not delete a default shipping or billing address.
 
-**Header:** x-sw-context-token is required
+**Header:** sw-context-token is required
 
 ### Set default shipping address
 
 **POST  /sales-channel-api/v1/customer/default-shipping-address/{id}**
 
-**Header:** x-sw-context-token is required
+**Header:** sw-context-token is required
 
 **Response:** AddressId if successful
 
@@ -205,7 +205,7 @@ Note: The address id must be assigned with the customer currently logged in.
 
 **POST  /sales-channel-api/v1/customer/default-billing-address/{id}**
 
-**Header:** x-sw-context-token is required
+**Header:** sw-context-token is required
 
 **Response:** AddressId if successful
 
@@ -231,7 +231,7 @@ Note: The address id must be assigned with the customer currently logged in.
 
     let headers = {
         "Content-Type": "application/json",
-        "X-SW-Access-Key": accessKey
+        "SW-Access-Key": accessKey
     };
 
     function getCountry(iso3) {
@@ -261,8 +261,8 @@ Note: The address id must be assigned with the customer currently logged in.
         const body = JSON.stringify({ username, password });
         return fetch(url, { method: 'POST', headers, body })
             .then((resp) => resp.json())
-            .then(({ 'x-sw-context-token': token }) => {
-                headers['x-sw-context-token'] = token;
+            .then(({ 'sw-context-token': token }) => {
+                headers['sw-context-token'] = token;
             });
     }
 
@@ -270,7 +270,7 @@ Note: The address id must be assigned with the customer currently logged in.
         const url = `${baseUrl}/sales-channel-api/v1/customer/logout`;
         return fetch(url, { method: 'POST', headers })
             .then((resp) => resp.text())
-            .then(() => { headers['x-sw-context-token'] = null });
+            .then(() => { headers['sw-context-token'] = null });
     }
 
     function getProfile() {
@@ -289,12 +289,12 @@ Note: The address id must be assigned with the customer currently logged in.
         await registerCustomer(customer);
 
         await login(customer.email, customer.password);
-        console.log('Context-Token', headers['x-sw-context-token']);
+        console.log('Context-Token', headers['sw-context-token']);
 
         console.log('Profile', await getProfile());
 
         await logout();
-        console.log('Context-Token', headers['x-sw-context-token']);
+        console.log('Context-Token', headers['sw-context-token']);
     }
 
     customerExample().then(() => {

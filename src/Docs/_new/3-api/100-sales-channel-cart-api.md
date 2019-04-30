@@ -6,14 +6,14 @@ change their quantity and placing an order.
 ## Create an empty cart
 
 **POST  /sales-channel-api/v1/checkout/cart**  
-**Response:** If successful, the x-sw-context-token will be returned and the x-sw-context-token header will be set.
+**Response:** If successful, the sw-context-token will be returned and the sw-context-token header will be set.
 Include this token as an HTTP header for all future requests.
 
 ## Get a cart
 
 **GET  /sales-channel-api/v1/checkout/cart**
 
-**Header:** x-sw-context-token is required
+**Header:** sw-context-token is required
 
 **Response:** If successful, the calculated cart will be returned. 
 
@@ -21,7 +21,7 @@ Include this token as an HTTP header for all future requests.
 
 **POST  /sales-channel-api/v1/checkout/cart/product/{id}**
 
-**Header:** x-sw-context-token is required
+**Header:** sw-context-token is required
 
 **Parameter:**
 
@@ -30,7 +30,7 @@ Include this token as an HTTP header for all future requests.
 | quantity | int   | Default: 1 |          |
 | payload  | array |            |          |
 
-**Header:** x-sw-context-token is required
+**Header:** sw-context-token is required
 
 **Response:** If successful, the calculated cart will be returned.
 
@@ -38,7 +38,7 @@ Include this token as an HTTP header for all future requests.
 
 **POST  /sales-channel-api/v1/checkout/cart/line-item/{id}**
 
-**Header:** x-sw-context-token is
+**Header:** sw-context-token is
 required
 **Parameter:**
 
@@ -54,7 +54,7 @@ required
 | description | string  |                                                                                                                 |          |
 | coverId     | uuid    | UUID of a media entity                                                                                          |          |
 
-**Header:** x-sw-context-token is required
+**Header:** sw-context-token is required
 
 **Response:** If successful, the calculated cart will be returned.
 
@@ -62,7 +62,7 @@ required
 
 **DELETE  /sales-channel-api/v1/checkout/cart/line-item/{id}**
 
-**Header:** x-sw-context-token is required
+**Header:** sw-context-token is required
 
 **Response:** If successful, the calculated cart will be returned.
 
@@ -71,7 +71,7 @@ required
 **PATCH 
 /sales-channel-api/v1/checkout/cart/line-item/{id}/quantity/{quantity}**
 
-**Header:** x-sw-context-token is required
+**Header:** sw-context-token is required
 
 **Response:** If successful, the calculated cart will be returned.
 
@@ -79,7 +79,7 @@ required
 
 **PATCH  /sales-channel-api/v1/checkout/cart/line-item/{id}**
 
-**Header:** x-sw-context-token is required
+**Header:** sw-context-token is required
 
 **Parameter:**
 
@@ -100,7 +100,7 @@ required
 
 **POST  /sales-channel-api/v1/checkout/order**
 
-**Header:** x-sw-context-token is required
+**Header:** sw-context-token is required
 
 **Response:** If successful, the order will be returned.
 
@@ -108,7 +108,7 @@ required
 
 **POST  /sales-channel-api/v1/checkout/guest-order**
 
-**Header:** x-sw-context-token is required
+**Header:** sw-context-token is required
 
 **Parameter:** For the parameter, please have a look at the [customer registration](/en/shopware-platform-en/using-the-sales-channel-api/customer-endpoint?category=shopware-platform-en/core-components/using-the-sales-channel-api).
 The guest parameter is always set to true.
@@ -119,7 +119,7 @@ The guest parameter is always set to true.
 
 **POST  /sales-channel-api/v1/checkout/pay/order/{orderId}**
 
-**Header:** x-sw-context-token is required
+**Header:** sw-context-token is required
 
 **Parameter:** If *finishUrl* is set, the customer will be redirected to this URL after the payment process is completed. 
 
@@ -152,15 +152,15 @@ If the payment process is completed or the payment processor use an external pay
     };
     let headers = {
         "Content-Type": "application/json",
-        "X-SW-Access-Key": accessKey
+        "SW-Access-Key": accessKey
     };
     
     function initCart() {
         const init = { method: 'POST', headers };
         return fetch(baseUrl + '/sales-channel-api/v1/checkout/cart', init)
             .then((resp) => resp.json())
-            .then(({ 'x-sw-context-token': contextToken }) => {
-                headers['x-sw-context-token'] = contextToken;
+            .then(({ 'sw-context-token': contextToken }) => {
+                headers['sw-context-token'] = contextToken;
             });
     }
     

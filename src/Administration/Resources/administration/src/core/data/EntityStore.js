@@ -492,6 +492,6 @@ export default class EntityStore {
      * @return {Object}
      */
     static getLanguageHeader(languageId) {
-        return { 'x-sw-language-id': languageId };
+        return { 'sw-language-id': languageId };
     }
 }

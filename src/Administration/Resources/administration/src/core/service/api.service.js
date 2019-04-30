@@ -350,7 +350,7 @@ class ApiService {
     }
 
     static getVersionHeader(versionId) {
-        return { 'x-sw-version-id': versionId };
+        return { 'sw-version-id': versionId };
     }
 
     /**

@@ -99,8 +99,8 @@ export default class HttpClient {
         request.open(type, url);
         request.setRequestHeader('Content-type', 'application/json');
         request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-        request.setRequestHeader('x-sw-access-key', this.accessKey);
-        request.setRequestHeader('x-sw-context-token', this.contextToken);
+        request.setRequestHeader('sw-access-key', this.accessKey);
+        request.setRequestHeader('sw-context-token', this.contextToken);
 
         return request;
     }

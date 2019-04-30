@@ -62,18 +62,18 @@ class SalesChannelProxyControllerTest extends TestCase
             [],
             [],
             [
-                'HTTP_X_SW_CONTEXT_TOKEN' => $uuid,
-                'HTTP_X_SW_LANGUAGE_ID' => $uuid,
-                'HTTP_X_SW_VERSION_ID' => $uuid,
+                'HTTP_SW_CONTEXT_TOKEN' => $uuid,
+                'HTTP_SW_LANGUAGE_ID' => $uuid,
+                'HTTP_SW_VERSION_ID' => $uuid,
             ]
         );
 
-        static::assertEquals($uuid, $this->getClient()->getRequest()->headers->get('x-sw-context-token'));
-        static::assertEquals($uuid, $this->getClient()->getRequest()->headers->get('x-sw-language-id'));
-        static::assertEquals($uuid, $this->getClient()->getRequest()->headers->get('x-sw-version-id'));
-        static::assertEquals($uuid, $this->getClient()->getResponse()->headers->get('x-sw-context-token'));
-        static::assertEquals($uuid, $this->getClient()->getResponse()->headers->get('x-sw-language-id'));
-        static::assertEquals($uuid, $this->getClient()->getResponse()->headers->get('x-sw-version-id'));
+        static::assertEquals($uuid, $this->getClient()->getRequest()->headers->get('sw-context-token'));
+        static::assertEquals($uuid, $this->getClient()->getRequest()->headers->get('sw-language-id'));
+        static::assertEquals($uuid, $this->getClient()->getRequest()->headers->get('sw-version-id'));
+        static::assertEquals($uuid, $this->getClient()->getResponse()->headers->get('sw-context-token'));
+        static::assertEquals($uuid, $this->getClient()->getResponse()->headers->get('sw-language-id'));
+        static::assertEquals($uuid, $this->getClient()->getResponse()->headers->get('sw-version-id'));
     }
 
     public function testOnlyDefinedHeadersAreCopied(): void
@@ -86,12 +86,12 @@ class SalesChannelProxyControllerTest extends TestCase
             [],
             [],
             [
-                'HTTP_X_SW_CUSTOM_HEADER' => 'foo',
+                'HTTP_SW_CUSTOM_HEADER' => 'foo',
             ]
         );
 
-        static::assertEquals('foo', $this->getClient()->getRequest()->headers->get('x-sw-custom-header'));
-        static::assertArrayNotHasKey('x-sw-custom-header', $this->getClient()->getResponse()->headers->all());
+        static::assertEquals('foo', $this->getClient()->getRequest()->headers->get('sw-custom-header'));
+        static::assertArrayNotHasKey('sw-custom-header', $this->getClient()->getResponse()->headers->all());
     }
 
     public function testDifferentLanguage(): void

@@ -44,6 +44,9 @@ class OrderService
         $this->cartService = $cartService;
     }
 
+    /**
+     * @throws ConstraintViolationException
+     */
     public function createOrder(DataBag $data, SalesChannelContext $context): string
     {
         $this->validateOrderData($data, $context->getContext());
@@ -53,6 +56,9 @@ class OrderService
         return $this->cartService->order($cart, $context);
     }
 
+    /**
+     * @throws ConstraintViolationException
+     */
     private function validateOrderData(DataBag $data, Context $context): void
     {
         $definition = $this->getOrderCreateValidationDefinition($context);

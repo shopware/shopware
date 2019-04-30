@@ -73,9 +73,6 @@ class CartService
         $this->cart[$cart->getToken()] = $cart;
     }
 
-    /**
-     * @throws CartTokenNotFoundException
-     */
     public function createNew(string $token, string $name = self::SALES_CHANNEL): Cart
     {
         $cart = new Cart($name, $token);
@@ -83,12 +80,13 @@ class CartService
         return $this->cart[$cart->getToken()] = $cart;
     }
 
-    /**
-     * @throws CartTokenNotFoundException
-     */
-    public function getCart(string $token, SalesChannelContext $context, string $name = self::SALES_CHANNEL, bool $caching = true): Cart
-    {
-        if (isset($this->cart[$token]) && $caching) {
+    public function getCart(
+        string $token,
+        SalesChannelContext $context,
+        string $name = self::SALES_CHANNEL,
+        bool $caching = true
+    ): Cart {
+        if ($caching && isset($this->cart[$token])) {
             return $this->cart[$token];
         }
 
@@ -102,6 +100,8 @@ class CartService
     }
 
     /**
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
      * @throws MixedLineItemTypeException
      */
     public function add(Cart $cart, LineItem $item, SalesChannelContext $context): Cart
@@ -111,6 +111,11 @@ class CartService
         return $this->calculate($cart, $context);
     }
 
+    /**
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
+     */
     public function fill(Cart $cart, LineItemCollection $lineItems, SalesChannelContext $context): Cart
     {
         $cart->addLineItems($lineItems);
@@ -122,7 +127,6 @@ class CartService
      * @throws LineItemNotFoundException
      * @throws LineItemNotStackableException
      * @throws InvalidQuantityException
-     * @throws CartTokenNotFoundException
      */
     public function changeQuantity(Cart $cart, string $identifier, int $quantity, SalesChannelContext $context): Cart
     {
@@ -138,7 +142,6 @@ class CartService
     /**
      * @throws LineItemNotFoundException
      * @throws LineItemNotRemovableException
-     * @throws CartTokenNotFoundException
      */
     public function remove(Cart $cart, string $identifier, SalesChannelContext $context): Cart
     {
@@ -155,8 +158,7 @@ class CartService
         $this->persister->delete($context->getToken(), $context);
         unset($this->cart[$calculatedCart->getToken()]);
 
-        $event = $events->getEventByDefinition(OrderDefinition::class);
-        $ids = $event->getIds();
+        $ids = $events->getEventByDefinition(OrderDefinition::class)->getIds();
 
         return array_shift($ids);
     }
@@ -170,16 +172,15 @@ class CartService
     {
         $behavior = new CartBehavior();
 
-        // enrich line items with missing data, e.g products which added in the call are enriched with their prices and labels
+        // enrich line items with missing data,
+        // e.g products which added in the call are enriched with their prices and labels
         $cart = $this->enrichment->enrich($cart, $context, $behavior);
 
         // all prices are now prepared for calculation -  starts the cart calculation
         $cart = $this->processor->process($cart, $context, $behavior);
 
         // validate cart against the context rules
-        $validated = $this->cartRuleLoader->loadByCart($context, $cart, $behavior);
-
-        $cart = $validated->getCart();
+        $cart = $this->cartRuleLoader->loadByCart($context, $cart, $behavior)->getCart();
 
         $this->persister->save($cart, $context);
 

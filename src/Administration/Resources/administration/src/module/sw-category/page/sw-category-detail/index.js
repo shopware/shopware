@@ -9,8 +9,7 @@ Component.register('sw-category-detail', {
 
     mixins: [
         Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('listing')
+        Mixin.getByName('placeholder')
     ],
 
     data() {
@@ -24,7 +23,8 @@ Component.register('sw-category-detail', {
             splitBreakpoint: 1024,
             isDisplayingLeavePageWarning: false,
             nextRoute: null,
-            disableContextMenu: false
+            disableContextMenu: false,
+            term: ''
         };
     },
 
@@ -107,6 +107,13 @@ Component.register('sw-category-detail', {
             });
         },
 
+        onSearch(value) {
+            if (value.length === 0) {
+                value = undefined;
+            }
+            this.term = value;
+        },
+
         checkViewport() {
             this.isMobileViewport = this.$device.getViewportWidth() < this.splitBreakpoint;
         },
@@ -132,6 +139,11 @@ Component.register('sw-category-detail', {
         },
 
         getAssignedCmsPage(cmsPageId) {
+            if (cmsPageId === null) {
+                this.cmsPage = null;
+                return false;
+            }
+
             const params = {
                 criteria: CriteriaFactory.equals('cms_page.id', cmsPageId),
                 associations: {

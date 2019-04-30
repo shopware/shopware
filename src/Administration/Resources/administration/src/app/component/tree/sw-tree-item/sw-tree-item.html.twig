@@ -96,12 +96,12 @@
                                 <div class="sw-context-menu__group">
                                     {% block sw_tree_items_actions_edit %}
                                         <sw-context-menu-item @click="onChangeRoute(item)">
-                                            {{ $tc('sw-tree.actions.edit') }}
+                                            {{ $tc('sw-tree.general.actions.edit') }}
                                         </sw-context-menu-item>
                                     {% endblock %}
                                     {% block sw_tree_items_actions_delete %}
                                         <sw-context-menu-item variant="danger" @click="deleteElement(item)">
-                                            {{ $tc('sw-tree.actions.delete') }}
+                                            {{ $tc('sw-tree.general.actions.delete') }}
                                         </sw-context-menu-item>
                                     {% endblock %}
                                 </div>

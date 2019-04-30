@@ -94,6 +94,9 @@
         "actionConfirm": "Layout übernehmen",
         "modalTitle": "Layout auswählen",
         "headline": "Landingpage / Produktlisting"
+      },
+      "cmsListItem": {
+        "emptyText": "Kein Layout zugewiesen"
       }
     }
   }

@@ -215,8 +215,17 @@ Component.register('sw-category-detail-base', {
             this.$emit('sw-category-base-on-layout-change', selectedLayout);
         },
 
+        onLayoutReset() {
+            this.category.cmsPageId = null;
+            this.$emit('sw-category-base-on-layout-change', null);
+        },
+
         openInPagebuilder() {
-            this.$router.push({ name: 'sw.cms.detail', params: { id: this.category.cmsPageId } });
+            if (!this.cmsPage) {
+                this.$router.push({ name: 'sw.cms.create' });
+            } else {
+                this.$router.push({ name: 'sw.cms.detail', params: { id: this.category.cmsPageId } });
+            }
         },
 
         openLayoutModal() {

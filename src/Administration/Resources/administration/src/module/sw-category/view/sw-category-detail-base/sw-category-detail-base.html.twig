@@ -2,7 +2,7 @@
     <div class="sw-category-detail-base">
 
         {% block sw_category_detail_information %}
-            <sw-card :title="$tc('sw-category.base.general.headlineInformationCard')" :isLoading="isLoading || isLoadingProducts">
+            <sw-card :title="$tc('sw-category.base.general.headlineInformationCard')" :isLoading="isLoading">
 
                 <sw-container columns="repeat(auto-fit, minmax(150px, 1fr))" gap="0px 30px">
                     {% block sw_category_detail_information_name %}
@@ -24,7 +24,6 @@
                         </sw-field>
                     {% endblock %}
                 </sw-container>
-
 
                 {% block sw_category_detail_information_type %}
                     <div class="sw-category-detail-base__type-container">
@@ -72,6 +71,7 @@
                     <div class="sw-category-detail-base__sales-channel-list">
                         {% block sw_category_detail_entry_point_list_link %}
                             <router-link v-for="salesChannel in getCombinedSalesChannels()"
+                                v-bind:key="salesChannel.id"
                                 :to="{ name: 'sw.sales.channel.detail.base', params: { id: salesChannel.id }}"
                                 class="sw-category-detail-base__sales-channel-entry">
                                 {{ salesChannel.name }}
@@ -89,7 +89,7 @@
         {% endblock %}
 
         {% block sw_category_detail_link %}
-            <sw-card v-if="category.type === 'link'" :title="$tc('sw-category.base.link.title')">
+            <sw-card v-if="category.type === 'link'" :title="$tc('sw-category.base.link.title')" :isLoading="isLoading">
                 {% block sw_category_detail_link_field %}
                     <sw-field
                         v-model="category.externalLink"
@@ -97,6 +97,83 @@
                         :placeholder="$tc('sw-category.base.general.linkLabel')">
                     </sw-field>
                 {% endblock %}
+            </sw-card>
+        {% endblock %}
+
+        {% block sw_category_detail_layout %}
+            <sw-card v-if="category.type === 'page'" :title="$tc('sw-category.base.cms.title')" :isLoading="isLoading">
+
+                <div class="sw-category-detail-base__layout">
+                    {% block sw_category_detail_layout_preview %}
+                        <sw-cms-list-item :page="cmsPage"></sw-cms-list-item>
+                    {% endblock %}
+
+                    {% block sw_category_detail_layout_modal %}
+                        <sw-cms-layout-modal
+                            v-if="showLayoutSelectionModal"
+                            @modal-layout-select="onLayoutSelect"
+                            @modal-close="closeLayoutModal">
+                        </sw-cms-layout-modal>
+                    {% endblock %}
+
+                    {% block sw_category_detail_layout_desc %}
+                        <div class="sw-category-detail-base__layout-desc">
+
+                            {% block sw_category_detail_layout_desc_info %}
+                                <div class="sw-category-detail-base__layout-desc-info">
+
+                                    {% block sw_category_detail_layout_desc_info_headline %}
+                                        <div class="sw-category-detail-base__layout-desc-headline" :class="{ 'is--empty': !cmsPage }">
+                                            {{ cmsPage ? cmsPage.name : $tc('sw-category.base.cms.defaultTitle') }}
+                                        </div>
+                                    {% endblock %}
+
+                                    {% block sw_category_detail_layout_desc_info_subheadline %}
+                                        <div class="sw-category-detail-base__layout-desc-subheadline" :class="{ 'is--empty': !cmsPage }">
+                                            {{ cmsPage ? cmsPage.type : $tc('sw-category.base.cms.defaultDesc') }}
+                                        </div>
+                                    {% endblock %}
+
+                                </div>
+                            {% endblock %}
+
+                            {% block sw_category_detail_layout_desc_actions %}
+                                <div class="sw-category-detail-base__layout-desc-actions">
+
+                                    {% block sw_category_detail_layout_desc_actions_layout %}
+                                        <sw-button size="small" @click="openLayoutModal()">
+                                            {{ cmsPage ? $tc('sw-category.base.cms.changeLayout') : $tc('sw-category.base.cms.changeLayoutEmpty') }}
+                                        </sw-button>
+                                    {% endblock %}
+
+                                    {% block sw_category_detail_layout_desc_actions_designer %}
+                                        <sw-button size="small" @click="openInPagebuilder()">
+                                            {{ cmsPage ? $tc('sw-category.base.cms.editInPagebuilder'): $tc('sw-category.base.cms.editInPagebuilderEmpty') }}
+                                        </sw-button>
+                                    {% endblock %}
+
+                                    {% block sw_category_detail_layout_desc_actions_remove %}
+                                        <sw-button v-if="cmsPage" size="small" @click="onLayoutReset()" square>
+                                            <sw-icon name="default-action-trash" small />
+                                        </sw-button>
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+
+                            {% block sw_category_detail_layout_desc_link %}
+                                <router-link
+                                    v-if="cmsPage"
+                                    class="sw-category-detail-base__layout-desc-link"
+                                    :to="{ name: 'sw.category.detail.cms', params: { id: $route.params.id }}">
+                                        {{ $tc('sw-category.base.cms.editContent') }}
+                                        <sw-icon name="default-arrow-simple-right" small></sw-icon>
+                                </router-link>
+                            {% endblock %}
+
+                        </div>
+                    {% endblock %}
+
+                </div>
             </sw-card>
         {% endblock %}
 
@@ -138,67 +215,6 @@
                         :placeholder="$tc('sw-category.base.menu.description')">
                     </sw-field>
                 {% endblock %}
-            </sw-card>
-        {% endblock %}
-
-        {% block sw_category_detail_layout %}
-            <sw-card v-if="category.type === 'page'" :title="$tc('sw-category.base.cms.title')" :isLoading="isLoading && cmsPages.length">
-
-                <div class="sw-category-detail-base__layout">
-                    {% block sw_category_detail_layout_preview %}
-                        <sw-cms-list-item v-if="cmsPage" :page="cmsPage"></sw-cms-list-item>
-                    {% endblock %}
-
-                    {% block sw_category_detail_layout_modal %}
-                        <sw-cms-layout-modal
-                            v-if="showLayoutSelectionModal"
-                            @modal-layout-select="onLayoutSelect"
-                            @modal-close="closeLayoutModal">
-                        </sw-cms-layout-modal>
-                    {% endblock %}
-
-                    {% block sw_category_detail_layout_desc %}
-                        <div class="sw-category-detail-base__layout-desc">
-
-                            {% block sw_category_detail_layout_desc_info %}
-                                <div class="sw-category-detail-base__layout-desc-info" v-if="cmsPage">
-                                    <div class="sw-category-detail-base__layout-desc-headline">{{ cmsPage.name }}</div>
-                                    <div class="sw-category-detail-base__layout-desc-subheadline">{{ cmsPage.type }}</div>
-                                </div>
-                            {% endblock %}
-
-                            {% block sw_category_detail_layout_desc_actions %}
-                                <div class="sw-category-detail-base__layout-desc-actions">
-
-                                    {% block sw_category_detail_layout_desc_actions_layout %}
-                                        <sw-button size="small" @click="openLayoutModal()">
-                                            {{ $tc('sw-category.base.cms.changeLayout') }}
-                                        </sw-button>
-                                    {% endblock %}
-
-                                    {% block sw_category_detail_layout_desc_actions_designer %}
-                                        <sw-button v-if="cmsPage" size="small" @click="openInPagebuilder()">
-                                            {{ $tc('sw-category.base.cms.editInPagebuilder') }}
-                                        </sw-button>
-                                    {% endblock %}
-
-                                </div>
-                            {% endblock %}
-
-                            {% block sw_category_detail_layout_desc_link %}
-                                <router-link
-                                    v-if="cmsPage"
-                                    class="sw-category-detail-base__layout-desc-link"
-                                    :to="{ name: 'sw.category.detail.cms', params: { id: $route.params.id }}">
-                                        {{ $tc('sw-category.base.cms.editContent') }}
-                                        <sw-icon name="default-arrow-simple-right" small></sw-icon>
-                                </router-link>
-                            {% endblock %}
-
-                        </div>
-                    {% endblock %}
-
-                </div>
             </sw-card>
         {% endblock %}
 
@@ -316,7 +332,7 @@
                             v-else
                             slot="grid"
                             :title="$tc('sw-category.base.products.productAssignmentEmptyStateTitle')"
-                            :subline="$tc('sw-category.base.products.productAssignmentEmptyStateSubline')"
+                            subline="sw-category.base.products.productAssignmentEmptyStateSubline"
                             icon="default-package-closed">
                         </sw-empty-state>
                     {% endblock %}

@@ -64,6 +64,11 @@
             font-size: 14px;
         }
 
+        .sw-category-detail-base__layout-desc-headline.is--empty,
+        .sw-category-detail-base__layout-desc-subheadline.is--empty {
+            color: #B3BFCC;
+        }
+
         .sw-category-detail-base__layout-desc-info {
             margin-bottom: 16px;
         }

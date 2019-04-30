@@ -295,8 +295,8 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             const fields = [];
             let definition = this.filterProperties(Entity.getDefinition(productDefinitionName));
             const productCustomFields = this.productStreamConditionService.productCustomFields;
-            if (Object.keys(productCustomFields).length && !definition.customFieldValues.properties) {
-                definition.customFieldValues.properties = productCustomFields;
+            if (Object.keys(productCustomFields).length && !definition.customFields.properties) {
+                definition.customFields.properties = productCustomFields;
             }
             if (!this.actualCondition.field) {
                 this.actualCondition.field = 'id';

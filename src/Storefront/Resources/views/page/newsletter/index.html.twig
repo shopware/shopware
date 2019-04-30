@@ -8,6 +8,7 @@
             <option value="subscribe">subscribe newsletter</option>
             <option value="unsubscribe">unsubscribe newsletter</option>
         </select>
+        <input type="hidden" name="forwardTo" value="frontend.newsletter.register.page">
         {% for error in app.request.get('errors').getViolations('/status') %}
             <p>{{ error.message }}</p>
         {% endfor %}

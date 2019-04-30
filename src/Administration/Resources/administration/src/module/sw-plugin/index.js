@@ -1,5 +1,4 @@
 import { Module } from 'src/core/shopware';
-import { NEXT1223 } from 'src/flag/feature_next1223';
 import './mixin/plugin-error-handler.mixin';
 import './page/sw-plugin-manager';
 import './view/sw-plugin-list';
@@ -18,7 +17,6 @@ import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
 
 Module.register('sw-plugin', {
-    flag: NEXT1223,
     type: 'core',
     name: 'plugin',
     title: 'sw-plugin.general.mainMenuItemGeneral',

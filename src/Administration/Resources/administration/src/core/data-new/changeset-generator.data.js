@@ -82,6 +82,10 @@ export default class ChangesetGenerator {
             }
 
             if (type.type === 'association' && type.relation === 'one_to_one') {
+                if (!draftValue) {
+                    return true;
+                }
+
                 const change = this.recursion(draftValue, deletionQueue);
 
                 if (change !== null) {

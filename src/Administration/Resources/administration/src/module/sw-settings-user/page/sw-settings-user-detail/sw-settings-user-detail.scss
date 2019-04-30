@@ -1,6 +1,9 @@
 @import "~scss/variables";
 
 $sw-settings-user-detail-change-password: $color-shopware-blue;
+$sw-field-help-font-size: 14px;
+$sw-field-help-line-height: 22px;
+$sw-field-help-color: $color-gutenberg;
 
 .sw-settings-user-detail {
     .sw-settings-user-detail__grid {
@@ -51,5 +54,23 @@ $sw-settings-user-detail-change-password: $color-shopware-blue;
         color: $sw-settings-user-detail-change-password;
         margin-left: auto;
         cursor: pointer;
+    }
+
+    .sw_settings_user_detail__detail {
+        .sw_settings_user_detail__secret-help-text-alert {
+            margin-top: 22px;
+        }
+
+        .sw-field.sw-field__checkbox {
+            align-self: center;
+            margin: 0;
+        }
+
+        .sw-field__help {
+            font-size: $sw-field-help-font-size;
+            color: lighten($sw-field-help-color, 20);
+            line-height: $sw-field-help-line-height;
+            padding-top: 7px;
+        }
     }
 }

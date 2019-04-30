@@ -35,6 +35,7 @@
     },
     "user-detail": {
       "labelCard": "Basic information",
+      "labelIntegrationsCard": "Integrations",
       "labelFirstName": "First name",
       "labelLastName": "Last name",
       "labelEmail": "E-Mail",
@@ -49,15 +50,49 @@
       "placeholderNewPassword": "Enter new password",
       "labelButtonCancel": "Cancel",
       "labelButtonChangePassword": "Change",
+      "labelButtonSave": "Save",
+      "writeAccess": "Write",
+      "readAccess": "Read",
+      "contextMenuEdit": "Edit",
+      "contextMenuDelete": "Delete",
       "textChangePassword": "By pressing the change button the password be saved immediately.",
+      "addAccessKey": "New Access Key",
+      "labelAccessKey": "Access Key",
+      "labelPermissions": "Permissions",
+      "modal": {
+        "deleteModalTitle": "Delete",
+        "detailModalTitle": "Create integration",
+        "detailModalTitleEdit": "Edit:",
+        "confirmDelete" : "Are you sure you want to delete this integration?",
+        "buttonApply": "Save integration",
+        "buttonApplyEdit": "Save changes",
+        "buttonCancel": "Cancel",
+        "buttonDelete": "Delete",
+        "buttonCreateNewApiKeys": "Create new API key",
+        "hintCreateNewApiKeys": "The regeneration of the API access keys requires updating all associated scripts or applications.",
+        "labelFieldLabel": "Name",
+        "idFieldLabel": "Access key ID",
+        "secretFieldLabel": "Secret access key",
+        "secretHelpText": "The access key will no longer be visible after saving. Be sure to copy and store the key in a secure place. In case you lost the key anyway, simply generate a new one here.",
+        "secretHelpText": "Please copy your access key now. For safety reasons it will be no longer visible after saving.",
+        "permissions": "Permissions",
+        "readAccessFieldLabel": "Read (default)",
+        "writeAccessFieldLabel": "Write (optional)",
+        "titleSaveSuccess": "Success",
+        "messageSaveSuccess": "Integration has been saved successfully",
+        "titleSaveError": "Error",
+        "messageSaveError": "Integration could not be saved",
+        "titleCreateNewError": "Error",
+        "messageCreateNewError": "Integration could not be saved."
+      },
       "notification": {
         "saveError": {
           "title": "Error",
-          "message": "An error occurred while deleting the user \"{name}\"."
+          "message": "An error occurred while saving the user \"{name}\"."
         },
         "saveSuccess": {
           "title": "Success",
-          "message": "User \"{name}\" has been deleted successfully."
+          "message": "User \"{name}\" has been saved successfully."
         }
       }
     }

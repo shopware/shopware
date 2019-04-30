@@ -9,7 +9,7 @@ const StyleLintPlugin = require('stylelint-webpack-plugin');
 const path = require('path');
 const buildDirectory = path.resolve(process.env.PROJECT_ROOT, 'public');
 const CopyPlugin = require('copy-webpack-plugin');
-const publicPath = `${process.env.APP_URL}${(process.env.ENV === 'watch') ? ':9999' : ''}/`;
+const publicPath = `${process.env.APP_URL}${(process.env.MODE === 'hot') ? ':9999' : ''}/`;
 const babelrc = require('../.babelrc');
 
 /**

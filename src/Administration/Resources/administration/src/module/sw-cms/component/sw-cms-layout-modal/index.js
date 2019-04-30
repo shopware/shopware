@@ -36,8 +36,8 @@ Component.register('sw-cms-layout-modal', {
         getList() {
             this.isLoading = true;
             const params = this.getListingParams();
-
             params.term = this.term;
+            params.limit = 500;
 
             if (this.criteria) {
                 params.criteria = this.criteria;

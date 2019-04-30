@@ -14,6 +14,10 @@ Component.register('sw-category-view', {
             required: true,
             default: {}
         },
+        cmsPage: {
+            type: Object,
+            required: true
+        },
         mediaItem: {
             type: Object,
             required: false,
@@ -38,6 +42,9 @@ Component.register('sw-category-view', {
         },
         openSidebar() {
             this.$emit('sw-category-view-on-open-sidebar');
+        },
+        onCmsLayoutChange(cmsPageId) {
+            this.$emit('sw-category-view-on-page-change', cmsPageId);
         }
     }
 });

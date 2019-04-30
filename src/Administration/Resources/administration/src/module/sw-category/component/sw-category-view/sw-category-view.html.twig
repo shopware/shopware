@@ -32,8 +32,10 @@
             <router-view
                 v-if="!isLoading"
                 :category="category"
+                :cmsPage="cmsPage"
                 :mediaItem="mediaItem"
                 :isLoading="isLoading"
+                @sw-category-base-on-layout-change="onCmsLayoutChange"
                 @sw-category-base-on-open-sidebar="openSidebar"
                 @sw-category-base-on-set-media="setMediaItem"
                 @sw-category-base-on-upload-media="onUploadAdded"

@@ -14,7 +14,12 @@ Component.register('sw-category-detail-base', {
         category: {
             type: Object,
             required: true,
-            default: {}
+            default: null
+        },
+        cmsPage: {
+            type: Object,
+            required: true,
+            default: null
         },
         mediaItem: {
             type: Object,
@@ -36,14 +41,9 @@ Component.register('sw-category-detail-base', {
             sortDirection: 'ASC',
             isLoadingProducts: false,
             deleteButtonDisabled: true,
-            cmsPages: [],
-            cmsPageId: null,
             showLayoutSelectionModal: false,
-
-            // @todo remove
-            cmsPage: null,
-            categoryLink: null,
-            hasCategoryLink: null
+            cmsPages: [],
+            reversedVisibility: null
         };
     },
 
@@ -73,29 +73,19 @@ Component.register('sw-category-detail-base', {
             Promise.all([this.cmsPageStore.getList({}, true), this.categoryProductStore.getList(params)])
                 .then(([cmsPagesResponse, productResponse]) => {
                     this.cmsPages = cmsPagesResponse.items;
-
-                    // @todo remove
-                    this.cmsPage = cmsPagesResponse.items[0];
-                    this.categoryLink = null;
-                    this.hasCategoryLink = false;
-
                     this.products = productResponse.items;
                     this.total = productResponse.total;
                     this.isLoadingProducts = false;
+
+                    this.reversedVisibility = !this.category.visible;
+
                     this.buildGridArray();
                     return [this.products, this.cmsPages];
                 });
         },
 
-        getCmsPage(cmsPageId) {
-            return this.cmsPageStore.getByIdAsync(cmsPageId).then(response => {
-                this.cmsPage = response;
-                return response;
-            });
-        },
-
         cmsPageChanged(cmsPageId) {
-            this.getCmsPage(cmsPageId);
+            this.$emit('sw-category-base-on-layout-change', cmsPageId);
         },
 
         onChangeLanguage() {
@@ -202,15 +192,33 @@ Component.register('sw-category-detail-base', {
             });
         },
 
+        getCombinedSalesChannels() {
+            const salesChannels = [];
+            salesChannels.push(...this.category.navigationSalesChannels);
+            salesChannels.push(...this.category.serviceSalesChannels);
+            salesChannels.push(...this.category.footerSalesChannels);
+            return salesChannels;
+        },
+
+        isSalesChannelEntryPoint() {
+            this.getCombinedSalesChannels();
+            return this.category.navigationSalesChannels.length > 0
+                || this.category.serviceSalesChannels.length > 0
+                || this.category.footerSalesChannels.length > 0;
+        },
+
+        onChangeVisibility(visibility) {
+            this.reversedVisibility = visibility;
+            this.category.visible = !visibility;
+        },
+
         onLayoutSelect(selectedLayout) {
-            this.cmsPageId = selectedLayout;
-            this.getCmsPage(this.cmsPageId).then(response => {
-                this.cmsPage = response;
-            });
+            this.category.cmsPageId = selectedLayout;
+            this.$emit('sw-category-base-on-layout-change', selectedLayout);
         },
 
         openInPagebuilder() {
-            this.$router.push({ name: 'sw.cms.detail', params: { id: this.cmsPage.id } });
+            this.$router.push({ name: 'sw.cms.detail', params: { id: this.category.cmsPageId } });
         },
 
         openLayoutModal() {

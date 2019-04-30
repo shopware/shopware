@@ -30,46 +30,49 @@
         },
 
         "view": {
-          "general": "Allgemein",
-          "cms": "CMS"
+          "general": "General",
+          "cms": "Content"
         },
 
         "base": {
           "general": {
             "categoryNameLabel": "Name",
             "linkLabel": "Link destination",
-            "headlineInformationCard": "Category information",
+            "headlineInformationCard": "General",
             "isCategoryActiveLabel": "Category is active",
-            "showSubcategoryProductsLabel": "Include products from subcategories",
-            "useAsLink": "Use as link"
+            "useAsLink": "Use as link",
+
+            "types": {
+              "title": "Category type",
+              "page": "Category",
+              "folder": "Structuring element",
+              "link": "Customizable link",
+              "help": "The 'Category' type describes a shop category that can be called normally. A 'Structure category' cannot be viewed as an actual category, but can be used as a structure point for ordering products. When using the type 'Customizable link' the category can be replaced by an own link to which the category link leads."
+            }
           },
 
-          "mount": {
-            "title": "Mount",
-            "descriptionGeneral": "You have assigned this node in the following sales channels as a mounting point for the main navigation:",
-            "descriptionMenu": "The mounting point is also automatically the home page of these sales channels. If this should not be the case and instead the first active main menu item should be your start page, you can change this here: All subcategories will be deleted, too.",
-            "useAsHomepage": "Use as homepage",
-            "showHomepageAsMainMenuEntry": "Show homepage as main-menu entry"
+          "entry-point": {
+            "title": "Entry point",
+            "descriptionGeneral": "You have assigned this node in the following sales channels as an entry point for the main navigation:",
+            "descriptionMenu": "The entry point is also automatically the home page of these sales channels. If this should not be the case and instead the first active main menu item should be your start page, you can change this here: All subcategories will be deleted, too."
           },
 
           "menu": {
             "title": "Menü-Settings",
-            "notClickable": "Not clickable",
+            "visible": "Hide in navigation",
             "imageLabel": "Display image",
             "description": "Description"
           },
 
           "cms": {
-            "title": "CMS-Layout",
+            "title": "Layout selection",
             "changeLayout": "Change layout",
-            "editInPagebuilder": "Edit in pagebuilder",
+            "editInPagebuilder": "Edit in designer",
             "editContent": "Edit content"
           },
 
-          "seo": {
-            "title": "SEO-Settings",
-            "name": "Meta-Name",
-            "description": "Meta-Description"
+          "link": {
+            "title": "Benutzerdefinierter Link"
           },
 
           "products": {
@@ -82,7 +85,8 @@
             "productAssignmentEmptyStateTitle": "No products assigned",
             "productAssignmentEmptyStateSubline": "Use the search to add products.",
             "columnNameLabel": "Name",
-            "columnManufacturerLabel": "Manufacturer"
+            "columnManufacturerLabel": "Manufacturer",
+            "showSubcategoryProductsLabel": "Also show products from subcategories"
           }
         },
 

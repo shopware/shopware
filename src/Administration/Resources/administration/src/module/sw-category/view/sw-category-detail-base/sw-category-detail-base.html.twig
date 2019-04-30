@@ -71,6 +71,7 @@
                     <div class="sw-category-detail-base__sales-channel-list">
                         {% block sw_category_detail_entry_point_list_link %}
                             <router-link v-for="salesChannel in getCombinedSalesChannels()"
+                                v-bind:key="salesChannel.id"
                                 :to="{ name: 'sw.sales.channel.detail.base', params: { id: salesChannel.id }}"
                                 class="sw-category-detail-base__sales-channel-entry">
                                 {{ salesChannel.name }}

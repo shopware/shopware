@@ -12,7 +12,7 @@ export default {
     template,
 
     data() {
-        const domain = `bundle.${this.$route.params.namespace.split('\\').slice(-1)[0]}`;
+        const domain = `${this.$route.params.namespace}.config`;
         return {
             namespace: this.$route.params.namespace,
             domain: domain,

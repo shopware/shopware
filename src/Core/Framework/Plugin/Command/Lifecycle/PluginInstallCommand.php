@@ -32,7 +32,7 @@ class PluginInstallCommand extends AbstractPluginLifecycleCommand
         $context = Context::createDefaultContext();
         $plugins = $this->prepareExecution(self::LIFECYCLE_METHOD, $io, $input, $context);
 
-        $installed = 0;
+        $installedPluginCount = 0;
         /** @var PluginEntity $plugin */
         foreach ($plugins as $plugin) {
             if ($input->getOption('reinstall') && $plugin->getInstalledAt()) {
@@ -47,7 +47,7 @@ class PluginInstallCommand extends AbstractPluginLifecycleCommand
             }
 
             if ($plugin->getInstalledAt()) {
-                $io->note(sprintf('Plugin "%s" is already installed. Skipping.', $plugin->getLabel()));
+                $io->note(sprintf('Plugin "%s" is already installed. Skipping.', $plugin->getName()));
 
                 continue;
             }
@@ -56,18 +56,18 @@ class PluginInstallCommand extends AbstractPluginLifecycleCommand
             $message = 'Plugin "%s" has been installed%s successfully.';
 
             $this->pluginLifecycleService->installPlugin($plugin, $context);
-            ++$installed;
+            ++$installedPluginCount;
 
             if ($input->getOption('activate')) {
                 $this->pluginLifecycleService->activatePlugin($plugin, $context);
                 $activationSuffix = ' and activated';
             }
 
-            $io->text(sprintf($message, $plugin->getLabel(), $activationSuffix));
+            $io->text(sprintf($message, $plugin->getName(), $activationSuffix));
         }
 
-        if ($installed !== 0) {
-            $io->success(sprintf('Installed %d plugin(s).', $installed));
+        if ($installedPluginCount !== 0) {
+            $io->success(sprintf('Installed %d plugin(s).', $installedPluginCount));
         }
     }
 }

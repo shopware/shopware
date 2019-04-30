@@ -231,7 +231,7 @@ class Kernel extends HttpKernel
     protected function initializePlugins(): void
     {
         $sql = <<<SQL
-SELECT `name`, IF(`active` = 1 AND `installed_at` IS NOT NULL, 1, 0) AS active, `path`, `autoload`, `managed_by_composer` FROM `plugin`
+SELECT `base_class`, IF(`active` = 1 AND `installed_at` IS NOT NULL, 1, 0) AS active, `path`, `autoload`, `managed_by_composer` FROM `plugin`
 SQL;
 
         $plugins = self::getConnection()->executeQuery($sql)->fetchAll();
@@ -320,7 +320,7 @@ SQL;
             }
 
             if (empty($plugin['autoload'])) {
-                throw new \RuntimeException(sprintf('Unable to register plugin "%s" in autoload.', $plugin['name']));
+                throw new \RuntimeException(sprintf('Unable to register plugin "%s" in autoload.', $plugin['base_class']));
             }
 
             $autoload = json_decode($plugin['autoload'], true);
@@ -329,7 +329,7 @@ SQL;
             $psr0 = $autoload['psr-0'] ?? [];
 
             if (empty($psr4) && empty($psr0)) {
-                throw new \RuntimeException(sprintf('Unable to register plugin "%s" in autoload.', $plugin['name']));
+                throw new \RuntimeException(sprintf('Unable to register plugin "%s" in autoload.', $plugin['base_class']));
             }
 
             foreach ($psr4 as $namespace => $path) {
@@ -345,7 +345,7 @@ SQL;
     private function instantiatePlugins(array $plugins): void
     {
         foreach ($plugins as $pluginData) {
-            $className = $pluginData['name'];
+            $className = $pluginData['base_class'];
 
             $pluginClassFilePath = $this->classLoader->findFile($className);
             if ($pluginClassFilePath === false) {

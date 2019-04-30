@@ -30,6 +30,20 @@ class SystemConfigController extends AbstractController
     }
 
     /**
+     * @Route("/api/v{version}/_action/system-config/check", name="api.action.core.system-config.check", methods={"GET"})
+     */
+    public function checkConfiguration(Request $request): JsonResponse
+    {
+        $domain = $request->query->get('domain');
+
+        if (!$domain) {
+            return new JsonResponse(false);
+        }
+
+        return new JsonResponse($this->configurationService->checkConfiguration($domain));
+    }
+
+    /**
      * @Route("/api/v{version}/_action/system-config/schema", name="api.action.core.system-config", methods={"GET"})
      *
      * @throws MissingRequestParameterException

@@ -81,6 +81,7 @@ class PluginService
         $plugins = [];
         foreach ($pluginsFromFileSystem as $pluginFromFileSystem) {
             $pluginName = $pluginFromFileSystem->getName();
+            $baseClass = $pluginFromFileSystem->getBaseClass();
             $pluginPath = $pluginFromFileSystem->getPath();
             $info = $pluginFromFileSystem->getComposerPackage();
 
@@ -108,6 +109,7 @@ class PluginService
 
             $pluginData = [
                 'name' => $pluginName,
+                'baseClass' => $baseClass,
                 'composerName' => $info->getName(),
                 'path' => str_replace($this->projectDir . '/', '', $pluginPath),
                 'author' => $authors,
@@ -139,7 +141,7 @@ class PluginService
             }
 
             /** @var PluginEntity $currentPluginEntity */
-            $currentPluginEntity = $installedPlugins->filterByProperty('name', $pluginName)->first();
+            $currentPluginEntity = $installedPlugins->filterByProperty('baseClass', $baseClass)->first();
             if ($currentPluginEntity !== null) {
                 $currentPluginId = $currentPluginEntity->getId();
                 $pluginData['id'] = $currentPluginId;

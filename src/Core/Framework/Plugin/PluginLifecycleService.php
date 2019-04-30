@@ -125,7 +125,7 @@ class PluginLifecycleService
      */
     public function installPlugin(PluginEntity $plugin, Context $shopwareContext): InstallContext
     {
-        $pluginBaseClass = $this->getPluginBaseClass($plugin->getName());
+        $pluginBaseClass = $this->getPluginBaseClass($plugin->getBaseClass());
         $pluginVersion = $plugin->getVersion();
 
         $installContext = new InstallContext(
@@ -193,12 +193,12 @@ class PluginLifecycleService
         Context $shopwareContext,
         bool $keepUserData = false
     ): UninstallContext {
-        $pluginName = $plugin->getName();
+        $pluginBaseClassString = $plugin->getBaseClass();
         if ($plugin->getInstalledAt() === null) {
-            throw new PluginNotInstalledException($pluginName);
+            throw new PluginNotInstalledException($plugin->getName());
         }
 
-        $pluginBaseClass = $this->getPluginBaseClass($pluginName);
+        $pluginBaseClass = $this->getPluginBaseClass($pluginBaseClassString);
 
         $uninstallContext = new UninstallContext(
             $pluginBaseClass,
@@ -243,7 +243,7 @@ class PluginLifecycleService
      */
     public function updatePlugin(PluginEntity $plugin, Context $shopwareContext): UpdateContext
     {
-        $pluginBaseClass = $this->getPluginBaseClass($plugin->getName());
+        $pluginBaseClass = $this->getPluginBaseClass($plugin->getBaseClass());
 
         $updateContext = new UpdateContext(
             $pluginBaseClass,
@@ -299,12 +299,12 @@ class PluginLifecycleService
      */
     public function activatePlugin(PluginEntity $plugin, Context $shopwareContext): ActivateContext
     {
-        $pluginName = $plugin->getName();
+        $pluginBaseClassString = $plugin->getBaseClass();
         if ($plugin->getInstalledAt() === null) {
-            throw new PluginNotInstalledException($pluginName);
+            throw new PluginNotInstalledException($plugin->getName());
         }
 
-        $pluginBaseClass = $this->getPluginBaseClass($pluginName);
+        $pluginBaseClass = $this->getPluginBaseClass($pluginBaseClassString);
 
         $activateContext = new ActivateContext(
             $pluginBaseClass,
@@ -323,7 +323,7 @@ class PluginLifecycleService
         );
 
         $pluginBaseClass->activate($activateContext);
-        $this->assetInstaller->copyAssetsFromBundle($pluginName);
+        $this->assetInstaller->copyAssetsFromBundle($pluginBaseClassString);
 
         $this->updatePluginData(
             [
@@ -348,16 +348,16 @@ class PluginLifecycleService
      */
     public function deactivatePlugin(PluginEntity $plugin, Context $shopwareContext): DeactivateContext
     {
-        $pluginName = $plugin->getName();
+        $pluginBaseClassString = $plugin->getBaseClass();
         if ($plugin->getInstalledAt() === null) {
-            throw new PluginNotInstalledException($pluginName);
+            throw new PluginNotInstalledException($plugin->getName());
         }
 
         if ($plugin->getActive() === false) {
-            throw new PluginNotActivatedException($pluginName);
+            throw new PluginNotActivatedException($plugin->getName());
         }
 
-        $pluginBaseClass = $this->getPluginBaseClass($pluginName);
+        $pluginBaseClass = $this->getPluginBaseClass($pluginBaseClassString);
 
         $deactivateContext = new DeactivateContext(
             $pluginBaseClass,
@@ -372,7 +372,7 @@ class PluginLifecycleService
         );
 
         $pluginBaseClass->deactivate($deactivateContext);
-        $this->assetInstaller->removeAssetsOfBundle($pluginName);
+        $this->assetInstaller->removeAssetsOfBundle($pluginBaseClassString);
 
         $this->updatePluginData(
             [
@@ -391,10 +391,10 @@ class PluginLifecycleService
         return $deactivateContext;
     }
 
-    private function getPluginBaseClass(string $pluginName): Plugin
+    private function getPluginBaseClass(string $pluginBaseClassString): Plugin
     {
         /** @var Plugin|ContainerAwareTrait $baseClass */
-        $baseClass = $this->pluginCollection->get($pluginName);
+        $baseClass = $this->pluginCollection->get($pluginBaseClassString);
         // set container because the plugin has not been initialized yet and therefore has no container set
         $baseClass->setContainer($this->container);
 

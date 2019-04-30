@@ -29,29 +29,29 @@ class PluginActivateCommand extends AbstractPluginLifecycleCommand
         $context = Context::createDefaultContext();
         $plugins = $this->prepareExecution(self::LIFECYCLE_METHOD, $io, $input, $context);
 
-        $activated = 0;
+        $activatedPluginCount = 0;
         /** @var PluginEntity $plugin */
         foreach ($plugins as $plugin) {
             if ($plugin->getInstalledAt() === null) {
-                $io->note(sprintf('Plugin "%s" must be installed. Skipping.', $plugin->getLabel()));
+                $io->note(sprintf('Plugin "%s" must be installed. Skipping.', $plugin->getName()));
 
                 continue;
             }
 
             if ($plugin->getActive()) {
-                $io->note(sprintf('Plugin "%s" is already active. Skipping.', $plugin->getLabel()));
+                $io->note(sprintf('Plugin "%s" is already active. Skipping.', $plugin->getName()));
 
                 continue;
             }
 
             $this->pluginLifecycleService->activatePlugin($plugin, $context);
-            ++$activated;
+            ++$activatedPluginCount;
 
-            $io->text(sprintf('Plugin "%s" has been activated successfully.', $plugin->getLabel()));
+            $io->text(sprintf('Plugin "%s" has been activated successfully.', $plugin->getName()));
         }
 
-        if ($activated !== 0) {
-            $io->success(sprintf('Activated %d plugin(s).', $activated));
+        if ($activatedPluginCount !== 0) {
+            $io->success(sprintf('Activated %d plugin(s).', $activatedPluginCount));
         }
     }
 }

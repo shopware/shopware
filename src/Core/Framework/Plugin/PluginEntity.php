@@ -14,6 +14,11 @@ class PluginEntity extends Entity
     /**
      * @var string
      */
+    protected $baseClass;
+
+    /**
+     * @var string
+     */
     protected $name;
 
     /**
@@ -125,6 +130,16 @@ class PluginEntity extends Entity
      * @var array
      */
     protected $autoload;
+
+    public function getBaseClass(): string
+    {
+        return $this->baseClass;
+    }
+
+    public function setBaseClass(string $baseClass): void
+    {
+        $this->baseClass = $baseClass;
+    }
 
     public function getName(): string
     {

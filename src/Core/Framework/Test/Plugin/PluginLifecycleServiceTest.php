@@ -32,6 +32,8 @@ class PluginLifecycleServiceTest extends TestCase
         DatabaseTransactionBehaviour,
         PluginTestsHelper;
 
+    private const PLUGIN_NAME = 'SwagTest';
+
     /**
      * @var ContainerInterface
      */
@@ -100,10 +102,7 @@ class PluginLifecycleServiceTest extends TestCase
             )
         );
         $this->connection->executeUpdate(
-            sprintf(
-                "DELETE FROM `plugin` WHERE `name` = '%s'",
-                str_replace('\\', '\\\\', \SwagTest\SwagTest::class)
-            )
+            sprintf("DELETE FROM `plugin` WHERE `name` = '%s'", self::PLUGIN_NAME)
         );
     }
 
@@ -112,12 +111,12 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginService->refreshPlugins($this->context, new NullIO());
 
         /** @var PluginEntity $plugin */
-        $plugin = $this->pluginService->getPluginByName(\SwagTest\SwagTest::class, $this->context);
+        $plugin = $this->getTestPlugin();
 
         $this->pluginLifecycleService->installPlugin($plugin, $this->context);
 
         /** @var PluginEntity $pluginInstalled */
-        $pluginInstalled = $this->pluginService->getPluginByName(\SwagTest\SwagTest::class, $this->context);
+        $pluginInstalled = $this->getTestPlugin();
 
         static::assertNotNull($pluginInstalled->getInstalledAt());
 
@@ -130,12 +129,12 @@ class PluginLifecycleServiceTest extends TestCase
         $this->createPlugin($this->pluginRepo, $this->context, \SwagTest\SwagTest::PLUGIN_VERSION, $installedAt);
 
         /** @var PluginEntity $plugin */
-        $plugin = $this->pluginService->getPluginByName(\SwagTest\SwagTest::class, $this->context);
+        $plugin = $this->getTestPlugin();
 
         $this->pluginLifecycleService->installPlugin($plugin, $this->context);
 
         /** @var PluginEntity $pluginInstalled */
-        $pluginInstalled = $this->pluginService->getPluginByName(\SwagTest\SwagTest::class, $this->context);
+        $pluginInstalled = $this->getTestPlugin();
 
         static::assertNotNull($pluginInstalled->getInstalledAt());
         static::assertSame($installedAt, $pluginInstalled->getInstalledAt()->format(Defaults::STORAGE_DATE_FORMAT));
@@ -147,12 +146,12 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginService->refreshPlugins($this->context, new NullIO());
 
         /** @var PluginEntity $plugin */
-        $plugin = $this->pluginService->getPluginByName(\SwagTest\SwagTest::class, $this->context);
+        $plugin = $this->getTestPlugin();
 
         $this->pluginLifecycleService->installPlugin($plugin, $this->context);
 
         /** @var PluginEntity $pluginInstalled */
-        $pluginInstalled = $this->pluginService->getPluginByName(\SwagTest\SwagTest::class, $this->context);
+        $pluginInstalled = $this->getTestPlugin();
 
         static::assertNotNull($pluginInstalled->getInstalledAt());
         static::assertNotNull($pluginInstalled->getUpgradedAt());
@@ -164,18 +163,18 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginService->refreshPlugins($this->context, new NullIO());
 
         /** @var PluginEntity $plugin */
-        $plugin = $this->pluginService->getPluginByName(\SwagTest\SwagTest::class, $this->context);
+        $plugin = $this->getTestPlugin();
 
         $this->pluginLifecycleService->installPlugin($plugin, $this->context);
 
         /** @var PluginEntity $pluginInstalled */
-        $pluginInstalled = $this->pluginService->getPluginByName(\SwagTest\SwagTest::class, $this->context);
+        $pluginInstalled = $this->getTestPlugin();
         static::assertNotNull($pluginInstalled->getInstalledAt());
 
         $this->pluginLifecycleService->uninstallPlugin($pluginInstalled, $this->context);
 
         /** @var PluginEntity $pluginUninstalled */
-        $pluginUninstalled = $this->pluginService->getPluginByName(\SwagTest\SwagTest::class, $this->context);
+        $pluginUninstalled = $this->getTestPlugin();
 
         static::assertNull($pluginUninstalled->getInstalledAt());
         static::assertFalse($pluginUninstalled->getActive());
@@ -186,10 +185,10 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginService->refreshPlugins($this->context, new NullIO());
 
         /** @var PluginEntity $plugin */
-        $plugin = $this->pluginService->getPluginByName(\SwagTest\SwagTest::class, $this->context);
+        $plugin = $this->getTestPlugin();
 
         $this->expectException(PluginNotInstalledException::class);
-        $this->expectExceptionMessage('Plugin "SwagTest\SwagTest" is not installed.');
+        $this->expectExceptionMessage(sprintf('Plugin "%s" is not installed.', self::PLUGIN_NAME));
         $this->pluginLifecycleService->uninstallPlugin($plugin, $this->context);
     }
 
@@ -201,12 +200,12 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginService->refreshPlugins($this->context, new NullIO());
 
         /** @var PluginEntity $plugin */
-        $plugin = $this->pluginService->getPluginByName(\SwagTest\SwagTest::class, $this->context);
+        $plugin = $this->getTestPlugin();
 
         $this->pluginLifecycleService->updatePlugin($plugin, $this->context);
 
         /** @var PluginEntity $pluginUpdated */
-        $pluginUpdated = $this->pluginService->getPluginByName(\SwagTest\SwagTest::class, $this->context);
+        $pluginUpdated = $this->getTestPlugin();
 
         static::assertNotNull($pluginUpdated->getUpgradedAt());
         static::assertSame(\SwagTest\SwagTest::PLUGIN_VERSION, $pluginUpdated->getVersion());
@@ -219,19 +218,19 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginService->refreshPlugins($this->context, new NullIO());
 
         /** @var PluginEntity $plugin */
-        $plugin = $this->pluginService->getPluginByName(\SwagTest\SwagTest::class, $this->context);
+        $plugin = $this->getTestPlugin();
 
         $this->pluginLifecycleService->installPlugin($plugin, $this->context);
 
         /** @var PluginEntity $pluginInstalled */
-        $pluginInstalled = $this->pluginService->getPluginByName(\SwagTest\SwagTest::class, $this->context);
+        $pluginInstalled = $this->getTestPlugin();
 
         static::assertNotNull($pluginInstalled->getInstalledAt());
 
         $this->pluginLifecycleService->activatePlugin($pluginInstalled, $this->context);
 
         /** @var PluginEntity $pluginActivated */
-        $pluginActivated = $this->pluginService->getPluginByName(\SwagTest\SwagTest::class, $this->context);
+        $pluginActivated = $this->getTestPlugin();
 
         static::assertTrue($pluginActivated->getActive());
 
@@ -244,10 +243,10 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginService->refreshPlugins($this->context, new NullIO());
 
         /** @var PluginEntity $plugin */
-        $plugin = $this->pluginService->getPluginByName(\SwagTest\SwagTest::class, $this->context);
+        $plugin = $this->getTestPlugin();
 
         $this->expectException(PluginNotInstalledException::class);
-        $this->expectExceptionMessage('Plugin "SwagTest\SwagTest" is not installed.');
+        $this->expectExceptionMessage(sprintf('Plugin "%s" is not installed.', self::PLUGIN_NAME));
         $this->pluginLifecycleService->activatePlugin($plugin, $this->context);
     }
 
@@ -256,26 +255,26 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginService->refreshPlugins($this->context, new NullIO());
 
         /** @var PluginEntity $plugin */
-        $plugin = $this->pluginService->getPluginByName(\SwagTest\SwagTest::class, $this->context);
+        $plugin = $this->getTestPlugin();
 
         $this->pluginLifecycleService->installPlugin($plugin, $this->context);
 
         /** @var PluginEntity $pluginInstalled */
-        $pluginInstalled = $this->pluginService->getPluginByName(\SwagTest\SwagTest::class, $this->context);
+        $pluginInstalled = $this->getTestPlugin();
 
         static::assertNotNull($pluginInstalled->getInstalledAt());
 
         $this->pluginLifecycleService->activatePlugin($pluginInstalled, $this->context);
 
         /** @var PluginEntity $pluginActivated */
-        $pluginActivated = $this->pluginService->getPluginByName(\SwagTest\SwagTest::class, $this->context);
+        $pluginActivated = $this->getTestPlugin();
 
         static::assertTrue($pluginActivated->getActive());
 
         $this->pluginLifecycleService->deactivatePlugin($pluginActivated, $this->context);
 
         /** @var PluginEntity $pluginDeactivated */
-        $pluginDeactivated = $this->pluginService->getPluginByName(\SwagTest\SwagTest::class, $this->context);
+        $pluginDeactivated = $this->getTestPlugin();
 
         static::assertFalse($pluginDeactivated->getActive());
 
@@ -288,10 +287,10 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginService->refreshPlugins($this->context, new NullIO());
 
         /** @var PluginEntity $plugin */
-        $plugin = $this->pluginService->getPluginByName(\SwagTest\SwagTest::class, $this->context);
+        $plugin = $this->getTestPlugin();
 
         $this->expectException(PluginNotInstalledException::class);
-        $this->expectExceptionMessage('Plugin "SwagTest\SwagTest" is not installed.');
+        $this->expectExceptionMessage(sprintf('Plugin "%s" is not installed.', self::PLUGIN_NAME));
         $this->pluginLifecycleService->deactivatePlugin($plugin, $this->context);
     }
 
@@ -300,17 +299,17 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginService->refreshPlugins($this->context, new NullIO());
 
         /** @var PluginEntity $plugin */
-        $plugin = $this->pluginService->getPluginByName(\SwagTest\SwagTest::class, $this->context);
+        $plugin = $this->getTestPlugin();
 
         $this->pluginLifecycleService->installPlugin($plugin, $this->context);
 
         /** @var PluginEntity $pluginInstalled */
-        $pluginInstalled = $this->pluginService->getPluginByName(\SwagTest\SwagTest::class, $this->context);
+        $pluginInstalled = $this->getTestPlugin();
 
         static::assertNotNull($pluginInstalled->getInstalledAt());
 
         $this->expectException(PluginNotActivatedException::class);
-        $this->expectExceptionMessage('Plugin "SwagTest\SwagTest" is not activated.');
+        $this->expectExceptionMessage(sprintf('Plugin "%s" is not activated.', self::PLUGIN_NAME));
         $this->pluginLifecycleService->deactivatePlugin($pluginInstalled, $this->context);
     }
 
@@ -349,5 +348,10 @@ SQL;
             $sql,
             ['tableName' => \SwagTest\Migration\Migration1536761533Test::TABLE_NAME]
         );
+    }
+
+    private function getTestPlugin(): ?PluginEntity
+    {
+        return $this->pluginService->getPluginByName(self::PLUGIN_NAME, $this->context);
     }
 }

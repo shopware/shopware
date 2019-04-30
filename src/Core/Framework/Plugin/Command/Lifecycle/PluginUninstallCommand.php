@@ -33,23 +33,23 @@ class PluginUninstallCommand extends AbstractPluginLifecycleCommand
 
         $keepUserData = (bool) $input->getOption('keep-user-data');
 
-        $uninstalled = 0;
+        $uninstalledPluginCount = 0;
         /** @var PluginEntity $plugin */
         foreach ($plugins as $plugin) {
             if ($plugin->getInstalledAt() === null) {
-                $io->note(sprintf('Plugin "%s" is not installed. Skipping.', $plugin->getLabel()));
+                $io->note(sprintf('Plugin "%s" is not installed. Skipping.', $plugin->getName()));
 
                 continue;
             }
 
             $this->pluginLifecycleService->uninstallPlugin($plugin, $context, $keepUserData);
-            ++$uninstalled;
+            ++$uninstalledPluginCount;
 
-            $io->text(sprintf('Plugin "%s" has been uninstalled successfully.', $plugin->getLabel()));
+            $io->text(sprintf('Plugin "%s" has been uninstalled successfully.', $plugin->getName()));
         }
 
-        if ($uninstalled !== 0) {
-            $io->success(sprintf('Uninstalled %d plugins.', $uninstalled));
+        if ($uninstalledPluginCount !== 0) {
+            $io->success(sprintf('Uninstalled %d plugins.', $uninstalledPluginCount));
         }
     }
 }

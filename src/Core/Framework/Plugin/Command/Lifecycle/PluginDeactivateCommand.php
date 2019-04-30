@@ -31,29 +31,29 @@ class PluginDeactivateCommand extends AbstractPluginLifecycleCommand
         $context = Context::createDefaultContext();
         $plugins = $this->prepareExecution(self::LIFECYCLE_METHOD, $io, $input, $context);
 
-        $deactivated = 0;
+        $deactivatedPluginCount = 0;
         /** @var PluginEntity $plugin */
         foreach ($plugins as $plugin) {
             if ($plugin->getInstalledAt() === null) {
-                $io->note(sprintf('Plugin "%s" must be installed. Skipping.', $plugin->getLabel()));
+                $io->note(sprintf('Plugin "%s" must be installed. Skipping.', $plugin->getName()));
 
                 continue;
             }
 
             if ($plugin->getActive() === false) {
-                $io->note(sprintf('Plugin "%s" must be activated. Skipping.', $plugin->getLabel()));
+                $io->note(sprintf('Plugin "%s" must be activated. Skipping.', $plugin->getName()));
 
                 continue;
             }
 
             $this->pluginLifecycleService->deactivatePlugin($plugin, $context);
-            ++$deactivated;
+            ++$deactivatedPluginCount;
 
-            $io->text(sprintf('Plugin "%s" has been deactivated successfully.', $plugin->getLabel()));
+            $io->text(sprintf('Plugin "%s" has been deactivated successfully.', $plugin->getName()));
         }
 
-        if ($deactivated !== 0) {
-            $io->success(sprintf('Deactivated %d plugin(s).', $deactivated));
+        if ($deactivatedPluginCount !== 0) {
+            $io->success(sprintf('Deactivated %d plugin(s).', $deactivatedPluginCount));
         }
     }
 }

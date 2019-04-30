@@ -56,10 +56,9 @@
                         {% endblock %}
 
                         {% block page_checkout_confirm_tos_control_label %}
+                            {#TODO: NEXT-2981 - add modal link#}
                             <label for="tos"
-                                   class="custom-control-label"
-                                   data-toggle="modal"
-                                   data-url="{{ path('widgets.cms.page',{ id: shopware.config.cms.tosCmsPageId }) }}">
+                                   class="custom-control-label">
                                 {{ "checkout.confirmTerms"|trans|raw }}
                             </label>
                         {% endblock %}

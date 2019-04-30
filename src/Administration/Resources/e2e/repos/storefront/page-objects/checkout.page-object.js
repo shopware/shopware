@@ -15,7 +15,7 @@ class CheckoutPageObject extends GeneralPageObject {
                 cardWidget: '.cart-widget',
 
                 // Offcanvas cart
-                offCanvasCart: '.js-off-canvas',
+                offCanvasCart: '.js-offcanvas',
                 cartActions: '.cart-actions'
             }
         };

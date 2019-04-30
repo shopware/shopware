@@ -22,10 +22,10 @@ skinparam backgroundColor #FFFFFF
 
 ' entities
 
-Table(ShopwareCoreFrameworkAttribute, "Shopware\Core\Framework\Attribute\n(Attributes/EAV)") {
-   attribute Table
-   attribute_set Table
-   attribute_set_relation Table
+Table(ShopwareCoreFrameworkCustomField, "Shopware\Core\Framework\CustomField\n(CustomFields/EAV)") {
+   custom_field Table
+   custom_field_set Table
+   custom_field_set_relation Table
 }
 Table(ShopwareCoreFrameworkEvent, "Shopware\Core\Framework\Event\n(Business events)") {
    event_action Table
@@ -218,7 +218,7 @@ ForeignTable(ShopwareCoreCheckoutDocument, "document") {
 
 ' relationshipd
 
-ShopwareCoreFrameworkAttribute --> ShopwareCoreFrameworkAttribute
+ShopwareCoreFrameworkCustomField --> ShopwareCoreFrameworkCustomField
 ShopwareCoreFrameworkScheduledTask --> ShopwareCoreFrameworkMessageQueue
 ShopwareCoreFrameworkPlugin --> ShopwareCoreFrameworkPlugin
 ShopwareCoreCheckoutPayment --> ShopwareCoreFrameworkPlugin

@@ -72,7 +72,7 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    description translated
    metaTitle translated
    packUnit translated
-   attributes translated
+   customFields translated
    translated json
 }
 Table(ShopwareCoreContentProductAggregateProductCategoryProductCategoryDefinition, "product_category\n(M:N Mapping)") {
@@ -100,7 +100,7 @@ Table(ShopwareCoreContentProductAggregateProductConfiguratorSettingProductConfig
    prices priceRulesJson
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   attributes attributes
+   customFields customFields
 }
 Table(ShopwareCoreContentProductAggregateProductPriceProductPriceDefinition, "product_price\n(Staggered pricing)") {
    primary_key(id) id
@@ -114,7 +114,7 @@ Table(ShopwareCoreContentProductAggregateProductPriceProductPriceDefinition, "pr
    quantityEnd int
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   attributes attributes
+   customFields customFields
 }
 Table(ShopwareCoreContentProductAggregateProductPropertyProductPropertyDefinition, "product_property\n(M:N Mapping)") {
    primary_key(productId) foreignKey
@@ -130,13 +130,13 @@ Table(ShopwareCoreContentProductAggregateProductManufacturerProductManufacturerD
    not_null(createdAt) createdAt
    name translated
    description translated
-   attributes translated
+   customFields translated
    translated json
 }
 TranslationTable(ShopwareCoreContentProductAggregateProductManufacturerTranslationProductManufacturerTranslationDefinition, "product_manufacturer_translation\n((Translations))") {
    not_null(name) string
    description longTextWithHtml
-   attributes attributes
+   customFields customFields
    primary_key(productManufacturerId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -152,7 +152,7 @@ Table(ShopwareCoreContentProductAggregateProductMediaProductMediaDefinition, "pr
    position int
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   attributes attributes
+   customFields customFields
 }
 TranslationTable(ShopwareCoreContentProductAggregateProductTranslationProductTranslationDefinition, "product_translation\n((Translations))") {
    additionalText string
@@ -161,7 +161,7 @@ TranslationTable(ShopwareCoreContentProductAggregateProductTranslationProductTra
    description longTextWithHtml
    metaTitle string
    packUnit string
-   attributes attributes
+   customFields customFields
    primary_key(productId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt

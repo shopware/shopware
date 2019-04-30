@@ -219,8 +219,8 @@
             <tag name="shopware.field_accessor_builder" priority="-100"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\AttributesFieldAccessorBuilder">
-            <argument type="service" id="Shopware\Core\Framework\Attribute\AttributeService"/>
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\CustomFieldsAccessorBuilder">
+            <argument type="service" id="Shopware\Core\Framework\CustomField\CustomFieldService"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <tag name="shopware.field_accessor_builder" priority="-100"/>
@@ -478,11 +478,11 @@
             <tag name="shopware.field_serializer"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\AttributesFieldSerializer">
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CustomFieldsSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
             <argument type="service" id="validator"/>
-            <argument type="service" id="Shopware\Core\Framework\Attribute\AttributeService"/>
+            <argument type="service" id="Shopware\Core\Framework\CustomField\CustomFieldService"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor" />
 
             <tag name="shopware.field_serializer"/>

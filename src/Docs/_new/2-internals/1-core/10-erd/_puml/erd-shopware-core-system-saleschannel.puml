@@ -40,14 +40,14 @@ Table(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel\n(Sal
    configuration json
    active bool
    taxCalculationType string
-   attributes translated
+   customFields translated
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    translated json
 }
 TranslationTable(ShopwareCoreSystemSalesChannelAggregateSalesChannelTranslationSalesChannelTranslationDefinition, "sales_channel_translation\n((Translations))") {
    not_null(name) string
-   attributes attributes
+   customFields customFields
    primary_key(salesChannelId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -74,7 +74,7 @@ Table(ShopwareCoreSystemSalesChannelAggregateSalesChannelDomainSalesChannelDomai
    not_null(snippetSetId) foreignKey
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   attributes attributes
+   customFields customFields
 }
 Table(ShopwareCoreSystemSalesChannelAggregateSalesChannelLanguageSalesChannelLanguageDefinition, "sales_channel_language\n(M:N Mapping)") {
    primary_key(salesChannelId) foreignKey
@@ -103,7 +103,7 @@ Table(ShopwareCoreSystemSalesChannelAggregateSalesChannelTypeSalesChannelTypeDef
    manufacturer translated
    description translated
    descriptionLong translated
-   attributes translated
+   customFields translated
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    translated json
@@ -113,7 +113,7 @@ TranslationTable(ShopwareCoreSystemSalesChannelAggregateSalesChannelTypeTranslat
    manufacturer string
    description string
    descriptionLong longTextWithHtml
-   attributes attributes
+   customFields customFields
    primary_key(salesChannelTypeId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt

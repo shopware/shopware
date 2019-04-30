@@ -142,12 +142,12 @@ Business events
 
 Main context
 
-### [Framework/Attribute](https://github.com/shopware/platform/tree/master/src/Core/Framework/Attribute) 
+### [Framework/CustomField](https://github.com/shopware/platform/tree/master/src/Core/Framework/CustomField) 
 *[Data store]*, *[Custom actions]*, *[Custom Extendable]*, *[Extension]*
 
 Attribut management
 
-* [Entity relationship diagram](./10-erd/erd-shopware-core-framework-attribute.md)
+* [Entity relationship diagram](10-erd/erd-shopware-core-framework-custom-field.md)
 
 ### [Framework/Validation](https://github.com/shopware/platform/tree/master/src/Core/Framework/Validation) 
 *[Custom Extendable]*

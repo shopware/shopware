@@ -60,7 +60,7 @@ class ShippingMethodDefinition extends EntityDefinition
             (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new BoolField('active', 'active'),
             new FloatField('shipping_free', 'shippingFree'),
-            new TranslatedField('attributes'),
+            new TranslatedField('customFields'),
             (new FkField('availability_rule_id', 'availabilityRuleId', RuleDefinition::class))->addFlags(new Required()),
             new FkField('media_id', 'mediaId', MediaDefinition::class),
             (new FkField('delivery_time_id', 'deliveryTimeId', DeliveryTimeDefinition::class))->addFlags(new Required()),

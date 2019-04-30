@@ -17,8 +17,8 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
-use Shopware\Core\Framework\Attribute\Aggregate\AttributeSet\AttributeSetDefinition;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\Framework\Demodata\DemodataRequest;
 use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Demodata\Generator\ProductGenerator;
@@ -68,7 +68,7 @@ class DemodataCommand extends Command
         $this->addOption('with-media', 'y', InputOption::VALUE_OPTIONAL, 'Enables media for products', 1);
 
         if (next754()) {
-            $this->addOption('attribute-sets', null, InputOption::VALUE_REQUIRED, 'Attribute set count', 4);
+            $this->addOption('attribute-sets', null, InputOption::VALUE_REQUIRED, 'CustomField set count', 4);
 
             $this->addOption('product-attributes', null, InputOption::VALUE_REQUIRED, 'Products attribute count');
             $this->addOption('manufacturer-attributes', null, InputOption::VALUE_REQUIRED, 'Manufacturer attribute count');
@@ -111,9 +111,9 @@ class DemodataCommand extends Command
 
         if (next754()) {
             $request->add(
-                AttributeSetDefinition::class,
+                CustomFieldSetDefinition::class,
                 (int) $input->getOption('attribute-sets'),
-                $this->getAttributeOptions($input)
+                $this->getCustomFieldOptions($input)
             );
         }
 
@@ -140,7 +140,7 @@ class DemodataCommand extends Command
         return $productOptions;
     }
 
-    private function getAttributeOptions(InputInterface $input): array
+    private function getCustomFieldOptions(InputInterface $input): array
     {
         return [
             'relations' => [

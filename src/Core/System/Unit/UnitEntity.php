@@ -33,7 +33,7 @@ class UnitEntity extends Entity
     /**
      * @var array|null
      */
-    protected $attributes;
+    protected $customFields;
 
     public function getShortCode(): ?string
     {
@@ -75,13 +75,13 @@ class UnitEntity extends Entity
         $this->products = $products;
     }
 
-    public function getAttributes(): ?array
+    public function getCustomFields(): ?array
     {
-        return $this->attributes;
+        return $this->customFields;
     }
 
-    public function setAttributes(?array $attributes): void
+    public function setCustomFields(?array $customFields): void
     {
-        $this->attributes = $attributes;
+        $this->customFields = $customFields;
     }
 }

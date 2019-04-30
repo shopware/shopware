@@ -1,0 +1,15 @@
+@import "~scss/variables";
+
+$swag-custom-field-type-radio-button-color: $color-crimson;
+
+.sw-custom-field-type-radio {
+	.sw-custom-field-type-radio__delete-option-button {
+		background: none;
+		color: $swag-custom-field-type-radio-button-color;
+		margin-left: 20px;
+	}
+
+	.sw-custom-field-type-radio__option-container {
+		margin-top: 10px;
+	}
+}

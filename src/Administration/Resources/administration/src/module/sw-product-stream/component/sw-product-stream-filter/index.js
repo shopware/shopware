@@ -83,7 +83,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
 
     computed: {
         fieldNames() {
-            return ['type', 'field', 'operator', 'value', 'parameters', 'position', 'attributes'];
+            return ['type', 'field', 'operator', 'value', 'parameters', 'position', 'customFields'];
         },
         definitions() {
             return this.getDefinitions();
@@ -291,9 +291,9 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
         getPathFields() {
             const fields = [];
             let definition = this.filterProperties(Entity.getDefinition(productDefinitionName));
-            const productAttributes = this.productStreamConditionService.productAttributes;
-            if (Object.keys(productAttributes).length && !definition.attributes.properties) {
-                definition.attributes.properties = productAttributes;
+            const productCustomFields = this.productStreamConditionService.productCustomFields;
+            if (Object.keys(productCustomFields).length && !definition.customFieldValues.properties) {
+                definition.customFieldValues.properties = productCustomFields;
             }
             if (!this.actualCondition.field) {
                 this.actualCondition.field = 'id';

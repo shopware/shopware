@@ -246,14 +246,14 @@
 
             </sw-card>
         {% endblock %}
-        {% block sw_sales_channel_detail_attribute_sets %}
-            <sw-card :title="$tc('sw-settings-attribute.general.mainMenuItemGeneral')"
-                 v-if="next754 && attributeSets.length > 0"
+        {% block sw_sales_channel_detail_custom_field_sets %}
+            <sw-card :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                 v-if="next754 && customFieldSets.length > 0"
                  :isLoading="salesChannel.isLoading">
-                <sw-attribute-set-renderer
+                <sw-custom-field-set-renderer
                     :entity="salesChannel"
-                    :sets="attributeSets">
-                </sw-attribute-set-renderer>
+                    :sets="customFieldSets">
+                </sw-custom-field-set-renderer>
             </sw-card>
         {% endblock %}
     </div>

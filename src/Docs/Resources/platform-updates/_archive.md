@@ -2,7 +2,7 @@
 
 <h3>2019-02-28: Dynamic Form Field Renderer</h3>
 
-<p>We have a new component for dynamic rendering of form fields. This component is useful whenever you want to render forms based on external configurations or user configuration(e.g. attributes).</p>
+<p>We have a new component for dynamic rendering of form fields. This component is useful whenever you want to render forms based on external configurations or user configuration(e.g. custom fields).</p>
 
 <p><strong>Here are some examples:</strong></p>
 
@@ -577,7 +577,7 @@ These epics are planned as the very next one</p>
 
 <ul>
 	<li>Documents</li>
-	<li>Attributes</li>
+	<li>Custom Fields</li>
 	<li>Plugin Manager</li>
 	<li>Customer</li>
 	<li>Core Settings</li>

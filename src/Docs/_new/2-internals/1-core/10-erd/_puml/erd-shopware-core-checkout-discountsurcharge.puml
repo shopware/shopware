@@ -28,14 +28,14 @@ Table(ShopwareCoreCheckoutDiscountSurchargeDiscountSurchargeDefinition, "discoun
    not_null(ruleId) foreignKey
    not_null(type) string
    not_null(amount) float
-   attributes translated
+   customFields translated
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    translated json
 }
 TranslationTable(ShopwareCoreCheckoutDiscountSurchargeAggregateDiscountSurchargeTranslationDiscountSurchargeTranslationDefinition, "discount_surcharge_translation\n((Translations))") {
    not_null(name) string
-   attributes attributes
+   customFields customFields
    primary_key(discountSurchargeId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt

@@ -4,8 +4,8 @@ namespace Shopware\Core\Content\Rule\Aggregate\RuleCondition;
 
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -52,7 +52,7 @@ class RuleConditionDefinition extends EntityDefinition
             new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, 'id', false),
             new ParentAssociationField(self::class, 'id'),
             new ChildrenAssociationField(self::class),
-            new AttributesField(),
+            new CustomFields(),
         ]);
     }
 }

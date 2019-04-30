@@ -44,7 +44,7 @@ Table(ShopwareCoreFrameworkPluginPluginDefinition, "plugin\n(Plugin)") {
    manufacturerLink translated
    supportLink translated
    changelog translated
-   attributes translated
+   customFields translated
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    translated json
@@ -55,7 +55,7 @@ TranslationTable(ShopwareCoreFrameworkPluginAggregatePluginTranslationPluginTran
    manufacturerLink string
    supportLink string
    changelog json
-   attributes attributes
+   customFields customFields
    primary_key(pluginId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt

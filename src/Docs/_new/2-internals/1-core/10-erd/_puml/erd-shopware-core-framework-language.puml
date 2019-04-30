@@ -28,7 +28,7 @@ Table(ShopwareCoreFrameworkLanguageLanguageDefinition, "language\n(Language)") {
    not_null(localeId) foreignKey
    translationCodeId foreignKey
    not_null(name) string
-   attributes attributes
+   customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }

@@ -32,7 +32,7 @@ Table(ShopwareCoreSystemNumberRangeNumberRangeDefinition, "number_range\n(Number
    start int
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   attributes translated
+   customFields translated
    translated json
 }
 Table(ShopwareCoreSystemNumberRangeAggregateNumberRangeSalesChannelNumberRangeSalesChannelDefinition, "number_range_sales_channel\n(M:N Mapping)") {
@@ -51,14 +51,14 @@ Table(ShopwareCoreSystemNumberRangeAggregateNumberRangeTypeNumberRangeTypeDefini
    technicalName string
    typeName translated
    not_null(global) bool
-   attributes translated
+   customFields translated
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    translated json
 }
 TranslationTable(ShopwareCoreSystemNumberRangeAggregateNumberRangeTypeTranslationNumberRangeTypeTranslationDefinition, "number_range_type_translation\n((Translations))") {
    not_null(typeName) string
-   attributes attributes
+   customFields customFields
    primary_key(numberRangeTypeId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt

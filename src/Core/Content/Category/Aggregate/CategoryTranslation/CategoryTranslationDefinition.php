@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Category\Aggregate\CategoryTranslation;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField;
@@ -41,7 +41,7 @@ class CategoryTranslationDefinition extends EntityTranslationDefinition
             new StringField('external_link', 'externalLink'),
             new LongTextWithHtmlField('description', 'description'),
 
-            new AttributesField(),
+            new CustomFields(),
         ]);
     }
 }

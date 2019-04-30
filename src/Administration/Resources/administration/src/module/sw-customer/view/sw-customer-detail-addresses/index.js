@@ -30,7 +30,7 @@ Component.register('sw-customer-detail-addresses', {
             type: Boolean,
             required: true
         },
-        customerAddressAttributeSets: {
+        customerAddressCustomFieldSets: {
             type: Array,
             required: true
         }

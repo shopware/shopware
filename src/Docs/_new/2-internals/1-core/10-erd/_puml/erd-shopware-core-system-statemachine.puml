@@ -26,7 +26,7 @@ Table(ShopwareCoreSystemStateMachineStateMachineDefinition, "state_machine\n(Sta
    primary_key(id) id
    not_null(technicalName) string
    name translated
-   attributes translated
+   customFields translated
    initialStateId foreignKey
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
@@ -34,7 +34,7 @@ Table(ShopwareCoreSystemStateMachineStateMachineDefinition, "state_machine\n(Sta
 }
 TranslationTable(ShopwareCoreSystemStateMachineStateMachineTranslationDefinition, "state_machine_translation\n((Translations))") {
    not_null(name) string
-   attributes attributes
+   customFields customFields
    primary_key(stateMachineId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -45,14 +45,14 @@ Table(ShopwareCoreSystemStateMachineAggregationStateMachineStateStateMachineStat
    not_null(technicalName) string
    name translated
    not_null(stateMachineId) foreignKey
-   attributes translated
+   customFields translated
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    translated json
 }
 TranslationTable(ShopwareCoreSystemStateMachineAggregationStateMachineStateStateMachineStateTranslationDefinition, "state_machine_state_translation\n((Translations))") {
    not_null(name) string
-   attributes attributes
+   customFields customFields
    primary_key(stateMachineStateId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -66,7 +66,7 @@ Table(ShopwareCoreSystemStateMachineAggregationStateMachineTransitionStateMachin
    not_null(toStateId) foreignKey
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   attributes attributes
+   customFields customFields
 }
 Table(ShopwareCoreSystemStateMachineAggregationStateMachineHistoryStateMachineHistoryDefinition, "state_machine_history\n(State transition history)") {
    primary_key(id) id

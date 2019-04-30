@@ -46,7 +46,7 @@ All Epics listed here are in the final implementation phase and will be reviewed
 	<li>Plugin System</li>
     <li>Product Streams</li>
     <li>Newsletter Integeration</li>
-	<li>Attributes</li>
+	<li>Custom Fields</li>
 	<li>Documents</li>
 	<li>User</li>
 </ul>

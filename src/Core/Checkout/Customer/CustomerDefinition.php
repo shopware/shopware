@@ -10,8 +10,8 @@ use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionPersonaCustomer\PromotionPersonaCustomerDefinition;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
@@ -86,7 +86,7 @@ class CustomerDefinition extends EntityDefinition
             new DateField('last_login', 'lastLogin'),
             new BoolField('newsletter', 'newsletter'),
             new DateField('birthday', 'birthday'),
-            new AttributesField(),
+            new CustomFields(),
             new StringField('legacy_password', 'legacyPassword'),
             new StringField('legacy_encoder', 'legacyEncoder'),
             new ManyToOneAssociationField('group', 'customer_group_id', CustomerGroupDefinition::class, 'id', true),

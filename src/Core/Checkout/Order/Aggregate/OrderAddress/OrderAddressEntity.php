@@ -121,7 +121,7 @@ class OrderAddressEntity extends Entity
     /**
      * @var array|null
      */
-    protected $attributes;
+    protected $customFields;
 
     public function getCountryId(): string
     {
@@ -333,13 +333,13 @@ class OrderAddressEntity extends Entity
         $this->orderId = $orderId;
     }
 
-    public function getAttributes(): ?array
+    public function getCustomFields(): ?array
     {
-        return $this->attributes;
+        return $this->customFields;
     }
 
-    public function setAttributes(?array $attributes): void
+    public function setCustomFields(?array $customFields): void
     {
-        $this->attributes = $attributes;
+        $this->customFields = $customFields;
     }
 }

@@ -87,8 +87,8 @@ Component.register('sw-product-stream-detail', {
         productStreamFilterStore() {
             return State.getStore('product_stream_filter');
         },
-        attributeSetStore() {
-            return State.getStore('attribute_set');
+        customFieldSetStore() {
+            return State.getStore('custom_field_set');
         }
     },
 
@@ -112,7 +112,7 @@ Component.register('sw-product-stream-detail', {
     methods: {
         createdComponent() {
             if (this.$route.params.id) {
-                this.getProductAttributes();
+                this.getProductCustomFields();
                 this.productStreamId = this.$route.params.id;
                 if (this.productStream.isLocal) {
                     this.filterAssociations = this.productStream.getAssociation('filters');
@@ -210,56 +210,56 @@ Component.register('sw-product-stream-detail', {
             deletions.forEach(deletion => this.productStreamFilterStore.add(deletion));
             this.productStreamFilterStore.sync(true);
         },
-        getProductAttributes() {
+        getProductCustomFields() {
             this.isLoading = true;
 
             const params = {
                 criteria: CriteriaFactory.equals('relations.entityName', 'product'),
                 associations: {
-                    attributes: {},
+                    customFields: {},
                     relations: {}
                 }
             };
-            this.attributeSetStore.getList(params, true).then((response) => {
-                response.items.forEach((attributeSet) => {
-                    const attributes = {};
-                    attributeSet.attributes.forEach((attribute) => {
-                        attribute = {
-                            type: attribute.type,
-                            name: attribute.name,
-                            label: attribute.name
+            this.customFieldSetStore.getList(params, true).then((response) => {
+                response.items.forEach((customFieldSet) => {
+                    const customFields = {};
+                    customFieldSet.customFields.forEach((customField) => {
+                        customField = {
+                            type: customField.type,
+                            name: customField.name,
+                            label: customField.name
                         };
-                        attribute = this.mapAttributeType(attribute);
-                        attributes[attribute.name] = attribute;
+                        customField = this.mapCustomFieldType(customField);
+                        customFields[customField.name] = customField;
                     });
-                    this.productStreamConditionService.productAttributes = attributes;
+                    this.productStreamConditionService.productCustomFields = customFields;
                 });
                 this.isLoading = false;
             });
         },
-        mapAttributeType(attribute) {
-            switch (attribute.type) {
+        mapCustomFieldType(customField) {
+            switch (customField.type) {
             case 'bool':
-                attribute.type = 'boolean';
+                customField.type = 'boolean';
                 break;
             case 'html':
             case 'text':
-                attribute.type = 'string';
+                customField.type = 'string';
                 break;
             case 'datetime':
-                attribute.type = 'string';
-                attribute.format = 'date-time';
+                customField.type = 'string';
+                customField.format = 'date-time';
                 break;
             case 'int':
-                attribute.type = 'integer';
+                customField.type = 'integer';
                 break;
             case 'float':
-                attribute.type = 'number';
+                customField.type = 'number';
                 break;
             default:
                 break;
             }
-            return attribute;
+            return customField;
         }
     }
 });

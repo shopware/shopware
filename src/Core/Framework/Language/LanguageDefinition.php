@@ -25,8 +25,8 @@ use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\Produ
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOptionTranslation\PropertyGroupOptionTranslationDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation\PropertyGroupTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -89,7 +89,7 @@ class LanguageDefinition extends EntityDefinition
             new FkField('translation_code_id', 'translationCodeId', LocaleDefinition::class),
 
             (new StringField('name', 'name'))->addFlags(new Required()),
-            new AttributesField(),
+            new CustomFields(),
 
             new ParentAssociationField(self::class, 'id'),
 

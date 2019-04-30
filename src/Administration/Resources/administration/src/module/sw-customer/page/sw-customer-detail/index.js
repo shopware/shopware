@@ -27,8 +27,8 @@ Component.register('sw-customer-detail', {
             countries: [],
             addresses: [],
             paymentMethods: [],
-            customerAddressAttributeSets: [],
-            customerAttributeSets: [],
+            customerAddressCustomFieldSets: [],
+            customerCustomFieldSets: [],
             languages: [],
             language: {}
         };
@@ -85,8 +85,8 @@ Component.register('sw-customer-detail', {
             return this.$route.name.includes('order');
         },
 
-        attributeSetStore() {
-            return State.getStore('attribute_set');
+        customFieldSetStore() {
+            return State.getStore('custom_field_set');
         }
     },
 
@@ -164,32 +164,32 @@ Component.register('sw-customer-detail', {
                 this.paymentMethods = response.items;
             });
 
-            this.attributeSetStore.getList({
+            this.customFieldSetStore.getList({
                 page: 1,
                 limit: 100,
                 criteria: CriteriaFactory.equals('relations.entityName', 'customer'),
                 associations: {
-                    attributes: {
+                    customFields: {
                         limit: 100,
-                        sort: 'attribute.config.attributePosition'
+                        sort: 'config.customFieldPosition'
                     }
                 }
-            }, true).then(({ items }) => {
-                this.customerAttributeSets = items.filter(set => set.attributes.length > 0);
+            }, true).then((response) => {
+                this.customerCustomFieldSets = response.items;
             });
 
-            this.attributeSetStore.getList({
+            this.customFieldSetStore.getList({
                 page: 1,
                 limit: 100,
                 criteria: CriteriaFactory.equals('relations.entityName', 'customer_address'),
                 associations: {
-                    attributes: {
+                    customFields: {
                         limit: 100,
-                        sort: 'attribute.config.attributePosition'
+                        sort: 'config.customFieldPosition'
                     }
                 }
-            }, true).then(({ items }) => {
-                this.customerAddressAttributeSets = items.filter(set => set.attributes.length > 0);
+            }, true).then((response) => {
+                this.customerAddressCustomFieldSets = response.items;
             });
         },
 

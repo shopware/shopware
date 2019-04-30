@@ -19,13 +19,13 @@
             </sw-field>
         {% endblock %}
 
-        {% block sw_customer_address_form_options_attribute_sets %}
-            <sw-attribute-set-renderer
+        {% block sw_customer_address_form_options_custom_field_sets %}
+            <sw-custom-field-set-renderer
                     v-if="next754"
                     :entity="address"
                     variant="tabs"
-                    :sets="attributeSets">
-            </sw-attribute-set-renderer>
+                    :sets="customFieldSets">
+            </sw-custom-field-set-renderer>
         {% endblock %}
     {% endblock %}
 </div>

@@ -32,7 +32,7 @@ Table(ShopwareCoreSystemUserUserDefinition, "user\n(Administration/ Management A
    not_null(lastName) string
    not_null(email) string
    active bool
-   attributes attributes
+   customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    storeToken string
@@ -44,7 +44,7 @@ Table(ShopwareCoreSystemUserAggregateUserAccessKeyUserAccessKeyDefinition, "user
    not_null(secretAccessKey) password
    writeAccess bool
    lastUsageAt date
-   attributes attributes
+   customFields customFields
    not_null(createdAt) createdAt
 }
 Table(ShopwareCoreSystemUserAggregateUserRecoveryUserRecoveryDefinition, "user_recovery\n(User / Account recovery process)") {

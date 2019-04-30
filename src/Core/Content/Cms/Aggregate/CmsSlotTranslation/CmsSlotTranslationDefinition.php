@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotDefinition;
 use Shopware\Core\Content\Cms\DataAbstractionLayer\Field\SlotConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
@@ -30,7 +30,7 @@ class CmsSlotTranslationDefinition extends EntityTranslationDefinition
     {
         return new FieldCollection([
             (new SlotConfigField('config', 'config'))->setFlags(new Required()),
-            new AttributesField(),
+            new CustomFields(),
         ]);
     }
 }

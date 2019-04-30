@@ -15,7 +15,7 @@ Component.register('sw-order-detail', {
             order: null,
             orderId: null,
             isEditing: false,
-            attributeSets: []
+            customFieldSets: []
         };
     },
 
@@ -34,8 +34,8 @@ Component.register('sw-order-detail', {
             return State.getStore('order');
         },
 
-        attributeSetStore() {
-            return State.getStore('attribute_set');
+        customFieldSetStore() {
+            return State.getStore('custom_field_set');
         },
 
         showTabs() {
@@ -62,18 +62,18 @@ Component.register('sw-order-detail', {
         loadEntityData() {
             this.order = this.orderStore.getById(this.orderId);
 
-            this.attributeSetStore.getList({
+            this.customFieldSetStore.getList({
                 page: 1,
                 limit: 100,
                 criteria: CriteriaFactory.equals('relations.entityName', 'order'),
                 associations: {
-                    attributes: {
+                    customFields: {
                         limit: 100,
-                        sort: 'attribute.config.attributePosition'
+                        sort: 'config.customFieldsPosition'
                     }
                 }
-            }, true).then(({ items }) => {
-                this.attributeSets = items.filter(set => set.attributes.length > 0);
+            }, true).then((response) => {
+                this.customFieldSets = response.items;
             });
         },
 

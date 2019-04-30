@@ -1,0 +1,48 @@
+{% block sw_settings_custom_field_set_detail_base %}
+    <sw-card
+            class="sw-settings-custom-field-set-detail-base"
+            :title="$tc('sw-settings-custom-field.set.detail.titleCardInformation')">
+        {% block sw_settings_custom_field_set_detail_base_technical_name %}
+            <sw-field
+                    type="text"
+                    :label="$tc(`sw-settings-custom-field.set.detail.labelTechnicalName`)"
+                    :tooltipText="$tc('sw-settings-custom-field.general.tooltipTechnicalName')"
+                    :disabled="!set.isLocal"
+                    v-model="set.name">
+            </sw-field>
+        {% endblock %}
+
+        {% block sw_settings_custom_field_set_detail_base_translated %}
+            <sw-field
+                    type="switch"
+                    :label="$tc('sw-settings-custom-field.set.detail.labelCheckboxTranslated')"
+                    v-model="set.config.translated">
+            </sw-field>
+        {% endblock %}
+
+        {% block sw_settings_custom_field_set_detail_base_labels %}
+            <sw-custom-field-translated-labels
+                    v-model="set.config"
+                    :propertyNames="propertyNames"
+                    :locales="locales">
+            </sw-custom-field-translated-labels>
+        {% endblock %}
+
+        <sw-select
+                multi
+                :associationStore="customFieldSetRelationStore"
+                :store="entityNameStore"
+                itemValueKey="entityName"
+                displayName="entityName"
+                :label="$tc('sw-settings-custom-field.set.detail.labelEntities')"
+                :placeholder="$tc('sw-settings-custom-field.set.detail.placeholderEntities')"
+                id="entities"
+                v-model="set.relations">
+            <template slot="displayName" slot-scope="{ item }">
+                {{ $tc(`global.entities.${item.entityName}`, 2) }}
+            </template>
+        </sw-select>
+        {% block sw_settings_custom_field_set_detail_base_entities %}
+        {% endblock %}
+    </sw-card>
+{% endblock %}

@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -39,7 +39,7 @@ class SalesChannelTypeTranslationDefinition extends EntityTranslationDefinition
             new StringField('manufacturer', 'manufacturer'),
             new StringField('description', 'description'),
             new LongTextWithHtmlField('description_long', 'descriptionLong'),
-            new AttributesField(),
+            new CustomFields(),
         ]);
     }
 }

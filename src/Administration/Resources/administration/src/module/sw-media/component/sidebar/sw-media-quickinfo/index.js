@@ -34,7 +34,7 @@ Component.register('sw-media-quickinfo', {
 
     data() {
         return {
-            attributeSets: []
+            customFieldSets: []
         };
     },
 
@@ -55,8 +55,8 @@ Component.register('sw-media-quickinfo', {
             const date = this.item.uploadedAt || this.item.createdAt;
             return format.date(date);
         },
-        attributeSetStore() {
-            return State.getStore('attribute_set');
+        customFieldSetStore() {
+            return State.getStore('custom_field_set');
         }
     },
 
@@ -66,18 +66,18 @@ Component.register('sw-media-quickinfo', {
 
     methods: {
         createdComponent() {
-            this.attributeSetStore.getList({
+            this.customFieldSetStore.getList({
                 page: 1,
                 limit: 100,
                 criteria: CriteriaFactory.equals('relations.entityName', 'media'),
                 associations: {
-                    attributes: {
+                    customFields: {
                         limit: 100,
-                        sort: 'attribute.config.attributePosition'
+                        sort: 'config.customFieldPosition'
                     }
                 }
             }, true).then(({ items }) => {
-                this.attributeSets = items.filter(set => set.attributes.length > 0);
+                this.customFieldSets = items.filter(set => set.customFields.length > 0);
             });
         },
 

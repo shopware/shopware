@@ -12,7 +12,7 @@ import ValidationService from 'src/core/service/validation.service';
 import RuleConditionService from 'src/app/service/rule-condition.service';
 import ProductStreamConditionService from 'src/app/service/product-stream-condition.service';
 import StateStyleService from 'src/app/service/state-style.service';
-import AttributeService from 'src/app/service/attribute.service';
+import CustomFieldService from 'src/app/service/custom-field.service';
 import SearchTypeService from 'src/app/service/search-type.service';
 import LocaleToLanguageService from 'src/app/service/locale-to-language.service';
 import 'src/app/decorator/condition-type-data-provider';
@@ -51,8 +51,8 @@ Application
     .addServiceProvider('productStreamConditionService', () => {
         return ProductStreamConditionService();
     })
-    .addServiceProvider('attributeDataProviderService', () => {
-        return AttributeService();
+    .addServiceProvider('customFieldDataProviderService', () => {
+        return CustomFieldService();
     })
     .addServiceProvider('stateStyleDataProviderService', () => {
         return StateStyleService();

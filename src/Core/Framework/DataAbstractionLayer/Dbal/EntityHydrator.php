@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
@@ -131,7 +131,7 @@ class EntityHydrator
                 $typedField = EntityDefinitionQueryHelper::getTranslatedField($definition, $field);
             }
 
-            if ($typedField instanceof AttributesField) {
+            if ($typedField instanceof CustomFields) {
                 $this->hydrateAttributes($root, $field, $typedField, $entity, $row, $context);
                 continue;
             }
@@ -246,7 +246,7 @@ class EntityHydrator
         );
     }
 
-    private function hydrateAttributes(string $root, Field $field, AttributesField $attributesField, Entity $entity, array $row, Context $context): void
+    private function hydrateAttributes(string $root, Field $field, CustomFields $CustomField, Entity $entity, array $row, Context $context): void
     {
         $inherited = $field->is(Inherited::class) && $context->considerInheritance();
 
@@ -258,7 +258,7 @@ class EntityHydrator
 
         if ($field instanceof TranslatedField) {
             $entity->assign([
-                $propertyName => $this->fieldHandler->decode($attributesField, $value),
+                $propertyName => $this->fieldHandler->decode($CustomField, $value),
             ]);
 
             $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $context, $inherited);
@@ -278,14 +278,14 @@ class EntityHydrator
              * In other terms: The first argument has the lowest 'priority', so we need to reverse the array
              */
             $merged = $this->mergeJson(\array_reverse($values, false));
-            $entity->addTranslated($propertyName, $this->fieldHandler->decode($attributesField, $merged));
+            $entity->addTranslated($propertyName, $this->fieldHandler->decode($CustomField, $merged));
 
             return;
         }
 
         // field is not inherited or request should work with raw data? decode child attributes and return
         if (!$inherited) {
-            $value = $this->fieldHandler->decode($attributesField, $value);
+            $value = $this->fieldHandler->decode($CustomField, $value);
             $entity->assign([$propertyName => $value]);
 
             return;
@@ -295,7 +295,7 @@ class EntityHydrator
 
         // parent has no attributes? decode only child attributes and return
         if (!isset($row[$parentKey])) {
-            $value = $this->fieldHandler->decode($attributesField, $value);
+            $value = $this->fieldHandler->decode($CustomField, $value);
 
             $entity->assign([$propertyName => $value]);
 
@@ -305,7 +305,7 @@ class EntityHydrator
         // merge child attributes with parent attributes and assign
         $mergedJson = $this->mergeJson([$row[$parentKey], $value]);
 
-        $merged = $this->fieldHandler->decode($attributesField, $mergedJson);
+        $merged = $this->fieldHandler->decode($CustomField, $mergedJson);
 
         $entity->assign([$propertyName => $merged]);
     }

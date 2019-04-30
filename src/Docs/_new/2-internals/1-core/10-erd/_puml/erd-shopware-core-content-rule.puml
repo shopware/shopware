@@ -29,7 +29,7 @@ Table(ShopwareCoreContentRuleRuleDefinition, "rule\n(Rule)") {
    description longText
    payload blob
    invalid bool
-   attributes attributes
+   customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    moduleTypes json
@@ -41,7 +41,7 @@ Table(ShopwareCoreContentRuleAggregateRuleConditionRuleConditionDefinition, "rul
    parentId parentFk
    value json
    position int
-   attributes attributes
+   customFields customFields
 }
 ForeignTable(ShopwareCoreCheckoutDiscountSurchargeDiscountSurchargeDefinition, "discount_surcharge") {
 }

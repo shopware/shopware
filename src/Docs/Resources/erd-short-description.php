@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 return [
-    'Shopware\\Core\\Framework\\Attribute' => 'Attributes/EAV',
+    'Shopware\\Core\\Framework\\CustomField' => 'Custom Fields/EAV',
     'Shopware\\Core\\Framework\\Event' => 'Business events',
     'Shopware\\Core\\Framework\\MessageQueue' => 'Asynchronous messaging',
     Shopware\Core\Framework\Plugin::class => 'Plugins',
@@ -35,9 +35,9 @@ return [
     'Shopware\\Core\\Checkout\\Shipping' => 'Shipping',
     'Shopware\\Core\\Checkout\\DiscountSurcharge' => 'Discount/Surcharge',
     'Shopware\\Storefront' => 'Storefront',
-    Shopware\Core\Framework\Attribute\AttributeDefinition::class => 'Attribute configuration',
-    Shopware\Core\Framework\Attribute\Aggregate\AttributeSet\AttributeSetDefinition::class => 'Attribute set/group',
-    Shopware\Core\Framework\Attribute\Aggregate\AttributeSetRelation\AttributeSetRelationDefinition::class => 'Set to entity relation',
+    Shopware\Core\Framework\CustomField\CustomFieldDefinition::class => 'CustomField configuration',
+    Shopware\Core\Framework\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition::class => 'CustomField set/group',
+    Shopware\Core\Framework\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationDefinition::class => 'Set to entity relation',
     Shopware\Core\Framework\Event\EventAction\EventActionDefinition::class => 'Configurable event handling',
     Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageDefinition::class => 'Failing messages',
     Shopware\Core\Framework\MessageQueue\MessageQueueStatsDefinition::class => 'Stats',

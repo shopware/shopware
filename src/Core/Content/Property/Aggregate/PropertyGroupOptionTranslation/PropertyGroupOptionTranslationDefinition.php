@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Property\Aggregate\PropertyGroupOptionTranslatio
 
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -46,7 +46,7 @@ class PropertyGroupOptionTranslationDefinition extends EntityTranslationDefiniti
         return new FieldCollection([
             (new StringField('name', 'name'))->addFlags(new Required()),
             new IntField('position', 'position'),
-            new AttributesField(),
+            new CustomFields(),
         ]);
     }
 }

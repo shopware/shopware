@@ -47,7 +47,7 @@ class NumberRangeTypeDefinition extends EntityDefinition
             (new StringField('technical_name', 'technicalName'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new TranslatedField('typeName'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new BoolField('global', 'global'))->addFlags(new Required()),
-            new TranslatedField('attributes'),
+            new TranslatedField('customFields'),
 
             (new OneToManyAssociationField('numberRanges', NumberRangeDefinition::class, 'type_id'))->addFlags(new RestrictDelete()),
             (new OneToManyAssociationField('numberRangeSalesChannels', NumberRangeSalesChannelDefinition::class, 'number_range_type_id'))->addFlags(new RestrictDelete()),

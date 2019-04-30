@@ -78,7 +78,7 @@ class JsonApiEncoderTest extends TestCase
                     'alt' => 'A media object description',
                     'title' => 'Manufacturer',
                     'url' => '',
-                    'attributes' => null,
+                    'customFields' => null,
                     'hasFile' => false,
                     'translated' => [],
                 ],

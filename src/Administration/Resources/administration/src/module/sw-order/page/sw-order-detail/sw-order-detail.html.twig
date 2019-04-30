@@ -63,7 +63,7 @@
                 {% block sw_order_detail_content_view %}
                     <router-view
                         :order="order"
-                        :attributeSets="attributeSets"
+                        :customFieldSets="customFieldSets"
                         ref="baseComponent"
                         @sw-order-detail-base-error="onError">
                     </router-view>

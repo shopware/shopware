@@ -1,25 +1,25 @@
-[titleEn]: <>(Custom Attributes)
-[titleDe]: <>(Custom Attributes)
-[wikiUrl]: <>(../plugin-system/custom-attributes?category=shopware-platform-en/plugin-system)
+[titleEn]: <>(Custom Fields)
+[titleDe]: <>(Custom Fields)
+[wikiUrl]: <>(../plugin-system/custom-fields?category=shopware-platform-en/plugin-system)
 
-Before starting you should read [Attribute System](../80-framework/20-attribute.md) first, then
+Before starting you should read [Custom Field System](../80-framework/20-custom-field.md) first, then
 [Creating a component](../10-administration/20-create-a-component.md) 
 and you should know how to 
 [create a plugin](../10-administration/01-administration-start-development.md#create-your-first-plugin).
 ## Intro
-In the administration it is possible to define attribute sets that will be shown in the configuration of defined entities. Every attribute set can have several attributes assigned to it. There are some built-in attribute types, for example string fields, number fields, select fields and other commonly used types. For third party developers there is also the possibility to add attribute types. This documentation will show how types are added to the administration with a small example.
+In the administration it is possible to define custom field sets that will be shown in the configuration of defined entities. Every custom field set can have several custom fields assigned to it. There are some built-in custom field types, for example string fields, number fields, select fields and other commonly used types. For third party developers there is also the possibility to add custom field types. This documentation will show how types are added to the administration with a small example.
 
-## Add new attribute types to the administration
-At first we need to let the administration know about our new type. For this we have an attribute service which holds all possible types. Types can be added or overridden with the `upsertType`-function. Here is an example decorator for a new attribute type:
+## Add new custom field types to the administration
+At first we need to let the administration know about our new type. For this we have an custom field service which holds all possible types. Types can be added or overridden with the `upsertType`-function. Here is an example decorator for a new custom field type:
 
-`attribute-data-provider.js`
+`custom-field-data-provider.js`
 ```js
 import { Application } from 'src/core/shopware';
-import '../app/component/swag-attribute-type-radio';
+import '../app/component/swag-custom-field-type-radio';
 
-Application.addServiceProviderDecorator('attributeDataProviderService', (attributeService) => {
-    attributeService.upsertType('swagRadio', {
-        configRenderComponent: 'swag-attribute-type-radio',
+Application.addServiceProviderDecorator('customFieldDataProviderService', (customFieldService) => {
+    customFieldService.upsertType('swagRadio', {
+        configRenderComponent: 'swag-custom-field-type-radio',
         type: 'string',
         config: {
             componentName: 'swag-radio',
@@ -27,7 +27,7 @@ Application.addServiceProviderDecorator('attributeDataProviderService', (attribu
         }
     });
 
-    return attributeService;
+    return customFieldService;
 });
 ```
 Available configuration options:
@@ -35,24 +35,24 @@ Available configuration options:
 | property | required | description |
 |---|---|---|
 | configRenderComponent | true | Component for creating the configuration. This component will be rendered when the user selects the new "swagRadio" type. For this example it adds the possibility to add radio options and a label for the type |
-| type | true | This is the data type of the attribute written to the database. Some available types are `string`, `int`, `datetime`, `float`, `bool`. It is also possible to add own data types. Have a look at the %%% ADD CHAPTER HERE %%% to add new types |
+| type | true | This is the data type of the custom field written to the database. Some available types are `string`, `int`, `datetime`, `float`, `bool`. It is also possible to add own data types. Have a look at the %%% ADD CHAPTER HERE %%% to add new types |
 | config | false | The config holds all of the configuration which will be passed to the component that renders the type in the administration. If a `componentName` is not specified, the renderer tries to guess a suitable component based on the type. The `variant` property will be passed to the `swag-radio`-component as property as an example. Note the corresponding property in the `swag-radio`-component shown below. |
 
 ## Implement the config render component
-The render component for the configuration options, in this case `swag-attribute-type-radio` could look like this: 
+The render component for the configuration options, in this case `swag-custom-field-type-radio` could look like this: 
 
-`swag-attribute-type-radio/index.js`
+`swag-custom-field-type-radio/index.js`
 ```js
 import { Component } from 'src/core/shopware';
-import template from './swag-attribute-type-radio.html.twig';
-import './swag-attribute-type-radio.scss';
+import template from './swag-custom-field-type-radio.html.twig';
+import './swag-custom-field-type-radio.scss';
 
-Component.register('swag-attribute-type-radio', {
+Component.register('swag-custom-field-type-radio', {
     template,
 
     props: {
         // Automatically passed as prop when the component is created
-        currentAttribute: {
+        currentCustomField: {
             type: Object,
             required: true
         },
@@ -67,7 +67,7 @@ Component.register('swag-attribute-type-radio', {
         return {
             // Text properties that should be translatable, if the set is translated
             propertyNames: {
-                label: this.$tc('sw-settings-attribute.attribute.detail.labelLabel')
+                label: this.$tc('sw-settings-custom-field.custom-field.detail.labelLabel')
             }
         };
     },
@@ -90,63 +90,63 @@ Component.register('swag-attribute-type-radio', {
     methods: {
         createdComponent() {
             // If options is not set, initialise the component with two options
-            if (!this.currentAttribute.config.hasOwnProperty('options')) {
+            if (!this.currentCustomField.config.hasOwnProperty('options')) {
                 // We need the $set function for nested objects to enable vue reactivity for the property
-                this.$set(this.currentAttribute.config, 'options', []);
+                this.$set(this.currentCustomField.config, 'options', []);
                 this.addOption();
                 this.addOption();
             }
         },
         addOption() {
-            this.currentAttribute.config.options.push({ id: '', name: {} });
+            this.currentCustomField.config.options.push({ id: '', name: {} });
         },
         onClickAddOption() {
             this.addOption();
         },
         getLabel(locale) {
-            const snippet = this.$tc('swag-attribute-type-radio.labelLabel');
+            const snippet = this.$tc('swag-custom-field-type-radio.labelLabel');
             const language = this.$tc(`locale.${locale}`);
 
             return `${snippet} (${language})`;
         },
         onDeleteOption(index) {
-            this.currentAttribute.config.options.splice(index, 1);
+            this.currentCustomField.config.options.splice(index, 1);
         }
     }
 });
 ```
-Note that the `set` and `currentAttribute` props are automatically passed from the parent component. All the configuration for this type should be saved to the `currentAttribute.config`.
+Note that the `set` and `currentCustomField` props are automatically passed from the parent component. All the configuration for this type should be saved to the `currentCustomField.config`.
 
 This is the corresponding template:
 
-`swag-attribute-type-radio/swag-attribute-type-radio.html.twig`
+`swag-custom-field-type-radio/swag-custom-field-type-radio.html.twig`
 ```twig
-<div class="sw-attribute-type-radio">
-    <sw-attribute-translated-labels
-            v-model="currentAttribute.config"
+<div class="sw-custom-field-type-radio">
+    <sw-custom-field-translated-labels
+            v-model="currentCustomField.config"
             :propertyNames="propertyNames"
             :locales="locales">
-    </sw-attribute-translated-labels>
+    </sw-custom-field-translated-labels>
 
     {# the list of options #}
-    <div v-for="(option, index) in currentAttribute.config.options">
+    <div v-for="(option, index) in currentCustomField.config.options">
         <span>
-            {{ $tc('swag-attribute-type-radio.labelOption', 0, { count: (index+1) }) }}
+            {{ $tc('swag-custom-field-type-radio.labelOption', 0, { count: (index+1) }) }}
         </span>
 
         <sw-button
-                class="sw-attribute-type-radio__delete-option-button"
+                class="sw-custom-field-type-radio__delete-option-button"
                 size="small"
                 @click="onDeleteOption(index)">
-            {{ $tc('swag-attribute-type-radio.labelDeleteOption') }}
+            {{ $tc('swag-custom-field-type-radio.labelDeleteOption') }}
         </sw-button>
 
         <sw-container
-                class="sw-attribute-type-radio__option-container"
+                class="sw-custom-field-type-radio__option-container"
                 columns="1fr 1fr"
                 gap="20px">
             <sw-field
-                    :label="$tc('swag-attribute-type-radio.labelValue')"
+                    :label="$tc('swag-custom-field-type-radio.labelValue')"
                     v-model="option.id">
             </sw-field>
 
@@ -164,7 +164,7 @@ This is the corresponding template:
     </div>
 
     <sw-button @click="onClickAddOption">
-        {{ $tc('swag-attribute-type-radio.buttonAddOption') }}
+        {{ $tc('swag-custom-field-type-radio.buttonAddOption') }}
     </sw-button>
 </div>
 ```
@@ -188,26 +188,26 @@ Component.register('swag-radio', {
     // Helps to get the correct value for the actual administration language - provides the getInlineSnippet()-function
     mixins: ['sw-inline-snippet'],
     
-    // Getting access to the entity, attribute set and attribute set variant
-    inject: ['getEntity', 'getAttributeSetVariant', 'getAttributeSet'],
+    // Getting access to the entity, custom field set and custom field set variant
+    inject: ['getEntity', 'getCustomFieldSetVariant', 'getCustomFieldSet'],
 
     props: {
-        // Passed from the attribute config
+        // Passed from the custom field config
         label: {
             required: false
         },
-        // Passed from the attribute config
+        // Passed from the custom field config
         options: {
             required: true,
             type: Array
         },
-        // Passed from the attribute config
+        // Passed from the custom field config
         variant: {
             type: String,
             required: false,
             default: 'circle'
         },
-        // Passed from the entity attributes
+        // Passed from the entity custom fields
         value: {
             required: false
         }
@@ -252,7 +252,7 @@ And the corresponding template:
     </div>
 </div>
 ```
-And now the new attribute type can be rendered on the entity pages:
+And now the new custom field type can be rendered on the entity pages:
 ![Swag Radio Config](img/210-swag-radio-renderer.png)
 
 ## Download

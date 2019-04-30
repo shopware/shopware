@@ -6,10 +6,6 @@ parameters:
         - %rootDir%/../../src/**/*TestCase.php
         - %rootDir%/../../src/**/_fixture/feature_*.php
         - %rootDir%/../../src/Core/Flag/feature_*.php
-        - %rootDir%/../../src/Core/Framework/Demodata/Generator/CategoryGenerator.php
-        - %rootDir%/../../src/Core/Framework/Demodata/Generator/ProductGenerator.php
-        - %rootDir%/../../src/Core/Framework/Demodata/Generator/ProductStreamGenerator.php
-        - %rootDir%/../../src/Core/Framework/Demodata/Generator/AttributeGenerator.php
         - %rootDir%/../../src/Core/Framework/Faker/Commerce.php
         - %rootDir%/../../src/Core/TestBootstrap.php
         - %rootDir%/../../src/Core/System/Test/SystemConfig/TestKernel.php
@@ -20,3 +16,5 @@ parameters:
         # https://github.com/phpstan/phpstan/issues/1060
         - '#Call to an undefined method Symfony\\Component\\Config\\Definition\\Builder\\NodeParentInterface::(variableNode|scalarNode|end|integerNode|booleanNode)\(\)\.#'
         - '#[F,f]unction Flag\\.* not found\.$#'
+        - '#Access to an undefined property Faker\\Generator::\$[^.]+\.#'
+        - '#Call to an undefined method Faker\\Generator::[^.]+\.#'

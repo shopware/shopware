@@ -16,7 +16,7 @@ Component.register('sw-sales-channel-detail', {
         return {
             salesChannel: {},
             isLoading: false,
-            attributeSets: []
+            customFieldSets: []
         };
     },
 
@@ -42,8 +42,8 @@ Component.register('sw-sales-channel-detail', {
         isStoreFront() {
             return this.salesChannel.typeId === '8a243080f92e4c719546314b577cf82b';
         },
-        attributeSetStore() {
-            return State.getStore('attribute_set');
+        customFieldSetStore() {
+            return State.getStore('custom_field_set');
         }
     },
 
@@ -69,18 +69,18 @@ Component.register('sw-sales-channel-detail', {
         loadEntityData() {
             this.salesChannel = this.salesChannelStore.getById(this.$route.params.id);
 
-            this.attributeSetStore.getList({
+            this.customFieldSetStore.getList({
                 page: 1,
                 limit: 100,
                 criteria: CriteriaFactory.equals('relations.entityName', 'sales_channel'),
                 associations: {
-                    attributes: {
+                    customFields: {
                         limit: 100,
-                        sort: 'attribute.config.attributePosition'
+                        sort: 'config.customFieldPosition'
                     }
                 }
             }, true).then(({ items }) => {
-                this.attributeSets = items.filter(set => set.attributes.length > 0);
+                this.customFieldSets = items.filter(set => set.customFields.length > 0);
             });
         },
 

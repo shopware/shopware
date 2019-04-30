@@ -35,7 +35,7 @@ class CustomerGroupEntity extends Entity
     /**
      * @var array|null
      */
-    protected $attributes;
+    protected $customFields;
 
     /**
      * @var SalesChannelCollection|null
@@ -82,14 +82,14 @@ class CustomerGroupEntity extends Entity
         $this->customers = $customers;
     }
 
-    public function getAttributes(): ?array
+    public function getCustomFields(): ?array
     {
-        return $this->attributes;
+        return $this->customFields;
     }
 
-    public function setAttributes(?array $attributes): void
+    public function setCustomFields(?array $attributes): void
     {
-        $this->attributes = $attributes;
+        $this->customFields = $attributes;
     }
 
     public function getSalesChannels(): ?SalesChannelCollection

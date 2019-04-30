@@ -21,7 +21,7 @@ export default {
     ],
 
     /**
-     * All additional passed attributes are bound explicit to the correct child element.
+     * All additional passed customFields are bound explicit to the correct child element.
      */
     inheritAttrs: false,
 

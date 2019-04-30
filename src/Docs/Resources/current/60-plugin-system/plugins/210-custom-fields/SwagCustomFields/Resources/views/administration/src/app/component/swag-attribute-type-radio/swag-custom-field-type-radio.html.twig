@@ -1,0 +1,46 @@
+<div class="sw-custom-field-type-radio">
+    <sw-custom-field-translated-labels
+            v-model="currentCustomField.config"
+            :propertyNames="propertyNames"
+            :locales="locales">
+    </sw-custom-field-translated-labels>
+
+    {# the list of options #}
+    <div v-for="(option, index) in currentCustomField.config.options">
+        <span>
+            {{ $tc('swag-custom-field-type-radio.labelOption', 0, { count: (index+1) }) }}
+        </span>
+
+        <sw-button
+                class="sw-custom-field-type-radio__delete-option-button"
+                size="small"
+                @click="onDeleteOption(index)">
+            {{ $tc('swag-custom-field-type-radio.labelDeleteOption') }}
+        </sw-button>
+
+        <sw-container
+                class="sw-custom-field-type-radio__option-container"
+                columns="1fr 1fr"
+                gap="20px">
+            <sw-field
+                    :label="$tc('swag-custom-field-type-radio.labelValue')"
+                    v-model="option.id">
+            </sw-field>
+
+            <div>
+                {# Add input fields for every locale #}
+                <sw-field
+                        v-for="locale in locales"
+                        type="text"
+                        :key="locale"
+                        :label="getLabel(locale)"
+                        v-model="option.name[locale]">
+                </sw-field>
+            </div>
+        </sw-container>
+    </div>
+
+    <sw-button @click="onClickAddOption">
+        {{ $tc('swag-custom-field-type-radio.buttonAddOption') }}
+    </sw-button>
+</div>

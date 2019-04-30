@@ -61,7 +61,7 @@ export default {
             }
 
             if (this.disabled) {
-                el.removeAttribute('disabled');
+                el.removeCustomField('disabled');
             }
 
             el.select();
@@ -83,7 +83,7 @@ export default {
 
             window.getSelection().removeAllRanges();
             if (this.disabled) {
-                el.setAttribute('disabled', 'disabled');
+                el.setCustomField('disabled', 'disabled');
             }
         },
 

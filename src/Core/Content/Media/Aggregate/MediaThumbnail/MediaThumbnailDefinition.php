@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Media\Aggregate\MediaThumbnail;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deferred;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -51,7 +51,7 @@ class MediaThumbnailDefinition extends EntityDefinition
             (new StringField('url', 'url'))->addFlags(new Deferred()),
 
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false),
-            new AttributesField(),
+            new CustomFields(),
         ]);
     }
 }

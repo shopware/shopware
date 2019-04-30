@@ -409,7 +409,7 @@
       "defaultPlaceholder": "Search"
     },
     "entities": {
-      "attribute": "Custom field | Custom fields",
+      "custom_field": "Custom field | Custom fields",
       "cart": "Cart | Carts",
       "category": "Category | Categories",
       "cms_page": "Page | Pages",
@@ -538,7 +538,7 @@
     "configLoadErrorMessage": "Encountered an error while loading the configuration: | There were errors loading the configuration:",
     "configLoadErrorTitle": "Error"
   },
-  "sw-attribute-set-renderer": {
+  "sw-custom-field-set-renderer": {
     "general":{
       "labelButtonSave": "Save"
     }

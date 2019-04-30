@@ -2,7 +2,7 @@ SET @salutationId = (SELECT `id` FROM salutation LIMIT 1);
 SET @languageId = (SELECT `id` FROM `language` LIMIT 1);
 
 INSERT INTO `newsletter_receiver`
-    (`id`, `email`, `first_name`, `last_name`, `zip_code`, `city`, `street`, `status`, `hash`, `salutation_id`, `language_id`, `sales_channel_id`, `attributes`, `confirmed_at`, `created_at`, `updated_at`)
+    (`id`, `email`, `first_name`, `last_name`, `zip_code`, `city`, `street`, `status`, `hash`, `salutation_id`, `language_id`, `sales_channel_id`, `custom_fields`, `confirmed_at`, `created_at`, `updated_at`)
 VALUES (
     UNHEX('b4b45f58088d41289490db956ca19af7'),
     'unit@test.foo',

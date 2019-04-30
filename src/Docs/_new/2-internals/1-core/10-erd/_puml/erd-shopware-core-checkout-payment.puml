@@ -30,7 +30,7 @@ Table(ShopwareCoreCheckoutPaymentPaymentMethodDefinition, "payment_method\n(Paym
    description translated
    position int
    active bool
-   attributes translated
+   customFields translated
    availabilityRuleIds list
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
@@ -39,7 +39,7 @@ Table(ShopwareCoreCheckoutPaymentPaymentMethodDefinition, "payment_method\n(Paym
 TranslationTable(ShopwareCoreCheckoutPaymentAggregatePaymentMethodTranslationPaymentMethodTranslationDefinition, "payment_method_translation\n((Translations))") {
    not_null(name) string
    description longText
-   attributes attributes
+   customFields customFields
    primary_key(paymentMethodId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt

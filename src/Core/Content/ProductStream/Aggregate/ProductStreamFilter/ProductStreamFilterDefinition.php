@@ -4,8 +4,8 @@ namespace Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter;
 
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -58,7 +58,7 @@ class ProductStreamFilterDefinition extends EntityDefinition
             new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class, 'id', false),
             new ParentAssociationField(self::class, 'id'),
             new ChildrenAssociationField(self::class, 'queries'),
-            new AttributesField(),
+            new CustomFields(),
         ]);
     }
 }

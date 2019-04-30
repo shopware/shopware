@@ -5,8 +5,8 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CalculatedPriceField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -57,7 +57,7 @@ class OrderDeliveryPositionDefinition extends EntityDefinition
             (new FloatField('unit_price', 'unitPrice'))->addFlags(new Computed()),
             (new FloatField('total_price', 'totalPrice'))->addFlags(new Computed()),
             (new IntField('quantity', 'quantity'))->addFlags(new Computed()),
-            new AttributesField(),
+            new CustomFields(),
             new ManyToOneAssociationField('orderDelivery', 'order_delivery_id', OrderDeliveryDefinition::class, 'id', false),
             new ManyToOneAssociationField('orderLineItem', 'order_line_item_id', OrderLineItemDefinition::class, 'id', true),
         ]);

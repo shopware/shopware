@@ -47,7 +47,7 @@ class DocumentTypeDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
 
-            new TranslatedField('attributes'),
+            new TranslatedField('customFields'),
 
             (new TranslationsAssociationField(DocumentTypeTranslationDefinition::class, 'document_type_id'))->addFlags(new Required()),
             new OneToManyAssociationField('documents', DocumentDefinition::class, 'document_type_id'),

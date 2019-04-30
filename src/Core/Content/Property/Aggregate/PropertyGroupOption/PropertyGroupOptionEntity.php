@@ -73,7 +73,7 @@ class PropertyGroupOptionEntity extends Entity
     /**
      * @var array|null
      */
-    protected $attributes;
+    protected $customFields;
 
     /**
      * @var ProductConfiguratorSettingEntity|null
@@ -195,14 +195,14 @@ class PropertyGroupOptionEntity extends Entity
         $this->position = $position;
     }
 
-    public function getAttributes(): ?array
+    public function getCustomFields(): ?array
     {
-        return $this->attributes;
+        return $this->customFields;
     }
 
-    public function setAttributes(?array $attributes): void
+    public function setCustomFields(?array $customFields): void
     {
-        $this->attributes = $attributes;
+        $this->customFields = $customFields;
     }
 
     public function getConfiguratorSetting(): ?ProductConfiguratorSettingEntity

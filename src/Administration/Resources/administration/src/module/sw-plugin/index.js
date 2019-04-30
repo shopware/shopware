@@ -74,15 +74,5 @@ Module.register('sw-plugin', {
                 parentPath: 'sw.plugin.index'
             }
         }
-    },
-
-    navigation: [{
-        id: 'sw-plugin',
-        label: 'sw-plugin.general.mainMenuItemGeneral',
-        color: '#9AA8B5',
-        path: 'sw.plugin.index',
-        icon: 'default-object-plug',
-        position: 9999,
-        parent: 'sw-settings'
-    }]
+    }
 });

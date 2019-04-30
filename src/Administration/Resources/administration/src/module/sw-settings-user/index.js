@@ -49,14 +49,5 @@ Module.register('sw-settings-user', {
                 parentPath: 'sw.settings.user.list'
             }
         }
-    },
-
-    navigation: [{
-        id: 'sw-settings-user',
-        label: 'sw-settings-user.general.mainMenuItemGeneral',
-        color: '#9AA8B5',
-        icon: 'default-action-settings',
-        path: 'sw.settings.user.list',
-        parent: 'sw-settings'
-    }]
+    }
 });

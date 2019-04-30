@@ -66,13 +66,5 @@ Module.register('sw-settings-shipping', {
                 }
             }
         }
-    },
-    navigation: [{
-        label: 'sw-settings-shipping.general.mainMenuItemGeneral',
-        id: 'sw-settings-shipping',
-        color: '#9AA8B5',
-        icon: 'default-action-settings',
-        path: 'sw.settings.shipping.index',
-        parent: 'sw-settings'
-    }]
+    }
 });

@@ -47,13 +47,5 @@ Module.register('sw-settings-rule', {
                 parentPath: 'sw.settings.rule.index'
             }
         }
-    },
-    navigation: [{
-        label: 'sw-settings-rule.general.mainMenuItemGeneral',
-        id: 'sw-settings-rule',
-        color: '#9AA8B5',
-        icon: 'default-action-settings',
-        path: 'sw.settings.rule.index',
-        parent: 'sw-settings'
-    }]
+    }
 });

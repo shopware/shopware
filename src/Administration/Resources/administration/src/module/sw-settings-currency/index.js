@@ -45,14 +45,5 @@ Module.register('sw-settings-currency', {
                 parentPath: 'sw.settings.currency.index'
             }
         }
-    },
-
-    navigation: [{
-        label: 'sw-settings-currency.general.mainMenuItemGeneral',
-        id: 'sw-settings-currency',
-        color: '#9AA8B5',
-        icon: 'default-action-settings',
-        path: 'sw.settings.currency.index',
-        parent: 'sw-settings'
-    }]
+    }
 });

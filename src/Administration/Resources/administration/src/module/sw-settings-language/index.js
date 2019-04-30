@@ -45,14 +45,5 @@ Module.register('sw-settings-language', {
                 parentPath: 'sw.settings.language.index'
             }
         }
-    },
-
-    navigation: [{
-        label: 'sw-settings-language.general.mainMenuItemGeneral',
-        id: 'sw-settings-language',
-        color: '#9AA8B5',
-        icon: 'default-action-settings',
-        path: 'sw.settings.language.index',
-        parent: 'sw-settings'
-    }]
+    }
 });

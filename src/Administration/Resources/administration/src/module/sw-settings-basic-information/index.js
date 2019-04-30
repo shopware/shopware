@@ -29,14 +29,5 @@ Module.register('sw-settings-basic-information', {
                 parentPath: 'sw.settings.index'
             }
         }
-    },
-
-    navigation: [{
-        id: 'sw-settings-basic-information',
-        icon: 'default-action-settings',
-        label: 'sw-settings-basic-information.general.mainMenuItemGeneral',
-        color: '#9AA8B5',
-        path: 'sw.settings.basic.information.index',
-        parent: 'sw-settings'
-    }]
+    }
 });

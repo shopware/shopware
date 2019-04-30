@@ -22,6 +22,7 @@
         "back": "back",
         "categories": "Categories",
         "showCategory": "show %category%",
+        "required": "*",
         "requiredFields": "The fields marked with * are required"
     },
     "header": {
@@ -70,7 +71,6 @@
         "registerAdvantage2": "Save your user data and settings",
         "registerAdvantage3": "Overview of your orders incl. shipping informations",
         "registerAdvantage4": "Manage your newsletter subscription",
-        "required": "*",
         "registerPersonalHeader": "I'm a new customer",
         "registerAddressBillingHeader": "Your address",
         "registerAddressShippingHeader": "Your alternative shipping address",

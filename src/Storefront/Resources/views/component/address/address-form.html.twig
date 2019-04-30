@@ -22,7 +22,7 @@
             {% block component_address_form_street_label %}
                 <label class="form-label"
                        for="{{ prefix }}AddressStreet">
-                    {{ "address.streetLabel"|trans }}
+                    {{ "address.streetLabel"|trans }}{{ "general.required"|trans }}
                 </label>
             {% endblock %}
 
@@ -30,7 +30,7 @@
                 <input type="text"
                        class="form-control{% if violationPath %} is-invalid{% endif %}"
                        id="{{ prefix }}AddressStreet"
-                       placeholder="{{ "address.streetPlaceholder"|trans }}{{ "account.required"|trans }}"
+                       placeholder="{{ "address.streetPlaceholder"|trans }}{{ "general.required"|trans }}"
                        name="{{ prefix }}[street]"
                        value="{{ data.get('street') }}"
                        required="required">
@@ -100,7 +100,7 @@
                 {% block component_address_form_zipcode_label %}
                     <label class="form-label"
                            for="{{ prefix }}AddressZipcode">
-                        {{ "address.zipcodeLabel"|trans }}
+                        {{ "address.zipcodeLabel"|trans }}{{ "general.required"|trans }}
                     </label>
                 {% endblock %}
 
@@ -108,7 +108,7 @@
                     <input type="text"
                            class="form-control{% if violationPath %} is-invalid{% endif %}"
                            id="{{ prefix }}AddressZipcode"
-                           placeholder="{{ "address.zipcodePlaceholder"|trans }}{{ "account.required"|trans }}"
+                           placeholder="{{ "address.zipcodePlaceholder"|trans }}{{ "general.required"|trans }}"
                            name="{{ prefix }}[zipcode]"
                            value="{{ data.get('zipcode') }}"
                            required="required">
@@ -131,7 +131,7 @@
                 {% block component_address_form_city_label %}
                     <label class="form-label"
                            for="{{ prefix }}AddressCity">
-                        {{ "address.cityLabel"|trans }}
+                        {{ "address.cityLabel"|trans }}{{ "general.required"|trans }}
                     </label>
                 {% endblock %}
 
@@ -139,7 +139,7 @@
                     <input type="text"
                            class="form-control{% if violationPath %} is-invalid{% endif %}"
                            id="{{ prefix }}AddressCity"
-                           placeholder="{{ "address.cityPlaceholder"|trans }}{{ "account.required"|trans }}"
+                           placeholder="{{ "address.cityPlaceholder"|trans }}{{ "general.required"|trans }}"
                            name="{{ prefix }}[city]"
                            value="{{ data.get('city') }}"
                            required="required">
@@ -183,7 +183,7 @@
             {% block component_address_form_country_label %}
                 <label class="form-label"
                        for="{{ prefix }}AddressCountry">
-                    {{ "address.countryLabel"|trans }}
+                    {{ "address.countryLabel"|trans }}{{ "general.required"|trans }}
                 </label>
             {% endblock %}
 
@@ -196,7 +196,7 @@
                         <option disabled="disabled"
                                 value=""
                                 selected="selected">
-                            {{ "address.countryPlaceholder"|trans }}{{ "account.required"|trans }}
+                            {{ "address.countryPlaceholder"|trans }}{{ "general.required"|trans }}
                         </option>
                     {% endif %}
                     {% for country in page.countries.elements %}

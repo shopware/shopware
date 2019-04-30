@@ -104,7 +104,7 @@
                                                     {% block page_account_profile_mail_label %}
                                                         <label class="form-label"
                                                                for="personalMail">
-                                                            {{ "account.personalMailLabel"|trans }}
+                                                            {{ "account.personalMailLabel"|trans }}{{ "general.required"|trans }}
                                                         </label>
                                                     {% endblock %}
 
@@ -113,7 +113,7 @@
                                                                class="form-control"
                                                                autocomplete="section-personal email"
                                                                id="personalMail"
-                                                               placeholder="{{ "account.personalMailPlaceholder"|trans }}{{ "account.required"|trans }}"
+                                                               placeholder="{{ "account.personalMailPlaceholder"|trans }}{{ "general.required"|trans }}"
                                                                name="email"
                                                                data-form-validation-equal="personalMail"
                                                                required="required">
@@ -126,7 +126,7 @@
                                                     {% block page_account_profile_personal_mail_confirmation_label %}
                                                         <label class="form-label"
                                                                for="personalMailConfirmation">
-                                                            {{ "account.personalMailConfirmationLabel"|trans }}
+                                                            {{ "account.personalMailConfirmationLabel"|trans }}{{ "general.required"|trans }}
                                                         </label>
                                                     {% endblock %}
 
@@ -135,7 +135,7 @@
                                                                class="form-control"
                                                                autocomplete="section-personal email"
                                                                id="personalMailConfirmation"
-                                                               placeholder="{{ "account.personalMailConfirmationPlaceholder"|trans }}{{ "account.required"|trans }}"
+                                                               placeholder="{{ "account.personalMailConfirmationPlaceholder"|trans }}{{ "general.required"|trans }}"
                                                                name="emailConfirmation"
                                                                required="required"
                                                                data-form-validation-equal="personalMail"
@@ -149,7 +149,7 @@
                                                     {% block page_account_profile_password_label %}
                                                         <label class="form-label"
                                                                for="personalMailPassword">
-                                                            {{ "account.personalPasswordLabel"|trans }}
+                                                            {{ "account.personalPasswordLabel"|trans }}{{ "general.required"|trans }}
                                                         </label>
                                                     {% endblock %}
 
@@ -158,7 +158,7 @@
                                                                class="form-control"
                                                                autocomplete="new-password"
                                                                id="personalMailPassword"
-                                                               placeholder="{{ "account.personalPasswordPlaceholder"|trans }}{{ "account.required"|trans }}"
+                                                               placeholder="{{ "account.personalPasswordPlaceholder"|trans }}{{ "general.required"|trans }}"
                                                                name="password"
                                                                required="required">
                                                     {% endblock %}
@@ -207,7 +207,7 @@
                                                     {% block page_account_profile_new_password_label %}
                                                         <label class="form-label"
                                                                for="newPassword">
-                                                            {{ "account.profilePasswordCreateNew"|trans }}
+                                                            {{ "account.profilePasswordCreateNew"|trans }}{{ "general.required"|trans }}
                                                         </label>
                                                     {% endblock %}
 
@@ -216,7 +216,7 @@
                                                                class="form-control"
                                                                autocomplete="new-password"
                                                                id="newPassword"
-                                                               placeholder="{{ "account.profilePasswordCreateNew"|trans }}{{ "account.required"|trans }}"
+                                                               placeholder="{{ "account.profilePasswordCreateNew"|trans }}{{ "general.required"|trans }}"
                                                                name="newPassword"
                                                                data-form-validation-equal="newPassword"
                                                                data-form-validation-length="{{ shopware.config.register.minPasswordLength }}"
@@ -233,7 +233,7 @@
                                                     {% block page_account_profile_new_password_confirmation_label %}
                                                         <label class="form-label"
                                                                for="passwordConfirmation">
-                                                            {{ "account.personalPasswordConfirmationLabel"|trans }}
+                                                            {{ "account.personalPasswordConfirmationLabel"|trans }}{{ "general.required"|trans }}
                                                         </label>
                                                     {% endblock %}
 
@@ -242,7 +242,7 @@
                                                                class="form-control"
                                                                autocomplete="new-password"
                                                                id="passwordConfirmation"
-                                                               placeholder="{{ "account.personalPasswordConfirmationLabel"|trans }}{{ "account.required"|trans }}"
+                                                               placeholder="{{ "account.personalPasswordConfirmationLabel"|trans }}{{ "general.required"|trans }}"
                                                                name="newPasswordConfirm"
                                                                required="required"
                                                                data-form-validation-equal="newPassword"
@@ -256,7 +256,7 @@
                                                     {% block page_account_profile_current_password_label %}
                                                         <label class="form-label"
                                                                for="personalPasswordCurrent">
-                                                            {{ "account.profilePasswordCurrent"|trans }}
+                                                            {{ "account.profilePasswordCurrent"|trans }}{{ "general.required"|trans }}
                                                         </label>
                                                     {% endblock %}
 
@@ -265,7 +265,7 @@
                                                                class="form-control"
                                                                autocomplete="new-password"
                                                                id="password"
-                                                               placeholder="{{ "account.profilePasswordCurrent"|trans }}{{ "account.required"|trans }}"
+                                                               placeholder="{{ "account.profilePasswordCurrent"|trans }}{{ "general.required"|trans }}"
                                                                name="password"
                                                                required="required">
                                                     {% endblock %}

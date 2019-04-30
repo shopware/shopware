@@ -10,7 +10,7 @@
                 {% block component_address_personal_fields_salutation_label %}
                     <label class="form-label"
                            for="{{ prefix }}personalSalutation">
-                        {{ "account.personalSalutationLabel"|trans }}
+                        {{ "account.personalSalutationLabel"|trans }}{{ "general.required"|trans }}
                     </label>
                 {% endblock %}
 
@@ -23,7 +23,7 @@
                             <option disabled="disabled"
                                     selected="selected"
                                     value="">
-                                {{ "account.personalSalutationPlaceholder"|trans }}{{ "account.required"|trans }}
+                                {{ "account.personalSalutationPlaceholder"|trans }}{{ "general.required"|trans }}
                             </option>
                         {% endif %}
                         {% for salutation in page.salutations %}
@@ -76,7 +76,7 @@
             {% block component_address_personal_fields_first_name_label %}
                 <label class="form-label"
                        for="{{ prefix }}personalFirstName">
-                    {{ "account.personalFirstNameLabel"|trans }}
+                    {{ "account.personalFirstNameLabel"|trans }}{{ "general.required"|trans }}
                 </label>
             {% endblock %}
 
@@ -85,7 +85,7 @@
                        class="form-control{% if formViolations.getViolations('/firstName') is not empty %} is-invalid{% endif %}"
                        autocomplete="section-personal given-name"
                        id="{{ prefix }}personalFirstName"
-                       placeholder="{{ "account.personalFirstNamePlaceholder"|trans }}{{ "account.required"|trans }}"
+                       placeholder="{{ "account.personalFirstNamePlaceholder"|trans }}{{ "general.required"|trans }}"
                        name="{% if prefix %}{{ prefix }}[firstName]{% else %}firstName{% endif %}"
                        value="{{ data.get('firstName') }}"
                        required="required">
@@ -106,7 +106,7 @@
             {% block component_address_personal_fields_last_name_label %}
                 <label class="form-label"
                        for="{{ prefix }}personalLastName">
-                    {{ "account.personalLastNameLabel"|trans }}
+                    {{ "account.personalLastNameLabel"|trans }}{{ "general.required"|trans }}
                 </label>
             {% endblock %}
 
@@ -115,7 +115,7 @@
                        class="form-control{% if formViolations.getViolations('/lastName') is not empty %} is-invalid{% endif %}"
                        autocomplete="section-personal family-name"
                        id="{{ prefix }}personalLastName"
-                       placeholder="{{ "account.personalLastNamePlaceholder"|trans }}{{ "account.required"|trans }}"
+                       placeholder="{{ "account.personalLastNamePlaceholder"|trans }}{{ "general.required"|trans }}"
                        name="{% if prefix %}{{ prefix }}[lastName]{% else %}lastName{% endif %}"
                        value="{{ data.get('lastName') }}"
                        required="required">
@@ -135,7 +135,7 @@
         {% if showBirthdayField %}
             {% block component_address_personal_fields_birthday_label %}
                 <label for="{{ prefix }}personalBirthday">
-                    {{ "account.personalBirthdayLabel"|trans }}{{ "account.required"|trans }}
+                    {{ "account.personalBirthdayLabel"|trans }}{{ "general.required"|trans }}
                 </label>
             {% endblock %}
 

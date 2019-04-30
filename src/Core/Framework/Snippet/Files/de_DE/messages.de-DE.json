@@ -22,6 +22,7 @@
         "back": "Zurück",
         "categories": "Kategorien",
         "showCategory": "%category% anzeigen",
+        "required": "*",
         "requiredFields": "* hierbei handelt es sich um ein Pflichtfeld"
     },
     "header": {
@@ -70,7 +71,6 @@
         "registerAdvantage2": "Speichern Sie Ihre Benutzerdaten und Einstellungen",
         "registerAdvantage3": "Einblick in Ihre Bestellungen inkl. Sendungsauskunft",
         "registerAdvantage4": "Verwalten Sie Ihr Newsletter-Abo",
-        "required": "*",
         "registerPersonalHeader": "Ich bin Neukunde",
         "registerAddressBillingHeader": "Ihre Adresse",
         "registerAddressShippingHeader": "Ihre abweichende Lieferadresse",

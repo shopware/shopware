@@ -76,7 +76,7 @@
                                     <div class="form-group newsletter-email">
                                         {% block page_newsletter_form_field_email_label %}
                                             <label class="form-label" for="newsletterMail">
-                                                {{ "account.personalMailLabel"|trans }}
+                                                {{ "account.personalMailLabel"|trans }}{{ "general.required"|trans }}
                                             </label>
                                         {% endblock %}
 
@@ -84,7 +84,7 @@
                                             <input name="email"
                                                    type="email"
                                                    id="newsletterMail"
-                                                   placeholder="{{ "account.personalMailPlaceholder"|trans }}{{ "general.star"|trans }}"
+                                                   placeholder="{{ "account.personalMailPlaceholder"|trans }}{{ "general.required"|trans }}"
                                                    required="required"
                                                    value="{{ data.get('email') }}"
                                                    class="form-control{% if formViolations.getViolations('/email') %} is-invalid{% endif %}"/>

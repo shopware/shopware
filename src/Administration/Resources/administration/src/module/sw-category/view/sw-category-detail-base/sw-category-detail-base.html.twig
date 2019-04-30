@@ -39,9 +39,10 @@
 
                         {% block sw_category_detail_information_type_helptext %}
                             <sw-help-text
-                                :width="200"
+                                class="sw-category-detail-base__type-helptext"
+                                :text="$tc('sw-category.base.general.types.help')"
                                 tooltipPosition="top"
-                                :text="$tc('sw-category.base.general.types.help')">
+                                :width="200">
                             </sw-help-text>
                         {% endblock %}
 
@@ -49,7 +50,7 @@
                 {% endblock %}
 
                 {% block sw_category_detail_information_tags %}
-                    <sw-tag-field :entity="category"></sw-tag-field>
+                    <sw-tag-field class="sw-category-detail-base__tags" :entity="category"></sw-tag-field>
                 {% endblock %}
 
             </sw-card>
@@ -62,7 +63,9 @@
                 :isLoading="isLoading">
 
                 {% block sw_category_detail_entry_point_headline %}
-                    <p class="sw-category-detail-base__sales-channel-desc">{{ $tc('sw-category.base.entry-point.descriptionGeneral') }}</p>
+                    <p class="sw-category-detail-base__sales-channel-desc">
+                        {{ $tc('sw-category.base.entry-point.descriptionGeneral') }}
+                    </p>
                 {% endblock %}
 
                 {% block sw_category_detail_entry_point_list %}
@@ -78,7 +81,9 @@
                 {% endblock %}
 
                 {% block sw_category_detail_entry_point_description %}
-                    <p class="sw-category-detail-base__sales-channel-desc-menu">{{ $tc('sw-category.base.entry-point.descriptionMenu') }}</p>
+                    <p class="sw-category-detail-base__sales-channel-desc-menu">
+                        {{ $tc('sw-category.base.entry-point.descriptionMenu') }}
+                    </p>
                 {% endblock %}
             </sw-card>
         {% endblock %}
@@ -204,7 +209,7 @@
                 :title="$tc('sw-category.base.products.productAssignmentHeadline')">
 
                 {% block sw_category_detail_products_search %}
-                    <div class="sw-category-detail__product-search">
+                    <div class="sw-category-detail-base__product-search">
                         <sw-category-select
                             ref="productAssignmentSelect"
                             :categoryId="category.id"
@@ -222,7 +227,7 @@
                     {% block sw_category_detail_products_search_remove %}
                         <sw-button
                             v-if="products.length"
-                            class="sw-category-detail__multi-delete"
+                            class="sw-category-detail-base__product-delete"
                             :disabled="deleteButtonDisabled"
                             @click="onRemoveProducts"
                             size="small"

@@ -50,12 +50,11 @@ Component.register('sw-plugin-box', {
         },
 
         checkPluginConfig() {
-            // TODO: problem with check for config since 25.04.19 => have to wait for solution
-            // const domain = this.systemConfigApiService.getDomainFromNamespace(this.plugin.name);
-            //
-            // this.systemConfigApiService.getConfig(domain).then(() => {
-            //     this.hasPluginConfig = true;
-            // });
+            this.systemConfigApiService.checkConfig(`${this.plugin.name}.config`).then((response) => {
+                this.hasPluginConfig = response.data;
+            }).catch(() => {
+                this.hasPluginConfig = false;
+            });
         }
     }
 });

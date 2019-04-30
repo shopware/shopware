@@ -104,7 +104,7 @@ class PluginServiceTest extends TestCase
         /** @var PluginEntity $plugin */
         $plugin = $this->pluginRepo->search(new Criteria(), $this->context)->first();
 
-        static::assertSame(\SwagTest\SwagTest::class, $plugin->getName());
+        static::assertSame(\SwagTest\SwagTest::class, $plugin->getBaseClass());
         static::assertSame(\SwagTest\SwagTest::PLUGIN_LABEL, $plugin->getLabel());
         static::assertSame(\SwagTest\SwagTest::PLUGIN_VERSION, $plugin->getUpgradeVersion());
     }
@@ -128,6 +128,7 @@ class PluginServiceTest extends TestCase
             [
                 [
                     'name' => 'SwagFoo',
+                    'baseClass' => 'SwagFoo\\SwagFoo',
                     'version' => '1.1.1',
                     'label' => 'Foo Label',
                     'autoload' => [],
@@ -151,7 +152,7 @@ class PluginServiceTest extends TestCase
         $this->createPlugin($this->pluginRepo, $this->context);
 
         /** @var PluginEntity $plugin */
-        $plugin = $this->pluginService->getPluginByName(\SwagTest\SwagTest::class, $this->context);
+        $plugin = $this->pluginService->getPluginByName('SwagTest', $this->context);
 
         $this->performDefaultTests($plugin);
     }
@@ -167,14 +168,14 @@ class PluginServiceTest extends TestCase
 
     private function performDefaultTests(PluginEntity $plugin): void
     {
-        static::assertSame(\SwagTest\SwagTest::class, $plugin->getName());
+        static::assertSame(\SwagTest\SwagTest::class, $plugin->getBaseClass());
         static::assertSame(\SwagTest\SwagTest::PLUGIN_LABEL, $plugin->getLabel());
         static::assertSame(\SwagTest\SwagTest::PLUGIN_VERSION, $plugin->getVersion());
     }
 
     private function performDefaultGermanTests(PluginEntity $plugin): void
     {
-        static::assertSame(\SwagTest\SwagTest::class, $plugin->getName());
+        static::assertSame(\SwagTest\SwagTest::class, $plugin->getBaseClass());
         static::assertSame(\SwagTest\SwagTest::PLUGIN_GERMAN_LABEL, $plugin->getLabel());
         static::assertSame(\SwagTest\SwagTest::PLUGIN_VERSION, $plugin->getVersion());
     }

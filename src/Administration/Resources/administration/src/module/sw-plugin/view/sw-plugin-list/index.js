@@ -76,6 +76,7 @@ Component.register('sw-plugin-list', {
                         title: this.$tc('sw-plugin.list.titleDeactivateSuccess'),
                         message: this.$tc('sw-plugin.list.messageDeactivateSuccess')
                     });
+                    this.getList();
                 });
             } else {
                 this.pluginService.activate(plugin.name).then(() => {
@@ -83,6 +84,7 @@ Component.register('sw-plugin-list', {
                         title: this.$tc('sw-plugin.list.titleActivateSuccess'),
                         message: this.$tc('sw-plugin.list.messageActivateSuccess')
                     });
+                    this.getList();
                 });
             }
         },
@@ -173,19 +175,16 @@ Component.register('sw-plugin-list', {
                     return;
                 }
 
-                // TODO: replace n requests with one request
-                this.getConfig(plugin.name).then((returnedConfig) => {
+                this.systemConfigApiService.checkConfig(`${plugin.name}.config`).then((response) => {
                     plugin.customFields = {
-                        config: returnedConfig[0]
+                        configAvailable: response
                     };
                 }).catch(() => {
-                    // nth
+                    plugin.customFields = {
+                        configAvailable: false
+                    };
                 });
             });
-        },
-
-        getConfig(pluginName) {
-            return this.systemConfigApiService.getConfig(`bundle.${pluginName}`);
         }
     }
 });

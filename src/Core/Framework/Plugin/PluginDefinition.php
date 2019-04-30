@@ -43,6 +43,7 @@ class PluginDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new StringField('base_class', 'baseClass'))->addFlags(new Required()),
             (new StringField('name', 'name'))->addFlags(new Required()),
             new StringField('composer_name', 'composerName'),
             (new JsonField('autoload', 'autoload'))->addFlags(new Required()),

@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\SystemConfig\Service;
 
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\Exception\BundleNotFoundException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
@@ -28,6 +29,8 @@ class ConfigurationService
 
     /**
      * @throws BundleNotFoundException
+     * @throws \InvalidArgumentException
+     * @throws BundleConfigNotFoundException
      */
     public function getConfiguration(string $domain): array
     {
@@ -59,6 +62,17 @@ class ConfigurationService
         }
 
         return $config;
+    }
+
+    public function checkConfiguration(string $domain): bool
+    {
+        try {
+            $this->getConfiguration($domain);
+
+            return true;
+        } catch (\InvalidArgumentException | BundleNotFoundException | BundleConfigNotFoundException $e) {
+            return false;
+        }
     }
 
     private function getBundle(string $bundleName): ?BundleInterface

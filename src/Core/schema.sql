@@ -1,6 +1,7 @@
 CREATE TABLE `plugin` (
     `id`                  BINARY(16)                              NOT NULL,
     `name`                VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+    `base_class`          VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
     `composer_name`       VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL,
     `active`              TINYINT(1)                              NOT NULL DEFAULT 0,
     `managed_by_composer` TINYINT(1)                              NOT NULL DEFAULT 0,
@@ -18,6 +19,7 @@ CREATE TABLE `plugin` (
     `updated_at`          DATETIME(3)                             NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `uniq.name` (`name`),
+    UNIQUE KEY `uniq.baseClass` (`base_class`),
     CONSTRAINT `json.autoload` CHECK (JSON_VALID(`autoload`))
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 

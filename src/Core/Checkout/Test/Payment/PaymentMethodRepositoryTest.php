@@ -224,6 +224,7 @@ class PaymentMethodRepositoryTest extends TestCase
             'id' => $pluginId,
             'label' => 'testPlugin',
             'name' => 'testPluginName',
+            'baseClass' => 'TestPlugin\\TestPlugin',
             'version' => 'version',
             'autoload' => [],
         ]], $context);

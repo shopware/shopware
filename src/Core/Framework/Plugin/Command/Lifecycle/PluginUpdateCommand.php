@@ -26,17 +26,17 @@ class PluginUpdateCommand extends AbstractPluginLifecycleCommand
         $context = Context::createDefaultContext();
         $plugins = $this->prepareExecution(self::LIFECYCLE_METHOD, $io, $input, $context);
 
-        $updated = 0;
+        $updatedPluginCount = 0;
         /** @var PluginEntity $plugin */
         foreach ($plugins as $plugin) {
             $this->pluginLifecycleService->updatePlugin($plugin, $context);
-            ++$updated;
+            ++$updatedPluginCount;
 
-            $io->text(sprintf('Plugin "%s" has been updated successfully.', $plugin->getLabel()));
+            $io->text(sprintf('Plugin "%s" has been updated successfully.', $plugin->getName()));
         }
 
-        if ($updated !== 0) {
-            $io->success(sprintf('Updated %d plugin(s).', $updated));
+        if ($updatedPluginCount !== 0) {
+            $io->success(sprintf('Updated %d plugin(s).', $updatedPluginCount));
         }
     }
 }

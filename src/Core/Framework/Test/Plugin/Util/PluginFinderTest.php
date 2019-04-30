@@ -34,6 +34,6 @@ class PluginFinderTest extends TestCase
         );
 
         static::assertCount(1, $plugins);
-        static::assertSame($plugins['Works\Works']->getName(), 'Works\Works');
+        static::assertSame($plugins['Works\Works']->getBaseClass(), 'Works\Works');
     }
 }

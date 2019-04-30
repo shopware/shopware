@@ -69,7 +69,7 @@ class PluginFinder
             $pluginName = $this->getPluginNameFromPackage($package);
 
             $plugins[$pluginName] = (new PluginFromFileSystemStruct())->assign([
-                'name' => $pluginName,
+                'baseClass' => $pluginName,
                 'path' => $filesystemPlugin->getPathname(),
                 'managedByComposer' => false,
                 'composerPackage' => $package,
@@ -120,9 +120,9 @@ class PluginFinder
                 continue;
             }
 
-            $pluginName = $this->getPluginNameFromPackage($composerPackage);
-            $plugins[$pluginName] = (new PluginFromFileSystemStruct())->assign([
-                'name' => $pluginName,
+            $pluginBaseClass = $this->getPluginNameFromPackage($composerPackage);
+            $plugins[$pluginBaseClass] = (new PluginFromFileSystemStruct())->assign([
+                'baseClass' => $pluginBaseClass,
                 'path' => $pluginPath,
                 'managedByComposer' => true,
                 'composerPackage' => $composerPackage,

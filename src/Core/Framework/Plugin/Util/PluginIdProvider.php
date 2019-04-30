@@ -22,7 +22,7 @@ class PluginIdProvider
     public function getPluginIdByBaseClass(string $pluginBaseClassName, Context $context): string
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('name', $pluginBaseClassName));
+        $criteria->addFilter(new EqualsFilter('baseClass', $pluginBaseClassName));
         $pluginIds = $this->pluginRepo->searchIds($criteria, $context)->getIds();
 
         return array_pop($pluginIds);

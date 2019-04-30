@@ -7,6 +7,17 @@ class SystemConfigApiService extends ApiService {
         this.name = 'systemConfigApiService';
     }
 
+    checkConfig(domain, additionalParams = {}, additionalHeaders = {}) {
+        return this.httpClient
+            .get('_action/system-config/check', {
+                params: { domain, ...additionalParams },
+                headers: this.getBasicHeaders(additionalHeaders)
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
     getConfig(domain, additionalParams = {}, additionalHeaders = {}) {
         return this.httpClient
             .get('_action/system-config/schema', {

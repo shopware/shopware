@@ -10,7 +10,7 @@ class PluginFromFileSystemStruct extends Struct
     /**
      * @var string
      */
-    protected $name;
+    protected $baseClass;
 
     /**
      * @var string
@@ -27,9 +27,9 @@ class PluginFromFileSystemStruct extends Struct
      */
     protected $composerPackage;
 
-    public function getName(): string
+    public function getBaseClass(): string
     {
-        return $this->name;
+        return $this->baseClass;
     }
 
     public function getPath(): string
@@ -45,5 +45,14 @@ class PluginFromFileSystemStruct extends Struct
     public function getComposerPackage(): CompletePackageInterface
     {
         return $this->composerPackage;
+    }
+
+    public function getName(): string
+    {
+        $baseClass = $this->baseClass;
+
+        $pos = strrpos($baseClass, '\\');
+
+        return $pos === false ? $this->baseClass : substr($this->baseClass, $pos + 1);
     }
 }

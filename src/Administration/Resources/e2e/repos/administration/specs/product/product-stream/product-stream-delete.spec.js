@@ -21,7 +21,7 @@ module.exports = {
 
         browser
             .assert.urlContains('#/sw/product/stream/index')
-            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Dynamic product groups (1)');
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Dynamic product groups');
         browser.expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
     },
     'verify product stream details': (browser) => {

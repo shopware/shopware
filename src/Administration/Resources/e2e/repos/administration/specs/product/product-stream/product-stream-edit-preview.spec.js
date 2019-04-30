@@ -38,7 +38,7 @@ module.exports = {
             .fillField('input[name=sw-field--productStream-name]', 'Edited product stream', true)
             .fillField('textarea[name=sw-field--productStream-description]', 'The product stream was edited by an e2e test', true)
             .click(page.elements.streamSaveAction)
-            .checkNotification('The product stream "Edited product stream" has been saved successfully.');
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium');
     },
     'create simple product filter': (browser) => {
         const page = productStreamPage(browser);

@@ -17,8 +17,9 @@ class ProductStreamPageObject extends GeneralPageObject {
         this.browser
             .fillField('input[name=sw-field--productStream-name]', name)
             .fillField('textarea[name=sw-field--productStream-description]', description)
+            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .click(this.elements.streamSaveAction)
-            .checkNotification(`The product stream "${name}" has been saved successfully.`);
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium');
     }
 
     deleteProductStream(productStreamName) {

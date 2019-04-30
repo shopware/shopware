@@ -24,6 +24,8 @@ Component.register('sw-product-stream-detail', {
             // conditionsStore will not be used for product stream conditions
             conditionStore: {},
             isLoading: false,
+            isSaveLoading: false,
+            isSaveSuccessful: false,
             treeConfig: {
                 entityName: 'product-stream',
                 conditionIdentifier: 'filters',
@@ -146,31 +148,30 @@ Component.register('sw-product-stream-detail', {
             this.loadEntityData();
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+        },
+
         onSave() {
             const productStreamName = this.productStream.name;
-            const titleSaveSuccess = this.$tc('sw-product-stream.detail.titleSaveSuccess');
-            const messageSaveSuccess = this.$tc(
-                'sw-product-stream.detail.messageSaveSuccess', 0, { name: productStreamName }
-            );
             const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');
             const messageSaveError = this.$tc(
                 'global.notification.notificationSaveErrorMessage', 0, { entityName: productStreamName }
             );
-
+            this.isSaveLoading = true;
             const deletions = this.createDeletionQueue();
+            this.isSaveSuccessful = false;
 
             return this.productStream.save().then(() => {
+                this.isSaveLoading = false;
+                this.isSaveSuccessful = true;
                 this.syncDeletions(deletions);
-
-                this.createNotificationSuccess({
-                    title: titleSaveSuccess,
-                    message: messageSaveSuccess
-                });
             }).catch((exception) => {
                 this.createNotificationError({
                     title: titleSaveError,
                     message: messageSaveError
                 });
+                this.isSaveLoading = false;
                 warn(this._name, exception.message, exception.response);
             });
         },

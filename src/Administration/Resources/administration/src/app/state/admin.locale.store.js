@@ -53,8 +53,6 @@ export default {
                 return;
             }
 
-            const contextService = Application.getContainer('service').context;
-            contextService.languageId = languageId;
             state.languageId = languageId;
             state.currentLocale = locale;
             Application.getContainer('factory').locale.storeCurrentLocale(state.currentLocale);

@@ -46,14 +46,5 @@ Module.register('sw-settings-customer-group', {
                 parentPath: 'sw.settings.customer.group.index'
             }
         }
-    },
-
-    navigation: [{
-        id: 'sw-settings-customer-group',
-        icon: 'default-action-settings',
-        label: 'sw-settings-customer-group.general.mainMenuItemGeneral',
-        color: '#9AA8B5',
-        path: 'sw.settings.customer.group.index',
-        parent: 'sw-settings'
-    }]
+    }
 });

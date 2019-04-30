@@ -34,14 +34,5 @@ Module.register('sw-settings-privacy', {
                 parentPath: 'sw.settings.index'
             }
         }
-    },
-
-    navigation: [{
-        id: 'sw-settings-privacy',
-        icon: 'default-action-settings',
-        label: 'sw-settings-privacy.general.mainMenuItemGeneral',
-        color: '#9AA8B5',
-        path: 'sw.settings.privacy.index',
-        parent: 'sw-settings'
-    }]
+    }
 });

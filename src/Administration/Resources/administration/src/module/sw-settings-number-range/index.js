@@ -45,14 +45,5 @@ Module.register('sw-settings-number-range', {
                 parentPath: 'sw.settings.number.range.index'
             }
         }
-    },
-
-    navigation: [{
-        label: 'sw-settings-number-range.general.mainMenuItemGeneral',
-        id: 'sw-settings-number-range',
-        color: '#9AA8B5',
-        icon: 'default-action-settings',
-        path: 'sw.settings.number.range.index',
-        parent: 'sw-settings'
-    }]
+    }
 });

@@ -57,13 +57,5 @@ Module.register('sw-settings-attribute', {
                 parentPath: 'sw.settings.attribute.index'
             }
         }
-    },
-
-    navigation: [{
-        label: 'sw-settings-attribute.general.mainMenuItemGeneral',
-        color: '#9AA8B5',
-        icon: 'default-action-settings',
-        path: 'sw.settings.attribute.index',
-        parent: 'sw-settings'
-    }]
+    }
 });

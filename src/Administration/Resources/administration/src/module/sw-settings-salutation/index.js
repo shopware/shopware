@@ -46,14 +46,5 @@ Module.register('sw-settings-salutation', {
                 parentPath: 'sw.settings.salutation.index'
             }
         }
-    },
-
-    navigation: [{
-        id: 'sw-settings-salutation',
-        icon: 'default-action-settings',
-        label: 'sw-settings-salutation.general.mainMenuItemGeneral',
-        color: '#9AA8B5',
-        path: 'sw.settings.salutation.index',
-        parent: 'sw-settings'
-    }]
+    }
 });

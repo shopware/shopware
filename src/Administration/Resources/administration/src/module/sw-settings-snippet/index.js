@@ -57,14 +57,5 @@ Module.register('sw-settings-snippet', {
                 parentPath: 'sw.settings.snippet.list'
             }
         }
-    },
-
-    navigation: [{
-        id: 'sw-settings-snippet',
-        icon: 'default-action-settings',
-        label: 'sw-settings-snippet.general.mainMenuItemGeneral',
-        color: '#9AA8B5',
-        path: 'sw.settings.snippet.index',
-        parent: 'sw-settings'
-    }]
+    }
 });

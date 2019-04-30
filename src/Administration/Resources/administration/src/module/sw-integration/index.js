@@ -30,12 +30,5 @@ Module.register('sw-integration', {
                 parentPath: 'sw.settings.index'
             }
         }
-    },
-
-    navigation: [{
-        path: 'sw.integration.index',
-        label: 'sw-integration.general.mainMenuItemIndex',
-        id: 'sw-integration',
-        parent: 'sw-settings'
-    }]
+    }
 });

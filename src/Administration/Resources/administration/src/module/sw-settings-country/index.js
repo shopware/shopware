@@ -45,14 +45,5 @@ Module.register('sw-settings-country', {
                 parentPath: 'sw.settings.country.index'
             }
         }
-    },
-
-    navigation: [{
-        label: 'sw-settings-country.general.mainMenuItemGeneral',
-        id: 'sw-settings-country',
-        color: '#9AA8B5',
-        icon: 'default-action-settings',
-        path: 'sw.settings.country.index',
-        parent: 'sw-settings'
-    }]
+    }
 });

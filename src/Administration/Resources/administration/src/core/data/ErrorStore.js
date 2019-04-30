@@ -1,131 +1,192 @@
 /**
  * @module core/data/ErrorStore
  */
-import { State } from 'src/core/shopware';
-import utils from 'src/core/service/util.service';
+import ShopwareError from 'src/core/data/ShopwareError';
 
 class ErrorStore {
     constructor() {
         this.errors = {
-            system: []
+            system: {},
+            api: {},
+            validation: {}
         };
+    }
 
-        this.formErrors = {};
+    /**
+     * Translates an error from the api to a ShopwareError object
+     * @param {Object} apiError
+     * @param {string} root
+     * @return {ShopwareError}
+     */
+    static transformApiError(apiError, root) {
+        let propertyPath = '';
+        const pathElements = apiError.source.pointer.split('/');
+        pathElements.shift();
 
-        this.errorTemplate = {
-            code: 0,
-            type: '',
-            title: '',
-            detail: '',
-            id: null,
-            propertyDepth: [],
-            propertyPath: '',
-            status: ''
-        };
+        if (root) {
+            propertyPath = `${root}.`;
+        }
+
+        propertyPath = `${propertyPath}${pathElements.join('.')}`;
+
+        return { propertyPath, shopwareError: new ShopwareError(apiError) };
     }
 
     /**
      * Registers the data binding of a field component to automatically match new errors.
      *
      * @param {String} expression
-     * @return {*}
+     * @return {ShopwareError}
      */
     registerFormField(expression) {
-        if (!this.formErrors[expression]) {
-            this.formErrors[expression] = Object.assign({}, this.errorTemplate);
-        }
-
-        return this.formErrors[expression];
+        return ErrorStore.createAtPath(expression, this.errors.api);
     }
 
     /**
      * Add a new error to the store.
      *
-     * @param {Object} payload
+     * @param {string} expression
+     * @param {ShopwareError} error
+     * @param {string} type
      * @return {boolean}
      */
-    addError(payload) {
-        if (!payload.error) {
-            return false;
-        }
+    setErrorData() {
+        console.warn('setErrorData must be overiden by your concrete implementation of the error store');
+    }
 
-        const error = payload.error;
-        const type = payload.type || 'system';
-
-        error.id = utils.createId();
-        error.type = type;
-
-        if (!this.errors[type]) {
-            this.errors[type] = {};
-        }
-
-        if (type !== 'system' && error.source && error.source.pointer) {
-            error.propertyDepth = error.source.pointer.split('/');
-            error.propertyPath = `${type}${error.propertyDepth.join('.')}`;
-
-            if (typeof this.formErrors[error.propertyPath] !== 'undefined') {
-                Object.assign(this.formErrors[error.propertyPath], error);
-            }
-
-            error.propertyDepth.reduce((obj, key, i) => {
-                if (!key.length || key.length <= 0) {
-                    return obj;
-                }
-
-                obj[key] = (i === error.propertyDepth.length - 1) ? error : {};
-
-                return obj[key];
-            }, this.errors[type]);
-        } else {
-            this.errors.system.push(error);
-
-            /**
-             * System errors will trigger a notification to display the error.
-             */
-            State.getStore('notification').createNotification({
-                variant: 'error',
-                title: error.title,
-                message: error.detail
-            });
-        }
-
-        return error;
+    /**
+     * Sets an error back to default state.
+     *
+     * @param {string} expression
+     * @param {string} type
+     * @return {boolean}
+     */
+    resetError(expression, type) {
+        return ErrorStore.createAtPath(expression, this.errors[type]);
     }
 
     /**
      * Remove an error from the store.
      *
-     * @param {Object} error
+     * @param {string} expression
+     * @param {string} type
      * @return {boolean}
      */
-    deleteError(error) {
-        if (!error || !error.type) {
+    deleteError() {
+        console.warn('deleteError must be overiden by your concrete implementation of the error store');
+    }
+
+    /**
+     * Returns the error of a store or null if it does not exist
+     *
+     * @param expression
+     * @param store
+     * @returns {ShopwareError | null}
+     * @protected
+     */
+    static getFromPath(expression, store) {
+        const path = expression.split('.');
+        return path.reduce(ErrorStore.resolvePath, store);
+    }
+
+    /**
+     * @param {string} expression
+     * @returns {{path: array, errorName: string}}
+     * @protected
+     */
+    static getPathAndName(expression) {
+        const path = expression.split('.');
+        const errorName = path.pop();
+
+        return { path, errorName };
+    }
+
+    /**
+     * @param expression
+     * @param store
+     * @returns { { container: Object | null, errorName: String }}
+     * @protected
+     */
+    static getErrorContainer(expression, store) {
+        const { path, errorName } = ErrorStore.getPathAndName(expression);
+
+        const container = path.reduce(ErrorStore.resolvePath, store);
+        return { container, path, errorName };
+    }
+
+    /**
+     * Return a new ShopwareError in a given store
+     *
+     * @param {string} expression
+     * @param {Object} store
+     * @param {function} setReactive
+     * @returns {ShopwareError}
+     * @protected
+     */
+    static createAtPath(expression, store, setReactive = Object.defineProperty) {
+        const { path, errorName } = ErrorStore.getPathAndName(expression);
+
+        const endpoint = path.reduce((currentPointer, nextPath) => {
+            if (ErrorStore.isUdef(currentPointer[nextPath])) {
+                setReactive(currentPointer, nextPath, {});
+            }
+
+            return currentPointer[nextPath];
+        }, store);
+
+        setReactive(endpoint, errorName, new ShopwareError());
+        return endpoint[errorName];
+    }
+
+    /**
+     *
+     * @param {string} expression
+     * @param {Object} store
+     * @param {function} deleteReactive
+     * @protected
+     */
+    static deleteAtPath(expression, store, deleteReactive = null) {
+        const { container, path, errorName } = ErrorStore.getErrorContainer(expression, store);
+
+        // already deleted
+        if (container === null || !container.hasOwnProperty(errorName)) {
             return false;
         }
 
-        if (typeof this.formErrors[error.propertyPath] !== 'undefined') {
-            Object.assign(this.formErrors[error.propertyPath], this.errorTemplate);
-        }
-
-        if (error.type === 'system') {
-            this.errors.system = this.errors.system.filter((item) => {
-                return item.id !== error.id;
-            });
+        if (typeof deleteReactive === 'function') {
+            deleteReactive(container, errorName);
         } else {
-            error.propertyDepth.reduce((obj, key, index) => {
-                if (!key.length || key.length <= 0) {
-                    return obj;
-                }
-
-                if (index === error.propertyDepth.length - 1 && obj[key]) {
-                    delete obj[key];
-                }
-
-                return (obj !== null && obj[key]) ? obj[key] : null;
-            }, this.errors[error.type]);
+            delete container[errorName];
         }
 
-        return true;
+        if (Object.keys(container).length > 0) {
+            return true;
+        }
+
+        return ErrorStore.deleteAtPath(path.join('.'), store, deleteReactive);
+    }
+
+    /**
+     * @param pointer
+     * @returns {boolean}
+     * @private
+     */
+    static isUdef(pointer) {
+        return pointer === null || pointer === undefined;
+    }
+
+    /**
+     * @param currentPointer
+     * @param next
+     * @returns {null}
+     * @private
+     */
+    static resolvePath(currentPointer, next) {
+        if (ErrorStore.isUdef(currentPointer)) {
+            return null;
+        }
+
+        return currentPointer.hasOwnProperty(next) ? currentPointer[next] : null;
     }
 }
 

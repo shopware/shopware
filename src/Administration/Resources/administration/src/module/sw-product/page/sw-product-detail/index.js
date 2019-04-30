@@ -1,5 +1,4 @@
 import { Component, Mixin, State } from 'src/core/shopware';
-import { warn } from 'src/core/service/utils/debug.utils';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-product-detail.html.twig';
 
@@ -166,7 +165,6 @@ Component.register('sw-product-detail', {
                     title: titleSaveError,
                     message: messageSaveError
                 });
-                warn(this._name, exception.message, exception.response);
                 this.isLoading = false;
                 throw exception;
             });

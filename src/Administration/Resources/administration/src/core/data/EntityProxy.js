@@ -7,6 +7,7 @@ import CriteriaFactory from 'src/core/factory/criteria.factory';
 import ApiService from 'src/core/service/api.service';
 import AssociationStore from './AssociationStore';
 import EntityStore from './EntityStore';
+import ErrorStore from './ErrorStore';
 
 /**
  * @module core/data/EntityProxy
@@ -469,7 +470,7 @@ export default class EntityProxy {
     handleException(exception) {
         if (exception.response.data && exception.response.data.errors) {
             exception.response.data.errors.forEach((error) => {
-                this.addError(error);
+                this.setErrorData(error);
             });
         }
 
@@ -483,17 +484,15 @@ export default class EntityProxy {
      * @param {Object} error
      * @return {void}
      */
-    addError(error) {
+    setErrorData(error) {
         if (error.id && this.errors.map(obj => obj.id).includes(error.id)) {
             return;
         }
-
         this.errors.push(error);
 
-        State.getStore('error').addError({
-            type: this.getEntityName(),
-            error
-        });
+        const errorStore = State.getStore('error');
+        const { propertyPath, shopwareError } = ErrorStore.transformApiError(error, this.getEntityName());
+        errorStore.setErrorData(propertyPath, shopwareError, 'api');
     }
 
     /**

@@ -33,9 +33,11 @@ export default {
         },
 
         error: {
-            type: [String, Object],
+            type: [Object],
             required: false,
-            default: null
+            default() {
+                return null;
+            }
         },
 
         disabled: {
@@ -77,7 +79,7 @@ export default {
         },
 
         hasError() {
-            return !!this.errorMessage || !!this.error;
+            return !!this.errorMessage || (this.error && this.error.code !== 0);
         },
 
         swFieldClasses() {

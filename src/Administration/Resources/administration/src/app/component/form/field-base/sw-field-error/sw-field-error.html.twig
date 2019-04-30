@@ -1,10 +1,5 @@
 {% block sw_field_error %}
-    <div class="sw-field__error">
-        <slot name="error">
-            {% block sw_field_slot_error %}
-                <span v-if="errorMessage">{{ errorMessage }}</span>
-                <span v-if="formError.detail">{{ formError.detail }}</span>
-            {% endblock %}
-        </slot>
+    <div class="sw-field__error" v-if="error">
+        {{ error.detail }}
     </div>
 {% endblock %}

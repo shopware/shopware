@@ -64,15 +64,16 @@ Your `<input-field>` can be of different types, this is managed via the `type` a
 Unless defined otherwise, your `<input-field>` will be a text field per default.
 Below you'll find a list of all available `<input-field type="?">`.
 
-| Type        | Options                                          | Renders                | 
-|-------------|--------------------------------------------------|------------------------|
-| int         | disabled, label, helpText                        | Integer field          |
-| text        | copyable, disabled, label, placeholder, helpText | Text field             |
-| select      | options, disabled, label, placeholder, helpText  | Select box             |
-| password    | disabled, label, placeholder, helpText           | Password field         |
-| bool        | disabled, label, helpText                        | Switch                 |
-| float       | disabled, label, helpText                        | Float field            |
-| datetime    | disabled, label, helpText                        | Date-time picker       |
+| Type          | Options                                          | Renders           |
+|---------------|--------------------------------------------------|-------------------|
+| int           | disabled, label, helpText                        | Integer field     |
+| text          | copyable, disabled, label, placeholder, helpText | Text field        |
+| single-select | options, disabled, label, placeholder, helpText  | Single-Select box |
+| multi-select  | options, disabled, label, placeholder, helpText  | Multi-Select box  |
+| password      | disabled, label, placeholder, helpText           | Password field    |
+| bool          | disabled, label, helpText                        | Switch            |
+| float         | disabled, label, helpText                        | Float field       |
+| datetime      | disabled, label, helpText                        | Date-time picker  |
 
 
 ## Options

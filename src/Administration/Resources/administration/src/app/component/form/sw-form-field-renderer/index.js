@@ -45,15 +45,15 @@ import template from './sw-form-field-renderer.html.twig';
  * {# sw-select - multi #}
  * <sw-form-field-renderer
  *         :config="{
- *             componentName: 'sw-select',
+ *             componentName: 'sw-multi-select',
  *             label: {
  *                 'en-GB': 'Multi Select'
  *             },
  *             multi: true,
  *             options: [
- *                 { id: 'option1', name: { 'en-GB': 'One' } },
- *                 { id: 'option2', name: 'Two' },
- *                 { id: 'option3', name: { 'en-GB': 'Three', 'de-DE': 'Drei' } }
+ *                 { value: 'option1', label: { 'en-GB': 'One' } },
+ *                 { value: 'option2', label: 'Two' },
+ *                 { value: 'option3', label: { 'en-GB': 'Three', 'de-DE': 'Drei' } }
  *             ]
  *         }"
  *         v-model="yourValue">
@@ -62,12 +62,12 @@ import template from './sw-form-field-renderer.html.twig';
  * {# sw-select - single #}
  * <sw-form-field-renderer
  *         :config="{
- *             componentName: 'sw-select',
+ *             componentName: 'sw-single-select',
  *             label: 'Single Select',
  *             options: [
- *                 { id: 'option1', name: { 'en-GB': 'One' } },
- *                 { id: 'option2', name: 'Two' },
- *                 { id: 'option3', name: { 'en-GB': 'Three', 'de-DE': 'Drei' } }
+ *                 { value: 'option1', label: { 'en-GB': 'One' } },
+ *                 { value: 'option2', label: 'Two' },
+ *                 { value: 'option3', label: { 'en-GB': 'Three', 'de-DE': 'Drei' } }
  *             ]
  *         }"
  *         v-model="yourValue">
@@ -100,9 +100,34 @@ export default {
             currentComponentName: '',
             swFieldConfig: {},
             currentConfig: {},
-            currentValue: '',
-            bind: {}
+            currentValue: ''
         };
+    },
+
+    computed: {
+        bind() {
+            let bind = { ...this.$attrs, ...this.currentConfig };
+
+            if (this.type && !bind.type) {
+                bind = { ...bind, ...{ type: this.type } };
+            }
+
+            if (Object.keys(this.swFieldConfig).length > 0) {
+                bind = { ...bind, ...this.swFieldConfig };
+            }
+
+            // create stores for sw-select
+            if (this.currentComponentName === 'sw-select') {
+                this.addSwSelectStores(bind);
+            }
+
+            // Set the name as label if no label is passed
+            if (!bind.label) {
+                bind.label = bind.name;
+            }
+
+            return bind;
+        }
     },
 
     watch: {
@@ -117,7 +142,7 @@ export default {
             // this is necessary for languages changes for example
             if (this.component === 'sw-select') {
                 if (this.bind.multi) {
-                    this.addSwSelectAssociationStore(true);
+                    this.addSwSelectAssociationStore(this.bind, true);
                 }
                 this.refreshSwSelectSelections();
             }
@@ -137,7 +162,6 @@ export default {
             this.currentConfig = Object.assign({}, this.config);
 
             this.currentComponentName = this.getComponentName();
-            this.createBind();
         },
         getComponentName() {
             if (this.componentName) {
@@ -173,8 +197,11 @@ export default {
                 this.swFieldConfig = { ...this.swFieldConfig, ...{ type: 'date', dateType: 'datetime' } };
                 return 'sw-field';
             }
-            if (this.type === 'select') {
-                return 'sw-select';
+            if (this.type === 'single-select') {
+                return 'sw-single-select';
+            }
+            if (this.type === 'multi-select') {
+                return 'sw-multi-select';
             }
             const swFieldTypes = [
                 'text',
@@ -206,31 +233,8 @@ export default {
 
             throw new Error(`sw-form-field-renderer - Component with name "${name}" not found`);
         },
-        createBind() {
-            this.bind = { ...this.$attrs, ...this.currentConfig };
-
-            if (this.type && !this.bind.type) {
-                this.bind = { ...this.bind, ...{ type: this.type } };
-            }
-
-            if (Object.keys(this.swFieldConfig).length > 0) {
-                this.bind = { ...this.bind, ...this.swFieldConfig };
-            }
-
-            // create stores for sw-select
-            if (this.component === 'sw-select') {
-                this.addSwSelectStores();
-            }
-
-            // Set the name as label if no label is passed
-            if (!this.bind.label) {
-                this.bind.label = this.bind.name;
-            }
-
-            return this.bind;
-        },
-        addSwSelectStores(override = false) {
-            if (this.bind.store && override === false) {
+        addSwSelectStores(bind, override = false) {
+            if (bind.store && override === false) {
                 return;
             }
 
@@ -238,25 +242,25 @@ export default {
                 throw new Error('sw-form-field-renderer - sw-select component needs options or a store');
             }
 
-            this.bind.store = new LocalStore(this.config.options, 'id', 'name');
+            bind.store = new LocalStore(this.config.options, 'id', 'name');
 
-            if (this.bind.multi) {
-                this.addSwSelectAssociationStore(override);
+            if (bind.multi) {
+                this.addSwSelectAssociationStore(bind, override);
             }
 
             this.refreshSwSelectSelections();
         },
-        addSwSelectAssociationStore(override = false) {
-            if (this.bind.associationStore && override === false) {
+        addSwSelectAssociationStore(bind, override = false) {
+            if (bind.associationStore && override === false) {
                 return;
             }
             const entities = [];
             if (this.value && this.value.length > 0) {
                 this.value.forEach((value) => {
-                    entities.push(this.bind.store.getById(value));
+                    entities.push(bind.store.getById(value));
                 });
             }
-            this.bind.associationStore = new LocalStore(entities);
+            bind.associationStore = new LocalStore(entities);
         },
         refreshSwSelectSelections() {
             this.$nextTick(() => {

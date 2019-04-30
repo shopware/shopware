@@ -33,7 +33,7 @@ Component.register('sw-system-config', {
         inherit: {
             type: Boolean,
             required: false,
-            default: false
+            default: true
         }
     },
 
@@ -119,14 +119,26 @@ Component.register('sw-system-config', {
             this.readAll();
         },
         getElementBind(element) {
+            const bind = Object.assign({}, element);
             // Replace the placeholder with inherited if possible/needed
             if (this.currentSalesChannelId !== null
                     && this.inherit
-                    && this.actualConfigData.hasOwnProperty('null')) {
-                element.placeholder = this.actualConfigData.null[element.name];
+                    && this.actualConfigData.hasOwnProperty('null')
+                    && this.actualConfigData.null[bind.name]) {
+                if (bind.type === 'single-select') {
+                    bind.placeholder = this.$tc('sw-settings.system-config.inherited');
+                } else if (bind.type !== 'multi-select') {
+                    bind.placeholder = `${this.actualConfigData.null[bind.name]}`;
+                }
             }
 
-            return element;
+            // Add single select properties
+            if (['single-select', 'multi-select'].includes(bind.type)) {
+                bind.labelProperty = 'name';
+                bind.valueProperty = 'id';
+            }
+
+            return bind;
         }
     }
 });

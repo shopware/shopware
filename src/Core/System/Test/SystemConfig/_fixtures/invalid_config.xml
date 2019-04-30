@@ -11,7 +11,7 @@
             <copyable>true</copyable>
         </sw-field>
 
-        <sw-field type="select">
+        <sw-field type="single-select">
             <name>mailMethod</name>
             <label>Mailing protocol</label>
             <label lang="de_DE">E-Mail Versand Protokoll</label>

@@ -20,18 +20,21 @@ export default {
         labelProperty: {
             type: String,
             required: false,
-            default: 'value'
+            default: 'label'
         },
         valueProperty: {
             type: String,
             required: false,
-            default: 'key'
+            default: 'value'
         },
         value: {
-            required: false
+            required: false,
+            default() {
+                return [];
+            }
         },
         label: {
-            type: String,
+            type: [String, Object],
             default: ''
         },
         placeholder: {
@@ -126,11 +129,18 @@ export default {
         },
 
         initData() {
-            this.currentOptions = this.options;
-            this.currentValue = this.value;
-            this.invisibleValueCount = this.value.length;
+            this.currentOptions = [];
+            this.options.forEach((item) => {
+                this.currentOptions.push(item);
+            });
 
-            this.loadVisibleItems();
+            // Skip loading visible items if value is null
+            if (this.value !== null) {
+                this.currentValue = this.value;
+                this.invisibleValueCount = this.value.length;
+
+                this.loadVisibleItems();
+            }
         },
 
         loadVisibleItems() {

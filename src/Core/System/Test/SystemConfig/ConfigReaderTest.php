@@ -62,7 +62,7 @@ class ConfigReaderTest extends TestCase
                         ],
                     ],
                     1 => [
-                        'type' => 'select',
+                        'type' => 'single-select',
                         'name' => 'mailMethod',
                         'options' => [
                             0 => [

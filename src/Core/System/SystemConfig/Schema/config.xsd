@@ -46,7 +46,8 @@
             <xs:enumeration value="float"/>
             <xs:enumeration value="datetime"/>
             <xs:enumeration value="password"/>
-            <xs:enumeration value="select"/>
+            <xs:enumeration value="single-select"/>
+            <xs:enumeration value="multi-select"/>
             <xs:enumeration value="textarea"/>
         </xs:restriction>
     </xs:simpleType>

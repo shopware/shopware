@@ -74,7 +74,7 @@
         {% endblock %}
 
         {% block sw_sidebar_sub_items_list %}
-            <ul v-if="sidebarExpanded" class="sw-admin-menu__sub-navigation-list">
+            <ul v-if="sidebarExpanded && entry.children.length > 0" class="sw-admin-menu__sub-navigation-list">
                 <sw-admin-menu-item v-for="entry in entry.children"
                                     :entry="entry"
                                     :key="entry.id || entry.path"

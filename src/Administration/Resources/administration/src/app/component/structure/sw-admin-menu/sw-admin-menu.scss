@@ -262,6 +262,7 @@ $sw-admin-menu-shop-status-ok: $color-emerald;
 
     .sw-admin-menu__flyout-label {
         color: $sw-admin-menu-color-text-primary;
+        border-left: 2px solid $sw-admin-menu-color-text-secondary;
         font-weight: 600;
         font-size: 14px;
         padding: 0 30px;

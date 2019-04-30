@@ -11,8 +11,13 @@
 				{#TODO: add form action and auto submit#}
 				<form id="confirmPaymentForm"
 				      name="confirmPaymentForm"
-				      action="#"
-				      method="post">
+				      action="{{ path('frontend.checkout.configure') }}"
+				      method="post"
+					  data-form-auto-submit="true">
+					{% block page_checkout_confirm_payment_form_redirect %}
+					    <input type="hidden" name="redirectTo" value="{{ 'frontend.checkout.confirm.page' }}">
+                    {% endblock %}
+
 					{% block page_checkout_confirm_payment_form_fields %}
 						{% sw_include '@Storefront/component/payment/payment-fields.html.twig' with {
 							'defaultPaymentMethodId': page.context.paymentMethod.id,

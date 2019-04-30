@@ -76,7 +76,11 @@
           },
 
           "link": {
-            "title": "Benutzerdefinierter Link"
+            "title": "Customizable link",
+            "example": "Example:",
+            "internalExampleText": "/my-category",
+            "externalDesc": "To set external links, insert the complete web address:",
+            "internalDesc": "If you want to create an internal link, just add the path that follows the domain:"
           },
 
           "products": {

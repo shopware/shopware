@@ -96,6 +96,16 @@
         }
     }
 
+    .sw-category-detail-base__link-section {
+        margin-bottom: 16px;
+        line-height: 22px;
+    }
+
+    .sw-category-detail-base__link-element {
+        margin-left: 2px;
+        font-weight: 600;
+    }
+
     .sw-category-detail-base__products {
         &.sw-card .sw-card__content {
             padding: 0;

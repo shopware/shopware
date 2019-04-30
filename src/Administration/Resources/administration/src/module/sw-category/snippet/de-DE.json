@@ -77,7 +77,11 @@
           },
 
           "link": {
-            "title": "Benutzerdefinierter Link"
+            "title": "Benutzerdefinierter Link",
+            "example": "Beispiel:",
+            "internalExampleText": "/meine-kategorie",
+            "externalDesc": "Um externe Links zu setzen, füge die komplette Webadresse ein:",
+            "internalDesc": "Wenn du einen internen Links etzen möchtest, füge nur den Pfad ein der auf die Domain folgt:"
           },
 
           "products": {

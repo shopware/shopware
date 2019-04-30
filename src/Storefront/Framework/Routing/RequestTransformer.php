@@ -97,8 +97,8 @@ class RequestTransformer
         /** @var Statement $statement */
         $statement = $this->connection->createQueryBuilder()
             ->select([
-                'domain.url `key`',
-                'domain.url',
+                'TRIM(TRAILING "/" FROM domain.url) `key`',
+                'TRIM(TRAILING "/" FROM domain.url) url',
                 'LOWER(HEX(domain.id)) id',
                 'LOWER(HEX(sales_channel.id)) salesChannelId',
                 'LOWER(HEX(domain.snippet_set_id)) snippetSetId',

@@ -18,8 +18,7 @@ class Migration1556267051StoreApiUrlSystemConfig extends MigrationStep
     {
         $connection->insert('system_config', [
             'id' => Uuid::randomBytes(),
-            'namespace' => 'privacy',
-            'configuration_key' => 'sbp_store_uri',
+            'configuration_key' => 'core.store.apiUri',
             'configuration_value' => 'https://api.shopware.com',
             'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
         ]);

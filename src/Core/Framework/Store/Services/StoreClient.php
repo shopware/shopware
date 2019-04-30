@@ -9,13 +9,11 @@ use Shopware\Core\Framework\Context\AdminApiSource;
 use Shopware\Core\Framework\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Framework;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Exception\StoreHostMissingException;
 use Shopware\Core\Framework\Store\Exception\StoreSignatureValidationException;
-use Shopware\Core\Framework\Store\StoreSettingsEntity;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
 use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
 use Shopware\Core\Framework\Store\Struct\ShopUserTokenStruct;
@@ -30,7 +28,9 @@ final class StoreClient
     private const SHOPWARE_PLATFORM_TOKEN_HEADER = 'X-Shopware-Platform-Token';
     private const SHOPWARE_SHOP_SECRET_HEADER = 'X-Shopware-Shop-Secret';
     private const SHOPWARE_SIGNATURE_HEADER = 'X-Shopware-Signature';
-    private const SYSTEM_CONFIG_KEY = 'sbp_store_uri';
+
+    private const CONFIG_KEY_STORE_API_URI = 'core.store.apiUri';
+    private const CONFIG_KEY_STORE_LICENSE_HOST = 'core.store.licenseHost';
 
     /**
      * @var Client
@@ -48,11 +48,6 @@ final class StoreClient
     private $pluginRepo;
 
     /**
-     * @var EntityRepositoryInterface
-     */
-    private $storeSettingsRepo;
-
-    /**
      * @var SystemConfigService
      */
     private $configService;
@@ -60,13 +55,11 @@ final class StoreClient
     public function __construct(
         OpenSSLVerifier $openSSLVerifier,
         EntityRepositoryInterface $pluginRepo,
-        EntityRepositoryInterface $storeSettingsRepo,
         SystemConfigService $configService
     ) {
         $this->configService = $configService;
         $this->openSSLVerifier = $openSSLVerifier;
         $this->pluginRepo = $pluginRepo;
-        $this->storeSettingsRepo = $storeSettingsRepo;
         $this->client = $this->getClient();
     }
 
@@ -90,7 +83,7 @@ final class StoreClient
                     'password' => $password,
                     'shopwareUserId' => $context->getSource()->getUserId(),
                 ]),
-                'query' => $this->getDefaultQueryParameters($language, $context),
+                'query' => $this->getDefaultQueryParameters($language),
             ]
         );
         $this->verifyResponseSignature($response);
@@ -112,7 +105,7 @@ final class StoreClient
      */
     public function getLicenseList(string $storeToken, string $language, Context $context): array
     {
-        $shopSecret = $this->getShopSecret($context);
+        $shopSecret = $this->getShopSecret();
 
         $headers = [
             self::SHOPWARE_PLATFORM_TOKEN_HEADER => $storeToken,
@@ -124,7 +117,7 @@ final class StoreClient
         $response = $this->client->get(
             '/swplatform/pluginlicenses',
             [
-                'query' => $this->getDefaultQueryParameters($language, $context),
+                'query' => $this->getDefaultQueryParameters($language),
                 'headers' => array_merge(
                     $this->client->getConfig('headers'),
                     $headers
@@ -196,7 +189,7 @@ final class StoreClient
             return [];
         }
 
-        $shopSecret = $this->getShopSecret($context);
+        $shopSecret = $this->getShopSecret();
 
         $headers = [];
         if ($storeToken) {
@@ -209,7 +202,7 @@ final class StoreClient
         $response = $this->client->post(
             '/swplatform/pluginupdates',
             [
-                'query' => $this->getDefaultQueryParameters($language, $context),
+                'query' => $this->getDefaultQueryParameters($language),
                 'body' => json_encode([
                     'plugins' => $pluginArray,
                 ]),
@@ -235,7 +228,7 @@ final class StoreClient
 
     public function getDownloadDataForPlugin(string $pluginName, string $storeToken, string $language, Context $context): PluginDownloadDataStruct
     {
-        $shopSecret = $this->getShopSecret($context);
+        $shopSecret = $this->getShopSecret();
 
         $headers = [
             self::SHOPWARE_PLATFORM_TOKEN_HEADER => $storeToken,
@@ -247,7 +240,7 @@ final class StoreClient
         $response = $this->client->get(
             '/swplatform/pluginfiles/' . $pluginName,
             [
-                'query' => $this->getDefaultQueryParameters($language, $context),
+                'query' => $this->getDefaultQueryParameters($language),
                 'headers' => array_merge(
                     $this->client->getConfig('headers'),
                     $headers
@@ -263,34 +256,23 @@ final class StoreClient
         return $dataStruct;
     }
 
-    private function getDefaultQueryParameters(string $language, Context $context): array
+    private function getDefaultQueryParameters(string $language): array
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('key', 'host'));
-        $storeSettings = $this->storeSettingsRepo->search($criteria, $context)->first();
-
-        if (!($storeSettings instanceof StoreSettingsEntity)) {
+        $licenseHost = $this->configService->get(self::CONFIG_KEY_STORE_LICENSE_HOST);
+        if (!$licenseHost) {
             throw new StoreHostMissingException();
         }
 
         return [
             'shopwareVersion' => Framework::VERSION,
             'language' => $language,
-            'domain' => $storeSettings->getValue(),
+            'domain' => $licenseHost,
         ];
     }
 
-    private function getShopSecret(Context $context): ?string
+    private function getShopSecret(): ?string
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('key', 'shopSecret'));
-        $storeSettings = $this->storeSettingsRepo->search($criteria, $context)->first();
-
-        if (!($storeSettings instanceof StoreSettingsEntity)) {
-            return null;
-        }
-
-        return $storeSettings->getValue();
+        return $this->configService->get('core.store.shopSecret');
     }
 
     private function verifyResponseSignature(ResponseInterface $response): void
@@ -323,7 +305,7 @@ final class StoreClient
     private function getClient(): Client
     {
         $config = [
-            'base_uri' => $this->configService->get(self::SYSTEM_CONFIG_KEY),
+            'base_uri' => $this->configService->get(self::CONFIG_KEY_STORE_API_URI),
             'headers' => [
                 'Content-Type' => 'application/json',
                 'ACCEPT' => 'application/vnd.api+json,application/json',

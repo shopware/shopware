@@ -1,11 +1,11 @@
-import { Component, Mixin, State } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-plugin-store-login-status.html.twig';
 import './sw-plugin-store-login-status.scss';
 
 Component.register('sw-plugin-store-login-status', {
     template,
 
-    inject: ['storeService'],
+    inject: ['storeService', 'systemConfigApiService'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -17,12 +17,6 @@ Component.register('sw-plugin-store-login-status', {
             showLoginModal: false,
             isLoggedIn: false
         };
-    },
-
-    computed: {
-        storeSettingsStore() {
-            return State.getStore('store_settings');
-        }
     },
 
     created() {
@@ -50,10 +44,10 @@ Component.register('sw-plugin-store-login-status', {
         },
 
         loadShopwareId() {
-            this.storeSettingsStore.getList().then((response) => {
-                const settings = response.items.filter(setting => setting.key === 'shopwareId');
-                if (settings.length === 1) {
-                    this.shopwareId = settings[0].value;
+            this.systemConfigApiService.getValues('core.store').then((response) => {
+                const shopwareId = response['core.store.shopwareId'];
+                if (shopwareId) {
+                    this.shopwareId = shopwareId;
                 }
             });
         },

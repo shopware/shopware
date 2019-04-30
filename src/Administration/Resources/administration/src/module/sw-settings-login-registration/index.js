@@ -29,14 +29,5 @@ Module.register('sw-settings-login-registration', {
                 parentPath: 'sw.settings.index'
             }
         }
-    },
-
-    navigation: [{
-        id: 'sw-settings-login-registration',
-        icon: 'default-action-settings',
-        label: 'sw-settings-login-registration.general.mainMenuItemGeneral',
-        color: '#9AA8B5',
-        path: 'sw.settings.login.registration.index',
-        parent: 'sw-settings'
-    }]
+    }
 });

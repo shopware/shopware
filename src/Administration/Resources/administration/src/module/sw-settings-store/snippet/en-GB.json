@@ -1,16 +1,17 @@
 {
   "sw-settings-store": {
     "general": {
-        "mainMenuItemGeneral": "Shopware Account",
-        "textHeadline": "Shopware Account",
-        "buttonSave": "Save",
-        "titleSave": "Save successful",
-        "messageSave": "Your Shopware Account information has been successfully saved"
+      "mainMenuItemGeneral": "Shopware Account",
+      "textHeadline": "Shopware Account",
+      "description": "Change Shopware Account settings here.",
+      "buttonSave": "Save",
+      "titleSave": "Save successful",
+      "messageSave": "Your Shopware Account information has been successfully saved"
     },
     "detail": {
-        "titleCard": "Settings",
-        "labelHost": "Licensing host",
-        "placeholderHost": "Enter here your hostname, which is stored in your Shopware Account"
+      "titleCard": "Settings",
+      "labelHost": "Licensing host",
+      "placeholderHost": "Enter here your hostname, which is stored in your Shopware Account"
     }
   }
 }

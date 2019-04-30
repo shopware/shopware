@@ -55,6 +55,7 @@ Component.register('sw-plugin-manager', {
 
         successfulUpload() {
             this.$root.$emit('sw-plugin-force-refresh');
+            this.$router.push({ name: 'sw.plugin.index.list' });
         }
     }
 });

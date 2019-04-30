@@ -13,7 +13,7 @@
             <placeholder lang="de-DE">Bitte gib deine E-Mail Adresse ein</placeholder>
         </input-field>
 
-        <input-field type="select">
+        <input-field type="single-select">
             <name>mailMethod</name>
             <options>
                 <option>

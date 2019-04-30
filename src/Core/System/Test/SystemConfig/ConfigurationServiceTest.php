@@ -106,7 +106,7 @@ class ConfigurationServiceTest extends TestCase
                         ],
                     ],
                     1 => [
-                        'type' => 'select',
+                        'type' => 'single-select',
                         'name' => 'SwagExampleTest.mailMethod',
                         'options' => [
                             0 => [

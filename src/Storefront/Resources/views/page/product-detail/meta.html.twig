@@ -23,7 +23,7 @@
     <meta property="product:brand"
           content="{{ page.product.manufacturer.translated.name }}"/>
     <meta property="product:price"
-          content="{{ page.product.price.gross|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}"/>
+          content="{{ page.product.calculatedPrice.unitPrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}"/>
     <meta property="product:product_link"
           content="{{ url('frontend.detail.page', {'productId': page.product.id}) }}"/>
 

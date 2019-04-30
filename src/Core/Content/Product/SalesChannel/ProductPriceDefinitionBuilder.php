@@ -123,13 +123,14 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
         );
     }
 
-    private function getFirstMatchingPriceRule(PriceRuleCollection $rules, SalesChannelContext $context): ?PriceRuleCollection
+    private function getFirstMatchingPriceRule(ProductPriceCollection $rules, SalesChannelContext $context): ?ProductPriceCollection
     {
         foreach ($context->getRuleIds() as $ruleId) {
-            $rules = $rules->filterByRuleId($ruleId);
+            $filtered = $rules->filterByRuleId($ruleId);
 
-            if ($rules->count() > 0) {
-                return $rules;
+            if ($filtered->count() > 0) {
+                /* @var ProductPriceCollection $filtered */
+                return $filtered;
             }
         }
 

@@ -50,7 +50,7 @@ class SalesChannelProductSubscriber implements EventSubscriberInterface
         //calculate context prices
         $priceRuleDefinitions = $this->priceDefinitionBuilder->buildPriceDefinitions($product, $context);
         $prices = $this->priceCalculator->calculateCollection($priceRuleDefinitions, $context);
-        $product->setCalculatedPriceRules($prices);
+        $product->setCalculatedPrices($prices);
 
         //calculate simple price
         $priceDefinition = $this->priceDefinitionBuilder->buildPriceDefinition($product, $context);

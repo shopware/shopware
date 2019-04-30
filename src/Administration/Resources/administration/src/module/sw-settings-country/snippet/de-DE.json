@@ -35,7 +35,18 @@
       "placeholderIso": "ISO-Code eingeben...",
       "placeholderIso3": "Dreistelligen ISO-Code eingeben ....",
       "buttonCancel": "Abbrechen",
-      "buttonSave": "Speichern"
+      "buttonSave": "Speichern",
+      "buttonAddCountryState": "Bundesland hinzufügen"
     }
+  },
+  "sw-country-state-detail": {
+    "titleNew": "Neues Bundesland",
+    "titleEdit": "Bundesland bearbeiten",
+    "buttonSave": "Speichern",
+    "buttonCancel": "Abbrechen",
+    "labelName": "Name",
+    "labelPosition": "Position",
+    "labelShortCode": "ISO-Code",
+    "tooltipPosition": "Steuert die Position des Bundeslandes bei der Ausgabe in Listen usw."
   }
 }

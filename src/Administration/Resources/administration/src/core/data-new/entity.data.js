@@ -22,7 +22,7 @@ export default class Entity {
 
             set(target, property, value) {
                 setReactive(that._draft, property, value);
-                this._isDirty = true;
+                that._isDirty = true;
 
                 return true;
             }
@@ -51,6 +51,7 @@ export default class Entity {
      * @returns {boolean}
      */
     getIsDirty() {
+        console.log('test : ');
         return this._isDirty;
     }
 

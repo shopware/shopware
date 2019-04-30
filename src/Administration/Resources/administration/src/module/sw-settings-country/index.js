@@ -4,6 +4,7 @@ import './extension/sw-settings-index';
 import './page/sw-settings-country-list';
 import './page/sw-settings-country-detail';
 import './page/sw-settings-country-create';
+import './component/sw-country-state-detail';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';

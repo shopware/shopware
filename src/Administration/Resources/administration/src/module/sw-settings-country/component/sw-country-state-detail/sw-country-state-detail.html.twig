@@ -1,0 +1,54 @@
+{% block sw_country_state_detail %}
+    <sw-modal
+            class="sw-country-state-detail"
+            :title="modalTitle"
+            @modal-close="onCancel">
+        {% block sw_country_state_detail_modal %}
+            <sw-container columns="1fr 1fr" gap="20px">
+                {% block sw_country_state_detail_modal_technical_name %}
+                    <sw-field
+                            type="text"
+                            :label="$tc('sw-country-state-detail.labelName')"
+                            v-model="countryState.name">
+                    </sw-field>
+                {% endblock %}
+
+                {% block sw_country_state_detail_modal_shortcode %}
+                    <sw-field
+                            type="text"
+                            :label="$tc('sw-country-state-detail.labelShortCode')"
+                            v-model="countryState.shortCode">
+                    </sw-field>
+                {% endblock %}
+
+                {% block sw_country_state_detail_modal_position %}
+                    <sw-field
+                            type="number"
+                            :tooltipText="$tc('sw-country-state-detail.tooltipPosition')"
+                            numberType="int"
+                            :label="$tc('sw-country-state-detail.labelPosition')"
+                            v-model="countryState.position">
+                    </sw-field>
+                {% endblock %}
+            </sw-container>
+
+            {% block sw_country_state_detail_modal_footer %}
+                <template slot="modal-footer">
+                    {% block sw_country_state_detail_modal_footer_cancel %}
+                        <sw-button size="small" @click="onCancel">
+                            {{ $tc('sw-country-state-detail.buttonCancel') }}
+                        </sw-button>
+                    {% endblock %}
+
+                    {% block sw_country_state_detail_modal_footer_save %}
+                        <sw-button variant="primary"
+                                   size="small"
+                                   @click="onSave">
+                            {{ $tc('sw-country-state-detail.buttonSave') }}
+                        </sw-button>
+                    {% endblock %}
+                </template>
+            {% endblock %}
+        {% endblock %}
+    </sw-modal>
+{% endblock %}

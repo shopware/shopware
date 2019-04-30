@@ -43,6 +43,9 @@ Component.register('sw-plugin-list', {
 
         currentLocale() {
             return this.$store.state.adminLocale.currentLocale;
+        },
+        languageId() {
+            return this.$store.state.adminLocale.languageId;
         }
     },
 
@@ -53,6 +56,9 @@ Component.register('sw-plugin-list', {
 
         searchTerm() {
             this.onSearch(this.searchTerm);
+        },
+        languageId() {
+            this.getList();
         }
     },
 

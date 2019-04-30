@@ -108,7 +108,9 @@ Component.register('sw-category-detail', {
         },
 
         onSearch(value) {
-            if (value.length === 0) value = undefined;
+            if (value.length === 0) {
+                value = undefined;
+            }
             this.term = value;
         },
 

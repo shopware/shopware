@@ -182,7 +182,9 @@ Mixin.register('listing', {
         },
 
         onSearch(value) {
-            if (value.length === 0) value = undefined;
+            if (value.length === 0) {
+                value = undefined;
+            }
 
             if (this.disableRouteParams) {
                 this.term = value;

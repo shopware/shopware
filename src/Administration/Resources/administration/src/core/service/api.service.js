@@ -325,7 +325,7 @@ class ApiService {
      * @returns {*}
      */
     static handleResponse(response) {
-        if (!response.data) {
+        if (response.data === null || response.data === undefined) {
             return response;
         }
 

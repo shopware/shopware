@@ -9,12 +9,10 @@ class PluginZipDetector
         $entry = $archive->statIndex(0);
 
         $pluginName = explode('/', $entry['name'])[0];
-        $baseClass = $pluginName . '/' . $pluginName . '.php';
         $composerFile = $pluginName . '/composer.json';
 
-        $statBaseClass = $archive->statName($baseClass);
         $statComposerFile = $archive->statName($composerFile);
 
-        return $statBaseClass !== false && $statComposerFile !== false;
+        return $statComposerFile !== false;
     }
 }

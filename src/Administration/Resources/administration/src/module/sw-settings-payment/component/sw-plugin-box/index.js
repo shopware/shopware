@@ -51,7 +51,7 @@ Component.register('sw-plugin-box', {
 
         checkPluginConfig() {
             this.systemConfigApiService.checkConfig(`${this.plugin.name}.config`).then((response) => {
-                this.hasPluginConfig = response.data;
+                this.hasPluginConfig = response;
             }).catch(() => {
                 this.hasPluginConfig = false;
             });

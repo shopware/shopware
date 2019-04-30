@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Exception\StoreHostMissingException;
 use Shopware\Core\Framework\Store\Exception\StoreSignatureValidationException;
+use Shopware\Core\Framework\Store\StoreSettingsEntity;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
 use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
 use Shopware\Core\Framework\Store\Struct\ShopUserTokenStruct;
@@ -22,12 +23,14 @@ use Shopware\Core\Framework\Store\Struct\StoreLicenseStruct;
 use Shopware\Core\Framework\Store\Struct\StoreLicenseSubscriptionStruct;
 use Shopware\Core\Framework\Store\Struct\StoreLicenseTypeStruct;
 use Shopware\Core\Framework\Store\Struct\StoreUpdateStruct;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 final class StoreClient
 {
     private const SHOPWARE_PLATFORM_TOKEN_HEADER = 'X-Shopware-Platform-Token';
     private const SHOPWARE_SHOP_SECRET_HEADER = 'X-Shopware-Shop-Secret';
     private const SHOPWARE_SIGNATURE_HEADER = 'X-Shopware-Signature';
+    private const SYSTEM_CONFIG_KEY = 'sbp_store_uri';
 
     /**
      * @var Client
@@ -49,16 +52,22 @@ final class StoreClient
      */
     private $storeSettingsRepo;
 
+    /**
+     * @var SystemConfigService
+     */
+    private $configService;
+
     public function __construct(
-        Client $client,
         OpenSSLVerifier $openSSLVerifier,
         EntityRepositoryInterface $pluginRepo,
-        EntityRepositoryInterface $storeSettingsRepo
+        EntityRepositoryInterface $storeSettingsRepo,
+        SystemConfigService $configService
     ) {
-        $this->client = $client;
+        $this->configService = $configService;
         $this->openSSLVerifier = $openSSLVerifier;
         $this->pluginRepo = $pluginRepo;
         $this->storeSettingsRepo = $storeSettingsRepo;
+        $this->client = $this->getClient();
     }
 
     public function ping(): void
@@ -258,9 +267,9 @@ final class StoreClient
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('key', 'host'));
-
         $storeSettings = $this->storeSettingsRepo->search($criteria, $context)->first();
-        if ($storeSettings === null) {
+
+        if (!($storeSettings instanceof StoreSettingsEntity)) {
             throw new StoreHostMissingException();
         }
 
@@ -275,10 +284,9 @@ final class StoreClient
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('key', 'shopSecret'));
-
         $storeSettings = $this->storeSettingsRepo->search($criteria, $context)->first();
 
-        if ($storeSettings === null) {
+        if (!($storeSettings instanceof StoreSettingsEntity)) {
             return null;
         }
 
@@ -310,5 +318,18 @@ final class StoreClient
         }
 
         throw new StoreSignatureValidationException('Signature not valid');
+    }
+
+    private function getClient(): Client
+    {
+        $config = [
+            'base_uri' => $this->configService->get(self::SYSTEM_CONFIG_KEY),
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'ACCEPT' => 'application/vnd.api+json,application/json',
+            ],
+        ];
+
+        return new Client($config);
     }
 }

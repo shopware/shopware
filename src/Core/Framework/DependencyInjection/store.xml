@@ -13,21 +13,11 @@
             <argument type="service" id="store_settings.repository" />
         </service>
 
-        <service class="GuzzleHttp\Client" id="shopware.store.api_client">
-            <argument key="$config" type="collection">
-                <argument key="base_uri">%shopware.store.api_url%</argument>
-                <argument key="headers" type="collection">
-                    <argument key="Content-Type" type="string">application/json</argument>
-                    <argument key="ACCEPT" type="string">application/vnd.api+json,application/json</argument>
-                </argument>
-            </argument>
-        </service>
-
         <service id="Shopware\Core\Framework\Store\Services\StoreClient">
-            <argument type="service" id="shopware.store.api_client" />
             <argument type="service" id="Shopware\Core\Framework\Store\Services\OpenSSLVerifier" />
             <argument type="service" id="plugin.repository"/>
             <argument type="service" id="store_settings.repository"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\OpenSSLVerifier">

@@ -214,6 +214,18 @@
             <argument type="service" id="Shopware\Storefront\Pagelet\Checkout\AjaxCart\CheckoutAjaxCartPageletLoader"/>
         </service>
 
+        <service id="Shopware\Storefront\Pagelet\AddressBook\AddressBookPageletLoader">
+            <argument type="service" id="Shopware\Storefront\Pagelet\Account\AddressList\AccountAddressListPageletLoader"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
+        </service>
+
+        <service id="Shopware\Storefront\PageletController\AddressBookPageletController" public="true">
+            <argument type="service" id="Shopware\Storefront\Pagelet\AddressBook\AddressBookPageletLoader"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService"/>
+            <argument type="service" id="translator"/>
+        </service>
+
         <service id="Shopware\Storefront\PageletController\CmsPageletController" public="true">
             <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader"/>
             <argument type="service" id="sales_channel.category.repository"/>

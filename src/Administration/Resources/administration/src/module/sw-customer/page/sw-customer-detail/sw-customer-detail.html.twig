@@ -32,12 +32,22 @@
                     {% endblock %}
 
                     {% block sw_customer_detail_actions_save %}
-                        <sw-button class="sw-customer-detail__save-action"
+                        <!--sw-button class="sw-customer-detail__save-action"
                                    :disabled="isLoading"
                                    variant="primary"
                                    @click.prevent="onSave">
-                            {{ $tc('sw-customer.detail.buttonSave') }}
-                        </sw-button>
+
+                        </sw-button-->
+                    <sw-button-process
+                            class="sw-customer-detail__save-action"
+                            :isLoading="isLoading"
+                            :processSuccess="isSaveSuccessful"
+                            :disabled="isLoading"
+                            variant="primary"
+                            @process-finish="saveFinish"
+                            @click.prevent="onSave">
+                        {{ $tc('sw-customer.detail.buttonSave') }}
+                    </sw-button-process>
                     {% endblock %}
                 </span>
             </template>

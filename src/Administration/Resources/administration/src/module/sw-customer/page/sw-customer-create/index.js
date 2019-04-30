@@ -46,19 +46,21 @@ Component.extend('sw-customer-create', 'sw-customer-detail', {
             this.customerEditMode = true;
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+            this.$router.push({ name: 'sw.customer.detail', params: { id: this.customer.id } });
+        },
+
         onSave() {
             if (this.customerNumberPreview === this.customer.customerNumber) {
                 this.numberRangeService.reserve('customer', this.customer.salesChannelId).then((response) => {
                     this.customerNumberPreview = 'reserved';
                     this.customer.customerNumber = response.number;
-                    this.$super.onSave().then(() => {
-                        this.$router.push({ name: 'sw.customer.detail', params: { id: this.customer.id } });
-                    });
+                    this.$super.onSave();
                 });
             } else {
                 this.$super.onSave().then(() => {
                     this.customerNumberPreview = 'reserved';
-                    this.$router.push({ name: 'sw.customer.detail', params: { id: this.customer.id } });
                 });
             }
         },

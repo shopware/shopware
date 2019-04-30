@@ -18,7 +18,7 @@ Component.register('sw-customer-detail', {
 
     data() {
         return {
-            isLoading: true,
+            isLoading: false,
             customer: null,
             customerId: null,
             customerEditMode: false,
@@ -30,7 +30,8 @@ Component.register('sw-customer-detail', {
             customerAddressCustomFieldSets: [],
             customerCustomFieldSets: [],
             languages: [],
-            language: {}
+            language: {},
+            isSaveSuccessful: false
         };
     },
 
@@ -193,22 +194,28 @@ Component.register('sw-customer-detail', {
             });
         },
 
+        saveFinish() {
+            this.customerEditMode = false;
+            this.isSaveSuccessful = false;
+        },
+
         onSave() {
+            this.isSaveSuccessful = false;
+
             if (!this.customer.birthday) {
                 this.customer.birthday = null;
             }
+            this.isLoading = true;
 
             return this.customer.save().then(() => {
-                this.createNotificationSuccess({
-                    title: this.$tc('sw-customer.detail.titleSaveSuccess'),
-                    message: this.$tc('sw-customer.detail.messageSaveSuccess', 0, { name: this.salutation(this.customer) })
-                });
-                this.customerEditMode = false;
+                this.isLoading = false;
+                this.isSaveSuccessful = true;
             }).catch((exception) => {
                 this.createNotificationError({
                     title: this.$tc('sw-customer.detail.titleSaveError'),
                     message: this.$tc('sw-customer.detail.messageSaveError')
                 });
+                this.isLoading = false;
                 throw exception;
             });
         },

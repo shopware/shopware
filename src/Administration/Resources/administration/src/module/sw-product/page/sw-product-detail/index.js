@@ -149,8 +149,6 @@ Component.register('sw-product-detail', {
         },
 
         onSave() {
-            this.isSaveSuccessful = false;
-
             const productName = this.product.name || this.product.translated.name;
             const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');
             const messageSaveError = this.$tc(

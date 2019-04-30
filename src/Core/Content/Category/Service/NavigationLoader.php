@@ -9,6 +9,7 @@ use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Category\Tree\TreeItem;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -39,15 +40,15 @@ class NavigationLoader
     {
         /** @var CategoryEntity $active */
         $active = $this->loadActive($activeId, $context);
-        $rootId = $this->getRootId($active, $activeId);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('visible', true));
 
         /** @var CategoryCollection $categories */
         $categories = $this->categoryRepository->search($criteria, $context)->getEntities();
+        $categories->sortByPosition();
 
-        return $this->getTree($rootId, $categories, $active);
+        return $this->getTree($context->getSalesChannel()->getNavigationCategoryId(), $categories, $active);
     }
 
     /**
@@ -90,7 +91,12 @@ class NavigationLoader
      */
     private function loadActive(string $activeId, SalesChannelContext $context): CategoryEntity
     {
-        $criteria = new Criteria([$activeId]);
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('category.id', $activeId));
+        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
+            new ContainsFilter('category.path', $context->getSalesChannel()->getNavigationCategoryId()),
+            new EqualsFilter('category.id', $context->getSalesChannel()->getNavigationCategoryId()),
+        ]));
 
         $active = $this->categoryRepository->search($criteria, $context)->first();
         if (!$active) {
@@ -98,17 +104,6 @@ class NavigationLoader
         }
 
         return $active;
-    }
-
-    private function getRootId(CategoryEntity $active, string $activeId): string
-    {
-        if ($active->getPath() !== null) {
-            $path = array_filter(explode('|', $active->getPath()));
-
-            return array_shift($path);
-        }
-
-        return $activeId;
     }
 
     /**

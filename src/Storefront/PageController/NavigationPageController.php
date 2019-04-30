@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\PageController;
 
+use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
@@ -37,7 +38,11 @@ class NavigationPageController extends StorefrontController
      */
     public function index(SalesChannelContext $context, Request $request): Response
     {
-        $page = $this->navigationPageLoader->load($request, $context);
+        try {
+            $page = $this->navigationPageLoader->load($request, $context);
+        } catch (CategoryNotFoundException $exception) {
+            return $this->redirectToRoute('frontend.home.page');
+        }
 
         return $this->renderStorefront('@Storefront/page/content/index.html.twig', ['page' => $page]);
     }

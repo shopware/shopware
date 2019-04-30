@@ -31,7 +31,7 @@
 
         "view": {
           "general": "General",
-          "cms": "Experience Designer"
+          "cms": "Content"
         },
 
         "base": {
@@ -40,20 +40,20 @@
             "linkLabel": "Link destination",
             "headlineInformationCard": "General",
             "isCategoryActiveLabel": "Category is active",
-            "showSubcategoryProductsLabel": "Include products from subcategories",
             "useAsLink": "Use as link",
 
             "types": {
               "title": "Category type",
               "page": "Category",
-              "folder": "Not-clickable structuring category",
-              "link": "Customizable link"
+              "folder": "Structuring element",
+              "link": "Customizable link",
+              "help": "The 'Category' type describes a shop category that can be called normally. A 'Structure category' cannot be viewed as an actual category, but can be used as a structure point for ordering products. When using the type 'Customizable link' the category can be replaced by an own link to which the category link leads."
             }
           },
 
           "entry-point": {
             "title": "Entry point",
-            "descriptionGeneral": "You have assigned this node in the following sales channels as a entry point for the main navigation:",
+            "descriptionGeneral": "You have assigned this node in the following sales channels as an entry point for the main navigation:",
             "descriptionMenu": "The entry point is also automatically the home page of these sales channels. If this should not be the case and instead the first active main menu item should be your start page, you can change this here: All subcategories will be deleted, too."
           },
 
@@ -67,7 +67,7 @@
           "cms": {
             "title": "Layout selection",
             "changeLayout": "Change layout",
-            "editInPagebuilder": "Edit in pagebuilder",
+            "editInPagebuilder": "Edit in designer",
             "editContent": "Edit content"
           },
 
@@ -85,7 +85,8 @@
             "productAssignmentEmptyStateTitle": "No products assigned",
             "productAssignmentEmptyStateSubline": "Use the search to add products.",
             "columnNameLabel": "Name",
-            "columnManufacturerLabel": "Manufacturer"
+            "columnManufacturerLabel": "Manufacturer",
+            "showSubcategoryProductsLabel": "Also show products from subcategories"
           }
         },
 

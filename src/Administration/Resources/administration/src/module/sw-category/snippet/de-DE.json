@@ -32,7 +32,7 @@
 
         "view": {
           "general": "Allgemein",
-          "cms": "Experience Designer"
+          "cms": "Inhalte"
         },
 
         "base": {
@@ -41,21 +41,21 @@
             "linkLabel": "Linkziel",
             "headlineInformationCard": "Allgemein",
             "isCategoryActiveLabel": "Kategorie ist aktiv",
-            "showSubcategoryProductsLabel": "Enthält Produkte aus Subkategorien",
             "useAsLink": "Als Link verwenden",
 
             "types": {
               "title": "Kategorietyp",
               "page": "Kategorie",
-              "folder": "Nicht-Klickbare Strukturierungskategorie",
-              "link": "Benutzerdefinierter Link"
+              "folder": "Strukturierungselement",
+              "link": "Benutzerdefinierter Link",
+              "help": "Der Typ 'Kategorie' beschreibt eine normal aufrufbare Shopkategorie. Eine 'Strukturkategorie' ist nicht als eigentliche Kategorie aufrufbar sondern kann als Strukturpunkt zum Ordnen von Produkten verwendet werden. Beim Typ 'Benutzerdefinierter Link' kann die Kategorie durch einen eigenen Link ersetzt werden zu dem die Kategorieverlinkung führt."
             }
           },
 
           "entry-point": {
             "title": "Einstiegspunkt",
             "descriptionGeneral": "Du hast diesen Knoten in folgenden Verkaufskanälen als Einstiegspunkt für die Hauptnavigation zugewiesen:",
-            "descriptionMenu": "Der Einstiegspunkt ist auch automatisch die Startseite dieser Verkaufskanäle. Soll das nicht der Fall sein und stattdessen der erste, aktive Hauptmenüpunkt deine Startseite sein, kannst du das hier ändern:"
+            "descriptionMenu": "Der Einstiegspunkt ist auch automatisch die Startseite dieser Verkaufskanäle. Soll dies nicht der Fall sein und stattdessen der erste, aktive Hauptmenüpunkt deine Startseite sein, kannst Du das hier ändern:"
           },
 
           "menu": {
@@ -68,8 +68,8 @@
           "cms": {
             "title": "Layoutauswahl",
             "changeLayout": "Layout ändern",
-            "editInPagebuilder": "Im Pagebuilder bearbeiten",
-            "editContent": "Content bearbeiten"
+            "editInPagebuilder": "Im Designer bearbeiten",
+            "editContent": "Inhalte bearbeiten"
           },
 
           "link": {
@@ -86,7 +86,8 @@
             "productAssignmentEmptyStateTitle": "Keine Produkte zugewiesen",
             "productAssignmentEmptyStateSubline": "Füge über die Suche neue Produkte hinzu",
             "columnNameLabel": "Name",
-            "columnManufacturerLabel": "Hersteller"
+            "columnManufacturerLabel": "Hersteller",
+            "showSubcategoryProductsLabel": "Auch Produkte aus Subkategorien anzeigen"
           }
         },
 

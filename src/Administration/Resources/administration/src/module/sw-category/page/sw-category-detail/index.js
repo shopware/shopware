@@ -137,7 +137,7 @@ Component.register('sw-category-detail', {
                 associations: {
                     blocks: {
                         associations: {
-                            slots: { }
+                            slots: {}
                         }
                     }
                 }

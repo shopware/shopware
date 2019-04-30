@@ -121,12 +121,19 @@
 
                             {% block sw_category_detail_layout_desc_info %}
                                 <div class="sw-category-detail-base__layout-desc-info">
-                                    <div class="sw-category-detail-base__layout-desc-headline" :class="{ 'is--empty': !cmsPage }">
-                                        {{ cmsPage ? cmsPage.name : $tc('sw-category.base.cms.defaultTitle') }}
-                                    </div>
-                                    <div class="sw-category-detail-base__layout-desc-subheadline" :class="{ 'is--empty': !cmsPage }">
-                                        {{ cmsPage ? cmsPage.type : $tc('sw-category.base.cms.defaultDesc') }}
-                                    </div>
+
+                                    {% block sw_category_detail_layout_desc_info_headline %}
+                                        <div class="sw-category-detail-base__layout-desc-headline" :class="{ 'is--empty': !cmsPage }">
+                                            {{ cmsPage ? cmsPage.name : $tc('sw-category.base.cms.defaultTitle') }}
+                                        </div>
+                                    {% endblock %}
+
+                                    {% block sw_category_detail_layout_desc_info_subheadline %}
+                                        <div class="sw-category-detail-base__layout-desc-subheadline" :class="{ 'is--empty': !cmsPage }">
+                                            {{ cmsPage ? cmsPage.type : $tc('sw-category.base.cms.defaultDesc') }}
+                                        </div>
+                                    {% endblock %}
+
                                 </div>
                             {% endblock %}
 
@@ -145,6 +152,11 @@
                                         </sw-button>
                                     {% endblock %}
 
+                                    {% block sw_category_detail_layout_desc_actions_remove %}
+                                        <sw-button v-if="cmsPage" size="small" @click="onLayoutReset()" square>
+                                            <sw-icon name="default-action-trash" small />
+                                        </sw-button>
+                                    {% endblock %}
                                 </div>
                             {% endblock %}
 

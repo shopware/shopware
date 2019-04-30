@@ -19,6 +19,7 @@
                 {% endblock %}
                 {% block sw_category_view_tabs_cms %}
                     <sw-tabs-item
+                        v-if="cmsPage"
                         class="sw-category-detail__tab-cms"
                         :route="{ name: 'sw.category.detail.cms' }"
                         :title="$tc('sw-category.view.cms')">

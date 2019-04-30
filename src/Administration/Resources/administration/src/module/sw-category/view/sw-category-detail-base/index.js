@@ -215,6 +215,11 @@ Component.register('sw-category-detail-base', {
             this.$emit('sw-category-base-on-layout-change', selectedLayout);
         },
 
+        onLayoutReset() {
+            this.category.cmsPageId = null;
+            this.$emit('sw-category-base-on-layout-change', null);
+        },
+
         openInPagebuilder() {
             if (!this.cmsPage) {
                 this.$router.push({ name: 'sw.cms.create' });

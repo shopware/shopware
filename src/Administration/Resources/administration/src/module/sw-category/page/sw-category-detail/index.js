@@ -137,6 +137,11 @@ Component.register('sw-category-detail', {
         },
 
         getAssignedCmsPage(cmsPageId) {
+            if (cmsPageId === null) {
+                this.cmsPage = null;
+                return false;
+            }
+
             const params = {
                 criteria: CriteriaFactory.equals('cms_page.id', cmsPageId),
                 associations: {

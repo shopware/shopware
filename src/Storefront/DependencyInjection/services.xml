@@ -273,6 +273,7 @@
             <argument type="service" id="Shopware\Storefront\Framework\Twig\ErrorTemplateResolver"/>
             <argument type="service" id="session.flash_bag"/>
             <argument type="service" id="translator"/>
+            <argument type="service" id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader"/>
         </service>
 
         <service id="Shopware\Storefront\PageController\HomePageController" public="true">

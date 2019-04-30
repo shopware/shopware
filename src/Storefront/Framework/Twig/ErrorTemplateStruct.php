@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Framework\Twig;
 
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Storefront\Pagelet\Header\HeaderPagelet;
 
 class ErrorTemplateStruct extends Struct
 {
@@ -16,10 +17,16 @@ class ErrorTemplateStruct extends Struct
      */
     protected $arguments;
 
+    /**
+     * @var HeaderPagelet|null
+     */
+    protected $header;
+
     public function __construct($templateName = '', $arguments = [])
     {
         $this->templateName = $templateName;
         $this->arguments = $arguments;
+        $this->header = null;
     }
 
     public function getTemplateName(): string
@@ -40,5 +47,15 @@ class ErrorTemplateStruct extends Struct
     public function setArguments(array $arguments): void
     {
         $this->arguments = $arguments;
+    }
+
+    public function getHeader(): ?HeaderPagelet
+    {
+        return $this->header;
+    }
+
+    public function setHeader(HeaderPagelet $header): void
+    {
+        $this->header = $header;
     }
 }

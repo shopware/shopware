@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Framework\Twig;
 
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Twig\Environment;
 
 class ErrorTemplateResolver
@@ -19,13 +20,20 @@ class ErrorTemplateResolver
 
     public function resolve(\Exception $exception, Request $request): ErrorTemplateStruct
     {
-        $template = '@Storefront/frontend/error/error';
+        $template = '@Storefront/page/error/error';
 
         if ($request->isXmlHttpRequest()) {
             $template .= '-ajax';
         }
 
-        $dedicatedTemplate = $template . '-' . $exception->getCode();
+        $code = $exception->getCode();
+
+        if ($exception instanceof HttpException) {
+            $code = $exception->getStatusCode();
+        }
+
+        $dedicatedTemplate = $template . '-' . $code;
+
         if ($this->twig->getLoader()->exists($dedicatedTemplate . '.html.twig')) {
             $template = $dedicatedTemplate;
         } else {
@@ -34,6 +42,8 @@ class ErrorTemplateResolver
 
         $template .= '.html.twig';
 
-        return new ErrorTemplateStruct($template, ['exception' => $exception]);
+        $result = new ErrorTemplateStruct($template, ['exception' => $exception]);
+
+        return $result;
     }
 }

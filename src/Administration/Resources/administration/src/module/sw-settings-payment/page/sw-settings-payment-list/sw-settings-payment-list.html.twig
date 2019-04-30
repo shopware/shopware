@@ -64,7 +64,7 @@
                                                         <router-link :title="$tc('sw-settings-payment.list.contextMenuEdit')"
                                                                      :to="{ name: 'sw.settings.payment.detail', params: { id: item.id } }">
                                                             {% block sw_settings_payment_list_columns_name_link %}
-                                                                {{ item.name }}
+                                                                {{ item.translated.name }}
                                                             {% endblock %}
                                                         </router-link>
                                                     {% endblock %}
@@ -100,7 +100,7 @@
                                                 <sw-grid-column flex="minmax(120px, 1fr)"
                                                                 :label="$tc('sw-settings-payment.list.columnDescription')">
                                                     {% block sw_settings_payment_list_columns_description_label %}
-                                                        {{ item.description | striphtml | truncate(25) }}
+                                                        {{ item.translated.description | striphtml | truncate(25) }}
                                                     {% endblock %}
                                                 </sw-grid-column>
                                             {% endblock %}

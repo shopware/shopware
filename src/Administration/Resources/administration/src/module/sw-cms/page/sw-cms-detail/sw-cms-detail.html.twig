@@ -6,12 +6,6 @@
 
                 {% block sw_cms_detail_toolbar %}
                     <sw-cms-toolbar>
-                        {% block sw_cms_detail_toolbar_back_button %}
-                            <router-link :to="{ name: 'sw.cms.index' }" slot="back-btn">
-                                <sw-icon name="default-action-log-out"></sw-icon>
-                            </router-link>
-                        {% endblock %}
-
                         {% block sw_cms_detail_toolbar_language_switch %}
                             <sw-language-switch slot="language-switch"
                                                 @on-change="onChangeLanguage"
@@ -21,7 +15,22 @@
                         {% endblock %}
 
                         {% block sw_cms_detail_toolbar_title %}
-                            <h2 slot="title">{{ page.name }}</h2>
+                            <div class="sw-cms-detail__page-info" slot="title">
+                                {% block sw_cms_detail_toolbar_back_button %}
+                                    <router-link :to="{ name: 'sw.cms.index' }" class="sw-cms-detail__back-btn">
+                                        <sw-icon name="default-basic-x-line"></sw-icon>
+                                    </router-link>
+                                {% endblock %}
+
+                                {% block sw_cms_detail_toolbar_page_name %}
+                                    <h2 class="sw-cms-detail__page-name">{{ page.name }}</h2>
+                                {% endblock %}
+
+                                {% block sw_cms_detail_toolbar_page_type %}
+                                    <div class="sw-cms-detail__page-type" v-if="page.type">{{ cmsPageTypes[page.type] }}</div>
+                                {% endblock %}
+                            </div>
+
                         {% endblock %}
 
                         {% block sw_cms_detail_toolbar_device_actions %}
@@ -175,13 +184,16 @@
                                                         {% block sw_cms_detail_sidebar_page_settings_type_field %}
                                                             <sw-select-field :label="$tc('sw-cms.detail.labelPageType')" v-model="page.type" @change="onPageTypeChange">
                                                                 {% block sw_cms_detail_sidebar_page_settings_type_field_options %}
+                                                                    <option value="page">
+                                                                        {{ $tc('sw-cms.detail.labelPageTypeShopPage') }}
+                                                                    </option>
                                                                     <option value="landingpage">
                                                                         {{ $tc('sw-cms.detail.labelPageTypeLandingpage') }}
                                                                     </option>
                                                                     <option value="product_list">
                                                                         {{ $tc('sw-cms.detail.labelPageTypeCategory') }}
                                                                     </option>
-                                                                    <option value="product_detail">
+                                                                    <option value="product_detail" disabled>
                                                                         {{ $tc('sw-cms.detail.labelPageTypeProduct') }}
                                                                     </option>
                                                                 {% endblock %}
@@ -230,7 +242,7 @@
                                                         <div class="sw-cms-detail__block-preview"
                                                              v-for="block in cmsBlocks"
                                                              :key="block.name"
-                                                             v-if="block.category === currentBlockCategory"
+                                                             v-if="block.category === currentBlockCategory && block.hidden !== true"
                                                              v-draggable="{ dragGroup: 'cms-stage', data: { block }, onDrop: onBlockStageDrop }">
                                                             {% block sw_cms_detail_sidebar_block_overview_preview_component %}
                                                                 <component :is="block.previewComponent"></component>
@@ -304,13 +316,17 @@
                                                         {% endblock %}
 
                                                         {% block sw_cms_detail_sidebar_navigator_element_duplicate %}
-                                                            <div class="navigator-element__action-duplicate" @click="onBlockDuplicate(block)">
+                                                            <div class="navigator-element__action-duplicate"
+                                                                 v-if="cmsBlocks[block.type].removable !== false"
+                                                                 @click="onBlockDuplicate(block)">
                                                                 <sw-icon name="default-action-duplicate" size="16"></sw-icon>
                                                             </div>
                                                         {% endblock %}
 
                                                         {% block sw_cms_detail_sidebar_navigator_element_delete %}
-                                                            <div class="navigator-element__action-delete" @click="onBlockDelete(block.id)">
+                                                            <div class="navigator-element__action-delete"
+                                                                 v-if="cmsBlocks[block.type].removable !== false"
+                                                                 @click="onBlockDelete(block.id)">
                                                                 <sw-icon name="default-action-trash" size="16"></sw-icon>
                                                             </div>
                                                         {% endblock %}

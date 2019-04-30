@@ -20,7 +20,7 @@
                         {% endblock %}
 
                         {% block sw_cms_slot_overlay_action_swap %}
-                            <div class="sw-cms-slot__element-action" @click="onElementButtonClick">
+                            <div class="sw-cms-slot__element-action" @click="onElementButtonClick" v-if="elementConfig.removable !== false">
                                 <sw-icon name="default-arrow-switch" size="16"></sw-icon>
                             </div>
                         {% endblock %}
@@ -55,7 +55,10 @@
                 {% block sw_cms_slot_element_modal_selection %}
                     <div class="sw-cms-slot__element-selection">
                         {% block sw_cms_slot_element_modal_selection_element %}
-                            <div class="element-selection__element" v-for="element in cmsElements" @click="onSelectElement(element.name)">
+                            <div class="element-selection__element"
+                                 v-for="element in cmsElements"
+                                 v-if="element.hidden !== true"
+                                 @click="onSelectElement(element.name)">
                                 {% block sw_cms_slot_element_modal_selection_element_component %}
                                     <component :is="element.previewComponent" class="sw-cms-slot__element-preview"></component>
                                 {% endblock %}

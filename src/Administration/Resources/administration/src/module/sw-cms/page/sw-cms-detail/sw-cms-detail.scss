@@ -14,6 +14,29 @@
         grid-template-rows: auto 1fr;
     }
 
+    .sw-cms-detail__page-info {
+        display: grid;
+        grid-template-columns: 45px min-content min-content;
+        grid-gap: 20px;
+        align-content: center;
+        align-items: center;
+    }
+
+    .sw-cms-detail__back-btn {
+        height: 70px;
+        line-height: 70px;
+        border-right: 1px solid $color-steam-cloud;
+        color: $color-gutenberg;
+
+        &:hover {
+            color: $color-shopware-blue;
+        }
+    }
+
+    .sw-cms-detail__page-type {
+        color: $color-steam-cloud;
+    }
+
     .sw-cms-detail__device-actions {
         display: grid;
         grid-template-columns: 24px 24px 24px 24px;
@@ -40,7 +63,7 @@
     .sw-cms-detail__actions {
         display: grid;
         grid-template-columns: 2fr 1fr;
-        grid-column-gap: 20px;
+        grid-column-gap: 8px;
         align-content: center;
         align-items: center;
 

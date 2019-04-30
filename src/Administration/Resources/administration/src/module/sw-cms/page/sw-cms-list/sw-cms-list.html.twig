@@ -5,8 +5,8 @@
             <template slot="content">
                 {% block sw_cms_list_toolbar %}
                     <sw-cms-toolbar>
-                        <sw-language-switch slot="language-switch" @on-change="onChangeLanguage"></sw-language-switch>
                         <h2 slot="title">{{ $tc('sw-cms.general.moduleTitle') }}</h2>
+                        <sw-language-switch slot="language-switch" @on-change="onChangeLanguage"></sw-language-switch>
                         <sw-button slot="actions" variant="primary" @click="onCreateNewLayout">{{ $tc('sw-cms.general.createNewLayout') }}</sw-button>
                     </sw-cms-toolbar>
                 {% endblock %}
@@ -17,7 +17,7 @@
                         {% block sw_cms_list_sidebar %}
                             <div class="sw-cms-list__sidebar">
                                 {% block sw_cms_list_sidebar_headline %}
-                                    <h3>{{ $tc('sw-cms.general.greeting') }}.</h3>
+                                    <h3>{{ $tc('sw-cms.general.greeting') }}</h3>
                                 {% endblock %}
 
                                 {% block sw_cms_list_sidebar_tabs %}
@@ -26,6 +26,7 @@
                                             v-for="pageType in sortPageTypes"
                                             @click="onSortPageType(pageType.value)"
                                             :key="pageType.name"
+                                            :disabled="pageType.disabled"
                                             :active="pageType.active">
                                                 {{ pageType.name }}
                                         </sw-tabs-item>

@@ -5,6 +5,8 @@ import './sw-cms-block.scss';
 Component.register('sw-cms-block', {
     template,
 
+    inject: ['cmsService'],
+
     props: {
         block: {
             type: Object,
@@ -20,11 +22,15 @@ Component.register('sw-cms-block', {
         }
     },
 
-    data() {
-        return {};
-    },
-
     computed: {
+        cmsBlocks() {
+            return this.cmsService.getCmsBlockRegistry();
+        },
+
+        blockConfig() {
+            return this.cmsBlocks[this.block.type];
+        },
+
         blockClasses() {
             return {
                 'is--boxed': this.block.config.sizingMode === 'boxed'

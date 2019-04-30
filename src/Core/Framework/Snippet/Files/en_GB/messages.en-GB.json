@@ -22,9 +22,7 @@
         "back": "back",
         "categories": "Categories",
         "showCategory": "show %category%",
-        "requiredFields": "The fields marked with * are required",
-        "mailSendButton": "Send e-mail",
-        "backButton": "Back"
+        "requiredFields": "The fields marked with * are required"
     },
     "header": {
         "logoLink": "Switch to homepage",

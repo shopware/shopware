@@ -22,9 +22,7 @@
         "back": "Zurück",
         "categories": "Kategorien",
         "showCategory": "%category% anzeigen",
-        "requiredFields": "* hierbei handelt es sich um ein Pflichtfeld",
-        "mailSendButton": "E-Mail senden",
-        "backButton": "Zurück"
+        "requiredFields": "* hierbei handelt es sich um ein Pflichtfeld"
     },
     "header": {
         "logoLink": "zur Startseite wechseln",

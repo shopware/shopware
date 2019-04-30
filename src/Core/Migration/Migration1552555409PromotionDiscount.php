@@ -21,11 +21,9 @@ class Migration1552555409PromotionDiscount extends MigrationStep
           `scope` VARCHAR(32) NOT NULL,
           `type` VARCHAR(32) NOT NULL,
           `value` DOUBLE NOT NULL,
-          `graduated` TINYINT(1) NOT NULL DEFAULT 0,
-          `graduation_step` INT NULL,
-          `graduation_order` VARCHAR(32) NULL,
           `created_at` DATETIME(3) NOT NULL,
           `updated_at` DATETIME(3) NULL,
+          `consider_advanced_rules` TINYINT(1) NOT NULL DEFAULT 0,
           PRIMARY KEY (`id`),
           INDEX `idx.promotion_discount.promotion_id` (`promotion_id` ASC),
           CONSTRAINT `fk.promotion_discount.promotion_id`
@@ -34,7 +32,7 @@ class Migration1552555409PromotionDiscount extends MigrationStep
             ON DELETE CASCADE
             ON UPDATE NO ACTION
           )
-        ENGINE = InnoDB
+        ENGINE = InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ');
     }
 

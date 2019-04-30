@@ -3,15 +3,18 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount;
 
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountRule\PromotionDiscountRuleDefinition;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
+use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -41,12 +44,10 @@ class PromotionDiscountDefinition extends EntityDefinition
             (new StringField('scope', 'scope'))->addFlags(new Required()),
             (new StringField('type', 'type', 32))->addFlags(new Required()),
             (new FloatField('value', 'value'))->addFlags(new Required()),
-            (new BoolField('graduated', 'graduated'))->addFlags(new Required()),
-            new IntField('graduation_step', 'graduationStep'),
-            new StringField('graduation_order', 'graduationOrder', 32),
+            (new BoolField('consider_advanced_rules', 'considerAdvancedRules'))->addFlags(new Required()),
 
             new ManyToOneAssociationField('promotion', 'promotion_id', PromotionDefinition::class, 'id'),
-            // TODO FK apply_towards_single_group_id, once promotion-group entity is defined
+            (new ManyToManyAssociationField('discountRules', RuleDefinition::class, PromotionDiscountRuleDefinition::class, 'discount_id', 'rule_id'))->addFlags(new CascadeDelete()),
         ]);
     }
 }

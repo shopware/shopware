@@ -7,9 +7,11 @@ use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
-use Shopware\Core\Checkout\Cart\Rule\LineItemRule;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
+use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\Rule;
 
 class PromotionItemBuilder
@@ -65,17 +67,30 @@ class PromotionItemBuilder
      * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
      * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
      */
-    public function buildDiscountLineItem(PromotionEntity $promotion, PromotionDiscountEntity $discount, int $currencyPrecision, array $eligibleItemIds): LineItem
+    public function buildDiscountLineItem(PromotionEntity $promotion, PromotionDiscountEntity $discount, int $currencyPrecision): LineItem
     {
-        $itemFilterRule = null;
+        //get the rules collection of discount
+        /** @var RuleCollection|null $discountRuleCollection */
+        $discountRuleCollection = $discount->getDiscountRules();
 
-        // if (count($eligibleItemIds) > 0) {
-        // if we have a valid array of items that do
-        // get the discount, then create a new filter rule
-        // that only uses the promotion price definition on these line items
-        $itemFilterRule = new LineItemRule();
-        $itemFilterRule->assign(['identifiers' => $eligibleItemIds, 'operator' => Rule::OPERATOR_EQ]);
-        // }
+        // this is our target Filter that may be null if discount has no filters
+        $targetFilter = null;
+
+        // we do only need to build a target rule if user has allowed it
+        // and the rule collection is not empty
+        if ($discountRuleCollection instanceof RuleCollection && $discount->isConsiderAdvancedRules() && $discountRuleCollection->count() > 0) {
+            $targetFilter = new OrRule();
+
+            /** @var RuleEntity $discountRule */
+            foreach ($discountRuleCollection as $discountRule) {
+                /** @var Rule|string|null $rule */
+                $rule = $discountRule->getPayload();
+
+                if ($rule instanceof Rule) {
+                    $targetFilter->addRule($rule);
+                }
+            }
+        }
 
         // our promotion values are always negative values.
         // either type percentage or absolute needs to be negative to get
@@ -84,11 +99,11 @@ class PromotionItemBuilder
 
         switch ($discount->getType()) {
             case PromotionDiscountEntity::TYPE_ABSOLUTE:
-                $promotionDefinition = new AbsolutePriceDefinition($promotionValue, $currencyPrecision, $itemFilterRule);
+                $promotionDefinition = new AbsolutePriceDefinition($promotionValue, $currencyPrecision, $targetFilter);
                 break;
 
             case PromotionDiscountEntity::TYPE_PERCENTAGE:
-                $promotionDefinition = new PercentagePriceDefinition($promotionValue, $currencyPrecision, $itemFilterRule);
+                $promotionDefinition = new PercentagePriceDefinition($promotionValue, $currencyPrecision, $targetFilter);
                 break;
 
             default:
@@ -111,7 +126,7 @@ class PromotionItemBuilder
 
         // add custom content to our payload.
         // we need this as meta data information.
-        $promotionItem->setPayload($this->buildPayload($promotion, $eligibleItemIds));
+        $promotionItem->setPayload($this->buildPayload($promotion));
 
         // add our lazy-validation rules.
         // this is required within the recalculation process.
@@ -127,14 +142,9 @@ class PromotionItemBuilder
      * This will make sure we have our eligible items referenced as meta data
      * and also have the code in our payload.
      */
-    private function buildPayload(PromotionEntity $promotion, array $eligibleItemIds): array
+    private function buildPayload(PromotionEntity $promotion): array
     {
         $payload = [];
-
-        /** @var string $itemID */
-        foreach ($eligibleItemIds as $itemID) {
-            $payload['item-' . $itemID] = $itemID;
-        }
 
         // always make sure we have a valid code entry.
         // this helps us to identify the item by code later on

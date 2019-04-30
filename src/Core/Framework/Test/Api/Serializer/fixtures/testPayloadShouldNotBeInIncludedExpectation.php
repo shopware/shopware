@@ -45,10 +45,6 @@ return [
                     'data' => [],
                     'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/persona-promotions'],
                 ],
-                'discountPromotions' => [
-                    'data' => [],
-                    'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/discount-promotions'],
-                ],
                 'shippingMethodPriceCalculations' => [
                     'data' => [],
                     'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/shipping-method-price-calculations'],
@@ -60,6 +56,10 @@ return [
                 'cartPromotions' => [
                     'data' => [],
                     'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/cart-promotions'],
+                ],
+                'promotionDiscounts' => [
+                    'data' => [],
+                    'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/promotion-discounts'],
                 ],
             ],
             'meta' => null,

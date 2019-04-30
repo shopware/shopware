@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount;
 
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
+use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
@@ -51,24 +52,19 @@ class PromotionDiscountEntity extends Entity
     protected $value;
 
     /**
-     * @var bool
-     */
-    protected $graduated;
-
-    /**
-     * @var int|null
-     */
-    protected $graduationStep;
-
-    /**
-     * @var string|null
-     */
-    protected $graduationOrder;
-
-    /**
      * @var PromotionEntity|null
      */
     protected $promotion;
+
+    /**
+     * @var RuleCollection|null
+     */
+    protected $discountRules;
+
+    /**
+     * @var bool
+     */
+    protected $considerAdvancedRules;
 
     public function getPromotionId(): string
     {
@@ -119,36 +115,6 @@ class PromotionDiscountEntity extends Entity
         $this->value = $value;
     }
 
-    public function isGraduated(): bool
-    {
-        return $this->graduated;
-    }
-
-    public function setGraduated(bool $graduated): void
-    {
-        $this->graduated = $graduated;
-    }
-
-    public function getGraduationStep(): ?int
-    {
-        return $this->graduationStep;
-    }
-
-    public function setGraduationStep(int $graduationStep): void
-    {
-        $this->graduationStep = $graduationStep;
-    }
-
-    public function getGraduationOrder(): ?string
-    {
-        return $this->graduationOrder;
-    }
-
-    public function setGraduationOrder(string $graduationOrder): void
-    {
-        $this->graduationOrder = $graduationOrder;
-    }
-
     public function getPromotion(): ?PromotionEntity
     {
         return $this->promotion;
@@ -157,5 +123,29 @@ class PromotionDiscountEntity extends Entity
     public function setPromotion(PromotionEntity $promotion): void
     {
         $this->promotion = $promotion;
+    }
+
+    public function getDiscountRules(): ?RuleCollection
+    {
+        return $this->discountRules;
+    }
+
+    public function setDiscountRules(?RuleCollection $discountRules): void
+    {
+        $this->discountRules = $discountRules;
+    }
+
+    public function isConsiderAdvancedRules(): bool
+    {
+        if ($this->considerAdvancedRules === null) {
+            return false;
+        }
+
+        return $this->considerAdvancedRules;
+    }
+
+    public function setConsiderAdvancedRules(bool $considerAdvancedRules): void
+    {
+        $this->considerAdvancedRules = $considerAdvancedRules;
     }
 }

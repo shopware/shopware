@@ -3,14 +3,15 @@
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Cart\Builder;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
-use Shopware\Core\Checkout\Cart\Rule\LineItemRule;
+use Shopware\Core\Checkout\Cart\Rule\LineItemUnitPriceRule;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Builder\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
-use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\Rule\Container\OrRule;
 
 class PromotionItemBuilderTest extends TestCase
 {
@@ -94,13 +95,9 @@ class PromotionItemBuilderTest extends TestCase
         $discount->setType(PromotionDiscountEntity::TYPE_PERCENTAGE);
         $discount->setValue(10);
 
-        $item = $builder->buildDiscountLineItem($this->promotion, $discount, 1, []);
+        $item = $builder->buildDiscountLineItem($this->promotion, $discount, 1, null);
 
-        // build our expected price definition
-        // including the line item filter rule for our eligible item IDs
-        $filter = new LineItemRule();
-        $filter->assign(['identifiers' => [], 'operator' => Rule::OPERATOR_EQ]);
-        $expectedPriceDefinition = new PercentagePriceDefinition(-10, 1, $filter);
+        $expectedPriceDefinition = new PercentagePriceDefinition(-10, 1, null);
 
         static::assertEquals($expectedPriceDefinition, $item->getPriceDefinition());
     }
@@ -125,62 +122,21 @@ class PromotionItemBuilderTest extends TestCase
         $discount->setType(PromotionDiscountEntity::TYPE_ABSOLUTE);
         $discount->setValue(50);
 
-        $item = $builder->buildDiscountLineItem($this->promotion, $discount, 1, []);
+        $item = $builder->buildDiscountLineItem($this->promotion, $discount, 1);
 
-        // build our expected price definition
-        // including the line item filter rule for our eligible item IDs
-        $filter = new LineItemRule();
-        $filter->assign(['identifiers' => [], 'operator' => Rule::OPERATOR_EQ]);
-        $expectedPriceDefinition = new AbsolutePriceDefinition(-50, 1, $filter);
+        $expectedPriceDefinition = new AbsolutePriceDefinition(-50, 1, null);
 
         static::assertEquals($expectedPriceDefinition, $item->getPriceDefinition());
     }
 
     /**
-     * This test verifies that our LineItem contains a payload
-     * with all product item IDs that are eligible for
-     * the current promotion entity.
-     * Every payload entry is also prefixed with "item-".
+     * This test verifies that the correct discount filter
+     * is set in the discountItemBuilder
      *
      * @test
      * @group promotions
-     *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
      */
-    public function testPayloadContainsProductItems()
-    {
-        $builder = new PromotionItemBuilder('My-TYPE');
-
-        $discount = new PromotionDiscountEntity();
-        $discount->setId('D5');
-        $discount->setType(PromotionDiscountEntity::TYPE_PERCENTAGE);
-        $discount->setValue(10);
-
-        $item = $builder->buildDiscountLineItem($this->promotion, $discount, 1, ['P1', 'P2']);
-
-        $expectedPayload = [
-            'item-P1' => 'P1',
-            'item-P2' => 'P2',
-            'code' => '',
-        ];
-
-        static::assertEquals($expectedPayload, $item->getPayload());
-    }
-
-    /**
-     * This test verifies that our price definition gets the
-     * correct filter with the values from our eligible item IDs.
-     * With this filter, the calculation process will only apply
-     * discounts on these provided item IDs from our promotion.
-     *
-     * @test
-     * @group promotions
-     *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     */
-    public function testEligibleItemsGetDiscount()
+    public function testDiscountTargetFilter()
     {
         $builder = new PromotionItemBuilder('My-TYPE');
 
@@ -188,13 +144,98 @@ class PromotionItemBuilderTest extends TestCase
         $discount->setId('D5');
         $discount->setType(PromotionDiscountEntity::TYPE_ABSOLUTE);
         $discount->setValue(50);
+        $discount->setConsiderAdvancedRules(true);
 
-        $item = $builder->buildDiscountLineItem($this->promotion, $discount, 1, ['P1', 'P2']);
+        $amount = 100;
+        $operator = '=';
 
-        $itemRule = new LineItemRule();
-        $itemRule->assign(['identifiers' => ['P1', 'P2'], 'operator' => Rule::OPERATOR_EQ]);
-        $expectedPriceDefinition = new AbsolutePriceDefinition(-50, 1, $itemRule);
+        $discountFilter = $this->getFakeRule($amount, $operator);
 
-        static::assertEquals($expectedPriceDefinition, $item->getPriceDefinition());
+        $discountRuleEntity = new RuleEntity();
+        $discountRuleEntity->setId('foo');
+        $discountRuleEntity->setPayload($discountFilter);
+
+        $ruleCollection = new RuleCollection();
+        $ruleCollection->add($discountRuleEntity);
+        $discount->setDiscountRules($ruleCollection);
+
+        $expectedRule = new OrRule();
+        $expectedRule->addRule($discountFilter);
+
+        $item = $builder->buildDiscountLineItem($this->promotion, $discount, 1);
+
+        static::assertEquals($expectedRule, $item->getPriceDefinition()->getFilter());
+    }
+
+    /**
+     * This test verifies that the correct discount filter
+     * is set in the discountItemBuilder
+     *
+     * @test
+     * @group promotions
+     */
+    public function testDiscountTargetFilterIfDiscountRulesShouldBeIgnored()
+    {
+        $builder = new PromotionItemBuilder('My-TYPE');
+
+        $discount = new PromotionDiscountEntity();
+        $discount->setId('D5');
+        $discount->setType(PromotionDiscountEntity::TYPE_ABSOLUTE);
+        $discount->setValue(50);
+        $discount->setConsiderAdvancedRules(false);
+
+        $amount = 100;
+        $operator = '=';
+
+        $discountFilter = $this->getFakeRule($amount, $operator);
+
+        $discountRuleEntity = new RuleEntity();
+        $discountRuleEntity->setId('foo');
+        $discountRuleEntity->setPayload($discountFilter);
+
+        $ruleCollection = new RuleCollection();
+        $ruleCollection->add($discountRuleEntity);
+        $discount->setDiscountRules($ruleCollection);
+
+        $item = $builder->buildDiscountLineItem($this->promotion, $discount, 1);
+
+        static::assertNull($item->getPriceDefinition()->getFilter());
+    }
+
+    /**
+     * This test verifies that the correct discount filter
+     * is set in the discountItemBuilder if discount rules are empty
+     *
+     * @test
+     * @group promotions
+     */
+    public function testDiscountTargetFilterIfDiscountRulesAreEmpty()
+    {
+        $builder = new PromotionItemBuilder('My-TYPE');
+
+        $discount = new PromotionDiscountEntity();
+        $discount->setId('D5');
+        $discount->setType(PromotionDiscountEntity::TYPE_ABSOLUTE);
+        $discount->setValue(50);
+        $discount->setConsiderAdvancedRules(true);
+
+        $ruleCollection = new RuleCollection();
+        $discount->setDiscountRules($ruleCollection);
+
+        $item = $builder->buildDiscountLineItem($this->promotion, $discount, 1);
+
+        static::assertNull($item->getPriceDefinition()->getFilter());
+    }
+
+    /**
+     * just get a ruleEntity with ID R1
+     *
+     * @return RuleEntity
+     */
+    private function getFakeRule(int $amount, string $operator): LineItemUnitPriceRule
+    {
+        $productRule = (new LineItemUnitPriceRule())->assign(['amount' => $amount, 'operator' => $operator]);
+
+        return $productRule;
     }
 }

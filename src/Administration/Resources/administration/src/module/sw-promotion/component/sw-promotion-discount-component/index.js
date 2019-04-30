@@ -1,5 +1,6 @@
-import { Component, Mixin } from 'src/core/shopware';
+import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-promotion-discount-component.html.twig';
+import './sw-promotion-discount-component.scss';
 import DiscountTypes from './../../common/discount-type';
 import DiscountScopes from './../../common/discount-scope';
 import DiscountHandler from './handler';
@@ -30,6 +31,12 @@ Component.register('sw-promotion-discount-component', {
             handler() {
                 this.verifyValueMax();
             }
+        }
+    },
+    computed: {
+
+        rulesStore() {
+            return State.getStore('rule');
         }
     },
     methods: {

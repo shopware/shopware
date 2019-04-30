@@ -3,7 +3,14 @@ const shippingMethodPage = require('administration/page-objects/module/sw-shippi
 const shippingMethodName = 'automated test shipping';
 
 module.exports = {
-    '@tags': ['settings', 'shipping-method', 'shipping-method-delete', 'delete'],
+    '@tags': ['settings', 'shipping', 'shipping-delete', 'delete'],
+    before: (browser, done) => {
+        return global.ShippingFixtureService.setShippingFixture({
+            name: shippingMethodName
+        }).then(() => {
+            done();
+        });
+    },
     'navigate to shipping page': browser => {
         browser
             .openMainMenuEntry({
@@ -13,15 +20,8 @@ module.exports = {
             .click('#sw-settings-shipping')
             .assert.urlContains('#/sw/settings/shipping/index');
     },
-    'create test data and find in frontend': browser => {
+    'find shipping method to be deleted': browser => {
         const page = shippingMethodPage(browser);
-
-        browser
-            .click('a[href="#/sw/settings/shipping/create"]')
-            .waitForElementVisible('.sw-settings-shipping-detail');
-
-        page.createShippingMethod(shippingMethodName);
-        page.moveToListViewFromDetail();
 
         browser
             .fillGlobalSearchField(shippingMethodName)

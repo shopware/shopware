@@ -28,12 +28,12 @@ export default class SalesChannelApiService extends ApiService {
     getHeaders() {
         return {
             'Content-Type': 'application/json',
-            'X-SW-Access-Key': `${this.accessKey}`,
-            'X-SW-Context-Token': `${this.contextToken}`
+            'SW-Access-Key': `${this.accessKey}`,
+            'SW-Context-Token': `${this.contextToken}`
         };
     }
 
-    request({url, method, params, data}) {
+    request({ url, method, params, data }) {
         const requestConfig = {
             headers: this.getHeaders(),
             url,
@@ -47,7 +47,7 @@ export default class SalesChannelApiService extends ApiService {
                 return response.data[0];
             }
             return response.data;
-        }).catch(({config, response}) => {
+        }).catch(({ response }) => {
             if (response.data && response.data.errors) {
                 console.log(response.data.errors);
             }

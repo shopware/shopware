@@ -282,13 +282,13 @@ export default class Repository {
 
         if (context.languageId) {
             headers = Object.assign(
-                { 'x-sw-language-id': context.languageId },
+                { 'sw-language-id': context.languageId },
                 headers
             );
         }
         if (context.versionId) {
             headers = Object.assign(
-                { 'x-sw-version-id': context.versionId },
+                { 'sw-version-id': context.versionId },
                 headers
             );
         }

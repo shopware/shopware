@@ -88,10 +88,10 @@ class SalesChannelCustomerControllerTest extends TestCase
 
         static::assertEquals(200, $response->getStatusCode());
         static::assertNotEmpty($content);
-        static::assertArrayHasKey('x-sw-context-token', $content);
-        static::assertNotEmpty($content['x-sw-context-token']);
+        static::assertArrayHasKey('sw-context-token', $content);
+        static::assertNotEmpty($content['sw-context-token']);
 
-        $this->getSalesChannelClient()->setServerParameter('HTTP_X_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
+        $this->getSalesChannelClient()->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
         $this->getSalesChannelClient()->request('GET', '/sales-channel-api/v1/customer');
         $response = $this->getSalesChannelClient()->getResponse();
 
@@ -153,10 +153,10 @@ class SalesChannelCustomerControllerTest extends TestCase
 
         static::assertEquals(200, $response->getStatusCode());
         static::assertNotEmpty($content);
-        static::assertArrayHasKey('x-sw-context-token', $content);
-        static::assertNotEmpty($content['x-sw-context-token']);
+        static::assertArrayHasKey('sw-context-token', $content);
+        static::assertNotEmpty($content['sw-context-token']);
 
-        $this->getSalesChannelClient()->setServerParameter('HTTP_X_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
+        $this->getSalesChannelClient()->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
         $this->getSalesChannelClient()->request('GET', '/sales-channel-api/v1/customer');
         $response = $this->getSalesChannelClient()->getResponse();
 
@@ -575,7 +575,7 @@ class SalesChannelCustomerControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         $content = json_decode($response->getContent(), true);
-        $this->getSalesChannelClient()->setServerParameter('HTTP_X_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
+        $this->getSalesChannelClient()->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
 
         return $customerId;
     }

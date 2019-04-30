@@ -18,7 +18,7 @@ The Storefront API has no authentication since it is designed to be a public API
 Some user related endpoints require a logged in user.
 
 The access key which you have generated above must always be included in your API request.
-The custom header **x-sw-access-key** is used for this purpose.
+The custom header **sw-access-key** is used for this purpose.
 
 ## Return formats
 

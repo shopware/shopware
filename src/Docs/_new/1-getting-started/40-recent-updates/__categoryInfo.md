@@ -916,7 +916,7 @@ dl dd {
 
 <ul>
 	<li>Translate fields are now available under the translated. The values listed there were determined using the language inheritance.</li>
-	<li>The context object contains a switch &quot;considerInheritance&quot;. This can be sent via api as header (x-sw-inheritance) to consider the inheritance in search and read requests.</li>
+	<li>The context object contains a switch &quot;considerInheritance&quot;. This can be sent via api as header (sw-inheritance) to consider the inheritance in search and read requests.</li>
 </ul>
 
 <p>This value is initialized for the following routes as follows</p>

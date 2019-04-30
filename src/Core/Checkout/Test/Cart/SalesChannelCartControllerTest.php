@@ -560,7 +560,7 @@ class SalesChannelCartControllerTest extends TestCase
         $content = json_decode($response->getContent(), true);
 
         $client = clone $this->getSalesChannelClient();
-        $client->setServerParameter('HTTP_X_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
+        $client->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
 
         return $client;
     }

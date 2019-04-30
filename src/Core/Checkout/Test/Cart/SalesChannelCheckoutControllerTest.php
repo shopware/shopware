@@ -875,7 +875,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
         if ($client === null) {
             $client = clone $salesChannelClient;
         }
-        $client->setServerParameter('HTTP_X_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
+        $client->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
 
         return $client;
     }
@@ -910,7 +910,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $response = $client->getResponse();
         $content = json_decode($response->getContent(), true);
 
-        $client->setServerParameter('HTTP_X_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
+        $client->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
     }
 
     private function setShippingMethod(string $shippingId, Client $client): void

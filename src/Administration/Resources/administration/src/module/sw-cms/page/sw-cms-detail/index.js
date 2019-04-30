@@ -198,7 +198,7 @@ Component.register('sw-cms-detail', {
             httpClient.get(`/_proxy/sales-channel-api/${this.currentSalesChannelKey}/v1/cms-page/${pageId}`, {
                 headers: {
                     Authorization: `Bearer ${this.loginService.getToken()}`,
-                    'x-sw-language-id': currentLanguageId
+                    'sw-language-id': currentLanguageId
                 }
             }).then((response) => {
                 if (response.data.data) {

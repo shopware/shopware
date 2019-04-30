@@ -12,9 +12,6 @@ use Shopware\Core\Checkout\Promotion\Cart\Builder\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Framework\Rule\Rule;
 
-/**
- * @copyright dasistweb GmbH (http://www.dasistweb.de)
- */
 class PromotionItemBuilderTest extends TestCase
 {
     /** @var PromotionEntity */

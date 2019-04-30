@@ -20,12 +20,24 @@ class Migration1536233360CmsBlock extends MigrationStep
               `cms_page_id` BINARY(16) NOT NULL,
               `position` INT(11) NOT NULL,
               `type` VARCHAR(255) NOT NULL,
+              `name`  VARCHAR(255) NULL,
+              `sizing_mode` VARCHAR(255) NULL,
+              `margin_top` VARCHAR(255) NULL,
+              `margin_bottom` VARCHAR(255) NULL,
+              `margin_left` VARCHAR(255) NULL,
+              `margin_right` VARCHAR(255) NULL,
+              `background_color` VARCHAR(255) NULL,
+              `background_media_id` BINARY(16) NULL,
+              `background_media_mode` VARCHAR(255) NULL,
+              `css_class` VARCHAR(255) NULL,
               `attributes` JSON NULL,
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`),
               CONSTRAINT `fk.cms_block.cms_page_id` FOREIGN KEY (`cms_page_id`)
                 REFERENCES `cms_page` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+              CONSTRAINT `fk.cms_block.background_media_id` FOREIGN KEY (`background_media_id`)
+                REFERENCES `media` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
               CONSTRAINT `json.cms_block.attributes` CHECK (JSON_VALID(`attributes`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;

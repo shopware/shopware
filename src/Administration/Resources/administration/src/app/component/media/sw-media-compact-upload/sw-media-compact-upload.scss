@@ -1,3 +1,4 @@
+@import "~scss/variables";
 
 .sw-media-compact-upload.sw-media-upload {
     .sw-media-upload__dropzone {
@@ -27,9 +28,20 @@
     .sw-media-compact-upload__browse-button {
         padding: 10px;
     }
+
     .sw-media-compact-upload__browse-icon {
         width: 14px;
         height: 14px;
+    }
+
+    .sw-media-compact-upload__label {
+        display: block;
+        line-height: 16px;
+        font-size: 14px;
+        margin-bottom: 8px;
+        color: $color-kashmir;
+        font-weight: normal;
+        user-select: none;
     }
 
 }

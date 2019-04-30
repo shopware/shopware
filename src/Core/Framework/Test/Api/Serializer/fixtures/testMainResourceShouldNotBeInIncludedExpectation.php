@@ -191,6 +191,12 @@ return [
                         'related' => '/api/media/3e352be2d85846dd97529c0f6b544870/order-line-items',
                     ],
                 ],
+                'cmsBlocks' => [
+                    'data' => [],
+                    'links' => [
+                        'related' => '/api/media/3e352be2d85846dd97529c0f6b544870/cms-blocks',
+                    ],
+                ],
             ],
             'meta' => null,
         ],

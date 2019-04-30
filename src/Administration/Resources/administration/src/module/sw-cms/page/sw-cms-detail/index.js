@@ -217,10 +217,6 @@ Component.register('sw-cms-detail', {
 
                     this.page.blocks.forEach((block, index) => {
                         block.position = index;
-
-                        if (block.config === null) {
-                            block.config = { ...this.blockConfigDefaults };
-                        }
                     });
 
                     this.cmsPageState.currentPage = this.page;
@@ -313,7 +309,7 @@ Component.register('sw-cms-detail', {
                 listingBlock.pageId = this.page.id;
 
                 Object.assign(
-                    listingBlock.config,
+                    listingBlock,
                     cloneDeep(this.blockConfigDefaults),
                     cloneDeep(blockConfig.defaultConfig || {})
                 );
@@ -372,11 +368,13 @@ Component.register('sw-cms-detail', {
             const blockStore = this.page.getAssociation('blocks');
             const newBlock = blockStore.create();
 
-            newBlock.type = block.type;
-            newBlock.position = block.position + 1;
-            newBlock.pageId = this.page.id;
+            const blockClone = cloneDeep(block);
+            blockClone.id = newBlock.id;
+            blockClone.position = block.position + 1;
+            blockClone.pageId = this.page.id;
+            blockClone.slots = [];
 
-            newBlock.config = cloneDeep(block.config);
+            Object.assign(newBlock, blockClone);
 
             const slotStore = newBlock.getAssociation('slots');
             block.slots.forEach((slot) => {
@@ -407,7 +405,7 @@ Component.register('sw-cms-detail', {
             newBlock.pageId = this.page.id;
 
             Object.assign(
-                newBlock.config,
+                newBlock,
                 cloneDeep(this.blockConfigDefaults),
                 cloneDeep(blockConfig.defaultConfig || {})
             );
@@ -477,6 +475,12 @@ Component.register('sw-cms-detail', {
                 });
                 return Promise.reject();
             }
+
+            const blockStore = this.page.getAssociation('blocks');
+            blockStore.forEach((block) => {
+                block.original.backgroundMedia = null;
+                block.draft.backgroundMedia = null;
+            });
 
             this.isLoading = true;
             return this.page.save(true).then(() => {

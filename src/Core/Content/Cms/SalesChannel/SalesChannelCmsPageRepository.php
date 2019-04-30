@@ -27,6 +27,7 @@ class SalesChannelCmsPageRepository
 
         $blockCriteria = new Criteria();
         $blockCriteria->addAssociation('slots');
+        $blockCriteria->addAssociation('backgroundMedia');
         $blockCriteria->addSorting(new FieldSorting('position', 'ASC'));
         $criteria->addAssociation('cms_page.blocks', $blockCriteria);
 
@@ -43,6 +44,7 @@ class SalesChannelCmsPageRepository
 
         $blockCriteria = new Criteria();
         $blockCriteria->addAssociation('slots');
+        $blockCriteria->addAssociation('backgroundMedia');
         $blockCriteria->addSorting(new FieldSorting('position', 'ASC'));
         $criteria->addAssociation('cms_page.blocks', $blockCriteria);
 

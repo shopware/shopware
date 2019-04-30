@@ -6,6 +6,7 @@ use Composer\Semver\Constraint\ConstraintInterface;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
+use Shopware\Core\Checkout\Customer\Event\CustomerChangedPaymentMethodEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
@@ -15,6 +16,8 @@ use Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerPasswordMatches;
 use Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationService;
+use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -26,6 +29,7 @@ use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -75,11 +79,15 @@ class AccountService
      * @var LegacyPasswordVerifier
      */
     private $legacyPasswordVerifier;
-
     /**
      * @var CustomerProfileValidationService
      */
     private $customerProfileValidationService;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $paymentMethodRepository;
 
     public function __construct(
         EntityRepositoryInterface $customerAddressRepository,
@@ -89,7 +97,8 @@ class AccountService
         EventDispatcherInterface $eventDispatcher,
         DataValidator $validator,
         CustomerProfileValidationService $customerProfileValidationService,
-        LegacyPasswordVerifier $legacyPasswordVerifier
+        LegacyPasswordVerifier $legacyPasswordVerifier,
+        EntityRepositoryInterface $paymentMethodRepository
     ) {
         $this->customerAddressRepository = $customerAddressRepository;
         $this->customerRepository = $customerRepository;
@@ -99,6 +108,7 @@ class AccountService
         $this->validator = $validator;
         $this->legacyPasswordVerifier = $legacyPasswordVerifier;
         $this->customerProfileValidationService = $customerProfileValidationService;
+        $this->paymentMethodRepository = $paymentMethodRepository;
     }
 
     /**
@@ -336,6 +346,25 @@ class AccountService
     }
 
     /**
+     * @throws InvalidUuidException
+     * @throws UnknownPaymentMethodException
+     */
+    public function changeDefaultPaymentMethod(string $paymentMethodId, RequestDataBag $requestDataBag, CustomerEntity $customer, Context $context): void
+    {
+        $this->validatePaymentMethodId($paymentMethodId, $context);
+
+        $this->customerRepository->update([
+            [
+                'id' => $customer->getId(),
+                'defaultPaymentMethodId' => $paymentMethodId,
+            ],
+        ], $context);
+
+        $event = new CustomerChangedPaymentMethodEvent($context, $customer, $requestDataBag);
+        $this->eventDispatcher->dispatch($event->getName(), $event);
+    }
+
+    /**
      * @throws CustomerNotFoundException
      * @throws BadCredentialsException
      */
@@ -505,5 +534,23 @@ class AccountService
         $this->validator->validate($data->all(), $definition);
 
         $this->tryValidateEqualtoConstraint($data->all(), 'newPassword', $definition);
+    }
+
+    /**
+     * @throws InvalidUuidException
+     * @throws UnknownPaymentMethodException
+     */
+    private function validatePaymentMethodId(string $paymentMethodId, Context $context): void
+    {
+        if (!Uuid::isValid($paymentMethodId)) {
+            throw new InvalidUuidException($paymentMethodId);
+        }
+
+        /** @var PaymentMethodEntity|null $paymentMethod */
+        $paymentMethod = $this->paymentMethodRepository->search(new Criteria([$paymentMethodId]), $context)->get($paymentMethodId);
+
+        if (!$paymentMethod) {
+            throw new UnknownPaymentMethodException($paymentMethodId);
+        }
     }
 }

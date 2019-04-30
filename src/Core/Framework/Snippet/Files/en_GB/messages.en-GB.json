@@ -93,6 +93,7 @@
         "overviewLink": "Overview",
         "profileLink": "Profile",
         "addressLink": "Addresses",
+        "paymentSuccess": "Payment method was changed successfully.",
         "paymentLink": "Payment methods",
         "ordersLink": "Orders",
         "profileTitle": "Profile",
@@ -250,7 +251,9 @@
     },
     "error": {
         "message-default": "Unfortunately, something went wrong.",
-        "addToCartError": "An error occurred while adding the item(s) to cart."
+        "addToCartError": "An error occurred while adding the item(s) to cart.",
+        "FRAMEWORK__INVALID_UUID": "The selected payment method does not exist.",
+        "CHECKOUT__UNKNOWN_PAYMENT_METHOD": "The selected payment method does not exist."
     },
     "footer": {
         "serviceHotlineHeadline": "Service Hotline",

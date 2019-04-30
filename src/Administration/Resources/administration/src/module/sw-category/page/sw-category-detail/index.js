@@ -24,7 +24,7 @@ Component.register('sw-category-detail', {
             isDisplayingLeavePageWarning: false,
             nextRoute: null,
             disableContextMenu: false,
-            term: null
+            term: ''
         };
     },
 
@@ -109,18 +109,7 @@ Component.register('sw-category-detail', {
 
         onSearch(value) {
             if (value.length === 0) value = undefined;
-
-            if (this.disableRouteParams) {
-                this.term = value;
-                this.page = 1;
-                this.getList();
-            }
-
             this.term = value;
-            this.updateRoute({
-                term: this.term,
-                page: 1
-            });
         },
 
         checkViewport() {

@@ -121,10 +121,10 @@
 
                             {% block sw_category_detail_layout_desc_info %}
                                 <div class="sw-category-detail-base__layout-desc-info">
-                                    <div class="sw-category-detail-base__layout-desc-headline">
+                                    <div class="sw-category-detail-base__layout-desc-headline" :class="{ 'is--empty': !cmsPage }">
                                         {{ cmsPage ? cmsPage.name : $tc('sw-category.base.cms.defaultTitle') }}
                                     </div>
-                                    <div class="sw-category-detail-base__layout-desc-subheadline">
+                                    <div class="sw-category-detail-base__layout-desc-subheadline" :class="{ 'is--empty': !cmsPage }">
                                         {{ cmsPage ? cmsPage.type : $tc('sw-category.base.cms.defaultDesc') }}
                                     </div>
                                 </div>

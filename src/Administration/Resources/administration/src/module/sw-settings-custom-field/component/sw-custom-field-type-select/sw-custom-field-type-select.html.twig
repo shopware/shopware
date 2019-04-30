@@ -6,12 +6,12 @@
                 type="switch"
                 class="sw-custom-field-detail__switch"
                 :label="$tc('sw-settings-custom-field.customField.detail.labelMultiSelect')"
-                v-model="currentcustomField.config.multi">
+                v-model="currentCustomField.config.multi">
         </sw-field>
     {% endblock %}
 
     {% block sw_custom_field_type_select_options %}
-        <div v-for="(option, index) in currentcustomField.config.options">
+        <div v-for="(option, index) in currentCustomField.config.options">
             {% block sw_custom_field_type_select_options_label %}
                 <span>
                     {{ $tc('sw-settings-custom-field.customField.detail.labelOption', 0, { count: (index+1) }) }}

@@ -29,7 +29,7 @@
         "labelName": "Set name",
         "placeholderName": "Type a name...",
         "labelCheckboxTranslated": "Maintain in all administration languages",
-        "titleSaveSuccess": "Custom Field-Set",
+        "titleSaveSuccess": "Custom field-set",
         "messageSaveSuccess": "The set \"{name}\" has been saved successfully.",
         "messageCustomFieldsEmpty": "No custom fields yet.",
         "addCustomField": "New custom field",
@@ -72,7 +72,7 @@
         "labelNo": "No",
         "labelCustomFieldPosition": "Position",
         "labelMultiSelect": "Multi select",
-        "tooltipCustomFieldPosition": "Controls the position of the custom Field on detail pages.",
+        "tooltipCustomFieldPosition": "Controls the position of the custom field on detail pages.",
         "tooltipRequired": "Makes this custom field required on detail pages."
       },
       "list": {

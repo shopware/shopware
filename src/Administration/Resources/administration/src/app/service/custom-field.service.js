@@ -91,7 +91,7 @@ export default function createCustomFieldService() {
         'product_manufacturer',
         'customer',
         'customer_address',
-        'order',
+        // 'order', TODO: fix NEXT-3006
         'sales_channel',
         'media'
     ];

@@ -92,7 +92,10 @@ module.exports = {
 
         browser
             .click(`${page.elements.gridRow}--1 #defaultShippingAddress-0`)
+            .click(`${page.elements.gridRow}--1 #defaultBillingAddress-0`)
             .expect.element(`${page.elements.gridRow}--0 #defaultShippingAddress-0`).to.be.not.selected;
+        browser.expect.element(`${page.elements.gridRow}--0 #defaultBillingAddress-0`).to.be.not.selected;
+
         browser
             .clickContextMenuItem(page.elements.contextMenuButton, {
                 menuActionSelector: `${page.elements.contextMenu}-item--danger`,

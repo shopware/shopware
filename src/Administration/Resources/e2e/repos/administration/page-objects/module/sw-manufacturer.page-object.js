@@ -17,8 +17,9 @@ class ManufacturerPageObject extends GeneralPageObject {
             .fillField('input[name=name]', manufacturerName)
             .fillField('input[name=link]', 'https://www.google.com/doodles')
             .fillField('.sw-text-editor__content-editor', 'De-scribe THIS!', false, 'editor')
+            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .click(this.elements.manufacturerSave)
-            .checkNotification(`Manufacturer "${manufacturerName}" has been saved successfully.`);
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium');
     }
 
     addManufacturerLogo(imagePath) {

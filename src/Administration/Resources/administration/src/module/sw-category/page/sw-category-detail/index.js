@@ -9,8 +9,7 @@ Component.register('sw-category-detail', {
 
     mixins: [
         Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('listing')
+        Mixin.getByName('placeholder')
     ],
 
     data() {
@@ -24,7 +23,8 @@ Component.register('sw-category-detail', {
             splitBreakpoint: 1024,
             isDisplayingLeavePageWarning: false,
             nextRoute: null,
-            disableContextMenu: false
+            disableContextMenu: false,
+            term: null
         };
     },
 
@@ -104,6 +104,22 @@ Component.register('sw-category-detail', {
         registerListener() {
             this.$device.onResize({
                 listener: this.checkViewport.bind(this)
+            });
+        },
+
+        onSearch(value) {
+            if (value.length === 0) value = undefined;
+
+            if (this.disableRouteParams) {
+                this.term = value;
+                this.page = 1;
+                this.getList();
+            }
+
+            this.term = value;
+            this.updateRoute({
+                term: this.term,
+                page: 1
             });
         },
 

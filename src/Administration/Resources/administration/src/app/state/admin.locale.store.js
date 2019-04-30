@@ -21,6 +21,13 @@ export default {
 
     actions: {
         setAdminLocale({ commit }, locale) {
+            const loginService = Application.getContainer('service').loginService;
+
+            if (!loginService.isLoggedIn()) {
+                commit('setAdminLocale', { locale, languageId: '' });
+                return;
+            }
+
             const localeToLanguageService = Application.getContainer('service').localeToLanguageService;
             localeToLanguageService.localeToLanguage(locale).then((languageId) => {
                 commit('setAdminLocale', { locale, languageId });

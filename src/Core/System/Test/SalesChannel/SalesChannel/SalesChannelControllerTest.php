@@ -469,7 +469,6 @@ class SalesChannelControllerTest extends TestCase
         $shippingMethod = [
             'id' => Uuid::randomHex(),
             'name' => 'Express shipping',
-            'bindShippingfree' => false,
             'deliveryTime' => $this->createDeliveryTimeData(),
             'availabilityRule' => [
                 'id' => Uuid::randomHex(),

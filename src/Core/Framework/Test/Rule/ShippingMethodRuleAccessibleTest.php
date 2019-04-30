@@ -8,6 +8,7 @@ use Shopware\Core\Content\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -89,12 +90,8 @@ class ShippingMethodRuleAccessibleTest extends TestCase
         $defaultContext = Context::createDefaultContext();
         $this->ruleRepository->create($this->rule, $defaultContext);
 
+        $this->expectException(RestrictDeleteViolationException::class);
         $this->ruleRepository->delete([['id' => $this->ruleId]], $defaultContext);
-
-        $criteria = new Criteria([$this->ruleId]);
-        $searchResult = $this->ruleRepository->search($criteria, $defaultContext);
-
-        static::assertCount(0, $searchResult);
     }
 
     public function testRulesCanBeAccessedFromShippingMethod(): void

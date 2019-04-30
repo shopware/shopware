@@ -1,11 +1,16 @@
 import { Component, Mixin, State } from 'src/core/shopware';
+import { cloneDeep, merge } from 'src/core/service/utils/object.utils';
 import { warn } from 'src/core/service/utils/debug.utils';
+import type from 'src/core/service/utils/types.utils';
+import EntityProxy from 'src/core/data/EntityProxy';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-category-detail.html.twig';
 import './sw-category-detail.scss';
 
 Component.register('sw-category-detail', {
     template,
+
+    inject: ['cmsPageService'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -136,16 +141,30 @@ Component.register('sw-category-detail', {
                 criteria: CriteriaFactory.equals('cms_page.id', cmsPageId),
                 associations: {
                     blocks: {
+                        sort: 'position',
                         associations: {
                             slots: {}
                         }
                     }
                 }
             };
+
             return this.cmsPageStore.getList(params, true).then((response) => {
-                const cmsPage = response.items[0];
+                const cmsPage = new EntityProxy('cms_page', this.cmsPageService, response.items[0].id, null);
+                cmsPage.setData(response.items[0], false, true, false);
+
+                if (this.category.slotConfig !== null) {
+                    cmsPage.getAssociation('blocks').forEach((block) => {
+                        block.getAssociation('slots').forEach((slot) => {
+                            if (this.category.slotConfig[slot.id]) {
+                                merge(slot.config, cloneDeep(this.category.slotConfig[slot.id]));
+                            }
+                        });
+                    });
+                }
+
                 this.cmsPage = cmsPage;
-                return cmsPage;
+                return this.cmsPage;
             });
         },
 
@@ -266,6 +285,12 @@ Component.register('sw-category-detail', {
             const messageSaveError = this.$tc('global.notification.notificationSaveErrorMessage',
                 0, { entityName: categoryName });
 
+            const pageOverrides = this.getCmsPageOverrides();
+
+            if (type.isPlainObject(pageOverrides) && Object.keys(pageOverrides).length > 0) {
+                this.category.slotConfig = cloneDeep(pageOverrides);
+            }
+
             this.isLoading = true;
             return this.category.save().then(() => {
                 this.isLoading = false;
@@ -281,6 +306,25 @@ Component.register('sw-category-detail', {
                 });
                 warn(this._name, exception.message, exception.response);
             });
+        },
+
+        getCmsPageOverrides(page = this.cmsPage) {
+            const slotOverrides = {};
+            const changedBlocks = page.getChangedAssociations().blocks;
+
+            if (type.isArray(changedBlocks)) {
+                changedBlocks.forEach((block) => {
+                    if (block.slots && block.slots.length > 0) {
+                        block.slots.forEach((slot) => {
+                            if (type.isPlainObject(slot.config)) {
+                                slotOverrides[slot.id] = slot.config;
+                            }
+                        });
+                    }
+                });
+            }
+
+            return slotOverrides;
         }
     }
 });

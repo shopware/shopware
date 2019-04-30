@@ -85,9 +85,11 @@ export function getObjectDiff(a, b) {
         if (type.isObject(b[key])) {
             const changes = getObjectDiff(a[key], b[key]);
 
-            if (!(changes instanceof Object) || Object.keys(changes).length > 0) {
+            if (!type.isObject(changes) || Object.keys(changes).length > 0) {
                 return { ...acc, [key]: changes };
             }
+
+            return acc;
         }
 
         if (a[key] !== b[key]) {

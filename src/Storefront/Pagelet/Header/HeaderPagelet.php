@@ -17,7 +17,7 @@ class HeaderPagelet extends Struct
     private $navigation;
 
     /**
-     * @var \Shopware\Core\Framework\DataAbstractionLayer\Util\Tree\Tree
+     * @var \Shopware\Core\Content\Category\Tree\Tree
      */
     private $offcanvasNavigation;
 

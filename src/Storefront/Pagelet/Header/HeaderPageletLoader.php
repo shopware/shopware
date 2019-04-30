@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
 namespace Shopware\Storefront\Pagelet\Header;
+
 use Shopware\Core\Content\Category\Service\NavigationLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;

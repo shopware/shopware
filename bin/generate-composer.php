@@ -62,7 +62,9 @@ function make_comparator(string $prefix): callable
     $platformComposer = json_decode(file_get_contents($composerFile), true);
 
     $hasChanges = false;
-    if (array_diff_assoc($dependencies, $platformComposer['require']) || array_diff_assoc($devDependencies, $platformComposer['require-dev'])) {
+    if (array_diff_assoc($dependencies, $platformComposer['require'])
+        || array_diff_assoc($devDependencies, $platformComposer['require-dev'])
+    ) {
         $hasChanges = true;
     }
 
@@ -71,7 +73,7 @@ function make_comparator(string $prefix): callable
 
     $jsonString = json_encode($platformComposer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
-    file_put_contents($composerFile, $jsonString);
+    file_put_contents($composerFile, $jsonString . PHP_EOL);
 
     if ($hasChanges) {
         echo PHP_EOL;

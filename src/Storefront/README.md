@@ -16,7 +16,7 @@ This is easily done by executing the following commands in the shopware root fol
 - storefront:dev        Builds the project for development
 - storefront:hot        Starts the hot module reloading serve
 - storefront:install    Installs the node.js dependencies
-- storefront:prod       Builds the project for production
+- storefront:build      Builds the project for production
 - storefront:watch      Starts the webpack watcher
 
 For example:

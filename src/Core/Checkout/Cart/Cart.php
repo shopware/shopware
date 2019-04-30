@@ -4,8 +4,10 @@ namespace Shopware\Core\Checkout\Cart;
 
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemovableException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -115,6 +117,8 @@ class Cart extends Struct
     }
 
     /**
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
      * @throws MixedLineItemTypeException
      */
     public function addLineItems(LineItemCollection $lineItems): void
@@ -149,6 +153,8 @@ class Cart extends Struct
     }
 
     /**
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
      * @throws MixedLineItemTypeException
      */
     public function add(LineItem $lineItem): self

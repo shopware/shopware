@@ -2,8 +2,6 @@
 
 namespace Shopware\Storefront\PageController;
 
-use function array_replace_recursive;
-use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
@@ -16,6 +14,11 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AddressService;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
+use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
+use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
+use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
+use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
+use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Checkout\Promotion\Cart\Builder\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsCollector;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
@@ -38,7 +41,6 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Routing\Exception\InvalidParameterException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CheckoutPageController extends StorefrontController
@@ -103,6 +105,11 @@ class CheckoutPageController extends StorefrontController
      */
     private $mediaRepository;
 
+    /**
+     * @var PaymentService
+     */
+    private $paymentService;
+
     public function __construct(
         CartService $cartService,
         PageLoaderInterface $cartPageLoader,
@@ -115,7 +122,8 @@ class CheckoutPageController extends StorefrontController
         OrderService $orderService,
         SalesChannelContextSwitcher $contextSwitcher,
         TranslatorInterface $translator,
-        EntityRepositoryInterface $mediaRepository
+        EntityRepositoryInterface $mediaRepository,
+        PaymentService $paymentService
     ) {
         $this->cartService = $cartService;
         $this->cartPageLoader = $cartPageLoader;
@@ -129,6 +137,7 @@ class CheckoutPageController extends StorefrontController
         $this->contextSwitcher = $contextSwitcher;
         $this->translator = $translator;
         $this->mediaRepository = $mediaRepository;
+        $this->paymentService = $paymentService;
     }
 
     /**
@@ -141,8 +150,6 @@ class CheckoutPageController extends StorefrontController
 
     /**
      * @Route("/checkout/cart", name="frontend.checkout.cart.page", options={"seo"="false"}, methods={"GET"})
-     *
-     * @throws CartTokenNotFoundException
      */
     public function cart(Request $request, SalesChannelContext $context): Response
     {
@@ -153,8 +160,6 @@ class CheckoutPageController extends StorefrontController
 
     /**
      * @Route("/checkout/confirm", name="frontend.checkout.confirm.page", options={"seo"="false"}, methods={"GET"})
-     *
-     * @throws CartTokenNotFoundException
      */
     public function confirm(Request $request, SalesChannelContext $context): Response
     {
@@ -174,9 +179,9 @@ class CheckoutPageController extends StorefrontController
     /**
      * @Route("/checkout/finish", name="frontend.checkout.finish.page", options={"seo"="false"}, methods={"GET"})
      *
-     * @throws OrderNotFoundException
-     * @throws InvalidParameterException
+     * @throws CustomerNotLoggedInException
      * @throws MissingRequestParameterException
+     * @throws OrderNotFoundException
      */
     public function finish(Request $request, SalesChannelContext $context): Response
     {
@@ -198,16 +203,33 @@ class CheckoutPageController extends StorefrontController
             return $this->redirectToRoute('frontend.checkout.register.page');
         }
 
+        $formViolations = null;
         try {
             $orderId = $this->orderService->createOrder($data, $context);
-
-            return new RedirectResponse($this->generateUrl('frontend.checkout.finish.page', [
+            $finishUrl = $this->generateUrl('frontend.checkout.finish.page', [
                 'orderId' => $orderId,
-            ]));
+            ]);
+
+            $response = $this->paymentService->handlePaymentByOrder($orderId, $context, $finishUrl);
+
+            if ($response !== null) {
+                return $response;
+            }
+
+            return new RedirectResponse($finishUrl);
         } catch (ConstraintViolationException $formViolations) {
+        } catch (AsyncPaymentProcessException
+            | InvalidOrderException
+            | SyncPaymentProcessException
+            | UnknownPaymentMethodException $e
+        ) {
+            // TODO: Handle errors which might occur during payment process
         }
 
-        return $this->forward('Shopware\Storefront\PageController\CheckoutPageController::confirm', ['formViolations' => $formViolations]);
+        return $this->forward(
+            'Shopware\Storefront\PageController\CheckoutPageController::confirm',
+            ['formViolations' => $formViolations]
+        );
     }
 
     /**
@@ -228,7 +250,10 @@ class CheckoutPageController extends StorefrontController
 
         $page = $this->registerPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/page/checkout/address/index.html.twig', ['redirectTo' => $redirect, 'page' => $page]);
+        return $this->renderStorefront(
+            '@Storefront/page/checkout/address/index.html.twig',
+            ['redirectTo' => $redirect, 'page' => $page]
+        );
     }
 
     /**
@@ -345,11 +370,9 @@ class CheckoutPageController extends StorefrontController
             $code = $request->request->getAlnum('code');
 
             if ($code === null) {
-                throw new \Exception('Code is required');
+                throw new \InvalidArgumentException('Code is required');
             }
-            $itemBuilder = new PromotionItemBuilder(CartPromotionsCollector::LINE_ITEM_TYPE);
-
-            $lineItem = $itemBuilder->buildPlaceholderItem(
+            $lineItem = (new PromotionItemBuilder(CartPromotionsCollector::LINE_ITEM_TYPE))->buildPlaceholderItem(
                 $code,
                 $context->getContext()->getCurrencyPrecision()
             );
@@ -357,7 +380,7 @@ class CheckoutPageController extends StorefrontController
             $cart = $this->cartService->add($this->cartService->getCart($token, $context), $lineItem, $context);
 
             if (!$cart->has($lineItem->getKey())) {
-                throw new \Exception('code was not added');
+                throw new \RuntimeException('code was not added');
             }
             $this->addFlash('success', $this->translator->trans('checkout.codeAddedSuccessful'));
         } catch (\Exception $exception) {
@@ -374,10 +397,10 @@ class CheckoutPageController extends StorefrontController
     {
         $token = $request->request->getAlnum('token', $context->getToken());
 
-        $quantity = $request->get('quantity', null);
+        $quantity = $request->get('quantity');
 
         if ($quantity === null) {
-            throw new \Exception('quantity field is required');
+            throw new \InvalidArgumentException('quantity field is required');
         }
 
         $cart = $this->cartService->getCart($token, $context);

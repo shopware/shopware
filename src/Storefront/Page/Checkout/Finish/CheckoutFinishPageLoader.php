@@ -42,6 +42,11 @@ class CheckoutFinishPageLoader implements PageLoaderInterface
         $this->genericLoader = $genericLoader;
     }
 
+    /**
+     * @throws CustomerNotLoggedInException
+     * @throws MissingRequestParameterException
+     * @throws OrderNotFoundException
+     */
     public function load(Request $request, SalesChannelContext $context)
     {
         $page = $this->genericLoader->load($request, $context);
@@ -58,6 +63,11 @@ class CheckoutFinishPageLoader implements PageLoaderInterface
         return $page;
     }
 
+    /**
+     * @throws CustomerNotLoggedInException
+     * @throws MissingRequestParameterException
+     * @throws OrderNotFoundException
+     */
     private function getOrder(Request $request, SalesChannelContext $context): OrderEntity
     {
         $customer = $context->getCustomer();

@@ -16,6 +16,7 @@
         "doctrine/dbal": "2.9.2",
         "shopware/core": "dev-master",
         "symfony/console": "4.2.4",
+        "symfony/contracts": "1.0.2",
         "symfony/config": "4.2.4",
         "symfony/dependency-injection": "4.2.4",
         "symfony/event-dispatcher": "4.2.4",

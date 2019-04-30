@@ -29,7 +29,7 @@ class PaymentController extends AbstractController
     }
 
     /**
-     * @Route("/payment/finalize-transaction", name="payment.finalize.transaction", methods={"GET"})
+     * @Route("/payment/finalize-transaction", defaults={"auth_required"=false}, name="payment.finalize.transaction", methods={"GET"})
      *
      * @throws AsyncPaymentFinalizeException
      * @throws CustomerCanceledAsyncPaymentException
@@ -37,11 +37,11 @@ class PaymentController extends AbstractController
      * @throws TokenExpiredException
      * @throws UnknownPaymentMethodException
      */
-    public function finalizeTransaction(Request $request, SalesChannelContext $context): Response
+    public function finalizeTransaction(Request $request, SalesChannelContext $salesChannelContext): Response
     {
         $paymentToken = $request->get('_sw_payment_token');
 
-        $paymentTokenStruct = $this->paymentService->finalizeTransaction($paymentToken, $request, $context);
+        $paymentTokenStruct = $this->paymentService->finalizeTransaction($paymentToken, $request, $salesChannelContext);
 
         if ($paymentTokenStruct->getFinishUrl()) {
             return new RedirectResponse($paymentTokenStruct->getFinishUrl());

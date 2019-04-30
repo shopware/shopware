@@ -26,7 +26,7 @@ const autoOpenBrowser = !!config.dev.autoOpenBrowser;
 const app = express();
 const compiler = webpack(webpackConfig);
 
-app.use('/api', proxy({ target: process.argv[2], changeOrigin: true }));
+app.use('/api', proxy({ target: process.argv[2], changeOrigin: true, secure: false }));
 
 // Open files in phpstorm while using the dev mode, the sw-devmode-loader needs to be in place
 app.use('/__open-in-editor', openInEditor(config.dev.editor));
@@ -87,8 +87,6 @@ staticPaths.forEach((paths) => {
 });
 
 const uri = `http://${host}:${port}`;
-
-app.use('/api', proxy({ target: process.argv[2], changeOrigin: true, secure: false }));
 
 console.log('# Compiling Webpack configuration');
 console.log(`Environment: ${process.env.NODE_ENV}`);

@@ -23,7 +23,7 @@
 
         {% block sw_cms_block_config_background_image_field %}
             <sw-media-compact-upload
-                    :source="block && block.backgroundMediaId ? block.backgroundMediaId : null"
+                    :source="block && block.backgroundMedia ? block.backgroundMedia : null"
                     :uploadTag="uploadTag"
                     :label="$tc('sw-cms.detail.labelBlockBackgroundMediaLabel')"
                     :allowMultiSelect="false"

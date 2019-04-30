@@ -46,7 +46,7 @@ Component.register('sw-cms-block', {
         blockStyles() {
             return {
                 'background-color': this.block.backgroundColor || 'transparent',
-                'background-image': this.backgroundUrl,
+                'background-image': this.block.backgroundMedia ? `url(${this.block.backgroundMedia.url})` : null,
                 'background-size': this.block.backgroundMediaMode
             };
         },
@@ -73,14 +73,6 @@ Component.register('sw-cms-block', {
         }
     },
 
-    watch: {
-        'block.backgroundMedia': {
-            handler() {
-                this.getBackgroundMedia();
-            }
-        }
-    },
-
     created() {
         this.createdComponent();
     },
@@ -90,8 +82,6 @@ Component.register('sw-cms-block', {
             if (!this.block.backgroundMediaMode) {
                 this.block.backgroundMediaMode = 'cover';
             }
-
-            this.getBackgroundMedia();
         },
 
         onBlockOverlayClick() {
@@ -104,15 +94,6 @@ Component.register('sw-cms-block', {
 
         onBlockDuplicate() {
             this.$emit('onBlockDuplicate');
-        },
-
-        getBackgroundMedia() {
-            if (!this.block.backgroundMedia) {
-                this.backgroundUrl = null;
-                return;
-            }
-
-            this.backgroundUrl = `url(${this.block.backgroundMedia.url})`;
         }
     }
 });

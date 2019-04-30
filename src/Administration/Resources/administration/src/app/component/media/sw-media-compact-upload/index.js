@@ -35,7 +35,7 @@ export default {
         },
 
         source: {
-            type: String,
+            type: [String, Object],
             required: false,
             default: ''
         }

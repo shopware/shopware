@@ -45,6 +45,7 @@ Component.register('sw-cms-block-config', {
         onSetBackgroundMedia([mediaItem]) {
             this.block.backgroundMediaId = mediaItem.id;
             this.block.backgroundMedia = mediaItem;
+            this.$emit('block-update', this.block);
         },
 
         successfulUpload(media) {
@@ -52,12 +53,15 @@ Component.register('sw-cms-block-config', {
 
             this.mediaStore.getByIdAsync(media.targetId).then((mediaItem) => {
                 this.block.backgroundMedia = mediaItem;
+                this.$emit('block-update', this.block);
             });
         },
 
         removeMedia() {
             this.block.backgroundMediaId = null;
             this.block.backgroundMedia = null;
+
+            this.$emit('block-update', this.block);
         }
     }
 });

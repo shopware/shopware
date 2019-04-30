@@ -90,32 +90,32 @@
                                 {% endblock %}
 
                                 {% block sw_media_upload_regular_actions_add %}
-                                <template v-if="!showUrlInput">
-                                    {% block sw_media_upload_regular_upload_button %}
-                                    <sw-button class="sw-media-upload__button upload"
-                                               variant="ghost"
-                                               size="small"
-                                               @click="onClickUpload">
-                                        {{ $tc('global.sw-media-upload.buttonFileUpload') }}
-                                    </sw-button>
-                                    {% endblock %}
+                                    <template v-if="!showUrlInput">
+                                        {% block sw_media_upload_regular_upload_button %}
+                                            <sw-button class="sw-media-upload__button upload"
+                                                       variant="ghost"
+                                                       size="small"
+                                                       @click="onClickUpload">
+                                                {{ $tc('global.sw-media-upload.buttonFileUpload') }}
+                                            </sw-button>
+                                        {% endblock %}
 
-                                    <sw-button variant="primary"
-                                               class="sw-media-compact-upload__browse-button"
-                                               @click="mediaModalIsOpen = true">
-                                        <sw-icon class="sw-media-compact-upload__browse-icon"
-                                                 name="default-object-image"></sw-icon>
-                                    </sw-button>
+                                        <sw-button variant="primary"
+                                                   class="sw-media-compact-upload__browse-button"
+                                                   @click="mediaModalIsOpen = true">
+                                            <sw-icon class="sw-media-compact-upload__browse-icon"
+                                                     name="default-object-image"></sw-icon>
+                                        </sw-button>
 
-                                    <sw-media-modal
+                                        <sw-media-modal
                                             v-if="mediaModalIsOpen"
                                             @modal-close="mediaModalIsOpen = false"
-                                            @sw-media-modal-selection-changed="onModalClosed"
+                                            @media-modal-selection-change="onModalClosed"
                                             :allowMultiSelect="false"
-                                    ></sw-media-modal>
-                                    {% block sw_media_upload_regular_media_sidebar_button %}
-                                    {% endblock %}
-                                </template>
+                                        ></sw-media-modal>
+
+                                        {% block sw_media_upload_regular_media_sidebar_button %}{% endblock %}
+                                    </template>
                                 {% endblock %}
                             </template>
                         </div>

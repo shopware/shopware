@@ -309,7 +309,7 @@ Component.register('sw-cms-detail', {
                 listingBlock.pageId = this.page.id;
 
                 Object.assign(
-                    listingBlock.config,
+                    listingBlock,
                     cloneDeep(this.blockConfigDefaults),
                     cloneDeep(blockConfig.defaultConfig || {})
                 );
@@ -476,9 +476,10 @@ Component.register('sw-cms-detail', {
                 return Promise.reject();
             }
 
-            const blockStore = this.page.getAssociation('blocks').store;
-            Object.values(blockStore).forEach((block) => {
-                block.backgroundMedia = null;
+            const blockStore = this.page.getAssociation('blocks');
+            blockStore.forEach((block) => {
+                block.original.backgroundMedia = null;
+                block.draft.backgroundMedia = null;
             });
 
             this.isLoading = true;

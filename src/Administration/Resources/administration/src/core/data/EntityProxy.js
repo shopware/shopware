@@ -147,6 +147,16 @@ export default class EntityProxy {
                 }
 
                 return true;
+            },
+
+            deleteProperty(target, property) {
+                delete target[property];
+
+                if (property in that.draft) {
+                    delete that.draft[property];
+                }
+
+                return true;
             }
         });
     }

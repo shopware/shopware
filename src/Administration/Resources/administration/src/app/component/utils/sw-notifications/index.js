@@ -36,7 +36,7 @@ export default {
 
     computed: {
         notifications() {
-            return this.$store.state.notification.growlNotifications;
+            return this.$store.getters['notification/getGrowlNotifications'];
         },
 
         notificationsStyle() {

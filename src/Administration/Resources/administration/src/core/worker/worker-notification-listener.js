@@ -12,17 +12,6 @@ class WorkerNotificationListener {
         this._thumbnailNotificationId = null;
     }
 
-    _getMessageQueueStatsService(loginService, context) {
-        const baseURL = process.env.NODE_ENV !== 'production' ?
-            `${window.location.origin}${context.apiResourcePath}` :
-            context.apiResourcePath;
-        const client = Axios.create({
-            baseURL: baseURL
-        });
-
-        return new ApiService(client, loginService, 'message-queue-stats');
-    }
-
     start(interval = 5000) {
         this._interval = interval;
         this._isRunning = true;
@@ -35,6 +24,17 @@ class WorkerNotificationListener {
             clearTimeout(this._timeoutId);
             this._timeoutId = null;
         }
+    }
+
+    _getMessageQueueStatsService(loginService, context) {
+        const baseURL = process.env.NODE_ENV !== 'production' ?
+            `${window.location.origin}${context.apiResourcePath}` :
+            context.apiResourcePath;
+        const client = Axios.create({
+            baseURL: baseURL
+        });
+
+        return new ApiService(client, loginService, 'message-queue-stats');
     }
 
     _checkQueue() {

@@ -156,7 +156,10 @@
         },
         "errorSingle": {
           "title": "Error",
-          "message": "Error deleting \"{name}\"."
+          "message": {
+            "media": "Error deleting file \"{name}\".",
+            "folder": "Error deleting folder \"{name}\"."
+          }
         },
         "successOverall": {
           "title": "Success",

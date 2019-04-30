@@ -157,7 +157,10 @@
         },
         "errorSingle": {
           "title": "Fehler",
-          "message": "Fehler beim Löschen von \"{name}\"."
+          "message": {
+            "media": "Fehler beim löschen der Datei \"{name}\".",
+            "folder": "Fehler beim löschen des Ordners \"{name}\"."
+          }
         },
         "successOverall": {
           "title": "Erfolg",

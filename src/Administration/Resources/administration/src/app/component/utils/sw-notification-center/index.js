@@ -15,7 +15,7 @@ export default {
 
     computed: {
         notifications() {
-            return this.$store.state.notification.notifications;
+            return this.$store.getters['notification/getNotifications'];
         },
 
         additionalContextButtonClass() {

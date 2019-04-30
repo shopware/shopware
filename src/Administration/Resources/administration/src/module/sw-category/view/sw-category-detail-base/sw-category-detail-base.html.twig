@@ -146,7 +146,7 @@
 
                 <div class="sw-category-detail-base__layout">
                     {% block sw_category_detail_layout_preview %}
-                        <sw-cms-list-item :page="cmsPage"></sw-cms-list-item>
+                        <sw-cms-list-item v-if="cmsPage" :page="cmsPage"></sw-cms-list-item>
                     {% endblock %}
 
                     {% block sw_category_detail_layout_modal %}
@@ -161,7 +161,7 @@
                         <div class="sw-category-detail-base__layout-desc">
 
                             {% block sw_category_detail_layout_desc_info %}
-                                <div class="sw-category-detail-base__layout-desc-info">
+                                <div class="sw-category-detail-base__layout-desc-info" v-if="cmsPage">
                                     <div class="sw-category-detail-base__layout-desc-headline">{{ cmsPage.name }}</div>
                                     <div class="sw-category-detail-base__layout-desc-subheadline">{{ cmsPage.type }}</div>
                                 </div>
@@ -177,7 +177,7 @@
                                     {% endblock %}
 
                                     {% block sw_category_detail_layout_desc_actions_designer %}
-                                        <sw-button size="small" @click="openInPagebuilder()">
+                                        <sw-button v-if="cmsPage" size="small" @click="openInPagebuilder()">
                                             {{ $tc('sw-category.base.cms.editInPagebuilder') }}
                                         </sw-button>
                                     {% endblock %}
@@ -187,6 +187,7 @@
 
                             {% block sw_category_detail_layout_desc_link %}
                                 <router-link
+                                    v-if="cmsPage"
                                     class="sw-category-detail-base__layout-desc-link"
                                     :to="{ name: 'sw.category.detail.cms', params: { id: $route.params.id }}">
                                         {{ $tc('sw-category.base.cms.editContent') }}

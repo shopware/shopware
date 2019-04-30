@@ -254,11 +254,16 @@
         "boxProductDetails": "Details"
     },
     "newsletter": {
+        "headline": "Subscribe to newsletter",
+        "info": "Subscribe now to our regularly released newsletter and be informed about the latest products and special offers. You will be able to unsubscribe at any time using this website or the link included in the newsletter.",
+        "subscribeOption": "Subscribe to newsletter",
+        "unsubscribeOption": "Unsubscribe to newsletter",
+        "formSubmit": "Save",
         "subscriptionPersistedSuccess": "You have just subscribed to our newsletter.\n To complete the registration look in your e-mail box for a confirmation mail.",
         "subscriptionPersistedInfo": "If you have not received a mail please repeat the process or contact the shop operator.",
         "subscriptionRevokeSuccess": "You have successfully unsubscribed from the newsletter.",
-        "subscriptionConfirmationSuccess": "Your newsletter subscription was successfully registered!",
-        "subscriptionConfirmationFailed": "newsletter subscription did not work properly, please contact us"
+        "subscriptionConfirmationFailed": "newsletter subscription did not work properly, please contact us",
+        "subscriptionCompleted": "Thank you! We have entered your address."
     },
     "detail": {
         "ordernumberLabel": "Order number: ",

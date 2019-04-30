@@ -254,11 +254,17 @@
         "boxProductDetails": "Details"
     },
     "newsletter": {
+        "headline": "Newsletter abonnieren",
+        "info": "Abonnieren Sie jetzt einfach unseren regelmäßig erscheinenden Newsletter und Sie werden stets als Erster über neue Artikel und Angebote informiert. Der Newsletter ist natürlich jederzeit über einen Link in der E-Mail oder dieser Seite wieder abbestellbar.",
+        "subscribeOption": "Newsletter abonnieren",
+        "unsubscribeOption": "Newsletter abbestellen",
+        "formSubmit": "Speichern",
         "subscriptionPersistedSuccess": "Sie haben gerade unseren Newsletter abonniert.\n Um die Registrierung abzuschließen, suchen Sie in Ihrer E-Mail-Box nach einer Bestätigungsmail.",
         "subscriptionPersistedInfo": "Wenn Sie keine Mail erhalten haben, wiederholen Sie bitte den Vorgang oder wenden Sie sich an den Shop-Betreiber.",
         "subscriptionRevokeSuccess": "Sie haben sich erfolgreich vom Newsletter abgemeldet.",
         "subscriptionConfirmationSuccess": "Ihr Newsletter-Abonnement wurde erfolgreich registriert!",
-        "subscriptionConfirmationFailed": "Bei Ihrer Newsletter-Anmeldung ist etwas schief gelaufen, Bitte wenden Sie sich an den Shop-Betreiber."
+        "subscriptionConfirmationFailed": "Bei Ihrer Newsletter-Anmeldung ist etwas schief gelaufen, Bitte wenden Sie sich an den Shop-Betreiber.",
+        "subscriptionCompleted": "Vielen Dank. Wir haben Ihre Adresse eingetragen."
     },
     "detail": {
         "ordernumberLabel": "Artikel-Nr.:",

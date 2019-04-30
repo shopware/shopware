@@ -13,12 +13,11 @@ Component.register('sw-category-detail-base', {
     props: {
         category: {
             type: Object,
-            required: true,
-            default: null
+            required: true
         },
         cmsPage: {
             type: Object,
-            required: true,
+            required: false,
             default: null
         },
         mediaItem: {
@@ -28,8 +27,7 @@ Component.register('sw-category-detail-base', {
         },
         isLoading: {
             type: Boolean,
-            required: true,
-            default: false
+            required: true
         }
     },
 

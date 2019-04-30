@@ -16,7 +16,8 @@ Component.register('sw-category-view', {
         },
         cmsPage: {
             type: Object,
-            required: true
+            required: false,
+            default: null
         },
         mediaItem: {
             type: Object,

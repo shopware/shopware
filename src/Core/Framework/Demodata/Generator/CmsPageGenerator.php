@@ -5,10 +5,10 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\Cms\SlotDataResolver\FieldConfig;
-use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -70,11 +70,9 @@ class CmsPageGenerator implements DemodataGeneratorInterface
             $pages[] = $this->createPage($context);
         }
 
-        $pages[] = $this->createProductDetailPage($context);
-
         $this->cmsPageRepository->upsert($pages, $context->getContext());
 
-        $this->connection->executeUpdate("UPDATE category SET cms_page_id = (SELECT id FROM cms_page WHERE type = 'listing_page' ORDER BY RAND() LIMIT 1)");
+        $this->connection->executeUpdate("UPDATE category SET cms_page_id = (SELECT id FROM cms_page WHERE type = 'product_list' ORDER BY RAND() LIMIT 1)");
     }
 
     protected function createPage(DemodataContext $context): array
@@ -82,14 +80,32 @@ class CmsPageGenerator implements DemodataGeneratorInterface
         return [
             'id' => Uuid::randomHex(),
             'name' => $context->getFaker()->company,
-            'type' => 'listing_page',
+            'type' => 'product_list',
             'blocks' => [
                 [
                     'type' => 'image-text',
                     'position' => 1,
+                    'marginBottom' => '20px',
+                    'marginTop' => '20px',
+                    'marginLeft' => '20px',
+                    'marginRight' => '20px',
+                    'sizingMode' => 'boxed',
                     'slots' => [
-                        ['type' => 'text', 'slot' => 'left', 'config' => ['content' => ['source' => FieldConfig::SOURCE_STATIC, 'value' => $context->getFaker()->realText()]]],
-                        ['type' => 'product-box', 'slot' => 'right', 'config' => ['product' => ['source' => FieldConfig::SOURCE_STATIC, 'value' => $this->getRandomProductId($context)]]],
+                        [
+                            'type' => 'text',
+                            'slot' => 'left',
+                            'config' => [
+                                'content' => ['source' => FieldConfig::SOURCE_STATIC, 'value' => $context->getFaker()->realText()],
+                            ],
+                        ],
+                        [
+                            'type' => 'product-box',
+                            'slot' => 'right',
+                            'config' => [
+                                'product' => ['source' => FieldConfig::SOURCE_STATIC, 'value' => $this->getRandomProductId($context)],
+                                'boxLayout' => ['source' => FieldConfig::SOURCE_STATIC, 'value' => 'standard'],
+                            ],
+                        ],
                     ],
                 ],
                 [
@@ -98,7 +114,7 @@ class CmsPageGenerator implements DemodataGeneratorInterface
                     'slots' => [
                         [
                             'type' => 'product-listing',
-                            'slot' => 'listing',
+                            'slot' => 'content',
                             'config' => [],
                         ],
                     ],
@@ -106,42 +122,25 @@ class CmsPageGenerator implements DemodataGeneratorInterface
                 [
                     'type' => 'image-text',
                     'position' => 3,
-                    'slots' => [
-                        ['type' => 'text', 'slot' => 'right', 'config' => ['content' => ['source' => FieldConfig::SOURCE_STATIC, 'value' => $context->getFaker()->realText()]]],
-                        ['type' => 'image', 'slot' => 'left', 'config' => ['media' => ['source' => FieldConfig::SOURCE_STATIC, 'value' => $this->getRandomMediaId($context)]]],
-                    ],
-                ],
-            ],
-        ];
-    }
-
-    private function createProductDetailPage(DemodataContext $context): array
-    {
-        return [
-            'name' => 'Product detail page',
-            'type' => 'product_detail',
-            'blocks' => [
-                [
-                    'type' => 'image-text',
-                    'position' => 1,
+                    'marginBottom' => '20px',
+                    'marginTop' => '20px',
+                    'marginLeft' => '20px',
+                    'marginRight' => '20px',
+                    'sizingMode' => 'boxed',
                     'slots' => [
                         [
                             'type' => 'text',
-                            'slot' => 'left',
-                            'config' => [
-                                'content' => [
-                                    'source' => FieldConfig::SOURCE_MAPPED,
-                                    'value' => 'description',
-                                ],
-                            ],
-                        ], [
-                            'type' => 'image',
                             'slot' => 'right',
                             'config' => [
-                                'media' => [
-                                    'source' => FieldConfig::SOURCE_MAPPED,
-                                    'value' => 'cover.media',
-                                ],
+                                'content' => ['source' => FieldConfig::SOURCE_STATIC, 'value' => $context->getFaker()->realText()],
+                            ],
+                        ],
+                        [
+                            'type' => 'image',
+                            'slot' => 'left',
+                            'config' => [
+                                'media' => ['source' => FieldConfig::SOURCE_STATIC, 'value' => $this->getRandomMediaId($context)],
+                                'displayMode' => ['source' => FieldConfig::SOURCE_STATIC, 'value' => 'standard'],
                             ],
                         ],
                     ],
@@ -168,13 +167,10 @@ class CmsPageGenerator implements DemodataGeneratorInterface
 
     private function getRandomMediaId(DemodataContext $context): string
     {
-        if ($mediaId = $context->getRandomId(MediaDefinition::class)) {
-            return $mediaId;
-        }
-
         if (empty($this->mediaIds)) {
             $criteria = new Criteria();
             $criteria->setLimit(100);
+            $criteria->addFilter(new ContainsFilter('mimeType', 'image'));
 
             $this->mediaIds = $this->mediaRepository->searchIds($criteria, $context->getContext())->getIds();
         }

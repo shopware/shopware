@@ -49,7 +49,8 @@
         "notificationCopyFailureMessage": "Text could not be copied to clipboard."
       },
       "titleShowPassword": "Show password",
-      "titleHidePassword": "Hide password"
+      "titleHidePassword": "Hide password",
+      "buttonRestoreInheritance": "Restore inheritance"
     },
     "sw-field-copyable": {
       "tooltip": {

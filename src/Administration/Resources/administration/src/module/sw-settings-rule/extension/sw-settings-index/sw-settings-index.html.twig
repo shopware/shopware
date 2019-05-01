@@ -6,39 +6,7 @@
                           :label="$tc('sw-settings-rule.general.mainMenuItemGeneral')"
                           :to="{ name: 'sw.settings.rule.index' }">
             <template slot="icon">
-                <svg width="80px" height="80px" viewBox="0 0 80 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                    <defs>
-                        <filter x="-9.4%" y="-40.0%" width="118.8%" height="180.0%" filterUnits="objectBoundingBox" id="filter-1">
-                            <feOffset dx="-2" dy="2" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
-                            <feColorMatrix values="0 0 0 0 0.0823529412   0 0 0 0 0.266666667   0 0 0 0 0.466666667  0 0 0 0.1 0" type="matrix" in="shadowOffsetOuter1" result="shadowMatrixOuter1"></feColorMatrix>
-                            <feMerge>
-                                <feMergeNode in="shadowMatrixOuter1"></feMergeNode>
-                                <feMergeNode in="SourceGraphic"></feMergeNode>
-                            </feMerge>
-                        </filter>
-                        <filter x="-9.4%" y="-40.0%" width="118.8%" height="180.0%" filterUnits="objectBoundingBox" id="filter-2">
-                            <feOffset dx="-2" dy="2" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
-                            <feColorMatrix values="0 0 0 0 0.0823529412   0 0 0 0 0.266666667   0 0 0 0 0.466666667  0 0 0 0.1 0" type="matrix" in="shadowOffsetOuter1" result="shadowMatrixOuter1"></feColorMatrix>
-                            <feMerge>
-                                <feMergeNode in="shadowMatrixOuter1"></feMergeNode>
-                                <feMergeNode in="SourceGraphic"></feMergeNode>
-                            </feMerge>
-                        </filter>
-                    </defs>
-                    <g id="rules" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                        <path d="M5.2115795,35.5457209 C5.2115795,65.1545517 24.0195711,49.171253 32.8945546,68.2037165 C41.769538,87.23618 84.2610052,52.8175389 75.4777356,35.5457209 C66.6944661,18.2739029 61.2049227,-7.63382406 43.6383836,7.17059135 C26.0718446,21.9750068 5.2115795,5.93689007 5.2115795,35.5457209 Z" id="Path-6" fill="#E8F6FF" fill-rule="nonzero" transform="translate(40.938856, 38.275424) rotate(-68.000000) translate(-40.938856, -38.275424) "></path>
-                        <g id="Group" filter="url(#filter-1)" transform="translate(8.000000, 20.000000)" fill-rule="nonzero" stroke="#303A4F" stroke-width="2">
-                            <rect id="Rectangle" fill="#FFFFFF" x="25" y="-1" width="40" height="17" rx="2"></rect>
-                            <path d="M1,-1 L29.5193752,-1 C30.1269426,-1 30.7015684,-0.723820562 31.0811128,-0.249390095 L36.2811128,6.2506099 C36.8654626,6.98104721 36.8654626,8.01895279 36.2811128,8.7493901 L31.0811128,15.2493901 C30.7015684,15.7238206 30.1269426,16 29.5193752,16 L1,16 C-0.1045695,16 -1,15.1045695 -1,14 L-1,1 C-1,-0.1045695 -0.1045695,-1 1,-1 Z" id="Rectangle" fill="#189EFF"></path>
-                        </g>
-                        <g id="Group" filter="url(#filter-2)" transform="translate(8.000000, 45.000000)" fill-rule="nonzero" stroke="#303A4F" stroke-width="2">
-                            <path d="M28,-1 L62,-1 C63.6568542,-1 65,0.343145751 65,2 L65,13 C65,14.6568542 63.6568542,16 62,16 L28,16 C26.3431458,16 25,14.6568542 25,13 L25,2 C25,0.343145751 26.3431458,-1 28,-1 Z" id="Rectangle" fill="#FFFFFF"></path>
-                            <path d="M1,-1 L29.5193752,-1 C30.1269426,-1 30.7015684,-0.723820562 31.0811128,-0.249390095 L36.2811128,6.2506099 C36.8654626,6.98104721 36.8654626,8.01895279 36.2811128,8.7493901 L31.0811128,15.2493901 C30.7015684,15.7238206 30.1269426,16 29.5193752,16 L1,16 C-0.1045695,16 -1,15.1045695 -1,14 L-1,1 C-1,-0.1045695 -0.1045695,-1 1,-1 Z" id="Rectangle" fill="#57D9A3"></path>
-                        </g>
-                        <path d="M67,45 L63,45 C63.5522847,45 64,44.5522847 64,44 C64,43.4477153 63.5522847,43 63,43 L67,43 C66.4477153,43 66,43.4477153 66,44 C66,44.5522847 66.4477153,45 67,45 Z" id="Combined-Shape" fill="#E8F6FF" fill-rule="nonzero" transform="translate(65.000000, 44.000000) rotate(-180.000000) translate(-65.000000, -44.000000) "></path>
-                        <path d="M59,20 L55,20 C55.5522847,20 56,19.5522847 56,19 C56,18.4477153 55.5522847,18 55,18 L59,18 C58.4477153,18 58,18.4477153 58,19 C58,19.5522847 58.4477153,20 59,20 Z" id="Combined-Shape" fill="#E8F6FF" fill-rule="nonzero" transform="translate(57.000000, 19.000000) rotate(-180.000000) translate(-57.000000, -19.000000) "></path>
-                    </g>
-                </svg>
+                <sw-icon name="default-symbol-rule"></sw-icon>
             </template>
         </sw-settings-item>
     {% endblock %}

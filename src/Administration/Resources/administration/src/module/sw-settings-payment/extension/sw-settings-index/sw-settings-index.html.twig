@@ -7,34 +7,7 @@
                           :to="{ name: 'sw.settings.payment.index' }"
                           :disabled="!next687">
             <template slot="icon">
-                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="80" height="80" viewBox="0 0 80 80">
-                    <defs>
-                        <path id="payment-b" d="M4,-5.32907052e-15 L36,-5.32907052e-15 C38.209139,-9.65910194e-15 40,1.790861 40,4 L40,25 C40,27.209139 38.209139,29 36,29 L4,29 C1.790861,29 -3.28217218e-15,27.209139 -3.55271368e-15,25 L-3.55271368e-15,4 C-3.82325518e-15,1.790861 1.790861,-4.92325827e-15 4,-5.32907052e-15 Z"/>
-                        <filter id="payment-a" width="110%" height="113.8%" x="-7.5%" y="-3.4%" filterUnits="objectBoundingBox">
-                            <feOffset dx="-2" dy="2" in="SourceAlpha" result="shadowOffsetOuter1"/>
-                            <feComposite in="shadowOffsetOuter1" in2="SourceAlpha" operator="out" result="shadowOffsetOuter1"/>
-                            <feColorMatrix in="shadowOffsetOuter1" values="0 0 0 0 0.0823529412   0 0 0 0 0.266666667   0 0 0 0 0.466666667  0 0 0 0.1 0"/>
-                        </filter>
-                    </defs>
-                    <g fill="none" fill-rule="evenodd">
-                        <path fill="#E8F6FF" fill-rule="nonzero" d="M7,37.938241 C7,61.3721574 34.5043038,41.8438938 46.7284389,53.5608519 C58.9525739,65.2778101 80.3448102,51.6080256 72.1953869,37.938241 C64.0459635,24.2684565 58.9525739,3.76377974 42.6537272,15.4807379 C26.3548805,27.1976961 7,14.5043247 7,37.938241 Z"/>
-                        <g fill-rule="nonzero" transform="translate(28 16)">
-                            <path fill="#FFF" stroke="#303A4F" stroke-width="2" d="M4,1 C2.34314575,1 1,2.34314575 1,4 L1,25 C1,26.6568542 2.34314575,28 4,28 L36,28 C37.6568542,28 39,26.6568542 39,25 L39,4 C39,2.34314575 37.6568542,1 36,1 L4,1 Z"/>
-                            <circle cx="9" cy="10" r="4" fill="#D8DDE6"/>
-                        </g>
-                        <g fill-rule="nonzero" transform="translate(12 35)">
-                            <use fill="#000" filter="url(#payment-a)" xlink:href="#payment-b"/>
-                            <path fill="#189EFF" fill-rule="evenodd" stroke="#303A4F" stroke-linejoin="square" stroke-width="2" d="M4,1 C2.34314575,1 1,2.34314575 1,4 L1,25 C1,26.6568542 2.34314575,28 4,28 L36,28 C37.6568542,28 39,26.6568542 39,25 L39,4 C39,2.34314575 37.6568542,1 36,1 L4,1 Z"/>
-                        </g>
-                        <rect width="36" height="6" x="14" y="43" fill="#FFF" fill-rule="nonzero"/>
-                        <rect width="16" height="2" x="17" y="54" fill="#FFF" fill-rule="nonzero"/>
-                        <rect width="16" height="2" x="44" y="23" fill="#D8DDE6" fill-rule="nonzero" rx="1"/>
-                        <rect width="10" height="2" x="44" y="27" fill="#D8DDE6" fill-rule="nonzero" rx="1"/>
-                        <path fill="#FFF" fill-rule="nonzero" d="M63,18 L59,18 C59.5522847,18 60,17.5522847 60,17 C60,16.4477153 59.5522847,16 59,16 L63,16 C62.4477153,16 62,16.4477153 62,17 C62,17.5522847 62.4477153,18 63,18 Z"/>
-                        <path fill="#E8F6FF" fill-rule="nonzero" d="M56 18L52 18C52.5522847 18 53 17.5522847 53 17 53 16.4477153 52.5522847 16 52 16L56 16C55.4477153 16 55 16.4477153 55 17 55 17.5522847 55.4477153 18 56 18zM25 37L21 37C21.5522847 37 22 36.5522847 22 36 22 35.4477153 21.5522847 35 21 35L25 35C24.4477153 35 24 35.4477153 24 36 24 36.5522847 24.4477153 37 25 37z"/>
-                    </g>
-                </svg>
-
+                <sw-icon name="default-money-card"></sw-icon>
             </template>
         </sw-settings-item>
     {% endblock %}

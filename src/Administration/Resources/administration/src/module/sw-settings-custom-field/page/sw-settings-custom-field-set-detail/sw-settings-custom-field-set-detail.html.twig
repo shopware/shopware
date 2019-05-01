@@ -18,12 +18,16 @@
                 {% endblock %}
 
                 {% block sw_settings_custom_field_set_detail_actions_save %}
-                    <sw-button variant="primary"
-                               class="sw-settings-set-detail__save-action"
-                               :disabled="set.isLoading"
-                               @click.prevent="onSave">
-                        {{ $tc('sw-settings-custom-field.set.detail.buttonSave') }}
-                    </sw-button>
+                <sw-button-process
+                        class="sw-settings-set-detail__save-action"
+                        :isLoading="isLoading"
+                        :processSuccess="isSaveSuccessful"
+                        :disabled="set.isLoading"
+                        variant="primary"
+                        @process-finish="saveFinish"
+                        @click.prevent="onSave">
+                    {{ $tc('sw-settings-custom-field.set.detail.buttonSave') }}
+                </sw-button-process>
                 {% endblock %}
             </template>
         {% endblock %}

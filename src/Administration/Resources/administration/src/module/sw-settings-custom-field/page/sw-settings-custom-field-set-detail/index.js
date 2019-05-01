@@ -13,7 +13,9 @@ Component.register('sw-settings-custom-field-set-detail', {
     data() {
         return {
             set: {},
-            setId: ''
+            setId: '',
+            isLoading: false,
+            isSaveSuccessful: false
         };
     },
 
@@ -51,12 +53,18 @@ Component.register('sw-settings-custom-field-set-detail', {
             this.set = this.customFieldSetStore.getById(this.setId);
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+        },
+
         onSave() {
             const setLabel = this.identifier;
             const titleSaveSuccess = this.$tc('sw-settings-custom-field.set.detail.titleSaveSuccess');
             const messageSaveSuccess = this.$tc('sw-settings-custom-field.set.detail.messageSaveSuccess', 0, {
                 name: setLabel
             });
+            this.isSaveSuccessful = false;
+            this.isLoading = true;
 
             // Remove all translations except for default locale(fallbackLanguage)
             // in case, the set is not translated
@@ -70,12 +78,16 @@ Component.register('sw-settings-custom-field-set-detail', {
             }
 
             return this.set.save().then(() => {
+                this.isLoading = false;
+                this.isSaveSuccessful = true;
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,
                     message: messageSaveSuccess
                 });
 
                 this.$refs.customFieldList.getList();
+            }).then(() => {
+                this.isLoading = false;
             });
         },
 

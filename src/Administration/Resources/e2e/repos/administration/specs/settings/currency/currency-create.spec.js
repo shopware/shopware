@@ -25,7 +25,7 @@ module.exports = {
             .fillField('input[name=sw-field--currency-decimalPrecision]', '2')
             .fillField('input[name=sw-field--currency-factor]', '1.0076')
             .click(page.elements.currencySaveAction)
-            .checkNotification('Currency "Yen" has been saved successfully.')
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium')
             .assert.urlContains('#/sw/settings/currency/detail');
     },
     'go back to listing and verify creation': (browser) => {

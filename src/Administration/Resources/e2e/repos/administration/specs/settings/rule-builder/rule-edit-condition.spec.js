@@ -145,8 +145,9 @@ module.exports = {
         const page = ruleBuilderPage(browser);
 
         browser
+            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .click(page.elements.ruleSaveAction)
-            .checkNotification(`The rule "${global.AdminFixtureService.basicFixture.name}" has been saved successfully.`);
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium');
     },
     'delete single condition': (browser) => {
         const page = ruleBuilderPage(browser);

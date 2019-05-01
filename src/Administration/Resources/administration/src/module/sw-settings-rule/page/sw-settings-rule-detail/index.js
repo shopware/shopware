@@ -68,7 +68,9 @@ Component.register('sw-settings-rule-detail', {
                 isAndContainer(condition) { return condition.type === 'andContainer'; },
                 isOrContainer(condition) { return condition.type === 'orContainer'; },
                 isPlaceholder(condition) { return !condition.type; },
-                isDataSet(condition) { return this.dataCheckMethods[condition.type](condition); }
+                isDataSet(condition) { return this.dataCheckMethods[condition.type](condition); },
+                isLoading: false,
+                isSaveSuccessful: false
             }
         };
     },
@@ -120,18 +122,17 @@ Component.register('sw-settings-rule-detail', {
             this.moduleTypes = this.rule.moduleTypes.types;
         },
 
-        onSave() {
-            const titleSaveSuccess = this.$tc('sw-settings-rule.detail.titleSaveSuccess');
-            const messageSaveSuccess = this.$tc(
-                'sw-settings-rule.detail.messageSaveSuccess',
-                0,
-                { name: this.rule.name }
-            );
+        saveFinish() {
+            this.isSaveSuccessful = false;
+        },
 
+        onSave() {
             const titleSaveError = this.$tc('sw-settings-rule.detail.titleSaveError');
             const messageSaveError = this.$tc(
                 'sw-settings-rule.detail.messageSaveError', 0, { name: this.rule.name }
             );
+            this.isSaveSuccessful = false;
+            this.isLoading = true;
 
             if (this.moduleTypes.length === 0) {
                 this.rule.moduleTypes = null;
@@ -153,10 +154,8 @@ Component.register('sw-settings-rule-detail', {
             this.removeOriginalConditionTypes(this.rule.conditions);
 
             return this.rule.save().then(() => {
-                this.createNotificationSuccess({
-                    title: titleSaveSuccess,
-                    message: messageSaveSuccess
-                });
+                this.isLoading = false;
+                this.isSaveSuccessful = true;
                 this.$refs.conditionTree.$emit('on-save');
 
                 this.checkModuleType();
@@ -168,6 +167,7 @@ Component.register('sw-settings-rule-detail', {
                     message: messageSaveError
                 });
                 warn(this._name, exception.message, exception.response);
+                this.isLoading = false;
                 this.$refs.conditionTree.$emit('on-save');
             });
         },

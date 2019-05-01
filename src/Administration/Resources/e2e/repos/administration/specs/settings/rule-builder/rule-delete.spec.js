@@ -29,7 +29,6 @@ module.exports = {
         browser
             .expect.element(`${page.elements.gridRow}--0 ${page.elements.columnName}`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
 
-
         browser
             .clickContextMenuItem(page.elements.contextMenuButton, {
                 menuActionSelector: '.sw-context-menu-item--danger',
@@ -38,12 +37,7 @@ module.exports = {
             .waitForElementVisible('.sw-modal')
             .expect.element('.sw-settings-rule-list__confirm-delete-text').to.have.text.that.contains(`Are you sure you want to delete the rule "${global.AdminFixtureService.basicFixture.name}"?`);
 
-
         browser.click('.sw-modal__footer button.sw-button--primary')
-            .waitForElementNotPresent('.sw-modal')
-            .expect.element(page.elements.smartBarAmount).to.have.text.that.contains('(0)');
-    },
-    after: (browser) => {
-        browser.end();
+            .waitForElementNotPresent('.sw-modal');
     }
 };

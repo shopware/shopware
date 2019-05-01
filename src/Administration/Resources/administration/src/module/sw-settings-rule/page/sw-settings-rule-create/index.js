@@ -18,14 +18,13 @@ Component.extend('sw-settings-rule-create', 'sw-settings-rule-detail', {
             this.$super.createdComponent();
         },
 
-        onSave() {
-            this.$super.onSave().then((success) => {
-                if (!success) {
-                    return;
-                }
+        saveFinish() {
+            this.isSaveSuccessful = false;
+            this.$router.push({ name: 'sw.settings.rule.detail', params: { id: this.rule.id } });
+        },
 
-                this.$router.push({ name: 'sw.settings.rule.detail', params: { id: this.rule.id } });
-            });
+        onSave() {
+            this.$super.onSave();
         }
     }
 });

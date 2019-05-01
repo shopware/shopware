@@ -29,8 +29,9 @@ class RuleBuilderPageObject extends GeneralPageObject {
         });
 
         this.browser
+            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .click(this.elements.ruleSaveAction)
-            .checkNotification(`The rule "${name}" has been saved successfully.`);
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium');
     }
 
     createBasicSelectCondition(ruleData) {

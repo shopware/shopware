@@ -74,9 +74,16 @@
                                 {% endblock %}
 
                                 {% block sw_cms_detail_toolbar_actions_save %}
-                                    <sw-button variant="primary" :disabled="isLoading" @click="onSave">
+                                <sw-button-process
+                                        class="sw-product-detail__save-action"
+                                        :isLoading="isLoading"
+                                        :processSuccess="isSaveSuccessful"
+                                        :disabled="isLoading"
+                                        variant="primary"
+                                        @process-finish="saveFinish"
+                                        @click="onSave">
                                         {{ $tc('sw-cms.detail.labelButtonSave') }}
-                                    </sw-button>
+                                </sw-button-process>
                                 {% endblock %}
                             </div>
                         {% endblock %}

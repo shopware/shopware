@@ -24,6 +24,7 @@ Component.register('sw-cms-detail', {
             },
             salesChannels: [],
             isLoading: false,
+            isSaveSuccessful: false,
             currentSalesChannelKey: null,
             currentDeviceView: 'desktop',
             currentBlock: null,
@@ -463,7 +464,13 @@ Component.register('sw-cms-detail', {
             this.page.blocks = sortedItems;
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+        },
+
         onSave() {
+            this.isSaveSuccessful = false;
+
             if (!this.page.name || !this.page.type) {
                 this.$refs.pageConfigSidebar.openContent();
 
@@ -484,6 +491,9 @@ Component.register('sw-cms-detail', {
 
             this.isLoading = true;
             return this.page.save(true).then(() => {
+                this.isLoading = false;
+                this.isSaveSuccessful = true;
+
                 return this.loadPage(this.page.id);
             }).catch((exception) => {
                 this.isLoading = false;

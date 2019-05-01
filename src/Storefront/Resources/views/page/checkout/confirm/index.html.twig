@@ -36,7 +36,6 @@
 
                 {% block page_checkout_confirm_revocation_notice %}
                     {% if shopware.config.confirm.revocationNotice %}
-                        {#TODO: NEXT-2667, NEXT-2783 - add link to shop page in snippet and open content in modal #}
                         <p data-toggle="modal"
                            data-url="{{ path('widgets.cms.page',{ id: shopware.config.cms.revocationNoticeCmsPageId }) }}">
                             {{ "checkout.confirmRevocationNotice"|trans }}

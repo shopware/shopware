@@ -52,6 +52,14 @@ export default class DomAccess {
             throw new Error(`The required property "${attribute}" does not exist!`);
         }
 
+        if (typeof element.getAttribute !== 'function') {
+            if (strict) {
+                throw new Error('This node doesn\'t support the getAttribute function!');
+            }
+
+            return undefined;
+        }
+
         return element.getAttribute(attribute);
     }
 
@@ -69,9 +77,17 @@ export default class DomAccess {
         if (!DomAccess.isNode(element)) {
             if (strict) {
                 throw new Error('The passed node is not a valid HTML Node!');
-            } else {
-                return undefined;
             }
+
+            return undefined;
+        }
+
+        if (typeof element.dataset === 'undefined') {
+            if (strict) {
+                throw new Error('This node doesn\'t support the dataset attribute!');
+            }
+
+            return undefined;
         }
 
         const attribute = element.dataset[parsedKey];
@@ -79,9 +95,9 @@ export default class DomAccess {
         if (typeof attribute === 'undefined') {
             if (strict) {
                 throw new Error(`The required data attribute "${key}" does not exist on ${element}!`);
-            } else {
-                return attribute;
             }
+
+            return attribute;
         }
 
         return StringHelper.parsePrimitive(attribute);

@@ -46,7 +46,8 @@ export default class Plugin {
     _mergeOptions(options) {
         const dashedPluginName = StringHelper.toDashCase(this._pluginName);
         const dataAttributeConfig = DomAccess.getDataAttribute(this.el, `data-${dashedPluginName}-config`, false);
-        const dataAttributeOptions = DomAccess.getDataAttribute(this.el, `data-${dashedPluginName}-options`, false);
+        const dataAttributeOptions = DomAccess.getAttribute(this.el, `data-${dashedPluginName}-options`, false);
+
 
         // static plugin options
         // previously merged options
@@ -60,7 +61,13 @@ export default class Plugin {
         // options which are set via data-plugin-name-config="config name"
         if (dataAttributeConfig) merge.push(window.PluginConfigManager.get(this._pluginName, dataAttributeConfig));
         // options which are set via data-plugin-name-options="{json..}"
-        if (dataAttributeOptions) merge.push(dataAttributeOptions);
+        try {
+            if (dataAttributeOptions) merge.push(JSON.parse(dataAttributeOptions));
+        } catch (e) {
+            console.error(this.el);
+            throw new Error(`The data attribute "data-${dashedPluginName}-options" could not be parsed to json: ${e.message}`);
+        }
+
 
         return deepmerge.all(merge.map(config => config || {}));
     }

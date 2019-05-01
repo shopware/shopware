@@ -6,6 +6,7 @@ export default class HttpClient {
      * @param {string} contextToken
      */
     constructor(accessKey, contextToken) {
+        this._request = null;
         this._accessKey = accessKey;
         this._contextToken = contextToken;
     }
@@ -34,13 +35,8 @@ export default class HttpClient {
      */
     get(url, callback) {
         const request = this._createPreparedRequest('GET', url);
-
-        request.addEventListener('loadend', function() {
-            callback(request.responseText);
-        });
-
+        this._registerOnLoaded(request, callback);
         request.send();
-
         return request;
     }
 
@@ -55,13 +51,8 @@ export default class HttpClient {
      */
     post(url, data, callback) {
         const request = this._createPreparedRequest('POST', url);
-
-        request.addEventListener('loadend', function() {
-            callback(request.responseText);
-        });
-
+        this._registerOnLoaded(request, callback);
         request.send(data);
-
         return request;
     }
 
@@ -75,13 +66,8 @@ export default class HttpClient {
      */
     delete(url, callback) {
         const request = this._createPreparedRequest('DELETE', url);
-
-        request.addEventListener('loadend', function() {
-            callback(request.responseText);
-        });
-
+        this._registerOnLoaded(request, callback);
         request.send();
-
         return request;
     }
 
@@ -94,12 +80,35 @@ export default class HttpClient {
      */
     patch(url, callback) {
         const request = this._createPreparedRequest('PATCH', url);
-
-        request.addEventListener('loadend', function() {
-            callback(request.responseText);
-        });
-
+        this._registerOnLoaded(request, callback);
         request.send();
+        return request;
+    }
+
+    /**
+     * Abort running Request
+     *
+     * @returns {*}
+     */
+    abort() {
+        if (this._request) {
+            return this._request.abort();
+        }
+    }
+
+    /**
+     * register event listener
+     * which executes the given callback
+     * when the request has finished
+     *
+     * @param request
+     * @param callback
+     * @private
+     */
+    _registerOnLoaded(request, callback) {
+        request.addEventListener('loadend', event => {
+            if (event.loaded > 0) callback(request.responseText);
+        });
     }
 
     /**
@@ -111,14 +120,14 @@ export default class HttpClient {
      * @private
      */
     _createPreparedRequest(type, url) {
-        const request = new XMLHttpRequest();
+        this._request = new XMLHttpRequest();
 
-        request.open(type, url);
-        request.setRequestHeader('Content-type', 'application/json');
-        request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-        request.setRequestHeader('sw-access-key', this.accessKey);
-        request.setRequestHeader('sw-context-token', this.contextToken);
+        this._request.open(type, url);
+        this._request.setRequestHeader('Content-type', 'application/json');
+        this._request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        this._request.setRequestHeader('sw-access-key', this.accessKey);
+        this._request.setRequestHeader('sw-context-token', this.contextToken);
 
-        return request;
+        return this._request;
     }
 }

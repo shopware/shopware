@@ -18,4 +18,11 @@
             height: 100%;
         }
     }
+
+    &.is--stretch {
+        img {
+            object-fit: fill;
+            width: 100%;
+        }
+    }
 }

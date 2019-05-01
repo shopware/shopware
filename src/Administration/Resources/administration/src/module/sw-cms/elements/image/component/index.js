@@ -10,10 +10,12 @@ Component.register('sw-cms-el-image', {
     ],
 
     computed: {
-        classes() {
-            return {
-                'is--cover': this.element.config.displayMode.value === 'cover'
-            };
+        displayModeClass() {
+            if (this.element.config.displayMode.value === 'standard') {
+                return null;
+            }
+
+            return `is--${this.element.config.displayMode.value}`;
         },
 
         styles() {

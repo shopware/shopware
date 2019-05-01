@@ -21,10 +21,13 @@ Component.extend('sw-mail-header-footer-create', 'sw-mail-header-footer-detail',
             }
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+            this.$router.push({ name: 'sw.mail.template.detail_head_foot', params: { id: this.mailHeaderFooter.id } });
+        },
+
         onSave() {
-            this.$super.onSave().then(() => {
-                this.$router.push({ name: 'sw.mail.template.detail_head_foot', params: { id: this.mailHeaderFooter.id } });
-            });
+            this.$super.onSave();
         }
     }
 });

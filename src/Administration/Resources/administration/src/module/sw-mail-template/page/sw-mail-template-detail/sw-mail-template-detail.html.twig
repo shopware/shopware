@@ -11,9 +11,16 @@
         {% block sw_mail_template_detail_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_mail_template_detail_actions_save %}
-                    <sw-button class="sw-mail-template-detail__save-action" variant="primary" :disabled="mailTemplate.isLoading" @click.prevent="onSave">
+                    <sw-button-process
+                            class="sw-mail-template-detail__save-action"
+                            :isLoading="isLoading"
+                            :processSuccess="isSaveSuccessful"
+                            :disabled="mailTemplate.isLoading"
+                            variant="primary"
+                            @process-finish="saveFinish"
+                            @click.prevent="onSave">
                         {{ $tc('sw-mail-template.detail.buttonSave') }}
-                    </sw-button>
+                    </sw-button-process>
                 {% endblock %}
             </template>
         {% endblock %}

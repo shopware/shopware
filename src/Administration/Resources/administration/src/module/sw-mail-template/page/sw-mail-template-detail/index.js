@@ -19,7 +19,9 @@ Component.register('sw-mail-template-detail', {
         return {
             mailTemplate: false,
             testerMail: '',
-            mailTemplateId: null
+            mailTemplateId: null,
+            isLoading: false,
+            isSaveSuccessful: false
         };
     },
 
@@ -112,14 +114,12 @@ Component.register('sw-mail-template-detail', {
             this.$refs.mediaSidebarItem.openContent();
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+        },
+
         onSave() {
             const mailTemplateSubject = this.mailTemplate.subject;
-            const notificationSaveSuccess = {
-                title: this.$tc('sw-mail-template.detail.titleSaveSuccess'),
-                message: this.$tc(
-                    'sw-mail-template.detail.messageSaveSuccess', 0, { subject: mailTemplateSubject }
-                )
-            };
 
             const notificationSaveError = {
                 title: this.$tc('global.notification.notificationSaveErrorTitle'),
@@ -127,11 +127,15 @@ Component.register('sw-mail-template-detail', {
                     'global.notification.notificationSaveErrorMessage', 0, { subject: mailTemplateSubject }
                 )
             };
+            this.isSaveSuccessful = false;
+            this.isLoading = true;
 
             return this.mailTemplate.save().then(() => {
+                this.isLoading = false;
+                this.isSaveSuccessful = true;
                 this.$refs.mediaSidebarItem.getList();
-                this.createNotificationSuccess(notificationSaveSuccess);
             }).catch((exception) => {
+                this.isLoading = false;
                 this.createNotificationError(notificationSaveError);
                 warn(this._name, exception.message, exception.response);
             });

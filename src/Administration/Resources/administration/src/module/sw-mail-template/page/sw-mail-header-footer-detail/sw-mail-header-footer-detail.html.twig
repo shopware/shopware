@@ -11,9 +11,16 @@
         {% block sw_mail_header_footer_detail_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_mail_header_footer_detail_actions_save %}
-                    <sw-button class="sw-mail-header-footer-detail__save-action" variant="primary" :disabled="mailHeaderFooter.isLoading" @click.prevent="onSave">
-                        {{ $tc('sw-mail-header-footer.detail.buttonSave') }}
-                    </sw-button>
+                <sw-button-process
+                        class="sw-mail-header-footer-detail__save-action"
+                        :isLoading="isLoading"
+                        :processSuccess="isSaveSuccessful"
+                        :disabled="mailHeaderFooter.isLoading"
+                        variant="primary"
+                        @process-finish="saveFinish"
+                        @click.prevent="onSave">
+                    {{ $tc('sw-mail-header-footer.detail.buttonSave') }}
+                </sw-button-process>
                 {% endblock %}
             </template>
         {% endblock %}

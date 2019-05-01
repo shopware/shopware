@@ -21,10 +21,13 @@ Component.extend('sw-mail-template-create', 'sw-mail-template-detail', {
             }
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+            this.$router.push({ name: 'sw.mail.template.detail', params: { id: this.mailTemplate.id } });
+        },
+
         onSave() {
-            this.$super.onSave().then(() => {
-                this.$router.push({ name: 'sw.mail.template.detail', params: { id: this.mailTemplate.id } });
-            });
+            this.$super.onSave();
         }
     }
 });

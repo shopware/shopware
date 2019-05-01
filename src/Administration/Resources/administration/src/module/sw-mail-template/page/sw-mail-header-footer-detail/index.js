@@ -13,7 +13,9 @@ Component.register('sw-mail-header-footer-detail', {
     data() {
         return {
             mailHeaderFooter: false,
-            mailHeaderFooterId: null
+            mailHeaderFooterId: null,
+            isLoading: false,
+            isSaveSuccessful: false
         };
     },
 
@@ -75,15 +77,12 @@ Component.register('sw-mail-header-footer-detail', {
             this.loadEntityData();
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+        },
+
         onSave() {
             const mailHeaderFooterName = this.mailHeaderFooter.name;
-
-            const notificationSuccess = {
-                title: this.$tc('sw-mail-header-footer.detail.titleSaveSuccess'),
-                message: this.$tc(
-                    'sw-mail-header-footer.detail.messageSaveSuccess', 0, { name: mailHeaderFooterName }
-                )
-            };
 
             const notificationError = {
                 title: this.$tc('global.notification.notificationSaveErrorTitle'),
@@ -91,6 +90,8 @@ Component.register('sw-mail-header-footer-detail', {
                     'global.notification.notificationSaveErrorMessage', 0, { entityName: mailHeaderFooterName }
                 )
             };
+            this.isSaveSuccessful = false;
+            this.isLoading = true;
 
             if (!this.mailHeaderFooter.salesChannels) {
                 this.mailHeaderFooter.salesChannels = [];
@@ -106,8 +107,10 @@ Component.register('sw-mail-header-footer-detail', {
                     return salesChannel.save(false);
                 });
             }).then(() => {
-                this.createNotificationSuccess(notificationSuccess);
+                this.isLoading = false;
+                this.isSaveSuccessful = true;
             }).catch((exception) => {
+                this.isLoading = false;
                 this.createNotificationError(notificationError);
                 warn(this._name, exception.message, exception.response);
             });

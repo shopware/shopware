@@ -26,10 +26,13 @@ Component.extend('sw-settings-number-range-create', 'sw-settings-number-range-de
             this.numberRange.isLoading = false;
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+            this.$router.push({ name: 'sw.settings.number.range.detail', params: { id: this.numberRange.id } });
+        },
+
         onSave() {
-            this.$super.onSave().then(() => {
-                this.$router.push({ name: 'sw.settings.number.range.detail', params: { id: this.numberRange.id } });
-            });
+            this.$super.onSave();
         }
     }
 });

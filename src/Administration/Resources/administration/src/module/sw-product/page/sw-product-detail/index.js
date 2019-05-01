@@ -154,7 +154,7 @@ Component.register('sw-product-detail', {
             const messageSaveError = this.$tc(
                 'global.notification.notificationSaveErrorMessage', 0, { entityName: productName }
             );
-
+            this.isSaveSuccessful = false;
             this.isLoading = true;
 
             return this.product.save().then(() => {

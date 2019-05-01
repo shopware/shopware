@@ -24,6 +24,8 @@ class ManufacturerPageObject extends GeneralPageObject {
 
     addManufacturerLogo(imagePath) {
         this.browser
+            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
+            .waitForElementVisible('.sw-media-upload__switch-mode')
             .click('.sw-media-upload__switch-mode')
             .fillField('input[name=sw-field--url]', imagePath)
             .click('.sw-media-url-form__submit-button')

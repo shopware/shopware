@@ -90,7 +90,7 @@
                                  :customerAddressCustomFieldSets="customerAddressCustomFieldSets"
                                  :customerCustomFieldSets="customerCustomFieldSets"
                                  :language="language"
-                                 :isLoading="isLoading"
+                                 :isLoading="isLoading || isSaveSuccessful"
                                  v-if="!isLoading"
                                  @activateCustomerEditMode="onActivateCustomerEditMode">
                     </router-view>

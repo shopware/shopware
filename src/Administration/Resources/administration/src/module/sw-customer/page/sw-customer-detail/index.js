@@ -195,8 +195,8 @@ Component.register('sw-customer-detail', {
         },
 
         saveFinish() {
-            this.customerEditMode = false;
             this.isSaveSuccessful = false;
+            this.customerEditMode = false;
         },
 
         onSave() {

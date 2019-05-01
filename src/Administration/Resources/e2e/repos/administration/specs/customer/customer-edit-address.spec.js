@@ -91,6 +91,9 @@ module.exports = {
             .waitForElementVisible('.sw-customer-detail__save-action');
 
         browser
+            .waitForElementVisible('.sw-grid__header')
+            .click('.sw-grid__header .sw-grid-column:nth-of-type(4)')
+            .waitForElementNotPresent(page.elements.loader)
             .click(`${page.elements.gridRow}--1 #defaultShippingAddress-0`)
             .click(`${page.elements.gridRow}--1 #defaultBillingAddress-0`)
             .expect.element(`${page.elements.gridRow}--0 #defaultShippingAddress-0`).to.be.not.selected;

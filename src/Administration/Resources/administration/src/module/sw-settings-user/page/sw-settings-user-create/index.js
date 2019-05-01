@@ -14,13 +14,16 @@ Component.extend('sw-settings-user-create', 'sw-settings-user-detail', {
             });
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+            this.$router.push({ name: 'sw.settings.user.detail', params: { id: this.user.id } });
+        },
+
         onSave() {
             if (!this.user.localeId) {
                 this.user.localeId = this.currentUser.localeId;
             }
-            this.$super.onSave().then(() => {
-                this.$router.push({ name: 'sw.settings.user.detail', params: { id: this.user.id } });
-            });
+            this.$super.onSave();
         }
     }
 });

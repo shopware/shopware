@@ -15,10 +15,16 @@
                 {% endblock %}
 
                 {% block sw_settings_user_detail_actions_save %}
-                    <sw-button :disabled="isLoading || isError" class="sw-settings-user-detail__save-action" variant="primary"
-                               @click.prevent="onSave">
-                        {{ $tc('sw-settings-user.user-detail.labelButtonSave') }}
-                    </sw-button>
+                <sw-button-process
+                        class="sw-settings-user-detail__save-action"
+                        :isLoading="isLoading"
+                        :processSuccess="isSaveSuccessful"
+                        :disabled="isLoading || isError"
+                        variant="primary"
+                        @process-finish="saveFinish"
+                        @click.prevent="onSave">
+                    {{ $tc('sw-settings-user.user-detail.labelButtonSave') }}
+                </sw-button-process>
                 {% endblock %}
             </template>
         {% endblock %}

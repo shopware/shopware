@@ -23,13 +23,12 @@ Component.register('sw-settings-user-detail', {
             changePasswordModal: false,
             newPassword: '',
             isEmailUsed: false,
-            isUsernameUsed: false,
             integrations: [],
             isIntegrationsLoading: false,
             currentIntegration: null,
             isModalLoading: false,
             showSecretAccessKey: false,
-            showDeleteModal: null
+            showDeleteModal: null,
             isUsernameUsed: false,
             isSaveSuccessful: false,
             isLoading: false

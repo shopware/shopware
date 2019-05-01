@@ -17,7 +17,7 @@
                 {% endblock %}
 
                 {% block sw_settings_tax_detail_actions_save %}
-                <sw-button-process
+                    <sw-button-process
                         class="sw-settings-tax-detail__save-action"
                         :isLoading="isLoading"
                         :processSuccess="isSaveSuccessful"
@@ -25,8 +25,8 @@
                         variant="primary"
                         @process-finish="saveFinish"
                         @click.prevent="onSave">
-                    {{ $tc('sw-settings-tax.detail.buttonSave') }}
-                </sw-button-process>
+                        {{ $tc('sw-settings-tax.detail.buttonSave') }}
+                    </sw-button-process>
                 {% endblock %}
             </template>
         {% endblock %}

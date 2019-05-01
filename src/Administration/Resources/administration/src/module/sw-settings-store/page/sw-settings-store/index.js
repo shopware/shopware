@@ -7,15 +7,31 @@ Component.register('sw-settings-store', {
     mixins: [
         Mixin.getByName('notification')
     ],
+    data() {
+        return {
+            isLoading: false,
+            isSaveSuccessful: false
+        };
+    },
+
+    saveFinish() {
+        this.isSaveSuccessful = false;
+    },
 
     methods: {
+        saveFinish() {
+            this.isSaveSuccessful = false;
+        },
+
         onSave() {
+            this.isSaveSuccessful = false;
+            this.isLoading = true;
+
             this.$refs.systemConfig.saveAll().then(() => {
-                this.createNotificationSuccess({
-                    title: this.$tc('sw-settings-store.general.titleSaveSuccess'),
-                    message: this.$tc('sw-settings-store.general.messageSaveSuccess')
-                });
+                this.isLoading = false;
+                this.isSaveSuccessful = true;
             }).catch((err) => {
+                this.isLoading = false;
                 this.createNotificationError({
                     title: this.$tc('sw-settings-store.general.titleSaveError'),
                     message: err

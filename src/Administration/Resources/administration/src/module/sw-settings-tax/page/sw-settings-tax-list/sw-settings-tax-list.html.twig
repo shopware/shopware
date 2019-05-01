@@ -88,9 +88,11 @@
 
                                                     {% block sw_settings_tax_list_columns_taxrate_editor %}
                                                         <sw-field type="number"
-                                                                  suffix="%"
                                                                   v-model="item.taxRate"
                                                                   slot="inline-edit">
+                                                            <template #suffix>
+                                                                %
+                                                            </template>
                                                         </sw-field>
                                                     {% endblock %}
                                                 </sw-grid-column>

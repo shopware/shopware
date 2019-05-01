@@ -15,7 +15,8 @@
                     {% endblock %}
 
                     {% block sw_sales_channel_detail_base_general_input_active %}
-                        <sw-field type="boolean"
+                        <sw-field type="switch"
+                                  bordered
                                   :label="$tc('sw-sales-channel.detail.labelInputActive')"
                                   v-model="salesChannel.active">
                         </sw-field>
@@ -184,7 +185,7 @@
                             <sw-field :label="$tc('sw-sales-channel.detail.labelAccessKeyField')"
                                       :disabled="true"
                                       v-model="salesChannel.accessKey"
-                                      :copyAble="true">
+                                      :copyable="true">
                             </sw-field>
                         {% endblock %}
 

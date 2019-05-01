@@ -11,7 +11,8 @@
             {% endblock %}
 
             {% block sw_promotion_basic_form_active_field %}
-                <sw-field type="boolean"
+                <sw-field type="switch"
+                          bordered
                           :label="$tc('sw-promotion.detail.main.general.labelActive')"
                           v-model="promotion.active">
                 </sw-field>

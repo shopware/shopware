@@ -4,7 +4,7 @@
                   class="field--main field--error"
                   :placeholder="$tc('global.sw-condition.condition.not-found.label')"
                   :disabled="true">
-            <template slot="suffix" slot-scope="slotProps">
+            <template #suffix>
                 <sw-help-text :text="errorMessage" :width="200" tooltipPosition="top">
                 </sw-help-text>
             </template>

@@ -10,7 +10,8 @@
             {% endblock %}
 
             {% block sw_product_settings_form_active_field %}
-                <sw-field type="boolean"
+                <sw-field type="switch"
+                          bordered
                           :label="$tc('sw-product.settingsForm.labelActive')"
                           v-model="product.active">
                 </sw-field>

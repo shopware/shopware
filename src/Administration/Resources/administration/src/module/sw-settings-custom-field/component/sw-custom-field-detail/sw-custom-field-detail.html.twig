@@ -20,7 +20,7 @@
                     <sw-field
                             type="text"
                             :label="$tc('sw-settings-custom-field.customField.detail.labelTechnicalName')"
-                            :tooltipText="$tc('sw-settings-custom-field.general.tooltipTechnicalName')"
+                            :helpText="$tc('sw-settings-custom-field.general.tooltipTechnicalName')"
                             :disabled="!currentCustomField.isLocal"
                             v-model="currentCustomField.name">
                     </sw-field>
@@ -29,7 +29,7 @@
                 {% block sw_custom_field_detail_modal_position %}
                     <sw-field
                             type="number"
-                            :tooltipText="$tc('sw-settings-custom-field.customField.detail.tooltipCustomFieldPosition')"
+                            :helpText="$tc('sw-settings-custom-field.customField.detail.tooltipCustomFieldPosition')"
                             numberType="int"
                             :label="$tc('sw-settings-custom-field.customField.detail.labelCustomFieldPosition')"
                             v-model="currentCustomField.config.customFieldPosition">
@@ -38,8 +38,9 @@
 
                 {% block sw_custom_field_detail_modal_required %}
                     <sw-field
-                            type="boolean"
-                            :tooltipText="$tc('sw-settings-custom-field.customField.detail.tooltipRequired')"
+                            type="switch"
+                            bordered
+                            :helpText="$tc('sw-settings-custom-field.customField.detail.tooltipRequired')"
                             class="sw-custom-field-detail__switch"
                             :label="$tc('sw-settings-custom-field.customField.detail.labelRequired')"
                             v-model="required">

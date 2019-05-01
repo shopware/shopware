@@ -69,8 +69,8 @@
                                             <sw-field :label="$tc('sw-integration.detail.idFieldLabel')"
                                                       :disabled="true"
                                                       v-model="currentIntegration.accessKey"
-                                                      :copyAble="true"
-                                                      :copyAbleTooltip="true">
+                                                      :copyable="true"
+                                                      :copyableTooltip="true">
                                             </sw-field>
                                         {% endblock %}
 
@@ -81,8 +81,8 @@
                                                       :disabled="true"
                                                       v-model="currentIntegration.secretAccessKey"
                                                       :passwordToggleAble="false"
-                                                      :copyAble="showSecretAccessKey"
-                                                      :copyAbleTooltip="true">
+                                                      :copyable="showSecretAccessKey"
+                                                      :copyableTooltip="true">
                                             </sw-field>
 
                                             <sw-button v-if="!showSecretAccessKey"

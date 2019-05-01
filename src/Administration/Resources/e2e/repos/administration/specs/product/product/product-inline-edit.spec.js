@@ -30,6 +30,7 @@ module.exports = {
         browser
             .waitForElementVisible(`${page.elements.dataGridRow}--0`)
             .moveToElement(`${page.elements.dataGridRow}--0`, 5, 5).doubleClick()
+            .waitForElementPresent('.is--inline-edit ')
             .fillField(`${page.elements.dataGridRow}--0 ${page.elements.productListName} input[type=text]`, 'Cyberdyne Systems T800', true)
             .click(`${page.elements.dataGridRow}--0 ${page.elements.dataGridInlineEditSave}`)
             .waitForElementNotPresent('.is--inline-edit')

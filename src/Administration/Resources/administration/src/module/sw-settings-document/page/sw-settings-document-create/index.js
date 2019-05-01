@@ -24,10 +24,13 @@ Component.extend('sw-settings-document-create', 'sw-settings-document-detail', {
             this.documentConfig.isLoading = false;
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+            this.$router.push({ name: 'sw.settings.document.detail', params: { id: this.documentConfig.id } });
+        },
+
         onSave() {
-            this.$super.onSave().then(() => {
-                this.$router.push({ name: 'sw.settings.document.detail', params: { id: this.documentConfig.id } });
-            });
+            this.$super.onSave();
         }
     }
 });

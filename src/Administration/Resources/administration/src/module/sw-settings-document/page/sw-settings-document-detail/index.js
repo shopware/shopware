@@ -20,6 +20,8 @@ Component.register('sw-settings-document-detail', {
             documentConfigSalesChannelsStore: {},
             documentConfigSalesChannels: [],
             documentConfigSalesChannelsAssoc: {},
+            isLoading: false,
+            isSaveSuccessful: false,
             salesChannels: {},
             salesChannelsTypeCriteria: {},
             selectedType: {},
@@ -494,20 +496,20 @@ Component.register('sw-settings-document-detail', {
             });
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+        },
+
         onSave() {
+            this.isSaveSuccessful = false;
+            this.isLoading = true;
             this.onChangeSalesChannel();
-            const documentConfigName = this.documentConfig.name;
-            const titleSaveSuccess = this.$tc('sw-settings-document.detail.titleSaveSuccess');
-            const messageSaveSuccess = this.$tc(
-                'sw-settings-document.detail.messageSaveSuccess',
-                0,
-                { name: documentConfigName }
-            );
+
             return this.documentConfig.save().then(() => {
-                this.createNotificationSuccess({
-                    title: titleSaveSuccess,
-                    message: messageSaveSuccess
-                });
+                this.isLoading = false;
+                this.isSaveSuccessful = true;
+            }).catch(() => {
+                this.isLoading = false;
             });
         }
     }

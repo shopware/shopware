@@ -25,11 +25,12 @@ class ShippingMethodPageObject extends GeneralPageObject {
             });
 
         this.browser
+            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .click(this.elements.shippingSaveAction)
-            .checkNotification(`Shipping rate "${name}" has been saved successfully.`);
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium');
     }
 
-    createShippingMethodPriceRule(name) {
+    createShippingMethodPriceRule() {
         this.browser
             .click('.sw-shipping-detail-page__price-settings')
             .waitForElementVisible('.context-prices__actions button')
@@ -44,8 +45,9 @@ class ShippingMethodPageObject extends GeneralPageObject {
             .fillField(`${this.elements.gridRow}--0 input[name=sw-field--item-quantityEnd]`, '20')
             .fillField(`${this.elements.gridRow}--0 input[name=sw-field--item-price]`, '10')
             .fillField(`${this.elements.gridRow}--1 input[name=sw-field--item-price]`, '8')
+            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .click(this.elements.shippingSaveAction)
-            .checkNotification(`Shipping rate "${name}" has been saved successfully.`);
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium');
     }
 
     moveToListViewFromDetail() {

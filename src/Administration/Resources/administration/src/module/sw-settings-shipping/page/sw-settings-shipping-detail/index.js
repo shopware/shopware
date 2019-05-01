@@ -32,7 +32,9 @@ Component.register('sw-settings-shipping-detail', {
                 'OR',
                 CriteriaFactory.contains('rule.moduleTypes.types', 'shipping'),
                 CriteriaFactory.equals('rule.moduleTypes', null)
-            )
+            ),
+            isSaveSuccessful: false,
+            isProcessLoading: false
         };
     },
 
@@ -106,30 +108,30 @@ Component.register('sw-settings-shipping-detail', {
             this.loadEntityData();
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+        },
+
         onSave() {
-            const shippingMethodName = this.placeholder(this.shippingMethod, 'name');
-            const titleSaveSuccess = this.$tc('sw-settings-shipping.detail.titleSaveSuccess');
-            const messageSaveSuccess = this.$tc('sw-settings-shipping.detail.messageSaveSuccess', 0, {
-                name: shippingMethodName
-            });
+            const shippingMethodName = this.shippingMethod.name;
             const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');
             const messageSaveError = this.$tc(
                 'global.notification.notificationSaveErrorMessage', 0, { entityName: shippingMethodName }
             );
+            this.isSaveSuccessful = false;
+            this.isProcessLoading = true;
 
             return this.shippingMethod.save().then(() => {
+                this.isProcessLoading = false;
+                this.isSaveSuccessful = true;
                 this.$refs.mediaSidebarItem.getList();
-
-                this.createNotificationSuccess({
-                    title: titleSaveSuccess,
-                    message: messageSaveSuccess
-                });
             }).catch((exception) => {
                 this.createNotificationError({
                     title: titleSaveError,
                     message: messageSaveError
                 });
                 warn(this._name, exception.message, exception.response);
+                this.isProcessLoading = false;
                 throw exception;
             });
         },

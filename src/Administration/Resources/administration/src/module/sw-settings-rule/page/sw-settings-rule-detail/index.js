@@ -68,10 +68,10 @@ Component.register('sw-settings-rule-detail', {
                 isAndContainer(condition) { return condition.type === 'andContainer'; },
                 isOrContainer(condition) { return condition.type === 'orContainer'; },
                 isPlaceholder(condition) { return !condition.type; },
-                isDataSet(condition) { return this.dataCheckMethods[condition.type](condition); },
-                isLoading: false,
-                isSaveSuccessful: false
-            }
+                isDataSet(condition) { return this.dataCheckMethods[condition.type](condition); }
+            },
+            isLoading: false,
+            isSaveSuccessful: false
         };
     },
 

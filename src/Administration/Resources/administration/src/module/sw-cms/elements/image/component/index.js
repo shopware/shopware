@@ -16,6 +16,13 @@ Component.register('sw-cms-el-image', {
             };
         },
 
+        styles() {
+            return {
+                'min-height': this.element.config.displayMode.value === 'cover' &&
+                              this.element.config.minHeight.value !== 0 ? this.element.config.minHeight.value : null
+            };
+        },
+
         mediaUrl() {
             const initContainer = Application.getContainer('init');
             const context = initContainer.contextService;

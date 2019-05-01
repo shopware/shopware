@@ -75,6 +75,7 @@
       "labelMediaDisplayMode": "Display mode",
       "labelMediaDisplayModeStandard": "Standard",
       "labelMediaDisplayModeCover": "Cover",
+      "labelMediaMinHeight": "Minimale Höhe",
       "labelTextElementContent": "Text content",
       "labelProductActionDetail": "Details",
       "labelProductActionBuy": "Add to cart",

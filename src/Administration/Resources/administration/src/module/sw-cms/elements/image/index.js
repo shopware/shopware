@@ -17,6 +17,10 @@ Application.getContainer('service').cmsService.registerCmsElement({
         displayMode: {
             source: 'static',
             value: 'standard'
+        },
+        minHeight: {
+            source: 'static',
+            value: 0
         }
     }
 });

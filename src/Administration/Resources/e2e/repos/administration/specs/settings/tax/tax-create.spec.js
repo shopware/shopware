@@ -21,7 +21,7 @@ module.exports = {
             .fillField('input[name=sw-field--tax-name]', 'High tax')
             .fillField('input[name=sw-field--tax-taxRate]', '99')
             .click(page.elements.taxSaveAction)
-            .checkNotification('Tax "High tax" has been saved successfully.')
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium')
             .assert.urlContains('#/sw/settings/tax/detail');
     },
     'go back to listing and verify tax': (browser) => {

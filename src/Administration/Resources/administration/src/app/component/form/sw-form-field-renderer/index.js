@@ -1,4 +1,4 @@
-import { Component } from 'src/core/shopware';
+import { Mixin } from 'src/core/shopware';
 import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-form-field-renderer.html.twig';
 
@@ -6,9 +6,8 @@ import template from './sw-form-field-renderer.html.twig';
  * @public
  * @status ready
  * @description
- * Dynamically renders components. To find out which component to render it first checks for the componentName
- * prop to choose which component to render. Next it checks the configuration for a <code>componentName</code>.
- * If a <code>componentName</code> isn't specified, the type prop will be checked to automatically guess a suitable
+ * Dynamically renders components with a given configuration. The rendered component can be forced by defining
+ * the config.componentName porperty. If not set the form-field-renderer will guess a suitable
  * component for the type. Everything inside the config prop will be passed to the rendered child prop as properties.
  * Also all additional props will be passed to the child.
  * @example-type code-only
@@ -21,13 +20,6 @@ import template from './sw-form-field-renderer.html.twig';
  *
  * {# Text field #}
  * <sw-form-field-renderer
- *         type="string"
- *         v-model="yourValue">
- * </sw-form-field-renderer>
- *
- * {# sw-colorpicker #}
- * <sw-form-field-renderer
- *         componentName="sw-colorpicker"
  *         type="string"
  *         v-model="yourValue">
  * </sw-form-field-renderer>
@@ -61,8 +53,8 @@ import template from './sw-form-field-renderer.html.twig';
  *
  * {# sw-select - single #}
  * <sw-form-field-renderer
+ *         :componentName: 'sw-single-select',
  *         :config="{
- *             componentName: 'sw-single-select',
  *             label: 'Single Select',
  *             options: [
  *                 { value: 'option1', label: { 'en-GB': 'One' } },
@@ -76,12 +68,13 @@ import template from './sw-form-field-renderer.html.twig';
 export default {
     name: 'sw-form-field-renderer',
     template,
+    inheritAttrs: false,
+
+    mixins: [
+        Mixin.getByName('sw-inline-snippet')
+    ],
 
     props: {
-        componentName: {
-            type: String,
-            required: false
-        },
         type: {
             type: String,
             required: false
@@ -99,34 +92,85 @@ export default {
         return {
             currentComponentName: '',
             swFieldConfig: {},
-            currentConfig: {},
-            currentValue: ''
+            currentValue: this.value,
+            translatedFields: {
+                'sw-field': ['label', 'placeholder', 'helpText'],
+                'sw-text-editor': ['label', 'placeholder', 'helpText'],
+                'sw-media-field': ['label'],
+                'sw-select': ['label', 'placeholder', 'helpText']
+            }
         };
     },
 
     computed: {
         bind() {
-            let bind = { ...this.$attrs, ...this.currentConfig };
-
-            if (this.type && !bind.type) {
-                bind = { ...bind, ...{ type: this.type } };
-            }
-
-            if (Object.keys(this.swFieldConfig).length > 0) {
-                bind = { ...bind, ...this.swFieldConfig };
-            }
+            const bind = {
+                ...this.$attrs,
+                ...this.config,
+                ...this.swFieldType,
+                ...this.translations
+            };
 
             // create stores for sw-select
-            if (this.currentComponentName === 'sw-select') {
+            if (this.componentName === 'sw-select') {
                 this.addSwSelectStores(bind);
             }
 
-            // Set the name as label if no label is passed
-            if (!bind.label) {
-                bind.label = bind.name;
+            return bind;
+        },
+
+        hasConfig() {
+            return !!this.config;
+        },
+
+        componentName() {
+            if (this.hasConfig) {
+                return this.config.componentName || this.getComponentFromType();
+            }
+            return this.getComponentFromType();
+        },
+
+        swFieldType() {
+            if (this.componentName !== 'sw-field'
+                || (this.hasConfig && this.config.hasOwnProperty('type'))) {
+                return {};
             }
 
-            return bind;
+            if (this.type === 'int') {
+                return { type: 'number', numberType: 'int' };
+            }
+
+            if (this.type === 'float') {
+                return { type: 'number', numberType: 'float' };
+            }
+
+            if (this.type === 'string' || this.type === 'text') {
+                return { type: 'text' };
+            }
+
+            if (this.type === 'bool') {
+                return { type: 'switch', bordered: true };
+            }
+
+            if (this.type === 'datetime') {
+                return { type: 'date', dateType: 'datetime' };
+            }
+
+            return { type: this.type };
+        },
+
+        translations() {
+            const translatableFields = this.translatedFields[this.componentName];
+            if (!translatableFields) {
+                return {};
+            }
+
+            const translations = {};
+            translatableFields.forEach((field) => {
+                translations[field] = this.getInlineSnippet(this.config[field]);
+            });
+
+            return translations;
         }
     },
 
@@ -140,101 +184,34 @@ export default {
             this.currentValue = this.value;
             // Recreate select association store on value changes and reload selections,
             // this is necessary for languages changes for example
-            if (this.component === 'sw-select') {
+            if (this.componentName === 'sw-select') {
                 if (this.bind.multi) {
                     this.addSwSelectAssociationStore(this.bind, true);
                 }
                 this.refreshSwSelectSelections();
             }
-        },
-        '$attrs.disabled'() {
-            this.createBind();
         }
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
-        createdComponent() {
-            this.currentValue = this.value;
-            this.currentConfig = Object.assign({}, this.config);
-
-            this.currentComponentName = this.getComponentName();
-        },
-        getComponentName() {
-            if (this.componentName) {
-                return this.validateComponentName(this.componentName);
-            }
-
-            if (this.config && this.config.componentName) {
-                return this.validateComponentName(this.config.componentName);
-            }
-
-            return this.getComponentFromType();
-        },
         getComponentFromType() {
-            if (this.type === 'int') {
-                this.swFieldConfig = { ...this.swFieldConfig, ...{ type: 'number' } };
-                this.swFieldConfig = { ...this.swFieldConfig, ...{ numberType: 'int' } };
-                return 'sw-field';
-            }
-            if (this.type === 'string' || this.type === 'text') {
-                this.swFieldConfig = { ...this.swFieldConfig, ...{ type: 'text' } };
-                return 'sw-field';
-            }
-            if (this.type === 'bool') {
-                this.swFieldConfig = { ...this.swFieldConfig, ...{ type: 'boolean' } };
-                return 'sw-field';
-            }
-            if (this.type === 'float') {
-                this.swFieldConfig = { ...this.swFieldConfig, ...{ type: 'number' } };
-                this.swFieldConfig = { ...this.swFieldConfig, ...{ numberType: 'float' } };
-                return 'sw-field';
-            }
-            if (this.type === 'datetime') {
-                this.swFieldConfig = { ...this.swFieldConfig, ...{ type: 'date', dateType: 'datetime' } };
-                return 'sw-field';
-            }
             if (this.type === 'single-select') {
                 return 'sw-single-select';
             }
+
             if (this.type === 'multi-select') {
                 return 'sw-multi-select';
             }
-            const swFieldTypes = [
-                'text',
-                'boolean',
-                'checkbox',
-                'switch',
-                'number',
-                'radio',
-                'textarea',
-                'date',
-                'colorpicker',
-                'confirm',
-                'password',
-                'url'
-            ];
-            if (swFieldTypes.includes(this.type)) {
-                this.swFieldConfig = { ...this.swFieldConfig, ...{ type: this.type } };
-                return 'sw-field';
+
+            if (this.type === 'media') {
+                return 'sw-media-field';
             }
 
-            throw new Error(`sw-form-field-renderer - No suitable component for type "${this.type}" found`);
+            return 'sw-field';
         },
-        validateComponentName(name) {
-            const componentRegistry = Component.getComponentRegistry();
 
-            if (componentRegistry.has(name)) {
-                return name;
-            }
-
-            throw new Error(`sw-form-field-renderer - Component with name "${name}" not found`);
-        },
-        addSwSelectStores(bind, override = false) {
-            if (bind.store && override === false) {
+        addSwSelectStores(bind) {
+            if (bind.store) {
                 return;
             }
 
@@ -242,15 +219,18 @@ export default {
                 throw new Error('sw-form-field-renderer - sw-select component needs options or a store');
             }
 
-            bind.store = new LocalStore(this.config.options, 'id', 'name');
+            bind.store = new LocalStore([], 'id', 'name');
+            this.config.options.forEach(({ id, name }) => {
+                bind.store.add({ id, name: this.getInlineSnippet(name) });
+            });
 
             if (bind.multi) {
-                this.addSwSelectAssociationStore(bind, override);
+                this.addSwSelectAssociationStore(bind, false);
             }
 
             this.refreshSwSelectSelections();
         },
-        addSwSelectAssociationStore(bind, override = false) {
+        addSwSelectAssociationStore(bind, override) {
             if (bind.associationStore && override === false) {
                 return;
             }

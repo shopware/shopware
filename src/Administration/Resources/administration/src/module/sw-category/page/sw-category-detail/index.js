@@ -319,7 +319,6 @@ Component.register('sw-category-detail', {
                     message: messageSaveError
                 });
                 warn(this._name, exception.message, exception.response);
-                this.isLoading = false;
             });
         },
 

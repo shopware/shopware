@@ -12,7 +12,9 @@ Component.register('sw-property-detail', {
     data() {
         return {
             group: {},
-            groupId: null
+            groupId: null,
+            isLoading: false,
+            isSaveSuccessful: false
         };
     },
 
@@ -41,18 +43,32 @@ Component.register('sw-property-detail', {
             this.group = this.groupStore.getById(this.groupId);
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+        },
+
         onSave() {
-            const titleSaveSuccess = this.$tc('sw-property.detail.titleSaveSuccess');
-            const messageSaveSuccess = this.$tc('sw-property.detail.messageSaveSuccess', 0, { name: this.group.name });
+            const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');
+            const messageSaveError = this.$tc(
+                'global.notification.notificationSaveErrorMessage', 0, { entityName: this.group.name }
+            );
+
+            this.isSaveSuccessful = false;
+            this.isLoading = true;
 
             return this.group.save().then(() => {
-                this.createNotificationSuccess({
-                    title: titleSaveSuccess,
-                    message: messageSaveSuccess
-                });
+                this.isLoading = false;
+                this.isSaveSuccessful = true;
 
                 this.$refs.optionListing.setSorting();
                 this.$refs.optionListing.getList();
+            }).catch((exception) => {
+                this.createNotificationError({
+                    title: titleSaveError,
+                    message: messageSaveError
+                });
+                this.isLoading = false;
+                throw exception;
             });
         }
     }

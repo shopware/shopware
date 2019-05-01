@@ -16,7 +16,7 @@ module.exports = {
         browser
             .openMainMenuEntry({
                 targetPath: '#/sw/property/index',
-                mainMenuId: 'sw-product',
+                mainMenuId: 'sw-catalogue',
                 subMenuId: 'sw-property'
             })
             .expect.element(`${page.elements.gridRow}--0 a`).to.have.text.that.equals('Color');
@@ -34,7 +34,7 @@ module.exports = {
         browser
             .fillField('input[name=sw-field--group-name]', 'Coleur', true)
             .click(page.elements.propertySaveAction)
-            .checkNotification('Property "Coleur" has been saved successfully.');
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium');
     },
     'verify property in listing': (browser) => {
         const page = propertyPage(browser);

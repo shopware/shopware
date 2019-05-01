@@ -49,6 +49,9 @@ class ProductPageObject extends GeneralPageObject {
             .waitForElementVisible('.sw-media-preview__item')
             .checkNotification('File has been saved successfully.')
             .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
+            .expect.element('.sw-product-detail__save-action').to.be.enabled;
+
+        this.browser
             .click(this.elements.productSaveAction)
             .waitForElementVisible('.icon--small-default-checkmark-line-medium');
     }

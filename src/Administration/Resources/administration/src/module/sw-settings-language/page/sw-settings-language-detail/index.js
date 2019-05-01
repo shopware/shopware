@@ -17,7 +17,9 @@ Component.register('sw-settings-language-detail', {
             locales: [],
             languages: [],
             usedLocales: [],
-            showAlertForChangeParentLanguage: false
+            showAlertForChangeParentLanguage: false,
+            isLoading: false,
+            isSaveSuccessful: false
         };
     },
 
@@ -95,15 +97,19 @@ Component.register('sw-settings-language-detail', {
             return foundLocale !== undefined;
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+        },
+
         onSave() {
-            const languageName = this.language.name;
-            const titleSaveSuccess = this.$tc('sw-settings-language.detail.titleSaveSuccess');
-            const messageSaveSuccess = this.$tc('sw-settings-language.detail.messageSaveSuccess', 0, { name: languageName });
+            this.isSaveSuccessful = false;
+            this.isLoading = true;
+
             return this.language.save().then(() => {
-                this.createNotificationSuccess({
-                    title: titleSaveSuccess,
-                    message: messageSaveSuccess
-                });
+                this.isLoading = false;
+                this.isSaveSuccessful = true;
+            }).catch(() => {
+                this.isLoading = false;
             });
         },
 

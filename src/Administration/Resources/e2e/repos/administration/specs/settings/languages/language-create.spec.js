@@ -42,7 +42,7 @@ module.exports = {
                 }
             )
             .click(page.elements.languageSaveAction)
-            .checkNotification('Language "Philippine English" has been saved successfully.')
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium')
             .assert.urlContains('#/sw/settings/language/detail');
     },
     'go back to listing and verify creation': (browser) => {

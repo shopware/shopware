@@ -16,9 +16,16 @@
                 {% endblock %}
 
                 {% block sw_settings_payment_detail_actions_save %}
-                    <sw-button variant="primary" :disabled="paymentMethod.isLoading" @click.prevent="onSave">
-                        {{ $tc('sw-settings-payment.detail.buttonSave') }}
-                    </sw-button>
+                <sw-button-process
+                        class="sw-product-detail__save-action"
+                        :isLoading="isLoading"
+                        :processSuccess="isSaveSuccessful"
+                        :disabled="paymentMethod.isLoading"
+                        variant="primary"
+                        @process-finish="saveFinish"
+                        @click.prevent="onSave">
+                    {{ $tc('sw-settings-payment.detail.buttonSave') }}
+                </sw-button-process>
                 {% endblock %}
             </template>
         {% endblock %}

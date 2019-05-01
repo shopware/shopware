@@ -49,7 +49,7 @@ export default class FormAutoSubmitPlugin extends Plugin {
      */
     _onChange() {
         this._form.submit();
-        PageLoadingIndicatorUtil.open();
+        PageLoadingIndicatorUtil.create();
     }
 
 }

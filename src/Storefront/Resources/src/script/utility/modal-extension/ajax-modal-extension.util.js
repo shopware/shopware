@@ -81,13 +81,13 @@ export default class AjaxModalExtensionUtil {
 
         const trigger = event.target;
         const url = DomAccess.getAttribute(trigger, URL_DATA_ATTRIBUTE);
-        PageLoadingIndicatorUtil.open();
+        PageLoadingIndicatorUtil.create();
         this._client.get(url, response => this._openModal(response));
     }
 
 
     _openModal(response) {
-        PageLoadingIndicatorUtil.close();
+        PageLoadingIndicatorUtil.remove();
 
         // append the temporarily created ajax modal content to the end of the DOM
         const pseudoModal = this._createPseudoModal(response);

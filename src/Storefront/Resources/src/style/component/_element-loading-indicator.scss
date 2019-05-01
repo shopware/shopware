@@ -1,0 +1,29 @@
+.has-element-loader {
+    z-index: 9999;
+    pointer-events: none;
+    position: relative;
+}
+
+.element-loader-backdrop {
+    opacity: 0;
+    transition: opacity 0.45s cubic-bezier(0.3, 0, 0.15, 1), visibility 0.45s linear;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    position: absolute;
+    background-color: $element-backdrop-bg;
+    z-index: 999;
+
+    &.element-loader-backdrop-open {
+        opacity: 1;
+    }
+
+    > .spinner-border {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        margin-left: -$spacer;
+        margin-top: -$spacer;
+    }
+}

@@ -73,7 +73,7 @@ class OffCanvasSingleton {
         // wait before removing backdrop to let css animation effects take place
         setTimeout(this._removeExistingOffCanvas.bind(this), delay);
 
-        Backdrop.close(delay);
+        Backdrop.remove(delay);
     }
 
     /**
@@ -94,7 +94,7 @@ class OffCanvasSingleton {
     _openOffcanvas(offCanvas, callback) {
         // the timeout allows to apply the animation effects
         setTimeout(function () {
-            Backdrop.open(function () {
+            Backdrop.create(function () {
                 offCanvas.classList.add(OFF_CANVAS_OPEN_CLASS);
 
                 // if a callback function is being injected execute it after opening the OffCanvas

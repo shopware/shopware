@@ -50,17 +50,17 @@ export default class ArrowNavigationHelper {
         if (this._itemsExist() === false) return;
 
         switch (e.key) {
-        case 'Enter':
-            this._onPressEnter(e);
-            return;
-        case 'ArrowDown':
-            this._iterator++;
-            break;
-        case 'ArrowUp':
-            this._iterator--;
-            break;
-        default:
-            return;
+            case 'Enter':
+                this._onPressEnter(e);
+                return;
+            case 'ArrowDown':
+                this._iterator++;
+                break;
+            case 'ArrowUp':
+                this._iterator--;
+                break;
+            default:
+                return;
         }
 
         // handle bounds

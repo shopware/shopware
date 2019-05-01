@@ -28,7 +28,7 @@ class BackdropSingleton {
      * to the body to override default scrolling behaviour
      * @param {function|null} callback
      */
-    open(callback) {
+    create(callback) {
         // avoid multiple backdrops
         this._removeExistingBackdrops();
 
@@ -55,7 +55,7 @@ class BackdropSingleton {
      * Close backdrop
      * @param {number} delay
      */
-    close(delay = REMOVE_BACKDROP_DELAY) {
+    remove(delay = REMOVE_BACKDROP_DELAY) {
         // remove open class to make any css animation effects possible
         this._getBackdrops().forEach(backdrop => backdrop.classList.remove(BACKDROP_OPEN_CLASS));
 
@@ -130,16 +130,16 @@ export default class BackdropUtil {
      * Open the Backdrop
      * @param {function|null} callback
      */
-    static open(callback = null) {
-        instance.open(callback);
+    static create(callback = null) {
+        instance.create(callback);
     }
 
     /**
      * Close the Backdrop
      * @param {number} delay
      */
-    static close(delay = REMOVE_BACKDROP_DELAY) {
-        instance.close(delay);
+    static remove(delay = REMOVE_BACKDROP_DELAY) {
+        instance.remove(delay);
     }
 
     /**

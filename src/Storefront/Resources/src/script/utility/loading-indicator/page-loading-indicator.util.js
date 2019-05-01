@@ -17,7 +17,7 @@ class PageLoadingIndicatorUtilSingleton extends LoadingIndicatorUtil {
     create() {
         if (this.exists()) return;
 
-        BackdropUtil.open();
+        BackdropUtil.create();
         const backdrop = document.querySelector(`.${BackdropUtil.SELECTOR_CLASS()}`);
         backdrop.insertAdjacentHTML('beforeend', LoadingIndicatorUtil.getTemplate());
     }
@@ -28,7 +28,7 @@ class PageLoadingIndicatorUtilSingleton extends LoadingIndicatorUtil {
      */
     remove() {
         super.remove();
-        BackdropUtil.close();
+        BackdropUtil.remove();
     }
 }
 
@@ -44,14 +44,14 @@ export default class PageLoadingIndicatorUtil {
     /**
      * Open the PageLoadingIndicator
      */
-    static open() {
+    static create() {
         instance.create();
     }
 
     /**
      * Close the PageLoadingIndicator
      */
-    static close() {
+    static remove() {
         instance.remove();
     }
 }

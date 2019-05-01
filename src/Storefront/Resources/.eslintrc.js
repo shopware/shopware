@@ -28,6 +28,8 @@ module.exports = {
     'no-debugger': (isDevMode ? 0 : 2),
     'prefer-const': 'warn',
     'quotes': ['warn', 'single'],
-    'indent': ['warn', 4]
+    'indent': ['warn', 4, {
+        'SwitchCase': 1
+    }]
   }
 };

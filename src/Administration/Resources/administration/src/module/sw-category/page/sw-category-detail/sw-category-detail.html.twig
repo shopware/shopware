@@ -38,9 +38,20 @@
                     </sw-button>
                 {% endblock %}
                 {% block sw_category_smart_bar_save %}
-                    <sw-button v-if="category" variant="primary" @click.prevent="onSave">
-                        {{ $tc('sw-category.general.buttonSafeCategory') }}
+                    <!--sw-button v-if="category" variant="primary" @click.prevent="onSave">
+
+                    </sw-button-->
+                <sw-button-process v-if="category"
+                        class="sw-category-detail__save-action"
+                        :isLoading="isLoading"
+                        :processSuccess="isSaveSuccessful"
+                        :disabled="disableSaving"
+                        variant="primary"
+                        @process-finish="saveFinish"
+                        @click.prevent="onSave">
+                    {{ $tc('sw-category.general.buttonSafeCategory') }}
                     </sw-button>
+                </sw-button-process>
                 {% endblock %}
             </template>
         </template>

@@ -51,14 +51,6 @@ module.exports = {
             .click(`${page.elements.cartActions} ${page.elements.lightButton}`)
             .waitForElementVisible('.card-body');
     },
-    'check card widget': (browser) => {
-        const page = checkoutPage(browser);
-
-        browser
-            .waitForElementVisible('.badge')
-            .expect.element(`${page.elements.cardWidget}-total`).to.have.text.that.contains(currentProduct.attributes.price.gross);
-        browser.expect.element(`${page.elements.cardWidget}-badge`).to.have.text.that.contains('1');
-    },
     'check checkout page and continue': (browser) => {
         const page = checkoutPage(browser);
 

@@ -52,6 +52,7 @@ module.exports = {
             .expect.element('.sw-product-detail__save-action').to.be.enabled;
 
         browser
+            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .click('.sw-product-detail__save-action')
             .waitForElementVisible('.icon--small-default-checkmark-line-medium')
             .assert.urlContains('#/sw/product/detail');
@@ -84,10 +85,6 @@ module.exports = {
                 scope: `${page.elements.dataGridRow}--0`
             })
             .expect.element('.sw-text-editor__content-editor').to.have.text.that.equals('My very first description');
-
-        browser
-            .getLocationInView('.sw-select__selection-item')
-            .expect.element('.sw-select__selection-item').to.have.text.that.equals(global.AdminFixtureService.basicFixture.name);
         browser.click(page.elements.smartBarBack);
     },
     'check product in storefront': (browser) => {

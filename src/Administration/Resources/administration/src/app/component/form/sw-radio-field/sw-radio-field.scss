@@ -1,0 +1,91 @@
+@import '~scss/variables';
+
+$sw-field-font-size: $font-size-default;
+$sw-field-color-text: $color-gutenberg;
+$sw-field-color-focus: $color-shopware-blue;
+$sw-field-color-background: $color-white;
+$sw-field-color-border: $color-steam-cloud;
+$sw-field-color-error: $color-crimson;
+
+.sw-field.sw-field--radio {
+    label + .sw-help-text {
+        margin-left: 8px;
+    }
+
+    label ~ .sw-field__radio-group,
+    .sw-help-text ~ .sw-field__radio-group {
+        margin-top: 12px;
+    }
+
+    .sw-field__radio-option {
+        display: grid;
+        grid-template-columns: 16px 1fr;
+        margin-bottom: 12px;
+
+        label {
+            margin: 0 0 0 10px;
+            font-weight: normal;
+            font-size: $sw-field-font-size;
+            color: lighten($sw-field-color-text, 20%);
+        }
+    }
+
+    .sw-field__radio-input {
+        width: 16px;
+        height: 16px;
+        position: relative;
+
+        input[type="radio"] {
+            opacity: 0;
+            display: block;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            border: 0 none;
+            background: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            z-index: 2;
+
+            &:disabled ~ .sw-field__radio-state {
+                background: $color-light-gray;
+                border-color: $color-steam-cloud;
+                color: lighten($sw-field-color-text, 40%);
+            }
+
+            &:checked ~ .sw-field__radio-state {
+                border: 5px solid $sw-field-color-focus;
+            }
+
+            &:checked:disabled ~ .sw-field__radio-state {
+                background: $color-steam-cloud;
+                border: 1px solid $color-steam-cloud;
+                box-shadow: inset 0 0 0 4px $color-light-gray;
+                color: lighten($sw-field-color-text, 40%);
+            }
+        }
+
+        .sw-field__radio-state {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            background: $sw-field-color-background;
+            color: $sw-field-color-text;
+            border: 1px solid $sw-field-color-border;
+            border-radius: 8px;
+        }
+    }
+
+    &.has--error {
+        .sw-field__radio-state {
+            border-color: $sw-field-color-error;
+        }
+
+        input[type="radio"]:checked ~ .sw-field__radio-state {
+            border: 5px solid $sw-field-color-error;
+        }
+    }
+}

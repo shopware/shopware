@@ -1,4 +1,3 @@
-import { Mixin } from 'src/core/shopware';
 import template from './sw-text-editor.html.twig';
 import './sw-text-editor.scss';
 
@@ -16,10 +15,6 @@ export default {
     name: 'sw-text-editor',
     template,
 
-    mixins: [
-        Mixin.getByName('sw-inline-snippet')
-    ],
-
     props: {
         value: {
             type: String,
@@ -34,11 +29,13 @@ export default {
         },
 
         label: {
+            type: String,
             required: false,
             default: ''
         },
 
         placeholder: {
+            type: String,
             required: false,
             default: ''
         },

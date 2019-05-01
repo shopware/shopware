@@ -1,3 +1,4 @@
+import { Mixin } from 'src/core/shopware';
 import Flatpickr from 'flatpickr';
 import 'flatpickr/dist/l10n';
 import template from './sw-datepicker.html.twig';
@@ -38,12 +39,17 @@ const allEvents = [
 ];
 export default {
     name: 'sw-datepicker',
-    extendsFrom: 'sw-text-field',
     template,
+    inheritAttrs: false,
+
+    mixins: [
+        Mixin.getByName('sw-form-field')
+    ],
 
     props: {
         value: {
-            required: true
+            type: String,
+            required: false
         },
 
         config: {
@@ -64,19 +70,26 @@ export default {
     },
 
     data() {
+        let dateFormat = 'Y-m-dTH:i:S+00:00';
+        let altFormat = 'Y-m-d H:i';
+
+        if (this.dateType === 'time') {
+            dateFormat = 'H:i:S+00:00';
+            altFormat = 'H:i';
+        }
+
         return {
             flatpickrInstance: null,
-            inputValue: '',
+            inputValue: this.value || '',
+            isDatepickerOpen: false,
             defaultConfig: {
                 time_24hr: true,
                 locale: 'en',
-                dateFormat: 'Y-m-dTH:i:S+00:00',
+                dateFormat,
                 altInput: true,
-                altFormat: 'Y-m-d H:i'
+                altFormat
                 // disableMobile: true // only render the flatpickr and no native pickers on mobile
-            },
-            noCalendar: (this.dateType === 'time'),
-            enableTime: (this.dateType === 'datetime' || this.dateType === 'datetime-local' || this.noCalendar)
+            }
         };
     },
 
@@ -104,23 +117,37 @@ export default {
             return 'default-calendar-full';
         },
 
-        fieldClasses() {
-            return [
-                `sw-field--${this.dateType}`,
-                `sw-field--${this.size}`,
-                {
-                    'has--error': !!this.hasErrorCls,
-                    'has--suffix': true,
-                    'is--disabled': !!this.$props.disabled
-                }];
+        noCalendar() {
+            return this.dateType === 'time';
+        },
+
+        enableTime() {
+            return this.noCalendar || ['datetime', 'datetime-local'].includes(this.dateType);
+        },
+
+        additionalEventListeners() {
+            const listeners = {};
+
+            /**
+             * Do not pass "change" or "input" event listeners to the form elements
+             * because the component implements its own listeners for this event types.
+             * The callback methods will emit the corresponding event to the parent.
+             */
+            Object.keys(this.$listeners).forEach((key) => {
+                if (!['change', 'input'].includes(key)) {
+                    listeners[key] = this.$listeners[key];
+                }
+            });
+
+            return listeners;
         }
     },
 
     mounted() {
         if (this.flatpickrInstance === null) {
-            this.createFlatpickrInstance(this.config);
+            this.createFlatpickrInstance();
         } else {
-            this.updateFlatpickrInstance(this.config);
+            this.updateFlatpickrInstance();
         }
     },
 
@@ -128,8 +155,6 @@ export default {
      * Free up memory
      */
     beforeDestroy() {
-        this.flatpickrInputRef.removeEventListener('blur', this.onBlur);
-
         if (this.flatpickrInstance !== null) {
             this.flatpickrInstance.destroy();
             this.flatpickrInstance = null;
@@ -139,8 +164,8 @@ export default {
     watch: {
         config: {
             deep: true,
-            handler(newConfig) {
-                this.updateFlatpickrInstance(newConfig);
+            handler() {
+                this.updateFlatpickrInstance();
             }
         },
 
@@ -158,8 +183,8 @@ export default {
          * @param newValue
          */
         value: {
-            handler(newValue) {
-                this.setDatepickerValue(newValue);
+            handler() {
+                this.setDatepickerValue();
             }
         }
     },
@@ -170,16 +195,16 @@ export default {
          *
          * @param newValue
          */
-        setDatepickerValue(newValue) {
+        setDatepickerValue() {
             // Prevent updates if v-model value is same as input's current value
-            if (newValue === this.flatpickrInstance.input.defaultValue) {
+            if (this.value === this.flatpickrInstance.input.defaultValue) {
                 return;
             }
 
             // Make sure we have a flatpickr instance
             if (this.flatpickrInstance !== null) {
                 // Notify flatpickr instance that there is a change in value
-                this.flatpickrInstance.setDate(newValue, true);
+                this.flatpickrInstance.setDate(this.value, true);
             }
         },
 
@@ -199,6 +224,7 @@ export default {
             }
 
             return Object.assign(
+                {},
                 this.defaultConfig,
                 {
                     enableTime: this.enableTime,
@@ -216,19 +242,19 @@ export default {
          *
          * @param newConfig
          */
-        updateFlatpickrInstance(newConfig) {
+        updateFlatpickrInstance() {
             if (this.flatpickrInstance === null) {
                 return;
             }
 
-            const mergedConfig = this.getMergedConfig(newConfig);
+            const mergedConfig = this.getMergedConfig(this.config);
             // Don't pass the original reference to the config object. Use a copy instead.
             const safeConfig = Object.assign({}, mergedConfig);
 
             if (safeConfig.enableTime !== undefined && safeConfig.enableTime !== this.currentFlatpickrConfig.enableTime) {
                 // The instance must be recreated for some config options to take effect like 'enableTime' changes.
                 // See https://github.com/flatpickr/flatpickr/issues/1108 for details.
-                this.createFlatpickrInstance(newConfig);
+                this.createFlatpickrInstance(this.config);
                 return;
             }
             // Workaround: Don't allow to pass hooks to configs again otherwise
@@ -262,33 +288,35 @@ export default {
          *
          * @param {Object} newConfig
          */
-        createFlatpickrInstance(newConfig) {
-            this.flatpickrInputRef.removeEventListener('blur', this.onBlur);
-
+        createFlatpickrInstance() {
             if (this.flatpickrInstance !== null) {
                 this.flatpickrInstance.destroy();
                 this.flatpickrInstance = null;
             }
 
-            const mergedConfig = this.getMergedConfig(newConfig);
+            const mergedConfig = this.getMergedConfig(this.config);
             // Don't pass the original reference to the config object. Use a copy instead.
             const safeConfig = Object.assign({}, mergedConfig);
 
             // Set event hooks in config.
-            this.getEventNames().forEach((event) => {
-                safeConfig[event.camelCase] = (...args) => {
-                    this.$emit(event.kebabCase, ...args);
+            this.getEventNames().forEach(({ kebabCase, camelCase }) => {
+                safeConfig[camelCase] = (...args) => {
+                    this.$emit(kebabCase, ...args);
                 };
             });
 
             // Init flatpickr only if it is not already loaded.
             this.flatpickrInstance = new Flatpickr(this.flatpickrInputRef, safeConfig);
+            this.flatpickrInstance.config.onOpen.push(() => {
+                this.isDatepickerOpen = true;
+            });
 
-            // Attach blur event
-            this.flatpickrInputRef.addEventListener('blur', this.onBlur);
+            this.flatpickrInstance.config.onClose.push(() => {
+                this.isDatepickerOpen = false;
+            });
 
             // Set the right datepicker value from the property.
-            this.setDatepickerValue(this.value);
+            this.setDatepickerValue();
 
             // emit a new value if the value has changed during instance recreation
             this.$nextTick(() => {
@@ -323,33 +351,8 @@ export default {
          */
         openDatepicker() {
             this.$nextTick(() => {
-                this.flatpickrInputRef.focus();
                 this.flatpickrInstance.open();
             });
-        },
-
-        /**
-         * Watch for value changed by date-picker itself and notify parent component.
-         *
-         * @param event
-         */
-        onInput() {
-            if (this.inputValue) {
-                this.flatpickrInstance.input.defaultValue = this.inputValue;
-            }
-
-            this.$nextTick(() => {
-                this.$emit('input', this.flatpickrInstance.input.defaultValue);
-            });
-        },
-
-        /**
-         * Blur event is required by many validation libraries
-         *
-         * @param event
-         */
-        onBlur() {
-            this.$emit('blur', this.flatpickrInstance.input.defaultValue);
         },
 
         /**
@@ -362,6 +365,17 @@ export default {
             return string.replace(/-([a-z])/g, (m, g1) => {
                 return g1.toUpperCase();
             });
+        },
+
+        onInput() {
+            if (this.inputValue) {
+                this.flatpickrInstance.input.defaultValue = this.inputValue;
+            }
+
+            this.$nextTick(() => {
+                this.$emit('input', this.flatpickrInstance.input.defaultValue);
+            });
         }
+
     }
 };

@@ -1,3 +1,4 @@
+import SwTextField from '../sw-text-field/index';
 import template from './sw-url-field.html.twig';
 import './sw-url-field.scss';
 
@@ -12,33 +13,18 @@ import './sw-url-field.scss';
  */
 export default {
     name: 'sw-url-field',
-    extendsFrom: 'sw-text-field',
+    extends: SwTextField,
     template,
-
-    props: {
-        value: {
-            type: String,
-            default: ''
-        },
-        switchLabel: {
-            type: String,
-            required: true,
-            default: ''
-        }
-    },
+    inheritAttrs: false,
 
     data() {
         return {
             sslActive: true,
-            urlInput: ''
+            currentValue: this.value || ''
         };
     },
 
     computed: {
-        containPrefix() {
-            return true;
-        },
-
         prefixClass() {
             if (this.sslActive) {
                 return 'is--ssl';
@@ -55,72 +41,57 @@ export default {
             return 'http://';
         },
 
-        customPrefix() {
-            return !!this.$scopedSlots.prefix || !!this.$slots.prefix || !!this.prefix;
+        url() {
+            const trimmedValue = this.currentValue.trim();
+            if (trimmedValue === '') {
+                return '';
+            }
+
+            return this.urlPrefix + trimmedValue;
         }
     },
 
     watch: {
-        value: {
-            immediate: true,
-            handler(newUrl) {
-                this.checkInput(newUrl);
-            }
+        value() {
+            this.checkInput(this.value || '');
         }
     },
 
-    methods: {
-        urlChanged(inputValue) {
-            const input = inputValue.target.value;
-            if (input === null) {
-                this.setUrlInputValue('');
-                return;
-            }
+    created() {
+        this.createdComponent();
+    },
 
-            this.checkInput(input);
+    methods: {
+        createdComponent() {
+            this.checkInput(this.currentValue);
+        },
+
+        onInput(event) {
+            this.checkInput(event.target.value);
+            this.$emit('input', this.url);
+        },
+
+        onChange(event) {
+            this.checkInput(event.target.value);
+            this.$emit('change', this.url);
         },
 
         checkInput(inputValue) {
-            let newValue = inputValue;
-
-            if (newValue.match(/^\s*https?:\/\//) !== null) {
-                const sslFound = newValue.match(/^\s*https:\/\//);
+            if (inputValue.match(/^\s*https?:\/\//) !== null) {
+                const sslFound = inputValue.match(/^\s*https:\/\//);
                 this.sslActive = (sslFound !== null);
-                newValue = newValue.replace(/^\s*https?:\/\//, '');
             }
 
-            this.setUrlInputValue(newValue);
+            this.currentValue = inputValue.replace(/^\s*https?:\/\//, '');
         },
 
-        /**
-         * Set the urlInput variable and also the current value inside the html input.
-         * The sw-field does not update the html if there is no change in the binding variable (urlInput /
-         * because it gets watched), so it must be done manually (to replace / remove unwanted user input).
-         *
-         * @param newValue
-         */
-        setUrlInputValue(newValue) {
-            this.urlInput = newValue;
-            this.emitUrl();
-
-            if (this.$refs.urlField !== undefined) {
-                this.$refs.urlField.currentValue = this.urlInput;
-            } else {
-                this.$nextTick(() => {
-                    this.$refs.urlField.currentValue = this.urlInput;
-                });
+        changeMode(disabled) {
+            if (disabled) {
+                return;
             }
-        },
 
-        sslChanged(newValue) {
-            this.sslActive = newValue;
-            this.emitUrl();
-        },
-
-        emitUrl() {
-            this.$emit('input', this.urlPrefix + this.urlInput.trim());
+            this.sslActive = !this.sslActive;
+            this.$emit('input', this.url);
         }
     }
-
-
 };

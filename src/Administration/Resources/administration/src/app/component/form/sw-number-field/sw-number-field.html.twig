@@ -1,14 +1,26 @@
-{% block sw_text_field_input_element %}
-    <input :id="id"
-           type="text"
-           :validation="validation"
-           :name="displayName"
-           :placeholder="getInlineSnippet(placeholder)"
-           @input="onInput"
-           @keydown.up="increaseNumberByStep"
-           @keydown.down="decreaseNumberByStep"
-           @change="onChange"
-           v-bind="$attrs"
-           :disabled="disabled"
-           v-model="currentValue"/>
-{% endblock %}
+<sw-contextual-field class="sw-field--number" v-bind="$attrs" :name="formFieldName">
+    <template #sw-field-input="{ identification, error, disabled, swBlockSize, setFocusClass, removeFocusClass }">
+        <input :id="identification"
+               :name="identification"
+               type="text"
+               :value="stringRepresentation"
+               :placeholder="placeholder"
+               :disabled="disabled"
+               autocomplete="false"
+               @keydown.up="increaseNumberByStep"
+               @keydown.down="decreaseNumberByStep"
+               @change="onChange"
+               @focus="setFocusClass"
+               @blur="removeFocusClass">
+    </template>
+
+    <template v-if="copyable || hasSuffix" #sw-contextual-field-suffix="{ disabled, identification }">
+        <slot name="suffix" v-bind="{ identification }"></slot>
+        <sw-field-copyable
+            v-if="copyable"
+            :displayName="identification"
+            :copyableText="stringRepresentation"
+            :tooltip="copyableTooltip">
+        </sw-field-copyable>
+    </template>
+</sw-contextual-field>

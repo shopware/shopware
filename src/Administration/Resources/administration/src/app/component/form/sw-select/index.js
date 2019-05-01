@@ -21,8 +21,7 @@ export default {
     template,
 
     mixins: [
-        Mixin.getByName('validation'),
-        Mixin.getByName('sw-inline-snippet')
+        Mixin.getByName('validation')
     ],
 
     props: {
@@ -37,6 +36,7 @@ export default {
             default: null
         },
         placeholder: {
+            type: String,
             required: false,
             default: ''
         },
@@ -55,6 +55,7 @@ export default {
             default: true
         },
         label: {
+            type: String,
             default: ''
         },
         id: {
@@ -100,6 +101,7 @@ export default {
             default: 'id'
         },
         helpText: {
+            Type: String,
             required: false,
             default: ''
         },
@@ -241,14 +243,6 @@ export default {
     },
 
     methods: {
-        getPlaceHolder(params) {
-            if (this.disabled) {
-                return '';
-            }
-
-            return this.getInlineSnippet(params);
-        },
-
         createdComponent() {
             this.init();
             this.addEventListeners();

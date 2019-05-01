@@ -1,4 +1,6 @@
+import { Mixin } from 'src/core/shopware';
 import template from './sw-radio-field.html.twig';
+import './sw-radio-field.scss';
 
 /**
  * @public
@@ -16,8 +18,17 @@ import template from './sw-radio-field.html.twig';
  */
 export default {
     name: 'sw-radio-field',
-    extendsFrom: 'sw-text-field',
     template,
+    inheritAttrs: false,
+
+    model: {
+        prop: 'value',
+        event: 'change'
+    },
+
+    mixins: [
+        Mixin.getByName('sw-form-field')
+    ],
 
     props: {
         options: {
@@ -32,20 +43,19 @@ export default {
         }
     },
 
-    computed: {
-        typeFieldClass() {
-            return 'sw-field--radio';
-        }
+    data() {
+        return {
+            currentValue: this.value
+        };
+    },
+
+    watch: {
+        value() { this.currentValue = this.value; }
     },
 
     methods: {
-        onChange() {
-            this.$emit('input', this.currentValue);
-            this.$emit('change', this.currentValue);
-
-            if (this.hasError) {
-                this.errorStore.deleteError(this.formError);
-            }
+        onChange(event) {
+            this.$emit('change', event.target.value);
         }
     }
 };

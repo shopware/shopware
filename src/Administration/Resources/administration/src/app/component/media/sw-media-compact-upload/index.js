@@ -1,4 +1,3 @@
-import { Mixin } from 'src/core/shopware';
 import template from './sw-media-compact-upload.html.twig';
 import './sw-media-compact-upload.scss';
 
@@ -6,10 +5,6 @@ export default {
     name: 'sw-media-compact-upload',
     extendsFrom: 'sw-media-upload',
     template,
-
-    mixins: [
-        Mixin.getByName('sw-inline-snippet')
-    ],
 
     data() {
         return {

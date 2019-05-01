@@ -1,80 +1,29 @@
-{% block sw_text_field %}
-    <div class="sw-field" :class="fieldClasses">
-        {% block sw_text_field_label %}
-            <label v-if="getInlineSnippet(label)" :for="id">
-                <slot name="label">{{ getInlineSnippet(label) }}</slot>
-            </label>
-        {% endblock %}
-        {% block sw_text_field_input %}
-            <div class="sw-field__input">
+<sw-contextual-field class="sw-field--text" v-bind="$attrs" :name="formFieldName">
+    <template v-if="hasPrefix" #sw-contextual-field-prefix="{ disabled, identification }">
+        <slot name="prefix" v-bind="{disabled, identification}"></slot>
+    </template>
 
-                {% block sw_prefix %}
-                    <sw-field-addition v-if="containPrefix" :text="prefix" :isPrefix="true">
-                        <slot name="prefix"></slot>
-                    </sw-field-addition>
-                {% endblock %}
+    <template #sw-field-input="{ identification, error, disabled, swBlockSize, setFocusClass, removeFocusClass, hasSuffix, hasPrefix }">
+        <input type="text"
+               :name="identification"
+               :id="identification"
+               :disabled="disabled"
+               :value="currentValue"
+               :placeHolder="placeholder"
+               @input="onInput"
+               @change="onChange"
+               @focus="setFocusClass"
+               @blur="removeFocusClass"
+               v-on="additionalListeners">
+    </template>
 
-                <div class="sw_field_input__wrapper">
-                    {% block sw_text_field_input_element %}
-                        <input type=text
-                               :id="id"
-                               ref="textfield"
-                               :name="displayName"
-                               :placeholder="getInlineSnippet(placeholder)"
-                               :disabled="disabled ? 'disabled' : false"
-                               @change="onChange"
-                               @input="onInput"
-                               v-on="additionalEventListeners"
-                               v-bind="$attrs"
-                               :value="currentValue" />
-                    {% endblock %}
-
-                    {% block sw_text_field_input_extras %}
-                    {% endblock %}
-
-                    {% block sw_tooltip %}
-                        <sw-help-text
-                                v-if="getInlineSnippet(tooltipText)"
-                                :text="getInlineSnippet(tooltipText)"
-                                :tooltipPosition="tooltipPosition">
-                        </sw-help-text>
-                    {% endblock %}
-
-                    {% block sw_text_field_copyable_tooltip %}
-                        <sw-field-copyable
-                                v-if="copyAble && copyAbleTooltip"
-                                :tooltip="true"
-                                :displayName="displayName"
-                        >
-                        </sw-field-copyable>
-                    {% endblock %}
-                </div>
-
-                {% block sw_suffix %}
-                    <sw-field-addition v-if="containSuffix" :text="suffix">
-                        <slot name="suffix"></slot>
-                    </sw-field-addition>
-                {% endblock %}
-
-                {% block sw_text_field_copyable %}
-                    <sw-field-copyable v-if="copyAble && !copyAbleTooltip" :displayName="displayName"></sw-field-copyable>
-                {% endblock %}
-            </div>
-        {% endblock %}
-
-        {% block sw_text_field_extras %}
-        {% endblock %}
-
-        {% block sw_text_field_error %}
-            <sw-field-error
-                    v-if="hasError"
-                    :errorMessage="getInlineSnippet(errorMessage)"
-                    :formError="formError">
-            </sw-field-error>
-        {% endblock %}
-
-        {% block sw_text_field_helptext %}
-            <sw-field-helptext v-if="helpText" :helpText="getInlineSnippet(helpText)" :id="id"></sw-field-helptext>
-        {% endblock %}
-    </div>
-{% endblock %}
+    <template v-if="copyable || hasSuffix" #sw-contextual-field-suffix="{disabled, identification}">
+        <slot name="suffix" v-bind="{ identification }"></slot>
+        <sw-field-copyable
+            v-if="copyable"
+           :displayName="identification"
+           :copyableText="currentValue"
+           :tooltip="copyableTooltip">
+        </sw-field-copyable>
+    </template>
+</sw-contextual-field>

@@ -2,7 +2,7 @@
     <div class="sw-text-editor" :class="classes" @click="onClick">
 
         {% block sw_text_editor_label %}
-            <div class="sw-text-editor__label" v-if="getInlineSnippet(label).length">{{ getInlineSnippet(label) }}</div>
+            <div class="sw-text-editor__label" v-if="label.length">{{ label }}</div>
         {% endblock %}
 
         {% block sw_text_editor_box %}

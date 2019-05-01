@@ -1,4 +1,5 @@
 import { Mixin } from 'src/core/shopware';
+import domUtils from 'src/core/service/utils/dom.utils';
 import './sw-field-copyable.scss';
 import template from './sw-field-copyable.html.twig';
 
@@ -14,15 +15,11 @@ export default {
     ],
 
     props: {
-        helpText: {
-            type: String,
-            required: false,
-            default: ''
-        },
-        displayName: {
+        copyableText: {
             type: String,
             required: true
         },
+
         tooltip: {
             type: Boolean,
             required: false,
@@ -38,37 +35,18 @@ export default {
 
     computed: {
         tooltipText() {
-            const textName = this.$parent.label;
-
             if (this.wasCopied) {
-                return `${textName} ${this.$tc('global.sw-field-copyable.tooltip.wasCopied')}`;
+                return this.$tc('global.sw-field-copyable.tooltip.wasCopied');
             }
 
-            return `${textName} ${this.$tc('global.sw-field-copyable.tooltip.canCopy')}`;
-        },
-
-        id() {
-            return `sw-field--${this.$vnode.tag}`;
+            return this.$tc('global.sw-field-copyable.tooltip.canCopy');
         }
     },
 
     methods: {
         copyToClipboard() {
-            const el = this.$parent.$refs.textfield;
-
-            if (el.disabled) {
-                this.disabled = true;
-            }
-
-            if (this.disabled) {
-                el.removeAttribute('disabled');
-            }
-
-            el.select();
-
             try {
-                document.execCommand('copy');
-
+                domUtils.copyToClipboard(this.copyableText);
                 if (this.tooltip) {
                     this.tooltipSuccess();
                 } else {
@@ -79,11 +57,6 @@ export default {
                     title: this.$tc('global.sw-field.notification.notificationCopyFailureTitle'),
                     message: this.$tc('global.sw-field.notification.notificationCopyFailureMessage')
                 });
-            }
-
-            window.getSelection().removeAllRanges();
-            if (this.disabled) {
-                el.setAttribute('disabled', 'disabled');
             }
         },
 

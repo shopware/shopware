@@ -79,8 +79,9 @@ class SalesChannelPageObject extends GeneralPageObject {
                     searchTerm: 'Root category'
                 }
             )
+            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .click(this.elements.salesChannelSaveAction)
-            .checkNotification(`Sales channel "${salesChannelName}" has been saved successfully.`);
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium');
     }
 
     openSalesChannel(salesChannelName, position = 0) {
@@ -136,8 +137,9 @@ class SalesChannelPageObject extends GeneralPageObject {
 
             me.browser
                 .fillField(me.elements.salesChannelNameInput, salesChannelName, true, 'input')
+                .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
                 .click('.sw-sales-channel-detail__save-action')
-                .checkNotification(`Sales channel "${salesChannelName}" has been saved successfully.`);
+                .waitForElementVisible('.icon--small-default-checkmark-line-medium');
         });
     }
 

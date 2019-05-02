@@ -116,12 +116,18 @@
                                     ref="countryStateGrid"
                                     :collection="country.states"
                                     :fullPage="false"
+                                    :localMode="country.isNew()"
                                     :columns="stateColumns">
                                 <template #column-name="{ item }">
                                     <a class="sw-settings-country-detail__link"
                                        @click="onClickCountryState(item)">
                                         {{ item.name }}
                                     </a>
+                                </template>
+                                <template #more-actions="{ item }">
+                                    <sw-context-menu-item @click="onClickCountryState(item)">
+                                        {{ $tc('sw-settings-country.detail.editAction') }}
+                                    </sw-context-menu-item>
                                 </template>
                             </sw-one-to-many-grid>
                         </template>

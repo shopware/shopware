@@ -21,10 +21,6 @@ Component.register('sw-country-state-detail', {
         }
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
         onCancel() {
             this.$emit('cancel-attribute-edit', this.countryState);

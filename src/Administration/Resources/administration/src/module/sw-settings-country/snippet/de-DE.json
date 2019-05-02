@@ -36,7 +36,8 @@
       "placeholderIso3": "Dreistelligen ISO-Code eingeben ....",
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
-      "buttonAddCountryState": "Bundesland hinzufügen"
+      "buttonAddCountryState": "Bundesland hinzufügen",
+      "editAction": "Editieren"
     }
   },
   "sw-country-state-detail": {

@@ -36,7 +36,8 @@
       "placeholderIso3": "Enter three-digit ISO code",
       "buttonCancel": "Cancel",
       "buttonSave": "Save",
-      "buttonAddCountryState": "Add country state"
+      "buttonAddCountryState": "Add country state",
+      "editAction": "Edit"
     }
   },
   "sw-country-state-detail": {

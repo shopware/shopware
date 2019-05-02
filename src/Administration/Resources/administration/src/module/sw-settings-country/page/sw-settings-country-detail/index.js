@@ -1,5 +1,4 @@
 import { Component, Mixin } from 'src/core/shopware';
-import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-settings-country-detail.html.twig';
 import './sw-settings-country-detail.scss';
 
@@ -19,10 +18,9 @@ Component.register('sw-settings-country-detail', {
             country: {},
             term: null,
             countryId: null,
-            isLoading: true,
+            isLoading: false,
             currentCountryState: null,
             countryStateRepository: null,
-            countryStateCriteria: null,
             countryStateLoading: false
         };
     },
@@ -51,8 +49,6 @@ Component.register('sw-settings-country-detail', {
 
     methods: {
         createdComponent() {
-            this.countryStateCriteria = new Criteria();
-
             if (this.$route.params.id) {
                 this.countryId = this.$route.params.id;
                 this.loadEntityData();
@@ -60,21 +56,16 @@ Component.register('sw-settings-country-detail', {
         },
 
         loadEntityData() {
-            const criteria = new Criteria();
-            criteria.addAssociation('states');
-
             this.isLoading = true;
-            this.countryRepository.get(this.countryId, this.context, criteria).then(country => {
+            this.countryRepository.get(this.countryId, this.context).then(country => {
                 this.country = country;
 
-                this.countryStateRepository = this.repositoryFactory.create('country_state');
+                this.isLoading = false;
 
                 this.countryStateRepository = this.repositoryFactory.create(
                     this.country.states.entity,
                     this.country.states.source
                 );
-
-                this.isLoading = false;
             });
         },
 
@@ -98,17 +89,16 @@ Component.register('sw-settings-country-detail', {
         },
 
         onSearchCountryState() {
-            this.countryStateCriteria.setTerm(this.term);
+            this.country.states.criteria.setTerm(this.term);
             this.refreshCountryStateList();
         },
 
         refreshCountryStateList() {
             this.countryStateLoading = true;
-            this.countryStateRepository.search(this.countryStateCriteria, this.context)
-                .then((items) => {
-                    this.$refs.countryStateGrid.applyResult(items);
-                    this.countryStateLoading = false;
-                });
+
+            this.$refs.countryStateGrid.load().then(() => {
+                this.countryStateLoading = false;
+            });
         },
 
         onSaveCountryState() {
@@ -117,9 +107,14 @@ Component.register('sw-settings-country-detail', {
                 this.currentCountryState._isNew = false;
             }
 
-            this.countryStateRepository.save(this.currentCountryState, this.context).then(() => {
-                this.refreshCountryStateList();
-            });
+            // dont send requests if we are on local mode(creating a new country)
+            if (this.country.isNew()) {
+                this.country.states.add(this.currentCountryState);
+            } else {
+                this.countryStateRepository.save(this.currentCountryState, this.context).then(() => {
+                    this.refreshCountryStateList();
+                });
+            }
 
             this.currentCountryState = null;
         },

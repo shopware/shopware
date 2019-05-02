@@ -51,7 +51,6 @@ export default class Entity {
      * @returns {boolean}
      */
     getIsDirty() {
-        console.log('test : ');
         return this._isDirty;
     }
 

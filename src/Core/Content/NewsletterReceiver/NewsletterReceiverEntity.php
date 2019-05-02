@@ -59,7 +59,7 @@ class NewsletterReceiverEntity extends Entity
     protected $salutationId;
 
     /**
-     * @var SalutationEntity
+     * @var SalutationEntity|null
      */
     protected $salutation;
 
@@ -198,7 +198,7 @@ class NewsletterReceiverEntity extends Entity
         $this->salutationId = $salutationId;
     }
 
-    public function getSalutation(): SalutationEntity
+    public function getSalutation(): ?SalutationEntity
     {
         return $this->salutation;
     }

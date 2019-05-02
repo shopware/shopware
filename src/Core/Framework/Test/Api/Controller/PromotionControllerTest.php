@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -11,6 +12,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Symfony\Bundle\FrameworkBundle\Client;
+use Symfony\Component\HttpFoundation\Response;
 
 class PromotionControllerTest extends TestCase
 {
@@ -21,388 +24,280 @@ class PromotionControllerTest extends TestCase
      */
     private $promotionRepository;
 
+    /**
+     * @var Context
+     */
+    private $context;
+
+    /**
+     * @var string
+     */
+    private $resourceUri;
+
+    /**
+     * @var Client
+     */
+    private $api;
+
     protected function setUp(): void
     {
         $this->promotionRepository = $this->getContainer()->get('promotion.repository');
+        $this->context = Context::createDefaultContext();
+
+        $this->api = $this->getClient();
+        $this->resourceUri = '/api/v' . PlatformRequest::API_VERSION . '/promotion';
     }
 
     /**
+     * This test verifies that we can successfully
+     * create a new promotion with the minimum-required
+     * data with our API.
+     *
+     * @test
      * @group promotions
      *
      * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
      */
     public function testCreatePromotion(): void
     {
-        $context = Context::createDefaultContext();
-        $id = Uuid::randomHex();
-        $absoluteDiscountId = Uuid::randomHex();
-        $otherId = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
 
-        $data = [
-            'id' => $id,
-            'name' => 'My promotion',
-            'active' => true,
-            'validFrom' => '2019-01-01 00:00:00',
-            'validUntil' => '2030-01-01 00:00:00',
-            'redeemable' => 1000,
-            'exclusive' => false,
-            'priority' => 100,
-            'excludeLowerPriority' => false,
-            'codeType' => 'standard',
-            'code' => 'PROMOTIONCODE',
-            'discounts' => [
-                [
-                    'id' => $absoluteDiscountId,
-                    'type' => 'absolute',
-                    'value' => 100,
-                    'considerAdvancedRules' => false,
-                    'scope' => 'cart',
-                ],
-            ],
-        ];
-
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/promotion', $data);
-
-        static::assertSame(
-            204,
-            $this->getClient()->getResponse()->getStatusCode(),
-            $this->getClient()->getResponse()->getContent()
+        $this->api->request(
+            'POST',
+            $this->resourceUri,
+            [
+                'id' => $promotionId,
+                'name' => 'Super Sale',
+            ]
         );
 
-        $criteria = new Criteria([$id]);
-        $criteria->addAssociation('discounts');
+        /** @var Response $response */
+        $response = $this->api->getResponse();
+
+        // verify HTTP STATUS CODE
+        static::assertSame(204, $response->getStatusCode(), $response->getContent());
 
         /** @var PromotionEntity $promotion */
-        $promotion = $this->promotionRepository->search($criteria, $context)->get($id);
+        $promotion = $this->getPromotionFromDB($promotionId);
 
-        $discounts = $promotion->getDiscounts();
-        static::assertCount(1, $discounts);
-        static::assertTrue($discounts->has($absoluteDiscountId));
-        static::assertFalse($discounts->has($otherId));
-
-        $absoluteDiscount = $discounts->get($absoluteDiscountId);
-
-        static::assertEquals(100, $absoluteDiscount->getValue());
-        static::assertEquals('absolute', $absoluteDiscount->getType());
-        static::assertEquals('cart', $absoluteDiscount->getScope());
+        // assert basic values
+        static::assertEquals($promotionId, $promotion->getId());
+        static::assertEquals('Super Sale', $promotion->getName());
     }
 
     /**
+     * This test verifies that we can read the details of our
+     * promotion using the API
+     *
+     * @test
+     * @group promotions
+     */
+    public function testReadPromotion(): void
+    {
+        $promotionId = Uuid::randomHex();
+        $discountId = Uuid::randomHex();
+        $this->insertPromotionInDB($promotionId, $discountId);
+
+        $this->api->request(
+            'GET',
+            $this->resourceUri . '/' . $promotionId
+        );
+
+        /** @var Response $response */
+        $response = $this->api->getResponse();
+
+        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+
+        $json = json_decode($response->getContent(), true);
+
+        static::assertEquals($promotionId, $json['data']['id']);
+        static::assertEquals('promotion', $json['data']['type']);
+        static::assertEquals('Super Sale', $json['data']['attributes']['name']);
+        static::assertTrue($json['data']['attributes']['active']);
+    }
+
+    /**
+     * This test verifies that we can read the list data of our
+     * promotions using the API
+     *
+     * @test
      * @group promotions
      */
     public function testReadPromotionList(): void
     {
-        $client = $this->getClient();
-        $context = Context::createDefaultContext();
-        $id = Uuid::randomHex();
-        $absoluteDiscountId = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
+        $discountId = Uuid::randomHex();
+        $this->insertPromotionInDB($promotionId, $discountId);
 
-        $this->promotionRepository->create([
-            [
-                'id' => $id,
-                'name' => 'My promotion',
-                'active' => true,
-                'validFrom' => '2019-01-01 00:00:00',
-                'validUntil' => '2030-01-01 00:00:00',
-                'redeemable' => 1000,
-                'exclusive' => false,
-                'priority' => 100,
-                'excludeLowerPriority' => false,
-                'codeType' => 'standard',
-                'code' => 'PROMOTIONCODE',
-                'discounts' => [
-                    [
-                        'id' => $absoluteDiscountId,
-                        'type' => 'absolute',
-                        'value' => 100,
-                        'considerAdvancedRules' => false,
-                        'scope' => 'cart',
-                    ],
-                ],
-            ],
-        ],
-            $context);
-
-        $client->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/promotion');
-
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
-
-        $content = json_decode($client->getResponse()->getContent(), true);
-
-        static::assertNotEmpty($content);
-        static::assertArrayHasKey('meta', $content);
-        static::assertArrayHasKey('data', $content);
-        static::assertGreaterThan(0, $content['meta']['total']);
-        static::assertNotEmpty($content['data']);
-
-        foreach ($content['data'] as $promotion) {
-            static::assertArrayHasKey('id', $promotion);
-            static::assertEquals('promotion', $promotion['type']);
-            static::assertArrayHasKey('attributes', $promotion);
-
-            static::assertArrayHasKey('name', $promotion['attributes']);
-            static::assertArrayHasKey('active', $promotion['attributes']);
-            static::assertArrayHasKey('redeemable', $promotion['attributes']);
-            static::assertArrayHasKey('priority', $promotion['attributes']);
-
-            static::assertArrayHasKey('relationships', $promotion);
-        }
-    }
-
-    /**
-     * @group promotions
-     */
-    public function testReadPromotionDetail(): void
-    {
-        $client = $this->getClient();
-        $context = Context::createDefaultContext();
-        $id = Uuid::randomHex();
-        $absoluteDiscountId = Uuid::randomHex();
-
-        $this->promotionRepository->create(
-            [
-                [
-                    'id' => $id,
-                    'name' => 'My promotion',
-                    'active' => true,
-                    'validFrom' => '2019-01-01 00:00:00',
-                    'validUntil' => '2030-01-01 00:00:00',
-                    'redeemable' => 1000,
-                    'exclusive' => false,
-                    'priority' => 100,
-                    'excludeLowerPriority' => false,
-                    'codeType' => 'standard',
-                    'code' => 'PROMOTIONCODE',
-                    'discounts' => [
-                        [
-                            'id' => $absoluteDiscountId,
-                            'type' => 'absolute',
-                            'value' => 100,
-                            'considerAdvancedRules' => false,
-                            'scope' => 'cart',
-                        ],
-                    ],
-                ],
-            ],
-            $context
+        $this->api->request(
+            'GET',
+            $this->resourceUri
         );
 
-        $client->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/promotion/' . $id);
+        /** @var Response $response */
+        $response = $this->api->getResponse();
 
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $response->getStatusCode(), $response->getContent());
 
-        $content = json_decode($client->getResponse()->getContent(), true);
+        /** @var array $json */
+        $json = json_decode($response->getContent(), true);
 
-        static::assertNotEmpty($content);
-        static::assertArrayHasKey('data', $content);
-        static::assertNotEmpty($content['data']);
+        // verify that we have 1 total found promotion
+        static::assertEquals(1, $json['meta']['total']);
 
-        $promotion = $content['data'];
-
-        static::assertArrayHasKey('id', $promotion);
-        static::assertEquals('promotion', $promotion['type']);
-        static::assertArrayHasKey('attributes', $promotion);
-
-        static::assertArrayHasKey('name', $promotion['attributes']);
-        static::assertArrayHasKey('active', $promotion['attributes']);
-        static::assertArrayHasKey('redeemable', $promotion['attributes']);
-        static::assertArrayHasKey('priority', $promotion['attributes']);
-
-        static::assertArrayHasKey('relationships', $promotion);
+        // assert values of first promotion
+        static::assertEquals($promotionId, $json['data'][0]['id']);
+        static::assertEquals('Super Sale', $json['data'][0]['attributes']['name']);
     }
 
     /**
+     * This test verifies that we can update our promotion
+     * with the API. In this test we update the name
+     * and verify if the new values is stored in the database.
+     *
+     * @test
      * @group promotions
      */
     public function testPatchPromotion(): void
     {
-        $client = $this->getClient();
-        $context = Context::createDefaultContext();
-        $id = Uuid::randomHex();
-        $absoluteDiscountId = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
+        $discountId = Uuid::randomHex();
+        $this->insertPromotionInDB($promotionId, $discountId);
 
-        $this->promotionRepository->create(
+        $this->api->request(
+            'PATCH',
+            $this->resourceUri . '/' . $promotionId,
             [
-                [
-                    'id' => $id,
-                    'name' => 'My promotion',
-                    'active' => true,
-                    'validFrom' => '2019-01-01 00:00:00',
-                    'validUntil' => '2030-01-01 00:00:00',
-                    'redeemable' => 1000,
-                    'exclusive' => false,
-                    'priority' => 100,
-                    'excludeLowerPriority' => false,
-                    'codeType' => 'standard',
-                    'code' => 'PROMOTIONCODE',
-                    'discounts' => [
-                        [
-                            'id' => $absoluteDiscountId,
-                            'type' => 'absolute',
-                            'value' => 100,
-                            'considerAdvancedRules' => false,
-                            'scope' => 'cart',
-                        ],
-                    ],
-                ],
-            ],
-            $context
+                'name' => 'Super Better Sale',
+            ]
         );
 
-        $data = [
-            'name' => 'Patched promotion name',
-            'active' => false,
-            'discounts' => [
-                [
-                    'id' => $absoluteDiscountId,
-                    'value' => 200,
-                ],
-            ],
-        ];
+        /** @var Response $response */
+        $response = $this->api->getResponse();
 
-        $client->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/promotion/' . $id, $data);
-        static::assertEquals(204, $client->getResponse()->getStatusCode());
-
-        $criteria = new Criteria([$id]);
-        $criteria->addAssociation('discounts');
+        static::assertEquals(204, $response->getStatusCode(), $response->getContent());
 
         /** @var PromotionEntity $promotion */
-        $promotion = $this->promotionRepository->search($criteria, $context)->get($id);
+        $promotion = $this->getPromotionFromDB($promotionId);
 
-        static::assertCount(1, $promotion->getDiscounts());
-        static::assertEquals('Patched promotion name', $promotion->getName());
-
-        $discount = $promotion->getDiscounts()->get($absoluteDiscountId);
-
-        static::assertEquals(200, $discount->getValue());
+        static::assertEquals('Super Better Sale', $promotion->getName());
     }
 
     /**
+     * This test verifies that we can delete our discount
+     * with the API. So we delete a discount from a promotion
+     * that only has 1 discount. then we load it from the database and
+     * check if no more discounts exist.
+     *
+     * @test
      * @group promotions
      */
-    public function testDeleteDiscount(): void
+    public function testDeletePromotionDiscount(): void
     {
-        $client = $this->getClient();
-        $context = Context::createDefaultContext();
-        $id = Uuid::randomHex();
-        $absoluteDiscountId = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
+        $discountId = Uuid::randomHex();
+        $this->insertPromotionInDB($promotionId, $discountId);
 
-        $this->promotionRepository->create(
-            [
-                [
-                    'id' => $id,
-                    'name' => 'My promotion',
-                    'active' => true,
-                    'validFrom' => '2019-01-01 00:00:00',
-                    'validUntil' => '2030-01-01 00:00:00',
-                    'redeemable' => 1000,
-                    'exclusive' => false,
-                    'priority' => 100,
-                    'excludeLowerPriority' => false,
-                    'codeType' => 'standard',
-                    'code' => 'PROMOTIONCODE',
-                    'discounts' => [
-                        [
-                            'id' => $absoluteDiscountId,
-                            'type' => 'absolute',
-                            'value' => 100,
-                            'considerAdvancedRules' => false,
-                            'scope' => 'cart',
-                        ],
-                    ],
-                ],
-            ],
-            $context
-        );
-
-        $client->request(
+        $this->api->request(
             'DELETE',
-            '/api/v' . PlatformRequest::API_VERSION . '/promotion/' . $id . '/discounts/' . $absoluteDiscountId
+            $this->resourceUri . '/' . $promotionId . '/discounts/' . $discountId
         );
-        static::assertEquals(204, $client->getResponse()->getStatusCode());
 
-        $criteria = new Criteria([$id]);
-        $criteria->addAssociation('discounts');
+        /** @var Response $response */
+        $response = $this->api->getResponse();
+
+        static::assertEquals(204, $response->getStatusCode(), $response->getContent());
 
         /** @var PromotionEntity $promotion */
-        $promotion = $this->promotionRepository->search($criteria, $context)->get($id);
+        $promotion = $this->getPromotionFromDB($promotionId);
 
         static::assertCount(0, $promotion->getDiscounts());
     }
 
-    public function patchDiscount(): void
+    /**
+     * This test verifies that we can update our discount with
+     * new values. We change the type and value and then load it from
+     * the database and see if it has been correctly updated.
+     *
+     * @test
+     * @group promotions
+     *
+     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
+     */
+    public function testPatchDiscount(): void
     {
-        $client = $this->getClient();
-        $context = Context::createDefaultContext();
-        $id = Uuid::randomHex();
-        $absoluteDiscountId = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
+        $discountId = Uuid::randomHex();
+        $this->insertPromotionInDB($promotionId, $discountId);
 
-        $this->promotionRepository->create(
-            [
-                [
-                    'id' => $id,
-                    'name' => 'My promotion',
-                    'active' => true,
-                    'validFrom' => '2019-01-01 00:00:00',
-                    'validUntil' => '2030-01-01 00:00:00',
-                    'redeemable' => 1000,
-                    'exclusive' => false,
-                    'priority' => 100,
-                    'excludeLowerPriority' => false,
-                    'codeType' => 'standard',
-                    'code' => 'PROMOTIONCODE',
-                    'discounts' => [
-                        [
-                            'id' => $absoluteDiscountId,
-                            'type' => 'absolute',
-                            'value' => 100,
-                            'considerAdvancedRules' => false,
-                            'scope' => 'cart',
-                        ],
-                    ],
-                ],
-            ],
-            $context
-        );
-
-        $data = [
-            'type' => 'percentage',
-            'value' => 10,
-        ];
-
-        $client->request(
+        $this->api->request(
             'PATCH',
-            '/api/v' . PlatformRequest::API_VERSION . '/promotion' . $id . '/discounts/' . $absoluteDiscountId,
-            $data
+            $this->resourceUri . '/' . $promotionId . '/discounts/' . $discountId,
+            [
+                'type' => 'percentage',
+                'value' => 12.5,
+            ]
         );
-
-        $criteria = new Criteria([$id]);
-        $criteria->addAssociation('discounts');
 
         /** @var PromotionEntity $promotion */
-        $promotion = $this->promotionRepository->search($criteria, $context)->get($id);
+        $promotion = $this->getPromotionFromDB($promotionId);
 
-        $discount = $promotion->getDiscounts()->get($absoluteDiscountId);
+        /** @var PromotionDiscountEntity $discount */
+        $discount = $promotion->getDiscounts()->get($discountId);
 
         static::assertEquals('percentage', $discount->getType());
-        static::assertSame(10, $discount->getValue());
+        static::assertEquals(12.5, $discount->getValue());
     }
 
     /**
+     * This test verifies that we can sucessfully delete a promotion
+     * with the API. We add 1 promotion in the database, then delete it
+     * using our client, and finally verify if no more promotions exist
+     * in the database for this ID.
+     *
+     * @test
      * @group promotions
      */
     public function testDeletePromotion(): void
     {
-        $client = $this->getClient();
-        $context = Context::createDefaultContext();
-        $id = Uuid::randomHex();
-        $absoluteDiscountId = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
+        $discountId = Uuid::randomHex();
+        $this->insertPromotionInDB($promotionId, $discountId);
 
+        $this->api->request(
+            'DELETE',
+            '/api/v' . PlatformRequest::API_VERSION . '/promotion/' . $promotionId
+        );
+
+        /** @var Response $response */
+        $response = $this->api->getResponse();
+
+        static::assertEquals(204, $response->getStatusCode(), $response->getContent());
+
+        /** @var PromotionEntity|null $promotions */
+        $promotions = $this->getPromotionFromDB($promotionId);
+
+        static::assertNull($promotions);
+    }
+
+    private function getPromotionFromDB(string $id): ?PromotionEntity
+    {
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('discounts');
+
+        /** @var PromotionEntity $promotion */
+        $promotion = $this->promotionRepository->search($criteria, $this->context)->get($id);
+
+        return $promotion;
+    }
+
+    private function insertPromotionInDB(string $id, string $discountId)
+    {
         $this->promotionRepository->create(
             [
                 [
                     'id' => $id,
-                    'name' => 'My promotion',
+                    'name' => 'Super Sale',
                     'active' => true,
                     'validFrom' => '2019-01-01 00:00:00',
                     'validUntil' => '2030-01-01 00:00:00',
@@ -410,29 +305,21 @@ class PromotionControllerTest extends TestCase
                     'exclusive' => false,
                     'priority' => 100,
                     'excludeLowerPriority' => false,
-                    'codeType' => 'standard',
-                    'code' => 'PROMOTIONCODE',
+                    'useCodes' => true,
+                    'code' => 'super19',
                     'discounts' => [
                         [
-                            'id' => $absoluteDiscountId,
-                            'type' => 'absolute',
+                            'id' => $discountId,
+                            'scope' => PromotionDiscountEntity::SCOPE_CART,
+                            'type' => PromotionDiscountEntity::TYPE_ABSOLUTE,
                             'value' => 100,
                             'considerAdvancedRules' => false,
-                            'scope' => 'cart',
+                            'graduated' => false,
                         ],
                     ],
                 ],
             ],
-            $context
+            $this->context
         );
-
-        $client->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/promotion/' . $id);
-        static::assertEquals(204, $client->getResponse()->getStatusCode());
-
-        $criteria = new Criteria([$id]);
-        $criteria->addAssociation('discounts');
-
-        $promotions = $this->promotionRepository->search($criteria, $context);
-        static::assertFalse($promotions->has($id));
     }
 }

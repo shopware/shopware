@@ -61,7 +61,7 @@ module.exports = {
             .waitForElementNotPresent('input[name=sw-field--url]')
             .waitForElementVisible(`${page.elements.mediaItem} ${page.elements.previewItem}`)
             .click('.sw-media-replace__replace-media-action')
-            .checkNotification('File has been saved successfully.');
+            .checkNotification('A file has been saved successfully.');
     },
     'verify if image was replaced correctly': (browser) => {
         const page = mediaPage(browser);

@@ -29,7 +29,7 @@ class ProductStreamPageObject extends GeneralPageObject {
                 menuActionSelector: '.sw-context-menu-item--danger',
                 scope: `${this.elements.gridRow}--0`
             })
-            .expect.element(`${this.elements.modal}__body`).to.have.text.that.equals(`Are you sure you want to delete the product stream "${productStreamName}"?`);
+            .expect.element(`${this.elements.modal}__body`).to.have.text.that.equals(`Are you sure you want to delete the product group "${productStreamName}"?`);
 
         this.browser
             .click(`.sw-modal__footer button${this.elements.primaryButton}`)
@@ -133,8 +133,8 @@ class ProductStreamPageObject extends GeneralPageObject {
         });
 
         this.browser
-            .fillDateField('.field--from-date input', ruleData.fromDate)
-            .fillDateField('.field--to-date input', ruleData.toDate);
+            .fillDateField('.field--from-date', ruleData.fromDate)
+            .fillDateField('.field--to-date', ruleData.toDate);
     }
 
     createDateCondition(ruleData) {
@@ -146,7 +146,7 @@ class ProductStreamPageObject extends GeneralPageObject {
             });
 
         this.browser
-            .fillDateField('.field--main input', ruleData.value);
+            .fillDateField('.field--main', ruleData.value);
     }
 }
 

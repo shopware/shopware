@@ -11,6 +11,8 @@
                        :previewResultsLimit="500"
                        :required="true"
                        class="field--condition"
+                       sortField="translated.label"
+                       sortDirection="ASC"
                        :title="$tc(getLabel(condition.type))"
                        @input="conditionChanged">
             </sw-select>

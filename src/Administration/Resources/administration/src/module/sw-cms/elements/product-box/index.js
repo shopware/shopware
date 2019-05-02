@@ -17,6 +17,10 @@ Application.getContainer('service').cmsService.registerCmsElement({
         boxLayout: {
             source: 'static',
             value: 'standard'
+        },
+        displayMode: {
+            source: 'static',
+            value: 'standard'
         }
     },
     defaultData: {

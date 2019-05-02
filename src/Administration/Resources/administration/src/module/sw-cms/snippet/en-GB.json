@@ -89,6 +89,10 @@
       "labelProductLayoutTypeStandard": "Standard",
       "labelProductLayoutTypeImage": "Big image",
       "labelProductLayoutTypeMinimal": "Minimal content",
+      "labelProductDisplayMode": "Display mode",
+      "labelProductDisplayModeStandard": "Standard",
+      "labelProductDisplayModeCover": "Cover",
+      "labelProductDisplayModeContain": "Contain",
       "placeholderSettingsEnterUrl": "Enter URL",
       "labelSettingsLinkTo": "Link to",
       "labelSettingsLinkNewTab": "Open link in new tab"

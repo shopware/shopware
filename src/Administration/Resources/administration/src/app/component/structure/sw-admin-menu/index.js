@@ -271,6 +271,11 @@ export default {
             const offset = dom.getScrollbarWidth(this.$refs.swAdminMenuBody);
 
             this.scrollbarOffset = `-${offset}px`;
+        },
+
+        getMenuItemClass(entry) {
+            const suffix = entry.id ? entry.id : entry.parent;
+            return `sw-admin-menu__flyout-item--${suffix}`;
         }
     }
 };

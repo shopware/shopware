@@ -149,7 +149,7 @@
                          @mouseleave="closeFlyout">
 
                         {% block sw_admin_menu_flyout_label %}
-                            <div v-if="!isExpanded" class="sw-admin-menu__flyout-label" @mouseover="openFlyout">
+                            <div v-if="!isExpanded" class="sw-admin-menu__flyout-label" :style="{'border-color': flyoutColor}">
                                 {{ $tc(flyoutLabel) }}
                             </div>
                         {% endblock %}
@@ -158,7 +158,7 @@
                             <ul v-if="flyoutEntries" class="sw-admin-menu__flyout-list">
                                 <sw-admin-menu-item v-for="(entry, index) in flyoutEntries"
                                                     class="sw-admin-menu__flyout-item"
-                                                    :class="['sw-admin-menu__flyout-item--' + entry.id]"
+                                                    :class="[getMenuItemClass(entry)]"
                                                     :style="{'border-color': flyoutColor}"
                                                     :entry="entry"
                                                     :parentEntries="flyoutEntries"

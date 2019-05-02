@@ -7,7 +7,6 @@ use Shopware\Core\Framework\Twig\TemplateFinder;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,7 +26,10 @@ abstract class StorefrontController extends AbstractController
     protected function createActionResponse(Request $request): Response
     {
         if ($request->get('redirectTo')) {
-            return $this->redirectToRoute($request->get('redirectTo'));
+            $params = $request->get('redirectParameters', json_encode([]));
+            $params = json_decode($params, true);
+
+            return $this->redirectToRoute($request->get('redirectTo'), $params);
         }
 
         if ($request->get('forwardTo')) {
@@ -86,35 +88,5 @@ abstract class StorefrontController extends AbstractController
         }
 
         throw new CustomerNotLoggedInException();
-    }
-
-    protected function redirectToRouteAndReturn(string $route, Request $request, array $parameters = [], $status = 302): RedirectResponse
-    {
-        $default = [
-            'redirectTo' => urlencode($request->getRequestUri()),
-        ];
-        $parameters = array_merge($default, $parameters);
-
-        return $this->redirectToRoute($route, $parameters, $status);
-    }
-
-    protected function handleRedirectTo(string $url): RedirectResponse
-    {
-        $parsedUrl = parse_url(urldecode($url));
-        $redirectUrl = $parsedUrl['path'];
-
-        if (array_key_exists('query', $parsedUrl)) {
-            $redirectUrl .= '?' . $parsedUrl['query'];
-        }
-
-        if (array_key_exists('fragment', $parsedUrl)) {
-            $redirectUrl .= '#' . $parsedUrl['query'];
-        }
-
-        if (array_key_exists('host', $parsedUrl)) {
-            throw new \RuntimeException('Absolute URLs are prohibited for the redirectTo parameter.');
-        }
-
-        return $this->redirect($redirectUrl);
     }
 }

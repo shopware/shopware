@@ -350,6 +350,9 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
 
     function setModuleFavicon(routeDestination, assetsPath) {
         const moduleInfo = getModuleInfo(routeDestination);
+        if (!moduleInfo) {
+            return false;
+        }
         const favicon = moduleInfo.manifest.favicon || null;
         const favRef = document.getElementById('dynamic-favicon');
 
@@ -362,5 +365,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         favRef.href = favicon
             ? `${assetsPath}static/img/favicon/modules/${favicon}`
             : `${assetsPath}static/img/favicon/favicon-32x32.png`;
+
+        return true;
     }
 }

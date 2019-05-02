@@ -39,14 +39,6 @@ class CompiledFieldCollection extends FieldCollection
         $this->registry = $registry;
     }
 
-    public function __debugInfo()
-    {
-        return [
-            array_keys($this->elements),
-            array_keys($this->mappedByStorageName),
-        ];
-    }
-
     /**
      * @param Field $field
      */

@@ -60,11 +60,6 @@ abstract class EntityDefinition
         $this->className = get_class($this);
     }
 
-    public function __debugInfo()
-    {
-        return [];
-    }
-
     final public function getClass(): string
     {
         return $this->className;

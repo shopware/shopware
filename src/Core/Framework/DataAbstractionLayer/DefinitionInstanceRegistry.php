@@ -37,14 +37,6 @@ class DefinitionInstanceRegistry
         $this->repositoryMap = $repositoryMap;
     }
 
-    public function __debugInfo()
-    {
-        return [
-            'repositoryMapCount' => count($this->repositoryMap),
-            'definitionCount' => count($this->definitions),
-        ];
-    }
-
     public function getRepository(string $entityName): EntityRepositoryInterface
     {
         return $this->container->get($this->repositoryMap[$entityName]);

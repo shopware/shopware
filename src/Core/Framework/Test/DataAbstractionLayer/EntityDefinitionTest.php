@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionTranslation\PromotionTranslationDefinition;
+use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsPageTranslation\CmsPageTranslationDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation\CmsSlotTranslationDefinition;
@@ -95,6 +97,7 @@ class EntityDefinitionTest extends TestCase
             [StateMachineDefinition::class, StateMachineTranslationDefinition::class],
             [StateMachineStateDefinition::class, StateMachineStateTranslationDefinition::class],
             [ProductDefinition::class, ProductTranslationDefinition::class],
+            [PromotionDefinition::class, PromotionTranslationDefinition::class],
         ];
     }
 }

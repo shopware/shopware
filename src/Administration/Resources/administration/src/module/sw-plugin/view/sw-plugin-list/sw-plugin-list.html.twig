@@ -16,19 +16,19 @@
                                       v-model="sortType"
                                       @change="sortPluginList">
                                 {% block sw_plugin_list_sort_options_upgraded_at_asc %}
-                                    <option value="upgradedAt:asc">
+                                    <option value="upgradedAt:desc">
                                         {{ $tc('sw-plugin.list.sortUpgradedAtAsc') }}
                                     </option>
                                 {% endblock %}
 
                                 {% block sw_plugin_list_sort_options_pluginName_asc %}
-                                    <option value="name:asc">
+                                    <option value="label:asc">
                                         {{ $tc('sw-plugin.list.sortPluginNameAsc') }}
                                     </option>
                                 {% endblock %}
 
                                 {% block sw_plugin_list_sort_options_pluginName_dsc %}
-                                    <option value="name:dsc">
+                                    <option value="label:desc">
                                         {{ $tc('sw-plugin.list.sortPluginNameDsc') }}
                                     </option>
                                 {% endblock %}

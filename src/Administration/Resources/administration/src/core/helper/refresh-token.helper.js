@@ -9,7 +9,6 @@ export default class RefreshTokenHelper {
         this._isRefreshing = false;
         this._subscribers = [];
         this._whitelist = [
-            '/_info/me',
             '/_info/ping',
             '/oauth/token',
             '/_info/entity-schema.json'

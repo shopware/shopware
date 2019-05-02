@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Demodata\Command;
 
-use function Flag\next754;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition;
@@ -61,15 +60,13 @@ class DemodataCommand extends Command
         $this->addOption('mail-template', 'mt', InputOption::VALUE_REQUIRED, 'Mail template count', 10);
         $this->addOption('mail-header-footer', 'mhf', InputOption::VALUE_REQUIRED, 'Mail header/footer count', 3);
 
-        if (next754()) {
-            $this->addOption('attribute-sets', null, InputOption::VALUE_REQUIRED, 'CustomField set count', 4);
+        $this->addOption('attribute-sets', null, InputOption::VALUE_REQUIRED, 'CustomField set count', 4);
 
-            $this->addOption('product-attributes', null, InputOption::VALUE_REQUIRED, 'Products attribute count');
-            $this->addOption('manufacturer-attributes', null, InputOption::VALUE_REQUIRED, 'Manufacturer attribute count');
-            $this->addOption('order-attributes', null, InputOption::VALUE_REQUIRED, 'Order attribute count');
-            $this->addOption('customer-attributes', null, InputOption::VALUE_REQUIRED, 'Customer attribute count');
-            $this->addOption('media-attributes', null, InputOption::VALUE_REQUIRED, 'Media attribute count');
-        }
+        $this->addOption('product-attributes', null, InputOption::VALUE_REQUIRED, 'Products attribute count');
+        $this->addOption('manufacturer-attributes', null, InputOption::VALUE_REQUIRED, 'Manufacturer attribute count');
+        $this->addOption('order-attributes', null, InputOption::VALUE_REQUIRED, 'Order attribute count');
+        $this->addOption('customer-attributes', null, InputOption::VALUE_REQUIRED, 'Customer attribute count');
+        $this->addOption('media-attributes', null, InputOption::VALUE_REQUIRED, 'Media attribute count');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -102,13 +99,11 @@ class DemodataCommand extends Command
         $request->add(OrderDefinition::class, (int) $input->getOption('orders'));
         $request->add(CmsPageDefinition::class, 50);
 
-        if (next754()) {
-            $request->add(
-                CustomFieldSetDefinition::class,
-                (int) $input->getOption('attribute-sets'),
-                $this->getCustomFieldOptions($input)
-            );
-        }
+        $request->add(
+            CustomFieldSetDefinition::class,
+            (int) $input->getOption('attribute-sets'),
+            $this->getCustomFieldOptions($input)
+        );
 
         $request->add(MailTemplateDefinition::class, (int) $input->getOption('mail-template'));
 

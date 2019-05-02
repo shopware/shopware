@@ -6,13 +6,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\Field
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerInterface;
-use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
 class DefinitionInstanceRegistry
 {
     /**
-     * @var Container
+     * @var ContainerInterface
      */
     private $container;
 
@@ -30,7 +30,7 @@ class DefinitionInstanceRegistry
      * @param array $definitionMap array of $entityName => $definitionServiceId, eg. 'product' => '\Shopware\Core\Content\Product\ProductDefinition'
      * @param array $repositoryMap array of $entityName => $repositoryServiceId, eg. 'product' => 'product.repository'
      */
-    public function __construct(Container $container, array $definitionMap, array $repositoryMap)
+    public function __construct(ContainerInterface $container, array $definitionMap, array $repositoryMap)
     {
         $this->container = $container;
         $this->definitions = $definitionMap;

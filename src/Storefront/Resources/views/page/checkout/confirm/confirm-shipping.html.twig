@@ -8,11 +8,15 @@
             {% endblock %}
 
             {% block page_checkout_confirm_shipping_form %}
-                {#TODO: NEXT-2525 - add form action#}
                 <form id="confirmShippingForm"
                       name="confirmShippingForm"
-                      action="#"
+                      action="{{ path('frontend.checkout.configure') }}"
                       method="post">
+
+                    {% block page_checkout_confirm_shipping_form_redirect %}
+                        <input type="hidden" name="redirectTo" value="frontend.checkout.confirm.page">
+                    {% endblock %}
+
                     {% block page_checkout_confirm_shipping_form_fields %}
                         <div class="shipping-fields">
                             {% for shipping in page.shippingMethods.elements %}
@@ -24,7 +28,7 @@
                                                     {% block page_checkout_confirm_shipping_form_input %}
                                                         <input type="radio"
                                                                id="shippingMethod{{ loop.index }}"
-                                                               name="shippingMethod"
+                                                               name="shippingMethodId"
                                                                value="{{ shipping.id }}"
                                                                {% if shipping.id is same as(page.context.shippingMethod.id) %}checked="checked"{% endif %}
                                                                class="custom-control-input shipping-method-input">

@@ -4,8 +4,8 @@
       "mainMenuItemIndex": "Login"
     },
     "index": {
-      "headlineMain": "Hello",
-      "subheadlineMain": "Welcome back!",
+      "headlineMain": "Hello!",
+      "subheadlineMain": "Welcome back.",
       "headlineForm": "Log in to your Shopware store",
       "labelUsername": "Username",
       "labelPassword": "Password",

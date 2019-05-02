@@ -151,7 +151,8 @@ $sw-login-error-animation-duration: .15s;
     }
 
     .sw-login__image-headlines {
-        padding: 60px;
+        padding-left: 60px;
+        padding-bottom: 115px;
         align-self: flex-end;
         white-space: nowrap;
         color: $color-white;

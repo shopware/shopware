@@ -70,6 +70,29 @@ class ProductPageObject extends GeneralPageObject {
             .waitForElementNotPresent(`${this.elements.productListName} > a`);
     }
 
+    generateVariants(propertyName, optionPosition) {
+        const optionsIndicator = '.sw-property-search__tree-selection__column-items-selected.sw-grid-column--right span';
+        const optionString = optionPosition.length < 1 ? 'option' : 'options';
+
+        this.browser
+            .click('.group_grid__column-name');
+
+        for (const entry in Object.values(optionPosition)) {
+            if (optionPosition.hasOwnProperty(entry)) {
+                this.browser
+                    .tickCheckbox(
+                        `.sw-property-search__tree-selection__option_grid .sw-grid__row--${entry} .sw-field__checkbox input`,
+                        true
+                    );
+            }
+        }
+
+        this.browser.expect.element(`.sw-grid__row--0 ${optionsIndicator}`).to.have.text.that.contains(`${optionPosition.length} ${optionString} selected`);
+        this.browser.expect.element(`.sw-modal__footer ${this.elements.primaryButton}`).to.have.text.that.contains(`${optionPosition.length} Generate variations`);
+        this.browser.click(`.sw-modal__footer ${this.elements.primaryButton}`)
+            .waitForElementNotPresent('.sw-product-modal-variant-generation');
+    }
+
     findInStorefront(name) {
         this.browser
             .url(process.env.APP_URL)

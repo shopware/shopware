@@ -66,11 +66,11 @@
                         {% endblock %}
 
                         {% block sw_product_variants_overview_option_list_toolbar_buttons %}
-                            <sw-button variant="ghost" @click="$emit('generator-open')">
+                            <sw-button variant="ghost" class="sw-product-variants__generate-action" @click="$emit('generator-open')">
                                 {{ $tc('sw-product.variations.overview.generateVariants') }}
                             </sw-button>
 
-                            <sw-button variant="ghost" @click="$emit('delivery-open')">
+                            <sw-button variant="ghost" class="sw-product-variants__configure-storefront-action" @click="$emit('delivery-open')">
                                 {{ $tc('sw-product.variations.overview.storefrontDelivery') }}
                             </sw-button>
                         {% endblock %}

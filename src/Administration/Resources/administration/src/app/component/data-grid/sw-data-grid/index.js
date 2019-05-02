@@ -113,7 +113,6 @@ export default {
 
     data() {
         return {
-            records: this.dataSource,
             currentSortBy: this.sortBy,
             currentSortDirection: this.sortDirection,
             loading: this.isLoading,
@@ -150,16 +149,17 @@ export default {
 
         localStorageItemKey() {
             return `${this.identifier}-grid-columns`;
+        },
+
+        records() {
+            const isArray = Array.isArray(this.dataSource);
+            return isArray ? this.dataSource : Object.values(this.dataSource);
         }
     },
 
     watch: {
         columns() {
             this.initGridColumns();
-        },
-
-        dataSource() {
-            this.records = this.dataSource;
         },
 
         sortBy() {

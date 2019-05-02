@@ -41,23 +41,17 @@
                         </sw-grid-column>
                         {% endblock %}
 
-                        {% block sw_property_option_list_grid_column_media %}
-                            <sw-grid-column dataIndex="mediaId" flex="250px" align="stretch" :label="$tc('sw-property.detail.labelOptionMedia')" class="media-column">
-                                <sw-media-field v-model="item.mediaId"></sw-media-field>
-                            </sw-grid-column>
-                        {% endblock %}
-
                         {% block sw_property_option_list_grid_column_color %}
-                            <sw-grid-column dataIndex="colorHexCode" editable flex="100px" :label="$tc('sw-property.detail.labelOptionColor')">
+                            <sw-grid-column dataIndex="colorHexCode" editable flex="300px" :label="$tc('sw-property.detail.labelOptionColor')">
                                 {{ item.colorHexCode }}
-                                <sw-field type="text" slot="inline-edit" v-model="item.colorHexCode" />
+                                <sw-colorpicker slot="inline-edit" v-model="item.colorHexCode"></sw-colorpicker>
                             </sw-grid-column>
                         {% endblock %}
 
                         {% block sw_property_option_list_grid_column_position %}
                             <sw-grid-column dataIndex="position" editable flex="100px" :label="$tc('sw-property.detail.labelOptionPosition')">
                                 {{ item.position }}
-                                <sw-field type="number" slot="inline-edit" v-model="item.position" step="1" pattern="[0-9]" />
+                                <sw-field type="number" slot="inline-edit" v-model="item.position" :step="1" pattern="[0-9]" />
                             </sw-grid-column>
                         {% endblock %}
 

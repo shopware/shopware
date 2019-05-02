@@ -1,20 +1,16 @@
 @import "~scss/variables";
 
 .sw-property-search {
-    .sw-grid .sw-grid__pagination {
-        background: #fff;
-    }
     .sw-property-search__tree-selection__option_grid {
         padding-top: 10px;
-        background: #fff;
     }
 
     .sw-property-search__tree-selection {
         height: 414px;
 
         .sw-property-search__tree-selection__group_grid {
-            background: #fff;
             padding-top: 10px;
+            border-radius: 0 0 0 8px;
 
             .group_grid__column-name {
                 .sw-icon {
@@ -64,21 +60,55 @@
         width: 100%;
     }
 
-    .overlay .sw-property-search__tree-selection,
-    .overlay .sw-property-search__search-selection{
+    .sw-property-search__tree-selection-container {
+        min-height: 100%;
+    }
+
+    &.overlay {
+        position: relative;
+
+        .sw-property-search__toolbar {
+            margin-bottom: 5px;
+        }
+    }
+
+    .sw-property-search__search-selection .sw-grid-column .sw-grid__cell-content {
+        min-height: 0;
+        padding: 0;
+    }
+    .sw-property-search__search-selection .sw-grid.sw-grid--table .sw-grid-row {
+        padding: 8px;
+    }
+
+    .sw-property-search__search-selection__option_grid {
+        border-radius: 8px;
+    }
+
+    .sw-property-search__search-selection  {
+        .sw-grid__row--0.is--selected {
+            box-shadow: none;
+        }
+        .sw-grid-row:last-child {
+            border-radius: 0;
+            border-bottom: 0;
+        }
+    }
+
+    &.overlay .sw-property-search__tree-selection,
+    &.overlay .sw-property-search__search-selection{
         position: absolute;
         z-index: $z-index-flyout;
-        border: 1px solid $color-steam-cloud;
-        border-radius: $border-radius-default;
+        border-radius: 8px;
         background-color: $color-white;
-        box-shadow: 0 3px 6px 0 lighten($color-steam-cloud, 30%);
+        background-clip: padding-box;
+        box-shadow: 0 1px 6px 0 lighten($color-gutenberg, 30%);
     }
 
     .sw-property-search__search-field {
         margin-bottom: 0;
     }
 
-     .sw-property-search__tree-selection .sw-property-search__tree-selection__group_grid {
+    .sw-property-search__tree-selection .sw-property-search__tree-selection__group_grid {
         border-right: 1px solid $color-steam-cloud;
     }
 

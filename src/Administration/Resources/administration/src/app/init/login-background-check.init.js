@@ -1,5 +1,6 @@
-export default function registerLoginBackgroundCheck() {
+export default function registerLoginBackgroundCheck(container) {
     const application = this;
+    const httpClient = container.httpClient;
     const serviceContainer = application.getContainer('service');
     const loginService = serviceContainer.loginService;
     const checkUserInterval = 30000;
@@ -10,14 +11,23 @@ export default function registerLoginBackgroundCheck() {
     /**
      * Requests the user information from the REST api, logs out the user and redirects the user to the login form
      * when the session was expired.
-     * @return {Promise<T | never>}
+     * @return {void}
      */
     function requestUserInfo() {
-        const userService = application.getContainer('service').userService;
-        return userService.getUser().catch(() => {
+        if (!loginService.getBearerAuthentication('access')) {
+            return;
+        }
+
+        const basicHeaders = {
+            Accept: 'application/vnd.api+json',
+            Authorization: `Bearer ${loginService.getToken()}`,
+            'Content-Type': 'application/json'
+        };
+
+        httpClient.get('_info/ping', { headers: basicHeaders }).catch(() => {
             const router = application.getApplicationRoot().$router;
             loginService.logout();
-            router.push({ to: '/login' });
+            router.push({ name: 'sw.login.index' });
         });
     }
 

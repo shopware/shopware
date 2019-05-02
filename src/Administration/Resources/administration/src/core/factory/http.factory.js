@@ -53,7 +53,7 @@ function refreshTokenInterceptor(client) {
 
         if (status === 401) {
             if (!tokenHandler.isRefreshing) {
-                return tokenHandler.fireRefreshTokenRequest().catch(() => {
+                tokenHandler.fireRefreshTokenRequest().catch(() => {
                     return Promise.reject(error);
                 });
             }
@@ -62,6 +62,7 @@ function refreshTokenInterceptor(client) {
                 tokenHandler.subscribe((newToken) => {
                     // replace the expired token and retry
                     originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                    originalRequest.url = originalRequest.url.replace(originalRequest.baseURL, '');
                     resolve(Axios(originalRequest));
                 });
             });

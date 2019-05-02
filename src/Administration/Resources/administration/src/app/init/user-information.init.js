@@ -1,3 +1,6 @@
+import { State } from 'src/core/shopware';
+import { initializeUserNotifications } from 'src/app/state/notification.store';
+
 export default function initializeUserContext(container) {
     const serviceContainer = this.getContainer('service');
     const loginService = serviceContainer.loginService;
@@ -19,6 +22,8 @@ export default function initializeUserContext(container) {
             delete data.password;
 
             contextService.currentUser = data;
+            State.getStore('adminUser').state.currentUser = data;
+            initializeUserNotifications();
             resolve();
         }).catch(() => {
             // An error occurred which means the user isn't logged in so get rid of the information in local storage

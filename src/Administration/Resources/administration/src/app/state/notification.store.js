@@ -1,5 +1,12 @@
 import utils, { debug } from 'src/core/service/util.service';
 import { setReactive, deleteReactive } from 'src/app/adapter/view/vue.adapter';
+import { Application } from 'src/core/shopware';
+
+const NOTIFICATION_LOAD_LIMIT = 50;
+
+export function initializeUserNotifications() {
+    Application.getApplicationRoot().$store.commit('notification/setNotificationsForCurrentUser');
+}
 
 function _getOriginalNotification(notificationId, state) {
     let originalNotification = state.notifications[notificationId];
@@ -32,23 +39,84 @@ function _mergeNotificationUpdate(originalNotification, notificationUpdate) {
     );
 }
 
+function _getStorageKey() {
+    const userId = Application.getApplicationRoot().$store.state.adminUser.currentUser.id;
+    if (!userId) {
+        return null;
+    }
+
+    return `notifications#${userId}`;
+}
+
+export function getNotificationsForUser() {
+    const storageKey = _getStorageKey();
+    if (!storageKey) {
+        return {};
+    }
+
+    const notificationsRaw = localStorage.getItem(storageKey);
+    if (!notificationsRaw) {
+        localStorage.setItem(storageKey, JSON.stringify({}));
+        return {};
+    }
+
+    const notificationsAll = JSON.parse(notificationsRaw);
+    const reverseIds = Object.keys(notificationsAll).reverse();
+    const notifications = {};
+    for (let i = Math.min(NOTIFICATION_LOAD_LIMIT, reverseIds.length) - 1; i >= 0; i -= 1) {
+        const id = reverseIds[i];
+
+        notifications[id] = {
+            ...notificationsAll[id],
+            timestamp: new Date(notificationsAll[id].timestamp)
+        };
+    }
+
+    if (reverseIds.length > NOTIFICATION_LOAD_LIMIT) {
+        _saveNotifications(notifications);
+    }
+
+    return notifications;
+}
+
+function _saveNotifications(notifications) {
+    const storageKey = _getStorageKey();
+    if (!storageKey) {
+        return;
+    }
+
+    const storageNotifications = {};
+    Object.keys(notifications).forEach((id) => {
+        if (notifications[id].isLoading === false) {
+            storageNotifications[id] = {
+                ...notifications[id],
+                timestamp: notifications[id].timestamp.toJSON()
+            };
+        }
+    });
+
+    localStorage.setItem(storageKey, JSON.stringify(storageNotifications));
+}
+
 export default {
     namespaced: true,
-    state: {
-        notifications: {},
-        growlNotifications: {},
-        threshold: 5,
-        notificationDefaults: {
-            visited: false,
-            metadata: {},
-            isLoading: false
-        },
-        growlNotificationDefaults: {
-            system: false,
-            variant: 'info', // success, info, warning, error
-            autoClose: true,
-            duration: 5000
-        }
+    state() {
+        return {
+            notifications: {},
+            growlNotifications: {},
+            threshold: 5,
+            notificationDefaults: {
+                visited: false,
+                metadata: {},
+                isLoading: false
+            },
+            growlNotificationDefaults: {
+                system: false,
+                variant: 'info', // success, info, warning, error
+                autoClose: true,
+                duration: 5000
+            }
+        };
     },
 
     getters: {
@@ -73,6 +141,16 @@ export default {
             }
         },
 
+        setNotificationsForCurrentUser(state) {
+            state.notifications = getNotificationsForUser();
+        },
+
+        setNotifications(state, notifications) {
+            Object.keys(notifications).forEach((id) => {
+                setReactive(state.notifications, notifications[id].uuid, notifications[id]);
+            });
+        },
+
         upsertNotification(state, notificationUpdate) {
             const notification = state.notifications[notificationUpdate.uuid];
             if (notification !== undefined) {
@@ -81,16 +159,20 @@ export default {
             }
 
             setReactive(state.notifications, notificationUpdate.uuid, notificationUpdate);
+            _saveNotifications(state.notifications);
         },
 
         removeNotification(state, notification) {
             deleteReactive(state.notifications, notification.uuid);
+            _saveNotifications(state.notifications);
         },
 
         setAllNotificationsVisited(state) {
             Object.keys(state.notifications).forEach((id) => {
                 state.notifications[id].visited = true;
             });
+
+            _saveNotifications(state.notifications);
         },
 
         upsertGrowlNotification(state, notificationUpdate) {

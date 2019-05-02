@@ -1,11 +1,12 @@
 import getErrorCode from 'src/core/data/error-codes/login.error-codes';
-import { Component, Mixin, State } from 'src/core/shopware';
+import { Component, Mixin, State, Application } from 'src/core/shopware';
+import { initializeUserNotifications } from 'src/app/state/notification.store';
 import template from './sw-login-login.html.twig';
 
 Component.register('sw-login-login', {
     template,
 
-    inject: ['loginService'],
+    inject: ['loginService', 'userService'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -36,6 +37,7 @@ Component.register('sw-login-login', {
         },
 
         handleLoginSuccess() {
+            const contextService = Application.getContainer('init');
             this.password = '';
 
             this.$emit('login-success');
@@ -43,8 +45,20 @@ Component.register('sw-login-login', {
             const animationPromise = new Promise((resolve) => {
                 setTimeout(resolve, 300);
             });
+
+            // Fetch the user info when the login was successful and save it in current context
+            const userInfoPromise = this.userService.getUser().then((response) => {
+                const data = response.data;
+                delete data.password;
+
+                contextService.currentUser = data;
+                this.$store.commit('adminUser/setCurrentUser', data);
+                initializeUserNotifications();
+            });
+
             return Promise.all([
                 animationPromise,
+                userInfoPromise,
                 State.getStore('language').init()
             ]).then(() => {
                 this.$parent.isLoginSuccess = false;

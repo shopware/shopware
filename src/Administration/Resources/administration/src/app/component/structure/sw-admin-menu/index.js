@@ -1,4 +1,4 @@
-import { State, Mixin, Application } from 'src/core/shopware';
+import { State, Mixin } from 'src/core/shopware';
 import dom from 'src/core/service/utils/dom.utils';
 import template from './sw-admin-menu.html.twig';
 import './sw-admin-menu.scss';
@@ -119,9 +119,7 @@ export default {
         },
 
         getUser() {
-            const initService = Application.getContainer('init');
-            const contextService = initService.contextService;
-            const currentUser = contextService.currentUser;
+            const currentUser = this.$store.state.adminUser.currentUser;
 
             this.isUserLoading = true;
             if (Object.keys(currentUser).length <= 0) {
@@ -130,6 +128,7 @@ export default {
                     return this.userStore.getByIdAsync(this.userProfile.id);
                 }).then((user) => {
                     this.user = user;
+                    this.$store.commit('adminUser/setCurrentProfile', user);
                     this.isUserLoading = false;
                 });
                 return true;
@@ -137,6 +136,7 @@ export default {
             this.userProfile = currentUser;
             this.userStore.getByIdAsync(this.userProfile.id).then((user) => {
                 this.user = user;
+                this.$store.commit('adminUser/setCurrentProfile', user);
                 this.isUserLoading = false;
             });
 
@@ -262,6 +262,9 @@ export default {
 
         onLogoutUser() {
             this.loginService.logout();
+            this.$store.commit('adminUser/removeCurrentUser');
+            this.$store.commit('adminUser/removeCurrentProfile');
+            this.$store.commit('notification/setNotifications', {});
             this.$router.push({
                 name: 'sw.login.index'
             });

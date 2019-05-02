@@ -66,7 +66,8 @@
             }
         }
 
-        .sw-field.sw-field--checkbox {
+        .sw-field.sw-field--checkbox,
+        .sw-field.sw-field--radio {
             display: block;
             margin-bottom: 0;
             width: auto;
@@ -116,7 +117,8 @@
         }
     }
 
-    .sw-data-grid__cell--align-center {
+    .sw-data-grid__cell--align-center,
+    .sw-data-grid__cell--icon-label{
         .sw-data-grid__cell-content {
             justify-content: center;
         }

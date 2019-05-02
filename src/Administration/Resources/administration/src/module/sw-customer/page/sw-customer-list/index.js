@@ -61,7 +61,8 @@ Component.register('sw-customer-list', {
 
         getList() {
             this.isLoading = true;
-            const criteria = new Criteria(this.page, this.limit, this.term);
+            const criteria = new Criteria(this.page, this.limit);
+            criteria.setTerm(this.term);
             const naturalSort = this.sortBy === 'customerNumber';
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, naturalSort));
 
@@ -87,7 +88,7 @@ Component.register('sw-customer-list', {
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
-            return this.customerStore.getById(id).delete(true).then(() => {
+            return this.customerRepository.delete(id, this.context).then(() => {
                 this.getList();
             });
         },

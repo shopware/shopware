@@ -47,7 +47,6 @@ export default {
             if (!value) {
                 return;
             }
-            this.success = true;
 
             setTimeout(() => {
                 this.$emit('process-finish', false);

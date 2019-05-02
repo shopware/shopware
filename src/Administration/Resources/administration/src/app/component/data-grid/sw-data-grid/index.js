@@ -242,7 +242,8 @@ export default {
 
         getHeaderCellClasses(column, index) {
             return [{
-                'sw-data-grid__cell--sortable': column.dataIndex
+                'sw-data-grid__cell--sortable': column.dataIndex,
+                'sw-data-grid__cell--icon-label': column.iconLabel
             },
             `sw-data-grid__cell--${index}`
             ];

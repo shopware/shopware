@@ -2,7 +2,7 @@
     <sw-page class="sw-customer-list">
 
         {% block sw_customer_list_search_bar %}
-            <template slot="search-bar">
+            <template #search-bar>
                 <sw-search-bar initialSearchType="customer"
                                :initialSearch="term"
                                @search="onSearch">
@@ -11,7 +11,7 @@
         {% endblock %}
 
         {% block sw_customer_list_smart_bar_header %}
-            <template slot="smart-bar-header">
+            <template #smart-bar-header>
                 {% block sw_customer_list_smart_bar_header_title %}
                     <h2>
                         {% block sw_customer_list_smart_bar_header_title_text %}
@@ -29,7 +29,7 @@
         {% endblock %}
 
         {% block sw_customer_list_smart_bar_actions %}
-            <template slot="smart-bar-actions">
+            <template #smart-bar-actions>
                 {% block sw_customer_list_smart_bar_actions_add %}
                     <sw-button variant="primary" :routerLink="{ name: 'sw.customer.create' }">
                         {{ $tc('sw-customer.list.buttonAddCustomer') }}
@@ -38,7 +38,7 @@
             </template>
         {% endblock %}
 
-        <template slot="content">
+        <template #content>
             {% block sw_customer_list_content %}
                 <div class="sw-customer-list__content">
                     {% block sw_customer_list_grid %}
@@ -56,7 +56,7 @@
 
                             {% block sw_customer_list_grid_columns %}
                                 {% block sw_customer_list_grid_columns_name %}
-                                    <template slot="column-firstName" slot-scope="{ item, compact, isInlineEdit }">
+                                    <template #column-firstName="{ item, compact, isInlineEdit }">
 
                                         {% block sw_customer_list_grid_inline_edit_name %}
                                             <template v-if="isInlineEdit">
@@ -86,7 +86,7 @@
                             {% endblock %}
 
                             {% block sw_customer_list_grid_columns_actions %}
-                                <template slot="actions" slot-scope="{ item }">
+                                <template #actions="{ item }">
                                     {% block sw_customer_list_grid_columns_actions_view %}
                                         <sw-context-menu-item
                                             class="sw-customer-list__view-action"
@@ -116,7 +116,7 @@
                             {% endblock %}
 
                             {% block sw_customer_list_grid_action_modals %}
-                                <template slot="action-modals" slot-scope="{ item }">
+                                <template #action-modals="{ item }">
                                     {% block sw_customer_list_delete_modal %}
                                         <sw-modal v-if="showDeleteModal === item.id"
                                                   @modal-close="onCloseDeleteModal"
@@ -129,7 +129,7 @@
                                             {% endblock %}
 
                                             {% block sw_customer_list_delete_modal_footer %}
-                                                <template slot="modal-footer">
+                                                <template #modal-footer>
                                                     {% block sw_customer_list_delete_modal_cancel %}
                                                         <sw-button @click="onCloseDeleteModal" size="small">
                                                             {{ $tc('sw-customer.list.buttonCancel') }}
@@ -148,7 +148,7 @@
                                 </template>
                             {% endblock %}
 
-                            <template slot="pagination">
+                            <template #pagination>
                                 {% block sw_order_list_grid_pagination %}
                                     <sw-pagination :page="page"
                                                    :limit="limit"
@@ -169,15 +169,17 @@
         </template>
 
         {% block sw_customer_list_sidebar %}
-            <sw-sidebar slot="sidebar">
-                {% block sw_customer_list_sidebar_refresh %}
-                    <sw-sidebar-item
-                        icon="default-arrow-360-left"
-                        :title="$tc('sw-customer.list.titleSidebarItemRefresh')"
-                        @click="onRefresh">
-                    </sw-sidebar-item>
-                {% endblock %}
-            </sw-sidebar>
+            <template #sidebar>
+                <sw-sidebar>
+                    {% block sw_customer_list_sidebar_refresh %}
+                        <sw-sidebar-item
+                                icon="default-arrow-360-left"
+                                :title="$tc('sw-customer.list.titleSidebarItemRefresh')"
+                                @click="onRefresh">
+                        </sw-sidebar-item>
+                    {% endblock %}
+                </sw-sidebar>
+            </template>
         {% endblock %}
     </sw-page>
 {% endblock %}

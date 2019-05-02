@@ -1,4 +1,4 @@
-import { Component, State, Mixin, Entity } from 'src/core/shopware';
+import { Component, Mixin, Entity } from 'src/core/shopware';
 import { object } from 'src/core/service/util.service';
 import { required } from 'src/core/service/validation.service';
 import template from './sw-customer-detail-addresses.html.twig';
@@ -8,11 +8,14 @@ Component.register('sw-customer-detail-addresses', {
     template,
 
     mixins: [
-        Mixin.getByName('listing'),
         Mixin.getByName('notification')
     ],
 
-    inject: ['customerAddressService'],
+    inject: [
+        'repositoryFactory',
+        'context',
+        'customerAddressService'
+    ],
 
     props: {
         customer: {
@@ -40,50 +43,92 @@ Component.register('sw-customer-detail-addresses', {
         return {
             isLoading: false,
             activeCustomer: this.customer,
-            disableRouteParams: true,
-            offset: 0,
-            limit: 10,
-            paginationSteps: [10, 25, 50, 75, 100],
             showAddAddressModal: false,
             showEditAddressModal: false,
             showDeleteAddressModal: false,
-            currentAddress: null,
-            addresses: []
+            currentAddress: null
         };
     },
 
     computed: {
-        customerStore() {
-            return State.getStore('customer');
+        customerRepository() {
+            return this.repositoryFactory.create('customer');
         },
-        customerAddressStore() {
-            return this.activeCustomer.getAssociation('addresses');
+
+        addressColumns() {
+            return this.getAddressColumns();
+        },
+
+        addressRepository() {
+            return this.repositoryFactory.create(
+                this.activeCustomer.addresses.entity,
+                this.activeCustomer.addresses.source
+            );
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
-        getList() {
+        createdComponent() {
+            this.isLoading = true;
+
             if (!this.activeCustomer.id && this.$route.params.id) {
-                this.activeCustomer = this.customerStore.getById(this.$route.params.id);
+                this.customerRepository.get(this.$route.params.id, this.context).then((customer) => {
+                    this.activeCustomer = customer;
+                    this.isLoading = false;
+                });
+                return;
             }
             if (!this.activeCustomer.id) {
                 this.$router.push({ name: 'sw.customer.detail.base', params: { id: this.$route.params.id } });
                 return;
             }
-            this.isLoading = true;
-            const params = this.getListingParams();
-            params.limit = 10;
 
-            this.customerAddressStore.getList(params).then((response) => {
-                this.total = response.total;
-                this.addresses = response.items;
-            }).finally(() => {
-                this.isLoading = false;
+            this.isLoading = false;
+        },
 
-                if (this.$route.query.detailId) {
-                    this.onEditAddress(this.$route.query.detailId);
-                }
-            });
+        getAddressColumns() {
+            return [{
+                property: 'defaultShippingAddress',
+                dataIndex: 'defaultShippingAddress',
+                label: this.$tc('sw-customer.detailAddresses.columnDefaultShippingAddress'),
+                align: 'center',
+                iconLabel: 'default-shopping-cart'
+            }, {
+                property: 'defaultBillingAddress',
+                dataIndex: 'defaultBillingAddress',
+                label: this.$tc('sw-customer.detailAddresses.columnDefaultBillingAddress'),
+                align: 'center',
+                iconLabel: 'default-documentation-file'
+            }, {
+                property: 'lastName',
+                dataIndex: 'lastName',
+                label: this.$tc('sw-customer.detailAddresses.columnLastName')
+            }, {
+                property: 'firstName',
+                dataIndex: 'firstName',
+                label: this.$tc('sw-customer.detailAddresses.columnFirstName')
+            }, {
+                property: 'company',
+                dataIndex: 'company',
+                label: this.$tc('sw-customer.detailAddresses.columnCompany')
+            }, {
+                property: 'street',
+                label: this.$tc('sw-customer.detailAddresses.columnStreet'),
+                dataIndex: 'street'
+            }, {
+                property: 'zipcode',
+                dataIndex: 'zipcode',
+                label: this.$tc('sw-customer.detailAddresses.columnZipCode'),
+                align: 'right'
+            }, {
+                property: 'city',
+                dataIndex: 'city',
+                label: this.$tc('sw-customer.detailAddresses.columnCity')
+            }];
         },
 
         onCreateNewAddress() {
@@ -112,15 +157,16 @@ Component.register('sw-customer-detail-addresses', {
                 return;
             }
 
-            const address = this.activeCustomer.addresses.find(a => a.id === this.currentAddress.id);
+            let address = this.activeCustomer.addresses.items[this.currentAddress.id];
 
             if (typeof address === 'undefined') {
-                this.activeCustomer.addresses.push(this.currentAddress);
-                this.addresses.push(this.currentAddress);
-            } else {
-                Object.assign(address, this.currentAddress);
+                address = this.addressRepository.create(this.context, this.currentAddress.id);
             }
 
+            Object.assign(address, this.currentAddress);
+            this.addressRepository.save(address, this.context).then(() => {
+                this.refreshList();
+            });
             this.currentAddress = null;
         },
 
@@ -152,11 +198,11 @@ Component.register('sw-customer-detail-addresses', {
         },
 
         createEmptyAddress() {
-            return this.customerAddressStore.create();
+            return this.addressRepository.create(this.context);
         },
 
         onEditAddress(id) {
-            this.currentAddress = object.deepCopyObject(this.activeCustomer.addresses.find(a => a.id === id));
+            this.currentAddress = object.deepCopyObject(this.activeCustomer.addresses.items[id]);
             this.showEditAddressModal = id;
         },
 
@@ -168,14 +214,9 @@ Component.register('sw-customer-detail-addresses', {
         },
 
         onConfirmDeleteAddress(id) {
-            this.$nextTick(() => {
-                this.customerAddressStore.getById(id).delete();
-                this.activeCustomer.addresses = this.activeCustomer.addresses.filter(a => a.id !== id);
-                this.activeCustomer.save().then(() => {
-                    this.getList();
-                    this.onCloseDeleteAddressModal();
-                });
-            });
+            this.addressRepository.delete(id, this.context);
+            this.refreshList();
+            this.onCloseDeleteAddressModal();
         },
 
         onCloseDeleteAddressModal() {
@@ -197,7 +238,7 @@ Component.register('sw-customer-detail-addresses', {
 
         onDuplicateAddress(addressId) {
             this.customerAddressService.clone(addressId).then(() => {
-                this.getList();
+                this.refreshList();
             });
         },
 
@@ -214,20 +255,20 @@ Component.register('sw-customer-detail-addresses', {
         },
 
         onChange(term) {
-            this.term = term;
-            this.getList();
+            this.activeCustomer.addresses.criteria.setPage(1);
+            this.activeCustomer.addresses.criteria.setTerm(term);
+
+            this.refreshList();
+        },
+
+        refreshList() {
+            this.$refs.addressGrid.load();
         },
 
         createPrefix(string, replace) {
             const preFix = string.replace(replace, '');
 
             return `${preFix.charAt(0).toUpperCase()}${preFix.slice(1)}`;
-        },
-
-        onPageChange(data) {
-            this.page = data.page;
-            this.limit = data.limit;
-            this.getList();
         }
     }
 });

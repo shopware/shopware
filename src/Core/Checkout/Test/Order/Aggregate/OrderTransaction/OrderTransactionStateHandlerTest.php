@@ -79,7 +79,7 @@ class OrderTransactionStateHandlerTest extends TestCase
         $orderId = $this->createOrder($customerId, $context);
         $transactionId = $this->createOrderTransaction($orderId, $context);
 
-        $this->orderTransactionStateHelper->complete($transactionId, $context);
+        $this->orderTransactionStateHelper->pay($transactionId, $context);
 
         /** @var OrderTransactionEntity $transaction */
         $transaction = $this->orderTransactionRepository->search(new Criteria([$transactionId]), $context)->first();

@@ -21,6 +21,6 @@ class CashPayment implements SynchronousPaymentHandlerInterface
     public function pay(SyncPaymentTransactionStruct $transaction, SalesChannelContext $salesChannelContext): void
     {
         $context = $salesChannelContext->getContext();
-        $this->transactionStateHandler->complete($transaction->getOrderTransaction()->getId(), $context);
+        $this->transactionStateHandler->pay($transaction->getOrderTransaction()->getId(), $context);
     }
 }

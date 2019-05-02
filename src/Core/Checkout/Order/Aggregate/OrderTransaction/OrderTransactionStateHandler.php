@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
+use Shopware\Core\System\StateMachine\Exception\StateMachineStateNotFoundException;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 
 class OrderTransactionStateHandler
@@ -26,6 +29,91 @@ class OrderTransactionStateHandler
         $this->stateMachineRegistry = $stateMachineRegistry;
     }
 
+    /**
+     * @throws InconsistentCriteriaIdsException
+     * @throws StateMachineNotFoundException
+     * @throws StateMachineStateNotFoundException
+     */
+    public function open(string $transactionId, Context $context): void
+    {
+        $stateId = $this->stateMachineRegistry->getStateByTechnicalName(
+            OrderTransactionStates::STATE_MACHINE,
+            OrderTransactionStates::STATE_OPEN,
+            $context
+        )->getId();
+
+        $this->writeNewState($transactionId, $stateId, $context);
+    }
+
+    /**
+     * @throws InconsistentCriteriaIdsException
+     * @throws StateMachineNotFoundException
+     * @throws StateMachineStateNotFoundException
+     */
+    public function pay(string $transactionId, Context $context): void
+    {
+        $stateId = $this->stateMachineRegistry->getStateByTechnicalName(
+            OrderTransactionStates::STATE_MACHINE,
+            OrderTransactionStates::STATE_PAID,
+            $context
+        )->getId();
+
+        $this->writeNewState($transactionId, $stateId, $context);
+    }
+
+    /**
+     * @throws InconsistentCriteriaIdsException
+     * @throws StateMachineNotFoundException
+     * @throws StateMachineStateNotFoundException
+     */
+    public function payPartially(string $transactionId, Context $context): void
+    {
+        $stateId = $this->stateMachineRegistry->getStateByTechnicalName(
+            OrderTransactionStates::STATE_MACHINE,
+            OrderTransactionStates::STATE_PARTIALLY_PAID,
+            $context
+        )->getId();
+
+        $this->writeNewState($transactionId, $stateId, $context);
+    }
+
+    /**
+     * @throws InconsistentCriteriaIdsException
+     * @throws StateMachineNotFoundException
+     * @throws StateMachineStateNotFoundException
+     */
+    public function refund(string $transactionId, Context $context): void
+    {
+        $stateId = $this->stateMachineRegistry->getStateByTechnicalName(
+            OrderTransactionStates::STATE_MACHINE,
+            OrderTransactionStates::STATE_REFUNDED,
+            $context
+        )->getId();
+
+        $this->writeNewState($transactionId, $stateId, $context);
+    }
+
+    /**
+     * @throws InconsistentCriteriaIdsException
+     * @throws StateMachineNotFoundException
+     * @throws StateMachineStateNotFoundException
+     */
+    public function refundPartially(string $transactionId, Context $context): void
+    {
+        $stateId = $this->stateMachineRegistry->getStateByTechnicalName(
+            OrderTransactionStates::STATE_MACHINE,
+            OrderTransactionStates::STATE_PARTIALLY_REFUNDED,
+            $context
+        )->getId();
+
+        $this->writeNewState($transactionId, $stateId, $context);
+    }
+
+    /**
+     * @throws InconsistentCriteriaIdsException
+     * @throws StateMachineNotFoundException
+     * @throws StateMachineStateNotFoundException
+     */
     public function cancel(string $transactionId, Context $context): void
     {
         $stateId = $this->stateMachineRegistry->getStateByTechnicalName(
@@ -37,22 +125,16 @@ class OrderTransactionStateHandler
         $this->writeNewState($transactionId, $stateId, $context);
     }
 
-    public function complete(string $transactionId, Context $context): void
+    /**
+     * @throws InconsistentCriteriaIdsException
+     * @throws StateMachineNotFoundException
+     * @throws StateMachineStateNotFoundException
+     */
+    public function remind(string $transactionId, Context $context): void
     {
         $stateId = $this->stateMachineRegistry->getStateByTechnicalName(
             OrderTransactionStates::STATE_MACHINE,
-            OrderTransactionStates::STATE_PAID,
-            $context
-        )->getId();
-
-        $this->writeNewState($transactionId, $stateId, $context);
-    }
-
-    public function open(string $transactionId, Context $context): void
-    {
-        $stateId = $this->stateMachineRegistry->getStateByTechnicalName(
-            OrderTransactionStates::STATE_MACHINE,
-            OrderTransactionStates::STATE_OPEN,
+            OrderTransactionStates::STATE_REMINDED,
             $context
         )->getId();
 

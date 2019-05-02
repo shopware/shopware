@@ -125,6 +125,26 @@ class CustomerEntity extends Entity
     protected $birthday;
 
     /**
+     * @var \DateTimeInterface|null
+     */
+    protected $lastOrderDate;
+
+    /**
+     * @var int
+     */
+    protected $orderCount;
+
+    /**
+     * @var \DateTimeInterface|null
+     */
+    protected $createdAt;
+
+    /**
+     * @var \DateTimeInterface|null
+     */
+    protected $updatedAt;
+
+    /**
      * @var string|null
      */
     protected $legacyEncoder;
@@ -427,6 +447,46 @@ class CustomerEntity extends Entity
     public function setBirthday(?\DateTimeInterface $birthday): void
     {
         $this->birthday = $birthday;
+    }
+
+    public function getLastOrderDate(): ?\DateTimeInterface
+    {
+        return $this->lastOrderDate;
+    }
+
+    public function setLastOrderDate(?\DateTimeInterface $lastOrderDate): void
+    {
+        $this->lastOrderDate = $lastOrderDate;
+    }
+
+    public function getOrderCount(): int
+    {
+        return $this->orderCount;
+    }
+
+    public function setOrderCount(int $orderCount): void
+    {
+        $this->orderCount = $orderCount;
+    }
+
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeInterface $createdAt): void
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
     }
 
     public function getLegacyEncoder(): ?string

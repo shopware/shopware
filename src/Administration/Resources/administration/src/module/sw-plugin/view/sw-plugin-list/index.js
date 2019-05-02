@@ -24,7 +24,9 @@ Component.register('sw-plugin-list', {
             limit: 25,
             plugins: [],
             isLoading: false,
-            sortType: 'upgradedAt:asc'
+            sortBy: 'upgradedAt',
+            sortDirection: 'desc',
+            sortType: 'upgradedAt:desc'
         };
     },
 
@@ -152,20 +154,26 @@ Component.register('sw-plugin-list', {
         },
 
         getListingParams() {
-            const sortType = this.sortType.split(':');
-
             return {
                 limit: this.limit,
                 page: this.page,
-                sortBy: sortType[0],
-                sortDirection: sortType[1],
+                sortBy: this.sortBy,
+                sortDirection: this.sortDirection,
                 term: this.term
             };
         },
 
         sortPluginList(event) {
             this.sortType = event;
+            const sorting = this.sortType.split(':');
+            this.sortBy = sorting[0];
+            this.sortDirection = sorting[1];
             this.page = 1;
+            this.updateRoute({
+                sortBy: this.sortBy,
+                sortDirection: this.sortDirection,
+                page: this.page
+            });
             this.getList();
         },
 

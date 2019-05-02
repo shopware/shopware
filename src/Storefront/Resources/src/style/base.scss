@@ -62,13 +62,12 @@
 @import 'component/account-offcanvas';
 @import 'component/flags';
 @import 'component/element-loading-indicator';
+@import 'component/cms-block';
+@import 'component/cms-element';
 
 /*
  * Page-specific styles
  * -------------------- */
-@import 'page/content/content';
-@import 'page/content/listing';
-
 @import 'page/product-detail/product-detail';
 @import 'page/product-detail/configurator';
 

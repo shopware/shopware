@@ -1,5 +1,5 @@
-{% block page_content_element_image %}
-    <div class="col-md-6">
+{% block element_image %}
+    <div class="cms-element-{{ element.type }} display-{{ element.config.displayMode.value }}">
         {% block page_content_element_image_media %}
             {% if element.data.media.mediaType.name == 'IMAGE' %}
                 <img class="img-fluid cms-image"

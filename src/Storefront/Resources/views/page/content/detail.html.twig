@@ -1,23 +1,29 @@
-{% for block in cmsPage.blocks.elements %}
-    {% block page_content_block %}
-        <div class="row cms-row">
-            {% block page_content_elements %}
-                {% for element in block.slots.elements %}
-                    <div data-cms-element-id="{{ element.id }}">
-                        {% block page_content_element %}
-                            {% if element.type == 'text' %}
-                                {% sw_include "@Storefront/content/cms-text.html.twig" %}
-                            {% elseif element.type == 'product-box' %}
-                                {% sw_include "@Storefront/content/cms-product-box.html.twig" %}
-                            {% elseif element.type == 'product-listing' %}
-                                {% sw_include "@Storefront/content/cms-product-listing.html.twig" %}
-                            {% elseif element.type == 'image' %}
-                                {% sw_include "@Storefront/content/cms-image.html.twig" %}
-                            {% endif %}
-                        {% endblock %}
-                    </div>
-                {% endfor %}
+{% block page_content_blocks_inner %}
+    <div class="cms-blocks">
+        {% for block in cmsPage.blocks.elements %}
+            {% block page_content_block %}
+                {% set top = block.marginTop ? block.marginTop : 0 %}
+                {% set right = block.marginRight ? block.marginRight : 0 %}
+                {% set bottom = block.marginBottom ? block.marginBottom : 0 %}
+                {% set left = block.marginLeft ? block.marginLeft : 0 %}
+
+                {% if top or right or bottom or left %}
+                    {% set padding = top ~ " " ~ right ~ " " ~ bottom ~ " " ~ left %}
+                {% endif %}
+
+                {% set layout = block.sizingMode ? block.sizingMode|replace({"_": "-"}) : "container" %}
+                {% set bgColor = block.backgroundColor %}
+                {% set bgImg = block.backgroundMedia.url %}
+
+                <div class="cms-block cms-block-{{ block.type }} pos-{{ block.position }}{% if block.cssClass %} {{ block.cssClass }}{% endif %} {{ layout }}{% if bgImg %} bg-image{% endif %}{% if bgColor %} bg-color{% endif %}"
+                     style="{% if padding %}padding: {{ padding }};{% endif %}{% if bgColor %} background-color: {{ bgColor }};{% endif %}{% if bgImg %}background-image: url({{ bgImg }}); background-size: {{ block.backgroundMediaMode }};{% endif %}">
+                    {% block page_content_block_row %}
+                        <div class="row cms-row">
+                            {% sw_include "@Storefront/block/cms-block-" ~ block.type ~ ".html.twig" ignore missing %}
+                        </div>
+                    {% endblock %}
+                </div>
             {% endblock %}
-        </div>
-    {% endblock %}
-{% endfor %}
+        {% endfor %}
+    </div>
+{% endblock %}

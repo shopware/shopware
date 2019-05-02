@@ -72,12 +72,23 @@ class ListingGateway implements ListingGatewayInterface
 
     private function handlePagination(Request $request, Criteria $criteria): void
     {
-        $limit = $request->query->get('limit', 25);
-        $page = $request->query->get('p', 1);
+        $defaultLimit = 25;
+        $defaultPage = 1;
+
+        $limit = $request->query->getInt('limit', $defaultLimit);
+        $page = $request->query->getInt('p', $defaultPage);
+
+        if ($request->isMethod(Request::METHOD_POST)) {
+            $limit = $request->request->getInt('limit', $limit);
+            $page = $request->request->getInt('p', $page);
+        }
+
+        $limit = $limit > 0 ? $limit : $defaultLimit;
+        $page = $page > 0 ? $page : $defaultPage;
 
         $criteria->setOffset(($page - 1) * $limit);
         $criteria->setLimit((int) $limit);
-        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
     }
 
     private function handleManufacturerFilter(Request $request, Criteria $criteria): void

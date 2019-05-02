@@ -52,6 +52,8 @@ import ZoomModalPlugin from 'src/script/plugin/zoom-modal/zoom-modal.plugin';
 import MagnifierPlugin from 'src/script/plugin/magnifier/magnifier.plugin';
 import ImageZoomPlugin from 'src/script/plugin/image-zoom/image-zoom.plugin';
 import VariantSwitchPlugin from 'src/script/plugin/variant-switch/variant-switch.plugin';
+import CmsSlotReloadPlugin from 'src/script/plugin/cms-slot-reload/cms-slot-reload.plugin';
+import CmsSlotHistoryReloadPlugin from 'src/script/plugin/cms-slot-reload/cms-slot-history-reload.plugin';
 
 /*
 initialisation
@@ -103,6 +105,8 @@ PluginManager.register('ZoomModal', ZoomModalPlugin, '[data-zoom-modal]');
 PluginManager.register('Magnifier', MagnifierPlugin, '[data-magnifier]');
 PluginManager.register('ImageZoom', ImageZoomPlugin, '[data-image-zoom]');
 PluginManager.register('VariantSwitch', VariantSwitchPlugin, '[data-variant-switch]');
+PluginManager.register('CmsSlotReload', CmsSlotReloadPlugin, '[data-cms-slot-reload]');
+PluginManager.register('CmsSlotHistoryReload', CmsSlotHistoryReloadPlugin, document);
 
 /*
 add configurations

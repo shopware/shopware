@@ -87,6 +87,61 @@
                         </sw-container>
                     </sw-card>
                 {% endblock %}
+                {% block sw_settings_country_detail_state_list_card %}
+                    <sw-card v-if="!isLoading">
+                        <template #toolbar>
+                            <sw-container columns="1fr minmax(100px, 200px)" gap="0 10px">
+                                {% block sw_attribute_list_toolbar_searchfield %}
+                                    <sw-simple-search-field
+                                            @searchTermChanged="onSearchCountryState"
+                                            v-model="term">
+                                    </sw-simple-search-field>
+                                {% endblock %}
+
+                                {% block sw_country_state_list_toolbar_add %}
+                                    <sw-button
+                                            @click="onAddCountryState"
+                                            size="x-small"
+                                            variant="primary"
+                                            class="sw-settings-country-detail__add-country-state-button">
+                                        {{ $tc('sw-settings-country.detail.buttonAddCountryState') }}
+                                    </sw-button>
+                                {% endblock %}
+                            </sw-container>
+                        </template>
+
+                        <template #grid>
+                            <sw-one-to-many-grid
+                                    :isLoading="countryStateLoading"
+                                    ref="countryStateGrid"
+                                    :collection="country.states"
+                                    :fullPage="false"
+                                    :localMode="country.isNew()"
+                                    :columns="stateColumns">
+                                <template #column-name="{ item }">
+                                    <a class="sw-settings-country-detail__link"
+                                       @click="onClickCountryState(item)">
+                                        {{ item.name }}
+                                    </a>
+                                </template>
+                                <template #more-actions="{ item }">
+                                    <sw-context-menu-item @click="onClickCountryState(item)">
+                                        {{ $tc('sw-settings-country.detail.editAction') }}
+                                    </sw-context-menu-item>
+                                </template>
+                            </sw-one-to-many-grid>
+                        </template>
+                    </sw-card>
+                {% endblock %}
+
+                {% block sw_settings_country_detail_state_detail %}
+                    <sw-country-state-detail
+                            v-if="currentCountryState"
+                            :countryState="currentCountryState"
+                            @save-attribute-edit="onSaveCountryState"
+                            @cancel-attribute-edit="onCancelCountryState">
+                    </sw-country-state-detail>
+                {% endblock %}
             </sw-card-view>
         {% endblock %}
     </sw-page>

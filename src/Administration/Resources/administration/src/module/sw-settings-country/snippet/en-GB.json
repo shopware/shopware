@@ -35,7 +35,19 @@
       "placeholderIso": "Enter ISO code",
       "placeholderIso3": "Enter three-digit ISO code",
       "buttonCancel": "Cancel",
-      "buttonSave": "Save"
+      "buttonSave": "Save",
+      "buttonAddCountryState": "Add country state",
+      "editAction": "Edit"
     }
+  },
+  "sw-country-state-detail": {
+    "titleNew": "New country state",
+    "titleEdit": "Edit country state",
+    "buttonSave": "Save",
+    "buttonCancel": "Cancel",
+    "labelName": "Name",
+    "labelPosition": "Position",
+    "labelShortCode": "ISO-Code",
+    "tooltipPosition": "Controls the position of the country state in lists etc."
   }
 }

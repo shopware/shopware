@@ -58,8 +58,7 @@ export default {
                 return Promise.resolve();
             }
 
-            return this.repository.search(this.result.criteria, this.result.context)
-                .then(this.applyResult);
+            return this.load();
         },
 
         applyResult(result) {
@@ -83,8 +82,7 @@ export default {
             }
 
             return this.repository.save(record, this.result.context).then(() => {
-                return this.repository.search(this.result.criteria, this.result.context)
-                    .then(this.applyResult);
+                return this.load();
             });
         },
 
@@ -93,7 +91,12 @@ export default {
                 return Promise.resolve();
             }
 
-            return this.repository.search(this.result.criteria, this.result.context);
+            return this.load();
+        },
+
+        load() {
+            return this.repository.search(this.result.criteria, this.result.context)
+                .then(this.applyResult);
         },
 
         deleteItem(id) {
@@ -104,8 +107,7 @@ export default {
             }
 
             return this.repository.delete(id, this.result.context).then(() => {
-                return this.repository.search(this.result.criteria, this.result.context)
-                    .then(this.applyResult);
+                return this.load();
             });
         },
 
@@ -129,8 +131,7 @@ export default {
 
             this.currentSortBy = column.dataIndex;
             this.currentSortDirection = direction;
-            return this.repository.search(this.result.criteria, this.result.context)
-                .then(this.applyResult);
+            return this.load();
         },
 
         paginate(params) {
@@ -140,8 +141,8 @@ export default {
 
             this.result.criteria.setPage(params.page);
             this.result.criteria.setLimit(params.limit);
-            return this.repository.search(this.result.criteria, this.result.context)
-                .then(this.applyResult);
+
+            return this.load();
         }
     }
 };

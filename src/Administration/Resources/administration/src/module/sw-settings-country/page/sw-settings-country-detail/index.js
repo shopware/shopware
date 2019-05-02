@@ -1,9 +1,11 @@
-import { Component, State, Mixin } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-settings-country-detail.html.twig';
 import './sw-settings-country-detail.scss';
 
 Component.register('sw-settings-country-detail', {
     template,
+
+    inject: ['repositoryFactory', 'context'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -13,7 +15,13 @@ Component.register('sw-settings-country-detail', {
 
     data() {
         return {
-            country: {}
+            country: {},
+            term: null,
+            countryId: null,
+            isLoading: false,
+            currentCountryState: null,
+            countryStateRepository: null,
+            countryStateLoading: false
         };
     },
 
@@ -24,12 +32,14 @@ Component.register('sw-settings-country-detail', {
     },
 
     computed: {
+        countryRepository() {
+            return this.repositoryFactory.create('country');
+        },
         identifier() {
             return this.placeholder(this.country, 'name');
         },
-
-        countryStore() {
-            return State.getStore('country');
+        stateColumns() {
+            return this.getStateColumns();
         }
     },
 
@@ -46,7 +56,17 @@ Component.register('sw-settings-country-detail', {
         },
 
         loadEntityData() {
-            this.country = this.countryStore.getById(this.countryId);
+            this.isLoading = true;
+            this.countryRepository.get(this.countryId, this.context).then(country => {
+                this.country = country;
+
+                this.isLoading = false;
+
+                this.countryStateRepository = this.repositoryFactory.create(
+                    this.country.states.entity,
+                    this.country.states.source
+                );
+            });
         },
 
         onSave() {
@@ -56,7 +76,7 @@ Component.register('sw-settings-country-detail', {
                 name: countryName
             });
 
-            return this.country.save().then(() => {
+            return this.countryRepository.save(this.country, this.context).then(() => {
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,
                     message: messageSaveSuccess
@@ -64,8 +84,54 @@ Component.register('sw-settings-country-detail', {
             });
         },
 
+        onAddCountryState() {
+            this.currentCountryState = this.countryStateRepository.create(this.context);
+        },
+
+        onSearchCountryState() {
+            this.country.states.criteria.setTerm(this.term);
+            this.refreshCountryStateList();
+        },
+
+        refreshCountryStateList() {
+            this.countryStateLoading = true;
+
+            this.$refs.countryStateGrid.load().then(() => {
+                this.countryStateLoading = false;
+            });
+        },
+
+        onSaveCountryState() {
+            // Reset the isNew property if the item already exists in the collection
+            if (this.country.states.has(this.currentCountryState.id)) {
+                this.currentCountryState._isNew = false;
+            }
+
+            // dont send requests if we are on local mode(creating a new country)
+            if (this.country.isNew()) {
+                this.country.states.add(this.currentCountryState);
+            } else {
+                this.countryStateRepository.save(this.currentCountryState, this.context).then(() => {
+                    this.refreshCountryStateList();
+                });
+            }
+
+            this.currentCountryState = null;
+        },
+
+        onCancelCountryState() {
+            this.currentCountryState = null;
+        },
+
+        onClickCountryState(item) {
+            // Create a copy with the same id which will be edited
+            const copy = this.countryStateRepository.create(this.context, item.id);
+
+            this.currentCountryState = Object.assign(copy, item);
+        },
+
         abortOnLanguageChange() {
-            return Object.keys(this.country.getChanges()).length > 0;
+            return this.countryRepository.hasChanges(this.country);
         },
 
         saveOnLanguageChange() {
@@ -74,6 +140,21 @@ Component.register('sw-settings-country-detail', {
 
         onChangeLanguage() {
             this.loadEntityData();
+        },
+
+        getStateColumns() {
+            return [{
+                property: 'name',
+                dataIndex: 'name',
+                label: 'Name',
+                inlineEdit: 'string',
+                primary: true
+            }, {
+                property: 'shortCode',
+                dataIndex: 'shortCode',
+                label: 'Kürzel',
+                inlineEdit: 'string'
+            }];
         }
     }
 });

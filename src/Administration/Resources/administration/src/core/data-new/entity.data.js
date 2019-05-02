@@ -22,7 +22,7 @@ export default class Entity {
 
             set(target, property, value) {
                 setReactive(that._draft, property, value);
-                this._isDirty = true;
+                that._isDirty = true;
 
                 return true;
             }

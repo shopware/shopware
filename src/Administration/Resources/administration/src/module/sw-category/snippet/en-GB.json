@@ -97,7 +97,7 @@
         "modal": {
             "modalTitleDelete": "Delete category",
             "textDeleteConfirm": "Are you sure you really want to delete the category \"{name}\"?",
-            "textDeleteChildrenConfirm": "All subcategories will be deleted, too.",
+            "textDeleteChildrenConfirm": "All subcategories will be deleted too.",
             "textDeleteMultipleConfirm": "Are you sure you want to delete the {count} selected categories?"
         }
     }

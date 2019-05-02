@@ -495,6 +495,7 @@
       "modalTitleDelete": "Element löschen",
       "textDeleteConfirm": "Möchtest Du das Element \"{name}\" wirklich löschen?",
       "textDeleteMultipleConfirm": "Möchtest Du die \"{count}\" gewählten Elemente wirklich löschen?",
+      "textDeleteChildrenConfirm": "Alle unterliegenden Kategorien werden auch gelöscht.",
       "buttonDelete": "Löschen",
       "buttonCancel": "Abbrechen"
     }

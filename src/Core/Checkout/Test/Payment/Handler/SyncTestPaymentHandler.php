@@ -36,6 +36,6 @@ class SyncTestPaymentHandler implements SynchronousPaymentHandlerInterface
         }
 
         $context = $salesChannelContext->getContext();
-        $this->transactionStateHandler->complete($transactionId, $context);
+        $this->transactionStateHandler->pay($transactionId, $context);
     }
 }

@@ -42,6 +42,6 @@ class AsyncTestPaymentHandler implements AsynchronousPaymentHandlerInterface
         }
 
         $context = $salesChannelContext->getContext();
-        $this->transactionStateHandler->complete($transaction->getOrderTransaction()->getId(), $context);
+        $this->transactionStateHandler->pay($transaction->getOrderTransaction()->getId(), $context);
     }
 }

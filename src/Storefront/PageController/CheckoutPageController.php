@@ -159,7 +159,7 @@ class CheckoutPageController extends StorefrontController
     }
 
     /**
-     * @Route("/checkout/confirm", name="frontend.checkout.confirm.page", options={"seo"="false"}, methods={"GET"})
+     * @Route("/checkout/confirm", name="frontend.checkout.confirm.page", options={"seo"="false"}, methods={"GET"}, defaults={"XmlHttpRequest"=true})
      */
     public function confirm(Request $request, SalesChannelContext $context): Response
     {
@@ -172,6 +172,10 @@ class CheckoutPageController extends StorefrontController
         }
 
         $page = $this->confirmPageLoader->load($request, $context);
+
+        if ($request->headers->contains('x-requested-with', 'XMLHttpRequest')) {
+            return $this->renderStorefront('@Storefront/page/checkout/confirm/confirm-page.html.twig', ['page' => $page]);
+        }
 
         return $this->renderStorefront('@Storefront/page/checkout/confirm/index.html.twig', ['page' => $page]);
     }

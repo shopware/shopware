@@ -23,7 +23,7 @@ export default class VariantsGenerator extends EventEmitter {
     }
 
     createNewVariants(forceGenerating) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             const grouped = this.groupTheOptions(this.configurators);
 
             // When nothing is selected, delete everything
@@ -36,14 +36,6 @@ export default class VariantsGenerator extends EventEmitter {
                 return;
             }
 
-            // check for large request over 10 000 variants
-            const numberOfVariants = grouped.map((group) => group.length).reduce((curr, length) => curr * length);
-            if (!forceGenerating && numberOfVariants >= 10000) {
-                this.emit('warning', numberOfVariants);
-                reject(new Error('Warning fired'));
-                return;
-            }
-
             // create permutations of variants
             const permutations = this.buildCombinations(grouped);
 
@@ -51,6 +43,14 @@ export default class VariantsGenerator extends EventEmitter {
                 // filter deletable and creatable variations
                 this.filterVariations(permutations, variantsOnServer)
                     .then((queues) => {
+                        if (!forceGenerating) {
+                            this.emit('notification', {
+                                numberOfDeletions: queues.deleteQueue.length,
+                                numberOfCreation: queues.createQueue.length
+                            });
+                            return;
+                        }
+
                         new Promise((resolveDelete) => {
                             // notify view to refresh progrss
                             this.emit('progress-max', { type: 'delete', progress: queues.deleteQueue.length });
@@ -89,7 +89,6 @@ export default class VariantsGenerator extends EventEmitter {
             const hashed = {};
             const numbers = {};
             const numberMap = {};
-            console.log(variationOnServer);
 
             // eslint-disable-next-line no-restricted-syntax
             for (const [key, variant] of Object.entries(variationOnServer)) {

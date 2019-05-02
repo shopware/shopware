@@ -31,8 +31,8 @@ Component.register('sw-product-modal-variant-generation', {
             isLoading: false,
             actualProgress: 0,
             maxProgress: 0,
-            warningModal: false,
-            warningModalNumber: 0,
+            notificationModal: false,
+            notificationInfos: {},
             progressType: '',
             variantsNumber: 0,
             variantsGenerator: new VariantsGenerator(this.product)
@@ -76,9 +76,9 @@ Component.register('sw-product-modal-variant-generation', {
 
     methods: {
         createdComponent() {
-            this.variantsGenerator.on('warning', (number) => {
-                this.warningModalNumber = number;
-                this.warningModal = true;
+            this.variantsGenerator.on('notification', (notificationInfos) => {
+                this.notificationInfos = notificationInfos;
+                this.notificationModal = true;
                 this.isLoading = false;
             });
 
@@ -136,13 +136,13 @@ Component.register('sw-product-modal-variant-generation', {
                 : 0;
         },
 
-        onConfirmWarningModal() {
-            this.warningModal = false;
+        onConfirmNotificationModal() {
+            this.notificationModal = false;
             this.generateVariants(true);
         },
 
-        onCloseWarningModal() {
-            this.warningModal = false;
+        onCloseNotificationModal() {
+            this.notificationModal = false;
             this.isLoading = false;
         }
     }

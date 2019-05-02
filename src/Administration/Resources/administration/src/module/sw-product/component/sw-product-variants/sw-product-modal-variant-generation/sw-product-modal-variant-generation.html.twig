@@ -84,35 +84,31 @@
         {% endblock %}
 
 
-        {% block sw_product_modal_variant_generation_warning_modal %}
-            <sw-modal v-if="warningModal"
-                      @modal-close="onCloseWarningModal"
-                      title="Warnung!"
+        {% block sw_product_modal_variant_generation_notification_modal %}
+            <sw-modal v-if="notificationModal"
+                      class="sw-product-modal-variant-generation__notification-modal"
+                      @modal-close="onCloseNotificationModal"
+                      :title="$tc('sw-product.variations.generationNotificationTitle')"
                       variant="small">
 
-                {% block sw_product_modal_variant_generation_warning_modal_delete_text %}
-                    <p class="sw-product-variants-configurator-selection__modal--delete-text">
-                        {{ $tc('sw-product.variations.generationWarningPartBefore') }} <strong>{{ warningModalNumber }}</strong>
-                    </p>
-                    <p>
-                        {{ $tc('sw-product.variations.generationWarningPartContinue') }}
-                    </p>
-                {% endblock %}
+                <p>{{ $tc('sw-product.variations.generationNotificationMessage') }}</p>
+                <p>{{ $tc('sw-product.variations.generationNotificationCountAdding', notificationInfos.numberOfCreation) }}</p>
+                <p>{{ $tc('sw-product.variations.generationNotificationCountDeletion', notificationInfos.numberOfDeletions) }}</p>
 
-                {% block sw_product_modal_variant_generation_warning_modal_footer %}
+                {% block sw_product_modal_variant_generation_notification_modal_footer %}
                     <template slot="modal-footer">
-                        {% block sw_product_modal_variant_generation_warning_modal_footer_cancel %}
-                            <sw-button @click="onCloseWarningModal"
+                        {% block sw_product_modal_variant_generation_notification_modal_footer_cancel %}
+                            <sw-button @click="onCloseNotificationModal"
                                        size="small">
-                                {{ $tc('sw-product.variations.generationWarningButtonCancel') }}
+                                {{ $tc('sw-product.variations.generationNotificationButtonCancel') }}
                             </sw-button>
                         {% endblock %}
 
-                        {% block sw_product_modal_variant_generation_warning_modal_footer_continue %}
-                            <sw-button @click="onConfirmWarningModal"
+                        {% block sw_product_modal_variant_generation_notification_modal_footer_continue %}
+                            <sw-button @click="onConfirmNotificationModal"
                                        variant="primary"
                                        size="small">
-                                {{ $tc('sw-product.variations.generationWarningButtonContinue') }}
+                                {{ $tc('sw-product.variations.generationNotificationButtonContinue') }}
                             </sw-button>
                         {% endblock %}
                     </template>
@@ -156,7 +152,12 @@
                             @click="generateVariants(false)"
                             variant="primary"
                             size="small">
-                        {{ variantsNumber }} {{ $tc('sw-product.variations.generateVariationsButton') }}
+                            <template v-if="variantsNumber <= 0">
+                                {{ $tc('sw-product.variations.deleteVariationsButton') }}
+                            </template>
+                            <template v-else>
+                                {{ $tc('sw-product.variations.generateVariationsButton') }}
+                            </template>
                     </sw-button>
                 {% endblock %}
             </template>

@@ -127,6 +127,10 @@ export default {
             this.computeValue(event.target.value);
         },
 
+        onInput(event) {
+            this.$emit('input', Number(event.target.value));
+        },
+
         increaseNumberByStep() {
             this.computeValue((this.currentValue + this.realStep).toString());
         },
@@ -142,7 +146,7 @@ export default {
         },
 
         parseValue(value) {
-            if (value == null || Number.isNaN(value) || !Number.isFinite(value)) {
+            if (value === null || Number.isNaN(value) || !Number.isFinite(value)) {
                 return this.parseValue(0);
             }
 

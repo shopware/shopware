@@ -88,8 +88,10 @@ class ProductPageObject extends GeneralPageObject {
         }
 
         this.browser.expect.element(`.sw-grid__row--0 ${optionsIndicator}`).to.have.text.that.contains(`${optionPosition.length} ${optionString} selected`);
-        this.browser.expect.element(`.sw-modal__footer ${this.elements.primaryButton}`).to.have.text.that.contains(`${optionPosition.length} Generate variants`);
+        this.browser.expect.element(`.sw-modal__footer ${this.elements.primaryButton}`).to.have.text.that.contains('Generate variants');
         this.browser.click(`.sw-modal__footer ${this.elements.primaryButton}`)
+            .waitForElementVisible('.sw-product-modal-variant-generation__notification-modal')
+            .click('.sw-product-modal-variant-generation__notification-modal .sw-button--primary')
             .waitForElementNotPresent('.sw-product-modal-variant-generation');
     }
 

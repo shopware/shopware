@@ -182,9 +182,11 @@
                 {% block sw_product_variants_overview_actions %}
                     <template slot="actions" slot-scope="{ item }">
                         {% block sw_product_variants_overview_actions_items %}
-                            <sw-context-menu-item @click="onOptionEdit(item)">
-                            {{ $tc('sw-product.variations.generatedListContextMenuEdit') }}
-                            </sw-context-menu-item>
+                            {# Will be available when the editing of product variants is possible #}
+
+                            {# <sw-context-menu-item @click="onOptionEdit(item)">#}
+                            {#  {{ $tc('sw-product.variations.generatedListContextMenuEdit') }}#}
+                            {# </sw-context-menu-item>#}
 
                             <sw-context-menu-item variant="danger" @click="onVariationDelete(item)">
                             {{ $tc('sw-product.variations.generatedListContextMenuDelete') }}

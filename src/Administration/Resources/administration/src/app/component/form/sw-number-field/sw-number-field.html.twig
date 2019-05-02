@@ -7,6 +7,7 @@
                :placeholder="placeholder"
                :disabled="disabled"
                autocomplete="off"
+               @input="onInput"
                @keydown.up="increaseNumberByStep"
                @keydown.down="decreaseNumberByStep"
                @change="onChange"

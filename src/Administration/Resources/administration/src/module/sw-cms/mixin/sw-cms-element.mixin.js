@@ -38,7 +38,7 @@ Mixin.register('cms-element', {
 
             if (!defaultConfig || defaultConfig === null) {
                 const elementConfig = this.cmsElements[elementName];
-                defaultConfig = elementConfig.defaultConfig;
+                defaultConfig = elementConfig.defaultConfig || {};
             }
 
             this.element.config = Object.assign(cloneDeep(defaultConfig), this.element.config || {});

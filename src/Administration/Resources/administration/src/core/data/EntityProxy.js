@@ -562,7 +562,7 @@ export default class EntityProxy {
 
         items.forEach((item, index) => {
             const entity = store.create(item.id);
-            entity.setData(item, false, true, true);
+            entity.setData(item, false, true, false);
             items[index] = entity;
         });
 
@@ -725,7 +725,7 @@ export default class EntityProxy {
             // The property does not exist in the base object, so it is an addition
             if (!hasOwnProperty(a, key)) {
                 // The property is a OneToOne associated entity
-                if (type.isObject(b[key]) && properties[key].entity) {
+                if (type.isPlainObject(b[key]) && properties[key].entity) {
                     const addition = EntityProxy.validateSchema(b[key], Entity.getDefinition(properties[key].entity));
 
                     // invalidate the entity
@@ -741,7 +741,7 @@ export default class EntityProxy {
                 }
 
                 // The property is a structured JSON field with schema
-                if (type.isObject(b[key]) && properties[key].type === 'object' && properties[key].properties) {
+                if (type.isPlainObject(b[key]) && properties[key].type === 'object' && properties[key].properties) {
                     const addition = EntityProxy.validateSchema(b[key], properties[key]);
 
                     if (Object.keys(addition).length <= 0) {
@@ -752,7 +752,7 @@ export default class EntityProxy {
                 }
 
                 // The property is an unstructured JSON field
-                if (type.isObject(b[key]) && properties[key].type === 'object') {
+                if (type.isPlainObject(b[key]) && properties[key].type === 'object') {
                     return { ...acc, [key]: b[key] };
                 }
 
@@ -765,7 +765,7 @@ export default class EntityProxy {
             }
 
             // The property is a OneToOne associated entity
-            if (type.isObject(b[key]) && properties[key].entity) {
+            if (type.isPlainObject(b[key]) && properties[key].entity) {
                 const changes = this.getChanges(a[key], b[key], Entity.getDefinition(properties[key].entity));
 
                 // invalidate the entity
@@ -785,7 +785,7 @@ export default class EntityProxy {
             }
 
             // The property is a structured JSON field with schema
-            if (type.isObject(b[key]) && properties[key].type === 'object' && properties[key].properties) {
+            if (type.isPlainObject(b[key]) && properties[key].type === 'object' && properties[key].properties) {
                 const changes = this.getChanges(a[key], b[key], properties[key]);
 
                 if (Object.keys(changes).length <= 0) {
@@ -796,7 +796,7 @@ export default class EntityProxy {
             }
 
             // The property is an unstructured JSON field
-            if (type.isObject(b[key]) && properties[key].type === 'object') {
+            if (type.isPlainObject(b[key]) && properties[key].type === 'object') {
                 const changes = getObjectDiff(a[key], b[key]);
 
                 if (Object.keys(changes).length <= 0) {
@@ -807,7 +807,7 @@ export default class EntityProxy {
             }
 
             // The property is a OneToMany associated entity
-            if (type.isArray(b[key] && properties[key].entity)) {
+            if (type.isArray(b[key]) && properties[key].entity) {
                 return acc; // OneToMany associations are handled in a separate store
             }
 
@@ -823,7 +823,7 @@ export default class EntityProxy {
             }
 
             // The property is a normal object
-            if (type.isObject(b[key])) {
+            if (type.isPlainObject(b[key])) {
                 const changes = getObjectDiff(a[key], b[key]);
 
                 if (Object.keys(changes).length <= 0) {

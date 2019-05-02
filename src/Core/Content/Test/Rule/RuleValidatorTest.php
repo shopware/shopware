@@ -37,6 +37,7 @@ class RuleValidatorTest extends TestCase
      * @var RuleConditionRegistry
      */
     private $conditionRegistry;
+
     /**
      * @var RuleConditionDefinition
      */

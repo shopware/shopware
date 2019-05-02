@@ -54,6 +54,7 @@ class SalesChannelCustomerController extends AbstractController
      * @var AddressService
      */
     private $addressService;
+
     /**
      * @var CustomerDefinition
      */

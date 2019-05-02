@@ -45,6 +45,7 @@ class MailService
      * @var EntityRepositoryInterface
      */
     private $mediaRepository;
+
     /**
      * @var SalesChannelDefinition
      */

@@ -40,6 +40,7 @@ class RulePayloadSubscriberTest extends TestCase
      * @var RulePayloadIndexer
      */
     private $indexer;
+
     /**
      * @var RuleDefinition
      */

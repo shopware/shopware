@@ -33,7 +33,7 @@ class ProductSearchKeywordDefinition extends EntityDefinition
         return ProductSearchKeywordEntity::class;
     }
 
-    public function getParentDefinitionClass(): ?string
+    protected function getParentDefinitionClass(): ?string
     {
         return ProductDefinition::class;
     }

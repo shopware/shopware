@@ -81,6 +81,7 @@ class OrderConverter
      * @var NumberRangeValueGeneratorInterface
      */
     private $numberRangeValueGenerator;
+
     /**
      * @var OrderDefinition
      */

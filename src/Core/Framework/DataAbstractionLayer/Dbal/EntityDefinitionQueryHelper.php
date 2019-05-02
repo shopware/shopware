@@ -620,6 +620,5 @@ class EntityDefinitionQueryHelper
     private function buildFieldSelector(string $root, Field $field, Context $context, string $accessor): string
     {
         return $field->getAccessorBuilder()->buildAccessor($root, $field, $context, $accessor);
-//        return $this->fieldAccessorBuilderRegistry->buildAccessor($root, $field, $context, $accessor);
     }
 }

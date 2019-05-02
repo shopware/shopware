@@ -229,7 +229,7 @@ class SlotDataResolver
         return true;
     }
 
-    private function getApiRepository(EntityDefinition  $definition): EntityRepositoryInterface
+    private function getApiRepository(EntityDefinition $definition): EntityRepositoryInterface
     {
         return $this->definitionRegistry->getRepository($definition->getEntityName());
     }

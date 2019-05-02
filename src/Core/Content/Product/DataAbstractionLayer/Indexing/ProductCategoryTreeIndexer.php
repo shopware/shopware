@@ -34,10 +34,12 @@ class ProductCategoryTreeIndexer implements IndexerInterface
      * @var Connection
      */
     private $connection;
+
     /**
      * @var IteratorFactory
      */
     private $iteratorFactory;
+
     /**
      * @var ProductDefinition
      */

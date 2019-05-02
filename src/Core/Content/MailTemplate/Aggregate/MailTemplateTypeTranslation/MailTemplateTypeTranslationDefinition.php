@@ -21,14 +21,14 @@ class MailTemplateTypeTranslationDefinition extends EntityTranslationDefinition
         return MailTemplateTypeTranslationEntity::class;
     }
 
-    public function getParentDefinitionClass(): string
-    {
-        return MailTemplateTypeDefinition::class;
-    }
-
     public function getCollectionClass(): string
     {
         return MailTemplateTypeTranslationCollection::class;
+    }
+
+    protected function getParentDefinitionClass(): string
+    {
+        return MailTemplateTypeDefinition::class;
     }
 
     protected function defineFields(): FieldCollection

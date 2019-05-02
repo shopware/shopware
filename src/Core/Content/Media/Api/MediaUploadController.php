@@ -33,6 +33,7 @@ class MediaUploadController extends AbstractController
      * @var FileNameProvider
      */
     private $fileNameProvider;
+
     /**
      * @var MediaDefinition
      */

@@ -21,7 +21,7 @@ class DocumentTypeTranslationDefinition extends EntityTranslationDefinition
         return DocumentTypeTranslationEntity::class;
     }
 
-    public function getParentDefinitionClass(): string
+    protected function getParentDefinitionClass(): string
     {
         return DocumentTypeDefinition::class;
     }

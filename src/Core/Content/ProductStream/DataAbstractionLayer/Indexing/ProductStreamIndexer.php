@@ -63,6 +63,7 @@ class ProductStreamIndexer implements IndexerInterface
      * @var EntityRepositoryInterface
      */
     private $productStreamRepository;
+
     /**
      * @var ProductDefinition
      */

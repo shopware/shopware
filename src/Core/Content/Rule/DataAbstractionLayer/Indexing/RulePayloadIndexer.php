@@ -58,10 +58,12 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
      * @var EntityCacheKeyGenerator
      */
     private $cacheKeyGenerator;
+
     /**
      * @var IteratorFactory
      */
     private $iteratorFactory;
+
     /**
      * @var RuleDefinition
      */

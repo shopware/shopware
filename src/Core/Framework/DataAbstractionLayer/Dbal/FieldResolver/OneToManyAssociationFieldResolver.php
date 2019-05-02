@@ -85,7 +85,7 @@ class OneToManyAssociationFieldResolver implements FieldResolverInterface
             )
         );
 
-        if ($definition->getClass() === $reference->getClass()) {
+        if ($definition === $reference) {
             return true;
         }
 

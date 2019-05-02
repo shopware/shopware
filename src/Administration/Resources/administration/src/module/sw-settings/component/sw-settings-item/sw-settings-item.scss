@@ -1,20 +1,13 @@
 @import "~scss/variables";
 
-$sw-settings-item-text-color: $color-kashmir;
+$sw-settings-item-text-color: $color-gutenberg;
 $sw-settings-item-hover-text-color: $color-shopware-blue;
 
 .sw-settings-item {
     color: $sw-settings-item-text-color;
     text-decoration: none;
-    height: 150px;
-    display: block;
-    padding: 24px;
-    text-align: center;
-    border-radius: 2px;
-
-    &:hover {
-        color: $sw-settings-item-hover-text-color;
-    }
+    display: flex;
+    align-items: center;
 
     &.is--disabled {
         opacity: 0.4;
@@ -24,6 +17,36 @@ $sw-settings-item-hover-text-color: $color-shopware-blue;
     }
 
     .sw-settings-item__icon {
-        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 48px;
+        width: 48px;
+        background-color: darken($color-light-gray, 2%);
+        border-radius: 50%;
+        margin-right: 20px;
+
+        .sw-icon {
+            color: lighten($color-gutenberg, 15%);
+            margin: auto;
+            width: 20px;
+            height: 20px;
+        }
+    }
+
+    .sw-settings-item__label {
+        font-size: $font-size-small;
+    }
+
+    &:hover {
+        color: $sw-settings-item-hover-text-color;
+
+        .sw-settings-item__icon {
+            background-color: darken($color-light-gray, 4%);
+
+            .sw-icon {
+                color: $sw-settings-item-hover-text-color;
+            }
+        }
     }
 }

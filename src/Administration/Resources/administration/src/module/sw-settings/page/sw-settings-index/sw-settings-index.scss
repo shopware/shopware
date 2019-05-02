@@ -1,22 +1,7 @@
 .sw-settings-index {
     .sw-settings__card .sw-card__content {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
-    }
-
-    .sw-settings-item {
-        .sw-settings-item__icon {
-            height: 80px;
-            position: relative;
-
-            .sw-icon {
-                margin: auto;
-                position: absolute;
-                bottom: 0;
-                right: 0;
-                left: 0;
-                top: 0;
-            }
-        }
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        grid-gap: 30px 10px;
     }
 }

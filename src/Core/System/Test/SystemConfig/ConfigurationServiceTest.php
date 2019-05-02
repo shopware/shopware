@@ -95,40 +95,44 @@ class ConfigurationServiceTest extends TestCase
                     0 => [
                         'type' => 'text',
                         'name' => 'SwagExampleTest.email',
-                        'copyable' => true,
-                        'label' => [
-                            'en-GB' => 'eMail',
-                            'de-DE' => 'E-Mail',
-                        ],
-                        'placeholder' => [
-                            'en-GB' => 'Enter your eMail address',
-                            'de-DE' => 'Bitte gib deine E-Mail Adresse ein',
+                        'config' => [
+                            'copyable' => true,
+                            'label' => [
+                                'en-GB' => 'eMail',
+                                'de-DE' => 'E-Mail',
+                            ],
+                            'placeholder' => [
+                                'en-GB' => 'Enter your eMail address',
+                                'de-DE' => 'Bitte gib deine E-Mail Adresse ein',
+                            ],
                         ],
                     ],
                     1 => [
                         'type' => 'single-select',
                         'name' => 'SwagExampleTest.mailMethod',
-                        'options' => [
-                            0 => [
-                                'id' => 'smtp',
-                                'name' => [
-                                    'en-GB' => 'SMTP',
+                        'config' => [
+                            'options' => [
+                                0 => [
+                                    'id' => 'smtp',
+                                    'name' => [
+                                        'en-GB' => 'SMTP',
+                                    ],
+                                ],
+                                1 => [
+                                    'id' => 'pop3',
+                                    'name' => [
+                                        'en-GB' => 'POP3',
+                                    ],
                                 ],
                             ],
-                            1 => [
-                                'id' => 'pop3',
-                                'name' => [
-                                    'en-GB' => 'POP3',
-                                ],
+                            'label' => [
+                                'en-GB' => 'Mailing protocol',
+                                'de-DE' => 'E-Mail Versand Protokoll',
                             ],
-                        ],
-                        'label' => [
-                            'en-GB' => 'Mailing protocol',
-                            'de-DE' => 'E-Mail Versand Protokoll',
-                        ],
-                        'placeholder' => [
-                            'en-GB' => 'Choose your preferred transfer method',
-                            'de-DE' => 'Bitte wähle dein bevorzugtes Versand Protokoll',
+                            'placeholder' => [
+                                'en-GB' => 'Choose your preferred transfer method',
+                                'de-DE' => 'Bitte wähle dein bevorzugtes Versand Protokoll',
+                            ],
                         ],
                     ],
                 ],

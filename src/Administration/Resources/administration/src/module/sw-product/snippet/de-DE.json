@@ -173,10 +173,10 @@
       "generatedListDeleteModalButtonDelete": "Löschen",
       "generatedListTitleSaveSuccess": "Gespeichert",
       "generatedListTitleSaveError": "Fehler",
-      "generatedListMessageSaveSuccess": "Die Variation wurde gespeichert.",
-      "generatedListMessageSaveError": "Die Variation konnte nicht gespeichert werden.",
+      "generatedListMessageSaveSuccess": "Die Variante wurde gespeichert.",
+      "generatedListMessageSaveError": "Die Variante konnte nicht gespeichert werden.",
       "generatedListTitleDeleteError": "Gelöscht",
-      "generatedListMessageDeleteSuccess": "Die Variation wurde gelöscht.",
+      "generatedListMessageDeleteSuccess": "Die Variante wurde gelöscht.",
       "overview": {
         "filterReset": "Zurücksetzen",
         "filter": "Filtern",
@@ -185,7 +185,7 @@
       },
       "configuratorModal": {
         "selectOptions": "Optionen auswählen",
-        "selectOptionsExplanation": "Beginne mit der Auswahl der Optionen, aus denen die Variationen generiert werden sollen.",
+        "selectOptionsExplanation": "Beginne mit der Auswahl der Optionen, aus denen die Varianten generiert werden sollen.",
         "priceSurcharges": "Preis Auf-/Abschläge",
         "resetSurcharges": "Auf- /Abschläge löschen",
         "defineRestrictions": "Ausschlüsse definieren",

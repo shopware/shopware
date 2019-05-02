@@ -29,7 +29,7 @@ class ProductPageObject extends GeneralPageObject {
             .fillField('input[name=sw-field--price-gross]', '99')
             .fillSelectField('select[name=sw-field--product-taxId]', '19%')
             .fillField('input[name=sw-field--product-stock]', '1')
-            .expect.element(this.elements.productSaveAction).to.be.enabled;
+            .expect.element(this.elements.productSaveAction).to.not.have.attribute('disabled');
 
         this.browser
             .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
@@ -49,7 +49,7 @@ class ProductPageObject extends GeneralPageObject {
             .waitForElementVisible('.sw-media-preview__item')
             .checkNotification('A file has been saved successfully.')
             .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
-            .expect.element('.sw-product-detail__save-action').to.be.enabled;
+            .expect.element(this.elements.productSaveAction).to.not.have.attribute('disabled');
 
         this.browser
             .click(this.elements.productSaveAction)
@@ -88,7 +88,7 @@ class ProductPageObject extends GeneralPageObject {
         }
 
         this.browser.expect.element(`.sw-grid__row--0 ${optionsIndicator}`).to.have.text.that.contains(`${optionPosition.length} ${optionString} selected`);
-        this.browser.expect.element(`.sw-modal__footer ${this.elements.primaryButton}`).to.have.text.that.contains(`${optionPosition.length} Generate variations`);
+        this.browser.expect.element(`.sw-modal__footer ${this.elements.primaryButton}`).to.have.text.that.contains(`${optionPosition.length} Generate variants`);
         this.browser.click(`.sw-modal__footer ${this.elements.primaryButton}`)
             .waitForElementNotPresent('.sw-product-modal-variant-generation');
     }

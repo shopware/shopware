@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\MailTemplate;
 
-use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateBusinessAction\MailTemplateBusinessActionDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateMediaDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateSalesChannel\MailTemplateSalesChannelDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTranslation\MailTemplateTranslationDefinition;
@@ -22,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Event\BusinessAction\BusinessActionDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class MailTemplateDefinition extends EntityDefinition
@@ -56,7 +54,6 @@ class MailTemplateDefinition extends EntityDefinition
             (new TranslationsAssociationField(MailTemplateTranslationDefinition::class, 'mail_template_id'))->addFlags(new Required()),
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, MailTemplateSalesChannelDefinition::class, 'mail_template_id', 'sales_channel_id'),
             (new ManyToOneAssociationField('mailTemplateType', 'mail_template_type_id', MailTemplateTypeDefinition::class, 'id'))->addFlags(new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
-            new ManyToManyAssociationField('businessActions', BusinessActionDefinition::class, MailTemplateBusinessActionDefinition::class, 'mail_template_id', 'business_action_id'),
             (new OneToManyAssociationField('media', MailTemplateMediaDefinition::class, 'mail_template_id', 'id'))->addFlags(new CascadeDelete()),
         ]);
     }

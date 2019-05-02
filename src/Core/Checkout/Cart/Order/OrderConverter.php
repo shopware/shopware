@@ -162,9 +162,7 @@ class OrderConverter
 
         /** @var IdStruct|null $idStruct */
         $idStruct = $cart->getExtensionOfType(self::ORIGINAL_ID, IdStruct::class);
-        if ($idStruct !== null) {
-            $data['id'] = $idStruct->getId();
-        }
+        $data['id'] = $idStruct ? $idStruct->getId() : Uuid::randomHex();
 
         /** @var IdStruct|null $orderNumberStruct */
         $orderNumberStruct = $cart->getExtensionOfType(self::ORIGINAL_ORDER_NUMBER, IdStruct::class);

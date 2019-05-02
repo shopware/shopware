@@ -5,11 +5,12 @@ namespace Shopware\Core\Checkout\Cart\Order;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
-use Shopware\Core\Checkout\Cart\Order\Event\OrderDoneEvent;
+use Shopware\Core\Checkout\Cart\Order\Event\OrderPlacedEvent;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\BusinessEventDispatcher;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -18,7 +19,7 @@ class OrderPersister implements OrderPersisterInterface
     /**
      * @var EntityRepositoryInterface
      */
-    private $repository;
+    private $orderRepository;
 
     /**
      * @var OrderConverter
@@ -35,7 +36,7 @@ class OrderPersister implements OrderPersisterInterface
         OrderConverter $converter,
         BusinessEventDispatcher $eventDispatcher)
     {
-        $this->repository = $repository;
+        $this->orderRepository = $repository;
         $this->converter = $converter;
         $this->eventDispatcher = $eventDispatcher;
     }
@@ -45,8 +46,9 @@ class OrderPersister implements OrderPersisterInterface
      * @throws DeliveryWithoutAddressException
      * @throws EmptyCartException
      * @throws InvalidCartException
+     * @throws InconsistentCriteriaIdsException
      */
-    public function persist(Cart $cart, SalesChannelContext $context): EntityWrittenContainerEvent
+    public function persist(Cart $cart, SalesChannelContext $context): string
     {
         if ($cart->getErrors()->blockOrder()) {
             throw new InvalidCartException($cart->getErrors());
@@ -60,10 +62,18 @@ class OrderPersister implements OrderPersisterInterface
         }
 
         $order = $this->converter->convertToOrder($cart, $context, new OrderConversionContext());
+        $this->orderRepository->create([$order], $context->getContext());
 
-        $orderDoneEvent = new OrderDoneEvent($context->getContext(), $order);
-        $this->eventDispatcher->dispatch(OrderDoneEvent::EVENT_NAME, $orderDoneEvent);
+        $criteria = new Criteria([$order['id']]);
+        $criteria->addAssociation('orderCustomer');
+        $criteria->addAssociation('lineItems');
+        $criteria->addAssociation('deliveries');
 
-        return $this->repository->create([$order], $context->getContext());
+        $orderEntity = $this->orderRepository->search($criteria, $context->getContext())->get($order['id']);
+        $orderPlacedEvent = new OrderPlacedEvent($context->getContext(), $orderEntity);
+
+        $this->eventDispatcher->dispatch(OrderPlacedEvent::EVENT_NAME, $orderPlacedEvent);
+
+        return $order['id'];
     }
 }

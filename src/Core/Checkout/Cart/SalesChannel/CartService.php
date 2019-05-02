@@ -17,7 +17,6 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
 use Shopware\Core\Checkout\Cart\Processor;
-use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class CartService
@@ -153,14 +152,12 @@ class CartService
     public function order(Cart $cart, SalesChannelContext $context): string
     {
         $calculatedCart = $this->calculate($cart, $context);
-        $events = $this->orderPersister->persist($calculatedCart, $context);
+        $orderId = $this->orderPersister->persist($calculatedCart, $context);
 
         $this->persister->delete($context->getToken(), $context);
         unset($this->cart[$calculatedCart->getToken()]);
 
-        $ids = $events->getEventByDefinition(OrderDefinition::class)->getIds();
-
-        return array_shift($ids);
+        return $orderId;
     }
 
     public function recalculate(Cart $cart, SalesChannelContext $context): Cart

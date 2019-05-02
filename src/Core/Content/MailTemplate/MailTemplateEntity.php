@@ -7,7 +7,6 @@ use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTranslation\MailTem
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Event\BusinessAction\BusinessActionCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 class MailTemplateEntity extends Entity
@@ -63,11 +62,6 @@ class MailTemplateEntity extends Entity
      * @var SalesChannelCollection|null
      */
     protected $salesChannels;
-
-    /**
-     * @var BusinessActionCollection|null
-     */
-    protected $businessActions;
 
     /**
      * @var MailTemplateTranslationCollection|null
@@ -187,16 +181,6 @@ class MailTemplateEntity extends Entity
     public function setMedia(MailTemplateMediaCollection $media): void
     {
         $this->media = $media;
-    }
-
-    public function getBusinessActions(): ?BusinessActionCollection
-    {
-        return $this->businessActions;
-    }
-
-    public function setBusinessActions(?BusinessActionCollection $businessActions): void
-    {
-        $this->businessActions = $businessActions;
     }
 
     public function getMailTemplateTypeId(): ?string

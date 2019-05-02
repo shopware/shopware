@@ -74,7 +74,7 @@ class MailService
         $definition = $this->getValidationDefinition($context);
         $this->dataValidator->validate($data->all(), $definition);
 
-        $recipient = $data->get('recipient');
+        $recipients = $data->get('recipients');
         $salesChannelId = $data->get('salesChannelId');
 
         $bodies = [
@@ -92,7 +92,7 @@ class MailService
         $message = $this->messageFactory->createMessage(
             $data->get('subject'),
             [$data->get('senderMail') => $data->get('senderName')],
-            [$recipient => $recipient],
+            $recipients,
             $contents,
             $mediaUrls
         );
@@ -106,7 +106,7 @@ class MailService
     {
         $definition = new DataValidationDefinition('mail_service.send');
 
-        $definition->add('recipient', new NotBlank());
+        $definition->add('recipients', new NotBlank());
         $definition->add('salesChannelId', new EntityExists(['entity' => $this->salesChannelDefinition, 'context' => $context]));
         $definition->add('contentHtml', new NotBlank());
         $definition->add('contentPlain', new NotBlank());

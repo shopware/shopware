@@ -121,12 +121,12 @@
                         {% endblock %}
 
                         {% block sw_mail_template_mail_text_form_content_html_field %}
-                            <sw-text-editor
+                            <sw-code-editor
                                     :label="$tc('sw-mail-template.detail.mailText.labelContentHtml')"
                                     :placeholder="$tc('sw-mail-template.detail.mailText.placeholderHtml')"
                                     name="content_html"
                                     v-model="mailTemplate.contentHtml">
-                            </sw-text-editor>
+                            </sw-code-editor>
                         {% endblock %}
                     </sw-card>
                 {% endblock %}

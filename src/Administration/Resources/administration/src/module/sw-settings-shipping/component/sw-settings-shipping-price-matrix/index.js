@@ -176,7 +176,7 @@ Component.register('sw-settings-shipping-price-matrix', {
         },
         onSaveRule(ruleId) {
             this.$nextTick(() => {
-                this.$super.$emit('rule-add');
+                this.$emit('rule-add');
                 this.$emit('rule-change', ruleId, this.priceGroup.ruleId);
             });
         },

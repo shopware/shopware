@@ -36,7 +36,7 @@ export default {
 
     computed: {
         notifications() {
-            return this.$store.state.notification.notifications;
+            return this.$store.getters['notification/getGrowlNotifications'];
         },
 
         notificationsStyle() {
@@ -66,7 +66,7 @@ export default {
 
     methods: {
         onClose(notification) {
-            this.$store.commit('notification/removeNotification', notification);
+            this.$store.commit('notification/removeGrowlNotification', notification);
         }
     }
 };

@@ -56,7 +56,8 @@ export default {
 
     data() {
         return {
-            id: utils.createId()
+            id: utils.createId(),
+            notificationId: null
         };
     },
 
@@ -102,15 +103,16 @@ export default {
             }
 
             if (action === UploadEvents.UPLOAD_FINISHED) {
-                this.createNotificationSuccess({
-                    title: this.$root.$tc('global.sw-media-upload.notification.success.title'),
-                    message: this.$root.$tc('global.sw-media-upload.notification.success.message')
-                });
+                this.updateSuccessNotification(uploadTag, payload);
                 this.$emit(UploadEvents.UPLOAD_FINISHED, payload);
                 return;
             }
 
             if (action === UploadEvents.UPLOAD_FAILED) {
+                if (payload.successAmount + payload.failureAmount === payload.totalAmount &&
+                    payload.totalAmount !== payload.failureAmount) {
+                    this.updateSuccessNotification(uploadTag, payload);
+                }
                 if (isDuplicationException(payload.error)) {
                     this.$emit(UploadEvents.UPLOAD_FAILED, payload);
                     return;
@@ -127,6 +129,46 @@ export default {
             return this.mediaStore.getByIdAsync(payload.targetId).then((updatedMedia) => {
                 if (!updatedMedia.hasFile) {
                     updatedMedia.delete(true);
+                }
+            });
+        },
+
+        updateSuccessNotification(uploadTag, payload) {
+            const notification = {
+                title: this.$root.$tc('global.sw-media-upload.notification.success.title'),
+                message: this.$root.$tc(
+                    'global.sw-media-upload.notification.success.message',
+                    payload.successAmount,
+                    {
+                        count: payload.successAmount,
+                        total: payload.totalAmount
+                    }
+                ),
+                growl: payload.successAmount + payload.failureAmount === payload.totalAmount
+            };
+
+            if (payload.successAmount + payload.failureAmount === payload.totalAmount) {
+                notification.title = this.$root.$t('global.sw-media-upload.notification.success.titleSuccess');
+            }
+
+            if (this.notificationId !== null) {
+                this.$store.dispatch('notification/updateNotification', {
+                    uuid: this.notificationId,
+                    ...notification
+                }).then(() => {
+                    if (payload.successAmount + payload.failureAmount === payload.totalAmount) {
+                        this.notificationId = null;
+                    }
+                });
+                return;
+            }
+
+            this.$store.dispatch('notification/createNotification', {
+                variant: 'success',
+                ...notification
+            }).then((newNotificationId) => {
+                if (payload.successAmount + payload.failureAmount < payload.totalAmount) {
+                    this.notificationId = newNotificationId;
                 }
             });
         },

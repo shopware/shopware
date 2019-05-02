@@ -6,6 +6,18 @@
       "notificationSaveSuccessTitle": "Erfolg",
       "notificationSaveSuccessMessage": "Die Entität \"{entityName}\" wurde erfolgreich gespeichert."
     },
+    "notification-center": {
+      "title": "Mitteilungen",
+      "emptyText": "Bravo, alles erledigt.",
+      "worker-listener": {
+        "thumbnailGeneration": {
+          "title": "Vorschaubilder werden generiert",
+          "message": "Keine Bilder verbleibend. | Ein Bild verbleibend. | {n} Bilder verbleibend.",
+          "titleSuccess": "Vorschaubilder fertiggestellt",
+          "messageSuccess": "Generierung der Vorschaubilder wurde abgeschlossen."
+        }
+      }
+    },
     "sw-admin-menu": {
       "linkChangeLanguage": "Sprache wechseln",
       "linkLogout": "Abmelden",
@@ -145,14 +157,20 @@
         },
         "errorSingle": {
           "title": "Fehler",
-          "message": "Fehler beim Löschen von \"{name}\"."
+          "message": {
+            "media": "Fehler beim löschen der Datei \"{name}\".",
+            "folder": "Fehler beim löschen des Ordners \"{name}\"."
+          }
         },
         "successOverall": {
           "title": "Erfolg",
           "message": {
             "media": "Dateien erfolgreich gelöscht.",
             "folder": "Ordner erfolgreich gelöscht.",
-            "mediaAndFolder": "Dateien und Ordner erfolgreich gelöscht."
+            "mediaAndFolder": "Dateien und Ordner erfolgreich gelöscht.",
+            "media": "Keine Datei erfolgreich gelöscht. | Eine Datei erfolgreich gelöscht. | {count} / {total} Dateien erfolgreich gelöscht.",
+            "folder": "Kein Ordner erfolgreich gelöscht. | Ein Ordner erfolgreich gelöscht. | {count} / {total} Ordner erfolgreich gelöscht.",
+            "mediaAndFolder": "Keine Dateien bzw. kein Ordner erfolgreich gelöscht. | Eine Datei bzw. ein Ordner erfolgreich gelöscht. | {count} / {total} Dateien bzw. Ordner erfolgreich gelöscht."
           }
         },
         "errorOverall": {
@@ -244,8 +262,9 @@
       "buttonOpenMedia": "Medien öffnen",
       "notification": {
         "success": {
-          "title": "Erfolg",
-          "message": "Datei erfolgreich gespeichert."
+          "title": "Medienupload",
+          "message": "Keine Datei erfolgreich gespeichert | Eine Datei erfolgreich gespeichert | {count} / {total} Dateien erfolgreich gespeichert.",
+          "titleSuccess": "Medienupload abgeschlossen"
         },
         "failure": {
           "title": "Fehler",

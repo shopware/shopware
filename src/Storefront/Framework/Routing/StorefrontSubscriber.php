@@ -147,8 +147,11 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
+        $request = $event->getRequest();
+
         $parameters = [
-            'redirectTo' => urlencode($event->getRequest()->getRequestUri()),
+            'redirectTo' => $request->attributes->get('_route'),
+            'redirectParameters' => json_encode($request->attributes->get('_route_params')),
         ];
 
         $redirectResponse = new RedirectResponse($this->router->generate('frontend.account.login.page', $parameters));

@@ -12,10 +12,15 @@
                       action="{{ path('frontend.account.login') }}"
                       method="post"
                       data-form-validation="true">
+
                     {% block component_account_login_form_redirect %}
                         <input type="hidden"
                                name="redirectTo"
                                value="{{ redirectTo }}">
+
+                        <input type="hidden"
+                               name="redirectParameters"
+                               value="{{ redirectParameters }}">
                     {% endblock %}
 
                     {% block component_account_login_form_description %}

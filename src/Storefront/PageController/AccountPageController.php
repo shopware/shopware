@@ -147,13 +147,14 @@ class AccountPageController extends StorefrontController
         $redirect = $request->get('redirectTo', 'frontend.account.home.page');
 
         if ($context->getCustomer()) {
-            return $this->redirectToRoute($redirect);
+            return $this->createActionResponse($request);
         }
 
         $page = $this->loginPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/page/account/register/index.html.twig', [
             'redirectTo' => $redirect,
+            'redirectParameters' => $request->get('redirectParameters', json_encode([])),
             'page' => $page,
             'loginError' => (bool) $request->get('loginError'),
             'data' => $data,
@@ -187,16 +188,14 @@ class AccountPageController extends StorefrontController
      */
     public function loginCustomer(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
-        $redirect = $request->get('redirectTo', 'frontend.account.home.page');
-
         if ($context->getCustomer()) {
-            return $this->redirectToRoute($redirect);
+            return $this->createActionResponse($request);
         }
 
         try {
             $token = $this->accountService->loginWithPassword($data, $context);
             if (!empty($token)) {
-                return $this->redirectToRoute($redirect);
+                return $this->createActionResponse($request);
             }
         } catch (BadCredentialsException | UnauthorizedHttpException $e) {
         }
@@ -213,6 +212,10 @@ class AccountPageController extends StorefrontController
      */
     public function register(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
+        if ($context->getCustomer() && $context->getCustomer()->getGuest()) {
+            return $this->redirectToRoute('frontend.account.logout.page');
+        }
+
         if ($context->getCustomer()) {
             return $this->redirectToRoute('frontend.account.home.page');
         }
@@ -221,7 +224,12 @@ class AccountPageController extends StorefrontController
 
         $page = $this->loginPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/page/account/register/index.html.twig', ['redirectTo' => $redirect, 'page' => $page, 'data' => $data]);
+        return $this->renderStorefront('@Storefront/page/account/register/index.html.twig', [
+            'redirectTo' => $redirect,
+            'redirectParameters' => $request->get('redirectParameters', json_encode([])),
+            'page' => $page,
+            'data' => $data,
+        ]);
     }
 
     /**

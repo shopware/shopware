@@ -10,9 +10,10 @@ export default class CmsSlotReloadPlugin extends Plugin {
         navigationUrl: window.router['widgets.cms.navigation.page'],
         cmsPageId: false,
         navigationId: false,
-        slots: [],
+        elements: [],
         events: [],
         updateHistory: false,
+        hiddenParams: [],
     };
 
     init() {
@@ -41,8 +42,9 @@ export default class CmsSlotReloadPlugin extends Plugin {
      * @private
      */
     _addReloadEvent(event) {
-        this.el.removeEventListener(event, this._reloadCmsSlot.bind(this));
-        this.el.addEventListener(event, this._reloadCmsSlot.bind(this));
+        const reloadCmsSlot = this._reloadCmsSlot.bind(this);
+        this.el.removeEventListener(event, reloadCmsSlot);
+        this.el.addEventListener(event, reloadCmsSlot);
     }
 
     /**

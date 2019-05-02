@@ -54,6 +54,7 @@ import ImageZoomPlugin from 'src/script/plugin/image-zoom/image-zoom.plugin';
 import VariantSwitchPlugin from 'src/script/plugin/variant-switch/variant-switch.plugin';
 import CmsSlotReloadPlugin from 'src/script/plugin/cms-slot-reload/cms-slot-reload.plugin';
 import CmsSlotHistoryReloadPlugin from 'src/script/plugin/cms-slot-reload/cms-slot-history-reload.plugin';
+import RemoteClickPlugin from 'src/script/plugin/remote-click/remote-click.plugin';
 
 /*
 initialisation
@@ -107,6 +108,7 @@ PluginManager.register('ImageZoom', ImageZoomPlugin, '[data-image-zoom]');
 PluginManager.register('VariantSwitch', VariantSwitchPlugin, '[data-variant-switch]');
 PluginManager.register('CmsSlotReload', CmsSlotReloadPlugin, '[data-cms-slot-reload]');
 PluginManager.register('CmsSlotHistoryReload', CmsSlotHistoryReloadPlugin, document);
+PluginManager.register('RemoteClick', RemoteClickPlugin, '[data-remote-click]');
 
 /*
 add configurations

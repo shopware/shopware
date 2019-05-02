@@ -1,185 +1,231 @@
-{# @var criteria \Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria #}
-{% set criteria = searchResult.criteria %}
+{% if searchResult|length > 0 %}
+    {# @var criteria \Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria #}
+    {% set criteria = searchResult.criteria %}
 
-{% set currentPage = ((criteria.offset + 1) / criteria.limit )|round(0, 'ceil') %}
-{% set totalPages = (searchResult.total / criteria.limit)|round(0, 'ceil') %}
+    {% set currentPage = ((criteria.offset + 1) / criteria.limit )|round(0, 'ceil') %}
+    {% set totalPages = (searchResult.total / criteria.limit)|round(0, 'ceil') %}
 
+    {% if totalPages > 1 %}
+        {% block component_pagination_form %}
+            <form class="pagination-form"
+                {% if isCmsSlot %}
+                data-cms-slot-reload="true"
+                data-cms-slot-reload-options='{
+            "updateHistory": true,
+            "navigationId": "{{ page.header.navigation.active.id }}",
+            "elements": {
+                "{{ element.id }}": [
+                    ".js-listing-wrapper",
+                    ".js-pagination-wrapper"
+                ]
+            },
+            "events": [
+                "change",
+                "submit"
+            ],
+            "hiddenParams": [
+                "no-aggregations"
+            ]
+          }'
+                {% endif %}>
 
-{% block component_pagination_form %}
-    <form class="pagination-form"
-        {% if isCmsSlot %}
-        data-cms-slot-reload="true"
-        data-cms-slot-reload-options='{
-        "updateHistory": true,
-        "navigationId": "{{ page.header.navigation.active.id }}",
-        "slots": {
-        "{{ element.id }}": [
-            ".js-listing-wrapper",
-            ".js-pagination-wrapper"
-        ]
-        },
-        "events": [
-            "change",
-            "submit"
-        ]
-      }'
-        {% endif %}>
+                {% block component_pagination_wrapper %}
+                    <div class="pagination-wrapper js-pagination-wrapper">
 
-        {% block component_pagination_wrapper %}
-            <div class="pagination-wrapper js-pagination-wrapper">
+                        {% block component_pagination_hidden_inputs %}
+                            {% block component_pagination_hidden_input_limit %}
+                                <input type="hidden"
+                                       name="limit"
+                                       value="{{ criteria.limit }}">
+                            {% endblock %}
+                            {% block component_pagination_hidden_input_aggregation %}
+                                <input type="hidden"
+                                       name="no-aggregations"
+                                       value="true">
+                            {% endblock %}
+                        {% endblock %}
+                        {% block component_pagination_nav %}
+                            <nav aria-label="pagination">
+                                {% block component_pagination %}
+                                    <ul class="pagination">
 
-                {% block component_pagination_hidden_inputs %}
-                    {% block component_pagination_hidden_input_limit %}
-                        <input type="hidden"
-                               name="limit"
-                               value="{{ criteria.limit }}">
-                    {% endblock %}
-                    {% block component_pagination_hidden_input_aggregation %}
-                        <input type="hidden"
-                               name="no-aggregations"
-                               value="true">
-                    {% endblock %}
-                {% endblock %}
-                {% block component_pagination_nav %}
-                    <nav aria-label="pagination">
-                        {% block component_pagination %}
-                            <ul class="pagination">
-
-                                {% block component_pagination_first %}
-                                    <li class="page-item page-first{% if currentPage == 1 %} disabled{% endif %}">
-                                        {% block component_pagination_first_input %}
-                                            <input type="radio"
-                                                   {% if currentPage == 1 %}disabled="disabled"{% endif %}
-                                                   name="p"
-                                                   id="p-first"
-                                                   value="1"
-                                                   class="d-none"
-                                                   title="pagination">
-                                        {% endblock %}
-                                        {% block component_pagination_first_label %}
-                                            <label class="page-link"
-                                                   for="p-first">
-                                                {% block component_pagination_first_icon %}
-                                                    <i class="fas fa-angle-double-left"></i>
-                                                {% endblock %}
-                                            </label>
-                                        {% endblock %}
-                                    </li>
-                                {% endblock %}
-
-                                {% block component_pagination_prev %}
-                                    <li class="page-item page-prev{% if currentPage == 1 %} disabled{% endif %}">
-                                        {% block component_pagination_prev_input %}
-                                            <input type="radio"
-                                                   {% if currentPage == 1 %}disabled="disabled"{% endif %}
-                                                   name="p"
-                                                   id="p-prev"
-                                                   value="{{ currentPage - 1 }}"
-                                                   class="d-none"
-                                                   title="pagination">
-                                        {% endblock %}
-                                        {% block component_pagination_prev_label %}
-                                            <label class="page-link"
-                                                   for="p-prev">
-                                                {% block component_pagination_prev_icon %}
-                                                    <i class="fas fa-angle-left"></i>
-                                                {% endblock %}
-                                            </label>
-                                        {% endblock %}
-                                    </li>
-                                {% endblock %}
-
-                                {% block component_pagination_loop %}
-                                    {% set start = currentPage - 2 %}
-                                    {% if start <= 0 %}
-                                        {% set start = currentPage - 1 %}
-                                        {% if start <= 0 %}
-                                            {% set start = currentPage %}
-                                        {% endif %}
-                                    {% endif %}
-
-                                    {% set end = start + 4 %}
-                                    {% if end > totalPages %}
-                                        {% set end = totalPages %}
-                                    {% endif %}
-
-                                    {% for page in start..end %}
-
-                                        {% set isActive = (currentPage == page) %}
-
-                                        {% block component_pagination_item %}
-                                            <li class="page-item{% if isActive %} active{% endif %}">
-                                                {% block component_pagination_item_input %}
+                                        {% block component_pagination_first %}
+                                            <li class="page-item page-first{% if currentPage == 1 %} disabled{% endif %}">
+                                                {% block component_pagination_first_input %}
                                                     <input type="radio"
+                                                           {% if currentPage == 1 %}disabled="disabled"{% endif %}
                                                            name="p"
-                                                           id="p{{ page }}"
-                                                           value="{{ page }}"
+                                                           id="p-first"
+                                                           value="1"
                                                            class="d-none"
-                                                           title="pagination"
-                                                           {% if isActive %}checked="checked"{% endif %}>
+                                                           title="pagination">
                                                 {% endblock %}
-                                                {% block component_pagination_item_label %}
+                                                {% block component_pagination_first_label %}
                                                     <label class="page-link"
-                                                           for="p{{ page }}">
-                                                        {% block component_pagination_item_text %}
-                                                            {{ page }}
+                                                           for="p-first">
+                                                        {% block component_pagination_first_link %}
+                                                            <a href="?limit={{ criteria.limit }}&p=1"
+                                                               data-remote-click="true"
+                                                               data-remote-click-options='{
+                                                                    "selector": "label.page-link[for=\"p-first\"]"
+                                                               }'>
+                                                                {% block component_pagination_first_icon %}
+                                                                    <i class="fas fa-angle-double-left"></i>
+                                                                {% endblock %}
+                                                            </a>
                                                         {% endblock %}
                                                     </label>
                                                 {% endblock %}
                                             </li>
                                         {% endblock %}
 
-                                    {% endfor %}
-                                {% endblock %}
-
-                                {% block component_pagination_next %}
-                                    <li class="page-item page-next{% if currentPage == totalPages %} disabled{% endif %}">
-                                        {% block component_pagination_next_input %}
-                                            <input type="radio"
-                                                   {% if currentPage == totalPages %}disabled="disabled"{% endif %}
-                                                   name="p"
-                                                   id="p-next"
-                                                   value="{{ currentPage + 1 }}"
-                                                   class="d-none"
-                                                   title="pagination">
-                                        {% endblock %}
-                                        {% block component_pagination_next_label %}
-                                            <label class="page-link"
-                                                   for="p-next">
-                                                {% block component_pagination_next_icon %}
-                                                    <i class="fas fa-angle-right"></i>
+                                        {% block component_pagination_prev %}
+                                            <li class="page-item page-prev{% if currentPage == 1 %} disabled{% endif %}">
+                                                {% block component_pagination_prev_input %}
+                                                    <input type="radio"
+                                                           {% if currentPage == 1 %}disabled="disabled"{% endif %}
+                                                           name="p"
+                                                           id="p-prev"
+                                                           value="{{ currentPage - 1 }}"
+                                                           class="d-none"
+                                                           title="pagination">
                                                 {% endblock %}
-                                            </label>
-                                        {% endblock %}
-                                    </li>
-                                {% endblock %}
-
-                                {% block component_pagination_last %}
-                                    <li class="page-item page-last{% if currentPage == totalPages %} disabled{% endif %}">
-                                        {% block component_pagination_last_input %}
-                                            <input type="radio"
-                                                   {% if currentPage == totalPages %}disabled="disabled"{% endif %}
-                                                   name="p"
-                                                   id="p-last"
-                                                   value="{{ totalPages }}"
-                                                   class="d-none"
-                                                   title="pagination">
-                                        {% endblock %}
-                                        {% block component_pagination_label %}
-                                            <label class="page-link"
-                                                   for="p-last">
-                                                {% block component_pagination_last_icon %}
-                                                    <i class="fas fa-angle-double-right"></i>
+                                                {% block component_pagination_prev_label %}
+                                                    <label class="page-link"
+                                                           for="p-prev">
+                                                        {% block component_pagination_prev_link %}
+                                                            <a href="?limit={{ criteria.limit }}&p={{ currentPage - 1 }}"
+                                                               data-remote-click="true"
+                                                               data-remote-click-options='{
+                                                                    "selector": "label.page-link[for=\"p-prev\"]"
+                                                               }'>
+                                                                {% block component_pagination_prev_icon %}
+                                                                    <i class="fas fa-angle-left"></i>
+                                                                {% endblock %}
+                                                            </a>
+                                                        {% endblock %}
+                                                    </label>
                                                 {% endblock %}
-                                            </label>
+                                            </li>
                                         {% endblock %}
-                                    </li>
+
+                                        {% block component_pagination_loop %}
+                                            {% set start = currentPage - 2 %}
+                                            {% if start <= 0 %}
+                                                {% set start = currentPage - 1 %}
+                                                {% if start <= 0 %}
+                                                    {% set start = currentPage %}
+                                                {% endif %}
+                                            {% endif %}
+
+                                            {% set end = start + 4 %}
+                                            {% if end > totalPages %}
+                                                {% set end = totalPages %}
+                                            {% endif %}
+
+                                            {% for page in start..end %}
+
+                                                {% set isActive = (currentPage == page) %}
+
+                                                {% block component_pagination_item %}
+                                                    <li class="page-item{% if isActive %} active{% endif %}">
+                                                        {% block component_pagination_item_input %}
+                                                            <input type="radio"
+                                                                   name="p"
+                                                                   id="p{{ page }}"
+                                                                   value="{{ page }}"
+                                                                   class="d-none"
+                                                                   title="pagination"
+                                                                   {% if isActive %}checked="checked"{% endif %}>
+                                                        {% endblock %}
+                                                        {% block component_pagination_item_label %}
+                                                            <label class="page-link"
+                                                                   for="p{{ page }}">
+                                                                {% block component_pagination_item_link %}
+                                                                    <a href="?limit={{ criteria.limit }}&p={{ page }}"
+                                                                       data-remote-click="true"
+                                                                       data-remote-click-options='{
+                                                                            "selector": "label.page-link[for=\"p{{ page }}\"]"
+                                                                       }'>
+                                                                        {% block component_pagination_item_text %}
+                                                                            {{ page }}
+                                                                        {% endblock %}
+                                                                    </a>
+                                                                {% endblock %}
+                                                            </label>
+                                                        {% endblock %}
+                                                    </li>
+                                                {% endblock %}
+
+                                            {% endfor %}
+                                        {% endblock %}
+
+                                        {% block component_pagination_next %}
+                                            <li class="page-item page-next{% if currentPage == totalPages %} disabled{% endif %}">
+                                                {% block component_pagination_next_input %}
+                                                    <input type="radio"
+                                                           {% if currentPage == totalPages %}disabled="disabled"{% endif %}
+                                                           name="p"
+                                                           id="p-next"
+                                                           value="{{ currentPage + 1 }}"
+                                                           class="d-none"
+                                                           title="pagination">
+                                                {% endblock %}
+                                                {% block component_pagination_next_label %}
+                                                    <label class="page-link"
+                                                           for="p-next">
+                                                        {% block component_pagination_next_link %}
+                                                            <a href="?limit={{ criteria.limit }}&p={{ currentPage + 1 }}"
+                                                               data-remote-click="true"
+                                                               data-remote-click-options='{
+                                                                            "selector": "label.page-link[for=\"p-next\"]"
+                                                                       }'>
+                                                                {% block component_pagination_next_icon %}
+                                                                    <i class="fas fa-angle-right"></i>
+                                                                {% endblock %}
+                                                            </a>
+                                                        {% endblock %}
+                                                    </label>
+                                                {% endblock %}
+                                            </li>
+                                        {% endblock %}
+
+                                        {% block component_pagination_last %}
+                                            <li class="page-item page-last{% if currentPage == totalPages %} disabled{% endif %}">
+                                                {% block component_pagination_last_input %}
+                                                    <input type="radio"
+                                                           {% if currentPage == totalPages %}disabled="disabled"{% endif %}
+                                                           name="p"
+                                                           id="p-last"
+                                                           value="{{ totalPages }}"
+                                                           class="d-none"
+                                                           title="pagination">
+                                                {% endblock %}
+                                                {% block component_pagination_last_label %}
+                                                    <label class="page-link"
+                                                           for="p-last">
+                                                        {% block component_pagination_last_link %}
+                                                            <a href="?limit={{ criteria.limit }}&p={{ totalPages }}"
+                                                               data-remote-click="true"
+                                                               data-remote-click-options='{
+                                                                            "selector": "label.page-link[for=\"p-last\"]"
+                                                                       }'>
+                                                                {% block component_pagination_last_icon %}
+                                                                    <i class="fas fa-angle-double-right"></i>
+                                                                {% endblock %}
+                                                            </a>
+                                                        {% endblock %}
+                                                    </label>
+                                                {% endblock %}
+                                            </li>
+                                        {% endblock %}
+                                    </ul>
                                 {% endblock %}
-                            </ul>
+                            </nav>
                         {% endblock %}
-                    </nav>
+                    </div>
                 {% endblock %}
-            </div>
+            </form>
         {% endblock %}
-    </form>
-{% endblock %}
+    {% endif %}
+{% endif %}

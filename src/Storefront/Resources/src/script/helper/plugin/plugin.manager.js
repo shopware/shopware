@@ -278,7 +278,8 @@ class PluginManagerSingleton {
             throw new Error('The passed plugin is not a function or a class.');
         }
 
-        new pluginClass(el, options, pluginName);
+        const instance = PluginManager.getPluginInstanceFromElement(el, pluginName);
+        if (!instance) new pluginClass(el, options, pluginName);
     }
 
     /**

@@ -3,7 +3,7 @@
         <div class="row cms-row">
             {% block page_content_elements %}
                 {% for element in block.slots.elements %}
-                    <div data-slot-id="{{ element.id }}">
+                    <div data-cms-element-id="{{ element.id }}">
                         {% block page_content_element %}
                             {% if element.type == 'text' %}
                                 {% sw_include "@Storefront/content/cms-text.html.twig" %}

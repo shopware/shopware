@@ -55,7 +55,12 @@
                     {% block layout_header_actions_cart %}
                         <div class="cart-widget"
                              data-offcanvas-cart="true">
-                            {% sw_include '@Storefront/layout/header/actions/cart-widget.html.twig' %}
+                            <a class="btn btn-light cart-widget-btn header-actions-btn"
+                               href="{{ path('frontend.checkout.cart.page') }}"
+                               data-cart-widget="true"
+                               title="{{ 'checkout.cartTitle'|trans }}">
+                                {% sw_include '@Storefront/layout/header/actions/cart-widget.html.twig' %}
+                            </a>
                         </div>
                     {% endblock %}
 

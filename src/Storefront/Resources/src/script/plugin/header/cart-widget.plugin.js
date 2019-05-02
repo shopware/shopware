@@ -6,9 +6,6 @@ const CART_WIDGET_STORAGE_KEY = 'cart-widget-template';
 export default class CartWidgetPlugin extends Plugin {
 
     init() {
-        this._parentElement = this.el.parentElement;
-
-        if (!this._parentElement) return;
 
         this._client = new HttpClient(window.accessKey, window.contextToken);
         this._storageExists = (window.sessionStorage instanceof Storage);
@@ -20,13 +17,13 @@ export default class CartWidgetPlugin extends Plugin {
     /**
      * reads the persisted content
      * from the session cache an renders it
-     * into the parent element
+     * into the element
      */
     insertStoredContent() {
         if (this._storageExists) {
             const storedContent = window.sessionStorage.getItem(CART_WIDGET_STORAGE_KEY);
             if (storedContent) {
-                this._parentElement.innerHTML = storedContent;
+                this.el.innerHTML = storedContent;
             }
         }
     }
@@ -43,7 +40,7 @@ export default class CartWidgetPlugin extends Plugin {
                 window.sessionStorage.setItem(CART_WIDGET_STORAGE_KEY, response);
             }
 
-            this._parentElement.innerHTML = response;
+            this.el.innerHTML = response;
         });
     }
 }

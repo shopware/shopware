@@ -1,7 +1,7 @@
 export default class CmsSlotOptionValidatorHelper {
 
     /**
-     * validates the slots option
+     * validates the cms reload options
      * to make sure it's configured correctly
      *
      * @returns {boolean}
@@ -20,17 +20,21 @@ export default class CmsSlotOptionValidatorHelper {
             throw new Error('The "events" option must have entries!');
         }
 
-        if (typeof options.slots !== 'object') {
-            throw new Error('The "slots" option must be an object!');
+        if (!Array.isArray(options.hiddenParams)) {
+            throw new Error('The "hiddenParams" option has to be an array!');
         }
 
-        options.slots.forEach((selectors, slotId) => {
+        if (typeof options.elements !== 'object') {
+            throw new Error('The "elements" option must be an object!');
+        }
+
+        options.elements.forEach((selectors, elementId) => {
             if (!Array.isArray(selectors)) {
-                throw new Error(`The "slot" entry "${slotId}" must be an array of selectors!`);
+                throw new Error(`The "elements" entry "${elementId}" must be an array of selectors!`);
             }
 
             if (selectors.length === 0) {
-                throw new Error(`The "slot" entry "${slotId}" must have entries!`);
+                throw new Error(`The "elements" entry "${elementId}" must have entries!`);
             }
         });
 

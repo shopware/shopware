@@ -47,7 +47,7 @@ class ProductPageObject extends GeneralPageObject {
             .click('.sw-media-url-form__submit-button')
             .waitForElementNotPresent('input[name=sw-field--url]')
             .waitForElementVisible('.sw-media-preview__item')
-            .checkNotification('File has been saved successfully.')
+            .checkNotification('A file has been saved successfully.')
             .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .expect.element('.sw-product-detail__save-action').to.be.enabled;
 
@@ -77,7 +77,7 @@ class ProductPageObject extends GeneralPageObject {
         this.browser
             .click('.group_grid__column-name');
 
-        for (const entry in Object.values(optionPosition)) {
+        for (const entry in Object.values(optionPosition)) { // eslint-disable-line
             if (optionPosition.hasOwnProperty(entry)) {
                 this.browser
                     .tickCheckbox(

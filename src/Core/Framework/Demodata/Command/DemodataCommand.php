@@ -107,7 +107,7 @@ class DemodataCommand extends Command
 
         $request->add(OrderDefinition::class, (int) $input->getOption('orders'));
         $request->add(MediaDefinition::class, (int) $input->getOption('media'));
-        $request->add(CmsPageDefinition::class, 50);
+        $request->add(CmsPageDefinition::class, 5);
 
         if (next754()) {
             $request->add(

@@ -1,25 +1,25 @@
-{% block sw_settings_basic_information_index %}
-    <sw-page class="sw-settings-basic-information">
+{% block sw_settings_privacy_index %}
+    <sw-page class="sw-settings-privacy">
 
-        {% block sw_settings_basic_information_search_bar %}
+        {% block sw_settings_privacy_search_bar %}
             <template slot="search-bar">
                 <sw-search-bar>
                 </sw-search-bar>
             </template>
         {% endblock %}
 
-        {% block sw_settings_basic_information_smart_bar_header %}
+        {% block sw_settings_privacy_smart_bar_header %}
             <template slot="smart-bar-header">
-                {% block sw_settings_basic_information_smart_bar_header_title %}
+                {% block sw_settings_privacy_smart_bar_header_title %}
                     <h2>
-                        {% block sw_settings_basic_information_smart_bar_header_title_text %}
+                        {% block sw_settings_privacy_smart_bar_header_title_text %}
                                 {{ $tc('sw-settings.index.title') }}
                                 <sw-icon name="small-arrow-medium-right" small>
                                 </sw-icon>
-                                {{ $tc('sw-settings-basic-information.general.textHeadline') }}
+                                {{ $tc('sw-settings-privacy.general.textHeadline') }}
                         {% endblock %}
 
-                        {% block sw_settings_basic_information_smart_bar_header_amount %}
+                        {% block sw_settings_privacy_smart_bar_header_amount %}
                             <span v-if="false" class="sw-page__smart-bar-amount">
                                 ({{ total }})
                             </span>
@@ -29,26 +29,26 @@
             </template>
         {% endblock %}
 
-        {% block sw_settings_basic_information_smart_bar_actions %}
+        {% block sw_settings_privacy_smart_bar_actions %}
             <template slot="smart-bar-actions">
-                {% block sw_settings_basic_information_actions_save %}
+                {% block sw_settings_privacy_actions_save %}
                 <sw-button variant="primary"
-                           class="sw-settings-basic-information__save-action"
+                           class="sw-settings-privacy__save-action"
                            @click="onSave">
-                    {{ $tc('sw-settings-basic-information.general.buttonSave') }}
+                    {{ $tc('sw-settings-privacy.general.buttonSave') }}
                 </sw-button>
                 {% endblock %}
             </template>
         {% endblock %}
 
-        {% block sw_settings_basic_information_content %}
+        {% block sw_settings_privacy_content %}
             <template slot="content">
                 <sw-card-view>
-                   <sw-system-config
+                    <sw-system-config
                             ref="systemConfig"
                             salesChannelSwitchable
-                            domain="core.basicInformation">
-                   </sw-system-config>
+                            domain="core.privacy">
+                    </sw-system-config>
                 </sw-card-view>
             </template>
         {% endblock %}

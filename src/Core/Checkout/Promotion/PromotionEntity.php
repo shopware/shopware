@@ -53,34 +53,9 @@ class PromotionEntity extends Entity
     protected $exclusive;
 
     /**
-     * @var int
-     */
-    protected $priority;
-
-    /**
      * @var bool
      */
     protected $useCodes;
-
-    /**
-     * @var bool
-     */
-    protected $excludeLowerPriority;
-
-    /**
-     * @var string|null
-     */
-    protected $scopeRuleId;
-
-    /**
-     * @var string|null
-     */
-    protected $discountRuleId;
-
-    /**
-     * @var RuleEntity|null
-     */
-    protected $discountRule;
 
     /**
      * @var PromotionSalesChannelCollection|null
@@ -182,16 +157,6 @@ class PromotionEntity extends Entity
         $this->exclusive = $exclusive;
     }
 
-    public function getPriority(): int
-    {
-        return $this->priority;
-    }
-
-    public function setPriority(int $priority): void
-    {
-        $this->priority = $priority;
-    }
-
     /**
      * Gets if the promotion requires codes
      * in order to be used
@@ -208,46 +173,6 @@ class PromotionEntity extends Entity
     public function setUseCodes(bool $useCodes): void
     {
         $this->useCodes = $useCodes;
-    }
-
-    public function isExcludeLowerPriority(): bool
-    {
-        return $this->excludeLowerPriority;
-    }
-
-    public function setExcludeLowerPriority(bool $excludeLowerPriority): void
-    {
-        $this->excludeLowerPriority = $excludeLowerPriority;
-    }
-
-    public function getScopeRuleId(): ?string
-    {
-        return $this->scopeRuleId;
-    }
-
-    public function setScopeRuleId(string $scopeRuleId): void
-    {
-        $this->scopeRuleId = $scopeRuleId;
-    }
-
-    public function getDiscountRuleId(): ?string
-    {
-        return $this->discountRuleId;
-    }
-
-    public function setDiscountRuleId(string $discountRuleId): void
-    {
-        $this->discountRuleId = $discountRuleId;
-    }
-
-    public function getDiscountRule(): ?RuleEntity
-    {
-        return $this->discountRule;
-    }
-
-    public function setDiscountRule(RuleEntity $discountRule): void
-    {
-        $this->discountRule = $discountRule;
     }
 
     public function getDiscounts(): ?PromotionDiscountCollection

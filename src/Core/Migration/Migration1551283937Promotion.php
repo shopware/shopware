@@ -22,8 +22,6 @@ class Migration1551283937Promotion extends MigrationStep
               `valid_until` DATETIME NULL,
               `redeemable` INT NULL DEFAULT 1,
               `exclusive` TINYINT(1) NOT NULL DEFAULT 0,
-              `priority` INT NOT NULL DEFAULT 0,
-              `exclude_lower_priority` TINYINT(1) NOT NULL DEFAULT 0,
               `code` VARCHAR(255) NULL UNIQUE,
               `use_codes` TINYINT(1) NOT NULL DEFAULT 0,
               `created_at` DATETIME(3) NOT NULL,

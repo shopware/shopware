@@ -48,7 +48,6 @@
           "placeholderSalesChannels" : "Add Sales Channel...",
           "labelValidFrom": "Valid from:",
           "labelValidUntil": "Valid until:",
-          "labelPriority": "priority",
           "labelRedeemable": "redeemable",
           "codes" : {
             "card" : "Promotion Codes",
@@ -59,14 +58,6 @@
         },
         "preconditions": {
           "ruleModuleLink": "Open rule builder",
-          "labelDiscountRule": "Discount rule",
-          "descriptionTextScope": "Use rules from the rules builder to define the promotion cart for this marketing action. Without a limitation, the action will be applied to all shopping carts.",
-          "descriptionTitleScope": "Which shopping carts are affected by this discount promotion?",
-          "labelCategory": "Category",
-          "labelProduct": "Product",
-          "labelCart": "Cart",
-          "labelScopeRule": "Scope rule",
-          "cardTitleScopeRules": "Cart",
           "persona": {
             "card": "Target Group",
             "title": "Determine which customers benefit from this promotion",
@@ -102,7 +93,7 @@
           "labelRules": "Product Rules",
           "placeholder": "Assign Product Rules...",
           "labelType" : "Type",
-          "valueScopeCart" : "Entire Cart",
+          "valueScopeCart": "Cart",
           "valueTypeAbsolute" : "Absolute",
           "valueTypePercentage": "Percentage",
           "buttonAddDiscount" : "+ Add Discount",

@@ -303,10 +303,9 @@ class PromotionControllerTest extends TestCase
                     'validUntil' => '2030-01-01 00:00:00',
                     'redeemable' => 1000,
                     'exclusive' => false,
-                    'priority' => 100,
-                    'excludeLowerPriority' => false,
                     'useCodes' => true,
                     'code' => 'super19',
+                    'codeType' => 'standard',
                     'discounts' => [
                         [
                             'id' => $discountId,

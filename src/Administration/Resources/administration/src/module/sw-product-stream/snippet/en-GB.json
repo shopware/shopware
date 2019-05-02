@@ -92,7 +92,9 @@
       "visibilities": "Visibilities",
       "visibility": "Visibility",
       "weight": "Weight",
-      "width": "Width"
+      "width": "Width",
+      "configuratorSettings": "Configurator settings",
+      "options": "Options"
       }
     },
     "detail": {

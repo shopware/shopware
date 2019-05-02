@@ -45,7 +45,7 @@ module.exports = {
 
         page.createBasicSelectCondition({
             type: 'Product',
-            operator: 'Equals any',
+            operator: 'Is equal to any of',
             ruleSelector: `${page.elements.conditionOrContainer}--0 ${page.elements.baseCondition}`,
             value: 'Product name',
             isMulti: true
@@ -69,7 +69,7 @@ module.exports = {
 
         page.createBasicSelectCondition({
             type: 'Product',
-            operator: 'Not equals',
+            operator: 'Is not equal to',
             ruleSelector: `${page.elements.conditionOrContainer}--0 ${page.elements.baseCondition}`,
             value: 'Product name',
             isMulti: false

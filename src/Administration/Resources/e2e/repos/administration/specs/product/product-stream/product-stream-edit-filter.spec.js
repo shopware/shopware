@@ -97,12 +97,11 @@ module.exports = {
             .click('.sw-condition-or-container__actions--or')
             .waitForElementVisible(page.elements.orSpacer);
 
-        page.createBasicInputCondition({
+        page.createDateCondition({
             type: 'Release date',
             inputName: 'sw-field--filterValue',
-            operator: 'Is equal to',
             ruleSelector: `${page.elements.conditionOrContainer}--1 ${page.elements.conditionAndContainer}--0`,
-            value: '14.05.2019'
+            value: '14.05.2019 00:00'
         });
     },
     'create another subcondition with stock condition': (browser) => {

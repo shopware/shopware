@@ -136,6 +136,18 @@ class ProductStreamPageObject extends GeneralPageObject {
             .fillDateField('.field--from-date input', ruleData.fromDate)
             .fillDateField('.field--to-date input', ruleData.toDate);
     }
+
+    createDateCondition(ruleData) {
+        this.browser
+            .fillSwSelectComponent(`${ruleData.ruleSelector} ${this.elements.ruleFieldCondition}`, {
+                value: ruleData.type,
+                isMulti: false,
+                searchTerm: ruleData.type
+            });
+
+        this.browser
+            .fillDateField('.field--main input', ruleData.value);
+    }
 }
 
 module.exports = (browser) => {

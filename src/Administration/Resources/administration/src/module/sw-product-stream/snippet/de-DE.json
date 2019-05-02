@@ -77,7 +77,7 @@
         "productNumber": "Produktnummer",
         "purchasePrice": "Verkaufspreis",
         "purchaseUnit": "Verkaufseinheit",
-        "referenceUnit": "Vergleichseinheit",
+        "referenceUnit": "Grundeinheit",
         "releaseDate": "Erscheinungsdatum",
         "restockTime": "Dauer der Wiederauffüllung",
         "sales": "Verkäufe",
@@ -92,7 +92,9 @@
         "visibilities": "Sichtbarkeiten",
         "visibility": "sichtbar",
         "weight": "Gewicht",
-        "width": "Breite"
+        "width": "Breite",
+        "configuratorSettings": "Konfigurator-Einstellungen",
+        "options": "Optionen"
       }
     },
     "detail": {

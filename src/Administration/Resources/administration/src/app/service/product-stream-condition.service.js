@@ -27,6 +27,7 @@ export default function conditionService() {
         'metaTitle',
         'metaDescription',
         'metaKeywords',
+        'additionalText',
         'products',
         'product',
         'productId',
@@ -45,6 +46,7 @@ export default function conditionService() {
         'navigationVersionId',
         'mailHeaderFooterId',
         'manufacturerId',
+        'manufacturerNumber',
         'unitId',
         'taxId',
         'coverId',
@@ -61,7 +63,10 @@ export default function conditionService() {
         'numberRanges',
         'promotionSalesChannels',
         'seoUrlTemplates',
-        'shippingMethods'
+        'shippingMethods',
+        'markAsTopseller',
+        'variantRestrictions',
+        'configuratorGroupSorting'
     ];
 
     const entityBlacklist = {

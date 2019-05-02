@@ -19,7 +19,7 @@ class SalesChannelProductEntity extends ProductEntity
     /**
      * @var PriceCollection
      */
-    protected $calculatedPriceRules;
+    protected $calculatedPrices;
 
     /**
      * @var CalculatedPrice
@@ -50,14 +50,14 @@ class SalesChannelProductEntity extends ProductEntity
         $this->calculatedListingPrice = $calculatedListingPrice;
     }
 
-    public function setCalculatedPriceRules(PriceCollection $prices): void
+    public function setCalculatedPrices(PriceCollection $prices): void
     {
-        $this->calculatedPriceRules = $prices;
+        $this->calculatedPrices = $prices;
     }
 
-    public function getCalculatedPriceRules(): PriceCollection
+    public function getCalculatedPrices(): PriceCollection
     {
-        return $this->calculatedPriceRules;
+        return $this->calculatedPrices;
     }
 
     public function getCalculatedPrice(): CalculatedPrice

@@ -1,0 +1,73 @@
+{% block layout_header_actions_currency_widget %}
+    {% if page.header.currencies.elements|length > 1 %}
+        <div class="top-bar-nav-item top-bar-currency">
+            {% block layout_header_actions_currency_widget_form %}
+                <form method="post"
+                      action="{{ path('frontend.checkout.configure') }}"
+                      class="currency-form"
+                      data-form-auto-submit="true">
+                    {% block layout_header_actions_currency_widget_content %}
+                        <div class="currencies-menu dropdown">
+                            {% block layout_header_actions_currency_widget_dropdown_toggle %}
+                                <button class="btn dropdown-toggle top-bar-nav-btn"
+                                        type="button"
+                                        id="currenciesDropdown"
+                                        data-toggle="dropdown"
+                                        aria-haspopup="true"
+                                        aria-expanded="false">
+                                    {% block layout_header_actions_currency_widget_dropdown_toggle_name %}
+                                        {{ page.header.activeCurrency.symbol }}
+                                        <span class="top-bar-nav-name">{{ page.header.activeCurrency.translated.name }}</span>
+                                    {% endblock %}
+                                </button>
+                            {% endblock %}
+
+                            {% block layout_header_actions_currency_widget_form_items %}
+                                <ul class="top-bar-list dropdown-menu dropdown-menu-right"
+                                    aria-labelledby="currenciesDropdown">
+                                    {% for currency in page.header.currencies.elements %}
+                                        {% block layout_header_actions_currency_widget_form_items_element %}
+                                            <li>
+                                                {% block layout_header_actions_currency_widget_form_items_element_data %}
+                                                    <div class="top-bar-list-item dropdown-item{% if currency.id is same as(page.header.activeCurrency.id) %} item-checked{% endif %}"
+                                                         title="{{ currency.translated.shortName }}">
+                                                        {% block layout_header_actions_currency_widget_form_items_element_label %}
+                                                            <label class="top-bar-list-label"
+                                                                   for="{{ currency.id }}">
+                                                                {% block layout_header_actions_currency_widget_form_items_element_input %}
+                                                                    <input class="top-bar-list-input"
+                                                                           id="{{ currency.id }}"
+                                                                           value="{{ currency.id }}"
+                                                                           name="currencyId"
+                                                                           type="radio"
+                                                                        {% if currency.id is same as(page.header.activeCurrency.id) %} checked{% endif %}>
+                                                                    {{ currency.symbol }} {{ currency.translated.shortName }}
+                                                                {% endblock %}
+                                                            </label>
+                                                        {% endblock %}
+                                                    </div>
+                                                {% endblock %}
+                                            </li>
+                                        {% endblock %}
+                                    {% endfor %}
+                                </ul>
+                            {% endblock %}
+
+                            {% block layout_header_actions_currency_widget_form_redirect %}
+                                <input name="redirectTo"
+                                       type="hidden"
+                                       value="{{ app.request.get('_route') }}"/>
+
+                                {% for key, value in app.request.attributes.get('_route_params') %}
+                                    <input name="redirectParameters[{{ key }}]"
+                                           type="hidden"
+                                           value="{{ value }}">
+                                {% endfor %}
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </form>
+            {% endblock %}
+        </div>
+    {% endif %}
+{% endblock %}

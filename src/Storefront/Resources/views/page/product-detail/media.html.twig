@@ -2,34 +2,39 @@
     {% set mediaItems = page.product.media.elements %}
 
     <div class="row product-detail-media-container{% if mediaItems|length == 1 %} is-single-image{% endif %}"
-        {% if mediaItems|length > 1 %} data-detail-media-gallery="true"{% endif %}>
+        {% if mediaItems|length > 1 %} data-image-slider="true"{% endif %}
+         data-magnifier="true">
         {% block page_product_detail_media_image_container %}
-            <div class="col-xl-10 order-1 order-xl-2 product-detail-media-image-container">
+            <div class="col-xl-10 order-1 order-xl-2 product-detail-media-image-container"
+                 data-zoom-modal="true">
                 {% block page_product_detail_media_image %}
                     {% if mediaItems|length > 1 %}
-                        {% block page_product_detail_media_gallery_slider %}
-                            <div class="gallery-slider" data-gallery-slider="true">
+                        {% block page_product_detail_media_image_slider %}
+                            <div class="image-slider"
+                                 data-image-slider-container="true">
                                 {% for image in mediaItems %}
-                                    {% block page_product_detail_media_gallery_slider_item %}
-                                        <div class="gallery-slider-item">
+                                    {% block page_product_detail_media_image_slider_item %}
+                                        <div class="image-slider-item js-magnifier-container">
                                             <img src="{{ image.media.url }}"
-                                                 class="img-fluid gallery-slider-image"
-                                                 alt="{{ page.product.name }}"/>
+                                                 class="img-fluid image-slider-image magnifier-image js-magnifier-image"
+                                                 data-full-image="{{ image.media.url }}"
+                                                 alt="{{ page.product.translated.name }}"/>
                                         </div>
                                     {% endblock %}
                                 {% endfor %}
                             </div>
 
-                            {% block page_product_detail_media_gallery_controls %}
-                                <ul class="gallery-controls" data-gallery-controls="true">
-                                    {% block page_product_detail_media_gallery_controls_items %}
-                                        <li class="carousel-control-prev gallery-controls-prev">
-                                            {% block page_product_detail_media_gallery_controls_items_prev_icon %}
+                            {% block page_product_detail_media_image_controls %}
+                                <ul class="image-slider-controls"
+                                    data-image-slider-controls="true">
+                                    {% block page_product_detail_media_image_controls_items %}
+                                        <li class="carousel-control-prev image-slider-controls-prev">
+                                            {% block page_product_detail_media_image_controls_items_prev_icon %}
                                                 <i class="fas fa-chevron-left"></i>
                                             {% endblock %}
                                         </li>
-                                        <li class="carousel-control-next gallery-controls-next">
-                                            {% block page_product_detail_media_gallery_controls_items_next_icon %}
+                                        <li class="carousel-control-next image-slider-controls-next">
+                                            {% block page_product_detail_media_image_controls_items_next_icon %}
                                                 <i class="fas fa-chevron-right"></i>
                                             {% endblock %}
                                         </li>
@@ -39,10 +44,16 @@
                         {% endblock %}
                     {% else %}
                         {% block page_product_detail_image_container %}
-                            <div class="product-detail-image-container">
-                                <img src="{{ mediaItems|first.media.url }}"
-                                     class="img-fluid product-detail-image"
-                                     alt="{{ page.product.name }}"/>
+                            <div class="product-detail-image-container js-magnifier-container">
+                                {% if mediaItems %}
+                                    {% set imgSrc = mediaItems|first.media.url %}
+                                {% else %}
+                                    {% set imgSrc = asset(shopware.theme.general.noPicture) %}
+                                {% endif %}
+                                <img src="{{ imgSrc }}"
+                                     class="img-fluid image-slider-image magnifier-image js-magnifier-image"
+                                     data-full-image="{{ imgSrc }}"
+                                     alt="{{ page.product.translated.name }}"/>
                             </div>
                         {% endblock %}
                     {% endif %}
@@ -50,17 +61,22 @@
             </div>
         {% endblock %}
 
-        {% block page_product_detail_media_gallery_thumbnails_container %}
+        {% block page_product_detail_media_image_thumbnails_container %}
             {% if mediaItems|length > 1 %}
-                <div class="col-xl-2 order-2 order-xl-1 gallery-thumbnails-container">
-                    {% block page_product_detail_media_gallery_thumbnails %}
-                        <ul class="gallery-thumbnails" data-gallery-thumbnails="true">
+                <div class="col-xl-2 order-2 order-xl-1 image-slider-thumbnails-container">
+                    {% block page_product_detail_media_image_thumbnails %}
+                        <ul class="image-slider-thumbnails"
+                            data-image-slider-thumbnails="true">
                             {% for thumb in mediaItems %}
-                                {% block page_product_detail_media_gallery_thumbnails_item %}
-                                    <li class="gallery-thumbnails-item">
-                                        <img src="{{ thumb.media.url }}"
-                                             class="gallery-thumbnails-image"
-                                             alt="{{ page.product.name }}"/>
+                                {% block page_product_detail_media_image_thumbnails_item %}
+                                    <li class="image-slider-thumbnails-item">
+                                        {% block page_product_detail_media_image_thumbnails_item_inner %}
+                                            <div class="image-slider-thumbnails-item-inner">
+                                                <img src="{{ thumb.media.url }}"
+                                                     class="image-slider-thumbnails-image"
+                                                     alt="{{ page.product.translated.name }}"/>
+                                            </div>
+                                        {% endblock %}
                                     </li>
                                 {% endblock %}
                             {% endfor %}

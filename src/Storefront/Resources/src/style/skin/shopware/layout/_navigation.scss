@@ -1,0 +1,36 @@
+/*
+Main navigation
+==============================================
+Custom styling for bootstrap nav.
+
+https://getbootstrap.com/docs/4.3/components/navs/
+*/
+
+.main-navigation-menu {
+    font-size: $font-size-lg;
+}
+
+@include media-breakpoint-up(md) {
+    .main-navigation-link {
+        color: $gray-600;
+
+        &:first-of-type {
+            padding-left: 0;
+        }
+
+        .main-navigation-link-inner {
+            border-bottom: 2px solid transparent;
+            padding-bottom: 3px;
+        }
+
+        &:hover,
+        &.active,
+        &.is-open {
+            color: $gray-800;
+
+            .main-navigation-link-inner {
+                border-color: $primary;
+            }
+        }
+    }
+}

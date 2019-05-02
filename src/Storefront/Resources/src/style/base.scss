@@ -1,0 +1,93 @@
+/*
+ * The file organization follows the 7-1 pattern architecture
+ * https://sass-guidelin.es/#the-7-1-pattern
+ *
+ * Variables, Mixins, Functions
+ * ---------------------------- */
+@import 'abstract/variables/bootstrap';
+
+/*
+ * Skin variables
+ * ---------- */
+@import 'skin/shopware/abstract/variables';
+
+/*
+ * Vendors
+ * ------- */
+@import 'vendor/bootstrap';
+@import 'vendor/font-awesome';
+@import 'vendor/tiny-slider';
+
+/*
+* Custom variables
+* ---------------------------- */
+@import 'abstract/variables/custom';
+
+/*
+ * Base stuff
+ * ---------- */
+@import 'base/base';
+@import 'base/input';
+
+/*
+ * Layout-related sections
+ * ----------------------- */
+@import 'layout/grid';
+@import 'layout/header';
+@import 'layout/header-minimal';
+@import 'layout/footer';
+@import 'layout/footer-minimal';
+@import 'layout/navigation';
+@import 'layout/navigation-flyout';
+@import 'layout/navigation-offcanvas';
+
+/*
+ * Components
+ * ---------- */
+@import 'component/alert';
+@import 'component/card';
+@import 'component/offcanvas-cart';
+@import 'component/backdrop';
+@import 'component/image-slider';
+@import 'component/offcanvas';
+@import 'component/product-box';
+@import 'component/search-widget';
+@import 'component/cookie-permission';
+@import 'component/spinner';
+@import 'component/modal';
+@import 'component/zoom-modal';
+@import 'component/image-zoom';
+@import 'component/magnifier';
+@import 'component/account-dropdown';
+@import 'component/account-offcanvas';
+@import 'component/flags';
+@import 'component/element-loading-indicator';
+
+/*
+ * Page-specific styles
+ * -------------------- */
+@import 'page/content/content';
+@import 'page/content/listing';
+
+@import 'page/product-detail/product-detail';
+@import 'page/product-detail/configurator';
+
+@import 'page/account/menu';
+@import 'page/account/overview';
+@import 'page/account/register';
+@import 'page/account/address';
+@import 'page/account/profile';
+@import 'page/account/orders';
+
+@import 'page/checkout/cart';
+@import 'page/checkout/cart-item';
+@import 'page/checkout/register';
+@import 'page/checkout/confirm';
+@import 'page/checkout/finish';
+
+@import 'page/newsletter/newsletter';
+
+/*
+ * Skins
+ * ---------- */
+@import 'skin/shopware/base';

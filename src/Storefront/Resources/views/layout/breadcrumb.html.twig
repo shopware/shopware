@@ -1,0 +1,39 @@
+{% block layout_breadcrumb_inner %}
+    <nav aria-label="breadcrumb">
+        {% block layout_breadcrumb_list %}
+            <ol class="breadcrumb"
+                itemscope
+                itemtype="http://schema.org/BreadcrumbList">
+                {% for breadcrumb in breadcrumbList %}
+                    {% block layout_breadcrumb_list_item %}
+                        <li class="breadcrumb-item{% if loop.last %} active{% endif %}"
+                            {% if loop.last %}aria-current="page"{% endif %}
+                            itemprop="itemListElement"
+                            itemscope
+                            itemtype="http://schema.org/ListItem">
+                            {% if breadcrumb.link %}
+                                <a href="{{ breadcrumb.link }}"
+                                   class="breadcrumb-link"
+                                   title="{{ breadcrumb.translated.name }}"
+                                   itemprop="item">
+                                    <link itemprop="url"
+                                          href="{{ breadcrumb.link }}"/>
+                                    <span class="breadcrumb-title"
+                                          itemprop="name">{{ breadcrumb.name }}</span>
+                                </a>
+                            {% else %}
+                                <span class="breadcrumb-link"
+                                      itemprop="item">
+                                <span class="breadcrumb-title"
+                                      itemprop="name">{{ breadcrumb.name }}</span>
+                            </span>
+                            {% endif %}
+                            <meta itemprop="position"
+                                  content="{{ loop.index }}"/>
+                        </li>
+                    {% endblock %}
+                {% endfor %}
+            </ol>
+        {% endblock %}
+    </nav>
+{% endblock %}

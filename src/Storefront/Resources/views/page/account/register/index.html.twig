@@ -1,64 +1,59 @@
 {% sw_extends '@Storefront/base.html.twig' %}
 
 {% block base_head %}
-	{% sw_include '@Storefront/page/account/register/meta.html.twig' %}
+    {% sw_include '@Storefront/page/account/register/meta.html.twig' %}
 {% endblock %}
 
 {% block base_content %}
-	{% block page_account_register %}
-		<div class="account-register">
-			<div id="flashbags">
-				{% for type, messages in app.flashes %}
-					{% sw_include '@Storefront/base/_utilities/alert.html.twig' with { type: type, list: messages } %}
-				{% endfor %}
-			</div>
-			{% block page_account_register_inner %}
-				<div class="row">
-					{% block page_account_register_login_container %}
-						<div class="col-lg-4">
-							{% block page_account_register_login %}
-								{% sw_include '@Storefront/component/account/login.html.twig' %}
-							{% endblock %}
+    {% block page_account_register %}
+        <div class="account-register">
+            {% block page_account_register_inner %}
+                <div class="row">
+                    {% block page_account_register_login_container %}
+                        <div class="col-lg-4">
+                            {% block page_account_register_login %}
+                                {% sw_include '@Storefront/component/account/login.html.twig' %}
+                            {% endblock %}
 
-							{% block page_account_register_advantages %}
-								<div class="register-advantages">
-									{% block page_account_register_advantages_title %}
-										<h2 class="register-advantages-header">
-											{{ "account.registerAdvantagesHeader"|trans }}
-										</h2>
-									{% endblock %}
+                            {% block page_account_register_advantages %}
+                                <div class="register-advantages">
+                                    {% block page_account_register_advantages_title %}
+                                        <h2 class="register-advantages-header">
+                                            {{ "account.registerAdvantagesHeader"|trans }}
+                                        </h2>
+                                    {% endblock %}
 
-									{% block page_account_register_advantages_list %}
-										<ul>
-											{% block page_account_register_advantages_entry1 %}
-												<li>{{ "account.registerAdvantage1"|trans }}</li>
-											{% endblock %}
+                                    {% block page_account_register_advantages_list %}
+                                        <ul>
+                                            {% block page_account_register_advantages_entry1 %}
+                                                <li>{{ "account.registerAdvantage1"|trans }}</li>
+                                            {% endblock %}
 
-											{% block page_account_register_advantages_entry2 %}
-												<li>{{ "account.registerAdvantage2"|trans }}</li>
-											{% endblock %}
+                                            {% block page_account_register_advantages_entry2 %}
+                                                <li>{{ "account.registerAdvantage2"|trans }}</li>
+                                            {% endblock %}
 
-											{% block page_account_register_advantages_entry3 %}
-												<li>{{ "account.registerAdvantage3"|trans }}</li>
-											{% endblock %}
+                                            {% block page_account_register_advantages_entry3 %}
+                                                <li>{{ "account.registerAdvantage3"|trans }}</li>
+                                            {% endblock %}
 
-											{% block page_account_register_advantages_entry4 %}
-												<li>{{ "account.registerAdvantage4"|trans }}</li>
-											{% endblock %}
-										</ul>
-									{% endblock %}
-								</div>
-							{% endblock %}
-						</div>
-					{% endblock %}
+                                            {% block page_account_register_advantages_entry4 %}
+                                                <li>{{ "account.registerAdvantage4"|trans }}</li>
+                                            {% endblock %}
+                                        </ul>
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
 
-					{% block page_account_register_container %}
-						<div class="col-lg-8">
-							{% sw_include '@Storefront/component/account/register.html.twig' %}
-						</div>
-					{% endblock %}
-				</div>
-			{% endblock %}
-		</div>
-	{% endblock %}
+                    {% block page_account_register_container %}
+                        <div class="col-lg-8">
+                            {% sw_include '@Storefront/component/account/register.html.twig' %}
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </div>
+    {% endblock %}
 {% endblock %}

@@ -43,7 +43,7 @@ module.exports = {
             .waitForElementVisible(`${page.elements.accountSidebar} .list-group-item:nth-of-type(3)`)
             .click(`${page.elements.accountSidebar} .list-group-item:nth-of-type(3)`)
             .waitForElementVisible(page.elements.addressRoot)
-            .click(`.address-item-card ${page.elements.lightButton}`)
+            .click(`.address-box ${page.elements.lightButton}`)
             .waitForElementVisible(page.elements.addressForm)
             .fillField('#addressAddressStreet', '12th Ebbinghoff Street', true)
             .click(`.address-form-submit${page.elements.primaryButton}`)

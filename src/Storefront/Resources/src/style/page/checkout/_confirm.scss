@@ -1,0 +1,27 @@
+// general
+.checkout {
+    &.is-confirm {
+        .checkout-main-left {
+            @extend .col-12;
+        }
+
+        .checkout-main-right {
+            @extend .offset-lg-8;
+            @extend .col-lg-4;
+        }
+    }
+}
+
+.confirm-main-header {
+    margin-bottom: $spacer-lg;
+}
+
+.confirm-terms {
+    margin-bottom: $spacer-lg;
+}
+
+.confirm-address,
+.confirm-payment,
+.confirm-shipping {
+    margin-bottom: $spacer-lg;
+}

@@ -1,0 +1,37 @@
+{# @var result \Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult #}
+{% set searchResult = element.data.listing %}
+
+{% block page_content_element_product_listing %}
+    <div class="col-12 listing-wrapper">
+
+        {% block page_content_element_product_listing_pagination_top %}
+            {% sw_include '@Storefront/component/pagination.html.twig' with {
+                searchResult: searchResult,
+                isCmsSlot: 1,
+                class: 'listing-top-pagination'
+            } %}
+        {% endblock %}
+
+        {% block page_content_element_product_listing_row %}
+            <div class="row listing-row js-listing-wrapper">
+                {% block page_content_element_product_listing_col %}
+                    {% for product in searchResult %}
+                        <div class="listing-col col-sm-6 col-lg-3">
+                            {% block page_content_element_product_listing_box %}
+                                {% sw_include '@Storefront/component/product/widget/box.html.twig' with {layout: 'minimal'} %}
+                            {% endblock %}
+                        </div>
+                    {% endfor %}
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block page_content_element_product_listing_pagination_bottom %}
+            {% sw_include '@Storefront/component/pagination.html.twig'  with {
+                searchResult: searchResult,
+                isCmsSlot: 1,
+                class: 'listing-bottom-pagination'
+            } %}
+        {% endblock %}
+    </div>
+{% endblock %}

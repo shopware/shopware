@@ -51,7 +51,7 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
             (new BlobField('calculated_listing_price', 'calculatedListingPrice'))->addFlags(new Deferred())
         );
         $fields->add(
-            (new BlobField('calculated_price_rules', 'calculatedPriceRules'))->addFlags(new Deferred())
+            (new BlobField('calculated_prices', 'calculatedPrices'))->addFlags(new Deferred())
         );
 
         return $fields;

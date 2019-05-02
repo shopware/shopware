@@ -22,7 +22,10 @@ class PriceRuleCollection extends EntityCollection
         });
     }
 
-    public function filterByCurrencyId(string $id): self
+    /**
+     * @return static
+     */
+    public function filterByCurrencyId(string $id)
     {
         return $this->filter(function (PriceRuleEntity $price) use ($id) {
             return $price->getCurrencyId() === $id;
@@ -36,7 +39,10 @@ class PriceRuleCollection extends EntityCollection
         });
     }
 
-    public function filterByRuleId(string $id): self
+    /**
+     * @return static
+     */
+    public function filterByRuleId(string $id)
     {
         return $this->filter(function (PriceRuleEntity $priceRule) use ($id) {
             return $priceRule->getRuleId() === $id;

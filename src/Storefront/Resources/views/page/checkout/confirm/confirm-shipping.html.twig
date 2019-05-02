@@ -1,59 +1,59 @@
 {% block page_checkout_confirm_shipping_inner %}
-	<div class="card confirm-card">
-		<div class="card-body confirm-card-body">
-			{% block page_checkout_confirm_shipping_title %}
-				<div class="card-title">
-					{{ "checkout.confirmShippingHeader"|trans }}
-				</div>
-			{% endblock %}
+    <div class="card confirm-card">
+        <div class="card-body confirm-card-body">
+            {% block page_checkout_confirm_shipping_title %}
+                <div class="card-title">
+                    {{ "checkout.confirmShippingHeader"|trans }}
+                </div>
+            {% endblock %}
 
-			{% block page_checkout_confirm_shipping_form %}
-				{#TODO: add form action and auto submit#}
-				<form id="confirmShippingForm"
-				      name="confirmShippingForm"
-				      action="#"
-				      method="post">
-					{% block page_checkout_confirm_shipping_form_fields %}
-						<div class="shipping-fields">
-							{% for shipping in page.shippingMethods.elements %}
-								<div class="shipping-method">
-									{% block page_checkout_confirm_shipping_form_field %}
-										<div class="form-group checkout-config-form-group">
-											{% block page_checkout_confirm_shipping_form_control %}
-												<div class="custom-control custom-radio shipping-method">
-													{% block page_checkout_confirm_shipping_form_input %}
-														<input type="radio"
-														       id="shippingMethod{{ loop.index }}"
-														       name="shippingMethod"
-														       value="{{ shipping.id }}"
-														       {% if shipping.id is same as(page.context.shippingMethod.id) %}checked="checked"{% endif %}
-														       class="custom-control-input shipping-method-input">
-													{% endblock %}
+            {% block page_checkout_confirm_shipping_form %}
+                {#TODO: NEXT-2525 - add form action#}
+                <form id="confirmShippingForm"
+                      name="confirmShippingForm"
+                      action="#"
+                      method="post">
+                    {% block page_checkout_confirm_shipping_form_fields %}
+                        <div class="shipping-fields">
+                            {% for shipping in page.shippingMethods.elements %}
+                                <div class="shipping-method">
+                                    {% block page_checkout_confirm_shipping_form_field %}
+                                        <div class="form-group checkout-config-form-group">
+                                            {% block page_checkout_confirm_shipping_form_control %}
+                                                <div class="custom-control custom-radio shipping-method">
+                                                    {% block page_checkout_confirm_shipping_form_input %}
+                                                        <input type="radio"
+                                                               id="shippingMethod{{ loop.index }}"
+                                                               name="shippingMethod"
+                                                               value="{{ shipping.id }}"
+                                                               {% if shipping.id is same as(page.context.shippingMethod.id) %}checked="checked"{% endif %}
+                                                               class="custom-control-input shipping-method-input">
+                                                    {% endblock %}
 
-													{% block page_checkout_confirm_shipping_form_label %}
-														<label class="custom-control-label shipping-method-label"
-														       for="shippingMethod{{ loop.index }}">
-															<strong>{{ shipping.name }}</strong>
+                                                    {% block page_checkout_confirm_shipping_form_label %}
+                                                        <label class="custom-control-label shipping-method-label"
+                                                               for="shippingMethod{{ loop.index }}">
+                                                            <strong>{{ shipping.translated.name }}</strong>
 
-															{% block page_checkout_confirm_shipping_form_description %}
-																{% if shipping.description %}
-																	<div class="shipping-method-description">
-																		{{ shipping.description|raw }}
-																	</div>
-																{% endif %}
-															{% endblock %}
-														</label>
-													{% endblock %}
-												</div>
-											{% endblock %}
-										</div>
-									{% endblock %}
-								</div>
-							{% endfor %}
-						</div>
-					{% endblock %}
-				</form>
-			{% endblock %}
-		</div>
-	</div>
+                                                            {% block page_checkout_confirm_shipping_form_description %}
+                                                                {% if shipping.description %}
+                                                                    <div class="shipping-method-description">
+                                                                        {{ shipping.description|raw }}
+                                                                    </div>
+                                                                {% endif %}
+                                                            {% endblock %}
+                                                        </label>
+                                                    {% endblock %}
+                                                </div>
+                                            {% endblock %}
+                                        </div>
+                                    {% endblock %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endblock %}
+                </form>
+            {% endblock %}
+        </div>
+    </div>
 {% endblock %}

@@ -31,7 +31,7 @@
                 <div class="account-orders-main">
                     {% if page.orders.total == 0 %}
                         {% block page_account_orders_info_empty %}
-                            {% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
+                            {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with {
                                 type: "warning",
                                 content: "account.ordersInfoEmpty"|trans
                             } %}
@@ -47,23 +47,28 @@
                                             <thead class="order-table-header">
                                             <tr>
                                                 {% block page_account_orders_table_header_date %}
-                                                    <th class="col order-header-date" scope="col">{{ "account.orderItemColumnDate"|trans }}</th>
+                                                    <th class="col order-header-date"
+                                                        scope="col">{{ "account.orderItemColumnDate"|trans }}</th>
                                                 {% endblock %}
 
                                                 {% block page_account_orders_table_header_number %}
-                                                    <th class="col order-header-number" scope="col">{{ "account.orderItemColumnNumber"|trans }}</th>
+                                                    <th class="col order-header-number"
+                                                        scope="col">{{ "account.orderItemColumnNumber"|trans }}</th>
                                                 {% endblock %}
 
                                                 {% block page_account_orders_table_header_dispatch %}
-                                                    <th class="col order-header-dispatch" scope="col">{{ "account.orderItemColumnDispatch"|trans }}</th>
+                                                    <th class="col order-header-dispatch"
+                                                        scope="col">{{ "account.orderItemColumnDispatch"|trans }}</th>
                                                 {% endblock %}
 
                                                 {% block page_account_orders_table_header_status %}
-                                                    <th class="col order-header-status" scope="col">{{ "account.orderItemColumnStatus"|trans }}</th>
+                                                    <th class="col order-header-status"
+                                                        scope="col">{{ "account.orderItemColumnStatus"|trans }}</th>
                                                 {% endblock %}
 
                                                 {% block page_account_orders_table_header_actions %}
-                                                    <th class="col order-header-actions" scope="col">{{ "account.orderItemColumnActions"|trans }}</th>
+                                                    <th class="col order-header-actions"
+                                                        scope="col">{{ "account.orderItemColumnActions"|trans }}</th>
                                                 {% endblock %}
                                             </tr>
                                             </thead>
@@ -86,7 +91,8 @@
                                                 {% block page_account_orders_table_actions_paging %}
                                                     <td class="col order-footer-paging">
                                                         {% if page.orders.pages.previous %}
-                                                            <a href="{{ page.orders.pages.previous }}" class="btn order-paging-link order-paging-prev">
+                                                            <a href="{{ page.orders.pages.previous }}"
+                                                               class="btn order-paging-link order-paging-prev">
                                                                 <i class="fas fa-chevron-left"></i>
                                                             </a>
                                                         {% endif %}
@@ -96,12 +102,14 @@
                                                                 <a class="order-paging-link is-active">{{ page.value }}</a>
                                                                 {% set sPage = page.value %}
                                                             {% else %}
-                                                                <a href="{{ page.link }}" class="order-paging-link">{{ page.value }}</a>
+                                                                <a href="{{ page.link }}"
+                                                                   class="order-paging-link">{{ page.value }}</a>
                                                             {% endif %}
                                                         {% endfor %}
 
                                                         {% if page.orders.pages.next %}
-                                                            <a href="{{ page.orders.pages.next }}" class="btn order-paging-link order-paging-next">
+                                                            <a href="{{ page.orders.pages.next }}"
+                                                               class="btn order-paging-link order-paging-next">
                                                                 <i class="fas fa-chevron-right"></i>
                                                             </a>
                                                         {% endif %}

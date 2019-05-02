@@ -1,0 +1,34 @@
+{% sw_extends '@Storefront/layout/_utilities/offcanvas.html.twig' %}
+
+{% block layout_utilities_offcanvas_content %}
+    <div class="account-menu">
+        {% block layout_header_actions_account_widget_dropdown_header %}
+            <div class="dropdown-header account-widget-header">
+                {{ "account.myAccount"|trans }}
+            </div>
+        {% endblock %}
+
+        {% block layout_header_actions_account_widget_dropdown_login %}
+            {% if not context.customer %}
+                <div class="account-widget-login">
+                    <a href="{{ path('frontend.account.login.page') }}"
+                       title="{{ "account.loginSubmit"|trans }}"
+                       class="btn btn-primary account-widget-login-button">
+                        {{ "account.loginSubmit"|trans }}
+                    </a>
+
+                    <div class="account-widget-register">
+                        {{ "account.orRegister"|trans }} <a href="{{ path('frontend.account.login.page') }}"
+                                                            title="{{ "account.orRegisterLink"|trans }}">{{ "account.orRegisterLink"|trans }}</a>
+                    </div>
+                </div>
+            {% endif %}
+        {% endblock %}
+
+        {% block layout_header_actions_account_widget_dropdown_links %}
+            <div class="account-widget-links">
+                {% sw_include '@Storefront/page/account/sidebar.html.twig' with {'headerWidget': true} %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

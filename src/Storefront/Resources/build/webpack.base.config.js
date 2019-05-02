@@ -1,3 +1,7 @@
+if (!process.env.PROJECT_ROOT) {
+    process.env.PROJECT_ROOT = '../../../../..';
+}
+
 const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const WebpackBar = require('webpackbar');
@@ -5,7 +9,8 @@ const StyleLintPlugin = require('stylelint-webpack-plugin');
 const path = require('path');
 const buildDirectory = path.resolve(process.env.PROJECT_ROOT, 'public');
 const CopyPlugin = require('copy-webpack-plugin');
-const publicPath = `${process.env.APP_URL}${(process.env.ENV === 'watch') ? ':9999' : ''}/`;
+const publicPath = `${process.env.APP_URL}${(process.env.MODE === 'hot') ? ':9999' : ''}/`;
+const babelrc = require('../.babelrc');
 
 /**
  * helper function to get a path relative to the root folder
@@ -14,7 +19,12 @@ const publicPath = `${process.env.APP_URL}${(process.env.ENV === 'watch') ? ':99
  * @return {string}
  */
 function getPath(dir) {
-    return path.join(__dirname, '..', dir);
+    const basePath = path.join(__dirname, '..');
+    if (dir) {
+        return path.join(basePath, dir);
+    }
+
+    return basePath;
 }
 
 /**
@@ -27,7 +37,7 @@ function getPath(dir) {
  * -------------------------------------------------------
  */
 
-const context = getPath('asset/script');
+const context = getPath('src/script');
 
 /**
  * Configuration of the applications entrypoints
@@ -38,7 +48,7 @@ const context = getPath('asset/script');
  * @type {{main: string}}
  */
 const entries = {
-    main: './base.js'
+    main: './base.js',
 };
 
 /**
@@ -49,7 +59,7 @@ const entries = {
 const output = {
     path: buildDirectory,
     filename: 'js/main.bundle.js',
-    publicPath: publicPath
+    publicPath: publicPath,
 };
 
 /**
@@ -65,18 +75,15 @@ const modules = {
             use: [
                 {
                     loader: 'babel-loader',
-                    options: {
-                        presets: ['@babel/preset-env'],
-                        plugins: ['@babel/plugin-proposal-class-properties'],
-                    }
+                    options: babelrc,
                 },
                 {
                     loader: 'eslint-loader',
                     options: {
-                        fix: true
-                    }
-                }
-            ]
+                        fix: true,
+                    },
+                },
+            ],
         },
         {
             test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
@@ -86,12 +93,12 @@ const modules = {
                     options: {
                         name: '[name].[ext]',
                         outputPath: 'fonts',
-                        publicPath: './../fonts'
-                    }
-                }
-            ]
-        }
-    ]
+                        publicPath: './../fonts',
+                    },
+                },
+            ],
+        },
+    ],
 };
 
 /**
@@ -102,23 +109,23 @@ const modules = {
 const plugins = [
     new webpack.NoEmitOnErrorsPlugin(),
     new WebpackBar({
-        name: 'Shopware Next Storefront'
+        name: 'Shopware Next Storefront',
     }),
     new StyleLintPlugin({
-        context: getPath('asset/scss'),
+        context: getPath('src/style'),
         syntax: 'scss',
-        fix: true
+        fix: true,
     }),
     new CopyPlugin([
         {
-            from: getPath('asset/img'),
-            to: 'img'
-        }
+            from: getPath('assets/media'),
+            to: 'media',
+        },
     ]),
     new MiniCssExtractPlugin({
         filename: 'css/main.bundle.css',
-        chunkFilename: 'css/main.bundle.css'
-    })
+        chunkFilename: 'css/main.bundle.css',
+    }),
 ];
 
 /**
@@ -143,8 +150,9 @@ const devServer = {};
 const resolve = {
     extensions: ['.js', '.jsx', '.json', '.less', '.sass', '.scss', '.twig'],
     alias: {
-        asset: getPath('asset'),
-    }
+        src: getPath('src'),
+        assets: getPath('assets'),
+    },
 };
 
 
@@ -163,12 +171,12 @@ module.exports = {
     optimization: optimization,
     output: output,
     performance: {
-        hints: false
+        hints: false,
     },
     plugins: plugins,
     resolve: resolve,
     stats: {
-        colors: true
+        colors: true,
     },
-    target: 'web'
+    target: 'web',
 };

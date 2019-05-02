@@ -15,7 +15,7 @@ module.exports = {
     beforeEach: (browser, done) => {
         browser
             .url(browser.launch_url)
-            .click('#cookieButton .btn-primary');
+            .click('.cookie-permission-container .btn-primary');
 
         done();
     },

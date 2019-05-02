@@ -22,9 +22,8 @@
         "back": "Zurück",
         "categories": "Kategorien",
         "showCategory": "%category% anzeigen",
-        "requiredFields": "* hierbei handelt es sich um ein Pflichtfeld",
-        "mailSendButton": "E-Mail senden",
-        "backButton": "Zurück"
+        "required": "*",
+        "requiredFields": "* hierbei handelt es sich um ein Pflichtfeld"
     },
     "header": {
         "logoLink": "zur Startseite wechseln",
@@ -33,17 +32,28 @@
         "searchAllResults": "Alle Ergebnisse anzeigen",
         "searchResults": "Treffer",
         "supportInfo": "<strong>Fragen zu Ihrer Bestellung?</strong><br /><strong><a href='tel:+4912345-123456789'>12345-123456789</a></strong> <small>Täglich 7:30 bis 22:00 Uhr</small>",
-        "indexLinkService": "Service/Hilfe"
+        "indexLinkService": "Service/Hilfe",
+        "searchNoResult": "Keine Suchergebnisse gefunden"
     },
     "meta": {
         "xmlLang": "de-DE",
         "author": "",
-        "copyrightHolder": "",
         "copyrightYear": "",
         "keywordsDefault": "",
         "descriptionDefault": "",
         "revisit": "15 days",
         "robots": "index,follow"
+    },
+    "error": {
+        "VIOLATION::IS_BLANK_ERROR": "%field% darf nicht leer sein.",
+        "VIOLATION::TOO_LOW_ERROR": "%field% darf nicht leer sein.",
+        "VIOLATION::STRICT_CHECK_FAILED_ERROR": "%field% ist ungültig",
+        "VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE": "Diese E-Mail-Adresse ist bereits registriert.",
+        "message-default": "Leider ist etwas ist schief gelaufen",
+        "message-404": "Die angeforderte Seite kann nicht gefunden werden.",
+        "addToCartError": "Beim Hinzufügen zum Warenkorb ist ein Fehler aufgetreten.",
+        "FRAMEWORK__INVALID_UUID": "Die gewählte Zahlungsart konnte nicht gefunden werden.",
+        "CHECKOUT__UNKNOWN_PAYMENT_METHOD": "Die gewählte Zahlungsart konnte nicht gefunden werden."
     },
     "account": {
         "myAccount": "Mein Konto",
@@ -61,7 +71,6 @@
         "registerAdvantage2": "Speichern Sie Ihre Benutzerdaten und Einstellungen",
         "registerAdvantage3": "Einblick in Ihre Bestellungen inkl. Sendungsauskunft",
         "registerAdvantage4": "Verwalten Sie Ihr Newsletter-Abo",
-        "required": "*",
         "registerPersonalHeader": "Ich bin Neukunde",
         "registerAddressBillingHeader": "Ihre Adresse",
         "registerAddressShippingHeader": "Ihre abweichende Lieferadresse",
@@ -77,10 +86,12 @@
         "personalMailPlaceholder": "E-Mail-Adresse",
         "personalMailConfirmationLabel": "E-Mail Bestätigung",
         "personalMailConfirmationPlaceholder": "Wiederholen Sie Ihre E-Mail-Adresse",
+        "personalMailConfirmationInvalidMessage": "Ihre E-Mail-Adresse stimmt nicht überein.",
         "personalPasswordLabel": "Passwort",
         "personalPasswordPlaceholder": "Passwort",
         "personalPasswordConfirmationLabel": "Passwort Bestätigung",
         "personalPasswordConfirmationPlaceholder": "Wiederholen Sie Ihr Passwort",
+        "personalPasswordConfirmationInvalidMessage": "Ihr Passwort stimmt nicht überein.",
         "personalPasswordDescription": "Ihr Passwort muss mindestens %minLength% Zeichen umfassen.",
         "personalBirthdayLabel": "Geburtsdatum",
         "personalBirthdaySelectDay": "Tag",
@@ -166,6 +177,8 @@
         "orderActionSlide": "Anzeigen",
         "orderInfoNoDispatch": "Nicht angegeben",
         "orderLinkRepeat": "Bestellung wiederholen",
+        "newsletterTitle": "Ihre Newslettereinstellungen",
+        "newsletterSettings": "Ja, ich möchte den kostenlosen %shopname% Newsletter erhalten. Sie können sich jederzeit wieder abmelden!",
         "passwordResetTitle": "Passwort vergessen?",
         "passwordResetInfo": "Wenn Sie das Passwort für Ihr Konto vergessen haben, können Sie hier ein neues definieren. Wenn Sie das neue Passwort speichern, wird Ihr altes Passwort ungültig.",
         "passwordOptInInfo": "Wir senden Ihnen eine Bestätigungs-E-Mail. Klicken Sie auf den darin enthaltenen Link, um Ihr Passwort zu ändern.",
@@ -205,6 +218,7 @@
         "cartHeaderTotalPrice": "Summe",
         "cartHeaderTaxIncludeVat": "Enthaltene MwSt.",
         "cartHeaderTaxExcludeVat": "zzgl. Mwst.",
+        "cartItemInfoId": "Artikel-Nr.:",
         "summaryPositionPrice": "Summe:",
         "summaryShipping": "Versandkosten:",
         "summaryTotalPrice": "Gesamtsumme:",
@@ -214,6 +228,7 @@
         "addressEqualHeader": "Rechnungs- und Lieferadresse",
         "billingAddressHeader": "Rechnungsadresse",
         "shippingAddressHeader": "Lieferadresse",
+        "confirmHeader": "Prüfen und Bestellen",
         "confirmPaymentHeader": "Zahlungsart wählen",
         "confirmShippingHeader": "Versandart wählen",
         "confirmSubmit": "Zahlungspflichtig bestellen",
@@ -233,28 +248,34 @@
         "boxLabelTopseller": "Tipp!",
         "boxLabelNew": "Neu",
         "listingTextSite": "Seite",
-        "listingTextFrom": "von"
+        "listingTextFrom": "von",
+        "boxAddProduct": "In den Warenkorb",
+        "boxProductDetails": "Details"
     },
     "newsletter": {
+        "headline": "Newsletter abonnieren",
+        "info": "Abonnieren Sie jetzt einfach unseren regelmäßig erscheinenden Newsletter und Sie werden stets als Erster über neue Artikel und Angebote informiert. Der Newsletter ist natürlich jederzeit über einen Link in der E-Mail oder dieser Seite wieder abbestellbar.",
+        "subscribeOption": "Newsletter abonnieren",
+        "unsubscribeOption": "Newsletter abbestellen",
+        "formSubmit": "Speichern",
         "subscriptionPersistedSuccess": "Sie haben gerade unseren Newsletter abonniert.\n Um die Registrierung abzuschließen, suchen Sie in Ihrer E-Mail-Box nach einer Bestätigungsmail.",
         "subscriptionPersistedInfo": "Wenn Sie keine Mail erhalten haben, wiederholen Sie bitte den Vorgang oder wenden Sie sich an den Shop-Betreiber.",
         "subscriptionRevokeSuccess": "Sie haben sich erfolgreich vom Newsletter abgemeldet.",
         "subscriptionConfirmationSuccess": "Ihr Newsletter-Abonnement wurde erfolgreich registriert!",
-        "subscriptionConfirmationFailed": "Bei Ihrer Newsletter-Anmeldung ist etwas schief gelaufen, Bitte wenden Sie sich an den Shop-Betreiber."
+        "subscriptionConfirmationFailed": "Bei Ihrer Newsletter-Anmeldung ist etwas schief gelaufen, Bitte wenden Sie sich an den Shop-Betreiber.",
+        "subscriptionCompleted": "Vielen Dank. Wir haben Ihre Adresse eingetragen."
     },
     "detail": {
         "ordernumberLabel": "Artikel-Nr.:",
         "addProduct": "In den Warenkorb",
         "tabsDescription": "Beschreibung",
         "descriptionTitle": "Produktinformationen",
-        "priceUnitName": "Inhalt:"
-    },
-    "error": {
-        "message-default": "Leider ist etwas ist schief gelaufen",
-        "message-404": "Die angeforderte Seite kann nicht gefunden werden.",
-        "addToCartError": "Beim Hinzufügen zum Warenkorb ist ein Fehler aufgetreten.",
-        "FRAMEWORK__INVALID_UUID": "Die gewählte Zahlungsart konnte nicht gefunden werden.",
-        "CHECKOUT__UNKNOWN_PAYMENT_METHOD": "Die gewählte Zahlungsart konnte nicht gefunden werden."
+        "priceUnitName": "Inhalt:",
+        "priceDataInfoUntil": "bis",
+        "priceDataInfoFrom": "ab",
+        "dataColumnQuantity": "Menge",
+        "dataColumnPrice": "Stückpreis",
+        "dataColumnReferencePrice": "Grundpreis"
     },
     "footer": {
         "serviceHotlineHeadline": "Service Hotline",

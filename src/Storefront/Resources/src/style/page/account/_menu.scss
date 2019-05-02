@@ -1,0 +1,19 @@
+// Sidebar
+.account-sidebar {
+    margin-bottom: $spacer-lg;
+
+    .account-menu-inner {
+        @extend .card;
+    }
+}
+
+.account-sidebar-footer .btn {
+    padding: 0;
+}
+
+@include media-breakpoint-up(md) {
+    // Sidebar
+    .account-sidebar {
+        margin-bottom: 0;
+    }
+}

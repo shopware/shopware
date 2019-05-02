@@ -29,19 +29,19 @@
 
         {% block page_account_address_success_messages %}
             {% if app.request.get('changedDefaultAddress') == '1' %}
-                {% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
+                {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with {
                     type:"success",
                     content: "account.addressDefaultChanged"|trans
                 } %}
             {% endif %}
             {% if app.request.get('addressDeleted') == '1' %}
-                {% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
+                {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with {
                     type:"success",
                     content: "account.addressDeleted"|trans
                 } %}
             {% endif %}
             {% if app.request.get('addressSaved') %}
-                {% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
+                {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with {
                     type:"success",
                     content: "account.addressSaved"|trans
                 } %}
@@ -49,13 +49,13 @@
         {% endblock %}
         {% block page_account_address_error_messages %}
             {% if app.request.get('changedDefaultAddress') == '0' %}
-                {% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
+                {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with {
                     type:"danger",
                     content: "account.addressDefaultNotChanged"|trans
                 } %}
             {% endif %}
             {% if app.request.get('addressDeleted') == '0' %}
-                {% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
+                {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with {
                     type:"danger",
                     content: "account.addressNotDeleted"|trans
                 } %}
@@ -69,19 +69,19 @@
             <div class="row address-content">
                 {% for address in page.addresses.entities.elements %}
                     {% block page_account_address_item_content %}
-                        <div class="col-lg-6 address-item-content address-box{% if defaultBillingAddress is same as(address.id) or defaultShippingAddress is same as(address.id) %} address-front{% endif %}">
-                            <div class="address-item-card card {% if defaultBillingAddress is same as(address.id) %}default-billing-address{% endif %} {% if defaultShippingAddress is same as(address.id) %}default-shipping-address{% endif %}">
-                                <div class="address-item-card-body card-body">
+                        <div class="col-lg-6 card-col address-box{% if defaultBillingAddress is same as(address.id) or defaultShippingAddress is same as(address.id) %} address-front{% endif %}">
+                            <div class="card{% if defaultBillingAddress is same as(address.id) %} default-billing-address{% endif %}{% if defaultShippingAddress is same as(address.id) %} default-shipping-address{% endif %}">
+                                <div class="card-body">
                                     {% block page_account_address_item_content_body %}
                                         <div class="address-item-body">
                                             {% block page_account_address_item_content_title %}
                                                 {% if defaultBillingAddress is same as(address.id) or defaultShippingAddress is same as(address.id) %}
                                                     <div class="card-title">
                                                         {% if defaultShippingAddress is same as(address.id) %}
-                                                                <div>{{ "account.addressesTitleDefaultShippingAddress"|trans }}</div>
+                                                            <div>{{ "account.addressesTitleDefaultShippingAddress"|trans }}</div>
                                                         {% endif %}
                                                         {% if defaultBillingAddress is same as(address.id) %}
-                                                                <div>{{ "account.addressesTitleDefaultBillingAddress"|trans }}</div>
+                                                            <div>{{ "account.addressesTitleDefaultBillingAddress"|trans }}</div>
                                                         {% endif %}
                                                     </div>
                                                 {% endif %}
@@ -94,7 +94,7 @@
                                     {% endblock %}
 
                                     {% block page_account_address_item_content_actions %}
-                                        <div class="address-item-actions">
+                                        <div class="card-actions">
                                             {% block page_account_address_item_content_set_default %}
                                                 <div class="address-actions-set-defaults">
                                                     {% block page_account_address_item_content_set_default_shipping %}

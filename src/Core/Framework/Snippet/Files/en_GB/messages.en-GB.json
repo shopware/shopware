@@ -22,9 +22,8 @@
         "back": "back",
         "categories": "Categories",
         "showCategory": "show %category%",
-        "requiredFields": "The fields marked with * are required",
-        "mailSendButton": "Send e-mail",
-        "backButton": "Back"
+        "required": "*",
+        "requiredFields": "The fields marked with * are required"
     },
     "header": {
         "logoLink": "Switch to homepage",
@@ -33,17 +32,28 @@
         "searchAllResults": "Show all search results",
         "searchResults": "Results",
         "supportInfo": "<strong>Questions about your order?</strong><br /><strong><a href='tel:+4912345-123456789'>12345-123456789</a></strong> <small>Daily from 7:30 am to 10:00 pm</small>",
-        "indexLinkService": "Service/Help"
+        "indexLinkService": "Service/Help",
+        "searchNoResult": "No results found"
     },
     "meta": {
         "xmlLang": "en-GB",
         "author": "",
-        "copyrightHolder": "",
         "copyrightYear": "",
         "keywordsDefault": "",
         "descriptionDefault": "",
         "revisit": "15 days",
         "robots": "index,follow"
+    },
+    "error": {
+        "VIOLATION::IS_BLANK_ERROR": "%field% should not be empty.",
+        "VIOLATION::TOO_LOW_ERROR": "%field% should not be empty.",
+        "VIOLATION::STRICT_CHECK_FAILED_ERROR": "%field% is invalid",
+        "VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE": "This email address is already registered",
+        "message-default": "Unfortunately, something went wrong.",
+        "message-404": "The requested page cannot be found.",
+        "addToCartError": "An error occurred while adding the item(s) to cart.",
+        "FRAMEWORK__INVALID_UUID": "The selected payment method does not exist.",
+        "CHECKOUT__UNKNOWN_PAYMENT_METHOD": "The selected payment method does not exist."
     },
     "account": {
         "myAccount": "My Account",
@@ -61,7 +71,6 @@
         "registerAdvantage2": "Save your user data and settings",
         "registerAdvantage3": "Overview of your orders incl. shipping informations",
         "registerAdvantage4": "Manage your newsletter subscription",
-        "required": "*",
         "registerPersonalHeader": "I'm a new customer",
         "registerAddressBillingHeader": "Your address",
         "registerAddressShippingHeader": "Your alternative shipping address",
@@ -77,10 +86,12 @@
         "personalMailPlaceholder": "Email address",
         "personalMailConfirmationLabel": "Email address confirmation",
         "personalMailConfirmationPlaceholder": "Re-enter your email address",
+        "personalMailConfirmationInvalidMessage": "Your email address does not match.",
         "personalPasswordLabel": "Password",
         "personalPasswordPlaceholder": "Password",
         "personalPasswordConfirmationLabel": "Password confirmation",
         "personalPasswordConfirmationPlaceholder": "Re-enter your password",
+        "personalPasswordConfirmationInvalidMessage": "Your password does not match.",
         "personalPasswordDescription": "Your password must contain at least %minLength% characters.",
         "personalBirthdayLabel": "Date of birth",
         "personalBirthdaySelectDay": "Day",
@@ -166,11 +177,12 @@
         "orderActionSlide": "View",
         "orderInfoNoDispatch": "No stated",
         "orderLinkRepeat": "Repeat order",
+        "newsletterTitle": "Your newsletter settings",
+        "newsletterSettings": "Yes, I would like to subscribe to the free %shopname% newsletter. You have the possibility to unsubscribe at any time.",
         "passwordResetTitle": "Forgot your password?",
         "passwordResetInfo": "If you have forgotten your accounts password, you can enter a new one here. If you save it, your old password will become invalid.",
         "passwordOptInInfo": "We will send you a confirmation e-mail. Click on the link to change your password.",
         "optInSuccessAlert": "We have sent you a confirmation e-mail if the e-mail address you entered is registered."
-
     },
     "address": {
         "streetLabel": "Street and number",
@@ -206,6 +218,7 @@
         "cartHeaderTotalPrice": "Total price",
         "cartHeaderTaxIncludeVat": "Included VAT",
         "cartHeaderTaxExcludeVat": "Plus VAT",
+        "cartItemInfoId": "Order number:",
         "summaryPositionPrice": "Sum:",
         "summaryShipping": "Shipping costs:",
         "summaryTotalPrice": "Total amount:",
@@ -215,6 +228,7 @@
         "addressEqualHeader": "Billing and shipping address",
         "billingAddressHeader": "Billing address",
         "shippingAddressHeader": "Shipping address",
+        "confirmHeader": "Complete order",
         "confirmPaymentHeader": "Change payment method",
         "confirmShippingHeader": "Change shipping method",
         "confirmSubmit": "Send order",
@@ -234,28 +248,33 @@
         "boxLabelTopseller": "Tip!",
         "boxLabelNew": "New",
         "listingTextSite": "Page",
-        "listingTextFrom": "from"
+        "listingTextFrom": "from",
+        "boxAddProduct": "Add to shopping cart",
+        "boxProductDetails": "Details"
     },
     "newsletter": {
+        "headline": "Subscribe to newsletter",
+        "info": "Subscribe now to our regularly released newsletter and be informed about the latest products and special offers. You will be able to unsubscribe at any time using this website or the link included in the newsletter.",
+        "subscribeOption": "Subscribe to newsletter",
+        "unsubscribeOption": "Unsubscribe to newsletter",
+        "formSubmit": "Save",
         "subscriptionPersistedSuccess": "You have just subscribed to our newsletter.\n To complete the registration look in your e-mail box for a confirmation mail.",
         "subscriptionPersistedInfo": "If you have not received a mail please repeat the process or contact the shop operator.",
         "subscriptionRevokeSuccess": "You have successfully unsubscribed from the newsletter.",
-        "subscriptionConfirmationSuccess": "Your newsletter subscription was successfully registered!",
-        "subscriptionConfirmationFailed": "newsletter subscription did not work properly, please contact us"
+        "subscriptionConfirmationFailed": "newsletter subscription did not work properly, please contact us",
+        "subscriptionCompleted": "Thank you! We have entered your address."
     },
     "detail": {
         "ordernumberLabel": "Order number: ",
         "addProduct": "Add to shopping cart",
         "tabsDescription": "Description",
         "descriptionTitle": "Product information",
-        "priceUnitName": "Content:"
-    },
-    "error": {
-        "message-default": "Unfortunately, something went wrong.",
-        "message-404": "The requested page cannot be found.",
-        "addToCartError": "An error occurred while adding the item(s) to cart.",
-        "FRAMEWORK__INVALID_UUID": "The selected payment method does not exist.",
-        "CHECKOUT__UNKNOWN_PAYMENT_METHOD": "The selected payment method does not exist."
+        "priceUnitName": "Content:",
+        "priceDataInfoUntil": "To",
+        "priceDataInfoFrom": "From",
+        "dataColumnQuantity": "Quantity",
+        "dataColumnPrice": "Unit price",
+        "dataColumnReferencePrice": "Reference price"
     },
     "footer": {
         "serviceHotlineHeadline": "Service Hotline",

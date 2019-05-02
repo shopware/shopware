@@ -1,0 +1,27 @@
+.footer-column-headline {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+}
+
+.footer-link {
+    color: $gray-600;
+
+    &:hover {
+        color: $primary;
+        text-decoration: none;
+    }
+}
+
+.footer-hotline a {
+    @extend .footer-link;
+    display: block;
+    margin: $spacer 0 $spacer-sm;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+}
+
+@include media-breakpoint-up(md) {
+    .footer-link-item {
+        padding: 2px 0;
+    }
+}

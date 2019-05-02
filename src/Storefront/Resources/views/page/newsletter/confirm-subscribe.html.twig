@@ -1,6 +1,8 @@
 {% sw_extends '@Storefront/base.html.twig' %}
 
 {% block base_content %}
-        {# TODO: @Benjamin_Ott (content ersetzen) #}
-        <p>You will now receive the newsletter.</p>
+    {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with {
+        type: "success",
+        content: "newsletter.subscriptionCompleted"|trans
+    } %}
 {% endblock %}

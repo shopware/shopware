@@ -1,0 +1,27 @@
+.cookie-permission-container {
+    display: none;
+    border-top: 1px solid $border-color;
+    background: $white;
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    text-align: center;
+    padding: $spacer * 0.5;
+    font-size: $font-size-sm;
+}
+
+.cookie-permission-content {
+    margin-bottom: $spacer * 0.5;
+
+    a {
+        display: inline-block;
+    }
+}
+
+@include media-breakpoint-up(md) {
+    .cookie-permission-content {
+        text-align: left;
+        margin-bottom: 0;
+    }
+}

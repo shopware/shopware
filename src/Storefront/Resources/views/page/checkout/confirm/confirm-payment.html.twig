@@ -1,30 +1,30 @@
 {% block page_checkout_confirm_payment_inner %}
-	<div class="card confirm-card">
-		<div class="card-body confirm-card-body">
-			{% block page_checkout_confirm_payment_title %}
-				<div class="card-title">
-					{{ "checkout.confirmPaymentHeader"|trans }}
-				</div>
-			{% endblock %}
+    <div class="card confirm-card">
+        <div class="card-body confirm-card-body">
+            {% block page_checkout_confirm_payment_title %}
+                <div class="card-title">
+                    {{ "checkout.confirmPaymentHeader"|trans }}
+                </div>
+            {% endblock %}
 
-			{% block page_checkout_confirm_payment_form %}
-				{#TODO: add form action and auto submit#}
-				<form id="confirmPaymentForm"
-				      name="confirmPaymentForm"
-				      action="{{ path('frontend.checkout.configure') }}"
-				      method="post"
-					  data-form-auto-submit="true">
-					{% block page_checkout_confirm_payment_form_redirect %}
-					    <input type="hidden" name="redirectTo" value="{{ 'frontend.checkout.confirm.page' }}">
+            {% block page_checkout_confirm_payment_form %}
+                {#TODO: NEXT-2524 - add form action#}
+                <form id="confirmPaymentForm"
+                      name="confirmPaymentForm"
+                      action="{{ path('frontend.checkout.configure') }}"
+                      method="post"
+                      data-form-auto-submit="true">
+                    {% block page_checkout_confirm_payment_form_redirect %}
+                        <input type="hidden" name="redirectTo" value="{{ 'frontend.checkout.confirm.page' }}">
                     {% endblock %}
 
-					{% block page_checkout_confirm_payment_form_fields %}
-						{% sw_include '@Storefront/component/payment/payment-fields.html.twig' with {
-							'defaultPaymentMethodId': page.context.paymentMethod.id,
-						} %}
-					{% endblock %}
-				</form>
-			{% endblock %}
-		</div>
-	</div>
+                    {% block page_checkout_confirm_payment_form_fields %}
+                        {% sw_include '@Storefront/component/payment/payment-fields.html.twig' with {
+                            'defaultPaymentMethodId': page.context.paymentMethod.id,
+                        } %}
+                    {% endblock %}
+                </form>
+            {% endblock %}
+        </div>
+    </div>
 {% endblock %}

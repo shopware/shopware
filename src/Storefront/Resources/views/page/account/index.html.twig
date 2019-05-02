@@ -1,195 +1,195 @@
 {% sw_extends '@Storefront/page/account/_page.html.twig' %}
 
 {% block base_breadcrumb %}
-	{% set breadcrumbList = [
-		{
-			"name": "account.overviewTitle"|trans,
-			"link": path('frontend.account.home.page')
-		}
-	] %}
+    {% set breadcrumbList = [
+        {
+            "name": "account.overviewTitle"|trans,
+            "link": path('frontend.account.home.page')
+        }
+    ] %}
 
-	{{ parent() }}
+    {{ parent() }}
 {% endblock %}
 
 {% block page_account_main_content %}
-	{% block page_account_overview %}
-		<div class="account-overview">
-			{% block page_account_overview_welcome %}
-				<div class="account-welcome">
-					{% block page_account_overview_welcome_headline %}
-						<h1>
-							{{ "account.overviewWelcome"|trans }}
-							{{ page.customer.title }}
-							{{ page.customer.firstName }}
-							{{ page.customer.LastName }}
-						</h1>
-					{% endblock %}
+    {% block page_account_overview %}
+        <div class="account-overview">
+            {% block page_account_overview_welcome %}
+                <div class="account-welcome">
+                    {% block page_account_overview_welcome_headline %}
+                        <h1>
+                            {{ "account.overviewWelcome"|trans }}
+                            {{ page.customer.title }}
+                            {{ page.customer.firstName }}
+                            {{ page.customer.LastName }}
+                        </h1>
+                    {% endblock %}
 
-					{% block page_account_overview_welcome_content %}
-						<p>{{ "account.overviewInfo"|trans }}</p>
-					{% endblock %}
-				</div>
-			{% endblock %}
+                    {% block page_account_overview_welcome_content %}
+                        <p>{{ "account.overviewInfo"|trans }}</p>
+                    {% endblock %}
+                </div>
+            {% endblock %}
 
-			{% block page_account_overview_main %}
-				<div class="row">
-					{% block page_account_overview_profile %}
-						<div class="col-lg-6 account-card overview-profile">
-							{% block page_account_overview_profile_card %}
-								<div class="card h-100">
-									<div class="card-body">
-										{% block page_account_overview_profile_title %}
-											<h2 class="card-title">
-												{{ "account.profileTitle"|trans }}
-											</h2>
-										{% endblock %}
+            {% block page_account_overview_main %}
+                <div class="row">
+                    {% block page_account_overview_profile %}
+                        <div class="col-lg-6 card-col overview-profile">
+                            {% block page_account_overview_profile_card %}
+                                <div class="card">
+                                    <div class="card-body">
+                                        {% block page_account_overview_profile_title %}
+                                            <h2 class="card-title">
+                                                {{ "account.profileTitle"|trans }}
+                                            </h2>
+                                        {% endblock %}
 
-										{% block page_account_overview_profile_content %}
-											<p>
-												{{ page.customer.salutation.name }}
-												{% if page.customer.title %}
-													{{ page.customer.title }}<br/>
-												{% endif %}
-												{{ page.customer.firstName }} {{ page.customer.lastName }}<br/>
-												{% if page.customer.birthday %}
-													{{ page.customer.birthday|localizeddate('short', 'none', app.request.locale) }}<br/>
-												{% endif %}
-												{{ page.customer.email }}
-											</p>
-										{% endblock %}
+                                        {% block page_account_overview_profile_content %}
+                                            <p>
+                                                {{ page.customer.salutation.translated.name }}
+                                                {% if page.customer.title %}
+                                                    {{ page.customer.title }}<br/>
+                                                {% endif %}
+                                                {{ page.customer.firstName }} {{ page.customer.lastName }}<br/>
+                                                {% if page.customer.birthday %}
+                                                    {{ page.customer.birthday|localizeddate('short', 'none', app.request.locale) }}
+                                                    <br/>
+                                                {% endif %}
+                                                {{ page.customer.email }}
+                                            </p>
+                                        {% endblock %}
 
-										{% block page_account_overview_profile_actions %}
-											<div class="account-card-actions">
-												<a href="{{ path('frontend.account.profile.page') }}"
-												   title="{{ "account.overviewChangeProfile"|trans }}"
-												   class="btn btn-light">
-													{{ "account.overviewChangeProfile"|trans }}
-												</a>
-											</div>
-										{% endblock %}
-									</div>
-								</div>
-							{% endblock %}
-						</div>
-					{% endblock %}
+                                        {% block page_account_overview_profile_actions %}
+                                            <div class="card-actions">
+                                                <a href="{{ path('frontend.account.profile.page') }}"
+                                                   title="{{ "account.overviewChangeProfile"|trans }}"
+                                                   class="btn btn-light">
+                                                    {{ "account.overviewChangeProfile"|trans }}
+                                                </a>
+                                            </div>
+                                        {% endblock %}
+                                    </div>
+                                </div>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
 
-					{% block page_account_overview_payment %}
-						<div class="col-lg-6 account-card overview-payment">
-							{% block page_account_overview_payment_card %}
-								<div class="card h-100">
-									<div class="card-body">
-										{% block page_account_overview_payment_title %}
-											<h2 class="card-title">
-												{{ "account.overviewPaymentHeader"|trans }}
-											</h2>
-										{% endblock %}
+                    {% block page_account_overview_payment %}
+                        <div class="col-lg-6 card-col overview-payment">
+                            {% block page_account_overview_payment_card %}
+                                <div class="card">
+                                    <div class="card-body">
+                                        {% block page_account_overview_payment_title %}
+                                            <h2 class="card-title">
+                                                {{ "account.overviewPaymentHeader"|trans }}
+                                            </h2>
+                                        {% endblock %}
 
-										{% block page_account_overview_payment_content %}
-											<strong>{{ page.customer.defaultPaymentMethod.name }}</strong>
-											<p>{{ page.customer.defaultPaymentMethod.additionalDescription }}</p>
-										{% endblock %}
+                                        {% block page_account_overview_payment_content %}
+                                            <strong>{{ page.customer.defaultPaymentMethod.translated.name }}</strong>
+                                            <p>{{ page.customer.defaultPaymentMethod.additionalDescription }}</p>
+                                        {% endblock %}
 
-										{% block page_account_overview_payment_actions %}
-											<div class="account-card-actions">
-												<a href="{{ path('frontend.account.payment.page') }}"
-												   title="{{ "account.overviewChangePayment"|trans }}"
-												   class="btn btn-light">
-													{{ "account.overviewChangePayment"|trans }}
-												</a>
-											</div>
-										{% endblock %}
-									</div>
-								</div>
-							{% endblock %}
-						</div>
-					{% endblock %}
-				</div>
-			{% endblock %}
+                                        {% block page_account_overview_payment_actions %}
+                                            <div class="card-actions">
+                                                <a href="{{ path('frontend.account.payment.page') }}"
+                                                   title="{{ "account.overviewChangePayment"|trans }}"
+                                                   class="btn btn-light">
+                                                    {{ "account.overviewChangePayment"|trans }}
+                                                </a>
+                                            </div>
+                                        {% endblock %}
+                                    </div>
+                                </div>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
 
-			{% block page_account_overview_addresses %}
-				<div class="row">
-					{% block page_account_overview_billing_address %}
-						<div class="col-lg-6 account-card overview-billing-address">
-							{% block page_account_overview_billing_address_card %}
-								<div class="card h-100">
-									<div class="card-body">
-										{% block page_account_overview_billing_address_title %}
-											<h2 class="card-title">
-												{{ "account.overviewBillingHeader"|trans }}
-											</h2>
-										{% endblock %}
+            {% block page_account_overview_addresses %}
+                <div class="row">
+                    {% block page_account_overview_billing_address %}
+                        <div class="col-lg-6 card-col overview-billing-address">
+                            {% block page_account_overview_billing_address_card %}
+                                <div class="card">
+                                    <div class="card-body">
+                                        {% block page_account_overview_billing_address_title %}
+                                            <h2 class="card-title">
+                                                {{ "account.overviewBillingHeader"|trans }}
+                                            </h2>
+                                        {% endblock %}
 
-										{% block page_account_overview_billing_address_content %}
-											{% sw_include '@Storefront/component/address/address.html.twig' with {'address': page.customer.defaultBillingAddress} %}
-										{% endblock %}
+                                        {% block page_account_overview_billing_address_content %}
+                                            {% sw_include '@Storefront/component/address/address.html.twig' with {'address': page.customer.defaultBillingAddress} %}
+                                        {% endblock %}
 
-										{% block page_account_overview_billing_address_actions %}
-											<div class="account-card-actions">
-												<a href="{{ path('frontend.account.address.edit.page', {'addressId': page.customer.defaultBillingAddress.id}) }}"
-												   title="{{ "account.overviewChangeBilling"|trans }}"
-												   class="btn btn-light">
-													{{ "account.overviewChangeBilling"|trans }}
-												</a>
-											</div>
-										{% endblock %}
-									</div>
-								</div>
-							{% endblock %}
-						</div>
-					{% endblock %}
+                                        {% block page_account_overview_billing_address_actions %}
+                                            <div class="card-actions">
+                                                <a href="{{ path('frontend.account.address.edit.page', {'addressId': page.customer.defaultBillingAddress.id}) }}"
+                                                   title="{{ "account.overviewChangeBilling"|trans }}"
+                                                   class="btn btn-light">
+                                                    {{ "account.overviewChangeBilling"|trans }}
+                                                </a>
+                                            </div>
+                                        {% endblock %}
+                                    </div>
+                                </div>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
 
-					{% block page_account_overview_shipping_address %}
-						<div class="col-lg-6 account-card overview-shipping-address">
-							{% block page_account_overview_shipping_address_card %}
-								<div class="card h-100">
-									<div class="card-body">
-										{% block page_account_overview_shipping_address_title %}
-											<h2 class="card-title">
-												{{ "account.overviewShippingHeader"|trans }}
-											</h2>
-										{% endblock %}
+                    {% block page_account_overview_shipping_address %}
+                        <div class="col-lg-6 card-col overview-shipping-address">
+                            {% block page_account_overview_shipping_address_card %}
+                                <div class="card">
+                                    <div class="card-body">
+                                        {% block page_account_overview_shipping_address_title %}
+                                            <h2 class="card-title">
+                                                {{ "account.overviewShippingHeader"|trans }}
+                                            </h2>
+                                        {% endblock %}
 
-										{% block page_account_overview_shipping_address_content %}
-											{% if page.customer.defaultBillingAddress.id is same as(page.customer.defaultShippingAddress.id) %}
-												<p>{{ "account.overviewAddressEqual"|trans }}</p>
-											{% else %}
-												{% sw_include '@Storefront/component/address/address.html.twig' with {'address': page.customer.defaultShippingAddress} %}
-											{% endif %}
-										{% endblock %}
+                                        {% block page_account_overview_shipping_address_content %}
+                                            {% if page.customer.defaultBillingAddress.id is same as(page.customer.defaultShippingAddress.id) %}
+                                                <p>{{ "account.overviewAddressEqual"|trans }}</p>
+                                            {% else %}
+                                                {% sw_include '@Storefront/component/address/address.html.twig' with {'address': page.customer.defaultShippingAddress} %}
+                                            {% endif %}
+                                        {% endblock %}
 
-										{% block page_account_overview_shipping_address_actions %}
-											<div class="account-card-actions">
-												<a href="{{ path('frontend.account.address.edit.page', {'addressId': page.customer.defaultShippingAddress.id}) }}"
-												   title="{{ "account.overviewChangeShipping"|trans }}"
-												   class="btn btn-light">
-													{{ "account.overviewChangeShipping"|trans }}
-												</a>
-											</div>
-										{% endblock %}
-									</div>
-								</div>
-							{% endblock %}
-						</div>
-					{% endblock %}
-				</div>
-			{% endblock %}
+                                        {% block page_account_overview_shipping_address_actions %}
+                                            <div class="card-actions">
+                                                <a href="{{ path('frontend.account.address.edit.page', {'addressId': page.customer.defaultShippingAddress.id}) }}"
+                                                   title="{{ "account.overviewChangeShipping"|trans }}"
+                                                   class="btn btn-light">
+                                                    {{ "account.overviewChangeShipping"|trans }}
+                                                </a>
+                                            </div>
+                                        {% endblock %}
+                                    </div>
+                                </div>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
 
-			{% block page_account_overview_newsletter %}
-				<div class="card">
-					<div class="card-body">
-						{% block page_account_overview_newsletter_title %}
-							<h2 class="card-title">
-								{{ "account.newsletterTitle"|trans }}
-							</h2>
-						{% endblock %}
+            {% block page_account_overview_newsletter %}
+                <div class="card">
+                    <div class="card-body">
+                        {% block page_account_overview_newsletter_title %}
+                            <h2 class="card-title">
+                                {{ "account.newsletterTitle"|trans }}
+                            </h2>
+                        {% endblock %}
 
-						{% block page_account_overview_newsletter_content %}
-							{% sw_include "@Storefront/page/account/newsletter.html.twig" with { "customer": page.customer } %}
-						{% endblock %}
-					</div>
-				</div>
-			{% endblock %}
-
-		</div>
-	{% endblock %}
+                        {% block page_account_overview_newsletter_content %}
+                            {% sw_include "@Storefront/page/account/newsletter.html.twig" with { "customer": page.customer } %}
+                        {% endblock %}
+                    </div>
+                </div>
+            {% endblock %}
+        </div>
+    {% endblock %}
 {% endblock %}

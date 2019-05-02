@@ -12,18 +12,18 @@
 {% endblock %}
 
 {% block base_head %}
-    {% sw_include '@Storefront/base/meta.html.twig' %}
+    {% sw_include '@Storefront/layout/meta.html.twig' %}
 {% endblock %}
 
 {% block base_body %}
-    <body class="is-ctl-{{ controllerName }} is-act-{{ controllerAction }}">
+    <body class="is-ctl-{{ controllerName|lower }} is-act-{{ controllerAction|lower }}">
     {% block base_body_inner %}
         {% block base_noscript %}
             <noscript class="noscript-main">
-	            {% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
-		            type: 'info',
-		            content: 'general.noscriptNotice'|trans
-	            } %}
+                {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with {
+                    type: 'info',
+                    content: 'general.noscriptNotice'|trans
+                } %}
             </noscript>
         {% endblock %}
 
@@ -31,7 +31,7 @@
             <header class="header-main">
                 {% block base_header_inner %}
                     <div class="container">
-                        {% sw_include '@Storefront/base/header/header.html.twig' %}
+                        {% sw_include '@Storefront/layout/header/header.html.twig' %}
                     </div>
                 {% endblock %}
             </header>
@@ -40,9 +40,15 @@
         {% block base_navigation %}
             <div class="nav-main">
                 {% block base_navigation_inner %}
-                    <div class="container">
-                        {% sw_include '@Storefront/base/navigation/navigation.html.twig' %}
-                    </div>
+                    {% sw_include '@Storefront/layout/navigation/navigation.html.twig' %}
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block initial_offcanvas_navigation %}
+            <div class="d-none js-offcanvas-menu-initial-content">
+                {% block initial_offcanvas_navigation_inner %}
+                    {% sw_include '@Storefront/layout/navigation/offcanvas/navigation.html.twig' %}
                 {% endblock %}
             </div>
         {% endblock %}
@@ -55,14 +61,14 @@
                             <div class="content-main-inner">
                                 {% block base_breadcrumb %}
                                     {% if breadcrumbList %}
-                                        {% sw_include '@Storefront/base/breadcrumb.html.twig' %}
+                                        {% sw_include '@Storefront/layout/breadcrumb.html.twig' %}
                                     {% endif %}
                                 {% endblock %}
 
                                 {% block base_flashbags %}
                                     <div id="flashbags">
                                         {% for type, messages in app.flashes %}
-                                            {% sw_include '@Storefront/base/_utilities/alert.html.twig' with { type: type, list: messages } %}
+                                            {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with { type: type, list: messages } %}
                                         {% endfor %}
                                     </div>
                                 {% endblock %}
@@ -79,7 +85,7 @@
             <footer class="footer-main">
                 {% block base_footer_inner %}
                     <div class="container">
-                        {% sw_include '@Storefront/base/footer/footer.html.twig' %}
+                        {% sw_include '@Storefront/layout/footer/footer.html.twig' %}
                     </div>
                 {% endblock %}
             </footer>
@@ -87,37 +93,48 @@
     {% endblock %}
 
     {% block base_cookie_permission %}
-        {% sw_include '@Storefront/base/cookie-permission.html.twig' %}
+        {% sw_include '@Storefront/layout/cookie-permission.html.twig' %}
     {% endblock %}
 
     {% block base_body_script %}
-        {% block base_script_token %}
-            <script>
-                window.accessKey = '{{ page.context.salesChannel.accessKey }}';
-                window.contextToken = '{{ page.context.token }}';
-            </script>
-        {% endblock %}
+    {% block base_script_token %}
+        <script>
+            window.accessKey = '{{ page.context.salesChannel.accessKey }}';
+            window.contextToken = '{{ page.context.token }}';
+        </script>
+    {% endblock %}
 
-        {% block base_script_router %}
-            {# Register all routes that will be needed in JavaScript to the window.router object #}
-            <script>
-                window.activeNavigationId = '{{ page.header.navigation.active.id }}';
-                window.router = {
-                    "frontend.cart.detail": '{{ path('frontend.cart.detail') }}',
-                    "frontend.checkout.finish.page": '{{ path('frontend.checkout.finish.page') }}',
-                    "widgets.checkout.info": '{{ path('widgets.checkout.info') }}',
-                    "widgets.menu.offcanvas": '{{ path('widgets.menu.offcanvas') }}',
-                };
-            </script>
-        {% endblock %}
+    {% block base_script_router %}
+        {# Register all routes that will be needed in JavaScript to the window.router object #}
+        <script>
+            window.activeNavigationId = '{{ page.header.navigation.active.id }}';
+            window.router = {
+                'frontend.cart.detail': '{{ path('frontend.cart.detail') }}',
+                'frontend.checkout.finish.page': '{{ path('frontend.checkout.finish.page') }}',
+                'widgets.checkout.info': '{{ path('widgets.checkout.info') }}',
+                'widgets.menu.offcanvas': '{{ path('widgets.menu.offcanvas') }}',
+                'widgets.cms.page': '{{ path('widgets.cms.page') }}',
+                'widgets.cms.navigation.page': '{{ path('widgets.cms.navigation.page') }}',
+            };
+        </script>
+    {% endblock %}
 
-        {% block base_script_hmr_mode %}
-            {% if isHMRMode %}
-                <script type="text/javascript" src="{{ app.request.server.get('APP_URL') }}:9999/js/main.bundle.js"></script>
-            {% else %}
-                <script type="text/javascript" src="{{ asset('js/main.bundle.js') }}"></script>
-            {% endif %}
-        {% endblock %}
+    {% block base_script_breakpoints %}
+        {# Register the available viewport breakpoints the window.breakpoints object #}
+        <script>
+            window.breakpoints = {{ shopware.theme.breakpoint|json_encode()|raw }};
+        </script>
+    {% endblock %}
+
+    {% block base_script_hmr_mode %}
+        {% if isHMRMode %}
+        <script type="text/javascript"
+                src="{{ app.request.server.get('APP_URL') }}:9999/js/main.bundle.js"></script>
+        {% else %}
+        <script type="text/javascript"
+                src="{{ asset('js/main.bundle.js') }}"></script>
+        {% endif %}
+    {% endblock %}
     {% endblock %}
     </body>
 {% endblock %}

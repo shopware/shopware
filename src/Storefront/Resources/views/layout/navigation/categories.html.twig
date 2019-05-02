@@ -1,0 +1,32 @@
+{% set navigationMaxDepth = 3 %}
+
+{% if not level %}
+    {% set level = 0 %}
+{% endif %}
+
+{% block layout_navigation_categories %}
+    <ul class="list-unstyled category-list level-{{ level }}">
+        {% for treeItem in navigationTree %}
+            {% block layout_navigation_categories_item %}
+                <li>
+                    {% block layout_navigation_categories_item_link %}
+                        <a class="nav-item nav-link navigation-flyout-link level-{{ level }}{% if treeItem.category.id is same as(page.header.navigation.active.id) %} active{% endif %}"
+                           href="{{ path('frontend.navigation.page', {'navigationId': treeItem.category.id}) }}"
+                           itemprop="url"
+                           title="{{ treeItem.category.translated.name }}">
+                            {% block layout_navigation_categories_item_link_text %}
+                                <span itemprop="name">{{ treeItem.category.translated.name }}</span>
+                            {% endblock %}
+                        </a>
+                    {% endblock %}
+
+                    {% block layout_navigation_categories_recoursion %}
+                        {% if level < navigationMaxDepth %}
+                            {% sw_include '@Storefront/layout/navigation/categories.html.twig' with { navigationTree: treeItem.children, level: level + 1  } only %}
+                        {% endif %}
+                    {% endblock %}
+                </li>
+            {% endblock %}
+        {% endfor %}
+    </ul>
+{% endblock %}

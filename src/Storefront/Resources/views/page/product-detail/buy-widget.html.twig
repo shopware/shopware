@@ -1,102 +1,105 @@
 {% block page_product_detail_buy_inner %}
-	<div class="product-detail-buy">
-		{% block page_product_detail_rich_snippets %}
-			{% block page_product_detail_rich_snippets_brand %}
-				<meta itemprop="brand" content="{{ page.product.manufacturer.name }}"/>
-			{% endblock %}
+    <div class="product-detail-buy js-magnifier-zoom-image-container">
+        {% block page_product_detail_rich_snippets %}
+            {% block page_product_detail_rich_snippets_brand %}
+                <meta itemprop="brand"
+                      content="{{ page.product.manufacturer.translated.name }}"/>
+            {% endblock %}
 
-			{% block page_product_detail_rich_snippets_weight %}
-				<meta itemprop="weight" content="{{ page.product.weight }} kg"/>
-			{% endblock %}
+            {% block page_product_detail_rich_snippets_weight %}
+                <meta itemprop="weight"
+                      content="{{ page.product.weight }} kg"/>
+            {% endblock %}
 
-			{% block page_product_detail_rich_snippets_height %}
-				<meta itemprop="height" content="{{ page.product.height }} mm"/>
-			{% endblock %}
+            {% block page_product_detail_rich_snippets_height %}
+                <meta itemprop="height"
+                      content="{{ page.product.height }} mm"/>
+            {% endblock %}
 
-			{% block page_product_detail_rich_snippets_width %}
-				<meta itemprop="width" content="{{ page.product.width }} mm"/>
-			{% endblock %}
+            {% block page_product_detail_rich_snippets_width %}
+                <meta itemprop="width"
+                      content="{{ page.product.width }} mm"/>
+            {% endblock %}
 
-			{% block page_product_detail_rich_snippets_depth %}
-				<meta itemprop="depth" content="{{ page.product.length }} mm"/>
-			{% endblock %}
+            {% block page_product_detail_rich_snippets_depth %}
+                <meta itemprop="depth"
+                      content="{{ page.product.length }} mm"/>
+            {% endblock %}
 
-			{% block page_product_detail_rich_snippets_release_date %}
-				<meta itemprop="releaseDate"
-				      content="{{ page.product.releaseDate|localizeddate('short', 'none', app.request.locale) }}"/>
-			{% endblock %}
-		{% endblock %}
+            {% block page_product_detail_rich_snippets_release_date %}
+                <meta itemprop="releaseDate"
+                      content="{{ page.product.releaseDate|localizeddate('short', 'none', app.request.locale) }}"/>
+            {% endblock %}
+        {% endblock %}
 
-		{% block page_product_detail_not_available %}
-			{#TODO: NEXT-1921 - product not available message#}
-		{% endblock %}
+        {% block page_product_detail_not_available %}
+            {#TODO: NEXT-2784 - product not available message#}
+        {% endblock %}
 
-		{% block page_product_detail_buy_container %}
-			<div itemprop="offers" itemscope itemtype="http://schema.org/Offer">
-				{% block page_product_detail_data %}
-					<meta itemprop="priceCurrency" content="{{ page.context.currency.shortName }}"/>
+        {% block page_product_detail_buy_container %}
+            <div itemprop="offers"
+                 itemscope
+                 itemtype="http://schema.org/Offer">
+                {% block page_product_detail_data %}
+                    <meta itemprop="priceCurrency"
+                          content="{{ page.context.currency.translated.shortName }}"/>
 
-					{% block page_product_detail_price %}
-						<div class="product-detail-price-container">
-							{% sw_include '@Storefront/page/product-detail/buy-widget-price.html.twig' %}
-						</div>
-					{% endblock %}
+                    {% block page_product_detail_price %}
+                        <div class="product-detail-price-container">
+                            {% sw_include '@Storefront/page/product-detail/buy-widget-price.html.twig' %}
+                        </div>
+                    {% endblock %}
 
-					{% block page_product_detail_tax %}
-						{#TODO: NEXT-1921 - add modal functionality#}
-						<div class="product-detail-tax-container">
-							<p class="product-detail-tax">
-								{% if context.taxState == "gross" %}
-									{{ "general.grossTaxInformation"|trans }}
-								{% else %}
-									{{ "general.netTaxInformation"|trans }}
-								{% endif %}
-							</p>
-						</div>
-					{% endblock %}
+                    {% block page_product_detail_tax %}
+                        <div class="product-detail-tax-container">
+                            <p class="product-detail-tax"
+                               data-toggle="modal"
+                               data-url="{{ path('widgets.cms.page',{ id: shopware.config.cms.taxCmsPageId }) }}">
+                                {% if context.taxState == "gross" %}
+                                    {{ "general.grossTaxInformation"|trans }}
+                                {% else %}
+                                    {{ "general.netTaxInformation"|trans }}
+                                {% endif %}
+                            </p>
+                        </div>
+                    {% endblock %}
 
-					{% block page_product_detail_delivery_informations %}
-						<div class="product-detail-delivery-information">
-							{% sw_include '@Storefront/component/delivery-information.html.twig' %}
-						</div>
-					{% endblock %}
-				{% endblock %}
+                    {% block page_product_detail_delivery_informations %}
+                        <div class="product-detail-delivery-information">
+                            {% sw_include '@Storefront/component/delivery-information.html.twig' %}
+                        </div>
+                    {% endblock %}
+                {% endblock %}
 
-				{% block page_product_detail_variant %}
-					{% if page.product.configuratorSettings %}
-						<div class="product-detail-variants">
-							{% sw_include '@Storefront/page/product-detail/buy-widget-variant.html.twig' %}
-						</div>
-					{% endif %}
-				{% endblock %}
+                {% block page_product_detail_buy_form %}
+                    {% if page.product.active %}
+                        <div class="product-detail-form-container">
+                            {% sw_include '@Storefront/page/product-detail/buy-widget-form.html.twig' %}
+                        </div>
+                    {% endif %}
+                {% endblock %}
+            </div>
+        {% endblock %}
 
-				{% block page_product_detail_buy_form %}
-					{% if page.product.active %}
-						<div class="product-detail-form-container">
-							{% sw_include '@Storefront/page/product-detail/buy-widget-form.html.twig' %}
-						</div>
-					{% endif %}
-				{% endblock %}
-			</div>
-		{% endblock %}
-
-		{% block page_product_detail_ordernumber_container %}
-			{% if page.product.productNumber %}
-				<div class="product-detail-ordernumber-container">
-					{% block page_product_detail_ordernumber_label %}
-						<span class="product-detail-ordernumber-label">
+        {% block page_product_detail_ordernumber_container %}
+            {% if page.product.productNumber %}
+                <div class="product-detail-ordernumber-container">
+                    {% block page_product_detail_ordernumber_label %}
+                        <span class="product-detail-ordernumber-label">
                             {{ "detail.ordernumberLabel"|trans }}
                         </span>
-					{% endblock %}
+                    {% endblock %}
 
-					{% block page_product_detail_ordernumber %}
-						<meta itemprop="productID" content="{{ page.product.id }}"/>
-						<span class="product-detail-ordernumber" itemprop="sku">
+                    {% block page_product_detail_ordernumber %}
+                        <meta itemprop="productID"
+                              content="{{ page.product.id }}"/>
+                        <span class="product-detail-ordernumber"
+                              itemprop="sku">
                             {{ page.product.productNumber }}
                         </span>
-					{% endblock %}
-				</div>
-			{% endif %}
-		{% endblock %}
-	</div>
+                    {% endblock %}
+                </div>
+            {% endif %}
+        {% endblock %}
+    </div>
 {% endblock %}

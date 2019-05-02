@@ -65,16 +65,19 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
                     'favicon' => 'favicon.ico',
                     'appleTouch' => 'apple-touch-icon.png',
                     'androidTouch' => 'android-touch-icon.png',
-                    'desktop' => 'img/logo-desktop.png',
-                    'tablet' => 'img/logo-desktop.png',
-                    'mobile' => 'img/logo-mobile.png',
+                    'desktop' => 'media/logo-desktop.png',
+                    'tablet' => 'media/logo-desktop.png',
+                    'mobile' => 'media/logo-mobile.png',
                 ],
                 'breakpoint' => [
-                    'xs' => '0',
-                    'sm' => '576',
-                    'md' => '768',
-                    'lg' => '992',
-                    'xl' => '1200',
+                    'xs' => 0,
+                    'sm' => 576,
+                    'md' => 768,
+                    'lg' => 992,
+                    'xl' => 1200,
+                ],
+                'general' => [
+                    'noPicture' => 'media/no-picture.png',
                 ],
             ]
         );
@@ -90,6 +93,11 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
                 'descriptionMaxLength' => 150,
             ],
             'metaIsFamilyFriendly' => true,
+            'cms' => [
+                'revocationNoticeCmsPageId' => '00B9A8636F954277AE424E6C1C36A1F5',
+                'taxCmsPageId' => '00B9A8636F954277AE424E6C1C36A1F5',
+                'tosCmsPageId' => '00B9A8636F954277AE424E6C1C36A1F5',
+            ],
             'register' => [
                 'titleField' => true,
                 'emailConfirmation' => false,
@@ -107,6 +115,10 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
             ],
             'checkout' => [
                 'instockinfo' => false,
+                'maxQuantity' => 100,
+            ],
+            'listing' => [
+                'allowBuyInListing' => true,
             ],
         ];
     }

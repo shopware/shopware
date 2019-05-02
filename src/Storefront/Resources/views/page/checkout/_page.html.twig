@@ -1,43 +1,43 @@
 {% sw_extends '@Storefront/base.html.twig' %}
 
 {% block base_content %}
-	{% block page_checkout %}
-		<div class="checkout is-{{ controllerAction }}">
-			{% block page_checkout_container %}
-				<div class="row checkout-main">
-					{% block page_checkout_main %}
-						<div class="checkout-main-left">
-							{% block page_checkout_main_content %}{% endblock %}
-						</div>
-					{% endblock %}
+    {% block page_checkout %}
+        <div class="checkout is-{{ controllerAction }}">
+            {% block page_checkout_container %}
+                <div class="row checkout-main">
+                    {% block page_checkout_main %}
+                        <div class="checkout-main-left">
+                            {% block page_checkout_main_content %}{% endblock %}
+                        </div>
+                    {% endblock %}
 
-					{% block page_checkout_sidebar %}
-						<div class="checkout-main-right">
-							{% block page_checkout_sidebar_inner %}
-								<aside class="checkout-sidebar">
-									{% block page_checkout_sidebar_content %}
-										{% block page_checkout_sidebar_header %}
-											<h2 class="checkout-sidebar-header">
-												{{ "checkout.summaryHeader"|trans }}
-											</h2>
-										{% endblock %}
+                    {% block page_checkout_sidebar %}
+                        <div class="checkout-main-right">
+                            {% block page_checkout_sidebar_inner %}
+                                <aside class="checkout-sidebar">
+                                    {% block page_checkout_sidebar_content %}
+                                        {% block page_checkout_sidebar_header %}
+                                            <h2 class="checkout-sidebar-header">
+                                                {{ "checkout.summaryHeader"|trans }}
+                                            </h2>
+                                        {% endblock %}
 
-										{% block page_checkout_sidebar_summary_card %}
-											<div class="card checkout-summary-card">
-												{% block page_checkout_sidebar_summary %}
-													{% sw_include '@Storefront/page/checkout/summary.html.twig' %}
-												{% endblock %}
-											</div>
-										{% endblock %}
+                                        {% block page_checkout_sidebar_summary_card %}
+                                            <div class="card checkout-summary-card">
+                                                {% block page_checkout_sidebar_summary %}
+                                                    {% sw_include '@Storefront/page/checkout/summary.html.twig' %}
+                                                {% endblock %}
+                                            </div>
+                                        {% endblock %}
 
-										{% block page_checkout_sidebar_actions %}{% endblock %}
-									{% endblock %}
-								</aside>
-							{% endblock %}
-						</div>
-					{% endblock %}
-				</div>
-			{% endblock %}
-		</div>
-	{% endblock %}
+                                        {% block page_checkout_sidebar_actions %}{% endblock %}
+                                    {% endblock %}
+                                </aside>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </div>
+    {% endblock %}
 {% endblock %}

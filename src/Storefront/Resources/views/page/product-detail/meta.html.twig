@@ -1,36 +1,48 @@
-{% sw_extends '@Storefront/base/meta.html.twig' %}
+{% sw_extends '@Storefront/layout/meta.html.twig' %}
 
-{#TODO: NEXT-1891 - show meta title if available #}
-{% block base_head_title_inner %}{{ page.product.name }} | {{ parent() }}{% endblock %}
+{#TODO: NEXT-2787 - show meta title if available #}
+{% block base_head_title_inner %}{{ page.product.translated.name }} | {{ parent() }}{% endblock %}
 
 {% block base_head_meta_tags_opengraph %}
-	{% set metaDescription = page.product.descriptionLong|striptags|trim|truncate(shopware.config.seo.descriptionMaxLength) %}
+    {% set metaDescription = page.product.descriptionLong|striptags|trim|truncate(shopware.config.seo.descriptionMaxLength) %}
 
-	<meta property="og:type" content="product" />
-	<meta property="og:site_name" content="{{ shopware.config.shopName }}" />
-	{#TODO: NEXT-1891 - og:url#}
-	<meta property="og:url" content="" />
-	<meta property="og:title" content="{{ page.product.name }}" />
+    <meta property="og:type"
+          content="product"/>
+    <meta property="og:site_name"
+          content="{{ shopware.config.shopName }}"/>
+    <meta property="og:url"
+          content="{{ url('frontend.detail.page', {'productId': page.product.id}) }}"/>
+    <meta property="og:title"
+          content="{{ page.product.translated.name }}"/>
 
-	<meta property="og:description" content="{{ metaDescription }}" />
-	<meta property="og:image" content="{{ asset(page.product.cover.media.url) }}" />
+    <meta property="og:description"
+          content="{{ metaDescription }}"/>
+    <meta property="og:image"
+          content="{{ asset(page.product.cover.media.url) }}"/>
 
-	<meta property="product:brand" content="{{ page.product.manufacturer.name }}" />
-	<meta property="product:price" content="{{ page.product.price.gross|localizedcurrency(page.context.currency.shortName, app.request.locale) }}" />
-	{#TODO: NEXT-1891 - product:product_link#}
-	<meta property="product:product_link" content="" />
+    <meta property="product:brand"
+          content="{{ page.product.manufacturer.translated.name }}"/>
+    <meta property="product:price"
+          content="{{ page.product.calculatedPrice.unitPrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}"/>
+    <meta property="product:product_link"
+          content="{{ url('frontend.detail.page', {'productId': page.product.id}) }}"/>
 
-	<meta name="twitter:card" content="product" />
-	<meta name="twitter:site" content="{{ shopware.config.shopName }}" />
-	<meta name="twitter:title" content="{{ page.product.name }}" />
-	<meta name="twitter:description" content="{{ metaDescription }}" />
-	<meta name="twitter:image" content="{{ asset(page.product.cover.media.url) }}" />
+    <meta name="twitter:card"
+          content="product"/>
+    <meta name="twitter:site"
+          content="{{ shopware.config.shopName }}"/>
+    <meta name="twitter:title"
+          content="{{ page.product.translated.name }}"/>
+    <meta name="twitter:description"
+          content="{{ metaDescription }}"/>
+    <meta name="twitter:image"
+          content="{{ asset(page.product.cover.media.url) }}"/>
 {% endblock %}
 
-{#TODO: NEXT-1891 - keywords fallback (sDescriptionKeywords)#}
+{#TODO: NEXT-2787 - keywords fallback (sDescriptionKeywords)#}
 {% block base_head_meta_tags_keywords %}{{ page.product.keywords }}{% endblock %}
 
 {% block base_head_meta_tags_description %}{% if page.product.description %}{{ page.product.description }}{% else %}{{ page.product.descriptionLong|striptags|trim }}{% endif %}{% endblock %}
 
-{#TODO: NEXT-1891 - canonical#}
+{#TODO: NEXT-2787 - canonical#}
 {% block base_head_canonical %}{% endblock %}

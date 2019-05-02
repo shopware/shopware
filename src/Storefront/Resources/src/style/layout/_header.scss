@@ -1,0 +1,142 @@
+.top-bar-nav-name {
+    display: none;
+}
+
+.top-bar-navigation {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.top-bar-nav-item {
+    display: flex;
+    align-items: center;
+    margin-right: $spacer;
+
+    &:last-child {
+        margin-right: 0;
+    }
+}
+
+.top-bar-list-input {
+    position: absolute;
+    clip: rect(0 0 0 0);
+    pointer-events: none;
+}
+
+.top-bar-list-label {
+    display: inline-block;
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.language-flag {
+    margin-right: $spacer-sm;
+}
+
+.header-row {
+    padding: $spacer-sm 0;
+}
+
+.logo-main-link {
+    display: block;
+}
+
+.header-logo-col {
+    margin-bottom: $spacer;
+}
+
+.header-search {
+    margin-bottom: $spacer-sm;
+}
+
+.header-actions-col {
+    display: inline-flex;
+    justify-content: flex-end;
+}
+
+.nav-main-toggle {
+    flex: 1 1 auto;
+}
+
+.search-toggle,
+.account-widget {
+    margin-right: $spacer-sm;
+}
+
+.menu-button {
+    margin-left: $spacer-sm;
+    display: none;
+}
+
+.account-widget-btn::after,
+.cart-widget-total {
+    display: none;
+}
+
+.cart-widget-display {
+    position: relative;
+    display: inline-block;
+}
+
+.cart-widget .cart-widget-badge {
+    position: absolute;
+    top: -8px;
+    left: 17px;
+}
+
+.cart-widget-btn {
+    position: relative;
+}
+
+@include media-breakpoint-up(sm) {
+    .account-widget {
+        .js-offcanvas-close {
+            display: none;
+        }
+    }
+}
+
+@include media-breakpoint-only(md) {
+    .menu-button {
+        display: block;
+    }
+}
+
+@include media-breakpoint-up(md) {
+    .top-bar-nav-name {
+        display: inline;
+    }
+
+    .header-row {
+        padding-bottom: $spacer;
+    }
+
+    .header-logo-col {
+        margin-bottom: 0;
+    }
+
+    .header-search-col {
+        .collapse:not(.show) {
+            display: block;
+        }
+    }
+
+    .header-search {
+        max-width: 350px;
+        margin: auto;
+    }
+
+    .nav-main-toggle,
+    .search-toggle {
+        display: none;
+    }
+
+    .account-widget-btn::after,
+    .cart-widget-total {
+        display: inline-block;
+    }
+
+    .cart-widget-total {
+        margin-left: $spacer-sm;
+    }
+}

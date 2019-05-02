@@ -67,7 +67,7 @@ class ProductControllerTest extends TestCase
 
         foreach ($content['data'] as $product) {
             static::assertArrayHasKey('calculatedListingPrice', $product);
-            static::assertArrayHasKey('calculatedPriceRules', $product);
+            static::assertArrayHasKey('calculatedPrices', $product);
             static::assertArrayHasKey('calculatedPrice', $product);
             static::assertArrayHasKey('price', $product);
             static::assertArrayHasKey('name', $product);

@@ -29,6 +29,6 @@ class MenuPageletController extends StorefrontController
     {
         $page = $this->offcanvasLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/base/navigation/offcanvas/navigation.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/layout/navigation/offcanvas/navigation.html.twig', ['page' => $page]);
     }
 }

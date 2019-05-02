@@ -1,0 +1,19 @@
+/*
+Button
+==============================================
+Custom styling for bootstrap button component.
+
+https://getbootstrap.com/docs/4.3/components/buttons/
+*/
+
+.btn {
+    border: 0 none;
+    font-weight: $font-weight-bold;
+
+    &.disabled,
+    &:disabled {
+        opacity: 1;
+        background: #eee;
+        color: $gray-300;
+    }
+}

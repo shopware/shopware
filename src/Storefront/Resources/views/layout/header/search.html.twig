@@ -1,0 +1,35 @@
+{% block layout_header_search %}
+    <div class="collapse"
+         id="searchCollapse">
+        <div class="header-search">
+            <form action="{{ path('frontend.search.page') }}"
+                  method="get"
+                  data-search-form="true"
+                  data-url="{{ path('frontend.search.suggest') }}?search="
+                  class="search-form">
+                {% block layout_header_search_input_group %}
+                    <div class="input-group">
+                        {% block layout_header_search_input %}
+                            <input type="search"
+                                   name="search"
+                                   class="form-control search-form-input"
+                                   autocomplete="off"
+                                   autocapitalize="off"
+                                   placeholder="{{ "header.searchPlaceholder"|trans }}"
+                                   maxlength="30">
+                        {% endblock %}
+
+                        {% block layout_header_search_button %}
+                            <div class="input-group-append">
+                                <button type="submit"
+                                        class="btn btn-light search-form-button">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </form>
+        </div>
+    </div>
+{% endblock %}

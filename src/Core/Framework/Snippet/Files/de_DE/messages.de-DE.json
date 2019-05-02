@@ -239,6 +239,7 @@
         "subscriptionPersistedSuccess": "Sie haben gerade unseren Newsletter abonniert.\n Um die Registrierung abzuschließen, suchen Sie in Ihrer E-Mail-Box nach einer Bestätigungsmail.",
         "subscriptionPersistedInfo": "Wenn Sie keine Mail erhalten haben, wiederholen Sie bitte den Vorgang oder wenden Sie sich an den Shop-Betreiber.",
         "subscriptionRevokeSuccess": "Sie haben sich erfolgreich vom Newsletter abgemeldet.",
+        "subscriptionConfirmationSuccess": "Ihr Newsletter-Abonnement wurde erfolgreich registriert!",
         "subscriptionConfirmationFailed": "Bei Ihrer Newsletter-Anmeldung ist etwas schief gelaufen, Bitte wenden Sie sich an den Shop-Betreiber."
     },
     "detail": {

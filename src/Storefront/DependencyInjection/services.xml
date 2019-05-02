@@ -292,6 +292,12 @@
             <argument type="service" id="Shopware\Storefront\Page\Home\HomePageLoader"/>
         </service>
 
+        <service id="Shopware\Storefront\PageletController\AccountPageletController" public="true">
+            <argument type="service" id="Shopware\Core\Content\NewsletterReceiver\SalesChannel\NewsletterSubscriptionService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
+            <argument type="service" id="translator"/>
+        </service>
+
         <service id="Shopware\Storefront\PageController\ProductPageController" public="true">
             <argument type="service" id="Shopware\Storefront\Page\Product\ProductPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder"/>

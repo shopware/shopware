@@ -19,14 +19,13 @@ use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
 use Shopware\Core\Framework\Store\Exception\StoreNotAvailableException;
 use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
 use Shopware\Core\Framework\Store\Services\StoreClient;
-use Shopware\Core\Framework\Store\StoreSettingsEntity;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\HttpCache\Store;
 use Symfony\Component\Routing\Annotation\Route;
 
 class StoreController extends AbstractController
@@ -57,9 +56,9 @@ class StoreController extends AbstractController
     private $userRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var SystemConfigService
      */
-    private $storeSettingsRepo;
+    private $configService;
 
     public function __construct(
         StoreClient $storeClient,
@@ -67,14 +66,14 @@ class StoreController extends AbstractController
         PluginManagementService $pluginManagementService,
         PluginLifecycleService $pluginLifecycleService,
         EntityRepositoryInterface $userRepository,
-        EntityRepositoryInterface $storeSettingsRepo
+        SystemConfigService $configService
     ) {
         $this->storeClient = $storeClient;
         $this->pluginRepo = $pluginRepo;
         $this->pluginManagementService = $pluginManagementService;
         $this->pluginLifecycleService = $pluginLifecycleService;
         $this->userRepository = $userRepository;
-        $this->storeSettingsRepo = $storeSettingsRepo;
+        $this->configService = $configService;
     }
 
     /**
@@ -114,35 +113,8 @@ class StoreController extends AbstractController
             throw new StoreApiException($exception);
         }
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('key', 'shopSecret'));
-
-        /** @var StoreSettingsEntity|null $shopSecret */
-        $shopSecret = $this->storeSettingsRepo->search($criteria, $context)->first();
-
-        $data = [
-            [
-                'id' => $shopSecret !== null ? $shopSecret->getId() : null,
-                'key' => 'shopSecret',
-                'value' => $accessTokenStruct->getShopSecret(),
-            ],
-        ];
-        $this->storeSettingsRepo->upsert($data, $context);
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('key', 'shopwareId'));
-
-        /** @var StoreSettingsEntity|null $shopSecret */
-        $shopSecret = $this->storeSettingsRepo->search($criteria, $context)->first();
-
-        $data = [
-            [
-                'id' => $shopSecret !== null ? $shopSecret->getId() : null,
-                'key' => 'shopwareId',
-                'value' => $shopwareId,
-            ],
-        ];
-        $this->storeSettingsRepo->upsert($data, $context);
+        $this->configService->set('core.store.shopSecret', $accessTokenStruct->getShopSecret());
+        $this->configService->set('core.store.shopwareId', $shopwareId);
 
         $userId = $context->getSource()->getUserId();
         $this->userRepository->update([

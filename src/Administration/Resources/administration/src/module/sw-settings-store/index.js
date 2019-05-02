@@ -1,8 +1,6 @@
 import { Module } from 'src/core/shopware';
-
 import './extension/sw-settings-index';
 import './page/sw-settings-store';
-
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
 
@@ -10,11 +8,10 @@ Module.register('sw-settings-store', {
     type: 'core',
     name: 'settings-store',
     title: 'sw-settings-store.general.mainMenuItemGeneral',
-    description: 'Store specific settings',
+    description: 'sw-settings-store.general.description',
     color: '#9AA8B5',
     icon: 'default-action-settings',
     favicon: 'icon-module-settings.png',
-    entity: 'language',
 
     snippets: {
         'de-DE': deDE,

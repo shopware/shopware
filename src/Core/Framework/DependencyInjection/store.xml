@@ -10,22 +10,17 @@
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService" />
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginLifecycleService" />
             <argument type="service" id="user.repository" />
-            <argument type="service" id="store_settings.repository" />
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\StoreClient">
             <argument type="service" id="Shopware\Core\Framework\Store\Services\OpenSSLVerifier" />
             <argument type="service" id="plugin.repository"/>
-            <argument type="service" id="store_settings.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\OpenSSLVerifier">
             <argument>%kernel.project_dir%/vendor/shopware/platform/src/Core/Framework/Store/public.key</argument>
-        </service>
-
-        <service id="Shopware\Core\Framework\Store\StoreSettingsDefinition">
-            <tag name="shopware.entity.definition" entity="store_settings" />
         </service>
     </services>
 </container>

@@ -84,7 +84,7 @@ Component.register('sw-plugin-store-login-status', {
 
         loginSuccess() {
             this.showLoginModal = false;
-            this.loadShopwareId();
+            this.load();
         },
 
         loginAbort() {

@@ -8,6 +8,11 @@
         }
     }
 
+    .context-prices__toolbar-label {
+        display: block;
+        margin-bottom: 5px;
+    }
+
     .context-prices__toolbar {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(200px, auto));

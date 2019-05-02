@@ -99,7 +99,8 @@
       "columnQuantityEnd": "Ending at",
       "columnPrice": "Price (gross / net)",
       "contextMenuDuplicate": "Duplicate",
-      "contextMenuDelete": "Delete"
+      "contextMenuDelete": "Delete",
+      "toolbarLabel": "Rules"
     },
     "list": {
       "textProductOverview": "Products",

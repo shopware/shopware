@@ -1,0 +1,37 @@
+{
+  "sw-newsletter-receiver": {
+    "general": {
+      "description": "The module for managing newsletter receiver.",
+      "information": "Information",
+      "language": "Language",
+      "salutation": "Salutation",
+      "salesChannel": "Sales channel",
+      "buttonSave": "Save",
+      "mainMenuItemGeneral": "Newsletter receive  r",
+      "placeholderSearchBarSnippets": "Search all newsletter recipients",
+      "tags": "Tags"
+    },
+    "detail": {
+      "titleSaveSuccess": "Success",
+      "messageSaveSuccess": "Data for \"{key}\" has been saved successfully.",
+      "titleSaveError": "Error",
+      "messageSaveError": "Data for \"{key}\" could not be saved."
+    },
+    "list": {
+      "titleSidebarItemRefresh": "Refresh",
+      "titleSidebarItemFilter": "Filters",
+      "status": "Status",
+      "textHeadline": "Newsletter receiver",
+      "email": "Email",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "zipCode": "Zip code",
+      "city": "City",
+      "street": "Street",
+      "notSet": "Await activation",
+      "optIn": "Active",
+      "optOut": "Await deletion",
+      "direct": "Direct active"
+    }
+  }
+}

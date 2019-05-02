@@ -9,6 +9,10 @@
             <tag name="shopware.entity.definition" entity="newsletter_receiver"/>
         </service>
 
+        <service id="Shopware\Core\Content\NewsletterReceiver\Aggregate\NewsletterReceiverTag\NewsletterReceiverTagDefinition">
+            <tag name="shopware.entity.definition" entity="newsletter_receiver_tag"/>
+        </service>
+
         <service id="Shopware\Core\Content\NewsletterReceiver\ScheduledTask\NewsletterReceiverTask">
             <tag name="shopware.scheduled.task" />
         </service>

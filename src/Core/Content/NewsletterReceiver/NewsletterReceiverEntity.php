@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Salutation\SalutationEntity;
+use Shopware\Core\System\Tag\TagCollection;
 
 class NewsletterReceiverEntity extends Entity
 {
@@ -53,7 +54,7 @@ class NewsletterReceiverEntity extends Entity
     protected $hash;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $salutationId;
 
@@ -91,6 +92,21 @@ class NewsletterReceiverEntity extends Entity
      * @var \DateTimeInterface|null
      */
     protected $confirmedAt;
+
+    /**
+     * @var \DateTimeInterface
+     */
+    protected $createdAt;
+
+    /**
+     * @var \DateTimeInterface|null
+     */
+    protected $updatedAt;
+
+    /**
+     * @var TagCollection|null
+     */
+    protected $tags;
 
     public function getEmail(): string
     {
@@ -172,7 +188,7 @@ class NewsletterReceiverEntity extends Entity
         $this->hash = $hash;
     }
 
-    public function getSalutationId(): string
+    public function getSalutationId(): ?string
     {
         return $this->salutationId;
     }
@@ -250,5 +266,35 @@ class NewsletterReceiverEntity extends Entity
     public function setCustomFields(?array $customFields): void
     {
         $this->customFields = $customFields;
+    }
+
+    public function getCreatedAt(): \DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeInterface $createdAt): void
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
+    }
+
+    public function getTags(): ?TagCollection
+    {
+        return $this->tags;
+    }
+
+    public function setTags(TagCollection $tags): void
+    {
+        $this->tags = $tags;
     }
 }

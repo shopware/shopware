@@ -18,14 +18,21 @@ Component.extend('sw-settings-custom-field-set-create', 'sw-settings-custom-fiel
             this.set.name = 'custom_';
             this.setId = this.set.id;
         },
+        saveFinish() {
+            this.isSaveSuccessful = false;
+            const criteria = CriteriaFactory.equals('name', this.set.name);
+            return this.customFieldSetStore.getList({ criteria }).then((res) => {
+                if (res.total === 0) {
+                    this.$router.push({ name: 'sw.settings.custom.field.detail', params: { id: this.setId } });
+                }
+            });
+        },
         onSave() {
             // Check if a set with the same name exists
             const criteria = CriteriaFactory.equals('name', this.set.name);
             return this.customFieldSetStore.getList({ criteria }).then((res) => {
                 if (res.total === 0) {
-                    this.$super.onSave().then(() => {
-                        this.$router.push({ name: 'sw.settings.custom.field.detail', params: { id: this.setId } });
-                    });
+                    this.$super.onSave();
 
                     return;
                 }

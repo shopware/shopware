@@ -26,10 +26,13 @@ Component.extend('sw-settings-language-create', 'sw-settings-language-detail', {
             this.$super.createdComponent();
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+            this.$router.push({ name: 'sw.settings.language.detail', params: { id: this.language.id } });
+        },
+
         onSave() {
-            this.$super.onSave().then(() => {
-                this.$router.push({ name: 'sw.settings.language.detail', params: { id: this.language.id } });
-            });
+            this.$super.onSave();
         }
     }
 });

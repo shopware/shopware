@@ -30,7 +30,7 @@ module.exports = {
             .waitForElementVisible('.sw-settings-language-detail .sw-card__content')
             .fillField('input[name=sw-field--language-name]', 'Very Philippine English', true)
             .click(page.elements.languageSaveAction)
-            .checkNotification('Language "Very Philippine English" has been saved successfully.')
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium')
             .assert.urlContains('#/sw/settings/language/detail');
     },
     'verify edited language': (browser) => {

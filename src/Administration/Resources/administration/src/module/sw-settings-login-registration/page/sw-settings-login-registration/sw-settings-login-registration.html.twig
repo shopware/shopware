@@ -33,11 +33,16 @@
             {% block sw_settings_login_registration_smart_bar_actions %}
                 <template slot="smart-bar-actions">
                     {% block sw_settings_login_registration_actions_save %}
-                    <sw-button variant="primary"
-                               class="sw-settings-login-registration__save-action"
-                               @click="onSave">
+                    <sw-button-process
+                            class="sw-settings-login-registration__save-action"
+                            :isLoading="isLoading"
+                            :processSuccess="isSaveSuccessful"
+                            :disabled="isLoading"
+                            variant="primary"
+                            @process-finish="saveFinish"
+                            @click="onSave">
                         {{ $tc('sw-settings-login-registration.general.buttonSave') }}
-                    </sw-button>
+                    </sw-button-process>
                     {% endblock %}
                 </template>
             {% endblock %}

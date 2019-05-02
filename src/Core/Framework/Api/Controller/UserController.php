@@ -22,6 +22,7 @@ class UserController extends AbstractController
      * @var EntityRepositoryInterface
      */
     private $userRepository;
+
     /**
      * @var UserDefinition
      */

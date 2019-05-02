@@ -22,11 +22,6 @@
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Command\DebugViewGenerator">
-            <argument type="service" id="Doctrine\DBAL\Connection" />
-            <tag name="console.command"/>
-        </service>
-
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator" public="true">
             <argument type="service" id="Shopware\Core\Framework\Language\LanguageDefinition"/>
         </service>

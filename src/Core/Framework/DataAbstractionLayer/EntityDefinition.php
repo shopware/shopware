@@ -75,11 +75,6 @@ abstract class EntityDefinition
         return $this->className;
     }
 
-    final public function equals(EntityDefinition $definition): bool
-    {
-        return $definition === $this;
-    }
-
     public function compile(DefinitionInstanceRegistry $registry): void
     {
         $this->registry = $registry;

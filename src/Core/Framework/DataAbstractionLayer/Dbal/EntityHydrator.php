@@ -228,7 +228,7 @@ class EntityHydrator
         );
     }
 
-    private function hydrateAttributes(string $root, Field $field, CustomFields $CustomField, Entity $entity, array $row, Context $context): void
+    private function hydrateAttributes(string $root, Field $field, CustomFields $customField, Entity $entity, array $row, Context $context): void
     {
         $inherited = $field->is(Inherited::class) && $context->considerInheritance();
 
@@ -240,7 +240,7 @@ class EntityHydrator
 
         if ($field instanceof TranslatedField) {
             $entity->assign([
-                $propertyName => $CustomField->getSerializer()->decode($CustomField, $value),
+                $propertyName => $customField->getSerializer()->decode($customField, $value),
             ]);
 
             $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $context, $inherited);
@@ -260,14 +260,14 @@ class EntityHydrator
              * In other terms: The first argument has the lowest 'priority', so we need to reverse the array
              */
             $merged = $this->mergeJson(\array_reverse($values, false));
-            $entity->addTranslated($propertyName, $CustomField->getSerializer()->decode($CustomField, $merged));
+            $entity->addTranslated($propertyName, $customField->getSerializer()->decode($customField, $merged));
 
             return;
         }
 
         // field is not inherited or request should work with raw data? decode child attributes and return
         if (!$inherited) {
-            $value = $CustomField->getSerializer()->decode($CustomField, $value);
+            $value = $customField->getSerializer()->decode($customField, $value);
             $entity->assign([$propertyName => $value]);
 
             return;
@@ -277,7 +277,7 @@ class EntityHydrator
 
         // parent has no attributes? decode only child attributes and return
         if (!isset($row[$parentKey])) {
-            $value = $CustomField->getSerializer()->decode($CustomField, $value);
+            $value = $customField->getSerializer()->decode($customField, $value);
 
             $entity->assign([$propertyName => $value]);
 
@@ -287,7 +287,7 @@ class EntityHydrator
         // merge child attributes with parent attributes and assign
         $mergedJson = $this->mergeJson([$row[$parentKey], $value]);
 
-        $merged = $CustomField->getSerializer()->decode($CustomField, $mergedJson);
+        $merged = $customField->getSerializer()->decode($customField, $mergedJson);
 
         $entity->assign([$propertyName => $merged]);
     }

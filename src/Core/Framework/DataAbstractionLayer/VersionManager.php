@@ -614,7 +614,7 @@ class VersionManager
             $childrenAware = $reference->isChildrenAware();
 
             //first level of parent-child tree?
-            if ($childrenAware && !$reference->equals($definition)) {
+            if ($childrenAware && $reference !== $definition) {
                 //where product.children.parentId IS NULL
                 $nested->addFilter(new EqualsFilter($reference->getEntityName() . '.parentId', null));
             }

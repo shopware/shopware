@@ -38,7 +38,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
 
         $this->join($definition, $root, $field, $query, $context, $queryHelper);
 
-        if ($definition->equals($reference)) {
+        if ($definition === $reference) {
             return true;
         }
 

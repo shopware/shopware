@@ -55,7 +55,7 @@ export default function createSearchTypeService() {
     }
 
     function upsertType(name, configuration) {
-        $typeStore[name] = { ...$typeStore[name], ...{ configuration } };
+        $typeStore[name] = { ...$typeStore[name], ...configuration };
     }
 
     function getTypes() {

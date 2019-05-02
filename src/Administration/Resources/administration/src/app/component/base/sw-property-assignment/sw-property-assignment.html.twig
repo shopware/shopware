@@ -2,7 +2,7 @@
     <div class="sw-property-assignment">
 
         {% block sw_property_assignment_search_field %}
-            <sw-property-search ref="searchField" :collapsible="false" :overlay="false" :options="options" @sw-property-search-option-selected="onSelectOption"/>
+            <sw-property-search ref="searchField" :collapsible="true" :overlay="true" :options="options" @sw-property-search-option-selected="onSelectOption"/>
         {% endblock %}
 
         {% block sw_property_assignment_grid %}
@@ -21,7 +21,7 @@
                             <sw-grid-column dataIndex="options" :label="$tc('sw-property-assignment.columnOptions')" flex="minmax(100px, 1fr)" class="sw-property-assignment__grid_option_column">
                                 {% block sw_property_assignment_grid_columns_options_loop %}
                                     <div v-for="(option, index) in item.options" :key="option.id" class="sw-property-assignment__grid_option_item">
-                                        <span class="sw-property-assignment__grid_option_item_value">{{ option.translated.name }}</span><span class="sw-property-assignment__grid_option_item_delete" @click="deleteOption(option)"><sw-icon name="default-basic-x-line" size="10" /></span>
+                                        <sw-label @dismiss="deleteOption(option)" :dismissAble="true">{{ option.translated.name }}</sw-label>
                                     </div>
                                 {% endblock %}
                             </sw-grid-column>

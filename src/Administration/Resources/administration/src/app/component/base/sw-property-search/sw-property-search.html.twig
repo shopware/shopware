@@ -23,7 +23,7 @@
             <div class="sw-property-search__tree-selection" v-if="displayTree">
 
                 {% block sw_property_search_tree_container %}
-                    <sw-container columns="50% 50%">
+                    <sw-container columns="50% 50%" class="sw-property-search__tree-selection-container">
 
                         {% block sw_property_search_tree_group_grid %}
                             <sw-grid class="sw-property-search__tree-selection__group_grid"
@@ -103,6 +103,7 @@
                     <sw-grid class="sw-property-search__search-selection__option_grid"
                              ref="optionSearchGrid"
                              :items="groupOptions"
+                             :header="false"
                              :allSelectable="false"
                              :isFullpage="false"
                              table

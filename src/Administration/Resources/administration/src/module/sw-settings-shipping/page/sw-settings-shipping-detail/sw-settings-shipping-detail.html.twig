@@ -44,13 +44,21 @@
                 {% block sw_settings_shipping_detail_base %}
                     <sw-card :title="$tc('sw-settings-shipping.detail.labelBasicInfo')"
                              :isLoading="isLoading">
-                        {% block sw_settings_shipping_detail_base_content_field_name %}
-                            <sw-field type="text"
-                                      :label="$tc('sw-settings-shipping.detail.labelName')"
-                                      :placeholder="placeholder(shippingMethod, 'name', $tc('sw-settings-shipping.detail.placeholderName'))"
-                                      v-model="shippingMethod.name">
-                            </sw-field>
-                        {% endblock %}
+                        <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
+                            {% block sw_settings_shipping_detail_base_content_field_name %}
+                                <sw-field type="text"
+                                          :label="$tc('sw-settings-shipping.detail.labelName')"
+                                          :placeholder="placeholder(shippingMethod, 'name', $tc('sw-settings-shipping.detail.placeholderName'))"
+                                          v-model="shippingMethod.name">
+                                </sw-field>
+                            {% endblock %}
+                            {% block sw_settings_shipping_detail_base_content_field_active %}
+                                <sw-field type="boolean"
+                                          v-model="shippingMethod.active"
+                                          :label="$tc('sw-settings-shipping.detail.labelActive')">
+                                </sw-field>
+                            {% endblock %}
+                        </sw-container>
                         <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
                             {% block sw_settings_shipping_detail_base_content_field_description %}
                                 <sw-textarea-field :value="shippingMethod.description"

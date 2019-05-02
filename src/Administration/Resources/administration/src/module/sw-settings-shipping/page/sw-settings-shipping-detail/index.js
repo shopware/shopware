@@ -107,7 +107,7 @@ Component.register('sw-settings-shipping-detail', {
         },
 
         onSave() {
-            const shippingMethodName = this.shippingMethod.name;
+            const shippingMethodName = this.placeholder(this.shippingMethod, 'name');
             const titleSaveSuccess = this.$tc('sw-settings-shipping.detail.titleSaveSuccess');
             const messageSaveSuccess = this.$tc('sw-settings-shipping.detail.messageSaveSuccess', 0, {
                 name: shippingMethodName

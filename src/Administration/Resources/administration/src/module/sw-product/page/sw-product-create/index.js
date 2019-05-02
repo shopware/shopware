@@ -39,6 +39,7 @@ Component.extend('sw-product-create', 'sw-product-detail', {
 
             this.$super.createdComponent();
 
+            this.product.active = true;
             this.product.price.linked = true;
 
             this.numberRangeService.reserve('product', '', true).then((response) => {

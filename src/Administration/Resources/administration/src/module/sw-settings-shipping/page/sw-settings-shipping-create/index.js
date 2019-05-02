@@ -29,6 +29,8 @@ Component.extend('sw-settings-shipping-create', 'sw-settings-shipping-detail', {
             }
 
             this.$super.createdComponent();
+
+            this.shippingMethod.active = true;
         },
 
         onSave() {

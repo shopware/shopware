@@ -21,13 +21,16 @@ class Migration1553593164ShippingAvailabilityRule extends MigrationStep
                            ADD COLUMN `media_id` BINARY(16) NULL,
                            ADD CONSTRAINT `fk.shipping_method.media_id` FOREIGN KEY (media_id)
                                         REFERENCES `media` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-                           ADD CONSTRAINT `fk.shipping_method.rule_id` FOREIGN KEY (`availability_rule_id`)
-                                        REFERENCES `rule` (`id`) ON DELETE SET NULL ON UPDATE CASCADE');
+                           ADD CONSTRAINT `fk.shipping_method.availability_rule_id` FOREIGN KEY (`availability_rule_id`)
+                                        REFERENCES `rule` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE');
 
         $ruleId = Uuid::randomBytes();
         $connection->insert('rule', ['id' => $ruleId, 'name' => 'Cart >= 0', 'priority' => 100, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
         $connection->insert('rule_condition', ['id' => Uuid::randomBytes(), 'rule_id' => $ruleId, 'type' => 'cartCartAmount', 'value' => json_encode(['operator' => '>=', 'amount' => 0]), 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
         $connection->update('shipping_method', ['availability_rule_id' => $ruleId, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)], ['1' => '1']);
+
+        $connection->exec('ALTER TABLE `shipping_method`
+                           MODIFY COLUMN `availability_rule_id` BINARY(16) NOT NULL');
     }
 
     public function updateDestructive(Connection $connection): void

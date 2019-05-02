@@ -22,7 +22,7 @@ class ShippingMethodValidator implements CartValidatorInterface
 
             $matches = in_array($delivery->getShippingMethod()->getAvailabilityRuleId(), $context->getRuleIds(), true);
 
-            if ($matches) {
+            if ($matches && $delivery->getShippingMethod()->getActive()) {
                 continue;
             }
 

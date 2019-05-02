@@ -42,6 +42,7 @@ class ShippingMethodValidatorTest extends TestCase
         $shippingMethod->setId('1');
         $shippingMethod->setAvailabilityRuleId('1');
         $shippingMethod->setDeliveryTime($deliveryTime);
+        $shippingMethod->setActive(true);
         $deliveryDate = new DeliveryDate(new \DateTime(), new \DateTime());
         $delivery = new Delivery(
             new DeliveryPositionCollection(),
@@ -100,6 +101,7 @@ class ShippingMethodValidatorTest extends TestCase
         $shippingMethod->setId('1');
         $shippingMethod->setAvailabilityRuleId('1');
         $shippingMethod->setDeliveryTime($deliveryTime);
+        $shippingMethod->setActive(true);
 
         $deliveryDate = new DeliveryDate(new \DateTime(), new \DateTime());
         $delivery = new Delivery(

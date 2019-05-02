@@ -46,10 +46,14 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
             }
         },
 
+
+        saveFinish() {
+            this.isSaveSuccessful = false;
+            this.$router.push({ name: 'sw.cms.detail', params: { id: this.page.id } });
+        },
+
         onSave() {
-            this.$super.onSave().then(() => {
-                this.$router.push({ name: 'sw.cms.detail', params: { id: this.page.id } });
-            });
+            this.$super.onSave();
         }
     }
 });

@@ -145,6 +145,7 @@ export default class CmsSlotReloadService {
     _onLoaded(response) {
         const markup = this._createMarkupFromString(response);
         this._replaceElements(markup);
+        window.PluginManager.executePlugins();
     }
 
     /**

@@ -120,6 +120,30 @@ class ImageTypeDataResolverTest extends TestCase
         static::assertEmpty($slot->getData()->getMediaId());
     }
 
+    public function testEnrichWithUrlAndNewTabOnly(): void
+    {
+        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $result = new SlotDataResolveResult();
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('url', FieldConfig::SOURCE_STATIC, 'http://shopware.com/image.jpg'));
+        $fieldConfig->add(new FieldConfig('newTab', FieldConfig::SOURCE_STATIC, true));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('image');
+        $slot->setConfig(['url' => 'http://shopware.com/image.jpg']);
+        $slot->setFieldConfig($fieldConfig);
+
+        $this->imageResolver->enrich($slot, $resolverContext, $result);
+
+        static::assertInstanceOf(ImageStruct::class, $slot->getData());
+        static::assertEquals('http://shopware.com/image.jpg', $slot->getData()->getUrl());
+        static::assertTrue($slot->getData()->getNewTab());
+        static::assertEmpty($slot->getData()->getMedia());
+        static::assertEmpty($slot->getData()->getMediaId());
+    }
+
     public function testEnrichWithMediaOnly(): void
     {
         $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());

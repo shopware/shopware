@@ -28,11 +28,26 @@
         <template v-if="element.config.displayMode.value === 'cover'">
             {% block sw_cms_element_image_config_min_height %}
                 <sw-text-field :label="$tc('sw-cms.elements.labelMediaMinHeight')"
-                               v-model="elMinHeight"
                                @input="onChangeMinHeight">
                 </sw-text-field>
             {% endblock %}
         </template>
+
+        {% block sw_cms_element_image_config_link %}
+            <div class="sw-cms-el-config-image__link">
+                <sw-field v-model="element.config.url.value"
+                          class="sw-cms-el-config-image__link-input"
+                          type="text"
+                          :label="$tc('sw-cms.elements.labelSettingsLinkTo')"
+                          :placeholder="$tc('sw-cms.elements.placeholderSettingsEnterUrl')">
+                </sw-field>
+                <sw-field class="sw-cms-el-config-image__link-tab"
+                          v-model="element.config.newTab.value"
+                          type="switch"
+                          :label="$tc('sw-cms.elements.labelSettingsLinkNewTab')">
+                </sw-field>
+            </div>
+        {% endblock %}
 
         {% block sw_cms_element_image_config_media_modal %}
             <sw-media-modal

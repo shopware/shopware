@@ -21,7 +21,7 @@ Component.register('sw-cms-el-image', {
         styles() {
             return {
                 'min-height': this.element.config.displayMode.value === 'cover' &&
-                              this.element.config.minHeight.value !== 0 ? this.element.config.minHeight.value : null
+                              this.element.config.minHeight.value !== 0 ? this.element.config.minHeight.value : '340px'
             };
         },
 

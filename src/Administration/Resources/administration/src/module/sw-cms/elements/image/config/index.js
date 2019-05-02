@@ -12,8 +12,7 @@ Component.register('sw-cms-el-config-image', {
     data() {
         return {
             mediaModalIsOpen: false,
-            initialFolderId: null,
-            elMinHeight: this.element.config.minHeight.value !== 0 ? this.element.config.minHeight.value : null
+            initialFolderId: null
         };
     },
 
@@ -82,7 +81,9 @@ Component.register('sw-cms-el-config-image', {
         },
 
         onChangeMinHeight(value) {
-            this.element.config.minHeight.value = value === null ? 0 : value;
+            this.element.config.minHeight.value = value === null ? '' : value;
+
+            this.$emit('element-update', this.element);
         }
     }
 });

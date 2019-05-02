@@ -488,7 +488,7 @@
   },
   "sw-text-editor-toolbar": {
     "link": {
-      "openInNewTab": "Open link in new window",
+      "openInNewTab": "Open link in new tab",
       "placeholder": "Enter URL",
       "linkTo": "Link to",
       "insert": "Insert"

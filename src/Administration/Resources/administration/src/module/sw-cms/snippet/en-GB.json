@@ -88,7 +88,10 @@
       "labelProductLayoutType": "Layout type",
       "labelProductLayoutTypeStandard": "Standard",
       "labelProductLayoutTypeImage": "Big image",
-      "labelProductLayoutTypeMinimal": "Minimal content"
+      "labelProductLayoutTypeMinimal": "Minimal content",
+      "placeholderSettingsEnterUrl": "Enter URL",
+      "labelSettingsLinkTo": "Link to",
+      "labelSettingsLinkNewTab": "Open link in new tab"
     },
     "components": {
       "cmsLayoutModal": {

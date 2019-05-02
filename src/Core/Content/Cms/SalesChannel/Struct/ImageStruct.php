@@ -22,6 +22,11 @@ class ImageStruct extends Struct
      */
     protected $url;
 
+    /**
+     * @var bool|null
+     */
+    protected $newTab;
+
     public function getMedia(): ?MediaEntity
     {
         return $this->media;
@@ -50,5 +55,15 @@ class ImageStruct extends Struct
     public function setUrl(string $url): void
     {
         $this->url = $url;
+    }
+
+    public function getNewTab(): ?bool
+    {
+        return $this->newTab;
+    }
+
+    public function setNewTab(?bool $newTab): void
+    {
+        $this->newTab = $newTab;
     }
 }

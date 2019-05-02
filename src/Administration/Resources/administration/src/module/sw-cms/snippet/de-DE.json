@@ -88,7 +88,14 @@
       "labelProductLayoutType": "Layout Typ",
       "labelProductLayoutTypeStandard": "Standard",
       "labelProductLayoutTypeImage": "Großes Bild",
-      "labelProductLayoutTypeMinimal": "Minimaler Inhalt"
+      "labelProductLayoutTypeMinimal": "Minimaler Inhalt",
+      "labelProductDisplayMode": "Display mode",
+      "labelProductDisplayModeStandard": "Standard",
+      "labelProductDisplayModeCover": "Füllen",
+      "labelProductDisplayModeContain": "Beinhalten",
+      "placeholderSettingsEnterUrl": "URL eingeben",
+      "labelSettingsLinkTo": "Link zu",
+      "labelSettingsLinkNewTab": "Link in neuem Tab öffnen"
     },
     "components": {
       "cmsLayoutModal": {

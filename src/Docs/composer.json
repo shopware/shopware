@@ -13,11 +13,11 @@
     },
     "require": {
         "erusev/parsedown-extra":"0.7.1",
-        "symfony/config": "4.2.4",
-        "symfony/console": "4.2.4",
-        "symfony/dependency-injection": "4.2.4",
-        "symfony/filesystem": "4.2.4",
-        "symfony/finder": "4.2.4",
-        "symfony/http-kernel": "4.2.4"
+        "symfony/config": "4.2.8",
+        "symfony/console": "4.2.8",
+        "symfony/dependency-injection": "4.2.8",
+        "symfony/filesystem": "4.2.8",
+        "symfony/finder": "4.2.8",
+        "symfony/http-kernel": "4.2.8"
     }
 }

@@ -18,11 +18,6 @@ class TemplateFinder
      */
     private $loader;
 
-    /**
-     * @var array[]
-     */
-    private $queue = [];
-
     public function __construct(FilesystemLoader $loader)
     {
         $this->loader = $loader;
@@ -56,7 +51,7 @@ class TemplateFinder
             $this->loader->addPath($directory);
         }
 
-        $this->bundles = array_unique($bundles);
+        $this->bundles = array_values(array_unique($bundles));
     }
 
     public function getTemplateName(string $template): string
@@ -94,7 +89,6 @@ class TemplateFinder
         foreach ($queue as $index => $prefix) {
             $name = '@' . $prefix . '/' . $template;
 
-            unset($this->queue[$template][$index]);
             if ($this->loader->exists($name)) {
                 return $name;
             }

@@ -13,12 +13,12 @@ use Shopware\Core\System\Tag\TagDefinition;
 
 class NewsletterReceiverTagDefinition extends MappingEntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'newsletter_receiver_tag';
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new FkField('newsletter_receiver_id', 'newsletterReceiverId', NewsletterReceiverDefinition::class))->addFlags(new PrimaryKey(), new Required()),

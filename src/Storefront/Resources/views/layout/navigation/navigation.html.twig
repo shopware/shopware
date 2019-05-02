@@ -9,7 +9,7 @@
 						itemscope="itemscope"
 						itemtype="http://schema.org/SiteNavigationElement">
 						{% block layout_main_navigation_menu_home %}
-							<a class="nav-link main-navigation-link{% if controllerName is same as('HomePage') %} active{% endif %} home-link"
+							<a class="nav-link main-navigation-link{% if controllerAction is same as('home') %} active{% endif %} home-link"
 								href="{{ path('frontend.home.page') }}"
 								itemprop="url"
 								title="{{ "general.homeLink"|trans }}">

@@ -17,7 +17,6 @@ use Shopware\Core\Checkout\Promotion\Cart\Collector\LineItemCollector;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Promotion\PromotionGatewayInterface;
-use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\StructCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -42,26 +41,11 @@ class CartPromotionsCollector implements CollectorInterface
      */
     private $itemCollector;
 
-    /**
-     * @var bool
-     */
-    private $featureFlagUnlocked = false;
-
     public function __construct(PromotionGatewayInterface $promotionGateway)
     {
         $this->promotionGateway = $promotionGateway;
         $this->itemBuilder = new PromotionItemBuilder(self::LINE_ITEM_TYPE);
         $this->itemCollector = new LineItemCollector(self::LINE_ITEM_TYPE);
-    }
-
-    /**
-     * Sets if the feature is enabled or disabled from code.
-     * This is used to enable the whole collector for unit tests.
-     * The function can be removed again after deleting the feature flag.
-     */
-    public function setFeatureFlagUnlocked(bool $isFeatureFlagUnlocked): void
-    {
-        $this->featureFlagUnlocked = $isFeatureFlagUnlocked;
     }
 
     /**
@@ -72,10 +56,6 @@ class CartPromotionsCollector implements CollectorInterface
      */
     public function prepare(StructCollection $definitions, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
     {
-        if (!$this->isFeatureFlagUnlocked()) {
-            return;
-        }
-
         $placeholderItemIds = [];
 
         /** @var array $promotionLineItems */
@@ -104,10 +84,6 @@ class CartPromotionsCollector implements CollectorInterface
      */
     public function collect(StructCollection $fetchDefinitions, StructCollection $data, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
     {
-        if (!$this->isFeatureFlagUnlocked()) {
-            return;
-        }
-
         /** @var Collection $promotionDefinitions */
         $promotionDefinitions = $fetchDefinitions->filterInstance(CartPromotionsFetchDefinition::class);
 
@@ -162,10 +138,6 @@ class CartPromotionsCollector implements CollectorInterface
      */
     public function enrich(StructCollection $data, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
     {
-        if (!$this->isFeatureFlagUnlocked()) {
-            return;
-        }
-
         /** @var array $promotionLineItems */
         $promotionLineItems = $this->getPromotionLineItems($cart);
 
@@ -214,23 +186,6 @@ class CartPromotionsCollector implements CollectorInterface
             // ...and finally add our new line items to the cart
             $cart->addLineItems(new LineItemCollection($lineItems));
         }
-    }
-
-    /**
-     * Gets if the feature is unlocked. This is due to a problem
-     * with the unit test. thus we really activate it in there
-     * without any feature flag loading (just doesnt work).
-     */
-    private function isFeatureFlagUnlocked(): bool
-    {
-        // check if our flag mechanism works
-        // we do this with this way due to problems with unit tests
-        if (array_key_exists('next700', FeatureConfig::getAll())) {
-            return true;
-        }
-
-        // otherwise just return what we have configured
-        return $this->featureFlagUnlocked;
     }
 
     /**

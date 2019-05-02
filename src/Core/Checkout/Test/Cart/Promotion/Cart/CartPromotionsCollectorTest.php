@@ -120,7 +120,6 @@ class CartPromotionsCollectorTest extends TestCase
         $data = new StructCollection();
 
         $collector = new CartPromotionsCollector($fakePromotionGateway);
-        $collector->setFeatureFlagUnlocked(true);
 
         // make sure we have some prepared placeholders
         $collector->prepare($definitions, $this->cart, $this->checkoutContext, new CartBehavior());
@@ -162,7 +161,6 @@ class CartPromotionsCollectorTest extends TestCase
         $fakePromotionGateway = new FakePromotionGateway([], []);
 
         $collector = new CartPromotionsCollector($fakePromotionGateway);
-        $collector->setFeatureFlagUnlocked(true);
 
         // add a fake promotion to our definition
         // this one will be added as new promotion line item

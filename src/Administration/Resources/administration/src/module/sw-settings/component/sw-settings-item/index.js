@@ -22,6 +22,11 @@ Component.register('sw-settings-item', {
             required: false,
             type: Boolean,
             default: false
+        },
+        backgroundEnabled: {
+            required: false,
+            type: Boolean,
+            default: true
         }
     },
 

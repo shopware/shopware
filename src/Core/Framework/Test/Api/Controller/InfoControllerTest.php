@@ -15,7 +15,7 @@ class InfoControllerTest extends TestCase
         $expected = [
             'adminWorker' => [
                 'enableAdminWorker' => $this->getContainer()->getParameter('shopware.admin_worker.enable_admin_worker'),
-                'pollInterval' => $this->getContainer()->getParameter('shopware.admin_worker.poll_interval'),
+                'transports' => $this->getContainer()->getParameter('shopware.admin_worker.transports'),
             ],
         ];
 

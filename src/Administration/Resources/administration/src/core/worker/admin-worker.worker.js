@@ -7,7 +7,7 @@ import ScheduledTaskService from 'src/core/service/api/scheduled-task.api.servic
 import MessageQueueService from 'src/core/service/api/message-queue.api.service';
 import Axios from 'axios';
 
-onmessage = ({ data: { context, bearerAuth, host, pollingConfig } }) => {
+onmessage = ({ data: { context, bearerAuth, host, transports } }) => {
     const baseURL = process.env.NODE_ENV !== 'production' ? `${host}${context.apiResourcePath}` : context.apiResourcePath;
     const client = Axios.create({
         baseURL: baseURL
@@ -24,10 +24,8 @@ onmessage = ({ data: { context, bearerAuth, host, pollingConfig } }) => {
         }
     });
 
-    Object.keys(pollingConfig).forEach((receiver) => {
-        if (pollingConfig[receiver] > 0) {
-            consumeMessages(messageQueueService, receiver, pollingConfig[receiver] * 1000);
-        }
+    transports.forEach((receiver) => {
+        consumeMessages(messageQueueService, receiver);
     });
 };
 
@@ -45,16 +43,10 @@ function runTasks(scheduledTaskService, timeout) {
     }, timeout);
 }
 
-function consumeMessages(messageQueueService, receiver, timeout) {
+function consumeMessages(messageQueueService, receiver) {
     messageQueueService.consume(receiver)
-        .then((response) => {
-            if (response.handledMessages > 0) {
-                consumeMessages(messageQueueService, receiver, timeout);
-            } else {
-                setTimeout(() => {
-                    consumeMessages(messageQueueService, receiver, timeout);
-                }, timeout);
-            }
+        .then(() => {
+            consumeMessages(messageQueueService, receiver);
         })
         .catch((error) => {
             const { response: { status } } = error;

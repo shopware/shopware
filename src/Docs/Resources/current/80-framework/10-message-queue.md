@@ -158,7 +158,7 @@ There is also an API-Route that let you consume messages for a given transport.
 Just post to the route `/api/v1/_action/message-queue/consume` and define the transport from which you want to consume messages as the receiver in the requests body:
 ```json
 {
-  "receiver": "default"
+  "receiver": "default",
 }
 ```
 
@@ -302,14 +302,13 @@ For more information on this check the [symfony docs](https://symfony.com/doc/cu
 ### Admin worker
 
 The admin-worker can be configured/disabled in the general shopware.yml configuration.
-If you want to use the admin worker you have specify the polling interval for each additional transport, that previously was configured.
-The poll interval is the wait time in seconds that the admin worker waits before it consumes messages from the transport again, when there are no more messages.
-As long as messages are consumed the admin worker will consume messages directly again.          
+If you want to use the admin worker you have specify each transport, that previously was configured.
+The poll interval is the time in seconds that the admin-worker polls messages from the queue. After the poll-interval is over the request terminates and the administration initiates a new request.
 ```yaml
 # config/packages/shopware.yaml
 shopware:
     admin_worker:
         enable_admin_worker: true
-        poll_interval:
-            default: 300 # the name of the transport and the poll interval
+        poll_interval: 30
+        transports: ["default"]
 ``` 

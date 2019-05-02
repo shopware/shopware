@@ -84,7 +84,7 @@ class InfoController extends AbstractController
         return $this->json([
             'adminWorker' => [
                 'enableAdminWorker' => $this->params->get('shopware.admin_worker.enable_admin_worker'),
-                'pollInterval' => $this->params->get('shopware.admin_worker.poll_interval'),
+                'transports' => $this->params->get('shopware.admin_worker.transports'),
             ],
         ]);
     }

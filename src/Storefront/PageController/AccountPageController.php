@@ -131,9 +131,7 @@ class AccountPageController extends StorefrontController
      */
     public function index(Request $request, SalesChannelContext $context): Response
     {
-        if (!$context->getCustomer()) {
-            return $this->redirectToRoute('frontend.account.login.page');
-        }
+        $this->denyAccessUnlessLoggedIn();
 
         $page = $this->overviewPageLoader->load($request, $context);
 
@@ -254,12 +252,12 @@ class AccountPageController extends StorefrontController
 
     /**
      * @Route("/account/payment", name="frontend.account.payment.page", options={"seo"="false"}, methods={"GET"})
+     *
+     * @throws CustomerNotLoggedInException
      */
     public function paymentOverview(Request $request, SalesChannelContext $context): Response
     {
-        if (!$context->getCustomer()) {
-            return $this->redirectToRoute('frontend.account.login.page');
-        }
+        $this->denyAccessUnlessLoggedIn();
 
         $page = $this->paymentMethodPageLoader->load($request, $context);
 
@@ -268,12 +266,12 @@ class AccountPageController extends StorefrontController
 
     /**
      * @Route("/account/payment", name="frontend.account.payment.save", methods={"POST"})
+     *
+     * @throws CustomerNotLoggedInException
      */
     public function savePayment(RequestDataBag $requestDataBag, SalesChannelContext $context): Response
     {
-        if (!$context->getCustomer()) {
-            return $this->redirectToRoute('frontend.account.login.page');
-        }
+        $this->denyAccessUnlessLoggedIn();
 
         try {
             $paymentMethodId = $requestDataBag->getAlnum('paymentMethodId');
@@ -303,12 +301,12 @@ class AccountPageController extends StorefrontController
 
     /**
      * @Route("/account/order", name="frontend.account.order.page", options={"seo"="false"}, methods={"GET"})
+     *
+     * @throws CustomerNotLoggedInException
      */
     public function orderOverview(Request $request, SalesChannelContext $context): Response
     {
-        if (!$context->getCustomer()) {
-            return $this->redirectToRoute('frontend.account.login.page');
-        }
+        $this->denyAccessUnlessLoggedIn();
 
         $page = $this->orderPageLoader->load($request, $context);
 
@@ -317,12 +315,12 @@ class AccountPageController extends StorefrontController
 
     /**
      * @Route("/account/profile", name="frontend.account.profile.page", methods={"GET"})
+     *
+     * @throws CustomerNotLoggedInException
      */
     public function profileOverview(Request $request, SalesChannelContext $context): Response
     {
-        if (!$context->getCustomer()) {
-            return $this->redirectToRoute('frontend.account.login.page');
-        }
+        $this->denyAccessUnlessLoggedIn();
 
         $page = $this->profilePageLoader->load($request, $context);
 
@@ -400,12 +398,12 @@ class AccountPageController extends StorefrontController
 
     /**
      * @Route("/account/address", name="frontend.account.address.page", options={"seo"="false"}, methods={"GET"})
+     *
+     * @throws CustomerNotLoggedInException
      */
     public function addressOverview(Request $request, SalesChannelContext $context): Response
     {
-        if (!$context->getCustomer()) {
-            return $this->redirectToRoute('frontend.account.login.page');
-        }
+        $this->denyAccessUnlessLoggedIn();
 
         $page = $this->addressListPageLoader->load($request, $context);
 
@@ -414,12 +412,12 @@ class AccountPageController extends StorefrontController
 
     /**
      * @Route("/account/address/create", name="frontend.account.address.create.page", options={"seo"="false"}, methods={"GET"})
+     *
+     * @throws CustomerNotLoggedInException
      */
     public function createAddress(Request $request, SalesChannelContext $context): Response
     {
-        if (!$context->getCustomer()) {
-            return $this->redirectToRoute('frontend.account.login.page');
-        }
+        $this->denyAccessUnlessLoggedIn();
 
         $page = $this->addressPageLoader->load($request, $context);
 
@@ -428,12 +426,12 @@ class AccountPageController extends StorefrontController
 
     /**
      * @Route("/account/address/{addressId}", name="frontend.account.address.edit.page", options={"seo"="false"}, methods={"GET"})
+     *
+     * @throws CustomerNotLoggedInException
      */
     public function editAddress(Request $request, SalesChannelContext $context): Response
     {
-        if (!$context->getCustomer()) {
-            return $this->redirectToRoute('frontend.account.login.page');
-        }
+        $this->denyAccessUnlessLoggedIn();
 
         $page = $this->addressPageLoader->load($request, $context);
 
@@ -442,9 +440,13 @@ class AccountPageController extends StorefrontController
 
     /**
      * @Route("/account/password", name="frontend.account.password.page", options={"seo"="false"}, methods={"GET","POST"})
+     *
+     * @throws CustomerNotLoggedInException
      */
     public function password(Request $request): Response
     {
+        $this->denyAccessUnlessLoggedIn();
+
         if ($request->isMethod(Request::METHOD_POST)) {
             // @todo : send recovery email
             return $this->renderStorefront('@Storefront/page/account/password-reset/hash-sent.html.twig', ['page' => []]);
@@ -455,9 +457,13 @@ class AccountPageController extends StorefrontController
 
     /**
      * @Route("/account/resetPassword/{hash}", name="frontend.account.password.reset.page", options={"seo"="false"}, methods={"GET","POST"})
+     *
+     * @throws CustomerNotLoggedInException
      */
     public function resetPassword(Request $request): Response
     {
+        $this->denyAccessUnlessLoggedIn();
+
         // @todo verify hash and if not valid show error page with message
 
         if ($request->isMethod(Request::METHOD_POST)) {
@@ -490,6 +496,8 @@ class AccountPageController extends StorefrontController
      */
     public function setDefaultShippingAddress(string $type, string $addressId, SalesChannelContext $context): RedirectResponse
     {
+        $this->denyAccessUnlessLoggedIn();
+
         if (!Uuid::isValid($addressId)) {
             throw new InvalidUuidException($addressId);
         }
@@ -520,12 +528,12 @@ class AccountPageController extends StorefrontController
 
     /**
      * @Route("/account/address/delete/{addressId}", name="frontend.account.address.delete", options={"seo"="false"}, methods={"POST"})
+     *
+     * @throws CustomerNotLoggedInException
      */
     public function deleteAddress(Request $request, SalesChannelContext $context): Response
     {
-        if (!$context->getCustomer()) {
-            return $this->redirectToRoute('frontend.account.login.page');
-        }
+        $this->denyAccessUnlessLoggedIn();
 
         $success = true;
         $addressId = $request->request->get('addressId');
@@ -546,12 +554,12 @@ class AccountPageController extends StorefrontController
     /**
      * @Route("/account/address/{addressId}", name="frontend.account.address.edit.save", options={"seo"="false"}, methods={"POST"})
      * @Route("/account/address/create", name="frontend.account.address.create", options={"seo"="false"}, methods={"POST"})
+     *
+     * @throws CustomerNotLoggedInException
      */
     public function saveAddress(RequestDataBag $data, SalesChannelContext $context): Response
     {
-        if (!$context->getCustomer()) {
-            return $this->redirectToRoute('frontend.account.login.page');
-        }
+        $this->denyAccessUnlessLoggedIn();
 
         /** @var RequestDataBag $address */
         $address = $data->get('address');

@@ -16,6 +16,7 @@ class MailHeaderFooterGenerator implements DemodataGeneratorInterface
      * @var EntityWriterInterface
      */
     private $writer;
+
     /**
      * @var MailHeaderFooterDefinition
      */

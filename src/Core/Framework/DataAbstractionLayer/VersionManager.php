@@ -61,11 +61,6 @@ class VersionManager
     private $entitySearcher;
 
     /**
-     * @var DefinitionRegistry
-     */
-    private $entityDefinitionRegistry;
-
-    /**
      * @var EntityWriteGatewayInterface
      */
     private $entityWriteGateway;
@@ -79,18 +74,22 @@ class VersionManager
      * @var SerializerInterface
      */
     private $serializer;
+
     /**
      * @var VersionCommitDefinition
      */
     private $versionCommitDefinition;
+
     /**
      * @var VersionCommitDataDefinition
      */
     private $versionCommitDataDefinition;
+
     /**
      * @var VersionDefinition
      */
     private $versionDefinition;
+
     /**
      * @var DefinitionInstanceRegistry
      */

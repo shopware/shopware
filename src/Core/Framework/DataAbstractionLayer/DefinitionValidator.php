@@ -183,7 +183,7 @@ class DefinitionValidator
             }
         }
 
-        return [DefinitionRegistry::class => $violations];
+        return [DefinitionInstanceRegistry::class => $violations];
     }
 
     /**

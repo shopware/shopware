@@ -12,13 +12,6 @@ use Shopware\Core\Framework\Struct\Collection;
  */
 class FieldCollection extends Collection
 {
-    public function __debugInfo()
-    {
-        return [
-            array_keys($this->elements),
-        ];
-    }
-
     public function compile(DefinitionInstanceRegistry $registry): CompiledFieldCollection
     {
         foreach ($this->elements as $field) {

@@ -26,10 +26,12 @@ class CustomerGenerator implements DemodataGeneratorInterface
      * @var EntityRepositoryInterface
      */
     private $customerGroupRepository;
+
     /**
      * @var NumberRangeValueGeneratorInterface
      */
     private $numberRangeValueGenerator;
+
     /**
      * @var Connection
      */
@@ -39,6 +41,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
      * @var array
      */
     private $salutationIds;
+
     /**
      * @var CustomerDefinition
      */

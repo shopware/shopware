@@ -45,6 +45,7 @@ class OrderGenerator implements DemodataGeneratorInterface
      * @var EntityWriterInterface
      */
     private $writer;
+
     /**
      * @var OrderDefinition
      */

@@ -24,6 +24,7 @@ class CompiledFieldCollection extends FieldCollection
      * @var ChildrenAssociationField|null
      */
     private $childrenAssociationField;
+
     /**
      * @var DefinitionInstanceRegistry
      */

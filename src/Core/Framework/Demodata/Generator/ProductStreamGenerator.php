@@ -19,6 +19,7 @@ class ProductStreamGenerator implements DemodataGeneratorInterface
      * @var EntityWriterInterface
      */
     private $writer;
+
     /**
      * @var ProductStreamDefinition
      */

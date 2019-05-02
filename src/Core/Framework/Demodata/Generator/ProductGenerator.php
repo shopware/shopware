@@ -79,6 +79,7 @@ class ProductGenerator implements DemodataGeneratorInterface
      * @var NumberRangeValueGeneratorInterface
      */
     private $numberRangeValueGenerator;
+
     /**
      * @var ProductDefinition
      */

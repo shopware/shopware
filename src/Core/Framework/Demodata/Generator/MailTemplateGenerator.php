@@ -18,6 +18,7 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
      * @var EntityWriterInterface
      */
     private $writer;
+
     /**
      * @var MailTemplateDefinition
      */

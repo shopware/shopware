@@ -44,6 +44,7 @@ class RuleGenerator implements DemodataGeneratorInterface
      * @var EntityRepositoryInterface
      */
     private $shippingMethodRepository;
+
     /**
      * @var RuleDefinition
      */

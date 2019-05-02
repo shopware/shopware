@@ -36,11 +36,6 @@ abstract class EntityDefinition
     protected $translationField;
 
     /**
-     * @var bool|null
-     */
-    protected $keywordSearchDefinition;
-
-    /**
      * @var CompiledFieldCollection|null
      */
     protected $primaryKeys;

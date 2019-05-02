@@ -24,6 +24,7 @@ class DemodataService
      * @var string
      */
     private $projectDir;
+
     /**
      * @var DefinitionInstanceRegistry
      */

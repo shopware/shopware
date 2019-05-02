@@ -29,6 +29,7 @@ class BusinessEventDispatcher implements EventDispatcherInterface
      * @var EntityReaderInterface
      */
     private $reader;
+
     /**
      * @var EventActionDefinition
      */

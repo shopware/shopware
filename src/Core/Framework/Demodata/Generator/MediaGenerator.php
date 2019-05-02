@@ -29,6 +29,7 @@ class MediaGenerator implements DemodataGeneratorInterface
      * @var FileNameProvider
      */
     private $fileNameProvider;
+
     /**
      * @var MediaDefinition
      */

@@ -73,6 +73,41 @@ class CustomFieldTranslationTest extends TestCase
         $this->connection->executeUpdate('DROP TABLE `attribute_test`');
     }
 
+    public function testRawIsNotInherited(): void
+    {
+        $id = 'c724803ea1cc4e72abc264a1020000bf';
+        $entity = [
+            'id' => $id,
+            'name' => 'test',
+            'translations' => [
+                'en-GB' => [
+                    'customTranslated' => [
+                        'code' => 'en-GB',
+                        'system' => 'system',
+                        'root' => true,
+                    ],
+                ],
+                'de-DE' => [
+                    'customTranslated' => null,
+                ],
+            ],
+        ];
+
+        $chain = [Defaults::LANGUAGE_SYSTEM_DE, Defaults::LANGUAGE_SYSTEM];
+        $repo = $this->getTestRepository();
+
+        $context = Context::createDefaultContext();
+        $repo->create([$entity], $context);
+
+        $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
+
+        /** @var Entity $result */
+        $result = $repo->search(new Criteria([$id]), $context)->first();
+
+        static::assertNull($result->get('customTranslated'));
+        static::assertNotNull($result->getTranslation('customTranslated'));
+    }
+
     public function testTranslatedCustomFields(): void
     {
         $this->addCustomFields([

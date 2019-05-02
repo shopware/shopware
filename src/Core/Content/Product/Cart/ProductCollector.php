@@ -124,10 +124,6 @@ class ProductCollector implements CollectorInterface
                 $lineItem->setLabel($product->getName());
             }
 
-            if (!$lineItem->getDescription()) {
-                $lineItem->setDescription($product->getDescription());
-            }
-
             if (!$lineItem->getCover() && $product->getCover()) {
                 $lineItem->setCover($product->getCover()->getMedia());
             }

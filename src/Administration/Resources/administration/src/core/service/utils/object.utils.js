@@ -1,5 +1,6 @@
 import objectMerge from 'lodash/merge';
 import objectCopy from 'lodash/cloneDeep';
+import objectGet from 'lodash/get';
 import type from 'src/core/service/utils/types.utils';
 
 /**
@@ -11,7 +12,8 @@ export default {
     getObjectDiff,
     getArrayChanges,
     merge: objectMerge,
-    cloneDeep: objectCopy
+    cloneDeep: objectCopy,
+    get: objectGet
 };
 
 /**
@@ -20,6 +22,8 @@ export default {
 export const merge = objectMerge;
 
 export const cloneDeep = objectCopy;
+
+export const get = objectGet;
 
 /**
  * Shorthand method for `Object.prototype.hasOwnProperty`

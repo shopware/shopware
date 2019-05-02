@@ -15,22 +15,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class MediaDefaultFolderDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'media_default_folder';
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return MediaDefaultFolderCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return MediaDefaultFolderEntity::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),

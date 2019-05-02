@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Order\Api;
 
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
@@ -80,7 +79,7 @@ class OrderTransactionActionController extends AbstractController
 
         $toPlace = $this->stateMachineRegistry->transition($this->stateMachineRegistry->getStateMachine(OrderTransactionStates::STATE_MACHINE, $context),
             $transaction->getStateMachineState(),
-            OrderTransactionDefinition::getEntityName(),
+            $this->orderTransactionRepository->getDefinition()->getEntityName(),
             $transaction->getId(),
             $context,
             $transition);
@@ -93,7 +92,7 @@ class OrderTransactionActionController extends AbstractController
         $transaction->setStateMachineState($toPlace);
         $transaction->setStateId($toPlace->getId());
 
-        return $responseFactory->createDetailResponse($transaction, OrderTransactionDefinition::class, $request, $context);
+        return $responseFactory->createDetailResponse($transaction, $this->orderTransactionRepository->getDefinition(), $request, $context);
     }
 
     /**
@@ -105,7 +104,7 @@ class OrderTransactionActionController extends AbstractController
         $result = $this->orderTransactionRepository->search(new Criteria([$id]), $context);
 
         if ($result->count() === 0) {
-            throw new ResourceNotFoundException(OrderTransactionDefinition::getEntityName(), ['id' => $id]);
+            throw new ResourceNotFoundException($this->orderTransactionRepository->getDefinition()->getEntityName(), ['id' => $id]);
         }
 
         return $result->first();

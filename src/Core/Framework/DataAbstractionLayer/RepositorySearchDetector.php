@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
 
 class RepositorySearchDetector
 {
-    public static function isSearchRequired(string $definition, Criteria $criteria): bool
+    public static function isSearchRequired(EntityDefinition $definition, Criteria $criteria): bool
     {
         //total counts can only be fetched by entity searcher
         if ($criteria->getTotalCountMode() !== Criteria::TOTAL_COUNT_MODE_NONE) {

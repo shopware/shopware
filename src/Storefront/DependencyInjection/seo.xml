@@ -43,15 +43,18 @@
 
         <service id="Shopware\Storefront\Framework\Seo\Entity\Serializer\SeoUrlFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor" />
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry" />
             <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Seo\Entity\Serializer\CanonicalUrlFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor" />
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry" />
             <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Seo\Entity\Dbal\CanonicalUrlAssociationFieldResolver">
+            <argument type="service" id="Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlDefinition"/>
             <tag name="shopware.field_resolver" priority="200"/>
         </service>
 
@@ -60,6 +63,7 @@
             <argument type="service" id="seo_url_template.repository"/>
             <argument type="service" id="slugify"/>
             <argument type="tagged" tag="shopware.seo_url.generator"/>
+            <argument type="service" id="Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlDefinition"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Seo\SeoResolver" public="true">
@@ -68,7 +72,7 @@
 
         <service id="Shopware\Storefront\Framework\Seo\Api\SeoActionController" public="true">
             <argument type="service" id="Shopware\Storefront\Framework\Seo\SeoService"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

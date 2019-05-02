@@ -17,7 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 class AggregationParser
 {
-    public static function buildAggregations(string $definition, array $payload, Criteria $criteria, SearchRequestException $searchRequestException): void
+    public static function buildAggregations(EntityDefinition $definition, array $payload, Criteria $criteria, SearchRequestException $searchRequestException): void
     {
         if (!\is_array($payload['aggregations'])) {
             throw new InvalidAggregationQueryException('The aggregations parameter has to be a list of aggregations.');
@@ -95,12 +95,9 @@ class AggregationParser
         }
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    private static function buildFieldName(string $definition, string $fieldName): string
+    private static function buildFieldName(EntityDefinition  $definition, string $fieldName): string
     {
-        $prefix = $definition::getEntityName() . '.';
+        $prefix = $definition->getEntityName() . '.';
 
         if (strpos($fieldName, $prefix) === false) {
             return $prefix . $fieldName;

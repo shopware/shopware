@@ -20,7 +20,7 @@ class EventDataCollectionTest extends TestCase
         $expected = [
             'customer' => [
                 'type' => 'entity',
-                'entity' => CustomerDefinition::getEntityName(),
+                'entityClass' => CustomerDefinition::class,
             ],
             'myBool' => [
                 'type' => 'bool',

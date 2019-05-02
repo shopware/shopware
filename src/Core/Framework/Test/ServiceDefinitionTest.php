@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Finder\Finder;
@@ -19,6 +20,27 @@ class ServiceDefinitionTest extends TestCase
     public function __construct()
     {
         parent::__construct();
+    }
+
+    public function testEverythingIsInstantiatable()
+    {
+        $seperateKernel = KernelLifecycleManager::createKernel();
+        $seperateKernel->boot();
+
+        $testContainer = $seperateKernel->getContainer()->get('test.service_container');
+
+        static::assertIsObject($testContainer);
+
+        $errors = [];
+        foreach ($testContainer->getServiceIds() as $serviceId) {
+            try {
+                $testContainer->get($serviceId);
+            } catch (\Throwable $t) {
+                $errors[] = $serviceId;
+            }
+        }
+
+        static::assertCount(0, $errors, 'Found invalid services: ' . print_r($errors, true));
     }
 
     public function testServiceDefinitionNaming(): void

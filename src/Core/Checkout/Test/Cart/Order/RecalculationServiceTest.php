@@ -385,7 +385,7 @@ class RecalculationServiceTest extends TestCase
             sprintf(
                 '/api/v%s/_action/version/merge/%s/%s',
                 PlatformRequest::API_VERSION,
-                OrderDefinition::getEntityName(),
+                $this->getContainer()->get(OrderDefinition::class)->getEntityName(),
                 $versionId
             )
         );

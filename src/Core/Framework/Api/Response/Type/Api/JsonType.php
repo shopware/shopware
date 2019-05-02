@@ -31,11 +31,10 @@ class JsonType extends JsonFactoryBase
         return $contentType === 'application/json' && $origin instanceof AdminApiSource;
     }
 
-    public function createDetailResponse(Entity $entity, string $definition, Request $request, Context $context, bool $setLocationHeader = false): Response
+    public function createDetailResponse(Entity $entity, EntityDefinition $definition, Request $request, Context $context, bool $setLocationHeader = false): Response
     {
         $headers = [];
         if ($setLocationHeader) {
-            /* @var string|EntityDefinition $definition */
             $headers['Location'] = $this->getEntityBaseUrl($request, $definition) . '/' . $entity->getUniqueIdentifier();
         }
 
@@ -48,7 +47,7 @@ class JsonType extends JsonFactoryBase
         return new JsonResponse($response, JsonResponse::HTTP_OK, $headers);
     }
 
-    public function createListingResponse(EntitySearchResult $searchResult, string $definition, Request $request, Context $context): Response
+    public function createListingResponse(EntitySearchResult $searchResult, EntityDefinition $definition, Request $request, Context $context): Response
     {
         $decoded = $this->serializer->normalize($searchResult);
 

@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PasswordFieldSerializer;
+
 class PasswordField extends Field implements StorageAware
 {
     /**
@@ -40,5 +42,10 @@ class PasswordField extends Field implements StorageAware
     public function getHashOptions(): array
     {
         return $this->hashOptions;
+    }
+
+    protected function getSerializerClass(): string
+    {
+        return PasswordFieldSerializer::class;
     }
 }

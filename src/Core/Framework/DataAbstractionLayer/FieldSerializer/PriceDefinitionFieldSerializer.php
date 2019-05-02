@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\ConditionTypeNotFound;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPriceFieldTypeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceDefinitionField;
@@ -30,7 +31,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
     private $ruleConditionRegistry;
 
     public function __construct(
-        FieldSerializerRegistry $compositeHandler,
+        DefinitionInstanceRegistry $compositeHandler,
         ConstraintBuilder $constraintBuilder,
         ValidatorInterface $validator,
         RuleConditionRegistry $ruleConditionRegistry

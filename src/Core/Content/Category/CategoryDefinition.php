@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Category;
 
 use Shopware\Core\Content\Category\Aggregate\CategoryTag\CategoryTagDefinition;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
-use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryDefinition;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
@@ -47,27 +46,22 @@ class CategoryDefinition extends EntityDefinition
     public const TYPE_LINK = 'link';
     public const TYPE_FOLDER = 'folder';
 
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'category';
     }
 
-    public static function getSalesChannelDecorationDefinition(): string
-    {
-        return SalesChannelCategoryDefinition::class;
-    }
-
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return CategoryCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return CategoryEntity::class;
     }
 
-    public static function getDefaults(EntityExistence $existence): array
+    public function getDefaults(EntityExistence $existence): array
     {
         $defaults = parent::getDefaults($existence);
 
@@ -79,7 +73,7 @@ class CategoryDefinition extends EntityDefinition
         return $defaults;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),

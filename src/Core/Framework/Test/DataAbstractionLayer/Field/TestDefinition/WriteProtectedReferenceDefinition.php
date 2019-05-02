@@ -11,12 +11,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 
 class WriteProtectedReferenceDefinition extends MappingEntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return '_test_nullable_reference';
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new FkField('wp_id', 'wpId', WriteProtectedDefinition::class))->addFlags(new PrimaryKey(), new Required()),

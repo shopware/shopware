@@ -11,6 +11,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 
 interface EntityRepositoryInterface
 {
+    public function getDefinition(): EntityDefinition;
+
     public function aggregate(Criteria $criteria, Context $context): AggregatorResult;
 
     public function searchIds(Criteria $criteria, Context $context): IdSearchResult;

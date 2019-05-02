@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Order\Api;
 
-use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
@@ -33,8 +32,8 @@ class OrderActionController extends AbstractController
 
     public function __construct(
         EntityRepositoryInterface $orderRepository,
-        StateMachineRegistry $stateMachineRegistry)
-    {
+        StateMachineRegistry $stateMachineRegistry
+    ) {
         $this->orderRepository = $orderRepository;
         $this->stateMachineRegistry = $stateMachineRegistry;
     }
@@ -55,10 +54,12 @@ class OrderActionController extends AbstractController
             'version' => $request->get('version'),
         ]);
 
-        return $this->stateMachineRegistry->buildAvailableTransitionsJsonResponse(OrderStates::STATE_MACHINE,
+        return $this->stateMachineRegistry->buildAvailableTransitionsJsonResponse(
+            OrderStates::STATE_MACHINE,
             $order->getStateMachineState()->getTechnicalName(),
             $baseUrl,
-            $context);
+            $context
+        );
     }
 
     /**
@@ -80,7 +81,7 @@ class OrderActionController extends AbstractController
 
         $toPlace = $this->stateMachineRegistry->transition($this->stateMachineRegistry->getStateMachine(OrderStates::STATE_MACHINE, $context),
             $order->getStateMachineState(),
-            OrderDefinition::getEntityName(),
+            $this->orderRepository->getDefinition()->getEntityName(),
             $order->getId(),
             $context,
             $transition);
@@ -93,7 +94,7 @@ class OrderActionController extends AbstractController
         $order->setStateMachineState($toPlace);
         $order->setStateId($toPlace->getId());
 
-        return $responseFactory->createDetailResponse($order, OrderDefinition::class, $request, $context);
+        return $responseFactory->createDetailResponse($order, $this->orderRepository->getDefinition(), $request, $context);
     }
 
     /**
@@ -105,7 +106,7 @@ class OrderActionController extends AbstractController
         $result = $this->orderRepository->search(new Criteria([$id]), $context);
 
         if ($result->count() === 0) {
-            throw new ResourceNotFoundException(OrderDefinition::getEntityName(), ['id' => $id]);
+            throw new ResourceNotFoundException($this->orderRepository->getDefinition()->getEntityName(), ['id' => $id]);
         }
 
         return $result->first();

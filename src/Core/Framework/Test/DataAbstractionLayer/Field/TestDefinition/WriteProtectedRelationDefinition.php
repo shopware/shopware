@@ -14,12 +14,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class WriteProtectedRelationDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return '_test_relation';
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
@@ -32,7 +32,7 @@ class WriteProtectedRelationDefinition extends EntityDefinition
         ]);
     }
 
-    protected static function defaultFields(): array
+    protected function defaultFields(): array
     {
         return [];
     }

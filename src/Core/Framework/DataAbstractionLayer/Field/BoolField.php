@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\BoolFieldSerializer;
+
 class BoolField extends Field implements StorageAware
 {
     /**
@@ -18,5 +20,10 @@ class BoolField extends Field implements StorageAware
     public function getStorageName(): string
     {
         return $this->storageName;
+    }
+
+    protected function getSerializerClass(): string
+    {
+        return BoolFieldSerializer::class;
     }
 }

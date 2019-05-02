@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Event;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 
@@ -54,7 +53,7 @@ class EntityWrittenContainerEvent extends NestedEvent
             if (!$event instanceof EntityWrittenEvent) {
                 continue;
             }
-            if ($event->getDefinition() === $definition) {
+            if ($event->getDefinition()->getClass() === $definition) {
                 return $event;
             }
         }
@@ -66,12 +65,18 @@ class EntityWrittenContainerEvent extends NestedEvent
     {
         $events = new NestedEventCollection();
 
-        /** @var EntityDefinition|string $definition */
-        foreach ($identifiers as $definition => $entityWrittenResult) {
+        foreach ($identifiers as $entityWrittenResults) {
+            if (count($entityWrittenResults) === 0) {
+                continue;
+            }
+
+            //@todo@jp fix data format
+            $definition = $entityWrittenResults[0]->getDefinition();
+
             $events->add(
                 new EntityWrittenEvent(
                     $definition,
-                    $entityWrittenResult,
+                    $entityWrittenResults,
                     $context,
                     $errors
                 )
@@ -85,8 +90,14 @@ class EntityWrittenContainerEvent extends NestedEvent
     {
         $events = new NestedEventCollection();
 
-        /** @var EntityDefinition|string $definition */
-        foreach ($identifiers as $definition => $data) {
+        foreach ($identifiers as $data) {
+            if (count($data) === 0) {
+                continue;
+            }
+
+            //@todo@jp fix data format
+            $definition = $data[0]->getDefinition();
+
             $events->add(
                 new EntityDeletedEvent(
                     $definition,

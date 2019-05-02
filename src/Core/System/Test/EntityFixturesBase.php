@@ -3,9 +3,8 @@
 namespace Shopware\Core\System\Test;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -43,7 +42,7 @@ trait EntityFixturesBase
             $container = $container->get('test.service_container');
         }
 
-        return $container->get(DefinitionRegistry::class)->getRepository($fixtureName);
+        return $container->get(DefinitionInstanceRegistry::class)->getRepository($fixtureName);
     }
 
     public function createFixture(string $fixtureName, array $fixtureData, EntityRepositoryInterface $repository): Entity
@@ -57,7 +56,7 @@ trait EntityFixturesBase
                 ->getContainer()
                 ->get(Connection::class);
             $connection->update(
-                MediaDefinition::getEntityName(),
+                'media',
                 [
                     'media_type' => serialize($fixtureData[$fixtureName]['mediaType']),
                 ],

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
@@ -18,7 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
 /**
@@ -27,48 +27,31 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 class EntityHydrator
 {
     /**
-     * @var FieldSerializerRegistry
-     */
-    private $fieldHandler;
-
-    /**
      * @var Entity[] internal object cache to prevent duplicate hydration for exact same objects
      */
     private $objects = [];
 
-    public function __construct(FieldSerializerRegistry $fieldHandler)
+    public function hydrate(EntityCollection $collection, string $entityClass, EntityDefinition $definition, array $rows, string $root, Context $context): EntityCollection
     {
-        $this->fieldHandler = $fieldHandler;
-    }
-
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    public function hydrate(string $entity, string $definition, array $rows, string $root, Context $context): array
-    {
-        $collection = [];
         $this->objects = [];
 
         foreach ($rows as $row) {
-            $collection[] = $this->hydrateEntity(new $entity(), $definition, $row, $root, $context);
+            $collection->add($this->hydrateEntity(new $entityClass(), $definition, $row, $root, $context));
         }
 
         return $collection;
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    private function hydrateEntity(Entity $entity, string $definition, array $row, string $root, Context $context): Entity
+    private function hydrateEntity(Entity $entity, EntityDefinition $definition, array $row, string $root, Context $context): Entity
     {
-        $fields = $definition::getFields();
+        $fields = $definition->getFields();
 
         $identifier = $this->buildPrimaryKey($definition, $row, $root);
         $identifier = implode('-', $identifier);
 
         $entity->setUniqueIdentifier($identifier);
 
-        $cacheKey = $definition::getEntityName() . '::' . $identifier;
+        $cacheKey = $definition->getEntityName() . '::' . $identifier;
         if (isset($this->objects[$cacheKey])) {
             return $this->objects[$cacheKey];
         }
@@ -138,18 +121,18 @@ class EntityHydrator
 
             if ($field instanceof TranslatedField) {
                 // contains the resolved translation chain value
-                $decoded = $this->fieldHandler->decode($typedField, $value);
+                $decoded = $typedField->getSerializer()->decode($typedField, $value);
                 $entity->addTranslated($propertyName, $decoded);
 
                 // assign translated value of the first language
                 $key = $root . '.translation.' . $propertyName;
-                $decoded = $this->fieldHandler->decode($typedField, $row[$key]);
+                $decoded = $typedField->getSerializer()->decode($typedField, $row[$key]);
                 $entity->assign([$propertyName => $decoded]);
 
                 continue;
             }
 
-            $decoded = $this->fieldHandler->decode($field, $value);
+            $decoded = $field->getSerializer()->decode($field, $value);
             $entity->assign([$propertyName => $decoded]);
         }
 
@@ -196,12 +179,9 @@ class EntityHydrator
         return array_map('strtolower', array_filter($ids));
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    private function buildPrimaryKey($definition, array $row, string $root): array
+    private function buildPrimaryKey(EntityDefinition $definition, array $row, string $root): array
     {
-        $primaryKeyFields = $definition::getPrimaryKeys();
+        $primaryKeyFields = $definition->getPrimaryKeys();
         $primaryKey = [];
 
         /** @var Field $field */
@@ -211,7 +191,7 @@ class EntityHydrator
             }
             $accessor = $root . '.' . $field->getPropertyName();
 
-            $primaryKey[$field->getPropertyName()] = $this->fieldHandler->decode($field, $row[$accessor]);
+            $primaryKey[$field->getPropertyName()] = $field->getSerializer()->decode($field, $row[$accessor]);
         }
 
         return $primaryKey;
@@ -224,7 +204,9 @@ class EntityHydrator
             return null;
         }
 
-        $pkField = $field->getReferenceClass()::getFields()->getByStorageName(
+        $reference = $field->getReferenceDefinition();
+
+        $pkField = $reference->getFields()->getByStorageName(
             $field->getReferenceField()
         );
 
@@ -235,18 +217,18 @@ class EntityHydrator
             return null;
         }
 
-        $structClass = $field->getReferenceClass()::getEntityClass();
+        $structClass = $reference->getEntityClass();
 
         return $this->hydrateEntity(
             new $structClass(),
-            $field->getReferenceClass(),
+            $reference,
             $row,
             $root . '.' . $field->getPropertyName(),
             $context
         );
     }
 
-    private function hydrateAttributes(string $root, Field $field, CustomFields $CustomField, Entity $entity, array $row, Context $context): void
+    private function hydrateAttributes(string $root, Field $field, CustomFields $customField, Entity $entity, array $row, Context $context): void
     {
         $inherited = $field->is(Inherited::class) && $context->considerInheritance();
 
@@ -258,7 +240,7 @@ class EntityHydrator
 
         if ($field instanceof TranslatedField) {
             $entity->assign([
-                $propertyName => $this->fieldHandler->decode($CustomField, $value),
+                $propertyName => $customField->getSerializer()->decode($customField, $value),
             ]);
 
             $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $context, $inherited);
@@ -278,14 +260,14 @@ class EntityHydrator
              * In other terms: The first argument has the lowest 'priority', so we need to reverse the array
              */
             $merged = $this->mergeJson(\array_reverse($values, false));
-            $entity->addTranslated($propertyName, $this->fieldHandler->decode($CustomField, $merged));
+            $entity->addTranslated($propertyName, $customField->getSerializer()->decode($customField, $merged));
 
             return;
         }
 
         // field is not inherited or request should work with raw data? decode child attributes and return
         if (!$inherited) {
-            $value = $this->fieldHandler->decode($CustomField, $value);
+            $value = $customField->getSerializer()->decode($customField, $value);
             $entity->assign([$propertyName => $value]);
 
             return;
@@ -295,7 +277,7 @@ class EntityHydrator
 
         // parent has no attributes? decode only child attributes and return
         if (!isset($row[$parentKey])) {
-            $value = $this->fieldHandler->decode($CustomField, $value);
+            $value = $customField->getSerializer()->decode($customField, $value);
 
             $entity->assign([$propertyName => $value]);
 
@@ -305,7 +287,7 @@ class EntityHydrator
         // merge child attributes with parent attributes and assign
         $mergedJson = $this->mergeJson([$row[$parentKey], $value]);
 
-        $merged = $this->fieldHandler->decode($CustomField, $mergedJson);
+        $merged = $customField->getSerializer()->decode($customField, $mergedJson);
 
         $entity->assign([$propertyName => $merged]);
     }

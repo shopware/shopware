@@ -26,8 +26,10 @@ class ProductSuggestGateway implements ProductSuggestGatewayInterface
      */
     private $interpreter;
 
-    public function __construct(SalesChannelRepository $repository, ProductSearchTermInterpreterInterface $interpreter)
-    {
+    public function __construct(
+        SalesChannelRepository $repository,
+        ProductSearchTermInterpreterInterface $interpreter
+    ) {
         $this->repository = $repository;
         $this->interpreter = $interpreter;
     }

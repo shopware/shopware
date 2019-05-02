@@ -18,27 +18,27 @@ use Shopware\Core\System\Currency\CurrencyDefinition;
 
 class ShippingMethodPriceDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'shipping_method_price';
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return ShippingMethodPriceCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return ShippingMethodPriceEntity::class;
     }
 
-    public static function getParentDefinitionClass(): ?string
+    protected function getParentDefinitionClass(): ?string
     {
         return ShippingMethodDefinition::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),

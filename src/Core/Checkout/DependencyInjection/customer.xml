@@ -45,6 +45,7 @@
             <argument type="service" id="order.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\CustomerDefinition"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -69,7 +70,9 @@
 
         <service id="Shopware\Core\Checkout\Customer\Validation\AddressValidationService"/>
 
-        <service id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationService"/>
+        <service id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationService">
+            <argument type="service" id="Shopware\Core\System\Salutation\SalutationDefinition"/>
+        </service>
 
         <service id="Shopware\Core\Checkout\Customer\Validation\CustomerValidationService">
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationService"/>

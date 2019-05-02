@@ -8,14 +8,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 class EntityDeletedEvent extends EntityWrittenEvent
 {
     public function __construct(
-        string $definition,
+        EntityDefinition $definition,
         array $writeResult,
         Context $context,
         array $errors = []
     ) {
         parent::__construct($definition, $writeResult, $context, $errors);
 
-        /* @var string|EntityDefinition $definition */
-        $this->name = $definition::getEntityName() . '.deleted';
+        $this->name = $definition->getEntityName() . '.deleted';
     }
 }

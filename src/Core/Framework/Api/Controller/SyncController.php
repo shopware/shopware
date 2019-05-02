@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,7 +18,7 @@ class SyncController extends AbstractController
     public const ACTION_DELETE = 'delete';
 
     /**
-     * @var DefinitionRegistry
+     * @var DefinitionInstanceRegistry
      */
     private $definitionRegistry;
 
@@ -27,7 +27,7 @@ class SyncController extends AbstractController
      */
     private $serializer;
 
-    public function __construct(DefinitionRegistry $definitionRegistry, Serializer $serializer)
+    public function __construct(DefinitionInstanceRegistry $definitionRegistry, Serializer $serializer)
     {
         $this->definitionRegistry = $definitionRegistry;
         $this->serializer = $serializer;
@@ -65,16 +65,15 @@ class SyncController extends AbstractController
 
                         /** @var EntityWrittenEvent $event */
                         foreach ($generic->getEvents() as $event) {
-                            /** @var string $eventDefinition */
                             $eventDefinition = $event->getDefinition();
 
-                            if (array_key_exists($eventDefinition, $result)) {
-                                $result[$eventDefinition]['ids'] = array_merge(
-                                    $result[$eventDefinition]['ids'],
+                            if (array_key_exists($eventDefinition->getClass(), $result)) {
+                                $result[$eventDefinition->getClass()]['ids'] = array_merge(
+                                    $result[$eventDefinition->getClass()]['ids'],
                                     $event->getIds()
                                 );
                             } else {
-                                $result[$eventDefinition] = [
+                                $result[$eventDefinition->getClass()] = [
                                     'definition' => $eventDefinition,
                                     'ids' => $event->getIds(),
                                 ];

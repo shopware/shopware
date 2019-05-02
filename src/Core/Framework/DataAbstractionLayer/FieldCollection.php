@@ -2,81 +2,23 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deferred;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @method void       set(string $key, Field $entity)
- * @method Field[]    getIterator()
- * @method Field[]    getElements()
  * @method Field|null first()
  * @method Field|null last()
  */
 class FieldCollection extends Collection
 {
-    /**
-     * @var Field[]
-     */
-    protected $mapping = [];
-
-    /**
-     * @param Field $field
-     */
-    public function add($field): void
+    public function compile(DefinitionInstanceRegistry $registry): CompiledFieldCollection
     {
-        $this->validateType($field);
-
-        $this->elements[$field->getPropertyName()] = $field;
-        if ($field instanceof StorageAware && !$field->getFlag(Deferred::class)) {
-            $this->mapping[$field->getStorageName()] = $field;
-        }
-    }
-
-    /**
-     * @param string $fieldName
-     *
-     * @internal
-     */
-    public function remove($fieldName): void
-    {
-        if (isset($this->mapping[$fieldName])) {
-            unset($this->mapping[$fieldName]);
+        foreach ($this->elements as $field) {
+            $field->compile($registry);
         }
 
-        parent::remove($fieldName);
-    }
-
-    public function get($propertyName): ?Field
-    {
-        return $this->elements[$propertyName] ?? null;
-    }
-
-    public function getBasicFields(): self
-    {
-        return $this->filter(
-            function (Field $field) {
-                if ($field instanceof AssociationField) {
-                    return $field->getAutoload();
-                }
-
-                return true;
-            }
-        );
-    }
-
-    public function getByStorageName(string $storageName): ?Field
-    {
-        return $this->mapping[$storageName] ?? null;
-    }
-
-    public function filterByFlag(string $flagClass): self
-    {
-        return $this->filter(function (Field $field) use ($flagClass) {
-            return $field->is($flagClass);
-        });
+        return new CompiledFieldCollection($registry, $this->elements);
     }
 
     protected function getExpectedClass(): ?string

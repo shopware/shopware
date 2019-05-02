@@ -19,27 +19,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class CmsPageDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'cms_page';
     }
 
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return CmsPageTranslationDefinition::class;
-    }
-
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return CmsPageEntity::class;
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return CmsPageCollection::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),

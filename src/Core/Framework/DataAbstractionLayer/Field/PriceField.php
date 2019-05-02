@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\PriceFieldAccessorBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSerializer;
 
 class PriceField extends JsonField
 {
@@ -15,5 +17,15 @@ class PriceField extends JsonField
         ];
 
         parent::__construct($storageName, $propertyName, $propertyMapping);
+    }
+
+    protected function getSerializerClass(): string
+    {
+        return PriceFieldSerializer::class;
+    }
+
+    protected function getAccessorBuilderClass(): ?string
+    {
+        return PriceFieldAccessorBuilder::class;
     }
 }

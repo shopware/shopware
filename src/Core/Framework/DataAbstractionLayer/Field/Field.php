@@ -2,7 +2,12 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\DefaultFieldAccessorBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\FieldAccessorBuilderInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerInterface;
 use Shopware\Core\Framework\Struct\Struct;
 
 abstract class Field extends Struct
@@ -17,9 +22,34 @@ abstract class Field extends Struct
      */
     protected $propertyName;
 
+    /**
+     * @var FieldSerializerInterface
+     */
+    private $serializer;
+
+    /**
+     * @var FieldResolverInterface|null
+     */
+    private $resolver;
+
+    /**
+     * @var FieldAccessorBuilderInterface|null
+     */
+    private $accessorBuilder;
+
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $registry;
+
     public function __construct(string $propertyName)
     {
         $this->propertyName = $propertyName;
+    }
+
+    public function compile(DefinitionInstanceRegistry $registry): void
+    {
+        $this->registry = $registry;
     }
 
     public function getPropertyName(): string
@@ -71,5 +101,66 @@ abstract class Field extends Struct
     public function getFlags(): array
     {
         return $this->flags;
+    }
+
+    public function getSerializer(): FieldSerializerInterface
+    {
+        $this->initLayzy();
+
+        return $this->serializer;
+    }
+
+    public function getResolver(): ?FieldResolverInterface
+    {
+        $this->initLayzy();
+
+        return $this->resolver;
+    }
+
+    public function getAccessorBuilder(): ?FieldAccessorBuilderInterface
+    {
+        $this->initLayzy();
+
+        return $this->accessorBuilder;
+    }
+
+    public function isCompiled(): bool
+    {
+        return $this->registry !== null;
+    }
+
+    abstract protected function getSerializerClass(): string;
+
+    protected function getResolverClass(): ?string
+    {
+        return null;
+    }
+
+    protected function getAccessorBuilderClass(): ?string
+    {
+        if ($this instanceof StorageAware) {
+            return DefaultFieldAccessorBuilder::class;
+        }
+
+        return null;
+    }
+
+    private function initLayzy(): void
+    {
+        if ($this->serializer !== null) {
+            return;
+        }
+
+        $this->serializer = $this->registry->getSerializer($this->getSerializerClass());
+
+        $resolverClass = $this->getResolverClass();
+        if ($resolverClass !== null) {
+            $this->resolver = $this->registry->getResolver($resolverClass);
+        }
+
+        $accessorBuilderClass = $this->getAccessorBuilderClass();
+        if ($accessorBuilderClass !== null) {
+            $this->accessorBuilder = $this->registry->getAccessorBuilder($accessorBuilderClass);
+        }
     }
 }

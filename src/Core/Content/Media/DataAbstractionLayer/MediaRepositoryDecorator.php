@@ -6,6 +6,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Message\DeleteFileMessage;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregatorResult;
@@ -133,6 +134,11 @@ class MediaRepositoryDecorator implements EntityRepositoryInterface
     public function merge(string $versionId, Context $context): void
     {
         $this->innerRepo->merge($versionId, $context);
+    }
+
+    public function getDefinition(): EntityDefinition
+    {
+        return $this->innerRepo->getDefinition();
     }
 
     private function getRawIds(array $ids)

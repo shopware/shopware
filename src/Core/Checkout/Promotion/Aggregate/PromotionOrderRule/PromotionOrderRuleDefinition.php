@@ -17,12 +17,12 @@ class PromotionOrderRuleDefinition extends MappingEntityDefinition
      * This class is used as m:n relation between promotions and order rules.
      * It gives the option to assign what rules may be used for order conditions.
      */
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'promotion_order_rule';
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new FkField('promotion_id', 'promotionId', PromotionDefinition::class))->addFlags(new PrimaryKey(), new Required()),

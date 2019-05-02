@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Media\DataAbstractionLayer;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregatorResult;
@@ -90,6 +91,11 @@ class MediaFolderRepositoryDecorator implements EntityRepositoryInterface
     public function merge(string $versionId, Context $context): void
     {
         $this->innerRepo->merge($versionId, $context);
+    }
+
+    public function getDefinition(): EntityDefinition
+    {
+        return $this->innerRepo->getDefinition();
     }
 
     private function getRawIds(array $ids)

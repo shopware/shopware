@@ -3,10 +3,8 @@
 namespace Shopware\Core\Framework\Language;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
@@ -55,7 +53,7 @@ class TranslationValidator implements WriteCommandValidatorInterface
             }
 
             $def = $writeCommand->getDefinition();
-            if (!is_subclass_of($def, EntityTranslationDefinition::class)) {
+            if (!$def instanceof EntityTranslationDefinition) {
                 continue;
             }
 
@@ -81,23 +79,18 @@ class TranslationValidator implements WriteCommandValidatorInterface
     }
 
     /**
-     * @param string|EntityDefinition $definition
-     *
      * @return FkField[]
      */
-    private function getFkFields($definition): array
+    private function getFkFields(EntityTranslationDefinition $definition): array
     {
-        $rootEntity = $definition::getParentDefinitionClass();
-        if (!$rootEntity) {
-            throw new \RuntimeException(sprintf('`%s` should implement `getRootEntity`', $definition));
-        }
-        $idStorageName = $rootEntity::getEntityName() . '_id';
-        $versionIdStorageName = $rootEntity::getEntityName() . '_version_id';
+        $rootEntity = $definition->getParentDefinition();
+        $idStorageName = $rootEntity->getEntityName() . '_id';
+        $versionIdStorageName = $rootEntity->getEntityName() . '_version_id';
 
-        $pks = new FieldCollection($definition::getPrimaryKeys());
+        $pks = $definition->getPrimaryKeys();
         $idField = $pks->getByStorageName($idStorageName);
         if (!$idField || !$idField instanceof FkField) {
-            throw new \RuntimeException(sprintf('`%s` primary key should have column `%s`', $definition, $idStorageName));
+            throw new \RuntimeException(sprintf('`%s` primary key should have column `%s`', $definition->getClass(), $idStorageName));
         }
         $fields = [
             'id' => $idField,

@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
@@ -41,22 +40,13 @@ class WriteCommandExtractor
      */
     private $entityExistenceGateway;
 
-    /**
-     * @var FieldSerializerRegistry
-     */
-    private $fieldHandler;
-
-    public function __construct(
-        EntityWriteGatewayInterface $entityExistenceGateway,
-        FieldSerializerRegistry $fieldHandler
-    ) {
+    public function __construct(EntityWriteGatewayInterface $entityExistenceGateway)
+    {
         $this->entityExistenceGateway = $entityExistenceGateway;
-        $this->fieldHandler = $fieldHandler;
     }
 
     public function extract(array $rawData, WriteParameterBag $parameters): array
     {
-        /* @var EntityDefinition|string $definition */
         $definition = $parameters->getDefinition();
 
         $fields = $this->getFieldsInWriteOrder($definition);
@@ -138,7 +128,7 @@ class WriteCommandExtractor
                     $this->validateContextHasPermission($field, $kvPair, $parameters);
                 }
 
-                $values = $this->fieldHandler->encode($field, $existence, $kvPair, $parameters);
+                $values = $field->getSerializer()->encode($field, $existence, $kvPair, $parameters);
 
                 foreach ($values as $fieldKey => $fieldValue) {
                     $stack->update($fieldKey, $fieldValue);
@@ -155,12 +145,9 @@ class WriteCommandExtractor
         return $stack->getResultAsArray();
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    private function integrateDefaults(string $definition, array $rawData, EntityExistence $existence): array
+    private function integrateDefaults(EntityDefinition $definition, array $rawData, EntityExistence $existence): array
     {
-        $defaults = $definition::getDefaults($existence);
+        $defaults = $definition->getDefaults($existence);
 
         foreach ($defaults as $key => $value) {
             if (array_key_exists($key, $rawData)) {
@@ -173,7 +160,7 @@ class WriteCommandExtractor
         return $rawData;
     }
 
-    private function updateCommandQueue(string $definition, WriteCommandQueue $queue, EntityExistence $existence, array $pkData, array $data): void
+    private function updateCommandQueue(EntityDefinition $definition, WriteCommandQueue $queue, EntityExistence $existence, array $pkData, array $data): void
     {
         /* @var EntityDefinition $definition */
         if ($existence->exists()) {
@@ -186,13 +173,11 @@ class WriteCommandExtractor
     }
 
     /**
-     * @param EntityDefinition|string $definition
-     *
      * @return Field[]
      */
-    private function getFieldsInWriteOrder(string $definition): array
+    private function getFieldsInWriteOrder(EntityDefinition $definition): array
     {
-        $fields = $definition::getFields();
+        $fields = $definition->getFields();
 
         $filtered = [];
 

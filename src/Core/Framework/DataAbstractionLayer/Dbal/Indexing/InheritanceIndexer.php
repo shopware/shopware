@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -32,7 +32,7 @@ class InheritanceIndexer implements IndexerInterface
     private $connection;
 
     /**
-     * @var DefinitionRegistry
+     * @var DefinitionInstanceRegistry
      */
     private $registry;
 
@@ -46,7 +46,7 @@ class InheritanceIndexer implements IndexerInterface
      */
     private $iteratorFactory;
 
-    public function __construct(Connection $connection, DefinitionRegistry $registry, EventDispatcherInterface $eventDispatcher, IteratorFactory $iteratorFactory)
+    public function __construct(Connection $connection, DefinitionInstanceRegistry $registry, EventDispatcherInterface $eventDispatcher, IteratorFactory $iteratorFactory)
     {
         $this->connection = $connection;
         $this->registry = $registry;
@@ -59,8 +59,7 @@ class InheritanceIndexer implements IndexerInterface
         $context = Context::createDefaultContext();
 
         foreach ($this->registry->getDefinitions() as $definition) {
-            /** @var string|EntityDefinition $definition */
-            if (!$definition::isInheritanceAware()) {
+            if (!$definition->isInheritanceAware()) {
                 continue;
             }
 
@@ -68,7 +67,7 @@ class InheritanceIndexer implements IndexerInterface
 
             $this->eventDispatcher->dispatch(
                 ProgressStartedEvent::NAME,
-                new ProgressStartedEvent('Start building inheritance for definition: ' . $definition::getEntityName(), $iterator->fetchCount())
+                new ProgressStartedEvent('Start building inheritance for definition: ' . $definition->getEntityName(), $iterator->fetchCount())
             );
 
             while ($ids = $iterator->fetch()) {
@@ -82,7 +81,7 @@ class InheritanceIndexer implements IndexerInterface
 
             $this->eventDispatcher->dispatch(
                 ProgressFinishedEvent::NAME,
-                new ProgressFinishedEvent('Finish building inheritance for definition: ' . $definition::getEntityName())
+                new ProgressFinishedEvent('Finish building inheritance for definition: ' . $definition->getEntityName())
             );
         }
     }
@@ -93,18 +92,15 @@ class InheritanceIndexer implements IndexerInterface
         foreach ($event->getEvents() as $nested) {
             $definition = $nested->getDefinition();
 
-            if ($definition::isInheritanceAware()) {
+            if ($definition->isInheritanceAware()) {
                 $this->update($definition, $nested->getIds(), $nested->getContext());
             }
         }
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    private function update(string $definition, array $ids, Context $context): void
+    private function update(EntityDefinition $definition, array $ids, Context $context): void
     {
-        $inherited = $definition::getFields()->filter(function (Field $field) {
+        $inherited = $definition->getFields()->filter(function (Field $field) {
             return $field->is(Inherited::class) && $field instanceof AssociationField;
         });
 
@@ -126,13 +122,11 @@ class InheritanceIndexer implements IndexerInterface
     }
 
     private function updateToManyAssociations(
-        string $definition,
+        EntityDefinition $definition,
         array $ids,
         FieldCollection $associations,
         Context $context
     ): void {
-        /* @var string|EntityDefinition $definition */
-
         $bytes = array_map(function ($id) {
             return Uuid::fromHexToBytes($id);
         }, $ids);
@@ -140,9 +134,9 @@ class InheritanceIndexer implements IndexerInterface
         /** @var AssociationField $association */
         foreach ($associations as $association) {
             if ($association instanceof ManyToManyAssociationField) {
-                $reference = $association->getMappingDefinition();
+                $reference = $association->getReferenceDefinition();
             } else {
-                $reference = $association->getReferenceClass();
+                $reference = $association->getReferenceDefinition();
             }
 
             $sql = sprintf(
@@ -158,21 +152,21 @@ class InheritanceIndexer implements IndexerInterface
                      )
                      WHERE #root#.id IN (:ids)
                      %s',
-                $definition::isVersionAware() ? 'AND #reference#.#entity_version_id# = #root#.version_id' : '',
-                $definition::isVersionAware() ? 'AND #root#.version_id = :version' : ''
+                $definition->isVersionAware() ? 'AND #reference#.#entity_version_id# = #root#.version_id' : '',
+                $definition->isVersionAware() ? 'AND #root#.version_id = :version' : ''
             );
 
             $parameters = [
-                '#root#' => EntityDefinitionQueryHelper::escape($definition::getEntityName()),
-                '#entity_id#' => EntityDefinitionQueryHelper::escape($definition::getEntityName() . '_id'),
-                '#entity_version_id#' => EntityDefinitionQueryHelper::escape($definition::getEntityName() . '_version_id'),
+                '#root#' => EntityDefinitionQueryHelper::escape($definition->getEntityName()),
+                '#entity_id#' => EntityDefinitionQueryHelper::escape($definition->getEntityName() . '_id'),
+                '#entity_version_id#' => EntityDefinitionQueryHelper::escape($definition->getEntityName() . '_version_id'),
                 '#property#' => EntityDefinitionQueryHelper::escape($association->getPropertyName()),
-                '#reference#' => EntityDefinitionQueryHelper::escape($reference::getEntityName()),
+                '#reference#' => EntityDefinitionQueryHelper::escape($reference->getEntityName()),
             ];
 
             $params = ['ids' => $bytes];
 
-            if ($definition::isVersionAware()) {
+            if ($definition->isVersionAware()) {
                 $versionId = Uuid::fromHexToBytes($context->getVersionId());
                 $params['version'] = $versionId;
             }
@@ -189,11 +183,8 @@ class InheritanceIndexer implements IndexerInterface
         }
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
     private function updateToOneAssociations(
-        string $definition,
+        EntityDefinition $definition,
         array $ids,
         FieldCollection $associations,
         Context $context
@@ -205,7 +196,7 @@ class InheritanceIndexer implements IndexerInterface
         /** @var ManyToOneAssociationField $association */
         foreach ($associations as $association) {
             $parameters = [
-                '#root#' => EntityDefinitionQueryHelper::escape($definition::getEntityName()),
+                '#root#' => EntityDefinitionQueryHelper::escape($definition->getEntityName()),
                 '#field#' => EntityDefinitionQueryHelper::escape($association->getStorageName()),
                 '#property#' => EntityDefinitionQueryHelper::escape($association->getPropertyName()),
             ];
@@ -218,7 +209,7 @@ class InheritanceIndexer implements IndexerInterface
 
             $params = ['ids' => $bytes];
 
-            if ($definition::isVersionAware()) {
+            if ($definition->isVersionAware()) {
                 $sql .= 'AND #root#.version_id = parent.version_id
                          AND #root#.version_id = :version';
                 $versionId = Uuid::fromHexToBytes($context->getVersionId());
@@ -242,7 +233,7 @@ class InheritanceIndexer implements IndexerInterface
 
             $params = ['ids' => $bytes];
 
-            if ($definition::isVersionAware()) {
+            if ($definition->isVersionAware()) {
                 $sql .= 'AND #root#.version_id = :version';
                 $versionId = Uuid::fromHexToBytes($context->getVersionId());
                 $params['version'] = $versionId;

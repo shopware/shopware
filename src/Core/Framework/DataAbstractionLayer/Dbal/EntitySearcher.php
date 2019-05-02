@@ -47,12 +47,9 @@ class EntitySearcher implements EntitySearcherInterface
         $this->queryHelper = $queryHelper;
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    public function search(string $definition, Criteria $criteria, Context $context): IdSearchResult
+    public function search(EntityDefinition $definition, Criteria $criteria, Context $context): IdSearchResult
     {
-        $table = $definition::getEntityName();
+        $table = $definition->getEntityName();
 
         $query = new QueryBuilder($this->connection);
         $query->select([

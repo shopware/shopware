@@ -18,7 +18,7 @@ class UpdateCommand implements WriteCommandInterface
     private $payload;
 
     /**
-     * @var string|EntityDefinition
+     * @var EntityDefinition
      */
     private $definition;
 
@@ -27,7 +27,7 @@ class UpdateCommand implements WriteCommandInterface
      */
     private $existence;
 
-    public function __construct(string $definition, array $pkData, array $payload, EntityExistence $existence)
+    public function __construct(EntityDefinition $definition, array $pkData, array $payload, EntityExistence $existence)
     {
         $this->primaryKey = $pkData;
         $this->payload = $payload;
@@ -45,7 +45,7 @@ class UpdateCommand implements WriteCommandInterface
         return $this->payload;
     }
 
-    public function getDefinition(): string
+    public function getDefinition(): EntityDefinition
     {
         return $this->definition;
     }

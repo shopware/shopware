@@ -15,9 +15,29 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchPattern;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTerm;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 class EntityScoreBuilderTest extends TestCase
 {
+    use KernelTestBehaviour, DataAbstractionLayerFieldTestBehaviour;
+
+    /**
+     * @var EntityDefinition
+     */
+    private $testDefinition;
+
+    /**
+     * @var EntityDefinition
+     */
+    private $testDefinitionTranslated;
+
+    protected function setUp(): void
+    {
+        $this->testDefinition = $this->registerDefinition(ScoreBuilderTestDefinition::class, NestedDefinition::class);
+        $this->testDefinitionTranslated = $this->registerDefinition(OnlyTranslatedFieldDefinition::class);
+    }
+
     public function testSimplePattern(): void
     {
         $builder = new EntityScoreQueryBuilder();
@@ -27,7 +47,7 @@ class EntityScoreBuilderTest extends TestCase
             'product'
         );
 
-        $queries = $builder->buildScoreQueries($pattern, ScoreBuilderTestDefinition::class, 'test');
+        $queries = $builder->buildScoreQueries($pattern, $this->testDefinition, 'test');
 
         static::assertEquals(
             [
@@ -54,7 +74,7 @@ class EntityScoreBuilderTest extends TestCase
             new SearchTerm('test', 0.1)
         );
 
-        $queries = $builder->buildScoreQueries($pattern, ScoreBuilderTestDefinition::class, 'test');
+        $queries = $builder->buildScoreQueries($pattern, $this->testDefinition, 'test');
 
         static::assertEquals(
             [
@@ -86,7 +106,7 @@ class EntityScoreBuilderTest extends TestCase
             'product'
         );
 
-        $queries = $builder->buildScoreQueries($pattern, OnlyTranslatedFieldDefinition::class, 'test');
+        $queries = $builder->buildScoreQueries($pattern, $this->testDefinitionTranslated, 'test');
 
         static::assertEquals(
             [
@@ -100,12 +120,12 @@ class EntityScoreBuilderTest extends TestCase
 
 class ScoreBuilderTestDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'test';
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new StringField('name', 'name'))->addFlags(new SearchRanking(100)),
@@ -118,12 +138,12 @@ class ScoreBuilderTestDefinition extends EntityDefinition
 
 class NestedDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'nested';
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new StringField('name', 'name'))->addFlags(new SearchRanking(100)),
@@ -133,12 +153,12 @@ class NestedDefinition extends EntityDefinition
 
 class OnlyTranslatedFieldDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'translated';
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             new TranslatedField('name'),

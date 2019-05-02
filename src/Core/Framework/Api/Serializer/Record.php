@@ -155,7 +155,7 @@ class Record implements \JsonSerializable
                 continue;
             }
 
-            $entityName = $relationship['tmp']['definition']::getEntityName();
+            $entityName = $relationship['tmp']['definition']->getEntityName();
 
             if ($relationData instanceof EntityCollection) {
                 $relationship['data'] = [];

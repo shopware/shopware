@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Search;
 
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -25,11 +26,19 @@ class ProductSearchGateway implements ProductSearchGatewayInterface
      * @var \Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreterInterface
      */
     private $interpreter;
+    /**
+     * @var SalesChannelProductDefinition
+     */
+    private $salesChannelProductDefinition;
 
-    public function __construct(SalesChannelRepository $repository, ProductSearchTermInterpreterInterface $interpreter)
-    {
+    public function __construct(
+        SalesChannelRepository $repository,
+        ProductSearchTermInterpreterInterface $interpreter,
+        SalesChannelProductDefinition $salesChannelProductDefinition
+    ) {
         $this->repository = $repository;
         $this->interpreter = $interpreter;
+        $this->salesChannelProductDefinition = $salesChannelProductDefinition;
     }
 
     public function search(Request $request, SalesChannelContext $context): EntitySearchResult

@@ -30,11 +30,21 @@ class MediaGenerator implements DemodataGeneratorInterface
      */
     private $fileNameProvider;
 
-    public function __construct(EntityWriterInterface $writer, FileSaver $mediaUpdater, FileNameProvider $fileNameProvider)
-    {
+    /**
+     * @var MediaDefinition
+     */
+    private $mediaDefinition;
+
+    public function __construct(
+        EntityWriterInterface $writer,
+        FileSaver $mediaUpdater,
+        FileNameProvider $fileNameProvider,
+        MediaDefinition $mediaDefinition
+    ) {
         $this->writer = $writer;
         $this->mediaUpdater = $mediaUpdater;
         $this->fileNameProvider = $fileNameProvider;
+        $this->mediaDefinition = $mediaDefinition;
     }
 
     public function getDefinition(): string
@@ -53,7 +63,7 @@ class MediaGenerator implements DemodataGeneratorInterface
 
             $mediaId = Uuid::randomHex();
             $this->writer->insert(
-                MediaDefinition::class,
+                $this->mediaDefinition,
                 [['id' => $mediaId, 'name' => "File #{$i}: {$file}"]],
                 $writeContext
             );

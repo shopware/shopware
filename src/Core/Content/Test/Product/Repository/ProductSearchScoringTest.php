@@ -40,7 +40,7 @@ class ProductSearchScoringTest extends TestCase
     {
         $pattern = new SearchPattern(new SearchTerm('test'), 'product');
         $builder = new EntityScoreQueryBuilder();
-        $queries = $builder->buildScoreQueries($pattern, ProductDefinition::class, ProductDefinition::getEntityName());
+        $queries = $builder->buildScoreQueries($pattern, $this->getContainer()->get(ProductDefinition::class), $this->getContainer()->get(ProductDefinition::class)->getEntityName());
 
         $criteria = new Criteria();
         $criteria->addQuery(...$queries);

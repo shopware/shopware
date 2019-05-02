@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Order\Api;
 
-use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
@@ -32,8 +31,10 @@ class OrderDeliveryActionController extends AbstractController
      */
     protected $stateMachineRegistry;
 
-    public function __construct(EntityRepositoryInterface $orderDeliveryRepository, StateMachineRegistry $stateMachineRegistry)
-    {
+    public function __construct(
+        EntityRepositoryInterface $orderDeliveryRepository,
+        StateMachineRegistry $stateMachineRegistry
+    ) {
         $this->orderDeliveryRepository = $orderDeliveryRepository;
         $this->stateMachineRegistry = $stateMachineRegistry;
     }
@@ -79,7 +80,7 @@ class OrderDeliveryActionController extends AbstractController
 
         $toPlace = $this->stateMachineRegistry->transition($this->stateMachineRegistry->getStateMachine(OrderTransactionStates::STATE_MACHINE, $context),
             $delivery->getStateMachineState(),
-            OrderDeliveryDefinition::getEntityName(),
+            $this->orderDeliveryRepository->getDefinition()->getEntityName(),
             $delivery->getId(),
             $context,
             $transition);
@@ -93,7 +94,7 @@ class OrderDeliveryActionController extends AbstractController
         $delivery->setStateMachineState($toPlace);
         $delivery->setStateId($toPlace->getId());
 
-        return $responseFactory->createDetailResponse($delivery, OrderDeliveryDefinition::class, $request, $context);
+        return $responseFactory->createDetailResponse($delivery, $this->orderDeliveryRepository->getDefinition(), $request, $context);
     }
 
     /**
@@ -105,7 +106,7 @@ class OrderDeliveryActionController extends AbstractController
         $result = $this->orderDeliveryRepository->search(new Criteria([$id]), $context);
 
         if ($result->count() === 0) {
-            throw new ResourceNotFoundException(OrderDeliveryDefinition::getEntityName(), ['id' => $id]);
+            throw new ResourceNotFoundException($this->orderDeliveryRepository->getDefinition()->getEntityName(), ['id' => $id]);
         }
 
         return $result->first();

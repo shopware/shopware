@@ -6,11 +6,12 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyIdField;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
@@ -26,7 +27,7 @@ class ManyToManyIdFieldIndexer implements IndexerInterface
     private $connection;
 
     /**
-     * @var DefinitionRegistry
+     * @var DefinitionInstanceRegistry
      */
     private $registry;
 
@@ -39,8 +40,12 @@ class ManyToManyIdFieldIndexer implements IndexerInterface
      */
     private $eventDispatcher;
 
-    public function __construct(Connection $connection, DefinitionRegistry $registry, IteratorFactory $iteratorFactory, EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        Connection $connection,
+        DefinitionInstanceRegistry $registry,
+        IteratorFactory $iteratorFactory,
+        EventDispatcherInterface $eventDispatcher
+    ) {
         $this->connection = $connection;
         $this->registry = $registry;
         $this->iteratorFactory = $iteratorFactory;
@@ -50,9 +55,9 @@ class ManyToManyIdFieldIndexer implements IndexerInterface
     public function index(\DateTimeInterface $timestamp): void
     {
         $context = Context::createDefaultContext();
-        /** @var string|EntityDefinition $definition */
+
         foreach ($this->registry->getDefinitions() as $definition) {
-            $fields = $definition::getFields()->filterInstance(ManyToManyIdField::class);
+            $fields = $definition->getFields()->filterInstance(ManyToManyIdField::class);
 
             if ($fields->count() <= 0) {
                 continue;
@@ -63,7 +68,7 @@ class ManyToManyIdFieldIndexer implements IndexerInterface
             $this->eventDispatcher->dispatch(
                 ProgressStartedEvent::NAME,
                 new ProgressStartedEvent(
-                    sprintf('Start indexing many to many ids for entity %s', $definition::getEntityName()),
+                    sprintf('Start indexing many to many ids for entity %s', $definition->getEntityName()),
                     $iterator->fetchCount()
                 )
             );
@@ -79,7 +84,7 @@ class ManyToManyIdFieldIndexer implements IndexerInterface
 
             $this->eventDispatcher->dispatch(
                 ProgressFinishedEvent::NAME,
-                new ProgressFinishedEvent(sprintf('Finished indexing many to many ids for entity %s', $definition::getEntityName()))
+                new ProgressFinishedEvent(sprintf('Finished indexing many to many ids for entity %s', $definition->getEntityName()))
             );
         }
     }
@@ -97,13 +102,13 @@ class ManyToManyIdFieldIndexer implements IndexerInterface
         }
     }
 
-    private function update(string $definition, array $ids, Context $context)
+    private function update(EntityDefinition $definition, array $ids, Context $context)
     {
         if (empty($ids)) {
             return;
         }
 
-        $fields = $definition::getFields()->filterInstance(ManyToManyIdField::class);
+        $fields = $definition->getFields()->filterInstance(ManyToManyIdField::class);
 
         if ($fields->count() <= 0) {
             return;
@@ -127,31 +132,32 @@ SQL;
 
         /** @var ManyToManyIdField $field */
         foreach ($fields as $field) {
-            $association = $definition::getFields()->get($field->getAssociationName());
+            /** @var ManyToManyAssociationField $association */
+            $association = $definition->getFields()->get($field->getAssociationName());
 
-            if (!$association) {
+            if (!$association instanceof ManyToManyAssociationField) {
                 throw new \RuntimeException(sprintf('Can not find association by property name %s', $field->getAssociationName()));
             }
             $parameters = ['ids' => $bytes];
 
             $replacement = [
-                '#table#' => EntityDefinitionQueryHelper::escape($definition::getEntityName()),
+                '#table#' => EntityDefinitionQueryHelper::escape($definition->getEntityName()),
                 '#storage_name#' => EntityDefinitionQueryHelper::escape($field->getStorageName()),
-                '#mapping_table#' => EntityDefinitionQueryHelper::escape($association->getMappingDefinition()::getEntityName()),
+                '#mapping_table#' => EntityDefinitionQueryHelper::escape($association->getMappingDefinition()->getEntityName()),
                 '#reference_column#' => EntityDefinitionQueryHelper::escape($association->getMappingReferenceColumn()),
                 '#mapping_column#' => EntityDefinitionQueryHelper::escape($association->getMappingLocalColumn()),
                 '#join_column#' => EntityDefinitionQueryHelper::escape('id'),
             ];
 
-            if ($definition::isInheritanceAware() && $association->is(Inherited::class)) {
+            if ($definition->isInheritanceAware() && $association->is(Inherited::class)) {
                 $replacement['#join_column#'] = $association->getPropertyName();
             }
             $versionCondition = '';
-            if ($definition::isVersionAware()) {
+            if ($definition->isVersionAware()) {
                 $versionCondition = 'AND #table#.version_id = #mapping_table#.#unescaped_table#_version_id AND #table#.version_id = :version';
 
                 $parameters['version'] = Uuid::fromHexToBytes($context->getVersionId());
-                $replacement['#unescaped_table#'] = $definition::getEntityName();
+                $replacement['#unescaped_table#'] = $definition->getEntityName();
             }
 
             $tableTemplate = str_replace('#version_aware#', $versionCondition, $template);

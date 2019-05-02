@@ -11,27 +11,27 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class MailTemplateTypeTranslationDefinition extends EntityTranslationDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'mail_template_type_translation';
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return MailTemplateTypeTranslationEntity::class;
     }
 
-    public static function getParentDefinitionClass(): string
-    {
-        return MailTemplateTypeDefinition::class;
-    }
-
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return MailTemplateTypeTranslationCollection::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function getParentDefinitionClass(): string
+    {
+        return MailTemplateTypeDefinition::class;
+    }
+
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new StringField('name', 'name'))->setFlags(new Required()),

@@ -31,7 +31,7 @@ class ProductStreamSyncTest extends TestCase
         $data = [
             [
                 'action' => SyncController::ACTION_UPSERT,
-                'entity' => ProductStreamDefinition::getEntityName(),
+                'entity' => $this->getContainer()->get(ProductStreamDefinition::class)->getEntityName(),
                 'payload' => [
                     [
                         'id' => $id1,

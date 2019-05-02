@@ -19,27 +19,27 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class MailTemplateTypeDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'mail_template_type';
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return MailTemplateTypeEntity::class;
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return MailTemplateTypeCollection::class;
     }
 
-    public static function getTranslationDefinitionClass(): ?string
+    public function getTranslationDefinitionClass(): ?string
     {
         return MailTemplateTypeTranslationDefinition::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),

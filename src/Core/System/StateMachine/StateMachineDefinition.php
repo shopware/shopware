@@ -20,27 +20,22 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMa
 
 class StateMachineDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'state_machine';
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return StateMachineEntity::class;
     }
 
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return StateMachineTranslationDefinition::class;
-    }
-
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return StateMachineCollection::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),

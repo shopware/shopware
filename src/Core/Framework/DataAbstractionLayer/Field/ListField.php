@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ListFieldSerializer;
+
 /**
  * Stores a JSON formatted value list. This can be typed using the third constructor parameter.
  *
@@ -37,5 +39,10 @@ class ListField extends JsonField
     public function getFieldType(): ?string
     {
         return $this->fieldType;
+    }
+
+    protected function getSerializerClass(): string
+    {
+        return ListFieldSerializer::class;
     }
 }

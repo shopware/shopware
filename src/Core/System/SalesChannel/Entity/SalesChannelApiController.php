@@ -4,7 +4,6 @@ namespace Shopware\Core\System\SalesChannel\Entity;
 
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
@@ -17,7 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 class SalesChannelApiController
 {
     /**
-     * @var SalesChannelDefinitionRegistry
+     * @var SalesChannelDefinitionInstanceRegistry
      */
     private $registry;
 
@@ -31,8 +30,11 @@ class SalesChannelApiController
      */
     private $responseFactory;
 
-    public function __construct(SalesChannelDefinitionRegistry $registry, RequestCriteriaBuilder $criteriaBuilder, ResponseFactoryInterface $responseFactory)
-    {
+    public function __construct(
+        SalesChannelDefinitionInstanceRegistry $registry,
+        RequestCriteriaBuilder $criteriaBuilder,
+        ResponseFactoryInterface $responseFactory
+    ) {
         $this->registry = $registry;
         $this->criteriaBuilder = $criteriaBuilder;
         $this->responseFactory = $responseFactory;
@@ -42,16 +44,15 @@ class SalesChannelApiController
     {
         $entity = $this->urlToSnakeCase($entity);
 
-        /** @var SalesChannelRepository $repository */
-        $repository = $this->registry->getRepository($entity);
+        $repository = $this->registry->getSalesChannelRepository($entity);
 
-        /** @var SalesChannelDefinitionInterface|string $definition */
-        $definition = $this->registry->get($entity);
+        /** @var SalesChannelDefinitionInterface $definition */
+        $definition = $this->registry->getByEntityName($entity);
 
         $criteria = new Criteria();
         $this->criteriaBuilder->handleRequest($request, $criteria, $definition, $context->getContext());
 
-        $definition::processCriteria($criteria, $context);
+        $definition->processCriteria($criteria, $context);
 
         $result = $repository->searchIds($criteria, $context);
 
@@ -65,11 +66,8 @@ class SalesChannelApiController
     {
         $entity = $this->urlToSnakeCase($entity);
 
-        /** @var SalesChannelRepository $repository */
-        $repository = $this->registry->getRepository($entity);
-
-        /** @var SalesChannelDefinitionInterface|EntityDefinition|string $definition */
-        $definition = $this->registry->get($entity);
+        $repository = $this->registry->getSalesChannelRepository($entity);
+        $definition = $this->registry->getByEntityName($entity);
 
         if (!Uuid::isValid($id)) {
             throw new InvalidUuidException($id);
@@ -78,12 +76,12 @@ class SalesChannelApiController
         $criteria = new Criteria([$id]);
         $this->criteriaBuilder->handleRequest($request, $criteria, $definition, $context->getContext());
 
-        $definition::processCriteria($criteria, $context);
+        $definition->processCriteria($criteria, $context);
 
         $result = $repository->search($criteria, $context);
 
         if (!$result->has($id)) {
-            throw new ResourceNotFoundException($definition::getEntityName(), ['id' => $id]);
+            throw new ResourceNotFoundException($definition->getEntityName(), ['id' => $id]);
         }
 
         return $this->responseFactory->createDetailResponse($result->get($id), $definition, $request, $context->getContext());
@@ -93,16 +91,13 @@ class SalesChannelApiController
     {
         $entity = $this->urlToSnakeCase($entity);
 
-        /** @var SalesChannelRepository $repository */
-        $repository = $this->registry->getRepository($entity);
-
-        /** @var SalesChannelDefinitionInterface|string $definition */
-        $definition = $this->registry->get($entity);
+        $repository = $this->registry->getSalesChannelRepository($entity);
+        $definition = $this->registry->getByEntityName($entity);
 
         $criteria = new Criteria();
         $this->criteriaBuilder->handleRequest($request, $criteria, $definition, $context->getContext());
 
-        $definition::processCriteria($criteria, $context);
+        $definition->processCriteria($criteria, $context);
 
         $result = $repository->search($criteria, $context);
 

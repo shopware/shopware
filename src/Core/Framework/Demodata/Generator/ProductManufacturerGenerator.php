@@ -16,9 +16,17 @@ class ProductManufacturerGenerator implements DemodataGeneratorInterface
      */
     private $writer;
 
-    public function __construct(EntityWriterInterface $writer)
-    {
+    /**
+     * @var ProductManufacturerDefinition
+     */
+    private $productManufacturerDefinition;
+
+    public function __construct(
+        EntityWriterInterface $writer,
+        ProductManufacturerDefinition $productManufacturerDefinition
+    ) {
         $this->writer = $writer;
+        $this->productManufacturerDefinition = $productManufacturerDefinition;
     }
 
     public function getDefinition(): string
@@ -42,7 +50,7 @@ class ProductManufacturerGenerator implements DemodataGeneratorInterface
         $writeContext = WriteContext::createFromContext($context->getContext());
 
         foreach (array_chunk($payload, 100) as $chunk) {
-            $this->writer->upsert(ProductManufacturerDefinition::class, $chunk, $writeContext);
+            $this->writer->upsert($this->productManufacturerDefinition, $chunk, $writeContext);
             $context->getConsole()->progressAdvance(\count($chunk));
         }
 

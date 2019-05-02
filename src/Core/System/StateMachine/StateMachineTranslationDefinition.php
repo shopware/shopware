@@ -10,27 +10,27 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class StateMachineTranslationDefinition extends EntityTranslationDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'state_machine_translation';
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return StateMachineTranslationEntity::class;
     }
 
-    public static function getParentDefinitionClass(): string
-    {
-        return StateMachineDefinition::class;
-    }
-
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return StateMachineTranslationCollection::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function getParentDefinitionClass(): string
+    {
+        return StateMachineDefinition::class;
+    }
+
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new StringField('name', 'name'))->setFlags(new Required()),

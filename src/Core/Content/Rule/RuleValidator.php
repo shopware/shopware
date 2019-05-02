@@ -43,7 +43,7 @@ class RuleValidator implements WriteCommandValidatorInterface
     {
         $violationList = new ConstraintViolationList();
         foreach ($commands as $command) {
-            if (!($command instanceof InsertCommand || $command instanceof UpdateCommand) || $command->getDefinition() !== RuleConditionDefinition::class) {
+            if (!($command instanceof InsertCommand || $command instanceof UpdateCommand) || $command->getDefinition()->getClass() !== RuleConditionDefinition::class) {
                 continue;
             }
 

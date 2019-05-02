@@ -12,27 +12,27 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class PropertyGroupTranslationDefinition extends EntityTranslationDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'property_group_translation';
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return PropertyGroupTranslationCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return PropertyGroupTranslationEntity::class;
     }
 
-    public static function getParentDefinitionClass(): string
+    protected function getParentDefinitionClass(): string
     {
         return PropertyGroupDefinition::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new StringField('name', 'name'))->addFlags(new Required()),

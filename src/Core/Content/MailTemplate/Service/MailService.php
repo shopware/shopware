@@ -46,14 +46,27 @@ class MailService
      */
     private $mediaRepository;
 
-    public function __construct(DataValidator $dataValidator, MailBuilder $mailBuilder, StringTemplateRenderer $templateRenderer, MessageFactory $messageFactory, MailSender $mailSender, EntityRepositoryInterface $mediaRepository)
-    {
+    /**
+     * @var SalesChannelDefinition
+     */
+    private $salesChannelDefinition;
+
+    public function __construct(
+        DataValidator $dataValidator,
+        MailBuilder $mailBuilder,
+        StringTemplateRenderer $templateRenderer,
+        MessageFactory $messageFactory,
+        MailSender $mailSender,
+        EntityRepositoryInterface $mediaRepository,
+        SalesChannelDefinition $salesChannelDefinition
+    ) {
         $this->dataValidator = $dataValidator;
         $this->mailBuilder = $mailBuilder;
         $this->templateRenderer = $templateRenderer;
         $this->messageFactory = $messageFactory;
         $this->mailSender = $mailSender;
         $this->mediaRepository = $mediaRepository;
+        $this->salesChannelDefinition = $salesChannelDefinition;
     }
 
     public function send(DataBag $data, Context $context): \Swift_Message
@@ -92,7 +105,7 @@ class MailService
         $definition = new DataValidationDefinition('mail_service.send');
 
         $definition->add('recipient', new NotBlank());
-        $definition->add('salesChannelId', new EntityExists(['entity' => SalesChannelDefinition::getEntityName(), 'context' => $context]));
+        $definition->add('salesChannelId', new EntityExists(['entity' => $this->salesChannelDefinition, 'context' => $context]));
         $definition->add('contentHtml', new NotBlank());
         $definition->add('contentPlain', new NotBlank());
         $definition->add('subject', new NotBlank());

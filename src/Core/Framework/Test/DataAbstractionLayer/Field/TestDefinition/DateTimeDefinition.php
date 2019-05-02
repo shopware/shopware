@@ -12,12 +12,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class DateTimeDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'date_time_test';
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey()),

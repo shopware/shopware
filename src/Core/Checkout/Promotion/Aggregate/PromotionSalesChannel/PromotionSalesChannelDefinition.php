@@ -16,22 +16,22 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class PromotionSalesChannelDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'promotion_sales_channel';
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return PromotionSalesChannelEntity::class;
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return PromotionSalesChannelCollection::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             // PK

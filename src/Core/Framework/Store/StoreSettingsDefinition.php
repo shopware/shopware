@@ -12,22 +12,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 // TODO: Migrate to general settings when exists
 class StoreSettingsDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'store_settings';
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return StoreSettingsEntity::class;
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return StoreSettingsCollection::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),

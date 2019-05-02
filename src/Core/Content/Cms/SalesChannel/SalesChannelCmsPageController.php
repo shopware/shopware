@@ -19,9 +19,17 @@ class SalesChannelCmsPageController extends AbstractController
      */
     private $cmsPageLoader;
 
-    public function __construct(SalesChannelCmsPageLoader $cmsPageLoader)
-    {
+    /**
+     * @var CmsPageDefinition
+     */
+    private $cmsPageDefinition;
+
+    public function __construct(
+        SalesChannelCmsPageLoader $cmsPageLoader,
+        CmsPageDefinition $cmsPageDefinition
+    ) {
         $this->cmsPageLoader = $cmsPageLoader;
+        $this->cmsPageDefinition = $cmsPageDefinition;
     }
 
     /**
@@ -37,7 +45,7 @@ class SalesChannelCmsPageController extends AbstractController
 
         return $responseFactory->createDetailResponse(
             $pages->get($pageId),
-            CmsPageDefinition::class,
+            $this->cmsPageDefinition,
             $request,
             $context->getContext()
         );

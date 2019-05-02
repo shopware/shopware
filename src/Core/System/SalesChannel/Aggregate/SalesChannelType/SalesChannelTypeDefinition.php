@@ -17,22 +17,22 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class SalesChannelTypeDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'sales_channel_type';
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return SalesChannelTypeCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return SalesChannelTypeEntity::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),

@@ -12,27 +12,27 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTyp
 
 class SalesChannelTypeTranslationDefinition extends EntityTranslationDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'sales_channel_type_translation';
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return SalesChannelTypeTranslationCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return SalesChannelTypeTranslationEntity::class;
     }
 
-    public static function getParentDefinitionClass(): string
+    protected function getParentDefinitionClass(): string
     {
         return SalesChannelTypeDefinition::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new StringField('name', 'name'))->addFlags(new Required()),

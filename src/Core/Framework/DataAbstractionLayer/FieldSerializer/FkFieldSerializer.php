@@ -48,7 +48,7 @@ class FkFieldSerializer implements FieldSerializerInterface
 
         if ($this->shouldUseContext($field, $data)) {
             try {
-                $value = $parameters->getContext()->get($field->getReferenceClass(), $field->getReferenceField());
+                $value = $parameters->getContext()->get($field->getReferenceDefinition()->getClass(), $field->getReferenceField());
             } catch (\InvalidArgumentException $exception) {
                 $this->validate(
                     $this->validator,

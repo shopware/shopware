@@ -15,22 +15,22 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class SystemConfigDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'system_config';
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return SystemConfigEntity::class;
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return SystemConfigCollection::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),

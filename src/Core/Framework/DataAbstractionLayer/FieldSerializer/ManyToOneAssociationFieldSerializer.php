@@ -21,8 +21,9 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
      */
     protected $writeExtractor;
 
-    public function __construct(WriteCommandExtractor $writeExtractor)
-    {
+    public function __construct(
+        WriteCommandExtractor $writeExtractor
+    ) {
         $this->writeExtractor = $writeExtractor;
     }
 
@@ -45,7 +46,7 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
             throw new ExpectedArrayException($parameters->getPath());
         }
 
-        $referenceField = $field->getReferenceClass()::getFields()->getByStorageName($field->getReferenceField());
+        $referenceField = $field->getReferenceDefinition()->getFields()->getByStorageName($field->getReferenceField());
         $value = $data->getValue();
         if (isset($value[$referenceField->getPropertyName()])) {
             $id = $value[$referenceField->getPropertyName()];
@@ -57,12 +58,12 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
         $this->writeExtractor->extract(
             $value,
             $parameters->cloneForSubresource(
-                $field->getReferenceClass(),
+                $field->getReferenceDefinition(),
                 $parameters->getPath() . '/' . $data->getKey()
             )
         );
 
-        $fkField = $parameters->getDefinition()::getFields()->getByStorageName($field->getStorageName());
+        $fkField = $parameters->getDefinition()->getFields()->getByStorageName($field->getStorageName());
 
         /* @var FkField $fkField */
         yield $fkField->getPropertyName() => $id;

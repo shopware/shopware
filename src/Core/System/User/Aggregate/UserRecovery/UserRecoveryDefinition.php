@@ -15,27 +15,27 @@ use Shopware\Core\System\User\UserDefinition;
 
 class UserRecoveryDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'user_recovery';
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return UserRecoveryEntity::class;
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return UserRecoveryCollection::class;
     }
 
-    public static function getParentDefinitionClass(): ?string
+    protected function getParentDefinitionClass(): ?string
     {
         return UserDefinition::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),

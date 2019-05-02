@@ -13,27 +13,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 
 class PropertyGroupOptionTranslationDefinition extends EntityTranslationDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'property_group_option_translation';
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return PropertyGroupOptionTranslationCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return PropertyGroupOptionTranslationEntity::class;
     }
 
-    public static function getParentDefinitionClass(): string
-    {
-        return PropertyGroupOptionDefinition::class;
-    }
-
-    public static function getDefaults(EntityExistence $existence): array
+    public function getDefaults(EntityExistence $existence): array
     {
         $defaults = parent::getDefaults($existence);
         $defaults['position'] = 1;
@@ -41,7 +36,12 @@ class PropertyGroupOptionTranslationDefinition extends EntityTranslationDefiniti
         return $defaults;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function getParentDefinitionClass(): string
+    {
+        return PropertyGroupOptionDefinition::class;
+    }
+
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new StringField('name', 'name'))->addFlags(new Required()),

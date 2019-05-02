@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Command;
 
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\SchemaGenerator;
 use Symfony\Component\Console\Command\Command;
@@ -18,7 +18,7 @@ class CreateSchemaCommand extends Command
     private $schemaGenerator;
 
     /**
-     * @var DefinitionRegistry
+     * @var DefinitionInstanceRegistry
      */
     private $registry;
 
@@ -29,7 +29,7 @@ class CreateSchemaCommand extends Command
 
     public function __construct(
         SchemaGenerator $generator,
-        DefinitionRegistry $registry,
+        DefinitionInstanceRegistry $registry,
         string $rootDir
     ) {
         parent::__construct();
@@ -51,9 +51,9 @@ class CreateSchemaCommand extends Command
         $entities = $this->registry->getDefinitions();
         $schema = [];
 
-        /** @var string|EntityDefinition $entity */
+        /** @var EntityDefinition $entity */
         foreach ($entities as $entity) {
-            $domain = explode('_', $entity::getEntityName());
+            $domain = explode('_', $entity->getEntityName());
             $domain = array_shift($domain);
             $schema[$domain][] = $this->schemaGenerator->generate($entity);
         }

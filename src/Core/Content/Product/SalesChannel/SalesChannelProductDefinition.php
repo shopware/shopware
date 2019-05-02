@@ -12,19 +12,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class SalesChannelProductDefinition extends ProductDefinition implements SalesChannelDefinitionInterface
 {
-    use SalesChannelDefinitionTrait;
-
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return SalesChannelProductEntity::class;
     }
 
-    public static function processCriteria(Criteria $criteria, SalesChannelContext $context): void
+    public function processCriteria(Criteria $criteria, SalesChannelContext $context): void
     {
         $criteria->addFilter(new EqualsFilter('product.active', true));
 
@@ -43,7 +40,7 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
         );
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         $fields = parent::defineFields();
 
@@ -56,8 +53,6 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
         $fields->add(
             (new BlobField('calculated_price_rules', 'calculatedPriceRules'))->addFlags(new Deferred())
         );
-
-        self::decorateDefinitions($fields);
 
         return $fields;
     }

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\FieldSerializer;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ConfigJsonFieldSerializer;
@@ -14,13 +15,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\FieldExceptionStack;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\JsonDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 class JsonFieldSerializerTest extends TestCase
 {
-    use KernelTestBehaviour, CacheTestBehaviour;
+    use KernelTestBehaviour, CacheTestBehaviour, DataAbstractionLayerFieldTestBehaviour;
 
     /**
      * @var ConfigJsonFieldSerializer
@@ -47,10 +49,11 @@ class JsonFieldSerializerTest extends TestCase
         $this->serializer = $this->getContainer()->get(JsonFieldSerializer::class);
         $this->field = new JsonField('data', 'data');
 
-        $this->existence = new EntityExistence(JsonDefinition::class, [], false, false, false, []);
+        $definition = $this->registerDefinition(JsonDefinition::class);
+        $this->existence = new EntityExistence($definition, [], false, false, false, []);
 
         $this->parameters = new WriteParameterBag(
-            JsonDefinition::class,
+            $definition,
             WriteContext::createFromContext(Context::createDefaultContext()),
             '',
             new WriteCommandQueue(),
@@ -81,6 +84,8 @@ class JsonFieldSerializerTest extends TestCase
      */
     public function testEncode(JsonField $field, $input, $expected): void
     {
+        $field->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+
         $kvPair = new KeyValuePair('password', $input, true);
         $actual = $this->serializer->encode($field, $this->existence, $kvPair, $this->parameters)->current();
 
@@ -111,6 +116,7 @@ class JsonFieldSerializerTest extends TestCase
      */
     public function testDecode(JsonField $field, $input, $expected): void
     {
+        $field->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
         $actual = $this->serializer->decode($field, $input);
         static::assertEquals($expected, $actual);
     }

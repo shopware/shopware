@@ -14,17 +14,17 @@ use Shopware\Core\System\Tag\TagDefinition;
 
 class OrderTagDefinition extends MappingEntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'order_tag';
     }
 
-    public static function isVersionAware(): bool
+    public function isVersionAware(): bool
     {
         return true;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new FkField('order_id', 'orderId', OrderDefinition::class))->addFlags(new PrimaryKey(), new Required()),

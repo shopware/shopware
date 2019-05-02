@@ -20,22 +20,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class ProductStreamDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'product_stream';
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return ProductStreamCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return ProductStreamEntity::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),

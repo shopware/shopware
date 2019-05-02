@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TranslationsAssociationFieldSerializer;
 
 class TranslationsAssociationField extends OneToManyAssociationField
 {
@@ -31,5 +32,10 @@ class TranslationsAssociationField extends OneToManyAssociationField
     public function getExtractPriority(): int
     {
         return self::PRIORITY;
+    }
+
+    protected function getSerializerClass(): string
+    {
+        return TranslationsAssociationFieldSerializer::class;
     }
 }

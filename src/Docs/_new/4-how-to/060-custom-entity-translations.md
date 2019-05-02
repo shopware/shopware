@@ -28,12 +28,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class CustomEntityDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'custom_entity';
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
@@ -43,12 +43,12 @@ class CustomEntityDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return CustomEntityCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return CustomEntity::class;
     }
@@ -61,7 +61,7 @@ Simply adding a `StringField` here is tempting, isn't it?
 Since a `label` should be translatable, you have to add a `TranslatedField` instead.
 
 ```php
-protected static function defineFields(): FieldCollection
+protected function defineFields(): FieldCollection
 {
     return new FieldCollection([
         (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
@@ -154,27 +154,27 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class CustomEntityTranslationDefinition extends EntityTranslationDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'custom_entity_translation';
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return CustomEntityTranslationCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return CustomTranslationEntity::class;
     }
 
-    public static function getParentDefinitionClass(): string
+    protected function getParentDefinitionClass(): string
     {
         return CustomEntityDefinition::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new StringField('label', 'label')),

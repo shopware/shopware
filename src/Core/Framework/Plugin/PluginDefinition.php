@@ -24,22 +24,22 @@ use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslation
 
 class PluginDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'plugin';
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return PluginCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return PluginEntity::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),

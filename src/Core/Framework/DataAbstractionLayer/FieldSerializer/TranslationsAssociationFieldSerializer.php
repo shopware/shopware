@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingSystemTranslationException;
@@ -24,8 +25,9 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
      */
     protected $writeExtractor;
 
-    public function __construct(WriteCommandExtractor $writeExtractor)
-    {
+    public function __construct(
+        WriteCommandExtractor $writeExtractor
+    ) {
         $this->writeExtractor = $writeExtractor;
     }
 
@@ -100,12 +102,14 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         $key = $data->getKey();
         $value = $data->getValue();
 
+        /** @var EntityTranslationDefinition $referenceDefinition */
+        $referenceDefinition = $field->getReferenceDefinition();
+
         if (!\is_array($value)) {
             throw new ExpectedArrayException($parameters->getPath() . '/' . $key);
         }
 
-        $refClass = $field->getReferenceClass();
-        $languageField = $refClass::getFields()->getByStorageName($field->getLanguageField());
+        $languageField = $referenceDefinition->getFields()->getByStorageName($field->getLanguageField());
         $languagePropName = $languageField->getPropertyName();
 
         $translations = [];
@@ -134,7 +138,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
 
         foreach ($translations as $languageId => $translation) {
             $clonedParams = $parameters->cloneForSubresource(
-                $field->getReferenceClass(),
+                $referenceDefinition,
                 $parameters->getPath() . '/' . $key . '/' . $languageId
             );
             $clonedParams->setCurrentWriteLanguageId($languageId);
@@ -150,7 +154,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         $languageIds = array_keys($translations);
         // the translation in the system language is always required for new entities,
         // if there is at least one required translated field
-        if ($field->getReferenceClass()::hasRequiredField()
+        if ($referenceDefinition->hasRequiredField()
             && !\in_array(Defaults::LANGUAGE_SYSTEM, $languageIds, true)
         ) {
             $path = $parameters->getPath() . '/' . $key . '/' . Defaults::LANGUAGE_SYSTEM;

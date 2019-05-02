@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\ProductStream\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\ProductStream\Util\EventIdExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -56,37 +55,45 @@ class ProductStreamIndexer implements IndexerInterface
     private $eventIdExtractor;
 
     /**
-     * @var EntityRepositoryInterface
-     */
-    private $repository;
-    /**
      * @var IteratorFactory
      */
     private $iteratorFactory;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $productStreamRepository;
+
+    /**
+     * @var ProductDefinition
+     */
+    private $productDefinition;
+
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         EventIdExtractor $eventIdExtractor,
-        EntityRepositoryInterface $repository,
+        EntityRepositoryInterface $productStreamRepository,
         Connection $connection,
         Serializer $serializer,
         EntityCacheKeyGenerator $cacheKeyGenerator,
         TagAwareAdapter $cache,
-        IteratorFactory $iteratorFactory
+        IteratorFactory $iteratorFactory,
+        ProductDefinition $productDefinition
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->eventIdExtractor = $eventIdExtractor;
-        $this->repository = $repository;
+        $this->productStreamRepository = $productStreamRepository;
         $this->connection = $connection;
         $this->serializer = $serializer;
         $this->cacheKeyGenerator = $cacheKeyGenerator;
         $this->cache = $cache;
         $this->iteratorFactory = $iteratorFactory;
+        $this->productDefinition = $productDefinition;
     }
 
     public function index(\DateTimeInterface $timestamp): void
     {
-        $iterator = $this->iteratorFactory->createIterator(ProductStreamDefinition::class);
+        $iterator = $this->iteratorFactory->createIterator($this->productStreamRepository->getDefinition());
 
         $this->eventDispatcher->dispatch(
             ProgressStartedEvent::NAME,
@@ -144,7 +151,7 @@ class ProductStreamIndexer implements IndexerInterface
                 $streamFilter = [];
 
                 foreach ($nested as $value) {
-                    $parsed = QueryStringParser::fromArray(ProductDefinition::class, $value, $searchException);
+                    $parsed = QueryStringParser::fromArray($this->productDefinition, $value, $searchException);
                     $streamFilter[] = QueryStringParser::toArray($parsed);
                 }
 
@@ -152,7 +159,7 @@ class ProductStreamIndexer implements IndexerInterface
                     throw $searchException;
                 }
 
-                $tags[] = $this->cacheKeyGenerator->getEntityTag(Uuid::fromBytesToHex($id), ProductStreamDefinition::class);
+                $tags[] = $this->cacheKeyGenerator->getEntityTag(Uuid::fromBytesToHex($id), $this->productStreamRepository->getDefinition());
 
                 $serialized = $this->serializer->serialize($streamFilter, 'json');
             } catch (InvalidFilterQueryException | SearchRequestException $exception) {

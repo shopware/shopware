@@ -11,27 +11,27 @@ use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 
 class CountryStateTranslationDefinition extends EntityTranslationDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'country_state_translation';
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return CountryStateTranslationCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return CountryStateTranslationEntity::class;
     }
 
-    public static function getParentDefinitionClass(): string
+    protected function getParentDefinitionClass(): string
     {
         return CountryStateDefinition::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new StringField('name', 'name'))->addFlags(new Required()),

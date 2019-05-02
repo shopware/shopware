@@ -17,9 +17,15 @@ class MailHeaderFooterGenerator implements DemodataGeneratorInterface
      */
     private $writer;
 
-    public function __construct(EntityWriterInterface $writer)
+    /**
+     * @var MailHeaderFooterDefinition
+     */
+    private $mailHeaderFooterDefinition;
+
+    public function __construct(EntityWriterInterface $writer, MailHeaderFooterDefinition $mailHeaderFooterDefinition)
     {
         $this->writer = $writer;
+        $this->mailHeaderFooterDefinition = $mailHeaderFooterDefinition;
     }
 
     public function getDefinition(): string
@@ -97,7 +103,7 @@ class MailHeaderFooterGenerator implements DemodataGeneratorInterface
     {
         $writeContext = WriteContext::createFromContext($context->getContext());
 
-        $this->writer->upsert(MailHeaderFooterDefinition::class, $payload, $writeContext);
+        $this->writer->upsert($this->mailHeaderFooterDefinition, $payload, $writeContext);
         $context->add(MailHeaderFooterDefinition::class, ...array_column($payload, 'id'));
     }
 

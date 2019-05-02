@@ -20,8 +20,9 @@ class OneToManyAssociationFieldSerializer implements FieldSerializerInterface
      */
     protected $writeExtractor;
 
-    public function __construct(WriteCommandExtractor $writeExtractor)
-    {
+    public function __construct(
+        WriteCommandExtractor $writeExtractor
+    ) {
         $this->writeExtractor = $writeExtractor;
     }
 
@@ -57,20 +58,21 @@ class OneToManyAssociationFieldSerializer implements FieldSerializerInterface
 
     private function map(OneToManyAssociationField $field, WriteParameterBag $parameters, KeyValuePair $data): void
     {
-        $id = $parameters->getContext()->get($parameters->getDefinition(), $field->getLocalField());
+        $id = $parameters->getContext()->get($parameters->getDefinition()->getClass(), $field->getLocalField());
+        $reference = $field->getReferenceDefinition();
 
         foreach ($data->getValue() as $keyValue => $subresources) {
             if (!\is_array($subresources)) {
                 throw new ExpectedArrayException($parameters->getPath() . '/' . $data->getKey());
             }
 
-            $fkField = $field->getReferenceClass()::getFields()->getByStorageName($field->getReferenceField());
+            $fkField = $reference->getFields()->getByStorageName($field->getReferenceField());
             $subresources[$fkField->getPropertyName()] = $id;
 
             $this->writeExtractor->extract(
                 $subresources,
                 $parameters->cloneForSubresource(
-                    $field->getReferenceClass(),
+                    $reference,
                     $parameters->getPath() . '/' . $data->getKey() . '/' . $keyValue
                 )
             );

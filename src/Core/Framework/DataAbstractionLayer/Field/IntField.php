@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\IntFieldSerializer;
+
 class IntField extends Field implements StorageAware
 {
     /**
@@ -40,5 +42,10 @@ class IntField extends Field implements StorageAware
     public function getMaxValue(): ?int
     {
         return $this->maxValue;
+    }
+
+    protected function getSerializerClass(): string
+    {
+        return IntFieldSerializer::class;
     }
 }

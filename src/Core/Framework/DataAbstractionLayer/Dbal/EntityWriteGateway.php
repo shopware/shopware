@@ -42,7 +42,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
     /**
      * {@inheritdoc}
      */
-    public function getExistence(string $definition, array $primaryKey, array $data, WriteCommandQueue $commandQueue): EntityExistence
+    public function getExistence(EntityDefinition $definition, array $primaryKey, array $data, WriteCommandQueue $commandQueue): EntityExistence
     {
         $state = $this->getCurrentState($definition, $primaryKey, $commandQueue);
 
@@ -66,9 +66,8 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
             /** @var WriteCommandInterface $command */
             foreach ($commands as $command) {
-                /** @var string|EntityDefinition $definition */
                 $definition = $command->getDefinition();
-                $table = $definition::getEntityName();
+                $table = $definition->getEntityName();
 
                 if ($command instanceof DeleteCommand) {
                     $this->connection->delete(EntityDefinitionQueryHelper::escape($table), $command->getPrimaryKey());
@@ -149,7 +148,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         $sets = [];
 
         $query = new QueryBuilder($this->connection);
-        $query->update('`' . $command->getDefinition()::getEntityName() . '`');
+        $query->update('`' . $command->getDefinition()->getEntityName() . '`');
 
         foreach ($command->getPayload() as $attribute => $value) {
             // add path and value for each attribute value pair
@@ -192,24 +191,21 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         return $escaped;
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    private function getParentField(string $definition): ?FkField
+    private function getParentField(EntityDefinition $definition): ?FkField
     {
-        if (!$definition::isInheritanceAware()) {
+        if (!$definition->isInheritanceAware()) {
             return null;
         }
 
         /** @var ManyToOneAssociationField|null $parent */
-        $parent = $definition::getFields()->get('parent');
+        $parent = $definition->getFields()->get('parent');
 
         if (!$parent) {
             throw new \RuntimeException(
                 sprintf(
                     'Can not find parent property %s field for definition %s',
                     'parent',
-                    $definition
+                    $definition->getClass()
                 )
             );
         }
@@ -219,20 +215,20 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 sprintf(
                     'Parent property %s in definition %s expected to be an ManyToOneAssociationField got %s',
                     'parent',
-                    $definition,
+                    $definition->getClass(),
                     \get_class($parent)
                 )
             );
         }
 
-        $fk = $definition::getFields()->getByStorageName($parent->getStorageName());
+        $fk = $definition->getFields()->getByStorageName($parent->getStorageName());
 
         if (!$fk) {
             throw new \RuntimeException(
                 sprintf(
                     'Can not find FkField for parent property %s in definition %s',
                     'parent',
-                    $definition
+                    $definition->getClass()
                 )
             );
         }
@@ -242,7 +238,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                     'Foreign key property %s of parent association %s in definition %s expected to be an FkField got %s',
                     $fk->getPropertyName(),
                     'parent',
-                    $definition,
+                    $definition->getClass(),
                     \get_class($fk)
                 )
             );
@@ -251,10 +247,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         return $fk;
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    private function getCurrentState(string $definition, array $primaryKey, WriteCommandQueue $commandQueue): array
+    private function getCurrentState(EntityDefinition $definition, array $primaryKey, WriteCommandQueue $commandQueue): array
     {
         $commands = $commandQueue->getCommandsForEntity($definition, $primaryKey);
 
@@ -296,26 +289,19 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         return array_replace_recursive($database, $state);
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    private function fetchFromDatabase(string $definition, array $primaryKey): array
+    private function fetchFromDatabase(EntityDefinition $definition, array $primaryKey): array
     {
         $query = $this->connection->createQueryBuilder();
-        $query->from(EntityDefinitionQueryHelper::escape($definition::getEntityName()));
+        $query->from(EntityDefinitionQueryHelper::escape($definition->getEntityName()));
 
-        $fields = $definition::getPrimaryKeys();
+        $fields = $definition->getPrimaryKeys();
 
         /** @var StorageAware|Field $field */
         foreach ($fields as $field) {
-            $key = $field->getStorageName();
-
-            if (!array_key_exists($key, $primaryKey)) {
-                $key = $field->getPropertyName();
-
-                if (!array_key_exists($key, $primaryKey)) {
+            if (!array_key_exists($field->getStorageName(), $primaryKey)) {
+                if (!array_key_exists($field->getPropertyName(), $primaryKey)) {
                     throw new \RuntimeException(
-                        sprintf('Expected primary key field %s for definition %s not provided', $key, $definition)
+                        sprintf('Expected primary key field %s for definition %s not provided', $field->getPropertyName(), $definition->getClass())
                     );
                 }
 
@@ -330,9 +316,9 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
         $query->addSelect('1 as `exists`');
 
-        if ($definition::isChildrenAware()) {
+        if ($definition->isChildrenAware()) {
             $query->addSelect('parent_id');
-        } elseif (!$definition::isInheritanceAware()) {
+        } elseif (!$definition->isInheritanceAware()) {
             $query->addSelect('1 as `exists`');
         } else {
             $parent = $this->getParentField($definition);
@@ -351,10 +337,9 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         return [];
     }
 
-    private function isChild(string $definition, array $data, array $state): bool
+    private function isChild(EntityDefinition $definition, array $data, array $state): bool
     {
-        /** @var EntityDefinition $definition */
-        if (!$definition::isInheritanceAware()) {
+        if (!$definition->isInheritanceAware()) {
             return false;
         }
 
@@ -364,7 +349,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             return isset($data[$fk->getPropertyName()]);
         }
 
-        $association = $definition::getFields()->get('parent');
+        $association = $definition->getFields()->get('parent');
         if (isset($data[$association->getPropertyName()])) {
             return true;
         }
@@ -372,10 +357,9 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         return isset($state[$fk->getStorageName()]);
     }
 
-    private function wasChild(string $definition, array $state): bool
+    private function wasChild(EntityDefinition $definition, array $state): bool
     {
-        /** @var EntityDefinition $definition */
-        if (!$definition::isInheritanceAware()) {
+        if (!$definition->isInheritanceAware()) {
             return false;
         }
 

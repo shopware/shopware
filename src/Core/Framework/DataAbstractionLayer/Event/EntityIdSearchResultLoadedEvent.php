@@ -15,7 +15,7 @@ class EntityIdSearchResultLoadedEvent extends NestedEvent
     protected $result;
 
     /**
-     * @var string|EntityDefinition
+     * @var EntityDefinition
      */
     protected $definition;
 
@@ -24,11 +24,11 @@ class EntityIdSearchResultLoadedEvent extends NestedEvent
      */
     protected $name;
 
-    public function __construct(string $definition, IdSearchResult $result)
+    public function __construct(EntityDefinition $definition, IdSearchResult $result)
     {
         $this->result = $result;
         $this->definition = $definition;
-        $this->name = $this->definition::getEntityName() . '.id.search.result.loaded';
+        $this->name = $this->definition->getEntityName() . '.id.search.result.loaded';
     }
 
     public function getName(): string

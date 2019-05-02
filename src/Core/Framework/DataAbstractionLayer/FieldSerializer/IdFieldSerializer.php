@@ -32,7 +32,7 @@ class IdFieldSerializer implements FieldSerializerInterface
             $value = Uuid::randomHex();
         }
 
-        $parameters->getContext()->set($parameters->getDefinition(), $data->getKey(), $value);
+        $parameters->getContext()->set($parameters->getDefinition()->getClass(), $data->getKey(), $value);
 
         /* @var IdField $field */
         yield $field->getStorageName() => Uuid::fromHexToBytes($value);

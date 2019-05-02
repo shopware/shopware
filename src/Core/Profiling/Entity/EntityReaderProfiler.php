@@ -27,14 +27,13 @@ class EntityReaderProfiler implements EntityReaderInterface
         $this->stopwatch = $stopwatch;
     }
 
-    public function read(string $definition, Criteria $criteria, Context $context): EntityCollection
+    public function read(EntityDefinition $definition, Criteria $criteria, Context $context): EntityCollection
     {
-        /* @var string|EntityDefinition $definition */
-        $this->stopwatch->start('read.' . $definition::getEntityName());
+        $this->stopwatch->start('read.' . $definition->getEntityName());
 
         $data = $this->decorated->read($definition, $criteria, $context);
 
-        $this->stopwatch->stop('read.' . $definition::getEntityName());
+        $this->stopwatch->stop('read.' . $definition->getEntityName());
 
         return $data;
     }

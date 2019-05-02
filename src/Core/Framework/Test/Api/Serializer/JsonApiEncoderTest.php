@@ -10,10 +10,13 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\User\UserDefinition;
 
 class JsonApiEncoderTest extends TestCase
 {
+    use KernelTestBehaviour;
+
     /**
      * @var JsonApiEncoder
      */
@@ -43,7 +46,7 @@ class JsonApiEncoderTest extends TestCase
     {
         $this->expectException(UnsupportedEncoderInputException::class);
 
-        $this->encoder->encode(ProductDefinition::class, $input, '/api');
+        $this->encoder->encode($this->getContainer()->get(ProductDefinition::class), $input, '/api');
     }
 
     public function testEncodeStruct(): void
@@ -194,7 +197,7 @@ class JsonApiEncoderTest extends TestCase
             'included' => [],
         ];
 
-        $actual = $this->encoder->encode(MediaDefinition::class, $struct, '/api');
+        $actual = $this->encoder->encode($this->getContainer()->get(MediaDefinition::class), $struct, '/api');
         static::assertEquals($expected, json_decode($actual, true));
     }
 
@@ -203,7 +206,7 @@ class JsonApiEncoderTest extends TestCase
         $struct = include __DIR__ . '/fixtures/testBasicWithToOneRelationship.php';
         $expected = include __DIR__ . '/fixtures/testBasicWithToOneRelationshipExpectation.php';
 
-        $actual = $this->encoder->encode(MediaDefinition::class, $struct, '/api');
+        $actual = $this->encoder->encode($this->getContainer()->get(MediaDefinition::class), $struct, '/api');
         static::assertEquals($expected, json_decode($actual, true));
     }
 
@@ -212,7 +215,7 @@ class JsonApiEncoderTest extends TestCase
         $struct = include __DIR__ . '/fixtures/testBasicWithToManyRelationships.php';
         $expected = include __DIR__ . '/fixtures/testBasicWithToManyRelationshipsExpectation.php';
 
-        $actual = $this->encoder->encode(UserDefinition::class, $struct, '/api');
+        $actual = $this->encoder->encode($this->getContainer()->get(UserDefinition::class), $struct, '/api');
 
         static::assertEquals($expected, json_decode($actual, true));
     }
@@ -222,7 +225,7 @@ class JsonApiEncoderTest extends TestCase
         $collection = include __DIR__ . '/fixtures/testCollectionWithToOneRelationship.php';
         $expected = include __DIR__ . '/fixtures/testCollectionWithToOneRelationshipExpectation.php';
 
-        $actual = $this->encoder->encode(MediaDefinition::class, $collection, '/api');
+        $actual = $this->encoder->encode($this->getContainer()->get(MediaDefinition::class), $collection, '/api');
         static::assertEquals($expected, json_decode($actual, true));
     }
 
@@ -231,7 +234,7 @@ class JsonApiEncoderTest extends TestCase
         $collection = include __DIR__ . '/fixtures/testCollectionWithSelfReference.php';
         $expected = include __DIR__ . '/fixtures/testCollectionWithSelfReferenceExpectation.php';
 
-        $actual = $this->encoder->encode(MediaFolderDefinition::class, $collection, '/api');
+        $actual = $this->encoder->encode($this->getContainer()->get(MediaFolderDefinition::class), $collection, '/api');
         static::assertEquals($expected, json_decode($actual, true));
     }
 
@@ -240,7 +243,7 @@ class JsonApiEncoderTest extends TestCase
         $struct = include __DIR__ . '/fixtures/testMainResourceShouldNotBeInIncluded.php';
         $expected = include __DIR__ . '/fixtures/testMainResourceShouldNotBeInIncludedExpectation.php';
 
-        $actual = $this->encoder->encode(UserDefinition::class, $struct, '/api');
+        $actual = $this->encoder->encode($this->getContainer()->get(UserDefinition::class), $struct, '/api');
 
         static::assertEquals($expected, json_decode($actual, true));
     }
@@ -250,7 +253,7 @@ class JsonApiEncoderTest extends TestCase
         $struct = include __DIR__ . '/fixtures/testPayloadShouldNotBeInIncluded.php';
         $expected = include __DIR__ . '/fixtures/testPayloadShouldNotBeInIncludedExpectation.php';
 
-        $actual = $this->encoder->encode(RuleDefinition::class, $struct, '/api');
+        $actual = $this->encoder->encode($this->getContainer()->get(RuleDefinition::class), $struct, '/api');
 
         static::assertEquals($expected, json_decode($actual, true));
     }

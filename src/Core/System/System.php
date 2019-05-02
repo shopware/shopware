@@ -3,6 +3,7 @@
 namespace Shopware\Core\System;
 
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\System\DependencyInjection\CompilerPass\SalesChannelEntityCompilerPass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
@@ -33,5 +34,7 @@ class System extends Bundle
         $loader->load('configuration.xml');
         $loader->load('number_range.xml');
         $loader->load('tag.xml');
+
+        $container->addCompilerPass(new SalesChannelEntityCompilerPass());
     }
 }

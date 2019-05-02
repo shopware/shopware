@@ -12,27 +12,27 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class ShippingMethodTranslationDefinition extends EntityTranslationDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'shipping_method_translation';
     }
 
-    public static function getParentDefinitionClass(): string
-    {
-        return ShippingMethodDefinition::class;
-    }
-
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return ShippingMethodTranslationCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return ShippingMethodTranslationEntity::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function getParentDefinitionClass(): string
+    {
+        return ShippingMethodDefinition::class;
+    }
+
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new StringField('name', 'name'))->addFlags(new Required()),

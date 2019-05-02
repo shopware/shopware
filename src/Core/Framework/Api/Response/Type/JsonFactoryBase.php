@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 abstract class JsonFactoryBase implements ResponseFactoryInterface
 {
-    public function createRedirectResponse(string $definition, string $id, Request $request, Context $context): Response
+    public function createRedirectResponse(EntityDefinition $definition, string $id, Request $request, Context $context): Response
     {
         $headers = [
             'Location' => $this->getEntityBaseUrl($request, $definition) . '/' . $id,
@@ -23,12 +23,11 @@ abstract class JsonFactoryBase implements ResponseFactoryInterface
 
     abstract protected function getApiBaseUrl(Request $request): string;
 
-    protected function getEntityBaseUrl(Request $request, string $definition): string
+    protected function getEntityBaseUrl(Request $request, EntityDefinition $definition): string
     {
-        /* @var string|EntityDefinition $definition */
         $apiCase = $this->getApiBaseUrl($request);
 
-        return $apiCase . '/' . $this->camelCaseToSnailCase($definition::getEntityName());
+        return $apiCase . '/' . $this->camelCaseToSnailCase($definition->getEntityName());
     }
 
     protected function createPaginationLinks(EntitySearchResult $searchResult, string $uri, array $parameters): array

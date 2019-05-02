@@ -58,10 +58,16 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
      * @var EntityCacheKeyGenerator
      */
     private $cacheKeyGenerator;
+
     /**
      * @var IteratorFactory
      */
     private $iteratorFactory;
+
+    /**
+     * @var RuleDefinition
+     */
+    private $ruleDefinition;
 
     public function __construct(
         Connection $connection,
@@ -70,7 +76,8 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
         RuleConditionRegistry $ruleConditionRegistry,
         EntityCacheKeyGenerator $cacheKeyGenerator,
         TagAwareAdapter $cache,
-        IteratorFactory $iteratorFactory
+        IteratorFactory $iteratorFactory,
+        RuleDefinition $ruleDefinition
     ) {
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
@@ -79,6 +86,7 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
         $this->cache = $cache;
         $this->cacheKeyGenerator = $cacheKeyGenerator;
         $this->iteratorFactory = $iteratorFactory;
+        $this->ruleDefinition = $ruleDefinition;
     }
 
     public static function getSubscribedEvents(): array
@@ -94,7 +102,7 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
 
     public function index(\DateTimeInterface $timestamp): void
     {
-        $iterator = $this->iteratorFactory->createIterator(RuleDefinition::class);
+        $iterator = $this->iteratorFactory->createIterator($this->ruleDefinition);
 
         $this->eventDispatcher->dispatch(
             ProgressStartedEvent::NAME,
@@ -153,7 +161,7 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
             try {
                 $nested = $this->buildNested($rule, null);
 
-                $tags[] = $this->cacheKeyGenerator->getEntityTag(Uuid::fromBytesToHex($id), RuleDefinition::class);
+                $tags[] = $this->cacheKeyGenerator->getEntityTag(Uuid::fromBytesToHex($id), $this->ruleDefinition);
 
                 //ensure the root rule is an AndRule
                 $nested = new AndRule($nested);
@@ -183,7 +191,7 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
 
     private function clearCache(): void
     {
-        $this->cache->invalidateTags(['entity_' . RuleDefinition::getEntityName()]);
+        $this->cache->invalidateTags(['entity_' . $this->ruleDefinition->getEntityName()]);
     }
 
     private function buildNested(array $rules, ?string $parentId): array

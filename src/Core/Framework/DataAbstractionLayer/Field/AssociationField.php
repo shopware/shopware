@@ -2,9 +2,10 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 
-class AssociationField extends Field
+abstract class AssociationField extends Field
 {
     /**
      * @var string
@@ -12,25 +13,33 @@ class AssociationField extends Field
     protected $referenceClass;
 
     /**
+     * @var EntityDefinition
+     */
+    protected $referenceDefinition;
+
+    /**
      * @var bool
      */
     protected $autoload = false;
 
-    /**
-     * @return string|EntityDefinition
-     */
-    public function getReferenceClass(): string
+    public function compile(DefinitionInstanceRegistry $registry): void
     {
-        return $this->referenceClass;
+        if ($this->referenceDefinition !== null) {
+            return;
+        }
+
+        parent::compile($registry);
+
+        $this->referenceDefinition = $registry->get($this->referenceClass);
+    }
+
+    public function getReferenceDefinition(): EntityDefinition
+    {
+        return $this->referenceDefinition;
     }
 
     final public function getAutoload(): bool
     {
         return $this->autoload;
-    }
-
-    public function setReferenceClass(string $referenceClass): void
-    {
-        $this->referenceClass = $referenceClass;
     }
 }

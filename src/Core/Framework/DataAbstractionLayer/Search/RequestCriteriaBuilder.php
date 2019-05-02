@@ -53,7 +53,7 @@ class RequestCriteriaBuilder
         $this->scoreBuilder = $scoreBuilder;
     }
 
-    public function handleRequest(Request $request, Criteria $criteria, string $definition, Context $context): Criteria
+    public function handleRequest(Request $request, Criteria $criteria, EntityDefinition $definition, Context $context): Criteria
     {
         if ($request->getMethod() === Request::METHOD_GET) {
             return $this->fromArray($request->query->all(), $criteria, $definition, $context);
@@ -72,10 +72,7 @@ class RequestCriteriaBuilder
         return $this->allowedLimits;
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    private function fromArray(array $payload, Criteria $criteria, string $definition, Context $context): Criteria
+    private function fromArray(array $payload, Criteria $criteria, EntityDefinition $definition, Context $context): Criteria
     {
         $searchException = new SearchRequestException();
 
@@ -124,7 +121,7 @@ class RequestCriteriaBuilder
 
             $pattern = $this->interpreter->interpret($term);
 
-            $queries = $this->scoreBuilder->buildScoreQueries($pattern, $definition, $definition::getEntityName());
+            $queries = $this->scoreBuilder->buildScoreQueries($pattern, $definition, $definition->getEntityName());
 
             $criteria->addQuery(...$queries);
         }
@@ -141,15 +138,15 @@ class RequestCriteriaBuilder
             foreach ($payload['associations'] as $propertyName => $association) {
                 $nested = new Criteria();
 
-                $field = $definition::getFields()->get($propertyName);
+                $field = $definition->getFields()->get($propertyName);
 
                 if (!$field instanceof AssociationField) {
                     throw new \RuntimeException(sprintf('Can not find association by name %s', $propertyName));
                 }
 
-                $ref = $field->getReferenceClass();
+                $ref = $field->getReferenceDefinition();
                 if ($field instanceof ManyToManyAssociationField) {
-                    $ref = $field->getReferenceDefinition();
+                    $ref = $field->getToManyReferenceDefinition();
                 }
 
                 $nested = $this->fromArray($association, $nested, $ref, $context);
@@ -163,7 +160,7 @@ class RequestCriteriaBuilder
         return $criteria;
     }
 
-    private function parseSorting(string $definition, array $sorting): array
+    private function parseSorting(EntityDefinition $definition, array $sorting): array
     {
         $sortings = [];
         foreach ($sorting as $sort) {
@@ -186,7 +183,7 @@ class RequestCriteriaBuilder
         return $sortings;
     }
 
-    private function parseSimpleSorting(string $definition, string $query): array
+    private function parseSimpleSorting(EntityDefinition $definition, string $query): array
     {
         $parts = array_filter(explode(',', $query));
 
@@ -210,7 +207,7 @@ class RequestCriteriaBuilder
         return $sorting;
     }
 
-    private function parseSimpleFilter(string $definition, array $filters, SearchRequestException $searchRequestException): MultiFilter
+    private function parseSimpleFilter(EntityDefinition $definition, array $filters, SearchRequestException $searchRequestException): MultiFilter
     {
         $queries = [];
 
@@ -297,7 +294,7 @@ class RequestCriteriaBuilder
         $criteria->setLimit($limit);
     }
 
-    private function addFilter(string $definition, array $payload, Criteria $criteria, SearchRequestException $searchException): void
+    private function addFilter(EntityDefinition $definition, array $payload, Criteria $criteria, SearchRequestException $searchException): void
     {
         if (!\is_array($payload['filter'])) {
             $searchException->add(new InvalidFilterQueryException('The filter parameter has to be a list of filters.'), '/filter');
@@ -321,7 +318,7 @@ class RequestCriteriaBuilder
         $criteria->addFilter($this->parseSimpleFilter($definition, $payload['filter'], $searchException));
     }
 
-    private function addPostFilter(string $definition, array $payload, Criteria $criteria, SearchRequestException $searchException): void
+    private function addPostFilter(EntityDefinition $definition, array $payload, Criteria $criteria, SearchRequestException $searchException): void
     {
         if (!\is_array($payload['post-filter'])) {
             $searchException->add(new InvalidFilterQueryException('The filter parameter has to be a list of filters.'), '/post-filter');
@@ -356,7 +353,7 @@ class RequestCriteriaBuilder
         return array_keys($data) === range(0, \count($data) - 1);
     }
 
-    private function addSorting(array $payload, Criteria $criteria, string $definition, SearchRequestException $searchException): void
+    private function addSorting(array $payload, Criteria $criteria, EntityDefinition $definition, SearchRequestException $searchException): void
     {
         if (\is_array($payload['sort'])) {
             $sorting = $this->parseSorting($definition, $payload['sort']);
@@ -373,12 +370,9 @@ class RequestCriteriaBuilder
         }
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    private function buildFieldName(string $definition, string $fieldName): string
+    private function buildFieldName(EntityDefinition $definition, string $fieldName): string
     {
-        $prefix = $definition::getEntityName() . '.';
+        $prefix = $definition->getEntityName() . '.';
 
         if (strpos($fieldName, $prefix) === false) {
             return $prefix . $fieldName;

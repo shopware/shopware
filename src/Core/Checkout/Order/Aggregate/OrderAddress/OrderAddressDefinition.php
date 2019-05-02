@@ -24,27 +24,27 @@ use Shopware\Core\System\Salutation\SalutationDefinition;
 
 class OrderAddressDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'order_address';
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return OrderAddressCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return OrderAddressEntity::class;
     }
 
-    public static function getParentDefinitionClass(): ?string
+    protected function getParentDefinitionClass(): ?string
     {
         return OrderDefinition::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),

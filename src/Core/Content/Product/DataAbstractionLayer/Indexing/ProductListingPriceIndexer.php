@@ -33,28 +33,36 @@ class ProductListingPriceIndexer implements IndexerInterface
      * @var Connection
      */
     private $connection;
+
     /**
      * @var IteratorFactory
      */
     private $iteratorFactory;
 
+    /**
+     * @var ProductDefinition
+     */
+    private $productDefinition;
+
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         EventIdExtractor $eventIdExtractor,
         Connection $connection,
-        IteratorFactory $iteratorFactory
+        IteratorFactory $iteratorFactory,
+        ProductDefinition $productDefinition
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->eventIdExtractor = $eventIdExtractor;
         $this->connection = $connection;
         $this->iteratorFactory = $iteratorFactory;
+        $this->productDefinition = $productDefinition;
     }
 
     public function index(\DateTimeInterface $timestamp): void
     {
         $context = Context::createDefaultContext();
 
-        $iterator = $this->iteratorFactory->createIterator(ProductDefinition::class);
+        $iterator = $this->iteratorFactory->createIterator($this->productDefinition);
 
         $this->eventDispatcher->dispatch(
             ProgressStartedEvent::NAME,

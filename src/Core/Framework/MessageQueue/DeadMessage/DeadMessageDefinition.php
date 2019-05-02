@@ -22,22 +22,22 @@ use Shopware\Core\Framework\ScheduledTask\ScheduledTaskDefinition;
 
 class DeadMessageDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'dead_message';
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return DeadMessageCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return DeadMessageEntity::class;
     }
 
-    public static function getDefaults(EntityExistence $existence): array
+    public function getDefaults(EntityExistence $existence): array
     {
         return [
             'errorCount' => 1,
@@ -45,7 +45,7 @@ class DeadMessageDefinition extends EntityDefinition
         ];
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),

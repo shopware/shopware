@@ -38,12 +38,18 @@ class RuleValidatorTest extends TestCase
      */
     private $conditionRegistry;
 
+    /**
+     * @var RuleConditionDefinition
+     */
+    private $ruleConditionDefinition;
+
     protected function setUp(): void
     {
         $this->context = WriteContext::createFromContext(Context::createDefaultContext());
         $symfonyValidator = $this->getContainer()->get('validator');
         $this->conditionRegistry = $this->createMock(RuleConditionRegistry::class);
         $this->ruleValidator = new RuleValidator($symfonyValidator, $this->conditionRegistry);
+        $this->ruleConditionDefinition = $this->getContainer()->get(RuleConditionDefinition::class);
     }
 
     public function testInsertInvalidType(): void
@@ -51,7 +57,9 @@ class RuleValidatorTest extends TestCase
         $id = Uuid::randomBytes();
         $commands = [];
         $commands[] = new InsertCommand(
-            RuleConditionDefinition::class, ['type' => 'false'], ['id' => $id],
+            $this->ruleConditionDefinition,
+            ['type' => 'false'],
+            ['id' => $id],
             $this->createMock(EntityExistence::class)
         );
         $this->expectException(WriteConstraintViolationException::class);
@@ -73,7 +81,9 @@ class RuleValidatorTest extends TestCase
         $id = Uuid::randomBytes();
         $commands = [];
         $commands[] = new UpdateCommand(
-            RuleConditionDefinition::class, ['id' => $id], ['type' => 'false'],
+            $this->ruleConditionDefinition,
+            ['id' => $id],
+            ['type' => 'false'],
             $this->createMock(EntityExistence::class)
         );
         $this->expectException(WriteConstraintViolationException::class);
@@ -95,7 +105,10 @@ class RuleValidatorTest extends TestCase
         $id = Uuid::randomBytes();
         $commands = [];
         $commands[] = new InsertCommand(
-            RuleConditionDefinition::class, ['type' => 'type'], ['id' => $id], $this->createMock(EntityExistence::class)
+            $this->ruleConditionDefinition,
+            ['type' => 'type'],
+            ['id' => $id],
+            $this->createMock(EntityExistence::class)
         );
 
         $instance = $this->createMock(Rule::class);
@@ -125,7 +138,10 @@ class RuleValidatorTest extends TestCase
         $id = Uuid::randomBytes();
         $commands = [];
         $commands[] = new UpdateCommand(
-            RuleConditionDefinition::class, ['id' => $id], ['type' => 'type'], $this->createMock(EntityExistence::class)
+            $this->ruleConditionDefinition,
+            ['id' => $id],
+            ['type' => 'type'],
+            $this->createMock(EntityExistence::class)
         );
 
         $instance = $this->createMock(Rule::class);
@@ -155,7 +171,10 @@ class RuleValidatorTest extends TestCase
         $id = Uuid::randomBytes();
         $commands = [];
         $commands[] = new InsertCommand(
-            RuleConditionDefinition::class, ['type' => 'type'], ['id' => $id], $this->createMock(EntityExistence::class)
+            $this->ruleConditionDefinition,
+            ['type' => 'type'],
+            ['id' => $id],
+            $this->createMock(EntityExistence::class)
         );
 
         $instance = $this->createMock(Rule::class);
@@ -173,7 +192,10 @@ class RuleValidatorTest extends TestCase
         $id = Uuid::randomBytes();
         $commands = [];
         $commands[] = new UpdateCommand(
-            RuleConditionDefinition::class, ['id' => $id], ['type' => 'type'], $this->createMock(EntityExistence::class)
+            $this->ruleConditionDefinition,
+            ['id' => $id],
+            ['type' => 'type'],
+            $this->createMock(EntityExistence::class)
         );
 
         $instance = $this->createMock(Rule::class);
@@ -191,8 +213,10 @@ class RuleValidatorTest extends TestCase
         $id = Uuid::randomBytes();
         $commands = [];
         $commands[] = new InsertCommand(
-            RuleConditionDefinition::class, ['type' => 'type', 'value' => json_encode(['field' => 'invalid'])],
-            ['id' => $id], $this->createMock(EntityExistence::class)
+            $this->ruleConditionDefinition,
+            ['type' => 'type', 'value' => json_encode(['field' => 'invalid'])],
+            ['id' => $id],
+            $this->createMock(EntityExistence::class)
         );
 
         $instance = $this->createMock(Rule::class);
@@ -225,7 +249,8 @@ class RuleValidatorTest extends TestCase
         $id = Uuid::randomBytes();
         $commands = [];
         $commands[] = new UpdateCommand(
-            RuleConditionDefinition::class, ['id' => $id],
+            $this->ruleConditionDefinition,
+            ['id' => $id],
             ['type' => 'type', 'value' => json_encode(['field' => 'invalid'])],
             $this->createMock(EntityExistence::class)
         );
@@ -260,8 +285,10 @@ class RuleValidatorTest extends TestCase
         $id = Uuid::randomBytes();
         $commands = [];
         $commands[] = new InsertCommand(
-            RuleConditionDefinition::class, ['type' => 'type', 'value' => json_encode(['field' => 'valid'])],
-            ['id' => $id], $this->createMock(EntityExistence::class)
+            $this->ruleConditionDefinition,
+            ['type' => 'type', 'value' => json_encode(['field' => 'valid'])],
+            ['id' => $id],
+            $this->createMock(EntityExistence::class)
         );
 
         $instance = $this->createMock(Rule::class);
@@ -277,8 +304,10 @@ class RuleValidatorTest extends TestCase
         $id = Uuid::randomBytes();
         $commands = [];
         $commands[] = new UpdateCommand(
-            RuleConditionDefinition::class, ['id' => $id],
-            ['type' => 'type', 'value' => json_encode(['field' => 'valid'])], $this->createMock(EntityExistence::class)
+            $this->ruleConditionDefinition,
+            ['id' => $id],
+            ['type' => 'type', 'value' => json_encode(['field' => 'valid'])],
+            $this->createMock(EntityExistence::class)
         );
 
         $instance = $this->createMock(Rule::class);

@@ -8,17 +8,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class CustomFieldTestTranslationDefinition extends EntityTranslationDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'attribute_test_translation';
     }
 
-    public static function getParentDefinitionClass(): string
+    protected function getParentDefinitionClass(): string
     {
         return CustomFieldTestDefinition::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             new CustomFields('custom_translated', 'customTranslated'),

@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Fakes;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregatorResult;
@@ -67,6 +68,10 @@ class FakePromotionRepository implements EntityRepositoryInterface
     }
 
     public function merge(string $versionId, Context $context): void
+    {
+    }
+
+    public function getDefinition(): EntityDefinition
     {
     }
 }

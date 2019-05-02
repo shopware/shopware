@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class WriteProtectedTranslationDefinition extends EntityTranslationDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return '_test_nullable_translation';
     }
@@ -18,12 +18,12 @@ class WriteProtectedTranslationDefinition extends EntityTranslationDefinition
         return WriteProtectedTranslatedDefinition::class;
     }
 
-    public static function getParentDefinitionClass(): string
+    protected function getParentDefinitionClass(): string
     {
         return WriteProtectedTranslatedDefinition::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             new StringField('protected', 'protected'),
@@ -31,7 +31,7 @@ class WriteProtectedTranslationDefinition extends EntityTranslationDefinition
         ]);
     }
 
-    protected static function defaultFields(): array
+    protected function defaultFields(): array
     {
         return [];
     }

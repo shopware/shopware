@@ -23,9 +23,17 @@ class UserController extends AbstractController
      */
     private $userRepository;
 
-    public function __construct(EntityRepositoryInterface $userRepository)
-    {
+    /**
+     * @var UserDefinition
+     */
+    private $userDefinition;
+
+    public function __construct(
+        EntityRepositoryInterface $userRepository,
+        UserDefinition $userDefinition
+    ) {
         $this->userRepository = $userRepository;
+        $this->userDefinition = $userDefinition;
     }
 
     /**
@@ -45,6 +53,6 @@ class UserController extends AbstractController
             throw OAuthServerException::invalidCredentials();
         }
 
-        return $responseFactory->createDetailResponse($user, UserDefinition::class, $request, $context);
+        return $responseFactory->createDetailResponse($user, $this->userDefinition, $request, $context);
     }
 }

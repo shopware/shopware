@@ -27,7 +27,7 @@ use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDat
 
 class JsonFieldTest extends TestCase
 {
-    use KernelTestBehaviour, CacheTestBehaviour;
+    use KernelTestBehaviour, CacheTestBehaviour, DataAbstractionLayerFieldTestBehaviour;
 
     /**
      * @var Connection
@@ -69,21 +69,21 @@ EOF;
             ['id' => Uuid::randomHex(), 'data' => ['url' => 'foo']],
         ];
 
-        $this->getWriter()->insert(JsonDefinition::class, $data, $context);
+        $this->getWriter()->insert($this->registerDefinition(JsonDefinition::class), $data, $context);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('_test_nullable.data', null));
-        $result = $this->getRepository()->search(JsonDefinition::class, $criteria, $context->getContext());
+        $result = $this->getRepository()->search($this->registerDefinition(JsonDefinition::class), $criteria, $context->getContext());
         static::assertEquals(1, $result->getTotal());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('_test_nullable.data', '[]'));
-        $result = $this->getRepository()->search(JsonDefinition::class, $criteria, $context->getContext());
+        $result = $this->getRepository()->search($this->registerDefinition(JsonDefinition::class), $criteria, $context->getContext());
         static::assertEquals(1, $result->getTotal());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('_test_nullable.data.url', 'foo'));
-        $result = $this->getRepository()->search(JsonDefinition::class, $criteria, $context->getContext());
+        $result = $this->getRepository()->search($this->registerDefinition(JsonDefinition::class), $criteria, $context->getContext());
         static::assertEquals(1, $result->getTotal());
     }
 
@@ -97,7 +97,7 @@ EOF;
             'data' => null,
         ];
 
-        $this->getWriter()->insert(JsonDefinition::class, [$data], $context);
+        $this->getWriter()->insert($this->registerDefinition(JsonDefinition::class), [$data], $context);
 
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
 
@@ -126,7 +126,7 @@ EOF;
 
         $ex = null;
         try {
-            $this->getWriter()->insert(ProductDefinition::class, [$data], $context);
+            $this->getWriter()->insert($this->registerDefinition(ProductDefinition::class), [$data], $context);
         } catch (WriteStackException $ex) {
         }
 
@@ -158,7 +158,7 @@ EOF;
 
         $ex = null;
         try {
-            $this->getWriter()->insert(ProductDefinition::class, [$data], $context);
+            $this->getWriter()->insert($this->registerDefinition(ProductDefinition::class), [$data], $context);
         } catch (WriteStackException $ex) {
         }
 
@@ -198,7 +198,7 @@ EOF;
 
         $ex = null;
         try {
-            $this->getWriter()->insert(ProductDefinition::class, [$data], $context);
+            $this->getWriter()->insert($this->registerDefinition(ProductDefinition::class), [$data], $context);
         } catch (WriteStackException $ex) {
         }
 
@@ -230,7 +230,7 @@ EOF;
 
         $ex = null;
         try {
-            $this->getWriter()->insert(ProductDefinition::class, [$data], $context);
+            $this->getWriter()->insert($this->registerDefinition(ProductDefinition::class), [$data], $context);
         } catch (WriteStackException $ex) {
         }
 
@@ -258,7 +258,7 @@ EOF;
             'createdAt' => $dt,
         ];
 
-        $this->getWriter()->insert(VersionCommitDataDefinition::class, [$data], $context);
+        $this->getWriter()->insert($this->registerDefinition(VersionCommitDataDefinition::class), [$data], $context);
 
         $entityId = $this->connection->fetchColumn('SELECT entity_id FROM version_commit_data WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
         static::assertNotEmpty($entityId);
@@ -291,7 +291,7 @@ EOF;
 
         $ex = null;
         try {
-            $this->getWriter()->insert(NestedDefinition::class, [$data], $context);
+            $this->getWriter()->insert($this->registerDefinition(NestedDefinition::class), [$data], $context);
         } catch (WriteStackException $ex) {
         }
 
@@ -319,7 +319,7 @@ EOF;
             ['id' => Uuid::randomHex(), 'data' => ['a' => '😄']],
         ];
 
-        $written = $this->getWriter()->insert(JsonDefinition::class, $data, $context);
+        $written = $this->getWriter()->insert($this->registerDefinition(JsonDefinition::class), $data, $context);
 
         static::assertArrayHasKey(JsonDefinition::class, $written);
         static::assertCount(1, $written[JsonDefinition::class]);
@@ -338,7 +338,7 @@ EOF;
         $data = [
             ['id' => Uuid::randomHex(), 'data' => [$randomKey => 'bar']],
         ];
-        $written = $this->getWriter()->insert(JsonDefinition::class, $data, $context);
+        $written = $this->getWriter()->insert($this->registerDefinition(JsonDefinition::class), $data, $context);
         static::assertCount(1, $written[JsonDefinition::class]);
 
         $context = $context->getContext();
@@ -366,7 +366,7 @@ EOF;
 
         // invalid json path
         try {
-            $result = $repo->search(JsonDefinition::class, $criteria, $context);
+            $result = $repo->search($this->registerDefinition(JsonDefinition::class), $criteria, $context);
             static::assertEmpty($result->getIds());
         } catch (DBALException $exception) {
             // mysql throws an exception on invalid path
@@ -390,7 +390,7 @@ EOF;
                 ],
             ],
         ];
-        $written = $this->getWriter()->insert(JsonDefinition::class, [$insert], $context);
+        $written = $this->getWriter()->insert($this->registerDefinition(JsonDefinition::class), [$insert], $context);
         static::assertCount(1, $written);
         static::assertCount(1, $written[JsonDefinition::class]);
 
@@ -406,7 +406,7 @@ EOF;
                 ],
             ],
         ];
-        $written = $this->getWriter()->update(JsonDefinition::class, [$update], $context);
+        $written = $this->getWriter()->update($this->registerDefinition(JsonDefinition::class), [$update], $context);
         static::assertCount(1, $written);
         static::assertCount(1, $written[JsonDefinition::class]);
 
@@ -442,14 +442,14 @@ EOF;
                 'root' => ['child' => ['childDate' => $latestDate]],
             ],
         ];
-        $this->getWriter()->insert(JsonDefinition::class, $data, $context);
+        $this->getWriter()->insert($this->registerDefinition(JsonDefinition::class), $data, $context);
 
         $repo = $this->getRepository();
         $context = $context->getContext();
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('root.child.childDate', $firstDate->format(Defaults::STORAGE_DATE_FORMAT)));
-        $result = $repo->search(JsonDefinition::class, $criteria, $context);
+        $result = $repo->search($this->registerDefinition(JsonDefinition::class), $criteria, $context);
 
         static::assertCount(1, $result->getIds());
         static::assertEquals([$firstId], $result->getIds());
@@ -457,7 +457,7 @@ EOF;
         $criteria = new Criteria();
         // string match, should only work if its casted correctly
         $criteria->addFilter(new EqualsFilter('root.child.childDate', '2005-02-28 08:59:59'));
-        $result = $repo->search(JsonDefinition::class, $criteria, $context);
+        $result = $repo->search($this->registerDefinition(JsonDefinition::class), $criteria, $context);
 
         static::assertCount(1, $result->getIds());
         static::assertEquals([$latestId], $result->getIds());

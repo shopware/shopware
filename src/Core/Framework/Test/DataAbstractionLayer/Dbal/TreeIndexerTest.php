@@ -290,7 +290,7 @@ class TreeIndexerTest extends TestCase
         $id = Uuid::randomHex();
         $data = [
             'id' => $id,
-            'name' => 'Category ',
+            'name' => 'Category ' . $id,
         ];
 
         if ($parentId) {

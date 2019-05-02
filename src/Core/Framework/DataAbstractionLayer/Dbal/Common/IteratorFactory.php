@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 
 class IteratorFactory
 {
@@ -17,16 +18,16 @@ class IteratorFactory
         $this->connection = $connection;
     }
 
-    public function createIterator(string $definition): IterableQuery
+    public function createIterator(EntityDefinition $definition): IterableQuery
     {
-        $entity = $definition::getEntityName();
+        $entity = $definition->getEntityName();
 
         $escaped = EntityDefinitionQueryHelper::escape($entity);
         $query = $this->connection->createQueryBuilder();
         $query->from($escaped);
         $query->setMaxResults(50);
 
-        if ($definition::getFields()->has('autoIncrement')) {
+        if ($definition->getFields()->has('autoIncrement')) {
             $query->select([$escaped . '.auto_increment', 'LOWER(HEX(' . $escaped . '.id))']);
             $query->andWhere($escaped . '.auto_increment > :lastId');
             $query->addOrderBy($escaped . '.auto_increment');

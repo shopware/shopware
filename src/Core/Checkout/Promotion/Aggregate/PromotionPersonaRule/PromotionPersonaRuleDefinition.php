@@ -17,12 +17,12 @@ class PromotionPersonaRuleDefinition extends MappingEntityDefinition
      * This class is used as m:n relation between promotions and persona rules.
      * It gives the option to assign what rules may use this promotion.
      */
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'promotion_persona_rule';
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new FkField('promotion_id', 'promotionId', PromotionDefinition::class))->addFlags(new PrimaryKey(), new Required()),

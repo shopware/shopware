@@ -33,7 +33,7 @@ class SyncControllerTest extends TestCase
         $data = [
             [
                 'action' => SyncController::ACTION_UPSERT,
-                'entity' => ProductDefinition::getEntityName(),
+                'entity' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
                 'payload' => [
                     [
                         'id' => $id1,
@@ -83,7 +83,7 @@ class SyncControllerTest extends TestCase
         $data = [
             [
                 'action' => SyncController::ACTION_UPSERT,
-                'entity' => ProductDefinition::getEntityName(),
+                'entity' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
                 'payload' => [
                     [
                         'id' => $id,
@@ -129,7 +129,7 @@ class SyncControllerTest extends TestCase
         $data = [
             [
                 'action' => SyncController::ACTION_UPSERT,
-                'entity' => CategoryDefinition::getEntityName(),
+                'entity' => $this->getContainer()->get(CategoryDefinition::class)->getEntityName(),
                 'payload' => [
                     [
                         'id' => $categoryId,
@@ -140,7 +140,7 @@ class SyncControllerTest extends TestCase
             ],
             [
                 'action' => SyncController::ACTION_UPSERT,
-                'entity' => ProductDefinition::getEntityName(),
+                'entity' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
                 'payload' => [
                     [
                         'id' => $productId,
@@ -188,7 +188,7 @@ class SyncControllerTest extends TestCase
         $data = [
             [
                 'action' => SyncController::ACTION_UPSERT,
-                'entity' => ProductDefinition::getEntityName(),
+                'entity' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
                 'payload' => [
                     [
                         'id' => $product,
@@ -251,7 +251,7 @@ class SyncControllerTest extends TestCase
         $data = [
             [
                 'action' => SyncController::ACTION_UPSERT,
-                'entity' => ProductDefinition::getEntityName(),
+                'entity' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
                 'payload' => [
                     [
                         'id' => $product,
@@ -287,7 +287,7 @@ class SyncControllerTest extends TestCase
         $data = [
             [
                 'action' => SyncController::ACTION_DELETE,
-                'entity' => ProductDefinition::getEntityName(),
+                'entity' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
                 'payload' => [
                     ['id' => $product],
                     ['id' => $product2],

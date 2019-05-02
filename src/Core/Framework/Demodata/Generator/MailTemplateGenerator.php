@@ -20,16 +20,23 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
     private $writer;
 
     /**
+     * @var MailTemplateDefinition
+     */
+    private $mailTemplateDefinition;
+
+    /**
      * @var EntityRepositoryInterface
      */
     private $mailTemplateTypeRepository;
 
     public function __construct(
         EntityWriterInterface $writer,
-        EntityRepositoryInterface $mailTemplateTypeRepository
+        EntityRepositoryInterface $mailTemplateTypeRepository,
+        MailTemplateDefinition $mailTemplateDefinition
     ) {
         $this->writer = $writer;
         $this->mailTemplateTypeRepository = $mailTemplateTypeRepository;
+        $this->mailTemplateDefinition = $mailTemplateDefinition;
     }
 
     public function getDefinition(): string
@@ -78,7 +85,7 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
     {
         $writeContext = WriteContext::createFromContext($context->getContext());
 
-        $this->writer->upsert(MailTemplateDefinition::class, $payload, $writeContext);
+        $this->writer->upsert($this->mailTemplateDefinition, $payload, $writeContext);
 
         $context->add(MailTemplateDefinition::class, ...array_column($payload, 'id'));
     }

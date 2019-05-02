@@ -37,7 +37,7 @@ class MediaLoadedSubscriberTest extends TestCase
         $mediaEntity->setFileName($mediaId . '-134578345');
         $mediaEntity->setThumbnails(new MediaThumbnailCollection());
 
-        $mediaLoadedEvent = new EntityLoadedEvent(MediaDefinition::class, [$mediaEntity], $context);
+        $mediaLoadedEvent = new EntityLoadedEvent($this->getContainer()->get(MediaDefinition::class), [$mediaEntity], $context);
         $subscriber->addUrls($mediaLoadedEvent);
 
         static::assertStringEndsWith(
@@ -66,7 +66,7 @@ class MediaLoadedSubscriberTest extends TestCase
         $mediaEntity->setFileName($mediaId . '-134578345');
         $mediaEntity->setThumbnails(new MediaThumbnailCollection([$thumbnailEntity]));
 
-        $mediaLoadedEvent = new EntityLoadedEvent(MediaDefinition::class, [$mediaEntity], $context);
+        $mediaLoadedEvent = new EntityLoadedEvent($this->getContainer()->get(MediaDefinition::class), [$mediaEntity], $context);
         $subscriber->addUrls($mediaLoadedEvent);
 
         static::assertStringEndsWith(

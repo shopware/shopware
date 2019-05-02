@@ -26,22 +26,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 
 class MediaFolderDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'media_folder';
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return MediaFolderCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return MediaFolderEntity::class;
     }
 
-    public static function getDefaults(EntityExistence $existence): array
+    public function getDefaults(EntityExistence $existence): array
     {
         if ($existence->exists()) {
             return [];
@@ -55,7 +55,7 @@ class MediaFolderDefinition extends EntityDefinition
         ];
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),

@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestTranslationDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -24,7 +25,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CustomFieldTest extends TestCase
 {
-    use KernelTestBehaviour, CacheTestBehaviour;
+    use KernelTestBehaviour, CacheTestBehaviour, DataAbstractionLayerFieldTestBehaviour;
 
     /**
      * @var Connection
@@ -1093,8 +1094,13 @@ class CustomFieldTest extends TestCase
 
     private function getTestRepository(): EntityRepository
     {
-        return new EntityRepository(
+        $definition = $this->registerDefinition(
             CustomFieldTestDefinition::class,
+            CustomFieldTestTranslationDefinition::class
+        );
+
+        return new EntityRepository(
+            $definition,
             $this->getContainer()->get(EntityReaderInterface::class),
             $this->getContainer()->get(VersionManager::class),
             $this->getContainer()->get(EntitySearcherInterface::class),

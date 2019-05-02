@@ -18,7 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 class ManyToOneAssociationFieldResolver implements FieldResolverInterface
 {
     public function resolve(
-        string $definition,
+        EntityDefinition $definition,
         string $root,
         Field $field,
         QueryBuilder $query,
@@ -29,8 +29,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
             return false;
         }
 
-        /** @var EntityDefinition|string $reference */
-        $reference = $field->getReferenceClass();
+        $reference = $field->getReferenceDefinition();
         $alias = $root . '.' . $field->getPropertyName();
         if ($query->hasState($alias)) {
             return true;
@@ -43,12 +42,12 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
             return true;
         }
 
-        if (!$reference::isInheritanceAware() || !$context->considerInheritance()) {
+        if (!$reference->isInheritanceAware() || !$context->considerInheritance()) {
             return true;
         }
 
         /** @var ManyToOneAssociationField $parent */
-        $parent = $reference::getFields()->get('parent');
+        $parent = $reference->getFields()->get('parent');
 
         $queryHelper->resolveField($parent, $reference, $alias, $query, $context);
 
@@ -56,7 +55,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
     }
 
     private function join(
-        string $definition,
+        EntityDefinition $definition,
         string $root,
         AssociationField $field,
         QueryBuilder $query,
@@ -67,21 +66,20 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
             return;
         }
 
-        /** @var EntityDefinition|string $reference */
-        $reference = $field->getReferenceClass();
+        $reference = $field->getReferenceDefinition();
 
-        $table = $reference::getEntityName();
+        $table = $reference->getEntityName();
 
         $alias = $root . '.' . $field->getPropertyName();
 
-        $versionAware = ($definition::isVersionAware() && $reference::isVersionAware());
+        $versionAware = ($definition->isVersionAware() && $reference->isVersionAware());
 
         $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName());
 
         if ($field->is(Inherited::class) && $context->considerInheritance()) {
             $inherited = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getPropertyName());
 
-            $fk = $definition::getFields()->getByStorageName($field->getStorageName());
+            $fk = $definition->getFields()->getByStorageName($field->getStorageName());
             if ($fk && $fk->is(Required::class)) {
                 $parent = $root . '.parent';
 
@@ -176,7 +174,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
 
     private function createSubVersionQuery(AssociationField $field, QueryBuilder $query, Context $context, EntityDefinitionQueryHelper $queryHelper): QueryBuilder
     {
-        $subRoot = $field->getReferenceClass()::getEntityName();
+        $subRoot = $field->getReferenceDefinition()->getEntityName();
 
         $versionQuery = new QueryBuilder($query->getConnection());
         $versionQuery->select(EntityDefinitionQueryHelper::escape($subRoot) . '.*');
@@ -184,7 +182,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
             EntityDefinitionQueryHelper::escape($subRoot),
             EntityDefinitionQueryHelper::escape($subRoot)
         );
-        $queryHelper->joinVersion($versionQuery, $field->getReferenceClass(), $subRoot, $context);
+        $queryHelper->joinVersion($versionQuery, $field->getReferenceDefinition(), $subRoot, $context);
 
         return $versionQuery;
     }

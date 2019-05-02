@@ -19,7 +19,8 @@ use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateSalesChannel\MailTe
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTranslation\MailTemplateTypeTranslationDefinition;
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
 use Shopware\Core\Content\NewsletterReceiver\NewsletterReceiverDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Store\StoreSettingsDefinition;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitDefinition;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
@@ -69,7 +70,7 @@ class DocsDumpErd extends Command
     ];
 
     /**
-     * @var DefinitionRegistry
+     * @var DefinitionInstanceRegistry
      */
     private $registry;
 
@@ -79,7 +80,7 @@ class DocsDumpErd extends Command
     private $erdGenerator;
 
     public function __construct(
-        DefinitionRegistry $registry,
+        DefinitionInstanceRegistry $registry,
         ErdGenerator $erdGenerator
     ) {
         parent::__construct();
@@ -202,8 +203,8 @@ class DocsDumpErd extends Command
     {
         $definitions = $this->registry->getDefinitions();
 
-        $definitions = array_filter($definitions, function (string $definition) {
-            return !in_array($definition, $this->ignoredDefinitions, true);
+        $definitions = array_filter($definitions, function (EntityDefinition $definition) {
+            return !in_array($definition->getClass(), $this->ignoredDefinitions, true);
         });
 
         return array_map(function (string $definition) {

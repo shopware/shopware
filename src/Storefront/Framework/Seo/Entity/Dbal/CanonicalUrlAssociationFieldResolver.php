@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Seo\Entity\Field\CanonicalUrlAssociationField;
@@ -15,8 +16,18 @@ use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlDefinition;
 
 class CanonicalUrlAssociationFieldResolver implements FieldResolverInterface
 {
+    /**
+     * @var SeoUrlDefinition
+     */
+    private $seoUrlDefinition;
+
+    public function __construct(SeoUrlDefinition $seoUrlDefinition)
+    {
+        $this->seoUrlDefinition = $seoUrlDefinition;
+    }
+
     public function resolve(
-        string $definition,
+        EntityDefinition $definition,
         string $root,
         Field $field,
         QueryBuilder $query,
@@ -34,7 +45,7 @@ class CanonicalUrlAssociationFieldResolver implements FieldResolverInterface
             $salesChannelId = Uuid::fromHexToBytes(Defaults::SALES_CHANNEL);
         }
 
-        $table = SeoUrlDefinition::getEntityName();
+        $table = $this->seoUrlDefinition->getEntityName();
         $alias = $root . '.' . $field->getPropertyName();
 
         if ($query->hasState($alias)) {

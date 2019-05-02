@@ -12,7 +12,7 @@ class EntityCollectionTypeTest extends TestCase
     {
         $expected = [
             'type' => 'collection',
-            'entity' => CustomerDefinition::getEntityName(),
+            'entityClass' => CustomerDefinition::class,
         ];
 
         static::assertEquals($expected, (new EntityCollectionType(CustomerDefinition::class))->toArray());

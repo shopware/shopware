@@ -23,27 +23,27 @@ use Shopware\Core\Framework\Version\VersionDefinition;
 
 class VersionCommitDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'version_commit';
     }
 
-    public static function isVersionAware(): bool
+    public function isVersionAware(): bool
     {
         return false;
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return VersionCommitCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return VersionCommitEntity::class;
     }
 
-    public static function getDefaults(EntityExistence $existence): array
+    public function getDefaults(EntityExistence $existence): array
     {
         return [
             'name' => 'auto-save',
@@ -51,12 +51,12 @@ class VersionCommitDefinition extends EntityDefinition
         ];
     }
 
-    public static function getParentDefinitionClass(): ?string
+    protected function getParentDefinitionClass(): ?string
     {
         return VersionDefinition::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),

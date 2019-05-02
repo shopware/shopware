@@ -21,27 +21,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class CmsSlotDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'cms_slot';
     }
 
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return CmsSlotTranslationDefinition::class;
-    }
-
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return CmsSlotEntity::class;
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return CmsSlotCollection::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),

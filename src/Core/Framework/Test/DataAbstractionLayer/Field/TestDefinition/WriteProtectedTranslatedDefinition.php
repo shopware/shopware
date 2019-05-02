@@ -14,17 +14,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class WriteProtectedTranslatedDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return '_test_nullable';
     }
 
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return WriteProtectedTranslationDefinition::class;
-    }
-
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
@@ -34,7 +29,7 @@ class WriteProtectedTranslatedDefinition extends EntityDefinition
         ]);
     }
 
-    protected static function defaultFields(): array
+    protected function defaultFields(): array
     {
         return [];
     }

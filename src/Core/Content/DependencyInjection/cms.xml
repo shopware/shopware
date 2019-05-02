@@ -34,7 +34,7 @@
             <argument type="collection">
                 <argument type="service" key="product" id="sales_channel.product.repository" />
             </argument>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>
 
         <service id="Shopware\Core\Content\Cms\SlotDataResolver\Type\TextTypeDataResolver">
@@ -43,13 +43,14 @@
 
         <service id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageController" public="true">
             <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader"/>
+            <argument type="service" id="Shopware\Core\Content\Cms\CmsPageDefinition" />
             <call method="setContainer">
                 <argument type="service" id="service_container" />
             </call>
         </service>
 
         <service id="Shopware\Core\Content\Cms\DataAbstractionLayer\FieldSerializer\SlotConfigFieldSerializer">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry" />
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry" />
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder" />
             <argument type="service" id="validator" />
             <tag name="shopware.field_serializer"/>

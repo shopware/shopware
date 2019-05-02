@@ -449,7 +449,7 @@ class SearchCriteriaBuilderTest extends TestCase
         $scoreBuilder = $this->getContainer()->get(EntityScoreQueryBuilder::class);
         $requestBuilder = new RequestCriteriaBuilder($interpreter, $scoreBuilder, $maxLimit, $allowedLimits);
         $context = Context::createDefaultContext();
-        $definition = ProductDefinition::class;
+        $definition = $this->getContainer()->get(ProductDefinition::class);
 
         $request = new Request($params);
 

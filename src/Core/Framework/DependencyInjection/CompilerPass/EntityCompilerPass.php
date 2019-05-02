@@ -2,8 +2,7 @@
 
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
@@ -20,17 +19,34 @@ class EntityCompilerPass implements CompilerPassInterface
     public function process(ContainerBuilder $container): void
     {
         $this->collectDefinitions($container);
+        $this->makeFieldSerializersPublic($container);
+        $this->makeFieldResolversPublic($container);
+        $this->makeFieldAccessorBuildersPublic($container);
     }
 
     private function collectDefinitions(ContainerBuilder $container): void
     {
-        $classes = [];
-        $services = array_keys($container->findTaggedServiceIds('shopware.entity.definition'));
+        $entityNameMap = [];
+        $repositoryNameMap = [];
+        $services = $container->findTaggedServiceIds('shopware.entity.definition');
 
-        /** @var string|EntityDefinition $serviceId */
-        foreach ($services as $serviceId) {
+        /** @var string $serviceId */
+        foreach ($services as $serviceId => $tag) {
             $service = $container->getDefinition($serviceId);
-            $entity = $serviceId::getEntityName();
+
+            if (!isset($tag[0]['entity'])) {
+                throw new \RuntimeException(sprintf('Malformed configuration found for "%s"', $serviceId));
+            }
+
+            $service->addMethodCall('compile', [
+                new Reference(DefinitionInstanceRegistry::class),
+            ]);
+            $service->setPublic(true);
+
+            $entity = $tag[0]['entity'];
+            $entityNameMap[$entity] = $serviceId;
+
+            $service->setPublic(true);
 
             $repositoryId = $entity . '.repository';
             try {
@@ -39,7 +55,7 @@ class EntityCompilerPass implements CompilerPassInterface
                 $repository = new Definition(
                     EntityRepository::class,
                     [
-                        $service->getClass(),
+                        new Reference($serviceId),
                         new Reference(EntityReaderInterface::class),
                         new Reference(VersionManager::class),
                         new Reference(EntitySearcherInterface::class),
@@ -51,11 +67,38 @@ class EntityCompilerPass implements CompilerPassInterface
 
                 $container->setDefinition($repositoryId, $repository);
             }
-
-            $classes[$serviceId] = $repositoryId;
+            $repositoryNameMap[$entity] = $repositoryId;
         }
 
-        $registry = $container->getDefinition(DefinitionRegistry::class);
-        $registry->replaceArgument(0, $classes);
+        $definitionRegistry = $container->getDefinition(DefinitionInstanceRegistry::class);
+        $definitionRegistry->replaceArgument(1, $entityNameMap);
+        $definitionRegistry->replaceArgument(2, $repositoryNameMap);
+    }
+
+    private function makeFieldSerializersPublic(ContainerBuilder $container)
+    {
+        $servicesIds = array_keys($container->findTaggedServiceIds('shopware.field_serializer'));
+
+        foreach ($servicesIds as $servicesId) {
+            $container->getDefinition($servicesId)->setPublic(true);
+        }
+    }
+
+    private function makeFieldResolversPublic(ContainerBuilder $container)
+    {
+        $servicesIds = array_keys($container->findTaggedServiceIds('shopware.field_resolver'));
+
+        foreach ($servicesIds as $servicesId) {
+            $container->getDefinition($servicesId)->setPublic(true);
+        }
+    }
+
+    private function makeFieldAccessorBuildersPublic(ContainerBuilder $container)
+    {
+        $servicesIds = array_keys($container->findTaggedServiceIds('shopware.field_accessor_builder'));
+
+        foreach ($servicesIds as $servicesId) {
+            $container->getDefinition($servicesId)->setPublic(true);
+        }
     }
 }

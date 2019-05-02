@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Entity;
 
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -12,7 +13,7 @@ class SalesChannelEntityLoadedEvent extends EntityLoadedEvent
      */
     private $salesChannelContext;
 
-    public function __construct(string $definition, array $entities, SalesChannelContext $context, bool $nested = true)
+    public function __construct(EntityDefinition $definition, array $entities, SalesChannelContext $context, bool $nested = true)
     {
         parent::__construct($definition, $entities, $context->getContext(), $nested);
         $this->salesChannelContext = $context;
@@ -28,7 +29,7 @@ class SalesChannelEntityLoadedEvent extends EntityLoadedEvent
         return $this->salesChannelContext;
     }
 
-    protected function createNested(string $definition, array $entities): EntityLoadedEvent
+    protected function createNested(EntityDefinition $definition, array $entities): EntityLoadedEvent
     {
         return new self($definition, $entities, $this->salesChannelContext, false);
     }

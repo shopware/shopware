@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
 use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -36,11 +36,11 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
     public const FORMAT = 'openapi-3';
 
     /**
-     * @var DefinitionRegistry
+     * @var DefinitionInstanceRegistry
      */
     private $registry;
 
-    public function __construct(DefinitionRegistry $registry)
+    public function __construct(DefinitionInstanceRegistry $registry)
     {
         $this->registry = $registry;
     }
@@ -104,11 +104,11 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         ksort($elements);
 
         foreach ($elements as $definition) {
-            if (preg_match('/_translation$/', $definition::getEntityName())) {
+            if (preg_match('/_translation$/', $definition->getEntityName())) {
                 continue;
             }
 
-            if (strpos($definition::getEntityName(), 'version') === 0) {
+            if (strpos($definition->getEntityName(), 'version') === 0) {
                 continue;
             }
 
@@ -129,7 +129,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
             $openapi = $this->addPathActions($openapi, $definition);
 
-            $humanReadableName = $this->convertToHumanReadable($definition::getEntityName());
+            $humanReadableName = $this->convertToHumanReadable($definition->getEntityName());
 
             $openapi['tags'][] = ['name' => $humanReadableName, 'description' => 'The endpoint for operations on ' . $humanReadableName];
         }
@@ -145,13 +145,13 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         ksort($elements);
 
         foreach ($elements as $definition) {
-            if (preg_match('/_translation$/', $definition::getEntityName())) {
+            if (preg_match('/_translation$/', $definition->getEntityName())) {
                 continue;
             }
 
-            /* @var string|EntityDefinition $definition */
+            /* @var EntityDefinition $definition */
             try {
-                $definition::getEntityName();
+                $definition->getEntityName();
             } catch (\Exception $e) {
                 //mapping tables has no repository, skip them
                 continue;
@@ -197,7 +197,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 $extensions = [];
 
                 foreach ($properties['extensions']['properties'] as $propertyName => $extension) {
-                    $field = $definition::getFields()->get($propertyName);
+                    $field = $definition->getFields()->get($propertyName);
 
                     if (!$field instanceof AssociationField) {
                         $extensions[$propertyName] = $extension;
@@ -221,11 +221,11 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 $properties['extensions']['properties'] = $extensions;
             }
 
-            $entityName = $definition::getEntityName();
+            $entityName = $definition->getEntityName();
             $schemaDefinitions[$entityName] = [
                 'name' => $entityName,
                 'required' => $schema['attributes']['required'],
-                'translatable' => $definition::getFields()->filterInstance(TranslatedField::class)->getKeys(),
+                'translatable' => $definition->getFields()->filterInstance(TranslatedField::class)->getKeys(),
                 'properties' => $properties,
             ];
         }
@@ -326,23 +326,20 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         return $property;
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    private function getSchemaByDefinition(string $definition): array
+    private function getSchemaByDefinition(EntityDefinition $definition): array
     {
         $attributes = [];
         $requiredAttributes = [];
         $relationships = [];
 
         $uuid = Uuid::randomHex();
-        $schemaName = $definition::getEntityName();
+        $schemaName = $definition->getEntityName();
         $detailPath = $this->getResourceUri($definition) . '/' . $uuid;
 
         $extensions = [];
 
         /** @var Field $field */
-        foreach ($definition::getFields() as $field) {
+        foreach ($definition->getFields() as $field) {
             if ($field->getPropertyName() === 'translations'
                 || $field->getPropertyName() === 'id'
                 || preg_match('#translations$#i', $field->getPropertyName())
@@ -369,8 +366,8 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            if ($field instanceof TranslatedField && $definition::getTranslationDefinitionClass()) {
-                $field = $definition::getTranslationDefinitionClass()::getFields()->get($field->getPropertyName());
+            if ($field instanceof TranslatedField && $definition->getTranslationDefinition()) {
+                $field = $definition->getTranslationDefinition()->getFields()->get($field->getPropertyName());
             }
 
             if ($field instanceof JsonField) {
@@ -406,8 +403,8 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             }
         }
 
-        if ($definition::getTranslationDefinitionClass()) {
-            foreach ($definition::getTranslationDefinitionClass()::getFields() as $field) {
+        if ($definition->getTranslationDefinition()) {
+            foreach ($definition->getTranslationDefinition()->getFields() as $field) {
                 if ($field->getPropertyName() === 'translations' || $field->getPropertyName() === 'id') {
                     continue;
                 }
@@ -425,7 +422,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                     [
                         'type' => 'object',
                         'properties' => [
-                            'type' => ['example' => $definition::getEntityName()],
+                            'type' => ['example' => $definition->getEntityName()],
                             'id' => ['example' => $uuid],
                             'attributes' => [
                                 'type' => 'object',
@@ -476,14 +473,11 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         return $schema;
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    private function addPathActions(array $openapi, string $definition): array
+    private function addPathActions(array $openapi, EntityDefinition $definition): array
     {
-        $humanReadableName = $this->convertToHumanReadable($definition::getEntityName());
+        $humanReadableName = $this->convertToHumanReadable($definition->getEntityName());
 
-        $schemaName = $definition::getEntityName();
+        $schemaName = $definition->getEntityName();
         $path = $this->getResourceUri($definition);
 
         $responseDataParameter = [
@@ -500,7 +494,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             'name' => 'id',
             'in' => 'path',
             'schema' => ['type' => 'string', 'format' => 'uuid'],
-            'description' => 'Identifier for the ' . $definition::getEntityName(),
+            'description' => 'Identifier for the ' . $definition->getEntityName(),
             'required' => true,
         ];
 
@@ -509,7 +503,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 'summary' => 'List with basic information of ' . $humanReadableName . ' resources',
                 'tags' => [$humanReadableName],
                 'parameters' => $this->getDefaultListingParameter(),
-                'operationId' => 'get' . $this->convertToOperationId($definition::getEntityName()) . 'List',
+                'operationId' => 'get' . $this->convertToOperationId($definition->getEntityName()) . 'List',
                 'responses' => [
                     Response::HTTP_OK => [
                         'description' => 'List of ' . $humanReadableName . ' resources.',
@@ -574,7 +568,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 'summary' => 'Create a new ' . $humanReadableName . ' resources',
                 'description' => 'Create a new ' . $humanReadableName . ' resources. All required fields must be provided in order to create a new resource successfully.',
                 'tags' => [$humanReadableName],
-                'operationId' => 'create' . $this->convertToOperationId($definition::getEntityName()),
+                'operationId' => 'create' . $this->convertToOperationId($definition->getEntityName()),
                 'parameters' => [
                     [
                         'name' => '_response',
@@ -587,18 +581,18 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                     'content' => [
                         'application/vnd.api+json' => [
                             'schema' => [
-                                '$ref' => '#/components/schemas/' . $definition::getEntityName(),
+                                '$ref' => '#/components/schemas/' . $definition->getEntityName(),
                             ],
                         ],
                         'application/json' => [
                             'schema' => [
-                                '$ref' => '#/components/schemas/' . $definition::getEntityName() . '_flat',
+                                '$ref' => '#/components/schemas/' . $definition->getEntityName() . '_flat',
                             ],
                         ],
                     ],
                 ],
                 'responses' => [
-                    Response::HTTP_CREATED => $this->getDetailResponse($definition::getEntityName()),
+                    Response::HTTP_CREATED => $this->getDetailResponse($definition->getEntityName()),
                     Response::HTTP_BAD_REQUEST => $this->getResponseRef((string) Response::HTTP_BAD_REQUEST),
                     Response::HTTP_UNAUTHORIZED => $this->getResponseRef((string) Response::HTTP_UNAUTHORIZED),
                 ],
@@ -608,7 +602,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         $openapi['paths'][$path . '/{id}'] = [
             'get' => [
                 'summary' => 'Detailed information about a ' . $humanReadableName . ' resource',
-                'operationId' => 'get' . $this->convertToOperationId($definition::getEntityName()),
+                'operationId' => 'get' . $this->convertToOperationId($definition->getEntityName()),
                 'tags' => [$humanReadableName],
                 'parameters' => [$idParameter],
                 'responses' => [
@@ -619,7 +613,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             ],
             'patch' => [
                 'summary' => 'Partially update information about a ' . $humanReadableName . ' resource',
-                'operationId' => 'update' . $this->convertToOperationId($definition::getEntityName()),
+                'operationId' => 'update' . $this->convertToOperationId($definition->getEntityName()),
                 'tags' => [$humanReadableName],
                 'parameters' => [$idParameter, $responseDataParameter],
                 'requestBody' => [
@@ -627,7 +621,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                     'content' => [
                         'application/vnd.api+json' => [
                             'schema' => [
-                                '$ref' => '#/components/schemas/' . $definition::getEntityName(),
+                                '$ref' => '#/components/schemas/' . $definition->getEntityName(),
                             ],
                         ],
                     ],
@@ -640,7 +634,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 ],
             ],
             'delete' => [
-                'operationId' => 'delete' . $this->convertToOperationId($definition::getEntityName()),
+                'operationId' => 'delete' . $this->convertToOperationId($definition->getEntityName()),
                 'summary' => 'Delete a ' . $humanReadableName . ' resource',
                 'tags' => [$humanReadableName],
                 'parameters' => [$idParameter, $responseDataParameter],
@@ -678,7 +672,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                     'properties' => [
                         'type' => [
                             'type' => 'string',
-                            'example' => $field->getReferenceClass()::getEntityName(),
+                            'example' => $field->getReferenceDefinition()->getEntityName(),
                         ],
                         'id' => [
                             'type' => 'string',
@@ -696,10 +690,10 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
      */
     private function createToManyLinkage(AssociationField $field, string $basePath): array
     {
-        $associationEntityName = $field->getReferenceClass()::getEntityName();
+        $associationEntityName = $field->getReferenceDefinition()->getEntityName();
 
         if ($field instanceof ManyToManyAssociationField) {
-            $associationEntityName = $field->getReferenceDefinition()::getEntityName();
+            $associationEntityName = $field->getToManyReferenceDefinition()->getEntityName();
         }
 
         return [
@@ -765,12 +759,9 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         ];
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    private function getResourceUri(string $definition, string $rootPath = '/'): string
+    private function getResourceUri(EntityDefinition $definition, string $rootPath = '/'): string
     {
-        return ltrim('/', $rootPath) . '/' . str_replace('_', '-', $definition::getEntityName());
+        return ltrim('/', $rootPath) . '/' . str_replace('_', '-', $definition->getEntityName());
     }
 
     private function createErrorResponse(int $statusCode, string $title, string $description): array

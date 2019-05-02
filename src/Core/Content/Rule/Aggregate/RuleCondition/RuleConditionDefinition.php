@@ -20,27 +20,27 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class RuleConditionDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'rule_condition';
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return RuleConditionEntity::class;
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return RuleConditionCollection::class;
     }
 
-    public static function getParentDefinitionClass(): ?string
+    protected function getParentDefinitionClass(): ?string
     {
         return RuleDefinition::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),

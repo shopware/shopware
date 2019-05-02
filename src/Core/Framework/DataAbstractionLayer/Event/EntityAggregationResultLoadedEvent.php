@@ -15,7 +15,7 @@ class EntityAggregationResultLoadedEvent extends NestedEvent
     protected $result;
 
     /**
-     * @var string|EntityDefinition
+     * @var EntityDefinition
      */
     protected $definition;
 
@@ -24,12 +24,11 @@ class EntityAggregationResultLoadedEvent extends NestedEvent
      */
     protected $name;
 
-    /** @param string|EntityDefinition $definition */
-    public function __construct(string $definition, AggregatorResult $result)
+    public function __construct(EntityDefinition $definition, AggregatorResult $result)
     {
         $this->result = $result;
         $this->definition = $definition;
-        $this->name = $this->definition::getEntityName() . '.aggregation.result.loaded';
+        $this->name = $this->definition->getEntityName() . '.aggregation.result.loaded';
     }
 
     public function getName(): string

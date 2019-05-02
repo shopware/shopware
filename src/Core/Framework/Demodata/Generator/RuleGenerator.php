@@ -45,16 +45,23 @@ class RuleGenerator implements DemodataGeneratorInterface
      */
     private $shippingMethodRepository;
 
+    /**
+     * @var RuleDefinition
+     */
+    private $ruleDefinition;
+
     public function __construct(
         EntityRepositoryInterface $ruleRepository,
         EntityWriterInterface $writer,
         EntityRepositoryInterface $paymentMethodRepository,
-        EntityRepositoryInterface $shippingMethodRepository
+        EntityRepositoryInterface $shippingMethodRepository,
+        RuleDefinition $ruleDefinition
     ) {
         $this->ruleRepository = $ruleRepository;
         $this->writer = $writer;
         $this->paymentMethodRepository = $paymentMethodRepository;
         $this->shippingMethodRepository = $shippingMethodRepository;
+        $this->ruleDefinition = $ruleDefinition;
     }
 
     public function getDefinition(): string
@@ -145,7 +152,7 @@ class RuleGenerator implements DemodataGeneratorInterface
 
         $writeContext = WriteContext::createFromContext($context->getContext());
 
-        $this->writer->insert(RuleDefinition::class, $payload, $writeContext);
+        $this->writer->insert($this->ruleDefinition, $payload, $writeContext);
 
         $context->add(RuleDefinition::class, ...array_column($payload, 'id'));
     }

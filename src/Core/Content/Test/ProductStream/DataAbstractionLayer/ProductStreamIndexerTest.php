@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Test\ProductStream\DataAbstractionLayer;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\Indexing\ProductStreamIndexer;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Content\ProductStream\Util\EventIdExtractor;
@@ -36,7 +37,7 @@ class ProductStreamIndexerTest extends TestCase
     /**
      * @var EntityRepositoryInterface|MockObject
      */
-    private $repository;
+    private $productStreamRepository;
 
     /**
      * @var ProductStreamIndexer
@@ -63,18 +64,22 @@ class ProductStreamIndexerTest extends TestCase
         $this->context = Context::createDefaultContext();
         $this->productRepo = $this->getContainer()->get('product.repository');
         $this->eventIdExtractor = $this->createMock(EventIdExtractor::class);
-        $this->repository = $this->getContainer()->get('product_stream.repository');
+
+        $this->context = Context::createDefaultContext();
+        $this->productRepo = $this->getContainer()->get('product.repository');
+        $this->productStreamRepository = $this->getContainer()->get('product_stream.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
 
         $this->indexer = new ProductStreamIndexer(
             $this->createMock(EventDispatcherInterface::class),
             $this->eventIdExtractor,
-            $this->repository,
+            $this->productStreamRepository,
             $this->connection,
             $this->getContainer()->get('serializer'),
             $this->getContainer()->get(EntityCacheKeyGenerator::class),
             $this->getContainer()->get('shopware.cache'),
-            $this->getContainer()->get(IteratorFactory::class)
+            $this->getContainer()->get(IteratorFactory::class),
+            $this->getContainer()->get(ProductDefinition::class)
         );
     }
 
@@ -113,7 +118,7 @@ class ProductStreamIndexerTest extends TestCase
         $this->indexer->refresh(new EntityWrittenContainerEvent($this->context, $this->createMock(NestedEventCollection::class), []));
 
         /** @var ProductStreamEntity $entity */
-        $entity = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
+        $entity = $this->productStreamRepository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNotNull($entity->getApiFilter());
         static::assertCount(1, $entity->getApiFilter());
         static::assertSame('equals', $entity->getApiFilter()[0]['type']);
@@ -164,7 +169,7 @@ class ProductStreamIndexerTest extends TestCase
         $this->indexer->refresh(new EntityWrittenContainerEvent($this->context, $this->createMock(NestedEventCollection::class), []));
 
         /** @var ProductStreamEntity $entity */
-        $entity = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
+        $entity = $this->productStreamRepository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNotNull($entity->getApiFilter());
         static::assertCount(1, $entity->getApiFilter());
         static::assertSame('multi', $entity->getApiFilter()[0]['type']);
@@ -213,7 +218,7 @@ class ProductStreamIndexerTest extends TestCase
         $this->indexer->refresh(new EntityWrittenContainerEvent($this->context, $this->createMock(NestedEventCollection::class), []));
 
         /** @var ProductStreamEntity $entity */
-        $entity = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
+        $entity = $this->productStreamRepository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNull($entity->getApiFilter());
         static::assertTrue($entity->isInvalid());
     }
@@ -255,7 +260,7 @@ class ProductStreamIndexerTest extends TestCase
         $this->indexer->refresh(new EntityWrittenContainerEvent($this->context, $this->createMock(NestedEventCollection::class), []));
 
         /** @var ProductStreamEntity $entity */
-        $entity = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
+        $entity = $this->productStreamRepository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNull($entity->getApiFilter());
         static::assertTrue($entity->isInvalid());
     }
@@ -297,7 +302,7 @@ class ProductStreamIndexerTest extends TestCase
         $this->indexer->refresh(new EntityWrittenContainerEvent($this->context, $this->createMock(NestedEventCollection::class), []));
 
         /** @var ProductStreamEntity $entity */
-        $entity = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
+        $entity = $this->productStreamRepository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNull($entity->getApiFilter());
         static::assertTrue($entity->isInvalid());
     }
@@ -339,7 +344,7 @@ class ProductStreamIndexerTest extends TestCase
         $this->indexer->refresh(new EntityWrittenContainerEvent($this->context, $this->createMock(NestedEventCollection::class), []));
 
         /** @var ProductStreamEntity $entity */
-        $entity = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
+        $entity = $this->productStreamRepository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNotNull($entity->getApiFilter());
         static::assertCount(1, $entity->getApiFilter());
         static::assertSame('range', $entity->getApiFilter()[0]['type']);

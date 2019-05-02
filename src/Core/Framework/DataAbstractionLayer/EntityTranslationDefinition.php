@@ -14,38 +14,19 @@ use Shopware\Core\Framework\Language\LanguageDefinition;
 
 abstract class EntityTranslationDefinition extends EntityDefinition
 {
-    /**
-     * @return string|EntityDefinition
-     */
-    public static function getParentDefinitionClass(): string
+    public function getParentDefinition(): EntityDefinition
     {
-        throw new \RuntimeException('`getParentDefinitionClass` not implemented');
+        return parent::getParentDefinition();
     }
 
-    public static function getFields(): FieldCollection
+    public function isVersionAware(): bool
     {
-        if (isset(static::$fields[static::class])) {
-            return static::$fields[static::class];
-        }
-
-        $fields = parent::getFields();
-        foreach (self::getBaseFields() as $field) {
-            $fields->add($field);
-        }
-
-        static::$fields[static::class] = $fields;
-
-        return static::$fields[static::class];
+        return $this->getParentDefinition()->isVersionAware();
     }
 
-    public static function isVersionAware(): bool
+    public function hasRequiredField(): bool
     {
-        return static::getParentDefinitionClass()::isVersionAware();
-    }
-
-    public static function hasRequiredField(): bool
-    {
-        return static::getFields()
+        return $this->getFields()
                 ->filterByFlag(Required::class)
                 ->filter(function (Field $field) {
                     return !($field instanceof FkField
@@ -57,28 +38,32 @@ abstract class EntityTranslationDefinition extends EntityDefinition
             > 0;
     }
 
+    protected function getParentDefinitionClass(): string
+    {
+        throw new \RuntimeException('`getParentDefinitionClass` not implemented');
+    }
+
     /**
      * @return Field[]
      */
-    private static function getBaseFields(): array
+    protected function getBaseFields(): array
     {
-        /** @var string|EntityDefinition $translatedDefinition */
-        $translatedDefinition = static::getParentDefinitionClass();
-        $entityName = $translatedDefinition::getEntityName();
+        $translatedDefinition = $this->getParentDefinition();
+        $entityName = $translatedDefinition->getEntityName();
 
         $propertyBaseName = \explode('_', $entityName);
         $propertyBaseName = \array_map('ucfirst', $propertyBaseName);
         $propertyBaseName = \lcfirst(\implode($propertyBaseName));
 
         $baseFields = [
-            (new FkField($entityName . '_id', $propertyBaseName . 'Id', $translatedDefinition))->addFlags(new PrimaryKey(), new Required()),
+            (new FkField($entityName . '_id', $propertyBaseName . 'Id', $translatedDefinition->getClass()))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new PrimaryKey(), new Required()),
-            new ManyToOneAssociationField($propertyBaseName, $entityName . '_id', $translatedDefinition, 'id', false),
+            new ManyToOneAssociationField($propertyBaseName, $entityName . '_id', $translatedDefinition->getClass(), 'id', false),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false),
         ];
 
-        if (static::isVersionAware()) {
-            $baseFields[] = (new ReferenceVersionField($translatedDefinition))->setFlags(new PrimaryKey(), new Required());
+        if ($this->isVersionAware()) {
+            $baseFields[] = (new ReferenceVersionField($translatedDefinition->getClass()))->setFlags(new PrimaryKey(), new Required());
         }
 
         return $baseFields;

@@ -13,6 +13,17 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class CustomerProfileValidationService implements ValidationServiceInterface
 {
+    /**
+     * @var SalutationDefinition
+     */
+    private $salutationDefinition;
+
+    public function __construct(
+        SalutationDefinition $salutationDefinition
+    ) {
+        $this->salutationDefinition = $salutationDefinition;
+    }
+
     public function buildCreateValidation(Context $context): DataValidationDefinition
     {
         $definition = new DataValidationDefinition('customer.profile.create');
@@ -34,7 +45,7 @@ class CustomerProfileValidationService implements ValidationServiceInterface
     private function addConstraints(DataValidationDefinition $definition, Context $context): void
     {
         $definition
-            ->add('salutationId', new NotBlank(), new EntityExists(['entity' => SalutationDefinition::getEntityName(), 'context' => $context]))
+            ->add('salutationId', new NotBlank(), new EntityExists(['entity' => $this->salutationDefinition->getEntityName(), 'context' => $context]))
             ->add('firstName', new NotBlank())
             ->add('lastName', new NotBlank())
             ->add('birthdayDay', new GreaterThanOrEqual(['value' => 1]), new LessThanOrEqual(['value' => 31]))

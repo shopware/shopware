@@ -220,7 +220,7 @@ class ResponseTypeRegistryTest extends TestCase
     {
         $category = $this->getTestCategory($id);
 
-        $definition = CategoryDefinition::class;
+        $definition = $this->getContainer()->get(CategoryDefinition::class);
         $request = Request::create($path, 'GET', [], [], [], ['HTTP_ACCEPT' => $accept]);
         $this->setVersionHack($request, $version);
         $this->setOrigin($request, $context);
@@ -235,7 +235,7 @@ class ResponseTypeRegistryTest extends TestCase
         $col = new EntityCollection([$category]);
         $searchResult = new EntitySearchResult(1, $col, null, new Criteria(), $context);
 
-        $definition = CategoryDefinition::class;
+        $definition = $this->getContainer()->get(CategoryDefinition::class);
         $request = Request::create($path, 'GET', [], [], [], ['HTTP_ACCEPT' => $accept]);
         $this->setVersionHack($request, $version);
         $this->setOrigin($request, $context);

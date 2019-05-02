@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -12,7 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class TranslationFieldResolver implements FieldResolverInterface
 {
     public function resolve(
-        string $definition,
+        EntityDefinition $definition,
         string $root,
         Field $field,
         QueryBuilder $query,
@@ -23,7 +24,8 @@ class TranslationFieldResolver implements FieldResolverInterface
             return false;
         }
 
-        $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $context, $definition::isInheritanceAware() && $context->considerInheritance());
+        $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $context, $definition->isInheritanceAware() && $context->considerInheritance());
+
         foreach ($chain as $part) {
             $this->joinTranslationTable($part, $definition, $query);
         }
@@ -31,9 +33,9 @@ class TranslationFieldResolver implements FieldResolverInterface
         return true;
     }
 
-    private function joinTranslationTable(array $part, string $definition, QueryBuilder $query): void
+    private function joinTranslationTable(array $part, EntityDefinition $definition, QueryBuilder $query): void
     {
-        $table = $definition::getEntityName() . '_translation';
+        $table = $definition->getEntityName() . '_translation';
         $parameterName = str_replace('.', '_', $part['name']) . 'LanguageId';
 
         if ($query->hasState($part['alias'])) {
@@ -42,13 +44,13 @@ class TranslationFieldResolver implements FieldResolverInterface
         $query->addState($part['alias']);
 
         $versionJoin = '';
-        if ($definition::isVersionAware()) {
+        if ($definition->isVersionAware()) {
             $versionJoin = ' AND #alias#.`#entity#_version_id` = #root#.`version_id`';
         }
 
         $parameters = [
             '#alias#' => EntityDefinitionQueryHelper::escape($part['alias']),
-            '#entity#' => $definition::getEntityName(),
+            '#entity#' => $definition->getEntityName(),
             '#root#' => EntityDefinitionQueryHelper::escape($part['root']),
         ];
 

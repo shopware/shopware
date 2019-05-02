@@ -27,22 +27,22 @@ class PropertyGroupDefinition extends EntityDefinition
     public const SORTING_TYPE_ALPHANUMERIC = 'alphanumeric';
     public const SORTING_TYPE_POSITION = 'position';
 
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'property_group';
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return PropertyGroupCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return PropertyGroupEntity::class;
     }
 
-    public static function getDefaults(EntityExistence $existence): array
+    public function getDefaults(EntityExistence $existence): array
     {
         $defaults = parent::getDefaults($existence);
 
@@ -52,7 +52,7 @@ class PropertyGroupDefinition extends EntityDefinition
         return $defaults;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),

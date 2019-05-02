@@ -37,15 +37,21 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
+    /**
+     * @var NumberRangeDefinition
+     */
+    private $numberRangeDefinition;
 
     public function __construct(
         ValueGeneratorPatternRegistry $valueGeneratorPatternRegistry,
         EntityReaderInterface $entityReader,
-        EventDispatcherInterface $eventDispatcher)
-    {
+        EventDispatcherInterface $eventDispatcher,
+        NumberRangeDefinition $numberRangeDefinition
+    ) {
         $this->entityReader = $entityReader;
         $this->valueGeneratorPatternRegistry = $valueGeneratorPatternRegistry;
         $this->eventDispatcher = $eventDispatcher;
+        $this->numberRangeDefinition = $numberRangeDefinition;
     }
 
     public function getValue(string $type, Context $context, ?string $salesChannelId, ?bool $preview = false): string
@@ -100,7 +106,7 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
         $criteria->setLimit(1);
 
         $configurationCollection = $this->entityReader->read(
-            NumberRangeDefinition::class, $criteria, $context
+            $this->numberRangeDefinition, $criteria, $context
         );
 
         if ($configurationCollection->count() === 1) {
@@ -119,7 +125,7 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
             $criteria->setLimit(1);
 
             $configurationCollection = $this->entityReader->read(
-                NumberRangeDefinition::class, $criteria, $context
+                $this->numberRangeDefinition, $criteria, $context
             );
 
             if ($configurationCollection->count() === 1) {

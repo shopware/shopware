@@ -109,11 +109,11 @@ class SwagCustomFields extends Plugin
             'relations' => [
                 [
                     'id' => 'c7e5e8604f8342878105ecd4df2d8641',
-                    'entityName' => ProductDefinition::getEntityName(),
+                    'entityName' => $this->container->get(ProductDefinition::class)->getEntityName(),
                 ],
                 [
                     'id' => 'c7e5e8604f8342878105ecd4df2d8642',
-                    'entityName' => CustomerDefinition::getEntityName(),
+                    'entityName' => $this->container->get(CustomerDefinition::class)->getEntityName(),
                 ],
             ],
         ]];

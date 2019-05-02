@@ -51,7 +51,7 @@ class WriterTest extends TestCase
         $context = $this->createWriteContext();
 
         $this->getWriter()->insert(
-            CategoryDefinition::class,
+            $this->getContainer()->get(CategoryDefinition::class),
             [
                 ['id' => $id, 'name' => 'test-country'],
             ],
@@ -62,7 +62,7 @@ class WriterTest extends TestCase
         static::assertNotEmpty($exists);
 
         $deleteResult = $this->getWriter()->delete(
-            CategoryDefinition::class,
+            $this->getContainer()->get(CategoryDefinition::class),
             [
                 ['id' => $id],
             ],
@@ -91,7 +91,7 @@ class WriterTest extends TestCase
         $context = $this->createWriteContext();
 
         $this->getWriter()->insert(
-            CategoryDefinition::class,
+            $this->getContainer()->get(CategoryDefinition::class),
             [
                 ['id' => $id, 'name' => 'test-country1'],
                 ['id' => $id2, 'name' => 'test-country2'],
@@ -116,7 +116,7 @@ class WriterTest extends TestCase
         static::assertCount(2, $translations);
 
         $deleteResult = $this->getWriter()->delete(
-            CategoryDefinition::class,
+            $this->getContainer()->get(CategoryDefinition::class),
             [
                 ['id' => $id],
                 ['id' => $id2],
@@ -151,7 +151,7 @@ class WriterTest extends TestCase
         $context = $this->createWriteContext();
 
         $this->getWriter()->insert(
-            CategoryDefinition::class,
+            $this->getContainer()->get(CategoryDefinition::class),
             [
                 ['id' => $id, 'name' => 'test-country1'],
                 ['id' => $id2, 'name' => 'test-country2'],
@@ -168,7 +168,7 @@ class WriterTest extends TestCase
         static::assertCount(2, $exists);
 
         $deleteResult = $this->getWriter()->delete(
-            CategoryDefinition::class,
+            $this->getContainer()->get(CategoryDefinition::class),
             [
                 ['id' => $id],
                 ['id' => $id2],
@@ -197,7 +197,7 @@ class WriterTest extends TestCase
         $categoryId = Uuid::randomHex();
 
         $context = $this->createWriteContext();
-        $this->getWriter()->insert(ProductDefinition::class, [
+        $this->getWriter()->insert($this->getContainer()->get(ProductDefinition::class), [
             [
                 'id' => $productId,
                 'productNumber' => Uuid::randomHex(),
@@ -218,7 +218,7 @@ class WriterTest extends TestCase
         );
         static::assertCount(1, $exists);
 
-        $deleteResult = $this->getWriter()->delete(ProductCategoryDefinition::class, [
+        $deleteResult = $this->getWriter()->delete($this->getContainer()->get(ProductCategoryDefinition::class), [
             ['productId' => $productId, 'categoryId' => $categoryId],
         ], $context);
 
@@ -238,7 +238,7 @@ class WriterTest extends TestCase
 
         $productId = Uuid::randomHex();
 
-        $this->getWriter()->delete(ProductCategoryDefinition::class, [
+        $this->getWriter()->delete($this->getContainer()->get(ProductCategoryDefinition::class), [
             ['productId' => $productId],
         ], $this->createWriteContext());
     }
@@ -250,7 +250,7 @@ class WriterTest extends TestCase
         $categoryId = Uuid::randomHex();
 
         $context = $this->createWriteContext();
-        $this->getWriter()->insert(ProductDefinition::class, [
+        $this->getWriter()->insert($this->getContainer()->get(ProductDefinition::class), [
             [
                 'id' => $productId,
                 'productNumber' => Uuid::randomHex(),
@@ -295,7 +295,7 @@ class WriterTest extends TestCase
         );
         static::assertCount(2, $exists);
 
-        $deleteResult = $this->getWriter()->delete(ProductCategoryDefinition::class, [
+        $deleteResult = $this->getWriter()->delete($this->getContainer()->get(ProductCategoryDefinition::class), [
             ['productId' => $productId, 'categoryId' => $categoryId],
             ['productId' => $productId2, 'categoryId' => $categoryId],
         ], $context);
@@ -314,7 +314,7 @@ class WriterTest extends TestCase
     public function testInsertWithId(): void
     {
         $this->getWriter()->insert(
-            ProductDefinition::class,
+            $this->getContainer()->get(ProductDefinition::class),
             [
                 [
                     'id' => $this->id,
@@ -349,7 +349,7 @@ class WriterTest extends TestCase
         $productCountBefore = (int) $this->connection->fetchColumn('SELECT COUNT(*) FROM product');
 
         $this->getWriter()->insert(
-            ProductDefinition::class,
+            $this->getContainer()->get(ProductDefinition::class),
             [
                 [
                     'productNumber' => Uuid::randomHex(),
@@ -372,7 +372,7 @@ class WriterTest extends TestCase
     public function testInsertFromDocs(): void
     {
         $this->getWriter()->insert(
-            ProductDefinition::class,
+            $this->getContainer()->get(ProductDefinition::class),
             [
                 [
                     'id' => $this->id,
@@ -416,7 +416,7 @@ class WriterTest extends TestCase
         $productManufacturerId = Uuid::randomHex();
 
         $this->getWriter()->update(
-            ProductDefinition::class,
+            $this->getContainer()->get(ProductDefinition::class),
             [
                 [
                     'id' => $this->id,
@@ -455,7 +455,7 @@ class WriterTest extends TestCase
         $newProduct = $this->connection->fetchAssoc('SELECT * FROM product WHERE id=:id', ['id' => $this->idBytes]);
 
         $this->getWriter()->update(
-            ProductDefinition::class,
+            $this->getContainer()->get(ProductDefinition::class),
             [
                 ['id' => $this->id, 'ean' => 'ABC'],
             ],
@@ -477,11 +477,11 @@ class WriterTest extends TestCase
 
     public function testInsertIgnoresDeferredFields(): void
     {
-        static::assertNotNull(MediaDefinition::getFields()->get('url')->getFlag(Deferred::class));
+        static::assertNotNull($this->getContainer()->get(MediaDefinition::class)->getFields()->get('url')->getFlag(Deferred::class));
         $id = '2b9a945bb62b4122a32a3bbfbe1e6fd3';
         $writeContext = $this->createWriteContext();
         $this->getWriter()->insert(
-            MediaDefinition::class,
+            $this->getContainer()->get(MediaDefinition::class),
             [
                 [
                     'id' => $id,
@@ -504,11 +504,11 @@ class WriterTest extends TestCase
 
     public function testUpdateIgnoresDeferredFields(): void
     {
-        static::assertNotNull(MediaDefinition::getFields()->get('url')->getFlag(Deferred::class));
+        static::assertNotNull($this->getContainer()->get(MediaDefinition::class)->getFields()->get('url')->getFlag(Deferred::class));
         $id = '2b9a945bb62b4122a32a3bbfbe1e6fd3';
         $writeContext = $this->createWriteContext();
         $this->getWriter()->insert(
-            MediaDefinition::class,
+            $this->getContainer()->get(MediaDefinition::class),
             [
                 [
                     'id' => $id,
@@ -522,7 +522,7 @@ class WriterTest extends TestCase
         );
 
         $this->getWriter()->update(
-            MediaDefinition::class,
+            $this->getContainer()->get(MediaDefinition::class),
             [
                 ['id' => $id, 'url' => 'www.example.com'],
             ],
@@ -560,7 +560,7 @@ class WriterTest extends TestCase
         ], Context::createDefaultContext());
 
         $this->getWriter()->update(
-            ProductDefinition::class,
+            $this->getContainer()->get(ProductDefinition::class),
             [
                 [
                     'id' => $this->id,
@@ -652,7 +652,7 @@ class WriterTest extends TestCase
 
         $this->expectException(WriteStackException::class);
         $this->getWriter()->update(
-            ProductDefinition::class,
+            $this->getContainer()->get(ProductDefinition::class),
             [
                 ['id' => $this->id, 'name' => $tooLongValue],
             ],
@@ -667,7 +667,7 @@ class WriterTest extends TestCase
 
         $this->expectException(WriteTypeIntendException::class);
         $this->getWriter()->update(
-            TaxDefinition::class,
+            $this->getContainer()->get(TaxDefinition::class),
             [$data],
             WriteContext::createFromContext(Context::createDefaultContext())
         );
@@ -733,7 +733,7 @@ class WriterTest extends TestCase
     protected function insertEmptyProduct(): void
     {
         $this->getWriter()->insert(
-            ProductDefinition::class,
+            $this->getContainer()->get(ProductDefinition::class),
             [
                 [
                     'id' => $this->id,

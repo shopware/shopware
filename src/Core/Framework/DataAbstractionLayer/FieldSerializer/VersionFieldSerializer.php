@@ -33,7 +33,7 @@ class VersionFieldSerializer implements FieldSerializerInterface
         }
 
         //write version id of current object to write context
-        $parameters->getContext()->set($parameters->getDefinition(), 'versionId', $value);
+        $parameters->getContext()->set($parameters->getDefinition()->getClass(), 'versionId', $value);
 
         /* @var VersionField $field */
         yield $field->getStorageName() => Uuid::fromHexToBytes($value);

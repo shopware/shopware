@@ -103,7 +103,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
      */
     public function filter(\Closure $closure)
     {
-        return new static(array_filter($this->elements, $closure));
+        return $this->createNew(array_filter($this->elements, $closure));
     }
 
     /**
@@ -111,7 +111,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
      */
     public function slice(int $offset, ?int $length = null)
     {
-        return new static(\array_slice($this->elements, $offset, $length, true));
+        return $this->createNew(\array_slice($this->elements, $offset, $length, true));
     }
 
     public function getElements(): array
@@ -149,6 +149,14 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
         return null;
     }
 
+    /**
+     * @return static
+     */
+    protected function createNew(iterable $elements = [])
+    {
+        return new static($elements);
+    }
+
     protected function validateType($element): void
     {
         $expectedClass = $this->getExpectedClass();
@@ -156,9 +164,8 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
             return;
         }
 
-        $elementClass = get_class($element);
-
         if (!$element instanceof $expectedClass) {
+            $elementClass = get_class($element);
             throw new \InvalidArgumentException(
                 sprintf('Expected collection element of type %s got %s', $expectedClass, $elementClass)
             );

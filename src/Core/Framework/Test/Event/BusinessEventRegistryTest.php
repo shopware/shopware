@@ -3,13 +3,19 @@
 namespace Shopware\Core\Framework\Test\Event;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 class BusinessEventRegistryTest extends TestCase
 {
+    use KernelTestBehaviour;
+
     public function testGetEvents()
     {
-        $data = [
+        $expectedData = [
             'test.event' => [
                 'customer' => [
                     'type' => 'entity',
@@ -28,25 +34,44 @@ class BusinessEventRegistryTest extends TestCase
             'test.event.2' => [],
         ];
 
-        $registry = new BusinessEventRegistry();
-        $registry->addMultiple($data);
+        $rawData = [
+            'test.event' => [
+                'customer' => [
+                    'type' => 'entity',
+                    'entityClass' => CustomerDefinition::class,
+                ],
+                'orders' => [
+                    'type' => 'collection',
+                    'entityClass' => OrderDefinition::class,
+                ],
+            ],
+            'test.event.1' => [
+                'myBool' => [
+                    'type' => 'bool',
+                ],
+            ],
+            'test.event.2' => [],
+        ];
+
+        $registry = new BusinessEventRegistry($this->getContainer()->get(DefinitionInstanceRegistry::class));
+        $registry->addMultiple($rawData);
         $result = $registry->getEvents();
 
-        static::assertEquals($data, $result);
+        static::assertEquals($expectedData, $result);
     }
 
     public function testGetEventNames()
     {
-        $registry = new BusinessEventRegistry();
+        $registry = new BusinessEventRegistry($this->getContainer()->get(DefinitionInstanceRegistry::class));
         $registry->addMultiple([
             'test.event' => [
                 'customer' => [
                     'type' => 'entity',
-                    'entity' => 'customer',
+                    'entityClass' => CustomerDefinition::class,
                 ],
                 'orders' => [
                     'type' => 'collection',
-                    'entity' => 'order',
+                    'entityClass' => OrderDefinition::class,
                 ],
             ],
             'test.event.1' => [
@@ -70,7 +95,7 @@ class BusinessEventRegistryTest extends TestCase
 
     public function testGetAvailableDataByEvent()
     {
-        $data = [
+        $expectedData = [
             'test.event' => [
                 'customer' => [
                     'type' => 'entity',
@@ -89,11 +114,30 @@ class BusinessEventRegistryTest extends TestCase
             'test.event.2' => [],
         ];
 
-        $registry = new BusinessEventRegistry();
-        $registry->addMultiple($data);
+        $rawData = [
+            'test.event' => [
+                'customer' => [
+                    'type' => 'entity',
+                    'entityClass' => CustomerDefinition::class,
+                ],
+                'orders' => [
+                    'type' => 'collection',
+                    'entityClass' => OrderDefinition::class,
+                ],
+            ],
+            'test.event.1' => [
+                'myBool' => [
+                    'type' => 'bool',
+                ],
+            ],
+            'test.event.2' => [],
+        ];
 
-        static::assertEquals($data['test.event'], $registry->getAvailableDataByEvent('test.event'));
-        static::assertEquals($data['test.event.1'], $registry->getAvailableDataByEvent('test.event.1'));
-        static::assertEquals($data['test.event.2'], $registry->getAvailableDataByEvent('test.event.2'));
+        $registry = new BusinessEventRegistry($this->getContainer()->get(DefinitionInstanceRegistry::class));
+        $registry->addMultiple($rawData);
+
+        static::assertEquals($expectedData['test.event'], $registry->getAvailableDataByEvent('test.event'));
+        static::assertEquals($expectedData['test.event.1'], $registry->getAvailableDataByEvent('test.event.1'));
+        static::assertEquals($expectedData['test.event.2'], $registry->getAvailableDataByEvent('test.event.2'));
     }
 }

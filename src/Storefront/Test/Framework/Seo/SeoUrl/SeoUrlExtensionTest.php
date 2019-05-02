@@ -68,6 +68,7 @@ class SeoUrlExtensionTest extends TestCase
 
         /** @var SeoUrlCollection $seoUrls */
         $seoUrls = $first->getExtensionOfType('seoUrls', SeoUrlCollection::class);
+        static::assertNotNull($seoUrls);
 
         /** @var SeoUrlEntity|null $seoUrl */
         $seoUrl = $seoUrls->filterByProperty('id', $seoUrlId1)->first();

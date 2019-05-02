@@ -28,27 +28,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class PromotionDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'promotion';
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return PromotionCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return PromotionEntity::class;
     }
 
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return PromotionTranslationDefinition::class;
-    }
-
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),

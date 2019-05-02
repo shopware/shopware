@@ -22,29 +22,29 @@ class ScheduledTaskDefinition extends EntityDefinition
     public const STATUS_FAILED = 'failed';
     public const STATUS_INACTIVE = 'inactive';
 
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'scheduled_task';
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return ScheduledTaskCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return ScheduledTaskEntity::class;
     }
 
-    public static function getDefaults(EntityExistence $existence): array
+    public function getDefaults(EntityExistence $existence): array
     {
         return [
             'nextExecutionTime' => new \DateTime(),
         ];
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),

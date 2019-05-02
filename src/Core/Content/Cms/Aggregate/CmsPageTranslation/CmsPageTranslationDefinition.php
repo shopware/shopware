@@ -11,22 +11,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class CmsPageTranslationDefinition extends EntityTranslationDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'cms_page_translation';
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return CmsPageTranslationEntity::class;
     }
 
-    public static function getParentDefinitionClass(): string
+    protected function getParentDefinitionClass(): string
     {
         return CmsPageDefinition::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new StringField('name', 'name'))->setFlags(new Required()),

@@ -25,10 +25,15 @@
             <tag name="shopware.entity.definition" entity="number_range_type_translation"/>
         </service>
 
+        <service id="Shopware\Core\System\NumberRange\Aggregate\NumberRangeTranslation\NumberRangeTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="number_range_translation"/>
+        </service>
+
         <!-- Value Generator -->
         <service class="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementSqlStorage"
                  id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageInterface">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+
             <tag name="shopware.value_generator_connector"/>
         </service>
 
@@ -37,6 +42,7 @@
             <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternRegistry" />
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface" />
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\System\NumberRange\NumberRangeDefinition"/>
         </service>
 
         <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternRegistry">

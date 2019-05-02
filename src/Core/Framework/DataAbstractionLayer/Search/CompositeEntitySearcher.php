@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
@@ -11,12 +11,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpret
 class CompositeEntitySearcher
 {
     /**
-     * @var DefinitionRegistry
+     * @var DefinitionInstanceRegistry
      */
     private $definitionRegistry;
 
     /**
-     * @var string[]|EntityDefinition[]
+     * @var EntityDefinition[]
      */
     private $definitions;
 
@@ -31,16 +31,13 @@ class CompositeEntitySearcher
     private $scoreBuilder;
 
     public function __construct(
-        DefinitionRegistry $definitionRegistry,
+        DefinitionInstanceRegistry $definitionRegistry,
         SearchTermInterpreter $interpreter,
         EntityScoreQueryBuilder $scoreBuilder,
         iterable $definitions
     ) {
         $this->definitionRegistry = $definitionRegistry;
-
-        foreach ($definitions as $definition) {
-            $this->definitions[] = get_class($definition);
-        }
+        $this->definitions = $definitions;
         $this->interpreter = $interpreter;
         $this->scoreBuilder = $scoreBuilder;
     }
@@ -56,16 +53,16 @@ class CompositeEntitySearcher
 
             $pattern = $this->interpreter->interpret($term);
 
-            $queries = $this->scoreBuilder->buildScoreQueries($pattern, $definition, $definition::getEntityName());
+            $queries = $this->scoreBuilder->buildScoreQueries($pattern, $definition, $definition->getEntityName());
 
             $criteria->addQuery(...$queries);
 
-            $repository = $this->definitionRegistry->getRepository($definition::getEntityName());
+            $repository = $this->definitionRegistry->getRepository($definition->getEntityName());
 
             $result = $repository->search($criteria, $context);
 
             $entities[] = [
-                'entity' => $definition::getEntityName(),
+                'entity' => $definition->getEntityName(),
                 'total' => $result->getTotal(),
                 'entities' => $result,
             ];

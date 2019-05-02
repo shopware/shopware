@@ -124,7 +124,7 @@ class IntFieldTest extends TestCase
 
     private function getEntityExisting(): EntityExistence
     {
-        return new EntityExistence('foo', [], true, false, false, []);
+        return new EntityExistence(null, [], true, false, false, []);
     }
 
     private function getIntField($required = true): IntField

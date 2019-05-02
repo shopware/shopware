@@ -73,7 +73,7 @@ class SeoServiceTest extends TestCase
         ];
         $this->seoService->updateSeoUrls($salesChannel->getId(), 'foo.route', array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates);
         $seoUrls = $this->seoUrlRepository->search(new Criteria(), Context::createDefaultContext())->getEntities();
-        static::assertCount(1, $seoUrls);
+        static::assertCount(1, $seoUrls, print_r($seoUrls, true));
     }
 
     public function testDuplicatesSameSalesChannel(): void

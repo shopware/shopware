@@ -60,7 +60,7 @@ class LanguageValidator implements WriteCommandValidatorInterface
         $violations = new ConstraintViolationList();
 
         foreach ($commands as $command) {
-            if (!$command instanceof DeleteCommand || $command->getDefinition() !== LanguageDefinition::class) {
+            if (!$command instanceof DeleteCommand || $command->getDefinition()->getClass() !== LanguageDefinition::class) {
                 continue;
             }
 
@@ -157,7 +157,7 @@ class LanguageValidator implements WriteCommandValidatorInterface
     {
         $ids = [];
         foreach ($commands as $command) {
-            if ($command->getDefinition() !== LanguageDefinition::class) {
+            if ($command->getDefinition()->getClass() !== LanguageDefinition::class) {
                 continue;
             }
             if ($command instanceof InsertCommand || $command instanceof UpdateCommand) {

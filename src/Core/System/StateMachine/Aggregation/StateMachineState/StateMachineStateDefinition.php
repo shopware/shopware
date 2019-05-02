@@ -24,27 +24,22 @@ use Shopware\Core\System\StateMachine\StateMachineDefinition;
 
 class StateMachineStateDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'state_machine_state';
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return StateMachineStateEntity::class;
     }
 
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return StateMachineStateTranslationDefinition::class;
-    }
-
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return StateMachineStateCollection::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),

@@ -6,22 +6,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\MappingEntityClassesE
 
 abstract class MappingEntityDefinition extends EntityDefinition
 {
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         throw new MappingEntityClassesException();
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         throw new MappingEntityClassesException();
     }
 
-    protected static function getBaseFields(): array
+    protected function getBaseFields(): array
     {
         return [];
     }
 
-    protected static function defaultFields(): array
+    protected function defaultFields(): array
     {
         return [];
     }

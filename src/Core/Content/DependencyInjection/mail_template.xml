@@ -61,7 +61,7 @@
 
 		<!-- Header Footer Repository -->
 		<service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="mail_header_footer.repository" public="true">
-			<argument>Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition</argument>
+			<argument type="service" id="Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition"/>
 			<argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
 			<argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
 			<argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
@@ -76,6 +76,7 @@
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MessageFactory" />
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailSender" />
             <argument type="service" id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepositoryDecorator" />
+            <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannelDefinition" />
         </service>
 
     </services>

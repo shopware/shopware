@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Framework\CustomField\CustomFieldService;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -25,7 +26,7 @@ class CustomFieldsSerializer extends JsonFieldSerializer
     private $attributeService;
 
     public function __construct(
-        FieldSerializerRegistry $compositeHandler,
+        DefinitionInstanceRegistry $compositeHandler,
         ConstraintBuilder $constraintBuilder,
         ValidatorInterface $validator,
         CustomFieldService $attributeService,

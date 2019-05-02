@@ -15,7 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 class OneToManyAssociationFieldResolver implements FieldResolverInterface
 {
     public function resolve(
-        string $definition,
+        EntityDefinition $definition,
         string $root,
         Field $field,
         QueryBuilder $query,
@@ -28,10 +28,9 @@ class OneToManyAssociationFieldResolver implements FieldResolverInterface
 
         $query->addState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN);
 
-        /** @var EntityDefinition|string $reference */
-        $reference = $field->getReferenceClass();
+        $reference = $field->getReferenceDefinition();
 
-        $table = $reference::getEntityName();
+        $table = $reference->getEntityName();
 
         $alias = $root . '.' . $field->getPropertyName();
         if ($query->hasState($alias)) {
@@ -40,11 +39,10 @@ class OneToManyAssociationFieldResolver implements FieldResolverInterface
         $query->addState($alias);
 
         $versionJoin = '';
-        /** @var string|EntityDefinition $definition */
-        if ($definition::isVersionAware() && $field->is(CascadeDelete::class)) {
-            $fkVersionId = $definition::getEntityName() . '_version_id';
+        if ($definition->isVersionAware() && $field->is(CascadeDelete::class)) {
+            $fkVersionId = $definition->getEntityName() . '_version_id';
 
-            if ($reference::getFields()->getByStorageName($fkVersionId) === null) {
+            if ($reference->getFields()->getByStorageName($fkVersionId) === null) {
                 $fkVersionId = 'version_id';
             }
 
@@ -91,11 +89,11 @@ class OneToManyAssociationFieldResolver implements FieldResolverInterface
             return true;
         }
 
-        if (!$reference::isInheritanceAware() || !$context->considerInheritance()) {
+        if (!$reference->isInheritanceAware() || !$context->considerInheritance()) {
             return true;
         }
 
-        $parent = $reference::getFields()->get('parent');
+        $parent = $reference->getFields()->get('parent');
         $queryHelper->resolveField($parent, $reference, $alias, $query, $context);
 
         return true;

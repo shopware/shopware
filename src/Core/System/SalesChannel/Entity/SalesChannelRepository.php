@@ -43,12 +43,12 @@ class SalesChannelRepository
     protected $eventDispatcher;
 
     /**
-     * @var string|EntityDefinition|SalesChannelDefinitionInterface
+     * @var EntityDefinition|SalesChannelDefinitionInterface
      */
     protected $definition;
 
     public function __construct(
-        string $definition,
+        EntityDefinition $definition,
         EntityReaderInterface $reader,
         EntitySearcherInterface $searcher,
         EntityAggregatorInterface $aggregator,
@@ -63,9 +63,8 @@ class SalesChannelRepository
 
     public function search(Criteria $criteria, SalesChannelContext $context): EntitySearchResult
     {
-        $instance = new $this->definition();
-        if ($instance instanceof SalesChannelDefinitionInterface) {
-            $this->definition::processCriteria($criteria, $context);
+        if ($this->definition instanceof SalesChannelDefinitionInterface) {
+            $this->definition->processCriteria($criteria, $context);
         }
 
         $aggregations = null;
@@ -119,9 +118,8 @@ class SalesChannelRepository
 
     public function aggregate(Criteria $criteria, SalesChannelContext $context): AggregatorResult
     {
-        $instance = new $this->definition();
-        if ($instance instanceof SalesChannelDefinitionInterface) {
-            $this->definition::processCriteria($criteria, $context);
+        if ($this->definition instanceof SalesChannelDefinitionInterface) {
+            $this->definition->processCriteria($criteria, $context);
         }
 
         $result = $this->aggregator->aggregate($this->definition, $criteria, $context->getContext());
@@ -134,9 +132,8 @@ class SalesChannelRepository
 
     public function searchIds(Criteria $criteria, SalesChannelContext $context): IdSearchResult
     {
-        $instance = new $this->definition();
-        if ($instance instanceof SalesChannelDefinitionInterface) {
-            $this->definition::processCriteria($criteria, $context);
+        if ($this->definition instanceof SalesChannelDefinitionInterface) {
+            $this->definition->processCriteria($criteria, $context);
         }
 
         $result = $this->searcher->search($this->definition, $criteria, $context->getContext());

@@ -19,22 +19,22 @@ use Shopware\Core\System\User\UserDefinition;
 
 class LocaleDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'locale';
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return LocaleCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return LocaleEntity::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),

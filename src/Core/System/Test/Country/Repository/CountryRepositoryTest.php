@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpret
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Country\CountryDefinition;
 
 class CountryRepositoryTest extends TestCase
 {
@@ -51,7 +50,7 @@ class CountryRepositoryTest extends TestCase
 
         $builder = $this->getContainer()->get(EntityScoreQueryBuilder::class);
         $pattern = $this->getContainer()->get(SearchTermInterpreter::class)->interpret('match');
-        $queries = $builder->buildScoreQueries($pattern, CountryDefinition::class, CountryDefinition::getEntityName());
+        $queries = $builder->buildScoreQueries($pattern, $this->repository->getDefinition(), $this->repository->getDefinition()->getEntityName());
         $criteria->addQuery(...$queries);
 
         $result = $this->repository->searchIds($criteria, Context::createDefaultContext());

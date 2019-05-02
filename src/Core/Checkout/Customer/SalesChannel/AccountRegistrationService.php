@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Framework\Context;
@@ -189,7 +188,7 @@ class AccountRegistrationService
     {
         $customer = [
             'customerNumber' => $this->numberRangeValueGenerator->getValue(
-                CustomerDefinition::getEntityName(), $context->getContext(),
+                $this->customerRepository->getDefinition()->getEntityName(), $context->getContext(),
                 $context->getSalesChannel()->getId()
             ),
             'salesChannelId' => $context->getSalesChannel()->getId(),

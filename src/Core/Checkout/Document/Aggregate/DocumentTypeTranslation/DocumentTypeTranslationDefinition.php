@@ -11,22 +11,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class DocumentTypeTranslationDefinition extends EntityTranslationDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'document_type_translation';
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return DocumentTypeTranslationEntity::class;
     }
 
-    public static function getParentDefinitionClass(): string
+    protected function getParentDefinitionClass(): string
     {
         return DocumentTypeDefinition::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new StringField('name', 'name'))->setFlags(new Required()),

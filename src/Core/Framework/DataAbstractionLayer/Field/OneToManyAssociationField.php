@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\OneToManyAssociationFieldResolver;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\OneToManyAssociationFieldSerializer;
+
 class OneToManyAssociationField extends AssociationField
 {
     /**
@@ -34,5 +37,15 @@ class OneToManyAssociationField extends AssociationField
     public function getLocalField(): string
     {
         return $this->localField;
+    }
+
+    protected function getSerializerClass(): string
+    {
+        return OneToManyAssociationFieldSerializer::class;
+    }
+
+    protected function getResolverClass(): ?string
+    {
+        return OneToManyAssociationFieldResolver::class;
     }
 }

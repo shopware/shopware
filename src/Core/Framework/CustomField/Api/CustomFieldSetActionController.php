@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\CustomField\Api;
 
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
@@ -13,11 +13,11 @@ use Symfony\Component\Routing\Annotation\Route;
 class CustomFieldSetActionController extends AbstractController
 {
     /**
-     * @var DefinitionRegistry
+     * @var DefinitionInstanceRegistry
      */
     private $definitionRegistry;
 
-    public function __construct(DefinitionRegistry $definitionRegistry)
+    public function __construct(DefinitionInstanceRegistry $definitionRegistry)
     {
         $this->definitionRegistry = $definitionRegistry;
     }
@@ -30,15 +30,15 @@ class CustomFieldSetActionController extends AbstractController
         $definitions = $this->definitionRegistry->getDefinitions();
 
         $entityNames = [];
-        /** @var string|EntityDefinition $definition */
+        /** @var EntityDefinition $definition */
         foreach ($definitions as $definition) {
-            if (count($definition::getFields()->filterInstance(CustomFields::class)) === 0) {
+            if (count($definition->getFields()->filterInstance(CustomFields::class)) === 0) {
                 continue;
             }
-            if (is_subclass_of($definition, EntityTranslationDefinition::class)) {
-                $definition = $definition::getParentDefinitionClass();
+            if ($definition instanceof EntityTranslationDefinition) {
+                $definition = $definition->getParentDefinition();
             }
-            $entityNames[] = $definition::getEntityName();
+            $entityNames[] = $definition->getEntityName();
         }
         sort($entityNames);
 

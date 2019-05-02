@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Payment;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationDefinition;
-use Shopware\Core\Checkout\Payment\SalesChannel\SalesChannelPaymentMethodDefinition as SalesChannelApiPaymentMethodDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -33,27 +32,22 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class PaymentMethodDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'payment_method';
     }
 
-    public static function getSalesChannelDecorationDefinition(): string
-    {
-        return SalesChannelApiPaymentMethodDefinition::class;
-    }
-
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return PaymentMethodCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return PaymentMethodEntity::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),

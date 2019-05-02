@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -33,7 +33,7 @@ class ChildCountIndexer implements IndexerInterface
     private $eventDispatcher;
 
     /**
-     * @var DefinitionRegistry
+     * @var DefinitionInstanceRegistry
      */
     private $definitionRegistry;
 
@@ -54,7 +54,7 @@ class ChildCountIndexer implements IndexerInterface
     public function __construct(
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
-        DefinitionRegistry $definitionRegistry,
+        DefinitionInstanceRegistry $definitionRegistry,
         EntityCacheKeyGenerator $cacheKeyGenerator,
         TagAwareAdapter $cache,
         IteratorFactory $iteratorFactory
@@ -71,13 +71,12 @@ class ChildCountIndexer implements IndexerInterface
     {
         $context = Context::createDefaultContext();
 
-        /** @var EntityDefinition|string $definition */
         foreach ($this->definitionRegistry->getDefinitions() as $definition) {
-            if (!$definition::isChildrenAware() || !$definition::isChildCountAware()) {
+            if (!$definition->isChildrenAware() || !$definition->isChildCountAware()) {
                 continue;
             }
 
-            $entityName = $definition::getEntityName();
+            $entityName = $definition->getEntityName();
             $iterator = $this->iteratorFactory->createIterator($definition);
 
             $this->eventDispatcher->dispatch(
@@ -86,7 +85,7 @@ class ChildCountIndexer implements IndexerInterface
             );
 
             while ($ids = $iterator->fetch()) {
-                $this->updateChildCount($definition, $ids, $definition::isVersionAware(), $context);
+                $this->updateChildCount($definition, $ids, $definition->isVersionAware(), $context);
 
                 $this->eventDispatcher->dispatch(
                     ProgressAdvancedEvent::NAME,
@@ -107,7 +106,7 @@ class ChildCountIndexer implements IndexerInterface
         foreach ($event->getEvents() as $nested) {
             $definition = $nested->getDefinition();
 
-            if ($definition::isChildrenAware() && $definition::isChildCountAware()) {
+            if ($definition->isChildrenAware() && $definition->isChildCountAware()) {
                 $this->update($nested, $nested->getIds(), $nested->getContext());
             }
         }
@@ -123,20 +122,17 @@ class ChildCountIndexer implements IndexerInterface
             return Uuid::fromBytesToHex($existence->getState()['parent_id']);
         }, $event->getExistences());
 
-        $entityName = $event->getDefinition()::getEntityName();
+        $entityName = $event->getDefinition()->getEntityName();
 
-        $parentIds = $this->fetchParentIds($entityName, $ids, $event->getDefinition()::isVersionAware(), $context);
+        $parentIds = $this->fetchParentIds($entityName, $ids, $event->getDefinition()->isVersionAware(), $context);
         $parentIds = array_keys(array_flip(array_filter(array_merge($entityParents, $parentIds))));
 
-        $this->updateChildCount($event->getDefinition(), $parentIds, $event->getDefinition()::isVersionAware(), $context);
+        $this->updateChildCount($event->getDefinition(), $parentIds, $event->getDefinition()->isVersionAware(), $context);
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    private function updateChildCount(string $definition, array $parentIds, bool $versionAware, Context $context): void
+    private function updateChildCount(EntityDefinition $definition, array $parentIds, bool $versionAware, Context $context): void
     {
-        $entityName = $definition::getEntityName();
+        $entityName = $definition->getEntityName();
         if (empty($parentIds)) {
             return;
         }

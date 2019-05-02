@@ -10,11 +10,13 @@ parameters:
         - %rootDir%/../../src/Core/TestBootstrap.php
         - %rootDir%/../../src/Core/System/Test/SystemConfig/TestKernel.php
         - %rootDir%/../../src/Docs/*
+        - %rootDir%/../../src/Core/Framework/DataAbstractionLayer/DefinitionInstanceRegistry.php
+        - %rootDir%/../../src/Core/System/SalesChannel/Entity/SalesChannelDefinitionInstanceRegistry.php
+        - %rootDir%/../../src/Core/System/SalesChannel/Entity/SalesChannelApiController.php
     ignoreErrors:
-        - '#PHPDoc tag @param for parameter.*EntityDefinition.*is not subtype of native type string#'
-        - '#PHPDoc tag @return with type.*EntityDefinition.*is not subtype of native type string#'
         # https://github.com/phpstan/phpstan/issues/1060
         - '#Call to an undefined method Symfony\\Component\\Config\\Definition\\Builder\\NodeParentInterface::(variableNode|scalarNode|end|integerNode|booleanNode)\(\)\.#'
+        - '#Shopware\\Core\\Framework\\DataAbstractionLayer\\CompiledFieldCollection::__construct\(\) does not call parent constructor from Shopware\\Core\\Framework\\Struct\\Collection.#'
         - '#[F,f]unction Flag\\.* not found\.$#'
         - '#Access to an undefined property Faker\\Generator::\$[^.]+\.#'
         - '#Call to an undefined method Faker\\Generator::[^.]+\.#'

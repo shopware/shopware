@@ -5,8 +5,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResult;
@@ -53,25 +53,25 @@ class EntityAggregator implements EntityAggregatorInterface
     private $queryHelper;
 
     /**
-     * @var FieldSerializerRegistry
+     * @var DefinitionInstanceRegistry
      */
-    private $fieldSerializerRegistry;
+    private $registry;
 
     public function __construct(
         Connection $connection,
         EntityReaderInterface $reader,
         SqlQueryParser $queryParser,
         EntityDefinitionQueryHelper $queryHelper,
-        FieldSerializerRegistry $fieldSerializerRegistry
+        DefinitionInstanceRegistry $registry
     ) {
         $this->connection = $connection;
         $this->reader = $reader;
         $this->queryParser = $queryParser;
         $this->queryHelper = $queryHelper;
-        $this->fieldSerializerRegistry = $fieldSerializerRegistry;
+        $this->registry = $registry;
     }
 
-    public function aggregate(string $definition, Criteria $criteria, Context $context): AggregatorResult
+    public function aggregate(EntityDefinition $definition, Criteria $criteria, Context $context): AggregatorResult
     {
         $aggregations = new AggregationResultCollection();
         foreach ($criteria->getAggregations() as $aggregation) {
@@ -84,18 +84,15 @@ class EntityAggregator implements EntityAggregatorInterface
         return new AggregatorResult($aggregations, $context, $criteria);
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    private function createAggregationQuery(Aggregation $aggregation, string $definition, Criteria $criteria, Context $context): QueryBuilder
+    private function createAggregationQuery(Aggregation $aggregation, EntityDefinition $definition, Criteria $criteria, Context $context): QueryBuilder
     {
-        $table = $definition::getEntityName();
+        $table = $definition->getEntityName();
 
         $query = $this->queryHelper->getBaseQuery(new QueryBuilder($this->connection), $definition, $context);
 
-        if ($definition::isInheritanceAware()) {
-            $parent = $definition::getFields()->get('parent');
-            $this->queryHelper->resolveField($parent, $definition, $definition::getEntityName(), $query, $context);
+        if ($definition->isInheritanceAware()) {
+            $parent = $definition->getFields()->get('parent');
+            $this->queryHelper->resolveField($parent, $definition, $definition->getEntityName(), $query, $context);
         }
 
         $fields = array_merge(
@@ -109,8 +106,8 @@ class EntityAggregator implements EntityAggregatorInterface
             $this->queryHelper->resolveAccessor($fieldName, $definition, $table, $query, $context);
         }
 
-        if ($definition::isInheritanceAware()) {
-            $parent = $definition::getFields()->get('parent');
+        if ($definition->isInheritanceAware()) {
+            $parent = $definition->getFields()->get('parent');
             $this->queryHelper->resolveField($parent, $definition, $table, $query, $context);
         }
 
@@ -127,7 +124,7 @@ class EntityAggregator implements EntityAggregatorInterface
             $accessor = $this->queryHelper->getFieldAccessor(
                 $groupByField,
                 $definition,
-                $definition::getEntityName(),
+                $definition->getEntityName(),
                 $context
             );
 
@@ -138,11 +135,8 @@ class EntityAggregator implements EntityAggregatorInterface
         return $query;
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
     private function getAggregationResult(
-        string $definition,
+        EntityDefinition $definition,
         QueryBuilder $query,
         Aggregation $aggregation,
         Context $context
@@ -150,7 +144,7 @@ class EntityAggregator implements EntityAggregatorInterface
         $accessor = $this->queryHelper->getFieldAccessor(
             $aggregation->getField(),
             $definition,
-            $definition::getEntityName(),
+            $definition->getEntityName(),
             $context
         );
 
@@ -159,7 +153,7 @@ class EntityAggregator implements EntityAggregatorInterface
         return new AggregationResult($aggregation, $data);
     }
 
-    private function fetchAggregation(string $definition, QueryBuilder $query, Aggregation $aggregation, Context $context, string $accessor): array
+    private function fetchAggregation(EntityDefinition $definition, QueryBuilder $query, Aggregation $aggregation, Context $context, string $accessor): array
     {
         switch (true) {
             case $aggregation instanceof EntityAggregation:
@@ -187,7 +181,7 @@ class EntityAggregator implements EntityAggregatorInterface
         }
     }
 
-    private function fetchEntityAggregation(string $definition, QueryBuilder $query, EntityAggregation $aggregation, Context $context, string $accessor): array
+    private function fetchEntityAggregation(EntityDefinition $definition, QueryBuilder $query, EntityAggregation $aggregation, Context $context, string $accessor): array
     {
         $query->addSelect([$accessor . 'as `id`']);
         $query->addGroupBy($accessor);
@@ -205,7 +199,7 @@ class EntityAggregator implements EntityAggregatorInterface
 
         $data = array_filter($data);
         $ids = array_column($data, 'id');
-        $entities = $this->reader->read($aggregation->getDefinition(), new Criteria($ids), $context);
+        $entities = $this->reader->read($this->registry->get($aggregation->getDefinition()), new Criteria($ids), $context);
 
         $data = $this->mapResult($definition, $aggregation, $data, function (array $current, array $row) use ($entities) {
             if (!\array_key_exists('entities', $current)) {
@@ -220,7 +214,7 @@ class EntityAggregator implements EntityAggregatorInterface
         return $data;
     }
 
-    private function fetchValueCountAggregation(string $definition, QueryBuilder $query, ValueCountAggregation $aggregation, string $accessor): array
+    private function fetchValueCountAggregation(EntityDefinition $definition, QueryBuilder $query, ValueCountAggregation $aggregation, string $accessor): array
     {
         $query->addSelect([
             $accessor . ' as `key`',
@@ -229,11 +223,11 @@ class EntityAggregator implements EntityAggregatorInterface
         $query->addGroupBy($accessor);
 
         $data = $query->execute()->fetchAll(FetchMode::ASSOCIATIVE);
-        $field = $this->queryHelper->getField($aggregation->getField(), $definition, $definition::getEntityName());
+        $field = $this->queryHelper->getField($aggregation->getField(), $definition, $definition->getEntityName());
         $data = $this->mapResult($definition, $aggregation, $data, function (array $current, array $row) use ($field) {
             $value = $row['key'];
             try {
-                $value = $this->fieldSerializerRegistry->decode($field, $value);
+                $value = $field->getSerializer()->decode($field, $value);
             } catch (\Throwable $e) {
                 $value = $this->tryToCast($value);
             }
@@ -249,7 +243,7 @@ class EntityAggregator implements EntityAggregatorInterface
         return $data;
     }
 
-    private function fetchStatsAggregation(string $definition, QueryBuilder $query, StatsAggregation $aggregation, string $accessor): array
+    private function fetchStatsAggregation(EntityDefinition $definition, QueryBuilder $query, StatsAggregation $aggregation, string $accessor): array
     {
         $select = [];
         if ($aggregation->fetchCount()) {
@@ -300,17 +294,17 @@ class EntityAggregator implements EntityAggregatorInterface
         return $data;
     }
 
-    private function fetchValueAggregation(string $definition, QueryBuilder $query, ValueAggregation $aggregation, string $accessor): array
+    private function fetchValueAggregation(EntityDefinition $definition, QueryBuilder $query, ValueAggregation $aggregation, string $accessor): array
     {
         $query->addSelect([$accessor . ' as `value`']);
         $query->addGroupBy($accessor);
 
         $data = $query->execute()->fetchAll(FetchMode::ASSOCIATIVE);
-        $field = $this->queryHelper->getField($aggregation->getField(), $definition, $definition::getEntityName());
+        $field = $this->queryHelper->getField($aggregation->getField(), $definition, $definition->getEntityName());
         $data = $this->mapResult($definition, $aggregation, $data, function (array $current, array $row) use ($field) {
             $value = $row['value'];
             try {
-                $value = $this->fieldSerializerRegistry->decode($field, $value);
+                $value = $field->getSerializer()->decode($field, $value);
             } catch (\Throwable $e) {
                 $value = $this->tryToCast($value);
             }
@@ -323,7 +317,7 @@ class EntityAggregator implements EntityAggregatorInterface
         return $data;
     }
 
-    private function fetchAvgAggregation(string $definition, QueryBuilder $query, AvgAggregation $aggregation, string $accessor): array
+    private function fetchAvgAggregation(EntityDefinition $definition, QueryBuilder $query, AvgAggregation $aggregation, string $accessor): array
     {
         $query->addSelect('AVG(' . $accessor . ') as `avg`');
 
@@ -335,7 +329,7 @@ class EntityAggregator implements EntityAggregatorInterface
         return $data;
     }
 
-    private function fetchMaxAggregation(string $definition, QueryBuilder $query, MaxAggregation $aggregation, string $accessor): array
+    private function fetchMaxAggregation(EntityDefinition $definition, QueryBuilder $query, MaxAggregation $aggregation, string $accessor): array
     {
         $query->addSelect('MAX(' . $accessor . ') as `max`');
 
@@ -347,7 +341,7 @@ class EntityAggregator implements EntityAggregatorInterface
         return $data;
     }
 
-    private function fetchCountAggregation(string $definition, QueryBuilder $query, CountAggregation $aggregation, string $accessor): array
+    private function fetchCountAggregation(EntityDefinition $definition, QueryBuilder $query, CountAggregation $aggregation, string $accessor): array
     {
         $query->addSelect('COUNT(' . $accessor . ') as `count`');
 
@@ -359,7 +353,7 @@ class EntityAggregator implements EntityAggregatorInterface
         return $data;
     }
 
-    private function fetchMinAggregation(string $definition, QueryBuilder $query, MinAggregation $aggregation, string $accessor): array
+    private function fetchMinAggregation(EntityDefinition $definition, QueryBuilder $query, MinAggregation $aggregation, string $accessor): array
     {
         $query->addSelect('MIN(' . $accessor . ') as `min`');
 
@@ -371,7 +365,7 @@ class EntityAggregator implements EntityAggregatorInterface
         return $data;
     }
 
-    private function fetchSumAggregation(string $definition, QueryBuilder $query, SumAggregation $aggregation, string $accessor): array
+    private function fetchSumAggregation(EntityDefinition $definition, QueryBuilder $query, SumAggregation $aggregation, string $accessor): array
     {
         $query->addSelect('SUM(' . $accessor . ') as `sum`');
 
@@ -399,14 +393,14 @@ class EntityAggregator implements EntityAggregatorInterface
         return $fields;
     }
 
-    private function mapResult(string $definition, Aggregation $aggregation, array $data, callable $mapCallback): array
+    private function mapResult(EntityDefinition $definition, Aggregation $aggregation, array $data, callable $mapCallback): array
     {
         $data = array_reduce($data, function (array $carry, $row) use ($aggregation, $definition, $mapCallback) {
             $key = null;
             $id = '';
             foreach ($aggregation->getGroupByFields() as $groupByField) {
-                $field = $this->queryHelper->getField($groupByField, $definition, $definition::getEntityName());
-                $key[$groupByField] = $this->fieldSerializerRegistry->decode($field, $row[$groupByField]);
+                $field = $this->queryHelper->getField($groupByField, $definition, $definition->getEntityName());
+                $key[$groupByField] = $field->getSerializer()->decode($field, $row[$groupByField]);
                 $id .= $row[$groupByField];
                 unset($row[$groupByField]);
             }

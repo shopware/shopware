@@ -16,19 +16,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
  */
 class VersionCommitDataCollection extends EntityCollection
 {
-    public function filterByEntity(string $definition): self
+    public function filterByEntity(EntityDefinition $definition): self
     {
         return $this->filter(function (VersionCommitDataEntity $change) use ($definition) {
-            /* @var string|EntityDefinition $definition */
-            return $change->getEntityName() === $definition::getEntityName();
+            return $change->getEntityName() === $definition->getEntityName();
         });
     }
 
-    public function filterByEntityPrimary(string $definition, array $primary): self
+    public function filterByEntityPrimary(EntityDefinition $definition, array $primary): self
     {
         return $this->filter(function (VersionCommitDataEntity $change) use ($definition, $primary) {
-            /** @var string|EntityDefinition $definition */
-            if ($change->getEntityName() !== $definition::getEntityName()) {
+            if ($change->getEntityName() !== $definition->getEntityName()) {
                 return false;
             }
             $diff = array_intersect($primary, $change->getEntityId());

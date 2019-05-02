@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Payment\DataAbstractionLayer;
 use Shopware\Core\Checkout\Payment\Exception\PluginPaymentMethodsDeleteRestrictionException;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregatorResult;
@@ -95,5 +96,10 @@ class PaymentMethodRepositoryDecorator implements EntityRepositoryInterface
     public function merge(string $versionId, Context $context): void
     {
         $this->innerRepo->merge($versionId, $context);
+    }
+
+    public function getDefinition(): EntityDefinition
+    {
+        return $this->innerRepo->getDefinition();
     }
 }

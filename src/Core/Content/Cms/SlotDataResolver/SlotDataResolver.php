@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Cms\SlotDataResolver;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -28,14 +28,14 @@ class SlotDataResolver
     private $repositories;
 
     /**
-     * @var DefinitionRegistry
+     * @var DefinitionInstanceRegistry
      */
     private $definitionRegistry;
 
     /**
      * @param SlotTypeDataResolverInterface[] $resolvers
      */
-    public function __construct(iterable $resolvers, array $repositories, DefinitionRegistry $definitionRegistry)
+    public function __construct(iterable $resolvers, array $repositories, DefinitionInstanceRegistry $definitionRegistry)
     {
         $this->definitionRegistry = $definitionRegistry;
 
@@ -110,13 +110,16 @@ class SlotDataResolver
     {
         $entities = [];
 
-        foreach ($directReads as $definition => $ids) {
+        foreach ($directReads as $definitionClass => $ids) {
+            $definition = $this->definitionRegistry->get($definitionClass);
+
             $repository = $this->getSalesChannelApiRepository($definition);
+
             if ($repository) {
-                $entities[$definition] = $repository->search(new Criteria($ids), $context);
+                $entities[$definitionClass] = $repository->search(new Criteria($ids), $context);
             } else {
                 $repository = $this->getApiRepository($definition);
-                $entities[$definition] = $repository->search(new Criteria($ids), $context->getContext());
+                $entities[$definitionClass] = $repository->search(new Criteria($ids), $context->getContext());
             }
         }
 
@@ -128,9 +131,12 @@ class SlotDataResolver
         $searchResults = [];
 
         /** @var Criteria[] $criteriaObjects */
-        foreach ($searches as $definition => $criteriaObjects) {
+        foreach ($searches as $definitionClass => $criteriaObjects) {
             foreach ($criteriaObjects as $criteriaHash => $criteria) {
+                $definition = $this->definitionRegistry->get($definitionClass);
+
                 $repository = $this->getSalesChannelApiRepository($definition);
+
                 if ($repository) {
                     $result = $repository->search($criteria, $context);
                 } else {
@@ -223,22 +229,17 @@ class SlotDataResolver
         return true;
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    private function getApiRepository(string $definition): EntityRepositoryInterface
+    private function getApiRepository(EntityDefinition $definition): EntityRepositoryInterface
     {
-        return $this->definitionRegistry->getRepository($definition::getEntityName());
+        return $this->definitionRegistry->getRepository($definition->getEntityName());
     }
 
     /**
-     * @param string|EntityDefinition $definition
-     *
      * @return mixed|null
      */
-    private function getSalesChannelApiRepository(string $definition)
+    private function getSalesChannelApiRepository(EntityDefinition $definition)
     {
-        return $this->repositories[$definition::getEntityName()] ?? null;
+        return $this->repositories[$definition->getEntityName()] ?? null;
     }
 
     private function flattenCriteriaCollections(array $criteriaCollections): array

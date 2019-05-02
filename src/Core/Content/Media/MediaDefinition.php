@@ -49,22 +49,22 @@ use Shopware\Core\System\User\UserDefinition;
 
 class MediaDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'media';
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return MediaCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return MediaEntity::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),

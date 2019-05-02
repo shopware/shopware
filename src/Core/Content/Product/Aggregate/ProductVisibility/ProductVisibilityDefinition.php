@@ -22,22 +22,22 @@ class ProductVisibilityDefinition extends EntityDefinition
 
     public const VISIBILITY_ALL = 30;
 
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'product_visibility';
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return ProductVisibilityEntity::class;
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return ProductVisibilityCollection::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),

@@ -102,10 +102,10 @@ class CachedEntityAggregatorTest extends TestCase
         $cachedReader = new CachedEntityAggregator($this->cache, $dbalReader, $generator, true, 3600);
 
         //first call should not match and the expects of the dbal reader should called
-        $databaseEntities = $cachedReader->aggregate(TaxDefinition::class, $criteria, $context);
+        $databaseEntities = $cachedReader->aggregate($this->getContainer()->get(TaxDefinition::class), $criteria, $context);
 
         //second call should hit the cache items and the dbal reader shouldn't be called
-        $cachedEntities = $cachedReader->aggregate(TaxDefinition::class, $criteria, $context);
+        $cachedEntities = $cachedReader->aggregate($this->getContainer()->get(TaxDefinition::class), $criteria, $context);
 
         static::assertEquals($databaseEntities, $cachedEntities);
     }
@@ -206,15 +206,15 @@ class CachedEntityAggregatorTest extends TestCase
         $cachedReader = new CachedEntityAggregator($this->cache, $dbalReader, $generator, true, 3600);
 
         //first call should not match and the expects of the dbal reader should called
-        $databaseEntities = $cachedReader->aggregate(TaxDefinition::class, $criteria, $context);
+        $databaseEntities = $cachedReader->aggregate($this->getContainer()->get(TaxDefinition::class), $criteria, $context);
 
         //second call should hit the cache items and the dbal reader shouldn't be called
-        $cachedEntities = $cachedReader->aggregate(TaxDefinition::class, $criteria, $context);
+        $cachedEntities = $cachedReader->aggregate($this->getContainer()->get(TaxDefinition::class), $criteria, $context);
 
         static::assertEquals($databaseEntities, $cachedEntities);
 
         //third call should hit the cache items and read one missing from dbal
-        $cachedEntities = $cachedReader->aggregate(TaxDefinition::class, $criteria2, $context);
+        $cachedEntities = $cachedReader->aggregate($this->getContainer()->get(TaxDefinition::class), $criteria2, $context);
 
         static::assertNotEquals($databaseEntities->getAggregations(), $cachedEntities->getAggregations());
     }
@@ -283,10 +283,10 @@ class CachedEntityAggregatorTest extends TestCase
         $cachedReader = new CachedEntityAggregator($this->cache, $dbalReader, $generator, false, 3600);
 
         //first call should not match and the expects of the dbal reader should called
-        $databaseEntities = $cachedReader->aggregate(TaxDefinition::class, $criteria, $context);
+        $databaseEntities = $cachedReader->aggregate($this->getContainer()->get(TaxDefinition::class), $criteria, $context);
 
         //cache is disabled. second call shouldn't hit the cache and the dbal reader should be called
-        $cachedEntities = $cachedReader->aggregate(TaxDefinition::class, $criteria, $context);
+        $cachedEntities = $cachedReader->aggregate($this->getContainer()->get(TaxDefinition::class), $criteria, $context);
 
         static::assertEquals($databaseEntities, $cachedEntities);
     }

@@ -55,15 +55,15 @@ class CachedEntitySearcherTest extends TestCase
         $cachedSearcher = new CachedEntitySearcher($generator, $cache, $dbalSearcher, true, 3600);
 
         //first call should not match and the expects of the dbal searcher should called
-        $databaseResult = $cachedSearcher->search(TaxDefinition::class, $criteria, $context);
+        $databaseResult = $cachedSearcher->search($this->getContainer()->get(TaxDefinition::class), $criteria, $context);
 
         //second call should hit the cache items and the dbal searcher shouldn't be called
-        $cachedResult = $cachedSearcher->search(TaxDefinition::class, $criteria, $context);
+        $cachedResult = $cachedSearcher->search($this->getContainer()->get(TaxDefinition::class), $criteria, $context);
 
         static::assertEquals($databaseResult, $cachedResult);
 
         $cacheItem = $cache->getItem(
-            $generator->getSearchCacheKey(TaxDefinition::class, $criteria, $context)
+            $generator->getSearchCacheKey($this->getContainer()->get(TaxDefinition::class), $criteria, $context)
         );
 
         static::assertInstanceOf(IdSearchResult::class, $cacheItem->get());
@@ -110,15 +110,15 @@ class CachedEntitySearcherTest extends TestCase
         $cachedSearcher = new CachedEntitySearcher($generator, $cache, $dbalSearcher, false, 3600);
 
         //first call should not match and the expects of the dbal searcher should called
-        $databaseResult = $cachedSearcher->search(TaxDefinition::class, $criteria, $context);
+        $databaseResult = $cachedSearcher->search($this->getContainer()->get(TaxDefinition::class), $criteria, $context);
 
         //cache is disabled. second call shouldn't hit the cache and the dbal reader should be called
-        $cachedResult = $cachedSearcher->search(TaxDefinition::class, $criteria, $context);
+        $cachedResult = $cachedSearcher->search($this->getContainer()->get(TaxDefinition::class), $criteria, $context);
 
         static::assertEquals($databaseResult, $cachedResult);
 
         $cacheItem = $cache->getItem(
-            $generator->getSearchCacheKey(TaxDefinition::class, $criteria, $context)
+            $generator->getSearchCacheKey($this->getContainer()->get(TaxDefinition::class), $criteria, $context)
         );
 
         static::assertNull($cacheItem->get());

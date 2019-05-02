@@ -10,19 +10,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 class ErdDefinition
 {
     /**
-     * @var EntityDefinition|string
+     * @var EntityDefinition
      */
-    private $definitionClass;
+    private $definition;
 
-    public function __construct(string $definitionClass)
+    public function __construct(EntityDefinition $definition)
     {
-        $this->definitionClass = $definitionClass;
+        $this->definition = $definition;
     }
 
     public function isTranslation(): bool
     {
         return is_a(
-            $this->definitionClass,
+            $this->definition,
             EntityTranslationDefinition::class,
             true
         );
@@ -41,29 +41,29 @@ class ErdDefinition
 
     public function isMapping(): bool
     {
-        return is_a($this->definitionClass, MappingEntityDefinition::class, true);
+        return is_a($this->definition, MappingEntityDefinition::class, true);
     }
 
     public function toClassName(): string
     {
-        return $this->definitionClass;
+        return $this->definition->getClass();
     }
 
     public function entityName(): string
     {
-        return $this->definitionClass::getEntityName();
+        return $this->definition->getEntityName();
     }
 
     public function fields(): FieldCollection
     {
-        return $this->definitionClass::getFields();
+        return $this->definition->getFields();
     }
 
     public function toModuleName(): string
     {
-        $parts = explode('\\', $this->definitionClass);
+        $parts = explode('\\', $this->definition);
 
-        if (strpos($this->definitionClass, 'Shopware\\Core') === 0) {
+        if (strpos($this->definition, 'Shopware\\Core') === 0) {
             $moduleName = implode('\\', array_slice($parts, 0, 4));
         } else {
             $moduleName = implode('\\', array_slice($parts, 0, 2));

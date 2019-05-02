@@ -251,6 +251,7 @@
     },
     "error": {
         "message-default": "Leider ist etwas ist schief gelaufen",
+        "message-404": "Die angeforderte Seite kann nicht gefunden werden.",
         "addToCartError": "Beim Hinzufügen zum Warenkorb ist ein Fehler aufgetreten.",
         "FRAMEWORK__INVALID_UUID": "Die gewählte Zahlungsart konnte nicht gefunden werden.",
         "CHECKOUT__UNKNOWN_PAYMENT_METHOD": "Die gewählte Zahlungsart konnte nicht gefunden werden."

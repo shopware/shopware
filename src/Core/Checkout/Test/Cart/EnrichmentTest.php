@@ -100,7 +100,6 @@ class EnrichmentTest extends TestCase
 
         $product = $enriched->getLineItems()->get('A');
         static::assertSame('Missing label', $product->getLabel());
-        static::assertSame('Missing description', $product->getDescription());
 
         /** @var QuantityPriceDefinition $price */
         $price = $product->getPriceDefinition();
@@ -150,7 +149,6 @@ class EnrichmentTest extends TestCase
             (new LineItem('A', 'product'))
                 ->setPayload(['id' => $id])
                 ->setPriceDefinition(new QuantityPriceDefinition(1, new TaxRuleCollection(), 2))
-                ->setDescription('Do not override')
                 ->setCover(
                     (new MediaEntity())->assign([
                         'fileName' => 'Do not override',
@@ -167,7 +165,6 @@ class EnrichmentTest extends TestCase
 
         $product = $enriched->getLineItems()->get('A');
         static::assertSame('Missing label', $product->getLabel());
-        static::assertSame('Do not override', $product->getDescription());
 
         /** @var QuantityPriceDefinition $price */
         $price = $product->getPriceDefinition();

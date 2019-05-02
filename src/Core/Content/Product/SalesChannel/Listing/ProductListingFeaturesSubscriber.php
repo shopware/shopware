@@ -1,51 +1,35 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product\Cms;
+namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
-use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class ListingGateway implements ListingGatewayInterface
+class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var SalesChannelRepository
-     */
-    private $productRepository;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    public function __construct(
-        SalesChannelRepository $productRepository,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->productRepository = $productRepository;
-        $this->eventDispatcher = $eventDispatcher;
+    public static function getSubscribedEvents()
+    {
+        return [
+            ProductEvents::PRODUCT_LISTING_CRITERIA => 'handleRequest',
+            ProductEvents::PRODUCT_SEARCH_CRITERIA => 'handleRequest',
+        ];
     }
 
-    public function search(Request $request, SalesChannelContext $context): EntitySearchResult
+    public function handleRequest(ProductListingCriteriaEvent $event): void
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('product.parentId', null));
+        $request = $event->getRequest();
 
-        $this->handleCategoryFilter($request, $criteria, $context);
+        $criteria = $event->getCriteria();
 
         $this->handlePagination($request, $criteria);
 
@@ -55,39 +39,26 @@ class ListingGateway implements ListingGatewayInterface
 
         $this->handlePriceFilter($request, $criteria);
 
-        $this->eventDispatcher->dispatch(
-            ProductEvents::PRODUCT_LISTING_CRITERIA,
-            new ProductListingCriteriaEvent($request, $criteria, $context)
-        );
-
-        $result = $this->productRepository->search($criteria, $context);
-
-        $this->eventDispatcher->dispatch(
-            ProductEvents::PRODUCT_LISTING_RESULT,
-            new ProductListingResultEvent($request, $result, $context)
-        );
-
-        return $result;
+        if ($request->get('no-aggregations')) {
+            $criteria->resetAggregations();
+        }
     }
 
     private function handlePagination(Request $request, Criteria $criteria): void
     {
-        $defaultLimit = 25;
-        $defaultPage = 1;
-
-        $limit = $request->query->getInt('limit', $defaultLimit);
-        $page = $request->query->getInt('p', $defaultPage);
+        $limit = $request->query->getInt('limit', 25);
+        $page = $request->query->getInt('p', 1);
 
         if ($request->isMethod(Request::METHOD_POST)) {
             $limit = $request->request->getInt('limit', $limit);
             $page = $request->request->getInt('p', $page);
         }
 
-        $limit = $limit > 0 ? $limit : $defaultLimit;
-        $page = $page > 0 ? $page : $defaultPage;
+        $limit = $limit > 0 ? $limit : 25;
+        $page = $page > 0 ? $page : 1;
 
         $criteria->setOffset(($page - 1) * $limit);
-        $criteria->setLimit((int) $limit);
+        $criteria->setLimit($limit);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
     }
 
@@ -158,18 +129,5 @@ class ListingGateway implements ListingGatewayInterface
         }
 
         $criteria->addPostFilter(new RangeFilter('product.price', $range));
-    }
-
-    private function handleCategoryFilter(Request $request, Criteria $criteria, SalesChannelContext $context): void
-    {
-        $navigationId = $context->getSalesChannel()->getNavigationCategoryId();
-
-        $params = $request->attributes->get('_route_params');
-
-        if ($params && isset($params['navigationId'])) {
-            $navigationId = $params['navigationId'];
-        }
-
-        $criteria->addFilter(new EqualsFilter('product.categoriesRo.id', $navigationId));
     }
 }

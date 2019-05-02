@@ -7,8 +7,8 @@ use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductListingStruct;
 use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolveResult;
-use Shopware\Core\Content\Product\Cms\ListingGatewayInterface;
 use Shopware\Core\Content\Product\Cms\Type\ProductListingTypeDataResolver;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingGatewayInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -25,7 +25,7 @@ class ProductListingTypeDataResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $mock = $this->createMock(ListingGatewayInterface::class);
+        $mock = $this->createMock(ProductListingGatewayInterface::class);
         $mock->method('search')->willReturn(
             new EntitySearchResult(0, new EntityCollection(), null, new Criteria(), Context::createDefaultContext())
         );

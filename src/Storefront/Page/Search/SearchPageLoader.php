@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Search;
 
+use Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchGatewayInterface;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;

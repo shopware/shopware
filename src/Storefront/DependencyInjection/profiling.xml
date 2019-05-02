@@ -15,14 +15,6 @@
         </service>
 
         <service class="Shopware\Storefront\Framework\Page\PageLoaderProfiler"
-                 id="HomePageLoaderProfiler"
-                 decorates="Shopware\Storefront\Page\Home\HomePageLoader">
-
-            <argument type="service" id="HomePageLoaderProfiler.inner" />
-            <argument type="service" id="debug.stopwatch" />
-        </service>
-
-        <service class="Shopware\Storefront\Framework\Page\PageLoaderProfiler"
             id="PageWithHeaderProfiler"
             decorates="Shopware\Storefront\Framework\Page\PageWithHeaderLoader">
 
@@ -131,14 +123,6 @@
             decorates="Shopware\Storefront\Pagelet\Suggest\SuggestPageletLoader">
 
             <argument type="service" id="SuggestPageletLoaderProfiler.inner" />
-            <argument type="service" id="debug.stopwatch" />
-        </service>
-
-        <service class="Shopware\Storefront\Framework\Page\PageLoaderProfiler"
-            id="ListingPageletLoaderProfiler"
-            decorates="Shopware\Storefront\Pagelet\Listing\ListingPageletLoader">
-
-            <argument type="service" id="ListingPageletLoaderProfiler.inner" />
             <argument type="service" id="debug.stopwatch" />
         </service>
 

@@ -2,10 +2,15 @@
 
 namespace Shopware\Core\Framework\Demodata\Generator;
 
+use bheller\ImagesGenerator\ImagesGeneratorProvider;
+use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderEntity;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
@@ -31,6 +36,21 @@ class MediaGenerator implements DemodataGeneratorInterface
     private $fileNameProvider;
 
     /**
+     * @var array
+     */
+    private $tmpImages = [];
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $defaultFolderRepository;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $folderRepository;
+
+    /**
      * @var MediaDefinition
      */
     private $mediaDefinition;
@@ -39,11 +59,15 @@ class MediaGenerator implements DemodataGeneratorInterface
         EntityWriterInterface $writer,
         FileSaver $mediaUpdater,
         FileNameProvider $fileNameProvider,
+        EntityRepositoryInterface $defaultFolderRepository,
+        EntityRepositoryInterface $folderRepository,
         MediaDefinition $mediaDefinition
     ) {
         $this->writer = $writer;
         $this->mediaUpdater = $mediaUpdater;
         $this->fileNameProvider = $fileNameProvider;
+        $this->defaultFolderRepository = $defaultFolderRepository;
+        $this->folderRepository = $folderRepository;
         $this->mediaDefinition = $mediaDefinition;
     }
 
@@ -58,13 +82,21 @@ class MediaGenerator implements DemodataGeneratorInterface
 
         $writeContext = WriteContext::createFromContext($context->getContext());
 
+        $mediaFolderId = $this->getOrCreateDefaultFolder($context);
+
         for ($i = 0; $i < $numberOfItems; ++$i) {
-            $file = $this->getRandomFile();
+            $file = $this->getRandomFile($context);
 
             $mediaId = Uuid::randomHex();
             $this->writer->insert(
                 $this->mediaDefinition,
-                [['id' => $mediaId, 'name' => "File #{$i}: {$file}"]],
+                [
+                    [
+                        'id' => $mediaId,
+                        'name' => "File #{$i}: {$file}",
+                        'mediaFolderId' => $mediaFolderId,
+                    ],
+                ],
                 $writeContext
             );
 
@@ -92,15 +124,72 @@ class MediaGenerator implements DemodataGeneratorInterface
         $context->getConsole()->progressFinish();
     }
 
-    private function getRandomFile(): string
+    private function getRandomFile(DemodataContext $context): string
     {
-        $files = array_keys(iterator_to_array(
-            (new Finder())
-                ->files()
-                ->in(__DIR__ . '/../../Resources/demo-media')
-                ->getIterator()
-        ));
+        $images = array_values(
+            iterator_to_array(
+                (new Finder())
+                    ->files()
+                    ->in($context->getProjectDir() . '/build/media')
+                    ->name('/\.(jpg|png)$/')
+                    ->getIterator()
+            )
+        );
 
-        return $files[array_rand($files)];
+        if (\count($images)) {
+            return $images[array_rand($images)]->getPathname();
+        }
+
+        /** @var string $text */
+        $text = $context->getFaker()->words(1, true);
+
+        return $this->tmpImages[] = ImagesGeneratorProvider::imageGenerator(
+            null,
+            $context->getFaker()->numberBetween(600, 800),
+            $context->getFaker()->numberBetween(400, 600),
+            'jpg',
+            true,
+            $text,
+            '#d8dde6',
+            '#333333'
+        );
+    }
+
+    private function getOrCreateDefaultFolder(DemodataContext $context): ?string
+    {
+        $mediaFolderId = null;
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('entity', 'product'));
+        $criteria->addAssociation('folder', new Criteria());
+        $criteria->setLimit(1);
+
+        $defaultFolders = $this->defaultFolderRepository->search($criteria, $context->getContext());
+
+        if ($defaultFolders->count() <= 0) {
+            return $mediaFolderId;
+        }
+
+        /** @var MediaDefaultFolderEntity $defaultFolder */
+        $defaultFolder = $defaultFolders->first();
+
+        if ($defaultFolder->getFolder()) {
+            return $defaultFolder->getFolder()->getId();
+        }
+
+        $mediaFolderId = Uuid::randomHex();
+        $this->folderRepository->upsert([
+            [
+                'id' => $mediaFolderId,
+                'defaultFolderId' => $defaultFolder->getId(),
+                'name' => 'Product Media',
+                'useParentConfiguration' => false,
+                'configuration' => [],
+            ],
+        ], $context->getContext());
+
+        $context->add(MediaDefaultFolderEntity::class, $mediaFolderId);
+
+        return $mediaFolderId;
     }
 }

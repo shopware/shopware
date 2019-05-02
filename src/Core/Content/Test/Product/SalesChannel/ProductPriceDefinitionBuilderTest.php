@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Content\Product\SalesChannel\ProductPriceDefinitionBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -28,7 +27,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
     private $salesChannelContext;
 
     /**
-     * @var ProductPriceDefinitionBuilder
+     * @var \Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilder
      */
     private $priceDefinitionBuilder;
 
@@ -41,7 +40,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
     {
         $this->salesChannelContext = $this->createSalesChannelContext();
 
-        $this->priceDefinitionBuilder = new ProductPriceDefinitionBuilder();
+        $this->priceDefinitionBuilder = new \Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilder();
 
         $this->currencyId = Uuid::randomHex();
         $this->getContainer()->get('currency.repository')->create([
@@ -69,7 +68,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
             'name' => 'test',
         ]);
 
-        $definitions = $this->priceDefinitionBuilder->buildPriceDefinitions($product, $this->salesChannelContext);
+        $definitions = $this->priceDefinitionBuilder->build($product, $this->salesChannelContext)->getPrices();
         static::assertSame(0, $definitions->count());
     }
 
@@ -123,7 +122,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         ]);
 
         $this->salesChannelContext->setRuleIds([$ruleId, $ruleId2]);
-        $definitions = $this->priceDefinitionBuilder->buildPriceDefinitions($product, $this->salesChannelContext);
+        $definitions = $this->priceDefinitionBuilder->build($product, $this->salesChannelContext)->getPrices();
         static::assertSame(2, $definitions->count());
 
         /** @var QuantityPriceDefinition $first */
@@ -185,7 +184,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
 
         $salesChannelContext = $this->createSalesChannelContext([SalesChannelContextService::CURRENCY_ID => $this->currencyId]);
         $salesChannelContext->setRuleIds([$ruleId]);
-        $definitions = $this->priceDefinitionBuilder->buildPriceDefinitions($product, $salesChannelContext);
+        $definitions = $this->priceDefinitionBuilder->build($product, $salesChannelContext)->getPrices();
         static::assertSame(1, $definitions->count());
 
         /** @var QuantityPriceDefinition $first */
@@ -244,7 +243,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
 
         $salesChannelContext = $this->createSalesChannelContext([SalesChannelContextService::CURRENCY_ID => $this->currencyId]);
         $salesChannelContext->setRuleIds([$ruleId, $ruleId2]);
-        $definitions = $this->priceDefinitionBuilder->buildPriceDefinitions($product, $salesChannelContext);
+        $definitions = $this->priceDefinitionBuilder->build($product, $salesChannelContext)->getPrices();
         static::assertSame(2, $definitions->count());
 
         /** @var QuantityPriceDefinition $first */
@@ -267,7 +266,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
             'name' => 'test',
         ]);
 
-        $definition = $this->priceDefinitionBuilder->buildPriceDefinition($product, $this->salesChannelContext);
+        $definition = $this->priceDefinitionBuilder->build($product, $this->salesChannelContext)->getPrice();
         $this->assertPriceDefinition($definition, 10, 1);
     }
 
@@ -284,7 +283,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
 
         $salesChannelContext = $this->createSalesChannelContext([SalesChannelContextService::CURRENCY_ID => $this->currencyId]);
 
-        $definition = $this->priceDefinitionBuilder->buildPriceDefinition($product, $salesChannelContext);
+        $definition = $this->priceDefinitionBuilder->build($product, $salesChannelContext)->getPrice();
         $this->assertPriceDefinition($definition, 8, 1);
     }
 
@@ -300,7 +299,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         ]);
 
         $this->salesChannelContext->setTaxState(CartPrice::TAX_STATE_NET);
-        $definition = $this->priceDefinitionBuilder->buildPriceDefinition($product, $this->salesChannelContext);
+        $definition = $this->priceDefinitionBuilder->build($product, $this->salesChannelContext)->getPrice();
         $this->assertPriceDefinition($definition, 7, 1);
     }
 
@@ -368,7 +367,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
             ),
         ]);
 
-        $definition = $this->priceDefinitionBuilder->buildListingPriceDefinition($product, $this->salesChannelContext);
+        $definition = $this->priceDefinitionBuilder->build($product, $this->salesChannelContext)->getListingPrice();
 
         $this->assertPriceDefinition($definition, 100, 1);
     }
@@ -422,7 +421,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
             ),
         ]);
 
-        $definition = $this->priceDefinitionBuilder->buildListingPriceDefinition($product, $this->salesChannelContext);
+        $definition = $this->priceDefinitionBuilder->build($product, $this->salesChannelContext)->getListingPrice();
 
         $this->assertPriceDefinition($definition, 50, 1);
     }
@@ -438,7 +437,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
             'name' => 'test',
         ]);
 
-        $definition = $this->priceDefinitionBuilder->buildListingPriceDefinition($product, $this->salesChannelContext);
+        $definition = $this->priceDefinitionBuilder->build($product, $this->salesChannelContext)->getListingPrice();
 
         $this->assertPriceDefinition($definition, 10, 1);
     }
@@ -492,7 +491,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
             ),
         ]);
 
-        $definition = $this->priceDefinitionBuilder->buildListingPriceDefinition($product, $salesChannelContext);
+        $definition = $this->priceDefinitionBuilder->build($product, $salesChannelContext)->getListingPrice();
 
         $this->assertPriceDefinition($definition, 40, 1);
     }
@@ -547,7 +546,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
             ),
         ]);
 
-        $definition = $this->priceDefinitionBuilder->buildListingPriceDefinition($product, $salesChannelContext);
+        $definition = $this->priceDefinitionBuilder->build($product, $salesChannelContext)->getListingPrice();
 
         $this->assertPriceDefinition($definition, 40, 1);
     }
@@ -565,7 +564,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
 
         $salesChannelContext = $this->createSalesChannelContext([SalesChannelContextService::CURRENCY_ID => $this->currencyId]);
 
-        $definition = $this->priceDefinitionBuilder->buildListingPriceDefinition($product, $salesChannelContext);
+        $definition = $this->priceDefinitionBuilder->build($product, $salesChannelContext)->getListingPrice();
         $this->assertPriceDefinition($definition, 8, 1);
     }
 
@@ -599,7 +598,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         ]);
 
         $this->salesChannelContext->setRuleIds([$ruleId]);
-        $this->priceDefinitionBuilder->buildListingPriceDefinition($product, $this->salesChannelContext);
+        $this->priceDefinitionBuilder->build($product, $this->salesChannelContext)->getListingPrice();
     }
 
     public function testBuildPriceDefinitionForQuantityWithDefaultCurrency()
@@ -653,10 +652,10 @@ class ProductPriceDefinitionBuilderTest extends TestCase
 
         $this->salesChannelContext->setRuleIds([$ruleId]);
 
-        $definition = $this->priceDefinitionBuilder->buildPriceDefinitionForQuantity($product, $this->salesChannelContext, 20);
+        $definition = $this->priceDefinitionBuilder->build($product, $this->salesChannelContext, 20)->getQuantityPrice();
         $this->assertPriceDefinition($definition, 100, 20);
 
-        $definition = $this->priceDefinitionBuilder->buildPriceDefinitionForQuantity($product, $this->salesChannelContext, 21);
+        $definition = $this->priceDefinitionBuilder->build($product, $this->salesChannelContext, 21)->getQuantityPrice();
         $this->assertPriceDefinition($definition, 50, 21);
     }
 
@@ -710,7 +709,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         ]);
 
         $salesChannelContext->setRuleIds([$ruleId]);
-        $definition = $this->priceDefinitionBuilder->buildPriceDefinitionForQuantity($product, $salesChannelContext, 20);
+        $definition = $this->priceDefinitionBuilder->build($product, $salesChannelContext, 20)->getQuantityPrice();
 
         $this->assertPriceDefinition($definition, 40, 20);
     }
@@ -766,7 +765,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         ]);
 
         $salesChannelContext->setRuleIds([$ruleId]);
-        $definition = $this->priceDefinitionBuilder->buildPriceDefinitionForQuantity($product, $salesChannelContext, 20);
+        $definition = $this->priceDefinitionBuilder->build($product, $salesChannelContext, 20)->getQuantityPrice();
 
         $this->assertPriceDefinition($definition, 80, 20);
     }
@@ -798,7 +797,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
             ),
         ]);
 
-        $definition = $this->priceDefinitionBuilder->buildPriceDefinitionForQuantity($product, $this->salesChannelContext, 20);
+        $definition = $this->priceDefinitionBuilder->build($product, $this->salesChannelContext, 20)->getQuantityPrice();
 
         $this->assertPriceDefinition($definition, 10, 20);
     }
@@ -832,7 +831,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
             ),
         ]);
 
-        $definition = $this->priceDefinitionBuilder->buildPriceDefinitionForQuantity($product, $salesChannelContext, 20);
+        $definition = $this->priceDefinitionBuilder->build($product, $salesChannelContext, 20)->getQuantityPrice();
 
         $this->assertPriceDefinition($definition, 8, 20);
     }

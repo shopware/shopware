@@ -21,7 +21,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\Framework\Demodata\DemodataRequest;
 use Shopware\Core\Framework\Demodata\DemodataService;
-use Shopware\Core\Framework\Demodata\Generator\ProductGenerator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -65,8 +64,6 @@ class DemodataCommand extends Command
         $this->addOption('mail-template', 'mt', InputOption::VALUE_REQUIRED, 'Mail template count', 10);
         $this->addOption('mail-header-footer', 'mhf', InputOption::VALUE_REQUIRED, 'Mail header/footer count', 3);
 
-        $this->addOption('with-media', 'y', InputOption::VALUE_OPTIONAL, 'Enables media for products', 1);
-
         if (next754()) {
             $this->addOption('attribute-sets', null, InputOption::VALUE_REQUIRED, 'CustomField set count', 4);
 
@@ -98,16 +95,17 @@ class DemodataCommand extends Command
         $request->add(PropertyGroupDefinition::class, (int) $input->getOption('properties'));
         $request->add(ShippingMethodPriceDefinition::class, 1);
         $request->add(CategoryDefinition::class, (int) $input->getOption('categories'));
+        $request->add(MediaDefinition::class, (int) $input->getOption('media'));
+
         $request->add(ProductManufacturerDefinition::class, (int) $input->getOption('manufacturers'));
-        $request->add(ProductDefinition::class, (int) $input->getOption('products'), $this->getProductOptions($input));
+        $request->add(ProductDefinition::class, (int) $input->getOption('products'));
 
         if (next739()) {
             $request->add(ProductStreamDefinition::class, (int) $input->getOption('product-streams'));
         }
 
         $request->add(OrderDefinition::class, (int) $input->getOption('orders'));
-        $request->add(MediaDefinition::class, (int) $input->getOption('media'));
-        $request->add(CmsPageDefinition::class, 5);
+        $request->add(CmsPageDefinition::class, 50);
 
         if (next754()) {
             $request->add(
@@ -127,17 +125,6 @@ class DemodataCommand extends Command
             ['Entity', 'Items', 'Time'],
             $demoContext->getTimings()
         );
-    }
-
-    private function getProductOptions(InputInterface $input): array
-    {
-        $productOptions = [];
-
-        if ($input->getOption('with-media')) {
-            $productOptions[ProductGenerator::OPTIONS_WITH_MEDIA] = true;
-        }
-
-        return $productOptions;
     }
 
     private function getCustomFieldOptions(InputInterface $input): array

@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Pagelet\Suggest;
 
+use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestGatewayInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -15,7 +16,7 @@ class SuggestPageletLoader implements PageLoaderInterface
     private $eventDispatcher;
 
     /**
-     * @var ProductSuggestGatewayInterface
+     * @var \Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestGatewayInterface
      */
     private $suggestGateway;
 

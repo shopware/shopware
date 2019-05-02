@@ -38,6 +38,10 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Promotion\Aggregate\PromotionTranslation\PromotionTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="promotion_translation"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Promotion\PromotionGateway">
             <argument type="service" id="promotion.repository"/>
         </service>

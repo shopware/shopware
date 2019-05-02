@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation\DiscountSurchargeTranslationCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentTypeTranslation\DocumentTypeTranslationCollection;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationCollection;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionTranslation\PromotionTranslationCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationCollection;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
 use Shopware\Core\Content\DeliveryTime\DeliveryTimeCollection;
@@ -286,6 +287,11 @@ class LanguageEntity extends Entity
      * @var MailTemplateTypeDefinition|null
      */
     protected $mailTemplateTypeTranslations;
+
+    /**
+     * @var PromotionTranslationCollection|null
+     */
+    protected $promotionTranslations;
 
     public function getMailHeaderFooterTranslations(): ?MailHeaderFooterCollection
     {
@@ -765,5 +771,15 @@ class LanguageEntity extends Entity
     public function setProductKeywordDictionaries(ProductKeywordDictionaryCollection $productKeywordDictionaries): void
     {
         $this->productKeywordDictionaries = $productKeywordDictionaries;
+    }
+
+    public function getPromotionTranslations(): ?PromotionTranslationCollection
+    {
+        return $this->promotionTranslations;
+    }
+
+    public function setPromotionTranslations(?PromotionTranslationCollection $promotionTranslations): void
+    {
+        $this->promotionTranslations = $promotionTranslations;
     }
 }

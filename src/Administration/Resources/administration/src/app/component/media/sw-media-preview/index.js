@@ -200,8 +200,9 @@ export default {
                 return '';
             }
 
-            const sources = this.trueSource.thumbnails.map((thumbnail) => {
-                return `${thumbnail.url} ${thumbnail.width}w`;
+            const sources = [];
+            this.trueSource.thumbnails.forEach((thumbnail) => {
+                sources.push(`${thumbnail.url} ${thumbnail.width}w`);
             });
 
             return sources.join(', ');

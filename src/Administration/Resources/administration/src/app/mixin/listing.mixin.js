@@ -186,14 +186,14 @@ Mixin.register('listing', {
             if (value.length === 0) {
                 value = undefined;
             }
+            this.term = value;
 
             if (this.disableRouteParams) {
-                this.term = value;
                 this.page = 1;
                 this.getList();
+                return;
             }
 
-            this.term = value;
             this.updateRoute({
                 term: this.term,
                 page: 1

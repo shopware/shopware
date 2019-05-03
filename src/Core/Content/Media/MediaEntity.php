@@ -197,6 +197,11 @@ class MediaEntity extends Entity
      */
     protected $cmsBlocks;
 
+    /**
+     * @var CmsBlockCollection|null
+     */
+    protected $cmsPages;
+
     public function get(string $property)
     {
         if ($property === 'hasFile') {
@@ -547,5 +552,15 @@ class MediaEntity extends Entity
     public function setCmsBlocks(CmsBlockCollection $cmsBlocks): void
     {
         $this->cmsBlocks = $cmsBlocks;
+    }
+
+    public function getCmsPages(): ?CmsBlockCollection
+    {
+        return $this->cmsPages;
+    }
+
+    public function setCmsPages(CmsBlockCollection $cmsPages): void
+    {
+        $this->cmsPages = $cmsPages;
     }
 }

@@ -110,7 +110,19 @@
         "headline": "Landingpage / Produktlisting"
       },
       "cmsListItem": {
-        "emptyText": "Kein Layout zugewiesen"
+        "emptyText": "Kein Layout zugewiesen",
+        "delete": "Löschen",
+        "duplicate": "Duplizieren",
+        "addPreviewImage": "Vorschau hinzufügen",
+        "removePreviewImage": "Vorschau entfernen",
+        "notificationDeleteErrorTitle": "Fehler",
+        "notificationDeleteErrorMessage": "Die Seite ist noch mindestens einer Kategorie zugewiesen.",
+        "modal": {
+          "modalTitleDelete":  "Layout Löschen",
+          "textDeleteConfirm": "Möchtest du das Layout \"{pageName}\" wirklich löschen?",
+          "buttonCancel":  "Abbrechen",
+          "buttonDelete": "Löschen"
+        }
       }
     }
   }

@@ -19,10 +19,13 @@ class Migration1536233350CmsPage extends MigrationStep
               `id` BINARY(16) NOT NULL,
               `type` VARCHAR(255) NOT NULL,
               `entity` VARCHAR(255) NULL,
+              `preview_media_id` BINARY(16) NULL,
               `locked` tinyint(1) NOT NULL DEFAULT '0',
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
-              PRIMARY KEY (`id`)
+              PRIMARY KEY (`id`),
+              CONSTRAINT `fk.cms_page.preview_media_id` FOREIGN KEY (`preview_media_id`)
+                REFERENCES `media` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
 

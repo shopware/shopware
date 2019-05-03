@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Cms;
 
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -46,6 +47,16 @@ class CmsPageEntity extends Entity
      * @var array|null
      */
     protected $config;
+
+    /**
+     * @var string|null
+     */
+    protected $previewMediaId;
+
+    /**
+     * @var MediaEntity|null
+     */
+    protected $previewMedia;
 
     /**
      * @var array|null
@@ -135,6 +146,26 @@ class CmsPageEntity extends Entity
     public function setConfig(array $config): void
     {
         $this->config = $config;
+    }
+
+    public function getPreviewMediaId(): ?string
+    {
+        return $this->previewMediaId;
+    }
+
+    public function setPreviewMediaId(string $previewMediaId): void
+    {
+        $this->previewMediaId = $previewMediaId;
+    }
+
+    public function getPreviewMedia(): ?MediaEntity
+    {
+        return $this->previewMedia;
+    }
+
+    public function setPreviewMedia(MediaEntity $previewMedia): void
+    {
+        $this->previewMedia = $previewMedia;
     }
 
     public function getLocked(): bool

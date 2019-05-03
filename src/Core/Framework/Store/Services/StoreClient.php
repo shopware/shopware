@@ -173,7 +173,7 @@ final class StoreClient
     /**
      * @return StoreUpdateStruct[]
      */
-    public function getUpdatesList(?string $storeToken, PluginCollection $pluginCollection, string $language, Context $context): array
+    public function getUpdatesList(?string $storeToken, PluginCollection $pluginCollection, string $language, string $hostName, Context $context): array
     {
         $pluginArray = [];
 
@@ -199,10 +199,13 @@ final class StoreClient
             $headers[self::SHOPWARE_SHOP_SECRET_HEADER] = $shopSecret;
         }
 
+        $query = $this->getDefaultQueryParameters($language);
+        $query['hostName'] = $hostName;
+
         $response = $this->client->post(
             '/swplatform/pluginupdates',
             [
-                'query' => $this->getDefaultQueryParameters($language),
+                'query' => $query,
                 'body' => json_encode([
                     'plugins' => $pluginArray,
                 ]),

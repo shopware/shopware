@@ -25,6 +25,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -187,9 +188,9 @@ class StoreController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/store/updates", name="api.custom.store.updates", methods={"GET"})
      */
-    public function getUpdateList(QueryDataBag $queryDataBag, Context $context): JsonResponse
+    public function getUpdateList(Request $request, Context $context): JsonResponse
     {
-        $language = $queryDataBag->get('language', '');
+        $language = $request->query->get('language', '');
 
         /** @var PluginCollection $plugins */
         $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
@@ -200,7 +201,7 @@ class StoreController extends AbstractController
         }
 
         try {
-            $updatesList = $this->storeClient->getUpdatesList($storeToken, $plugins, $language, $context);
+            $updatesList = $this->storeClient->getUpdatesList($storeToken, $plugins, $language, $request->getHost(), $context);
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }

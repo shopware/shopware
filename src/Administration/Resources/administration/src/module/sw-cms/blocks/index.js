@@ -21,6 +21,7 @@ import './text-image/center-text';
 import './text-image/image-text-row';
 import './text-image/image-text-gallery';
 import './text-image/image-text-bubble';
+import './text-image/text-on-image';
 
 import './commerce/product-three-column';
 import './commerce/product-listing';

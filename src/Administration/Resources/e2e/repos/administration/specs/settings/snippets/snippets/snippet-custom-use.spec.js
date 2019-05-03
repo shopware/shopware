@@ -2,7 +2,6 @@ const settingsPage = require('administration/page-objects/module/sw-settings.pag
 
 module.exports = {
     '@tags': ['settings', 'snippet-custom', 'snippets', 'create', 'delete'],
-
     'open snippet module': (browser) => {
         const page = settingsPage(browser);
 
@@ -41,8 +40,9 @@ module.exports = {
         browser.fillField('.sw-settings-snippet-detail__translation-field--1 input[name=sw-field--snippet-value]', 'Blach');
 
         browser.expect.element('.sw-snippet-detail__save-action').to.be.enabled;
-        browser.click('.sw-snippet-detail__save-action')
-            .checkNotification('Snippet for "a.woodech" has been saved successfully.');
+        browser
+            .click('.sw-snippet-detail__save-action')
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium');
     },
     'open all snippet sets': (browser) => {
         const page = settingsPage(browser);

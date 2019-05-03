@@ -29,7 +29,7 @@
                 {% endblock %}
 
                 {% block sw_settings_snippet_detail_actions_save %}
-                <sw-button-process
+                    <sw-button-process
                         class="sw-snippet-detail__save-action"
                         :isLoading="isLoading"
                         :processSuccess="isSaveSuccessful"
@@ -37,8 +37,8 @@
                         variant="primary"
                         @process-finish="saveFinish"
                         @click.prevent="onSave">
-                    {{ $tc('sw-settings-snippet.detail.buttonSave') }}
-                </sw-button-process>
+                        {{ $tc('sw-settings-snippet.detail.buttonSave') }}
+                    </sw-button-process>
                 {% endblock %}
             </template>
         {% endblock %}

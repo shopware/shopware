@@ -146,7 +146,6 @@ Component.register('sw-settings-snippet-detail', {
         },
 
         saveFinish() {
-            console.log('this.pushParams :', this.pushParams);
             this.isSaveSuccessful = false;
 
             this.$router.push({

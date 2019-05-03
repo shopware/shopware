@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+
 trait AggregationTrait
 {
     /**
@@ -18,6 +21,11 @@ trait AggregationTrait
      * @var string[]
      */
     protected $groupByFields = [];
+
+    /**
+     * @var CriteriaPartInterface[]
+     */
+    protected $filters = [];
 
     public function getField(): string
     {
@@ -37,5 +45,24 @@ trait AggregationTrait
     public function getGroupByFields(): array
     {
         return $this->groupByFields;
+    }
+
+    public function addFilter(CriteriaPartInterface $filter): void
+    {
+        $this->filters[] = $filter;
+    }
+
+    public function resetFilter(): void
+    {
+        $this->filters = [];
+    }
+
+    public function getFilter(): ?MultiFilter
+    {
+        if (empty($this->filters)) {
+            return null;
+        }
+
+        return new MultiFilter(MultiFilter::CONNECTION_AND, $this->filters);
     }
 }

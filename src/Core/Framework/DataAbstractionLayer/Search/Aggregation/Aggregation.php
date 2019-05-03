@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 
 interface Aggregation extends CriteriaPartInterface
 {
@@ -14,4 +15,6 @@ interface Aggregation extends CriteriaPartInterface
      * @return string[]
      */
     public function getGroupByFields(): array;
+
+    public function getFilter(): ?MultiFilter;
 }

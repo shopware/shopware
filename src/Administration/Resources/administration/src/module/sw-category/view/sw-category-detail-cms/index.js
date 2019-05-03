@@ -12,7 +12,6 @@ Component.register('sw-category-detail-cms', {
         },
         cmsPage: {
             type: Object,
-            required: true,
             default: null
         },
         mediaItem: {

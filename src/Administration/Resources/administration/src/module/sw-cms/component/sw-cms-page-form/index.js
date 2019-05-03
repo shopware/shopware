@@ -1,4 +1,4 @@
-import { Component } from 'src/core/shopware';
+import { Component, State } from 'src/core/shopware';
 import template from './sw-cms-page-form.html.twig';
 import './sw-cms-page-form.scss';
 
@@ -35,6 +35,11 @@ Component.register('sw-cms-page-form', {
             }
 
             return '';
+        },
+
+        // ToDo: Remove, when language handling is added to CMS
+        isDefaultLanguage() {
+            return State.getStore('language').getCurrentId() === State.getStore('language').systemLanguageId;
         }
     }
 });

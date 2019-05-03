@@ -6,7 +6,7 @@
                 {% block sw_cms_list_toolbar %}
                     <sw-cms-toolbar>
                         <h2 slot="title">{{ $tc('sw-cms.general.moduleTitle') }}</h2>
-                        <sw-language-switch slot="language-switch" @on-change="onChangeLanguage"></sw-language-switch>
+                        <sw-language-switch slot="language-switch" @on-change="onChangeLanguage" :disabled="true"></sw-language-switch>
                         <sw-button slot="actions" variant="primary" @click="onCreateNewLayout">{{ $tc('sw-cms.general.createNewLayout') }}</sw-button>
                     </sw-cms-toolbar>
                 {% endblock %}

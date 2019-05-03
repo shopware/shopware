@@ -46,6 +46,10 @@ Component.register('sw-cms-detail', {
             return this.placeholder(this.page, 'name');
         },
 
+        languageStore() {
+            return State.getStore('language');
+        },
+
         salesChannelStore() {
             return State.getStore('sales_channel');
         },
@@ -148,6 +152,9 @@ Component.register('sw-cms-detail', {
             // ToDo: Make the navigation state accessible via global state
             this.$root.$children[0].$children[2].$children[0].isExpanded = false;
 
+            // ToDo: Remove, when language handling is added to CMS
+            this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+
             this.cmsPageState.currentPage = null;
 
             if (this.$route.params.id) {
@@ -203,7 +210,7 @@ Component.register('sw-cms-detail', {
 
             const initContainer = Application.getContainer('init');
             const httpClient = initContainer.httpClient;
-            const currentLanguageId = State.getStore('language').getCurrentId();
+            const currentLanguageId = this.languageStore.getCurrentId();
 
             httpClient.get(`/_proxy/sales-channel-api/${this.currentSalesChannelKey}/v1/cms-page/${pageId}`, {
                 headers: {

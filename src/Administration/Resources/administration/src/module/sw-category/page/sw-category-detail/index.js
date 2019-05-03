@@ -323,6 +323,10 @@ Component.register('sw-category-detail', {
         },
 
         getCmsPageOverrides(page = this.cmsPage) {
+            if (page === null) {
+                return null;
+            }
+
             const slotOverrides = {};
             const changedBlocks = page.getChangedAssociations().blocks;
 

@@ -79,25 +79,25 @@ class ApiAuthenticationListener implements EventSubscriberInterface
             return;
         }
 
-        $monthInterval = new \DateInterval('P1M');
-        $hourInterval = new \DateInterval('PT1H');
+        $tenMinuteInterval = new \DateInterval('PT1M');
+        $oneHour = new \DateInterval('PT1H');
 
         $passwordGrant = new PasswordGrant($this->userRepository, $this->refreshTokenRepository);
-        $passwordGrant->setRefreshTokenTTL($monthInterval);
+        $passwordGrant->setRefreshTokenTTL($oneHour);
 
         $refreshTokenGrant = new RefreshTokenGrant($this->refreshTokenRepository);
-        $refreshTokenGrant->setRefreshTokenTTL($hourInterval);
+        $refreshTokenGrant->setRefreshTokenTTL($oneHour);
 
-        $this->authorizationServer->enableGrantType($passwordGrant, $hourInterval);
-        $this->authorizationServer->enableGrantType($refreshTokenGrant, $hourInterval);
-        $this->authorizationServer->enableGrantType(new ClientCredentialsGrant(), $hourInterval);
+        $this->authorizationServer->enableGrantType($passwordGrant, $tenMinuteInterval);
+        $this->authorizationServer->enableGrantType($refreshTokenGrant, $oneHour);
+        $this->authorizationServer->enableGrantType(new ClientCredentialsGrant(), $oneHour);
     }
 
     public function validateRequest(FilterControllerEvent $event): void
     {
         $request = $event->getRequest();
 
-        if ($request->attributes->get('auth_required', null) === false) {
+        if ($request->attributes->get('auth_required') === false) {
             return;
         }
 

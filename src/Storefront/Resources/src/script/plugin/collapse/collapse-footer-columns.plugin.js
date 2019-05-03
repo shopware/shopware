@@ -1,7 +1,6 @@
 import Plugin from 'src/script/helper/plugin/plugin.class';
 import DomAccess from 'src/script/helper/dom-access.helper';
 import ViewportDetection from 'src/script/helper/viewport-detection.helper';
-import $ from 'jquery';
 import Iterator from 'src/script/helper/iterator.helper';
 
 const COLLAPSE_SHOW_CLASS = 'show';
@@ -56,14 +55,15 @@ export default class CollapseFooterColumnsPlugin extends Plugin {
     _onClickCollapseTrigger(e) {
         const trigger = e.target;
         const collapse = trigger.parentNode.querySelector(COLLAPSE_COLUMN_CONTENT_SELECTOR);
+        const $collapse = $(collapse);
 
-        $(collapse).collapse('toggle');
+        $collapse.collapse('toggle');
 
-        $(collapse).on('shown.bs.collapse', function () {
+        $collapse.on('shown.bs.collapse', function () {
             trigger.classList.add(COLLAPSE_SHOW_CLASS);
         });
 
-        $(collapse).on('hidden.bs.collapse', function () {
+        $collapse.on('hidden.bs.collapse', function () {
             trigger.classList.remove(COLLAPSE_SHOW_CLASS);
         });
     }

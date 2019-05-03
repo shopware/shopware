@@ -7,7 +7,7 @@ import 'src/script/helper/polyfill-loader.helper';
 import base requirements
  */
 import 'bootstrap';
-import jQuery from 'jquery';
+import jQuery from 'jquery-slim';
 
 /*
 import styles
@@ -61,8 +61,7 @@ initialisation
 */
 new ViewportDetection();
 // Expose jQuery and plugin manager to the global window object
-window.jQuery = jQuery;
-window.$ = jQuery;
+window.jQuery = window.$ = jQuery;
 
 // Necessary for the webpack hot module reloading server
 if (module.hot) {

@@ -47,8 +47,9 @@ export default class RefreshTokenHelper {
         const loginService = providerContainer.loginService;
         this.isRefreshing = true;
         return loginService.refreshToken().then((newToken) => {
-            this.isRefreshing = false;
             this.onRefreshToken(newToken);
+        }).finally(() => {
+            this.isRefreshing = false;
         });
     }
 

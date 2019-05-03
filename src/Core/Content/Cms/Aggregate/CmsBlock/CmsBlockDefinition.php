@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\LockedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -42,6 +43,8 @@ class CmsBlockDefinition extends EntityDefinition
 
             (new IntField('position', 'position'))->addFlags(new Required()),
             (new StringField('type', 'type'))->addFlags(new Required()),
+
+            new LockedField(),
 
             new StringField('name', 'name'),
             new StringField('sizing_mode', 'sizingMode'),

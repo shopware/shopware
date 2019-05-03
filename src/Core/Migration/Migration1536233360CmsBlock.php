@@ -21,6 +21,7 @@ class Migration1536233360CmsBlock extends MigrationStep
               `position` INT(11) NOT NULL,
               `type` VARCHAR(255) NOT NULL,
               `name`  VARCHAR(255) NULL,
+              `locked` tinyint(1) NOT NULL DEFAULT '0',
               `sizing_mode` VARCHAR(255) NULL,
               `margin_top` VARCHAR(255) NULL,
               `margin_bottom` VARCHAR(255) NULL,

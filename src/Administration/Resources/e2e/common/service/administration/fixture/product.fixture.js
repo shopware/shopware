@@ -66,7 +66,7 @@ export default class ProductFixture extends AdminFixtureService {
             filter: [{
                 field: 'name',
                 type: 'equals',
-                value: 'SalesChannel API endpoint'
+                value: 'SalesChannel'
             }]
         }).then((data) => {
             salesChannelId = data.id;

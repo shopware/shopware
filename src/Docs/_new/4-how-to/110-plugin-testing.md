@@ -102,7 +102,7 @@ such as automatically setting up a database transaction or clearing the cache be
 ## Executing the tests
 
 For easier usage, you could create a batch file called `phpunit.sh` into a `bin` directory of your plugin.
-It's only purpose then would be executing the `PHPUnit` testsuite.
+Its only purpose then would be executing the `PHPUnit` testsuite.
 Make sure the path in the following file actually fits.
 
 ```sh

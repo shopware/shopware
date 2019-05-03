@@ -15,15 +15,13 @@ Imagine you're dealing with with an `EntityDefinition` class like this one:
 ```php
 <?php declare(strict_types=1);
 
-namespace Swag\CustomEntityTranslations\Custom;
+namespace Swag\CustomEntity\Custom;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class CustomEntityDefinition extends EntityDefinition
@@ -32,17 +30,7 @@ class CustomEntityDefinition extends EntityDefinition
     {
         return 'custom_entity';
     }
-
-    protected function defineFields(): FieldCollection
-    {
-        return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            new StringField('technical_name', 'technicalName'),
-            new CreatedAtField(),
-            new UpdatedAtField(),
-        ]);
-    }
-
+    
     public function getCollectionClass(): string
     {
         return CustomEntityCollection::class;
@@ -51,6 +39,14 @@ class CustomEntityDefinition extends EntityDefinition
     public function getEntityClass(): string
     {
         return CustomEntity::class;
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            new StringField('technical_name', 'technicalName'),
+        ]);
     }
 }
 ```
@@ -313,6 +309,31 @@ class CustomEntityTranslationCollection extends EntityCollection
 
 Note the helper method `filterByLanguageId`, which is **not required**.
 It comes in handy, when searching for the translation for a given language.
+
+## Registering your custom entity
+
+Now it's time to actually register your new entity in the DI container.
+All you have to do is to register your `EntityDefinition` using the `shopware.entity.definition` tag.
+
+This is how your `services.xml` could look like:
+```xml
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="Swag\CustomEntityTranslations\Custom\CustomEntityDefinition">
+            <tag name="shopware.entity.definition" entity="custom_entity" />
+        </service>
+
+        <service id="Swag\CustomEntityTranslations\Custom\Aggregate\CustomTranslation\CustomEntityTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="custom_entity_translation" />
+        </service>
+    </services>
+</container>
+```
 
 ## Migration for the translation table
 

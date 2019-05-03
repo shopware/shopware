@@ -67,7 +67,7 @@ own `composer.json` as a key value pair:
 ```
 
 Have a detailed look at the `require` keyword, which now requires both the Shopware platform version, which **always**
-has to be mentioned in your `composer.json`, as well as the previously mentioned plugin and it's version.
+has to be mentioned in your `composer.json`, as well as the previously mentioned plugin and its version.
 Just as in composer itself, you can also use version wildcards, such as `v1.0.*` to only require the other plugin's
 minor version to be 1.1, not considering the patch version.
 

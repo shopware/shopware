@@ -132,7 +132,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                 $rules = array_key_exists('filter', $value) && $value['filter'] !== null ? $this->decodeRule($value['filter']) : null;
 
                 return new PercentagePriceDefinition($value['percentage'], $value['precision'], $rules);
-            default : throw new InvalidPriceFieldTypeException($value['type']);
+            default: throw new InvalidPriceFieldTypeException($value['type']);
         }
     }
 
@@ -247,7 +247,8 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
             if (!array_key_exists($fieldName, $fieldValidations)) {
                 $list->add(
                     $this->buildViolation(
-                        'The property "{{ fieldName }}" is not allowed.', ['{{ fieldName }}' => $fieldName],
+                        'The property "{{ fieldName }}" is not allowed.',
+                        ['{{ fieldName }}' => $fieldName],
                         null,
                         $currentPath
                     )

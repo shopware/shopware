@@ -14,7 +14,7 @@ So let's start with the plugin base class.
 All it has to do, is to register your `services.xml` file by simply putting it into the proper directory `<plugin root>/src/Resources/config/`.
 This way, the Shopware platform is able to automatically find and load your `services.xml` file.
 
-*Note: You can change your plugin's `services.xml` location by overriding the method `getContainerPath` of your [plugin's base class](./../2-internals/4-plugins/020-plugin-base-class.md#getContainerPath()).*
+*Note: You can change your plugin's `services.xml` location by overriding the method `getServicesFilePath` of your [plugin's base class](./../2-internals/4-plugins/020-plugin-base-class.md#getServicesFilePath).*
 
 ## The EntityDefinition class
 
@@ -24,7 +24,7 @@ For more information about what the `EntityDefinition` class does, have a look a
 Your custom entity, as well as your `EntityDefinition` and the `EntityCollection` classes, should be placed inside a folder
 named after the domain it handles, e.g. "Checkout" if you were to include a Checkout entity.
 
-In this example, they will be put into a folder called `src/Custom` inside of the plugin root directory.
+In this example, they will be put into a directory called `src/Custom` inside of the plugin root directory.
 
 ```php
 <?php declare(strict_types=1);
@@ -32,12 +32,10 @@ In this example, they will be put into a folder called `src/Custom` inside of th
 namespace Swag\CustomEntity\Custom;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class CustomEntityDefinition extends EntityDefinition
@@ -62,15 +60,13 @@ class CustomEntityDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new StringField('technical_name', 'technicalName'),
-            new CreatedAtField(),
-            new UpdatedAtField(),
         ]);
     }
 }
 ```
 
-As you can see, the `EntityDefinition` lists all available fields of your custom entity, as well as it's name, it's `EntityCollection` 
-class and it's actual entity class.
+As you can see, the `EntityDefinition` lists all available fields of your custom entity, as well as its name, its `EntityCollection` 
+class and its actual entity class.
 Keep in mind, that the return of your `getEntityName` method will be used for two cases:
 - The database table name
 - The repository name in the DI container (`<the-name>.repository`)
@@ -82,7 +78,7 @@ The two missing classes, the `Entity` itself and the `EntityCollection`, will be
 
 ## The entity class
 
-The entity class itself is a simple value object, like a struct, which contains as much properties as fields in the definition.
+The entity class itself is a simple value object, like a struct, which contains as much properties as fields in the definition, ignoring the ID field.
 
 ```php
 <?php declare(strict_types=1);
@@ -101,16 +97,6 @@ class CustomEntity extends Entity
      */
     protected $technicalName;
 
-    /**
-     * @var \DateTimeInterface
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
     public function getTechnicalName(): string
     {
         return $this->technicalName;
@@ -120,30 +106,10 @@ class CustomEntity extends Entity
     {
         $this->technicalName = $technicalName;
     }
-
-    public function getCreatedAt(): \DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
-    }
 }
 ```
 
-As you can see, it only holds the properties and it's respective getters and setters, for the fields mentioned in the
+As you can see, it only holds the properties and its respective getters and setters, for the fields mentioned in the
 `EntityDefinition` class.
 
 ## CustomEntityCollection
@@ -178,6 +144,27 @@ class CustomEntityCollection extends EntityCollection
 
 You should also add the annotation above the class to make sure your IDE knows how to properly handle your custom collection.
 Make sure to replace every occurrence of `CustomEntity` in there with your actual entity class.
+
+## Registering your custom entity
+
+Now it's time to actually register your new entity in the DI container.
+All you have to do is to register your `EntityDefinition` using the `shopware.entity.definition` tag.
+
+This is how your `services.xml` could look like:
+```xml
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="Swag\CustomEntity\Custom\CustomEntityDefinition">
+            <tag name="shopware.entity.definition" entity="custom_entity" />
+        </service>
+    </services>
+</container>
+```
 
 ## Creating the table
 

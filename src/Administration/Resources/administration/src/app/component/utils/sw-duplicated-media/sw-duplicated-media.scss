@@ -2,7 +2,6 @@
 @import "~scss/mixins";
 
 $sw-duplicated-media-separator-color: $color-steam-cloud;
-$sw-duplicated-media-text-color: $color-gutenberg;
 $sw-duplicated-media-font-size-preview: $font-size-small;
 
 
@@ -31,19 +30,7 @@ $sw-duplicated-media-font-size-preview: $font-size-small;
     }
 
     .sw-field--checkbox {
-        grid-template-columns: 16px 1fr 0;
-        text-align: left;
         margin-bottom: 0;
-
-        label {
-            margin-bottom: 0;
-        }
-    }
-
-    .sw-field__radio-option {
-        label {
-            color: $sw-duplicated-media-text-color !important;
-        }
     }
 
     .sw-modal__footer {

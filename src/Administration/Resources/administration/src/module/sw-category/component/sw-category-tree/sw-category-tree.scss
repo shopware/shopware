@@ -7,16 +7,6 @@ $sw-category-tree-border-color: $color-steam-cloud;
     height: 100%;
     border: none;
 
-    .sw-tree__actions {
-        padding: 0 24px;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        border-bottom: 1px solid $sw-category-tree-border-color;
-        height: 64px;
-        width: 100%;
-    }
-
     .sw-tree__content {
         max-height: unset;
         min-height: unset;

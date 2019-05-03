@@ -1,14 +1,5 @@
 @import "~scss/variables";
 
-$sw-field-font-family: $font-family-default;
-$sw-field-color-text: $color-gutenberg;
-$sw-field-color-border: $color-steam-cloud;
-$sw-field-color-focus: $color-shopware-blue;
-$sw-field-font-size: $font-size-default;
-$sw-field-border-radius: $border-radius-default;
-$sw-field-color-background: $color-white;
-$sw-field-transition: border-color 0.3s ease-out;
-
 .sw-field.sw-block-field.sw-field--textarea {
     textarea {
         line-height: 22px;
@@ -19,7 +10,7 @@ $sw-field-transition: border-color 0.3s ease-out;
     textarea:disabled {
         background: $color-light-gray;
         border-color: $color-steam-cloud;
-        color: lighten($sw-field-color-text, 40%);
+        color: lighten($color-gutenberg, 40%);
         cursor: default !important;
     }
 }

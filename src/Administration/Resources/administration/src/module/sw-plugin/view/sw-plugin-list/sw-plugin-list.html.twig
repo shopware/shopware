@@ -13,6 +13,8 @@
                                       type="select"
                                       name="sortType"
                                       :label="$tc('sw-plugin.list.sortLabel')"
+                                      size="small"
+                                      aside
                                       v-model="sortType"
                                       @change="sortPluginList">
                                 {% block sw_plugin_list_sort_options_upgraded_at_asc %}

@@ -28,11 +28,6 @@ $sw-settings-language-list-color-border-collapse: $color-steam-cloud;
     }
 
     .sw-settings-language-list__filterField.sw-field--switch {
-        grid-template-columns: 24px 1fr;
         margin: 16px 0 0 16px;
-
-        &.sw-field label{
-            font-size: 16px;
-        }
     }
 }

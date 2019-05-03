@@ -1,6 +1,6 @@
 <div class="sw-field sw-field--switch" :class="switchFieldClasses">
     <div class="sw-field--switch__content">
-        <div class="sw-field__switch">
+        <div class="sw-field--switch__input">
             <input type="checkbox"
                    :id="formFieldName || identification"
                    :name="formFieldName || identification"
@@ -12,7 +12,7 @@
             </div>
         </div>
 
-        <label v-if="label" class="sw--switch" :for="formFieldName || identification">
+        <label v-if="label" class="sw-field--switch__label" :for="formFieldName || identification">
             {{ label }}{{ this.inherited ? '*' : '' }}
         </label>
 

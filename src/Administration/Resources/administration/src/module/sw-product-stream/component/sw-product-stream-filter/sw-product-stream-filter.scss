@@ -76,11 +76,10 @@ $sw-condition-base-z-index-arrow: 100;
             .sw-field {
                 background: transparent;
 
-                .sw-field__input {
-                    input,
-                    textarea {
-                        background: transparent;
-                    }
+
+                input,
+                textarea {
+                    background: transparent;
                 }
             }
 

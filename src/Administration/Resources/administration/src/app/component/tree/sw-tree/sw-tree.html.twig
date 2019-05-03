@@ -2,8 +2,11 @@
     <div class="sw-tree">
         {% block sw_tree_search %}
             <div class="sw-tree__search" v-if="searchable">
-                <sw-icon name="default-action-search" size="18"></sw-icon>
-                <sw-field type="text" name="treeSearch" :placeholder="$tc('sw-tree.general.placeholderSearch')" v-model="currentTreeSearch" @input="searchItems"></sw-field>
+                <sw-field name="treeSearch" :placeholder="$tc('sw-tree.general.placeholderSearch')" v-model="currentTreeSearch" @input="searchItems" size="small">
+                    <template #prefix>
+                        <sw-icon name="default-action-search"></sw-icon>
+                    </template>
+                </sw-field>
             </div>
         {% endblock %}
 

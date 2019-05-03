@@ -17,12 +17,16 @@
                 {% endblock %}
 
                 {% block sw_settings_document_detail_actions_save %}
-                    <sw-button class="sw-settings-document-detail__save-action"
-                               variant="primary"
-                               :disabled="documentConfig.isLoading"
-                               @click.prevent="onSave">
+                    <sw-button-process
+                            class="sw-settings-document-detail__save-action"
+                            :isLoading="isLoading"
+                            :processSuccess="isSaveSuccessful"
+                            :disabled="documentConfig.isLoading"
+                            variant="primary"
+                            @process-finish="saveFinish"
+                            @click.prevent="onSave">
                         {{ $tc('sw-settings-document.detail.buttonSave') }}
-                    </sw-button>
+                    </sw-button-process>
                 {% endblock %}
             </template>
         {% endblock %}

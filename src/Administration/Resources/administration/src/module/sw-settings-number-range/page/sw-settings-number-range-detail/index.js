@@ -29,7 +29,9 @@ Component.register('sw-settings-number-range-detail', {
             prefix: '',
             suffix: '',
             preview: '',
-            state: 1
+            state: 1,
+            isLoading: false,
+            isSaveSuccessful: false
         };
     },
 
@@ -290,7 +292,12 @@ Component.register('sw-settings-number-range-detail', {
             });
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+        },
+
         onSave() {
+            this.isSaveSuccessful = false;
             this.onChangeSalesChannel();
             const numberRangeName = this.numberRange.name;
             this.onChange();
@@ -312,24 +319,19 @@ Component.register('sw-settings-number-range-detail', {
                 );
                 return false;
             }
-            const titleSaveSuccess = this.$tc('sw-settings-number-range.detail.titleSaveSuccess');
-            const messageSaveSuccess = this.$tc(
-                'sw-settings-number-range.detail.messageSaveSuccess',
-                0,
-                { name: numberRangeName }
-            );
             const titleSaveError = this.$tc('sw-settings-number-range.detail.titleSaveError');
             const messageSaveError = this.$tc(
                 'sw-settings-number-range.detail.messageSaveError',
                 0,
                 { name: numberRangeName }
             );
+            this.isLoading = true;
+
             return this.numberRange.save().then(() => {
-                this.createNotificationSuccess({
-                    title: titleSaveSuccess,
-                    message: messageSaveSuccess
-                });
+                this.isLoading = false;
+                this.isSaveSuccessful = true;
             }).catch((exception) => {
+                this.isLoading = false;
                 this.createNotificationError({
                     title: titleSaveError,
                     message: messageSaveError

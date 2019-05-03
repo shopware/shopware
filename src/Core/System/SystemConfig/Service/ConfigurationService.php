@@ -55,8 +55,14 @@ class ConfigurationService
 
         foreach ($config as $i => $card) {
             foreach ($card['elements'] as $j => $field) {
-                $field['name'] = $domain . $field['name'];
-                $card['elements'][$j] = $field;
+                $newField = [
+                    'type' => $field['type'],
+                    'name' => $domain . $field['name'],
+                ];
+
+                unset($field['type'], $field['name']);
+                $newField['config'] = $field;
+                $card['elements'][$j] = $newField;
             }
             $config[$i] = $card;
         }

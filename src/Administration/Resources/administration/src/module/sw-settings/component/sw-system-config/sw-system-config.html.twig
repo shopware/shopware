@@ -16,7 +16,6 @@
                           v-if="!isLoading">
                     {% block sw_system_config_content_card_field %}
                         <sw-form-field-renderer v-bind="getElementBind(element)"
-                                                :key="element.name"
                                                 v-model="actualConfigData[currentSalesChannelId][element.name]">
                         </sw-form-field-renderer>
                     {% endblock %}

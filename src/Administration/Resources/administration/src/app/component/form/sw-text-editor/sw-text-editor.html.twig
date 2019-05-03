@@ -27,6 +27,7 @@
                              :contenteditable="true"
                              spellcheck="false"
                              @focus="onFocus"
+                             @paste="onPaste"
                              @keyup="onContentChange"
                              tabindex="-1"
                              v-html="$sanitize(content)">

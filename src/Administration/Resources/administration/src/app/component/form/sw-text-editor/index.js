@@ -348,6 +348,14 @@ export default {
             this.emitContent();
         },
 
+        onPaste(event) {
+            event.stopPropagation();
+            event.preventDefault();
+
+            const clipboardData = event.clipboardData || window.clipboardData;
+            this.content = clipboardData.getData('Text');
+        },
+
         emitContent() {
             if (!this.$refs.editor || this.value === this.$refs.editor.innerHTML) {
                 return;

@@ -31,11 +31,17 @@ class RouterTest extends TestCase
         $stack->push($request);
 
         $router = $this->getContainer()->get('router');
+        $context = $router->getContext();
         $router->setContext(new RequestContext('', 'GET', 'test.de'));
 
         $url = $router->generate($case->route, $case->params, $case->type);
 
         static::assertSame($case->expected, $url);
+
+        while ($stack->pop()) {
+        }
+
+        $router->setContext($context);
     }
 
     public function urlCases()

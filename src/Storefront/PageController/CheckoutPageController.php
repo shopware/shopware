@@ -25,13 +25,18 @@ use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelContextSwitcher;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
+use Shopware\Storefront\Framework\Routing\RequestTransformer;
+use Shopware\Storefront\Framework\Routing\Router;
 use Shopware\Storefront\Page\Checkout\AddressList\CheckoutAddressListPageLoader;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader;
@@ -39,8 +44,10 @@ use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoader;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CheckoutPageController extends StorefrontController
@@ -110,6 +117,21 @@ class CheckoutPageController extends StorefrontController
      */
     private $paymentService;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $domainRepository;
+
+    /**
+     * @var RequestStack
+     */
+    private $requestStack;
+
+    /**
+     * @var RouterInterface
+     */
+    private $router;
+
     public function __construct(
         CartService $cartService,
         PageLoaderInterface $cartPageLoader,
@@ -123,7 +145,10 @@ class CheckoutPageController extends StorefrontController
         SalesChannelContextSwitcher $contextSwitcher,
         TranslatorInterface $translator,
         EntityRepositoryInterface $mediaRepository,
-        PaymentService $paymentService
+        PaymentService $paymentService,
+        EntityRepositoryInterface $domainRepository,
+        RequestStack $requestStack,
+        RouterInterface $router
     ) {
         $this->cartService = $cartService;
         $this->cartPageLoader = $cartPageLoader;
@@ -138,6 +163,10 @@ class CheckoutPageController extends StorefrontController
         $this->translator = $translator;
         $this->mediaRepository = $mediaRepository;
         $this->paymentService = $paymentService;
+        $this->domainRepository = $domainRepository;
+
+        $this->requestStack = $requestStack;
+        $this->router = $router;
     }
 
     /**
@@ -341,6 +370,47 @@ class CheckoutPageController extends StorefrontController
         $this->contextSwitcher->update($data, $context);
 
         return $this->redirectToRoute($route, $parameters);
+    }
+
+    /**
+     * @Route("/checkout/language", name="frontend.checkout.switch-language", methods={"POST"})
+     */
+    public function switchLanguage(Request $request, SalesChannelContext $context): RedirectResponse
+    {
+        if (!$request->request->has('languageId')) {
+            throw new MissingRequestParameterException('languageId');
+        }
+
+        $languageId = $request->request->get('languageId');
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('languageId', $languageId));
+        $criteria->addFilter(new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()));
+        $criteria->setLimit(1);
+
+        $domain = $this->domainRepository->search($criteria, $context->getContext())->first();
+
+        /** @var SalesChannelDomainEntity $domain */
+        if (!$domain) {
+            throw new LanguageNotFoundException($languageId);
+        }
+
+        $route = $request->request->get('redirectTo', 'frontend.home.page');
+
+        $params = $request->request->get('redirectParameters', json_encode([]));
+
+        if (is_string($params)) {
+            $params = json_decode($params, true);
+        }
+
+        $mappingRequest = new Request([], [], [], [], [], ['REQUEST_URI' => $domain->getUrl()]);
+
+        $this->requestStack->getMasterRequest()->attributes->set(RequestTransformer::SALES_CHANNEL_BASE_URL, $mappingRequest->getPathInfo());
+
+        $this->router->getContext()->setMethod('GET');
+        $url = $this->router->generate($route, $params, Router::ABSOLUTE_URL);
+
+        return new RedirectResponse($url);
     }
 
     /**

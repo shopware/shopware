@@ -84,10 +84,12 @@ class Router implements RouterInterface, RequestMatcherInterface
 
     private function getBaseUrl(): string
     {
-        $url = (string) $this->requestStack
-            ->getMasterRequest()
-            ->attributes
-            ->get(RequestTransformer::SALES_CHANNEL_BASE_URL);
+        $request = $this->requestStack->getMasterRequest();
+        if (!$request) {
+            return '';
+        }
+
+        $url = (string) $request->attributes->get(RequestTransformer::SALES_CHANNEL_BASE_URL);
 
         if (empty($url)) {
             return $url;

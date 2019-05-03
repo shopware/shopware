@@ -85,7 +85,7 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
 
         $parameters = $this->contextPersister->load($token);
 
-        if ($languageId && !isset($parameters[self::LANGUAGE_ID])) {
+        if ($languageId) {
             $parameters[self::LANGUAGE_ID] = $languageId;
         }
 

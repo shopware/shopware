@@ -263,6 +263,9 @@
             <argument type="service" id="translator"/>
             <argument type="service" id="media.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentService"/>
+            <argument type="service" id="sales_channel_domain.repository"/>
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="router"/>
         </service>
 
         <service id="Shopware\Storefront\PageController\ErrorPageController" public="true">

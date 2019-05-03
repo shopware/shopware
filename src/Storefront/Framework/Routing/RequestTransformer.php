@@ -14,6 +14,8 @@ use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
 class RequestTransformer
 {
+    public const SALES_CHANNEL_BASE_URL = 'sales_channel_base_url';
+
     /**
      * @var Connection
      */
@@ -54,13 +56,13 @@ class RequestTransformer
         $server = array_merge(
             $_SERVER,
             [
-                'REQUEST_URI' => $baseUrl . $resolved['pathInfo'],
-                'SCRIPT_NAME' => $baseUrl . '/index.php',
-                'SCRIPT_FILENAME' => $baseUrl . '/index.php',
+                'REQUEST_URI' => $resolved['pathInfo'],
             ]
         );
 
         $clone = $request->duplicate(null, null, null, null, null, $server);
+
+        $clone->attributes->set(self::SALES_CHANNEL_BASE_URL, $baseUrl);
 
         $clone->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $salesChannel['salesChannelId']);
         $clone->attributes->set(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST, true);
@@ -159,6 +161,6 @@ class RequestTransformer
             return (new SeoResolver($this->connection))->resolveSeoPath($salesChannelId, $seoPathInfo);
         }
 
-        return ['pathInfo' => $request->getPathInfo()];
+        return ['pathInfo' => $seoPathInfo];
     }
 }

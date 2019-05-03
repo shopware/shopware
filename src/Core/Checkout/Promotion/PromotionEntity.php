@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\CustomerNumberRule;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
-use Shopware\Core\Checkout\Promotion\Aggregate\PromotionOrderCustomer\PromotionOrderCustomerCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSalesChannelCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionTranslation\PromotionTranslationCollection;
 use Shopware\Core\Content\Rule\RuleCollection;
@@ -112,11 +111,6 @@ class PromotionEntity extends Entity
      * @var array|null
      */
     protected $ordersPerCustomerCount;
-
-    /**
-     * @var PromotionOrderCustomerCollection|null
-     */
-    protected $orderCustomers;
 
     public function getName(): ?string
     {
@@ -281,16 +275,6 @@ class PromotionEntity extends Entity
     public function setOrdersPerCustomerCount(array $ordersPerCustomerCount): void
     {
         $this->ordersPerCustomerCount = $ordersPerCustomerCount;
-    }
-
-    public function getOrderCustomers(): ?PromotionOrderCustomerCollection
-    {
-        return $this->orderCustomers;
-    }
-
-    public function setOrderCustomers(PromotionOrderCustomerCollection $orderCustomers): void
-    {
-        $this->orderCustomers = $orderCustomers;
     }
 
     /**

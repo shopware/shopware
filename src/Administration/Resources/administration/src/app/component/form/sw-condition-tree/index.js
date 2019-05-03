@@ -47,6 +47,11 @@ export default {
     methods: {
         createdComponent() {
             this.entityAssociationStore = this.entity.getAssociation(this.config.conditionIdentifier);
+            if (this.entity.isLocal) {
+                const conditions = Object.values(this.entityAssociationStore.store);
+                this.nestedConditions = this.checkRootContainer(this.buildNestedConditions(conditions, null));
+                return;
+            }
             this.entityAssociationStore.getList({
                 page: 1,
                 limit: 500,

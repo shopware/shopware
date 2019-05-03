@@ -22,13 +22,13 @@
 
         {% block sw_promotion_discount_condition_rules_form %}
             <template v-if="discount.considerAdvancedRules === true">
-                <sw-entity-multi-select
+                <sw-many-to-many-select
                         class="sw-promotion-discount-component__select-discount-rules"
                         localMode
                         :label="$tc('sw-promotion.detail.main.discounts.labelRules')"
                         :placeholder="$tc('sw-promotion.detail.main.discounts.placeholder')"
                         :collection="discount.discountRules">
-                </sw-entity-multi-select>
+                </sw-many-to-many-select>
             </template>
         {% endblock %}
 

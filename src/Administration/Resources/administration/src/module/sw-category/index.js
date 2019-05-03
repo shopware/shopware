@@ -1,5 +1,4 @@
 import { Module } from 'src/core/shopware';
-import { NEXT716 } from 'src/flag/feature_next716';
 import './component/sw-category-tree';
 import './component/sw-category-view';
 import './component/sw-category-select';
@@ -12,7 +11,6 @@ import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
 
 Module.register('sw-category', {
-    flag: NEXT716,
     type: 'core',
     name: 'category',
     title: 'sw-category.general.mainMenuItemIndex',

@@ -2,7 +2,6 @@ const productPage = require('administration/page-objects/module/sw-product.page-
 
 module.exports = {
     '@tags': ['category', 'category-create', 'create'],
-    '@disabled': !global.flags.isActive('next716'),
     before: (browser, done) => {
         global.ProductFixtureService.setProductFixture().then(() => {
             done();

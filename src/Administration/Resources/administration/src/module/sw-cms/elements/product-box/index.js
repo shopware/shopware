@@ -27,8 +27,8 @@ Application.getContainer('service').cmsService.registerCmsElement({
         boxLayout: 'standard',
         product: {
             name: 'Lorem Ipsum dolor',
-            description: `Lorem ipsum dolor sit amet, consetetur sadipscing elitr, 
-                          sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, 
+            description: `Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
+                          sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
                           sed diam voluptua.`.trim(),
             price: {
                 gross: 19.90

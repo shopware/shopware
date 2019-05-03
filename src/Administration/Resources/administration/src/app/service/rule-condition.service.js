@@ -130,8 +130,7 @@ export default function createConditionService() {
 
         if (allowedScopes !== null) {
             values = values.filter(condition => {
-                return !condition.scopes
-                    || allowedScopes.some(scope => condition.scopes.indexOf(scope) !== -1);
+                return allowedScopes.some(scope => condition.scopes.indexOf(scope) !== -1);
             });
         }
 

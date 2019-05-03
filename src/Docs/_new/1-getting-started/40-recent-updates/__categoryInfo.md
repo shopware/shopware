@@ -7,8 +7,496 @@
 
 <p><a href="https://component-library.shopware.com/">https://component-library.shopware.com</a></p>
 
+<h2>May 2019</h2>
+
+<h3>2019-05-02: Remove static methods from EntityDefinition</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>We just removed a lot of static calls from DataAbstractionLayer. All <code>EntityDefinitions</code> are now instances provided through the container. This changed a lot of internals and a few but <strong>breaking</strong> public API methods.</p>
+<p>New rule of thumb: <strong>If you need something from the <code>EntityDefinition</code> inject it</strong></p>
+<h3>EntityDefinition</h3>
+<p>The <code>EntityDefinition</code> now must not contain any static methods.</p>
+<pre><code class="language-php"> public static function getEntityName() { ... }</code></pre>
+<p>Is now invalid and will throw a compile error from php. This now must be called</p>
+<pre><code class="language-php">public function getEntityName() {... }</code></pre>
+<p>Please adjust all method calls accordingly. (Usually <code>getEntityName</code>, <code>defineFields</code>, <code>getCollectionClass</code>, <code>getEntityClass</code>)</p>
+<h3>EntityDefinition service declaration</h3>
+<p>The service definition tags already had a <code>entity="entity_name""</code> property. From now on this is required and the build will fail if it's not provided.</p>
+<pre><code class="language-xml">&lt;service id="Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountRule\PromotionDiscountRuleDefinition"&gt;
+    &lt;tag name="shopware.entity.definition" entity="promotion_discount_rule"/&gt;
+&lt;/service&gt;</code></pre>
+<h3>EntityRepository</h3>
+<p>The EntityRepositoryInterface now expects an instance of a Definition - as well as all subsequent Classes (Write, Read, ...). In order to ease the migration the repository now has a <code>getDefinition()</code> method to return the repositories definition if inspection or result rendering is necessary.</p>
+<h3>ResponseFactoryInterface</h3>
+<p>All responses from custom actions rely on Entity definitions. Now you need to provide an instance of the EntityDefinition. You should be able to use the Repository you injected for most instances.</p>
+<pre><code class="language-php">/**
+ * @var EntityRepositoryInterface
+ */
+private $orderRepository;
+
+public function __construct(EntityRepositoryInterface $orderRepository) 
+{
+    $this-&gt;orderRepository = $orderRepository;
+}</code></pre>
+<p>Calls to the <code>ResponseFactoryInterface</code> will now look like this:</p>
+<pre><code class="language-php">return $responseFactory-&gt;createDetailResponse(
+    $orders,
+    $this-&gt;orderRepository-&gt;getDefinition,
+    $request,
+    $context-&gt;getContext()
+);</code></pre>
+<h3>::class references</h3>
+<p>The dependency injection container secures that a particular instance of a definition is created only once per request. If you need equality checks please use the strict comparison operator on the objects themselves. <code>$assiciation-&gt;getReferenceDefinition() === $definition</code> works and is the recommended way.</p>
+<h3>SalesChannel-API</h3>
+<p>The SalesChannel-API's implementation got revamped. Since the definitions themselves are instances now, the SalesChannel-API is now an entirely second cluster of instances in memory that does not touch the original instances. By that we removed the <code>SalesChannelDefinitionTrait</code> and calls to <code>decorateDefinitions</code> are no longer available. Everything will be injected automatically through the container at compile time.</p>
+<p>This is achieved through a decorated registry. Object comparsion with the <code>SalesChannelDefinitionInstanceRegistry</code> yields different results from the base registry. </p>
+<pre><code class="language-php">// Sales channle entities are different classes
+$salesChannelProductDefinition instanceof $sproductDefinition // === true
+$productDefinition instanceof $salesChannelProductDefinition // === false
+
+// The decorated registry allways returns the sales channel object, regardless of the provided service id
+$salesChannelRegistry-&gt;get(ProductDefinition::class) instanceof $slaesChannelRegistry-&gt;get(SalesChannelProductDefinition::class) // == true
+$salesChannelRegistry-&gt;get(ProductDefinition::class) === $slaesChannelRegistry-&gt;get(SalesChannelProductDefinition::class) // == true</code></pre>
+<p>This replacement is done based on the <code>entityName</code> so overwriting a base definition takes a service declaration like this:</p>
+<pre><code class="language-xml">&lt;service id="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition"&gt;
+    &lt;tag name="shopware.sales_channel.entity.definition" entity="product"/&gt;
+&lt;/service&gt;</code></pre>
+<p>Overwrites the product definition in SalesChannel-API requests.</p>
+<h3>Internal changes</h3>
+<p>The change to instances brought many changes to internal implementations in the DataAbstractionLayer. Conceptually the whole configuration now relies on a <strong>compile step</strong> that is automatically triggered by the container on object creation.</p>
+<p>All Definitions and Fields now refer to concrete instances of EntityDefinition as opposed to the class reference. By that you can navigate the entire Object tree without using any registry or container calls:</p>
+<pre><code class="language-php">$productDefinition // ProductDefinition
+    -&gt;getFields() // CompiledFieldCollection
+    -&gt;get('categories') // ManyToManyAssociationField
+    -&gt;getToManyDefinition() // CategoryDefinition
+    -&gt;getFields() // CompiledFieldCollection
+    -&gt;get('tags') // ManyToManyAssociationField
+    -&gt;getToManyDefinition() // TagDefinition</code></pre>
+<h4>Removal of *Registries</h4>
+<p>The formerly necessary <code>FieldSerializerRegistry</code>, <code>FieldAccessorBuilderRegistry</code> and <code>FieldResolverRegistry</code> were removed in favor of getters on the field class. The fields lazily acquire these objects from the service container through the <code>DefinitionInstanceRegistry</code>.</p>
+<pre><code class="language-php">class Field
+{
+    ...
+
+    public function getSerializer(): FieldSerializerInterface { ... }
+
+    public function getResolver(): ?FieldResolverInterface { ... }
+
+    public function getAccessorBuilder(): ?FieldAccessorBuilderInterface { ... }
+
+    ...
+}</code></pre>
+<h3>2019-05-02: Adding the process button component</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>A new component called <code>sw-button-process</code> was added to Shopware platform.
+The button is introduced to display the status of the process the button should start. E.g. if you click the button
+to save an entity, it will display a loading indicator while the save process is running and a tick icon if the
+process was finished successfully. This way, we tend to get rid of those &quot;Success&quot; notifications which does not
+provide any other useful information.</p>
+<p><strong>Usage</strong></p>
+<p>The <code>sw-button-process</code> component looks as stated below:</p>
+<pre><code class="language-$html">&lt;sw-button-process
+        class="sw-product-detail__save-action"
+        :isLoading="isLoading"
+        :processSuccess="isSaveSuccessful"
+        :disabled="isLoading"
+        variant="primary"
+        @process-finish="saveFinish"
+        @click="onSave"&gt;
+        {{ $tc('sw-cms.detail.labelButtonSave') }}
+&lt;/sw-button-process&gt;</code></pre>
+<p>As you can see, you can use the <code>sw-button-process</code> component similar as you're used to with <code>sw-button</code>.
+We just need some further information:</p>
+<ul>
+<li><code>isLoading</code>: Necessary to indicate the time when the process is currently running.</li>
+<li><code>processSuccess</code>: This prop signalizes if the process was finished successfully, so that the <code>sw-button-process</code>
+button can start its success animation.</li>
+</ul>
+<p>If you want to use the <code>sw-button-process</code> button, you need to change those props accordingly to your module's behavior.</p>
+<p><strong><em>Events and creation as edge case</em></strong></p>
+<p>The success animation needs 1.25 seconds to run per default. This way, the <code>create</code> pages were a difficulty since
+they reload the whole page including the process button, interrupting the animation in the process. For this reason,
+we use the <code>@process-finish</code> event to signalize that the save process is finished. In a create page, you need to
+override this event to navigate to the detail page after the animation ran. As seen in the example below,
+you just need to move the routing to the <code>saveFinish</code> event to make it run:</p>
+<pre><code class="language-$javascript">saveFinish() {
+    this.isSaveSuccessful = false;
+    this.$router.push({ name: 'sw.cms.detail', params: { id: this.page.id } });
+},
+
+onSave() {
+    this.$super.onSave();
+}</code></pre>
 <h2>April 2019</h2>
 
+<h3>2019-04-30: Removing the "X-" header prefix</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>The leading &quot;X-&quot; in a header name has been deprecated for years (<a href="https://tools.ietf.org/html/rfc6648">https://tools.ietf.org/html/rfc6648</a>) and therefore should not be used anymore.</p>
+<p><strong>Before:</strong></p>
+<ul>
+<li><code>x-sw-context-token</code></li>
+<li><code>x-sw-access-key</code></li>
+<li><code>x-sw-language-id</code></li>
+<li><code>x-sw-inheritance</code></li>
+<li><code>x-sw-version-id</code></li>
+</ul>
+<p><strong>After:</strong></p>
+<ul>
+<li><code>sw-context-token</code></li>
+<li><code>sw-access-key</code></li>
+<li><code>sw-language-id</code></li>
+<li><code>sw-inheritance</code></li>
+<li><code>sw-version-id</code></li>
+</ul>
+<h3>2019-04-30: Refactored plugin entity</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>We refactored the plugin entity as follows:</p>
+<ul>
+<li>Renamed plugin.name =&gt; plugin.baseClass
+<ul>
+<li>The plugin.baseClass property holds the fully qualified domain name (FQDN)</li>
+</ul></li>
+<li>Added plugin.name
+<ul>
+<li>The plugin.name holds the technical plugin name</li>
+</ul></li>
+</ul>
+<h3>2019-04-30: Notification center</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>The administration now has a notification center in every <code>sw-page</code>.
+This is not a breaking change, you can still make notifications the same way as before.
+But there are some nice new Features that you may want to know:</p>
+<h3>The notification mixin</h3>
+<p>Currently there is a <code>notification.mixin.js</code> which only abstracts the store and sets a notification <code>variant</code>, depending on the method you call.
+It is recommended to use the store directly instead to create or update notifications (because of the update functionality).</p>
+<h3>Store functionality</h3>
+<p>You can create notficiations the following way:</p>
+<pre><code>this.$store.dispatch('notification/createNotification', {
+    title: 'My title',
+    message: 'My message',
+    variant: 'info'
+}).then((notificationId) =&gt; {
+    // Save the id to modify the notification in the future.
+});</code></pre>
+<p>And you can update your notification the following way:</p>
+<pre><code>this.$store.dispatch('notification/updateNotification', {
+    uuid: mySavedNotificationId
+    message: 'changed message'
+}).then((notificationId) =&gt; {
+    // The notification id stays the same here
+});</code></pre>
+<p>The update action is very flexible. You can for example set <code>growl: true</code> to show the user a growl message (again).
+You can also set <code>visited: false</code> to mark the notification as not seen by the user.
+There is also a way to set the <code>visited</code> parameter dynamically depending on data changes (have a look at the <code>metadata</code> parameter).
+If the user deletes the notification and you update it, it will be recreated with the default values and your specified values.</p>
+<h3>Possible notification parameters</h3>
+<ul>
+<li><code>title</code> <strong>required</strong> -&gt; The title of the notification.</li>
+<li><code>message</code> <strong>required</strong> -&gt; The text of the notification.</li>
+<li><code>variant</code> <strong>recommended</strong> -&gt; The styling of the notification. Possible values are <code>success</code>, <code>info</code>, <code>warning</code> and <code>error</code>. The default value is <code>info</code>.</li>
+<li><code>system</code> <strong>optional</strong> -&gt; Applies also to the styling of the notification. If set to true it will be darker. The default is <code>false</code>.</li>
+<li><code>autoClose</code> <strong>optional</strong> -&gt; If set to true the growl notification will close after the specified <code>duration</code>. The default is <code>true</code>.</li>
+<li><code>duration</code> <strong>optional</strong> -&gt; The duration of the growl message in ms. The default is <code>5000</code></li>
+</ul>
+<p>New parameters</p>
+<ul>
+<li><code>growl</code> <strong>recommended</strong> -&gt; Show the notification as a growl message. It will also be in the notification center. The default is <code>true</code>, but you should consider setting this to <code>false</code> to not overwhelm the user in notifications.</li>
+<li><code>visited</code> <strong>optional</strong> -&gt; If set to false, the notification is mark as not seen by the user and will be displayed so. The default is <code>false</code>.</li>
+<li><code>isLoading</code> <strong>required</strong> -&gt; The title of the notification.</li>
+<li><code>metadata</code> <strong>optional</strong> -&gt; You can store a object here. If the object is different from the already attached one, the notification will automaticly set to <code>visited</code> false (as long as not other specified). This is useful to show a progress in the notification where you want to notify the user about progress changes.</li>
+</ul>
+<h3>2019-04-30: New ManyToManyIdField</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>The new <code>\Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyIdField</code> allows to store ids of an <code>\Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField</code> inside the entity.</p>
+<h2>How to implement</h2>
+<ol>
+<li>
+<p>Add the field to the entity definition class:</p>
+<p><code>new ManyToManyIdField('property_ids', 'propertyIds', 'properties')</code></p>
+<p>The third parameter has to be the property name of the related association</p>
+<p><code>(new ManyToManyAssociationField('properties', ...</code></p>
+</li>
+<li>
+<p>Add property, getter and setter to entity class</p>
+<pre><code>
+/**
+ * @var array|null
+ */
+protected $propertyIds;
+
+public function getPropertyIds(): ?array
+{
+    return $this-&gt;propertyIds;
+}
+
+public function setPropertyIds(?array $propertyIds): void
+{
+    $this-&gt;propertyIds = $propertyIds;
+}</code></pre>
+</li>
+</ol>
+<pre><code>
+The DAL will detect this field automatically and updates the data each time the entity changed.
+
+## When do i really need this field?
+
+This field is required for a special kind of filter. The above example shows the relation between a `product` and its `properties`.
+Adding this field to the product definition allows to send the following requrest to the DAL:
+
+**select all products which has the property `red` or `green` AND `xl` or `l`**
+</code></pre>
+<p>$criteria = new Criteria();
+$criteria-&gt;addFilter(
+new EqualsAnyFilter('product.propertyIds', ['red-id', 'green-id'])
+);
+$criteria-&gt;addFilter(
+new EqualsAnyFilter('product.propertyIds', ['xl-id', 'l-id'])
+);</p>
+<pre><code></code></pre>
+<h3>2019-04-30: Attributes are now custom fields</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>We have got the feedback that the intended usage of attributes is unclear
+and often mistaken for product properties. So we decided to rename
+attributes to custom fields.</p>
+<h2>What do I have to do?</h2>
+<p>If you've used <code>AttributesField</code> in  definitions, you need to replace
+it with <code>CustomFields</code> and rename the column <code>attributes</code> to <code>custom_fields</code>.
+Alternatively, you can override the <code>storageName</code> in the <code>CustomFields</code> constructor.</p>
+<h3>2019-04-29: New shortcut methods for transaction state changes</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>There is now a new class which can help you to deal with the <code>StateMachine</code>.
+<code>Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler</code> contains some methods to improve the readability of your code when changing the state.</p>
+<p>old way:</p>
+<pre><code>public function example()
+{
+    $completeStateId = $this-&gt;stateMachineRegistry-&gt;getStateByTechnicalName(
+        OrderTransactionStates::STATE_MACHINE,
+        OrderTransactionStates::STATE_PAID,
+        $context
+    )-&gt;getId();
+
+    $data = [
+        'id' =&gt; $transaction-&gt;getOrderTransaction()-&gt;getId(),
+        'stateId' =&gt; $completeStateId,
+    ];
+
+    $this-&gt;transactionRepository-&gt;update([$data], $context);
+}</code></pre>
+<p>new way:</p>
+<pre><code>public function example()
+{
+    $transactionStateHandler = $this-&gt;getContainer()-&gt;get(OrderTransactionStateHandler::class);
+    $transactionStateHandler-&gt;complete($transaction-&gt;getOrderTransaction()-&gt;getId(), $context);
+}</code></pre>
+<h3>2019-04-29: CreatedAt and UpdatedAt are set as default</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>By extending the EntityDefinition-Class all Definitions now automatically have a <code>cratedAt</code>- and <code>UpdatedAt</code>-Field, so you don't have to add them manually.
+Also every Entity-Struct extending the <code>Entity</code>-Class has the associated Properties + Getters and Setters automatically.</p>
+<p>The only Exception are <code>MappingDefinitions</code>, there these Fields aren't added automatically.</p>
+<h2>What do you have to do?</h2>
+<p>We have extended the <code>dataabstractionlayer:validate</code>-command to check for fields that don't have a mapped Column.
+So run this command to check for Definitions that previously didn`t had these fields.
+For those entities you have to write Migrations and add these fields.
+For every definitions that has those fields you can remove them from the FieldDefinitions and EntityStructs.</p>
+<h3>2019-04-29: Changed context injected to payment handler</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>From now on the <code>\Shopware\Core\System\SalesChannel\SalesChannelContext</code> is injected into the methods of
+<code>\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface</code> and
+<code>\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface</code>.
+This should give you more information about the current checkout and saleschannel context,
+but it breaks the current interfaces. Please adjust your payment handler accordingly.
+Please be also aware that the SalesChannelContext <strong>may</strong> contain certain information. Some of its properties are nullable,
+so make sure they are set, before you use them. </p>
+<h3>2019-04-26: Removed public shorthand functions of context</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>The context used to have the shorthand functions <code>getUserId</code> and <code>getSalesChannelId</code>.</p>
+<p>The problem is that it depended on the Source of the Context whether these Ids were set or not.
+Especially in the case of the <code>salesChannelId</code> this was problematic, because it silently returned the DefaultId in case the source didn't match.</p>
+<p>We removed the shorthand functions, so noe you have to take care of checking the ContextSource:</p>
+<pre><code class="language-php">if (!$context-&gt;getSource() instanceof AdminApiSource) {
+    throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context-&gt;getSource()));
+}</code></pre>
+<p>We have added the <code>InvalidContextSourceException</code> for the case that a different CntextSource was expected.</p>
+<h3>2019-04-26: Public controllers</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>In the past you had to extend the whitelist in the SalesChannelApi-/ApiAuthenticationLister
+if you wanted to create a controller which doesn't required a logged in user.
+Since it was almost impossible for third party developers to extend this list,
+the behavior has changed.
+If you now want to create a public route you can do this with an annotation. Example:</p>
+<p><code>* @Route("/api/v{version}/_action/user/my-unprotected-route", defaults={"auth_required"=false})</code></p>
+<h3>2019-04-26: Currency iso code added</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>The currency entity now has an additional field called isoCode which is required and not translated.
+This field contains a 3 letter code according to the ISO 4217 standard.</p>
 <h3>2019-04-25: Vue Vuex in the Administration</h3>
 
 <style type="text/css">
@@ -2469,7 +2957,7 @@ dl dd {
 
 
 
-<p>We removed the details column from the order_transaction table. It was introduced in the past, to store additional data to the transaction, e.g. from external payment providers. This is now unnecessary since the introduction of the attribute field. If you stored data to the details field, create a new attribute and store the data in this attribute field. An example migration could be found in our <a href="https://github.com/shopwareLabs/SwagPayPal/commit/a09beec33c5ebe8247d259e970dfcc09ee9c8f13">PayPal integration</a></p>
+<p>We removed the details column from the order_transaction table. It was introduced in the past, to store additional data to the transaction, e.g. from external payment providers. This is now unnecessary since the introduction of the custom field. If you stored data to the details field, create a new custom field and store the data in this custom field field. An example migration could be found in our <a href="https://github.com/shopwareLabs/SwagPayPal/commit/a09beec33c5ebe8247d259e970dfcc09ee9c8f13">PayPal integration</a></p>
 
 <h3>2019-03-11: sw-data-grid update</h3>
 
@@ -2810,7 +3298,7 @@ props: {
 &nbsp; &nbsp; }
 }</pre>
 
-<h3>2019-03-06: CustomField</h3>
+<h3>2019-03-06: CustomFields</h3>
 
 <style type="text/css">
 
@@ -2827,13 +3315,13 @@ dl dd {
 
 
 
-<p>We added an easy way to add custom fields to entities. The CustomField is like the JsonField only dynamically typed. To save custom fields to entities you first have to define the attribute:</p>
+<p>We added an easy way to add custom fields to entities. The CustomField is like the JsonField only dynamically typed. To save custom fields to entities you first have to define the custom field:</p>
 
 <pre>
-$customFieldRepository-&gt;create([[
+$customFieldsRepository-&gt;create([[
 &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;id&#39; =&gt; &#39;&lt;uuid&gt;&#39;,
 &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;name&#39; =&gt; &#39;sw_test_float&#39;,
-&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;type&#39; =&gt; AttributeType::Float,
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;type&#39; =&gt; CustomFieldType::Float,
 &nbsp;&nbsp; &nbsp;]],
 &nbsp;&nbsp; &nbsp;$context
 );

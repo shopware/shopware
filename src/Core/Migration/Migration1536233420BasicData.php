@@ -766,15 +766,9 @@ class Migration1536233420BasicData extends MigrationStep
     {
         $tax19 = Uuid::randomBytes();
         $tax7 = Uuid::randomBytes();
-        $tax20 = Uuid::randomBytes();
-        $tax5 = Uuid::randomBytes();
-        $tax0 = Uuid::randomBytes();
 
         $connection->insert('tax', ['id' => $tax19, 'tax_rate' => 19, 'name' => '19%', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
         $connection->insert('tax', ['id' => $tax7, 'tax_rate' => 7, 'name' => '7%', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
-        $connection->insert('tax', ['id' => $tax20, 'tax_rate' => 20, 'name' => '20%', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
-        $connection->insert('tax', ['id' => $tax5, 'tax_rate' => 5, 'name' => '5%', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
-        $connection->insert('tax', ['id' => $tax0, 'tax_rate' => 1, 'name' => '1%', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
     }
 
     private function createSalesChannelTypes(Connection $connection): void
@@ -785,10 +779,10 @@ class Migration1536233420BasicData extends MigrationStep
         $storefrontApi = Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_API);
 
         $connection->insert('sales_channel_type', ['id' => $storefront, 'icon_name' => 'default-building-shop', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
-        $connection->insert('sales_channel_type_translation', ['sales_channel_type_id' => $storefront, 'language_id' => $languageEN, 'name' => 'Storefront', 'manufacturer' => 'shopware AG', 'description' => 'Default storefront sales channel', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('sales_channel_type_translation', ['sales_channel_type_id' => $storefront, 'language_id' => $languageEN, 'name' => 'Storefront', 'manufacturer' => 'shopware AG', 'description' => 'Sales channel with HTML storefront', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
 
         $connection->insert('sales_channel_type', ['id' => $storefrontApi, 'icon_name' => 'default-shopping-basket', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
-        $connection->insert('sales_channel_type_translation', ['sales_channel_type_id' => $storefrontApi, 'language_id' => $languageEN, 'name' => 'Storefront API', 'manufacturer' => 'shopware AG', 'description' => 'Default Storefront-API', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('sales_channel_type_translation', ['sales_channel_type_id' => $storefrontApi, 'language_id' => $languageEN, 'name' => 'Headless', 'manufacturer' => 'shopware AG', 'description' => 'API only sales channel', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
     }
 
     private function createProductManufacturer(Connection $connection): void
@@ -808,7 +802,7 @@ class Migration1536233420BasicData extends MigrationStep
         $versionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
         $connection->insert('category', ['id' => $id, 'version_id' => $versionId, 'type' => CategoryDefinition::TYPE_PAGE, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
-        $connection->insert('category_translation', ['category_id' => $id, 'category_version_id' => $versionId, 'language_id' => $languageEN, 'name' => 'Root category', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('category_translation', ['category_id' => $id, 'category_version_id' => $versionId, 'language_id' => $languageEN, 'name' => 'Catalogue #1', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
     }
 
     private function createSalesChannel(Connection $connection): void
@@ -858,12 +852,12 @@ class Migration1536233420BasicData extends MigrationStep
             $connection->insert('sales_channel_language', ['sales_channel_id' => $id, 'language_id' => $language]);
         }
 
-        // currency
+        // shipping methods
         foreach ($shippingMethods as $shippingMethod) {
             $connection->insert('sales_channel_shipping_method', ['sales_channel_id' => $id, 'shipping_method_id' => $shippingMethod]);
         }
 
-        // currency
+        // payment methods
         foreach ($paymentMethods as $paymentMethod) {
             $connection->insert('sales_channel_payment_method', ['sales_channel_id' => $id, 'payment_method_id' => $paymentMethod]);
         }

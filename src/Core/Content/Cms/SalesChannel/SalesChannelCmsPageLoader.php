@@ -31,7 +31,7 @@ class SalesChannelCmsPageLoader
         $this->slotDataResolver = $slotDataResolver;
     }
 
-    public function load(Request $request, Criteria $criteria, SalesChannelContext $context, ?array $config = null): EntitySearchResult
+    public function load(Request $request, Criteria $criteria, SalesChannelContext $context, ?array $config = null, ?ResolverContext $resolverContext = null): EntitySearchResult
     {
         $config = $config ?? [];
 
@@ -48,6 +48,10 @@ class SalesChannelCmsPageLoader
                 continue;
             }
 
+            if (!$resolverContext) {
+                $resolverContext = new ResolverContext($context, $request);
+            }
+
             // step 2, sort blocks by position for correct order
             $page->getBlocks()->sort(function (CmsBlockEntity $a, CmsBlockEntity $b) {
                 return $a->getPosition() <=> $b->getPosition();
@@ -60,15 +64,14 @@ class SalesChannelCmsPageLoader
             $this->overwriteSlotConfig($page, $overwrite);
 
             // step 5, resolve slot data
-            $this->loadSlotData($page, $request, $context);
+            $this->loadSlotData($page, $resolverContext);
         }
 
         return $pages;
     }
 
-    private function loadSlotData(CmsPageEntity $page, Request $request, SalesChannelContext $context): void
+    private function loadSlotData(CmsPageEntity $page, ResolverContext $resolverContext): void
     {
-        $resolverContext = new ResolverContext($context, $request);
         $slots = $this->slotDataResolver->resolve($page->getBlocks()->getSlots(), $resolverContext);
 
         $page->getBlocks()->setSlots($slots);

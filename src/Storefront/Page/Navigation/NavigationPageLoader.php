@@ -5,6 +5,8 @@ namespace Shopware\Storefront\Page\Navigation;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader;
+use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\EntityResolverContext;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
@@ -29,14 +31,21 @@ class NavigationPageLoader implements PageLoaderInterface
      */
     private $eventDispatcher;
 
+    /**
+     * @var EntityDefinition
+     */
+    private $categoryDefinition;
+
     public function __construct(
         SalesChannelCmsPageLoader $cmsPageLoader,
         PageLoaderInterface $genericLoader,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        EntityDefinition $categoryDefinition
     ) {
         $this->genericLoader = $genericLoader;
         $this->eventDispatcher = $eventDispatcher;
         $this->cmsPageLoader = $cmsPageLoader;
+        $this->categoryDefinition = $categoryDefinition;
     }
 
     public function load(Request $request, SalesChannelContext $context): NavigationPage
@@ -50,7 +59,15 @@ class NavigationPageLoader implements PageLoaderInterface
         $pageId = $category->getCmsPageId();
 
         if ($pageId) {
-            $pages = $this->cmsPageLoader->load($request, new Criteria([$pageId]), $context, $category->getSlotConfig());
+            $resolverContext = new EntityResolverContext($context, $request, $this->categoryDefinition, $category);
+
+            $pages = $this->cmsPageLoader->load(
+                $request,
+                new Criteria([$pageId]),
+                $context,
+                $category->getSlotConfig(),
+                $resolverContext
+            );
 
             if (!$pages->has($pageId)) {
                 throw new PageNotFoundException($pageId);

@@ -24,7 +24,7 @@ class Migration1536232950Customer extends MigrationStep
               `last_payment_method_id` BINARY(16) NULL,
               `default_billing_address_id` BINARY(16) NOT NULL,
               `default_shipping_address_id` BINARY(16) NOT NULL,
-              `customer_number` VARCHAR(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+              `customer_number` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
               `salutation` VARCHAR(30) COLLATE utf8mb4_unicode_ci NULL,
               `first_name` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
               `last_name` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,

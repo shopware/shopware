@@ -44,9 +44,9 @@ module.exports = {
             .fillSwSelectComponent(
                 '.sw-product-detail__select-visibility',
                 {
-                    value: 'SalesChannel API endpoint',
+                    value: 'Storefront',
                     isMulti: true,
-                    searchTerm: 'SalesChannel API endpoint'
+                    searchTerm: 'Storefront'
                 }
             )
             .expect.element(page.elements.productSaveAction).to.not.have.attribute('disabled');

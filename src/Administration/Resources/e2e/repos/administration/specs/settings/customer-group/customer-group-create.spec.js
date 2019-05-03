@@ -52,7 +52,7 @@ module.exports = {
 
         browser.expect.element(
             `${page.elements.salesChannelMenuName}--1 .collapsible-text`
-        ).to.have.text.that.contains('Storefront API');
+        ).to.have.text.that.contains('Storefront');
 
         browser
             .click(`${page.elements.salesChannelMenuName}--1`)

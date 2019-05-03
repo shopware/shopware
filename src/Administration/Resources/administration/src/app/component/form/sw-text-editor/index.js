@@ -178,7 +178,8 @@ export default {
             selection: null,
             toolbar: null,
             textLength: 0,
-            content: this.value
+            content: this.value,
+            placeholderHeight: null
         };
     },
 
@@ -206,6 +207,10 @@ export default {
                     this.setWordcount();
                 }
             }
+        },
+
+        placeholderVisible() {
+            this.setPlaceholderHeight();
         }
     },
 
@@ -378,6 +383,16 @@ export default {
             // strip Tags
             text = text.replace(/<\/?("[^"]*"|'[^']*'|[^>])*(>|$)/g, '');
             this.textLength = text.length;
+        },
+
+        setPlaceholderHeight() {
+            this.$nextTick(() => {
+                const placeholderEl = this.$el.querySelector('.sw-text-editor__content-placeholder');
+
+                this.placeholderHeight = {
+                    height: this.placeholderVisible && placeholderEl ? `${placeholderEl.offsetHeight}px` : null
+                };
+            });
         }
     }
 };

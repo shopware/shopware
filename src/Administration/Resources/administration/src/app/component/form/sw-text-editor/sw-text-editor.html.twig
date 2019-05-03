@@ -21,7 +21,7 @@
                 {% endblock %}
 
                 {% block sw_text_editor_box_content %}
-                    <div class="sw-text-editor__content">
+                    <div class="sw-text-editor__content" :style="placeholderHeight">
                         <div class="sw-text-editor__content-editor"
                              ref="editor"
                              :contenteditable="true"

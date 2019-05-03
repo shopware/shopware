@@ -109,9 +109,15 @@ export default class LocalStore {
 
             if (params.sortBy) {
                 const sortDirection = params.sortDirection === 'ASC' ? 1 : -1;
-
+                const path = params.sortBy.split('.');
                 store = store.sort((valueA, valueB) => {
-                    return valueA[this.propertyName].localeCompare(valueB[this.propertyName]) * sortDirection;
+                    let compareA = valueA;
+                    let compareB = valueB;
+                    path.forEach(propertyPath => {
+                        compareA = compareA[propertyPath];
+                        compareB = compareB[propertyPath];
+                    });
+                    return compareA.localeCompare(compareB) * sortDirection;
                 });
             }
 

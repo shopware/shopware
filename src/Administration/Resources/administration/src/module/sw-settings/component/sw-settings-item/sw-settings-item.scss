@@ -22,7 +22,9 @@ $sw-settings-item-hover-text-color: $color-shopware-blue;
         justify-content: center;
         height: 48px;
         width: 48px;
-        background-color: darken($color-light-gray, 2%);
+        &.background--enabled{
+            background-color: darken($color-light-gray, 2%);
+        }
         border-radius: 50%;
         margin-right: 20px;
 
@@ -42,7 +44,9 @@ $sw-settings-item-hover-text-color: $color-shopware-blue;
         color: $sw-settings-item-hover-text-color;
 
         .sw-settings-item__icon {
-            background-color: darken($color-light-gray, 4%);
+            &.background--enabled {
+                background-color: darken($color-light-gray, 4%);
+            }
 
             .sw-icon {
                 color: $sw-settings-item-hover-text-color;

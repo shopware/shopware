@@ -324,7 +324,7 @@ export default {
         selectAll(selected) {
             this.$delete(this.selection);
 
-            this.records.forEach((item) => {
+            this.recordArray.forEach((item) => {
                 if (this.isSelected(item.id) !== selected) {
                     this.selectItem(selected, item);
                 }
@@ -356,7 +356,7 @@ export default {
 
         checkSelection() {
             let selected = true;
-            this.records.forEach((item) => {
+            this.recordArray.forEach((item) => {
                 if (this.selection[item.id] === undefined) {
                     selected = false;
                 }

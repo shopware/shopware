@@ -29,8 +29,9 @@ module.exports = {
         page.fillLoremIpsumIntoSelector('textarea[name=sw-field--shippingMethod-description]', true);
 
         browser
+            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .click(page.elements.shippingSaveAction)
-            .checkNotification(`Shipping rate "${shippingMethodName}" has been saved successfully.`);
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium');
     },
     'lorem text stays filled in after reload': browser => {
         browser
@@ -50,14 +51,14 @@ module.exports = {
             .click('.sw-select__results-list .sw-select-option--1')
             .clearValue(`.context-prices__prices ${page.elements.gridRow}--1 input[name=sw-field--item-price]`)
             .fillField(`.context-prices__prices ${page.elements.gridRow}--1 input[name=sw-field--item-price]`, '9')
+            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .click(page.elements.shippingSaveAction)
-            .checkNotification(`Shipping rate "${shippingMethodName}" has been saved successfully.`);
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium');
     },
     'delete shippingMethod price rule': browser => {
         const page = shippingMethodPage(browser);
 
         browser
-            .clickContextMenuItem('.sw-context-menu-item--danger', )
             .clickContextMenuItem('.sw-context-menu-item--danger', {
                 menuActionSelector: `${page.elements.gridRow}--1 ${page.elements.contextMenuButton}`
             })

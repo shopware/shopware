@@ -17,9 +17,16 @@
                 {% endblock %}
 
                 {% block sw_settings_rule_detail_actions_save %}
-                    <sw-button class="sw-settings-rule-detail__save-action" variant="primary" :disabled="rule.isLoading" @click="onSave">
-                        {{ $tc('sw-settings-rule.detail.buttonSave') }}
-                    </sw-button>
+                <sw-button-process
+                        class="sw-settings-rule-detail__save-action"
+                        :isLoading="isLoading"
+                        :processSuccess="isSaveSuccessful"
+                        :disabled="rule.isLoading"
+                        variant="primary"
+                        @process-finish="saveFinish"
+                        @click="onSave">
+                    {{ $tc('sw-settings-rule.detail.buttonSave') }}
+                </sw-button-process>
                 {% endblock %}
 
             </template>

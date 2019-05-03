@@ -22,7 +22,9 @@ Component.register('sw-settings-payment-detail', {
                 'OR',
                 CriteriaFactory.contains('rule.moduleTypes.types', 'payment'),
                 CriteriaFactory.equals('rule.moduleTypes', null)
-            )
+            ),
+            isLoading: false,
+            isSaveSuccessful: false
         };
     },
 
@@ -97,31 +99,30 @@ Component.register('sw-settings-payment-detail', {
             }
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+        },
+
         onSave() {
             const paymentMethodName = this.paymentMethod.name;
-            const titleSaveSuccess = this.$tc('sw-settings-payment.detail.titleSaveSuccess');
-            const messageSaveSuccess = this.$tc('sw-settings-payment.detail.messageSaveSuccess', 0, {
-                name: paymentMethodName
-            });
-
             const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');
             const messageSaveError = this.$tc(
                 'global.notification.notificationSaveErrorMessage', 0, { entityName: paymentMethodName }
             );
+            this.isSaveSuccessful = false;
+            this.isLoading = true;
 
             return this.paymentMethod.save().then(() => {
+                this.isLoading = false;
+                this.isSaveSuccessful = true;
                 this.$refs.mediaSidebarItem.getList();
-
-                this.createNotificationSuccess({
-                    title: titleSaveSuccess,
-                    message: messageSaveSuccess
-                });
             }).catch((exception) => {
                 this.createNotificationError({
                     title: titleSaveError,
                     message: messageSaveError
                 });
                 warn(this._name, exception.message, exception.response);
+                this.isLoading = false;
                 throw exception;
             });
         },

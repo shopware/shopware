@@ -17,9 +17,16 @@
                 {% endblock %}
 
                 {% block sw_settings_shipping_detail_actions_save %}
-                    <sw-button variant="primary" class="sw-settings-shipping-method-detail__save-action" :disabled="isLoading" @click.prevent="onSave">
-                        {{ $tc('sw-settings-shipping.detail.buttonSave') }}
-                    </sw-button>
+                <sw-button-process
+                        class="sw-settings-shipping-method-detail__save-action"
+                        :isLoading="isProcessLoading"
+                        :processSuccess="isSaveSuccessful"
+                        :disabled="isProcessLoading"
+                        variant="primary"
+                        @process-finish="saveFinish"
+                        @click.prevent="onSave">
+                    {{ $tc('sw-settings-shipping.detail.buttonSave') }}
+                </sw-button-process>
                 {% endblock %}
             </template>
         {% endblock %}

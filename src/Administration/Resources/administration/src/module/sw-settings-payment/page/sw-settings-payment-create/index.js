@@ -22,10 +22,13 @@ Component.extend('sw-settings-payment-create', 'sw-settings-payment-detail', {
             this.$super.createdComponent();
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+            this.$router.push({ name: 'sw.settings.payment.detail', params: { id: this.paymentMethod.id } });
+        },
+
         onSave() {
-            this.$super.onSave().then(() => {
-                this.$router.push({ name: 'sw.settings.payment.detail', params: { id: this.paymentMethod.id } });
-            });
+            this.$super.onSave();
         }
     }
 });

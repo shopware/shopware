@@ -33,10 +33,13 @@ Component.extend('sw-settings-shipping-create', 'sw-settings-shipping-detail', {
             this.shippingMethod.active = true;
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+            this.$router.push({ name: 'sw.settings.shipping.detail', params: { id: this.shippingMethod.id } });
+        },
+
         onSave() {
-            this.$super.onSave().then(() => {
-                this.$router.push({ name: 'sw.settings.shipping.detail', params: { id: this.shippingMethod.id } });
-            });
+            this.$super.onSave();
         }
     }
 });

@@ -39,6 +39,8 @@ class CartPersister implements CartPersisterInterface
             throw new CartDeserializeFailedException();
         }
 
+        $cart->setToken($token);
+
         return $cart;
     }
 

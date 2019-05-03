@@ -64,7 +64,6 @@ class MailSendSubscriber implements EventSubscriberInterface
 
         $data = new DataBag();
         $data->set('recipients', $mailEvent->getMailStruct()->getRecipients());
-        $data->set('senderMail', $mailTemplate->getSenderMail());
         $data->set('senderName', $mailTemplate->getSenderName());
         // todo
         $data->set('salesChannelId', Defaults::SALES_CHANNEL);

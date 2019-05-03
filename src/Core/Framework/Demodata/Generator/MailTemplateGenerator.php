@@ -98,7 +98,6 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
             'description' => $faker->text,
             'isDefault' => false,
             'senderName' => $faker->name(),
-            'senderMail' => $faker->safeEmail,
             'subject' => $faker->text(100),
             'contentHtml' => $this->generateRandomHTML(
                 10,

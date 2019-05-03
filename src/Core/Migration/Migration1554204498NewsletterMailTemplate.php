@@ -27,7 +27,6 @@ class Migration1554204498NewsletterMailTemplate extends MigrationStep
             'mail_template',
             [
                 'id' => $registerMailId,
-                'sender_mail' => 'info@shopware.com',
                 'mail_type' => NewsletterSubscriptionServiceInterface::MAIL_TYPE_OPT_IN,
                 'system_default' => true,
                 'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
@@ -64,7 +63,6 @@ class Migration1554204498NewsletterMailTemplate extends MigrationStep
             'mail_template',
             [
                 'id' => $confirmMailId,
-                'sender_mail' => 'info@shopware.com',
                 'mail_type' => NewsletterSubscriptionServiceInterface::MAIL_TYPE_REGISTER,
                 'system_default' => true,
                 'created_at' => date(Defaults::STORAGE_DATE_FORMAT),

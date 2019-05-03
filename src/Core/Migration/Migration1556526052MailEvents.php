@@ -37,7 +37,6 @@ class Migration1556526052MailEvents extends MigrationStep
             'mail_template',
             [
                 'id' => $orderCofirmationTemplateId,
-                'sender_mail' => 'info@shopware.com',
                 'mail_template_type_id' => $mailTemplateTypeMapping[MailTemplateTypes::MAILTYPE_ORDER_CONFIRM],
                 'system_default' => 1,
                 'created_at' => date(Defaults::STORAGE_DATE_FORMAT),

@@ -31,7 +31,8 @@
       "notSet": "Await activation",
       "optIn": "Active",
       "optOut": "Await deletion",
-      "direct": "Direct active"
+      "direct": "Direct active",
+      "messageEmpty": "No Newsletter receiver yet"
     }
   }
 }

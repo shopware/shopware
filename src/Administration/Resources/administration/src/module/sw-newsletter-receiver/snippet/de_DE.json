@@ -31,7 +31,8 @@
       "notSet": "Warten auf Aktivierung",
       "optIn": "Aktiv",
       "optOut": "Warten auf Löschung",
-      "direct": "Sofort aktiv"
+      "direct": "Sofort aktiv",
+      "messageEmpty": "Noch keine Newsletter-Empfänger"
     }
   }
 }

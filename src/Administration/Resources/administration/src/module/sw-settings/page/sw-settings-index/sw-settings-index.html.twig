@@ -1,20 +1,75 @@
 {% block sw_settings %}
-    <sw-page class="sw-settings-index">
-
-        {% block sw_settings_header %}
-            <template slot="smart-bar-header">
-                <h2>{{ $tc('sw-settings.index.title') }}</h2>
-            </template>
-        {% endblock %}
+    <sw-page class="sw-settings-index" :showSmartBar="false">
 
         {% block sw_settings_content %}
-            <sw-card-view slot="content">
-                {% block sw_settings_content_card %}
-                    <sw-card class="sw-settings__card">
-                        <slot>{% block sw_settings_content_card_slot_default %}{% endblock %}</slot>
-                    </sw-card>
-                {% endblock %}
-            </sw-card-view>
+            <template #content>
+                <sw-card-view>
+                    {% block sw_settings_content_tabs %}
+                        <sw-tabs class="sw-settings__tabs"
+                                 :isVertical="true"
+                                 :small="false"
+                                 defaultItem="shop">
+                            <template #default="{ active }">
+                                {% block sw_settings_content_tab_shop %}
+                                    <sw-tabs-item class="sw-settings__tab-shop"
+                                                  name="shop"
+                                                  :activeTab="active"
+                                                  :title="$tc('sw-settings.index.tabShop')">
+                                        {{ $tc('sw-settings.index.tabShop') }}
+                                    </sw-tabs-item>
+                                {% endblock %}
+
+                                {% block sw_settings_content_tab_system %}
+                                    <sw-tabs-item class="sw-settings__tab-system"
+                                                  name="system"
+                                                  :activeTab="active"
+                                                  :title="$tc('sw-settings.index.tabSystem')">
+                                        {{ $tc('sw-settings.index.tabSystem') }}
+                                    </sw-tabs-item>
+                                {% endblock %}
+
+                                {% block sw_settings_content_tab_plugins %}
+                                    <sw-tabs-item class="sw-settings__tab-plugins"
+                                                  v-if="hasPluginConfig()"
+                                                  name="plugins"
+                                                  :activeTab="active"
+                                                  :title="$tc('sw-settings.index.tabPlugins')">
+                                        {{ $tc('sw-settings.index.tabPlugins') }}
+                                    </sw-tabs-item>
+                                {% endblock %}
+                            </template>
+
+
+                            <template #content="{ active }">
+                                {% block sw_settings_content_card %}
+                                    {% block sw_settings_content_header %}
+                                        <h1 class="sw-settings__content-header">{{ $tc('sw-settings.index.title') }}</h1>
+                                    {% endblock %}
+
+                                    <sw-card class="sw-settings__card">
+                                        <slot name="shop">
+                                            <div v-show="active === 'shop'" class="sw-settings__content-grid">
+                                                {% block sw_settings_content_card_slot_shop %}{% endblock %}
+                                            </div>
+                                        </slot>
+                                        <slot name="system">
+                                            <div v-show="active === 'system'" class="sw-settings__content-grid">
+                                                {% block sw_settings_content_card_slot_system %}{% endblock %}
+                                            </div>
+                                        </slot>
+                                        <slot name="plugins">
+                                            <div v-show="active === 'plugins'" class="sw-settings__content-grid" ref="pluginConfig">
+                                                {% block sw_settings_content_card_slot_plugins %}{% endblock %}
+                                            </div>
+                                        </slot>
+                                    </sw-card>
+                                {% endblock %}
+                            </template>
+                        </sw-tabs>
+                    {% endblock %}
+                </sw-card-view>
+
+            </template>
         {% endblock %}
     </sw-page>
 {% endblock %}

@@ -16,6 +16,10 @@
           "titleSuccess": "Thumbnails finished",
           "messageSuccess": "Generation of the thumbnails was completed."
         }
+      },
+      "plugin-updates-listener": {
+        "updatesAvailableTitle": "Plugin-Updates available.",
+        "updatesAvailableMessage": "For some Plugins are updates available."
       }
     },
     "sw-admin-menu": {

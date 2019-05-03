@@ -1,24 +1,35 @@
 import AdminWorker from 'src/core/worker/admin-worker.worker';
 import WorkerNotificationListener from 'src/core/worker/worker-notification-listener';
 
+let enabled = false;
+
 /**
  * Starts the worker
  */
 export default function initializeWorker() {
     const configService = this.getContainer('service').configService;
+    const loginService = this.getContainer('service').loginService;
+    const context = this.getContainer('init').contextService;
 
-    configService.getConfig().then((response) => {
-        if (response.adminWorker.enableAdminWorker) {
-            const loginService = this.getContainer('service').loginService;
-            const context = this.getContainer('init').contextService;
+    if (loginService.isLoggedIn()) {
+        configureWorker();
+    } else {
+        loginService.addOnLoginListener(configureWorker);
+    }
 
-            enableAdminWorker(loginService, context, response.adminWorker);
-            enableWorkerNotificationListener(
-                loginService,
-                context
-            );
-        }
-    });
+    function configureWorker() {
+        configService.getConfig()
+            .then((response) => {
+                if (response.adminWorker.enableAdminWorker && !enabled) {
+                    enableAdminWorker(loginService, context, response.adminWorker);
+                    enableWorkerNotificationListener(
+                        loginService,
+                        context
+                    );
+                }
+            })
+            .catch();
+    }
 }
 
 function enableAdminWorker(loginService, context, config) {
@@ -48,6 +59,8 @@ function enableAdminWorker(loginService, context, config) {
         worker.terminate();
         worker = getWorker(loginService);
     });
+
+    enabled = true;
 }
 
 function getWorker(loginService) {

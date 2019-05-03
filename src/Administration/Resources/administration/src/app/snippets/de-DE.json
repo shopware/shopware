@@ -16,6 +16,10 @@
           "titleSuccess": "Vorschaubilder fertiggestellt",
           "messageSuccess": "Generierung der Vorschaubilder wurde abgeschlossen."
         }
+      },
+      "plugin-updates-listener": {
+        "updatesAvailableTitle": "Plugin-Updates verfügbar.",
+        "updatesAvailableMessage": "Für einige Plugins stehen Updates bereit."
       }
     },
     "sw-admin-menu": {

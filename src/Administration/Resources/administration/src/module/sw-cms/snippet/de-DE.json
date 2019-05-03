@@ -2,8 +2,8 @@
   "sw-cms": {
     "general": {
       "placeholderSearchBar": "Suche nach einem Layout",
-      "mainMenuItemGeneral": "Experience Designer",
-      "moduleTitle": "Experience Designer",
+      "mainMenuItemGeneral": "Erlebniswelten",
+      "moduleTitle": "Erlebniswelten",
       "greeting": "Layouts",
       "createNewLayout": "Neues Layout anlegen"
     },

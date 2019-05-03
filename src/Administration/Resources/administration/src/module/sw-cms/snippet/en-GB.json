@@ -2,8 +2,8 @@
   "sw-cms": {
     "general": {
       "placeholderSearchBar": "Search for a Layout",
-      "mainMenuItemGeneral": "Experience Designer",
-      "moduleTitle": "Experience Designer",
+      "mainMenuItemGeneral": "Shopping Experiences",
+      "moduleTitle": "Shopping Experiences",
       "greeting": "Layouts",
       "createNewLayout": "Create new Layout"
     },

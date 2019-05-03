@@ -130,6 +130,7 @@
         "profilePasswordTitle": "Passwort",
         "orRegister": "oder",
         "orRegisterLink": "registrieren",
+        "emailChangeSuccess": "E-Mail Adresse erfolgreich geändert",
         "profilePasswordCreateNew": "Neues Passwort",
         "profilePasswordCurrent": "Ihr Aktuelles Passwort",
         "profileSaveChanges": "Änderungen Speichern",

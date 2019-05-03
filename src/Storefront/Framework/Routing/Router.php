@@ -6,28 +6,25 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Matcher\RequestMatcherInterface;
 use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Routing\Router as SymfonyRouter;
 use Symfony\Component\Routing\RouterInterface;
 
 class Router implements RouterInterface, RequestMatcherInterface
 {
     /**
-     * @var \Symfony\Component\Routing\Router
+     * @var SymfonyRouter
      */
     private $decorated;
 
     /**
-     * @var string
+     * @var RequestStack
      */
-    private $baseUrl;
+    private $requestStack;
 
-    public function __construct(\Symfony\Component\Routing\Router $decorated, RequestStack $requestStack)
+    public function __construct(SymfonyRouter $decorated, RequestStack $requestStack)
     {
         $this->decorated = $decorated;
-
-        $this->baseUrl = $requestStack
-            ->getMasterRequest()
-            ->attributes
-            ->get(RequestTransformer::SALES_CHANNEL_BASE_URL);
+        $this->requestStack = $requestStack;
     }
 
     public function matchRequest(Request $request)
@@ -54,15 +51,53 @@ class Router implements RouterInterface, RequestMatcherInterface
     {
         $generated = $this->decorated->generate($name, $parameters, $referenceType);
 
-        if (strncmp($name, 'frontend.', 9) === 0 || strncmp($name, 'widgets.', 8) === 0) {
-            return $this->baseUrl . $generated;
+        if (!$this->isStorefrontRoute($name)) {
+            return $generated;
         }
 
-        return $generated;
+        $url = $this->getBaseUrl();
+
+        switch ($referenceType) {
+            case self::NETWORK_PATH:
+            case self::ABSOLUTE_URL:
+                $host = $this->getContext()->getHost();
+
+                return str_replace(
+                    $host,
+                    $host . rtrim($url, '/'),
+                    $generated
+                );
+
+            case self::RELATIVE_PATH:
+                return ltrim($url, '/') . $generated;
+
+            case self::ABSOLUTE_PATH:
+            default:
+                return rtrim($url, '/') . $generated;
+        }
     }
 
     public function match($pathinfo)
     {
         return $this->decorated->match($pathinfo);
+    }
+
+    private function getBaseUrl(): string
+    {
+        $url = (string) $this->requestStack
+            ->getMasterRequest()
+            ->attributes
+            ->get(RequestTransformer::SALES_CHANNEL_BASE_URL);
+
+        if (empty($url)) {
+            return $url;
+        }
+
+        return '/' . trim($url, '/') . '/';
+    }
+
+    private function isStorefrontRoute(string $name): bool
+    {
+        return strncmp($name, 'frontend.', 9) === 0 || strncmp($name, 'widgets.', 8) === 0;
     }
 }

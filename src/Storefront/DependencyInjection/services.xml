@@ -7,7 +7,7 @@
     <services>
         <defaults autowire="true"/>
 
-        <service class="Shopware\Storefront\Framework\Routing\Router" id="Shopware\Storefront\Framework\Routing\Router" decorates="router">
+        <service id="Shopware\Storefront\Framework\Routing\Router" decorates="router">
             <argument type="service" id="Shopware\Storefront\Framework\Routing\Router.inner" />
             <argument type="service" id="request_stack"/>
         </service>

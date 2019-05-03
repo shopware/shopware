@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
 class RequestTransformer
 {
-    public const SALES_CHANNEL_BASE_URL = 'sales_channel_base_url';
+    public const SALES_CHANNEL_BASE_URL = 'sw-sales-channel-base-url';
 
     /**
      * @var Connection

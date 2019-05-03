@@ -22,6 +22,7 @@ Module.register('sw-cms', {
     color: '#ff68b4',
     icon: 'default-symbol-content',
     favicon: 'icons-module-content.png',
+    entity: 'cms_page',
 
     snippets: {
         'de-DE': deDE,

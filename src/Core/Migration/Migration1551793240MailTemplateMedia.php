@@ -3,9 +3,7 @@
 namespace Shopware\Core\Migration;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Uuid\Uuid;
 
 class Migration1551793240MailTemplateMedia extends MigrationStep
 {
@@ -29,14 +27,6 @@ CREATE TABLE mail_template_media (
 SQL;
 
         $connection->exec($query);
-
-        $connection->insert('media_default_folder', [
-            'id' => Uuid::randomBytes(),
-            'association_fields' => '["mailTemplateMedia"]',
-            'entity' => 'mail_template',
-            'thumbnail_sizes' => '[]',
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
-        ]);
     }
 
     public function updateDestructive(Connection $connection): void

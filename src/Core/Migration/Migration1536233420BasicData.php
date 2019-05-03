@@ -45,6 +45,7 @@ class Migration1536233420BasicData extends MigrationStep
         $this->createProductManufacturer($connection);
         $this->createDefaultSnippetSets($connection);
         $this->createDefaultMediaFolders($connection);
+        $this->createRules($connection);
 
         $this->createOrderStateMachine($connection);
         $this->createOrderDeliveryStateMachine($connection);
@@ -766,15 +767,9 @@ class Migration1536233420BasicData extends MigrationStep
     {
         $tax19 = Uuid::randomBytes();
         $tax7 = Uuid::randomBytes();
-        $tax20 = Uuid::randomBytes();
-        $tax5 = Uuid::randomBytes();
-        $tax0 = Uuid::randomBytes();
 
         $connection->insert('tax', ['id' => $tax19, 'tax_rate' => 19, 'name' => '19%', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
         $connection->insert('tax', ['id' => $tax7, 'tax_rate' => 7, 'name' => '7%', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
-        $connection->insert('tax', ['id' => $tax20, 'tax_rate' => 20, 'name' => '20%', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
-        $connection->insert('tax', ['id' => $tax5, 'tax_rate' => 5, 'name' => '5%', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
-        $connection->insert('tax', ['id' => $tax0, 'tax_rate' => 1, 'name' => '1%', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
     }
 
     private function createSalesChannelTypes(Connection $connection): void
@@ -785,10 +780,10 @@ class Migration1536233420BasicData extends MigrationStep
         $storefrontApi = Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_API);
 
         $connection->insert('sales_channel_type', ['id' => $storefront, 'icon_name' => 'default-building-shop', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
-        $connection->insert('sales_channel_type_translation', ['sales_channel_type_id' => $storefront, 'language_id' => $languageEN, 'name' => 'Storefront', 'manufacturer' => 'shopware AG', 'description' => 'Default storefront sales channel', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('sales_channel_type_translation', ['sales_channel_type_id' => $storefront, 'language_id' => $languageEN, 'name' => 'Storefront', 'manufacturer' => 'shopware AG', 'description' => 'Sales channel with HTML storefront', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
 
         $connection->insert('sales_channel_type', ['id' => $storefrontApi, 'icon_name' => 'default-shopping-basket', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
-        $connection->insert('sales_channel_type_translation', ['sales_channel_type_id' => $storefrontApi, 'language_id' => $languageEN, 'name' => 'Storefront API', 'manufacturer' => 'shopware AG', 'description' => 'Default Storefront-API', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('sales_channel_type_translation', ['sales_channel_type_id' => $storefrontApi, 'language_id' => $languageEN, 'name' => 'Headless', 'manufacturer' => 'shopware AG', 'description' => 'API only sales channel', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
     }
 
     private function createProductManufacturer(Connection $connection): void
@@ -808,7 +803,7 @@ class Migration1536233420BasicData extends MigrationStep
         $versionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
         $connection->insert('category', ['id' => $id, 'version_id' => $versionId, 'type' => CategoryDefinition::TYPE_PAGE, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
-        $connection->insert('category_translation', ['category_id' => $id, 'category_version_id' => $versionId, 'language_id' => $languageEN, 'name' => 'Root category', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('category_translation', ['category_id' => $id, 'category_version_id' => $versionId, 'language_id' => $languageEN, 'name' => 'Catalogue #1', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
     }
 
     private function createSalesChannel(Connection $connection): void
@@ -842,7 +837,7 @@ class Migration1536233420BasicData extends MigrationStep
             'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
         ]);
 
-        $connection->insert('sales_channel_translation', ['sales_channel_id' => $id, 'language_id' => $languageEN, 'name' => 'Storefront API', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('sales_channel_translation', ['sales_channel_id' => $id, 'language_id' => $languageEN, 'name' => 'Headless', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
 
         // country
         $connection->insert('sales_channel_country', ['sales_channel_id' => $id, 'country_id' => $defaultCountry]);
@@ -858,12 +853,12 @@ class Migration1536233420BasicData extends MigrationStep
             $connection->insert('sales_channel_language', ['sales_channel_id' => $id, 'language_id' => $language]);
         }
 
-        // currency
+        // shipping methods
         foreach ($shippingMethods as $shippingMethod) {
             $connection->insert('sales_channel_shipping_method', ['sales_channel_id' => $id, 'shipping_method_id' => $shippingMethod]);
         }
 
-        // currency
+        // payment methods
         foreach ($paymentMethods as $paymentMethod) {
             $connection->insert('sales_channel_payment_method', ['sales_channel_id' => $id, 'payment_method_id' => $paymentMethod]);
         }
@@ -885,6 +880,10 @@ class Migration1536233420BasicData extends MigrationStep
 
         $queue->addInsert('media_default_folder', ['id' => Uuid::randomBytes(), 'association_fields' => '["productMedia"]', 'entity' => 'product', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
         $queue->addInsert('media_default_folder', ['id' => Uuid::randomBytes(), 'association_fields' => '["productManufacturers"]', 'entity' => 'product_manufacturer', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+        $queue->addInsert('media_default_folder', ['id' => Uuid::randomBytes(), 'association_fields' => '["avatarUser"]', 'entity' => 'user', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);
+        $queue->addInsert('media_default_folder', ['id' => Uuid::randomBytes(), 'association_fields' => '["mailTemplateMedia"]', 'entity' => 'mail_template', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);
+        $queue->addInsert('media_default_folder', ['id' => Uuid::randomBytes(), 'association_fields' => '["categories"]', 'entity' => 'category', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);
+        $queue->addInsert('media_default_folder', ['id' => Uuid::randomBytes(), 'association_fields' => '[]', 'entity' => 'cms_page', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
 
         $queue->execute();
     }
@@ -1127,5 +1126,21 @@ class Migration1536233420BasicData extends MigrationStep
 
         // set initial state
         $connection->update('state_machine', ['initial_state_id' => $openId], ['id' => $stateMachineId]);
+    }
+
+    private function createRules(Connection $connection): void
+    {
+        $sundaySaleRuleId = Uuid::randomBytes();
+        $connection->insert('rule', ['id' => $sundaySaleRuleId, 'name' => 'Sunday sales', 'priority' => 2, 'invalid' => 0, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('rule_condition', ['id' => Uuid::randomBytes(), 'rule_id' => $sundaySaleRuleId, 'type' => 'dayOfWeek', 'value' => json_encode(['operator' => '=', 'dayOfWeek' => 7]), 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+
+        $allCustomersRuleId = Uuid::randomBytes();
+        $connection->insert('rule', ['id' => $allCustomersRuleId, 'name' => 'All customers', 'priority' => 1, 'invalid' => 0, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('rule_condition', ['id' => Uuid::randomBytes(), 'rule_id' => $allCustomersRuleId, 'type' => 'customerCustomerGroup', 'value' => json_encode(['operator' => '=', 'customerGroupIds' => [Defaults::FALLBACK_CUSTOMER_GROUP]]), 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+
+        $usaCountryId = $connection->executeQuery('SELECT LOWER(hex(id)) FROM country WHERE `iso3` = "USA"')->fetchColumn();
+        $usaRuleId = Uuid::randomBytes();
+        $connection->insert('rule', ['id' => $usaRuleId, 'name' => 'Customers from USA', 'priority' => 100, 'invalid' => 0, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('rule_condition', ['id' => Uuid::randomBytes(), 'rule_id' => $usaRuleId, 'type' => 'customerBillingCountry', 'value' => json_encode(['operator' => '=', 'countryIds' => [$usaCountryId]]), 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
     }
 }

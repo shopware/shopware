@@ -5,6 +5,7 @@ namespace Shopware\Core\System\SalesChannel\Command;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -45,13 +46,20 @@ class SalesChannelCreateCommand extends Command
      */
     private $snippetSetRepository;
 
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $definitionRegistry;
+
     public function __construct(
+        DefinitionInstanceRegistry $definitionRegistry,
         EntityRepositoryInterface $salesChannelRepository,
         EntityRepositoryInterface $paymentMethodRepository,
         EntityRepositoryInterface $shippingMethodRepository,
         EntityRepositoryInterface $countryRepository,
         EntityRepositoryInterface $snippetSetRepository
     ) {
+        $this->definitionRegistry = $definitionRegistry;
         $this->salesChannelRepository = $salesChannelRepository;
         $this->paymentMethodRepository = $paymentMethodRepository;
         $this->shippingMethodRepository = $shippingMethodRepository;
@@ -65,7 +73,7 @@ class SalesChannelCreateCommand extends Command
     {
         $this->setName('sales-channel:create')
             ->addOption('id', null, InputOption::VALUE_REQUIRED, 'Id for the sales channel', Uuid::randomHex())
-            ->addOption('name', null, InputOption::VALUE_REQUIRED, 'Name for the application', 'SalesChannel API endpoint')
+            ->addOption('name', null, InputOption::VALUE_REQUIRED, 'Name for the application')
             ->addOption('languageId', null, InputOption::VALUE_REQUIRED, 'Default language', Defaults::LANGUAGE_SYSTEM)
             ->addOption('snippetSetId', null, InputOption::VALUE_REQUIRED, 'Default snippet set')
             ->addOption('currencyId', null, InputOption::VALUE_REQUIRED, 'Default currency', Defaults::CURRENCY)
@@ -88,11 +96,15 @@ class SalesChannelCreateCommand extends Command
         $shippingMethod = $input->getOption('shippingMethodId') ?? $this->getFirstActiveShippingMethodId();
         $countryId = $input->getOption('countryId') ?? $this->getFirstActiveCountryId();
         $snippetSet = $input->getOption('snippetSetId') ?? $this->getSnippetSetId();
+        $context = Context::createDefaultContext();
 
         $data = [
             'id' => $id,
+            'name' => $input->getOption('name') ?? 'Headless',
             'typeId' => $typeId ?? $this->getTypeId(),
             'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
+
+            // default selection
             'languageId' => $input->getOption('languageId'),
             'snippetSetId' => $snippetSet,
             'currencyId' => $input->getOption('currencyId'),
@@ -103,15 +115,17 @@ class SalesChannelCreateCommand extends Command
             'shippingMethodVersionId' => Defaults::LIVE_VERSION,
             'countryId' => $countryId,
             'countryVersionId' => Defaults::LIVE_VERSION,
-            'currencies' => [['id' => $input->getOption('currencyId')]],
-            'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
-            'shippingMethods' => [['id' => $shippingMethod]],
-            'paymentMethods' => [['id' => $paymentMethod]],
-            'countries' => [['id' => $countryId]],
-            'name' => $input->getOption('name'),
             'customerGroupId' => $input->getOption('customerGroupId'),
+
+            // available mappings
+            'currencies' => $this->getAllIdsOf('currency', $context),
+            'languages' => $this->getAllIdsOf('language', $context),
+            'shippingMethods' => $this->getAllIdsOf('shipping_method', $context),
+            'paymentMethods' => $this->getAllIdsOf('payment_method', $context),
+            'countries' => $this->getAllIdsOf('country', $context),
         ];
-        $data = array_merge_recursive($data, $this->getSalesChannelConfiguration($input, $output));
+
+        $data = array_replace_recursive($data, $this->getSalesChannelConfiguration($input, $output));
 
         try {
             $this->salesChannelRepository->create([$data], Context::createDefaultContext());
@@ -198,5 +212,17 @@ class SalesChannelCreateCommand extends Command
         }
 
         return $id;
+    }
+
+    private function getAllIdsOf(string $entity, Context $context): array
+    {
+        $repository = $this->definitionRegistry->getRepository($entity);
+
+        return array_map(
+            function (string $id) {
+                return ['id' => $id];
+            },
+            $repository->searchIds(new Criteria(), $context)->getIds()
+        );
     }
 }

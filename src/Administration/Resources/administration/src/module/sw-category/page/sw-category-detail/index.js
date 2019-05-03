@@ -23,6 +23,8 @@ Component.register('sw-category-detail', {
             cmsPage: null,
             categories: [],
             isLoading: false,
+            isLoadingCategory: false,
+            isLoadingInitialData: false,
             mediaItem: null,
             isMobileViewport: null,
             splitBreakpoint: 1024,
@@ -127,6 +129,10 @@ Component.register('sw-category-detail', {
         getCategories(parentId = null) {
             this.isLoading = true;
 
+            if (parentId === null) {
+                this.isLoadingInitialData = true;
+            }
+
             const params = {
                 page: 1,
                 limit: 500,
@@ -140,6 +146,7 @@ Component.register('sw-category-detail', {
             return this.categoryStore.getList(params, true).then((response) => {
                 this.categories = Object.values(this.categoryStore.store);
                 this.isLoading = false;
+                this.isLoadingInitialData = false;
                 return response.items;
             });
         },
@@ -185,6 +192,10 @@ Component.register('sw-category-detail', {
             const categoryId = this.$route.params.id;
             this.isLoading = true;
 
+            if (!this.category) {
+                this.isLoadingCategory = true;
+            }
+
             if (this.category) {
                 this.category.discardChanges();
             }
@@ -197,9 +208,11 @@ Component.register('sw-category-detail', {
                     this.mediaItem = this.category.mediaId
                         ? this.mediaStore.getById(this.category.mediaId) : null;
                     this.isLoading = false;
+                    this.isLoadingCategory = false;
                 });
             } else {
                 this.isLoading = false;
+                this.isLoadingCategory = false;
                 this.category = null;
                 this.mediaItem = null;
             }

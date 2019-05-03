@@ -124,12 +124,17 @@
     }
 
     .sw-category-detail-base__product-subcategories.sw-field {
+        display: grid;
+        height: 64px;
         align-content: center;
         border-top: 1px solid $color-steam-cloud;
-        grid-template-columns: 24px 1fr;
-        padding: 6px 30px 0 30px;
+        padding: 0 30px;
         margin-bottom: 0;
-        height: 64px;
+        margin-top: 0;
+
+        .sw-field--switch__content {
+            grid-template-columns: 24px 1fr;
+        }
     }
 
     .sw-empty-state {

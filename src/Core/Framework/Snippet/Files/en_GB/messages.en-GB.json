@@ -49,6 +49,7 @@
         "VIOLATION::TOO_LOW_ERROR": "%field% should not be empty.",
         "VIOLATION::STRICT_CHECK_FAILED_ERROR": "%field% is invalid",
         "VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE": "This email address is already registered",
+        "VIOLATION::CUSTOMER_PASSWORD_NOT_CORRECT": "Your current password is invalid.",
         "message-default": "Unfortunately, something went wrong.",
         "message-404": "The requested page cannot be found.",
         "addToCartError": "An error occurred while adding the item(s) to cart.",

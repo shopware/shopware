@@ -29,6 +29,10 @@ Component.register('sw-cms-block-config', {
 
         mediaStore() {
             return State.getStore('media');
+        },
+
+        cmsPageState() {
+            return State.getStore('cmsPageState');
         }
     },
 

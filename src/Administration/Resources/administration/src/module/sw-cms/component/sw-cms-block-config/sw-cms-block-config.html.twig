@@ -26,6 +26,7 @@
                     :source="block && block.backgroundMedia && block.backgroundMedia.id ? block.backgroundMedia : null"
                     :uploadTag="uploadTag"
                     :label="$tc('sw-cms.detail.labelBlockBackgroundMediaLabel')"
+                    :defaultFolder="cmsPageState.pageEntityName"
                     :allowMultiSelect="false"
                     @media-upload-remove-image="removeMedia"
                     @selection-change="onSetBackgroundMedia">

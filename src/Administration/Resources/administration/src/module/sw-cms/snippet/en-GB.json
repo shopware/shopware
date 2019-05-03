@@ -68,7 +68,10 @@
       "labelButtonMappingRemoveAction": "Remove mapping",
       "labelMappingPreview": "Field mapped to:",
       "notificationTitleMissingFields": "Missing configuration",
-      "notificationMessageMissingFields": "Please fill out the required configuration fields."
+      "notificationMessageMissingFields": "Please fill out the required configuration fields.",
+      "notificationTitlePageError": "Layout could not be saved!",
+      "notificationTitleMissingElements": "Missing element configuration!",
+      "notificationMessageMissingElements": "Please configure all elements of your layout."
     },
     "elements": {
       "captionMediaUpload": "Upload an image",

@@ -70,9 +70,9 @@
                         {% endblock %}
 
                         {% block sw_cms_element_product_box_actions %}
-                            <div class="sw-cms-el-product-box__actions" v-if="element.config.boxLayout.value !== 'minimal'">
+                            <div class="sw-cms-el-product-box__actions">
                                 <a href="#" class="sw-cms-el-product-box__detail-action"
-                                            v-if="element.config.boxLayout.value !== 'image'">
+                                    v-if="element.config.boxLayout.value !== 'image' && element.config.boxLayout.value !== 'minimal'">
                                     {{ $tc('sw-cms.elements.labelProductActionDetail') }}
                                 </a>
                                 <a href="#" class="sw-cms-el-product-box__buy-action">

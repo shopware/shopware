@@ -1,0 +1,17 @@
+<sw-contextual-field
+        class="sw-field--colorpicker sw-field--compact-colorpicker"
+        v-bind="$attrs"
+        :name="formFieldName"
+        :disabled="disabled">
+
+    <template #sw-field-input="{ disabled }">
+        <div class="sw-colorpicker__field sw-colorpicker__trigger">
+            <div class="sw-colorpicker__previewWrapper">
+                <div class="sw-colorpicker__previewColor" :style="{ background: color }"></div>
+                <div class="sw-colorpicker__previewBackground"
+                     :class="{'sw-colorpicker__previewBackground--empty': emptyColor}"></div>
+            </div>
+        </div>
+    </template>
+
+</sw-contextual-field>

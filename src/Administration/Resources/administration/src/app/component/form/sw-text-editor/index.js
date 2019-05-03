@@ -93,6 +93,10 @@ export default {
                         ]
                     },
                     {
+                        type: 'foreColor',
+                        value: ''
+                    },
+                    {
                         type: 'bold',
                         icon: 'default-text-editor-bold'
                     },
@@ -255,6 +259,7 @@ export default {
                 document.getSelection().empty();
             }
 
+            this.resetForeColor();
             this.hasSelection = !!document.getSelection().toString();
             this.selection = document.getSelection();
         },
@@ -268,6 +273,16 @@ export default {
             }
 
             return path;
+        },
+
+        resetForeColor() {
+            Object.keys(this.buttonConfig).forEach(
+                (key) => {
+                    if (this.buttonConfig[key].type === 'foreColor') {
+                        this.buttonConfig[key].value = '';
+                    }
+                }
+            );
         },
 
         onToolbarCreated(elem) {

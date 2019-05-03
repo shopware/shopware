@@ -4,7 +4,7 @@
             <div class="sw-text-editor-toolbar__item"
                  v-for="(button, index) in buttonConfig"
                  :key="index"
-                 v-on="button.children || button.type === 'link' ? { click: (event) => onToggleMenu(event, button) } : { click: () => handleButtonClick(button) }">
+                 v-on="button.children || button.type === 'link' || button.type === 'foreColor' ? { click: (event) => onToggleMenu(event, button) } : { click: () => handleButtonClick(button) }">
 
                 {% block sw_text_editor_toolbar_item_button %}
                     <template v-if="button.icon">
@@ -17,6 +17,13 @@
 
                 {% block sw_text_editor_toolbar_item_name %}
                     <div v-else-if="button.name">{{ button.name }}</div>
+                {% endblock %}
+
+                {% block sw_text_editor_toolbar_color %}
+                    <div v-else-if="button.type === 'foreColor'">
+                        <sw-field type="compactColorpicker" v-model="button.value" compact @input="handleButtonClick(button)">
+                        </sw-field>
+                    </div>
                 {% endblock %}
 
                 {% block sw_text_editor_toolbar_item_child %}
@@ -43,7 +50,7 @@
                             <sw-field v-model="button.newTab" type="switch" :label="$tc('sw-text-editor-toolbar.link.openInNewTab')"></sw-field>
                             <div class="sw-text-editor-toolbar__link-menu-buttons">
                                 {% block sw_text_editor_toolbar_item_link_menu_buttons %}
-                                    <sw-button size="small" varian="primary" @click="handleTextStyleChangeLink(button)">{{ $tc('sw-text-editor-toolbar.link.insert') }}</sw-button>
+                                    <sw-button size="small" variant="primary" @click="handleTextStyleChangeLink(button)">{{ $tc('sw-text-editor-toolbar.link.insert') }}</sw-button>
                                 {% endblock %}
                             </div>
                         {% endblock %}

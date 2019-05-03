@@ -69,6 +69,7 @@
         <service id="Shopware\Core\Framework\MessageQueue\Api\ConsumeMessagesController" public="true">
             <argument type="service" id="messenger.receiver_locator"/>
             <argument type="service" id="messenger.bus.shopware"/>
+            <argument>%shopware.admin_worker.poll_interval%</argument>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

@@ -29,7 +29,7 @@ function enableAdminWorker(loginService, context, config) {
             context,
             bearerAuth: loginService.getBearerAuthentication(),
             host: window.location.origin,
-            pollingConfig: config.pollInterval
+            transports: config.transports
         });
     }
 
@@ -40,7 +40,7 @@ function enableAdminWorker(loginService, context, config) {
             context,
             bearerAuth: auth,
             host: window.location.origin,
-            pollingConfig: config.pollInterval
+            transports: config.transports
         });
     });
 

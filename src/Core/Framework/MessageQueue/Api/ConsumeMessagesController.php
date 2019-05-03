@@ -24,10 +24,16 @@ class ConsumeMessagesController extends AbstractController
      */
     private $bus;
 
-    public function __construct(ServiceLocator $receiverLocator, MessageBusInterface $bus)
+    /**
+     * @var int
+     */
+    private $pollInterval;
+
+    public function __construct(ServiceLocator $receiverLocator, MessageBusInterface $bus, int $pollInterval)
     {
         $this->receiverLocator = $receiverLocator;
         $this->bus = $bus;
+        $this->pollInterval = $pollInterval;
     }
 
     /**
@@ -42,7 +48,7 @@ class ConsumeMessagesController extends AbstractController
         }
 
         $receiver = $this->receiverLocator->get($receiverName);
-        $receiver = new StopWhenTimeLimitIsReachedReceiver($receiver, 2);
+        $receiver = new StopWhenTimeLimitIsReachedReceiver($receiver, $this->pollInterval);
         $receiver = new CountHandledMessagesReceiver($receiver);
 
         $worker = new Worker($receiver, $this->bus);

@@ -113,6 +113,7 @@
         "paymentTitle": "Zahlungsarten",
         "ordersTitle": "Bestellungen",
         "logout": "Abmelden",
+        "guestAbort": "Gastsitzung beenden",
         "logoutSucceeded": "Sie haben sich erfolgreich abgemeldet",
         "overviewWelcome": "Willkommen, ",
         "overviewInfo": "Dies ist Ihr Konto Dashboard, wo Sie die Möglichkeit haben, Ihre letzten Kontoaktivitäten einzusehen.",

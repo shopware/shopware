@@ -10,62 +10,76 @@
             {% endblock %}
 
             {% block page_account_sidebar_menu %}
-                <div class="list-group list-group-flush">
-                    {% block page_account_sidebar_menu_inner %}
-                        {% block page_account_sidebar_link_home %}
-                            <a href="{{ path('frontend.account.home.page') }}"
-                               title="{{ "account.overviewLink"|trans }}"
-                               class="list-group-item list-group-item-action account-sidebar-item{% if controllerName is same as('AccountPage') and controllerAction is same as('index') %} active{% endif %}">
-                                {{ "account.overviewLink"|trans }}
-                            </a>
-                        {% endblock %}
+                {% if not context.customer.guest %}
+                    <div class="list-group list-group-flush">
+                        {% block page_account_sidebar_menu_inner %}
+                            {% block page_account_sidebar_link_home %}
+                                <a href="{{ path('frontend.account.home.page') }}"
+                                   title="{{ "account.overviewLink"|trans }}"
+                                   class="list-group-item list-group-item-action account-sidebar-item{% if controllerName is same as('AccountPage') and controllerAction is same as('index') %} active{% endif %}">
+                                    {{ "account.overviewLink"|trans }}
+                                </a>
+                            {% endblock %}
 
-                        {% block page_account_sidebar_link_profile %}
-                            <a href="{{ path('frontend.account.profile.page') }}"
-                               title="{{ "account.profileLink"|trans }}"
-                               class="list-group-item list-group-item-action account-sidebar-item{% if controllerName is same as('AccountPage') and controllerAction is same as('profileOverview') %} active{% endif %}">
-                                {{ "account.profileLink"|trans }}
-                            </a>
-                        {% endblock %}
+                            {% block page_account_sidebar_link_profile %}
+                                <a href="{{ path('frontend.account.profile.page') }}"
+                                   title="{{ "account.profileLink"|trans }}"
+                                   class="list-group-item list-group-item-action account-sidebar-item{% if controllerName is same as('AccountPage') and controllerAction is same as('profileOverview') %} active{% endif %}">
+                                    {{ "account.profileLink"|trans }}
+                                </a>
+                            {% endblock %}
 
-                        {% block page_account_sidebar_link_address %}
-                            <a href="{{ path('frontend.account.address.page') }}"
-                               title="{{ "account.addressLink"|trans }}"
-                               class="list-group-item list-group-item-action account-sidebar-item{% if controllerName is same as('AccountPage') and controllerAction is same as('addressOverview') %} active{% endif %}">
-                                {{ "account.addressLink"|trans }}
-                            </a>
-                        {% endblock %}
+                            {% block page_account_sidebar_link_address %}
+                                <a href="{{ path('frontend.account.address.page') }}"
+                                   title="{{ "account.addressLink"|trans }}"
+                                   class="list-group-item list-group-item-action account-sidebar-item{% if controllerName is same as('AccountPage') and controllerAction is same as('addressOverview') %} active{% endif %}">
+                                    {{ "account.addressLink"|trans }}
+                                </a>
+                            {% endblock %}
 
-                        {% block page_account_sidebar_link_payment %}
-                            <a href="{{ path('frontend.account.payment.page') }}"
-                               title="{{ "account.paymentLink"|trans }}"
-                               class="list-group-item list-group-item-action account-sidebar-item{% if controllerName is same as('AccountPage') and controllerAction is same as('paymentOverview') %} active{% endif %}">
-                                {{ "account.paymentLink"|trans }}
-                            </a>
-                        {% endblock %}
+                            {% block page_account_sidebar_link_payment %}
+                                <a href="{{ path('frontend.account.payment.page') }}"
+                                   title="{{ "account.paymentLink"|trans }}"
+                                   class="list-group-item list-group-item-action account-sidebar-item{% if controllerName is same as('AccountPage') and controllerAction is same as('paymentOverview') %} active{% endif %}">
+                                    {{ "account.paymentLink"|trans }}
+                                </a>
+                            {% endblock %}
 
-                        {% block page_account_sidebar_link_orders %}
-                            <a href="{{ path('frontend.account.order.page') }}"
-                               title="{{ "account.ordersLink"|trans }}"
-                               class="list-group-item list-group-item-action account-sidebar-item{% if controllerName is same as('AccountPage') and controllerAction is same as('orderOverview') %} active{% endif %}">
-                                {{ "account.ordersLink"|trans }}
-                            </a>
+                            {% block page_account_sidebar_link_orders %}
+                                <a href="{{ path('frontend.account.order.page') }}"
+                                   title="{{ "account.ordersLink"|trans }}"
+                                   class="list-group-item list-group-item-action account-sidebar-item{% if controllerName is same as('AccountPage') and controllerAction is same as('orderOverview') %} active{% endif %}">
+                                    {{ "account.ordersLink"|trans }}
+                                </a>
+                            {% endblock %}
                         {% endblock %}
-                    {% endblock %}
-                </div>
+                    </div>
+                {% endif %}
             {% endblock %}
 
             {% block page_account_sidebar_footer %}
                 {% if context.customer %}
-                    <div class="card-footer account-sidebar-footer">
-                        {% block page_account_sidebar_logout %}
-                            <a href="{{ path('frontend.account.logout.page') }}"
-                               class="btn btn-link">
-                                <i class="fas fa-sign-out-alt"></i>
-                                {{ "account.logout"|trans }}
-                            </a>
-                        {% endblock %}
-                    </div>
+                    {% if not context.customer.guest %}
+                        <div class="card-footer account-sidebar-footer">
+                            {% block page_account_sidebar_logout %}
+                                <a href="{{ path('frontend.account.logout.page') }}"
+                                   class="btn btn-link">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    {{ "account.logout"|trans }}
+                                </a>
+                            {% endblock %}
+                        </div>
+                    {% else %}
+                        <div class="card-footer account-sidebar-footer account-guest-abort">
+                            {% block page_account_sidebar_guest_abort %}
+                                <a href="{{ path('frontend.account.logout.page') }}"
+                                   class="btn btn-link">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    {{ "account.guestAbort"|trans }}
+                                </a>
+                            {% endblock %}
+                        </div>
+                    {% endif %}
                 {% endif %}
             {% endblock %}
         </div>

@@ -113,6 +113,7 @@
         "paymentTitle": "Payment methods",
         "ordersTitle": "Orders",
         "logout": "Logout",
+        "guestAbort": "Close guest session",
         "logoutSucceeded": "You have successfully logged off",
         "overviewWelcome": "Welcome, ",
         "overviewInfo": "This is your account dashboard which enables you to view your account activities.",

@@ -74,9 +74,9 @@ class SalesChannelPageObject extends GeneralPageObject {
             .fillSwSelectComponent(
                 '.sw-sales-channel-detail__select-navigation-category-id',
                 {
-                    value: 'Root category',
+                    value: 'Catalogue #1',
                     isMulti: false,
-                    searchTerm: 'Root category'
+                    searchTerm: 'Catalogue #1'
                 }
             )
             .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')

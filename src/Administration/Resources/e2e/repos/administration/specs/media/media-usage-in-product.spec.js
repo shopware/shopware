@@ -48,8 +48,8 @@ module.exports = {
 
         browser
             .waitForElementNotPresent(page.elements.loader)
-            .waitForElementVisible(`${page.elements.gridItem}--3`)
-            .click(`${page.elements.gridItem}--3`)
+            .waitForElementVisible('.sw-media-base-item__name[title="Product Media"]')
+            .click('.sw-media-base-item__name[title="Product Media"]')
             .waitForElementVisible(page.elements.mediaItem)
             .click(page.elements.mediaItem)
             .waitForElementNotPresent('sw-media-sidebar.no-headline')

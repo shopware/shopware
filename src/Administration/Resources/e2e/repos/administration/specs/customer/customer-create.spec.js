@@ -28,7 +28,7 @@ module.exports = {
             .waitForElementNotPresent('.sw-field--customer-groupId .sw-field__select-load-placeholder')
             .fillSelectField('select[name=sw-field--customer-groupId]', 'Standard customer group')
             .waitForElementNotPresent('.sw-field--customer-salesChannelId .sw-field__select-load-placeholder')
-            .fillSelectField('select[name=sw-field--customer-salesChannelId]', 'Storefront API')
+            .fillSelectField('select[name=sw-field--customer-salesChannelId]', 'Storefront')
             .waitForElementNotPresent('.sw-field--customer-defaultPaymentMethodId .sw-field__select-load-placeholder')
             .fillSelectField('select[name=sw-field--customer-defaultPaymentMethodId]', 'Invoice');
     },

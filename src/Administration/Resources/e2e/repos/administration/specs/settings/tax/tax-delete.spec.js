@@ -17,7 +17,7 @@ module.exports = {
             })
             .click('#sw-settings-tax')
             .assert.urlContains('#/sw/settings/tax/index')
-            .expect.element(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
+            .expect.element(`${page.elements.gridRow}--2 ${page.elements.taxColumnName}`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
     },
     'delete tax': (browser) => {
         const page = settingsPage(browser);
@@ -25,7 +25,7 @@ module.exports = {
         browser
             .clickContextMenuItem(page.elements.contextMenuButton, {
                 menuActionSelector: '.sw-context-menu-item--danger',
-                scope: `${page.elements.gridRow}--5`
+                scope: `${page.elements.gridRow}--2`
             })
             .expect.element(`${page.elements.modal}__body`).to.have.text.that.equals(`Are you sure you want to delete the tax "${global.AdminFixtureService.basicFixture.name}"?`);
 

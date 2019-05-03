@@ -17,7 +17,9 @@ class OrderPageObject extends GeneralPageObject {
 
         this.browser
             .waitForElementVisible(`.sw-order-state-${scope}__${type}-state select[name=sw-field--selectedActionName]`)
+            .waitForElementNotPresent(`.sw-order-state-${scope}__${type}-state .sw-loader__element`)
             .click(`.sw-order-state-${scope}__${type}-state select[name=sw-field--selectedActionName]`)
+            .waitForElementNotPresent(`.sw-order-state-${scope}__${type}-state .sw-loader__element`)
             .setValue(
                 `.sw-order-state-${scope}__${type}-state select[name=sw-field--selectedActionName]`,
                 stateTitle
@@ -29,7 +31,7 @@ class OrderPageObject extends GeneralPageObject {
     }
 
     checkOrderHistoryEntry({ type, stateTitle, signal = 'neutral', position = 0 }) {
-        const currentStatusIcon = `.sw-order-state__${signal}-icon-bg`;
+        const currentStatusIcon = `.sw-order-state__${signal}-icon`;
         const item = `.sw-order-state-history-card__${type}-state .sw-order-state-history__entry--${position}`;
 
         this.browser

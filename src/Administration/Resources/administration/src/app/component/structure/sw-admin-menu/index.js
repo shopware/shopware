@@ -122,7 +122,7 @@ export default {
             const currentUser = this.$store.state.adminUser.currentUser;
 
             this.isUserLoading = true;
-            if (Object.keys(currentUser).length <= 0) {
+            if (!currentUser) {
                 this.userService.getUser().then((response) => {
                     this.userProfile = response.data;
                     return this.userStore.getByIdAsync(this.userProfile.id);

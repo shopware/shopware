@@ -1,11 +1,15 @@
 import utils, { debug } from 'src/core/service/util.service';
 import { setReactive, deleteReactive } from 'src/app/adapter/view/vue.adapter';
-import { Application } from 'src/core/shopware';
+import { Application, State } from 'src/core/shopware';
 
 const NOTIFICATION_LOAD_LIMIT = 50;
 
 export function initializeUserNotifications() {
-    Application.getApplicationRoot().$store.commit('notification/setNotificationsForCurrentUser');
+    if (Application.getApplicationRoot().$store) {
+        Application.getApplicationRoot().$store.commit('notification/setNotificationsForCurrentUser');
+        return;
+    }
+    State.getStore('notification').state.notifications = getNotificationsForUser();
 }
 
 function _getOriginalNotification(notificationId, state) {
@@ -40,7 +44,7 @@ function _mergeNotificationUpdate(originalNotification, notificationUpdate) {
 }
 
 function _getStorageKey() {
-    const userId = Application.getApplicationRoot().$store.state.adminUser.currentUser.id;
+    const userId = State.getStore('adminUser').state.currentUser;
     if (!userId) {
         return null;
     }
@@ -100,23 +104,21 @@ function _saveNotifications(notifications) {
 
 export default {
     namespaced: true,
-    state() {
-        return {
-            notifications: {},
-            growlNotifications: {},
-            threshold: 5,
-            notificationDefaults: {
-                visited: false,
-                metadata: {},
-                isLoading: false
-            },
-            growlNotificationDefaults: {
-                system: false,
-                variant: 'info', // success, info, warning, error
-                autoClose: true,
-                duration: 5000
-            }
-        };
+    state: {
+        notifications: {},
+        growlNotifications: {},
+        threshold: 5,
+        notificationDefaults: {
+            visited: false,
+            metadata: {},
+            isLoading: false
+        },
+        growlNotificationDefaults: {
+            system: false,
+            variant: 'info', // success, info, warning, error
+            autoClose: true,
+            duration: 5000
+        }
     },
 
     getters: {

@@ -173,7 +173,7 @@ Component.register('sw-mail-template-detail', {
                     this.mailService.testMailTemplateById(
                         this.testerMail,
                         this.mailTemplate,
-                        salesChannel
+                        salesChannel.id
                     ).then(() => {
                         this.createNotificationSuccess(notificationTestMailSuccess);
                     }).catch((exception) => {

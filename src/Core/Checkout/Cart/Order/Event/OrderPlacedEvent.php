@@ -65,6 +65,6 @@ class OrderPlacedEvent extends Event implements BusinessEventInterface, MailActi
             return $this->mailRecipientStruct;
         }
 
-        return new MailRecipientStruct([$this->order->getOrderCustomer()->getEmail() => $this->order->getOrderCustomer()->getEmail()]);
+        return new MailRecipientStruct([$this->order->getOrderCustomer()->getEmail() => $this->order->getOrderCustomer()->getFirstName() . ' ' . $this->order->getOrderCustomer()->getLastName()]);
     }
 }

@@ -77,6 +77,7 @@
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailSender" />
             <argument type="service" id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepositoryDecorator" />
             <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannelDefinition" />
+            <argument type="service" id="sales_channel.repository"/>
         </service>
 
         <service id="Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriber">

@@ -37,7 +37,7 @@ class MailActionController extends AbstractController
      */
     public function send(RequestDataBag $post, Context $context): JsonResponse
     {
-        $message = $this->mailService->send($post, $context);
+        $message = $this->mailService->send($post->all(), $context);
 
         return new JsonResponse(['size' => strlen($message->toString())]);
     }

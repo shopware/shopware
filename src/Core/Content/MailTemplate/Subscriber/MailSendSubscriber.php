@@ -28,8 +28,10 @@ class MailSendSubscriber implements EventSubscriberInterface
      */
     private $mailTemplateRepository;
 
-    public function __construct(MailService $mailService, EntityRepositoryInterface $mailTemplateRepository)
-    {
+    public function __construct(
+        MailService $mailService,
+        EntityRepositoryInterface $mailTemplateRepository
+    ) {
         $this->mailService = $mailService;
         $this->mailTemplateRepository = $mailTemplateRepository;
     }
@@ -66,13 +68,15 @@ class MailSendSubscriber implements EventSubscriberInterface
         $data->set('senderName', $mailTemplate->getSenderName());
         // todo
         $data->set('salesChannelId', Defaults::SALES_CHANNEL);
+
         $data->set('contentHtml', $mailTemplate->getContentHtml());
         $data->set('contentPlain', $mailTemplate->getContentPlain());
         $data->set('subject', $mailTemplate->getSubject());
+        $data->set('mediaIds', []);
 
         // todo add order to template data
         $this->mailService->send(
-            $data,
+            $data->all(),
             $event->getContext(),
             $this->getTemplateData($mailEvent));
     }

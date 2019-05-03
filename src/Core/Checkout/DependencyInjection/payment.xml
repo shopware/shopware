@@ -38,6 +38,7 @@
             <argument type="service" id="order.repository"/>
             <argument type="service" id="router.default"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry"/>
+            <argument type="service" id="order_customer.repository"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactory">

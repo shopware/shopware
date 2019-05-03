@@ -128,6 +128,7 @@
         "profileMailTitle": "Email address",
         "profileCurrentMail": "Current email address",
         "profilePasswordTitle": "Password",
+        "profileUpdateSuccess": "Profile was updated successfully",
         "orRegister": "or",
         "orRegisterLink": "register",
         "profilePasswordCreateNew": "New password",

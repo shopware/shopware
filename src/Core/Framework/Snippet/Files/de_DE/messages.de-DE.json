@@ -133,6 +133,7 @@
         "profilePasswordCreateNew": "Neues Passwort",
         "profilePasswordCurrent": "Ihr Aktuelles Passwort",
         "profileSaveChanges": "Änderungen Speichern",
+        "profileUpdateSuccess": "Profil wurde erfolgreich geändert",
         "addressWelcome": "Adressen",
         "addressesTitleDefaultShippingAddress": "Standard-Lieferadresse",
         "addressesTitleDefaultBillingAddress": "Standard-Rechnungsadresse",

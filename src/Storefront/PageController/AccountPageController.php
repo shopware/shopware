@@ -351,8 +351,11 @@ class AccountPageController extends StorefrontController
                 $context->getToken(),
                 $context->getContext()->getLanguageId()
             );
+            $this->addFlash('success', $this->translator->trans('account.profileUpdateSuccess'));
         } catch (ConstraintViolationException $formViolations) {
             return $this->forward(__CLASS__ . '::profileOverview', ['formViolations' => $formViolations]);
+        } catch (\Exception $exception) {
+            $this->addFlash('danger', $this->translator->trans('error.message-default'));
         }
 
         return $this->redirectToRoute('frontend.account.profile.page');

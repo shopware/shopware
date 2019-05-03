@@ -77,10 +77,9 @@ module.exports = {
             .waitForElementVisible('.sw-field__radio-group')
             .click('input#sw-field--selectedOption-2')
             .waitForElementVisible('.sw-modal__footer')
-            .click(`${page.elements.modalFooter} ${page.elements.primaryButton}`);
-
-        browser.expect.element('.sw-media-grid-item__item--5').to.have.text.that.equals('sw-login-background_(1).png');
-        browser.expect.element('.sw-media-grid-item__item--6').to.have.text.that.equals('sw-login-background.png');
+            .click(`${page.elements.modalFooter} ${page.elements.primaryButton}`)
+            .waitForElementVisible('.sw-media-base-item__name[title="sw-login-background_(1).png"]')
+            .waitForElementVisible('.sw-media-base-item__name[title="sw-login-background.png"]');
     }
 };
 

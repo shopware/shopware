@@ -42,7 +42,7 @@ module.exports = {
     'open replace modal': (browser) => {
         const page = mediaPage(browser);
         browser
-            .click(`${page.elements.gridItem}--3`);
+            .click('.sw-media-base-item__name[title="Product Media"]');
         page.openMediaModal('.sw-media-context-item__replace-media-action');
     },
     'ensure image cannot be replaced with empty input': (browser) => {

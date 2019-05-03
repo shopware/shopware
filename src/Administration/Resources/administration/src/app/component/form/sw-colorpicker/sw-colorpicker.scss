@@ -61,10 +61,9 @@ $sw-colorpicker-font-size: 14px;
         box-shadow: 0 3px 6px 0 rgba(120,138,155,0.5);
 
         &.popup_left {
-            top: 0;
-            right: 0px;
-            margin-top: 35px;
-            margin-right: 6px;
+            margin: 0;
+            top: calc(50% + 32px);
+            right: 10px;
         }
 
         &::after {

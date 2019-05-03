@@ -51,6 +51,10 @@
                                 </template>
                             </template>
                         </sw-entity-listing>
+
+                        {% block sw_newsletter_receiver_list_empty_state %}
+                            <sw-empty-state v-if="!isLoading && !total" :title="$tc('sw-newsletter-receiver.list.messageEmpty')"></sw-empty-state>
+                        {% endblock %}
                     {% endblock %}
                 {% endblock %}
             </template>

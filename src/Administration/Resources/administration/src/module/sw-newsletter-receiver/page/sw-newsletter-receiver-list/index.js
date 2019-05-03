@@ -82,12 +82,10 @@ Component.register('sw-newsletter-receiver-list', {
             });
 
             this.repository = this.repositoryFactory.create('newsletter_receiver');
-            this.repository.search(criteria, this.context).then((items) => {
-                this.items = items;
+            this.repository.search(criteria, this.context).then((searchResult) => {
+                this.items = searchResult;
+
                 this.isLoading = false;
-                if (this.$refs.swNewsletterReceiverGrid) {
-                    this.$refs.swNewsletterReceiverGrid.applyResult(items);
-                }
             });
         },
 

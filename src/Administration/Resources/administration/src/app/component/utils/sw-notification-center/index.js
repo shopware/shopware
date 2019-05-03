@@ -9,7 +9,8 @@ export default {
         return {
             additionalContextMenuClasses: {
                 'sw-notification-center__context-container': true
-            }
+            },
+            showDeleteModal: false
         };
     },
 
@@ -28,6 +29,16 @@ export default {
     methods: {
         onContextMenuClose() {
             this.$store.dispatch('notification/setAllNotificationsVisited');
+        },
+        openDeleteModal() {
+            this.showDeleteModal = true;
+        },
+        onConfirmDelete() {
+            this.$store.dispatch('notification/setNotifications', {});
+            this.showDeleteModal = false;
+        },
+        onCloseDeleteModal() {
+            this.showDeleteModal = false;
         }
     }
 };

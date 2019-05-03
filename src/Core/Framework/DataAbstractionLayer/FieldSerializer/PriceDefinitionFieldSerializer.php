@@ -10,7 +10,6 @@ use Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\ConditionTypeNotFou
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPriceFieldTypeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceDefinitionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidFieldException;
@@ -38,11 +37,6 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
     ) {
         parent::__construct($compositeHandler, $constraintBuilder, $validator);
         $this->ruleConditionRegistry = $ruleConditionRegistry;
-    }
-
-    public function getFieldClass(): string
-    {
-        return PriceDefinitionField::class;
     }
 
     public function encode(

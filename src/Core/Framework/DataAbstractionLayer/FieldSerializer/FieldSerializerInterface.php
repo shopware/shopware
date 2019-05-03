@@ -19,9 +19,4 @@ interface FieldSerializerInterface
      * Decodes the storage value to the DAL value
      */
     public function decode(Field $field, $value);
-
-    /**
-     * Defines which field can be encoded and decoded by this handler
-     */
-    public function getFieldClass(): string;
 }

@@ -11,11 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 
 class ConfigJsonFieldSerializer extends JsonFieldSerializer
 {
-    public function getFieldClass(): string
-    {
-        return ConfigJsonField::class;
-    }
-
     public function encode(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): \Generator
     {
         if (!$field instanceof ConfigJsonField) {

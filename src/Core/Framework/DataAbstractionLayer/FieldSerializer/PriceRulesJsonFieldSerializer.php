@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceRulesJsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
@@ -45,11 +44,6 @@ class PriceRulesJsonFieldSerializer implements FieldSerializerInterface
         $this->validator = $validator;
         $this->priceRuleEntity = new PriceRuleEntity();
         $this->priceStruct = new Price(0, 0, true);
-    }
-
-    public function getFieldClass(): string
-    {
-        return PriceRulesJsonField::class;
     }
 
     public function encode(

@@ -32,11 +32,6 @@ class LongTextFieldSerializer implements FieldSerializerInterface
         $this->validator = $validator;
     }
 
-    public function getFieldClass(): string
-    {
-        return LongTextField::class;
-    }
-
     public function encode(
         Field $field,
         EntityExistence $existence,

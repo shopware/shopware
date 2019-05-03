@@ -29,11 +29,6 @@ class FkFieldSerializer implements FieldSerializerInterface
         $this->validator = $validator;
     }
 
-    public function getFieldClass(): string
-    {
-        return FkField::class;
-    }
-
     public function encode(
         Field $field,
         EntityExistence $existence,

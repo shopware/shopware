@@ -95,11 +95,6 @@ class CustomFieldsSerializer extends JsonFieldSerializer
         return parent::decode($field, $value);
     }
 
-    public function getFieldClass(): string
-    {
-        return CustomFields::class;
-    }
-
     private function getFields(array $attributeNames): array
     {
         $fields = [];

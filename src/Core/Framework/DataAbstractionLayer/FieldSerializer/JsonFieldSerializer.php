@@ -48,11 +48,6 @@ class JsonFieldSerializer implements FieldSerializerInterface
         $this->validator = $validator;
     }
 
-    public function getFieldClass(): string
-    {
-        return JsonField::class;
-    }
-
     /**
      * mariadbs `JSON_VALID` function does not allow escaped unicode.
      */

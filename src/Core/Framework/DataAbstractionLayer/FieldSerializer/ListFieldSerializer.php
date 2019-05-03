@@ -44,11 +44,6 @@ class ListFieldSerializer implements FieldSerializerInterface
         $this->compositeHandler = $compositeHandler;
     }
 
-    public function getFieldClass(): string
-    {
-        return ListField::class;
-    }
-
     public function encode(
         Field $field,
         EntityExistence $existence,

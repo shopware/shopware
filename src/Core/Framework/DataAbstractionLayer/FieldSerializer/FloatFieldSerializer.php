@@ -32,11 +32,6 @@ class FloatFieldSerializer implements FieldSerializerInterface
         $this->validator = $validator;
     }
 
-    public function getFieldClass(): string
-    {
-        return FloatField::class;
-    }
-
     public function encode(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): \Generator
     {
         if (!$field instanceof FloatField) {

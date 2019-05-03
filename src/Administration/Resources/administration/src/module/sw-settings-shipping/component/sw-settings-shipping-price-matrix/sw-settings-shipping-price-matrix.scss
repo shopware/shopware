@@ -13,6 +13,10 @@ $sw-shipping-list-color-error: $color-crimson;
         border-bottom: 1px solid #D1D9E0;
         border-top-left-radius: 4px;
         border-top-right-radius: 4px;
+
+        .sw-select__single-selection {
+            min-height: 30px;
+        }
     }
 
     .sw-settings-shipping-price-matrix__price-group-context {

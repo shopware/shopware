@@ -101,6 +101,8 @@
                                        :label="$tc('sw-settings-shipping.detail.labelDeliveryTime')"
                                        v-model="shippingMethod.deliveryTimeId"
                                        id="deliveryTime"
+                                       :required="true"
+                                       sortField="unit,name"
                                        class="sw-settings-shipping-detail__delivery-time">
                             </sw-select>
                         {% endblock %}

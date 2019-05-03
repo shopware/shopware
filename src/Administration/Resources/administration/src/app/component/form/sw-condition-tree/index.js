@@ -12,7 +12,7 @@ export default {
     data() {
         return {
             nestedConditions: {},
-            entityAssociationStore: {},
+            associationStore: {},
             isApi: false
         };
     },
@@ -20,7 +20,7 @@ export default {
     provide() {
         return {
             conditionStore: this.conditionStore,
-            entityAssociationStore: () => this.entityAssociationStore,
+            entityAssociationStore: () => this.associationStore,
             config: this.config,
             isApi: () => this.isApi
         };
@@ -38,26 +38,64 @@ export default {
         config: {
             type: Object,
             required: true
+        },
+        parentId: {
+            type: String,
+            required: false,
+            default: null
+        },
+        entityAssociationStore: {
+            type: Object,
+            required: false,
+            default: null
+        },
+        conditions: {
+            type: Array,
+            required: false,
+            default: null
         }
     },
     created() {
         this.createdComponent();
+        this.$on('entity-save', this.onSave);
+    },
+
+    beforeDestroy() {
+        this.$off('entity-save');
     },
 
     methods: {
         createdComponent() {
-            this.entityAssociationStore = this.entity.getAssociation(this.config.conditionIdentifier);
-            if (this.entity.isLocal) {
-                const conditions = Object.values(this.entityAssociationStore.store);
-                this.nestedConditions = this.checkRootContainer(this.buildNestedConditions(conditions, null));
+            this.associationStore = this.entityAssociationStore
+                || this.entity.getAssociation(this.config.conditionIdentifier);
+
+            if (this.conditions) {
+                this.nestedConditions = this.checkRootContainer(
+                    this.buildNestedConditions(this.conditions, this.parentId)
+                );
+                this.entity[this.config.conditionIdentifier] = [this.nestedConditions];
+            } else {
+                this.loadConditions();
+            }
+        },
+
+        onSave(loadConditions) {
+            if (!loadConditions) {
                 return;
             }
-            this.entityAssociationStore.getList({
+
+            this.loadConditions();
+        },
+
+        loadConditions() {
+            this.associationStore.getList({
                 page: 1,
                 limit: 500,
                 sortBy: 'position'
             }).then((conditionCollection) => {
-                this.nestedConditions = this.checkRootContainer(this.buildNestedConditions(conditionCollection.items, null));
+                this.nestedConditions = this.checkRootContainer(
+                    this.buildNestedConditions(conditionCollection.items, this.parentId)
+                );
             });
         },
 
@@ -95,7 +133,7 @@ export default {
                 return nestedConditions[0];
             }
 
-            const rootCondition = this.createCondition(this.config.orContainer, null);
+            const rootCondition = this.createCondition(this.config.orContainer, this.parentId);
             const subCondition = this.createCondition(
                 this.config.andContainer,
                 rootCondition.id,
@@ -107,12 +145,12 @@ export default {
                 return rootCondition;
             }
 
-            this.entityAssociationStore.removeById(rootCondition.id);
-            this.entityAssociationStore.removeById(subCondition.id);
-            this.entityAssociationStore.store = Object.assign(
+            this.associationStore.removeById(rootCondition.id);
+            this.associationStore.removeById(subCondition.id);
+            this.associationStore.store = Object.assign(
                 { [rootCondition.id]: rootCondition },
                 { [subCondition.id]: subCondition },
-                this.entityAssociationStore.store
+                this.associationStore.store
             );
 
             return rootCondition;
@@ -120,7 +158,7 @@ export default {
 
         createCondition(conditionData, parentId, children) {
             const conditionId = utils.createId();
-            const condition = Object.assign(this.entityAssociationStore.create(conditionId), conditionData);
+            const condition = Object.assign(this.associationStore.create(conditionId), conditionData);
             condition.parentId = parentId;
 
             if (children) {

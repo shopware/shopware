@@ -1,5 +1,6 @@
 {% block sw_condition_base %}
 <div class="sw-condition-base" :class="[conditionClass, hasErrorsClass, isApiCLass]">
+    {% block sw_condition_base_before_container %}{% endblock %}
     <div class="sw-condition-base__container">
         {% block sw_condition_base_field_condition %}
             <sw-select :id="createId()"
@@ -25,8 +26,9 @@
             </slot>
         {% endblock %}
 
+        {% block sw_condition_base_field_before_actions %}{% endblock %}
         {% block sw_condition_base_field_actions %}
-            <div class="field field--actions"
+            <div class="field--actions"
                  :class="{'is--disabled' : isApi()}">
                 <sw-context-button :disabled="isApi()">
                     <template slot="button">
@@ -40,7 +42,7 @@
                     <sw-context-menu-item class="sw-condition-base__create-after-action" @click="$emit('create-after', condition)">
                         {{ $tc('global.sw-condition.condition.createAfter') }}
                     </sw-context-menu-item>
-                    <sw-context-menu-item @click="$emit('delete-condition', condition)"
+                    <sw-context-menu-item @click="deleteCondition"
                                           :disabled="parentDisabledDelete"
                                           variant="danger">
                         {{ $tc('global.sw-condition.condition.delete') }}

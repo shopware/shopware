@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -295,6 +296,49 @@ class GoodsPriceRuleTest extends TestCase
         ], $this->context);
 
         static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+    }
+
+    public function testCreateRuleWithFilter(): void
+    {
+        $ruleId = Uuid::randomHex();
+        $this->ruleRepository->create(
+            [
+                [
+                    'id' => $ruleId,
+                    'name' => 'LineItemRule',
+                    'priority' => 0,
+                    'conditions' => [
+                        [
+                            'type' => (new GoodsPriceRule())->getName(),
+                            'ruleId' => $ruleId,
+                            'children' => [
+                                [
+                                    'type' => (new LineItemOfTypeRule())->getName(),
+                                    'value' => ['lineItemType' => 'test'],
+                                ],
+                            ],
+                            'value' => [
+                                'amount' => 100,
+                                'operator' => Rule::OPERATOR_GTE,
+                            ],
+                        ],
+                    ],
+                ],
+            ], Context::createDefaultContext()
+        );
+
+        $rule = $this->ruleRepository->search(new Criteria([$ruleId]), Context::createDefaultContext())->get($ruleId);
+
+        static::assertNotNull($rule);
+        static::assertFalse($rule->isInvalid());
+        static::assertInstanceOf(AndRule::class, $rule->getPayload());
+        /** @var AndRule $andRule */
+        $andRule = $rule->getPayload();
+        static::assertInstanceOf(GoodsPriceRule::class, $andRule->getRules()[0]);
+        $filterProperty = ReflectionHelper::getProperty(GoodsPriceRule::class, 'filter');
+        $filterRule = $filterProperty->getValue($andRule->getRules()[0]);
+        static::assertInstanceOf(AndRule::class, $filterRule);
+        static::assertInstanceOf(LineItemOfTypeRule::class, $filterRule->getRules()[0]);
     }
 
     public function testFilter(): void

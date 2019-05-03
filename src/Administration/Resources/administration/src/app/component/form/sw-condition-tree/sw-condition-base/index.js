@@ -61,7 +61,7 @@ export default {
     },
 
     beforeDestroy() {
-        this.conditionTreeComponent.$off('on-save', this.checkErrors);
+        this.conditionTreeComponent.$off('entity-save', this.checkErrors);
     },
 
     data() {
@@ -132,7 +132,8 @@ export default {
 
         deleteError(fieldName) {
             if (!this.formErrors[fieldName].detail
-                && (this.condition.errors.length === 0
+                && (!this.condition.errors
+                    || this.condition.errors.length === 0
                     || !this.condition.errors.map(obj => obj.id).includes('clientValidationError'))) {
                 return;
             }
@@ -164,7 +165,7 @@ export default {
             this.locateConditionTreeComponent();
 
             this.addClientFieldValidationMethod();
-            this.conditionTreeComponent.$on('on-save', this.checkErrors);
+            this.conditionTreeComponent.$on('entity-save', this.checkErrors);
         },
         addClientFieldValidationMethod() {
             this.config.dataCheckMethods[this.condition.type] = (condition) => {
@@ -206,12 +207,15 @@ export default {
                 }
             });
         },
+        deleteCondition() {
+            this.$emit('condition-delete', this.condition);
+        },
         conditionChanged(value) {
             if (value) {
                 return;
             }
 
-            this.$emit('delete-condition', this.condition);
+            this.$emit('condition-delete', this.condition);
         }
     }
 };

@@ -50,6 +50,16 @@
         "payment": "Payment",
         "price": "Price"
       }
+    },
+    "conditionFilter": {
+      "infoText": "Use filters to define which line items have to fulfil this condition."
+    },
+    "conditionModal": {
+      "modalTitle": "Filter",
+      "delete": "Delete",
+      "close": "Close",
+      "titleSaveError": "Error",
+      "messageSaveError": "An error occurred while saving the filter."
     }
   }
 }

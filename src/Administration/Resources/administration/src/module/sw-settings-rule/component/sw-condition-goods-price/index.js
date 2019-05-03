@@ -1,5 +1,6 @@
 import { Component } from 'src/core/shopware';
 import template from './sw-condition-goods-price.html.twig';
+import './sw-condition-goods-price.scss';
 
 /**
  * @public
@@ -21,6 +22,30 @@ Component.extend('sw-condition-goods-price', 'sw-condition-base', {
             return {
                 operator: this.ruleConditionDataProviderService.operators.equals.identifier
             };
+        },
+        conditionClass() {
+            return 'sw-condition-goods-price';
+        }
+    },
+
+    // TODO: extract data, methods and template (see sw-condition-goods-count)
+    // Wait for extending an extended component
+    data() {
+        return {
+            showFilterModal: false
+        };
+    },
+
+    methods: {
+        deleteCondition() {
+            this.deleteChildren(this.condition.children);
+
+            this.$super.deleteCondition();
+        },
+        deleteChildren(children) {
+            children.forEach((child) => {
+                child.delete();
+            });
         }
     }
 });

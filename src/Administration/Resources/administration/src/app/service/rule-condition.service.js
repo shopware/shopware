@@ -125,8 +125,15 @@ export default function createConditionService() {
         return translateData(values, translateCallback);
     }
 
-    function getConditions(translateCallback) {
-        const values = Object.values($store);
+    function getConditions(translateCallback, allowedScopes = null) {
+        let values = Object.values($store);
+
+        if (allowedScopes !== null) {
+            values = values.filter(condition => {
+                return !condition.scopes
+                    || allowedScopes.some(scope => condition.scopes.indexOf(scope) !== -1);
+            });
+        }
 
         return translateData(values, translateCallback);
     }

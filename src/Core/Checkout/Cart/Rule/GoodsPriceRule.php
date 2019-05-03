@@ -3,24 +3,19 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Rule\Container\FilterRule;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
-use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
-class GoodsPriceRule extends Rule
+class GoodsPriceRule extends FilterRule
 {
     /**
      * @var float
      */
     protected $amount;
-
-    /**
-     * @var Rule|null
-     */
-    protected $filter;
 
     /**
      * @var string
@@ -45,7 +40,6 @@ class GoodsPriceRule extends Rule
         }
 
         $goods = $scope->getCart()->getLineItems()->filterGoods();
-
         if ($this->filter) {
             $context = $scope->getSalesChannelContext();
 

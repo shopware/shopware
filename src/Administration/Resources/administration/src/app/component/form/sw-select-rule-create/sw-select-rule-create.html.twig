@@ -34,7 +34,8 @@
         {% block sw_select_rule_create_rule_modal %}
             <sw-rule-modal v-if="showRuleModal"
                            @save="onSaveRule"
-                           @modal-close="onCloseRuleModal">
+                           @modal-close="onCloseRuleModal"
+                           :allowedRuleScopes="['cart', 'checkout', 'global']">
             </sw-rule-modal>
         {% endblock %}
     </div>

@@ -416,7 +416,7 @@
         "createBefore": "Davor erstellen",
         "createAfter": "Danach erstellen",
         "delete": "Löschen",
-        "shippingFreeRule": "Versandfreie Artikel",
+        "hasDeliveryFreeItemRule": "Versandfreie Artikel",
         "timeRangeRule": "Zeitraum",
         "weightOfCartRule": "Warenkorb Gewicht",
         "dayOfWeekRule": "Wochentag",

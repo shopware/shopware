@@ -102,7 +102,7 @@ class RuleValidator implements WriteCommandValidatorInterface
 
     private function extractValue(array $payload): array
     {
-        if (!array_key_exists('value', $payload)) {
+        if (!array_key_exists('value', $payload) || $payload['value'] === null) {
             return [];
         }
 

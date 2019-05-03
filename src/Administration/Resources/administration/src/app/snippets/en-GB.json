@@ -412,7 +412,7 @@
         "createBefore": "Create before",
         "createAfter": "Create after",
         "delete": "Delete",
-        "shippingFreeRule": "Shipping free product",
+        "hasDeliveryFreeItemRule": "Shipping free product",
         "timeRangeRule": "Time range",
         "weightOfCartRule": "Weight of cart",
         "dayOfWeekRule": "Day of the week",

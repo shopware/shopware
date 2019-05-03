@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/System/SystemConfig/Schema/config.xsd">
+    <card>
+        <title>Cart</title>
+        <title lang="de-DE">Warenkorb</title>
+
+        <input-field type="single-select">
+            <name>taxCalculationType</name>
+            <options>
+                <option>
+                    <id>horizontal</id>
+                    <name>horizontal</name>
+                    <name lang="de-DE">Horizontal</name>
+                </option>
+                <option>
+                    <id>vertical</id>
+                    <name>Vertical</name>
+                    <name lang="de-DE">Vertikal</name>
+                </option>
+            </options>
+            <label>Tax calculation</label>
+            <label lang="de-DE">Steuerberechnung</label>
+        </input-field>
+
+        <input-field type="int">
+            <name>maxQuantity</name>
+            <label>Maximum quantity</label>
+            <label lang="de-DE">Maximale Auswahlmenge</label>
+        </input-field>
+
+        <input-field type="bool">
+            <name>showDeliveryTime</name>
+            <label>Show delivery time in cart</label>
+            <label lang="de-DE">Lieferzeit im Warenkorb anzeigen</label>
+        </input-field>
+    </card>
+</config>

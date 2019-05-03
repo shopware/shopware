@@ -1,5 +1,5 @@
 {% block sw_text_editor_toolbar %}
-    <div class="sw-text-editor-toolbar" :style="position" :class="classes" @click="handleToolbarClick">
+    <div class="sw-text-editor-toolbar" :style="[position, arrowPosition]" :class="classes" @click="handleToolbarClick">
         {% block sw_text_editor_toolbar_item %}
             <div class="sw-text-editor-toolbar__item"
                  v-for="(button, index) in buttonConfig"

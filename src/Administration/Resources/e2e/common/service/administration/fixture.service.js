@@ -83,7 +83,7 @@ export default class AdminFixtureService {
         }
     }
 
-    getClientId(salesChannelName = 'Storefront API') {
+    getClientId(salesChannelName = 'Storefront') {
         return this.apiClient.post('/v1/search/sales-channel?response=true', {
             filter: [{
                 field: 'name',

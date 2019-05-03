@@ -123,6 +123,8 @@ class PromotionRedemptionIndexer implements IndexerInterface
     }
 
     /**
+     * Fetch all orders that belong to the line items that were written in the event
+     *
      * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
      */
     private function getOrders(array $lineItemIds, Context $context): OrderCollection
@@ -148,7 +150,9 @@ class PromotionRedemptionIndexer implements IndexerInterface
         $promotionPerCustomerIncrements = [];
 
         foreach ($orders as $order) {
+            // This array tracks how many line items a promotion added to a particular order
             $promotionIdsPerOrder = [];
+
             $customerId = $order->getOrderCustomer()->getCustomerId();
             foreach ($order->getLineItems() as $lineItem) {
                 if ($lineItem->getType() === CartPromotionsCollector::LINE_ITEM_TYPE) {
@@ -160,6 +164,9 @@ class PromotionRedemptionIndexer implements IndexerInterface
 
                     ++$promotionIdsPerOrder[$promotionId];
 
+                    // Since a single promotion can add multiple line items, we want to increment the used count only
+                    // once per promotion and order. Hence, we increment the count only for the first line item of a
+                    // promotion.
                     if ($promotionIdsPerOrder[$promotionId] === 1) {
                         if (!array_key_exists($promotionId, $promotionIncrements)) {
                             $promotionIncrements[$promotionId] = 0;
@@ -182,6 +189,8 @@ class PromotionRedemptionIndexer implements IndexerInterface
     }
 
     /**
+     * Updates the redeemed counts of promotions
+     *
      * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
      */
     private function incrementPromotionCounts(
@@ -189,6 +198,7 @@ class PromotionRedemptionIndexer implements IndexerInterface
         array $promotionPerCustomerIncrements,
         Context $context
     ): void {
+        // Fetch all promotions whose redeemed counts need to be updated
         $promotions = $this->promotionRepository->search(new Criteria(array_keys($promotionIncrements)), $context);
 
         foreach ($promotionIncrements as $promotionId => $increment) {
@@ -220,6 +230,9 @@ class PromotionRedemptionIndexer implements IndexerInterface
         }
     }
 
+    /**
+     * Reset all promotions' redeemed counts before iterating through all line items
+     */
     private function resetCounts(): void
     {
         $this->connection->executeUpdate('UPDATE `promotion` SET `order_count` = 0, `orders_per_customer_count` = NULL');

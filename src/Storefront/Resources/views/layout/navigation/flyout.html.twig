@@ -4,7 +4,7 @@
             {% block layout_navigation_flyout_bar_category %}
                 <div class="col">
                     <div class="navigation-flyout-category-link">
-                        {% block layout_navigation_flyout_bar_category_link %}
+						{% block layout_navigation_flyout_bar_category_link %}
                             {% if navigationTree.category.type == 'page' %}
                                 <a class="nav-link"
                                    href="{{ path('frontend.navigation.page', {'navigationId': navigationTree.category.id}) }}"
@@ -16,7 +16,7 @@
                                     {% endblock %}
                                 </a>
                             {% endif %}
-                        {% endblock %}
+						{% endblock %}
                     </div>
                 </div>
             {% endblock %}
@@ -42,7 +42,6 @@
                     {% endblock %}
                 </div>
             {% endblock %}
-
 
             {% block layout_navigation_flyout_teaser %}
                 {% if navigationTree.category.media %}

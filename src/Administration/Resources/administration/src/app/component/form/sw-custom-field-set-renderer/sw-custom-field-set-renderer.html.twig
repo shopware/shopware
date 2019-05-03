@@ -28,14 +28,8 @@
                                 <template v-for="customField in set.customFields">
                                     {% block sw_custom_field_set_renderer_card_form_renderer %}
                                         <sw-form-field-renderer
-                                                v-if="disabled"
                                                 v-bind="customField"
-                                                disabled
-                                                v-model="entity.customFields[customField.name]">
-                                        </sw-form-field-renderer>
-                                        <sw-form-field-renderer
-                                                v-else
-                                                v-bind="customField"
+                                                :disabled="disabled"
                                                 v-model="entity.customFields[customField.name]">
                                         </sw-form-field-renderer>
                                     {% endblock %}
@@ -58,14 +52,8 @@
                             <template v-for="customField in set.customFields">
                                 {% block sw_custom_field_set_renderer_media_form_renderer %}
                                     <sw-form-field-renderer
-                                            v-if="disabled"
                                             v-bind="customField"
-                                            disabled
-                                            v-model="entity.customFields[customField.name]">
-                                    </sw-form-field-renderer>
-                                    <sw-form-field-renderer
-                                            v-else
-                                            v-bind="customField"
+                                            :disabled="disabled"
                                             v-model="entity.customFields[customField.name]">
                                     </sw-form-field-renderer>
                                 {% endblock %}

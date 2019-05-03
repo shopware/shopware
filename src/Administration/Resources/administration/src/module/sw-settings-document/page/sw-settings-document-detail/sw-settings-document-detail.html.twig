@@ -66,13 +66,15 @@
                             </div>
                             {% endblock %}
                             {% block sw_custom_field_set_renderer_card_tabs_content %}
-                                <template v-for="formFields in formFieldSet.formFields">
-                                    {% block sw_custom_field_set_renderer_card_form_renderer %}
-                                    <sw-form-field-renderer v-if="documentConfig.config"
-                                                            v-bind="formFields"
-                                                            v-model="documentConfig.config[formFields.name]">
-                                    </sw-form-field-renderer>
-                                    {% endblock %}
+                                <template v-if="documentConfig.config">
+                                    <template v-for="formField in formFieldSet.formFields">
+                                        {% block sw_custom_field_set_renderer_card_form_renderer %}
+                                            <sw-form-field-renderer
+                                                v-bind="formField"
+                                                v-model="documentConfig.config[formField.name]">
+                                            </sw-form-field-renderer>
+                                        {% endblock %}
+                                    </template>
                                 </template>
                             {% endblock %}
                         </sw-container>

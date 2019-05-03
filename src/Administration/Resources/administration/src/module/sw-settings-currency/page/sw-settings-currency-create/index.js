@@ -33,10 +33,13 @@ Component.extend('sw-settings-currency-create', 'sw-settings-currency-detail', {
             this.$super.createdComponent();
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+            this.$router.push({ name: 'sw.settings.currency.detail', params: { id: this.currency.id } });
+        },
+
         onSave() {
-            this.$super.onSave().then(() => {
-                this.$router.push({ name: 'sw.settings.currency.detail', params: { id: this.currency.id } });
-            });
+            this.$super.onSave();
         }
     }
 });

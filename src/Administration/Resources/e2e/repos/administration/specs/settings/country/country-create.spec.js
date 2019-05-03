@@ -24,7 +24,7 @@ module.exports = {
             .waitForElementPresent('input[name=sw-field--country-active]')
             .tickCheckbox('input[name=sw-field--country-active]', true)
             .click(page.elements.countrySaveAction)
-            .checkNotification('Country "1.Niemandsland" has been saved successfully.')
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium')
             .assert.urlContains('#/sw/settings/country/detail');
     },
     'go back to listing and verify creation': (browser) => {

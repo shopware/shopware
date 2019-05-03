@@ -21,7 +21,8 @@ Component.register('sw-settings-country-detail', {
             isLoading: false,
             currentCountryState: null,
             countryStateRepository: null,
-            countryStateLoading: false
+            countryStateLoading: false,
+            isSaveSuccessful: false
         };
     },
 
@@ -69,18 +70,19 @@ Component.register('sw-settings-country-detail', {
             });
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+        },
+
         onSave() {
-            const countryName = this.country.name || this.country.translated.name;
-            const titleSaveSuccess = this.$tc('sw-settings-country.detail.titleSaveSuccess');
-            const messageSaveSuccess = this.$tc('sw-settings-country.detail.messageSaveSuccess', 0, {
-                name: countryName
-            });
+            this.isSaveSuccessful = false;
+            this.isLoading = true;
 
             return this.countryRepository.save(this.country, this.context).then(() => {
-                this.createNotificationSuccess({
-                    title: titleSaveSuccess,
-                    message: messageSaveSuccess
-                });
+                this.isLoading = false;
+                this.isSaveSuccessful = true;
+            }).catch(() => {
+                this.isLoading = false;
             });
         },
 

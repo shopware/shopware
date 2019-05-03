@@ -34,10 +34,13 @@ Component.extend('sw-settings-country-create', 'sw-settings-country-detail', {
             }
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+            this.$router.push({ name: 'sw.settings.country.detail', params: { id: this.country.id } });
+        },
+
         onSave() {
-            this.$super.onSave().then(() => {
-                this.$router.push({ name: 'sw.settings.country.detail', params: { id: this.country.id } });
-            });
+            this.$super.onSave();
         }
     }
 });

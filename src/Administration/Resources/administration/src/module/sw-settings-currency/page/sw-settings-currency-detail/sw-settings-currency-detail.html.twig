@@ -17,9 +17,16 @@
                 {% endblock %}
 
                 {% block sw_settings_currency_detail_actions_save %}
-                    <sw-button variant="primary" class="sw-settings-currency-detail__save-action" :disabled="currency.isLoading" @click.prevent="onSave">
-                        {{ $tc('sw-settings-currency.detail.buttonSave') }}
-                    </sw-button>
+                <sw-button-process
+                        class="sw-settings-currency-detail__save-action"
+                        :isLoading="isLoading"
+                        :processSuccess="isSaveSuccessful"
+                        :disabled="isLoading"
+                        variant="primary"
+                        @process-finish="saveFinish"
+                        @click.prevent="onSave">
+                    {{ $tc('sw-settings-currency.detail.buttonSave') }}
+                </sw-button-process>
                 {% endblock %}
             </template>
         {% endblock %}

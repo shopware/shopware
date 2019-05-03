@@ -12,7 +12,9 @@ Component.register('sw-settings-currency-detail', {
 
     data() {
         return {
-            currency: {}
+            currency: {},
+            isLoading: false,
+            isSaveSuccessful: false
         };
     },
 
@@ -48,15 +50,19 @@ Component.register('sw-settings-currency-detail', {
             this.currency = this.currencyStore.getById(this.currencyId);
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+        },
+
         onSave() {
-            const currencyName = this.currency.name || this.currency.translated.name;
-            const titleSaveSuccess = this.$tc('sw-settings-currency.detail.titleSaveSuccess');
-            const messageSaveSuccess = this.$tc('sw-settings-currency.detail.messageSaveSuccess', 0, { name: currencyName });
+            this.isSaveSuccessful = false;
+            this.isLoading = true;
+
             return this.currency.save().then(() => {
-                this.createNotificationSuccess({
-                    title: titleSaveSuccess,
-                    message: messageSaveSuccess
-                });
+                this.isLoading = false;
+                this.isSaveSuccessful = true;
+            }).catch(() => {
+                this.isLoading = false;
             });
         },
 

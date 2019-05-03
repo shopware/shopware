@@ -33,7 +33,7 @@ module.exports = {
             .clearValue('input[name=sw-field--currency-name]')
             .fillField('input[name=sw-field--currency-name]', 'Yen but true', true)
             .click(page.elements.currencySaveAction)
-            .checkNotification('Currency "Yen but true" has been saved successfully.')
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium')
             .assert.urlContains('#/sw/settings/currency/detail');
     },
     'verify edited currency': (browser) => {

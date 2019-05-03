@@ -15,7 +15,9 @@ Component.register('sw-order-detail', {
             order: null,
             orderId: null,
             isEditing: false,
-            customFieldSets: []
+            customFieldSets: [],
+            isLoading: false,
+            isSaveSuccessful: false
         };
     },
 
@@ -81,9 +83,18 @@ Component.register('sw-order-detail', {
             this.$refs.baseComponent.changeLanguage();
         },
 
-        onSave() {
+        saveFinish() {
+            this.isSaveSuccessful = false;
             this.isEditing = false;
+        },
+
+        onSave() {
+            this.isSaveSuccessful = false;
+            this.isLoading = true;
+
             this.$refs.baseComponent.mergeOrder();
+            this.isLoading = false;
+            this.isSaveSuccessful = true;
         },
 
         onStartEditing() {

@@ -21,7 +21,6 @@
         }
 
         .sw-text-editor__content {
-            margin: 20px;
             height: 260px;
             overflow: auto;
 
@@ -30,10 +29,12 @@
                 z-index: 9;
                 width: 100%;
                 height: 100%;
+                padding: 20px;
             }
         }
 
         .sw-text-editor__word_count {
+            border-top: 1px solid $color-steam-cloud;
             padding: 5px 10px 5px 5px;
         }
     }
@@ -47,7 +48,6 @@
     .sw-text-editor__content-placeholder {
         position: absolute;
         top: 0;
-        height: 100%;
         width: 100%;
         pointer-events: none;
         color: darken($color-light-gray, 20%);

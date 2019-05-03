@@ -93,6 +93,10 @@ export default {
                         ]
                     },
                     {
+                        type: 'foreColor',
+                        value: ''
+                    },
+                    {
                         type: 'bold',
                         icon: 'default-text-editor-bold'
                     },
@@ -174,7 +178,8 @@ export default {
             selection: null,
             toolbar: null,
             textLength: 0,
-            content: this.value
+            content: this.value,
+            placeholderHeight: null
         };
     },
 
@@ -202,6 +207,10 @@ export default {
                     this.setWordcount();
                 }
             }
+        },
+
+        placeholderVisible() {
+            this.setPlaceholderHeight();
         }
     },
 
@@ -236,7 +245,9 @@ export default {
         },
 
         onSelectionChange(event) {
-            if (event.type === 'mousedown' && !event.path.includes(this.$el) && !event.path.includes(this.toolbar)) {
+            const path = this.getPath(event);
+
+            if (event.type === 'mousedown' && !path.includes(this.$el) && !path.includes(this.toolbar)) {
                 this.hasSelection = false;
                 return;
             }
@@ -245,7 +256,7 @@ export default {
                 return;
             }
 
-            if (event.path.includes(this.toolbar)) {
+            if (path.includes(this.toolbar)) {
                 return;
             }
 
@@ -253,8 +264,30 @@ export default {
                 document.getSelection().empty();
             }
 
+            this.resetForeColor();
             this.hasSelection = !!document.getSelection().toString();
             this.selection = document.getSelection();
+        },
+
+        getPath(event) {
+            const path = [];
+            let source = event.target;
+            while (source) {
+                path.push(source);
+                source = source.parentNode;
+            }
+
+            return path;
+        },
+
+        resetForeColor() {
+            Object.keys(this.buttonConfig).forEach(
+                (key) => {
+                    if (this.buttonConfig[key].type === 'foreColor') {
+                        this.buttonConfig[key].value = '';
+                    }
+                }
+            );
         },
 
         onToolbarCreated(elem) {
@@ -306,17 +339,26 @@ export default {
         },
 
         onDocumentClick(event) {
-            if (event.path.includes(this.toolbar)) {
+            const path = this.getPath(event);
+            if (path.includes(this.toolbar)) {
                 return;
             }
 
-            if (!event.path.includes(this.$el)) {
+            if (!path.includes(this.$el)) {
                 this.removeFocus();
             }
         },
 
         onContentChange() {
             this.emitContent();
+        },
+
+        onPaste(event) {
+            event.stopPropagation();
+            event.preventDefault();
+
+            const clipboardData = event.clipboardData || window.clipboardData;
+            this.content = clipboardData.getData('Text');
         },
 
         emitContent() {
@@ -341,6 +383,16 @@ export default {
             // strip Tags
             text = text.replace(/<\/?("[^"]*"|'[^']*'|[^>])*(>|$)/g, '');
             this.textLength = text.length;
+        },
+
+        setPlaceholderHeight() {
+            this.$nextTick(() => {
+                const placeholderEl = this.$el.querySelector('.sw-text-editor__content-placeholder');
+
+                this.placeholderHeight = {
+                    height: this.placeholderVisible && placeholderEl ? `${placeholderEl.offsetHeight}px` : null
+                };
+            });
         }
     }
 };

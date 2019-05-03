@@ -19,6 +19,7 @@ export default {
             const components = {
                 checkbox: 'sw-checkbox-field',
                 colorpicker: 'sw-colorpicker',
+                compactColorpicker: 'sw-compact-colorpicker',
                 date: 'sw-datepicker',
                 number: 'sw-number-field',
                 password: 'sw-password-field',
@@ -53,6 +54,7 @@ export default {
                 'textarea',
                 'date',
                 'colorpicker',
+                'compactColorpicker',
                 'confirm',
                 'password',
                 'url'
@@ -68,6 +70,7 @@ export default {
                     'textarea',
                     'date',
                     'colorpicker',
+                    'compactColorpicker',
                     'confirm',
                     'password',
                     'url'

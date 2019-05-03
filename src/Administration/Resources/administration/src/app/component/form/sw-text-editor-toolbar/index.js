@@ -36,7 +36,10 @@ export default {
     data() {
         return {
             position: {},
-            range: null
+            range: null,
+            arrowPosition: {
+                '--left': '49%;'
+            }
         };
     },
 
@@ -67,6 +70,30 @@ export default {
             this.setToolbarPosition();
 
             this.$emit('created-el', this.$el);
+            this.$nextTick(() => {
+                this.isOverlayingLeft();
+            });
+        },
+
+        isOverlayingLeft() {
+            const el = this.$el;
+            const leftSidebar = document.querySelector('.sw-admin-menu');
+            if (!leftSidebar) {
+                return;
+            }
+
+            const leftSidebarWidth = leftSidebar.offsetLeft + leftSidebar.offsetWidth;
+            if (el.offsetLeft < leftSidebarWidth) {
+                this.position.left = `${leftSidebarWidth + 4}px`;
+                this.position.right = 'unset';
+                const arrowWidth = 8;
+                const selectionBoundary = this.range.getBoundingClientRect();
+
+                let left = selectionBoundary.right - (selectionBoundary.width / 2);
+                left -= (leftSidebarWidth + arrowWidth);
+                this.arrowPosition['--left'] = `${left}px`;
+                this.arrowPosition['--right'] = 'unset';
+            }
         },
 
         destroyedComponent() {
@@ -76,12 +103,19 @@ export default {
         },
 
         onMouseUp(event) {
-            if (!event.path.includes(this.$el)) {
+            const path = [];
+            let source = event.target;
+            while (source) {
+                path.push(source);
+                source = source.parentNode;
+            }
+
+            if (!path.includes(this.$el)) {
                 this.closeExpandedMenu();
                 return;
             }
 
-            if (event.path.indexOf(this.$el) > -1 || !this.parentIsActive) {
+            if (path.indexOf(this.$el) > -1 || !this.parentIsActive) {
                 return;
             }
 

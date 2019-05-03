@@ -1,0 +1,58 @@
+@import "~scss/variables";
+
+.sw-field.sw-field--compact-colorpicker {
+    margin-bottom: 0;
+
+    .picker_wrapper {
+        z-index: 99;
+
+        &.popup_left {
+            margin-right: -8px;
+        }
+
+        .picker_done {
+            display: initial;
+            order: 3;
+
+            button {
+                color: $color-kashmir;
+                background: $color-link-water;
+                border: 1px solid $color-steam-cloud;
+                border-radius: $border-radius-default;
+                padding: 2px 24px;
+                font-size: 14px;
+                line-height: 26px;
+                outline: none;
+                font-weight: 600;
+                font-family: $font-family-default;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                vertical-align: middle;
+                text-decoration: none;
+                cursor: pointer;
+                user-select: none;
+                margin: 0;
+                position: relative;
+
+                &:hover {
+                    color: darken($color-kashmir, 5%);
+                    background: darken($color-link-water, 5%);
+                    border-color: darken($color-steam-cloud, 5%);
+                }
+            }
+        }
+    }
+
+    .sw-colorpicker__previewWrapper {
+        position: initial;
+        border: 1px solid $color-steam-cloud;
+        border-radius: 2px;
+        height: 16px;
+        width: 16px;
+    }
+
+    .sw-colorpicker__previewColor {
+        height: 14px;
+        width: 14px;
+    }
+}

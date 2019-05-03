@@ -99,7 +99,8 @@
       "columnQuantityEnd": "Menge bis",
       "columnPrice": "Preis (Brutto / Netto)",
       "contextMenuDuplicate": "Duplizieren",
-      "contextMenuDelete": "Löschen"
+      "contextMenuDelete": "Löschen",
+      "toolbarLabel": "Regeln"
     },
     "list": {
       "textProductOverview": "Produkte",

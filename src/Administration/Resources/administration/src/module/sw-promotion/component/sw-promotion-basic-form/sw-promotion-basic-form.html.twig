@@ -55,13 +55,6 @@
                           v-model="promotion.redeemable">
                 </sw-field>
             {% endblock %}
-
-            {% block sw_promotion_basic_form_priority_field %}
-                <sw-field type="number"
-                          :label="$tc('sw-promotion.detail.main.general.labelPriority')"
-                          v-model="promotion.priority">
-                </sw-field>
-            {% endblock %}
         </sw-container>
 
         <sw-container columns="1fr" gap="0px 30px">

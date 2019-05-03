@@ -48,7 +48,6 @@
           "placeholderSalesChannels": "Verkaufskanal hinzufügen...",
           "labelValidFrom": "Aktiv von:",
           "labelValidUntil": "Aktiv bis:",
-          "labelPriority": "Priorität",
           "labelRedeemable": "Anzahl",
           "codes" : {
             "card" : "Aktionscodes",
@@ -59,14 +58,6 @@
         },
         "preconditions": {
           "ruleModuleLink": "Regelmodul öffnen",
-          "descriptionTextScope": "Nutze Regeln aus dem Regelmodul, um die Aktionswarenkörbe dieser Marketingaktion zu definieren.\n            Ohne eine Eingrenzung wird die Aktion auf alle Warenkörbe angewendet.",
-          "descriptionTitleScope": "Welche Warenkörbe sind von dieser Rabattaktion betroffen?",
-          "labelCategory": "Kategorie",
-          "labelProduct": "Produkt",
-          "labelCart": "Warenkorb",
-          "labelScopeRule": "Scope Regel",
-          "labelDiscountRule": "Discount Regel",
-          "cardTitleScopeRules": "Warenkorb",
           "persona": {
             "card": "Zielgruppe",
             "title": "Bestimme welche Kunden von dieser Rabattaktion profitieren",
@@ -102,7 +93,7 @@
           "labelRules": "Produktregeln",
           "placeholder": "Produktregeln zuweisen...",
           "labelType": "Art",
-          "valueScopeCart": "Gesamter Warenkorb",
+          "valueScopeCart": "Warenkorb",
           "valueTypeAbsolute": "Absolut",
           "valueTypePercentage": "Prozentual",
           "buttonAddDiscount": "+ Rabatt hinzufügen",

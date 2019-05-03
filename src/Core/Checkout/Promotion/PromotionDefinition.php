@@ -69,8 +69,6 @@ class PromotionDefinition extends EntityDefinition
             new DateField('valid_until', 'validUntil'),
             new IntField('redeemable', 'redeemable'),
             new BoolField('exclusive', 'exclusive'),
-            new IntField('priority', 'priority'),
-            new BoolField('exclude_lower_priority', 'excludeLowerPriority'),
             new BoolField('use_codes', 'useCodes'),
             new StringField('code', 'code'),
             (new OneToManyAssociationField('salesChannels', PromotionSalesChannelDefinition::class, 'promotion_id', 'id'))->addFlags(new CascadeDelete()),

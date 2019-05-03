@@ -18,7 +18,6 @@ class Migration1555596594PromotionCartRule extends MigrationStep
             CREATE TABLE `promotion_cart_rule` (
                 promotion_id BINARY(16) NOT NULL,
                 rule_id BINARY(16) NOT NULL,
-                created_at DATETIME(3) NOT NULL,
                 PRIMARY KEY (`promotion_id`, `rule_id`),
                 CONSTRAINT `fk.promotion_cart_rule.promotion_id` FOREIGN KEY (promotion_id) REFERENCES promotion (id) ON DELETE CASCADE,
                 CONSTRAINT `fk.promotion_cart_rule.rule_id` FOREIGN KEY (rule_id) REFERENCES rule (id) ON DELETE CASCADE

@@ -71,7 +71,9 @@
       "notificationMessageMissingFields": "Please fill out the required configuration fields.",
       "notificationTitlePageError": "Layout could not be saved!",
       "notificationTitleMissingElements": "Missing element configuration!",
-      "notificationMessageMissingElements": "Please configure all elements of your layout."
+      "notificationMessageMissingElements": "Please configure all elements of your layout.",
+      "alertTitleTranslations": "Translations currently not available!",
+      "alertContentTranslations": "The layout can only be edited in the system default language."
     },
     "elements": {
       "captionMediaUpload": "Upload an image",

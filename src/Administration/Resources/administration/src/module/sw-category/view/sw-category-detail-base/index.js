@@ -60,6 +60,15 @@ Component.register('sw-category-detail-base', {
 
         cmsPageStore() {
             return State.getStore('cms_page');
+        },
+
+        cmsPageTypes() {
+            return {
+                page: this.$tc('sw-cms.detail.labelPageTypeShopPage'),
+                landingpage: this.$tc('sw-cms.detail.labelPageTypeLandingpage'),
+                product_list: this.$tc('sw-cms.detail.labelPageTypeCategory'),
+                product_detail: this.$tc('sw-cms.detail.labelPageTypeProduct')
+            };
         }
     },
 

@@ -34,6 +34,10 @@ Component.register('sw-cms-list', {
             return State.getStore('cms_page');
         },
 
+        languageStore() {
+            return State.getStore('language');
+        },
+
         sortOptions() {
             return [
                 { value: 'createdAt:dsc', name: this.$tc('sw-cms.sorting.labelSortByCreatedDsc') },
@@ -66,6 +70,9 @@ Component.register('sw-cms-list', {
         createdComponent() {
             // ToDo: Make the navigation state accessible via global state
             this.$root.$children[0].$children[2].$children[0].isExpanded = false;
+
+            // ToDo: Remove, when language handling is added to CMS
+            this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
         },
 
         handleScroll(event) {

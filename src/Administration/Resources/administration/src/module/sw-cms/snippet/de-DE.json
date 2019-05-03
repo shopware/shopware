@@ -71,7 +71,9 @@
       "notificationMessageMissingFields": "Bitte fülle alle erforderlichen Konfigurationsfelder aus.",
       "notificationTitlePageError": "Layout konnte nicht gespeichert werden!",
       "notificationTitleMissingElements": "Fehlende Elementkonfiguration!",
-      "notificationMessageMissingElements": "Bitte konfiguriere alle Elemente Deines Layouts."
+      "notificationMessageMissingElements": "Bitte konfiguriere alle Elemente Deines Layouts.",
+      "alertTitleTranslations": "Übersetzungen zurzeit nicht verfügbar!",
+      "alertContentTranslations": "Ein Layout kann aktuell nur in der Systemstandardsprache bearbeitet werden."
     },
     "elements": {
       "captionMediaUpload": "Lade ein Bild hoch",

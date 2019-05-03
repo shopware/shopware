@@ -9,6 +9,7 @@
                         {% block sw_cms_detail_toolbar_language_switch %}
                             <sw-language-switch slot="language-switch"
                                                 @on-change="onChangeLanguage"
+                                                :disabled="true"
                                                 :saveChangesFunction="saveOnLanguageChange"
                                                 :abortChangeFunction="abortOnLanguageChange">
                             </sw-language-switch>
@@ -30,7 +31,6 @@
                                     <div class="sw-cms-detail__page-type" v-if="page.type">{{ cmsPageTypes[page.type] }}</div>
                                 {% endblock %}
                             </div>
-
                         {% endblock %}
 
                         {% block sw_cms_detail_toolbar_device_actions %}

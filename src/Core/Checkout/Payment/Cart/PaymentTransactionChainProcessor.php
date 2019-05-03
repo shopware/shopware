@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart;
 
+use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
@@ -10,8 +11,10 @@ use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -39,16 +42,23 @@ class PaymentTransactionChainProcessor
      */
     private $paymentHandlerRegistry;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $orderCustomerRepository;
+
     public function __construct(
         TokenFactoryInterface $tokenFactory,
         EntityRepositoryInterface $orderRepository,
         RouterInterface $router,
-        PaymentHandlerRegistry $paymentHandlerRegistry
+        PaymentHandlerRegistry $paymentHandlerRegistry,
+        EntityRepositoryInterface $orderCustomerRepository
     ) {
         $this->tokenFactory = $tokenFactory;
         $this->orderRepository = $orderRepository;
         $this->router = $router;
         $this->paymentHandlerRegistry = $paymentHandlerRegistry;
+        $this->orderCustomerRepository = $orderCustomerRepository;
     }
 
     /**
@@ -66,11 +76,6 @@ class PaymentTransactionChainProcessor
         $criteria->addAssociation('transactions');
         $criteria->addAssociation('lineItems');
 
-        //TODO will be refactored with NEXT-2659
-        $customerCriteria = new Criteria();
-        $customerCriteria->addAssociation('customer');
-        $criteria->addAssociation('order.orderCustomer', $customerCriteria);
-
         /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search($criteria, $salesChannelContext->getContext())->first();
 
@@ -82,6 +87,10 @@ class PaymentTransactionChainProcessor
         if ($transactions === null) {
             throw new InvalidOrderException($orderId);
         }
+
+        $order->setOrderCustomer(
+            $this->fetchCustomer($order->getId(), $salesChannelContext->getContext())
+        );
 
         $transactions = $transactions->filterByState(OrderTransactionStates::STATE_OPEN);
 
@@ -118,5 +127,16 @@ class PaymentTransactionChainProcessor
         $parameter = ['_sw_payment_token' => $token];
 
         return $this->router->generate('payment.finalize.transaction', $parameter, UrlGeneratorInterface::ABSOLUTE_URL);
+    }
+
+    private function fetchCustomer(string $orderId, Context $context): OrderCustomerEntity
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('orderId', $orderId));
+        $criteria->addAssociation('customer');
+
+        return $this->orderCustomerRepository
+            ->search($criteria, $context)
+            ->first();
     }
 }

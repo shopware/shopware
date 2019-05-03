@@ -23,9 +23,10 @@
 
         {% block sw_cms_block_config_background_image_field %}
             <sw-media-compact-upload
-                    :source="block && block.backgroundMedia ? block.backgroundMedia : null"
+                    :source="block && block.backgroundMedia && block.backgroundMedia.id ? block.backgroundMedia : null"
                     :uploadTag="uploadTag"
                     :label="$tc('sw-cms.detail.labelBlockBackgroundMediaLabel')"
+                    :defaultFolder="cmsPageState.pageEntityName"
                     :allowMultiSelect="false"
                     @media-upload-remove-image="removeMedia"
                     @selection-change="onSetBackgroundMedia">

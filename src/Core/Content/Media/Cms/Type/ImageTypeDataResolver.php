@@ -55,6 +55,10 @@ class ImageTypeDataResolver extends TypeDataResolver
                     $image->setUrl($url);
                 }
             }
+
+            if ($newTabConfig = $config->get('newTab')) {
+                $image->setNewTab($newTabConfig->getValue());
+            }
         }
 
         if ($mediaConfig = $config->get('media')) {

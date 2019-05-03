@@ -493,10 +493,10 @@
   },
   "sw-text-editor-toolbar": {
     "link": {
-      "openInNewTab": "Open link in new window",
-      "placeholder": "Enter URL",
-      "linkTo": "Link to",
-      "insert": "Insert"
+      "openInNewTab": "Link in neuem Tab öffnen",
+      "placeholder": "URL eingeben",
+      "linkTo": "Link zu",
+      "insert": "Einfügen"
     }
   },
   "sw-tree": {

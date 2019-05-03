@@ -18,4 +18,10 @@
             height: 100%;
         }
     }
+
+    &.is--stretch {
+        img {
+            width: 100%;
+        }
+    }
 }

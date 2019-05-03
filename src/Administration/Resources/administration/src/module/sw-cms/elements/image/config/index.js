@@ -78,6 +78,12 @@ Component.register('sw-cms-el-config-image', {
 
         onOpenMediaModal() {
             this.mediaModalIsOpen = true;
+        },
+
+        onChangeMinHeight(value) {
+            this.element.config.minHeight.value = value === null ? '' : value;
+
+            this.$emit('element-update', this.element);
         }
     }
 });

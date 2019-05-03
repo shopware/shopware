@@ -27,6 +27,14 @@ Component.register('sw-cms-el-product-box', {
             }
 
             return `${context.assetsPath}/administration/static/img/cms/preview_glasses_large.jpg`;
+        },
+
+        displayModeClass() {
+            if (this.element.config.displayMode.value === 'standard') {
+                return null;
+            }
+
+            return `is--${this.element.config.displayMode.value}`;
         }
     },
 

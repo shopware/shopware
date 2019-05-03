@@ -57,8 +57,8 @@
       "labelBlockBackgroundMediaField": "Bild",
       "labelBlockBackgroundMediaLabel": "Hintergrundbild",
       "labelBlockBackgroundMediaMode": "Bildmodus",
-      "labelBlockBackgroundMediaModeContain": "Contain",
-      "labelBlockBackgroundMediaModeCover": "Cover",
+      "labelBlockBackgroundMediaModeContain": "Beinhalten",
+      "labelBlockBackgroundMediaModeCover": "Füllen",
       "labelBlockBackgroundMediaModeAuto": "Auto",
       "labelBlockTopMarginField": "Oberer Abstand",
       "labelBlockBottomMarginField": "Unterer Abstand",
@@ -78,6 +78,8 @@
       "labelMediaDisplayMode": "Anzeigemodus",
       "labelMediaDisplayModeStandard": "Standard",
       "labelMediaDisplayModeCover": "Füllen",
+      "labelMediaDisplayModeStretch": "Strecken",
+      "labelMediaMinHeight": "Minimale Höhe",
       "labelTextElementContent": "Text Inhalt",
       "labelProductActionDetail": "Details",
       "labelProductActionBuy": "In den Warenkorb",
@@ -89,7 +91,14 @@
       "labelProductLayoutType": "Layout Typ",
       "labelProductLayoutTypeStandard": "Standard",
       "labelProductLayoutTypeImage": "Großes Bild",
-      "labelProductLayoutTypeMinimal": "Minimaler Inhalt"
+      "labelProductLayoutTypeMinimal": "Minimaler Inhalt",
+      "labelProductDisplayMode": "Display mode",
+      "labelProductDisplayModeStandard": "Standard",
+      "labelProductDisplayModeCover": "Füllen",
+      "labelProductDisplayModeContain": "Beinhalten",
+      "placeholderSettingsEnterUrl": "URL eingeben",
+      "labelSettingsLinkTo": "Link zu",
+      "labelSettingsLinkNewTab": "Link in neuem Tab öffnen"
     },
     "components": {
       "cmsLayoutModal": {

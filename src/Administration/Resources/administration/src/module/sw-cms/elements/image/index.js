@@ -17,6 +17,18 @@ Application.getContainer('service').cmsService.registerCmsElement({
         displayMode: {
             source: 'static',
             value: 'standard'
+        },
+        url: {
+            source: 'static',
+            value: null
+        },
+        newTab: {
+            source: 'static',
+            value: false
+        },
+        minHeight: {
+            source: 'static',
+            value: '340px'
         }
     }
 });

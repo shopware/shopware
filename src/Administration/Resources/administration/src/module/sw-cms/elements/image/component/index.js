@@ -10,9 +10,18 @@ Component.register('sw-cms-el-image', {
     ],
 
     computed: {
-        classes() {
+        displayModeClass() {
+            if (this.element.config.displayMode.value === 'standard') {
+                return null;
+            }
+
+            return `is--${this.element.config.displayMode.value}`;
+        },
+
+        styles() {
             return {
-                'is--cover': this.element.config.displayMode.value === 'cover'
+                'min-height': this.element.config.displayMode.value === 'cover' &&
+                              this.element.config.minHeight.value !== 0 ? this.element.config.minHeight.value : '340px'
             };
         },
 

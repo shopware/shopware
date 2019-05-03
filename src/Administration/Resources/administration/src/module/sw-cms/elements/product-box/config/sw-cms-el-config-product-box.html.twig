@@ -1,18 +1,33 @@
 {% block sw_cms_element_product_box_config %}
     <div class="sw-cms-el-config-product-box">
-        <sw-select :multi="false"
-                   ref="cmsProductSelection"
-                   :label="$tc('sw-cms.elements.labelProductSelection')"
-                   :placeholder="$tc('sw-cms.elements.placeholderProductSelection')"
-                   :store="productStore"
-                   @input="onProductChange"
-                   v-model="element.config.product.value">
-        </sw-select>
+        {% block sw_cms_element_product_box_config_product_select %}
+            <sw-select :multi="false"
+                       ref="cmsProductSelection"
+                       :label="$tc('sw-cms.elements.labelProductSelection')"
+                       :placeholder="$tc('sw-cms.elements.placeholderProductSelection')"
+                       :store="productStore"
+                       @input="onProductChange"
+                       v-model="element.config.product.value">
+            </sw-select>
+        {% endblock %}
 
-        <sw-select-field :label="$tc('sw-cms.elements.labelProductLayoutType')" v-model="element.config.boxLayout.value">
-            <option value="standard">{{ $tc('sw-cms.elements.labelProductLayoutTypeStandard') }}</option>
-            <option value="image">{{ $tc('sw-cms.elements.labelProductLayoutTypeImage') }}</option>
-            <option value="minimal">{{ $tc('sw-cms.elements.labelProductLayoutTypeMinimal') }}</option>
-        </sw-select-field>
+        {% block sw_cms_element_product_box_config_layout_select %}
+            <sw-select-field :label="$tc('sw-cms.elements.labelProductLayoutType')"
+                             v-model="element.config.boxLayout.value">
+                <option value="standard">{{ $tc('sw-cms.elements.labelProductLayoutTypeStandard') }}</option>
+                <option value="image">{{ $tc('sw-cms.elements.labelProductLayoutTypeImage') }}</option>
+                <option value="minimal">{{ $tc('sw-cms.elements.labelProductLayoutTypeMinimal') }}</option>
+            </sw-select-field>
+        {% endblock %}
+
+        {% block sw_cms_element_product_box_config_displaymode_select %}
+            <sw-select-field :label="$tc('sw-cms.elements.labelProductDisplayMode')"
+                             v-model="element.config.displayMode.value">
+                <option value="standard">{{ $tc('sw-cms.elements.labelProductDisplayModeStandard') }}</option>
+                <option value="cover">{{ $tc('sw-cms.elements.labelProductDisplayModeCover') }}</option>
+                <option value="contain">{{ $tc('sw-cms.elements.labelProductDisplayModeContain') }}</option>
+            </sw-select-field>
+        {% endblock %}
+
     </div>
 {% endblock %}

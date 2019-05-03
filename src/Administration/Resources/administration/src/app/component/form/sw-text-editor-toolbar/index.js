@@ -76,12 +76,19 @@ export default {
         },
 
         onMouseUp(event) {
-            if (!event.path.includes(this.$el)) {
+            const path = [];
+            let source = event.target;
+            while (source) {
+                path.push(source);
+                source = source.parentNode;
+            }
+
+            if (!path.includes(this.$el)) {
                 this.closeExpandedMenu();
                 return;
             }
 
-            if (event.path.indexOf(this.$el) > -1 || !this.parentIsActive) {
+            if (path.indexOf(this.$el) > -1 || !this.parentIsActive) {
                 return;
             }
 

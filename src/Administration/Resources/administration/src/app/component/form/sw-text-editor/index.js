@@ -236,7 +236,9 @@ export default {
         },
 
         onSelectionChange(event) {
-            if (event.type === 'mousedown' && !event.path.includes(this.$el) && !event.path.includes(this.toolbar)) {
+            const path = this.getPath(event);
+
+            if (event.type === 'mousedown' && !path.includes(this.$el) && !path.includes(this.toolbar)) {
                 this.hasSelection = false;
                 return;
             }
@@ -245,7 +247,7 @@ export default {
                 return;
             }
 
-            if (event.path.includes(this.toolbar)) {
+            if (path.includes(this.toolbar)) {
                 return;
             }
 
@@ -255,6 +257,17 @@ export default {
 
             this.hasSelection = !!document.getSelection().toString();
             this.selection = document.getSelection();
+        },
+
+        getPath(event) {
+            const path = [];
+            let source = event.target;
+            while (source) {
+                path.push(source);
+                source = source.parentNode;
+            }
+
+            return path;
         },
 
         onToolbarCreated(elem) {
@@ -306,11 +319,12 @@ export default {
         },
 
         onDocumentClick(event) {
-            if (event.path.includes(this.toolbar)) {
+            const path = this.getPath(event);
+            if (path.includes(this.toolbar)) {
                 return;
             }
 
-            if (!event.path.includes(this.$el)) {
+            if (!path.includes(this.$el)) {
                 this.removeFocus();
             }
         },

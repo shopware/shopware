@@ -498,10 +498,36 @@ Component.register('sw-cms-detail', {
             }).catch((exception) => {
                 this.isLoading = false;
 
+                const errorNotificationTitle = this.$tc('sw-cms.detail.notificationTitlePageError');
                 this.createNotificationError({
-                    title: exception.message,
-                    message: exception.response.statusText
+                    title: errorNotificationTitle,
+                    message: exception.message
                 });
+
+                let hasEmptyConfig = false;
+                if (exception.response.data && exception.response.data.errors) {
+                    exception.response.data.errors.forEach((error) => {
+                        if (error.code === 'c1051bb4-d103-4f74-8988-acbcafc7fdc3') {
+                            hasEmptyConfig = true;
+                        }
+                    });
+                }
+
+                if (hasEmptyConfig === true) {
+                    const warningTitle = this.$tc('sw-cms.detail.notificationTitleMissingElements');
+                    const warningMessage = this.$tc('sw-cms.detail.notificationMessageMissingElements');
+                    this.createNotificationWarning({
+                        title: warningTitle,
+                        message: warningMessage,
+                        duration: 10000
+                    });
+
+                    this.currentDeviceView = 'form';
+                    this.currentBlock = null;
+                    this.$refs.pageConfigSidebar.openContent();
+                }
+
+                return Promise.reject(exception);
             });
         },
 

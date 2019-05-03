@@ -68,7 +68,10 @@
       "labelButtonMappingRemoveAction": "Datenzuordnung entfernen",
       "labelMappingPreview": "Datenzuordnung:",
       "notificationTitleMissingFields": "Fehlende Konfiguration",
-      "notificationMessageMissingFields": "Bitte fülle alle erforderlichen Konfigurationsfelder aus."
+      "notificationMessageMissingFields": "Bitte fülle alle erforderlichen Konfigurationsfelder aus.",
+      "notificationTitlePageError": "Layout konnte nicht gespeichert werden!",
+      "notificationTitleMissingElements": "Fehlende Elementkonfiguration!",
+      "notificationMessageMissingElements": "Bitte konfiguriere alle Elemente Deines Layouts."
     },
     "elements": {
       "captionMediaUpload": "Lade ein Bild hoch",

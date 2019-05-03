@@ -33,7 +33,7 @@ Since only a single `xml` file is necessary for this example, the file is called
 into the `<plugin root>/src/Resources/config` directory.
 
 It only has to contain the path to the plugins controllers.
-This example will have it's API controller inside a `Controller` folder.
+This example will have its API controller inside a `Controller` folder.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8" ?>

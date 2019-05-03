@@ -18,7 +18,7 @@ Is now invalid and will throw a compile error from php. This now must be called
 public function getEntityName() {... }
 ```
 
-Please adjust all method calls accordingly. (Usually `defineFields`, `getCollectionClass`, `getCollectionClass`)
+Please adjust all method calls accordingly. (Usually `getEntityName`, `defineFields`, `getCollectionClass`, `getEntityClass`)
 
 ### EntityDefinition service declaration
 

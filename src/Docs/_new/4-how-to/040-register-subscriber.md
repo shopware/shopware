@@ -10,7 +10,7 @@ This is done in your plugins base class by using the `build` method.
 Make sure to have a look at the guide about the [plugin base class](./../2-internals/4-plugins/020-plugin-base-class.md) for further information.
 Registering a custom subscriber requires to load a `services.xml` file with your plugin.
 This is done by either placing a file with name `services.xml` into a directory called `src/Resources/config/` or by overriding
-the method [getContainerPath()](../2-internals/4-plugins/020-plugin-base-class.md#getContainerPath()) of your plugin base class.
+the method [getServicesFilePath](../2-internals/4-plugins/020-plugin-base-class.md#getServicesFilePath) of your plugin base class.
 
 ```php
 <?php declare(strict_types=1);
@@ -24,7 +24,7 @@ use Symfony\Component\Config\FileLocator;
 
 class SubscriberPlugin extends Plugin
 {
-    public function getContainerPath(): string
+    public function getServicesFilePath(): string
     {
         return 'Resources/custom_path/custom_file.xml';
     }

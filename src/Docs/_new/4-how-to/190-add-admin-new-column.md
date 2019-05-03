@@ -58,7 +58,7 @@ You might have noticed, that the manufacturer's ID is to be displayed in the new
 ## Loading the JS files
 
 As mentioned above, the Shopware platform is looking for a `main.js` file in your plugin.
-It's contents get minified into a new file named after your plugin and will be moved to the `public` directory
+Its contents get minified into a new file named after your plugin and will be moved to the `public` directory
 of the Shopware platform root directory.
 Given this plugin would be named "AdministrationNewColumn", the minified javascript code for this example would be
 located under `<plugin root>/src/Resources/public/static/js/AdministrationNewColumn.js`, once you run the command `./psh.phar administration:build` in your shopware root directory.

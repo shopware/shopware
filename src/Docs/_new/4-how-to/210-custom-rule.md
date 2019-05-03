@@ -80,7 +80,7 @@ As you might have noticed, there's already several methods implemented:
 - `__constructor`: This only defines the default **expected** value. This is overwritten at runtime with the actual value, that the shop administrator set in the administration
 - `getName`: Just return a unique technical name for your rule here
 - `match`: This is where you're actually checking, if the rule applies. Return a boolean here, depending on whether or not the rule actually applies.
-- `getConstraints`: This method returns an array of the possible fields and it's types. You could also return the `NotBlank` class here, to require this field.
+- `getConstraints`: This method returns an array of the possible fields and its types. You could also return the `NotBlank` class here, to require this field.
 
 Time to register it in the DI container via the `services.xml` of your plugin.
 If your plugin does not have a `services.xml` file yet, make sure to read [here](./../2-internals/4-plugins/010-plugin-quick-start.md#The services.xml) to understand how it can be created in the first place.
@@ -128,7 +128,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
 
 ```
 
-As you can see, this is decorating the `RuleConditionService` by using it's name `ruleConditionDataProviderService`, which is defined [here](https://github.com/shopware/platform/blob/master/src/Administration/Resources/administration/src/app/main.js#L47).
+As you can see, this is decorating the `RuleConditionService` by using its name `ruleConditionDataProviderService`, which is defined [here](https://github.com/shopware/platform/blob/master/src/Administration/Resources/administration/src/app/main.js#L47).
 The decoration then adds a new condition called 'lunar_eclipse'. Make sure to match the name you've used in the `getName` method in PHP.
 It comes with a custom component `swag-lunar-eclipse`, which you have to create later on, as well as an label.
 Also note the second line, which already imports your not yet existing component.
@@ -213,15 +213,15 @@ Next is the method `defaultValues`, which is pretty much self-explaining - it si
 
 The last computed property is `selectValues`, which returns a Store containing the values "true" and "false".
 Those will be used in the template later on, as they will be the selectable options for the shop administrator.
-Do not get confused by the call `this.$tc('global.sw-condition.condition.yes')`, it's just loading a translation by it's name, in this case "Yes" and "No".
+Do not get confused by the call `this.$tc('global.sw-condition.condition.yes')`, it's just loading a translation by its name, in this case "Yes" and "No".
 *Note: When dealing with boolean values, make sure to always return strings here!*
 
-The `data` method is supposed to return an object containing the available variables and it's actual current value.
+The `data` method is supposed to return an object containing the available variables and its actual current value.
 If the value was defined already, use it, otherwise return the default value again.
 Also remember: If you're dealing with boolean values, make sure to return a string here.
 
 The last method is the `watch` method, which, as the name suggests, watches the `isLunarEclipse` value and triggers once the value is changed.
-It's main purpose is to convert the string back to an actual boolean then and setting it into the condition's value, which then
+Its main purpose is to convert the string back to an actual boolean then and setting it into the condition's value, which then
 gets submitted.
 
 ### Custom rule administration template

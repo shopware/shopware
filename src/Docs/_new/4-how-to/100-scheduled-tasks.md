@@ -7,7 +7,7 @@ Quite often one might want to run any type of code on a regular basis, e.g. to c
 every once in a while, automatically.
 Formerly known as "Cronjobs", the Shopware platform supports a `ScheduledTask` for this.
 
-A `ScheduledTask` and it's respective `ScheduledTaskHandler` are registered in a plugin's `services.xml`.
+A `ScheduledTask` and its respective `ScheduledTaskHandler` are registered in a plugin's `services.xml`.
 For it to be found by the Shopware platform automatically, you need to place the `services.xml` file in a
 `Resources/config/` directory, relative to the location of your plugin's base class.
 The path could look like this: `<plugin root>/src/Resources/config/services.xml`, if you were to place your plugin's base class in
@@ -37,10 +37,10 @@ Here's an example `services.xml` containing a new `ScheduledTask` as well as a n
 </container>
 ```
 
-Note the tags required for both the task and it's respective handler.
+Note the tags required for both the task and its respective handler.
 Your custom task will now be saved into the database once your plugin is activated.
 
-## ScheduledTask and it's handler
+## ScheduledTask and its handler
 
 As you might have noticed, the `services.xml` file tries to find both the task itself as well as the new task handler in
 a directory called `ScheduledTask`.

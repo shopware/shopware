@@ -1,5 +1,3 @@
-import './sw-field.scss';
-
 /**
  * @private
  * @description sw-field as alias for all input fields
@@ -19,7 +17,6 @@ export default {
     render(createElement, context) {
         function getComponentName() {
             const components = {
-                boolean: 'sw-boolean-field',
                 checkbox: 'sw-checkbox-field',
                 colorpicker: 'sw-colorpicker',
                 date: 'sw-datepicker',
@@ -49,7 +46,6 @@ export default {
             validValues: [
                 'text',
                 'select',
-                'boolean',
                 'checkbox',
                 'switch',
                 'number',
@@ -65,7 +61,6 @@ export default {
                 return [
                     'text',
                     'select',
-                    'boolean',
                     'checkbox',
                     'switch',
                     'number',

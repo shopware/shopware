@@ -1,4 +1,6 @@
+import { Mixin } from 'src/core/shopware';
 import template from './sw-select-field.html.twig';
+import './sw-select-field.scss';
 
 /**
  * @public
@@ -16,20 +18,67 @@ import template from './sw-select-field.html.twig';
  */
 export default {
     name: 'sw-select-field',
-    extendsFrom: 'sw-text-field',
     template,
+    inheritAttrs: false,
+
+    model: {
+        prop: 'value',
+        event: 'change'
+    },
+
+    mixins: [
+        Mixin.getByName('sw-form-field')
+    ],
 
     props: {
+        value: {
+            type: String,
+            required: false,
+            default: null
+        },
+
+        placeholder: {
+            type: String,
+            required: false,
+            default: null
+        },
+
         options: {
             type: Array,
             required: false
+        },
+
+        aside: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
+    data() {
+        return {
+            currentValue: this.value
+        };
+    },
+
     computed: {
-        typeFieldClass() {
-            return 'sw-field--select';
+        locale() {
+            return this.$root.$i18n.locale;
+        },
+
+        fallbackLocale() {
+            return this.$root.$i18n.fallbackLocale;
+        },
+
+        swFieldSelectClasses() {
+            return {
+                'sw-field--select-aside': this.aside && this.$attrs.label
+            };
         }
+    },
+
+    watch: {
+        value() { this.currentValue = this.value; }
     },
 
     methods: {
@@ -47,6 +96,15 @@ export default {
             }
 
             return '';
+        },
+
+        onChange(event) {
+            this.currentValue = event.target.value;
+            if (event.target.value === '') {
+                this.currentValue = null;
+            }
+
+            this.$emit('change', this.currentValue);
         }
     }
 };

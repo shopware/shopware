@@ -33,7 +33,7 @@ module.exports = {
             .doubleClick()
             .waitForElementPresent('.is--inline-edit ')
             .fillField(
-                `${page.elements.dataGridRow}--0 .sw-field__input input`,
+                `${page.elements.dataGridRow}--0 input`,
                 '- some more'
             )
             .waitForElementVisible(`${page.elements.dataGridRow}--0 ${page.elements.dataGridInlineEditSave}`)

@@ -1,6 +1,5 @@
 import Ace from 'ace-builds/src-noconflict/ace';
 import 'ace-builds/src-noconflict/mode-twig';
-import { Mixin } from 'src/core/shopware';
 import template from './sw-code-editor.html.twig';
 import './sw-code-editor.scss';
 
@@ -18,10 +17,6 @@ export default {
     name: 'sw-code-editor',
     template,
 
-    mixins: [
-        Mixin.getByName('sw-inline-snippet')
-    ],
-
     props: {
         value: {
             type: String,
@@ -29,6 +24,7 @@ export default {
             default: ''
         },
         label: {
+            type: String,
             required: false,
             default: ''
         },

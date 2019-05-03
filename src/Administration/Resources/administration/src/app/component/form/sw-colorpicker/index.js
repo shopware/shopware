@@ -1,3 +1,4 @@
+import { Mixin } from 'src/core/shopware';
 import Picker from 'vanilla-picker';
 import template from './sw-colorpicker.html.twig';
 import './sw-colorpicker.scss';
@@ -13,20 +14,18 @@ import './sw-colorpicker.scss';
 
 export default {
     name: 'sw-colorpicker',
-    extendsFrom: 'sw-text-field',
     template,
+    inheritAttrs: false,
+
+    mixins: [
+        Mixin.getByName('sw-form-field')
+    ],
 
     props: {
         value: {
             type: String,
             required: false,
             default: ''
-        },
-
-        disabled: {
-            type: Boolean,
-            required: false,
-            default: false
         },
 
         alpha: {
@@ -39,20 +38,32 @@ export default {
             type: String,
             required: false,
             default: 'hex',
-            validValues: ['hex', 'hsl', 'rgb']
+            validValues: ['hex', 'hsl', 'rgb'],
+            validator(val) {
+                return ['hex', 'hsl', 'rgb'].includes(val);
+            }
         },
 
         colorCallback: {
             type: String,
             required: false,
             default: 'hex',
-            validValues: ['hex', 'rgbString', 'rgbaString']
+            validValues: ['hex', 'rgbString', 'rgbaString'],
+            validator(val) {
+                return ['hex', 'rgbString', 'rgbaString'].includes(val);
+            }
+        },
+
+        disabled: {
+            type: Boolean,
+            require: false,
+            default: false
         }
     },
 
     data() {
         return {
-            color: '',
+            color: this.value,
             open: false
         };
     },
@@ -66,13 +77,6 @@ export default {
     },
 
     computed: {
-        fieldClasses() {
-            return {
-                'is--disabled': !!this.$props.disabled,
-                'is--open': !!this.open
-            };
-        },
-
         emptyColor() {
             return !this.color;
         },
@@ -100,18 +104,14 @@ export default {
     methods: {
         mountedComponent() {
             this.colorPicker = new Picker({
-                parent: this.$el.querySelector('.sw-colorpicker__trigger'),
+                parent: this.$el,
                 onClose: this.onClose,
                 onOpen: this.onOpen,
                 onChange: this.onChange
             });
 
-            this.setColorpickerValues();
-        },
-
-        setColorpickerValues() {
             this.colorPicker.setOptions(this.config);
-            this.setColor(this.value, true);
+            this.setColor(this.value);
         },
 
         destroyedComponent() {
@@ -120,8 +120,11 @@ export default {
 
         setColor(value) {
             if (value !== null && value.length) {
-                this.colorPicker.setColor(value, true);
-                this.color = value;
+                try {
+                    this.colorPicker.setColor(value, true);
+                    this.color = value;
+                } catch (e) { /* ignore wrong initial values or on input */ }
+
                 return;
             }
 
@@ -135,6 +138,16 @@ export default {
                 this.open = true;
                 this.$emit('sw-colorpicker-open');
             }
+        },
+
+        openPicker() {
+            if (!this.disabled) {
+                this.colorPicker.show();
+            }
+        },
+
+        onInput(event) {
+            this.$emit('input', event.target.value);
         },
 
         onChange(value) {

@@ -15,7 +15,7 @@ module.exports = {
     'create new product stream with basic condition': (browser) => {
         const page = productStreamPage(browser);
 
-        browser.expect.element(page.elements.smartBarHeader).to.have.text.that.equals('New product stream');
+        browser.expect.element(page.elements.smartBarHeader).to.have.text.that.equals('New product group');
         browser.assert.urlContains('#/sw/product/stream/create');
 
         page.createBasicProductStream('Product stream 1st', 'My first product stream');
@@ -30,7 +30,7 @@ module.exports = {
                 subMenuId: 'sw-product-stream'
             })
             .refresh()
-            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Product stream');
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Dynamic product groups (1)');
         browser.assert.urlContains('#/sw/product/stream/index');
 
         browser.expect.element(`${page.elements.gridRow}--0 `).to.have.text.that.contains('Product stream 1st');

@@ -1,4 +1,6 @@
+import { Mixin } from 'src/core/shopware';
 import template from './sw-textarea-field.html.twig';
+import './sw-textarea-field.scss';
 
 /**
  * @description textarea input field.
@@ -9,12 +11,43 @@ import template from './sw-textarea-field.html.twig';
  */
 export default {
     name: 'sw-textarea-field',
-    extendsFrom: 'sw-text-field',
     template,
+    inheritAttrs: false,
 
-    computed: {
-        typeFieldClass() {
-            return 'sw-field--textarea';
+    mixins: [
+        Mixin.getByName('sw-form-field')
+    ],
+
+    props: {
+        value: {
+            type: String,
+            required: false
+        },
+
+        placeholder: {
+            type: String,
+            required: false,
+            default: null
+        }
+    },
+
+    data() {
+        return {
+            currentValue: this.value || ''
+        };
+    },
+
+    watch: {
+        value() { this.currentValue = this.value; }
+    },
+
+    methods: {
+        onInput(event) {
+            this.$emit('input', event.target.value);
+        },
+
+        onChange(event) {
+            this.$emit('change', event.target.value);
         }
     }
 };

@@ -53,7 +53,8 @@
                                 </sw-field>
                             {% endblock %}
                             {% block sw_settings_shipping_detail_base_content_field_active %}
-                                <sw-field type="boolean"
+                                <sw-field type="switch"
+                                          bordered
                                           v-model="shippingMethod.active"
                                           :label="$tc('sw-settings-shipping.detail.labelActive')">
                                 </sw-field>

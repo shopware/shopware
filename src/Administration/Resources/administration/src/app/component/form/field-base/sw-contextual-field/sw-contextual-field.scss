@@ -1,0 +1,60 @@
+@import "~scss/variables";
+
+$sw-field-color-error: $color-crimson;
+$sw-field-suffix-background: $color-iron;
+$sw-field-border-radius: $border-radius-default;
+$sw-field-color-border: $color-steam-cloud;
+$sw-field-font-size: 14px;
+$sw-field-color-text: $color-gutenberg;
+$sw-field-transition: border-color 0.3s ease-out;
+$sw-field-color-disabled-addition: $color-light-gray;
+
+.sw-contextual-field {
+    .sw-block-field__block {
+        display: flex;
+    }
+
+    .sw-field__addition {
+        display: flex;
+        min-width: 50px;
+        flex-shrink: 0;
+        background: $sw-field-suffix-background;
+        border-left: 1px solid $sw-field-color-border;
+        border-right: none;
+        line-height: 22px;
+        text-align: center;
+        padding: 12px 15px;
+        font-size: $sw-field-font-size;
+        color: $sw-field-color-text;
+        transition: $sw-field-transition;
+
+        .sw-icon {
+            width: 16px;
+            height: 16px;
+            line-height: 22px;
+        }
+
+        &.is--prefix {
+            border-right: 1px solid $sw-field-color-border;
+            border-left: none
+        }
+    }
+
+    &.is--disabled {
+        .sw-field__addition {
+            background: $sw-field-color-disabled-addition;
+        }
+    }
+
+    &.sw-field--small {
+        .sw-field__addition {
+            padding: 4px 16px;
+        }
+    }
+
+    &.sw-field--medium {
+        .sw-field__addition {
+            padding: 8px 16px;
+        }
+    }
+}

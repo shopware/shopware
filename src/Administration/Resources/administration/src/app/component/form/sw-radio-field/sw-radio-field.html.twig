@@ -1,21 +1,21 @@
-{% block sw_text_field_input %}
-    <div v-if="options.length" class="sw-field__radio-group">
-        {% block sw_radio_field_options %}
-            <div class="sw-field__radio-option" v-for="(option, index) in options">
-                <div class="sw-field__radio-input">
-                    <input type="radio"
-                           :name="displayName"
-                           :id="`${displayName}-${index}`"
-                           :value="option.value"
-                           :disabled="disabled ? 'disabled' : false"
-                           :checked="currentValue === option.value ? 'checked' : false"
-                           @change="onChange"
-                           v-model="currentValue" />
-                    <div class="sw-field__radio-state"></div>
-                </div>
+<sw-base-field class="sw-field--radio" v-bind="$attrs" :name="formFieldName">
+    <template #sw-field-input="{ identification, helpText, error, disabled }">
+        <sw-help-text v-if="helpText" :text="helpText"></sw-help-text>
+            <div class="sw-field__radio-group">
+                <div class="sw-field__radio-option" v-for="(option, index) in options">
+                    <div class="sw-field__radio-input">
+                        <input type="radio"
+                               :name="`${identification}-${index}`"
+                               :id="`${identification}-${index}`"
+                               :value="option.value"
+                               :disabled="disabled"
+                               :checked="currentValue === option.value ? 'checked' : false"
+                               @change="onChange" />
+                        <div class="sw-field__radio-state"></div>
+                    </div>
 
-                <label :for="`${displayName}-${index}`">{{ option.name }}</label>
+                    <label :for="`${identification}-${index}`">{{ option.name }}</label>
+                </div>
             </div>
-        {% endblock %}
-    </div>
-{% endblock %}
+    </template>
+</sw-base-field>

@@ -26,8 +26,8 @@ class IntegrationPageObject extends GeneralPageObject {
             me.accessKeyId = result.value;
 
             me.browser
-                .waitForElementVisible('.sw-field__copy-tooltip:nth-of-type(1) .sw-icon')
-                .click('.sw-field__copy-tooltip:nth-of-type(1) .sw-icon')
+                .waitForElementVisible('.sw-field-copyable')
+                .click('.sw-field-copyable')
                 .clearValue(me.elements.integrationName)
                 .setValue(me.elements.integrationName, [me.browser.Keys.CONTROL, 'v'])
                 .expect.element(me.elements.integrationName).value.that.equals(me.accessKeyId);

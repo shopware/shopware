@@ -114,6 +114,7 @@ class MediaPageObject extends GeneralPageObject {
     setThumbnailSize(width, height) {
         this.browser
             .fillField('input[name=sw-field--width', width)
+            .setValue('input[name=sw-field--width', this.browser.Keys.ENTER)
             .waitForElementVisible('.sw-media-add-thumbnail-form__lock')
             .waitForElementVisible('.sw-media-add-thumbnail-form__input-height.is--disabled');
 
@@ -122,6 +123,7 @@ class MediaPageObject extends GeneralPageObject {
                 .click('.sw-media-add-thumbnail-form__lock')
                 .waitForElementNotPresent('.sw-media-add-thumbnail-form__input-height.is--disabled')
                 .fillField('input[name=sw-field--height]', height, true)
+                .setValue('input[name=sw-field--height]', this.browser.keys.ENTER)
                 .waitForElementNotPresent('.sw-media-folder-settings__add-thumbnail-size-action.is--disabled')
                 .click('.sw-media-folder-settings__add-thumbnail-size-action')
                 .expect.element('.sw-media-modal-folder-settings__thumbnail-size-entry label').to.have.text.that.equals(`${width}x${height}`);

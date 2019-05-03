@@ -1,0 +1,14 @@
+<sw-block-field class="sw-contextual-field" v-bind="$attrs" v-on="$listeners">
+    <template #sw-field-input="{ identification, error, disabled, swBlockSize, setFocusClass, removeFocusClass }">
+
+        <span v-if="hasPrefix" class="sw-field__addition is--prefix">
+            <slot name="sw-contextual-field-prefix" v-bind="{ disabled, identification }"></slot>
+        </span>
+
+        <slot name="sw-field-input" v-bind="{ identification, error, disabled, swBlockSize, setFocusClass, removeFocusClass, hasSuffix, hasPrefix }"></slot>
+
+        <span v-if="hasSuffix" class="sw-field__addition">
+            <slot name="sw-contextual-field-suffix" v-bind="{ disabled, identification }"></slot>
+        </span>
+    </template>
+</sw-block-field>

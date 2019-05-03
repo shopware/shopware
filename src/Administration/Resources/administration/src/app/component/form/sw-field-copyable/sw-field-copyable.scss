@@ -1,16 +1,5 @@
-@import "~scss/variables";
-
-$sw-field-copyable-color-icon: $color-shopware-blue;
-
-.sw-field__copy-tooltip {
-    position: absolute;
-    right: 17px;
-    top: calc(50% - 12px);
-
+.sw-field-copyable {
     .sw-icon {
         cursor: pointer;
-        width: 16px;
-        height: 20px;
-        color: $sw-field-copyable-color-icon;
     }
 }

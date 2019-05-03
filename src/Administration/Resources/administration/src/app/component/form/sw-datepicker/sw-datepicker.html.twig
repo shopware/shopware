@@ -1,6 +1,22 @@
-{% block sw_text_field_input %}
-    <div class="sw-datepicker sw-field__input">
-        <input type="text" @input="onInput" ref="flatpickrInput" :placeholder="currentFlatpickrConfig.dateFormat" v-model="inputValue">
-        <sw-field-addition><sw-icon :name="suffixName"></sw-icon></sw-field-addition>
-    </div>
-{% endblock %}
+<sw-contextual-field
+        class="sw-field--datepicker"
+        :class="{ 'has--focus': this.isDatepickerOpen }"
+        @sw-contextual-field-suffix-clicked="openDatepicker"
+        v-bind="$attrs"
+        :name="formFieldName"
+        v-on="additionalEventListeners">
+
+    <template #sw-field-input="{ identification }">
+        <input type="text"
+               ref="flatpickrInput"
+               :name="identification"
+               :id="identification"
+               :placeholder="currentFlatpickrConfig.dateFormat"
+               v-model="inputValue"
+               @input="onInput">
+    </template>
+
+    <template #sw-contextual-field-suffix>
+        <sw-icon :name="suffixName" @click.stop="openDatepicker"></sw-icon>
+    </template>
+</sw-contextual-field>

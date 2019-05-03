@@ -5,7 +5,7 @@
                   :placeholder="$tc('sw-settings-shipping.priceRuleModal.placeholderPrice')"
                   validation="required"
                   v-model="currentPriceRule.price">
-            <template slot="suffix" slot-scope="{}">
+            <template #suffix>
                 {{ currencySuffix }}
             </template>
         </sw-field>

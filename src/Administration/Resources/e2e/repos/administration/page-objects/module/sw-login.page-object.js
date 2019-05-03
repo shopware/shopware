@@ -20,7 +20,7 @@ class LoginPageObject extends GeneralPageObject {
             .waitForElementVisible(this.elements.loginForm)
             .assert.urlContains('#/login')
             .fillField(this.elements.usernameField, username, true)
-            .fillField(this.elements.passwordField, password)
+            .fillField(this.elements.passwordField, password, true)
             .click(this.elements.submitButton)
             .waitForElementNotPresent(this.elements.loader);
     }
@@ -29,8 +29,8 @@ class LoginPageObject extends GeneralPageObject {
     fastLogin(username, password) {
         this.browser
             .waitForElementVisible(this.elements.loginForm)
-            .fillField(this.elements.usernameField, username)
-            .fillField(this.elements.passwordField, password)
+            .fillField(this.elements.usernameField, username, true)
+            .fillField(this.elements.passwordField, password, true)
             .setValue(this.elements.passwordField, this.browser.Keys.ENTER)
             .waitForElementNotPresent(this.elements.loader);
     }

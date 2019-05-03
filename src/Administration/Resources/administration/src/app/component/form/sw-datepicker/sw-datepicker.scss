@@ -7,11 +7,17 @@ $sw-datepicker-color-hover: #e6e6e6;
 $sw-datepicker-color-selected: $color-shopware-blue;
 $sw-datepicker-color-text-selected: $color-white;
 
-.sw-datepicker {
-    flex: 1;
+.sw-field--datepicker {
+    &:not(is--diabled) {
+        .sw-field__addition {
+            cursor: pointer;
+        }
 
-    .flatpickr-input {
-        height: 45px;
+        .sw-icon {
+            &:hover {
+                color: darken($sw-datepicker-color-font, 20%)
+            }
+        }
     }
 }
 
@@ -20,6 +26,9 @@ $sw-datepicker-color-text-selected: $color-white;
     box-shadow: 0 3px 6px 0 rgba(120, 138, 155, 0.3);
     border: 1px solid $sw-datepicker-color-border;
     border-radius: 4px;
+
+
+
 
     &:before, &:after {
         display: none;

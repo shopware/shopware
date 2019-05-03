@@ -113,8 +113,8 @@ class SalesChannelPageObject extends GeneralPageObject {
             me.browser
                 .waitForElementPresent(me.elements.apiAccessKeyField)
                 .getLocationInView(me.elements.apiAccessKeyField)
-                .waitForElementVisible('.sw-field__copy-button:nth-of-type(1)')
-                .click('.sw-field__copy-button:nth-of-type(1)')
+                .waitForElementVisible('.sw-field-copyable:nth-of-type(1)')
+                .click('.sw-field-copyable:nth-of-type(1)')
                 .checkNotification('Text has been copied to clipboard.')
                 .getLocationInView(me.elements.salesChannelNameInput)
                 .clearValue(me.elements.salesChannelNameInput)

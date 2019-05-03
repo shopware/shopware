@@ -3,7 +3,7 @@
 
         {% block sw_text_editor_label %}
             <div class="sw-code-editor__label"
-                 v-if="getInlineSnippet(label).length">{{ getInlineSnippet(label) }}
+                 v-if="label.length">{{ label }}
             </div>
         {% endblock %}
 

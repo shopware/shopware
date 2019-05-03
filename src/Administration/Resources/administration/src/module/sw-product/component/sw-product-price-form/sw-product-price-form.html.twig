@@ -14,12 +14,14 @@
 
             {% block sw_product_price_form_purchase_price_field %}
                 <sw-field type="number"
-                          suffix="€"
                           :min="0"
                           :label="$tc('sw-product.priceForm.labelPurchasePriceGross')"
                           :placeholder="$tc('sw-product.priceForm.placeholderPurchasePriceGross')"
                           class="sw-product-price-form__field-price"
                           v-model="product.purchasePrice">
+                    <template #suffix>
+                        <span v-if="defaultCurrency">{{ defaultCurrency.symbol }}</span>
+                    </template>
                 </sw-field>
             {% endblock %}
         </sw-container>

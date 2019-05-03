@@ -105,9 +105,11 @@
                                         v-model="item.priceDefinition.price"
                                         slot="inline-edit"
                                         placeholder="0"
-                                        :suffix="order.currency.symbol"
                                         :min="getMinItemPrice(item.id)"
                                         :max="getMaxItemPrice(item.id)">
+                                        <template #suffix>
+                                            {{ order.currency.symbol }}
+                                        </template>
                                     </sw-field>
                                 {% endblock %}
                             </sw-grid-column>
@@ -154,15 +156,19 @@
                                             key="order-line-item-tax-edit-credit"
                                             v-model="item.price.taxRules[0].taxRate"
                                             placeholder="0"
-                                            suffix="%"
                                             :disabled="true">
+                                            <template #suffix>
+                                                %
+                                            </template>
                                         </sw-field>
                                         <sw-field v-else type="number"
                                             v-model="item.priceDefinition.taxRules[0].taxRate"
                                             key="order-line-item-tax-edit-default"
                                             placeholder="0"
-                                            suffix="%"
                                             :disabled="itemCreatedFromProduct(item.id)">
+                                            <template #suffix>
+                                                %
+                                            </template>
                                         </sw-field>
                                     </template>
                                 {% endblock %}

@@ -160,7 +160,8 @@
 
                             {% block sw_settings_language_detail_content_field_default %}
                                 <div class="sw-settings-language-detail__field_default">
-                                    <sw-field type="boolean"
+                                    <sw-field type="switch"
+                                              bordered
                                               disabled
                                               :label="$tc('sw-settings-language.detail.labelDefault')"
                                               v-model="language.active">

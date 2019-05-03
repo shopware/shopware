@@ -12,7 +12,8 @@
             {% endblock %}
 
             {% block sw_promotion_discount_condition_consider_product_rules_field %}
-                <sw-field type="boolean"
+                <sw-field type="switch"
+                          bordered
                           :label="$tc('sw-promotion.detail.main.discounts.flagProductScopeLabel')"
                           v-model="discount.considerAdvancedRules">
                 </sw-field>
@@ -45,11 +46,13 @@
                 <sw-field type="number"
                           validation="required"
                           v-model="discount.value"
-                          :suffix="getValueSuffix()"
                           :min="getValueMin()"
                           :max="getValueMax()"
                           :label="$tc('sw-promotion.detail.main.discounts.labelValue')"
                           :placeholder="$tc('sw-promotion.detail.main.discounts.placeholderValue')">
+                    <template #suffix>
+                        {{ getValueSuffix() }}
+                    </template>
                 </sw-field>
             {% endblock %}
         </sw-container>

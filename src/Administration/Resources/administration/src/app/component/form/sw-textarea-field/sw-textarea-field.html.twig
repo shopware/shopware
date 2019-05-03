@@ -1,11 +1,14 @@
-{% block sw_text_field_input %}
-    <textarea :id="id"
-              :name="displayName"
-              :placeholder="getInlineSnippet(placeholder)"
-              :disabled="disabled ? 'disabled' : false"
-              @change="onChange"
-              @input="onInput"
-              :value="value"
-              v-bind="$attrs">
-    </textarea>
-{% endblock %}
+<sw-block-field class="sw-field--textarea" v-bind="$attrs" :name="formFieldName">
+    <template #sw-field-input="{identification, helpText, error, disabled, setFocusClass, removeFocusClass }">
+        <textarea :id="identification"
+                  :name="identification"
+                  :placeholder="placeholder"
+                  :disabled="disabled"
+                  :value="currentValue"
+                  @change="onChange"
+                  @input="onInput"
+                  @focus="setFocusClass"
+                  @blur="removeFocusClass">
+        </textarea>
+    </template>
+</sw-block-field>

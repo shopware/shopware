@@ -10,7 +10,7 @@ module.exports = {
             .waitForElementNotPresent('.sw-admin-menu__user-actions-toggle .sw-loader')
             .clickUserActionMenu('admin');
         page.logout('admin');
-        browser.clearValue('input[name=sw-field--authStore-username]');
+        browser.clearValue('input[name=sw-field--username]');
     },
     'view login screen': (browser) => {
         browser.expect.element('.sw-login__content-headline').to.have.text.that.contains('Log in to your Shopware store');

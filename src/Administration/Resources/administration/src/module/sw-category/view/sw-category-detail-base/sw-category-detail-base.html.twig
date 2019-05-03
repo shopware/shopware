@@ -17,7 +17,8 @@
 
                     {% block sw_category_detail_information_active %}
                         <sw-field
-                            type="boolean"
+                            type="switch"
+                            bordered
                             name="categoryActive"
                             :label="$tc('sw-category.base.general.isCategoryActiveLabel')"
                             v-model="category.active">
@@ -207,7 +208,8 @@
             <sw-card v-if="category.type !== 'link'" class="sw-category-detail-base__menu" :title="$tc('sw-category.base.menu.title')" :isLoading="isLoading">
 
                 {% block sw_category_detail_information_visible %}
-                    <sw-field type="boolean"
+                    <sw-field type="switch"
+                        borderd
                         @input="onChangeVisibility"
                         :label="$tc('sw-category.base.menu.visible')"
                         v-model="reversedVisibility">

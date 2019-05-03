@@ -1,0 +1,73 @@
+@import "~scss/variables";
+
+$sw-select-field-color-text: $color-gutenberg;
+$sw-select-field-color-text-disabled: $color-steam-cloud;
+$sw-select-field-color-focus: $color-shopware-blue;
+$sw-select-field-border-radius: $border-radius-default;
+$sw-select-field-color-background: $color-white;
+$sw-select-field-color-border: $color-steam-cloud;
+$sw-select-field-color-error: $color-crimson;
+
+.sw-field.sw-field--select {
+
+    .sw-block-field__block {
+        width: 100%;
+        position: relative;
+
+        .sw-field--select__options {
+            display: block;
+            position: absolute;
+            top: calc(50% - 10px);
+            right: 12px;
+            text-align: center;
+            color: $sw-select-field-color-text;
+            pointer-events: none;
+        }
+    }
+
+    &.sw-field--select-aside {
+        display: inline-grid;
+        grid-template-columns: auto 1fr;
+        grid-column-gap: 8px;
+        align-items: center;
+
+        .sw-field__label {
+            text-align: right;
+            margin-bottom: 0;
+        }
+    }
+
+    .sw-field__placeholder-option {
+        color: lighten($sw-select-field-color-text, 25);
+    }
+
+    select {
+        option {
+            color: $sw-select-field-color-text;
+            background-color: $sw-select-field-color-background;
+        }
+
+        option:disabled {
+            color: $sw-select-field-color-text-disabled;
+        }
+
+        &.is--placeholder {
+            color: lighten($sw-select-field-color-text, 25%);
+        }
+
+    }
+
+    .sw-field--select__load-placeholder {
+        height: 45px;
+        border-radius: $sw-select-field-border-radius;
+        border: 1px solid $sw-select-field-color-border;
+        background: $sw-select-field-color-background;
+        appearance: none;
+        user-select: none;
+        position: relative;
+
+        .sw-loader {
+            background: none;
+        }
+    }
+}

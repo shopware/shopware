@@ -8,8 +8,7 @@ export default {
     template,
 
     mixins: [
-        Mixin.getByName('validation'),
-        Mixin.getByName('sw-inline-snippet')
+        Mixin.getByName('validation')
     ],
 
     props: {

@@ -1,4 +1,5 @@
 import template from './sw-password-field.html.twig';
+import SwTextField from '../sw-text-field/index';
 import './sw-password-field.scss';
 
 /**
@@ -11,7 +12,7 @@ import './sw-password-field.scss';
  */
 export default {
     name: 'sw-password-field',
-    extendsFrom: 'sw-text-field',
+    extends: SwTextField,
     template,
 
     props: {
@@ -35,7 +36,11 @@ export default {
     },
 
     methods: {
-        onTogglePasswordVisibility() {
+        onTogglePasswordVisibility(disabled) {
+            if (disabled) {
+                return;
+            }
+
             this.showPassword = !this.showPassword;
         }
     }

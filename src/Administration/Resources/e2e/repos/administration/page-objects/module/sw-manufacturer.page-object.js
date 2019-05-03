@@ -26,7 +26,7 @@ class ManufacturerPageObject extends GeneralPageObject {
             .click('.sw-media-upload__switch-mode')
             .fillField('input[name=sw-field--url]', imagePath)
             .click('.sw-media-url-form__submit-button')
-            .checkNotification('File has been saved successfully.');
+            .checkNotification('A file has been saved successfully.');
     }
 
     deleteManufacturer(manufacturerName) {

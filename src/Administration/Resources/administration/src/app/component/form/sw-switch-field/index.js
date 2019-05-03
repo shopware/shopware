@@ -1,41 +1,55 @@
+import checkbox from '../sw-checkbox-field/index';
 import template from './sw-switch-field.html.twig';
+import './sw-switch-field.scss';
 
 /**
  * @public
- * @description switch input field based on type checkbox.
+ * @description Boolean input field based on checkbox.
  * @status ready
  * @example-type static
  * @component-example
- * <sw-switch-field label="Name" placeholder="placeholder goes here..."></sw-switch-field>
+ * <sw-switch-field label="Name" v-model="aBooleanProperty"></sw-switch-field>
  */
 export default {
     name: 'sw-switch-field',
-    extendsFrom: 'sw-text-field',
+    extends: checkbox,
     template,
+    inheritAttrs: false,
 
     props: {
-        value: {
+        bordered: {
             type: Boolean,
             required: false,
             default: false
-        }
-    },
+        },
 
-    model: {
-        event: 'change'
+        noMarginTop: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
+        size: {
+            type: String,
+            required: false,
+            default: 'default',
+            validValues: ['small', 'medium', 'default'],
+            validator(val) {
+                return ['small', 'medium', 'default'].includes(val);
+            }
+        }
     },
 
     computed: {
-        typeFieldClass() {
-            return 'sw-field--switch';
-        }
-    },
-
-    methods: {
-        onChange(event) {
-            const checkedCustomField = event.target.checked;
-
-            this.$emit('change', checkedCustomField);
+        switchFieldClasses() {
+            return [
+                {
+                    'sw-field--switch-bordered': this.bordered,
+                    'sw-field--switch-no-margin-top': this.noMarginTop,
+                    ...this.swFieldClasses
+                },
+                `sw-field--${this.size}`
+            ];
         }
     }
 };

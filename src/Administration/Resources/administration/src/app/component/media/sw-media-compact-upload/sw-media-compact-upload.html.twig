@@ -2,8 +2,8 @@
     <div class="sw-media-upload sw-media-compact-upload">
         {% block sw_media_upload_compact %}
             {% block sw_media_upload_compact_label %}
-                <label v-if="getInlineSnippet(label)" class="sw-media-compact-upload__label">
-                    {{ getInlineSnippet(label) }}
+                <label v-if="label" class="sw-media-compact-upload__label">
+                    {{ label }}
                 </label>
             {% endblock %}
 

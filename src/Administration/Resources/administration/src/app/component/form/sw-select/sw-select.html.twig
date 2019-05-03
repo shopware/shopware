@@ -11,8 +11,8 @@
          @keydown.down.prevent="navigateDownResults">
 
         {% block sw_select_label %}
-            <label v-if="getInlineSnippet(label)" :for="selectId" class="sw-select__label">
-                {{ getInlineSnippet(label) }}
+            <label v-if="label" :for="selectId" class="sw-select__label">
+                {{ label }}
             </label>
         {% endblock %}
 
@@ -39,10 +39,10 @@
                                                 <span class="sw-select__selection-item">
                                                     <slot name="displayName" :item="selection">
                                                         <span v-if="selection.translated && selection.translated.hasOwnProperty(displayName)">
-                                                            {{ getInlineSnippet(selection.translated[displayName]) }}
+                                                            {{ selection.translated[displayName] }}
                                                         </span>
                                                         <span v-else>
-                                                            {{ getInlineSnippet(selection[displayName]) }}
+                                                            {{ selection[displayName] }}
                                                         </span>
                                                     </slot>
                                                 </span>
@@ -76,7 +76,7 @@
                                         <input ref="swSelectInput"
                                                class="sw-select__input"
                                                type="text"
-                                               :placeholder="getPlaceHolder(placeholder)"
+                                               :placeholder="placeholder"
                                                :size="size"
                                                v-model="searchTerm"
                                                @input="onSearchTermChange"
@@ -97,11 +97,13 @@
                                       name="selected_option" :item="singleSelection">
                                     {% block sw_select_single_selection_slot_label %}
                                         <slot name="displayName" :item="singleSelection">
-                                            <span v-if="singleSelection.translated && singleSelection.translated.hasOwnProperty(displayName)">
-                                                {{ getInlineSnippet(singleSelection.translated[displayName]) }}
+                                            <span v-if="singleSelection.translated && singleSelection.translated.hasOwnProperty(displayName)"
+                                                  key="sw-select-single-selection">
+                                                {{ singleSelection.translated[displayName] }}
                                             </span>
-                                            <span v-else>
-                                                {{ getInlineSnippet(singleSelection[displayName]) }}
+                                            <span v-else
+                                                  key="sw-select-single-selection">
+                                                {{ singleSelection[displayName] }}
                                             </span>
                                         </slot>
                                     {% endblock %}
@@ -109,7 +111,7 @@
 
                                 <span v-else-if="!isExpanded"
                                       class="sw-select__placeholder">
-                                    {{ getInlineSnippet(placeholder) }}
+                                    {{ placeholder }}
                                 </span>
                             {% endblock %}
                         </div>
@@ -132,9 +134,9 @@
                         {% endblock %}
 
                         {% block sw_select_indicators_helptext %}
-                            <sw-help-text v-if="getInlineSnippet(helpText)"
+                            <sw-help-text v-if="helpText"
                                           class="sw-select__indicator"
-                                          :text="getInlineSnippet(helpText)">
+                                          :text="helpText">
                             </sw-help-text>
                         {% endblock %}
 
@@ -158,7 +160,7 @@
                                         <input ref="swSelectInput"
                                                class="sw-select__input-single"
                                                type="text"
-                                               :placeholder="getInlineSnippet(placeholder)"
+                                               :placeholder="placeholder"
                                                v-model="searchTerm"
                                                @input="onSearchTermChange">
                                         <sw-icon name="small-search" small></sw-icon>
@@ -181,9 +183,9 @@
                                                                            :item="item">
                                                             <slot name="displayName" :item="item">
                                                                 <span v-if="item.translated && item.translated.hasOwnProperty(displayName)"
-                                                                      v-html="$sanitize(getInlineSnippet(item.translated[displayName]))">
+                                                                      v-html="$sanitize(item.translated[displayName])">
                                                                 </span>
-                                                                <span v-else v-html="$sanitize(getInlineSnippet(item[displayName]))">
+                                                                <span v-else v-html="$sanitize(item[displayName])">
                                                                 </span>
                                                             </slot>
                                                          </sw-select-option>

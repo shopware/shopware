@@ -1,5 +1,7 @@
 import { warn } from 'src/core/service/utils/debug.utils';
+import SwTextField from '../sw-text-field/index';
 import template from './sw-number-field.html.twig';
+import './sw-number-field.scss';
 
 /**
  * @public
@@ -12,19 +14,16 @@ import template from './sw-number-field.html.twig';
  */
 export default {
     name: 'sw-number-field',
-    extendsFrom: 'sw-text-field',
+    extends: SwTextField,
     template,
+    inheritAttrs: false,
+
+    model: {
+        prop: 'value',
+        event: 'change'
+    },
 
     props: {
-        value: {
-            type: Number,
-            required: false
-        },
-        suffix: {
-            type: String,
-            required: false,
-            default: ''
-        },
         numberType: {
             type: String,
             required: false,
@@ -34,24 +33,42 @@ export default {
                 return ['float', 'int'].includes(value);
             }
         },
+
         step: {
             type: Number,
-            required: false
+            required: false,
+            default: null
         },
+
         min: {
             type: Number,
             required: false,
             default: null
         },
+
         max: {
             type: Number,
             required: false,
             default: null
-        }
-    },
-    computed: {
-        hasSuffix() {
-            return this.suffix.length || !!this.$slots.suffix;
+        },
+
+        value: {
+            type: Number,
+            required: false,
+            default: null
+        },
+
+        digits: {
+            type: Number,
+            required: false,
+            default: 2,
+            validator(value) {
+                const isInt = value === Math.floor(value);
+                if (!isInt) {
+                    warn('sw-number-field', 'Provided prop digits must be of type integer');
+                }
+                return isInt;
+            }
         }
     },
 
@@ -61,137 +78,146 @@ export default {
         };
     },
 
-    watch: {
-        value(value) {
-            this.currentValue = value;
+    computed: {
+        realStep() {
+            if (this.step === null) {
+                return this.numberType === 'int' ? 1 : 0.01;
+            }
+
+            return (this.numberType === 'int') ? Math.round(this.step) : this.step;
+        },
+
+        realMinimum() {
+            if (this.min === null) {
+                return null;
+            }
+            return (this.numberType === 'int') ? Math.ceil(this.min) : this.min;
+        },
+
+        realMaximum() {
+            if (this.max === null) {
+                return null;
+            }
+
+            return (this.numberType === 'int') ? Math.floor(this.max) : this.max;
+        },
+
+        stringRepresentation() {
+            if (this.currentValue === null) {
+                return '';
+            }
+
+            return this.currentValue.toString();
         }
     },
 
-    created() {
-        this.currentStep = this.step;
-        if (this.numberType === 'int' && !this.currentStep) {
-            this.currentStep = 1;
-        }
-        if (this.numberType === 'float' && !this.currentStep) {
-            this.currentStep = 0.01;
-        }
-        if (this.min > this.max) {
-            warn('Min can not be higher than Max', this.$options.parent.$vnode);
-        }
-        if (this.max && (this.max % this.currentStep) !== 0) {
-            warn('Max is not reachable via Steps', this.$options.parent.$vnode);
-        }
-        if (!Number.isInteger(this.currentStep) && this.numberType === 'int') {
-            warn('Steps must be Integer when numberType is set as int', this.$options.parent.$vnode);
+    watch: {
+        value() {
+            if (this.value === null || this.value === undefined) {
+                this.currentValue = 0;
+                return;
+            }
+
+            this.computeValue(this.value.toString());
         }
     },
 
     methods: {
-        parseValue(value) {
-            if (value) {
-                switch (this.numberType) {
-                case 'int':
-                    return parseInt(value, 10);
-                case 'float':
-                    value = String(value);
-                    value = value.replace(/[,]/g, '.');
-                    return parseFloat(value);
-                default:
-                    return value;
-                }
-            }
-            return null;
-        },
-
-        onInput() {
-            this.emitValue('input');
-        },
-
-        onChange() {
-            this.emitValue('change');
-        },
-
-        emitValue(type) {
-            let value = String(this.currentValue);
-
-            switch (this.numberType) {
-            case 'int':
-                value = value.replace(/[^0-9\-]/g, '');
-                break;
-            case 'float':
-            default:
-                value = value.replace(/[^0-9.,\-]+/, '');
-                break;
-            }
-
-            // Strip preceding 0 character
-            value = value.replace(/^(-)?0+(?=\d)/, '$1');
-
-            // remove all '-' characters which are not in front
-            value = value.replace(/(?!^)-/g, '');
-
-            // Dont parse and emit anything that is not a valid number
-            if (!value.match(/^(-?\d+[.,]\d*[1-9])$|^(-?\d+)$/)) {
-                this.currentValue = value;
-                return;
-            }
-
-            value = this.parseValue(value);
-
-            if (value !== '') {
-                if (this.min !== null && this.max !== null && value <= this.max && value >= this.min) {
-                    this.currentValue = value;
-                } else if (this.min !== null && value < this.min) {
-                    this.currentValue = this.min;
-                } else if (this.max !== null && value > this.max) {
-                    this.currentValue = this.max;
-                } else {
-                    this.currentValue = value;
-                }
-            } else {
-                this.currentValue = value;
-            }
-
-            if (this.currentValue !== '-') {
-                this.$emit(type, this.currentValue);
-            }
-
-            if (this.hasError) {
-                this.errorStore.deleteError(this.formError);
-            }
+        onChange(event) {
+            this.computeValue(event.target.value);
         },
 
         increaseNumberByStep() {
-            if (!this.currentStep) {
-                return;
-            }
-            const value = this.currentValue;
-
-            if (!value) {
-                this.currentValue = this.min ? this.min : this.currentStep;
-            } else if (this.max) {
-                if (value + this.currentStep <= this.max) {
-                    this.currentValue = Math.round((value + this.currentStep) * 100) / 100;
-                }
-            } else {
-                this.currentValue = Math.round((value + this.currentStep) * 100) / 100;
-            }
-
-            this.$emit('input', this.currentValue);
+            this.computeValue((this.currentValue + this.realStep).toString());
         },
 
         decreaseNumberByStep() {
-            if (!this.currentStep) {
-                return;
-            }
-            const value = this.currentValue;
+            this.computeValue((this.currentValue - this.realStep).toString());
+        },
 
-            if (!value) {
-                this.currentValue = this.min;
-            } else if (this.min === null || value - this.currentStep >= this.min) {
-                this.currentValue = Math.round((value - this.currentStep) * 100) / 100;
-                this.$emit('input', this.currentValue);
+        computeValue(stringRepresentation) {
+            const value = this.getNumberFromString(stringRepresentation);
+            this.currentValue = this.parseValue(value);
+            this.$emit('change', this.currentValue);
+        },
+
+        parseValue(value) {
+            if (value == null || Number.isNaN(value) || !Number.isFinite(value)) {
+                return this.parseValue(0);
             }
+
+            return this.checkForInteger(this.checkBoundaries(value));
+        },
+
+        checkBoundaries(value) {
+            if (this.realMaximum !== null && value > this.realMaximum) {
+                value = this.realMaximum;
+            }
+
+            if (this.realMinimum !== null && value < this.realMinimum) {
+                value = this.realMinimum;
+            }
+
+            return value;
+        },
+
+        getNumberFromString(value) {
+            let splits = value.split('e').shift();
+            splits = splits.replace(/,/g, '.').split('.');
+
+            if (splits.length === 1) {
+                return parseFloat(splits[0]);
+            }
+
+            if (this.numberType === 'int') {
+                return parseInt(splits.join(''), 10);
+            }
+
+            const { decimals, transfer } = this.applyDigits(splits[splits.length - 1]);
+            const integer = parseInt(splits.slice(0, splits.length - 1).join(''), 10) + transfer;
+
+            return parseFloat(`${integer}.${decimals}`);
+        },
+
+        checkForInteger(value) {
+            if (this.numberType !== 'int') {
+                return value;
+            }
+
+            const floor = Math.floor(value);
+            if (floor !== value) {
+                this.$nextTick(() => {
+                    this.$forceUpdate();
+                });
+            }
+            return floor;
+        },
+
+        applyDigits(decimals) {
+            if (decimals.length <= this.digits) {
+                return {
+                    decimals,
+                    transfer: 0
+                };
+            }
+
+            let asString = decimals.substr(0, this.digits + 1);
+            let asNumber = parseFloat(asString);
+            asNumber = Math.round(asNumber / 10);
+            asString = asNumber.toString();
+
+            if (asString.length > this.digits) {
+                return {
+                    decimals: asString.substr(1, asString.length),
+                    transfer: 1
+                };
+            }
+
+            asString = '0'.repeat(this.digits - asString.length) + asString;
+            return {
+                decimals: asString,
+                transfer: 0
+            };
         }
     }
 };

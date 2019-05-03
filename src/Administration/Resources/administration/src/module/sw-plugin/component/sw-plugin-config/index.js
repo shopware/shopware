@@ -5,8 +5,7 @@ export default {
     name: 'sw-plugin-config',
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('sw-inline-snippet')
+        Mixin.getByName('notification')
     ],
 
     template,

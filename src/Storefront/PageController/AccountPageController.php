@@ -368,7 +368,7 @@ class AccountPageController extends StorefrontController
         $this->denyAccessUnlessLoggedIn();
 
         try {
-            $this->accountService->saveEmail($data, $context);
+            $this->accountService->saveEmail($data->get('email'), $context);
             $this->salesChannelContextService->refresh(
                 $context->getSalesChannel()->getId(),
                 $context->getToken(),
@@ -391,7 +391,7 @@ class AccountPageController extends StorefrontController
         $this->denyAccessUnlessLoggedIn();
 
         try {
-            $this->accountService->savePassword($data, $context);
+            $this->accountService->savePassword($data->get('password'), $context);
             $this->salesChannelContextService->refresh(
                 $context->getSalesChannel()->getId(),
                 $context->getToken(),

@@ -323,7 +323,7 @@ class PluginLifecycleService
         );
 
         $pluginBaseClass->activate($activateContext);
-        $this->assetInstaller->copyAssetsFromBundle($pluginBaseClassString);
+        $this->assetInstaller->copyAssetsFromBundle($pluginBaseClassString, $shopwareContext);
 
         $this->updatePluginData(
             [
@@ -372,7 +372,7 @@ class PluginLifecycleService
         );
 
         $pluginBaseClass->deactivate($deactivateContext);
-        $this->assetInstaller->removeAssetsOfBundle($pluginBaseClassString);
+        $this->assetInstaller->removeAssetsOfBundle($pluginBaseClassString, $shopwareContext);
 
         $this->updatePluginData(
             [

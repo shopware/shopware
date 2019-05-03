@@ -203,6 +203,7 @@
         "registerGuestmodeLabel": "Don't create customer account",
         "cartTitle": "Shopping cart",
         "cartHeader": "Shopping cart",
+        "cartUpdateSuccess": "Cart updated successfully",
         "continueShopping": "Continue shopping",
         "emptyCart": "Your shopping cart is empty",
         "proceedToCart": "Edit shopping cart",

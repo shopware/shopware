@@ -203,6 +203,7 @@
         "registerGuestmodeLabel": "Kein Kundenkonto anlegen",
         "cartTitle": "Warenkorb",
         "cartHeader": "Warenkorb",
+        "cartUpdateSuccess": "Warenkorb erfolgreich aktualisiert",
         "continueShopping": "Weiter einkaufen",
         "emptyCart": "Ihr Warenkorb ist leer",
         "proceedToCart": "Warenkorb bearbeiten",

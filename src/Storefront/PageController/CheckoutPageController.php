@@ -348,15 +348,21 @@ class CheckoutPageController extends StorefrontController
      */
     public function removeLineItem(string $id, Request $request, SalesChannelContext $context): Response
     {
-        $token = $request->request->getAlnum('token', $context->getToken());
+        try {
+            $token = $request->request->getAlnum('token', $context->getToken());
 
-        $cart = $this->cartService->getCart($token, $context);
+            $cart = $this->cartService->getCart($token, $context);
 
-        if (!$cart->has($id)) {
-            throw new LineItemNotFoundException($id);
+            if (!$cart->has($id)) {
+                throw new LineItemNotFoundException($id);
+            }
+
+            $this->cartService->remove($cart, $id, $context);
+
+            $this->addFlash('success', $this->translator->trans('checkout.cartUpdateSuccess'));
+        } catch (\Exception $exception) {
+            $this->addFlash('danger', $this->translator->trans('error.message-default'));
         }
-
-        $this->cartService->remove($cart, $id, $context);
 
         return $this->createActionResponse($request);
     }
@@ -399,21 +405,27 @@ class CheckoutPageController extends StorefrontController
      */
     public function updateLineItem(string $id, Request $request, SalesChannelContext $context): Response
     {
-        $token = $request->request->getAlnum('token', $context->getToken());
+        try {
+            $token = $request->request->getAlnum('token', $context->getToken());
 
-        $quantity = $request->get('quantity');
+            $quantity = $request->get('quantity');
 
-        if ($quantity === null) {
-            throw new \InvalidArgumentException('quantity field is required');
+            if ($quantity === null) {
+                throw new \InvalidArgumentException('quantity field is required');
+            }
+
+            $cart = $this->cartService->getCart($token, $context);
+
+            if (!$cart->has($id)) {
+                throw new LineItemNotFoundException($id);
+            }
+
+            $this->cartService->changeQuantity($cart, $id, (int) $quantity, $context);
+
+            $this->addFlash('success', $this->translator->trans('checkout.cartUpdateSuccess'));
+        } catch (\Exception $exception) {
+            $this->addFlash('danger', $this->translator->trans('error.message-default'));
         }
-
-        $cart = $this->cartService->getCart($token, $context);
-
-        if (!$cart->has($id)) {
-            throw new LineItemNotFoundException($id);
-        }
-
-        $this->cartService->changeQuantity($cart, $id, (int) $quantity, $context);
 
         return $this->createActionResponse($request);
     }

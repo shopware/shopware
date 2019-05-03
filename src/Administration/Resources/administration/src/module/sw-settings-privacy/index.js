@@ -1,8 +1,6 @@
 import { Module } from 'src/core/shopware';
 import './extension/sw-settings-index';
-import './page/sw-settings-privacy-index';
-
-import { NEXT2539 } from '../../flag/feature_next2539';
+import './page/sw-settings-privacy';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
@@ -10,7 +8,6 @@ import enGB from './snippet/en-GB.json';
 
 Module.register('sw-settings-privacy', {
     type: 'core',
-    flag: NEXT2539,
     name: 'settings-privacy',
     title: 'sw-settings-privacy.general.mainMenuItemGeneral',
     description: 'sw-settings-privacy.general.description',
@@ -28,7 +25,7 @@ Module.register('sw-settings-privacy', {
 
     routes: {
         index: {
-            component: 'sw-settings-privacy-index',
+            component: 'sw-settings-privacy',
             path: 'index',
             meta: {
                 parentPath: 'sw.settings.index'

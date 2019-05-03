@@ -49,7 +49,7 @@ module.exports = {
                     searchTerm: 'SalesChannel API endpoint'
                 }
             )
-            .expect.element('.sw-product-detail__save-action').to.be.enabled;
+            .expect.element(page.elements.productSaveAction).to.not.have.attribute('disabled');
 
         browser
             .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')

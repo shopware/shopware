@@ -18,7 +18,8 @@ module.exports = {
         browser
             .openMainMenuEntry({
                 targetPath: '#/sw/product/index',
-                mainMenuId: 'sw-product'
+                mainMenuId: 'sw-catalogue',
+                subMenuId: 'sw-product'
             })
             .expect.element(page.elements.productListName).to.have.text.that.contains(global.ProductFixtureService.productFixture.name);
     },

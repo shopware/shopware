@@ -80,20 +80,29 @@ module.exports = {
     'save customer': (browser) => {
         browser
             .click('.sw-customer-detail__save-action')
-            .checkNotification('Customer "Mr. Cran Berry" has been saved successfully.');
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium');
     },
     'remove address': (browser) => {
         const page = customerPage(browser);
 
         browser
+            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .click('.sw-customer-detail__open-edit-mode-action')
             .waitForElementVisible('.sw-customer-detail__save-action');
 
         browser
-            .click(`${page.elements.gridRow}--0 #defaultShippingAddress-0`)
+            .waitForElementVisible('.sw-grid__header')
+            .click('.sw-grid__header .sw-grid-column:nth-of-type(4)')
+            .waitForElementNotPresent(page.elements.loader)
+            .click(`${page.elements.gridRow}--1 #defaultShippingAddress-0`)
+            .click(`${page.elements.gridRow}--1 #defaultBillingAddress-0`)
+            .expect.element(`${page.elements.gridRow}--0 #defaultShippingAddress-0`).to.be.not.selected;
+        browser.expect.element(`${page.elements.gridRow}--0 #defaultBillingAddress-0`).to.be.not.selected;
+
+        browser
             .clickContextMenuItem(page.elements.contextMenuButton, {
                 menuActionSelector: `${page.elements.contextMenu}-item--danger`,
-                scope: `${page.elements.gridRow}--1`
+                scope: `${page.elements.gridRow}--0`
             }).expect.element('.sw-customer-detail-addresses__confirm-delete-text').to.have.text.that.equals('Are you sure you want to delete this address?');
 
         browser
@@ -104,13 +113,15 @@ module.exports = {
 
         browser
             .click('.sw-customer-detail__save-action')
-            .checkNotification('Customer "Mr. Cran Berry" has been saved successfully.');
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium');
     },
     'verify changed customer data': (browser) => {
         const page = customerPage(browser);
 
         browser
+            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .click('.sw-customer-detail__tab-general')
+            .waitForElementVisible(page.elements.customerMetaData)
             .assert.containsText(`${page.elements.customerMetaData}-customer-name`, 'Mr. Cran Berry')
             .assert.containsText('.sw-customer-base__label-is-active', 'Inactive');
     }

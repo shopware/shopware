@@ -17,10 +17,16 @@
                 {% endblock %}
 
                 {% block sw_manufacturer_detail_actions_save %}
-                    <sw-button class="sw-manufacturer-detail__save-action" variant="primary" :disabled="manufacturer.isLoading"
-                            @click.prevent="onSave">
-                        {{ $tc('sw-manufacturer.detail.buttonSave') }}
-                    </sw-button>
+                <sw-button-process
+                        class="sw-manufacturer-detail__save-action"
+                        :isLoading="isLoading"
+                        :processSuccess="isSaveSuccessful"
+                        :disabled="manufacturer.isLoading"
+                        variant="primary"
+                        @process-finish="saveFinish"
+                        @click.prevent="onSave">
+                    {{ $tc('sw-manufacturer.detail.buttonSave') }}
+                </sw-button-process>
                 {% endblock %}
 
             </template>

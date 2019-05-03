@@ -18,7 +18,9 @@ Component.register('sw-manufacturer-detail', {
             manufacturerId: null,
             manufacturer: { isLoading: true },
             mediaItem: null,
-            customFieldSets: []
+            customFieldSets: [],
+            isLoading: false,
+            isSaveSuccessful: false
         };
     },
 
@@ -128,22 +130,25 @@ Component.register('sw-manufacturer-detail', {
             this.$refs.mediaSidebarItem.openContent();
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+        },
+
         onSave() {
             const manufacturerName = this.manufacturer.name || this.manufacturer.translated.name;
-            const titleSaveSuccess = this.$tc('sw-manufacturer.detail.titleSaveSuccess');
-            const messageSaveSuccess = this.$tc('sw-manufacturer.detail.messageSaveSuccess', 0, { name: manufacturerName });
             const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');
             const messageSaveError = this.$tc(
                 'global.notification.notificationSaveErrorMessage', 0, { entityName: manufacturerName }
             );
+            this.isSaveSuccessful = false;
+            this.isLoading = true;
 
             this.manufacturer.save().then(() => {
+                this.isLoading = false;
+                this.isSaveSuccessful = true;
                 this.$refs.mediaSidebarItem.getList();
-                this.createNotificationSuccess({
-                    title: titleSaveSuccess,
-                    message: messageSaveSuccess
-                });
             }).catch((exception) => {
+                this.isLoading = false;
                 this.createNotificationError({
                     title: titleSaveError,
                     message: messageSaveError

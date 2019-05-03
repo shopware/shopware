@@ -52,7 +52,7 @@ module.exports = {
 
         browser
             .click(page.elements.customerSaveAction)
-            .checkNotification('Customer "Mr. Pep Eroni" has been saved successfully.')
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium')
             .waitForElementNotPresent('.sw-card__content .sw-customer-base-form .sw-loader')
             .waitForElementNotPresent('.sw-card__content .sw-customer-address-form .sw-loader')
             .waitForElementVisible(page.elements.customerMetaData)

@@ -59,39 +59,32 @@ export default class ProductFixture extends AdminFixtureService {
 
     setProductVisible(productId) {
         let salesChannelId = '';
-        let categoryId = '';
         const startTime = new Date();
 
         return this.apiClient.post('/v1/search/sales-channel?response=true', {
             filter: [{
                 field: 'name',
                 type: 'equals',
-                value: 'SalesChannel'
+                value: 'Storefront'
             }]
         }).then((data) => {
             salesChannelId = data.id;
         }).then(() => {
             return this.create('category');
-        }).then((data) => {
-            categoryId = data.id;
-        })
-            .then(() => {
-                global.logger.title('Set product visibility...');
+        }).then(() => {
+            global.logger.title('Set product visibility...');
 
-                return this.update({
-                    id: productId,
-                    type: 'product',
-                    data: {
-                        visibilities: [{
-                            visibility: 30,
-                            salesChannelId: salesChannelId
-                        }],
-                        categories: [{
-                            id: categoryId
-                        }]
-                    }
-                });
-            })
+            return this.update({
+                id: productId,
+                type: 'product',
+                data: {
+                    visibilities: [{
+                        visibility: 30,
+                        salesChannelId: salesChannelId
+                    }]
+                }
+            });
+        })
             .then((data) => {
                 const endTime = new Date() - startTime;
                 global.logger.success(`Updated product: ${data.id} (${endTime / 1000}s)`);

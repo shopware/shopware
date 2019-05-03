@@ -2,7 +2,6 @@ const productStreamPage = require('administration/page-objects/module/sw-product
 
 module.exports = {
     '@tags': ['product', 'product-stream', 'product-stream-create', 'create'],
-    '@disabled': !global.flags.isActive('next739'),
     'navigate to product stream and click on add product stream': (browser) => {
         browser
             .openMainMenuEntry({

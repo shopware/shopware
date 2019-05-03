@@ -112,6 +112,11 @@ Component.register('sw-settings-shipping-price-matrix', {
         },
         disableDeleteButton() {
             return this.priceGroup.prices.length <= 1;
+        },
+        hasNoRuleMatrix() {
+            return Object.values(this.priceRuleGroups).some((priceGroup) => {
+                return !priceGroup.ruleId;
+            });
         }
     },
 
@@ -171,6 +176,7 @@ Component.register('sw-settings-shipping-price-matrix', {
             newPriceRule.quantityEnd = null;
             newPriceRule.currencyId = price.currencyId;
             newPriceRule.price = price.price;
+            newPriceRule.calculation = price.calculation;
 
             this.shippingMethod.prices.push(newPriceRule);
         },
@@ -234,6 +240,7 @@ Component.register('sw-settings-shipping-price-matrix', {
         onCloseDeleteModal() {
             this.showDeleteModal = false;
         },
+
         onDeletePriceRule(priceRule) {
             // Do not delete the last price
             const priceRuleGroup = this.priceRuleGroups[priceRule.ruleId];

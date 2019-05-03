@@ -10,6 +10,7 @@
                                            :ruleFilter="ruleFilter"
                                            size="small"
                                            :placeholder="$tc('sw-settings-shipping.priceMatrix.noRestriction')"
+                                           :required="hasNoRuleMatrix"
                                            @save-rule="onSaveRule"
                                            @dismiss-rule="$emit('rule-change', $event, priceGroup.ruleId)">
                         <template slot="result_items" slot-scope="{ item, index }">

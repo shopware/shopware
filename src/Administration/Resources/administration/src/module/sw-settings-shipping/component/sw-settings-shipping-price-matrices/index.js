@@ -101,19 +101,23 @@ Component.register('sw-settings-shipping-price-matrices', {
 
     methods: {
         createdComponent() {
-            this.priceRuleStore.getList({
-                page: 1,
-                limit: 500
-            });
-
-            this.loadRules();
-
             this.currencyStore.getList({
                 page: 1,
                 limit: 500
-            }).then((response) => {
-                this.currencies = response.items;
+            }).then((currencyResponse) => {
+                this.currencies = currencyResponse.items;
+
+                this.priceRuleStore.getList({
+                    page: 1,
+                    limit: 500
+                }).then((priceResponse) => {
+                    if (priceResponse.total === 0) {
+                        this.onAddNewPriceGroup();
+                    }
+                });
             });
+
+            this.loadRules();
 
             this.$on('rule-add', this.loadRules);
         },

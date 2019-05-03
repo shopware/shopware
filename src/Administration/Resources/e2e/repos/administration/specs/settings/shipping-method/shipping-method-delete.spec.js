@@ -4,7 +4,6 @@ const shippingMethodName = 'automated test shipping';
 
 module.exports = {
     '@tags': ['settings', 'shipping-method', 'shipping-method-delete', 'delete'],
-    '@disabled': !global.flags.isActive('next688'),
     'navigate to shipping page': browser => {
         browser
             .openMainMenuEntry({

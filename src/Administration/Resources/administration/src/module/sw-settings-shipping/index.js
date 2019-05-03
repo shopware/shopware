@@ -1,5 +1,4 @@
 import { Module } from 'src/core/shopware';
-import { NEXT688 } from 'src/flag/feature_next688';
 
 import './extension/sw-settings-index';
 import './page/sw-settings-shipping-list';
@@ -14,7 +13,6 @@ import enGB from './snippet/en-GB.json';
 
 Module.register('sw-settings-shipping', {
     type: 'core',
-    flag: NEXT688,
     name: 'settings-shipping',
     title: 'sw-settings-shipping.general.mainMenuItemGeneral',
     description: 'Shipping section in the settings module',

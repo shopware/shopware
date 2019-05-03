@@ -4,7 +4,6 @@ const shippingMethodName = 'automated test shipping';
 
 module.exports = {
     '@tags': ['settings', 'shipping-method', 'shipping-method-edit', 'edit', 'price-rule'],
-    '@disabled': !global.flags.isActive('next688'),
     before: (browser, done) => {
         global.AdminFixtureService.create('rule').then(() => {
             done();

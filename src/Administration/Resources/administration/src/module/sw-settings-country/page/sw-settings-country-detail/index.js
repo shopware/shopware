@@ -102,11 +102,6 @@ Component.register('sw-settings-country-detail', {
         },
 
         onSaveCountryState() {
-            // Reset the isNew property if the item already exists in the collection
-            if (this.country.states.has(this.currentCountryState.id)) {
-                this.currentCountryState._isNew = false;
-            }
-
             // dont send requests if we are on local mode(creating a new country)
             if (this.country.isNew()) {
                 this.country.states.add(this.currentCountryState);
@@ -126,6 +121,7 @@ Component.register('sw-settings-country-detail', {
         onClickCountryState(item) {
             // Create a copy with the same id which will be edited
             const copy = this.countryStateRepository.create(this.context, item.id);
+            copy._isNew = false;
 
             this.currentCountryState = Object.assign(copy, item);
         },

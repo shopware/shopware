@@ -15,7 +15,7 @@ Component.register('sw-cms-el-product-listing', {
                 config: {
                     boxLayout: {
                         source: 'static',
-                        value: 'minimal'
+                        value: this.element.config.boxLayout.value
                     }
                 },
                 data: {

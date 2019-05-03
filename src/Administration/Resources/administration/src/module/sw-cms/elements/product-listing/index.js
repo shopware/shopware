@@ -11,5 +11,10 @@ Application.getContainer('service').cmsService.registerCmsElement({
     component: 'sw-cms-el-product-listing',
     previewComponent: 'sw-cms-el-preview-product-listing',
     configComponent: 'sw-cms-el-config-product-listing',
-    defaultConfig: {}
+    defaultConfig: {
+        boxLayout: {
+            source: 'static',
+            value: 'standard'
+        }
+    }
 });

@@ -1,3 +1,13 @@
 {% block sw_cms_element_product_listing_config %}
-    <div class="sw-cms-el-config-product-listing"></div>
+    <div class="sw-cms-el-config-product-listing">
+
+        {% block sw_cms_element_product_listing_config_layout_select %}
+            <sw-select-field :label="$tc('sw-cms.elements.labelProductLayoutType')" v-model="element.config.boxLayout.value">
+                <option value="standard">{{ $tc('sw-cms.elements.labelProductLayoutTypeStandard') }}</option>
+                <option value="image">{{ $tc('sw-cms.elements.labelProductLayoutTypeImage') }}</option>
+                <option value="minimal">{{ $tc('sw-cms.elements.labelProductLayoutTypeMinimal') }}</option>
+            </sw-select-field>
+        {% endblock %}
+
+    </div>
 {% endblock %}

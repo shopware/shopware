@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin\Util;
 
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Symfony\Component\Filesystem\Filesystem;
@@ -39,7 +40,7 @@ class AssetService
     /**
      * @throws PluginNotFoundException
      */
-    public function copyAssetsFromBundle(string $bundleName): void
+    public function copyAssetsFromBundle(string $bundleName, Context $shopwareContext): void
     {
         $bundle = $this->getBundle($bundleName);
 
@@ -48,8 +49,7 @@ class AssetService
             return;
         }
 
-        $targetDirectory = $this->getTargetDirectory($bundle);
-
+        $targetDirectory = $this->getTargetDirectory($bundle, $shopwareContext);
         $this->filesystem->remove($targetDirectory);
 
         $this->copy($originDir, $targetDirectory);
@@ -58,18 +58,22 @@ class AssetService
     /**
      * @throws PluginNotFoundException
      */
-    public function removeAssetsOfBundle(string $bundleName): void
+    public function removeAssetsOfBundle(string $bundleName, Context $shopwareContext): void
     {
         $bundle = $this->getBundle($bundleName);
 
-        $targetDirectory = $this->getTargetDirectory($bundle);
+        $targetDirectory = $this->getTargetDirectory($bundle, $shopwareContext);
 
         $this->filesystem->remove($targetDirectory);
     }
 
-    private function getTargetDirectory(BundleInterface $bundle): string
+    private function getTargetDirectory(BundleInterface $bundle, Context $shopwareContext): string
     {
         $assetDir = preg_replace('/bundle$/', '', strtolower($bundle->getName()));
+
+        if ($shopwareContext->getScope() === Context::USER_SCOPE) {
+            return 'bundles/' . $assetDir;
+        }
 
         return 'public/bundles/' . $assetDir;
     }

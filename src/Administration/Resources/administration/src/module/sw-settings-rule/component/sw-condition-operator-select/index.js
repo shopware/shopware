@@ -37,10 +37,6 @@ Component.register('sw-condition-operator-select', {
     computed: {
         operators() {
             const operators = this.ruleConditionDataProviderService.getOperatorSet(this.operatorSetName, (operator) => {
-                if (operator.translated) {
-                    return;
-                }
-
                 operator.translated = {
                     label: this.$tc(operator.label)
                 };

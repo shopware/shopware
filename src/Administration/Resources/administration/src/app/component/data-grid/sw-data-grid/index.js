@@ -338,13 +338,10 @@ export default {
             const selection = this.selection;
 
             if (selected === true) {
-                selection[item.id] = item;
+                this.$set(this.selection, item.id, item);
             } else if (!selected && selection[item.id]) {
-                delete this.selection[item.id];
+                this.$delete(this.selection, item.id);
             }
-
-            this.$delete(this.selection);
-            this.$set(this.selection);
 
             this.checkSelection();
             this.$emit('select-item', this.selection, item, selected);

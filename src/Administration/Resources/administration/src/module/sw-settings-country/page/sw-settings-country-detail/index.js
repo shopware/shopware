@@ -22,7 +22,8 @@ Component.register('sw-settings-country-detail', {
             currentCountryState: null,
             countryStateRepository: null,
             countryStateLoading: false,
-            isSaveSuccessful: false
+            isSaveSuccessful: false,
+            deleteButtonDisabled: true
         };
     },
 
@@ -83,6 +84,33 @@ Component.register('sw-settings-country-detail', {
                 this.isSaveSuccessful = true;
             }).catch(() => {
                 this.isLoading = false;
+            });
+        },
+
+        countryStateSelectionChanged() {
+            const selection = this.$refs.countryStateGrid.selection;
+            this.deleteButtonDisabled = Object.keys(selection).length <= 0;
+        },
+
+        onDeleteCountryStates() {
+            const selection = this.$refs.countryStateGrid.selection;
+
+            if (Object.keys(selection).length < 0) {
+                return;
+            }
+
+            this.countryStateLoading = true;
+            const deletePromises = [];
+
+            Object.keys(selection).forEach(id => {
+                deletePromises.push(this.countryStateRepository.delete(id, this.context));
+            });
+
+            Promise.all(deletePromises).then(() => {
+                this.countryStateLoading = false;
+                this.refreshCountryStateList();
+                this.$refs.countryStateGrid.allSelectedChecked = false;
+                this.$refs.countryStateGrid.selection = {};
             });
         },
 

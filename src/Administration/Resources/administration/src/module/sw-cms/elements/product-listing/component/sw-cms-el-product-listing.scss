@@ -1,13 +1,10 @@
 @import "~scss/variables";
 
 .sw-cms-el-product-listing {
-    padding: 30px;
-
     .sw-cms-el-product-listing__content {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        place-items: stretch;
-        gap: 24px;
+        gap: 30px;
     }
 
     .sw-cms-el-product-listing__pagination {

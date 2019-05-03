@@ -53,8 +53,8 @@
                                                           name="sortType"
                                                           :label="$tc('sw-cms.sorting.labelSort')"
                                                           :value="sortingConCat"
-                                                          aside
-                                                          @input="onSortingChanged">
+                                                          @change="onSortingChanged"
+                                                          aside>
 
                                                     {% block sw_cms_list_listing_actions_sorting_options %}
                                                         <option v-for="sortOption in sortOptions"

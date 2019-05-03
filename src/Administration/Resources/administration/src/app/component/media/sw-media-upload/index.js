@@ -29,7 +29,7 @@ export default {
 
     props: {
         source: {
-            type: Object,
+            type: [Object, String],
             required: false,
             default: null
         },

@@ -27,6 +27,14 @@ Component.register('sw-cms-el-config-image', {
 
         uploadTag() {
             return `cms-element-media-config-${this.element.id}`;
+        },
+
+        previewSource() {
+            if (this.element.data && this.element.data.media && this.element.data.media.id) {
+                return this.element.data.media;
+            }
+
+            return this.element.config.media.value;
         }
     },
 
@@ -46,8 +54,11 @@ Component.register('sw-cms-el-config-image', {
         onImageUpload({ targetId }) {
             this.mediaStore.getByIdAsync(targetId).then((mediaEntity) => {
                 this.element.config.media.value = mediaEntity.id;
-                this.$set(this.element.data, 'mediaId', mediaEntity.id);
-                this.$set(this.element.data, 'media', mediaEntity);
+
+                if (this.element.data) {
+                    this.$set(this.element.data, 'mediaId', mediaEntity.id);
+                    this.$set(this.element.data, 'media', mediaEntity);
+                }
 
                 this.$emit('element-update', this.element);
             });
@@ -55,8 +66,11 @@ Component.register('sw-cms-el-config-image', {
 
         onImageRemove() {
             this.element.config.media.value = null;
-            this.$set(this.element.data, 'mediaId', null);
-            this.$set(this.element.data, 'media', null);
+
+            if (this.element.data) {
+                this.$set(this.element.data, 'mediaId', null);
+                this.$set(this.element.data, 'media', null);
+            }
 
             this.$emit('element-update', this.element);
         },

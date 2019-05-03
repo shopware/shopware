@@ -2,6 +2,7 @@
 $sw-category-tree-border-color: $color-steam-cloud;
 
 .sw-category-tree {
+    height: 100%;
 
     .sw-category-tree__inner.sw-tree {
         background: $color-white;
@@ -10,10 +11,12 @@ $sw-category-tree-border-color: $color-steam-cloud;
         border: none;
     }
 
-    .sw-tree__content {
-        max-height: unset;
-        min-height: unset;
-        height: calc(100% - 75px);
+    .sw-tree {
+        .sw-tree__content {
+            max-height: unset;
+            min-height: unset;
+            height: calc(100% - 75px);
+        }
     }
 
     .tree-link {

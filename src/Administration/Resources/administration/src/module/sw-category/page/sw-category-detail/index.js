@@ -10,7 +10,7 @@ import './sw-category-detail.scss';
 Component.register('sw-category-detail', {
     template,
 
-    inject: ['cmsPageService'],
+    inject: ['cmsPageService', 'cmsService'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -21,6 +21,7 @@ Component.register('sw-category-detail', {
         return {
             category: null,
             cmsPage: null,
+            cmsPageState: State.getStore('cmsPageState'),
             categories: [],
             isLoading: false,
             isLoadingCategory: false,
@@ -134,6 +135,7 @@ Component.register('sw-category-detail', {
                 limit: 500,
                 criteria: CriteriaFactory.equals('category.parentId', parentId),
                 associations: {
+                    media: {},
                     navigationSalesChannels: {},
                     serviceSalesChannels: {},
                     footerSalesChannels: {}
@@ -148,12 +150,16 @@ Component.register('sw-category-detail', {
         },
 
         getAssignedCmsPage(cmsPageId) {
+            this.cmsPageState.currentPage = null;
+
             if (cmsPageId === null) {
                 this.cmsPage = null;
                 return false;
             }
 
             const params = {
+                page: 1,
+                limit: 1,
                 criteria: CriteriaFactory.equals('cms_page.id', cmsPageId),
                 associations: {
                     blocks: {
@@ -180,8 +186,21 @@ Component.register('sw-category-detail', {
                 }
 
                 this.cmsPage = cmsPage;
+                this.cmsPageState.currentPage = this.cmsPage;
                 return this.cmsPage;
             });
+        },
+
+        updateCmsPageDataMapping() {
+            this.cmsPageState.currentMappingEntity = 'category';
+            this.cmsPageState.currentMappingTypes = this.cmsService.getEntityMappingTypes('category');
+            this.cmsPageState.currentDemoEntity = this.category;
+        },
+
+        onCmsPageChange(cmsPageId) {
+            this.category.slotConfig = null;
+
+            this.getAssignedCmsPage(cmsPageId);
         },
 
         setCategory() {
@@ -200,9 +219,9 @@ Component.register('sw-category-detail', {
                 this.getCategory(categoryId).then(response => {
                     this.category = response;
                     this.getAssignedCmsPage(this.category.cmsPageId);
+                    this.updateCmsPageDataMapping();
 
-                    this.mediaItem = this.category.mediaId
-                        ? this.mediaStore.getById(this.category.mediaId) : null;
+                    this.mediaItem = this.category.mediaId ? this.mediaStore.getById(this.category.mediaId) : null;
                     this.isLoading = false;
                     this.isLoadingCategory = false;
                 });

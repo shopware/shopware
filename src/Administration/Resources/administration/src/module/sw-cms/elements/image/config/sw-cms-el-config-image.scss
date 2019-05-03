@@ -1,5 +1,26 @@
 .sw-cms-el-config-image {
     .sw-media-upload {
         margin-bottom: 22px;
+
+        .sw-media-upload__header {
+            display: none;
+        }
+    }
+
+    .sw-cms-el-config-image__mapping-preview {
+        display: grid;
+        width: 100%;
+        height: 200px;
+        justify-items: center;
+        align-items: start;
+
+        img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .sw-cms-el-config-image__preview-info {
+            width: 100%;
+        }
     }
 }

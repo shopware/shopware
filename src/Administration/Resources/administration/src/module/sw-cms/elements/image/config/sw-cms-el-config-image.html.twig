@@ -1,19 +1,29 @@
 {% block sw_cms_element_image_config %}
     <div class="sw-cms-el-config-image">
         {% block sw_cms_element_image_config_media_upload %}
-            <sw-media-upload variant="regular"
-                             :uploadTag="uploadTag"
-                             :source="element.data && element.data.media && element.data.media.id ? element.data.media : null"
-                             :allowMultiSelect="false"
-                             :defaultFolder="cmsPageState.pageEntityName"
-                             :caption="$tc('sw-cms.elements.captionMediaUpload')"
-                             @media-upload-sidebar-open="onOpenMediaModal"
-                             @media-upload-remove-image="onImageRemove">
-            </sw-media-upload>
+            <sw-cms-mapping-field :label="$tc('sw-cms.elements.labelMedia')" valueTypes="entity" entity="media" v-model="element.config.media">
+                <sw-media-upload variant="regular"
+                                 :uploadTag="uploadTag"
+                                 :source="previewSource"
+                                 :allowMultiSelect="false"
+                                 :defaultFolder="cmsPageState.pageEntityName"
+                                 :caption="$tc('sw-cms.elements.captionMediaUpload')"
+                                 @media-upload-sidebar-open="onOpenMediaModal"
+                                 @media-upload-remove-image="onImageRemove">
+                </sw-media-upload>
+
+                <div class="sw-cms-el-config-image__mapping-preview" slot="preview" slot-scope="{ demoValue }">
+                    <img :src="demoValue.url" v-if="demoValue.url">
+                    <sw-alert class="sw-cms-el-config-image__preview-info" variant="info" v-else>
+                        {{ $tc('sw-cms.detail.labelMappingEmptyPreview') }}
+                    </sw-alert>
+                </div>
+            </sw-cms-mapping-field>
+
             <sw-upload-store-listener
-                :uploadTag="uploadTag"
-                @media-upload-add="onChangeMedia"
-                @media-upload-finish="onImageUpload">
+                    :uploadTag="uploadTag"
+                    @media-upload-add="onChangeMedia"
+                    @media-upload-finish="onImageUpload">
             </sw-upload-store-listener>
         {% endblock %}
 

@@ -21,7 +21,7 @@ Module.register('sw-cms', {
     description: 'The module for creating content.',
     color: '#ff68b4',
     icon: 'default-symbol-content',
-    favicon: 'icons-module-content.png',
+    favicon: 'icon-module-content.png',
     entity: 'cms_page',
 
     snippets: {

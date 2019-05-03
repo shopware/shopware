@@ -68,7 +68,7 @@
                         {% block sw_cms_detail_toolbar_actions %}
                             <div class="sw-cms-detail__actions" slot="actions">
                                 {% block sw_cms_detail_toolbar_actions_sales_channel %}
-                                    <sw-select-field v-model="currentSalesChannelKey" size="medium" @change="onSalesChannelChange">
+                                    <sw-select-field v-model="currentSalesChannelKey" @change="onSalesChannelChange" size="medium">
                                         <option v-for="salesChannel in salesChannels" :value="salesChannel.id">{{ placeholder(salesChannel, 'name') }}</option>
                                     </sw-select-field>
                                 {% endblock %}
@@ -108,9 +108,11 @@
                                          v-droppable="{ dragGroup: 'cms-stage', data: { dropIndex: 0 } }">
 
                                         {% block sw_cms_detail_stage_empty_stade_content %}
-                                            <h2 class="empty-stage__headline">{{ $tc('sw-cms.detail.headlineEmptyState') }}</h2>
-                                            <p class="empty-stage__claim">{{ $tc('sw-cms.detail.claimEmptyState') }}</p>
-                                            <sw-button variant="primary" @click="onAddBlockSection">{{ $tc('sw-cms.detail.actionEmptyState') }}</sw-button>
+                                            <div class="sw-cms-detail__empty-stage-content">
+                                                <h2 class="empty-stage__headline">{{ $tc('sw-cms.detail.headlineEmptyState') }}</h2>
+                                                <p class="empty-stage__claim">{{ $tc('sw-cms.detail.claimEmptyState') }}</p>
+                                                <sw-button variant="primary" @click="onAddBlockSection">{{ $tc('sw-cms.detail.actionEmptyState') }}</sw-button>
+                                            </div>
                                         {% endblock %}
                                     </div>
                                 {% endblock %}

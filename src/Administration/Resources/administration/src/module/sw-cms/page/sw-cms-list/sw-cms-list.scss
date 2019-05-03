@@ -24,7 +24,7 @@
 
     .sw-cms-list__actions {
         display: grid;
-        grid-template-columns: auto 330px;
+        grid-template-columns: auto 380px;
         grid-column-gap: 30px;
         align-items: center;
         align-content: center;
@@ -32,6 +32,10 @@
 
         .sw-simple-search-field {
             margin-bottom: 0;
+
+            input {
+                padding: 12px 20px 12px 44px;
+            }
         }
     }
 

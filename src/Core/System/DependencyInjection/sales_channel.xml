@@ -86,6 +86,7 @@
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Command\SalesChannelCreateCommand">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="shipping_method.repository"/>

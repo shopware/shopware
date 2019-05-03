@@ -45,6 +45,7 @@ class Migration1536233420BasicData extends MigrationStep
         $this->createProductManufacturer($connection);
         $this->createDefaultSnippetSets($connection);
         $this->createDefaultMediaFolders($connection);
+        $this->createRules($connection);
 
         $this->createOrderStateMachine($connection);
         $this->createOrderDeliveryStateMachine($connection);
@@ -836,7 +837,7 @@ class Migration1536233420BasicData extends MigrationStep
             'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
         ]);
 
-        $connection->insert('sales_channel_translation', ['sales_channel_id' => $id, 'language_id' => $languageEN, 'name' => 'Storefront API', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('sales_channel_translation', ['sales_channel_id' => $id, 'language_id' => $languageEN, 'name' => 'Headless', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
 
         // country
         $connection->insert('sales_channel_country', ['sales_channel_id' => $id, 'country_id' => $defaultCountry]);
@@ -1125,5 +1126,21 @@ class Migration1536233420BasicData extends MigrationStep
 
         // set initial state
         $connection->update('state_machine', ['initial_state_id' => $openId], ['id' => $stateMachineId]);
+    }
+
+    private function createRules(Connection $connection): void
+    {
+        $sundaySaleRuleId = Uuid::randomBytes();
+        $connection->insert('rule', ['id' => $sundaySaleRuleId, 'name' => 'Sunday sales', 'priority' => 2, 'invalid' => 0, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('rule_condition', ['id' => Uuid::randomBytes(), 'rule_id' => $sundaySaleRuleId, 'type' => 'dayOfWeek', 'value' => json_encode(['operator' => '=', 'dayOfWeek' => 7]), 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+
+        $allCustomersRuleId = Uuid::randomBytes();
+        $connection->insert('rule', ['id' => $allCustomersRuleId, 'name' => 'All customers', 'priority' => 1, 'invalid' => 0, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('rule_condition', ['id' => Uuid::randomBytes(), 'rule_id' => $allCustomersRuleId, 'type' => 'customerCustomerGroup', 'value' => json_encode(['operator' => '=', 'customerGroupIds' => [Defaults::FALLBACK_CUSTOMER_GROUP]]), 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+
+        $usaCountryId = $connection->executeQuery('SELECT LOWER(hex(id)) FROM country WHERE `iso3` = "USA"')->fetchColumn();
+        $usaRuleId = Uuid::randomBytes();
+        $connection->insert('rule', ['id' => $usaRuleId, 'name' => 'Customers from USA', 'priority' => 100, 'invalid' => 0, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('rule_condition', ['id' => Uuid::randomBytes(), 'rule_id' => $usaRuleId, 'type' => 'customerBillingCountry', 'value' => json_encode(['operator' => '=', 'countryIds' => [$usaCountryId]]), 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
     }
 }

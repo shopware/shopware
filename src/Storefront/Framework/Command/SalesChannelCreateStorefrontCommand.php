@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Framework\Command;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -21,6 +22,7 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
     private $categoryRepository;
 
     public function __construct(
+        DefinitionInstanceRegistry $definitionRegistry,
         EntityRepositoryInterface $salesChannelRepository,
         EntityRepositoryInterface $paymentMethodRepository,
         EntityRepositoryInterface $shippingMethodRepository,
@@ -28,7 +30,7 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
         EntityRepositoryInterface $snippetSetRepository,
         EntityRepositoryInterface $categoryRepository
     ) {
-        parent::__construct($salesChannelRepository, $paymentMethodRepository, $shippingMethodRepository, $countryRepository, $snippetSetRepository);
+        parent::__construct($definitionRegistry, $salesChannelRepository, $paymentMethodRepository, $shippingMethodRepository, $countryRepository, $snippetSetRepository);
         $this->categoryRepository = $categoryRepository;
     }
 
@@ -60,6 +62,7 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
                 ],
             ],
             'navigationCategoryId' => $this->getRootCategoryId(),
+            'name' => $input->getOption('name') ?? 'Storefront',
         ];
     }
 

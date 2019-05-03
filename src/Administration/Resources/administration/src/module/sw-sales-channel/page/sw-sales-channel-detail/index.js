@@ -16,7 +16,8 @@ Component.register('sw-sales-channel-detail', {
         return {
             salesChannel: {},
             isLoading: false,
-            customFieldSets: []
+            customFieldSets: [],
+            isSaveSuccessful: false
         };
     },
 
@@ -84,22 +85,23 @@ Component.register('sw-sales-channel-detail', {
             });
         },
 
-        onSave() {
-            const titleSaveSuccess = this.$tc('sw-sales-channel.detail.titleSaveSuccess');
-            const messageSaveSuccess = this.$tc(
-                'sw-sales-channel.detail.messageSaveSuccess',
-                0,
-                { name: this.salesChannel.name }
-            );
+        saveFinish() {
+            this.isSaveSuccessful = false;
+        },
 
+        onSave() {
+            this.isLoading = true;
+
+            this.isSaveSuccessful = false;
             this.syncWithDomains();
 
             return this.salesChannel.save().then(() => {
+                this.isLoading = false;
+                this.isSaveSuccessful = true;
+
                 this.$root.$emit('changed-sales-channel');
-                this.createNotificationSuccess({
-                    title: titleSaveSuccess,
-                    message: messageSaveSuccess
-                });
+            }).catch(() => {
+                this.isLoading = false;
             });
         },
 

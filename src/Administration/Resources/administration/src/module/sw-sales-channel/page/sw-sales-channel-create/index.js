@@ -36,10 +36,13 @@ Component.extend('sw-sales-channel-create', 'sw-sales-channel-detail', {
             this.$super.createdComponent();
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+            this.$router.push({ name: 'sw.sales.channel.detail', params: { id: this.salesChannel.id } });
+        },
+
         onSave() {
-            this.$super.onSave().then(() => {
-                this.$router.push({ name: 'sw.sales.channel.detail', params: { id: this.salesChannel.id } });
-            });
+            this.$super.onSave();
         }
     }
 });

@@ -10,8 +10,6 @@ use Symfony\Component\Messenger\Worker;
 
 trait QueueTestBehaviour
 {
-    abstract public function getContainer(): ContainerInterface;
-
     /**
      * @before
      */
@@ -63,4 +61,6 @@ trait QueueTestBehaviour
             }
         });
     }
+
+    abstract protected function getContainer(): ContainerInterface;
 }

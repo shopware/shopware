@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class DatabaseTransactionBehaviourTest extends TestCase
 {
+    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
 
     /**

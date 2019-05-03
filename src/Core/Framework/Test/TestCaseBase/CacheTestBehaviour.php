@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
+use Symfony\Component\DependencyInjection\ContainerInterface;
+
 trait CacheTestBehaviour
 {
     /**
@@ -9,9 +11,10 @@ trait CacheTestBehaviour
      */
     public function clearCacheBefore(): void
     {
-        KernelLifecycleManager::getKernel()
-            ->getContainer()
+        $this->getContainer()
             ->get('shopware.cache')
             ->clear();
     }
+
+    abstract protected function getContainer(): ContainerInterface;
 }

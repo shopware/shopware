@@ -74,7 +74,7 @@ trait AdminApiTestBehaviour
         bool $enableReboot = false
     ): KernelBrowser {
         if (!$kernel) {
-            $kernel = KernelLifecycleManager::getKernel();
+            $kernel = $this->getKernel();
         }
 
         $apiBrowser = KernelLifecycleManager::createBrowser($kernel, $enableReboot);
@@ -224,6 +224,8 @@ trait AdminApiTestBehaviour
         $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
     }
 
+    abstract protected function getKernel(): KernelInterface;
+
     protected function getBrowser(): KernelBrowser
     {
         if ($this->kernelBrowser) {
@@ -239,7 +241,7 @@ trait AdminApiTestBehaviour
             return $this->integrationBrowser;
         }
 
-        $apiBrowser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel());
+        $apiBrowser = KernelLifecycleManager::createBrowser($this->getKernel());
 
         $apiBrowser->followRedirects();
         $apiBrowser->setServerParameters([

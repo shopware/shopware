@@ -53,9 +53,10 @@ class PromotionGateway implements PromotionGatewayInterface
         $criteria->addAssociation('orderRules');
         $criteria->addAssociation('discounts');
 
-        $result = $this->promotionRepository->search($criteria, $context->getContext());
+        /* @var EntityCollection $result */
+        $result = $this->promotionRepository->search($criteria, $context->getContext())->getEntities();
 
-        return $result->getEntities();
+        return $result;
     }
 
     /**
@@ -67,6 +68,7 @@ class PromotionGateway implements PromotionGatewayInterface
     public function getByCodes(array $codes, SalesChannelContext $context): EntityCollection
     {
         $criteria = new Criteria([]);
+
         $criteria->addFilter(
             new MultiFilter(
                 MultiFilter::CONNECTION_AND,
@@ -86,9 +88,10 @@ class PromotionGateway implements PromotionGatewayInterface
         $criteria->addAssociation('orderRules');
         $criteria->addAssociation('discounts');
 
-        $result = $this->promotionRepository->search($criteria, $context->getContext());
+        /* @var EntityCollection $result */
+        $result = $this->promotionRepository->search($criteria, $context->getContext())->getEntities();
 
-        return $result->getEntities();
+        return $result;
     }
 
     /**

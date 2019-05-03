@@ -21,16 +21,6 @@
 {% block page_account_main_content %}
     {% block page_account_profile %}
         <div class="account-profile">
-            {% block page_account_profile_errors %}
-                {#TODO: NEXT-2960 - show field errors at the field#}
-                {% if formViolations.getViolations() %}
-                    {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with {
-                        type:"danger",
-                        list: formViolations.getViolations()
-                    } %}
-                {% endif %}
-            {% endblock %}
-
             {% block page_account_profile_main %}
                 {% block page_account_profile_personal %}
                     <div class="card profile-personal">

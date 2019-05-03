@@ -34,7 +34,7 @@ export default {
             this.showDeleteModal = true;
         },
         onConfirmDelete() {
-            this.$store.dispatch('notification/setNotifications', {});
+            this.$store.commit('notification/clearNotificationsForCurrentUser');
             this.showDeleteModal = false;
         },
         onCloseDeleteModal() {

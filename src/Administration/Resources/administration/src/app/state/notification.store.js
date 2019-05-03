@@ -145,6 +145,17 @@ export default {
             state.notifications = getNotificationsForUser();
         },
 
+        clearNotificationsForCurrentUser(state) {
+            state.notifications = {};
+
+            const storageKey = _getStorageKey();
+            if (!storageKey) {
+                return;
+            }
+
+            localStorage.removeItem(storageKey);
+        },
+
         setNotifications(state, notifications) {
             Object.keys(notifications).forEach((id) => {
                 setReactive(state.notifications, notifications[id].uuid, notifications[id]);

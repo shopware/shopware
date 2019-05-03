@@ -324,7 +324,7 @@ export default {
         selectAll(selected) {
             this.$delete(this.selection);
 
-            this.records.forEach((item) => {
+            this.recordArray.forEach((item) => {
                 if (this.isSelected(item.id) !== selected) {
                     this.selectItem(selected, item);
                 }
@@ -338,13 +338,10 @@ export default {
             const selection = this.selection;
 
             if (selected === true) {
-                selection[item.id] = item;
+                this.$set(this.selection, item.id, item);
             } else if (!selected && selection[item.id]) {
-                delete this.selection[item.id];
+                this.$delete(this.selection, item.id);
             }
-
-            this.$delete(this.selection);
-            this.$set(this.selection);
 
             this.checkSelection();
             this.$emit('select-item', this.selection, item, selected);
@@ -356,7 +353,7 @@ export default {
 
         checkSelection() {
             let selected = true;
-            this.records.forEach((item) => {
+            this.recordArray.forEach((item) => {
                 if (this.selection[item.id] === undefined) {
                     selected = false;
                 }

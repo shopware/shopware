@@ -1,11 +1,26 @@
+@import "~scss/variables";
+
 .sw-settings-country-detail {
     .sw-field.sw-field--checkbox {
         align-self: center;
         margin: 0;
     }
 
-    .sw-card__toolbar .sw-simple-search-field {
+    .sw-card__toolbar {
+        .sw-country-state-list__delete-button.sw-button--square {
+            border-color: $color-crimson;
+
+            .sw-icon {
+                color: $color-crimson;
+            }
+            &.sw-button--disabled {
+                opacity: 0.2;
+            }
+        }
+
+        .sw-simple-search-field {
             margin-bottom: 0;
+        }
     }
 
     .sw-settings-country-detail__link {

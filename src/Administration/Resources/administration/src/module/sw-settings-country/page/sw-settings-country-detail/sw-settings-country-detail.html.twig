@@ -98,12 +98,23 @@
                 {% block sw_settings_country_detail_state_list_card %}
                     <sw-card v-if="!isLoading">
                         <template #toolbar>
-                            <sw-container columns="1fr minmax(100px, 200px)" gap="0 10px">
+                            <sw-container columns="1fr 32px minmax(100px, 200px)" gap="0 10px">
                                 {% block sw_attribute_list_toolbar_searchfield %}
                                     <sw-simple-search-field
                                             @searchTermChanged="onSearchCountryState"
                                             v-model="term">
                                     </sw-simple-search-field>
+                                {% endblock %}
+
+                                {% block sw_country_state_list_toolbar_delete %}
+                                <sw-button
+                                        :disabled="deleteButtonDisabled"
+                                        @click="onDeleteCountryStates"
+                                        square
+                                        size="small"
+                                        class="sw-country-state-list__delete-button">
+                                    <sw-icon name="default-action-trash" small />
+                                </sw-button>
                                 {% endblock %}
 
                                 {% block sw_country_state_list_toolbar_add %}
@@ -125,6 +136,7 @@
                                     :collection="country.states"
                                     :fullPage="false"
                                     :localMode="country.isNew()"
+                                    @select-item="countryStateSelectionChanged"
                                     :columns="stateColumns">
                                 <template #column-name="{ item }">
                                     <a class="sw-settings-country-detail__link"

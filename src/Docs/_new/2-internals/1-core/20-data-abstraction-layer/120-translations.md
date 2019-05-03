@@ -45,6 +45,7 @@ class ProductDefinition
 {
     new TranslatedField('additionalText')
 }
+
 class ProductTranslationDefinition
 {
     new LongTextField('additional_text', 'additionalText')

@@ -12,8 +12,8 @@ Adding a field is a two step process:
 
 # The field serializer
 
-A `FieldSerializer` handles encoding and decoding of values for the DAL to store or hydrate. It is required that each `FieldSerializer` references the field type it handles. 
+A `FieldSerializer` handles encoding and decoding of values for the DAL to store or hydrate. It is required that each `Field` references the `FieldSerializer` type it handles. 
 
 # The field class
 
-From a serializers point of view a single field is the configuration on which itz has to act. Usually it contains the name of the field in an entity class. 
+From a serializers point of view a single field is the configuration on which it has to act. Usually it contains the name of the field in a definition class. 

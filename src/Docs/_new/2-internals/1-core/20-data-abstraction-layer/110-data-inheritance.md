@@ -33,7 +33,7 @@ new ChildrenAssociationField(self::class)
 ### 4. Allow inheritance
 
 ```php
-public static function allowInheritance(): bool
+public function allowInheritance(): bool
 {
     return true;
 }

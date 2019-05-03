@@ -28,11 +28,6 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
         $this->writeExtractor = $writeExtractor;
     }
 
-    public function getFieldClass(): string
-    {
-        return OneToOneAssociationField::class;
-    }
-
     public function encode(
         Field $field,
         EntityExistence $existence,

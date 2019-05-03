@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
@@ -11,11 +10,6 @@ use Shopware\Core\Framework\Pricing\Price;
 
 class PriceFieldSerializer extends JsonFieldSerializer
 {
-    public function getFieldClass(): string
-    {
-        return PriceField::class;
-    }
-
     public function encode(
         Field $field,
         EntityExistence $existence,

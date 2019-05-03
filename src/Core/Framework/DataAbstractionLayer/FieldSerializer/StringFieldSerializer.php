@@ -33,11 +33,6 @@ class StringFieldSerializer implements FieldSerializerInterface
         $this->validator = $validator;
     }
 
-    public function getFieldClass(): string
-    {
-        return StringField::class;
-    }
-
     public function encode(
         Field $field,
         EntityExistence $existence,

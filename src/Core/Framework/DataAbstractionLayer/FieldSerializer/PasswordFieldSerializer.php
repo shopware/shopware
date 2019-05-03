@@ -31,11 +31,6 @@ class PasswordFieldSerializer implements FieldSerializerInterface
         $this->validator = $validator;
     }
 
-    public function getFieldClass(): string
-    {
-        return PasswordField::class;
-    }
-
     public function encode(
         Field $field,
         EntityExistence $existence,

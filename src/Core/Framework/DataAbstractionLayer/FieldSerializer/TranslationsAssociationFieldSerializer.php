@@ -31,11 +31,6 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         $this->writeExtractor = $writeExtractor;
     }
 
-    public function getFieldClass(): string
-    {
-        return TranslationsAssociationField::class;
-    }
-
     public function encode(
         Field $field,
         EntityExistence $existence,

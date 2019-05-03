@@ -31,11 +31,6 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
         $this->writeExtrator = $writeExtrator;
     }
 
-    public function getFieldClass(): string
-    {
-        return ManyToManyAssociationField::class;
-    }
-
     public function encode(
         Field $field,
         EntityExistence $existence,

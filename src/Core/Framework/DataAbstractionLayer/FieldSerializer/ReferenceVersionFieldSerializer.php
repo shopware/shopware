@@ -14,11 +14,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class ReferenceVersionFieldSerializer implements FieldSerializerInterface
 {
-    public function getFieldClass(): string
-    {
-        return ReferenceVersionField::class;
-    }
-
     public function encode(
         Field $field,
         EntityExistence $existence,

@@ -11,11 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 
 class VersionDataPayloadFieldSerializer implements FieldSerializerInterface
 {
-    public function getFieldClass(): string
-    {
-        return VersionDataPayloadField::class;
-    }
-
     public function encode(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): \Generator
     {
         if (!$field instanceof VersionDataPayloadField) {

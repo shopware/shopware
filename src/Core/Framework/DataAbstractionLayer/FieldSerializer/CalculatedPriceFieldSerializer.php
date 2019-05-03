@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CalculatedPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -15,11 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 
 class CalculatedPriceFieldSerializer extends JsonFieldSerializer
 {
-    public function getFieldClass(): string
-    {
-        return CalculatedPriceField::class;
-    }
-
     public function encode(
         Field $field,
         EntityExistence $existence,

@@ -13,11 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 
 class TranslatedFieldSerializer implements FieldSerializerInterface
 {
-    public function getFieldClass(): string
-    {
-        return TranslatedField::class;
-    }
-
     public function encode(
         Field $field,
         EntityExistence $existence,

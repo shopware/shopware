@@ -13,11 +13,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class IdFieldSerializer implements FieldSerializerInterface
 {
-    public function getFieldClass(): string
-    {
-        return IdField::class;
-    }
-
     public function encode(
         Field $field,
         EntityExistence $existence,

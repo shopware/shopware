@@ -33,11 +33,6 @@ class DateFieldSerializer implements FieldSerializerInterface
         $this->validator = $validator;
     }
 
-    public function getFieldClass(): string
-    {
-        return DateField::class;
-    }
-
     public function encode(
         Field $field,
         EntityExistence $existence,

@@ -12,11 +12,6 @@ use Shopware\Storefront\Framework\Seo\Entity\Field\SeoUrlAssociationField;
 
 class SeoUrlFieldSerializer extends OneToManyAssociationFieldSerializer
 {
-    public function getFieldClass(): string
-    {
-        return SeoUrlAssociationField::class;
-    }
-
     public function encode(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): \Generator
     {
         if (!$field instanceof SeoUrlAssociationField) {

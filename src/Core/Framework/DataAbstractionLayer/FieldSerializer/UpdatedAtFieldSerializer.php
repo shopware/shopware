@@ -11,11 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 
 class UpdatedAtFieldSerializer extends DateFieldSerializer
 {
-    public function getFieldClass(): string
-    {
-        return UpdatedAtField::class;
-    }
-
     public function encode(
         Field $field,
         EntityExistence $existence,

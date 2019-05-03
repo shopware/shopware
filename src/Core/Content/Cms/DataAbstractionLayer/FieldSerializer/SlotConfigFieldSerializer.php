@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Cms\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Content\Cms\DataAbstractionLayer\Field\SlotConfigField;
 use Shopware\Core\Content\Cms\SlotDataResolver\FieldConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldValidatorTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
@@ -15,11 +14,6 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class SlotConfigFieldSerializer extends JsonFieldSerializer
 {
     use FieldValidatorTrait;
-
-    public function getFieldClass(): string
-    {
-        return SlotConfigField::class;
-    }
 
     protected function getConstraints(WriteParameterBag $parameters): array
     {

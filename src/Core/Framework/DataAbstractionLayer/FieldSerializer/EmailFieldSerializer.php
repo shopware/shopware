@@ -31,11 +31,6 @@ class EmailFieldSerializer implements FieldSerializerInterface
         $this->validator = $validator;
     }
 
-    public function getFieldClass(): string
-    {
-        return EmailField::class;
-    }
-
     public function encode(
         Field $field,
         EntityExistence $existence,

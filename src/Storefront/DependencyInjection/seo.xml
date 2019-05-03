@@ -47,12 +47,6 @@
             <tag name="shopware.field_serializer"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\Seo\Entity\Serializer\CanonicalUrlFieldSerializer">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor" />
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry" />
-            <tag name="shopware.field_serializer"/>
-        </service>
-
         <service id="Shopware\Storefront\Framework\Seo\Entity\Dbal\CanonicalUrlAssociationFieldResolver">
             <argument type="service" id="Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlDefinition"/>
             <tag name="shopware.field_resolver" priority="200"/>

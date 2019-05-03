@@ -97,7 +97,9 @@ export default {
                 'sw-field': ['label', 'placeholder', 'helpText'],
                 'sw-text-editor': ['label', 'placeholder', 'helpText'],
                 'sw-media-field': ['label'],
-                'sw-select': ['label', 'placeholder', 'helpText']
+                'sw-select': ['label', 'placeholder', 'helpText'],
+                'sw-single-select': ['label', 'placeholder', 'helpText'],
+                'sw-multi-select': ['label', 'placeholder', 'helpText']
             }
         };
     },
@@ -108,7 +110,8 @@ export default {
                 ...this.$attrs,
                 ...this.config,
                 ...this.swFieldType,
-                ...this.translations
+                ...this.translations,
+                ...this.optionTranslations
             };
 
             // create stores for sw-select
@@ -160,17 +163,35 @@ export default {
         },
 
         translations() {
-            const translatableFields = this.translatedFields[this.componentName];
-            if (!translatableFields) {
-                return {};
+            return this.getTranslations(this.componentName);
+        },
+
+        optionTranslations() {
+            if (['sw-single-select', 'sw-multi-select'].includes(this.componentName)) {
+                if (this.config.hasOwnProperty('options')) {
+                    const options = [];
+                    let labelProperty = 'label';
+
+                    // Use custom label property if defined
+                    if (this.config.hasOwnProperty('labelProperty')) {
+                        labelProperty = this.config.labelProperty;
+                    }
+
+                    this.config.options.forEach(option => {
+                        const translation = this.getTranslations(
+                            'options',
+                            option,
+                            [labelProperty]
+                        );
+                        // Merge original option with translation
+                        const translatedOption = { ...option, ...translation };
+                        options.push(translatedOption);
+                    });
+
+                    return { options };
+                }
             }
-
-            const translations = {};
-            translatableFields.forEach((field) => {
-                translations[field] = this.getInlineSnippet(this.config[field]);
-            });
-
-            return translations;
+            return {};
         }
     },
 
@@ -194,6 +215,21 @@ export default {
     },
 
     methods: {
+        getTranslations(componentName, config = this.config, translatableFields = this.translatedFields[componentName]) {
+            if (!translatableFields) {
+                return {};
+            }
+
+            const translations = {};
+            translatableFields.forEach((field) => {
+                if (config[field] && config[field] !== '') {
+                    translations[field] = this.getInlineSnippet(config[field]);
+                }
+            });
+
+            return translations;
+        },
+
         getComponentFromType() {
             if (this.type === 'single-select') {
                 return 'sw-single-select';

@@ -9,7 +9,6 @@ import './page/sw-property-create';
 import './component/sw-property-option-detail';
 import './component/sw-property-detail-base';
 import './component/sw-property-option-list';
-import { NEXT719 } from '../../flag/feature_next719';
 
 Module.register('sw-property', {
     type: 'core',
@@ -18,7 +17,6 @@ Module.register('sw-property', {
     description: 'sw-property.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    flag: NEXT719,
     color: '#57D9A3',
     icon: 'default-symbol-products',
 

@@ -2,7 +2,6 @@ const propertyPage = require('administration/page-objects/module/sw-property.pag
 
 module.exports = {
     '@tags': ['product', 'property', 'property-create', 'create'],
-    '@disabled': !global.flags.isActive('next719'),
     'open product listing': (browser) => {
         const page = propertyPage(browser);
 

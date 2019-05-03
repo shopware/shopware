@@ -2,7 +2,6 @@ const propertyPage = require('administration/page-objects/module/sw-property.pag
 
 module.exports = {
     '@tags': ['product', 'property', 'property-delete', 'delete'],
-    '@disabled': !global.flags.isActive('next719'),
     before: (browser, done) => {
         return global.PropertyFixtureService.setPropertyFixture({
             options: [{ name: 'Red' }, { name: 'Yellow' }, { name: 'Green' }]

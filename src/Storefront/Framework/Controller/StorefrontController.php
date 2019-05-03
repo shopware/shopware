@@ -26,8 +26,15 @@ abstract class StorefrontController extends AbstractController
     protected function createActionResponse(Request $request): Response
     {
         if ($request->get('redirectTo')) {
-            $params = $request->get('redirectParameters', json_encode([]));
-            $params = json_decode($params, true);
+            $params = $request->get('redirectParameters');
+
+            if (is_string($params)) {
+                $params = json_decode($params, true);
+            }
+
+            if (empty($params)) {
+                $params = [];
+            }
 
             return $this->redirectToRoute($request->get('redirectTo'), $params);
         }

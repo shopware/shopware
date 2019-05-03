@@ -1,4 +1,4 @@
-[titleDe]: <>(Data handling)
+[titleEn]: <>(Data handling)
 
 The data handling was created with **predictability** as its main design goal. It uses a *repository pattern* which is strongly based on the [Database Abstraction Layer](./../../1-core/20-data-abstraction-layer/__categoryInfo.md) from the core.
 

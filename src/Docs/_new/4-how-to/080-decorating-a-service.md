@@ -10,7 +10,7 @@ Make sure to have a look at the [Symfony guide about decorating services](https:
 
 The main requirement here is to have a `services.xml` file loaded in your plugin.
 This can be achieved by placing the file into a `Resources/config` directory relative to your plugin's base class location.
-Make sure to also have a look at the method [getContainerPath()](../2-internals/4-plugins/020-plugin-base-class.md#getContainerPath())
+Make sure to also have a look at the method [getServicesFilePath](./../2-internals/4-plugins/020-plugin-base-class.md#getServicesFilePath)
 
 From here on, everything works exactly like in Symfony itself.
 

@@ -1,0 +1,53 @@
+/**
+ * this class is mainly a fallback
+ * if the session, local or cookie storage fails.
+ */
+export default class MemoryStorage {
+    constructor() {
+        this._storage = {};
+    }
+
+    /**
+     * @param {string} key
+     * @param {*} value
+     *
+     * @returns {*}
+     */
+    setItem(key, value) {
+        return this._storage[key] = value;
+    }
+
+    /**
+     * @param {string} key
+     *
+     * @returns {*}
+     */
+    getItem(key) {
+        return this._storage.hasOwnProperty(key) ? this._storage[key] : null;
+    }
+
+    /**
+     * @param {string} key
+     *
+     * @returns {boolean}
+     */
+    removeItem(key) {
+        return delete this._storage[key];
+    }
+
+    /**
+     * @param {number} index
+     *
+     * @returns {any}
+     */
+    key(index) {
+        return Object.values(this._storage)[index];
+    }
+
+    /**
+     * @returns {{}}
+     */
+    clear() {
+        return this._storage = {};
+    }
+}

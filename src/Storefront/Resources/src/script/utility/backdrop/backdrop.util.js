@@ -1,4 +1,5 @@
 import DeviceDetection from 'src/script/helper/device-detection.helper';
+import Iterator from 'src/script/helper/iterator.helper';
 
 const SELECTOR_CLASS = 'modal-backdrop';
 const BACKDROP_OPEN_CLASS = 'modal-backdrop-open';
@@ -7,7 +8,7 @@ const NO_SCROLL_CLASS = 'no-scroll';
 export const REMOVE_BACKDROP_DELAY = 350;
 
 export const BACKDROP_EVENT = {
-    ON_CLICK: 'backdrop/onclick'
+    ON_CLICK: 'backdrop/onclick',
 };
 
 class BackdropSingleton {
@@ -39,7 +40,7 @@ class BackdropSingleton {
         document.documentElement.classList.add(NO_SCROLL_CLASS);
 
         // add open class afterwards to make any css animation effects possible
-        setTimeout(function() {
+        setTimeout(function () {
             backdrop.classList.add(BACKDROP_OPEN_CLASS);
 
             // if a callback function is being injected execute it after opening the backdrop
@@ -57,7 +58,8 @@ class BackdropSingleton {
      */
     remove(delay = REMOVE_BACKDROP_DELAY) {
         // remove open class to make any css animation effects possible
-        this._getBackdrops().forEach(backdrop => backdrop.classList.remove(BACKDROP_OPEN_CLASS));
+        const backdrops = this._getBackdrops();
+        Iterator.iterate(backdrops, backdrop => backdrop.classList.remove(BACKDROP_OPEN_CLASS));
 
         // wait before removing backdrop to let css animation effects take place
         setTimeout(this._removeExistingBackdrops.bind(this), delay);
@@ -73,7 +75,7 @@ class BackdropSingleton {
     _dispatchEvents() {
         const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
 
-        document.addEventListener(event, function(e) {
+        document.addEventListener(event, function (e) {
             if (e.target.classList.contains(SELECTOR_CLASS)) {
                 document.dispatchEvent(new CustomEvent(BACKDROP_EVENT.ON_CLICK));
             }
@@ -95,7 +97,8 @@ class BackdropSingleton {
      */
     _removeExistingBackdrops() {
         if (this._exists() === false) return;
-        this._getBackdrops().forEach(backdrop => backdrop.remove());
+        const backdrops = this._getBackdrops();
+        Iterator.iterate(backdrops, backdrop => backdrop.remove());
     }
 
     /**

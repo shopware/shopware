@@ -3,6 +3,7 @@ import OffCanvas from 'src/script/plugin/offcanvas/offcanvas.plugin';
 import LoadingIndicator from 'src/script/utility/loading-indicator/loading-indicator.util';
 import HttpClient from 'src/script/service/http-client.service';
 import DomAccess from 'src/script/helper/dom-access.helper';
+import Iterator from 'src/script/helper/iterator.helper';
 
 const NAVIGATION_URL = window.router['widgets.menu.offcanvas'];
 
@@ -46,17 +47,17 @@ export default class OffcanvasMenuPlugin extends Plugin {
         this.el.addEventListener(TRIGGER_EVENT, this._getLinkEventHandler.bind(this));
 
         if (OffCanvas.exists()) {
-            const offcanvasElements = OffCanvas.getOffCanvas();
+            const offCanvasElements = OffCanvas.getOffCanvas();
 
-            offcanvasElements.forEach((offcanvas) => {
+            Iterator.iterate(offCanvasElements, offcanvas => {
                 const links = offcanvas.querySelectorAll(LINK_SELECTOR);
-                links.forEach(link => {
+                Iterator.iterate(links, link => {
                     OffcanvasMenuPlugin._resetLoader(link);
                     link.addEventListener('click', (event) => {
                         this._getLinkEventHandler(event, link);
                     });
                 });
-            })
+            });
         }
     }
 

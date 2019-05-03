@@ -5,6 +5,8 @@ import HttpClient from 'src/script/service/http-client.service';
 import AjaxOffCanvas from 'src/script/plugin/offcanvas/ajax-offcanvas.plugin';
 import LoadingIndicator from 'src/script/utility/loading-indicator/loading-indicator.util';
 import DeviceDetection from 'src/script/helper/device-detection.helper';
+import FormSerializeUtil from 'src/script/utility/form/form-serialize.util';
+import Iterator from 'src/script/helper/iterator.helper';
 
 export default class OffCanvasCartPlugin extends Plugin {
 
@@ -49,10 +51,7 @@ export default class OffCanvasCartPlugin extends Plugin {
      */
     _registerFormEvents() {
         const forms = document.querySelectorAll(this.options.formSelector);
-
-        forms.forEach(form => {
-            form.addEventListener('submit', this._onFormSubmit.bind(this));
-        });
+        Iterator.iterate(forms, form => form.addEventListener('submit', this._onFormSubmit.bind(this)));
     }
 
     /**
@@ -67,23 +66,9 @@ export default class OffCanvasCartPlugin extends Plugin {
 
         const form = e.target;
         const requestUrl = DomAccess.getAttribute(form, 'action').toLowerCase();
-        const formData = this._convertFormDataToJSON(new FormData(form));
+        const formData = FormSerializeUtil.serializeJson(form);
 
-        AjaxOffCanvas.open(requestUrl, formData, this._updateCart.bind(this), this.options.offcanvasPosition);
-    }
-
-    /**
-     * Convert the FormData object to JSON
-     * @param {FormData} formData
-     * @returns {string}
-     * @private
-     */
-    _convertFormDataToJSON(formData) {
-        const object = {};
-        formData.forEach((value, key) => {
-            object[key] = value;
-        });
-        return JSON.stringify(object);
+        AjaxOffCanvas.open(requestUrl, JSON.stringify(formData), this._updateCart.bind(this), this.options.offcanvasPosition);
     }
 
     /**
@@ -92,10 +77,7 @@ export default class OffCanvasCartPlugin extends Plugin {
      */
     _registerRemoveProductTriggerEvents() {
         const forms = DomAccess.querySelectorAll(document, this.options.removeProductTriggerSelector, false);
-
-        forms.forEach(form => {
-            form.addEventListener('submit', this._onRemoveProductFromCart.bind(this));
-        });
+        Iterator.iterate(forms, form => form.addEventListener('submit', this._onRemoveProductFromCart.bind(this)));
     }
 
     /**
@@ -136,7 +118,7 @@ export default class OffCanvasCartPlugin extends Plugin {
      */
     _fetchCartWidgets() {
         const CartWidgetPluginInstances = PluginManager.getPluginInstances('CartWidget');
-        CartWidgetPluginInstances.forEach(instance => {
+        Iterator.iterate(CartWidgetPluginInstances, instance => {
             instance.fetch();
         });
     }

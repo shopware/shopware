@@ -8,6 +8,8 @@
     {% if totalPages > 1 %}
         {% block component_pagination_form %}
             <form class="pagination-form"
+                  action="/"
+                  method="post"
                 {% if isCmsSlot %}
                 data-cms-slot-reload="true"
                 data-cms-slot-reload-options='{

@@ -1,3 +1,5 @@
+import Iterator from 'src/script/helper/iterator.helper';
+
 const emitter = new WeakMap();
 
 export default class Emitter {
@@ -6,7 +8,7 @@ export default class Emitter {
      */
     constructor() {
         emitter.set(this, {
-            events: {}
+            events: {},
         });
 
         this.eventLength = 0;
@@ -33,7 +35,7 @@ export default class Emitter {
         this.events[event] = this.events[event] || [];
         this.events[event].push({
             callback,
-            once
+            once,
         });
 
         this.eventLength += 1;
@@ -63,9 +65,9 @@ export default class Emitter {
 
         const listeners = this.events[event];
 
-        listeners.forEach((v, i) => {
-            if (v.callback === callback) {
-                listeners.splice(i, 1);
+        Iterator.iterate(listeners, (value, key) => {
+            if (value.callback === callback) {
+                listeners.splice(key, 1);
             }
         });
 
@@ -93,13 +95,13 @@ export default class Emitter {
         const onceListeners = [];
 
         if (typeof listeners !== 'undefined') {
-            listeners.forEach((value, key) => {
+            Iterator.iterate(listeners, (value, key) => {
                 value.cb.apply(this, args);
 
                 if (value.once) onceListeners.unshift(key);
 
-                onceListeners.forEach((v, k) => {
-                    listeners.splice(k, 1);
+                Iterator.iterate(onceListeners, (value, key) => {
+                    listeners.splice(key, 1);
                 });
             });
         }

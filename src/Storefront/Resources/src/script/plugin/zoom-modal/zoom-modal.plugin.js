@@ -3,6 +3,7 @@ import PluginManager from 'src/script/helper/plugin/plugin.manager';
 import DeviceDetection from 'src/script/helper/device-detection.helper';
 import DomAccess from 'src/script/helper/dom-access.helper';
 import ImageZoomPlugin from 'src/script/plugin/image-zoom/image-zoom.plugin';
+import Iterator from 'src/script/helper/iterator.helper';
 
 const IMAGE_SLIDER_INIT_SELECTOR = '[data-image-slider]';
 const IMAGE_ZOOM_INIT_SELECTOR = '[data-image-zoom]';
@@ -43,7 +44,7 @@ export default class ZoomModalPlugin extends Plugin {
     _registerEvents() {
         const eventType = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
 
-        this._triggers.forEach(element => {
+        Iterator.iterate(this._triggers, element => {
             element.removeEventListener(eventType, this._onClick.bind(this));
             element.addEventListener(eventType, this._onClick.bind(this));
         });
@@ -135,7 +136,7 @@ export default class ZoomModalPlugin extends Plugin {
      */
     _initZoom(modal) {
         const elements = modal.querySelectorAll(IMAGE_ZOOM_INIT_SELECTOR);
-        elements.forEach(el => {
+        Iterator.iterate(elements, el => {
             new ImageZoomPlugin(el, {}, 'ImageZoom');
         });
     }

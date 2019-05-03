@@ -1,6 +1,7 @@
 import Plugin from 'src/script/helper/plugin/plugin.class';
 import DeviceDetection from 'src/script/helper/device-detection.helper';
 import DomAccess from 'src/script/helper/dom-access.helper';
+import Iterator from 'src/script/helper/iterator.helper';
 
 
 /**
@@ -40,9 +41,9 @@ export default class FlyoutMenuPlugin extends Plugin {
 
     init() {
         this._debouncer = null;
-        this.triggerEls = this.el.querySelectorAll(`[${this.options.triggerDataAttribute}]`);
-        this.closeEls = this.el.querySelectorAll(this.options.closeSelector);
-        this.flyoutEls = this.el.querySelectorAll(`[${this.options.flyoutIdDataAttribute}]`);
+        this._triggerEls = this.el.querySelectorAll(`[${this.options.triggerDataAttribute}]`);
+        this._closeEls = this.el.querySelectorAll(this.options.closeSelector);
+        this._flyoutEls = this.el.querySelectorAll(`[${this.options.flyoutIdDataAttribute}]`);
 
         this._registerEvents();
     }
@@ -58,20 +59,20 @@ export default class FlyoutMenuPlugin extends Plugin {
         const closeEvent = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'mouseleave';
 
         // register opening triggers
-        this.triggerEls.forEach(el => {
+        Iterator.iterate(this._triggerEls, el => {
             const flyoutId = DomAccess.getDataAttribute(el, this.options.triggerDataAttribute);
             el.addEventListener(openEvent, this._openFlyoutById.bind(this, flyoutId, el));
             el.addEventListener(closeEvent, () => this._debounce(this._closeAllFlyouts));
         });
 
         // register closing triggers
-        this.closeEls.forEach(el => {
+        Iterator.iterate(this._closeEls, el => {
             el.addEventListener(clickEvent, this._closeAllFlyouts.bind(this));
         });
 
         // register non touch events for open flyouts
         if (!DeviceDetection.isTouchDevice()) {
-            this.flyoutEls.forEach(el => {
+            Iterator.iterate(this._flyoutEls, el => {
                 el.addEventListener('mousemove', () => this._clearDebounce());
                 el.addEventListener('mouseleave', () => this._debounce(this._closeAllFlyouts));
             });
@@ -137,7 +138,7 @@ export default class FlyoutMenuPlugin extends Plugin {
     _closeAllFlyouts() {
         const flyoutEls = this.el.querySelectorAll(`[${this.options.flyoutIdDataAttribute}]`);
 
-        flyoutEls.forEach((el) => {
+        Iterator.iterate(flyoutEls, el => {
             const triggerEl = this._retrieveTriggerEl(el);
             this._closeFlyout(el, triggerEl);
         });

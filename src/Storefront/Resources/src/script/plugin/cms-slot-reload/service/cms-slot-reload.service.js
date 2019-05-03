@@ -5,6 +5,7 @@ import HistoryUtil from 'src/script/utility/history/history.util';
 import ElementLoadingIndicatorUtil from 'src/script/utility/loading-indicator/element-loading-indicator.util';
 import DomAccess from 'src/script/helper/dom-access.helper';
 import CmsSlotOptionValidatorHelper from 'src/script/plugin/cms-slot-reload/helper/cms-slot-option-validator.helper';
+import Iterator from 'src/script/helper/iterator.helper';
 
 export default class CmsSlotReloadService {
 
@@ -83,9 +84,9 @@ export default class CmsSlotReloadService {
      * @private
      */
     _createLoadingIndicators() {
-        this._options.elements.forEach((selectors, elementId) => {
+        Iterator.iterate(this._options.elements, (selectors, elementId) => {
             const targetElements = DomAccess.querySelectorAll(document, `[data-cms-element-id="${elementId}"]`);
-            targetElements.forEach(element => {
+            Iterator.iterate(targetElements, element => {
                 ElementLoadingIndicatorUtil.create(element);
             });
         });
@@ -148,7 +149,7 @@ export default class CmsSlotReloadService {
             hiddenParams: {},
         };
 
-        data.forEach((value, name) => {
+        Iterator.iterate(data, (value, name) => {
             if (this._options.hiddenParams.indexOf(name) !== -1) {
                 params.hiddenParams[name] = value;
             } else {
@@ -208,18 +209,18 @@ export default class CmsSlotReloadService {
      * @private
      */
     _replaceElements(src) {
-        this._options.elements.forEach((selectors, elementId) => {
+        Iterator.iterate(this._options.elements, (selectors, elementId) => {
             const srcSelements = DomAccess.querySelectorAll(src, `[data-cms-element-id="${elementId}"]`);
             const targetElements = DomAccess.querySelectorAll(document, `[data-cms-element-id="${elementId}"]`);
 
-            srcSelements.forEach(element => {
-                selectors.forEach(selector => {
+            Iterator.iterate(srcSelements, element => {
+                Iterator.iterate(selectors, selector => {
                     const srcEls = DomAccess.querySelectorAll(element, selector);
 
-                    targetElements.forEach(element => {
+                    Iterator.iterate(targetElements, element => {
                         ElementLoadingIndicatorUtil.remove(element);
                         const targetEls = DomAccess.querySelectorAll(element, selector);
-                        targetEls.forEach((el, key) => {
+                        Iterator.iterate(targetEls, (el, key) => {
                             el.innerHTML = srcEls[key].innerHTML;
                         });
                     });

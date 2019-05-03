@@ -1,5 +1,6 @@
 import Plugin from 'src/script/helper/plugin/plugin.class';
 import HttpClient from 'src/script/service/http-client.service';
+import Storage from 'src/script/helper/storage/storage.helper';
 
 const CART_WIDGET_STORAGE_KEY = 'cart-widget-template';
 
@@ -8,7 +9,6 @@ export default class CartWidgetPlugin extends Plugin {
     init() {
 
         this._client = new HttpClient(window.accessKey, window.contextToken);
-        this._storageExists = (window.sessionStorage instanceof Storage);
 
         this.insertStoredContent();
         this.fetch();
@@ -21,7 +21,7 @@ export default class CartWidgetPlugin extends Plugin {
      */
     insertStoredContent() {
         if (this._storageExists) {
-            const storedContent = window.sessionStorage.getItem(CART_WIDGET_STORAGE_KEY);
+            const storedContent = Storage.getItem(CART_WIDGET_STORAGE_KEY);
             if (storedContent) {
                 this.el.innerHTML = storedContent;
             }
@@ -35,11 +35,7 @@ export default class CartWidgetPlugin extends Plugin {
     fetch() {
         this._client.get(window.router['widgets.checkout.info'], (response) => {
 
-            // try to persist the fetched template in the storage
-            if (this._storageExists) {
-                window.sessionStorage.setItem(CART_WIDGET_STORAGE_KEY, response);
-            }
-
+            Storage.setItem(CART_WIDGET_STORAGE_KEY, response);
             this.el.innerHTML = response;
         });
     }

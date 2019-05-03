@@ -1,4 +1,5 @@
 import DomAccess from 'src/script/helper/dom-access.helper';
+import Iterator from 'src/script/helper/iterator.helper';
 
 const ARROW_NAVIGATION_ACTIVE_CLASS = 'active';
 
@@ -66,10 +67,11 @@ export default class ArrowNavigationHelper {
         // handle bounds
         this._compromiseBounds();
 
-        const iterables = this._getIterables();
+        const parent = DomAccess.querySelector(document, this._parentSelector);
+        const items = parent.querySelectorAll(this._itemSelector);
 
         // remove all active classes
-        iterables.forEach((item) => item.classList.remove(ARROW_NAVIGATION_ACTIVE_CLASS));
+        Iterator.iterate(items, (item) => item.classList.remove(ARROW_NAVIGATION_ACTIVE_CLASS));
 
         // add active class to current iteration
         this._getCurrentSelection().classList.add(ARROW_NAVIGATION_ACTIVE_CLASS);
@@ -121,20 +123,6 @@ export default class ArrowNavigationHelper {
      */
     _itemsExist() {
         return (this._getIterables().length > 0);
-    }
-
-    /**
-     * Retrieve an arra of iterables
-     * @returns []
-     * @private
-     */
-    _getIterables() {
-        try {
-            const parent = DomAccess.querySelector(document, this._parentSelector);
-            return Array.from(parent.querySelectorAll(this._itemSelector));
-        } catch (e) {
-            return [];
-        }
     }
 
     /**

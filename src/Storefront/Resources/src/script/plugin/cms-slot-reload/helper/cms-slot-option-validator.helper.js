@@ -1,3 +1,5 @@
+import Iterator from 'src/script/helper/iterator.helper';
+
 export default class CmsSlotOptionValidatorHelper {
 
     /**
@@ -28,7 +30,7 @@ export default class CmsSlotOptionValidatorHelper {
             throw new Error('The "elements" option must be an object!');
         }
 
-        options.elements.forEach((selectors, elementId) => {
+        Iterator.iterate(options.elements, (selectors, elementId) => {
             if (!Array.isArray(selectors)) {
                 throw new Error(`The "elements" entry "${elementId}" must be an array of selectors!`);
             }

@@ -1,3 +1,5 @@
+import Iterator from 'src/script/helper/iterator.helper';
+
 const SELECTOR_CLASS = 'spinner-border';
 
 export default class LoadingIndicatorUtil {
@@ -25,7 +27,7 @@ export default class LoadingIndicatorUtil {
      */
     remove() {
         const indicators = this.parent.querySelectorAll(`.${SELECTOR_CLASS}`);
-        indicators.forEach(indicator => indicator.remove());
+        Iterator.iterate(indicators, indicator => indicator.remove());
     }
 
     /**

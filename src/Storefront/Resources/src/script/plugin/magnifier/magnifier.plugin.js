@@ -2,6 +2,7 @@ import Plugin from 'src/script/helper/plugin/plugin.class';
 import DomAccess from 'src/script/helper/dom-access.helper';
 import { Vector2 } from 'src/script/helper/vector.helper';
 import ViewportDetection from 'src/script/helper/viewport-detection.helper';
+import Iterator from 'src/script/helper/iterator.helper';
 
 /**
  * handles the magnifier lens functionality
@@ -65,8 +66,8 @@ export default class MagnifierPlugin extends Plugin {
     };
 
     init() {
-        this.imageContainers = DomAccess.querySelectorAll(this.el, this.options.imageContainerSelector);
-        this.zoomImageContainer = DomAccess.querySelector(document, this.options.zoomImageContainerSelector);
+        this._imageContainers = DomAccess.querySelectorAll(this.el, this.options.imageContainerSelector);
+        this._zoomImageContainer = DomAccess.querySelector(document, this.options.zoomImageContainerSelector);
 
         this._registerEvents();
     }
@@ -75,11 +76,11 @@ export default class MagnifierPlugin extends Plugin {
      * Registers all necessary event listeners.
      */
     _registerEvents() {
-        this.imageContainers.forEach(imageContainer => {
+        Iterator.iterate(this._imageContainers, imageContainer => {
             const image = DomAccess.querySelector(imageContainer, this.options.imageSelector);
             image.addEventListener('mousemove', (event) => this._onMouseMove(event, imageContainer, image), false);
             imageContainer.addEventListener('mouseout', (event) => this._stopMagnify(event), false);
-        })
+        });
     }
 
     /**
@@ -256,7 +257,7 @@ export default class MagnifierPlugin extends Plugin {
      */
     _removeOverlay() {
         const overlays = document.querySelectorAll(`.${this.options.overlayClass}`);
-        overlays.forEach(overlay => overlay.remove());
+        Iterator.iterate(overlays, overlay => overlay.remove());
     }
 
 
@@ -267,15 +268,15 @@ export default class MagnifierPlugin extends Plugin {
      * @private
      */
     _createZoomImage() {
-        this._zoomImage = this.zoomImageContainer.querySelector(`.${this.options.zoomImageClass}`);
+        this._zoomImage = this._zoomImageContainer.querySelector(`.${this.options.zoomImageClass}`);
 
         if (this._zoomImage) {
             return this._zoomImage;
         }
 
-        this.zoomImageContainer.style.position = 'relative';
+        this._zoomImageContainer.style.position = 'relative';
         const html = `<div class="magnifier-zoom-image  ${this.options.zoomImageClass}">&nbsp;</div>`;
-        this._zoomImage = this.zoomImageContainer.insertAdjacentHTML('beforeend', html);
+        this._zoomImage = this._zoomImageContainer.insertAdjacentHTML('beforeend', html);
 
         return this._zoomImage;
     }
@@ -288,7 +289,7 @@ export default class MagnifierPlugin extends Plugin {
      */
     _removeZoomImage() {
         const zoomImages = document.querySelectorAll(`.${this.options.zoomImageClass}`);
-        zoomImages.forEach(zoomImage => zoomImage.remove());
+        Iterator.iterate(zoomImages, zoomImage => zoomImage.remove());
     }
 
     /**
@@ -312,7 +313,7 @@ export default class MagnifierPlugin extends Plugin {
         this._removeOverlay();
 
         const images = DomAccess.querySelectorAll(document, this.options.imageSelector);
-        images.forEach(image => this._setCursor(image, 'default'));
+        Iterator.iterate(images, image => this._setCursor(image, 'default'));
     }
 
 }

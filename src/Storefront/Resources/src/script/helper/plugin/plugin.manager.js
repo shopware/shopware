@@ -2,6 +2,7 @@ import deepmerge from 'deepmerge';
 import PluginRegistry from 'src/script/helper/plugin/plugin.registry';
 import DomAccess from 'src/script/helper/dom-access.helper';
 import 'src/script/helper/plugin/plugin.config.manager';
+import Iterator from 'src/script/helper/iterator.helper';
 
 /**
  * this file handles the plugin functionality of shopware
@@ -199,8 +200,7 @@ class PluginManagerSingleton {
      * Starts all plugins which are currently registered.
      */
     executePlugins() {
-        const plugins = Object.keys(this.getPluginList());
-        plugins.forEach((pluginName) => {
+        Iterator.iterate(this.getPluginList(), (plugin, pluginName) => {
             if (pluginName) {
                 if (!this._registry.has(pluginName)) {
                     throw new Error(`The plugin "${pluginName}" is not registered.`);
@@ -208,7 +208,7 @@ class PluginManagerSingleton {
 
                 const plugin = this._registry.get(pluginName);
                 if (plugin.has('registrations')) {
-                    plugin.get('registrations').forEach(entry => {
+                    Iterator.iterate(plugin.get('registrations'), entry => {
                         this._executePlugin(plugin.get('class'), entry.selector, entry.options, plugin.get('name'));
                     });
                 }
@@ -259,7 +259,7 @@ class PluginManagerSingleton {
             selector = document.querySelectorAll(selector);
         }
 
-        return selector.forEach((el) => {
+        return Iterator.iterate(selector, el => {
             PluginManagerSingleton._executePluginOnElement(el, pluginClass, options, pluginName);
         });
     }

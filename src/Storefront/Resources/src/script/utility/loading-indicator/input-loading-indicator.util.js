@@ -1,4 +1,5 @@
 import LoadingIndicatorUtil from 'src/script/utility/loading-indicator/loading-indicator.util';
+import Iterator from 'src/script/helper/iterator.helper';
 
 export default class InputLoadingIndicatorUtil extends LoadingIndicatorUtil {
 
@@ -28,7 +29,7 @@ export default class InputLoadingIndicatorUtil extends LoadingIndicatorUtil {
      */
     remove() {
         const indicators = this.parent.parentNode.querySelectorAll(`.${LoadingIndicatorUtil.SELECTOR_CLASS()}`);
-        indicators.forEach(indicator => indicator.remove());
+        Iterator.iterate(indicators, indicator => indicator.remove());
     }
 
     /**

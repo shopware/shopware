@@ -2,6 +2,7 @@ import Plugin from 'src/script/helper/plugin/plugin.class';
 import CmsSlotReloadService from 'src/script/plugin/cms-slot-reload/service/cms-slot-reload.service';
 import FormSerializeUtil from 'src/script/utility/form/form-serialize.util';
 import CmsSlotOptionValidatorHelper from 'src/script/plugin/cms-slot-reload/helper/cms-slot-option-validator.helper';
+import Iterator from 'src/script/helper/iterator.helper';
 
 export default class CmsSlotReloadPlugin extends Plugin {
 
@@ -22,7 +23,7 @@ export default class CmsSlotReloadPlugin extends Plugin {
         }
 
         this._slotReloader = new CmsSlotReloadService();
-        this._prevData = FormSerializeUtil.serialize(this.el);
+        this._prevData = FormSerializeUtil.serializeJson(this.el);
         this._registerEvents();
     }
 
@@ -32,7 +33,7 @@ export default class CmsSlotReloadPlugin extends Plugin {
      * @private
      */
     _registerEvents() {
-        this.options.events.forEach(this._addReloadEvent.bind(this));
+        Iterator.iterate(this.options.events, this._addReloadEvent.bind(this));
     }
 
     /**
@@ -55,7 +56,7 @@ export default class CmsSlotReloadPlugin extends Plugin {
      */
     _reloadCmsSlot(event) {
         event.preventDefault();
-        const data = FormSerializeUtil.serialize(this.el);
+        const data = FormSerializeUtil.serializeJson(this.el);
         this._slotReloader.reload(this.options, data, this._prevData);
     }
 }

@@ -43,7 +43,7 @@ import FlyoutMenuPlugin from 'src/script/plugin/main-menu/flyout-menu.plugin';
 import OffcanvasMenuPlugin from 'src/script/plugin/main-menu/offcanvas-menu.plugin';
 import FormAutoSubmitPlugin from 'src/script/plugin/forms/form-auto-submit.plugin';
 import FormValidationPlugin from 'src/script/plugin/forms/form-validation.plugin';
-import FormSubmitLoaderPlugin from 'src/script/plugin/forms/from-submit-loader.plugin';
+import FormSubmitLoaderPlugin from 'src/script/plugin/forms/form-submit-loader.plugin';
 import FormFieldTogglePlugin from 'src/script/plugin/forms/form-field-toggle.plugin';
 import FromScrollToInvalidFieldPlugin from 'src/script/plugin/forms/form-scroll-to-invalid-field.plugin';
 import OffCanvasTabsPlugin from 'src/script/plugin/offcanvas-tabs/offcanvas-tabs.plugin';

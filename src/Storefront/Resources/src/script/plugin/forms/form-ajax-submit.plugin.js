@@ -1,18 +1,19 @@
 import Plugin from 'src/script/helper/plugin/plugin.class';
-import PageLoadingIndicatorUtil from 'src/script/utility/loading-indicator/page-loading-indicator.util';
 import FormSerializeUtil from 'src/script/utility/form/form-serialize.util';
 import HttpClient from 'src/script/service/http-client.service';
 import DomAccess from 'src/script/helper/dom-access.helper';
+import ElementLoadingIndicatorUtil from 'src/script/utility/loading-indicator/element-loading-indicator.util';
+
 
 /**
  * This plugin automatically submits a form,
  * when the element or the form itself has changed.
  */
-export default class FormAutoSubmitPlugin extends Plugin {
+export default class FormAjaxSubmitPlugin extends Plugin {
 
     static options = {
-        useAjax: false,
         ajaxContainerSelector: false,
+        loaderElement: false,
     };
 
     init() {
@@ -22,11 +23,15 @@ export default class FormAutoSubmitPlugin extends Plugin {
             throw new Error(`No form found for the plugin: ${this.constructor.name}`);
         }
 
-        if (this.options.useAjax) {
-            if (!this.options.ajaxContainerSelector) {
-                throw new Error('The option "ajaxContainerSelector" must ge given when using ajax.');
-            }
-            this._client = new HttpClient(window.accessKey, window.contextToken);
+        if (!this.options.ajaxContainerSelector) {
+            throw new Error('The option "ajaxContainerSelector" must ge given when using ajax.');
+        }
+
+        this._client = new HttpClient(window.accessKey, window.contextToken);
+
+        this._loaderElement = this._form;
+        if (this.options.loaderElement) {
+            this._loaderElement = DomAccess.querySelector(document, this.options.loaderElement);
         }
 
         this._registerEvents();
@@ -52,15 +57,9 @@ export default class FormAutoSubmitPlugin extends Plugin {
      * @private
      */
     _registerEvents() {
-        if (this.options.useAjax) {
-            const onSubmit = this._onSubmit.bind(this);
-            this._form.removeEventListener('change', onSubmit);
-            this._form.addEventListener('change', onSubmit);
-        } else {
-            const onChange = this._onChange.bind(this);
-            this._form.removeEventListener('change', onChange);
-            this._form.addEventListener('change', onChange);
-        }
+        const onSubmit = this._onSubmit.bind(this);
+        this._form.removeEventListener('submit', onSubmit);
+        this._form.addEventListener('submit', onSubmit);
     }
 
     /**
@@ -70,7 +69,7 @@ export default class FormAutoSubmitPlugin extends Plugin {
      */
     _onChange() {
         this._form.submit();
-        PageLoadingIndicatorUtil.create();
+        ElementLoadingIndicatorUtil.create(this._form);
     }
 
     /**
@@ -82,7 +81,7 @@ export default class FormAutoSubmitPlugin extends Plugin {
      */
     _onSubmit(event) {
         event.preventDefault();
-        PageLoadingIndicatorUtil.create();
+        ElementLoadingIndicatorUtil.create(this._loaderElement);
         const data = FormSerializeUtil.serialize(this._form);
         const action = DomAccess.getAttribute(this._form, 'action');
 
@@ -98,9 +97,9 @@ export default class FormAutoSubmitPlugin extends Plugin {
      * @private
      */
     _onAfterAjaxSubmit(response) {
-        PageLoadingIndicatorUtil.remove();
-        const replaceContainer = DomAccess.querySelector(document, this.options.ajaxContainerSelector);
-        replaceContainer.innerHTML = response;
+        ElementLoadingIndicatorUtil.remove(this._loaderElement);
+        const container = DomAccess.querySelector(document, this.options.ajaxContainerSelector);
+        container.innerHTML = response;
         window.PluginManager.executePlugins();
     }
 

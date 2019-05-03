@@ -1,5 +1,6 @@
 import DeviceDetection from 'src/script/helper/device-detection.helper';
 import Backdrop, { BACKDROP_EVENT } from 'src/script/utility/backdrop/backdrop.util';
+import Iterator from 'src/script/helper/iterator.helper';
 
 const OFF_CANVAS_CLASS = 'js-offcanvas';
 const OFF_CANVAS_OPEN_CLASS = 'is-open';
@@ -68,7 +69,8 @@ class OffCanvasSingleton {
      */
     close(delay) {
         // remove open class to make any css animation effects possible
-        this.getOffCanvas().forEach(backdrop => backdrop.classList.remove(OFF_CANVAS_OPEN_CLASS));
+        const OffCanvasElements = this.getOffCanvas();
+        Iterator.iterate(OffCanvasElements, backdrop => backdrop.classList.remove(OFF_CANVAS_OPEN_CLASS));
 
         // wait before removing backdrop to let css animation effects take place
         setTimeout(this._removeExistingOffCanvas.bind(this), delay);
@@ -125,10 +127,7 @@ class OffCanvasSingleton {
         }
 
         const closeTriggers = document.querySelectorAll(`.${OFF_CANVAS_CLOSE_TRIGGER_CLASS}`);
-
-        closeTriggers.forEach((trigger) => {
-            trigger.addEventListener(event, this.close.bind(this, delay));
-        });
+        Iterator.iterate(closeTriggers, trigger => trigger.addEventListener(event, this.close.bind(this, delay)));
     }
 
     /**
@@ -136,7 +135,8 @@ class OffCanvasSingleton {
      * @private
      */
     _removeExistingOffCanvas() {
-        this.getOffCanvas().forEach(offCanvas => offCanvas.remove());
+        const offCanvasELements = this.getOffCanvas();
+        Iterator.iterate(offCanvasELements, offCanvas => offCanvas.remove());
     }
 
     /**

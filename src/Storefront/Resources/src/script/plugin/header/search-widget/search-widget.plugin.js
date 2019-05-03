@@ -5,6 +5,7 @@ import HttpClient from 'src/script/service/http-client.service';
 import InputLoadingIndicator from 'src/script/utility/loading-indicator/input-loading-indicator.util';
 import DeviceDetection from 'src/script/helper/device-detection.helper';
 import ArrowNavigationHelper from 'src/script/plugin/header/search-widget/helper/arrow-navigation.helper';
+import Iterator from 'src/script/helper/iterator.helper';
 
 const SEARCH_WIDGET_SELECTOR = '.js-search-form';
 const SEARCH_WIDGET_RESULTS_SELECTOR = '.js-search-result';
@@ -32,7 +33,7 @@ export default class SearchWidgetPlugin extends Plugin {
             this._inputField,
             SEARCH_WIDGET_RESULTS_SELECTOR,
             SEARCH_WIDGET_RESULT_ITEM_SELECTOR,
-            true
+            true,
         );
 
         this._registerEvents();
@@ -49,8 +50,8 @@ export default class SearchWidgetPlugin extends Plugin {
             Debouncer.debounce(this._handleInputEvent.bind(this), SEARCH_WIDGET_DELAY),
             {
                 capture: true,
-                passive: true
-            }
+                passive: true,
+            },
         );
 
         // add click event listener to body
@@ -110,7 +111,7 @@ export default class SearchWidgetPlugin extends Plugin {
 
         // remove all result popovers
         const results = document.querySelectorAll(SEARCH_WIDGET_RESULTS_SELECTOR);
-        results.forEach(result => result.remove());
+        Iterator.iterate(results, result => result.remove());
     }
 
     /**

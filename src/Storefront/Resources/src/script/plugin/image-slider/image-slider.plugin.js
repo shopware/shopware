@@ -3,6 +3,7 @@ import { tns } from 'tiny-slider/src/tiny-slider.module';
 import ViewportDetection from 'src/script/helper/viewport-detection.helper';
 import SliderSettingsHelper from 'src/script/plugin/image-slider/helper/image-slider-settings.helper';
 import PluginManager from 'src/script/helper/plugin/plugin.manager';
+import Iterator from 'src/script/helper/iterator.helper';
 
 /**
  *
@@ -273,7 +274,7 @@ export default class ImageSliderPlugin extends Plugin {
         const currentIndex = (index) ? index : thumbnailSliderInfo.index;
         const activeClass = 'tns-nav-active';
 
-        Object.values(thumbnailSlides).forEach((slide) => slide.classList.remove(activeClass));
+        Iterator.iterate(thumbnailSlides, slide => slide.classList.remove(activeClass));
         thumbnailSlides[currentIndex].classList.add(activeClass);
     }
 

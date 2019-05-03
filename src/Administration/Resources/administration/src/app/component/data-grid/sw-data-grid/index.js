@@ -113,6 +113,7 @@ export default {
 
     data() {
         return {
+            records: this.dataSource,
             currentSortBy: this.sortBy,
             currentSortDirection: this.sortDirection,
             loading: this.isLoading,
@@ -151,9 +152,9 @@ export default {
             return `${this.identifier}-grid-columns`;
         },
 
-        records() {
-            const isArray = Array.isArray(this.dataSource);
-            return isArray ? this.dataSource : Object.values(this.dataSource);
+        recordArray() {
+            const isArray = Array.isArray(this.records);
+            return isArray ? this.dataSource : Object.values(this.records);
         }
     },
 
@@ -172,6 +173,10 @@ export default {
 
         isLoading() {
             this.loading = this.isLoading;
+        },
+
+        dataSource() {
+            this.records = this.dataSource;
         }
     },
 

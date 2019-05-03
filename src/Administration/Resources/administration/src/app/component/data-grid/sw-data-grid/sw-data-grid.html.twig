@@ -121,7 +121,7 @@
                             <tbody v-if="!loading" class="sw-data-grid__body">
 
                                 {% block sw_data_grid_body_row %}
-                                    <tr v-for="(item, itemIndex) in records"
+                                    <tr v-for="(item, itemIndex) in recordArray"
                                         class="sw-data-grid__row"
                                         :class="getRowClasses(item, itemIndex)"
                                         :key="item.id">

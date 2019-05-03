@@ -14,7 +14,7 @@
                 @order-changed="saveAndReloadVersionedOrder"
                 @error="$emit('sw-order-detail-base-error',$event)">
                 {% block  sw_order_detail_base_overview_status_change %}
-                    <sw-container v-if="next1567 && !isEditing"
+                    <sw-container v-if="!isEditing"
                         slot="additional-actions"
                         columns="minmax(min-content, 1fr) minmax(min-content, 1fr) 1fr"
                         gap="0 15px">
@@ -112,7 +112,7 @@
             </sw-card>
         {% endblock %}
         {% block sw_order_detail_base_status_card %}
-            <sw-order-state-history-card v-if="next1567 && hasAssociations &&!isEditing"
+            <sw-order-state-history-card v-if="hasAssociations &&!isEditing"
                 :title="$tc('sw-order.stateCard.cardTitle')"
                 :isLoading="isLoading"
                 :order="currentOrder"

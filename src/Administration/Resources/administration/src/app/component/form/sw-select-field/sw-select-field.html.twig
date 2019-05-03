@@ -1,7 +1,6 @@
 <sw-block-field class="sw-field--select" :class="swFieldSelectClasses" v-bind="$attrs" :name="formFieldName">
     <template #sw-field-input="{ identification, helpText, error, disabled, swBlockSize, setFocusClass, removeFocusClass }">
-        <select v-if="($slots.default && $slots.default.length > 0) || (options && options.length > 0)"
-                :name="identification"
+        <select :name="identification"
                 :id="identification"
                 :class="{ 'is--placeholder': currentValue === null }"
                 :disabled="disabled"
@@ -10,27 +9,25 @@
                 @focus="setFocusClass"
                 @blur="removeFocusClass">
 
-            <option v-if="placeholder" class="sw-field__placeholder-option" :value="null">{{ placeholder }}</option>
+            <option v-if="placeholder" class=sw-field--select__placeholder-option :value="null">{{ placeholder }}</option>
 
-            <template v-if="options && options.length">
-                <option v-for="option in options"
-                        :value="option.id"
-                        :disabled="disabled || option.disabled">
-                    {{ getOptionName(option.name) }}
-                </option>
-            </template>
-
-            <template v-else>
-                <slot></slot>
-            </template>
+            <slot>
+                <template v-if="options && options.length">
+                    <option v-for="option in options"
+                            :value="option.id"
+                            :disabled="disabled || option.disabled">
+                        {{ getOptionName(option.name) }}
+                    </option>
+                </template>
+            </slot>
         </select>
 
-        <div class="sw-field__select-load-placeholder" v-else>
-            <sw-loader size="20px"></sw-loader>
-        </div>
+        <sw-loader v-if="!$slots.default && !hasOptions"
+                   class="sw-field--select__loader"
+                   size="20px">
+        </sw-loader>
 
         <div class="sw-field--select__options">
-            <sw-help-text v-if="helpText" :text="helpText"></sw-help-text>
             <sw-icon name="small-arrow-medium-down" small decorative></sw-icon>
         </div>
     </template>

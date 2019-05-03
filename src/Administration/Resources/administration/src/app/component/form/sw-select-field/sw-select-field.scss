@@ -37,7 +37,7 @@ $sw-select-field-color-error: $color-crimson;
         }
     }
 
-    .sw-field__placeholder-option {
+    .sw-field--select__placeholder-option {
         color: lighten($sw-select-field-color-text, 25);
     }
 
@@ -65,9 +65,9 @@ $sw-select-field-color-error: $color-crimson;
         appearance: none;
         user-select: none;
         position: relative;
+    }
 
-        .sw-loader {
-            background: none;
-        }
+    .sw-field--select__loader {
+        background: none;
     }
 }

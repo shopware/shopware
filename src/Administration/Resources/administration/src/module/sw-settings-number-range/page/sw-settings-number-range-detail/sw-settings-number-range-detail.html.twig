@@ -76,7 +76,7 @@
                             {% block sw_settings_number_range_detail_content_field_start %}
                                 <sw-field type="number"
                                           numberType="int"
-                                          @input="onChange()"
+                                          @change="onChange()"
                                           :label="$tc('sw-settings-number-range.detail.labelStart')"
                                           :placeholder="$tc('sw-settings-number-range.detail.placeholderStart')"
                                           v-model="numberRange.start">

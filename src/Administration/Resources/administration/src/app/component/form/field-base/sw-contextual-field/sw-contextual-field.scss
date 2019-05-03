@@ -1,13 +1,6 @@
 @import "~scss/variables";
 
-$sw-field-color-error: $color-crimson;
-$sw-field-suffix-background: $color-iron;
-$sw-field-border-radius: $border-radius-default;
-$sw-field-color-border: $color-steam-cloud;
-$sw-field-font-size: 14px;
-$sw-field-color-text: $color-gutenberg;
 $sw-field-transition: border-color 0.3s ease-out;
-$sw-field-color-disabled-addition: $color-light-gray;
 
 .sw-contextual-field {
     .sw-block-field__block {
@@ -18,14 +11,14 @@ $sw-field-color-disabled-addition: $color-light-gray;
         display: flex;
         min-width: 50px;
         flex-shrink: 0;
-        background: $sw-field-suffix-background;
-        border-left: 1px solid $sw-field-color-border;
+        background: $color-iron;
+        border-left: 1px solid $color-steam-cloud;
         border-right: none;
         line-height: 22px;
         text-align: center;
         padding: 12px 15px;
-        font-size: $sw-field-font-size;
-        color: $sw-field-color-text;
+        font-size: $font-size-small;
+        color: $color-gutenberg;
         transition: $sw-field-transition;
 
         .sw-icon {
@@ -35,14 +28,14 @@ $sw-field-color-disabled-addition: $color-light-gray;
         }
 
         &.is--prefix {
-            border-right: 1px solid $sw-field-color-border;
+            border-right: 1px solid $color-steam-cloud;
             border-left: none
         }
     }
 
     &.is--disabled {
         .sw-field__addition {
-            background: $sw-field-color-disabled-addition;
+            background: $color-light-gray;
         }
     }
 

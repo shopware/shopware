@@ -1,23 +1,13 @@
 @import "~scss/variables";
 
-$sw-field-border-radius: $border-radius-default;
-$sw-field-color-border: $color-steam-cloud;
-$sw-field-color-background: $color-white;
-$sw-field-color-text: $color-gutenberg;
-$sw-field-color-placeholder: lighten($sw-field-color-text, 25%);
-$sw-field-color-focus: $color-shopware-blue;
-$sw-field-font-size: $font-size-default;
-$sw-field-font-family: $font-family-default;
 $sw-field-transition: border-color 0.3s ease-out;
-$sw-field-color-inherited: $color-purple;
-$sw-field-color-error: $color-crimson;
 
 
 .sw-block-field {
 
     .sw-block-field__block {
-        border: 1px solid $sw-field-color-border;
-        border-radius: $sw-field-border-radius;
+        border: 1px solid $color-steam-cloud;
+        border-radius: $border-radius-default;
         overflow: hidden;
     }
 
@@ -28,12 +18,12 @@ $sw-field-color-error: $color-crimson;
         width: 100%;
         padding: 12px 16px;
         border: none;
-        background: $sw-field-color-background;
-        font-size: $sw-field-font-size;
-        font-family: $sw-field-font-family;
+        background: $color-white;
+        font-size: $font-size-small;
+        font-family: $font-family-default;
         line-height: 22px;
         transition: $sw-field-transition;
-        color: $sw-field-color-text;
+        color: $color-gutenberg;
         outline: none;
         -webkit-appearance: none;
         -moz-appearance: none;
@@ -51,33 +41,33 @@ $sw-field-color-error: $color-crimson;
         }
 
         &::placeholder {
-            color: $sw-field-color-placeholder;
+            color: lighten($color-gutenberg, 25%);
         }
     }
 
     &.has--focus {
         .sw-block-field__block {
-            border-color: $sw-field-color-focus;
-            box-shadow: 0 0 4px lighten($sw-field-color-focus, 30%);
+            border-color: $color-shopware-blue;
+            box-shadow: 0 0 4px lighten($color-shopware-blue, 30%);
         }
     }
 
     &.is--inherited {
         .sw-block-field__block {
-            border-color: $sw-field-color-inherited;
-            box-shadow: 0 0 4px lighten($sw-field-color-inherited, 30%);
+            border-color: $color-purple;
+            box-shadow: 0 0 4px lighten($color-purple, 30%);
         }
     }
 
     &.has--error {
         .sw-block-field__block {
-            border-color: $sw-field-color-error;
+            border-color: $color-crimson;
         }
     }
 
     &.has--error.has--focus {
         .sw-block-field__block {
-            box-shadow: 0 0 4px lighten($sw-field-color-error, 30%);
+            box-shadow: 0 0 4px lighten($color-crimson, 30%);
         }
     }
 

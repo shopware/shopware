@@ -115,7 +115,7 @@ class EntityHydrator
             }
 
             if ($typedField instanceof CustomFields) {
-                $this->hydrateAttributes($root, $field, $typedField, $entity, $row, $context);
+                $this->hydrateCustomFields($root, $field, $typedField, $entity, $row, $context);
                 continue;
             }
 
@@ -228,7 +228,7 @@ class EntityHydrator
         );
     }
 
-    private function hydrateAttributes(string $root, Field $field, CustomFields $customField, Entity $entity, array $row, Context $context): void
+    private function hydrateCustomFields(string $root, Field $field, CustomFields $customField, Entity $entity, array $row, Context $context): void
     {
         $inherited = $field->is(Inherited::class) && $context->considerInheritance();
 
@@ -239,9 +239,9 @@ class EntityHydrator
         $value = $row[$key];
 
         if ($field instanceof TranslatedField) {
-            $entity->assign([
-                $propertyName => $customField->getSerializer()->decode($customField, $value),
-            ]);
+            $key = $root . '.translation.' . $propertyName;
+            $decoded = $customField->getSerializer()->decode($customField, $row[$key]);
+            $entity->assign([$propertyName => $decoded]);
 
             $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $context, $inherited);
 

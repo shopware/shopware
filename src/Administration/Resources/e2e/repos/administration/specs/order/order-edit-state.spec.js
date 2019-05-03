@@ -2,7 +2,6 @@ const orderPage = require('administration/page-objects/module/sw-order.page-obje
 
 module.exports = {
     '@tags': ['order', 'order-edit-state', 'edit', 'state', 'order-state'],
-    '@disabled': !global.flags.isActive('next1567'),
     before: (browser, done) => {
         return global.ProductFixtureService.setProductFixture().then((result) => {
             return global.OrderFixtureService.createGuestOrder(result);

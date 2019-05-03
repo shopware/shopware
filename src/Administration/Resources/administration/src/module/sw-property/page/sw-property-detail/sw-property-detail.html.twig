@@ -21,9 +21,16 @@
             {% endblock %}
 
             {% block sw_property_detail_smart_bar_actions_save %}
-                <sw-button variant="primary" class="sw-property-detail__save-action" :disabled="group.isLoading" @click.prevent="onSave">
-                    {{ $tc('sw-property.detail.buttonSave') }}
-                </sw-button>
+            <sw-button-process
+                    class="sw-property-detail__save-action"
+                    :isLoading="isLoading"
+                    :processSuccess="isSaveSuccessful"
+                    :disabled="group.isLoading"
+                    variant="primary"
+                    @process-finish="saveFinish"
+                    @click.prevent="onSave">
+                {{ $tc('sw-property.detail.buttonSave') }}
+            </sw-button-process>
             {% endblock %}
         </template>
     {% endblock %}

@@ -16,7 +16,7 @@ module.exports = {
         browser
             .openMainMenuEntry({
                 targetPath: '#/sw/property/index',
-                mainMenuId: 'sw-product',
+                mainMenuId: 'sw-catalogue',
                 subMenuId: 'sw-property'
             })
             .expect.element(`${page.elements.gridRow}--0 a`).to.have.text.that.equals('Color');
@@ -39,7 +39,7 @@ module.exports = {
             })
             .waitForElementVisible(`${page.elements.gridRow}--0.is--deleted`)
             .click(page.elements.propertySaveAction)
-            .checkNotification('Property "Color" has been saved successfully.')
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium')
             .waitForElementNotPresent(`${page.elements.gridRow}--2`);
     },
     'delete property in listing': (browser) => {

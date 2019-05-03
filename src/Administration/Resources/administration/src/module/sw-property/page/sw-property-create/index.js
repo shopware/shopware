@@ -19,10 +19,13 @@ Component.extend('sw-property-create', 'sw-property-detail', {
             this.groupId = this.group.id;
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+            this.$router.push({ name: 'sw.property.detail', params: { id: this.groupId } });
+        },
+
         onSave() {
-            this.$super.onSave().then(() => {
-                this.$router.push({ name: 'sw.property.detail', params: { id: this.groupId } });
-            });
+            this.$super.onSave();
         }
     }
 });

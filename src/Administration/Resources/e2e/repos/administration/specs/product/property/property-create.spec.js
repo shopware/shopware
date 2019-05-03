@@ -9,7 +9,7 @@ module.exports = {
         browser
             .openMainMenuEntry({
                 targetPath: '#/sw/property/index',
-                mainMenuId: 'sw-product',
+                mainMenuId: 'sw-catalogue',
                 subMenuId: 'sw-property'
             })
             .expect.element(page.elements.smartBarAmount).to.have.text.that.equals('(0)');
@@ -26,7 +26,7 @@ module.exports = {
             .fillField('input[name=sw-field--group-name]', 'Coleur')
             .fillSelectField('select[name=sw-field--group-displayType]', 'Color')
             .click(page.elements.propertySaveAction)
-            .checkNotification('Property "Coleur" has been saved successfully.');
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium');
     },
     'verify property in listing': (browser) => {
         const page = propertyPage(browser);
@@ -55,8 +55,9 @@ module.exports = {
             .fillField('input[name=sw-field--currentOption-colorHexCode]', '#000088')
             .click(`${page.elements.modal} ${page.elements.primaryButton}`)
             .waitForElementNotPresent(page.elements.modal)
+            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .click(page.elements.propertySaveAction)
-            .checkNotification('Property "Coleur" has been saved successfully.');
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium');
     },
     'verify new options in listing': (browser) => {
         const page = propertyPage(browser);

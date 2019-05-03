@@ -32,10 +32,13 @@ Component.extend('sw-product-stream-create', 'sw-product-stream-detail', {
             this.$super.createdComponent();
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+            this.$router.push({ name: 'sw.product.stream.detail', params: { id: this.productStream.id } });
+        },
+
         onSave() {
-            this.$super.onSave().then(() => {
-                this.$router.push({ name: 'sw.product.stream.detail', params: { id: this.productStream.id } });
-            });
+            this.$super.onSave();
         }
     }
 });

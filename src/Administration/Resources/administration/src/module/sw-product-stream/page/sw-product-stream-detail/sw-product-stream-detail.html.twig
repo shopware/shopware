@@ -17,9 +17,16 @@
                 {% endblock %}
 
                 {% block sw_product_stream_detail_actions_save %}
-                    <sw-button class="sw-product-stream-detail__save-action" variant="primary" :disabled="productStream.isLoading" @click.prevent="onSave">
-                        {{ $tc('sw-product-stream.detail.buttonSave') }}
-                    </sw-button>
+                <sw-button-process
+                        class="sw-product-stream-detail__save-action"
+                        :isLoading="isSaveLoading"
+                        :processSuccess="isSaveSuccessful"
+                        :disabled="productStream.isLoading"
+                        variant="primary"
+                        @process-finish="saveFinish"
+                        @click.prevent="onSave">
+                    {{ $tc('sw-product-stream.detail.buttonSave') }}
+                </sw-button-process>
                 {% endblock %}
             </template>
         {% endblock %}

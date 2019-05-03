@@ -46,6 +46,8 @@ class AccountAddressListPageLoader implements PageLoaderInterface
             $this->accountAddressPageletLoader->load($request, $context)
         );
 
+        $page->setCustomer($context->getCustomer());
+
         $this->eventDispatcher->dispatch(
             AccountAddressListPageLoadedEvent::NAME,
             new AccountAddressListPageLoadedEvent($page, $context, $request)

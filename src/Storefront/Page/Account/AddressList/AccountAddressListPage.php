@@ -2,11 +2,17 @@
 
 namespace Shopware\Storefront\Page\Account\AddressList;
 
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Storefront\Framework\Page\PageWithHeader;
 
 class AccountAddressListPage extends PageWithHeader
 {
+    /**
+     * @var CustomerEntity|null
+     */
+    protected $customer;
+
     /**
      * @var EntitySearchResult
      */
@@ -20,5 +26,15 @@ class AccountAddressListPage extends PageWithHeader
     public function setAddresses(EntitySearchResult $addresses): void
     {
         $this->addresses = $addresses;
+    }
+
+    public function setCustomer(CustomerEntity $customer)
+    {
+        $this->customer = $customer;
+    }
+
+    public function getCustomer(): ?CustomerEntity
+    {
+        return $this->customer;
     }
 }

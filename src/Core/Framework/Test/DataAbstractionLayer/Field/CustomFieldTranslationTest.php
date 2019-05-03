@@ -75,6 +75,7 @@ class CustomFieldTranslationTest extends TestCase
 
     public function testRawIsNotInherited(): void
     {
+        $this->addCustomFields(['root' => CustomFieldTypes::TEXT]);
         $id = 'c724803ea1cc4e72abc264a1020000bf';
         $entity = [
             'id' => $id,
@@ -82,9 +83,7 @@ class CustomFieldTranslationTest extends TestCase
             'translations' => [
                 'en-GB' => [
                     'customTranslated' => [
-                        'code' => 'en-GB',
-                        'system' => 'system',
-                        'root' => true,
+                        'root' => 'test',
                     ],
                 ],
                 'de-DE' => [

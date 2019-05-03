@@ -10,8 +10,8 @@
          @keydown.down.prevent="navigateDownResults">
 
         {% block sw_single_select_label %}
-            <label v-if="getInlineSnippet(label)" :for="selectId" class="sw-single-select__label">
-                {{ getInlineSnippet(label) }}
+            <label v-if="label" :for="selectId" class="sw-single-select__label">
+                {{ label }}
             </label>
         {% endblock %}
 
@@ -23,14 +23,14 @@
                         <slot v-if="singleSelection !== null" name="selected_option" :item="singleSelection">
                             {% block sw_single_select_single_selection_slot_label %}
                                 <slot name="labelProperty" :item="singleSelection">
-                                    {{ getInlineSnippet(singleSelection[labelProperty]) }}
+                                    {{ singleSelection[labelProperty] }}
                                 </slot>
                             {% endblock %}
                         </slot>
 
                         <span v-else-if="!isExpanded"
                               class="sw-single-select__searchPlaceholder">
-                            {{ getInlineSnippet(searchPlaceholder) }}
+                            {{ searchPlaceholder }}
                         </span>
                     {% endblock %}
                 </div>
@@ -42,9 +42,9 @@
                         {% endblock %}
 
                         {% block sw_single_select_indicators_helptext %}
-                            <sw-help-text v-if="getInlineSnippet(helpText)"
+                            <sw-help-text v-if="helpText"
                                           class="sw-single-select__indicator"
-                                          :text="getInlineSnippet(helpText)">
+                                          :text="helpText">
                             </sw-help-text>
                         {% endblock %}
 
@@ -67,7 +67,7 @@
                                         <input ref="swSelectInput"
                                                class="sw-single-select__input-single"
                                                type="text"
-                                               :placeholder="getInlineSnippet(searchPlaceholder)"
+                                               :placeholder="searchPlaceholder"
                                                v-model="searchTerm"
                                                @input="search">
                                         <sw-icon name="small-search" small></sw-icon>
@@ -91,7 +91,7 @@
                                                                          :index="index"
                                                                          :item="item">
                                                                     <slot name="labelProperty">
-                                                                        <span v-html="$sanitize(getInlineSnippet(item[labelProperty]))"></span>
+                                                                        <span v-html="$sanitize(item[labelProperty])"></span>
                                                                     </slot>
                                                                  </sw-single-select-option>
                                                              {% endblock %}

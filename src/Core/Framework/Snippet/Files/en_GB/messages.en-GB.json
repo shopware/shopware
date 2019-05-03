@@ -238,6 +238,8 @@
         "confirmTermsHeader": "Terms, conditions and cancellation policy",
         "confirmRevocationNotice": "Terms, conditions and cancellation policy.",
         "confirmTerms": "I have read and accepted the <a href='#' title='General terms and conditions'>General terms and conditions</a> of your shop.",
+        "confirmPaymentMethod": "Payment method:",
+        "confirmDispatchMethod": "Shipping type:",
         "finishHeader": "Thank you for your order with %shop%!",
         "finishInfoHeader": "Information",
         "finishInfoOrdernumber": "Order number: ",

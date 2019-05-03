@@ -24,10 +24,16 @@ class CustomerLogoutEvent extends Event implements BusinessEventInterface
      */
     private $context;
 
-    public function __construct(Context $context, CustomerEntity $customer)
+    /**
+     * @var string
+     */
+    private $salesChannelId;
+
+    public function __construct(Context $context, CustomerEntity $customer, string $salesChannelId)
     {
         $this->customer = $customer;
         $this->context = $context;
+        $this->salesChannelId = $salesChannelId;
     }
 
     public function getName(): string
@@ -49,5 +55,10 @@ class CustomerLogoutEvent extends Event implements BusinessEventInterface
     {
         return (new EventDataCollection())
             ->add('customer', new EntityType(CustomerDefinition::class));
+    }
+
+    public function getSalesChannelId(): string
+    {
+        return $this->salesChannelId;
     }
 }

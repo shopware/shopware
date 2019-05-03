@@ -23,7 +23,6 @@ use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator;
 use Shopware\Core\Checkout\Document\FileGenerator\PdfGenerator;
 use Shopware\Core\Checkout\Document\GeneratedDocument;
-use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
@@ -191,14 +190,9 @@ class InvoiceServiceTest extends TestCase
 
     private function persistCart(Cart $cart): string
     {
-        $events = $this->getContainer()->get(OrderPersister::class)->persist($cart, $this->salesChannelContext);
-        $orderIds = $events->getEventByDefinition(OrderDefinition::class)->getIds();
+        $orderId = $this->getContainer()->get(OrderPersister::class)->persist($cart, $this->salesChannelContext);
 
-        if (count($orderIds) !== 1) {
-            static::fail('Order could not be persisted');
-        }
-
-        return $orderIds[0];
+        return $orderId;
     }
 
     private function createCustomer(): string

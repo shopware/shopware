@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\MailTemplate\Service;
 
-use Shopware\Core\Content\MailTemplate\Exception\SalesChannelMissingEmail;
 use Shopware\Core\Content\MailTemplate\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\Context;
@@ -86,7 +85,7 @@ class MailService
         $this->systemConfigService = $systemConfigService;
     }
 
-    public function send(array $data, Context $context, array $templateData = []): \Swift_Message
+    public function send(array $data, Context $context, array $templateData = []): ?\Swift_Message
     {
         $definition = $this->getValidationDefinition($context);
         $this->dataValidator->validate($data, $definition);
@@ -105,7 +104,8 @@ class MailService
         $senderEmail = $this->systemConfigService->get('core.basicInformation.email', $salesChannelId);
 
         if ($senderEmail === null) {
-            throw new SalesChannelMissingEmail($salesChannelId);
+            // todo Create log entry, but do not throw exception
+            return null;
         }
 
         $bodies = [

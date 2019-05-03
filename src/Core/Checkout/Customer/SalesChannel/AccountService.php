@@ -281,7 +281,7 @@ class AccountService
             ]
         );
 
-        $event = new CustomerLoginEvent($context->getContext(), $customer, $newToken);
+        $event = new CustomerLoginEvent($context->getContext(), $customer, $newToken, $context->getSalesChannel()->getId());
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $newToken;
@@ -324,7 +324,7 @@ class AccountService
             ],
         ], $context->getContext());
 
-        $event = new CustomerLoginEvent($context->getContext(), $customer, $newToken);
+        $event = new CustomerLoginEvent($context->getContext(), $customer, $newToken, $context->getSalesChannel()->getId());
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $newToken;
@@ -341,7 +341,7 @@ class AccountService
             ]
         );
 
-        $event = new CustomerLogoutEvent($context->getContext(), $context->getCustomer());
+        $event = new CustomerLogoutEvent($context->getContext(), $context->getCustomer(), $context->getSalesChannel()->getId());
         $this->eventDispatcher->dispatch($event->getName(), $event);
     }
 
@@ -359,18 +359,18 @@ class AccountService
      * @throws InvalidUuidException
      * @throws UnknownPaymentMethodException
      */
-    public function changeDefaultPaymentMethod(string $paymentMethodId, RequestDataBag $requestDataBag, CustomerEntity $customer, Context $context): void
+    public function changeDefaultPaymentMethod(string $paymentMethodId, RequestDataBag $requestDataBag, CustomerEntity $customer, SalesChannelContext $context): void
     {
-        $this->validatePaymentMethodId($paymentMethodId, $context);
+        $this->validatePaymentMethodId($paymentMethodId, $context->getContext());
 
         $this->customerRepository->update([
             [
                 'id' => $customer->getId(),
                 'defaultPaymentMethodId' => $paymentMethodId,
             ],
-        ], $context);
+        ], $context->getContext());
 
-        $event = new CustomerChangedPaymentMethodEvent($context, $customer, $requestDataBag);
+        $event = new CustomerChangedPaymentMethodEvent($context->getContext(), $customer, $requestDataBag, $context->getSalesChannel()->getId());
         $this->eventDispatcher->dispatch($event->getName(), $event);
     }
 

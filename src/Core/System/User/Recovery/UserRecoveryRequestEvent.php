@@ -3,14 +3,13 @@
 namespace Shopware\Core\System\User\Recovery;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryDefinition;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 use Symfony\Component\EventDispatcher\Event;
 
-class UserRecoveryRequestEvent extends Event implements BusinessEventInterface
+class UserRecoveryRequestEvent extends Event
 {
     public const EVENT_NAME = 'user.recovery.request.event';
 

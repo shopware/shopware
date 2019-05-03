@@ -78,7 +78,7 @@ class Migration1556526052MailEvents extends MigrationStep
                 'event_name' => OrderPlacedEvent::EVENT_NAME,
                 'action_name' => MailSendSubscriber::ACTION_NAME,
                 'config' => json_encode([
-                    'mail_template_id' => Uuid::fromBytesToHex($orderCofirmationTemplateId),
+                    'mail_template_type_id' => Uuid::fromBytesToHex($mailTemplateTypeMapping[MailTemplateTypes::MAILTYPE_ORDER_CONFIRM]),
                 ]),
                 'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
             ]

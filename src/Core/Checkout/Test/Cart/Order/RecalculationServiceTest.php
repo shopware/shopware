@@ -933,17 +933,13 @@ class RecalculationServiceTest extends TestCase
 
     private function persistCart(Cart $cart): array
     {
-        $events = $this->getContainer()->get(OrderPersister::class)->persist($cart, $this->salesChannelContext);
-        $orderIds = $events->getEventByDefinition(OrderDefinition::class)->getIds();
+        $orderId = $this->getContainer()->get(OrderPersister::class)->persist($cart, $this->salesChannelContext);
 
-        /** @var CartPrice $writtenPrice */
-        $writtenPrice = $events->getEventByDefinition(OrderDefinition::class)->getPayloads()[0]['price'];
+        $criteria = new Criteria([$orderId]);
+        /** @var OrderEntity $order */
+        $order = $this->getContainer()->get('order.repository')->search($criteria, $this->salesChannelContext->getContext())->get($orderId);
 
-        if (count($orderIds) !== 1) {
-            static::fail('Order could not be persisted');
-        }
-
-        return ['orderId' => $orderIds[0], 'total' => $writtenPrice->getTotalPrice()];
+        return ['orderId' => $orderId, 'total' => $order->getPrice()->getTotalPrice()];
     }
 
     private function createVersionedOrder(string $orderId): string

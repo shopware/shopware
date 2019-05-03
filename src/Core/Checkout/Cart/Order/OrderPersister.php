@@ -71,8 +71,8 @@ class OrderPersister implements OrderPersisterInterface
         $criteria->addAssociation('transactions');
         $criteria->addAssociation('addresses');
 
-        $orderEntity = $this->orderRepository->search($criteria, $context->getContext())->get($order['id']);
-        $orderPlacedEvent = new OrderPlacedEvent($context->getContext(), $orderEntity);
+        $orderEntity = $this->orderRepository->search($criteria, $context->getContext())->first();
+        $orderPlacedEvent = new OrderPlacedEvent($context->getContext(), $orderEntity, $context->getSalesChannel()->getId());
 
         $this->eventDispatcher->dispatch(OrderPlacedEvent::EVENT_NAME, $orderPlacedEvent);
 

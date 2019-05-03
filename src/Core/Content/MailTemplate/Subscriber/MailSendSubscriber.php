@@ -2,11 +2,12 @@
 
 namespace Shopware\Core\Content\MailTemplate\Subscriber;
 
+use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Service\MailService;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EventDataType;
@@ -49,31 +50,36 @@ class MailSendSubscriber implements EventSubscriberInterface
         $mailEvent = $event->getEvent();
 
         if (!$mailEvent instanceof MailActionInterface) {
-            throw new \Exception('todo better exception');
+            throw new MailEventConfigurationException('Not a instance of MailActionInterface', get_class($mailEvent));
         }
 
-        if (!array_key_exists('mail_template_id', $event->getConfig())) {
-            throw new \Exception('todo better exception');
+        if (!array_key_exists('mail_template_type_id', $event->getConfig())) {
+            throw new MailEventConfigurationException('Configuration mail_template_type_id missing.', get_class($mailEvent));
         }
 
-        $mailTemplateId = $event->getConfig()['mail_template_id'];
+        $mailTemplateTypeId = $event->getConfig()['mail_template_type_id'];
 
-        $criteria = new Criteria([$event->getConfig()['mail_template_id']]);
-        /** @var MailTemplateEntity $mailTemplate */
-        $mailTemplate = $this->mailTemplateRepository->search($criteria, $event->getContext())->get($mailTemplateId);
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('mailTemplateTypeId', $mailTemplateTypeId));
+        $criteria->addFilter(new EqualsFilter('mail_template.salesChannels.id', $event->getSalesChannelId()));
+        $criteria->setLimit(1);
+        /** @var MailTemplateEntity|null $mailTemplate */
+        $mailTemplate = $this->mailTemplateRepository->search($criteria, $event->getContext())->first();
+
+        if ($mailTemplate === null) {
+            return;
+        }
 
         $data = new DataBag();
         $data->set('recipients', $mailEvent->getMailStruct()->getRecipients());
         $data->set('senderName', $mailTemplate->getSenderName());
-        // todo
-        $data->set('salesChannelId', Defaults::SALES_CHANNEL);
+        $data->set('salesChannelId', $event->getSalesChannelId());
 
         $data->set('contentHtml', $mailTemplate->getContentHtml());
         $data->set('contentPlain', $mailTemplate->getContentPlain());
         $data->set('subject', $mailTemplate->getSubject());
         $data->set('mediaIds', []);
 
-        // todo add order to template data
         $this->mailService->send(
             $data->all(),
             $event->getContext(),

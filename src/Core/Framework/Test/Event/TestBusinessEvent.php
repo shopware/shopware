@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Event;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
@@ -39,5 +40,10 @@ class TestBusinessEvent extends Event implements BusinessEventInterface
     public static function getAvailableData(): EventDataCollection
     {
         return new EventDataCollection();
+    }
+
+    public function getSalesChannelId(): string
+    {
+        return Defaults::SALES_CHANNEL;
     }
 }

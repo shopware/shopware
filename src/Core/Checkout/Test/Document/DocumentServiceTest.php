@@ -26,7 +26,6 @@ use Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
-use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -200,14 +199,9 @@ class DocumentServiceTest extends TestCase
     private function persistCart(Cart $cart): string
     {
         $cart = $this->getContainer()->get(CartService::class)->recalculate($cart, $this->salesChannelContext);
-        $events = $this->getContainer()->get(OrderPersister::class)->persist($cart, $this->salesChannelContext);
-        $orderIds = $events->getEventByDefinition(OrderDefinition::class)->getIds();
+        $orderId = $this->getContainer()->get(OrderPersister::class)->persist($cart, $this->salesChannelContext);
 
-        if (count($orderIds) !== 1) {
-            static::fail('Order could not be persisted');
-        }
-
-        return $orderIds[0];
+        return $orderId;
     }
 
     private function createCustomer(string $paymentMethodId): string

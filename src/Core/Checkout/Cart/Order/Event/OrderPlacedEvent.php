@@ -31,11 +31,17 @@ class OrderPlacedEvent extends Event implements BusinessEventInterface, MailActi
      */
     private $mailRecipientStruct;
 
-    public function __construct(Context $context, OrderEntity $order, ?MailRecipientStruct $mailRecipientStruct = null)
+    /**
+     * @var string
+     */
+    private $salesChannelId;
+
+    public function __construct(Context $context, OrderEntity $order, string $salesChannelId, ?MailRecipientStruct $mailRecipientStruct = null)
     {
         $this->order = $order;
         $this->context = $context;
         $this->mailRecipientStruct = $mailRecipientStruct;
+        $this->salesChannelId = $salesChannelId;
     }
 
     public function getName(): string
@@ -66,5 +72,10 @@ class OrderPlacedEvent extends Event implements BusinessEventInterface, MailActi
         }
 
         return new MailRecipientStruct([$this->order->getOrderCustomer()->getEmail() => $this->order->getOrderCustomer()->getFirstName() . ' ' . $this->order->getOrderCustomer()->getLastName()]);
+    }
+
+    public function getSalesChannelId(): string
+    {
+        return $this->salesChannelId;
     }
 }

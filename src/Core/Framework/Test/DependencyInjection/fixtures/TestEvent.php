@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EntityType;
@@ -64,5 +65,10 @@ class TestEvent extends Event implements BusinessEventInterface
             ->add('customer', new EntityType(CustomerDefinition::class))
             ->add('order', new EntityType(OrderDefinition::class))
             ;
+    }
+
+    public function getSalesChannelId(): string
+    {
+        return Defaults::SALES_CHANNEL;
     }
 }

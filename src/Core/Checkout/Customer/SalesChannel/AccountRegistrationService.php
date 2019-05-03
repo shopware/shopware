@@ -94,7 +94,7 @@ class AccountRegistrationService
 
         $this->customerRepository->create([$customer], $context->getContext());
 
-        $event = new CustomerRegisterEvent($context->getContext(), $customer);
+        $event = new CustomerRegisterEvent($context->getContext(), $customer, $context->getSalesChannel()->getId());
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $customer['id'];

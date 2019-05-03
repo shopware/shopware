@@ -15,7 +15,6 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -1743,8 +1742,7 @@ class VersioningTest extends TestCase
 
         $cart = $this->processor->process($cart, $context, new CartBehavior());
 
-        $orders = $this->orderPersister->persist($cart, $context)->getEventByDefinition(OrderDefinition::class)->getIds();
-        $id = array_shift($orders);
+        $id = $this->orderPersister->persist($cart, $context);
 
         $versionId = $this->orderRepository->createVersion($id, $this->context);
 

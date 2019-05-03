@@ -24,10 +24,16 @@ class NewsletterConfirmEvent extends Event implements BusinessEventInterface
      */
     private $receiverEntity;
 
-    public function __construct(Context $context, NewsletterReceiverEntity $receiverEntity)
+    /**
+     * @var string
+     */
+    private $salesChannelId;
+
+    public function __construct(Context $context, NewsletterReceiverEntity $receiverEntity, string $salesChannelId)
     {
         $this->context = $context;
         $this->receiverEntity = $receiverEntity;
+        $this->salesChannelId = $salesChannelId;
     }
 
     public function getName(): string
@@ -49,5 +55,10 @@ class NewsletterConfirmEvent extends Event implements BusinessEventInterface
     public function getReceiverEntity(): NewsletterReceiverEntity
     {
         return $this->receiverEntity;
+    }
+
+    public function getSalesChannelId(): string
+    {
+        return $this->salesChannelId;
     }
 }

@@ -16,13 +16,18 @@ class ShippingMethodPageObject extends GeneralPageObject {
     createShippingMethod(name) {
         this.browser
             .fillField('input[name=sw-field--shippingMethod-name]', name)
+            .tickCheckbox('input[name=sw-field--shippingMethod-active]', false)
             .tickCheckbox('input[name=sw-field--shippingMethod-active]', true)
-            .tickCheckbox('input[name=sw-field--shippingMethod-bindShippingfree]', true)
-            .tickCheckbox('input[name=sw-field--shippingMethod-bindShippingfree]', false)
-            .fillSwSelectComponent('.sw-settings-shipping-detail-base__delivery-time', {
+            .fillSwSelectComponent('.sw-settings-shipping-detail__delivery-time', {
                 value: '1-3 days',
                 searchTerm: '1-3'
+            })
+            .fillSwSelectComponent('.sw-settings-shipping-detail__top-rule', {
+                value: 'Cart >= 0',
+                searchTerm: 'Cart >= 0'
             });
+
+        this.createShippingMethodPriceRule();
 
         this.browser
             .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
@@ -31,29 +36,42 @@ class ShippingMethodPageObject extends GeneralPageObject {
     }
 
     createShippingMethodPriceRule() {
-        this.browser
-            .click('.sw-shipping-detail-page__price-settings')
-            .waitForElementVisible('.context-prices__actions button')
-            .click('.context-prices__actions button')
-            .click('.context-prices__rule')
-            .waitForElementVisible('.sw-select__results-list')
-            .click('.sw-select-option--0')
-            .expect.element('.sw-card__title').to.have.text.that.contains('Ruler');
+        this.selectPriceCalculation('.sw-settings-shipping-price-matrix__empty .sw-select', { optionSelector: '.sw-select-option--0', value: 'Line item count' });
 
         this.browser
-            .waitForElementVisible('.context-prices__prices')
-            .fillField(`${this.elements.gridRow}--0 input[name=sw-field--item-quantityEnd]`, '20')
-            .fillField(`${this.elements.gridRow}--0 input[name=sw-field--item-price]`, '10')
-            .fillField(`${this.elements.gridRow}--1 input[name=sw-field--item-price]`, '8')
+            .waitForElementNotPresent('.sw-settings-shipping-price-matrix__empty .sw-select')
+            .moveToElement(`${this.elements.dataGridRow}--0 .sw-data-grid__cell--quantityStart`, 5, 5)
+            .doubleClick()
+            .waitForElementPresent('.is--inline-edit')
+            .fillField(`${this.elements.dataGridRow}--0 .sw-data-grid__cell--quantityStart input`, '0', true)
+            .fillField(`${this.elements.dataGridRow}--0 .sw-data-grid__cell--quantityEnd input`, '10', true)
+            .fillField(`${this.elements.dataGridRow}--0 .sw-data-grid__cell--price input`, '12.5', true)
+            .click('.sw-data-grid__inline-edit-save')
+            .waitForElementVisible(`${this.elements.dataGridRow}--1`)
+            .moveToElement(`${this.elements.dataGridRow}--1 .sw-data-grid__cell--quantityStart`, 5, 5)
+            .doubleClick()
+            .waitForElementPresent('.is--inline-edit')
+            .fillField(`${this.elements.dataGridRow}--1 .sw-data-grid__cell--price input`, '7.42', false)
+            .click('.sw-data-grid__inline-edit-save')
+            .waitForElementNotPresent('.sw-data-grid__inline-edit-save')
             .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .click(this.elements.shippingSaveAction)
             .waitForElementVisible('.icon--small-default-checkmark-line-medium');
     }
 
+    selectPriceCalculation(selector, { optionSelector, value }) {
+        this.browser
+            .waitForElementVisible(selector)
+            .click(selector)
+            .waitForElementVisible(optionSelector)
+            .assert.containsText(optionSelector, value)
+            .click(optionSelector);
+    }
+
     moveToListViewFromDetail() {
         this.browser
             .click(this.elements.shippingBackToListViewAction)
-            .waitForElementVisible('.sw-grid-column.sw-grid-column--left');
+            .waitForElementVisible('.sw-settings-shipping-list__content');
     }
 }
 

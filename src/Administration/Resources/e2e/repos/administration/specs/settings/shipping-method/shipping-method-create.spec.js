@@ -7,22 +7,20 @@ module.exports = {
     'navigate to shipping method index': browser => {
         browser
             .openMainMenuEntry({
-                targetPath: '#/sw/settings/shipping/index',
-                mainMenuId: 'sw-settings',
-                subMenuId: 'sw-settings-shipping'
-            });
-    },
-    'tabs can be found more than once': browser => {
-        browser
-            .click('a[href="#/sw/settings/shipping/create"]')
-            .waitForElementVisible('.sw-settings-shipping-detail')
-            .assert.urlContains('#/sw/settings/shipping/create/base')
-            .elements('css selector', '.sw-tabs-item', function onElementSelector(result) {
-                this.assert.equal(result.value.length > 1, true);
-            });
+                targetPath: '#/sw/settings/index',
+                mainMenuId: 'sw-settings'
+            })
+            .click('#sw-settings-shipping')
+            .assert.urlContains('#/sw/settings/shipping/index');
     },
     'create shippingMethod': browser => {
         const page = shippingMethodPage(browser);
+
+        browser
+            .click('a[href="#/sw/settings/shipping/create"]')
+            .waitForElementVisible('.sw-settings-shipping-detail .sw-card__content')
+            .assert.urlContains('#/sw/settings/shipping/create')
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('New shipping method');
 
         page.createShippingMethod(shippingMethodName);
     },
@@ -31,11 +29,11 @@ module.exports = {
         page.moveToListViewFromDetail();
 
         browser
-            .fillField('.sw-search-bar__input', shippingMethodName)
-            .waitForElementNotPresent(`${page.elements.gridRow}--1`)
-            .elements('css selector', '.sw-grid-row', function onElementSelector(result) {
-                this.assert.equal(result.value.length === 1, true);
-            })
-            .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains(shippingMethodName);
+            .fillGlobalSearchField(shippingMethodName)
+            .waitForElementNotPresent(page.elements.loader)
+            .waitForElementPresent(page.elements.smartBarAmount);
+
+        browser.expect.element(page.elements.smartBarAmount).to.have.text.that.contains('(1)');
+        browser.expect.element(`${page.elements.dataGridRow}--0`).to.have.text.that.contains(shippingMethodName);
     }
 };

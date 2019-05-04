@@ -2,7 +2,8 @@
   "sw-settings-shipping": {
     "general": {
       "mainMenuItemGeneral": "Versand",
-      "placeholderSearchBar": "Durchsuche alle Versandarten"
+      "placeholderSearchBar": "Durchsuche alle Versandarten",
+      "descriptionTextModule": "Verwaltung von Versandarten."
     },
     "list": {
       "textHeadline": "Versand",

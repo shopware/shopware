@@ -91,12 +91,13 @@ class OffCanvasSingleton {
      *
      * @param {HTMLElement} offCanvas
      * @param {function} callback
+     *
      * @private
      */
     _openOffcanvas(offCanvas, callback) {
         // the timeout allows to apply the animation effects
-        setTimeout(function () {
-            Backdrop.create(function () {
+        setTimeout(() => {
+            Backdrop.create(() => {
                 offCanvas.classList.add(OFF_CANVAS_OPEN_CLASS);
 
                 // if a callback function is being injected execute it after opening the OffCanvas
@@ -104,7 +105,7 @@ class OffCanvasSingleton {
                     callback();
                 }
             });
-        }, 1);
+        }, 75);
     }
 
     /**

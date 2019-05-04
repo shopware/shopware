@@ -47,7 +47,7 @@ class BackdropSingleton {
             if (typeof callback === 'function') {
                 callback();
             }
-        }, 1);
+        }, 75);
 
         this._dispatchEvents();
     }

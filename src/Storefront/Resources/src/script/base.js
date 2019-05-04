@@ -42,6 +42,7 @@ import CollapseFooterColumnsPlugin from 'src/script/plugin/collapse/collapse-foo
 import FlyoutMenuPlugin from 'src/script/plugin/main-menu/flyout-menu.plugin';
 import OffcanvasMenuPlugin from 'src/script/plugin/main-menu/offcanvas-menu.plugin';
 import FormAutoSubmitPlugin from 'src/script/plugin/forms/form-auto-submit.plugin';
+import FormAjaxSubmitPlugin from 'src/script/plugin/forms/form-ajax-submit.plugin';
 import FormValidationPlugin from 'src/script/plugin/forms/form-validation.plugin';
 import FormSubmitLoaderPlugin from 'src/script/plugin/forms/form-submit-loader.plugin';
 import FormFieldTogglePlugin from 'src/script/plugin/forms/form-field-toggle.plugin';
@@ -98,6 +99,7 @@ PluginManager.register('FormScrollToInvalidField', FromScrollToInvalidFieldPlugi
 PluginManager.register('FormSubmitLoader', FormSubmitLoaderPlugin, '[data-form-submit-loader]');
 PluginManager.register('FormFieldToggle', FormFieldTogglePlugin, '[data-form-field-toggle]');
 PluginManager.register('FormAutoSubmit', FormAutoSubmitPlugin, '[data-form-auto-submit]');
+PluginManager.register('FormAjaxSubmit', FormAjaxSubmitPlugin, '[data-form-ajax-submit]');
 PluginManager.register('AccountMenu', AccountMenuPlugin, '[data-offcanvas-account-menu]');
 PluginManager.register('OffCanvasTabs', OffCanvasTabsPlugin, '[data-offcanvas-tab]');
 PluginManager.register('ImageSlider', ImageSliderPlugin, '[data-image-slider]');

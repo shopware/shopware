@@ -3,7 +3,8 @@ import FormSerializeUtil from 'src/script/utility/form/form-serialize.util';
 import HttpClient from 'src/script/service/http-client.service';
 import DomAccess from 'src/script/helper/dom-access.helper';
 import ElementLoadingIndicatorUtil from 'src/script/utility/loading-indicator/element-loading-indicator.util';
-
+import ElementReplaceHelper from 'src/script/helper/element-replace.helper';
+import Iterator from 'src/script/helper/iterator.helper';
 
 /**
  * This plugin automatically submits a form,
@@ -12,8 +13,9 @@ import ElementLoadingIndicatorUtil from 'src/script/utility/loading-indicator/el
 export default class FormAjaxSubmitPlugin extends Plugin {
 
     static options = {
-        ajaxContainerSelector: false,
-        loaderElement: false,
+        replaceSelectors: false,
+        loaderElementSelector: false,
+        submitOnChange: false,
     };
 
     init() {
@@ -23,17 +25,14 @@ export default class FormAjaxSubmitPlugin extends Plugin {
             throw new Error(`No form found for the plugin: ${this.constructor.name}`);
         }
 
-        if (!this.options.ajaxContainerSelector) {
-            throw new Error('The option "ajaxContainerSelector" must ge given when using ajax.');
+        if (!this.options.replaceSelectors) {
+            throw new Error('The option "replaceSelectors" must ge given when using ajax.');
+        }
+        if (typeof this.options.replaceSelectors === 'string') {
+            this.options.replaceSelectors = [this.options.replaceSelectors];
         }
 
         this._client = new HttpClient(window.accessKey, window.contextToken);
-
-        this._loaderElement = this._form;
-        if (this.options.loaderElement) {
-            this._loaderElement = DomAccess.querySelector(document, this.options.loaderElement);
-        }
-
         this._registerEvents();
     }
 
@@ -60,16 +59,11 @@ export default class FormAjaxSubmitPlugin extends Plugin {
         const onSubmit = this._onSubmit.bind(this);
         this._form.removeEventListener('submit', onSubmit);
         this._form.addEventListener('submit', onSubmit);
-    }
 
-    /**
-     * on change callback for the form
-     *
-     * @private
-     */
-    _onChange() {
-        this._form.submit();
-        ElementLoadingIndicatorUtil.create(this._form);
+        if (this.options.submitOnChange) {
+            this._form.removeEventListener('change', onSubmit);
+            this._form.addEventListener('change', onSubmit);
+        }
     }
 
     /**
@@ -81,7 +75,7 @@ export default class FormAjaxSubmitPlugin extends Plugin {
      */
     _onSubmit(event) {
         event.preventDefault();
-        ElementLoadingIndicatorUtil.create(this._loaderElement);
+        this._createLoadingIndicators();
         const data = FormSerializeUtil.serialize(this._form);
         const action = DomAccess.getAttribute(this._form, 'action');
 
@@ -97,10 +91,33 @@ export default class FormAjaxSubmitPlugin extends Plugin {
      * @private
      */
     _onAfterAjaxSubmit(response) {
-        ElementLoadingIndicatorUtil.remove(this._loaderElement);
-        const container = DomAccess.querySelector(document, this.options.ajaxContainerSelector);
-        container.innerHTML = response;
+        this._removeLoadingIndicators();
+        ElementReplaceHelper.replaceFromMarkup(response, this.options.replaceSelectors);
         window.PluginManager.executePlugins();
+    }
+
+    /**
+     * creates loading indicators
+     *
+     * @private
+     */
+    _createLoadingIndicators() {
+        Iterator.iterate(this.options.replaceSelectors, (selector) => {
+            const elements = DomAccess.querySelectorAll(document, selector);
+            Iterator.iterate(elements, ElementLoadingIndicatorUtil.create);
+        });
+    }
+
+    /**
+     * removes loading indicators
+     *
+     * @private
+     */
+    _removeLoadingIndicators() {
+        Iterator.iterate(this.options.replaceSelectors, (selector) => {
+            const elements = DomAccess.querySelectorAll(document, selector);
+            Iterator.iterate(elements, ElementLoadingIndicatorUtil.remove);
+        });
     }
 
 }

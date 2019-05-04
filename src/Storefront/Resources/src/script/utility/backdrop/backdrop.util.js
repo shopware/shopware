@@ -121,11 +121,10 @@ class BackdropSingleton {
 }
 
 /**
- * Make the Backdrop being a Singleton
- * @type {BackdropSingleton}
+ * Create the Backdrop instance.
+ * @type {Readonly<BackdropSingleton>}
  */
-const instance = new BackdropSingleton();
-Object.freeze(instance);
+export const BackdropInstance = Object.freeze(new BackdropSingleton());
 
 export default class BackdropUtil {
 
@@ -134,7 +133,7 @@ export default class BackdropUtil {
      * @param {function|null} callback
      */
     static create(callback = null) {
-        instance.create(callback);
+        BackdropInstance.create(callback);
     }
 
     /**
@@ -142,7 +141,7 @@ export default class BackdropUtil {
      * @param {number} delay
      */
     static remove(delay = REMOVE_BACKDROP_DELAY) {
-        instance.remove(delay);
+        BackdropInstance.remove(delay);
     }
 
     /**

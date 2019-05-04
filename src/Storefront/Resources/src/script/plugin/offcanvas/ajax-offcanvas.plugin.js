@@ -1,4 +1,4 @@
-import OffCanvas, { OffcanvasInstance } from 'src/script/plugin/offcanvas/offcanvas.plugin';
+import OffCanvas, { OffCanvasInstance } from 'src/script/plugin/offcanvas/offcanvas.plugin';
 import HttpClient from 'src/script/service/http-client.service';
 import LoadingIndicator from 'src/script/utility/loading-indicator/loading-indicator.util';
 
@@ -23,11 +23,11 @@ export default class AjaxOffCanvas extends OffCanvas {
             throw new Error('A url must be given!');
         }
         // avoid multiple backdrops
-        OffcanvasInstance._removeExistingOffCanvas();
+        OffCanvasInstance._removeExistingOffCanvas();
 
-        const offCanvas = OffcanvasInstance._createOffCanvas(position, fullwidth);
+        const offCanvas = OffCanvasInstance._createOffCanvas(position, fullwidth);
         this.setContent(url, data, callback, closable, delay);
-        OffcanvasInstance._openOffcanvas(offCanvas);
+        OffCanvasInstance._openOffcanvas(offCanvas);
     }
 
     /**

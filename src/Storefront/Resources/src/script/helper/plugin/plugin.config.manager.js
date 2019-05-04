@@ -57,9 +57,11 @@ class PluginConfigManagerSingleton {
 
 }
 
-
-const PluginConfigManagerSingletonInstance = new PluginConfigManagerSingleton();
-Object.freeze(PluginConfigManagerSingletonInstance);
+/**
+ * Create the PluginConfigManager instance.
+ * @type {Readonly<PluginConfigManagerSingleton>}
+ */
+export const PluginConfigManagerInstance = Object.freeze(new PluginConfigManagerSingleton());
 
 class PluginConfigManager {
 
@@ -73,7 +75,7 @@ class PluginConfigManager {
      * @returns {any}
      */
     static get(pluginName, configName = false) {
-        return PluginConfigManagerSingletonInstance.get(pluginName, configName);
+        return PluginConfigManagerInstance.get(pluginName, configName);
     }
 
     /**
@@ -87,7 +89,7 @@ class PluginConfigManager {
      * @returns {any}
      */
     static add(pluginName, configName, config) {
-        return PluginConfigManagerSingletonInstance.add(pluginName, configName, config);
+        return PluginConfigManagerInstance.add(pluginName, configName, config);
     }
 
     /**
@@ -99,7 +101,7 @@ class PluginConfigManager {
      * @returns {any}
      */
     static remove(pluginName, configName) {
-        return PluginConfigManagerSingletonInstance.remove(pluginName, configName);
+        return PluginConfigManagerInstance.remove(pluginName, configName);
     }
 
     /**
@@ -108,7 +110,7 @@ class PluginConfigManager {
      * @returns {Map<any, any>}
      */
     static getRegistry() {
-        return PluginConfigManagerSingletonInstance.getRegistry();
+        return PluginConfigManagerInstance.getRegistry();
     }
 
 }

@@ -65,20 +65,20 @@
     {% endblock %}
 
     {% block page_checkout_confirm_payment %}
-        <div class="confirm-payment">
+        <div class="confirm-payment js-reload-on-confirm-change">
             {% sw_include '@Storefront/page/checkout/confirm/confirm-payment.html.twig' %}
         </div>
     {% endblock %}
 
     {% block page_checkout_confirm_shipping %}
-        <div class="confirm-shipping">
+        <div class="confirm-shipping js-reload-on-confirm-change">
             {% sw_include '@Storefront/page/checkout/confirm/confirm-shipping.html.twig' %}
         </div>
     {% endblock %}
 
     {#TODO: NEXT-1950 - order comment#}
 
-<div class="row checkout-main">
+<div class="row checkout-main js-reload-on-confirm-change">
     {% block page_checkout_main %}
         <div class="checkout-main-left">
             {% block page_checkout_main_content %}

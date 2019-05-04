@@ -83,7 +83,10 @@ class StorageSingleton {
     }
 }
 
-let instance = new StorageSingleton();
-instance = Object.freeze(instance);
+/**
+ * Create the Storage instance.
+ * @type {Readonly<StorageSingleton>}
+ */
+export const StorageInstance = Object.freeze(new StorageSingleton());
 
-export default instance.getStorage();
+export default StorageInstance.getStorage();

@@ -318,11 +318,10 @@ class PluginManagerSingleton {
 }
 
 /**
- * Make the PluginManager being a Singleton
- * @type {PluginManagerSingleton}
+ * Create the PluginManager instance.
+ * @type {Readonly<PluginManagerSingleton>}
  */
-const PluginManagerInstance = new PluginManagerSingleton();
-Object.freeze(PluginManagerInstance);
+export const PluginManagerInstance = Object.freeze(new PluginManagerSingleton());
 
 export default class PluginManager {
 

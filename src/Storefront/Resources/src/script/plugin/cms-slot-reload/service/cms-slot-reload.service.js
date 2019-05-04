@@ -6,6 +6,7 @@ import ElementLoadingIndicatorUtil from 'src/script/utility/loading-indicator/el
 import DomAccess from 'src/script/helper/dom-access.helper';
 import CmsSlotOptionValidatorHelper from 'src/script/plugin/cms-slot-reload/helper/cms-slot-option-validator.helper';
 import Iterator from 'src/script/helper/iterator.helper';
+import ElementReplaceHelper from 'src/script/helper/element-replace.helper';
 
 export default class CmsSlotReloadService {
 
@@ -50,7 +51,6 @@ export default class CmsSlotReloadService {
         }
 
         this._historyChanged = this._historyChanged || false;
-        this._domParser = new DOMParser();
         this._client = new HttpClient(window.accessKey, window.contextToken);
 
         this._requestSlot();
@@ -186,9 +186,28 @@ export default class CmsSlotReloadService {
      * @private
      */
     _onLoaded(response) {
-        const markup = this._createMarkupFromString(response);
-        this._replaceElements(markup);
+        const preparedSelectors = this._prepareSelectors();
+        ElementReplaceHelper.replaceFromMarkup(response, preparedSelectors);
         window.PluginManager.executePlugins();
+    }
+
+    /**
+     * @returns {Array}
+     *
+     * @private
+     */
+    _prepareSelectors() {
+        const preparedSelectors = [];
+
+        Iterator.iterate(this._options.elements, (selectors, id) => {
+            selectors = selectors.join(',').split(',');
+
+            Iterator.iterate(selectors, selector => {
+                preparedSelectors.push(`[data-cms-element-id="${id}"] ${selector}`);
+            });
+        });
+
+        return preparedSelectors;
     }
 
     /**

@@ -366,7 +366,6 @@ export default {
                 return;
             }
 
-
             // remove leading and trailing <br>
             const regex = /^\s*(?:<br\s*\/?\s*>)+|(?:<br\s*\/?\s*>)+\s*$/gi;
             let val = this.$refs.editor.innerHTML.replace(regex, '');
@@ -386,6 +385,9 @@ export default {
         },
 
         setPlaceholderHeight() {
+            if (!this.isInlineEdit) {
+                return;
+            }
             this.$nextTick(() => {
                 const placeholderEl = this.$el.querySelector('.sw-text-editor__content-placeholder');
 

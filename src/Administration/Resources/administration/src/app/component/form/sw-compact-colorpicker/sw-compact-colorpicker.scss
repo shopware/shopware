@@ -7,7 +7,9 @@
         z-index: 99;
 
         &.popup_left {
-            margin-right: -8px;
+            //margin-right: -8px;
+            top: 24px;
+            right: -50%;
         }
 
         .picker_done {

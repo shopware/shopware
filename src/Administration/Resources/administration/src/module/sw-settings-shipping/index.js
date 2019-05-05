@@ -1,5 +1,4 @@
 import { Module } from 'src/core/shopware';
-import { NEXT688 } from 'src/flag/feature_next688';
 
 import './extension/sw-settings-index';
 import './page/sw-settings-shipping-list';
@@ -14,10 +13,9 @@ import enGB from './snippet/en-GB.json';
 
 Module.register('sw-settings-shipping', {
     type: 'core',
-    flag: NEXT688,
     name: 'settings-shipping',
     title: 'sw-settings-shipping.general.mainMenuItemGeneral',
-    description: 'Shipping section in the settings module',
+    description: 'sw-settings-shipping.general.descriptionTextModule',
     color: '#9AA8B5',
     icon: 'default-action-settings',
     favicon: 'icon-module-settings.png',
@@ -38,32 +36,16 @@ Module.register('sw-settings-shipping', {
         },
         detail: {
             component: 'sw-settings-shipping-detail',
-            path: 'detail/:id'
+            path: 'detail/:id',
+            meta: {
+                parentPath: 'sw.settings.shipping.index'
+            }
         },
         create: {
             component: 'sw-settings-shipping-create',
             path: 'create',
-            redirect: {
-                name: 'sw.settings.shipping.create.base'
-            },
             meta: {
                 parentPath: 'sw.settings.shipping.index'
-            },
-            children: {
-                base: {
-                    component: 'sw-settings-shipping-detail-base',
-                    path: 'base',
-                    meta: {
-                        parentPath: 'sw.settings.shipping.index'
-                    }
-                },
-                advancedPrices: {
-                    component: 'sw-settings-shipping-detail-advanced-prices',
-                    path: 'advancedPrices',
-                    meta: {
-                        parentPath: 'sw.settings.shipping.index'
-                    }
-                }
             }
         }
     }

@@ -4,7 +4,6 @@ const shippingMethodName = 'automated test shipping';
 
 module.exports = {
     '@tags': ['settings', 'shipping-method', 'shipping-method-edit', 'edit', 'price-rule'],
-    '@disabled': !global.flags.isActive('next688'),
     before: (browser, done) => {
         global.AdminFixtureService.create('rule').then(() => {
             done();
@@ -13,10 +12,11 @@ module.exports = {
     'navigate to shipping page': browser => {
         browser
             .openMainMenuEntry({
-                targetPath: '#/sw/settings/shipping/index',
-                mainMenuId: 'sw-settings',
-                subMenuId: 'sw-settings-shipping'
-            });
+                targetPath: '#/sw/settings/index',
+                mainMenuId: 'sw-settings'
+            })
+            .click('#sw-settings-shipping')
+            .assert.urlContains('#/sw/settings/shipping/index');
     },
     'create test data and edit right after initial save': browser => {
         const page = shippingMethodPage(browser);
@@ -26,6 +26,7 @@ module.exports = {
             .waitForElementVisible('.sw-settings-shipping-detail');
 
         page.createShippingMethod(shippingMethodName);
+        browser.waitForElementNotPresent('.icon--small-default-checkmark-line-medium');
         page.fillLoremIpsumIntoSelector('textarea[name=sw-field--shippingMethod-description]', true);
 
         browser
@@ -39,31 +40,42 @@ module.exports = {
             .waitForElementVisible('textarea[name=sw-field--shippingMethod-description]')
             .expect.element('textarea[name=sw-field--shippingMethod-description]').to.have.value.that.contains('Lorem ipsum');
     },
-    'create shippingMethod price rule': browser => {
-        const page = shippingMethodPage(browser);
-        page.createShippingMethodPriceRule(shippingMethodName);
-    },
     'edit shippingMethod price rule': browser => {
         const page = shippingMethodPage(browser);
         browser
-            .click('div[name=calculation]')
-            .waitForElementVisible('.sw-select__results-list')
-            .click('.sw-select__results-list .sw-select-option--1')
-            .clearValue(`.context-prices__prices ${page.elements.gridRow}--1 input[name=sw-field--item-price]`)
-            .fillField(`.context-prices__prices ${page.elements.gridRow}--1 input[name=sw-field--item-price]`, '9')
+            .getLocationInView('.sw-settings-shipping-price-matrices__actions')
+            .waitForElementVisible(`${page.elements.dataGridRow}--0`)
+            .moveToElement(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--quantityStart`, 5, 5)
+            .doubleClick()
+            .waitForElementPresent('.is--inline-edit')
+            .fillField(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--price input`, '10.5', false)
+            .click('.sw-data-grid__inline-edit-save')
+            .waitForElementNotPresent('.sw-data-grid__inline-edit-save')
             .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .click(page.elements.shippingSaveAction)
-            .waitForElementVisible('.icon--small-default-checkmark-line-medium');
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium')
+            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium');
     },
     'delete shippingMethod price rule': browser => {
         const page = shippingMethodPage(browser);
 
         browser
-            .clickContextMenuItem('.sw-context-menu-item--danger', {
-                menuActionSelector: `${page.elements.gridRow}--1 ${page.elements.contextMenuButton}`
+            .getLocationInView('.sw-settings-shipping-price-matrices__actions')
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-context-menu-item--danger',
+                scope: `${page.elements.dataGridRow}--1`
             })
-            .assert.elementNotPresent(`${page.elements.gridRow}--1`)
-            .click('.sw-settings-shipping-detail__delete-action')
-            .assert.elementNotPresent('.context-price');
+            .assert.elementNotPresent(`${page.elements.dataGridRow}--1`)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-context-menu-item--danger',
+                scope: '.sw-settings-shipping-price-matrix__top-container'
+            })
+            .expect.element('.sw-settings-shipping-price-matrix__confirm-delete-text').to.have.text.that.contains('Are you sure you really want to delete the price matrix?');
+
+        browser
+            .waitForElementVisible('span.sw-button__content')
+            .click('.sw-modal__footer button.sw-button--primary')
+            .waitForElementNotPresent(page.elements.modal)
+            .assert.elementNotPresent('.sw-settings-shipping-price-matrix');
     }
 };

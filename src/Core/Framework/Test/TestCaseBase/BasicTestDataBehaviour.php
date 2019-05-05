@@ -61,7 +61,7 @@ trait BasicTestDataBehaviour
         $shippingMethods = $repository->search(
             (new Criteria())
                 ->addAssociation('prices')
-                ->addFilter(new EqualsFilter('shipping_method.prices.calculation', 0)),
+                ->addFilter(new EqualsFilter('shipping_method.prices.calculation', 1)),
             Context::createDefaultContext()
         )->getEntities();
 

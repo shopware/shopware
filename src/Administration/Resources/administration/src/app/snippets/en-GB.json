@@ -9,6 +9,12 @@
     "notification-center": {
       "title": "Notifications",
       "emptyText": "Congratulations, all done.",
+      "deleteModal": {
+        "title": "Delete notifications",
+        "textConfirm": "Are you sure you really want to delete all notifications?",
+        "cancel": "Cancel",
+        "delete": "Delete"
+      },
       "worker-listener": {
         "thumbnailGeneration": {
           "title": "Thumbnails are being generated",

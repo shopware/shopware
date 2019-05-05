@@ -9,6 +9,12 @@
     "notification-center": {
       "title": "Mitteilungen",
       "emptyText": "Bravo, alles erledigt.",
+      "deleteModal": {
+        "title": "Mitteilungen löschen",
+        "textConfirm": "Möchtest du wirklich alle Mitteilungen löschen?",
+        "cancel": "Abbrechen",
+        "delete": "Löschen"
+      },
       "worker-listener": {
         "thumbnailGeneration": {
           "title": "Vorschaubilder werden generiert",

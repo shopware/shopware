@@ -44,5 +44,5 @@ If the user deletes the notification and you update it, it will be recreated wit
 New parameters
 * `growl` **recommended** -> Show the notification as a growl message. It will also be in the notification center. The default is `true`, but you should consider setting this to `false` to not overwhelm the user in notifications.
 * `visited` **optional** -> If set to false, the notification is mark as not seen by the user and will be displayed so. The default is `false`.
-* `isLoading` **required** -> The title of the notification.
-* `metadata` **optional** -> You can store a object here. If the object is different from the already attached one, the notification will automaticly set to `visited` false (as long as not other specified). This is useful to show a progress in the notification where you want to notify the user about progress changes.
+* `isLoading` **optional** -> Shows a loading indicator if set to true. Also the notification will not be saved if it is set to `true`. If The default is `false`
+* `metadata` **optional** -> You can store a object here. If the object is different from the already attached one, the notification will automatically set `visited` to false (as long as not other specified). This is useful to show a progress in the notification where you want to notify the user about progress changes.

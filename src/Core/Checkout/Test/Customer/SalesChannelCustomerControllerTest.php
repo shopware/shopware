@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
+use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
@@ -428,7 +429,7 @@ class SalesChannelCustomerControllerTest extends TestCase
     public function testChangeEmail(): void
     {
         $customerId = $this->createCustomerAndLogin();
-        $mail = 'test@exapmle.com';
+        $mail = Random::getAlphanumericString(32) . '@exapmle.com';
 
         $payload = [
             'email' => $mail,

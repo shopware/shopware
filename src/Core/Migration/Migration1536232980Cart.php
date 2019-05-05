@@ -18,7 +18,7 @@ class Migration1536232980Cart extends MigrationStep
             CREATE TABLE `cart` (
               `token` VARCHAR(50) COLLATE utf8mb4_unicode_ci NOT NULL,
               `name` VARCHAR(500) COLLATE utf8mb4_unicode_ci NOT NULL,
-              `cart` JSON NOT NULL,
+              `cart` LONGTEXT NOT NULL,
               `price` FLOAT NOT NULL,
               `line_item_count` VARCHAR(42) COLLATE utf8mb4_unicode_ci NOT NULL,
               `currency_id` BINARY(16) NOT NULL,
@@ -29,7 +29,6 @@ class Migration1536232980Cart extends MigrationStep
               `sales_channel_id` BINARY(16) NOT NULL,
               `created_at` DATETIME(3) NOT NULL,
               PRIMARY KEY (`token`),
-              CONSTRAINT `json.cart.cart` CHECK (JSON_VALID(`cart`)),
               CONSTRAINT `fk.cart.country_id` FOREIGN KEY (`country_id`)
                 REFERENCES `country` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.cart.currency_id` FOREIGN KEY (`currency_id`)

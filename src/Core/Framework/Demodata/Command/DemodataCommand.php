@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Demodata\Command;
 
-use function Flag\next739;
 use function Flag\next754;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -57,9 +56,7 @@ class DemodataCommand extends Command
         $this->addOption('media', '', InputOption::VALUE_REQUIRED, 'Media count', 100);
         $this->addOption('properties', '', InputOption::VALUE_REQUIRED, 'Property group count (option count rand(30-300))', 10);
 
-        if (next739()) {
-            $this->addOption('product-streams', 'ps', InputOption::VALUE_REQUIRED, 'Product streams count', 10);
-        }
+        $this->addOption('product-streams', 'ps', InputOption::VALUE_REQUIRED, 'Product streams count', 10);
 
         $this->addOption('mail-template', 'mt', InputOption::VALUE_REQUIRED, 'Mail template count', 10);
         $this->addOption('mail-header-footer', 'mhf', InputOption::VALUE_REQUIRED, 'Mail header/footer count', 3);
@@ -100,9 +97,7 @@ class DemodataCommand extends Command
         $request->add(ProductManufacturerDefinition::class, (int) $input->getOption('manufacturers'));
         $request->add(ProductDefinition::class, (int) $input->getOption('products'));
 
-        if (next739()) {
-            $request->add(ProductStreamDefinition::class, (int) $input->getOption('product-streams'));
-        }
+        $request->add(ProductStreamDefinition::class, (int) $input->getOption('product-streams'));
 
         $request->add(OrderDefinition::class, (int) $input->getOption('orders'));
         $request->add(CmsPageDefinition::class, 50);

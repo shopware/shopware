@@ -1,8 +1,7 @@
 const productStreamPage = require('administration/page-objects/module/sw-product-stream.page-object.js');
 
 module.exports = {
-    '@tags': ['product', 'product-stream-preview', 'preview', 'edit'],
-    '@disabled': !global.flags.isActive('next739'),
+    '@tags': ['product', 'product-stream-preview', 'product-stream', 'preview', 'edit'],
     before: (browser, done) => {
         global.AdminFixtureService.create('product-stream').then(() => {
             return global.ProductFixtureService.setProductFixture().then(() => {
@@ -36,7 +35,7 @@ module.exports = {
 
         browser
             .fillField('input[name=sw-field--productStream-name]', 'Edited product stream', true)
-            .fillField('textarea[name=sw-field--productStream-description]', 'The product stream was edited by an e2e test', true)
+            .fillField('textarea[name=sw-field--productStream-description]', 'The product stream was edited by an e2e test', false)
             .click(page.elements.streamSaveAction)
             .waitForElementVisible('.icon--small-default-checkmark-line-medium');
     },
@@ -56,7 +55,7 @@ module.exports = {
 
         browser
             .click('.sw-product-stream-detail__open_modal_preview')
-            .expect.element('.sw-modal__title').to.have.text.that.equals('Preview');
+            .expect.element('.sw-modal__title').to.have.text.that.equals('Preview (1)');
         browser.expect.element('.sw-product-stream-modal-preview__column-product-name').to.have.text.that.equals('Product name');
 
         browser.click('.sw-product-stream-modal-preview__close-action')
@@ -80,7 +79,7 @@ module.exports = {
 
         browser
             .click('.sw-product-stream-detail__open_modal_preview')
-            .expect.element('.sw-modal__title').to.have.text.that.equals('Preview');
+            .expect.element('.sw-modal__title').to.have.text.that.equals('Preview (0)');
 
         browser
             .waitForElementPresent('.sw-empty-state')

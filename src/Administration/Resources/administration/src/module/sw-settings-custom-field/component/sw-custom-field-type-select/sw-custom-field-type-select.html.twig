@@ -6,7 +6,8 @@
                 type="switch"
                 class="sw-custom-field-detail__switch"
                 :label="$tc('sw-settings-custom-field.customField.detail.labelMultiSelect')"
-                v-model="currentCustomField.config.multi">
+                @change="onChangeMultiSelectSwitch"
+                v-model="multiSelectSwitch">
         </sw-field>
     {% endblock %}
 
@@ -35,7 +36,7 @@
                     {% block sw_custom_field_type_select_options_container_technical_name %}
                         <sw-field
                                 :label="$tc('sw-settings-custom-field.customField.detail.labelTechnicalName')"
-                                v-model="option.id">
+                                v-model="option.value">
                         </sw-field>
                     {% endblock %}
 
@@ -46,7 +47,7 @@
                                     type="text"
                                     :key="locale"
                                     :label="getLabel(locale)"
-                                    v-model="option.name[locale]">
+                                    v-model="option.label[locale]">
                             </sw-field>
                         </div>
                     {% endblock %}

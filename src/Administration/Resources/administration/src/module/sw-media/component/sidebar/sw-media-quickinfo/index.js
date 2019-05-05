@@ -81,6 +81,10 @@ Component.register('sw-media-quickinfo', {
             });
         },
 
+        onSaveCustomFields(item) {
+            item.save();
+        },
+
         copyLinkToClipboard() {
             if (this.item) {
                 domUtils.copyToClipboard(this.item.url);

@@ -115,6 +115,9 @@ export default {
             } else if (!this.singleSelection && this.value !== null) {
                 this.init();
             }
+        },
+        options() {
+            this.init();
         }
     },
 
@@ -125,6 +128,8 @@ export default {
         },
 
         init() {
+            this.currentOptions = [];
+
             this.options.forEach((item) => {
                 this.currentOptions.push(item);
             });

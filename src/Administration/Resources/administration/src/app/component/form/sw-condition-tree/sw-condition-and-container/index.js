@@ -156,7 +156,7 @@ export default {
 
             this.condition[this.config.childName] = [];
 
-            this.$emit('delete-condition', this.condition);
+            this.$emit('condition-delete', this.condition);
         },
         deleteChildren(children) {
             children.forEach((child) => {

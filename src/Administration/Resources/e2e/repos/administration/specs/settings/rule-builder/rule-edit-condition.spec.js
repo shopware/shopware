@@ -131,14 +131,11 @@ module.exports = {
             .waitForElementVisible(`${page.elements.conditionOrContainer}--1 ${page.elements.subConditionContainer} ${page.elements.orSpacer}`)
             .getLocationInView(`${page.elements.conditionOrContainer}--1 ${page.elements.andSpacer}`);
 
-        page.createCombinedInputSelectCondition({
-            type: 'Line item with quantity',
+        page.createBasicSelectCondition({
+            type: 'Billing country',
             ruleSelector: `${page.elements.conditionOrContainer}--1 ${page.elements.conditionOrContainer}--1 ${page.elements.baseCondition}`,
-            firstValue: global.ProductFixtureService.productFixture.name,
-            secondValue: '20',
-            inputName: 'quantity',
-            operator: 'Greater',
-            isMulti: false
+            value: 'Greece',
+            isMulti: true
         });
     },
     'save rule with nested condition': (browser) => {
@@ -177,6 +174,6 @@ module.exports = {
         browser
             .click(page.elements.ruleSaveAction)
             .checkNotification(`An error occurred while saving rule "${global.AdminFixtureService.basicFixture.name}".`)
-            .expect.element('.sw-condition-base__error-container').to.have.text.that.equals('This "type" value (NULL) is invalid.');
+            .expect.element('.sw-condition-base__error-container').to.have.text.that.equals('Placeholder can not be saved.');
     }
 };

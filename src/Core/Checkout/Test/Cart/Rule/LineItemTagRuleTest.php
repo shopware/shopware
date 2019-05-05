@@ -3,9 +3,8 @@
 namespace Shopware\Core\Checkout\Test\Cart\Rule;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
+use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemTagRule;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -177,26 +176,20 @@ class LineItemTagRuleTest extends TestCase
     public function testNoMatchWithoutTags(): void
     {
         $rule = (new LineItemTagRule())->assign(['identifiers' => [Uuid::randomHex()]]);
-        $cart = new Cart('test', 'test');
-        $cart->add(new LineItem('key', 'product'));
-        $cart->add(new LineItem('key2', 'product'));
 
-        $cartRuleScope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
+        $ruleScope = new LineItemScope(new LineItem('key', 'product'), $this->createMock(SalesChannelContext::class));
 
-        $match = $rule->match($cartRuleScope);
+        $match = $rule->match($ruleScope);
         static::assertFalse($match);
     }
 
     public function testMatchUnequalsTags(): void
     {
         $rule = (new LineItemTagRule())->assign(['operator' => Rule::OPERATOR_NEQ, 'identifiers' => [Uuid::randomHex()]]);
-        $cart = new Cart('test', 'test');
-        $cart->add(new LineItem('key', 'product'));
-        $cart->add(new LineItem('key2', 'product'));
 
-        $cartRuleScope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
+        $ruleScope = new LineItemScope(new LineItem('key', 'product'), $this->createMock(SalesChannelContext::class));
 
-        $match = $rule->match($cartRuleScope);
+        $match = $rule->match($ruleScope);
         static::assertTrue($match);
     }
 
@@ -205,13 +198,11 @@ class LineItemTagRuleTest extends TestCase
         $tagIds = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
 
         $rule = (new LineItemTagRule())->assign(['operator' => Rule::OPERATOR_EQ, 'identifiers' => $tagIds]);
-        $cart = new Cart('test', 'test');
-        $cart->add((new LineItem('key', 'product'))->replacePayload(['tags' => $tagIds]));
-        $cart->add(new LineItem('key2', 'product'));
+        $lineItem = (new LineItem('key', 'product'))->replacePayload(['tags' => $tagIds]);
 
-        $cartRuleScope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
+        $ruleScope = new LineItemScope($lineItem, $this->createMock(SalesChannelContext::class));
 
-        $match = $rule->match($cartRuleScope);
+        $match = $rule->match($ruleScope);
         static::assertTrue($match);
     }
 
@@ -220,13 +211,11 @@ class LineItemTagRuleTest extends TestCase
         $tagIds = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
 
         $rule = (new LineItemTagRule())->assign(['operator' => Rule::OPERATOR_EQ, 'identifiers' => $tagIds]);
-        $cart = new Cart('test', 'test');
-        $cart->add((new LineItem('key', 'product'))->replacePayload(['tags' => [$tagIds[0]]]));
-        $cart->add((new LineItem('key2', 'product'))->replacePayload(['tags' => [Uuid::randomHex()]]));
+        $lineItem = (new LineItem('key', 'product'))->replacePayload(['tags' => [$tagIds[0]]]);
 
-        $cartRuleScope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
+        $ruleScope = new LineItemScope($lineItem, $this->createMock(SalesChannelContext::class));
 
-        $match = $rule->match($cartRuleScope);
+        $match = $rule->match($ruleScope);
         static::assertTrue($match);
     }
 
@@ -235,13 +224,11 @@ class LineItemTagRuleTest extends TestCase
         $tagIds = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
 
         $rule = (new LineItemTagRule())->assign(['operator' => Rule::OPERATOR_NEQ, 'identifiers' => $tagIds]);
-        $cart = new Cart('test', 'test');
-        $cart->add((new LineItem('key', 'product'))->replacePayload(['tags' => [$tagIds[0]]]));
-        $cart->add((new LineItem('key2', 'product'))->replacePayload(['tags' => [Uuid::randomHex()]]));
+        $lineItem = (new LineItem('key', 'product'))->replacePayload(['tags' => [$tagIds[0]]]);
 
-        $cartRuleScope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
+        $ruleScope = new LineItemScope($lineItem, $this->createMock(SalesChannelContext::class));
 
-        $match = $rule->match($cartRuleScope);
+        $match = $rule->match($ruleScope);
         static::assertFalse($match);
     }
 }

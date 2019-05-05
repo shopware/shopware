@@ -33,7 +33,7 @@ Component.register('sw-settings-rule-detail', {
                         label: this.$tc(condition.label),
                         type: this.$tc(condition.label)
                     };
-                }), 'type'),
+                }, ['checkout', 'cart', 'global']), 'type'),
                 entityName: 'rule',
                 conditionIdentifier: 'conditions',
                 childName: 'children',
@@ -68,7 +68,10 @@ Component.register('sw-settings-rule-detail', {
                 isAndContainer(condition) { return condition.type === 'andContainer'; },
                 isOrContainer(condition) { return condition.type === 'orContainer'; },
                 isPlaceholder(condition) { return !condition.type; },
-                isDataSet(condition) { return this.dataCheckMethods[condition.type](condition); }
+                isDataSet(condition) {
+                    return typeof this.dataCheckMethods[condition.type] !== 'function'
+                        || this.dataCheckMethods[condition.type](condition);
+                }
             },
             isLoading: false,
             isSaveSuccessful: false
@@ -146,7 +149,7 @@ Component.register('sw-settings-rule-detail', {
                     message: messageSaveError
                 });
                 warn(this._name, 'client validation failure');
-                this.$refs.conditionTree.$emit('on-save');
+                this.$refs.conditionTree.$emit('entity-save', false);
 
                 return null;
             }
@@ -156,7 +159,7 @@ Component.register('sw-settings-rule-detail', {
             return this.rule.save().then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
-                this.$refs.conditionTree.$emit('on-save');
+                this.$refs.conditionTree.$emit('entity-save', true);
 
                 this.checkModuleType();
 
@@ -168,7 +171,7 @@ Component.register('sw-settings-rule-detail', {
                 });
                 warn(this._name, exception.message, exception.response);
                 this.isLoading = false;
-                this.$refs.conditionTree.$emit('on-save');
+                this.$refs.conditionTree.$emit('entity-save', false);
             });
         },
 
@@ -189,6 +192,11 @@ Component.register('sw-settings-rule-detail', {
 
         conditionsClientValidation(conditions, error) {
             conditions.forEach((condition) => {
+                if (this.hasDeletedParent(condition.parentId, conditions)) {
+                    condition.remove();
+                    return;
+                }
+
                 if (condition.children) {
                     error = this.conditionsClientValidation(condition.children, error);
                 }
@@ -198,6 +206,7 @@ Component.register('sw-settings-rule-detail', {
                 }
 
                 if (condition.errors.map(obj => obj.id).includes('clientValidationError')) {
+                    error = true;
                     return;
                 }
 
@@ -238,6 +247,20 @@ Component.register('sw-settings-rule-detail', {
             return !propsA.find(property => {
                 return conditionA.value[property].toString() !== conditionB.value[property].toString();
             });
+        },
+
+        hasDeletedParent(parentId, conditions) {
+            if (!parentId) {
+                return false;
+            }
+
+            const parent = conditions.find(condition => condition.id === parentId);
+
+            if (!parent) {
+                return false;
+            }
+
+            return parent.isDeleted || this.hasDeletedParent(parent.parentId, conditions);
         }
     }
 });

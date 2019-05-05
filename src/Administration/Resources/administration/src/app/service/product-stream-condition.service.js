@@ -66,7 +66,7 @@ export default function conditionService() {
         'shippingMethods',
         'markAsTopseller',
         'variantRestrictions',
-        'configuratorGroupSorting',
+        'configuratorGroupConfig',
         'cmsPageId',
         'navigationCategoryId',
         'navigationCategoryVersionId',

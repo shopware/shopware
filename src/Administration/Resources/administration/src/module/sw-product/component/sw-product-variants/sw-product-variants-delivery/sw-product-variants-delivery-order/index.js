@@ -41,10 +41,10 @@ Component.register('sw-product-variants-delivery-order', {
             const selectedGroupsCopy = [...this.selectedGroups];
 
             // check if sorting exists on server
-            if (this.product.configuratorGroupSorting && this.product.configuratorGroupSorting.length > 0) {
+            if (this.product.configuratorGroupConfig && this.product.configuratorGroupConfig.length > 0) {
                 // add server sorting to the sortedGroups
-                sortedGroups = this.product.configuratorGroupSorting.reduce((acc, sortId) => {
-                    const relatedGroup = selectedGroupsCopy.find(group => group.id === sortId);
+                sortedGroups = this.product.configuratorGroupConfig.reduce((acc, configGroup) => {
+                    const relatedGroup = selectedGroupsCopy.find(group => group.id === configGroup.id);
 
                     if (relatedGroup) {
                         acc.push(relatedGroup);
@@ -116,16 +116,42 @@ Component.register('sw-product-variants-delivery-order', {
         orderChanged() {
             const groups = this.orderObjects.filter((object) => object.parentId === null);
 
-            // Set group ordering
-            this.product.configuratorGroupSorting = [];
+            // when configuratorGroupConfig is null then add empty array
+            if (!this.product.configuratorGroupConfig) {
+                this.product.configuratorGroupConfig = [];
+            }
 
+            // get order from administration ui
+            const orderedGroupIds = [];
             let latestGroup = groups.find(group => group.afterId === null);
             groups.forEach(() => {
                 if (latestGroup !== undefined) {
-                    this.product.configuratorGroupSorting.push(latestGroup.id);
+                    orderedGroupIds.push(latestGroup.id);
                     latestGroup = groups.find(thisGroup => thisGroup.afterId === latestGroup.id);
                 }
             });
+
+            // create new groupConfig Objects in sorted order
+            const newConfiguratorGroupConfig = [];
+            orderedGroupIds.forEach((groupId) => {
+                const foundGroup = this.product.configuratorGroupConfig.find((group) => group.id === groupId);
+
+                // when group exists
+                if (foundGroup) {
+                    // add to newConfiguratorGroupConfig
+                    newConfiguratorGroupConfig.push(foundGroup);
+                } else {
+                    // otherwise create new group
+                    newConfiguratorGroupConfig.push({
+                        id: groupId,
+                        expressionForListings: false,
+                        representation: 'box'
+                    });
+                }
+            });
+
+            // set new order
+            this.product.configuratorGroupConfig = newConfiguratorGroupConfig;
 
             // Set option ordering
             const options = this.orderObjects.filter((object) => object.parentId);
@@ -133,9 +159,10 @@ Component.register('sw-product-variants-delivery-order', {
             groups.forEach((group) => {
                 const optionsForGroup = options.filter((option) => option.parentId === group.id);
                 let latestOption = optionsForGroup.find(option => option.afterId === null);
+
                 optionsForGroup.forEach((option, index) => {
                     if (latestOption !== undefined) {
-                        latestOption.storeObject.position = index;
+                        latestOption.storeObject.position = index + 1;
                         latestOption = optionsForGroup.find(thisOption => thisOption.afterId === latestOption.id);
                     }
                 });

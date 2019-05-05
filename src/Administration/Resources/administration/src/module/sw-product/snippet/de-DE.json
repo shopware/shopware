@@ -226,7 +226,8 @@
         "mediaExplanation": "Hier kannst du für die Eigenschaftsauswahl im Shop Medien hinterlegen.",
         "mediaOptions": "Optionen",
         "cancel": "Abbrechen",
-        "save": "Speichern"
+        "save": "Speichern",
+        "useForListing": "Im Listing auffächern"
       }
     }
   }

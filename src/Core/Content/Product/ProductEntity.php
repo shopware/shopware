@@ -183,6 +183,11 @@ class ProductEntity extends Entity
     protected $propertyIds;
 
     /**
+     * @var bool
+     */
+    protected $displayInListing;
+
+    /**
      * @var string|null
      */
     protected $additionalText;
@@ -220,7 +225,7 @@ class ProductEntity extends Entity
     /**
      * @var string[]|null
      */
-    protected $configuratorGroupSorting;
+    protected $configuratorGroupConfig;
 
     /**
      * @var TaxEntity|null
@@ -991,13 +996,23 @@ class ProductEntity extends Entity
         $this->variantRestrictions = $variantRestrictions;
     }
 
-    public function getConfiguratorGroupSorting(): ?array
+    public function getConfiguratorGroupConfig(): ?array
     {
-        return $this->configuratorGroupSorting;
+        return $this->configuratorGroupConfig;
     }
 
-    public function setConfiguratorGroupSorting(?array $configuratorGroupSorting): void
+    public function setConfiguratorGroupConfig(?array $configuratorGroupConfig): void
     {
-        $this->configuratorGroupSorting = $configuratorGroupSorting;
+        $this->configuratorGroupConfig = $configuratorGroupConfig;
+    }
+
+    public function getDisplayInListing(): bool
+    {
+        return $this->displayInListing;
+    }
+
+    public function setDisplayInListing(bool $displayInListing): void
+    {
+        $this->displayInListing = $displayInListing;
     }
 }

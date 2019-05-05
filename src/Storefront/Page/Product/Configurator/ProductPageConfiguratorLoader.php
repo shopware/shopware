@@ -77,10 +77,7 @@ class ProductPageConfiguratorLoader
             new EqualsFilter('product_configurator_setting.productId', $product->getParentId() ?? $product->getId())
         );
 
-        $nested = new Criteria();
-        $nested->addAssociation('property_group_option.group');
-
-        $criteria->addAssociation('product_configurator_setting.option', $nested);
+        $criteria->addAssociationPath('option.group');
 
         $settings = $this->configuratorRepository
             ->search($criteria, $context->getContext())
@@ -115,7 +112,9 @@ class ProductPageConfiguratorLoader
 
     private function sortSettings(SalesChannelProductEntity $product, array $groups): PropertyGroupCollection
     {
-        $sorting = $product->getConfiguratorGroupSorting() ?? [];
+        $sorting = $product->getConfiguratorGroupConfig() ?? [];
+
+        $sorting = array_column($sorting, 'id');
 
         $sorted = [];
 

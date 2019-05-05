@@ -33,7 +33,7 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    active bool
    not_null(stock) int
    variantRestrictions json
-   configuratorGroupSorting list
+   configuratorGroupConfig list
    not_null(manufacturerId) foreignKey
    not_null(productManufacturerVersionId) referenceVersion
    unitId foreignKey

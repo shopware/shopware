@@ -482,7 +482,7 @@ class EntityReaderTest extends TestCase
         $this->productRepository->create($products, $context);
 
         $criteria = new Criteria([$greenId, $parentId, $redId]);
-        $criteria->addAssociation('product.prices', new PaginationCriteria(5));
+        $criteria->addAssociation('prices', new PaginationCriteria(5));
         $context->setConsiderInheritance(true);
 
         $products = $this->productRepository->search($criteria, $context);
@@ -684,7 +684,7 @@ class EntityReaderTest extends TestCase
         $this->productRepository->create($products, $context);
 
         $criteria = new Criteria([$greenId, $parentId, $redId]);
-        $criteria->addAssociation('product.categories', new PaginationCriteria(3));
+        $criteria->addAssociation('categories', new PaginationCriteria(3));
         $context->setConsiderInheritance(true);
         $products = $this->productRepository->search($criteria, $context);
 
@@ -717,7 +717,7 @@ class EntityReaderTest extends TestCase
         static::assertTrue($green->getCategories()->has($category2));
 
         $criteria = new Criteria([$greenId, $parentId, $redId]);
-        $criteria->addAssociation('product.categories', new PaginationCriteria(3));
+        $criteria->addAssociation('categories', new PaginationCriteria(3));
         $context->setConsiderInheritance(false);
         $products = $this->productRepository->search($criteria, $context);
 
@@ -923,7 +923,7 @@ class EntityReaderTest extends TestCase
         $criteria = new Criteria([$id1, $id2]);
         $addressCriteria = new Criteria();
         $addressCriteria->addFilter(new EqualsFilter('customer_address.zipcode', 'B'));
-        $criteria->addAssociation('customer.addresses', $addressCriteria);
+        $criteria->addAssociation('addresses', $addressCriteria);
 
         $customers = $repository->search($criteria, $context);
 
@@ -1017,7 +1017,7 @@ class EntityReaderTest extends TestCase
         $criteria = new Criteria([$id1, $id2]);
         $addressCriteria = new Criteria();
         $addressCriteria->addSorting(new FieldSorting('customer_address.zipcode', FieldSorting::ASCENDING));
-        $criteria->addAssociation('customer.addresses', $addressCriteria);
+        $criteria->addAssociation('addresses', $addressCriteria);
 
         $customers = $repository->search($criteria, $context);
 
@@ -1043,7 +1043,7 @@ class EntityReaderTest extends TestCase
         $criteria = new Criteria([$id1, $id2]);
         $addressCriteria = new Criteria();
         $addressCriteria->addSorting(new FieldSorting('customer_address.zipcode', FieldSorting::DESCENDING));
-        $criteria->addAssociation('customer.addresses', $addressCriteria);
+        $criteria->addAssociation('addresses', $addressCriteria);
 
         $customers = $repository->search($criteria, $context);
 
@@ -1107,14 +1107,14 @@ class EntityReaderTest extends TestCase
         ], $context);
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('customer.addresses', new PaginationCriteria(1));
+        $criteria->addAssociation('addresses', new PaginationCriteria(1));
         /** @var CustomerEntity $customer */
         $customer = $repository->search($criteria, $context)->get($id);
         static::assertNotNull($customer->getAddresses());
         static::assertCount(1, $customer->getAddresses());
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('customer.addresses', new PaginationCriteria(3));
+        $criteria->addAssociation('addresses', new PaginationCriteria(3));
         $customer = $repository->search($criteria, $context)->get($id);
         static::assertNotNull($customer->getAddresses());
         static::assertCount(3, $customer->getAddresses());
@@ -1225,7 +1225,7 @@ class EntityReaderTest extends TestCase
         $productCriteria->addAssociation('categories');
 
         $manufacturerCriteria = new Criteria([$manufacturerId]);
-        $manufacturerCriteria->addAssociation('product_manufacturer.products', $productCriteria);
+        $manufacturerCriteria->addAssociation('products', $productCriteria);
 
         /** @var ProductManufacturerEntity $manufacturer */
         $manufacturer = $manufacturerRepo->search($manufacturerCriteria, $context)->get($manufacturerId);
@@ -1378,7 +1378,7 @@ class EntityReaderTest extends TestCase
         $productCriteria = new Criteria();
         $productCriteria->addFilter(new EqualsFilter('product.active', true));
 
-        $criteria->addAssociation('category.products', $productCriteria);
+        $criteria->addAssociation('products', $productCriteria);
         $categories = $repository->search($criteria, $context);
 
         /** @var CategoryEntity $category1 */
@@ -1454,7 +1454,7 @@ class EntityReaderTest extends TestCase
         $productCriteria = new Criteria();
         $productCriteria->addSorting(new FieldSorting('product.name', FieldSorting::ASCENDING));
 
-        $criteria->addAssociation('category.products', $productCriteria);
+        $criteria->addAssociation('products', $productCriteria);
         $categories = $repository->search($criteria, $context);
 
         /** @var CategoryEntity $category1 */
@@ -1485,7 +1485,7 @@ class EntityReaderTest extends TestCase
         $productCriteria = new Criteria();
         $productCriteria->addSorting(new FieldSorting('product.name', FieldSorting::DESCENDING));
 
-        $criteria->addAssociation('category.products', $productCriteria);
+        $criteria->addAssociation('products', $productCriteria);
         $categories = $repository->search($criteria, $context);
 
         /** @var CategoryEntity $category1 */
@@ -1559,7 +1559,7 @@ class EntityReaderTest extends TestCase
         $this->productRepository->upsert($products, $context);
 
         $criteria = new Criteria([$id1, $id2]);
-        $criteria->addAssociation('product.categories', new PaginationCriteria(3));
+        $criteria->addAssociation('categories', new PaginationCriteria(3));
 
         $products = $this->productRepository->search($criteria, $context);
 

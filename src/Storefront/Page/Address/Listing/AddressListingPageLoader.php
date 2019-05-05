@@ -107,7 +107,7 @@ class AddressListingPageLoader
     {
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('country.active', true))
-            ->addAssociation('country.states');
+            ->addAssociation('states');
 
         /** @var CountryCollection $countries */
         $countries = $this->countryRepository

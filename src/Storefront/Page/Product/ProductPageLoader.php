@@ -145,10 +145,8 @@ class ProductPageLoader
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('id', $productId));
-        $criteria->addAssociation('product.media');
-        $criteria->addAssociation('product.prices');
-        $criteria->addAssociation('prices');
         $criteria->addAssociation('media');
+        $criteria->addAssociation('prices');
         $criteria->addAssociation('cover');
         $criteria->addAssociationPath('properties.group');
 

@@ -29,7 +29,7 @@ class SalesChannelCmsPageRepository
         $blockCriteria->addAssociation('slots');
         $blockCriteria->addAssociation('backgroundMedia');
         $blockCriteria->addSorting(new FieldSorting('position', 'ASC'));
-        $criteria->addAssociation('cms_page.blocks', $blockCriteria);
+        $criteria->addAssociation('blocks', $blockCriteria);
 
         /** @var CmsPageCollection $pages */
         $pages = $this->cmsPageRepository->search($criteria, $context->getContext())->getEntities();
@@ -46,7 +46,7 @@ class SalesChannelCmsPageRepository
         $blockCriteria->addAssociation('slots');
         $blockCriteria->addAssociation('backgroundMedia');
         $blockCriteria->addSorting(new FieldSorting('position', 'ASC'));
-        $criteria->addAssociation('cms_page.blocks', $blockCriteria);
+        $criteria->addAssociation('blocks', $blockCriteria);
 
         /** @var CmsPageCollection $pages */
         $pages = $this->cmsPageRepository->search($criteria, $context->getContext())->getEntities();

@@ -56,8 +56,8 @@ class StateMachineRegistry
         $statesCriteria->addSorting(new FieldSorting('state_machine_state.technicalName'));
 
         $criteria = new Criteria();
-        $criteria->addAssociation('state_machine.transitions', $transitionCriteria);
-        $criteria->addAssociation('state_machine.states', $statesCriteria);
+        $criteria->addAssociation('transitions', $transitionCriteria);
+        $criteria->addAssociation('states', $statesCriteria);
         $criteria->addFilter(new EqualsFilter('state_machine.technicalName', $name));
         $criteria->setLimit(1);
 

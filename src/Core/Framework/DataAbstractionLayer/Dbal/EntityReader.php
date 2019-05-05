@@ -167,8 +167,8 @@ class EntityReader implements EntityReaderInterface
                 $alias = $root . '.' . $field->getPropertyName();
 
                 $joinCriteria = null;
-                if ($criteria && $criteria->hasAssociation($accessor, $definition)) {
-                    $joinCriteria = $criteria->getAssociation($accessor, $definition);
+                if ($criteria && $criteria->hasAssociation($field->getPropertyName())) {
+                    $joinCriteria = $criteria->getAssociation($field->getPropertyName());
                     $basics = $this->addAssociationFieldsToCriteria($joinCriteria, $reference, $basics);
                 }
 
@@ -274,7 +274,7 @@ class EntityReader implements EntityReaderInterface
         Context $context,
         EntityCollection $collection
     ): void {
-        $associationCriteria = $criteria->getAssociation($association->getPropertyName(), $definition) ?? new Criteria();
+        $associationCriteria = $criteria->getAssociation($association->getPropertyName()) ?? new Criteria();
 
         //check if the requested criteria is restricted (limit, offset, sorting, filtering)
         if ($this->isAssociationRestricted($criteria, $definition, $association->getPropertyName())) {
@@ -355,8 +355,8 @@ class EntityReader implements EntityReaderInterface
         EntityCollection $collection
     ): void {
         $fieldCriteria = new Criteria();
-        if ($criteria->hasAssociation($association->getPropertyName(), $definition)) {
-            $fieldCriteria = $criteria->getAssociation($association->getPropertyName(), $definition);
+        if ($criteria->hasAssociation($association->getPropertyName())) {
+            $fieldCriteria = $criteria->getAssociation($association->getPropertyName());
         }
 
         //association should not be paginated > load data over foreign key condition
@@ -874,12 +874,12 @@ class EntityReader implements EntityReaderInterface
             return false;
         }
 
-        if (!$criteria->hasAssociation($accessor, $definition)) {
+        if (!$criteria->hasAssociation($accessor)) {
             return false;
         }
 
         /** @var Criteria $fieldCriteria */
-        $fieldCriteria = $criteria->getAssociation($accessor, $definition);
+        $fieldCriteria = $criteria->getAssociation($accessor);
 
         return $fieldCriteria->getOffset() !== null
             || $fieldCriteria->getLimit() !== null
@@ -925,12 +925,12 @@ class EntityReader implements EntityReaderInterface
             return;
         }
 
-        if (!$criteria->hasAssociation($association->getPropertyName(), $definition)) {
+        if (!$criteria->hasAssociation($association->getPropertyName())) {
             return;
         }
 
         /** @var Criteria $associationCriteria */
-        $associationCriteria = $criteria->getAssociation($association->getPropertyName(), $definition);
+        $associationCriteria = $criteria->getAssociation($association->getPropertyName());
         if (!$associationCriteria->getAssociations()) {
             return;
         }

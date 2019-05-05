@@ -227,7 +227,8 @@
         "mediaExplanation": "You can pick media for each option for the Storefront.",
         "mediaOptions": "Options",
         "cancel": "Cancel",
-        "save": "Save"
+        "save": "Save",
+        "useForListing": "Split in listing"
       }
     }
   }

@@ -457,7 +457,7 @@ export default {
                 this.deleteElement(item);
 
                 const parent = this.findById(item.parentId);
-                if (parent.id !== item.parentId) {
+                if (parent.id === item.parentId) {
                     parent.data.childCount -= 1;
                 }
             }

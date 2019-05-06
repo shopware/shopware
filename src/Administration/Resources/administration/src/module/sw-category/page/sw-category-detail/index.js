@@ -24,7 +24,7 @@ Component.register('sw-category-detail', {
             categories: [],
             isLoading: false,
             isLoadingCategory: false,
-            isLoadingInitialData: false,
+            isLoadingInitialData: true,
             mediaItem: null,
             isMobileViewport: null,
             splitBreakpoint: 1024,
@@ -128,10 +128,6 @@ Component.register('sw-category-detail', {
 
         getCategories(parentId = null) {
             this.isLoading = true;
-
-            if (parentId === null) {
-                this.isLoadingInitialData = true;
-            }
 
             const params = {
                 page: 1,
@@ -290,6 +286,7 @@ Component.register('sw-category-detail', {
 
         onChangeLanguage() {
             this.disableContextMenu = this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId;
+            this.isLoadingInitialData = true;
             this.getCategories().then(() => {
                 this.setCategory();
             });

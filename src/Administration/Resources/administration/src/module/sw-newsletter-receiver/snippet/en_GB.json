@@ -1,13 +1,13 @@
 {
   "sw-newsletter-receiver": {
     "general": {
-      "description": "The module for managing newsletter receiver.",
+      "description": "The module for managing newsletter recipients.",
       "information": "Information",
       "language": "Language",
       "salutation": "Salutation",
       "salesChannel": "Sales channel",
       "buttonSave": "Save",
-      "mainMenuItemGeneral": "Newsletter receiver",
+      "mainMenuItemGeneral": "Newsletter recipients",
       "placeholderSearchBarSnippets": "Search all newsletter recipients",
       "tags": "Tags"
     },
@@ -21,7 +21,7 @@
       "titleSidebarItemRefresh": "Refresh",
       "titleSidebarItemFilter": "Filters",
       "status": "Status",
-      "textHeadline": "Newsletter receiver",
+      "textHeadline": "Newsletter recipients",
       "email": "Email",
       "firstName": "First name",
       "lastName": "Last name",
@@ -32,7 +32,7 @@
       "optIn": "Active",
       "optOut": "Await deletion",
       "direct": "Direct active",
-      "messageEmpty": "No Newsletter receiver yet"
+      "messageEmpty": "No Newsletter recipients yet"
     }
   }
 }

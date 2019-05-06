@@ -1,13 +1,13 @@
 {
   "sw-manufacturer": {
     "general": {
-      "mainMenuItemList": "Manufacturer",
-      "mainMenuItemGeneral": "Manufacturer",
+      "mainMenuItemList": "Manufacturers",
+      "mainMenuItemGeneral": "Manufacturers",
       "placeholderSearchBar": "Search manufacturers"
     },
     "list": {
-      "textManufacturerOverview": "Manufacturer",
-      "textTotalManufacturer": "No manufacturer | One manufacturer | {count} manufacturers",
+      "textManufacturerOverview": "Manufacturers",
+      "textTotalManufacturer": "No manufacturers | One manufacturer | {count} manufacturers",
       "buttonAddManufacturer": "Add manufacturer",
       "columnName": "Manufacturer",
       "columnLink": "Website",

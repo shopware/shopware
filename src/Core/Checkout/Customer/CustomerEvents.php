@@ -83,7 +83,7 @@ class CustomerEvents
      * @Event("\Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent")
      */
     public const CUSTOMER_REGISTER_EVENT = 'checkout.customer.register';
-    
+
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent")
      */

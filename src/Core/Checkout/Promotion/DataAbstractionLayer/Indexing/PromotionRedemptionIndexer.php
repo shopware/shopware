@@ -134,11 +134,11 @@ class PromotionRedemptionIndexer implements IndexerInterface
                 ON o.id = oc.order_id
         ';
 
-        $rawData = $this->connection->fetchAll($query, [
-            'lineItemIds' => $lineItemIds,
-        ], [
-            'lineItemIds' => Connection::PARAM_STR_ARRAY,
-        ]);
+        $rawData = $this->connection->fetchAll(
+            $query,
+            ['lineItemIds' => $lineItemIds, 'type' => 'promotion'],
+            ['lineItemIds' => Connection::PARAM_STR_ARRAY]
+        );
 
         $orders = [];
 
@@ -153,7 +153,7 @@ class PromotionRedemptionIndexer implements IndexerInterface
 
             $orders[$rawOrder['id']]['lineItems'][] = [
                 'type' => $rawOrder['type'],
-                'payload' => json_decode($rawOrder['payload'], true),
+                'payload' => json_decode((string) $rawOrder['payload'], true),
             ];
         }
 

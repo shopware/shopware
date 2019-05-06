@@ -134,6 +134,12 @@ return [
                         'related' => '/api/media/3e352be2d85846dd97529c0f6b544870/cms-blocks',
                     ],
                 ],
+                'cmsPages' => [
+                    'data' => [],
+                    'links' => [
+                        'related' => '/api/media/3e352be2d85846dd97529c0f6b544870/cms-pages',
+                    ],
+                ],
             ],
             'meta' => null,
         ], [
@@ -265,6 +271,12 @@ return [
                     'data' => [],
                     'links' => [
                         'related' => '/api/media/f1ad1d0c02454a40abf250f764d16248/cms-blocks',
+                    ],
+                ],
+                'cmsPages' => [
+                    'data' => [],
+                    'links' => [
+                        'related' => '/api/media/f1ad1d0c02454a40abf250f764d16248/cms-pages',
                     ],
                 ],
             ],

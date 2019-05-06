@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Shopware\Core\Framework\Event\BusinessEventDispatcher;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class OrderPersister implements OrderPersisterInterface

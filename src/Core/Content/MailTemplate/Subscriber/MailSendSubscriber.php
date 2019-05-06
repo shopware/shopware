@@ -61,7 +61,7 @@ class MailSendSubscriber implements EventSubscriberInterface
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('mailTemplateTypeId', $mailTemplateTypeId));
-        $criteria->addFilter(new EqualsFilter('mail_template.salesChannels.id', $event->getSalesChannelId()));
+        $criteria->addFilter(new EqualsFilter('mail_template.salesChannels.id', $mailEvent->getSalesChannelId()));
         $criteria->setLimit(1);
         /** @var MailTemplateEntity|null $mailTemplate */
         $mailTemplate = $this->mailTemplateRepository->search($criteria, $event->getContext())->first();
@@ -73,7 +73,7 @@ class MailSendSubscriber implements EventSubscriberInterface
         $data = new DataBag();
         $data->set('recipients', $mailEvent->getMailStruct()->getRecipients());
         $data->set('senderName', $mailTemplate->getSenderName());
-        $data->set('salesChannelId', $event->getSalesChannelId());
+        $data->set('salesChannelId', $mailEvent->getSalesChannelId());
 
         $data->set('contentHtml', $mailTemplate->getContentHtml());
         $data->set('contentPlain', $mailTemplate->getContentPlain());

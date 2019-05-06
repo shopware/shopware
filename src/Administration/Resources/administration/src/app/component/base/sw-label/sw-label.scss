@@ -2,9 +2,9 @@
 @import "~scss/mixins";
 @import "sw-label-variant";
 
-$sw-label-border-radius: $border-radius-default;
+$sw-label-border-radius: $border-radius-default / 2;
 $sw-label-pill-border-radius: 50px;
-$sw-label-color-background: darken($color-light-gray, 5%);
+$sw-label-color-background: $color-iron;
 $sw-label-color-text: $color-gutenberg;
 $sw-label-color-border: darken($color-light-gray, 15%);
 $sw-label-info-color-background: lighten($color-shopware-blue, 40%);
@@ -30,15 +30,19 @@ $sw-label-warning-color-border: $color-pumpkin-spice;
     padding: 4px 12px 4px 12px;
     line-height: 22px;
     font-size: 13px;
+    height: 32px;
+    border: 1px solid $color-steam-cloud;
     background: $sw-label-color-background;
     border-radius: $sw-label-border-radius;
     color: $sw-label-color-text;
     flex-shrink: 0;
     cursor: default;
-    border: 1px solid transparent;
 
     &:hover {
-        background: darken($sw-label-color-background, 3%);
+        &, .sw-label__dismiss {
+            border-color: $color-shopware-blue;
+            color: $color-shopware-blue;
+        }
     }
 
     &.sw-label--dismiss-able {

@@ -270,16 +270,6 @@ $sw-single-select-transition-result-icon: all ease-in-out .15s;
         }
     }
 
-    .is--default .sw-label {
-        background-color: $sw-single-select-color-background-default-item;
-        color: $sw-single-select-color-text-default-item;
-        border: 1px solid $sw-single-select-color-border-default-item;
-
-        &:hover {
-            background: darken($sw-single-select-color-background-default-item, 3%);
-        }
-    }
-
     &.is--expanded .sw-single-select__inner {
         border-color: $sw-single-select-color-border-focus;
         border-bottom-right-radius: 0;

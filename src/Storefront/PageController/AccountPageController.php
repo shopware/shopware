@@ -545,12 +545,11 @@ class AccountPageController extends StorefrontController
      *
      * @throws CustomerNotLoggedInException
      */
-    public function deleteAddress(Request $request, SalesChannelContext $context): Response
+    public function deleteAddress(string $addressId, SalesChannelContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
         $success = true;
-        $addressId = $request->request->get('addressId');
 
         if (!$addressId) {
             throw new MissingRequestParameterException('addressId');

@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\DataMappingEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
@@ -101,7 +102,12 @@ class AccountRegistrationService
 
         $this->customerRepository->create([$customer], $context->getContext());
 
-        $event = new CustomerRegisterEvent($context->getContext(), $customer, $context->getSalesChannel()->getId());
+        $criteria = new Criteria([$customer['id']]);
+        $criteria->addAssociation('addresses');
+
+        $customerEntity = $this->customerRepository->search($criteria, $context->getContext())->first();
+
+        $event = new CustomerRegisterEvent($context->getContext(), $customerEntity, $context->getSalesChannel()->getId());
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $customer['id'];

@@ -3,20 +3,23 @@
 namespace Shopware\Core\Checkout\Customer\Event;
 
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Event\MailActionInterface;
 use Symfony\Component\EventDispatcher\Event;
 
-class CustomerRegisterEvent extends Event implements BusinessEventInterface
+class CustomerRegisterEvent extends Event implements BusinessEventInterface, MailActionInterface
 {
     public const EVENT_NAME = 'checkout.customer.register';
 
     /**
-     * @var array
+     * @var CustomerEntity
      */
-    private $customer;
+    public $customer;
 
     /**
      * @var Context
@@ -28,7 +31,12 @@ class CustomerRegisterEvent extends Event implements BusinessEventInterface
      */
     private $salesChannelId;
 
-    public function __construct(Context $context, array $customer, string $salesChannelId)
+    /**
+     * @var MailRecipientStruct|null
+     */
+    private $mailRecipientStruct;
+
+    public function __construct(Context $context, CustomerEntity $customer, string $salesChannelId)
     {
         $this->customer = $customer;
         $this->context = $context;
@@ -40,7 +48,7 @@ class CustomerRegisterEvent extends Event implements BusinessEventInterface
         return self::EVENT_NAME;
     }
 
-    public function getCustomer(): array
+    public function getCustomer(): CustomerEntity
     {
         return $this->customer;
     }
@@ -54,5 +62,23 @@ class CustomerRegisterEvent extends Event implements BusinessEventInterface
     {
         return (new EventDataCollection())
             ->add('customer', new EntityType(CustomerDefinition::class));
+    }
+
+    public function getMailStruct(): MailRecipientStruct
+    {
+        if ($this->mailRecipientStruct) {
+            return $this->mailRecipientStruct;
+        }
+
+        return new MailRecipientStruct(
+            [
+                $this->customer->getEmail() => $this->customer->getFirstName() . ' ' . $this->customer->getLastName(),
+            ]
+        );
+    }
+
+    public function getSalesChannelId(): string
+    {
+        return $this->salesChannelId;
     }
 }

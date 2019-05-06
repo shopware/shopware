@@ -8,9 +8,11 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Event\MailActionInterface;
 use Symfony\Component\EventDispatcher\Event;
 
-class NewsletterRegisterEvent extends Event implements BusinessEventInterface
+class NewsletterRegisterEvent extends Event implements BusinessEventInterface, MailActionInterface
 {
     public const EVENT_NAME = 'newsletter.register';
 
@@ -23,6 +25,11 @@ class NewsletterRegisterEvent extends Event implements BusinessEventInterface
      * @var NewsletterReceiverEntity
      */
     private $receiverEntity;
+
+    /**
+     * @var MailRecipientStruct|null
+     */
+    private $mailRecipientStruct;
 
     /**
      * @var string
@@ -66,5 +73,23 @@ class NewsletterRegisterEvent extends Event implements BusinessEventInterface
     public function getUrl(): string
     {
         return $this->url;
+    }
+
+    public function getMailStruct(): MailRecipientStruct
+    {
+        if ($this->mailRecipientStruct) {
+            return $this->mailRecipientStruct;
+        }
+
+        return new MailRecipientStruct(
+            [
+                $this->receiverEntity->getEmail() => $this->receiverEntity->getFirstName() . ' ' . $this->receiverEntity->getLastName(),
+            ]
+        );
+    }
+
+    public function getSalesChannelId(): string
+    {
+        return $this->salesChannelId;
     }
 }

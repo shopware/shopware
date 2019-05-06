@@ -4,17 +4,19 @@
             {% block layout_navigation_flyout_bar_category %}
                 <div class="col">
                     <div class="navigation-flyout-category-link">
-						{% block layout_navigation_flyout_bar_category_link %}
-                            <a class="nav-link"
-                               href="{{ path('frontend.navigation.page', {'navigationId': navigationTree.category.id}) }}"
-                               itemprop="url"
-                               title="{{ navigationTree.category.translated.name }}">
-								{% block layout_navigation_flyout_bar_category_link_text %}
-									{{ "general.toCategory"|trans }} {{ navigationTree.category.translated.name }}
-                                    <i class="fas fa-chevron-right"></i>
-								{% endblock %}
-                            </a>
-						{% endblock %}
+                        {% block layout_navigation_flyout_bar_category_link %}
+                            {% if navigationTree.category.type == 'page' %}
+                                <a class="nav-link"
+                                   href="{{ path('frontend.navigation.page', {'navigationId': navigationTree.category.id}) }}"
+                                   itemprop="url"
+                                   title="{{ navigationTree.category.translated.name }}">
+                                    {% block layout_navigation_flyout_bar_category_link_text %}
+                                        {{ "general.toCategory"|trans }} {{ navigationTree.category.translated.name }}
+                                        <i class="fas fa-chevron-right"></i>
+                                    {% endblock %}
+                                </a>
+                            {% endif %}
+                        {% endblock %}
                     </div>
                 </div>
             {% endblock %}
@@ -22,9 +24,9 @@
             {% block layout_navigation_flyout_bar_close %}
                 <div class="col-auto">
                     <div class="navigation-flyout-close js-close-flyout-menu">
-						{% block layout_navigation_flyout_bar_close_content %}
+                        {% block layout_navigation_flyout_bar_close_content %}
                             <i class="fas fa-times"></i>
-						{% endblock %}
+                        {% endblock %}
                     </div>
                 </div>
             {% endblock %}
@@ -41,16 +43,18 @@
                 </div>
             {% endblock %}
 
-            {% block layout_navigation_flyout_teaser %}
-                {# @TODO NEXT-1994: add if and category image #}
-                <div class="navigation-flyout-teaser">
-                    {% block layout_navigation_flyout_teaser_image %}
-                        <a class="teaser-image" href="/beach-und-relax/tag-am-meer/"
-                            title="Zur Kategorie Beach &amp; Relax"
-                            style="background-image: url(https://www.shopwaredemo.de/media/image/7b/f2/97/teaser-beach.png);"></a>
-                    {% endblock %}
-                </div>
-            {% endblock %}
+            {% if navigationTree.category.media %}
+                {% block layout_navigation_flyout_teaser %}
+                    <div class="navigation-flyout-teaser">
+                        {% block layout_navigation_flyout_teaser_image %}
+                            <a class="teaser-image"
+                               href="{{ path('frontend.navigation.page', {'navigationId': navigationTree.category.id}) }}"
+                               title="Zur Kategorie {{ navigationTree.category.translated.name }}"
+                               style="background-image: url('{{ navigationTree.category.media.url }}');"></a>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            {% endif %}
             <div class="clearfix"></div>
         </div>
     {% endblock %}

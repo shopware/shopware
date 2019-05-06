@@ -81,7 +81,11 @@ export default {
                 }
             }
 
-            return compareTo ? compareTo.replace(/-/g, '.').indexOf(path.replace(/\.index/g, '')) === 0 : false;
+            if (this.entry.path) {
+                return compareTo ? compareTo.replace(/-/g, '.').indexOf(path.replace(/\.index/g, '')) === 0 : false;
+            }
+
+            return this.entry.id === compareTo;
         }
     }
 };

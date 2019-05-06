@@ -122,8 +122,6 @@ Component.register('sw-sales-channel-detail', {
         },
 
         onSave() {
-            // TODO: Restore sync with domains
-            // this.syncWithDomains();
             this.isLoading = true;
 
             this.isSaveSuccessful = false;
@@ -157,34 +155,6 @@ Component.register('sw-sales-channel-detail', {
 
         onChangeLanguage() {
             this.loadEntityData();
-        },
-
-        /**
-         * For storefront sales channels, the possible languages and currencies are determined by those in the domains
-         * instead of salesChannel.`languages`/`currencies`. Theses mappings are still required by the backend, so we
-         * need to add the missing ones, that are only set in the domains.
-         */
-        syncWithDomains() {
-            if (!this.isStoreFront || !this.salesChannel.domains) {
-                return;
-            }
-            this.salesChannel.domains.forEach((domain) => {
-                if (!this.salesChannel.languages.find(d => d.languageId === domain.languageId)) {
-                    const language = this.salesChannelLanguagesStore.create(domain.languageId);
-                    this.salesChannel.languages.push(language);
-                    if (!this.salesChannel.languageId) {
-                        this.salesChannel.languageId = language.id;
-                    }
-                }
-
-                if (!this.salesChannel.currencies.find(d => d.currencyId === domain.currencyId)) {
-                    const currency = this.salesChannelCurrenciesStore.create(domain.currencyId);
-                    this.salesChannel.currencies.push(currency);
-                    if (!this.salesChannel.currencyId) {
-                        this.salesChannel.currencyId = currency.id;
-                    }
-                }
-            });
         }
     }
 });

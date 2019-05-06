@@ -270,16 +270,6 @@ $sw-multi-select-transition-result-icon: all ease-in-out .15s;
         }
     }
 
-    .is--default .sw-label {
-        background-color: $sw-multi-select-color-background-default-item;
-        color: $sw-multi-select-color-text-default-item;
-        border: 1px solid $sw-multi-select-color-border-default-item;
-
-        &:hover {
-            background: darken($sw-multi-select-color-background-default-item, 3%);
-        }
-    }
-
     &.is--expanded .sw-multi-select__inner {
         border-color: $sw-multi-select-color-border-focus;
         border-bottom-right-radius: 0;

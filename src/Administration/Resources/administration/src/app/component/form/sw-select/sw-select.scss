@@ -271,16 +271,6 @@ $sw-select-transition-result-icon: all ease-in-out .15s;
         }
     }
 
-    .is--default .sw-label {
-        background-color: $sw-select-color-background-default-item;
-        color: $sw-select-color-text-default-item;
-        border: 1px solid $sw-select-color-border-default-item;
-
-        &:hover {
-            background: darken($sw-select-color-background-default-item, 3%);
-        }
-    }
-
     &.is--expanded .sw-select__inner {
         border-color: $sw-select-color-border-focus;
         border-bottom-right-radius: 0;

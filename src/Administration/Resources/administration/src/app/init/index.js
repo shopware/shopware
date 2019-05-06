@@ -15,6 +15,7 @@ import initComponents from 'src/app/init/component.init';
 import initWorker from 'src/app/init/worker.init';
 import initSvgIcons from 'src/app/init/svg-icons.init';
 import initUserContext from 'src/app/init/user-information.init';
+import initConfig from 'src/app/init/config.init';
 
 export default {
     contextService: initContext,
@@ -31,6 +32,7 @@ export default {
     router: initRouter,
     entity: initEntity,
     locale: initLocale,
+    config: initConfig,
     worker: initWorker,
     userInfo: initUserContext,
     repositoryFactory: initRepository

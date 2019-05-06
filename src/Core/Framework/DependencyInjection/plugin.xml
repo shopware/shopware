@@ -39,6 +39,7 @@
             <argument type="service" id="Shopware\Core\Framework\Plugin\Util\AssetService"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\Composer\CommandExecutor"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator"/>
+            <argument>%kernel.shopware_version%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\Changelog\ChangelogParser"/>

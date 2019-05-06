@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Kernel;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -326,7 +327,8 @@ class PluginLifecycleServiceTest extends TestCase
             $this->connection,
             $this->container->get(AssetService::class),
             $this->container->get(CommandExecutor::class),
-            $this->container->get(RequirementsValidator::class)
+            $this->container->get(RequirementsValidator::class),
+            Kernel::SHOPWARE_FALLBACK_VERSION
         );
     }
 

@@ -104,7 +104,7 @@
                                                                autocomplete="section-personal email"
                                                                id="personalMail"
                                                                placeholder="{{ "account.personalMailPlaceholder"|trans }}{{ "general.required"|trans }}"
-                                                               name="email"
+                                                               name="email[email]"
                                                                data-form-validation-equal="personalMail"
                                                                required="required">
                                                     {% endblock %}
@@ -126,7 +126,7 @@
                                                                autocomplete="section-personal email"
                                                                id="personalMailConfirmation"
                                                                placeholder="{{ "account.personalMailConfirmationPlaceholder"|trans }}{{ "general.required"|trans }}"
-                                                               name="emailConfirmation"
+                                                               name="email[emailConfirmation]"
                                                                required="required"
                                                                data-form-validation-equal="personalMail"
                                                                data-form-validation-equal-message="{{ "account.personalMailConfirmationInvalidMessage"|trans }}">
@@ -149,7 +149,7 @@
                                                                autocomplete="new-password"
                                                                id="personalMailPassword"
                                                                placeholder="{{ "account.personalPasswordPlaceholder"|trans }}{{ "general.required"|trans }}"
-                                                               name="password"
+                                                               name="email[password]"
                                                                required="required">
                                                     {% endblock %}
                                                 </div>
@@ -207,7 +207,7 @@
                                                                autocomplete="new-password"
                                                                id="newPassword"
                                                                placeholder="{{ "account.profilePasswordCreateNew"|trans }}{{ "general.required"|trans }}"
-                                                               name="newPassword"
+                                                               name="password[newPassword]"
                                                                data-form-validation-equal="newPassword"
                                                                data-form-validation-length="{{ shopware.config.register.minPasswordLength }}"
                                                                data-form-validation-length-message=" {{ "account.personalPasswordDescription"|trans({
@@ -233,7 +233,7 @@
                                                                autocomplete="new-password"
                                                                id="passwordConfirmation"
                                                                placeholder="{{ "account.personalPasswordConfirmationLabel"|trans }}{{ "general.required"|trans }}"
-                                                               name="newPasswordConfirm"
+                                                               name="password[newPasswordConfirm]"
                                                                required="required"
                                                                data-form-validation-equal="newPassword"
                                                                data-form-validation-equal-message="{{ "account.personalPasswordConfirmationInvalidMessage"|trans }}">
@@ -256,7 +256,7 @@
                                                                autocomplete="new-password"
                                                                id="password"
                                                                placeholder="{{ "account.profilePasswordCurrent"|trans }}{{ "general.required"|trans }}"
-                                                               name="password"
+                                                               name="password[password]"
                                                                required="required">
                                                     {% endblock %}
                                                 </div>

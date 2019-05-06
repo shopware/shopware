@@ -42,66 +42,78 @@ export default class CustomerFixtureService extends AdminFixtureService {
             });
         }).then((paymentMethod) => {
             paymentMethodId = paymentMethod.id;
-        }).then(() => {
-            return this.apiClient.post('/v1/search/sales-channel?response=true', {
-                filter: [{
-                    field: 'name',
-                    type: 'equals',
-                    value: 'Storefront API'
-                }]
-            });
-        }).then((salesChannel) => {
-            salesChannelId = salesChannel.id;
-        }).then(() => {
-            return this.apiClient.post('/v1/search/customer-group?response=true', {
-                filter: [{
-                    field: 'name',
-                    type: 'equals',
-                    value: 'Standard customer group'
-                }]
-            });
-        }).then((group) => {
-            groupId = group.id;
-        }).then(() => {
-            return this.apiClient.post('/v1/search/salutation?response=true', {
-                filter: [{
-                    field: 'displayName',
-                    type: 'equals',
-                    value: 'Mr.'
-                }]
-            });
-        }).then((salutation) => {
-            salutationId = salutation.id;
-        }).then(() => {
-            finalAddressRawData = this.mergeFixtureWithData({
-                addresses: [{
-                    customerId: customerId,
+        })
+            .then(() => {
+                return this.apiClient.post('/v1/search/sales-channel?response=true', {
+                    filter: [{
+                        field: 'name',
+                        type: 'equals',
+                        value: 'Storefront'
+                    }]
+                });
+            })
+            .then((salesChannel) => {
+                salesChannelId = salesChannel.id;
+            })
+            .then(() => {
+                return this.apiClient.post('/v1/search/customer-group?response=true', {
+                    filter: [{
+                        field: 'name',
+                        type: 'equals',
+                        value: 'Standard customer group'
+                    }]
+                });
+            })
+            .then((group) => {
+                groupId = group.id;
+            })
+            .then(() => {
+                return this.apiClient.post('/v1/search/salutation?response=true', {
+                    filter: [{
+                        field: 'displayName',
+                        type: 'equals',
+                        value: 'Mr.'
+                    }]
+                });
+            })
+            .then((salutation) => {
+                salutationId = salutation.id;
+            })
+            .then(() => {
+                finalAddressRawData = this.mergeFixtureWithData({
+                    addresses: [{
+                        customerId: customerId,
+                        salutationId: salutationId,
+                        id: addressId,
+                        countryId: countryId
+                    }]
+                }, customerAddressJson);
+            })
+            .then(() => {
+                return this.mergeFixtureWithData(customerJson, {
                     salutationId: salutationId,
-                    id: addressId,
-                    countryId: countryId
-                }]
-            }, customerAddressJson);
-        }).then(() => {
-            return this.mergeFixtureWithData(customerJson, {
-                salutationId: salutationId,
-                defaultPaymentMethodId: paymentMethodId,
-                salesChannelId: salesChannelId,
-                groupId: groupId,
-                defaultBillingAddressId: addressId,
-                defaultShippingAddressId: addressId
+                    defaultPaymentMethodId: paymentMethodId,
+                    salesChannelId: salesChannelId,
+                    groupId: groupId,
+                    defaultBillingAddressId: addressId,
+                    defaultShippingAddressId: addressId
+                });
+            })
+            .then((finalCustomerRawData) => {
+                return this.mergeFixtureWithData(finalCustomerRawData, finalAddressRawData, userData);
+            })
+            .then((finalCustomerData) => {
+                return this.apiClient.post('/v1/customer?_response=true', finalCustomerData);
+            })
+            .then((data) => {
+                const endTime = new Date() - startTime;
+                global.logger.success(`${data.id} (${endTime / 1000}s)`);
+                global.logger.lineBreak();
+            })
+            .catch((err) => {
+                global.logger.error(err);
+                global.logger.lineBreak();
             });
-        }).then((finalCustomerRawData) => {
-            return this.mergeFixtureWithData(finalCustomerRawData, finalAddressRawData, userData);
-        }).then((finalCustomerData) => {
-            return this.apiClient.post('/v1/customer?_response=true', finalCustomerData);
-        }).then((data) => {
-            const endTime = new Date() - startTime;
-            global.logger.success(`${data.id} (${endTime / 1000}s)`);
-            global.logger.lineBreak();
-        }).catch((err) => {
-            global.logger.error(err);
-            global.logger.lineBreak();
-        });
     }
 }
 

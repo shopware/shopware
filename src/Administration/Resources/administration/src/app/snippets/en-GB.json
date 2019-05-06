@@ -9,6 +9,12 @@
     "notification-center": {
       "title": "Notifications",
       "emptyText": "Congratulations, all done.",
+      "deleteModal": {
+        "title": "Delete notifications",
+        "textConfirm": "Are you sure you really want to delete all notifications?",
+        "cancel": "Cancel",
+        "delete": "Delete"
+      },
       "worker-listener": {
         "thumbnailGeneration": {
           "title": "Thumbnails are being generated",
@@ -16,6 +22,10 @@
           "titleSuccess": "Thumbnails finished",
           "messageSuccess": "Generation of the thumbnails was completed."
         }
+      },
+      "plugin-updates-listener": {
+        "updatesAvailableTitle": "Plugin-Updates available.",
+        "updatesAvailableMessage": "For some Plugins are updates available."
       }
     },
     "sw-admin-menu": {
@@ -412,7 +422,7 @@
         "createBefore": "Create before",
         "createAfter": "Create after",
         "delete": "Delete",
-        "shippingFreeRule": "Shipping free product",
+        "hasDeliveryFreeItemRule": "Shipping free product",
         "timeRangeRule": "Time range",
         "weightOfCartRule": "Weight of cart",
         "dayOfWeekRule": "Day of the week",

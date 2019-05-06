@@ -74,6 +74,10 @@ export default {
             return {
                 'sw-field--select-aside': this.aside && this.$attrs.label
             };
+        },
+
+        hasOptions() {
+            return this.options && this.options.length;
         }
     },
 

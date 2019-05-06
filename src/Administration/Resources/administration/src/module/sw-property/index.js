@@ -19,6 +19,7 @@ Module.register('sw-property', {
     targetVersion: '1.0.0',
     color: '#57D9A3',
     icon: 'default-symbol-products',
+    favicon: 'icon-module-products.png',
 
     snippets: {
         'de-DE': deDE,

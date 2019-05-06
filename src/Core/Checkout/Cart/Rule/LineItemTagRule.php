@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
@@ -37,12 +37,11 @@ class LineItemTagRule extends Rule
 
     public function match(RuleScope $scope): bool
     {
-        if (!$scope instanceof CartRuleScope) {
+        if (!$scope instanceof LineItemScope) {
             return false;
         }
 
-        $elements = $scope->getCart()->getLineItems();
-        $identifiers = $this->extractTagIds($elements);
+        $identifiers = $this->extractTagIds($scope->getLineItem());
 
         switch ($this->operator) {
             case self::OPERATOR_EQ:
@@ -63,18 +62,12 @@ class LineItemTagRule extends Rule
         ];
     }
 
-    private function extractTagIds(LineItemCollection $lineItems): array
+    private function extractTagIds(LineItem $lineItem): array
     {
-        $identifiers = [];
-
-        foreach ($lineItems as $lineItem) {
-            if (!$lineItem->hasPayloadValue('tags')) {
-                continue;
-            }
-
-            array_push($identifiers, ...$lineItem->getPayload()['tags']);
+        if (!$lineItem->hasPayloadValue('tags')) {
+            return [];
         }
 
-        return $identifiers;
+        return $lineItem->getPayload()['tags'];
     }
 }

@@ -49,7 +49,7 @@ module.exports = {
             `${salutation.attributes.translated.displayName} ${customerFixture.firstName} ${customerFixture.lastName}`
         );
         browser.expect.element('.sw-order-user-card__metadata-price').to.have.text.that.contains(global.ProductFixtureService.productFixture.price.gross);
-        browser.expect.element('.sw-order-base__label-sales-channel').to.have.text.that.contains('Storefront API');
+        browser.expect.element('.sw-order-base__label-sales-channel').to.have.text.that.contains('Storefront');
     },
     'verify line item details': (browser) => {
         const page = orderPage(browser);

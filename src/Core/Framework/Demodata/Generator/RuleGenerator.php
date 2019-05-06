@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\Container;
+use Shopware\Core\Framework\Rule\Container\FilterRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\DateRangeRule;
 use Shopware\Core\Framework\Rule\Rule;
@@ -183,6 +184,11 @@ class RuleGenerator implements DemodataGeneratorInterface
         $data = [];
         $data['value'] = $rule->jsonSerialize();
         unset($data['value']['_class'], $data['value']['rules'], $data['value']['extensions']);
+
+        if ($rule instanceof FilterRule) {
+            unset($data['value']['filter']);
+        }
+
         if (!$data['value']) {
             unset($data['value']);
         }

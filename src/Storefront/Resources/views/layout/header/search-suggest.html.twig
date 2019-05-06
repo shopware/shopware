@@ -40,7 +40,7 @@
 
                 {# Total results link #}
                 {% block layout_search_suggest_result_total %}
-                    {% if page.listing.total == 0 %}
+                    {% if page.searchResult.total == 0 %}
                         {% block layout_search_suggest_no_result %}
                             <li class="js-result no-search-result">
                                 {{ "header.searchNoResult"|trans }}

@@ -7,7 +7,9 @@
         z-index: 99;
 
         &.popup_left {
-            margin-right: -8px;
+            //margin-right: -8px;
+            top: 24px;
+            right: -50%;
         }
 
         .picker_done {
@@ -15,8 +17,8 @@
             order: 3;
 
             button {
-                color: $color-kashmir;
-                background: $color-link-water;
+                color: $color-white;
+                background: $color-shopware-blue;
                 border: 1px solid $color-steam-cloud;
                 border-radius: $border-radius-default;
                 padding: 2px 24px;
@@ -35,8 +37,8 @@
                 position: relative;
 
                 &:hover {
-                    color: darken($color-kashmir, 5%);
-                    background: darken($color-link-water, 5%);
+                    color: darken($color-white, 5%);
+                    background: darken($color-shopware-blue, 5%);
                     border-color: darken($color-steam-cloud, 5%);
                 }
             }

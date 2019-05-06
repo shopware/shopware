@@ -7,7 +7,8 @@ Component.register('sw-cms-list', {
     template,
 
     mixins: [
-        Mixin.getByName('listing')
+        Mixin.getByName('listing'),
+        Mixin.getByName('notification')
     ],
 
     metaInfo() {
@@ -25,7 +26,10 @@ Component.register('sw-cms-list', {
             term: '',
             disableRouteParams: true,
             noMorePages: false,
-            criteria: null
+            criteria: null,
+            showMediaModal: false,
+            currentPage: null,
+            showDeleteModal: false
         };
     },
 
@@ -36,6 +40,10 @@ Component.register('sw-cms-list', {
 
         languageStore() {
             return State.getStore('language');
+        },
+
+        defaultFolderStore() {
+            return State.getStore('media_default_folder');
         },
 
         sortOptions() {
@@ -73,6 +81,35 @@ Component.register('sw-cms-list', {
 
             // ToDo: Remove, when language handling is added to CMS
             this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+
+            this.setPageContext();
+        },
+
+        setPageContext() {
+            this.getDefaultFolderId().then((folderId) => {
+                this.pageStore.defaultMediaFolderId = folderId;
+            });
+        },
+
+        getDefaultFolderId() {
+            return this.defaultFolderStore.getList({
+                limit: 1,
+                criteria: CriteriaFactory.equals('entity', this.pageStore._entityName),
+                associations: {
+                    folder: {}
+                }
+            }).then(({ items }) => {
+                if (items.length !== 1) {
+                    return null;
+                }
+
+                const defaultFolder = items[0];
+                if (defaultFolder.folder.id) {
+                    return defaultFolder.folder.id;
+                }
+
+                return null;
+            });
         },
 
         handleScroll(event) {
@@ -150,6 +187,60 @@ Component.register('sw-cms-list', {
 
         onCreateNewLayout() {
             this.$router.push({ name: 'sw.cms.create' });
+        },
+
+        onPreviewChange(page) {
+            this.showMediaModal = true;
+            this.currentPage = page;
+        },
+
+        onPreviewImageRemove(page) {
+            page.previewMediaId = null;
+            page.save();
+            page.previewMedia = null;
+        },
+
+        onModalClose() {
+            this.showMediaModal = false;
+            this.currentPage = null;
+        },
+
+        onPreviewImageChange([image]) {
+            this.currentPage.previewMediaId = image.id;
+            this.currentPage.save();
+            this.currentPage.previewMedia = image;
+        },
+
+        onDeleteCmsPage(page) {
+            this.currentPage = page;
+            this.showDeleteModal = true;
+        },
+
+        onCloseDeleteModal() {
+            this.currentPage = null;
+            this.showDeleteModal = false;
+        },
+
+        onConfirmPageDelete() {
+            this.deleteCmsPage(this.currentPage);
+
+            this.currentPage = null;
+            this.showDeleteModal = false;
+        },
+
+        deleteCmsPage(page) {
+            const titleDeleteError = this.$tc('sw-cms.components.cmsListItem.notificationDeleteErrorTitle');
+            const messageDeleteError = this.$tc('sw-cms.components.cmsListItem.notificationDeleteErrorMessage');
+
+            this.currentPage.delete(true).then(() => {
+                const deletedPageIdx = this.pages.findIndex(i => i.id === page.id);
+                this.pages.splice(deletedPageIdx, 1);
+            }).catch(() => {
+                this.createNotificationError({
+                    title: titleDeleteError,
+                    message: messageDeleteError
+                });
+            });
         }
     }
 });

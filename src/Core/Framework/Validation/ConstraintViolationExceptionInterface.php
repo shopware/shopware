@@ -3,9 +3,9 @@
 namespace Shopware\Core\Framework\Validation;
 
 use Shopware\Core\Framework\ShopwareException;
-use Symfony\Component\Validator\ConstraintViolationListInterface;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 interface ConstraintViolationExceptionInterface extends ShopwareException
 {
-    public function getViolations(): ConstraintViolationListInterface;
+    public function getViolations(): ConstraintViolationList;
 }

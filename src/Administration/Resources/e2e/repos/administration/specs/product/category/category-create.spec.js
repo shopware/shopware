@@ -2,7 +2,6 @@ const productPage = require('administration/page-objects/module/sw-product.page-
 
 module.exports = {
     '@tags': ['category', 'category-create', 'create'],
-    '@disabled': !global.flags.isActive('next716'),
     before: (browser, done) => {
         global.ProductFixtureService.setProductFixture().then(() => {
             done();
@@ -73,8 +72,7 @@ module.exports = {
     'set category active': (browser) => {
         browser
             .click('.sw-tree-item')
-            .waitForElementVisible('.sw-field__switch')
-            .click('.sw-field__switch');
+            .tickCheckbox('#sw-field--category-active', true);
     },
     'set product assignment': (browser) => {
         browser
@@ -87,8 +85,7 @@ module.exports = {
     'save and verify product assignment': (browser) => {
         const page = productPage(browser);
         browser
-            .moveToElement('.sw-select__input-single', -25, 5)
-            .mouseButtonClick()
+            .getLocationInView(page.elements.primaryButton)
             .click(page.elements.primaryButton)
             .waitForElementVisible('.icon--small-default-checkmark-line-medium');
     }

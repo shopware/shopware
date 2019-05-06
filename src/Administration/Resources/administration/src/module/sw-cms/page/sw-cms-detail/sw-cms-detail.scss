@@ -67,14 +67,8 @@
         align-content: center;
         align-items: center;
 
-        .sw-field {
+        .sw-field.sw-field--select {
             margin: 0;
-
-            .sw-field__select select,
-            .sw-field__select .sw-field__select-load-placeholder {
-                height: 40px;
-                line-height: 22px;
-            }
         }
     }
 

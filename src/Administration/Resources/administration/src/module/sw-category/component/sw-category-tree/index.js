@@ -10,10 +10,12 @@ Component.register('sw-category-tree', {
     props: {
         categories: {
             type: Array,
-            required: true,
-            default() {
-                return [];
-            }
+            required: true
+        },
+
+        isLoadingInitialData: {
+            type: Boolean,
+            required: true
         },
 
         activeCategory: {
@@ -24,6 +26,7 @@ Component.register('sw-category-tree', {
 
         disableContextMenu: {
             type: Boolean,
+            required: false,
             default: false
         }
     },

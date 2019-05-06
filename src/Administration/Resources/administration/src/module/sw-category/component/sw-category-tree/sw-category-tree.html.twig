@@ -1,46 +1,51 @@
 {% block sw_category_tree %}
-    <sw-tree class="sw-category-tree"
-        after-id-property="afterCategoryId"
-        :items="categories"
-        :sortable="true"
-        :searchable="false"
-        :activeTreeItemId="activeTreeItemId"
-        :translationContext="translationContext"
-        :onChangeRoute="changeCategory"
-        :disableContextMenu="disableContextMenu"
-        @delete-element="onDeleteCategory"
-        @save-tree-items="saveCategories"
-        @sw-tree-on-drag-end="onUpdatePositions"
-        @get-tree-items="onGetTreeItems">
+    <div class="sw-category-tree">
+        <sw-tree class="sw-category-tree__inner"
+            v-if="!isLoadingInitialData"
+            after-id-property="afterCategoryId"
+            :items="categories"
+            :sortable="true"
+            :searchable="false"
+            :activeTreeItemId="activeTreeItemId"
+            :translationContext="translationContext"
+            :onChangeRoute="changeCategory"
+            :disableContextMenu="disableContextMenu"
+            @delete-element="onDeleteCategory"
+            @save-tree-items="saveCategories"
+            @sw-tree-on-drag-end="onUpdatePositions"
+            @get-tree-items="onGetTreeItems">
 
 
-        {% block sw_category_tree_items %}
-            <template
-                slot="items"
-                slot-scope="{
-                    treeItems,
-                    sortable,
-                    draggedItem,
-                    newElementId,
-                    checkItem,
-                    translationContext,
-                    onChangeRoute,
-                    disableContextMenu
-                }">
-                <sw-tree-item
-                    v-for="(item, index) in treeItems"
-                    :key="item.id"
-                    :item="item"
-                    :active="item.active"
-                    :translationContext="translationContext"
-                    :onChangeRoute="onChangeRoute"
-                    :sortable="sortable"
-                    :draggedItem="draggedItem"
-                    :disableContextMenu="disableContextMenu"
-                    :newElementId="newElementId"
-                    @itemChecked="checkItem">
-                </sw-tree-item>
-            </template>
-        {% endblock %}
-    </sw-tree>
+            {% block sw_category_tree_items %}
+                <template
+                    slot="items"
+                    slot-scope="{
+                        treeItems,
+                        sortable,
+                        draggedItem,
+                        newElementId,
+                        checkItem,
+                        translationContext,
+                        onChangeRoute,
+                        disableContextMenu
+                    }">
+                    <sw-tree-item
+                        v-for="(item, index) in treeItems"
+                        :key="item.id"
+                        :item="item"
+                        :active="item.active"
+                        :translationContext="translationContext"
+                        :onChangeRoute="onChangeRoute"
+                        :sortable="sortable"
+                        :draggedItem="draggedItem"
+                        :disableContextMenu="disableContextMenu"
+                        :newElementId="newElementId"
+                        @itemChecked="checkItem">
+                    </sw-tree-item>
+                </template>
+            {% endblock %}
+        </sw-tree>
+
+        <sw-loader v-if="isLoadingInitialData"></sw-loader>
+    </div>
 {% endblock %}

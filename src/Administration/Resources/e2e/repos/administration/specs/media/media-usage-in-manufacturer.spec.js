@@ -36,8 +36,8 @@ module.exports = {
 
         browser
             .waitForElementNotPresent(page.elements.loader)
-            .waitForElementVisible(`${page.elements.gridItem}--2`)
-            .click(`${page.elements.gridItem}--2`)
+            .waitForElementVisible('.sw-media-base-item__name[title="Product Manufacturer Media"]')
+            .click('.sw-media-base-item__name[title="Product Manufacturer Media"]')
             .expect.element('.sw-media-sidebar__headline').to.have.text.that.equals('Product Manufacturer Media');
 
         browser

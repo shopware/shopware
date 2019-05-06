@@ -14,11 +14,7 @@ export default function createCustomFieldService() {
     const $typeStore = {
         select: {
             configRenderComponent: 'sw-custom-field-type-select',
-            type: 'json',
-            config: {
-                componentName: 'sw-select',
-                type: 'select'
-            }
+            config: {}
         },
         text: {
             configRenderComponent: 'sw-custom-field-type-text',

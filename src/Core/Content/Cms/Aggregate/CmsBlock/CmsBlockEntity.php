@@ -97,6 +97,11 @@ class CmsBlockEntity extends Entity
      */
     protected $customFields;
 
+    /**
+     * @var bool
+     */
+    protected $locked;
+
     public function getType(): string
     {
         return $this->type;
@@ -265,5 +270,15 @@ class CmsBlockEntity extends Entity
     public function setCssClass(string $cssClass): void
     {
         $this->cssClass = $cssClass;
+    }
+
+    public function getLocked(): bool
+    {
+        return $this->locked;
+    }
+
+    public function setLocked(bool $locked): void
+    {
+        $this->locked = $locked;
     }
 }

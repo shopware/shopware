@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostUpdateEvent;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Container\AndRule;
-use Shopware\Core\Framework\Rule\Container\Container;
+use Shopware\Core\Framework\Rule\Container\ContainerInterface;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
@@ -214,7 +214,7 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
                 $object->assign(json_decode($rule['value'], true));
             }
 
-            if ($object instanceof Container) {
+            if ($object instanceof ContainerInterface) {
                 $children = $this->buildNested($rules, $rule['id']);
                 foreach ($children as $child) {
                     $object->addRule($child);

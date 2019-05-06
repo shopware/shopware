@@ -1,6 +1,5 @@
 import { Component, State } from 'src/core/shopware';
 import template from './sw-customer-address-form.html.twig';
-import './sw-customer-address-form.scss';
 
 Component.register('sw-customer-address-form', {
     template,

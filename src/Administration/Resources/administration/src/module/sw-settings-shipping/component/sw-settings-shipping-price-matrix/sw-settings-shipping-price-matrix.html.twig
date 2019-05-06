@@ -146,6 +146,7 @@
                                  :ruleId="priceRuleId"
                                  :priceRule="priceRule"
                                  :priceRuleStore="priceRuleStore"
+                                 :allowedRuleScopes="['cart', 'checkout', 'global']"
                                  @save="onSavePriceRule"
                                  @modal-close="onClosePriceRuleModal">
             </sw-price-rule-modal>

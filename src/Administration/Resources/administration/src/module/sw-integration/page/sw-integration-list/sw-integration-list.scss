@@ -66,15 +66,14 @@ $sw-field-icon-border-radius: $border-radius-default;
     }
 
     .sw-field.sw-field--checkbox {
-        align-self: center;
         margin: 0;
     }
 
-    .sw-field__help {
+    .sw-integration-list__help-text {
         font-size: $sw-field-help-font-size;
         color: lighten($sw-field-help-color, 20);
         line-height: $sw-field-help-line-height;
-        padding-top: 7px;
+        margin-top: 7px;
     }
 }
 

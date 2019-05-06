@@ -54,7 +54,7 @@
 
                         {% block sw_customer_detail_custom_field_sets %}
                             <sw-card :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
-                                     v-if="next754 && customerCustomFieldSets.length > 0"
+                                     v-if="customerCustomFieldSets.length > 0"
                                      :isLoading="customer.isLoading">
                                 <sw-custom-field-set-renderer
                                         :entity="customer"

@@ -196,9 +196,11 @@ export default {
     },
 
     watch: {
+        // @todo fix input cursor bug
+        // testable in categories
         value: {
             handler() {
-                if (this.value && !this.isActive) {
+                if (!this.isActive) {
                     this.content = this.value;
                     this.$nextTick(() => {
                         this.setWordcount();
@@ -366,7 +368,6 @@ export default {
                 return;
             }
 
-
             // remove leading and trailing <br>
             const regex = /^\s*(?:<br\s*\/?\s*>)+|(?:<br\s*\/?\s*>)+\s*$/gi;
             let val = this.$refs.editor.innerHTML.replace(regex, '');
@@ -386,6 +387,9 @@ export default {
         },
 
         setPlaceholderHeight() {
+            if (!this.isInlineEdit) {
+                return;
+            }
             this.$nextTick(() => {
                 const placeholderEl = this.$el.querySelector('.sw-text-editor__content-placeholder');
 

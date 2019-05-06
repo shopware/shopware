@@ -110,7 +110,7 @@ export default class AdminSalesChannelFixtureService extends AdminFixtureService
                     filter: [{
                         field: 'name',
                         type: 'equals',
-                        value: 'Root category'
+                        value: 'Catalogue #1'
                     }]
                 });
             })

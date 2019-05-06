@@ -7,11 +7,6 @@ $sw-sales-channel-detail-color-text-access-key: $color-gutenberg;
         margin-top: 22px;
     }
 
-    .sw-field.sw-field--checkbox {
-        align-self: center;
-        margin: 0;
-    }
-
     .sw-select {
         margin-bottom: 20px;
     }
@@ -22,10 +17,6 @@ $sw-sales-channel-detail-color-text-access-key: $color-gutenberg;
         .sw-sales-channel-detail-base__button-generate-keys {
             height: 45px;
         }
-    }
-
-    .sw-field input:disabled {
-        color: lighten($sw-sales-channel-detail-color-text-access-key, 20%);
     }
 
     .sw-sales-channel-detail-base__delete {

@@ -110,7 +110,19 @@
         "headline": "Landing page / product listing"
       },
       "cmsListItem": {
-        "emptyText": "No layout assigned"
+        "emptyText": "No layout assigned",
+        "delete": "Delete",
+        "duplicate": "Duplicate",
+        "addPreviewImage": "Add preview",
+        "removePreviewImage": "Remove preview",
+        "notificationDeleteErrorTitle": "Error",
+        "notificationDeleteErrorMessage": "The page you want to delete is still allocated to least one Category",
+        "modal": {
+          "modalTitleDelete":  "Delete layout",
+          "textDeleteConfirm": "Are you sure you really want to delete the layout \"{pageName}\"?",
+          "buttonCancel":  "Cancel",
+          "buttonDelete": "Delete"
+        }
       }
     }
   }

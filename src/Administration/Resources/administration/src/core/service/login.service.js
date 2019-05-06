@@ -17,6 +17,7 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
     const localStorageKey = 'bearerAuth';
     const onTokenChangedListener = [];
     const onLogoutListener = [];
+    const onLoginListener = [];
 
     return {
         loginByUsername,
@@ -27,7 +28,8 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
         logout,
         isLoggedIn,
         addOnTokenChangedListener,
-        addOnLogoutListener
+        addOnLogoutListener,
+        addOnLoginListener
     };
 
     /**
@@ -49,11 +51,15 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
         }, {
             baseURL: context.apiPath
         }).then((response) => {
-            return setBearerAuthentication({
+            const auth = setBearerAuthentication({
                 access: response.data.access_token,
                 refresh: response.data.refresh_token,
                 expiry: response.data.expires_in
             });
+
+            notifyOnLoginListener();
+
+            return auth;
         });
     }
 
@@ -105,6 +111,14 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
     }
 
     /**
+     * Adds an Listener for the onLoginEvent
+     * @param {Function} listener
+     */
+    function addOnLoginListener(listener) {
+        onLoginListener.push(listener);
+    }
+
+    /**
      * notifies the listener for the onTokenChangedEvent
      */
     function notifyOnTokenChangedListener(auth) {
@@ -118,6 +132,16 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
      */
     function notifyOnLogoutListener() {
         onLogoutListener.forEach((callback) => {
+            callback.call(null);
+        });
+    }
+
+
+    /**
+     * notifies the listener for the onLoginEvent
+     */
+    function notifyOnLoginListener() {
+        onLoginListener.forEach((callback) => {
             callback.call(null);
         });
     }

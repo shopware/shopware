@@ -17,20 +17,6 @@ $sw-media-modal-folder-settings-delete-color:               $color-crimson;
         overflow-y: unset;
     }
 
-    .sw-media-modal-folder-settings__thumbnails-left-container {
-        .sw-field--boolean {
-            margin: 0 auto;
-
-            .sw-field__input {
-                border: none;
-            }
-        }
-
-        .sw-field--number {
-            margin-top: 22px;
-        }
-    }
-
     .sw-media-modal-folder-settings__thumbnails-list-caption {
         display: flex;
         justify-content: space-between;

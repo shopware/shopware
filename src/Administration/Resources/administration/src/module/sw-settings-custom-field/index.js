@@ -1,5 +1,4 @@
 import { Module } from 'src/core/shopware';
-import { NEXT754 } from 'src/flag/feature_next754';
 import './extension/sw-settings-index';
 import './page/sw-settings-custom-field-set-create';
 import './page/sw-settings-custom-field-set-list';
@@ -20,7 +19,6 @@ import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
 
 Module.register('sw-settings-custom-field', {
-    flag: NEXT754,
     type: 'core',
     name: 'settings-custom-field',
     title: 'sw-settings-custom-field.general.mainMenuItemGeneral',

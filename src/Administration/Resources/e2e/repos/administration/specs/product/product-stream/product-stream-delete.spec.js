@@ -2,7 +2,6 @@ const productStreamPage = require('administration/page-objects/module/sw-product
 
 module.exports = {
     '@tags': ['product', 'product-stream-delete', 'product-stream', 'delete'],
-    '@disabled': !global.flags.isActive('next739'),
     before: (browser, done) => {
         global.AdminFixtureService.create('product-stream').then(() => {
             done();

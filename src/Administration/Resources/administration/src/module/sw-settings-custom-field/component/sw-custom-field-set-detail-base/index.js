@@ -1,7 +1,6 @@
 import { Component, State } from 'src/core/shopware';
 import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-custom-field-detail-base.html.twig';
-import './sw-custom-field-set-detail-base.scss';
 
 Component.register('sw-custom-field-set-detail-base', {
     template,

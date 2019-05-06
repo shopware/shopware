@@ -248,28 +248,25 @@ class AccountPageController extends StorefrontController
 
             $this->accountRegistrationService->register($data, $data->has('guest'), $context);
         } catch (ConstraintViolationException $formViolations) {
-            $formAction = $request->get('formAction', 'frontend.account.register.page');
-
-            try {
-                // this is to show the correct form because we have different usecases (account/register||checkout/register)
-                $formUrl = $this->generateUrl($formAction);
-                $router = $this->container->get('router');
-                $router->getContext()->setMethod(Request::METHOD_GET);
-                $formRoute = $router->match($formUrl);
-                $router->getContext()->setMethod($request->getMethod());
-                $forwardControllerTo = $formRoute['_controller'];
-            } catch (\Exception $exception) {
-                $forwardControllerTo = 'Shopware\Storefront\PageController\AccountPageController::register';
+            if (!$request->request->has('errorRoute')) {
+                throw new MissingRequestParameterException('errorRoute');
             }
+            $errorRoute = $request->get('errorRoute');
 
-            return $this->forward($forwardControllerTo, ['formViolations' => $formViolations]);
+            // this is to show the correct form because we have different usecases (account/register||checkout/register)
+            $formUrl = $this->generateUrl($errorRoute);
+            $router = $this->container->get('router');
+            $router->getContext()->setMethod(Request::METHOD_GET);
+            $formRoute = $router->match($formUrl);
+
+            $forwardController = $formRoute['_controller'];
+
+            return $this->forward($forwardController, ['formViolations' => $formViolations]);
         }
 
         $this->accountService->login($data->get('email'), $context, $data->has('guest'));
 
-        $redirectTo = $request->get('redirectTo', 'frontend.account.home.page');
-
-        return $this->redirectToRoute($redirectTo);
+        return $this->createActionResponse($request);
     }
 
     /**
@@ -365,8 +362,11 @@ class AccountPageController extends StorefrontController
                 $context->getToken(),
                 $context->getContext()->getLanguageId()
             );
+            $this->addFlash('success', $this->translator->trans('account.profileUpdateSuccess'));
         } catch (ConstraintViolationException $formViolations) {
             return $this->forward(__CLASS__ . '::profileOverview', ['formViolations' => $formViolations]);
+        } catch (\Exception $exception) {
+            $this->addFlash('danger', $this->translator->trans('error.message-default'));
         }
 
         return $this->redirectToRoute('frontend.account.profile.page');
@@ -382,14 +382,17 @@ class AccountPageController extends StorefrontController
         $this->denyAccessUnlessLoggedIn();
 
         try {
-            $this->accountService->saveEmail($data, $context);
+            $this->accountService->saveEmail($data->get('email'), $context);
             $this->salesChannelContextService->refresh(
                 $context->getSalesChannel()->getId(),
                 $context->getToken(),
                 $context->getContext()->getLanguageId()
             );
+            $this->addFlash('success', $this->translator->trans('account.emailChangeSuccess'));
         } catch (ConstraintViolationException $formViolations) {
             return $this->forward(__CLASS__ . '::profileOverview', ['formViolations' => $formViolations]);
+        } catch (\Exception $exception) {
+            $this->addFlash('error', $this->translator->trans('error.message-default'));
         }
 
         return $this->redirectToRoute('frontend.account.profile.page');
@@ -405,7 +408,7 @@ class AccountPageController extends StorefrontController
         $this->denyAccessUnlessLoggedIn();
 
         try {
-            $this->accountService->savePassword($data, $context);
+            $this->accountService->savePassword($data->get('password'), $context);
             $this->salesChannelContextService->refresh(
                 $context->getSalesChannel()->getId(),
                 $context->getToken(),

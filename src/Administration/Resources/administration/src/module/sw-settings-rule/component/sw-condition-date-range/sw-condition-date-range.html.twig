@@ -16,7 +16,8 @@
                   name="fromDate"
                   :config="datepickerConfig"
                   v-model="fromDate"
-                  class="field--main field--from-date has--arrow">
+                  class="field--main field--from-date has--arrow"
+                  size="medium">
         </sw-field>
     {% endblock %}
     {% block sw_condiiton_date_range_field_to_date %}
@@ -25,7 +26,8 @@
                   name="toDate"
                   :config="datepickerConfig"
                   v-model="toDate"
-                  class="field--main field--to-date">
+                  class="field--main field--to-date"
+                  size="medium">
         </sw-field>
     {% endblock %}
 {% endblock %}

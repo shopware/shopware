@@ -76,6 +76,10 @@ export default {
         },
 
         isOverlayingLeft() {
+            if (!this.isInlineEdit) {
+                return;
+            }
+
             const el = this.$el;
             const leftSidebar = document.querySelector('.sw-admin-menu');
             if (!leftSidebar) {

@@ -67,7 +67,6 @@
                                 <div class="sw-media-modal-folder-settings__thumbnails-left-container">
                                     {% block sw_media_modal_folder_settings_inherit_settings_field %}
                                         <sw-field type="switch"
-                                            bordered
                                             :label="$tc('global.sw-media-modal-folder-settings.labelInheritSettings')"
                                             v-model="folder.useParentConfiguration"
                                             :disabled="folder.parentId === null"
@@ -77,7 +76,6 @@
 
                                     {% block sw_media_modal_folder_settings_generate_thumbnails_field %}
                                         <sw-field type="switch"
-                                                  bordered
                                                   :label="$tc('global.sw-media-modal-folder-settings.labelGenerateThumbnails')"
                                                   v-model="configuration.createThumbnails"
                                                   :disabled="folder.useParentConfiguration">
@@ -87,7 +85,6 @@
                                     {% block sw_media_modal_folder_settings_keep_proportions_field %}
                                         <sw-field
                                             type="switch"
-                                            bordered
                                             :label="$tc('global.sw-media-modal-folder-settings.labelKeepProportions')"
                                             v-model="configuration.keepAspectRatio"
                                             :disabled="notEditable">

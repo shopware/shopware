@@ -69,6 +69,21 @@ class CompositeEntitySearcherTest extends TestCase
         ], $this->context);
     }
 
+    public function testDefinitionsAreUnique()
+    {
+        $closure = \Closure::fromCallable(function (): array {
+            return iterator_to_array($this->definitions);
+        });
+        $closure = \Closure::bind($closure, $this->search, $this->search);
+
+        $uniqueDefinitions = [];
+        foreach ($closure() as $definition) {
+            $uniqueDefinitions[$definition->getEntityName()] = $definition;
+        }
+
+        static::assertSame(count($uniqueDefinitions), count($closure()));
+    }
+
     public function testProductRanking(): void
     {
         $productId1 = Uuid::randomHex();

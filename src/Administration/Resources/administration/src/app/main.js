@@ -17,6 +17,7 @@ import SearchTypeService from 'src/app/service/search-type.service';
 import LocaleToLanguageService from 'src/app/service/locale-to-language.service';
 import 'src/app/decorator/condition-type-data-provider';
 import 'src/app/decorator/state-styling-provider';
+import addPluginUpdatesListener from 'src/core/service/plugin-updates-listener.service';
 
 /** Import global styles */
 import 'src/app/assets/scss/all.scss';
@@ -37,7 +38,11 @@ Application
     .addServiceProvider('loginService', () => {
         const serviceContainer = Application.getContainer('service');
         const initContainer = Application.getContainer('init');
-        return LoginService(initContainer.httpClient, serviceContainer.context);
+        const loginService = LoginService(initContainer.httpClient, serviceContainer.context);
+
+        addPluginUpdatesListener(loginService, serviceContainer);
+
+        return loginService;
     })
     .addServiceProvider('jsonApiParserService', () => {
         return JsonApiParser;

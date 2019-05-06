@@ -59,6 +59,11 @@ class CmsSlotEntity extends Entity
      */
     protected $data;
 
+    /**
+     * @var bool
+     */
+    protected $locked;
+
     public function getType(): string
     {
         return $this->type;
@@ -137,6 +142,16 @@ class CmsSlotEntity extends Entity
     public function setData(Struct $data): void
     {
         $this->data = $data;
+    }
+
+    public function getLocked(): bool
+    {
+        return $this->locked;
+    }
+
+    public function setLocked(bool $locked): void
+    {
+        $this->locked = $locked;
     }
 
     public function getFieldConfig(): FieldConfigCollection

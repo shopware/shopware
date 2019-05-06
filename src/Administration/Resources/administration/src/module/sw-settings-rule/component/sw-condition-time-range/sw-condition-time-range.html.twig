@@ -5,7 +5,8 @@
                   name="fromTime"
                   :config="datepickerConfig"
                   v-model="condition.value.fromTime"
-                  class="field--main has--arrow">
+                  class="field--main has--arrow"
+                  size="medium">
         </sw-field>
     {% endblock %}
     {% block sw_condition_time_range_field_to_time %}
@@ -14,7 +15,8 @@
                   name="toTime"
                   :config="datepickerConfig"
                   v-model="condition.value.toTime"
-                  class="field--main">
+                  class="field--main"
+                  size="medium">
         </sw-field>
     {% endblock %}
 {% endblock %}

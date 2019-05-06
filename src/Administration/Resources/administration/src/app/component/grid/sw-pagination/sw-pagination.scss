@@ -77,26 +77,8 @@ $sw-pagination-border-radius: $border-radius-default;
             display: none;
         }
 
-        .sw-field {
-            display: grid;
+        .sw-field.sw-field--select {
             grid-template-columns: 120px 60px;
-            align-items: center;
-
-            label {
-                margin-bottom: 0;
-            }
-
-            .sw-field__select {
-                select {
-                    padding: 2px 12px;
-                    height: 33px;
-                }
-
-                .sw-icon {
-                    top: 9px;
-                    right: 9px;
-                }
-            }
         }
     }
 }

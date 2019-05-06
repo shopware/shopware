@@ -2,7 +2,6 @@ const productStreamPage = require('administration/page-objects/module/sw-product
 
 module.exports = {
     '@tags': ['product', 'product-stream-edit-filter', 'product-stream', 'edit', 'filter'],
-    '@disabled': !global.flags.isActive('next739'),
     before: (browser, done) => {
         global.AdminFixtureService.create('product-stream').then(() => {
             return global.ProductFixtureService.setProductFixture().then(() => {
@@ -37,7 +36,7 @@ module.exports = {
 
         browser
             .fillField('input[name=sw-field--productStream-name]', 'Edited product stream', true)
-            .fillField('textarea[name=sw-field--productStream-description]', 'The product stream was edited by an e2e test', true)
+            .fillField('textarea[name=sw-field--productStream-description]', 'The product stream was edited by an e2e test', false)
             .click(page.elements.streamSaveAction)
             .waitForElementVisible('.icon--small-default-checkmark-line-medium');
     },

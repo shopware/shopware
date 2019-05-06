@@ -17,7 +17,6 @@
                           :min="0"
                           :label="$tc('sw-product.priceForm.labelPurchasePriceGross')"
                           :placeholder="$tc('sw-product.priceForm.placeholderPurchasePriceGross')"
-                          class="sw-product-price-form__field-price"
                           v-model="product.purchasePrice">
                     <template #suffix>
                         <span v-if="defaultCurrency">{{ defaultCurrency.symbol }}</span>

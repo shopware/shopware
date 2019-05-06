@@ -50,6 +50,16 @@
         "payment": "Zahlungart",
         "price": "Preis"
       }
+    },
+    "conditionFilter": {
+      "infoText": "Nutze Filter um zu definieren, welche Positionen diese Bedingung erfüllen müssen."
+    },
+    "conditionModal": {
+      "modalTitle": "Filter",
+      "delete": "Löschen",
+      "close": "Schließen",
+      "titleSaveError": "Fehler",
+      "messageSaveError": "Beim Speichern des Filters ist ein Fehler aufgetreten."
     }
   }
 }

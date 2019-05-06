@@ -24,10 +24,12 @@
     .sw-notification-center__content {
         .sw-notification-center__header {
             border-bottom: 1px solid $color-steam-cloud;
+            padding: 20px 24px 16px;
+            display: flex;
+            justify-content: space-between;
         }
 
         .sw-notification-center__title {
-            padding: 20px 24px 16px 24px;
             margin: 0;
             font-size: $font-size-large;
         }

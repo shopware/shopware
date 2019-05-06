@@ -134,8 +134,8 @@ Component.register('sw-system-config', {
 
             // Add single select properties
             if (['single-select', 'multi-select'].includes(bind.type)) {
-                bind.labelProperty = 'name';
-                bind.valueProperty = 'id';
+                bind.config.labelProperty = 'name';
+                bind.config.valueProperty = 'id';
             }
 
             return bind;

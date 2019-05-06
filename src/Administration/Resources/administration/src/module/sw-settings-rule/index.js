@@ -6,6 +6,7 @@ import './page/sw-settings-rule-detail';
 import './page/sw-settings-rule-create';
 import './component/sw-condition-not-found';
 import './component/sw-condition-operator-select';
+import './component/sw-condition-modal';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';

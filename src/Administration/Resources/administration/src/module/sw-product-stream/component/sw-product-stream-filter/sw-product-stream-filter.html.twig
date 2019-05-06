@@ -80,6 +80,7 @@
                           :type="isDateTime() ? 'date' : 'number'"
                           dateType="datetime"
                           class="field--main"
+                          size="medium"
                           v-model="actualCondition.parameters.lt"
                           :disabled="isApi()"
                           :placeholder="$tc('global.sw-condition.operator.lessThan')">
@@ -91,6 +92,7 @@
                           :type="isDateTime() ? 'date' : 'number'"
                           dateType="datetime"
                           class="field--main"
+                          size="medium"
                           v-model="actualCondition.parameters.gt"
                           :disabled="isApi()"
                           :placeholder="$tc('global.sw-condition.operator.greaterThan')">
@@ -102,6 +104,7 @@
                           :type="isDateTime() ? 'date' : 'number'"
                           dateType="datetime"
                           class="field--main"
+                          size="medium"
                           v-model="actualCondition.parameters.lte"
                           :disabled="isApi()"
                           :placeholder="$tc('global.sw-condition.operator.lessThanEquals')">
@@ -113,6 +116,7 @@
                           :type="isDateTime() ? 'date' : 'number'"
                           dateType="datetime"
                           class="field--main"
+                          size="medium"
                           v-model="actualCondition.parameters.gte"
                           :disabled="isApi()"
                           :placeholder="$tc('global.sw-condition.operator.greaterThanEquals')">
@@ -125,6 +129,7 @@
                         <sw-field :type="isDateTime() ? 'date' : 'number'"
                                   dateType="datetime"
                                   class="field--main has--arrow"
+                                  size="medium"
                                   v-model="actualCondition.parameters.gte"
                                   :disabled="isApi()"
                                   :placeholder="$tc('sw-product-stream.filter.type.greaterThanEquals')">
@@ -134,6 +139,7 @@
                         <sw-field :type="isDateTime() ? 'date' : 'number'"
                                   dateType="datetime"
                                   class="field--main"
+                                  size="medium"
                                   v-model="actualCondition.parameters.lte"
                                   :disabled="isApi()"
                                   :placeholder="$tc('sw-product-stream.filter.type.lessThanEquals')">
@@ -162,6 +168,7 @@
                   :type="getValueFieldByType(lastField.type)"
                   dateType="datetime"
                   class="field--main"
+                  size="medium"
                   :disabled="isApi()"
                   v-model="filterValue">
         </sw-field>

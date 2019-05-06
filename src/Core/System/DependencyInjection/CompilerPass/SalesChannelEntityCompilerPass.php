@@ -53,6 +53,7 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
 
                 $clone = clone $service;
                 $clone->removeMethodCall('compile');
+                $clone->clearTags();
                 $container->setDefinition(self::PREFIX . $definitions['base'], $clone);
                 $this->setUpEntityDefinitionService($container, self::PREFIX . $definitions['base']);
             }

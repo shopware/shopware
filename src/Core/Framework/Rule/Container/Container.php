@@ -6,9 +6,9 @@ use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
 
 /**
- * AbstractContainer implements setRule and addRule of the container interface
+ * AbstractContainer implements setRules and addRule of the container interface
  */
-abstract class Container extends Rule
+abstract class Container extends Rule implements ContainerInterface
 {
     /**
      * @var Rule[]

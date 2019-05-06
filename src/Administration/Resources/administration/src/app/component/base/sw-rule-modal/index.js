@@ -28,6 +28,11 @@ export default {
             type: String,
             required: false,
             default: null
+        },
+        allowedRuleScopes: {
+            type: Array,
+            required: false,
+            default: null
         }
     },
 
@@ -54,7 +59,7 @@ export default {
                         label: this.$tc(condition.label),
                         type: this.$tc(condition.label)
                     };
-                }), 'type'),
+                }, this.allowedRuleScopes), 'type'),
                 entityName: 'rule',
                 conditionIdentifier: 'conditions',
                 childName: 'children',
@@ -143,7 +148,7 @@ export default {
                 });
 
                 warn(this._name, exception.message, exception.response);
-                this.$refs.conditionTree.$emit('on-save');
+                this.$refs.conditionTree.$emit('entity-save');
             });
         },
 

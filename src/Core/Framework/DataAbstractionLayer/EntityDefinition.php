@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deferred;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\LockedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
@@ -217,6 +218,13 @@ abstract class EntityDefinition
         return $this->isParentAware()
             && ($this->getFields()->filterInstance(TreePathField::class)->count() > 0
                 || $this->getFields()->filterInstance(TreeLevelField::class)->count() > 0);
+    }
+
+    public function isLockAware(): bool
+    {
+        $field = $this->getFields()->get('locked');
+
+        return $field && $field instanceof LockedField;
     }
 
     protected function getParentDefinitionClass(): ?string

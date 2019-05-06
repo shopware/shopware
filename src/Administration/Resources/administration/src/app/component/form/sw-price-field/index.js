@@ -86,6 +86,8 @@ export default {
         },
 
         onPriceGrossChange(value) {
+            this.price.gross = value;
+
             if (this.price.linked) {
                 this.$emit('calculating', true);
                 this.onPriceGrossChangeDebounce(value);
@@ -100,6 +102,8 @@ export default {
         }, 500),
 
         onPriceNetChange(value) {
+            this.price.net = value;
+
             if (this.price.linked) {
                 this.$emit('calculating', true);
                 this.onPriceNetChangeDebounce(value);

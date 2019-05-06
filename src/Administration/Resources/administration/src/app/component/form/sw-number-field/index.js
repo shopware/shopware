@@ -128,7 +128,7 @@ export default {
         },
 
         onInput(event) {
-            this.$emit('input', Number(event.target.value));
+            this.$emit('input-change', event.target.value);
         },
 
         increaseNumberByStep() {

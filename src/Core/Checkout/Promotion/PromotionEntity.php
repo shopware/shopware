@@ -45,7 +45,12 @@ class PromotionEntity extends Entity
     /**
      * @var int
      */
-    protected $redeemable;
+    protected $maxRedemptionsGlobal;
+
+    /**
+     * @var int
+     */
+    protected $maxRedemptionsPerCustomer;
 
     /**
      * @var bool
@@ -97,6 +102,16 @@ class PromotionEntity extends Entity
      */
     protected $translations;
 
+    /**
+     * @var int
+     */
+    protected $orderCount;
+
+    /**
+     * @var array|null
+     */
+    protected $ordersPerCustomerCount;
+
     public function getName(): ?string
     {
         return $this->name;
@@ -137,14 +152,24 @@ class PromotionEntity extends Entity
         $this->validUntil = $validUntil;
     }
 
-    public function getRedeemable(): int
+    public function getMaxRedemptionsGlobal(): int
     {
-        return $this->redeemable;
+        return $this->maxRedemptionsGlobal;
     }
 
-    public function setRedeemable(int $redeemable): void
+    public function setMaxRedemptionsGlobal(int $maxRedemptionsGlobal): void
     {
-        $this->redeemable = $redeemable;
+        $this->maxRedemptionsGlobal = $maxRedemptionsGlobal;
+    }
+
+    public function getMaxRedemptionsPerCustomer(): int
+    {
+        return $this->maxRedemptionsPerCustomer;
+    }
+
+    public function setMaxRedemptionsPerCustomer(int $maxRedemptionsPerCustomer): void
+    {
+        $this->maxRedemptionsPerCustomer = $maxRedemptionsPerCustomer;
     }
 
     public function isExclusive(): bool
@@ -230,6 +255,26 @@ class PromotionEntity extends Entity
     public function setOrderRules(?RuleCollection $orderRules): void
     {
         $this->orderRules = $orderRules;
+    }
+
+    public function getOrderCount(): int
+    {
+        return $this->orderCount;
+    }
+
+    public function setOrderCount(int $orderCount): void
+    {
+        $this->orderCount = $orderCount;
+    }
+
+    public function getOrdersPerCustomerCount(): ?array
+    {
+        return $this->ordersPerCustomerCount;
+    }
+
+    public function setOrdersPerCustomerCount(array $ordersPerCustomerCount): void
+    {
+        $this->ordersPerCustomerCount = $ordersPerCustomerCount;
     }
 
     /**
@@ -380,5 +425,17 @@ class PromotionEntity extends Entity
         }
 
         return $requirements;
+    }
+
+    public function isOrderCountValid(): bool
+    {
+        return $this->getOrderCount() < $this->getMaxRedemptionsGlobal();
+    }
+
+    public function isOrderCountPerCustomerCountValid(string $customerId): bool
+    {
+        return $this->getOrdersPerCustomerCount() === null
+            || !array_key_exists($customerId, $this->getOrdersPerCustomerCount())
+            || $this->getOrdersPerCustomerCount()[$customerId] < $this->getMaxRedemptionsPerCustomer();
     }
 }

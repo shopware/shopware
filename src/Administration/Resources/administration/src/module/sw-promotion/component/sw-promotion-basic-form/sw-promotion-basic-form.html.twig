@@ -49,11 +49,20 @@
             {% endblock %}
         </sw-container>
 
-        <sw-container columns="1fr 1fr" gap="0px 30px">
-            {% block sw_promotion_basic_form_redeemable_field %}
+        <sw-container columns="1fr 1fr 2fr" gap="0px 30px">
+            {% block sw_promotion_basic_form_max_redemption_global %}
                 <sw-field type="number"
-                          :label="$tc('sw-promotion.detail.main.general.labelRedeemable')"
-                          v-model="promotion.redeemable">
+                          :label="$tc('sw-promotion.detail.main.general.labelMaxRedemptionsGlobal')"
+                          numberType="int"
+                          v-model="promotion.maxRedemptionsGlobal">
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_promotion_basic_form_max_redemption_per_customer %}
+                <sw-field type="number"
+                          :label="$tc('sw-promotion.detail.main.general.labelMaxRedemptionsPerCustomer')"
+                          numberType="int"
+                          v-model="promotion.maxRedemptionsPerCustomer">
                 </sw-field>
             {% endblock %}
         </sw-container>

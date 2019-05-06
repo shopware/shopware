@@ -48,7 +48,8 @@
           "placeholderSalesChannels" : "Add Sales Channel...",
           "labelValidFrom": "Valid from:",
           "labelValidUntil": "Valid until:",
-          "labelRedeemable": "redeemable",
+          "labelMaxRedemptionsGlobal": "Total possible redemptions",
+          "labelMaxRedemptionsPerCustomer": "Redemptions per customer",
           "codes" : {
             "card" : "Promotion Codes",
             "labelCode" : "General Promotion Code",

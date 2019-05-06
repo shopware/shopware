@@ -67,6 +67,8 @@ class CartPromotionsCollectorTest extends TestCase
 
         $this->promotionGlobal = new PromotionEntity();
         $this->promotionGlobal->setId('PROM-GLOBAL');
+        $this->promotionGlobal->setMaxRedemptionsGlobal(100);
+        $this->promotionGlobal->setOrderCount(0);
         $discount1 = new PromotionDiscountEntity();
         $discount1->setId('D1');
         $discount1->setValue(100);
@@ -76,6 +78,8 @@ class CartPromotionsCollectorTest extends TestCase
 
         $this->promotionPersona = new PromotionEntity();
         $this->promotionPersona->setId('PROM-PERSONA');
+        $this->promotionPersona->setMaxRedemptionsGlobal(100);
+        $this->promotionPersona->setOrderCount(0);
         $this->promotionPersona->setPersonaRules(new RuleCollection([$this->getFakeRule()]));
         $discount2 = new PromotionDiscountEntity();
         $discount2->setId('D2');
@@ -86,6 +90,8 @@ class CartPromotionsCollectorTest extends TestCase
 
         $this->promotionCart = new PromotionEntity();
         $this->promotionCart->setId('PROM-CART');
+        $this->promotionCart->setMaxRedemptionsGlobal(100);
+        $this->promotionCart->setOrderCount(0);
         $this->promotionCart->setCartRules(new RuleCollection([$this->getFakeRule()]));
         $discount3 = new PromotionDiscountEntity();
         $discount3->setId('D3');

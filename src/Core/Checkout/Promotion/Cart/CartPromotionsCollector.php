@@ -84,6 +84,8 @@ class CartPromotionsCollector implements CollectorInterface
      */
     public function collect(StructCollection $fetchDefinitions, StructCollection $data, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
     {
+        $customer = $context->getCustomer();
+
         /** @var Collection $promotionDefinitions */
         $promotionDefinitions = $fetchDefinitions->filterInstance(CartPromotionsFetchDefinition::class);
 
@@ -109,6 +111,14 @@ class CartPromotionsCollector implements CollectorInterface
         // data struct, which ensures that they will be added later in the enrichment process.
         /** @var PromotionEntity $promotion */
         foreach ($promotions as $promotion) {
+            if (!$promotion->isOrderCountValid()) {
+                continue;
+            }
+
+            if ($customer && !$promotion->isOrderCountPerCustomerCountValid($customer->getId())) {
+                continue;
+            }
+
             /** @var PromotionDiscountCollection|null $collection */
             $collection = $promotion->getDiscounts();
 

@@ -18,8 +18,8 @@
                     {% block sw_category_detail_information_active %}
                         <sw-field
                             type="switch"
-                            bordered
                             name="categoryActive"
+                            class="sw-category-detail-base__active"
                             :label="$tc('sw-category.base.general.isCategoryActiveLabel')"
                             v-model="category.active">
                         </sw-field>

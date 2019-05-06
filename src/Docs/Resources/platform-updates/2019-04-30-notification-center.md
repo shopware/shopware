@@ -36,7 +36,7 @@ If the user deletes the notification and you update it, it will be recreated wit
 ### Possible notification parameters
 * `title` **required** -> The title of the notification.
 * `message` **required** -> The text of the notification.
-* `variant` **recommended** -> The styling of the notification. Possible values are `success`, `info`, `warning` and `error`. The default value is `info`.
+* `variant` **recommended** -> The styling of the notification. Possible values are `success`, `info`, `warning` and `error`. If set to `success` the notification will be growl only. The default value is `info`.
 * `system` **optional** -> Applies also to the styling of the notification. If set to true it will be darker. The default is `false`.
 * `autoClose` **optional** -> If set to true the growl notification will close after the specified `duration`. The default is `true`.
 * `duration` **optional** -> The duration of the growl message in ms. The default is `5000`

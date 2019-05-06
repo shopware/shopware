@@ -236,6 +236,10 @@ export default {
                 }
             );
 
+            if (mergedNotification.variant === 'success') {
+                return null;
+            }
+
             commit('upsertNotification', mergedNotification);
             return mergedNotification.uuid;
         },

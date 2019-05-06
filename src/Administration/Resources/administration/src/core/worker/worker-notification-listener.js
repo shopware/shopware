@@ -124,7 +124,6 @@ class WorkerNotificationListener {
         if (this._thumbnailNotificationId !== null) {
             notification.uuid = this._thumbnailNotificationId;
             if (thumbnailQueue.size === 0) {
-                this._thumbnailNotificationId = null;
                 notification.title = this._getApplicationRootReference().$t(
                     'global.notification-center.worker-listener.thumbnailGeneration.titleSuccess'
                 );

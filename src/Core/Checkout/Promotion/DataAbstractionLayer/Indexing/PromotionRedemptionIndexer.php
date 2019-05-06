@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Promotion\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
-use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsCollector;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Promotion\Util\EventIdExtractor;
@@ -15,7 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
@@ -46,11 +44,6 @@ class PromotionRedemptionIndexer implements IndexerInterface
     /**
      * @var EntityRepositoryInterface
      */
-    private $orderRepository;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
     private $promotionRepository;
 
     /**
@@ -63,7 +56,6 @@ class PromotionRedemptionIndexer implements IndexerInterface
         EventIdExtractor $eventIdExtractor,
         IteratorFactory $iteratorFactory,
         OrderLineItemDefinition $orderLineItemDefinition,
-        EntityRepositoryInterface $orderRepository,
         EntityRepositoryInterface $promotionRepository,
         Connection $connection
     ) {
@@ -71,7 +63,6 @@ class PromotionRedemptionIndexer implements IndexerInterface
         $this->eventIdExtractor = $eventIdExtractor;
         $this->iteratorFactory = $iteratorFactory;
         $this->orderLineItemDefinition = $orderLineItemDefinition;
-        $this->orderRepository = $orderRepository;
         $this->promotionRepository = $promotionRepository;
         $this->connection = $connection;
     }
@@ -117,25 +108,54 @@ class PromotionRedemptionIndexer implements IndexerInterface
             return;
         }
 
-        $orders = $this->getOrders($ids, $context);
+        $orders = $this->getOrders($ids);
         list($promotionIncrements, $promotionPerCustomerIncrements) = $this->getIncrements($orders);
         $this->incrementPromotionCounts($promotionIncrements, $promotionPerCustomerIncrements, $context);
     }
 
     /**
      * Fetch all orders that belong to the line items that were written in the event
-     *
-     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
      */
-    private function getOrders(array $lineItemIds, Context $context): OrderCollection
+    private function getOrders(array $lineItemIds): array
     {
-        $orderCriteria = new Criteria();
-        $orderCriteria->addAssociation('order.orderCustomer');
-        $orderCriteria->addAssociation('order.lineItems');
-        $orderCriteria->addFilter(new EqualsAnyFilter('order.lineItems.id', $lineItemIds));
+        if (empty($lineItemIds)) {
+            return [];
+        }
 
-        /** @var OrderCollection $orders */
-        $orders = $this->orderRepository->search($orderCriteria, $context)->getEntities();
+        $lineItemIds = array_map('Shopware\Core\Framework\Uuid\Uuid::fromHexToBytes', $lineItemIds);
+
+        $query = '
+            SELECT HEX(o.id) AS id, oli.type, oli.payload, HEX(oc.customer_id) AS customer_id
+            FROM `order` o
+            INNER JOIN order_line_item oli
+                ON o.id = oli.order_id
+                AND oli.id IN (:lineItemIds)
+            LEFT JOIN order_customer oc
+                ON o.id = oc.order_id
+        ';
+
+        $rawData = $this->connection->fetchAll($query, [
+            'lineItemIds' => $lineItemIds,
+        ], [
+            'lineItemIds' => Connection::PARAM_STR_ARRAY,
+        ]);
+
+        $orders = [];
+
+        foreach ($rawData as $rawOrder) {
+            if (!array_key_exists($rawOrder['id'], $orders)) {
+                $orders[$rawOrder['id']] = [
+                    'id' => $rawOrder['id'],
+                    'customerId' => $rawOrder['customer_id'],
+                    'lineItems' => [],
+                ];
+            }
+
+            $orders[$rawOrder['id']]['lineItems'][] = [
+                'type' => $rawOrder['type'],
+                'payload' => json_decode($rawOrder['payload'], true),
+            ];
+        }
 
         return $orders;
     }
@@ -144,7 +164,7 @@ class PromotionRedemptionIndexer implements IndexerInterface
      * Count each promotion only once per order. This has to be done because a promotion may add more than one
      * line item to the cart.
      */
-    private function getIncrements(OrderCollection $orders): array
+    private function getIncrements(array $orders): array
     {
         $promotionIncrements = [];
         $promotionPerCustomerIncrements = [];
@@ -153,10 +173,10 @@ class PromotionRedemptionIndexer implements IndexerInterface
             // This array tracks how many line items a promotion added to a particular order
             $promotionIdsPerOrder = [];
 
-            $customerId = $order->getOrderCustomer()->getCustomerId();
-            foreach ($order->getLineItems() as $lineItem) {
-                if ($lineItem->getType() === CartPromotionsCollector::LINE_ITEM_TYPE) {
-                    $promotionId = $lineItem->getPayload()['promotionId'];
+            $customerId = $order['customerId'];
+            foreach ($order['lineItems'] as $lineItem) {
+                if ($lineItem['type'] === CartPromotionsCollector::LINE_ITEM_TYPE) {
+                    $promotionId = $lineItem['payload']['promotionId'];
 
                     if (!array_key_exists($promotionId, $promotionIdsPerOrder)) {
                         $promotionIdsPerOrder[$promotionId] = 0;

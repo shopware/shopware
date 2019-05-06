@@ -84,10 +84,28 @@ export default class CmsSlotReloadService {
      * @private
      */
     _createLoadingIndicators() {
+        this._handleLoadingIndicators(ElementLoadingIndicatorUtil.create);
+    }
+
+    /**
+     * removes loading indicators for each element
+     *
+     * @private
+     */
+    _removeLoadingIndicators() {
+        this._handleLoadingIndicators(ElementLoadingIndicatorUtil.remove);
+    }
+    
+    /**
+     * iterates over cms elements
+     *
+     * @private
+     */
+    _handleLoadingIndicators(callback) {
         Iterator.iterate(this._options.elements, (selectors, elementId) => {
             const targetElements = DomAccess.querySelectorAll(document, `[data-cms-element-id="${elementId}"]`);
             Iterator.iterate(targetElements, element => {
-                ElementLoadingIndicatorUtil.create(element);
+                callback(element);
             });
         });
     }
@@ -189,6 +207,7 @@ export default class CmsSlotReloadService {
         const preparedSelectors = this._prepareSelectors();
         ElementReplaceHelper.replaceFromMarkup(response, preparedSelectors);
         window.PluginManager.executePlugins();
+        this._removeLoadingIndicators();
     }
 
     /**

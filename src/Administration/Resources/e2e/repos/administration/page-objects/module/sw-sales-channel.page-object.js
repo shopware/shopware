@@ -79,20 +79,21 @@ class SalesChannelPageObject extends GeneralPageObject {
     checkClipboard() {
         const me = this;
 
-        this.browser.getValue(me.elements.apiAccessKeyField, (result) => {
-            me.accessKeyId = result.value;
+        this.browser
+            .waitForElementPresent(this.elements.apiAccessKeyField)
+            .getValue(me.elements.apiAccessKeyField, (result) => {
+                me.accessKeyId = result.value;
 
-            me.browser
-                .waitForElementPresent(me.elements.apiAccessKeyField)
-                .getLocationInView(me.elements.apiAccessKeyField)
-                .waitForElementVisible('.sw-field-copyable:nth-of-type(1)')
-                .click('.sw-field-copyable:nth-of-type(1)')
-                .checkNotification('Text has been copied to clipboard.')
-                .getLocationInView(me.elements.salesChannelNameInput)
-                .clearValue(me.elements.salesChannelNameInput)
-                .setValue(me.elements.salesChannelNameInput, ['', me.browser.Keys.CONTROL, 'v'])
-                .expect.element(me.elements.salesChannelNameInput).value.that.equals(me.accessKeyId);
-        });
+                me.browser
+                    .getLocationInView(me.elements.apiAccessKeyField)
+                    .waitForElementVisible('.sw-field-copyable:nth-of-type(1)')
+                    .click('.sw-field-copyable:nth-of-type(1)')
+                    .checkNotification('Text has been copied to clipboard.')
+                    .getLocationInView(me.elements.salesChannelNameInput)
+                    .clearValue(me.elements.salesChannelNameInput)
+                    .setValue(me.elements.salesChannelNameInput, ['', me.browser.Keys.CONTROL, 'v'])
+                    .expect.element(me.elements.salesChannelNameInput).value.that.equals(me.accessKeyId);
+            });
     }
 
     changeApiCredentials(salesChannelName) {

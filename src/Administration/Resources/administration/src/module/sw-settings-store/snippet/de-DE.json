@@ -5,8 +5,9 @@
       "textHeadline": "Shopware Account",
       "description": "Hier können Einstellungen am Shopware Account vorgenommen werden.",
       "buttonSave": "Speichern",
-      "titleSave": "Speichern erfolgreich",
-      "messageSave": "Die Daten Deines Shopware Accounts wurden erfolgreich gespeichert"
+      "titleSaveSuccess": "Speichern erfolgreich",
+      "messageSaveSuccess": "Die Daten Deines Shopware Accounts wurden erfolgreich gespeichert",
+      "titleSaveError": "Speichern fehlgeschlagen"
     },
     "detail": {
       "titleCard": "Einstellungen",

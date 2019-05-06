@@ -228,7 +228,7 @@ class SalesChannelContextFactory
             $id = $options[SalesChannelContextService::SHIPPING_METHOD_ID];
         }
 
-        return $this->shippingMethodRepository->search(new Criteria([$id]), $context)->get($id);
+        return $this->shippingMethodRepository->search((new Criteria([$id]))->addAssociation('prices'), $context)->get($id);
     }
 
     private function getContext(string $salesChannelId, array $session): Context

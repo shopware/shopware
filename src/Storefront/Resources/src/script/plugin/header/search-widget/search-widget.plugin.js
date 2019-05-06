@@ -9,7 +9,7 @@ import Iterator from 'src/script/helper/iterator.helper';
 
 const SEARCH_WIDGET_SELECTOR = '.js-search-form';
 const SEARCH_WIDGET_RESULTS_SELECTOR = '.js-search-result';
-const SEARCH_WIDGET_RESULT_ITEM_SELECTOR = '.js-result';
+const SEARCH_WIDGET_RESULT_ITEM_SELECTOR = '.js-result:not(.no-search-result)';
 const SEARCH_WIDGET_INPUT_FIELD_SELECTOR = 'input[type=search]';
 const SEARCH_WIDGET_URL_DATA_ATTRIBUTE = 'data-url';
 

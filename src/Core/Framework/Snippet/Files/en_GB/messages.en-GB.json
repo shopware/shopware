@@ -274,6 +274,9 @@
         "subscriptionConfirmationFailed": "newsletter subscription did not work properly, please contact us",
         "subscriptionCompleted": "Thank you! We have entered your address."
     },
+    "search": {
+      "headline": "%totalCount% articles found for \"%searchTerm%\"!"
+    },
     "detail": {
         "ordernumberLabel": "Order number: ",
         "addProduct": "Add to shopping cart",

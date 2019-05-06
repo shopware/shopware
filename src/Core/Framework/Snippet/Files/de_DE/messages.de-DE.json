@@ -274,6 +274,9 @@
         "subscriptionConfirmationFailed": "Bei Ihrer Newsletter-Anmeldung ist etwas schief gelaufen, Bitte wenden Sie sich an den Shop-Betreiber.",
         "subscriptionCompleted": "Vielen Dank. Wir haben Ihre Adresse eingetragen."
     },
+    "search": {
+      "headline": "Zu \"%searchTerm%\" wurden %totalCount% Artikel gefunden!"
+    },
     "detail": {
         "ordernumberLabel": "Artikel-Nr.:",
         "addProduct": "In den Warenkorb",

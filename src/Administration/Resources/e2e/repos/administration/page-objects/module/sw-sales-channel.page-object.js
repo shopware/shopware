@@ -40,7 +40,7 @@ class SalesChannelPageObject extends GeneralPageObject {
             .fillSingleSelect('.sw-sales-channel-detail__assign-languages', 'Deutsch')
 
             .fillSingleSelect('.sw-sales-channel-detail__select-customer-group', 'Standard customer group', 1)
-            .fillSingleSelect('.sw-sales-channel-detail__select-navigation-category-id', 'Root category', 1)
+            .fillSingleSelect('.sw-sales-channel-detail__select-navigation-category-id', 'Catalogue #1', 1)
 
             .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .click(this.elements.salesChannelSaveAction)

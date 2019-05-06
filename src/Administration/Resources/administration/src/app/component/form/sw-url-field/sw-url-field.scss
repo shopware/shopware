@@ -3,9 +3,16 @@ $sw-field-color-secure: $color-emerald;
 
 .sw-field {
     .sw-field__url-input__prefix {
+        display: inline-flex;
         cursor: pointer;
+        user-select: none;
+
         &.is--ssl {
             color: $sw-field-color-secure;
+        }
+
+        .sw-icon {
+            margin-right: 4px;
         }
     }
 }

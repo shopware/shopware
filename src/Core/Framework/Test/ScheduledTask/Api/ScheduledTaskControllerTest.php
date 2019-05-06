@@ -18,7 +18,8 @@ use Shopware\Core\PlatformRequest;
 
 class ScheduledTaskControllerTest extends TestCase
 {
-    use AdminFunctionalTestBehaviour, QueueTestBehaviour;
+    use AdminFunctionalTestBehaviour;
+    use QueueTestBehaviour;
 
     public function testRunScheduledTasks()
     {

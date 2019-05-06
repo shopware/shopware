@@ -20,8 +20,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class LineItemTagRuleTest extends TestCase
 {
-    use KernelTestBehaviour,
-        DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
+    use DatabaseTransactionBehaviour;
 
     /**
      * @var EntityRepositoryInterface

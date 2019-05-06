@@ -25,7 +25,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CustomFieldTest extends TestCase
 {
-    use KernelTestBehaviour, CacheTestBehaviour, DataAbstractionLayerFieldTestBehaviour;
+    use KernelTestBehaviour;
+    use CacheTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour;
 
     /**
      * @var Connection

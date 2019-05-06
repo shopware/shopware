@@ -43,8 +43,8 @@ use Smalot\PdfParser\Parser;
 
 class DocumentServiceTest extends TestCase
 {
-    use IntegrationTestBehaviour,
-        RuleTestBehaviour;
+    use IntegrationTestBehaviour;
+    use RuleTestBehaviour;
     /**
      * @var SalesChannelContext
      */

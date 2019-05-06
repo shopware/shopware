@@ -17,8 +17,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class SalesChannelControllerTest extends TestCase
 {
-    use SalesChannelFunctionalTestBehaviour,
-        AssertArraySubsetBehaviour;
+    use SalesChannelFunctionalTestBehaviour;
+    use AssertArraySubsetBehaviour;
 
     /**
      * @var Connection

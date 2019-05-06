@@ -17,8 +17,8 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
 class NotRuleTest extends TestCase
 {
-    use KernelTestBehaviour,
-        DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
+    use DatabaseTransactionBehaviour;
 
     /**
      * @var EntityRepositoryInterface

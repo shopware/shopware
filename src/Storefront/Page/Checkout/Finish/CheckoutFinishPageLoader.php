@@ -47,7 +47,7 @@ class CheckoutFinishPageLoader implements PageLoaderInterface
      * @throws MissingRequestParameterException
      * @throws OrderNotFoundException
      */
-    public function load(Request $request, SalesChannelContext $context)
+    public function load(Request $request, SalesChannelContext $context): CheckoutFinishPage
     {
         $page = $this->genericLoader->load($request, $context);
 

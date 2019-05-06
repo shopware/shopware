@@ -173,7 +173,7 @@ class CheckoutPageController extends StorefrontController
 
         $page = $this->confirmPageLoader->load($request, $context);
 
-        if ($request->headers->contains('x-requested-with', 'XMLHttpRequest')) {
+        if ($request->isXmlHttpRequest()) {
             return $this->renderStorefront('@Storefront/page/checkout/confirm/confirm-page.html.twig', ['page' => $page]);
         }
 

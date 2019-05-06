@@ -25,7 +25,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class FileSaverTest extends TestCase
 {
-    use IntegrationTestBehaviour, MediaFixtures;
+    use IntegrationTestBehaviour;
+    use MediaFixtures;
 
     public const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
 

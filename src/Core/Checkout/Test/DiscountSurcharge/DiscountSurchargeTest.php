@@ -23,8 +23,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class DiscountSurchargeTest extends TestCase
 {
-    use KernelTestBehaviour,
-        DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
+    use DatabaseTransactionBehaviour;
 
     /**
      * @var EntityRepositoryInterface

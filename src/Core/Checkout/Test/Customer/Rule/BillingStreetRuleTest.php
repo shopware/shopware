@@ -17,8 +17,8 @@ use Symfony\Component\Validator\Constraints\Type;
 
 class BillingStreetRuleTest extends TestCase
 {
-    use KernelTestBehaviour,
-        DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
+    use DatabaseTransactionBehaviour;
 
     /**
      * @var EntityRepositoryInterface

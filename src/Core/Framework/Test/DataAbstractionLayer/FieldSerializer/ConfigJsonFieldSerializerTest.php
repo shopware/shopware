@@ -20,7 +20,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 class ConfigJsonFieldSerializerTest extends TestCase
 {
-    use KernelTestBehaviour, CacheTestBehaviour, DataAbstractionLayerFieldTestBehaviour;
+    use KernelTestBehaviour;
+    use CacheTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour;
 
     /**
      * @var ConfigJsonFieldSerializer

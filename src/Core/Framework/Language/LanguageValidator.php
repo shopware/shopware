@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 class LanguageValidator implements WriteCommandValidatorInterface
 {
@@ -85,7 +84,7 @@ class LanguageValidator implements WriteCommandValidatorInterface
         $this->tryToThrow($violations);
     }
 
-    private function getInheritanceViolations(array $affectedIds): ConstraintViolationListInterface
+    private function getInheritanceViolations(array $affectedIds): ConstraintViolationList
     {
         $statement = $this->connection->executeQuery('
             SELECT child.id 
@@ -116,7 +115,7 @@ class LanguageValidator implements WriteCommandValidatorInterface
         return $violations;
     }
 
-    private function getMissingTranslationCodeViolations(array $affectedIds): ConstraintViolationListInterface
+    private function getMissingTranslationCodeViolations(array $affectedIds): ConstraintViolationList
     {
         $statement = $this->connection->executeQuery('
             SELECT lang.id
@@ -171,7 +170,7 @@ class LanguageValidator implements WriteCommandValidatorInterface
     /**
      * @throws WriteConstraintViolationException
      */
-    private function tryToThrow(ConstraintViolationListInterface $violations): void
+    private function tryToThrow(ConstraintViolationList $violations): void
     {
         if ($violations->count() > 0) {
             throw new WriteConstraintViolationException($violations);

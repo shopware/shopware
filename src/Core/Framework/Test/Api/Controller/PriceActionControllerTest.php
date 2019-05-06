@@ -17,7 +17,8 @@ use Symfony\Component\Serializer\Serializer;
 
 class PriceActionControllerTest extends TestCase
 {
-    use AdminFunctionalTestBehaviour,TaxFixtures;
+    use AdminFunctionalTestBehaviour;
+    use TaxFixtures;
 
     /**
      * @var EntityRepositoryInterface

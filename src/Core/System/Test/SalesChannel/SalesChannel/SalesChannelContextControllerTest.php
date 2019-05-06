@@ -17,8 +17,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SalesChannelContextControllerTest extends TestCase
 {
-    use SalesChannelApiTestBehaviour,
-        IntegrationTestBehaviour;
+    use SalesChannelApiTestBehaviour;
+    use IntegrationTestBehaviour;
 
     /**
      * @var EntityRepositoryInterface

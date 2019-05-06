@@ -14,8 +14,8 @@ use Symfony\Component\HttpKernel\Profiler\Profiler;
 
 class MailActionControllerTest extends TestCase
 {
-    use AdminFunctionalTestBehaviour,
-        MediaFixtures;
+    use AdminFunctionalTestBehaviour;
+    use MediaFixtures;
 
     private const MEDIA_FIXTURE = __DIR__ . '/../../Media/fixtures/Shopware_5_3_Broschuere.pdf';
 

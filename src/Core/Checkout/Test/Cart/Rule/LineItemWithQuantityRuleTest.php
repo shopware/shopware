@@ -19,8 +19,8 @@ use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemWithQuantityRuleTest extends TestCase
 {
-    use KernelTestBehaviour,
-        DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
+    use DatabaseTransactionBehaviour;
 
     /**
      * @var EntityRepositoryInterface

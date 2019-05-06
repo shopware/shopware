@@ -12,7 +12,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class OpenApi3GeneratorTest extends TestCase
 {
-    use AssertArraySubsetBehaviour, IntegrationTestBehaviour, DataAbstractionLayerFieldTestBehaviour;
+    use AssertArraySubsetBehaviour;
+    use IntegrationTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour;
 
     /**
      * @var array

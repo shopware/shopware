@@ -15,7 +15,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class MediaEntityTest extends TestCase
 {
-    use IntegrationTestBehaviour, MediaFixtures;
+    use IntegrationTestBehaviour;
+    use MediaFixtures;
 
     /** @var Connection */
     private $connection;

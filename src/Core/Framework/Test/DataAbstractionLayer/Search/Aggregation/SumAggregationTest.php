@@ -12,7 +12,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class SumAggregationTest extends TestCase
 {
-    use IntegrationTestBehaviour, AggregationTestBehaviour;
+    use IntegrationTestBehaviour;
+    use AggregationTestBehaviour;
 
     public function testSumAggregation(): void
     {

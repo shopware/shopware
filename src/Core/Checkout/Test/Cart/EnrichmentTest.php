@@ -22,8 +22,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class EnrichmentTest extends TestCase
 {
-    use KernelTestBehaviour,
-        DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
+    use DatabaseTransactionBehaviour;
 
     /**
      * @var EntityRepository

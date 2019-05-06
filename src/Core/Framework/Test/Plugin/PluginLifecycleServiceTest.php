@@ -28,9 +28,9 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class PluginLifecycleServiceTest extends TestCase
 {
-    use KernelTestBehaviour,
-        DatabaseTransactionBehaviour,
-        PluginTestsHelper;
+    use KernelTestBehaviour;
+    use DatabaseTransactionBehaviour;
+    use PluginTestsHelper;
 
     private const PLUGIN_NAME = 'SwagTest';
 

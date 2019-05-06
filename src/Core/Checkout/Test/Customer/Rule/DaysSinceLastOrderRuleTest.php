@@ -22,9 +22,9 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class DaysSinceLastOrderRuleTest extends TestCase
 {
-    use KernelTestBehaviour,
-        DatabaseTransactionBehaviour,
-        OrderFixture;
+    use KernelTestBehaviour;
+    use DatabaseTransactionBehaviour;
+    use OrderFixture;
 
     /**
      * @var EntityRepositoryInterface

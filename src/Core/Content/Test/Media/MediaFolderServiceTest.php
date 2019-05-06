@@ -16,7 +16,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class MediaFolderServiceTest extends TestCase
 {
-    use IntegrationTestBehaviour, MediaFixtures;
+    use IntegrationTestBehaviour;
+    use MediaFixtures;
 
     /**
      * @var MediaFolderService

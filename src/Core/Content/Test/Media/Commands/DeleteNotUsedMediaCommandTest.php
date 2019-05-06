@@ -15,7 +15,9 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 class DeleteNotUsedMediaCommandTest extends TestCase
 {
-    use IntegrationTestBehaviour, MediaFixtures, QueueTestBehaviour;
+    use IntegrationTestBehaviour;
+    use MediaFixtures;
+    use QueueTestBehaviour;
 
     private const FIXTURE_FILE = __DIR__ . '/../fixtures/shopware-logo.png';
 

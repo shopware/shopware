@@ -10,7 +10,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class FileNameProviderTest extends TestCase
 {
-    use IntegrationTestBehaviour, MediaFixtures;
+    use IntegrationTestBehaviour;
+    use MediaFixtures;
 
     /**
      * @var FileNameProvider

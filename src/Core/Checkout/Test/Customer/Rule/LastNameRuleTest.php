@@ -17,8 +17,8 @@ use Symfony\Component\Validator\Constraints\Type;
 
 class LastNameRuleTest extends TestCase
 {
-    use KernelTestBehaviour,
-        DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
+    use DatabaseTransactionBehaviour;
 
     /**
      * @var EntityRepositoryInterface

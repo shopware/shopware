@@ -15,7 +15,6 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class RuleValidator implements WriteCommandValidatorInterface
@@ -84,7 +83,7 @@ class RuleValidator implements WriteCommandValidatorInterface
         // nth
     }
 
-    private function tryToThrow(ConstraintViolationListInterface $violations): void
+    private function tryToThrow(ConstraintViolationList $violations): void
     {
         if ($violations->count() > 0) {
             throw new WriteConstraintViolationException($violations);
@@ -133,7 +132,7 @@ class RuleValidator implements WriteCommandValidatorInterface
         );
     }
 
-    private function validateConsistence(string $basePath, array $fieldValidations, array $payload): ConstraintViolationListInterface
+    private function validateConsistence(string $basePath, array $fieldValidations, array $payload): ConstraintViolationList
     {
         $list = new ConstraintViolationList();
         foreach ($fieldValidations as $fieldName => $validations) {

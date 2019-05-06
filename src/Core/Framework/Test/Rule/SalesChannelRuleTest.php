@@ -17,8 +17,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class SalesChannelRuleTest extends TestCase
 {
-    use KernelTestBehaviour,
-        DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
+    use DatabaseTransactionBehaviour;
 
     /**
      * @var EntityRepositoryInterface

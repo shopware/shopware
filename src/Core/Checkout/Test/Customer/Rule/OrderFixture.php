@@ -19,9 +19,9 @@ use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
 trait OrderFixture
 {
-    use ContainerAwareTrait,
-        EntityFixturesBase,
-        BasicTestDataBehaviour;
+    use ContainerAwareTrait;
+    use EntityFixturesBase;
+    use BasicTestDataBehaviour;
 
     private function getOrderData(string $orderId, Context $context): array
     {

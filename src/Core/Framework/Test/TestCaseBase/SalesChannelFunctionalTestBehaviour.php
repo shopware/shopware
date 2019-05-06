@@ -4,6 +4,6 @@ namespace Shopware\Core\Framework\Test\TestCaseBase;
 
 trait SalesChannelFunctionalTestBehaviour
 {
-    use IntegrationTestBehaviour,
-        SalesChannelApiTestBehaviour;
+    use IntegrationTestBehaviour;
+    use SalesChannelApiTestBehaviour;
 }

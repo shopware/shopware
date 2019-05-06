@@ -15,7 +15,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class MediaUploadControllerTest extends TestCase
 {
-    use AdminFunctionalTestBehaviour, MediaFixtures;
+    use AdminFunctionalTestBehaviour;
+    use MediaFixtures;
 
     public const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
 

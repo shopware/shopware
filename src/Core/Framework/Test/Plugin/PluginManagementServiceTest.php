@@ -13,8 +13,8 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class PluginManagementServiceTest extends TestCase
 {
-    use KernelTestBehaviour,
-        PluginTestsHelper;
+    use KernelTestBehaviour;
+    use PluginTestsHelper;
 
     /**
      * @var KernelPluginCollection

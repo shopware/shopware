@@ -9,7 +9,8 @@ use Shopware\Core\PlatformRequest;
 
 class ConsumeMessagesControllerTest extends TestCase
 {
-    use AdminFunctionalTestBehaviour, QueueTestBehaviour;
+    use AdminFunctionalTestBehaviour;
+    use QueueTestBehaviour;
 
     public function testConsumeMessages()
     {

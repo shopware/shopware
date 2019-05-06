@@ -16,8 +16,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class ShippingZipCodeRuleTest extends TestCase
 {
-    use KernelTestBehaviour,
-        DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
+    use DatabaseTransactionBehaviour;
 
     /**
      * @var EntityRepositoryInterface

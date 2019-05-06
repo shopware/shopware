@@ -14,8 +14,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 class LoginPageTest extends TestCase
 {
-    use IntegrationTestBehaviour,
-        StorefrontPageTestBehaviour;
+    use IntegrationTestBehaviour;
+    use StorefrontPageTestBehaviour;
 
     public function testItLoadsWithACustomer(): void
     {

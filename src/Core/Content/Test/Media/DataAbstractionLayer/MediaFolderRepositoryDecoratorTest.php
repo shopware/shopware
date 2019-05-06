@@ -13,7 +13,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class MediaFolderRepositoryDecoratorTest extends TestCase
 {
-    use IntegrationTestBehaviour, QueueTestBehaviour;
+    use IntegrationTestBehaviour;
+    use QueueTestBehaviour;
 
     private const FIXTURE_FILE = __DIR__ . '/../fixtures/shopware-logo.png';
 

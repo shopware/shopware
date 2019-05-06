@@ -12,11 +12,6 @@ class PageWithHeader extends GenericPage
      */
     protected $header;
 
-    /**
-     * @var SalesChannelContext
-     */
-    protected $context;
-
     public function __construct(HeaderPagelet $header, SalesChannelContext $context)
     {
         $this->header = $header;

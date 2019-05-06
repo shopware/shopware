@@ -12,8 +12,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 class SearchPageTest extends TestCase
 {
-    use IntegrationTestBehaviour,
-        StorefrontPageTestBehaviour;
+    use IntegrationTestBehaviour;
+    use StorefrontPageTestBehaviour;
 
     const TEST_TERM = 'foo';
 

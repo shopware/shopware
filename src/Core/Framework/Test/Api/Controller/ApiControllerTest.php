@@ -17,10 +17,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ApiControllerTest extends TestCase
 {
-    use KernelTestBehaviour,
-        FilesystemBehaviour,
-        BasicTestDataBehaviour,
-        AdminApiTestBehaviour;
+    use KernelTestBehaviour;
+    use FilesystemBehaviour;
+    use BasicTestDataBehaviour;
+    use AdminApiTestBehaviour;
 
     /**
      * @var Connection

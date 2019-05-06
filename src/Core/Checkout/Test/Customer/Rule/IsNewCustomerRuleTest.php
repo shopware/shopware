@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class IsNewCustomerRuleTest extends TestCase
 {
-    use KernelTestBehaviour,
-        DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
+    use DatabaseTransactionBehaviour;
 
     /**
      * @var EntityRepositoryInterface

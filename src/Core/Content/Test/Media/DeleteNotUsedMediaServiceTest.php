@@ -13,7 +13,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 
 class DeleteNotUsedMediaServiceTest extends TestCase
 {
-    use IntegrationTestBehaviour, MediaFixtures, QueueTestBehaviour;
+    use IntegrationTestBehaviour;
+    use MediaFixtures;
+    use QueueTestBehaviour;
 
     private const FIXTURE_FILE = __DIR__ . '/fixtures/shopware-logo.png';
 

@@ -23,8 +23,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class OrderCountRuleTest extends TestCase
 {
-    use KernelTestBehaviour,
-        DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
+    use DatabaseTransactionBehaviour;
 
     /**
      * @var EntityRepositoryInterface

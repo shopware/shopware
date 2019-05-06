@@ -1,6 +1,5 @@
 .js-offcanvas {
     z-index: $offcanvas-zindex;
-    width: 280px;
     height: 100%;
     background: $white;
     position: fixed;
@@ -61,5 +60,6 @@
 
     .offcanvas-content-container {
         padding: $spacer;
+        width: 280px;
     }
 }

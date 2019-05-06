@@ -66,9 +66,4 @@ class TestEvent extends Event implements BusinessEventInterface
             ->add('order', new EntityType(OrderDefinition::class))
             ;
     }
-
-    public function getSalesChannelId(): string
-    {
-        return Defaults::SALES_CHANNEL;
-    }
 }

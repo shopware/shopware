@@ -59,9 +59,4 @@ class BusinessEvent extends Event implements BusinessEventInterface
     {
         return $this->event->getContext();
     }
-
-    public function getSalesChannelId(): string
-    {
-        return $this->event->getSalesChannelId();
-    }
 }

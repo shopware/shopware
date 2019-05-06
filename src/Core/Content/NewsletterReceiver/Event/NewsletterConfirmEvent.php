@@ -56,9 +56,4 @@ class NewsletterConfirmEvent extends Event implements BusinessEventInterface
     {
         return $this->receiverEntity;
     }
-
-    public function getSalesChannelId(): string
-    {
-        return $this->salesChannelId;
-    }
 }

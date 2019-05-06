@@ -10,6 +10,4 @@ use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 interface BusinessEventInterface extends ShopwareEvent
 {
     public static function getAvailableData(): EventDataCollection;
-
-    public function getSalesChannelId(): string;
 }

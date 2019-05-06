@@ -55,9 +55,4 @@ class CustomerRegisterEvent extends Event implements BusinessEventInterface
         return (new EventDataCollection())
             ->add('customer', new EntityType(CustomerDefinition::class));
     }
-
-    public function getSalesChannelId(): string
-    {
-        return $this->salesChannelId;
-    }
 }

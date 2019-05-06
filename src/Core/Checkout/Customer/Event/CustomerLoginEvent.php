@@ -69,9 +69,4 @@ class CustomerLoginEvent extends Event implements BusinessEventInterface
             ->add('customer', new EntityType(CustomerDefinition::class))
             ->add('contextToken', new ScalarValueType(ScalarValueType::TYPE_STRING));
     }
-
-    public function getSalesChannelId(): string
-    {
-        return $this->salesChannelId;
-    }
 }

@@ -34,7 +34,11 @@ class CurrencyFilter extends AbstractExtension
     public function formatCurrency($context, $price, $currencyIsoCode, $languageId = null)
     {
         if (!array_key_exists('context', $context)
-            || (!$context['context'] instanceof Context && !$context['context'] instanceof SalesChannelContext)) {
+            || (
+                !$context['context'] instanceof Context
+                && !$context['context'] instanceof SalesChannelContext
+            )
+        ) {
             throw new \RuntimeException('Error while processing Twig currency filter. No context or locale given.');
         }
 

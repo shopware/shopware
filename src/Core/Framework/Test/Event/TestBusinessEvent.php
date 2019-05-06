@@ -41,9 +41,4 @@ class TestBusinessEvent extends Event implements BusinessEventInterface
     {
         return new EventDataCollection();
     }
-
-    public function getSalesChannelId(): string
-    {
-        return Defaults::SALES_CHANNEL;
-    }
 }

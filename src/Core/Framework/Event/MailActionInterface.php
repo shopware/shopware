@@ -7,4 +7,6 @@ use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 interface MailActionInterface
 {
     public function getMailStruct(): MailRecipientStruct;
+
+    public function getSalesChannelId(): string;
 }

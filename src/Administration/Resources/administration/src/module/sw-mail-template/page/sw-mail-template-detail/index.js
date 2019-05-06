@@ -93,7 +93,7 @@ Component.register('sw-mail-template-detail', {
 
             this.eventAssociationStore = new LocalStore();
 
-            httpClient.get('_info/events.json').then((response) => {
+            httpClient.get('_info/business-events.json').then((response) => {
                 Object.keys(response.data.events).forEach((eventName) => {
                     this.eventAssociationStore.add(eventName);
                 });

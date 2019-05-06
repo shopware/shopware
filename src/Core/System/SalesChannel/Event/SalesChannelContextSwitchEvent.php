@@ -68,9 +68,4 @@ class SalesChannelContextSwitchEvent extends Event implements BusinessEventInter
         return (new EventDataCollection())
             ->add('customer', new EntityType(CustomerDefinition::class));
     }
-
-    public function getSalesChannelId(): string
-    {
-        return $this->salesChannelId;
-    }
 }

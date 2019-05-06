@@ -12,9 +12,9 @@ use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailActionInterface;
 use Symfony\Component\EventDispatcher\Event;
 
-class OrderPlacedEvent extends Event implements BusinessEventInterface, MailActionInterface
+class CheckoutOrderPlacedEvent extends Event implements BusinessEventInterface, MailActionInterface
 {
-    public const EVENT_NAME = 'checkout.order.done';
+    public const EVENT_NAME = 'checkout.order.placed';
 
     /**
      * @var OrderEntity

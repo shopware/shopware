@@ -4,7 +4,7 @@ namespace Shopware\Core\Migration;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
-use Shopware\Core\Checkout\Cart\Order\Event\OrderPlacedEvent;
+use Shopware\Core\Checkout\Cart\Order\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriber;
 use Shopware\Core\Content\NewsletterReceiver\SalesChannel\NewsletterSubscriptionServiceInterface;
@@ -75,7 +75,7 @@ class Migration1556526052MailEvents extends MigrationStep
             'event_action',
             [
                 'id' => Uuid::randomBytes(),
-                'event_name' => OrderPlacedEvent::EVENT_NAME,
+                'event_name' => CheckoutOrderPlacedEvent::EVENT_NAME,
                 'action_name' => MailSendSubscriber::ACTION_NAME,
                 'config' => json_encode([
                     'mail_template_type_id' => Uuid::fromBytesToHex($mailTemplateTypeMapping[MailTemplateTypes::MAILTYPE_ORDER_CONFIRM]),

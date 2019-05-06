@@ -68,9 +68,4 @@ class CustomerChangedPaymentMethodEvent extends Event implements BusinessEventIn
         return (new EventDataCollection())
             ->add('customer', new EntityType(CustomerDefinition::class));
     }
-
-    public function getSalesChannelId(): string
-    {
-        return $this->salesChannelId;
-    }
 }

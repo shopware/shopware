@@ -1,5 +1,5 @@
 {# Set variable to "true" to enable HMR (hot page reloading) mode #}
-{% set isHMRMode = false %}
+{% set isHMRMode = true %}
 
 {% block base_doctype %}
 <!DOCTYPE html>
@@ -131,10 +131,10 @@
     {% block base_script_hmr_mode %}
         {% if isHMRMode %}
         <script type="text/javascript"
-                src="{{ app.request.server.get('APP_URL') }}:9999/js/main.bundle.js"></script>
+                src="{{ app.request.server.get('APP_URL') }}:9999/bundles/storefront/js/app.js"></script>
         {% else %}
         <script type="text/javascript"
-                src="{{ asset('js/main.bundle.js') }}"></script>
+                src="{{ asset('bundles/storefront/js/app.js') }}"></script>
         {% endif %}
     {% endblock %}
     {% endblock %}

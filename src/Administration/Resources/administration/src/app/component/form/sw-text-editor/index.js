@@ -356,11 +356,11 @@ export default {
         },
 
         onPaste(event) {
-            event.stopPropagation();
             event.preventDefault();
 
             const clipboardData = event.clipboardData || window.clipboardData;
-            this.content = clipboardData.getData('Text');
+            const text = clipboardData.getData('text/plain');
+            document.execCommand('insertHTML', false, text);
         },
 
         emitContent() {

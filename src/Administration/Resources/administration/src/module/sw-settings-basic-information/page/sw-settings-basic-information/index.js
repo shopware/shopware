@@ -16,6 +16,12 @@ Component.register('sw-settings-basic-information', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    },
+
     methods: {
         saveFinish() {
             this.isSaveSuccessful = false;

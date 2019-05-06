@@ -16,6 +16,12 @@ Component.register('sw-settings-document-list', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    },
+
     computed: {
         filters() {
             return [];

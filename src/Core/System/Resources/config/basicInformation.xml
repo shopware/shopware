@@ -8,7 +8,7 @@
         <input-field>
             <name>email</name>
             <label>Shopowner email address</label>
-            <label lang="de-DE">Shopbetreiber E-Mail Adresse</label>
+            <label lang="de-DE">Shopbetreiber E-Mail-Adresse</label>
             <placeholder>Enter email</placeholder>
             <placeholder lang="de-DE">Gebe eine E-Mail ein</placeholder>
         </input-field>

@@ -10,8 +10,9 @@ import enGB from './snippet/en_GB.json';
 
 Module.register('sw-settings-document', {
     type: 'core',
-    name: 'Document configuration settings',
-    description: 'Document configuration section in the settings module',
+    name: 'settings-document',
+    title: 'sw-settings-document.general.mainMenuItemGeneral',
+    description: 'sw-settings-document.general.description',
     color: '#9AA8B5',
     icon: 'default-action-settings',
     favicon: 'icon-module-settings.png',

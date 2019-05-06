@@ -6,7 +6,8 @@ import enGB from './snippet/en-GB.json';
 
 Module.register('sw-settings-login-registration', {
     type: 'core',
-    name: 'Basic information',
+    name: 'settings-login-registration',
+    title: 'sw-settings-login-registration.general.mainMenuItemGeneral',
     description: 'sw-settings-login-registration.general.description',
     version: '1.0.0',
     targetVersion: '1.0.0',

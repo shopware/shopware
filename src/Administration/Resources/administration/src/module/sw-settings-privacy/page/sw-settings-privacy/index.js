@@ -8,6 +8,12 @@ Component.register('sw-settings-privacy', {
         Mixin.getByName('notification')
     ],
 
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    },
+
     methods: {
         onSave() {
             this.$refs.systemConfig.saveAll().then(() => {

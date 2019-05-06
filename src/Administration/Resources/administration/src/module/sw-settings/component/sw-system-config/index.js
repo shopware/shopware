@@ -120,19 +120,25 @@ Component.register('sw-system-config', {
         },
         getElementBind(element) {
             const bind = Object.assign({}, element);
-            // Replace the placeholder with inherited if possible/needed
+            // Add inherited values
             if (this.currentSalesChannelId !== null
                     && this.inherit
                     && this.actualConfigData.hasOwnProperty('null')
-                    && this.actualConfigData.null[bind.name]) {
+                    && this.actualConfigData.null[bind.name] !== null
+                    && this.actualConfigData.null[bind.name] !== undefined) {
                 if (bind.type === 'single-select') {
+                    // Add inherited placeholder option
                     bind.placeholder = this.$tc('sw-settings.system-config.inherited');
+                } else if (bind.type === 'bool') {
+                    // Add inheritedValue for checkbox fields to restore the inherited state
+                    bind.config.inheritedValue = this.actualConfigData.null[bind.name];
                 } else if (bind.type !== 'multi-select') {
+                    // Add inherited placeholder
                     bind.placeholder = `${this.actualConfigData.null[bind.name]}`;
                 }
             }
 
-            // Add single select properties
+            // Add select properties
             if (['single-select', 'multi-select'].includes(bind.type)) {
                 bind.config.labelProperty = 'name';
                 bind.config.valueProperty = 'id';

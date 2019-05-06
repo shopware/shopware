@@ -112,27 +112,23 @@ $sw-field--switch-color-inherit: $color-purple;
         }
     }
 
-    &.is--inherited .sw-field__switch {
-        .sw-field__switch-state {
-            background: $sw-field--switch-color-inherit;
+    &.is--inheritanceField {
+        .sw-field--switch__inheritance-unInherited {
+            cursor: pointer;
         }
 
+        .sw-field--switch__content {
+            grid-template-columns: 24px 16px 1fr auto;
+        }
+    }
+
+    &.is--inherited {
+        .sw-field--switch__label {
+            color:  $sw-field--switch-color-inherit;
+        }
         input[type="checkbox"] {
-            &:disabled ~ .sw-field__switch-state {
-                background: lighten($sw-field--switch-color-inherit, 5%);
-
-                .sw-field__switch-state-knob {
-                    background: darken($sw-field--switch-color-inherit, 5%);
-                }
-
-            }
-
             &:checked ~ .sw-field__switch-state {
-                background: $sw-field--switch-color-inherit;
-            }
-
-            &:checked:disabled ~ .sw-field__switch-state {
-                background: lighten($sw-field--switch-color-inherit, 5%);
+                background: $sw-field--switch-color-border;
             }
         }
     }

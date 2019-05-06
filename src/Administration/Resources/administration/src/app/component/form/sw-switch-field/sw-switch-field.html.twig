@@ -1,10 +1,10 @@
-<div class="sw-field sw-field--switch" :class="switchFieldClasses">
+<div class="sw-field sw-field--switch" :class="swSwitchFieldClasses">
     <div class="sw-field--switch__content">
         <div class="sw-field--switch__input">
             <input type="checkbox"
                    :id="formFieldName || identification"
                    :name="formFieldName || identification"
-                   :checked="currentValue"
+                   :checked="inputState"
                    :disabled="disabled"
                    @change="onChange">
             <div class="sw-field__switch-state">
@@ -12,12 +12,30 @@
             </div>
         </div>
 
-        <label v-if="label" class="sw-field--switch__label" :for="formFieldName || identification">
-            {{ label }}{{ this.inherited ? '*' : '' }}
-        </label>
+        <div v-if="isInheritanceField"
+             class="sw-field--switch__inheritance-icon">
+                <sw-icon v-if="isInherited"
+                         :multicolor="true"
+                         name="custom-inherited"
+                         size="16">
+                </sw-icon>
+                <sw-icon v-else
+                         class="sw-field--switch__inheritance-unInherited"
+                         :multicolor="true"
+                         name="custom-uninherited"
+                         v-tooltip="$tc('global.sw-field.tooltipRestoreInheritance')"
+                         @click="onClickRestoreInheritance"
+                         size="16">
+                </sw-icon>
+        </div>
+
+        <div v-if="label">
+            <label class="sw-field--switch__label" :for="formFieldName || identification">
+                {{ label }}{{ required ? '*' : '' }}
+            </label>
+        </div>
 
         <span>
-            <button v-if="inherited" class="sw-field__button-restore">{{ $tc('global.sw-field.buttonRestoreInheritance') }}</button>
             <sw-help-text v-if="helpText" :text="helpText"></sw-help-text>
         </span>
     </div>

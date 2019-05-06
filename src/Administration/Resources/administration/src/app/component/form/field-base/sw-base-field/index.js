@@ -52,10 +52,10 @@ export default {
             default: false
         },
 
-        inherited: {
+        inheritedValue: {
             type: Boolean,
             required: false,
-            default: false
+            default: null
         }
     },
 
@@ -86,8 +86,17 @@ export default {
             return {
                 'has--error': this.hasError,
                 'is--disabled': this.disabled,
-                'is--inherited': this.inherited
+                'is--inherited': this.isInherited,
+                'is--inheritanceField': this.isInheritanceField
             };
+        },
+
+        isInheritanceField() {
+            return this.inheritedValue !== null;
+        },
+
+        isInherited() {
+            return this.inheritedValue !== null && this.currentValue === null;
         }
     }
 };

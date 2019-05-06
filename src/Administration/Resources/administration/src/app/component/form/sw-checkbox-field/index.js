@@ -30,23 +30,43 @@ export default {
         value: {
             type: Boolean,
             required: false,
-            default: false
+            default: null
         }
     },
 
     data() {
         return {
-            currentValue: this.value || false
+            currentValue: this.value
         };
     },
 
+    computed: {
+        swCheckboxFieldClasses() {
+            return {
+                ...this.swFieldClasses
+            };
+        },
+
+        inputState() {
+            if (this.isInherited) {
+                return this.inheritedValue;
+            }
+
+            return this.currentValue || false;
+        }
+    },
+
     watch: {
-        value() { this.currentValue = this.value || false; }
+        value() { this.currentValue = this.value; }
     },
 
     methods: {
         onChange(changeEvent) {
             this.$emit('change', changeEvent.target.checked);
+        },
+
+        onClickRestoreInheritance() {
+            this.$emit('change', null);
         }
     }
 };

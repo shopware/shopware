@@ -32,8 +32,7 @@
     }
 
     &.is--inherited {
-        .sw-field__label,
-        .sw-field__button-restore {
+        .sw-field__label {
             color: $color-purple;
         }
     }

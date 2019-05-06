@@ -1,10 +1,10 @@
 <div class="sw-field" :class="swFieldClasses">
     <div class="sw-field__label" v-if="hasLabel">
         <label v-if="label" :for="identification">
-            <sw-icon v-if="inherited" name="default-web-variants" size="14px"></sw-icon>
+            <sw-icon v-if="isInheritanceField && isInherited" name="default-web-variants" size="14px"></sw-icon>
             {{ label }}{{ required ? '*' : '' }}
         </label>
-        <button v-if="inherited" class="sw-field__button-restore">{{ $tc('global.sw-field.buttonRestoreInheritance') }}</button>
+        <button v-if="isInheritanceField && isInherited" class="sw-field__button-restore">{{ $tc('global.sw-field.buttonRestoreInheritance') }}</button>
         <sw-help-text class="sw-field__help-text" :text="helpText" v-if="helpText"></sw-help-text>
     </div>
     <slot name="sw-field-input" v-bind="{identification, error, disabled}"></slot>

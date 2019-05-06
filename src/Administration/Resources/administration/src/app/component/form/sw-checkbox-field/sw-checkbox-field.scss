@@ -8,9 +8,11 @@ $sw-field-color-error: $color-crimson;
 $sw-field-color-inherited: $color-purple;
 
 .sw-field.sw-field--checkbox {
-    display: grid;
-    grid-template-columns: 16px 1fr auto;
-    grid-column-gap: 10px;
+    .sw-field--checkbox__content {
+        display: grid;
+        grid-template-columns: 16px 1fr auto;
+        grid-column-gap: 10px;
+    }
 
     .sw-field__label {
         color: $sw-field-color-text;
@@ -85,23 +87,24 @@ $sw-field-color-inherited: $color-purple;
         }
     }
 
-    &.is--inherited {
-        .sw-field__checkbox-state {
-            border: 1px solid $sw-field-color-inherited;
+    &.is--inheritanceField {
+        .sw-field--checkbox__inheritance-unInherited {
+            cursor: pointer;
         }
 
+        .sw-field--checkbox__content {
+            grid-template-columns: 24px 16px 1fr auto;
+        }
+    }
+
+    &.is--inherited {
+        .sw-field--checkbox__label {
+            color:  $sw-field-color-inherited;
+        }
         input[type="checkbox"] {
-            &:disabled ~ .sw-field__checkbox-state {
-                border: 1px solid $sw-field-color-inherited;
-            }
-
             &:checked ~ .sw-field__checkbox-state {
-                border: 1px solid $sw-field-color-inherited;
-                background-color: $sw-field-color-inherited;
-            }
-
-            &:checked:disabled ~ .sw-field__checkbox-state {
-                border: 1px solid $sw-field-color-inherited;
+                border-color: $sw-field-color-border;
+                background: $sw-field-color-border;
             }
         }
     }

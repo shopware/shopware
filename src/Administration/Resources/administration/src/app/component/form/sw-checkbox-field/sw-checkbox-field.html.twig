@@ -1,19 +1,37 @@
 <div class="sw-field sw-field--checkbox" :class="swFieldClasses">
-    <div class="sw-field__checkbox">
-        <input type="checkbox"
-               :id="formFieldName || identification"
-               :name="formFieldName || identification"
-               :checked="currentValue"
-               :disabled="disabled"
-               @change="onChange">
-        <div class="sw-field__checkbox-state">
-            <sw-icon name="small-default-checkmark-line-small" size="16"></sw-icon>
+    <div class="sw-field--checkbox__content">
+        <div class="sw-field__checkbox">
+            <input type="checkbox"
+                   :id="formFieldName || identification"
+                   :name="formFieldName || identification"
+                   :checked="inputState"
+                   :disabled="disabled"
+                   @change="onChange">
+            <div class="sw-field__checkbox-state">
+                <sw-icon name="small-default-checkmark-line-small" size="16"></sw-icon>
+            </div>
         </div>
-    </div>
 
-    <label v-if="label" class="sw-field__label" :for="formFieldName || identification">
-        {{ label }}{{ this.required ? '*' : '' }}
-    </label>
+        <div v-if="isInheritanceField"
+             class="sw-field--checkbox__inheritance-icon">
+            <sw-icon v-if="isInherited"
+                     :multicolor="true"
+                     name="custom-inherited"
+                     size="16">
+            </sw-icon>
+            <sw-icon v-else
+                     class="sw-field--checkbox__inheritance-unInherited"
+                     :multicolor="true"
+                     name="custom-uninherited"
+                     v-tooltip="$tc('global.sw-field.tooltipRestoreInheritance')"
+                     @click="onClickRestoreInheritance"
+                     size="16">
+            </sw-icon>
+        </div>
+
+        <label v-if="label" class="sw-field__label" :for="formFieldName || identification">
+            {{ label }}{{ required ? '*' : '' }}
+        </label>
 
     <span>
         <button v-if="inherited" class="sw-field__button-restore">{{ $tc('global.sw-field.buttonRestoreInheritance') }}</button>

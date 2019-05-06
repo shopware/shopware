@@ -16,6 +16,7 @@ Component.register('sw-product-variants-overview', {
     data() {
         return {
             variantList: [],
+            currency: null,
             isLoading: false,
             showDeleteModal: false,
             modalLoading: false,
@@ -55,7 +56,19 @@ Component.register('sw-product-variants-overview', {
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            const repo = this.repositoryFactory.create('currency');
+
+            repo.get('b7d2554b0ce847cd82f3ac9bd1c0dfca', this.context).then((currency) => {
+                this.currency = currency;
+            });
+        },
+
         getVariantColumns() {
             return [
                 {

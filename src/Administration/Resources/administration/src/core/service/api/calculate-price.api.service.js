@@ -11,13 +11,14 @@ class CalculatePriceApiService extends ApiService {
         this.name = 'calculate-price';
     }
 
-    calculatePrice({ taxId, price, output = 'gross' }, additionalParams = {}, additionalHeaders = {}) {
+    calculatePrice({ taxId, price, output = 'gross', currencyId }, additionalParams = {}, additionalHeaders = {}) {
         const params = additionalParams;
         const headers = this.getBasicHeaders(additionalHeaders);
         const payload = {
             taxId,
             price,
-            output
+            output,
+            currencyId
         };
 
         return this.httpClient

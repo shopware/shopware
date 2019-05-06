@@ -10,6 +10,7 @@
                       :validation="validation"
                       :size="compact ? 'small' : 'default'"
                       :min="0"
+                      :digits="currency.decimalPrecision"
                       @input-change="onPriceGrossChange"
                       v-bind="$attrs"
                       v-model="price.gross">
@@ -33,6 +34,7 @@
                       :size="compact ? 'small' : 'default'"
                       :min="0"
                       @input-change="onPriceNetChange"
+                      :digits="currency.decimalPrecision"
                       v-bind="$attrs"
                       v-model="price.net">
                 <template #suffix>

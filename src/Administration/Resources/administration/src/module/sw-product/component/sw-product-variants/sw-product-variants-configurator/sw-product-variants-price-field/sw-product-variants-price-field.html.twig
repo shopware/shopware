@@ -8,6 +8,7 @@
                        class="sw-product-variants-price-field__input"
                        :disabled="readonly"
                        @input-change="onPriceGrossChange"
+                       :digits="currency.decimalPrecision"
                        v-bind="$attrs"/>
             </div>
         {% endblock %}
@@ -29,6 +30,7 @@
                        class="sw-field sw-product-variants-price-field__input"
                        :disabled="readonly"
                        @input-change="onPriceNetChange"
+                       :digits="currency.decimalPrecision"
                        v-bind="$attrs"/>
             </div>
         {% endblock %}

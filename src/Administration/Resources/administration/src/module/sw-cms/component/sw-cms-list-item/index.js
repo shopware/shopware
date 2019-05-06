@@ -13,11 +13,33 @@ Component.register('sw-cms-list-item', {
         }
     },
 
-    created() {
-        this.createdComponent();
+    computed: {
+        previewMedia() {
+            let backgroundImage = null;
+            if (this.page.previewMedia && this.page.previewMedia.id) {
+                backgroundImage = `url(${this.page.previewMedia.url})`;
+            }
+
+            return {
+                'background-image': backgroundImage,
+                'background-size': 'cover'
+            };
+        }
     },
 
     methods: {
-        createdComponent() {}
+        onChangePreviewImage(page) {
+            this.$emit('preview-image-change', page);
+        },
+
+        onRemovePreviewImage(page) {
+            page.previewMediaId = null;
+            page.save();
+            page.previewMedia = null;
+        },
+
+        onDelete(page) {
+            this.$emit('cms-page-delete', page);
+        }
     }
 });

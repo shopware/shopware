@@ -1,7 +1,15 @@
 {% block sw_cms_list_item %}
     <div class="sw-cms-list-item">
+
+        {% block sw_cms_list_item_options %}
+            <slot name="contextMenu"></slot>
+        {% endblock %}
+
         {% block sw_cms_list_item_image %}
-            <div class="sw-cms-list-item__image" v-if="page" @click="$emit('onItemClick', page)"></div>
+            <div class="sw-cms-list-item__image"
+                 v-if="page"
+                 :style="previewMedia"
+                 @click="$emit('onItemClick', page)"></div>
             <div class="sw-cms-list-item__image is--empty" v-else>
                 {{ $tc('sw-cms.components.cmsListItem.emptyText') }}
             </div>

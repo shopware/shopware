@@ -7,11 +7,16 @@
     background: $color-white;
     border: 1px solid $color-steam-cloud;
     border-radius: 4px;
-
+    position: relative;
+    
     &:hover {
         border-color: $color-shopware-blue;
         box-shadow: 0 0 4px 0 rgba($color-shopware-blue, 0.4);
         cursor: pointer;
+
+        .sw-cms-list-item__options {
+            visibility: visible;
+        }
     }
 
     .sw-cms-list-item__image {
@@ -47,5 +52,34 @@
         text-overflow: ellipsis;
         overflow: hidden;
         font-size: 14px;
+    }
+
+    .sw-cms-list-item__options {
+        visibility: hidden;
+        position: absolute;
+        right: 16px;
+        top: 16px;
+        
+        .sw-context-button__button {
+            height: 16px;
+            padding: 0 2px;
+            line-height: 13px;
+            background: #FFF;
+            border: 1px solid #D8DDE6;
+            border-radius: 4px;
+
+            &:hover, &.is--active {
+                background-color: #fff;
+            }
+
+            &.is--active {
+                visibility: visible;
+            }
+
+            .sw-icon {
+                height: 100%;
+            }
+        }
+
     }
 }

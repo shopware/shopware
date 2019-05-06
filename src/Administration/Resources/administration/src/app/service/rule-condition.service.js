@@ -79,9 +79,9 @@ export default function createConditionService() {
     };
 
     const moduleTypes = {
-        dispatch: {
-            id: 'dispatch',
-            name: 'sw-settings-rule.detail.types.dispatch'
+        shipping: {
+            id: 'shipping',
+            name: 'sw-settings-rule.detail.types.shipping'
         },
         payment: {
             id: 'payment',
@@ -99,6 +99,7 @@ export default function createConditionService() {
         getConditions,
         operatorSets,
         operators,
+        addModuleType,
         getModuleTypes,
         getOperatorSet,
         getPlaceholder
@@ -117,6 +118,10 @@ export default function createConditionService() {
         const operatorSet = this.operatorSets[operatorSetName];
 
         return translateData(operatorSet, translateCallback);
+    }
+
+    function addModuleType(type) {
+        moduleTypes[type.id] = type;
     }
 
     function getModuleTypes(translateCallback) {

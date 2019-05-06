@@ -46,7 +46,7 @@
       "titleSaveError": "Fehler",
       "messageSaveError": "Beim Speichern der Regel \"{name}\" ist ein Fehler aufgetreten.",
       "types": {
-        "dispatch": "Versandart",
+        "shipping": "Versandart",
         "payment": "Zahlungart",
         "price": "Preis"
       }

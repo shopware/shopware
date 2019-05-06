@@ -19,14 +19,6 @@ Component.register('sw-settings-rule-detail', {
             rule: {},
             moduleTypes: null,
             nestedConditions: {},
-            moduleTypeStore: new LocalStore(this.ruleConditionDataProviderService.getModuleTypes((moduleType) => {
-                if (moduleType.label) {
-                    return;
-                }
-
-                moduleType.name = this.$tc(moduleType.name);
-                moduleType.label = moduleType.name;
-            }), 'id'),
             treeConfig: {
                 conditionStore: new LocalStore(this.ruleConditionDataProviderService.getConditions((condition) => {
                     condition.translated = {
@@ -91,6 +83,11 @@ Component.register('sw-settings-rule-detail', {
 
         ruleStore() {
             return State.getStore('rule');
+        },
+        moduleTypeStore() {
+            return new LocalStore(this.ruleConditionDataProviderService.getModuleTypes((moduleType) => {
+                moduleType.label = this.$tc(moduleType.name);
+            }), 'id');
         }
     },
 

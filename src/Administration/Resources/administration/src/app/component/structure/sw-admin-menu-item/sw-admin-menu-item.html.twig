@@ -3,8 +3,7 @@
         :class="getItemName(entry.id || entry.path)"
         @click="$emit('menuItemClicked', entry, $event.currentTarget)"
         @mouseover="$emit('menuItemHovered', entry, $event.currentTarget, parentEntries)"
-        @mouseleave="$emit('menuItemLeaved', entry, $event.currentTarget, parentEntries)"
-    >
+        @mouseleave="$emit('menuItemLeaved', entry, $event.currentTarget, parentEntries)">
 
         {% block sw_admin_menu_item_router_link %}
             <router-link v-if="entry.path"
@@ -54,7 +53,9 @@
         {% endblock %}
 
         {% block sw_admin_menu_item_navigation_link %}
-            <span v-else class="sw-admin-menu__navigation-link">
+            <span class="sw-admin-menu__navigation-link"
+                  :class="{ 'router-link-active': subIsActive(entry.id) }"
+                  v-else>
 
                 {% block sw_admin_menu_item_icon %}
                     <sw-icon v-if="displayIcon"

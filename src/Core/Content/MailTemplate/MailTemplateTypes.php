@@ -28,6 +28,8 @@ class MailTemplateTypes
 
     public const MAILTYPE_CUSTOMER_GROUP_CHANGE_REJECT = 'customer_group_change_reject';
 
+    public const MAILTYPE_CUSTOMER_REGISTER = 'customer_register';
+
     public const MAILTYPE_SEPA_CONFIRMATION = 'sepa_confirmation';
     public const MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_SHIPPED_PARTIALLY = 'state_enter.order_delivery.state.shipped_partially';
     public const MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_REFUNDED_PARTIALLY = 'state_enter.order_transaction.state.refunded_partially';

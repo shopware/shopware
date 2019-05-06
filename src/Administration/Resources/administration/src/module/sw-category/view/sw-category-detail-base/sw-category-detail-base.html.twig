@@ -236,13 +236,13 @@
                 {% endblock %}
 
                 {% block sw_category_detail_menu_description %}
-                    <sw-field
+                    <sw-text-editor
                         class="sw-category-detail-base__description"
                         type="textarea"
                         v-model="category.description"
                         :label="$tc('sw-category.base.menu.description')"
                         :placeholder="$tc('sw-category.base.menu.description')">
-                    </sw-field>
+                    </sw-text-editor>
                 {% endblock %}
             </sw-card>
         {% endblock %}

@@ -196,9 +196,11 @@ export default {
     },
 
     watch: {
+        // @todo fix input cursor bug
+        // testable in categories
         value: {
             handler() {
-                if (this.value && !this.isActive) {
+                if (!this.isActive) {
                     this.content = this.value;
                     this.$nextTick(() => {
                         this.setWordcount();

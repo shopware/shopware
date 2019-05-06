@@ -56,6 +56,7 @@
             {% block sw_category_side_content %}
                 <sw-category-tree
                     :categories="categories"
+                    :isLoadingInitialData="isLoadingInitialData"
                     :activeCategory="category"
                     :disableContextMenu="disableContextMenu"
                     @sw-category-on-save="onSaveCategories"
@@ -93,7 +94,7 @@
                 {% endblock %}
 
                 {% block sw_category_content_loader %}
-                    <sw-loader v-if="!categories"></sw-loader>
+                    <sw-loader v-if="isLoadingInitialData || isLoadingCategory"></sw-loader>
                 {% endblock %}
 
                 {% block sw_category_content_empty %}

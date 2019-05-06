@@ -1,11 +1,14 @@
 @import "~scss/variables";
 $sw-category-tree-border-color: $color-steam-cloud;
 
-.sw-category-tree.sw-tree {
-    background: $color-white;
-    width: 100%;
-    height: 100%;
-    border: none;
+.sw-category-tree {
+
+    .sw-category-tree__inner.sw-tree {
+        background: $color-white;
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
 
     .sw-tree__content {
         max-height: unset;

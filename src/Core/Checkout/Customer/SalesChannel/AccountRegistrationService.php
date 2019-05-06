@@ -74,7 +74,14 @@ class AccountRegistrationService
 
         $customer = $this->mapCustomerData($data, $isGuest, $context);
 
-        $billingAddress = $this->mapBillingAddress($data->get('billingAddress'), $context->getContext());
+        /** @var DataBag $billing */
+        $billing = $data->get('billingAddress');
+
+        if ($data->has('title')) {
+            $billing->set('title', $data->get('title'));
+        }
+
+        $billingAddress = $this->mapBillingAddress($billing, $context->getContext());
         $billingAddress['id'] = Uuid::randomHex();
         $billingAddress['customerId'] = $customer['id'];
 
@@ -148,6 +155,7 @@ class AccountRegistrationService
             'firstName',
             'lastName',
             'salutationId',
+            'title',
             'street',
             'zipcode',
             'city',

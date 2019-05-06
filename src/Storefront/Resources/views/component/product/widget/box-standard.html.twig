@@ -48,9 +48,22 @@
                                 <div class="product-btn">
                                     {% if not product.variantRestrictions %}
                                         {% block component_product_box_action_buy %}
-                                            <form action="{{ path('sales-channel-api.checkout.frontend.cart.product.add', {'version': 1, 'id': product.id}) }}"
+                                            <form action="{{ path('frontend.checkout.line-item.add') }}"
                                                   method="post"
                                                   class="buy-widget js-add-to-cart">
+
+                                                {% block component_product_box_action_buy_redirect_input %}
+                                                    <input type="hidden" name="redirectTo" value="frontend.cart.detail"/>
+                                                {% endblock %}
+
+                                                {% block page_product_detail_buy_product_buy_info %}
+                                                    <input type="hidden" name="lineItems[{{ product.id }}][id]" value="{{ product.id }}">
+                                                    <input type="hidden" name="lineItems[{{ product.id }}][type]" value="product">
+                                                    <input type="hidden" name="lineItems[{{ product.id }}][stackable]" value="1">
+                                                    <input type="hidden" name="lineItems[{{ product.id }}][removable]" value="1">
+                                                    <input type="hidden" name="lineItems[{{ product.id }}][quantity]" value="1">
+                                                {% endblock %}
+
                                                 <button class="btn btn-block buy-widget-submit"
                                                         title="{{ "listing.boxAddProduct"|trans }}">
                                                     {{ "listing.boxAddProduct"|trans }}

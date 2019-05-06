@@ -29,9 +29,9 @@ export default class ImageSliderSettingsHelper {
      * @return {*}
      */
     static prepareBreakpointPxValues(options) {
-        Iterator.iterate(options.responsive, viewport => {
+        Iterator.iterate(options.responsive, (viewportOptions,viewport) => {
             const viewportWidth = window.breakpoints[viewport.toLowerCase()];
-            options.responsive[viewportWidth] = options.responsive[viewport];
+            options.responsive[viewportWidth] = viewportOptions;
             delete options.responsive[viewport];
         });
 

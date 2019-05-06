@@ -50,16 +50,20 @@
         margin-right: $spacer-xs;
     }
 
-    > .spinner-border {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        margin-left: -$spacer;
-        margin-top: -$spacer;
+    &,
+    .offcanvas-content-container {
+        > .spinner-border {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            margin-left: -$spacer;
+            margin-top: -$spacer;
+        }
     }
 
     .offcanvas-content-container {
         padding: $spacer;
         width: 280px;
+        height: 100%;
     }
 }

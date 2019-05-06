@@ -3,10 +3,11 @@ import PluginManager from 'src/script/helper/plugin/plugin.manager';
 import DomAccess from 'src/script/helper/dom-access.helper';
 import HttpClient from 'src/script/service/http-client.service';
 import AjaxOffCanvas from 'src/script/plugin/offcanvas/ajax-offcanvas.plugin';
-import LoadingIndicator from 'src/script/utility/loading-indicator/loading-indicator.util';
 import DeviceDetection from 'src/script/helper/device-detection.helper';
 import FormSerializeUtil from 'src/script/utility/form/form-serialize.util';
 import Iterator from 'src/script/helper/iterator.helper';
+import OffCanvas from 'src/script/plugin/offcanvas/offcanvas.plugin';
+import ElementLoadingIndicatorUtil from 'src/script/utility/loading-indicator/element-loading-indicator.util';
 
 export default class OffCanvasCartPlugin extends Plugin {
 
@@ -66,9 +67,12 @@ export default class OffCanvasCartPlugin extends Plugin {
 
         const form = e.target;
         const requestUrl = DomAccess.getAttribute(form, 'action').toLowerCase();
-        const formData = FormSerializeUtil.serializeJson(form);
+        const formData = FormSerializeUtil.serialize(form);
 
-        AjaxOffCanvas.open(requestUrl, JSON.stringify(formData), this._updateCart.bind(this), this.options.offcanvasPosition);
+        AjaxOffCanvas.open(requestUrl, formData,() => {
+            this._registerRemoveProductTriggerEvents();
+            this._fetchCartWidgets();
+        }, this.options.offcanvasPosition);
     }
 
     /**
@@ -77,7 +81,9 @@ export default class OffCanvasCartPlugin extends Plugin {
      */
     _registerRemoveProductTriggerEvents() {
         const forms = DomAccess.querySelectorAll(document, this.options.removeProductTriggerSelector, false);
-        Iterator.iterate(forms, form => form.addEventListener('submit', this._onRemoveProductFromCart.bind(this)));
+        if (forms) {
+            Iterator.iterate(forms, form => form.addEventListener('submit', this._onRemoveProductFromCart.bind(this)));
+        }
     }
 
     /**
@@ -93,23 +99,16 @@ export default class OffCanvasCartPlugin extends Plugin {
         const form = e.target;
         const requestUrl = DomAccess.getAttribute(form, 'action');
 
+        const data = FormSerializeUtil.serialize(form);
         // Show loading indicator immediately after submitting
-        form.innerHTML = LoadingIndicator.getTemplate();
+        ElementLoadingIndicatorUtil.create(form.closest('.js-cart-item'));
 
-        this.client.delete(requestUrl.toLowerCase(), this._updateCart.bind(this));
+        this.client.post(requestUrl.toLowerCase(), data, (response) => {
+            this._fetchCartWidgets();
+            this._updateOffCanvasContent(response);
+        });
     }
 
-    /**
-     * updates the offcanvas cart and its widget
-     *
-     * @private
-     */
-    _updateCart() {
-        // Update the CartWidget in the header
-        this._fetchCartWidgets();
-        // Fetch the current cart template and replace the OffCanvas content
-        this._fetchOffCanvasCart();
-    }
 
     /**
      * updates all registered cart widgets
@@ -118,17 +117,16 @@ export default class OffCanvasCartPlugin extends Plugin {
      */
     _fetchCartWidgets() {
         const CartWidgetPluginInstances = PluginManager.getPluginInstances('CartWidget');
-        Iterator.iterate(CartWidgetPluginInstances, instance => {
-            instance.fetch();
-        });
+        Iterator.iterate(CartWidgetPluginInstances, instance => instance.fetch());
     }
 
-    /**
-     * Fetch the current cart template and replace the OffCanvas content
+    /**x
+     * update the OffCanvas content
+     *
      * @private
      */
-    _fetchOffCanvasCart() {
-        AjaxOffCanvas.setContent(window.router['frontend.cart.detail'], false, this._registerRemoveProductTriggerEvents.bind(this));
+    _updateOffCanvasContent(response) {
+        OffCanvas.setContent(response, false, this._registerRemoveProductTriggerEvents.bind(this));
     }
 
 }

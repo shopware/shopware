@@ -12,7 +12,7 @@
             {% if isCartNotEmpty %}
                 {% for lineItem in page.cart.lineItems %}
                     {% block layout_cart_mini_item %}
-                        <div class="cart-item cart-item-{{ lineItem.type }}">
+                        <div class="cart-item cart-item-{{ lineItem.type }} js-cart-item">
                             {% block layout_cart_mini_item_image %}
                                 <div class="cart-item-image">
                                     {% if lineItem.type == 'product' %}
@@ -36,6 +36,11 @@
                                     <form action="{{ path('frontend.checkout.line-item.delete', {'id': lineItem.key}) }}"
                                           class="cart-item-remove js-offcanvas-cart-remove-product"
                                           method="post">
+                                        <input type="hidden" name="_method" value="POST">
+                                        {% block layout_cart_mini_item_actions_redirect_input %}
+                                            <input type="hidden" name="redirectTo" value="frontend.cart.detail"/>
+                                        {% endblock %}
+
                                         <button type="submit"
                                                 title="{{ "checkout.removeLineItem"|trans }}"
                                                 class="btn btn-light">

@@ -45,22 +45,14 @@ export default class HttpClient {
      * Request POST
      *
      * @param {string} url
-     * @param {object} data
+     * @param {object|null} data
      * @param {function} callback
      * @param {string} contentType
      *
      * @returns {XMLHttpRequest}
      */
     post(url, data, callback, contentType = 'application/json') {
-
-        // when sending form data,
-        // the content-type has to be automatically set,
-        // to use the correct content-disposition
-        // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition
-        if (data instanceof FormData) {
-            contentType = false;
-        }
-
+        contentType = this._getContentType(data, contentType);
         const request = this._createPreparedRequest('POST', url, contentType);
         this._registerOnLoaded(request, callback);
 
@@ -72,30 +64,34 @@ export default class HttpClient {
      * Request DELETE
      *
      * @param {string} url
+     * @param {object|null} data
      * @param {function} callback
      * @param {string} contentType
      *
      * @returns {XMLHttpRequest}
      */
-    delete(url, callback, contentType = 'application/json') {
+    delete(url, data, callback, contentType = 'application/json') {
+        contentType = this._getContentType(data, contentType);
         const request = this._createPreparedRequest('DELETE', url, contentType);
         this._registerOnLoaded(request, callback);
-        request.send();
+        request.send(data);
         return request;
     }
 
     /**
      * Request PATCH
      * @param {string} url
+     * @param {object|null} data
      * @param {function} callback
      * @param {string} contentType
      *
      * @returns {XMLHttpRequest}
      */
-    patch(url, callback, contentType = 'application/json') {
+    patch(url, data, callback, contentType = 'application/json') {
+        contentType = this._getContentType(data, contentType);
         const request = this._createPreparedRequest('PATCH', url, contentType);
         this._registerOnLoaded(request, callback);
-        request.send();
+        request.send(data);
         return request;
     }
 
@@ -120,9 +116,31 @@ export default class HttpClient {
      * @private
      */
     _registerOnLoaded(request, callback) {
-        request.addEventListener('loadend', event => {
-            if (event.loaded > 0) callback(request.responseText);
+        request.addEventListener('loadend', () => {
+            callback(request.responseText);
         });
+    }
+
+    /**
+     * returns the appropriate content type for the request
+     *
+     * @param {*} data
+     * @param {string} contentType
+     *
+     * @returns {string|boolean}
+     * @private
+     */
+    _getContentType(data, contentType) {
+
+        // when sending form data,
+        // the content-type has to be automatically set,
+        // to use the correct content-disposition
+        // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition
+        if (data instanceof FormData) {
+            contentType = false;
+        }
+
+        return contentType;
     }
 
     /**

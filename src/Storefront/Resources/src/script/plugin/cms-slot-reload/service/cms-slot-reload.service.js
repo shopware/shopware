@@ -209,42 +209,4 @@ export default class CmsSlotReloadService {
 
         return preparedSelectors;
     }
-
-    /**
-     * returns a dom element parsed from the passed string
-     *
-     * @param {string} string
-     *
-     * @returns {HTMLElement}
-     * @private
-     */
-    _createMarkupFromString(string) {
-        return this._domParser.parseFromString(string, 'text/html');
-    }
-
-    /**
-     * replace all elements from the target
-     * @param {HTMLElement} src
-     * @private
-     */
-    _replaceElements(src) {
-        Iterator.iterate(this._options.elements, (selectors, elementId) => {
-            const srcSelements = DomAccess.querySelectorAll(src, `[data-cms-element-id="${elementId}"]`);
-            const targetElements = DomAccess.querySelectorAll(document, `[data-cms-element-id="${elementId}"]`);
-
-            Iterator.iterate(srcSelements, element => {
-                Iterator.iterate(selectors, selector => {
-                    const srcEls = DomAccess.querySelectorAll(element, selector);
-
-                    Iterator.iterate(targetElements, element => {
-                        ElementLoadingIndicatorUtil.remove(element);
-                        const targetEls = DomAccess.querySelectorAll(element, selector);
-                        Iterator.iterate(targetEls, (el, key) => {
-                            el.innerHTML = srcEls[key].innerHTML;
-                        });
-                    });
-                });
-            });
-        });
-    }
 }

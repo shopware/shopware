@@ -8,7 +8,7 @@
     border: 1px solid $color-steam-cloud;
     border-radius: 4px;
     position: relative;
-    
+
     &:hover {
         border-color: $color-shopware-blue;
         box-shadow: 0 0 4px 0 rgba($color-shopware-blue, 0.4);
@@ -36,12 +36,13 @@
 
     .sw-cms-list-item__info {
         display: grid;
-        grid-template-columns: 18px 1fr;
+        grid-template-columns: 18px 1fr 18px;
         grid-column-gap: 10px;
         align-items: center;
         align-content: center;
     }
 
+    .sw-cms-list-item__locked,
     .sw-cms-list-item__status {
         color: $color-steam-cloud;
     }
@@ -59,7 +60,7 @@
         position: absolute;
         right: 16px;
         top: 16px;
-        
+
         .sw-context-button__button {
             height: 16px;
             padding: 0 2px;

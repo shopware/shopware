@@ -60,10 +60,18 @@ class SalesChannelPageObject extends GeneralPageObject {
         this.browser
             .getLocationInView(this.elements.dangerButton)
             .click(this.elements.dangerButton)
-            .expect.element(`${this.elements.modal}__body`).to.have.text.that.equals(`Are you sure you want to delete this sales channel? ${salesChannelName}`);
+            .waitForElementVisible(this.elements.modal)
+            .assert.containsText(
+                `${this.elements.modal}__body .sw-sales-channel-detail-base__delete-modal-confirm-text`,
+                'Are you sure you want to delete this sales channel?'
+            )
+            .assert.containsText(
+                `${this.elements.modal}__body .sw-sales-channel-detail-base__delete-modal-name`,
+                salesChannelName
+            );
 
         this.browser
-            .click(`${this.elements.modal}__footer button${this.elements.primaryButton}`)
+            .click(`${this.elements.modal}__footer button${this.elements.dangerButton}`)
             .waitForElementNotPresent(this.elements.modal)
             .expect.element('.sw-admin-menu__body').to.have.text.that.not.contains(salesChannelName);
     }

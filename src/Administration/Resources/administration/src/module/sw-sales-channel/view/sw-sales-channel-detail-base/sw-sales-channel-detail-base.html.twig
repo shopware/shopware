@@ -357,8 +357,10 @@
                             @modal-close="onCloseDeleteModal">
 
                             {% block sw_sales_channel_detail_options_delete_modal_confirmtext %}
-                                <p>{{ $tc('sw-sales-channel.detail.textConfirmDelete') }}</p>
-                                <p><strong>{{ salesChannel.name }}</strong></p>
+                                <p class="sw-sales-channel-detail-base__delete-modal-confirm-text">{{ $tc('sw-sales-channel.detail.textConfirmDelete') }}</p>
+                                <p class="sw-sales-channel-detail-base__delete-modal-name">
+                                    <strong>{{ salesChannel.name }}</strong>
+                                </p>
                                 <p>{{ $tc('sw-sales-channel.detail.textDeleteInfo') }}</p>
                             {% endblock %}
 

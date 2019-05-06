@@ -18,10 +18,15 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Event\BusinessEventDispatcher;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -46,11 +51,17 @@ class OrderPersisterTest extends TestCase
      */
     private $orderConverter;
 
+    /**
+     * @var BusinessEventDispatcher
+     */
+    private $businessEventDispatcher;
+
     protected function setUp(): void
     {
         $this->orderPersister = $this->getContainer()->get(OrderPersister::class);
         $this->cartProcessor = $this->getContainer()->get(Processor::class);
         $this->orderConverter = $this->getContainer()->get(OrderConverter::class);
+        $this->businessEventDispatcher = $this->getContainer()->get(BusinessEventDispatcher::class);
     }
 
     public function testSave(): void
@@ -64,8 +75,11 @@ class OrderPersisterTest extends TestCase
 
         $repository = $this->createMock(EntityRepository::class);
         $repository->expects(static::once())->method('create');
+        $order = new OrderEntity();
+        $order->setUniqueIdentifier(Uuid::randomHex());
+        $repository->method('search')->willReturn(new EntitySearchResult(1, new EntityCollection([$order]), null, new Criteria(), $this->getSalesChannelContext()->getContext()));
 
-        $persister = new OrderPersister($repository, $this->orderConverter);
+        $persister = new OrderPersister($repository, $this->orderConverter, $this->businessEventDispatcher);
 
         $persister->persist($cart, $this->getSalesChannelContext());
     }

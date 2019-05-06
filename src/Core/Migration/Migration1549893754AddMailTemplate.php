@@ -17,7 +17,6 @@ class Migration1549893754AddMailTemplate extends MigrationStep
         $connection->executeQuery('
             CREATE TABLE `mail_template` (
               `id` BINARY(16) NOT NULL,
-              `sender_mail` VARCHAR(255),
               `mail_type` VARCHAR(255) NULL,
               `system_default` TINYINT(1) unsigned NOT NULL DEFAULT \'0\',
               `created_at` DATETIME(3) NOT NULL,

@@ -8,7 +8,6 @@ import './page/sw-mail-template-create';
 import './page/sw-mail-template-index';
 import './page/sw-mail-header-footer-detail';
 import './page/sw-mail-header-footer-create';
-import { NEXT712 } from 'src/flag/feature_next712';
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
 
@@ -16,7 +15,6 @@ Module.register('sw-mail-template', {
     type: 'core',
     name: 'mail-template',
     title: 'sw-mail-template.general.mainMenuItemGeneral',
-    flag: NEXT712,
     description: 'Manages the mail templates of the application',
     version: '1.0.0',
     targetVersion: '1.0.0',

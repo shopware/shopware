@@ -5,6 +5,11 @@ namespace Shopware\Core\Content\NewsletterReceiver;
 class NewsletterReceiverEvents
 {
     /**
+     * @Event("Shopware\Core\Content\NewsletterReceiver\Event\NewsletterConfirmEvent")
+     */
+    public const NEWSLETTER_CONFIRM_EVENT = 'newsletter.confirm';
+
+    /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent")
      */
     public const NEWSLETTER_RECEIVER_WRITTEN_EVENT = 'newsletter_receiver.written';
@@ -33,4 +38,9 @@ class NewsletterReceiverEvents
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityIdSearchResultLoadedEvent")
      */
     public const NEWSLETTER_RECEIVER_ID_SEARCH_RESULT_LOADED_EVENT = 'newsletter_receiver.id.search.result.loaded';
+
+    /**
+     * @Event("Shopware\Core\Content\NewsletterReceiver\Event\NewsletterRegisterEvent")
+     */
+    public const NEWSLETTER_REGISTER_EVENT = 'newsletter.register';
 }

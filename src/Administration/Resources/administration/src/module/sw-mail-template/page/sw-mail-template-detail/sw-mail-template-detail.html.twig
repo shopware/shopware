@@ -82,13 +82,6 @@
                     <sw-card :title="$tc('sw-mail-template.detail.options.titleCard')">
                         <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0 30px" class="sw-mail-template-detail-options__container">
                             <div class="sw-mail-template-detail__options-info-wrapper">
-                                {% block sw_mail_template_options_form_sender_mail_field %}
-                                    <sw-field type="text"
-                                              :label="$tc('sw-mail-template.detail.options.labelSenderMail')"
-                                              :placeholder="$tc('sw-mail-template.detail.options.placeholderSenderMail')"
-                                              v-model="mailTemplate.senderMail">
-                                    </sw-field>
-                                {% endblock %}
 
                                 {% block sw_mail_template_options_form_subject_field %}
                                     <sw-field type="text"
@@ -121,12 +114,12 @@
                         {% endblock %}
 
                         {% block sw_mail_template_mail_text_form_content_html_field %}
-                            <sw-text-editor
+                            <sw-code-editor
                                     :label="$tc('sw-mail-template.detail.mailText.labelContentHtml')"
                                     :placeholder="$tc('sw-mail-template.detail.mailText.placeholderHtml')"
                                     name="content_html"
                                     v-model="mailTemplate.contentHtml">
-                            </sw-text-editor>
+                            </sw-code-editor>
                         {% endblock %}
                     </sw-card>
                 {% endblock %}

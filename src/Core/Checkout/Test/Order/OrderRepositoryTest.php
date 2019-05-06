@@ -16,7 +16,6 @@ use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
-use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -116,11 +115,7 @@ class OrderRepositoryTest extends TestCase
 
         $cart = $this->processor->process($cart, $context, new CartBehavior());
 
-        $result = $this->orderPersister->persist($cart, $context);
-
-        $orders = $result->getEventByDefinition(OrderDefinition::class);
-        $orders = $orders->getIds();
-        $id = array_shift($orders);
+        $id = $this->orderPersister->persist($cart, $context);
 
         $count = $this->getContainer()->get(Connection::class)->fetchAll('SELECT * FROM `order` WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
         static::assertCount(1, $count);

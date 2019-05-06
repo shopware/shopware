@@ -220,6 +220,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\Twig\StringTemplateRenderer">
+            <argument type="service" id="twig"/>
         </service>
 
         <service id="Shopware\Core\Framework\Routing\ApiRequestContextResolver">

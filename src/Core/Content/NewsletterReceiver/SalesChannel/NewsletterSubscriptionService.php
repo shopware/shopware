@@ -62,7 +62,7 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
         $receiver = $this->getNewsletterReceiver('email', $data['email'], $context->getContext());
 
         if ($data['status'] === self::STATUS_DIRECT) {
-            $event = new NewsletterConfirmEvent($context->getContext(), $receiver);
+            $event = new NewsletterConfirmEvent($context->getContext(), $receiver, $context->getSalesChannel()->getId());
             $this->eventDispatcher->dispatch(NewsletterConfirmEvent::EVENT_NAME, $event);
 
             return;
@@ -75,7 +75,7 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
             $data['hash']
         );
 
-        $event = new NewsletterRegisterEvent($context->getContext(), $receiver, $url);
+        $event = new NewsletterRegisterEvent($context->getContext(), $receiver, $url, $context->getSalesChannel()->getId());
         $this->eventDispatcher->dispatch(NewsletterRegisterEvent::EVENT_NAME, $event);
     }
 
@@ -97,7 +97,7 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
 
         $this->newsletterReceiverRepository->update([$data], $context->getContext());
 
-        $event = new NewsletterConfirmEvent($context->getContext(), $receiver);
+        $event = new NewsletterConfirmEvent($context->getContext(), $receiver, $context->getSalesChannel()->getId());
         $this->eventDispatcher->dispatch(NewsletterConfirmEvent::EVENT_NAME, $event);
     }
 

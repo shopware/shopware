@@ -30,11 +30,17 @@ class CustomerChangedPaymentMethodEvent extends Event implements BusinessEventIn
      */
     private $requestDataBag;
 
-    public function __construct(Context $context, CustomerEntity $customer, RequestDataBag $requestDataBag)
+    /**
+     * @var string
+     */
+    private $salesChannelId;
+
+    public function __construct(Context $context, CustomerEntity $customer, RequestDataBag $requestDataBag, string $salesChannelId)
     {
         $this->customer = $customer;
         $this->context = $context;
         $this->requestDataBag = $requestDataBag;
+        $this->salesChannelId = $salesChannelId;
     }
 
     public function getName(): string

@@ -8,7 +8,6 @@ use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTranslation\MailTem
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\EmailField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -40,7 +39,6 @@ class MailTemplateDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
 
-            (new EmailField('sender_mail', 'senderMail'))->addFlags(new Required()),
             new FkField('mail_template_type_id', 'mailTemplateTypeId', MailTemplateTypeDefinition::class),
             new BoolField('system_default', 'systemDefault'),
 

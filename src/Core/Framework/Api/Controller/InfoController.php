@@ -90,7 +90,7 @@ class InfoController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_info/events.json", defaults={"auth_required"=false}, name="api.info.events", methods={"GET"})
+     * @Route("/api/v{version}/_info/business-events.json", defaults={"auth_required"=false}, name="api.info.events", methods={"GET"})
      */
     public function events(): JsonResponse
     {

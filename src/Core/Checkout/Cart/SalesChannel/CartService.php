@@ -15,10 +15,18 @@ use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\Order\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
 use Shopware\Core\Checkout\Cart\Processor;
-use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CartService
 {
@@ -54,18 +62,39 @@ class CartService
      */
     private $cartRuleLoader;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $orderRepository;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $orderCustomerRepository;
+
     public function __construct(
         Enrichment $enrichment,
         Processor $processor,
         CartPersisterInterface $persister,
         OrderPersisterInterface $orderPersister,
-        CartRuleLoader $cartRuleLoader
+        CartRuleLoader $cartRuleLoader,
+        EntityRepositoryInterface $orderRepository,
+        EntityRepositoryInterface $orderCustomerRepository,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->processor = $processor;
         $this->persister = $persister;
         $this->orderPersister = $orderPersister;
         $this->enrichment = $enrichment;
         $this->cartRuleLoader = $cartRuleLoader;
+        $this->orderRepository = $orderRepository;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->orderCustomerRepository = $orderCustomerRepository;
     }
 
     public function setCart(Cart $cart): void
@@ -153,14 +182,37 @@ class CartService
     public function order(Cart $cart, SalesChannelContext $context): string
     {
         $calculatedCart = $this->calculate($cart, $context);
-        $events = $this->orderPersister->persist($calculatedCart, $context);
+        $orderId = $this->orderPersister->persist($calculatedCart, $context);
+
+        $criteria = new Criteria([$orderId]);
+        $criteria->addAssociation('lineItems');
+        $criteria->addAssociation('deliveries');
+        $criteria->addAssociation('transactions');
+        $criteria->addAssociation('addresses');
+
+        /** @var OrderEntity|null $orderEntity */
+        $orderEntity = $this->orderRepository->search($criteria, $context->getContext())->first();
+
+        if (!$orderEntity) {
+            throw new InvalidOrderException($orderId);
+        }
+
+        $orderEntity->setOrderCustomer(
+            $this->fetchCustomer($orderEntity->getId(), $context->getContext())
+        );
+
+        $orderPlacedEvent = new CheckoutOrderPlacedEvent(
+            $context->getContext(),
+            $orderEntity,
+            $context->getSalesChannel()->getId()
+        );
+
+        $this->eventDispatcher->dispatch(CheckoutOrderPlacedEvent::EVENT_NAME, $orderPlacedEvent);
 
         $this->persister->delete($context->getToken(), $context);
         unset($this->cart[$calculatedCart->getToken()]);
 
-        $ids = $events->getEventByDefinition(OrderDefinition::class)->getIds();
-
-        return array_shift($ids);
+        return $orderId;
     }
 
     public function recalculate(Cart $cart, SalesChannelContext $context): Cart
@@ -187,5 +239,16 @@ class CartService
         $this->cart[$cart->getToken()] = $cart;
 
         return $cart;
+    }
+
+    private function fetchCustomer(string $orderId, Context $context): OrderCustomerEntity
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('orderId', $orderId));
+        $criteria->addAssociation('customer');
+
+        return $this->orderCustomerRepository
+            ->search($criteria, $context)
+            ->first();
     }
 }

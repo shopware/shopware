@@ -29,11 +29,17 @@ class NewsletterRegisterEvent extends Event implements BusinessEventInterface
      */
     private $url;
 
-    public function __construct(Context $context, NewsletterReceiverEntity $receiverEntity, string $url)
+    /**
+     * @var string
+     */
+    private $salesChannelId;
+
+    public function __construct(Context $context, NewsletterReceiverEntity $receiverEntity, string $url, string $salesChannelId)
     {
         $this->context = $context;
         $this->receiverEntity = $receiverEntity;
         $this->url = $url;
+        $this->salesChannelId = $salesChannelId;
     }
 
     public static function getAvailableData(): EventDataCollection

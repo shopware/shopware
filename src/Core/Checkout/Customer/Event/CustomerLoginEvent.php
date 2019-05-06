@@ -30,11 +30,17 @@ class CustomerLoginEvent extends Event implements BusinessEventInterface
      */
     private $contextToken;
 
-    public function __construct(Context $context, CustomerEntity $customer, string $contextToken)
+    /**
+     * @var string
+     */
+    private $salesChannelId;
+
+    public function __construct(Context $context, CustomerEntity $customer, string $contextToken, string $salesChannelId)
     {
         $this->customer = $customer;
         $this->context = $context;
         $this->contextToken = $contextToken;
+        $this->salesChannelId = $salesChannelId;
     }
 
     public function getName(): string

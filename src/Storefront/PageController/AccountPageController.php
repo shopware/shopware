@@ -288,7 +288,7 @@ class AccountPageController extends StorefrontController
                 $paymentMethodId,
                 $requestDataBag,
                 $context->getCustomer(),
-                $context->getContext()
+                $context
             );
         } catch (UnknownPaymentMethodException | InvalidUuidException $exception) {
             $this->addFlash('danger', $this->translator->trans('error.' . $exception->getErrorCode()));

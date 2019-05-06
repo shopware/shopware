@@ -14,12 +14,19 @@ class StringTemplateRenderer
      */
     private $twig;
 
-    public function __construct()
+    public function __construct(Environment $environment)
     {
         // use private twig instance here, because we use custom template loader
         $this->twig = new Environment(new ArrayLoader());
         $this->twig->setCache(false);
         $this->twig->enableStrictVariables();
+
+        foreach ($environment->getExtensions() as $extension) {
+            if ($this->twig->hasExtension(get_class($extension))) {
+                continue;
+            }
+            $this->twig->addExtension($extension);
+        }
     }
 
     /**

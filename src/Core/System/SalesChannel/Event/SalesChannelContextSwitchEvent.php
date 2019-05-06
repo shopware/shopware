@@ -30,11 +30,17 @@ class SalesChannelContextSwitchEvent extends Event implements BusinessEventInter
      */
     private $customer;
 
-    public function __construct(Context $context, DataBag $requestDataBag, ?CustomerEntity $customer = null)
+    /**
+     * @var string
+     */
+    private $salesChannelId;
+
+    public function __construct(Context $context, DataBag $requestDataBag, ?CustomerEntity $customer = null, string $salesChannelId)
     {
         $this->context = $context;
         $this->requestDataBag = $requestDataBag;
         $this->customer = $customer;
+        $this->salesChannelId = $salesChannelId;
     }
 
     public function getName(): string

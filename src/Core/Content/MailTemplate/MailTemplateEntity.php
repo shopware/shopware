@@ -14,11 +14,6 @@ class MailTemplateEntity extends Entity
     use EntityIdTrait;
 
     /**
-     * @var string
-     */
-    protected $senderMail;
-
-    /**
      * @var string|null
      */
     protected $mailTemplateTypeId;
@@ -72,16 +67,6 @@ class MailTemplateEntity extends Entity
      * @var MailTemplateMediaCollection|null
      */
     protected $media;
-
-    public function getSenderMail(): string
-    {
-        return $this->senderMail;
-    }
-
-    public function setSenderMail(string $senderMail): void
-    {
-        $this->senderMail = $senderMail;
-    }
 
     public function getMailTemplateType(): ?MailTemplateTypeEntity
     {

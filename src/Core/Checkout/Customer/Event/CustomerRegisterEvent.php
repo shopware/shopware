@@ -3,19 +3,18 @@
 namespace Shopware\Core\Checkout\Customer\Event;
 
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Symfony\Component\EventDispatcher\Event;
 
-class CustomerLogoutEvent extends Event implements BusinessEventInterface
+class CustomerRegisterEvent extends Event implements BusinessEventInterface
 {
-    public const EVENT_NAME = 'checkout.customer.logout';
+    public const EVENT_NAME = 'checkout.customer.register';
 
     /**
-     * @var CustomerEntity
+     * @var array
      */
     private $customer;
 
@@ -29,7 +28,7 @@ class CustomerLogoutEvent extends Event implements BusinessEventInterface
      */
     private $salesChannelId;
 
-    public function __construct(Context $context, CustomerEntity $customer, string $salesChannelId)
+    public function __construct(Context $context, array $customer, string $salesChannelId)
     {
         $this->customer = $customer;
         $this->context = $context;
@@ -41,7 +40,7 @@ class CustomerLogoutEvent extends Event implements BusinessEventInterface
         return self::EVENT_NAME;
     }
 
-    public function getCustomer(): CustomerEntity
+    public function getCustomer(): array
     {
         return $this->customer;
     }

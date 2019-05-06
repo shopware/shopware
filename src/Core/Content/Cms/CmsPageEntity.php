@@ -52,6 +52,11 @@ class CmsPageEntity extends Entity
      */
     protected $customFields;
 
+    /**
+     * @var bool
+     */
+    protected $locked;
+
     public function getName(): string
     {
         return $this->name;
@@ -130,5 +135,15 @@ class CmsPageEntity extends Entity
     public function setConfig(array $config): void
     {
         $this->config = $config;
+    }
+
+    public function getLocked(): bool
+    {
+        return $this->locked;
+    }
+
+    public function setLocked(bool $locked): void
+    {
+        $this->locked = $locked;
     }
 }

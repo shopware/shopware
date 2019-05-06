@@ -21,6 +21,7 @@ class Migration1536233370CmsSlot extends MigrationStep
               `cms_block_id` BINARY(16) NOT NULL,
               `type` VARCHAR(255) NOT NULL,
               `slot` VARCHAR(255) NOT NULL,
+              `locked` tinyint(1) NOT NULL DEFAULT '0',
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`, `version_id`),

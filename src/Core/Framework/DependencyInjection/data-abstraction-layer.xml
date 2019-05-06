@@ -497,5 +497,10 @@
             <argument type="collection"/>
             <argument type="collection"/>
         </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\LockValidator">
+            <tag name="shopware.validator"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
     </services>
 </container>

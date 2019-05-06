@@ -19,6 +19,7 @@ class Migration1536233350CmsPage extends MigrationStep
               `id` BINARY(16) NOT NULL,
               `type` VARCHAR(255) NOT NULL,
               `entity` VARCHAR(255) NULL,
+              `locked` tinyint(1) NOT NULL DEFAULT '0',
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`)

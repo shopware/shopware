@@ -3,8 +3,7 @@
 namespace Shopware\Core\Framework\Validation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteFieldException;
-use Symfony\Component\Validator\ConstraintViolationInterface;
-use Symfony\Component\Validator\ConstraintViolationListInterface;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 class WriteConstraintViolationException extends WriteFieldException implements ConstraintViolationExceptionInterface
 {
@@ -14,7 +13,7 @@ class WriteConstraintViolationException extends WriteFieldException implements C
     private $path;
 
     /**
-     * @var ConstraintViolationListInterface
+     * @var ConstraintViolationList
      */
     private $constraintViolationList;
 
@@ -23,7 +22,7 @@ class WriteConstraintViolationException extends WriteFieldException implements C
      */
     private $concern;
 
-    public function __construct(ConstraintViolationListInterface $constraintViolationList, string $path = '', string $concern = '')
+    public function __construct(ConstraintViolationList $constraintViolationList, string $path = '', string $concern = '')
     {
         parent::__construct(
             'Caught {{ count }} constraint violation errors.',
@@ -35,7 +34,7 @@ class WriteConstraintViolationException extends WriteFieldException implements C
         $this->concern = $concern;
     }
 
-    public function getViolations(): ConstraintViolationListInterface
+    public function getViolations(): ConstraintViolationList
     {
         return $this->constraintViolationList;
     }
@@ -49,7 +48,6 @@ class WriteConstraintViolationException extends WriteFieldException implements C
     {
         $result = [];
 
-        /** @var ConstraintViolationInterface $violation */
         foreach ($this->constraintViolationList as $violation) {
             $result[] = [
                 'message' => $violation->getMessage(),

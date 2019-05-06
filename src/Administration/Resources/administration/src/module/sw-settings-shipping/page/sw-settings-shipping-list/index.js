@@ -16,7 +16,6 @@ Component.register('sw-settings-shipping-list', {
             isLoading: false,
             sortBy: 'name',
             sortDirection: 'ASC',
-            limit: 10,
             skeletonItemAmount: 3
         };
     },

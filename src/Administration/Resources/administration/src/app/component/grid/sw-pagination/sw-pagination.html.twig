@@ -41,7 +41,7 @@
                           size="small"
                           name="perPage"
                           :label="$tc('global.sw-pagination.labelItemsPerPage')"
-                          :value="Number.toString(perPage)"
+                          :value="String(this.perPage)"
                           aside
                           @change="onPageSizeChange">
                     <option v-for="step in possibleSteps" :value="step">{{ step }}</option>

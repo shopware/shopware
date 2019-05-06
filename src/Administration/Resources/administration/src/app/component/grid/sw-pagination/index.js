@@ -120,7 +120,8 @@ export default {
             });
         },
 
-        onPageSizeChange() {
+        onPageSizeChange(perPage) {
+            this.perPage = Number(perPage);
             this.firstPage();
         },
 

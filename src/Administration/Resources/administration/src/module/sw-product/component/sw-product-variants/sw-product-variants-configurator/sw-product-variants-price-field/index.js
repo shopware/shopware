@@ -19,7 +19,7 @@ Component.register('sw-product-variants-price-field', {
 
         currency: {
             type: Object,
-            required: false
+            required: true
         },
 
         readonly: {
@@ -133,7 +133,8 @@ Component.register('sw-product-variants-price-field', {
                 this.calculatePriceApiService.calculatePrice({
                     taxId: this.taxRate,
                     price: this.price[outputType],
-                    output: outputType
+                    output: outputType,
+                    currencyId: this.currency.id
                 }).then(({ data }) => {
                     resolve(data.calculatedTaxes[0].tax);
                     this.$emit('price-calculate', false);

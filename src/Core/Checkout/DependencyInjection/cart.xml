@@ -117,6 +117,7 @@
             <argument type="service" id="tax.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\NetPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator"/>
+            <argument type="service" id="currency.repository"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

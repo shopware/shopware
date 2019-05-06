@@ -39,7 +39,7 @@ export default {
         },
         currency: {
             type: Object,
-            required: false,
+            required: true,
             default() {
                 return {};
             }
@@ -150,6 +150,7 @@ export default {
 
                 this.calculatePriceApiService.calculatePrice({
                     taxId: this.taxRate.id,
+                    currencyId: this.currency.id,
                     price: this.price[outputType],
                     output: outputType
                 }).then(({ data }) => {

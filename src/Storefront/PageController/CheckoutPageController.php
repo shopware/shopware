@@ -239,7 +239,7 @@ class CheckoutPageController extends StorefrontController
     /**
      * @Route("/checkout/register", name="frontend.checkout.register.page", options={"seo"="false"}, methods={"GET"})
      */
-    public function register(Request $request, SalesChannelContext $context): Response
+    public function register(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         /** @var string $redirect */
         $redirect = $request->get('redirectTo', 'frontend.checkout.confirm.page');
@@ -256,7 +256,7 @@ class CheckoutPageController extends StorefrontController
 
         return $this->renderStorefront(
             '@Storefront/page/checkout/address/index.html.twig',
-            ['redirectTo' => $redirect, 'page' => $page]
+            ['redirectTo' => $redirect, 'page' => $page, 'data' => $data]
         );
     }
 

@@ -26,3 +26,9 @@
 
     {{ parent() }}
 {% endblock %}
+
+{% block component_account_register_form_action %}
+    <input type="hidden"
+           name="formAction"
+           value="frontend.checkout.register.page"/>
+{% endblock %}

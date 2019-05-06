@@ -9,5 +9,11 @@ Component.register('sw-settings-index', {
         return {
             title: this.$createTitle()
         };
+    },
+
+    methods: {
+        hasPluginConfig() {
+            return this.$refs.pluginConfig && this.$refs.pluginConfig.childElementCount > 0;
+        }
     }
 });

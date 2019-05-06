@@ -1,7 +1,21 @@
 .sw-settings-index {
-    .sw-settings__card .sw-card__content {
+    .sw-settings__content-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
         grid-gap: 30px 10px;
+    }
+
+    .sw-tabs__custom-content {
+        max-width: 800px;
+        margin: 0 auto 40px auto;
+    }
+
+    .sw-tabs__content {
+        top: 126px;
+        position: absolute !important;
+    }
+
+    .sw-settings__content-header {
+        margin-bottom: 64px;
     }
 }

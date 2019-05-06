@@ -4,7 +4,10 @@
       "mainMenuItemGeneral": "Settings"
     },
     "index": {
-      "title": "Settings"
+      "title": "Settings",
+      "tabShop": "Shop",
+      "tabSystem": "System",
+      "tabPlugins": "Plugins"
     },
     "system-config": {
       "labelSalesChannelSelect": "Saleschannel",

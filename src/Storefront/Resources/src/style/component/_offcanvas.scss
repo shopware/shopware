@@ -17,19 +17,11 @@
             align-items: center;
             flex-direction: row-reverse;
         }
-
-        .offcanvas-close-icon {
-            @extend .fa-chevron-right;
-        }
     }
 
     &.is-right {
         transform: translateX(100%);
         right: 0;
-
-        .offcanvas-close-icon {
-            @extend .fa-chevron-left;
-        }
     }
 
     &.is-open {
@@ -52,7 +44,7 @@
 
     &,
     .offcanvas-content-container {
-        > .spinner-border {
+        > .loader {
             position: absolute;
             left: 50%;
             top: 50%;

@@ -15,7 +15,7 @@
         "deliveryShippingDelay": "Delivery time approx. 5 working days",
         "offcanvasCloseMenu": "Close menu",
         "noscriptNotice": "To be able to use our shop in full range, we recommend activating Javascript in your browser.",
-        "toCategory": "To Category",
+        "toCategory": "Show all",
         "readMore": "read more",
         "mainMenu": "Mainmenu",
         "closeMenu": "Close Menu",
@@ -203,7 +203,9 @@
         "countryPlaceholder": "Country"
     },
     "checkout": {
-        "registerLoginToggle": "Show login",
+        "addressHeader": "Shipping information",
+        "addressLoginToggle": "Already have an account? Click here to login.",
+        "addressRegisterCardTitle": "Your personal details",
         "registerGuestmodeLabel": "Don't create customer account",
         "cartTitle": "Shopping cart",
         "cartHeader": "Shopping cart",

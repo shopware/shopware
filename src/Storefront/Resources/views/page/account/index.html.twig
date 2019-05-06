@@ -16,14 +16,6 @@
         <div class="account-overview">
             {% block page_account_overview_welcome %}
                 <div class="account-welcome">
-                    {% block page_account_overview_welcome_headline %}
-                        <h1>
-                            {{ "account.overviewWelcome"|trans }}
-                            {{ page.customer.title }}
-                            {{ page.customer.firstName }}
-                            {{ page.customer.LastName }}
-                        </h1>
-                    {% endblock %}
 
                     {% block page_account_overview_welcome_content %}
                         <p>{{ "account.overviewInfo"|trans }}</p>
@@ -34,28 +26,24 @@
             {% block page_account_overview_main %}
                 <div class="row">
                     {% block page_account_overview_profile %}
-                        <div class="col-lg-6 card-col overview-profile">
+                        <div class="col-lg-12 card-col overview-profile">
                             {% block page_account_overview_profile_card %}
                                 <div class="card">
                                     <div class="card-body">
-                                        {% block page_account_overview_profile_title %}
-                                            <h2 class="card-title">
-                                                {{ "account.profileTitle"|trans }}
-                                            </h2>
-                                        {% endblock %}
-
                                         {% block page_account_overview_profile_content %}
                                             <p>
                                                 {{ page.customer.salutation.translated.name }}
                                                 {% if page.customer.title %}
                                                     {{ page.customer.title }}<br/>
                                                 {% endif %}
-                                                {{ page.customer.firstName }} {{ page.customer.lastName }}<br/>
-                                                {% if page.customer.birthday %}
-                                                    {{ page.customer.birthday|localizeddate('short', 'none', app.request.locale) }}
-                                                    <br/>
-                                                {% endif %}
+                                                {{ page.customer.firstName }} {{ page.customer.lastName }}
+
                                                 {{ page.customer.email }}
+                                            </p>
+                                        {% endblock %}
+
+                                        {% block page_account_overview_profile_email %}
+                                            <p>{{ page.customer.email }}
                                             </p>
                                         {% endblock %}
 
@@ -75,7 +63,7 @@
                     {% endblock %}
 
                     {% block page_account_overview_payment %}
-                        <div class="col-lg-6 card-col overview-payment">
+                        <div class="col-lg-12 card-col overview-payment">
                             {% block page_account_overview_payment_card %}
                                 <div class="card">
                                     <div class="card-body">

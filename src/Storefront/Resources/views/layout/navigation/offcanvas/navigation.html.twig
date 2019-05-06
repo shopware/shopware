@@ -56,7 +56,11 @@
                                         <span itemprop="name">
                                             <span
                                                 class="offcanvas-menu-list-item-link-icon js-offcanvas-menu-loading-icon">
-                                                <i class="fas fa-chevron-left"></i>
+                                                {% block layout_utilities_offcanvas_close_icon %}
+                                                    {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
+                                                        'name': 'basic-x-line'
+                                                    } %}
+                                                {% endblock %}
                                             </span>
                                             {{ "general.back"|trans }}
                                         </span>
@@ -119,9 +123,10 @@
                                                             <span itemprop="name">{{ entity.translated.name }}</span>
                                                             {% if hasChildren %}
                                                                 {% block layout_navigation_offcanvas_navigation_categories_list_category_item_link_icon %}
-                                                                    <span
-                                                                        class="offcanvas-menu-list-item-link-icon js-offcanvas-menu-loading-icon">
-                                                                        <i class="fas fa-chevron-right"></i>
+                                                                    <span class="offcanvas-menu-list-item-link-icon js-offcanvas-menu-loading-icon">
+                                                                        {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
+                                                                            'name': 'small-arrow-large-double-right'
+                                                                        } %}
                                                                     </span>
                                                                 {% endblock %}
                                                             {% endif %}

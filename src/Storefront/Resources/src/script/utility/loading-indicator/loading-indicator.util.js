@@ -1,6 +1,6 @@
 import Iterator from 'src/script/helper/iterator.helper';
 
-const SELECTOR_CLASS = 'spinner-border';
+const SELECTOR_CLASS = 'loader';
 
 export default class LoadingIndicatorUtil {
 

@@ -203,8 +203,10 @@
         "countryPlaceholder": "Land"
     },
     "checkout": {
-        "registerLoginToggle": "Login anzeigen",
+        "addressHeader": "Ihre Daten",
+        "addressLoginToggle": "Bereits Kunde? Klicken Sie hier um sich einzuloggen.",
         "registerGuestmodeLabel": "Kein Kundenkonto anlegen",
+        "addressRegisterCardTitle": "Persönliche Informationen",
         "cartTitle": "Warenkorb",
         "cartHeader": "Warenkorb",
         "cartUpdateSuccess": "Warenkorb erfolgreich aktualisiert",

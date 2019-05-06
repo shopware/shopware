@@ -4,7 +4,10 @@
             {% block page_account_sidebar_header %}
                 {% if not headerWidget %}
                     <div class="card-header account-sidebar-header">
-                        {{ "account.greetings"|trans }}{{ page.customer.firstName }}
+                        {{ "account.greetings"|trans }}
+                        {{ page.customer.title }}
+                        {{ page.customer.firstName }}
+                        {{ page.customer.lastName }}
                     </div>
                 {% endif %}
             {% endblock %}
@@ -64,8 +67,10 @@
                             {% block page_account_sidebar_logout %}
                                 <a href="{{ path('frontend.account.logout.page') }}"
                                    class="btn btn-link">
-                                    <i class="fas fa-sign-out-alt"></i>
-                                    {{ "account.logout"|trans }}
+									{% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
+										'name': 'action-log-out'
+									} %}
+									{{ "account.logout"|trans }}
                                 </a>
                             {% endblock %}
                         </div>
@@ -74,8 +79,10 @@
                             {% block page_account_sidebar_guest_abort %}
                                 <a href="{{ path('frontend.account.logout.page') }}"
                                    class="btn btn-link">
-                                    <i class="fas fa-sign-out-alt"></i>
-                                    {{ "account.guestAbort"|trans }}
+									{% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
+										'name': 'action-log-out'
+									} %}
+									{{ "account.guestAbort"|trans }}
                                 </a>
                             {% endblock %}
                         </div>

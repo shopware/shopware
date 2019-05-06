@@ -8,16 +8,23 @@
 
 {% block page_checkout_main_content %}
     {% block page_checkout_register %}
+        {% block page_checkout_register_header %}
+            <h1 class="address-main-header">
+                {{ "checkout.addressHeader"|trans }}
+            </h1>
+        {% endblock %}
         {% block page_checkout_login %}
             {% block page_checkout_login_collapse_toggle %}
-                <button class="btn btn-dark login-collapse-toggle"
-                        type="button"
-                        data-toggle="collapse"
-                        data-target="#loginCollapse"
-                        aria-expanded="false"
-                        aria-controls="loginCollapse">
-                    {{ "checkout.registerLoginToggle"|trans }}
-                </button>
+                <div class="address-login-collapse-toogle">
+                    {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
+                        'name': 'avatar-single'
+                    } %}
+                    <a href="#loginCollapse" class="login-collapse-toggle"
+                            data-toggle="collapse"
+                            aria-expanded="false">
+                        <strong>{{ "checkout.addressLoginToggle"|trans }}</strong>
+                    </a>
+                </div>
             {% endblock %}
 
             {% block page_checkout_login_collapse %}
@@ -30,41 +37,32 @@
             {% endblock %}
         {% endblock %}
 
-        {% block page_checkout_register_card %}
-            {% sw_include '@Storefront/page/checkout/address/register.html.twig' %}
+        {% block page_checkout_register_collapse %}
+            {% block page_checkout_register_card %}
+                {% sw_include '@Storefront/page/checkout/address/register.html.twig' with {
+                    'cardTitle': "checkout.addressRegisterCardTitle"|trans
+                }%}
+            {% endblock %}
         {% endblock %}
     {% endblock %}
 {% endblock %}
 
 {% block page_checkout_sidebar_summary %}
+          {{ parent() }}
+
+          {% block page_checkout_sidebar_summary_header %}
+              <h2 class="checkout-sidebar-header">
+                  {{ "checkout.cartHeader"|trans }}
+              </h2>
+          {% endblock %}
+
     {% block page_checkout_register_summary_products %}
-        <ul class="list-group list-group-flush checkout-summary-products">
-            {% block page_checkout_register_summary_products_inner %}
-                {% for lineItem in page.cart.lineItems.elements %}
-                    {% block page_checkout_register_summary_product %}
-                        <li class="list-group-item checkout-summary-product">
-                            {% block page_checkout_register_summary_product_label %}
-                                <div class="checkout-summary-label">
-                                    <a href="{{ path('frontend.detail.page', {'productId': lineItem.key}) }}"
-                                       title="{{ lineItem.label }}">
-                                        {{ lineItem.label|truncate(60) }}
-                                    </a>
-                                </div>
-                            {% endblock %}
-
-                            {% block page_checkout_register_summary_product_price %}
-                                <div class="checkout-summary-value">
-                                    {{ lineItem.price.unitPrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
-                                </div>
-                            {% endblock %}
-                        </li>
-                    {% endblock %}
-                {% endfor %}
+        {% for lineItem in page.cart.lineItems.elements %}
+            {% block page_checkout_register_summary_product %}
+                {% sw_include '@Storefront/page/checkout/summary-item.html.twig' %}
             {% endblock %}
-        </ul>
+        {% endfor %}
     {% endblock %}
-
-    {{ parent() }}
 {% endblock %}
 
 {% block base_footer %}

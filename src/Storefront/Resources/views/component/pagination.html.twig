@@ -71,9 +71,11 @@
                                                                data-remote-click-options='{
                                                                     "selector": "label.page-link[for=\"p-first\"]"
                                                                }'>
-                                                                {% block component_pagination_first_icon %}
-                                                                    <i class="fas fa-angle-double-left"></i>
-                                                                {% endblock %}
+                                                                    {% block component_pagination_first_icon %}
+                                                                        {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
+                                                                                'name': 'small-arrow-large-double-left'
+                                                                        } %}
+                                                                    {% endblock %}
                                                             </a>
                                                         {% endblock %}
                                                     </label>
@@ -102,7 +104,9 @@
                                                                     "selector": "label.page-link[for=\"p-prev\"]"
                                                                }'>
                                                                 {% block component_pagination_prev_icon %}
-                                                                    <i class="fas fa-angle-left"></i>
+                                                                        {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
+                                                                                'name': 'small-arrow-large-left'
+                                                                        } %}
                                                                 {% endblock %}
                                                             </a>
                                                         {% endblock %}
@@ -183,7 +187,9 @@
                                                                             "selector": "label.page-link[for=\"p-next\"]"
                                                                        }'>
                                                                 {% block component_pagination_next_icon %}
-                                                                    <i class="fas fa-angle-right"></i>
+                                                                        {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
+                                                                                'name': 'small-arrow-large-right'
+                                                                        } %}
                                                                 {% endblock %}
                                                             </a>
                                                         {% endblock %}
@@ -213,7 +219,9 @@
                                                                             "selector": "label.page-link[for=\"p-last\"]"
                                                                        }'>
                                                                 {% block component_pagination_last_icon %}
-                                                                    <i class="fas fa-angle-double-right"></i>
+                                                                        {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
+                                                                                'name': 'small-arrow-large-double-right'
+                                                                        } %}
                                                                 {% endblock %}
                                                             </a>
                                                         {% endblock %}

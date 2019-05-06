@@ -43,6 +43,7 @@ class NavigationLoader
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('visible', true));
+        $criteria->addAssociation('media');
 
         /** @var CategoryCollection $categories */
         $categories = $this->categoryRepository->search($criteria, $context)->getEntities();
@@ -54,6 +55,7 @@ class NavigationLoader
     /**
      * Returns the category tree level for the provided category id.
      *
+     * @throws CategoryNotFoundException
      * @throws InconsistentCriteriaIdsException
      */
     public function loadLevel(string $categoryId, SalesChannelContext $context): ?Tree
@@ -92,6 +94,7 @@ class NavigationLoader
     private function loadActive(string $activeId, SalesChannelContext $context): CategoryEntity
     {
         $criteria = new Criteria();
+        $criteria->addAssociation('media');
         $criteria->addFilter(new EqualsFilter('category.id', $activeId));
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
             new ContainsFilter('category.path', $context->getSalesChannel()->getNavigationCategoryId()),

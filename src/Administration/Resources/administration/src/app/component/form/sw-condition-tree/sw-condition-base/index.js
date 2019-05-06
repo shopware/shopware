@@ -39,6 +39,14 @@ export default {
         }
     },
 
+    data() {
+        return {
+            formErrors: {},
+            hasErrors: false,
+            conditionTreeComponent: null
+        };
+    },
+
     computed: {
         fieldNames() {
             return [];
@@ -57,6 +65,15 @@ export default {
         },
         hasErrorsClass() {
             return this.hasErrors ? 'has--error' : '';
+        },
+        currentLocale() {
+            return this.$store.state.adminLocale.currentLocale;
+        }
+    },
+
+    watch: {
+        currentLocale() {
+            this.translateConditions();
         }
     },
 
@@ -64,17 +81,10 @@ export default {
         this.conditionTreeComponent.$off('entity-save', this.checkErrors);
     },
 
-    data() {
-        return {
-            formErrors: {},
-            hasErrors: false,
-            conditionTreeComponent: null
-        };
-    },
-
     created() {
         this.createdComponent();
     },
+
     beforeMount() {
         this.applyDefaultValues();
     },
@@ -87,11 +97,13 @@ export default {
         createId() {
             return utils.createId();
         },
+
         checkErrors() {
             const values = Object.values(this.formErrors);
             this.hasErrors = (values.length && values.filter(error => error.detail.length > 0).length)
                 || this.condition.errors.map(obj => obj.id).includes('clientValidationError');
         },
+
         mountComponent() {
             if (!this.condition.value) {
                 this.condition.value = {};
@@ -157,6 +169,7 @@ export default {
 
             return condition.label;
         },
+
         createdComponent() {
             if (!this.condition.value) {
                 this.condition.value = {};
@@ -167,6 +180,7 @@ export default {
             this.addClientFieldValidationMethod();
             this.conditionTreeComponent.$on('entity-save', this.checkErrors);
         },
+
         addClientFieldValidationMethod() {
             this.config.dataCheckMethods[this.condition.type] = (condition) => {
                 let dataSet = true;
@@ -186,6 +200,7 @@ export default {
                 return dataSet;
             };
         },
+
         locateConditionTreeComponent() {
             let parent = this.$parent;
 
@@ -200,6 +215,7 @@ export default {
 
             throw new Error('component \'sw-condition-tree\' not found');
         },
+
         applyDefaultValues() {
             Object.keys(this.defaultValues).forEach(key => {
                 if (typeof this.condition.value[key] === 'undefined') {
@@ -207,15 +223,28 @@ export default {
                 }
             });
         },
+
         deleteCondition() {
             this.$emit('condition-delete', this.condition);
         },
+
         conditionChanged(value) {
             if (value) {
                 return;
             }
 
             this.$emit('condition-delete', this.condition);
+        },
+
+        translateConditions() {
+            this.conditionStore.getList({}).then((conditions) => {
+                conditions.items.forEach(condition => {
+                    condition.translated = {
+                        label: this.$tc(condition.label),
+                        type: this.$tc(condition.label)
+                    };
+                });
+            });
         }
     }
 };

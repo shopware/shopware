@@ -2,7 +2,7 @@
     {% parent %}
 
     {% block sw_mail_template_item %}
-        <template v-if="next712">
+        <template>
             <sw-settings-item id="sw-mail-template" :label="$tc('sw-mail-template.general.mainMenuItemGeneral')" :to="{ name: 'sw.mail.template.index' }">
                 <template slot="icon">
                     <sw-icon name="default-communication-envelope"></sw-icon>

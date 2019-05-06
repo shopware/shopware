@@ -66,7 +66,9 @@ Component.register('sw-product-variants-price-field', {
             return true;
         },
 
-        onPriceGrossChange() {
+        onPriceGrossChange(value) {
+            this.price.gross = value;
+
             if (this.price.linked) {
                 this.$emit('price-calculate', true);
                 this.onPriceGrossChangeDebounce(Number(this.price.gross));
@@ -80,7 +82,9 @@ Component.register('sw-product-variants-price-field', {
             this.convertGrossToNet(value);
         }, 500),
 
-        onPriceNetChange() {
+        onPriceNetChange(value) {
+            this.price.net = value;
+
             if (this.price.linked) {
                 this.$emit('price-calculate', true);
                 this.onPriceNetChangeDebounce(Number(this.price.net));

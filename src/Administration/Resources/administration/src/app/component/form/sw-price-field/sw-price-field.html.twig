@@ -10,7 +10,7 @@
                       :validation="validation"
                       :size="compact ? 'small' : 'default'"
                       :min="0"
-                      @input="onPriceGrossChange"
+                      @input-change="onPriceGrossChange"
                       v-bind="$attrs"
                       v-model="price.gross">
                 <template #suffix>
@@ -32,7 +32,7 @@
                       :validation="validation"
                       :size="compact ? 'small' : 'default'"
                       :min="0"
-                      @input="onPriceNetChange"
+                      @input-change="onPriceNetChange"
                       v-bind="$attrs"
                       v-model="price.net">
                 <template #suffix>

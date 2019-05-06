@@ -7,7 +7,7 @@
                        size="small"
                        class="sw-product-variants-price-field__input"
                        :disabled="readonly"
-                       @input="onPriceGrossChange"
+                       @input-change="onPriceGrossChange"
                        v-bind="$attrs"/>
             </div>
         {% endblock %}
@@ -28,7 +28,7 @@
                        size="small"
                        class="sw-field sw-product-variants-price-field__input"
                        :disabled="readonly"
-                       @input="onPriceNetChange"
+                       @input-change="onPriceNetChange"
                        v-bind="$attrs"/>
             </div>
         {% endblock %}

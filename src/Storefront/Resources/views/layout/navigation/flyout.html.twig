@@ -43,8 +43,9 @@
                 </div>
             {% endblock %}
 
-            {% if navigationTree.category.media %}
-                {% block layout_navigation_flyout_teaser %}
+
+            {% block layout_navigation_flyout_teaser %}
+                {% if navigationTree.category.media %}
                     <div class="navigation-flyout-teaser">
                         {% block layout_navigation_flyout_teaser_image %}
                             <a class="teaser-image"
@@ -53,8 +54,9 @@
                                style="background-image: url('{{ navigationTree.category.media.url }}');"></a>
                         {% endblock %}
                     </div>
-                {% endblock %}
-            {% endif %}
+                {% endif %}
+            {% endblock %}
+
             <div class="clearfix"></div>
         </div>
     {% endblock %}

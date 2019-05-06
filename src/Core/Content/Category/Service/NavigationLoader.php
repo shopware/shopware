@@ -94,6 +94,7 @@ class NavigationLoader
     private function loadActive(string $activeId, SalesChannelContext $context): CategoryEntity
     {
         $criteria = new Criteria();
+        $criteria->addAssociation('media');
         $criteria->addFilter(new EqualsFilter('category.id', $activeId));
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
             new ContainsFilter('category.path', $context->getSalesChannel()->getNavigationCategoryId()),

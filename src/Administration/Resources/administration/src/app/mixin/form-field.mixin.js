@@ -8,7 +8,7 @@ Mixin.register('sw-form-field', {
                 boundExpressionName = `sw-field--${this.$vnode.data.model.expression.replace(/\./g, '-')}`;
             }
 
-            return this.$attrs.name || boundExpressionName;
+            return this.$attrs.name || this.name || boundExpressionName;
         }
     }
 });

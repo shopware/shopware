@@ -12,8 +12,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 class NavigationPageTest extends TestCase
 {
-    use IntegrationTestBehaviour,
-        StorefrontPageTestBehaviour;
+    use IntegrationTestBehaviour;
+    use StorefrontPageTestBehaviour;
 
     public function testItDoesLoadAPage(): void
     {

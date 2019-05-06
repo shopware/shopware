@@ -4,6 +4,6 @@ namespace Shopware\Core\Framework\Test\TestCaseBase;
 
 trait AdminFunctionalTestBehaviour
 {
-    use IntegrationTestBehaviour,
-        AdminApiTestBehaviour;
+    use IntegrationTestBehaviour;
+    use AdminApiTestBehaviour;
 }

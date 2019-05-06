@@ -33,8 +33,8 @@ use Shopware\Core\System\Tax\TaxDefinition;
 
 class TranslationTest extends TestCase
 {
-    use IntegrationTestBehaviour,
-        AssertArraySubsetBehaviour;
+    use IntegrationTestBehaviour;
+    use AssertArraySubsetBehaviour;
 
     /**
      * @var EntityRepositoryInterface

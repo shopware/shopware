@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 class TranslationValidator implements WriteCommandValidatorInterface
 {
@@ -39,7 +38,7 @@ class TranslationValidator implements WriteCommandValidatorInterface
     {
     }
 
-    private function getDeletedSystemTranslationViolations(array $writeCommands): ConstraintViolationListInterface
+    private function getDeletedSystemTranslationViolations(array $writeCommands): ConstraintViolationList
     {
         $violations = new ConstraintViolationList();
 
@@ -107,7 +106,7 @@ class TranslationValidator implements WriteCommandValidatorInterface
     /**
      * @throws WriteConstraintViolationException
      */
-    private function tryToThrow(ConstraintViolationListInterface $violations): void
+    private function tryToThrow(ConstraintViolationList $violations): void
     {
         if ($violations->count() > 0) {
             throw new WriteConstraintViolationException($violations);

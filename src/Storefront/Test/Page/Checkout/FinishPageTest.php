@@ -15,8 +15,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 class FinishPageTest extends TestCase
 {
-    use IntegrationTestBehaviour,
-        StorefrontPageTestBehaviour;
+    use IntegrationTestBehaviour;
+    use StorefrontPageTestBehaviour;
 
     public function testItRequiresAOrderId(): void
     {

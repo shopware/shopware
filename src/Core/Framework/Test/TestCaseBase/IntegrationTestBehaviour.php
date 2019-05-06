@@ -4,9 +4,9 @@ namespace Shopware\Core\Framework\Test\TestCaseBase;
 
 trait IntegrationTestBehaviour
 {
-    use KernelTestBehaviour,
-        DatabaseTransactionBehaviour,
-        FilesystemBehaviour,
-        CacheTestBehaviour,
-        BasicTestDataBehaviour;
+    use KernelTestBehaviour;
+    use DatabaseTransactionBehaviour;
+    use FilesystemBehaviour;
+    use CacheTestBehaviour;
+    use BasicTestDataBehaviour;
 }

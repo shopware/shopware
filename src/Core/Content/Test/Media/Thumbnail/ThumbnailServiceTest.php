@@ -22,9 +22,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class ThumbnailServiceTest extends TestCase
 {
-    use IntegrationTestBehaviour,
-        MediaFixtures,
-        QueueTestBehaviour;
+    use IntegrationTestBehaviour;
+    use MediaFixtures;
+    use QueueTestBehaviour;
 
     /**
      * @var UrlGeneratorInterface

@@ -23,8 +23,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SalesChannelCheckoutControllerTest extends TestCase
 {
-    use SalesChannelFunctionalTestBehaviour,
-        AssertArraySubsetBehaviour;
+    use SalesChannelFunctionalTestBehaviour;
+    use AssertArraySubsetBehaviour;
 
     /**
      * @var EntityRepositoryInterface

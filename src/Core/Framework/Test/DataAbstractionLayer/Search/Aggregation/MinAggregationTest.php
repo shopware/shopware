@@ -12,7 +12,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class MinAggregationTest extends TestCase
 {
-    use IntegrationTestBehaviour, AggregationTestBehaviour;
+    use IntegrationTestBehaviour;
+    use AggregationTestBehaviour;
 
     public function testMinAggregation(): void
     {

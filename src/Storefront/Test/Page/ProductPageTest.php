@@ -14,8 +14,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 class ProductPageTest extends TestCase
 {
-    use IntegrationTestBehaviour,
-        StorefrontPageTestBehaviour;
+    use IntegrationTestBehaviour;
+    use StorefrontPageTestBehaviour;
 
     public function testItRequiresProductParam(): void
     {

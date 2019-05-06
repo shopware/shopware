@@ -12,7 +12,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class ValueCountAggregationTest extends TestCase
 {
-    use IntegrationTestBehaviour, AggregationTestBehaviour;
+    use IntegrationTestBehaviour;
+    use AggregationTestBehaviour;
 
     public function testValueCountAggregation(): void
     {

@@ -14,7 +14,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class MailHeaderFooterRepositoryTest extends TestCase
 {
-    use IntegrationTestBehaviour, MediaFixtures;
+    use IntegrationTestBehaviour;
+    use MediaFixtures;
 
     /**
      * @var EntityRepositoryInterface

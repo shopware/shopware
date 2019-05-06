@@ -19,7 +19,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class ConfigJsonFieldTest extends TestCase
 {
-    use KernelTestBehaviour, CacheTestBehaviour, DataAbstractionLayerFieldTestBehaviour;
+    use KernelTestBehaviour;
+    use CacheTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour;
 
     /**
      * @var Connection

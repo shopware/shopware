@@ -30,8 +30,8 @@ use Symfony\Component\Validator\Constraints\Type;
 
 class GoodsCountRuleTest extends TestCase
 {
-    use KernelTestBehaviour,
-        DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
+    use DatabaseTransactionBehaviour;
 
     /**
      * @var EntityRepositoryInterface

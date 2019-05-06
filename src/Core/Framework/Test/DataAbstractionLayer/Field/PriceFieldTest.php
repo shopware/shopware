@@ -17,7 +17,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class PriceFieldTest extends TestCase
 {
-    use IntegrationTestBehaviour, DataAbstractionLayerFieldTestBehaviour;
+    use IntegrationTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour;
 
     /**
      * @var Connection

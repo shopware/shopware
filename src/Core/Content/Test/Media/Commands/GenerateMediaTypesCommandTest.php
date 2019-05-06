@@ -18,7 +18,9 @@ use Symfony\Component\Console\Output\BufferedOutput;
 
 class GenerateMediaTypesCommandTest extends TestCase
 {
-    use IntegrationTestBehaviour, CommandTestBehaviour, MediaFixtures;
+    use IntegrationTestBehaviour;
+    use CommandTestBehaviour;
+    use MediaFixtures;
 
     /**
      * @var EntityRepositoryInterface

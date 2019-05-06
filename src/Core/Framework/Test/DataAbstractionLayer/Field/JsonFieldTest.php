@@ -27,7 +27,9 @@ use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDat
 
 class JsonFieldTest extends TestCase
 {
-    use KernelTestBehaviour, CacheTestBehaviour, DataAbstractionLayerFieldTestBehaviour;
+    use KernelTestBehaviour;
+    use CacheTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour;
 
     /**
      * @var Connection

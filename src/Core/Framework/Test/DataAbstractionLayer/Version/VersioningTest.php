@@ -50,7 +50,8 @@ use Shopware\Core\System\Tax\TaxDefinition;
 
 class VersioningTest extends TestCase
 {
-    use IntegrationTestBehaviour, DataAbstractionLayerFieldTestBehaviour;
+    use IntegrationTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour;
 
     /**
      * @var EntityRepositoryInterface

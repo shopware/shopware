@@ -18,8 +18,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class TranslationTest extends TestCase
 {
-    use AdminFunctionalTestBehaviour,
-        AssertArraySubsetBehaviour;
+    use AdminFunctionalTestBehaviour;
+    use AssertArraySubsetBehaviour;
 
     public function testNoOverride(): void
     {

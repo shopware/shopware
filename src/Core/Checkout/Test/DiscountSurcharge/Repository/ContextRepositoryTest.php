@@ -16,8 +16,8 @@ use Shopware\Core\System\Currency\Rule\CurrencyRule;
 
 class ContextRepositoryTest extends TestCase
 {
-    use KernelTestBehaviour,
-        DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
+    use DatabaseTransactionBehaviour;
 
     /**
      * @var Connection

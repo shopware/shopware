@@ -16,8 +16,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class BillingCountryRuleTest extends TestCase
 {
-    use KernelTestBehaviour,
-        DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
+    use DatabaseTransactionBehaviour;
 
     /**
      * @var EntityRepositoryInterface

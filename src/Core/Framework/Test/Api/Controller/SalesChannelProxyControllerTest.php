@@ -15,8 +15,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SalesChannelProxyControllerTest extends TestCase
 {
-    use AdminFunctionalTestBehaviour,
-        AssertArraySubsetBehaviour;
+    use AdminFunctionalTestBehaviour;
+    use AssertArraySubsetBehaviour;
 
     /**
      * @var EntityRepositoryInterface

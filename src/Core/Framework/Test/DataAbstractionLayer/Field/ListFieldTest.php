@@ -17,7 +17,8 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTyp
 
 class ListFieldTest extends TestCase
 {
-    use KernelTestBehaviour, DataAbstractionLayerFieldTestBehaviour;
+    use KernelTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour;
 
     /**
      * @var Connection

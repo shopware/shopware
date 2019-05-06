@@ -20,7 +20,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class WriteProtectedFieldTest extends TestCase
 {
-    use KernelTestBehaviour, DataAbstractionLayerFieldTestBehaviour;
+    use KernelTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour;
 
     /**
      * @var Connection

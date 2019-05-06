@@ -15,8 +15,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class CurrencyRepositoryTest extends TestCase
 {
-    use KernelTestBehaviour,
-        DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
+    use DatabaseTransactionBehaviour;
 
     /**
      * @var Connection

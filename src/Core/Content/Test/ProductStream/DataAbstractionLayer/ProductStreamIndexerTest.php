@@ -26,8 +26,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductStreamIndexerTest extends TestCase
 {
-    use KernelTestBehaviour,
-        DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
+    use DatabaseTransactionBehaviour;
 
     /**
      * @var EventIdExtractor|MockObject

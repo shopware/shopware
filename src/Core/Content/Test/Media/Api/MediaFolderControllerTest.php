@@ -13,7 +13,8 @@ use Shopware\Core\PlatformRequest;
 
 class MediaFolderControllerTest extends TestCase
 {
-    use AdminFunctionalTestBehaviour, MediaFixtures;
+    use AdminFunctionalTestBehaviour;
+    use MediaFixtures;
 
     /**
      * @var EntityRepositoryInterface

@@ -21,8 +21,8 @@ use Symfony\Component\Translation\MessageCatalogueInterface;
 
 class SnippetServiceTest extends TestCase
 {
-    use IntegrationTestBehaviour,
-        AssertArraySubsetBehaviour;
+    use IntegrationTestBehaviour;
+    use AssertArraySubsetBehaviour;
 
     public static function tearDownAfterClass(): void
     {

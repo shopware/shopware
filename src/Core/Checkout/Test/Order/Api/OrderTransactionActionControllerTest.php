@@ -26,7 +26,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class OrderTransactionActionControllerTest extends TestCase
 {
-    use AdminApiTestBehaviour, IntegrationTestBehaviour;
+    use AdminApiTestBehaviour;
+    use IntegrationTestBehaviour;
 
     /**
      * @var StateMachineRegistry

@@ -17,8 +17,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class PluginServiceTest extends TestCase
 {
-    use IntegrationTestBehaviour,
-        PluginTestsHelper;
+    use IntegrationTestBehaviour;
+    use PluginTestsHelper;
 
     /**
      * @var EntityRepositoryInterface

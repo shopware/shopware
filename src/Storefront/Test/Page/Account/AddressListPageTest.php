@@ -13,8 +13,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 class AddressListPageTest extends TestCase
 {
-    use IntegrationTestBehaviour,
-        StorefrontPageTestBehaviour;
+    use IntegrationTestBehaviour;
+    use StorefrontPageTestBehaviour;
 
     public function testLoginRequirement(): void
     {

@@ -19,8 +19,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 class ConfirmPageTest extends TestCase
 {
-    use IntegrationTestBehaviour,
-        StorefrontPageTestBehaviour;
+    use IntegrationTestBehaviour;
+    use StorefrontPageTestBehaviour;
 
     public function testItLoadsTheConfirmPage(): void
     {

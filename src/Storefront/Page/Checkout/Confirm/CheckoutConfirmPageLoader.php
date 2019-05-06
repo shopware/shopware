@@ -55,7 +55,7 @@ class CheckoutConfirmPageLoader implements PageLoaderInterface
         $this->cartService = $cartService;
     }
 
-    public function load(Request $request, SalesChannelContext $context)
+    public function load(Request $request, SalesChannelContext $context): CheckoutConfirmPage
     {
         $page = $this->genericLoader->load($request, $context);
 

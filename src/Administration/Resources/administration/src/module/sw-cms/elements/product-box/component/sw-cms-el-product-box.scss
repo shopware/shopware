@@ -152,24 +152,6 @@
         margin-top: 20px;
     }
 
-    .sw-cms-el-product-box__detail-action {
-        display: block;
-        line-height: 38px;
-        font-size: 14px;
-        font-weight: bold;
-        text-align: center;
-        text-decoration: none;
-        color: #5f7285;
-        background: $color-link-water;
-        border: 1px solid #dadee5;
-        border-radius: 4px;
-
-        &:hover {
-            color: #465462;
-            background: darken($color-link-water, 5%);
-        }
-    }
-
     .sw-cms-el-product-box__buy-action {
         display: block;
         margin-top: 23px;

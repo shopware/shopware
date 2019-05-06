@@ -185,10 +185,6 @@ final class StoreClient
             ];
         }
 
-        if (empty($pluginArray)) {
-            return [];
-        }
-
         $shopSecret = $this->getShopSecret();
 
         $headers = [];

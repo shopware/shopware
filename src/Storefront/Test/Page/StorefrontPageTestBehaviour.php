@@ -94,7 +94,6 @@ trait StorefrontPageTestBehaviour
         $id = Uuid::randomHex();
         $productNumber = Uuid::randomHex();
         $productRepository = $this->getContainer()->get('product.repository');
-        $productVisibilityRepository = $this->getContainer()->get('product_visibility.repository');
 
         $data = [
             'id' => $id,

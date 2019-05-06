@@ -6,6 +6,7 @@
                        :menuOffsetTop="10"
                        :menuOffsetLeft="24"
                        :additionalContextMenuClasses="additionalContextMenuClasses"
+                       @context-menu-after-open="onContextMenuOpen"
                        @context-menu-after-close="onContextMenuClose">
         <template #button>
             {% block sw_notification_center_context_button_button_slot %}

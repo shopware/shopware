@@ -77,13 +77,13 @@ function enableWorkerNotificationListener(loginService, context) {
     let workerNotificationListener = new WorkerNotificationListener(loginService, context);
 
     if (loginService.isLoggedIn()) {
-        workerNotificationListener.start(5000);
+        workerNotificationListener.start();
     }
 
     loginService.addOnTokenChangedListener(() => {
         workerNotificationListener.terminate();
         workerNotificationListener = new WorkerNotificationListener(loginService, context);
-        workerNotificationListener.start(5000);
+        workerNotificationListener.start();
     });
 
     loginService.addOnLogoutListener(() => {

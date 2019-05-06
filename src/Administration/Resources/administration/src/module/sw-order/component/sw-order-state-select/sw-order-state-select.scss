@@ -1,9 +1,6 @@
 @import "~scss/variables";
 @import "./../sw-order-state-history-card-entry/sw-order-state-history-card-entry.scss";
 
-$sw-order-state-select-rounded-list-background: $color-white;
-$sw-order-state-select-color: $color-gutenberg;
-
 .sw-order-state-select {
   padding-bottom: 21px;
 
@@ -11,8 +8,8 @@ $sw-order-state-select-color: $color-gutenberg;
   .sw-field--select.sw-order-state-select__field--rounded {
     margin-bottom: 0;
 
-    select.is--placeholder {
-      color: $sw-order-state-select-color;
+    .sw-block-field__block {
+      border-radius: 15px;
     }
   }
 
@@ -31,12 +28,26 @@ $sw-order-state-select-color: $color-gutenberg;
     select {
       background: lighten($sw-order-state-card-progress,40%);
       border: none;
+
+      &.is--placeholder {
+        color: $sw-order-state-card-progress;
+      }
+    }
+    .sw-block-field__block {
+      border: none;
     }
   }
 
   .sw-order-state__danger-select.sw-field--select {
     select {
-      background: lighten($sw-order-state-card-danger,25%);
+      background: lighten($sw-order-state-card-danger,42%);
+      border: none;
+
+      &.is--placeholder {
+        color: $sw-order-state-card-danger;
+      }
+    }
+    .sw-block-field__block {
       border: none;
     }
   }
@@ -44,6 +55,13 @@ $sw-order-state-select-color: $color-gutenberg;
   .sw-order-state__success-select.sw-field--select {
     select {
       background: lighten($sw-order-state-card-success,40%);
+      border: none;
+
+      &.is--placeholder {
+        color: $sw-order-state-card-success;
+      }
+    }
+    .sw-block-field__block {
       border: none;
     }
   }

@@ -25,6 +25,7 @@ Module.register('sw-plugin', {
     targetVersion: '1.0.0',
     color: '#9AA8B5',
     icon: 'default-action-settings',
+    favicon: 'icon-module-settings.png',
     entity: 'plugin',
 
     snippets: {

@@ -3,9 +3,11 @@ const shippingMethodPage = require('administration/page-objects/module/sw-shippi
 const shippingMethodName = 'automated test shipping';
 
 module.exports = {
-    '@tags': ['settings', 'shipping-method', 'shipping-method-edit', 'edit', 'price-rule'],
+    '@tags': ['settings', 'shipping', 'edit', 'shipping-price-rule', 'rule'],
     before: (browser, done) => {
-        global.AdminFixtureService.create('rule').then(() => {
+        return global.ShippingFixtureService.setShippingFixture({
+            name: shippingMethodName
+        }).then(() => {
             done();
         });
     },
@@ -18,27 +20,34 @@ module.exports = {
             .click('#sw-settings-shipping')
             .assert.urlContains('#/sw/settings/shipping/index');
     },
-    'create test data and edit right after initial save': browser => {
+    'find shipping method to be edited': browser => {
         const page = shippingMethodPage(browser);
 
         browser
-            .click('a[href="#/sw/settings/shipping/create"]')
-            .waitForElementVisible('.sw-settings-shipping-detail');
+            .fillGlobalSearchField(shippingMethodName)
+            .waitForElementNotPresent(page.elements.loader)
+            .waitForElementPresent(page.elements.smartBarAmount);
 
-        page.createShippingMethod(shippingMethodName);
-        browser.waitForElementNotPresent('.icon--small-default-checkmark-line-medium');
-        page.fillLoremIpsumIntoSelector('textarea[name=sw-field--shippingMethod-description]', true);
+        browser.expect.element(`${page.elements.dataGridRow}--0`).to.have.text.that.contains(shippingMethodName);
 
         browser
-            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
-            .click(page.elements.shippingSaveAction)
-            .waitForElementVisible('.icon--small-default-checkmark-line-medium');
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-settings-shipping-list__edit-action',
+                scope: `${page.elements.dataGridRow}--0`
+            })
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains(shippingMethodName);
     },
-    'lorem text stays filled in after reload': browser => {
+    'add price rule': browser => {
+        const page = shippingMethodPage(browser);
+
         browser
-            .refresh()
-            .waitForElementVisible('textarea[name=sw-field--shippingMethod-description]')
-            .expect.element('textarea[name=sw-field--shippingMethod-description]').to.have.value.that.contains('Lorem ipsum');
+            .getLocationInView('.sw-settings-shipping-price-matrices__actions')
+            .fillSwSelectComponent('.sw-settings-shipping-price-matrix__top-container .sw-select-rule-create', {
+                value: 'Cart >= 0',
+                searchTerm: 'Cart >= 0'
+            });
+
+        page.createShippingMethodPriceRule();
     },
     'edit shippingMethod price rule': browser => {
         const page = shippingMethodPage(browser);
@@ -70,7 +79,7 @@ module.exports = {
                 menuActionSelector: '.sw-context-menu-item--danger',
                 scope: '.sw-settings-shipping-price-matrix__top-container'
             })
-            .expect.element('.sw-settings-shipping-price-matrix__confirm-delete-text').to.have.text.that.contains('Are you sure you really want to delete the price matrix?');
+            .expect.element('.sw-settings-shipping-price-matrix__confirm-delete-text').to.have.text.that.contains('Are you sure you really want to delete the price matrix "Cart >= 0"?');
 
         browser
             .waitForElementVisible('span.sw-button__content')

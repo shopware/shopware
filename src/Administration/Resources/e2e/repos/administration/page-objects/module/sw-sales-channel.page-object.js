@@ -93,7 +93,7 @@ class SalesChannelPageObject extends GeneralPageObject {
             .expect.element(this.elements.smartBarHeader).to.have.text.that.contains(salesChannelName);
     }
 
-    deleteSingleSalesChannel(salesChannelName, position = 0) {
+    deleteSingleSalesChannel(salesChannelName) {
         this.browser
             .getLocationInView(this.elements.dangerButton)
             .click(this.elements.dangerButton)
@@ -102,7 +102,7 @@ class SalesChannelPageObject extends GeneralPageObject {
         this.browser
             .click(`${this.elements.modal}__footer button${this.elements.primaryButton}`)
             .waitForElementNotPresent(this.elements.modal)
-            .expect.element(`${this.elements.salesChannelMenuName}--${position} > a`).to.have.text.that.not.contains(salesChannelName);
+            .expect.element('.sw-admin-menu__body').to.have.text.that.not.contains(salesChannelName);
     }
 
     checkClipboard() {

@@ -3,7 +3,7 @@ const shippingMethodPage = require('administration/page-objects/module/sw-shippi
 const shippingMethodName = 'automated test shipping';
 
 module.exports = {
-    '@tags': ['settings', 'shipping-method', 'shipping-method-create'],
+    '@tags': ['settings', 'shipping', 'shipping-create', 'create'],
     'navigate to shipping method index': browser => {
         browser
             .openMainMenuEntry({

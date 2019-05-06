@@ -53,8 +53,7 @@
 
           "entry-point": {
             "title": "Entry point",
-            "descriptionGeneral": "You have assigned this node in the following sales channels as an entry point for the main navigation:",
-            "descriptionMenu": "The entry point is also automatically the home page of these sales channels. If this should not be the case and instead the first active main menu item should be your start page, you can change this here: All subcategories will be deleted, too."
+            "descriptionGeneral": "You have assigned this node in the following sales channels as an entry point for the main navigation:"
           },
 
           "menu": {

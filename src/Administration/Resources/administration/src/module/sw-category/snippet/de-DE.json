@@ -54,8 +54,7 @@
 
           "entry-point": {
             "title": "Einstiegspunkt",
-            "descriptionGeneral": "Du hast diesen Knoten in folgenden Verkaufskanälen als Einstiegspunkt für die Hauptnavigation zugewiesen:",
-            "descriptionMenu": "Der Einstiegspunkt ist auch automatisch die Startseite dieser Verkaufskanäle. Soll dies nicht der Fall sein und stattdessen der erste, aktive Hauptmenüpunkt deine Startseite sein, kannst Du das hier ändern:"
+            "descriptionGeneral": "Du hast diesen Knoten in folgenden Verkaufskanälen als Einstiegspunkt für die Hauptnavigation zugewiesen:"
           },
 
           "menu": {

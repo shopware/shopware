@@ -76,6 +76,8 @@ module.exports = {
             .click(`.sw-product-variants-configurator-restrictions__modal .sw-modal__footer ${page.elements.primaryButton}`)
             .waitForElementNotPresent('.sw-product-variants-configurator-restrictions__modal-main')
             .click(`.sw-modal__footer ${page.elements.primaryButton}`)
+            .waitForElementVisible('.sw-product-modal-variant-generation__notification-modal')
+            .click('.sw-product-modal-variant-generation__notification-modal .sw-button--primary')
             .waitForElementNotPresent('.sw-product-modal-variant-generation');
     }
 };

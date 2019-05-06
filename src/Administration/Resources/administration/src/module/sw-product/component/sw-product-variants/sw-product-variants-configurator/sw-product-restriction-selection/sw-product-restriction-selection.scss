@@ -19,6 +19,10 @@
             border-bottom: 1px solid $color-steam-cloud;
         }
 
+        .sw-block-field__block {
+            border-width: 0px;
+        }
+
         .sw-field.sw-product-restriction-selection__select-group {
             margin-bottom: 0;
         }
@@ -98,6 +102,7 @@
 
         .sw-multi-select.sw-multi-select--multi .sw-multi-select__inner {
             height: 100%;
+            min-height: 47px;
             border: 1px solid $color-steam-cloud;
             border-radius: 0;
         }

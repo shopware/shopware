@@ -76,8 +76,7 @@
                         {% endblock %}
 
                         {% block sw_product_detail_content_tabs_advanced_variants %}
-                            <sw-tabs-item v-if="next2021"
-                                          class="sw-product-detail__tab-variants"
+                            <sw-tabs-item class="sw-product-detail__tab-variants"
                                           :route="{ name: 'sw.product.detail.variants', params: { id: $route.params.id } }"
                                           :title="$tc('sw-product.detail.tabVariation')">
                                 {{ $tc('sw-product.detail.tabVariation') }}

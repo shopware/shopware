@@ -6,7 +6,7 @@
                        v-model="price.gross"
                        size="small"
                        class="sw-product-variants-price-field__input"
-                       :readonly="readonly"
+                       :disabled="readonly"
                        @input="onPriceGrossChange"
                        v-bind="$attrs"/>
             </div>
@@ -27,7 +27,7 @@
                        v-model="price.net"
                        size="small"
                        class="sw-field sw-product-variants-price-field__input"
-                       :readonly="readonly"
+                       :disabled="readonly"
                        @input="onPriceNetChange"
                        v-bind="$attrs"/>
             </div>

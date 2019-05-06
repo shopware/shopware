@@ -1,6 +1,7 @@
 import utils, { debug } from 'src/core/service/util.service';
 import { setReactive, deleteReactive } from 'src/app/adapter/view/vue.adapter';
 import { Application, State } from 'src/core/shopware';
+import { POLL_BACKGROUND_INTERVAL } from 'src/core/worker/worker-notification-listener';
 
 const NOTIFICATION_LOAD_LIMIT = 50;
 
@@ -108,6 +109,7 @@ export default {
         notifications: {},
         growlNotifications: {},
         threshold: 5,
+        workerProcessPollInterval: POLL_BACKGROUND_INTERVAL,
         notificationDefaults: {
             visited: false,
             metadata: {},
@@ -141,6 +143,10 @@ export default {
                     state.growlNotifications.length - state.threshold
                 );
             }
+        },
+
+        setWorkerProcessPollInterval(state, interval) {
+            state.workerProcessPollInterval = interval;
         },
 
         setNotificationsForCurrentUser(state) {

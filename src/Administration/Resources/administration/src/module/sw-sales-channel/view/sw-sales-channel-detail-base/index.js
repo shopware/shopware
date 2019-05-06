@@ -1,4 +1,4 @@
-import { Component, Mixin, State } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-sales-channel-detail-base.html.twig';
 import './sw-sales-channel-detail-base.scss';
 
@@ -11,24 +11,24 @@ Component.register('sw-sales-channel-detail-base', {
     ],
 
     inject: [
-        'salesChannelService'
+        'salesChannelService',
+        'repositoryFactory',
+        'context'
     ],
 
     props: {
         salesChannel: {
-            type: Object,
-            required: true,
-            default: {}
+            required: true
         },
+
         customFieldSets: {
             type: Array,
             required: true
-        }
-    },
+        },
 
-    watch: {
-        '$route.params.id'() {
-            this.getDomains();
+        isLoading: {
+            type: Boolean,
+            default: false
         }
     },
 
@@ -46,77 +46,23 @@ Component.register('sw-sales-channel-detail-base', {
             return this.showSecretAccessKey ? 'text' : 'password';
         },
 
-        categoryStore() {
-            return State.getStore('category');
-        },
-
-        countryStore() {
-            return State.getStore('country');
-        },
-
-        countryAssociationStore() {
-            return this.salesChannel.getAssociation('countries');
-        },
-
-        currencyStore() {
-            return State.getStore('currency');
-        },
-
-        currencyAssociationStore() {
-            return this.salesChannel.getAssociation('currencies');
-        },
-
-        customerGroupStore() {
-            return State.getStore('customer_group');
-        },
-
-        languageStore() {
-            return State.getStore('language');
-        },
-
-        languageAssociationStore() {
-            return this.salesChannel.getAssociation('languages');
-        },
-
-        paymentMethodStore() {
-            return State.getStore('payment_method');
-        },
-
-        paymentMethodAssociationStore() {
-            return this.salesChannel.getAssociation('paymentMethods');
-        },
-
-        shippingMethodStore() {
-            return State.getStore('shipping_method');
-        },
-
-        shippingMethodAssociationStore() {
-            return this.salesChannel.getAssociation('shippingMethods');
-        },
-        domainAssociationStore() {
-            return this.salesChannel.getAssociation('domains');
-        },
-        snippetSetStore() {
-            return State.getStore('snippet_set');
-        },
         isStoreFront() {
             return this.salesChannel.typeId === '8a243080f92e4c719546314b577cf82b';
+        },
+
+        domainRepository() {
+            return this.repositoryFactory.create(
+                this.salesChannel.domains.entity,
+                this.salesChannel.domains.source
+            );
+        },
+
+        salesChannelRepository() {
+            return this.repositoryFactory.create('sales_channel');
         }
     },
 
-    created() {
-        this.getDomains();
-    },
-
     methods: {
-        getDomains() {
-            this.isLoadingDomains = true;
-
-            this.domainAssociationStore.getList({}, true).then(() => {
-                this.isLoadingDomains = false;
-            });
-        },
-
         onGenerateKeys() {
             this.salesChannelService.generateKey().then((response) => {
                 this.salesChannel.accessKey = response.accessKey;
@@ -128,24 +74,12 @@ Component.register('sw-sales-channel-detail-base', {
             });
         },
 
-        changeDefaultCurrency(id) {
-            this.salesChannel.currencyId = id;
-        },
+        onItemRemove(removeItemId, accessor) {
+            const assignedId = this.salesChannel[accessor];
 
-        changeDefaultLanguage(id) {
-            this.salesChannel.languageId = id;
-        },
-
-        changeDefaultCountry(id) {
-            this.salesChannel.countryId = id;
-        },
-
-        changeDefaultPaymentMethod(id) {
-            this.salesChannel.paymentMethodId = id;
-        },
-
-        changeDefaultShippingMethod(id) {
-            this.salesChannel.shippingMethodId = id;
+            if (removeItemId === assignedId) {
+                this.salesChannel[accessor] = null;
+            }
         },
 
         onCloseDeleteModal() {
@@ -154,36 +88,48 @@ Component.register('sw-sales-channel-detail-base', {
 
         onConfirmDelete() {
             this.showDeleteModal = false;
-            this.$nextTick(() => {
-                this.salesChannel.delete(true).then(() => {
-                    this.$root.$emit('changed-sales-channel');
-                });
 
+            this.$nextTick(() => {
+                this.deleteSalesChannel(this.salesChannel.id);
                 this.$router.push({ name: 'sw.dashboard.index' });
             });
         },
-        onClickAddDomain() {
-            const newDomain = this.domainAssociationStore.create();
-            newDomain.snippetSetId = this.defaultSnippetSetId;
-            this.salesChannel.domains.push(newDomain);
+
+        deleteSalesChannel(salesChannelId) {
+            this.salesChannelRepository.delete(salesChannelId, this.context).then(() => {
+                this.$root.$emit('changed-sales-channel');
+            });
         },
+
+        onClickAddDomain() {
+            const newDomain = this.domainRepository.create(this.context);
+            newDomain.snippetSetId = this.defaultSnippetSetId;
+
+            this.salesChannel.domains.add(newDomain);
+        },
+
         onClickDeleteDomain(domain) {
-            if (domain.isLocal) {
+            if (domain.isNew()) {
                 this.onConfirmDeleteDomain(domain);
             } else {
                 this.deleteDomain = domain;
             }
         },
+
         onConfirmDeleteDomain(domain) {
             this.deleteDomain = null;
+
             this.$nextTick(() => {
-                domain.delete(true).then(() => {
-                    this.salesChannel.domains = this.salesChannel.domains.filter((x) => {
-                        return x.id !== domain.id;
-                    });
-                });
+                this.salesChannel.domains.remove(domain.id);
+
+                if (domain.isNew()) {
+                    return;
+                }
+
+                this.domainRepository.delete(domain.id, this.context);
             });
         },
+
         onCloseDeleteDomainModal() {
             this.deleteDomain = null;
         }

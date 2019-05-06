@@ -11,7 +11,7 @@
         {% block sw_sales_channel_detail_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_sales_channel_detail_actions_save %}
-                <sw-button-process
+                    <sw-button-process
                         class="sw-sales-channel-detail__save-action"
                         :isLoading="isLoading"
                         :processSuccess="isSaveSuccessful"
@@ -19,9 +19,8 @@
                         variant="primary"
                         @process-finish="saveFinish"
                         @click.prevent="onSave">
-                    {{ $tc('sw-sales-channel.detail.buttonSave') }}
-                    </sw-button>
-                </sw-button-process>
+                        {{ $tc('sw-sales-channel.detail.buttonSave') }}
+                    </sw-button-process>
                 {% endblock %}
             </template>
         {% endblock %}
@@ -56,7 +55,9 @@
 
                 {% block sw_sales_channel_detail_content_view %}
                     <router-view :salesChannel="salesChannel"
-                                 :customFieldSets="customFieldSets">
+                                 :customFieldSets="customFieldSets"
+                                 :isLoading="isLoading"
+                                 :key="$route.params.id">
                     </router-view>
                 {% endblock %}
             </sw-card-view>

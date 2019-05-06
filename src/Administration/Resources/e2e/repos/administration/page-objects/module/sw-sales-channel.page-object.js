@@ -23,62 +23,25 @@ class SalesChannelPageObject extends GeneralPageObject {
     createBasicSalesChannel(salesChannelName) {
         this.browser
             .fillField(this.elements.salesChannelNameInput, salesChannelName)
-            .fillSwSelectComponent(
-                '.sw-sales-channel-detail__select-payment-method',
-                {
-                    value: 'Invoice',
-                    isMulti: true,
-                    searchTerm: 'Invoice'
-                }
-            )
-            .fillSwSelectComponent(
-                '.sw-sales-channel-detail__select-shipping-method',
-                {
-                    value: 'Standard',
-                    isMulti: true,
-                    searchTerm: 'Standard'
-                }
-            )
-            .fillSwSelectComponent(
-                '.sw-sales-channel-detail__select-countries',
-                {
-                    value: 'Germany',
-                    isMulti: true,
-                    searchTerm: 'Germany'
-                }
-            )
-            .fillSwSelectComponent(
-                '.sw-sales-channel-detail__select-currencies',
-                {
-                    value: 'Euro',
-                    isMulti: true,
-                    searchTerm: 'Euro'
-                }
-            )
-            .fillSwSelectComponent(
-                '.sw-sales-channel-detail__select-languages',
-                {
-                    value: 'Deutsch',
-                    isMulti: true,
-                    searchTerm: 'Deutsch'
-                }
-            )
-            .fillSwSelectComponent(
-                '.sw-sales-channel-detail__select-customer-group',
-                {
-                    value: 'Standard customer group',
-                    isMulti: false,
-                    searchTerm: 'Standard customer group'
-                }
-            )
-            .fillSwSelectComponent(
-                '.sw-sales-channel-detail__select-navigation-category-id',
-                {
-                    value: 'Catalogue #1',
-                    isMulti: false,
-                    searchTerm: 'Catalogue #1'
-                }
-            )
+
+            .fillMultiSelect('.sw-sales-channel-detail__select-payment-method', 'Invoice', 'Invoice')
+            .fillSingleSelect('.sw-sales-channel-detail__assign-payment-method', 'Invoice')
+
+            .fillMultiSelect('.sw-sales-channel-detail__select-shipping-method', 'Standard', 'Standard')
+            .fillSingleSelect('.sw-sales-channel-detail__assign-shipping-method', 'Standard')
+
+            .fillMultiSelect('.sw-sales-channel-detail__select-countries', 'Germany', 'Germany')
+            .fillSingleSelect('.sw-sales-channel-detail__assign-countries', 'Germany')
+
+            .fillMultiSelect('.sw-sales-channel-detail__select-currencies', 'Euro', 'Euro')
+            .fillSingleSelect('.sw-sales-channel-detail__assign-currencies', 'Euro')
+
+            .fillMultiSelect('.sw-sales-channel-detail__select-languages', 'Deutsch', 'Deutsch')
+            .fillSingleSelect('.sw-sales-channel-detail__assign-languages', 'Deutsch')
+
+            .fillSingleSelect('.sw-sales-channel-detail__select-customer-group', 'Standard customer group', 1)
+            .fillSingleSelect('.sw-sales-channel-detail__select-navigation-category-id', 'Catalogue #1', 1)
+
             .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .click(this.elements.salesChannelSaveAction)
             .waitForElementVisible('.icon--small-default-checkmark-line-medium');

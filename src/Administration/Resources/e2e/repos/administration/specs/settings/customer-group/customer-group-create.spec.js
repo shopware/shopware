@@ -56,13 +56,6 @@ module.exports = {
 
         browser
             .click(`${page.elements.salesChannelMenuName}--1`)
-            .fillSwSelectComponent(
-                '.sw-sales-channel-detail__select-customer-group',
-                {
-                    value: 'E2E Merchant',
-                    isMulti: false,
-                    searchTerm: 'E2E Merchant'
-                }
-            );
+            .fillSingleSelect('.sw-sales-channel-detail__select-customer-group', 'E2E Merchant', 1);
     }
 };

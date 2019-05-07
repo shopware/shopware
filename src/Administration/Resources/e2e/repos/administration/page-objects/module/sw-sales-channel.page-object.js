@@ -60,10 +60,18 @@ class SalesChannelPageObject extends GeneralPageObject {
         this.browser
             .getLocationInView(this.elements.dangerButton)
             .click(this.elements.dangerButton)
-            .expect.element(`${this.elements.modal}__body`).to.have.text.that.equals(`Are you sure you want to delete this sales channel? ${salesChannelName}`);
+            .waitForElementVisible(this.elements.modal)
+            .assert.containsText(
+                `${this.elements.modal}__body .sw-sales-channel-detail-base__delete-modal-confirm-text`,
+                'Are you sure you want to delete this sales channel?'
+            )
+            .assert.containsText(
+                `${this.elements.modal}__body .sw-sales-channel-detail-base__delete-modal-name`,
+                salesChannelName
+            );
 
         this.browser
-            .click(`${this.elements.modal}__footer button${this.elements.primaryButton}`)
+            .click(`${this.elements.modal}__footer button${this.elements.dangerButton}`)
             .waitForElementNotPresent(this.elements.modal)
             .expect.element('.sw-admin-menu__body').to.have.text.that.not.contains(salesChannelName);
     }
@@ -71,20 +79,21 @@ class SalesChannelPageObject extends GeneralPageObject {
     checkClipboard() {
         const me = this;
 
-        this.browser.getValue(me.elements.apiAccessKeyField, (result) => {
-            me.accessKeyId = result.value;
+        this.browser
+            .waitForElementPresent(this.elements.apiAccessKeyField)
+            .getValue(me.elements.apiAccessKeyField, (result) => {
+                me.accessKeyId = result.value;
 
-            me.browser
-                .waitForElementPresent(me.elements.apiAccessKeyField)
-                .getLocationInView(me.elements.apiAccessKeyField)
-                .waitForElementVisible('.sw-field-copyable:nth-of-type(1)')
-                .click('.sw-field-copyable:nth-of-type(1)')
-                .checkNotification('Text has been copied to clipboard.')
-                .getLocationInView(me.elements.salesChannelNameInput)
-                .clearValue(me.elements.salesChannelNameInput)
-                .setValue(me.elements.salesChannelNameInput, ['', me.browser.Keys.CONTROL, 'v'])
-                .expect.element(me.elements.salesChannelNameInput).value.that.equals(me.accessKeyId);
-        });
+                me.browser
+                    .getLocationInView(me.elements.apiAccessKeyField)
+                    .waitForElementVisible('.sw-field-copyable:nth-of-type(1)')
+                    .click('.sw-field-copyable:nth-of-type(1)')
+                    .checkNotification('Text has been copied to clipboard.')
+                    .getLocationInView(me.elements.salesChannelNameInput)
+                    .clearValue(me.elements.salesChannelNameInput)
+                    .setValue(me.elements.salesChannelNameInput, ['', me.browser.Keys.CONTROL, 'v'])
+                    .expect.element(me.elements.salesChannelNameInput).value.that.equals(me.accessKeyId);
+            });
     }
 
     changeApiCredentials(salesChannelName) {

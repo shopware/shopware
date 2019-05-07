@@ -45,17 +45,47 @@
     {% endblock %}
 {% endblock %}
 
-{% block page_checkout_sidebar_actions %}
-    {% block page_checkout_sidebar_actions_add_voucher %}
-        {#TODO: NEXT-1955 - add voucher#}
-        {#		<form action="{{ path('frontend.checkout.promotion.add') }}"#}
-        {#			  method="post">#}
-        {#			<input type="text" name="code">#}
-        {#			<input type="hidden" name="forwardTo" value="frontend.checkout.cart.page">#}
-        {#			<button type="submit">add code</button>#}
-        {#		</form>#}
+{% block page_checkout_sidebar %}
+    {% block page_checkout_cart_actions %}
+        <div class="checkout-main-actions">
+            {% block page_checkout_cart_actions_add_promotion %}
+                <form action="{{ path('frontend.checkout.promotion.add') }}"
+                      method="post">
+                    <input type="hidden" name="forwardTo" value="frontend.checkout.cart.page">
+                    {% block page_checkout_cart_actions_add_promotion_input_group %}
+                        <div class="input-group">
+                            {% block page_checkout_cart_actions_add_promotion_input %}
+                                <input type="text"
+                                       name="code"
+                                       class="form-control"
+                                       placeholder="{{ "checkout.addPromotionPlaceholder"|trans }}"
+                                       aria-label="{{ "checkout.addPromotionLabel"|trans }}"
+                                       aria-describedby="addPromotion"
+                                       required="required">
+                            {% endblock %}
+
+                            {% block page_checkout_cart_actions_add_promotion_submit %}
+                                <div class="input-group-append">
+                                    <button class="btn btn-dark"
+                                            type="submit"
+                                            id="addPromotion">
+                                        {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
+                                            'name': 'basic-plus-circle'
+                                        } %}
+                                    </button>
+                                </div>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </form>
+            {% endblock %}
+        </div>
     {% endblock %}
 
+    {{ parent() }}
+{% endblock %}
+
+{% block page_checkout_sidebar_actions %}
     {% block page_checkout_sidebar_actions_proceed %}
         <a href="{{ path('frontend.checkout.confirm.page') }}"
            class="btn btn-primary btn-block btn-lg"

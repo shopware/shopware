@@ -25,9 +25,10 @@
                                    title="{{ "general.mainMenu"|trans }}">
                                     {% block layout_navigation_offcanvas_navigation_home_link_text %}
                                         <span itemprop="{{ "general.mainMenu"|trans }}">
-                                            <span
-                                                class="offcanvas-menu-list-item-link-icon js-offcanvas-menu-loading-icon">
-                                                <span class="fas fa-bars"></span>
+                                            <span class="offcanvas-menu-list-item-link-icon js-offcanvas-menu-loading-icon">
+                                                {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
+                                                    'name': 'action-grab'
+                                                } %}
                                             </span>
                                             {{ "general.mainMenu"|trans }}
                                         </span>

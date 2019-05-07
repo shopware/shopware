@@ -226,6 +226,8 @@
         "cartHeaderTaxIncludeVat": "Included VAT",
         "cartHeaderTaxExcludeVat": "Plus VAT",
         "cartItemInfoId": "Order number:",
+        "addPromotionLabel": "Enter promotion code",
+        "addPromotionPlaceholder": "promotion code",
         "summaryPositionPrice": "Sum",
         "summaryShipping": "Shipping costs",
         "summaryTotalPrice": "Total amount",

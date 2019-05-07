@@ -226,6 +226,8 @@
         "cartHeaderTaxIncludeVat": "Enthaltene MwSt.",
         "cartHeaderTaxExcludeVat": "zzgl. Mwst.",
         "cartItemInfoId": "Artikel-Nr.:",
+        "addPromotionLabel": "Gutschein-Code eingeben",
+        "addPromotionPlaceholder": "Gutschein-Code",
         "summaryPositionPrice": "Summe",
         "summaryShipping": "Versandkosten",
         "summaryTotalPrice": "Gesamtsumme",

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -36,20 +37,28 @@ class NavigationLoader
     /**
      * Returns the full category tree. The provided active id will be marked as selected
      */
-    public function load(string $activeId, SalesChannelContext $context): ?Tree
+    public function load(string $activeId, SalesChannelContext $context, string $rootId): ?Tree
     {
         /** @var CategoryEntity $active */
         $active = $this->loadActive($activeId, $context);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('visible', true));
+        $criteria->addFilter(new EqualsFilter('category.visible', true));
+        $criteria->addFilter(new ContainsFilter('category.path', $rootId));
+
+        // todo@dr fix level argument (has to be relative by provided root id)
+        $criteria->addFilter(
+            new RangeFilter('category.level', [RangeFilter::LTE => 5])
+        );
+
         $criteria->addAssociation('media');
 
         /** @var CategoryCollection $categories */
         $categories = $this->categoryRepository->search($criteria, $context)->getEntities();
+
         $categories->sortByPosition();
 
-        return $this->getTree($context->getSalesChannel()->getNavigationCategoryId(), $categories, $active);
+        return $this->getTree($rootId, $categories, $active);
     }
 
     /**
@@ -96,10 +105,6 @@ class NavigationLoader
         $criteria = new Criteria();
         $criteria->addAssociation('media');
         $criteria->addFilter(new EqualsFilter('category.id', $activeId));
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
-            new ContainsFilter('category.path', $context->getSalesChannel()->getNavigationCategoryId()),
-            new EqualsFilter('category.id', $context->getSalesChannel()->getNavigationCategoryId()),
-        ]));
 
         $active = $this->categoryRepository->search($criteria, $context)->first();
         if (!$active) {

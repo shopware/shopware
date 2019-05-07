@@ -67,10 +67,8 @@
                     {% block sw_order_document_card_grid_column_context %}
                         <sw-grid-column flex="minmax(70px, 70px)" align="center">
                             <sw-context-button>
-                                <sw-context-menu-item>
-                                    <a class="sw-document-download-button" :href="documentService.generateDocumentLink(item.id,item.deepLinkCode)" target="_blank">
-                                        {{ $tc('sw-order.documentCard.labelDownloadPdf') }}
-                                    </a>
+                                <sw-context-menu-item @click="onDownload(item.id, item.deepLinkCode)">
+                                    {{ $tc('sw-order.documentCard.labelDownloadPdf') }}
                                 </sw-context-menu-item>
                             </sw-context-button>
                         </sw-grid-column>

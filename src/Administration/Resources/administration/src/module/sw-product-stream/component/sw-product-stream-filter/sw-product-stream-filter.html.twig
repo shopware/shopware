@@ -14,7 +14,7 @@
                        :previewResultsLimit="500"
                        class="field--condition"
                        :class="{ 'field--not-last' : (index!=(definitions.length-1)) }"
-                       :required="true"
+                       required
                        @input="selectFilter(index, $event)">
             </sw-select>
         </template>
@@ -35,7 +35,7 @@
                    itemValueKey="type"
                    displayName="name"
                    :criteria="typeCriteria"
-                   :required="true"
+                   required
                    :disabled="isApi()"
                    class="field--operator has--arrow"
                    @input="selectType">
@@ -47,7 +47,7 @@
                    :store="getStore(definition.name)"
                    :id="createId()"
                    class="field--main"
-                   :required="true"
+                   required
                    v-model="actualCondition.value">
         </sw-select>
     {% endblock %}
@@ -59,7 +59,7 @@
                             :id="createId()"
                             class="field--main"
                             v-model="multiValues"
-                            :required="true"
+                            required
                             @input="updateMultiValue">
         </sw-condition-value>
     {% endblock %}
@@ -157,6 +157,7 @@
                    itemValueKey="value"
                    displayName="label"
                    :required="true"
+                   required
                    class="field--main"
                    :disabled="isApi()"
                    v-model="actualCondition.value">

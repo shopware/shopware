@@ -28,6 +28,7 @@
                                        :criteria="ruleFilter"
                                        :value="priceGroup.ruleId"
                                        validation="required"
+                                       required
                                        @input="onRuleChange($event, priceGroup.ruleId)">
                                 <template slot="result_items" slot-scope="{ item, index }">
                                         <sw-select-option
@@ -97,6 +98,7 @@
                                                             :label="$tc('sw-product.prices.columnQuantityStart')">
                                                 <sw-field type="number"
                                                           validation="required"
+                                                          required
                                                           v-model="item.quantityStart">
                                                 </sw-field>
                                             </sw-grid-column>
@@ -122,6 +124,7 @@
                                                 <sw-price-field :price="item.price"
                                                                 :taxRate="productTaxRate"
                                                                 :currency="currencyRule.currency"
+                                                                required
                                                                 validation="required">
                                                 </sw-price-field>
                                             </sw-grid-column>

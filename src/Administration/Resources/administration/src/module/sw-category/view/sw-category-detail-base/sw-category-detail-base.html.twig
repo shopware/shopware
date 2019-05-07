@@ -7,6 +7,8 @@
                 <sw-container columns="repeat(auto-fit, minmax(150px, 1fr))" gap="0px 30px">
                     {% block sw_category_detail_information_name %}
                         <sw-field
+                            type="text"
+                            required
                             name="categoryName"
                             v-model="category.name"
                             validation="required"

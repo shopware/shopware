@@ -6,6 +6,7 @@
                           :label="$tc('sw-promotion.detail.main.general.labelTitle')"
                           :placeholder="placeholder(promotion, 'name', $tc('sw-promotion.detail.main.general.placeholderName'))"
                           v-model="promotion.name"
+                          required
                           validation="required">
                 </sw-field>
             {% endblock %}

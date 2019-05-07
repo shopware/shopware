@@ -5,6 +5,8 @@
                 v-model="draft"
                 type="text"
                 v-bind="$attrs"
+                :required="required"
+                validation="required"
                 @focus="onStartEditing"
                 @blur="onBlurField"
                 @keyup.enter="onSubmitFromKey"

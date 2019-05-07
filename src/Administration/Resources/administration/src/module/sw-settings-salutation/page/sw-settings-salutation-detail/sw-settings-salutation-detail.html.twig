@@ -63,12 +63,14 @@
                                           :helpText="$tc('sw-settings-salutation.detail.fieldSalutationKeyTooltip')"
                                           :errorMessage="invalidKeyErrorMessage"
                                           validation="required"
+                                          required
                                           @input="onChange">
                                 </sw-field>
                             {% endblock %}
 
                             {% block sw_settings_salutation_detail_content_card_display_name %}
                                 <sw-field v-model="salutation.displayName"
+                                          required
                                           class="sw-settings-salutation-detail__displayName"
                                           :label="$tc('sw-settings-salutation.detail.fieldDisplayNameLabel')"
                                           :placeholder="$tc('sw-settings-salutation.detail.fieldDisplayNamePlaceholder')">
@@ -77,6 +79,7 @@
 
                             {% block sw_settings_salutation_detail_content_card_letter_name %}
                                 <sw-field v-model="salutation.letterName"
+                                          required
                                           class="sw-settings-salutation-detail__letterName"
                                           :label="$tc('sw-settings-salutation.detail.fieldLetterNameLabel')"
                                           :placeholder="$tc('sw-settings-salutation.detail.fieldLetterNamePlaceholder')">

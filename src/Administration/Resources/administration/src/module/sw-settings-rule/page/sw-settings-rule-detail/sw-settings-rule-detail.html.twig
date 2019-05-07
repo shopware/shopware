@@ -42,6 +42,7 @@
                                           :label="$tc('sw-settings-rule.detail.labelName')"
                                           :placeholder="$tc('sw-settings-rule.detail.placeholderName')"
                                           validation="required"
+                                          required
                                           v-model="rule.name">
                                 </sw-field>
                             {% endblock %}
@@ -51,6 +52,7 @@
                                           :label="$tc('sw-settings-rule.detail.labelPriority')"
                                           :placeholder="$tc('sw-settings-rule.detail.placeholderPriority')"
                                           validation="required"
+                                          required
                                           v-model="rule.priority">
                                 </sw-field>
                             {% endblock %}

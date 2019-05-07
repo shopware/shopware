@@ -16,15 +16,6 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 class Framework extends Bundle
 {
-    public const VERSION = '___VERSION___';
-    public const VERSION_TEXT = '___VERSION_TEXT___';
-    public const REVISION = '___REVISION___';
-
-    protected $name = 'Shopware';
-
-    /**
-     * {@inheritdoc}
-     */
     public function getContainerExtension(): Extension
     {
         return new FrameworkExtension();

@@ -12,7 +12,7 @@ use Twig\Error\Error;
 
 class StornoGenerator implements DocumentGeneratorInterface
 {
-    public const DEFAULT_TEMPLATE = '@Shopware/documents/storno.html.twig';
+    public const DEFAULT_TEMPLATE = '@Framework/documents/storno.html.twig';
     public const STORNO = 'storno';
 
     /**

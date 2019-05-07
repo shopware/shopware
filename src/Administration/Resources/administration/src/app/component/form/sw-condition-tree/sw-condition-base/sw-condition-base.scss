@@ -21,7 +21,7 @@ $sw-condition-base-text-access-key: $color-gutenberg;
 
         .sw-icon {
             width: 18px;
-            height: 18px;
+            height: 24px;
         }
 
         .sw-select:first-child {
@@ -276,19 +276,21 @@ $sw-condition-base-text-access-key: $color-gutenberg;
         @extend .sw-condition-base__base-field;
 
         input {
-            outline: none;
-            box-shadow: none;
-            border: 0 none;
-            background: $sw-condition-base-color-background;
-
-            &:active,
-            &:focus {
-                box-shadow: none;
-            }
+            padding: 8px 0;
         }
 
         .sw-field__addition {
             display: none;
+        }
+    }
+
+    .sw-block-field {
+        .sw-block-field__block {
+            border: none;
+        }
+
+        &.has--focus .sw-block-field__block {
+            box-shadow: none;
         }
     }
 

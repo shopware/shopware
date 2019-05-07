@@ -6,6 +6,10 @@ $sw-condition-base-api: #F0F2F5;
 $sw-condition-base-z-index-arrow: 100;
 
 .sw-product-stream-filter {
+    .sw-select__input-single {
+        font-size: 14px;
+    }
+
     .field--condition {
         &.field--not-last {
             &:before {

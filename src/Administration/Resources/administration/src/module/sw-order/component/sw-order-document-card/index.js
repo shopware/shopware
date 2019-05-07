@@ -64,9 +64,9 @@ Component.register('sw-order-document-card', {
         },
 
         documentModal() {
-            const subComponentName = this.currentDocumentType.technicalName.replace('_', '-');
+            const subComponentName = this.currentDocumentType.technicalName.replace(/_/g, '-');
             if (this.$options.components[`sw-order-document-settings-${subComponentName}-modal`]) {
-                return `sw-order-document-settings-${this.currentDocumentType.technicalName.replace('_', '-')}-modal`;
+                return `sw-order-document-settings-${subComponentName}-modal`;
             }
             return 'sw-order-document-settings-modal';
         }

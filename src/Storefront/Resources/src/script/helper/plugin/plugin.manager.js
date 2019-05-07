@@ -13,7 +13,7 @@ import Iterator from 'src/script/helper/iterator.helper';
  *
  *     PluginManager.register(.....);
  *
- *     PluginManager.executePlugins(.....);
+ *     PluginManager.initializePlugins(.....);
  * ```
  *
  * to extend from the base plugin import:
@@ -50,11 +50,11 @@ import Iterator from 'src/script/helper/iterator.helper';
  * // Returns all plugin instances from the passed element.
  * PluginManager.getPluginInstancesFromElement(el: HTMLElement): Map : null;
  *
- * // Starts all plugins which are currently registered.
- * PluginManager.executePlugins(): *;
+ * // Initializes all plugins which are currently registered.
+ * PluginManager.initializePlugins(): *;
  *
- * // Starts a single plugin.
- * PluginManager.executePlugin(pluginName: String|boolean, selector: String | NodeList | HTMLElement, options?: Object): *;
+ * // Initializes a single plugin.
+ * PluginManager.initializePlugin(pluginName: String|boolean, selector: String | NodeList | HTMLElement, options?: Object): *;
  *
  */
 class PluginManagerSingleton {
@@ -197,9 +197,9 @@ class PluginManagerSingleton {
     }
 
     /**
-     * Starts all plugins which are currently registered.
+     * Initializes all plugins which are currently registered.
      */
-    executePlugins() {
+    initializePlugins() {
         Iterator.iterate(this.getPluginList(), (plugin, pluginName) => {
             if (pluginName) {
                 if (!this._registry.has(pluginName)) {
@@ -209,7 +209,7 @@ class PluginManagerSingleton {
                 const plugin = this._registry.get(pluginName);
                 if (plugin.has('registrations')) {
                     Iterator.iterate(plugin.get('registrations'), entry => {
-                        this._executePlugin(plugin.get('class'), entry.selector, entry.options, plugin.get('name'));
+                        this._initializePlugin(plugin.get('class'), entry.selector, entry.options, plugin.get('name'));
                     });
                 }
             }
@@ -217,13 +217,13 @@ class PluginManagerSingleton {
     }
 
     /**
-     * Starts a single plugin.
+     * Initializes a single plugin.
      *
      * @param {Object} pluginName
      * @param {String|NodeList|HTMLElement} selector
      * @param {Object} options
      */
-    executePlugin(pluginName, selector, options) {
+    initializePlugin(pluginName, selector, options) {
         let plugin;
         let pluginClass;
         let mergedOptions;
@@ -239,7 +239,7 @@ class PluginManagerSingleton {
             mergedOptions = deepmerge(pluginClass.options || {}, options || {});
         }
 
-        this._executePlugin(pluginClass, selector, mergedOptions, plugin.get('name'));
+        this._initializePlugin(pluginClass, selector, mergedOptions, plugin.get('name'));
     }
 
     /**
@@ -250,9 +250,9 @@ class PluginManagerSingleton {
      * @param {Object} options
      * @param {string} pluginName
      */
-    _executePlugin(pluginClass, selector, options, pluginName = false) {
+    _initializePlugin(pluginClass, selector, options, pluginName = false) {
         if (DomAccess.isNode(selector)) {
-            return PluginManagerSingleton._executePluginOnElement(selector, pluginClass, options, pluginName);
+            return PluginManagerSingleton._initializePluginOnElement(selector, pluginClass, options, pluginName);
         }
 
         if (typeof selector === 'string') {
@@ -260,7 +260,7 @@ class PluginManagerSingleton {
         }
 
         return Iterator.iterate(selector, el => {
-            PluginManagerSingleton._executePluginOnElement(el, pluginClass, options, pluginName);
+            PluginManagerSingleton._initializePluginOnElement(el, pluginClass, options, pluginName);
         });
     }
 
@@ -273,13 +273,17 @@ class PluginManagerSingleton {
      * @param {string} pluginName
      * @private
      */
-    static _executePluginOnElement(el, pluginClass, options, pluginName) {
+    static _initializePluginOnElement(el, pluginClass, options, pluginName) {
         if (typeof pluginClass !== 'function') {
             throw new Error('The passed plugin is not a function or a class.');
         }
 
         const instance = PluginManager.getPluginInstanceFromElement(el, pluginName);
-        if (!instance) new pluginClass(el, options, pluginName);
+        if (!instance) {
+            return new pluginClass(el, options, pluginName);
+        }
+
+        return instance._update();
     }
 
     /**
@@ -424,21 +428,21 @@ export default class PluginManager {
     }
 
     /**
-     * Starts all plugins which are currently registered.
+     * Initializes all plugins which are currently registered.
      */
-    static executePlugins() {
-        PluginManagerInstance.executePlugins();
+    static initializePlugins() {
+        PluginManagerInstance.initializePlugins();
     }
 
     /**
-     * Starts a single plugin.
+     * Initializes a single plugin.
      *
      * @param {Object} pluginName
      * @param {String|NodeList|HTMLElement} selector
      * @param {Object} options
      */
-    static executePlugin(pluginName, selector, options) {
-        PluginManagerInstance.executePlugin(pluginName, selector, options);
+    static initializePlugin(pluginName, selector, options) {
+        PluginManagerInstance.initializePlugin(pluginName, selector, options);
     }
 }
 

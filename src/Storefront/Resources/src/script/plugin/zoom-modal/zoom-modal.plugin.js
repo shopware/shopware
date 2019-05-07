@@ -93,7 +93,7 @@ export default class ZoomModalPlugin extends Plugin {
         if (slider) {
             const parentSliderIndex = this._getParentSliderIndex();
 
-            PluginManager.executePlugin('ImageSlider', slider, {
+            PluginManager.initializePlugin('ImageSlider', slider, {
                 slider: {
                     startIndex: parentSliderIndex,
                 },

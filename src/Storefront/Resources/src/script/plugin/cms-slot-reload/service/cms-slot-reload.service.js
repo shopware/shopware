@@ -206,7 +206,7 @@ export default class CmsSlotReloadService {
     _onLoaded(response) {
         const preparedSelectors = this._prepareSelectors();
         ElementReplaceHelper.replaceFromMarkup(response, preparedSelectors);
-        window.PluginManager.executePlugins();
+        window.PluginManager.initializePlugins();
         this._removeLoadingIndicators();
     }
 

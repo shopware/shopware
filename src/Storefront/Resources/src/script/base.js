@@ -37,6 +37,7 @@ import CartWidgetPlugin from 'src/script/plugin/header/cart-widget.plugin';
 import SearchWidgetPlugin from 'src/script/plugin/header/search-widget/search-widget.plugin';
 import AccountMenuPlugin from 'src/script/plugin/header/account-menu.plugin';
 import OffCanvasCartPlugin from 'src/script/plugin/offcanvas-cart/offcanvas-cart.plugin';
+import AddToCartPlugin from 'src/script/plugin/add-to-cart/add-to-cart.plugin';
 import CookiePermissionPlugin from 'src/script/plugin/cookie-permission/cookie-permission.plugin';
 import CollapseFooterColumnsPlugin from 'src/script/plugin/collapse/collapse-footer-columns.plugin';
 import FlyoutMenuPlugin from 'src/script/plugin/main-menu/flyout-menu.plugin';
@@ -75,7 +76,7 @@ register plugins
 
 // example plugin (remove before release)
 // PluginManager.register('Simple', SimplePlugin, 'body', { plugin: 'simple' });
-// PluginManager.executePlugin('Simple', 'body');
+// PluginManager.initializePlugin('Simple', 'body');
 // PluginManager.register('VanillaExtendSimple', SimplePlugin, 'body', { plugin: 'simple' });
 // PluginManager.extend('VanillaExtendSimple', 'VanillaExtendSimple', VanillaExtendPlugin, 'body', { plugin: 'simple vanilla extend' });
 //
@@ -91,6 +92,7 @@ PluginManager.register('CookiePermission', CookiePermissionPlugin, '[data-cookie
 PluginManager.register('SearchWidget', SearchWidgetPlugin, '[data-search-form]');
 PluginManager.register('CartWidget', CartWidgetPlugin, '[data-cart-widget]');
 PluginManager.register('OffCanvasCart', OffCanvasCartPlugin, '[data-offcanvas-cart]');
+PluginManager.register('AddToCart', AddToCartPlugin, '[data-add-to-cart]');
 PluginManager.register('CollapseFooterColumns', CollapseFooterColumnsPlugin, '[data-collapse-footer]');
 PluginManager.register('FlyoutMenu', FlyoutMenuPlugin, '[data-flyout-menu]');
 PluginManager.register('OffcanvasMenu', OffcanvasMenuPlugin, '[data-offcanvas-menu]');
@@ -122,7 +124,7 @@ add configurations
 /*
 run plugins
 */
-document.addEventListener('DOMContentLoaded', () => PluginManager.executePlugins(), false);
+document.addEventListener('DOMContentLoaded', () => PluginManager.initializePlugins(), false);
 
 /*
 run utils

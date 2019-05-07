@@ -2,7 +2,8 @@
     <form
         action="{{ path('frontend.checkout.line-item.add') }}"
         method="post"
-        class="buy-widget js-add-to-cart">
+        class="buy-widget"
+        data-add-to-cart="true">
         {% block page_product_detail_buy_container %}
             <div class="form-row buy-widget-container">
                 {% block page_product_detail_buy_quantity_container %}
@@ -31,14 +32,24 @@
                 {% endblock %}
 
                 {% block page_product_detail_buy_redirect_input %}
-                    <input type="hidden" name="redirectTo" value="frontend.cart.detail"/>
+                    <input type="hidden"
+                           name="redirectTo"
+                           value="frontend.cart.detail"/>
                 {% endblock %}
 
                 {% block page_product_detail_buy_product_buy_info %}
-                    <input type="hidden" name="lineItems[{{ page.product.id }}][id]" value="{{ page.product.id }}">
-                    <input type="hidden" name="lineItems[{{ page.product.id }}][type]" value="product">
-                    <input type="hidden" name="lineItems[{{ page.product.id }}][stackable]" value="1">
-                    <input type="hidden" name="lineItems[{{ page.product.id }}][removable]" value="1">
+                    <input type="hidden"
+                           name="lineItems[{{ page.product.id }}][id]"
+                           value="{{ page.product.id }}">
+                    <input type="hidden"
+                           name="lineItems[{{ page.product.id }}][type]"
+                           value="product">
+                    <input type="hidden"
+                           name="lineItems[{{ page.product.id }}][stackable]"
+                           value="1">
+                    <input type="hidden"
+                           name="lineItems[{{ page.product.id }}][removable]"
+                           value="1">
                 {% endblock %}
 
                 {% block page_product_detail_buy_button_container %}

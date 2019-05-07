@@ -97,7 +97,7 @@ const modules = {
                     options: {
                         name: '[name].[ext]',
                         outputPath: `${assetOutPutFolder}/font`,
-                        publicPath: `${assetOutPutFolder}/font`,
+                        publicPath: '../assets/font',
                     },
                 },
             ],

@@ -22,18 +22,51 @@ export default class Plugin {
         this.el = el;
         this._pluginName = this._getPluginName(pluginName);
         this.options = this._mergeOptions(options);
+        this._initialized = false;
 
         this._registerInstance();
-        this.init();
+        this._init();
     }
 
     /**
      * this function gets executed when the plugin is initialized
-     *
-     * @private
      */
     init() {
         throw new Error(`The "init" method for the plugin "${this._pluginName}" is not defined.`);
+    }
+
+    /**
+     * this function gets executed when the plugin is being updated
+     */
+    update() {
+
+    }
+
+    /**
+     * internal init method which checks
+     * if the plugin is already initialized
+     * before executing the public init
+     *
+     * @private
+     */
+    _init() {
+        if (this._initialized) return;
+
+        this.init();
+        this._initialized = true;
+    }
+
+    /**
+     * internal update method which checks
+     * if the plugin is already initialized
+     * before executing the public update
+     *
+     * @private
+     */
+    _update() {
+        if (!this._initialized) return;
+
+        this.update();
     }
 
     /**

@@ -93,7 +93,7 @@ export default class FormAjaxSubmitPlugin extends Plugin {
     _onAfterAjaxSubmit(response) {
         this._removeLoadingIndicators();
         ElementReplaceHelper.replaceFromMarkup(response, this.options.replaceSelectors);
-        window.PluginManager.executePlugins();
+        window.PluginManager.initializePlugins();
     }
 
     /**

@@ -101,7 +101,7 @@ export default class FormAutoSubmitPlugin extends Plugin {
         PageLoadingIndicatorUtil.remove();
         const replaceContainer = DomAccess.querySelector(document, this.options.ajaxContainerSelector);
         replaceContainer.innerHTML = response;
-        window.PluginManager.executePlugins();
+        window.PluginManager.initializePlugins();
     }
 
 }

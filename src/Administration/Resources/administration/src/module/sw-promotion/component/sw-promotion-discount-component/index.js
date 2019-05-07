@@ -21,6 +21,15 @@ Component.register('sw-promotion-discount-component', {
             default: {}
         }
     },
+    data() {
+        return {
+            itemAddNewRule: {
+                index: -1,
+                id: 'addNewRule'
+            },
+            showRuleModal: false
+        };
+    },
     watch: {
         'discount.type': {
             handler() {
@@ -71,6 +80,21 @@ Component.register('sw-promotion-discount-component', {
         // the min or maximum thresholds have been exceeded.
         verifyValueMax() {
             this.discount.value = discountHandler.getFixedValue(this.discount.value, this.discount.type);
+        },
+        onSaveRule(rule) {
+            this.$refs.productRuleSelector.addItem({ item: rule });
+        },
+        onOptionClick(event) {
+            if (event.item.index === -1) {
+                this.openCreateRuleModal();
+            }
+        },
+        openCreateRuleModal() {
+            this.showRuleModal = true;
+        },
+        onCloseRuleModal() {
+            this.$refs.productRuleSelector.remove('addNewRule');
+            this.showRuleModal = false;
         }
     }
 

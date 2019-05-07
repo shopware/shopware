@@ -92,8 +92,8 @@
                                     {% endblock %}
 
                                     {% block sw_order_list_grid_columns_order_date %}
-                                        <template slot="column-date" slot-scope="{ item }">
-                                            {{ item.orderDate | date }}
+                                        <template slot="column-orderDate" slot-scope="{ item }">
+                                            {{ item.orderDate | date({ year: '2-digit', hour: '2-digit', minute: '2-digit' }) }}
                                         </template>
                                     {% endblock %}
                                 {% endblock %}

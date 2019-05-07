@@ -103,7 +103,7 @@ PluginManager.register('FormFieldToggle', FormFieldTogglePlugin, '[data-form-fie
 PluginManager.register('FormAutoSubmit', FormAutoSubmitPlugin, '[data-form-auto-submit]');
 PluginManager.register('FormAjaxSubmit', FormAjaxSubmitPlugin, '[data-form-ajax-submit]');
 PluginManager.register('AccountMenu', AccountMenuPlugin, '[data-offcanvas-account-menu]');
-PluginManager.register('OffCanvasTabs', OffCanvasTabsPlugin, '[data-offcanvas-tab]');
+PluginManager.register('OffCanvasTabs', OffCanvasTabsPlugin, '[data-offcanvas-tabs]');
 PluginManager.register('ImageSlider', ImageSliderPlugin, '[data-image-slider]');
 PluginManager.register('ZoomModal', ZoomModalPlugin, '[data-zoom-modal]');
 PluginManager.register('Magnifier', MagnifierPlugin, '[data-magnifier]');

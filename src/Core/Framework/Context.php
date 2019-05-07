@@ -65,6 +65,11 @@ class Context extends Struct
      */
     protected $taxState = CartPrice::TAX_STATE_GROSS;
 
+    /**
+     * @var bool
+     */
+    private $useCache = true;
+
     public function __construct(
         ContextSource $source,
         array $ruleIds = [],
@@ -198,5 +203,17 @@ class Context extends Struct
     public function setTaxState(string $taxState): void
     {
         $this->taxState = $taxState;
+    }
+
+    public function disableCache(callable $function): void
+    {
+        $this->useCache = false;
+        $function($this);
+        $this->useCache = true;
+    }
+
+    public function getUseCache(): bool
+    {
+        return $this->useCache;
     }
 }

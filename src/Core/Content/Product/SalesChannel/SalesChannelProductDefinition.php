@@ -24,6 +24,12 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
 
     public function processCriteria(Criteria $criteria, SalesChannelContext $context): void
     {
+        if ($criteria->hasState('sales-channel-product-condition')) {
+            return;
+        }
+
+        $criteria->addState('sales-channel-product-condition');
+
         $criteria->addFilter(new EqualsFilter('product.active', true));
 
         $criteria->addFilter(

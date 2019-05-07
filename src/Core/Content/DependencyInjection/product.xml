@@ -100,7 +100,6 @@
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer"/>
             <argument type="service" id="Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition"/>
             <argument type="service" id="Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary\ProductKeywordDictionaryDefinition"/>
-
             <tag name="shopware.dbal_indexing.indexer"/>
         </service>
 

@@ -39,6 +39,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\EqualTo;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -427,7 +428,12 @@ class AccountService
         $validation = new DataValidationDefinition('customer.email.update');
 
         $validation
-            ->add('email', new CustomerEmailUnique(['context' => $context->getContext()]), new EqualTo(['propertyPath' => 'emailConfirmation']))
+            ->add(
+                'email',
+                new Email(),
+                new EqualTo(['propertyPath' => 'emailConfirmation']),
+                new CustomerEmailUnique(['context' => $context->getContext()])
+            )
             ->add('password', new CustomerPasswordMatches(['context' => $context]));
 
         $this->dispatchValidationEvent($validation, $context->getContext());

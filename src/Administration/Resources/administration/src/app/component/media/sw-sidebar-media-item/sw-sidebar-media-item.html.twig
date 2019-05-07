@@ -39,6 +39,7 @@
                             :showContextMenuButton="true"
                             :selected="false"
                             :isList="true"
+                            v-draggable="{ dragGroup: 'media', data: { mediaItem } }"
                             @media-item-delete="handleMediaGridItemDelete">
 
                             {% block sw_sidebar_media_item_context_items %}

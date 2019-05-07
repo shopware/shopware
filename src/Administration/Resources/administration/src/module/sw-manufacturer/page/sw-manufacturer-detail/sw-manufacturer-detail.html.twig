@@ -89,6 +89,7 @@
                                 :label="$tc('sw-manufacturer.detail.labelLogo')"
                                 :defaultFolder="manufacturerStore.getEntityName()"
                                 @sw-media-upload-media-upload-success="setMediaItem"
+                                @media-dropped="onDropMedia"
                                 @media-upload-remove-image="onUnlinkLogo">
                             </sw-media-upload>
                         {% endblock %}

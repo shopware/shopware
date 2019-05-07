@@ -92,6 +92,7 @@
                                  :taxes="taxes"
                                  :customFieldSets="customFieldSets"
                                  :currencies="currencies"
+                                 @media-dropped="onAddItemToProduct"
                                  @calculating="updatePriceIsCalculating">
                     </router-view>
                 {% endblock %}

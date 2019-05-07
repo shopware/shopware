@@ -3,6 +3,10 @@
 $sw-field-transition: border-color 0.3s ease-out;
 
 .sw-contextual-field {
+    input:-webkit-autofill {
+        -webkit-box-shadow: 0 0 0 1000px $color-white inset;
+    }
+
     .sw-block-field__block {
         display: flex;
     }

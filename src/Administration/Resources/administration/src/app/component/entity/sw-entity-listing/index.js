@@ -82,19 +82,19 @@ export default {
             this.deleteId = null;
 
             // send delete request to the server, immediately
-            return this.repository.delete(id, this.records.context).then(() => {
+            return this.repository.delete(id, this.items.context).then(() => {
                 return this.doSearch();
             });
         },
 
         doSearch() {
             this.loading = true;
-            return this.repository.search(this.records.criteria, this.records.context).then(this.applyResult);
+            return this.repository.search(this.items.criteria, this.items.context).then(this.applyResult);
         },
 
         save(record) {
             // send save request to the server, immediately
-            return this.repository.save(record, this.records.context).then(() => {
+            return this.repository.save(record, this.items.context).then(() => {
                 return this.doSearch();
             });
         },
@@ -105,7 +105,7 @@ export default {
         },
 
         sort(column) {
-            this.records.criteria.resetSorting();
+            this.items.criteria.resetSorting();
 
             let direction = 'ASC';
             if (this.currentSortBy === column.dataIndex) {
@@ -114,7 +114,7 @@ export default {
                 }
             }
 
-            this.records.criteria.addSorting(
+            this.items.criteria.addSorting(
                 Criteria.sort(column.dataIndex, direction)
             );
 
@@ -125,8 +125,8 @@ export default {
         },
 
         paginate({ page = 1, limit = 25 }) {
-            this.records.criteria.setPage(page);
-            this.records.criteria.setLimit(limit);
+            this.items.criteria.setPage(page);
+            this.items.criteria.setLimit(limit);
 
             return this.doSearch();
         },

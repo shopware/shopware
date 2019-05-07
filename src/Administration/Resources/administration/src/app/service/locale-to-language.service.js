@@ -29,7 +29,15 @@ export default function createLocaleToLanguageService() {
 
             return languageRepo.search(languageCriteria, contextService);
         }).then((languageData) => {
-            return languageData.first().id;
+            // Check if language exists in browser language
+            if (languageData.first()) {
+                return languageData.first().id;
+            }
+
+            // Fallback: Get first language id
+            return languageRepo.search(new Criteria(), contextService).then((allLanguages) => {
+                return allLanguages.first().id;
+            });
         });
     }
 }

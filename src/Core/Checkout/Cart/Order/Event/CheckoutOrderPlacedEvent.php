@@ -19,7 +19,7 @@ class CheckoutOrderPlacedEvent extends Event implements BusinessEventInterface, 
     /**
      * @var OrderEntity
      */
-    public $order;
+    private $order;
 
     /**
      * @var Context

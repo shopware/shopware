@@ -174,6 +174,7 @@ export default {
     data() {
         return {
             isActive: false,
+            isEmpty: false,
             hasSelection: false,
             selection: null,
             currentSelection: null,
@@ -181,7 +182,7 @@ export default {
             textLength: 0,
             content: '',
             placeholderHeight: null,
-            placeholderVisible: true
+            placeholderVisible: false
         };
     },
 
@@ -189,7 +190,8 @@ export default {
         classes() {
             return {
                 'is--active': this.isActive,
-                'is--boxed': !this.isInlineEdit
+                'is--boxed': !this.isInlineEdit,
+                'is--empty': this.isEmpty
             };
         }
     },
@@ -199,16 +201,13 @@ export default {
             handler() {
                 if (this.value !== this.$refs.editor.innerHTML) {
                     this.content = this.value;
+                    this.isEmpty = this.emptyCheck(this.content);
                 }
 
                 this.$nextTick(() => {
-                    this.setWordcount();
+                    this.setWordCount();
                 });
             }
-        },
-
-        placeholderVisible() {
-            this.setPlaceholderHeight();
         }
     },
 
@@ -228,18 +227,17 @@ export default {
         createdComponent() {
             this.content = this.value;
 
-            if (!this.content || !this.content.length || this.content.length <= 0) {
-                this.placeholderVisible = true;
-            }
-
             document.addEventListener('mouseup', this.onSelectionChange);
             document.addEventListener('mousedown', this.onSelectionChange);
         },
 
         mountedComponent() {
-            if (this.value) {
-                this.setWordcount();
-            }
+            this.isEmpty = this.emptyCheck(this.content);
+            this.placeholderVisible = !this.isEmpty;
+
+            this.$nextTick(() => {
+                this.setWordCount();
+            });
         },
 
         destroyedComponent() {
@@ -358,7 +356,9 @@ export default {
         },
 
         onContentChange() {
-            this.emitContent();
+            this.isEmpty = this.emptyCheck(this.getContentValue());
+
+            this.setWordCount();
         },
 
         onPaste(event) {
@@ -370,39 +370,29 @@ export default {
         },
 
         emitContent() {
-            if (!this.$refs.editor || this.value === this.$refs.editor.innerHTML) {
-                return;
-            }
-
-            // remove leading and trailing <br>
-            const regex = /^\s*(?:<br\s*\/?\s*>)+|(?:<br\s*\/?\s*>)+\s*$/gi;
-            let val = this.$refs.editor.innerHTML.replace(regex, '');
-
-            val = !val ? null : val;
-
-            this.$emit('input', val);
+            this.$emit('input', this.getContentValue());
         },
 
-        setWordcount() {
-            // strip line breaks
-            let text = this.$refs.editor.innerText.replace(/(\r\n|\n|\r)/gm, '');
+        getContentValue() {
+            if (!this.$refs.editor || !this.$refs.editor.innerHTML) {
+                return null;
+            }
 
-            // strip Tags
-            text = text.replace(/<\/?("[^"]*"|'[^']*'|[^>])*(>|$)/g, '');
-            this.textLength = text.length;
+            if (!this.$refs.editor.textContent ||
+                !this.$refs.editor.textContent.length ||
+                this.$refs.editor.textContent.length <= 0) {
+                return null;
+            }
+
+            return this.$refs.editor.innerHTML;
         },
 
-        setPlaceholderHeight() {
-            if (!this.isInlineEdit) {
-                return;
-            }
-            this.$nextTick(() => {
-                const placeholderEl = this.$el.querySelector('.sw-text-editor__content-placeholder');
+        emptyCheck(value) {
+            return !value || value === null || !value.length || value.length <= 0;
+        },
 
-                this.placeholderHeight = {
-                    height: this.placeholderVisible && placeholderEl ? `${placeholderEl.offsetHeight}px` : null
-                };
-            });
+        setWordCount() {
+            this.textLength = this.$refs.editor.innerText.length;
         }
     }
 };

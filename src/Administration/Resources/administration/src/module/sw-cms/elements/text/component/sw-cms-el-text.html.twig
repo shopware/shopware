@@ -7,7 +7,6 @@
 
         <sw-text-editor v-else
                         v-model="element.config.content.value"
-                        :placeholder="element.data.content"
                         @blur="onBlur"
                         @input="onInput"
                         :isInlineEdit="true">

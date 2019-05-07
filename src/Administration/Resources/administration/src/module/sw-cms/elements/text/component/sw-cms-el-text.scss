@@ -1,10 +1,18 @@
 @import "~scss/variables";
 
 .sw-cms-el-text {
+    height: 100%;
     position: relative;
 
+    .sw-text-editor,
+    .sw-text-editor__box,
+    .sw-text-editor__content,
+    .sw-text-editor__content-editor {
+        height: 100%;
+    }
+
     .sw-cms-el-text__mapping-preview {
-        min-height: 40px;
+        min-height: 60px;
     }
 
     .content-editor__toolbar {

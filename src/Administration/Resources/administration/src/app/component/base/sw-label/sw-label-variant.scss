@@ -1,6 +1,31 @@
 @mixin sw-label-variant($color-background, $color-text, $color-border) {
+    border-radius: 16px;
     background-color: $color-background;
+    border-color: transparent;
+    line-height: 22px;
     color: $color-text;
+
+    &.sw-label--small {
+        border-radius: $sw-label-pill-border-radius;
+        padding-left: 15px;
+        line-height: 14px;
+        font-weight: 600;
+        font-size: 12px;
+        padding: 0 5px;
+        height: 16px;
+    }
+
+    &.sw-label--small::before {
+        content: '';
+        display: block;
+        height: 6px;
+        width: 6px;
+        position: absolute;
+        background: $color-border;
+        border-radius: 50%;
+        top: 4px;
+        left: 5px;
+    }
 
     .sw-label__dismiss {
         color: $color-text;

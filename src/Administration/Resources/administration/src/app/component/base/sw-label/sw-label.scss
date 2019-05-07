@@ -19,6 +19,9 @@ $sw-label-danger-color-border: $color-crimson;
 $sw-label-warning-color-background: lighten($color-pumpkin-spice, 25%);
 $sw-label-warning-color-text: darken($color-pumpkin-spice, 10%);
 $sw-label-warning-color-border: $color-pumpkin-spice;
+$sw-label-neutral-color-background: $sw-label-color-background;
+$sw-label-neutral-color-text: $sw-label-color-text;
+$sw-label-neutral-color-border: $color-steam-cloud;
 
 .sw-label {
     @include truncate();
@@ -124,5 +127,9 @@ $sw-label-warning-color-border: $color-pumpkin-spice;
 
     &.sw-label--warning {
         @include sw-label-variant($sw-label-warning-color-background, $sw-label-warning-color-text, $sw-label-warning-color-border);
+    }
+
+    &.sw-label--neutral {
+        @include sw-label-variant($sw-label-neutral-color-background, $sw-label-neutral-color-text, $sw-label-neutral-color-border);
     }
 }

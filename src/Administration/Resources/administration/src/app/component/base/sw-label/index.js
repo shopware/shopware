@@ -19,12 +19,12 @@ export default {
             type: String,
             required: false,
             default: '',
-            validValues: ['info', 'danger', 'success', 'warning'],
+            validValues: ['info', 'danger', 'success', 'warning', 'neutral'],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
-                return ['info', 'danger', 'success', 'warning'].includes(value);
+                return ['info', 'danger', 'success', 'warning', 'neutral'].includes(value);
             }
         },
         dismissAble: {

@@ -30,11 +30,11 @@ $sw-order-detail-base-select-status-delivery-link: #23BE2F;
         dd {
             padding-right: 60px;
 
-            .sw-order-saveable-field{
-                position: relative;
-                top: 50%;
+            .sw-order-saveable-field {
                 transform: translateY(-50%);
+                position: relative;
                 left: 80px;
+                top: 50%;
             }
         }
     }
@@ -43,8 +43,7 @@ $sw-order-detail-base-select-status-delivery-link: #23BE2F;
         padding: 0;
     }
 
-  .sw-order-detail-base__document-card .sw-card__content {
-    padding: 0;
-  }
-
+    .sw-order-detail-base__document-card .sw-card__content {
+        padding: 0;
+    }
 }

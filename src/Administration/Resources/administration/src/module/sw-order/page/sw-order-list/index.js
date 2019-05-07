@@ -5,6 +5,8 @@ import './sw-order-list.scss';
 Component.register('sw-order-list', {
     template,
 
+    inject: ['stateStyleDataProviderService'],
+
     mixins: [
         Mixin.getByName('listing')
     ],
@@ -132,6 +134,18 @@ Component.register('sw-order-list', {
                 label: this.$tc('sw-order.list.orderDate'),
                 allowResize: true
             }];
+        },
+
+        getVariantFromOrderState(order) {
+            return this.stateStyleDataProviderService.getStyle(
+                'order.state', order.stateMachineState.technicalName
+            ).variant;
+        },
+
+        getVariantFromPaymentState(order) {
+            return this.stateStyleDataProviderService.getStyle(
+                'order_transaction.state', order.transactions[0].stateMachineState.technicalName
+            ).variant;
         }
     }
 });

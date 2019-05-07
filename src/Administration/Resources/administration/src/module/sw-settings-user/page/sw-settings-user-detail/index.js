@@ -125,7 +125,7 @@ Component.register('sw-settings-user-detail', {
 
         loadKeys() {
             this.keyRepository.search(new Criteria(), this.context).then((accessKeys) => {
-                this.integrations = accessKeys;
+                this.integrations = accessKeys.items;
             });
         },
 

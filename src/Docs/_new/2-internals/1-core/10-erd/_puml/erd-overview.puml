@@ -22,7 +22,7 @@ skinparam backgroundColor #FFFFFF
 
 ' entities
 
-Table(ShopwareCoreFrameworkCustomField, "Shopware\Core\Framework\CustomField\n(CustomFields/EAV)") {
+Table(ShopwareCoreFrameworkCustomField, "Shopware\Core\Framework\CustomField\n(Custom Fields/EAV)") {
    custom_field Table
    custom_field_set Table
    custom_field_set_relation Table
@@ -40,9 +40,6 @@ Table(ShopwareCoreFrameworkPlugin, "Shopware\Core\Framework\Plugin\n(Plugins)") 
 }
 Table(ShopwareCoreFrameworkScheduledTask, "Shopware\Core\Framework\ScheduledTask\n(Scheduled messages)") {
    scheduled_task Table
-}
-Table(ShopwareCoreFrameworkTag, "Shopware\Core\System\Tag\n(Tags)") {
-   tag Table
 }
 Table(ShopwareCoreFrameworkLanguage, "Shopware\Core\Framework\Language\n(Languages)") {
    language Table
@@ -113,6 +110,10 @@ Table(ShopwareCoreSystemNumberRange, "Shopware\Core\System\NumberRange\n(Number 
    number_range_state Table
    number_range_type Table
    number_range_type_translation Table
+   number_range_translation Table
+}
+Table(ShopwareCoreSystemTag, "Shopware\Core\System\Tag\n(Tags)") {
+   tag Table
 }
 Table(ShopwareCoreContentCategory, "Shopware\Core\Content\Category\n(Categories)") {
    category Table
@@ -137,6 +138,8 @@ Table(ShopwareCoreContentProduct, "Shopware\Core\Content\Product\n(Products)") {
    product_configurator_setting Table
    product_price Table
    product_property Table
+   product_search_keyword Table
+   product_keyword_dictionary Table
    product_manufacturer Table
    product_manufacturer_translation Table
    product_media Table
@@ -145,12 +148,13 @@ Table(ShopwareCoreContentProduct, "Shopware\Core\Content\Product\n(Products)") {
    product_category_tree Table
    product_visibility Table
 }
-Table(ShopwareCoreFrameworkSearch, "Shopware\Core\Framework\Search\n(Search)") {
-   search_document Table
+Table(ShopwareCoreContentDeliveryTime, "Shopware\Core\Content\DeliveryTime\n(Delivery time)") {
+   delivery_time Table
+   delivery_time_translation Table
 }
-Table(ShopwareCoreContentNavigation, "Shopware\Core\Content\Navigation\n(Navigation)") {
-   navigation Table
-   navigation_translation Table
+Table(ShopwareCoreContentNewsletterReceiver, "Shopware\Core\Content\NewsletterReceiver\n(Newsletter)") {
+   newsletter_receiver Table
+   newsletter_receiver_tag Table
 }
 Table(ShopwareCoreContentRule, "Shopware\Core\Content\Rule\n(Rules)") {
    rule Table
@@ -161,11 +165,28 @@ Table(ShopwareCoreContentProductStream, "Shopware\Core\Content\ProductStream\n(P
    product_stream_translation Table
    product_stream_filter Table
 }
-Table(ShopwareCoreContentProperty, "Shopware\Core\Content\Property\n(__EMPTY__)") {
+Table(ShopwareCoreContentProperty, "Shopware\Core\Content\Property\n(Property)") {
    property_group Table
    property_group_option Table
    property_group_option_translation Table
    property_group_translation Table
+}
+Table(ShopwareCoreContentCms, "Shopware\Core\Content\Cms\n(Content Management)") {
+   cms_page Table
+   cms_page_translation Table
+   cms_block Table
+   cms_slot Table
+   cms_slot_translation Table
+}
+Table(ShopwareCoreContentMailTemplate, "Shopware\Core\Content\MailTemplate\n(Mailing)") {
+   mail_template Table
+   mail_template_translation Table
+   mail_template_type Table
+   mail_template_type_translation Table
+   mail_template_sales_channel Table
+   mail_template_media Table
+   mail_header_footer Table
+   mail_header_footer_translation Table
 }
 Table(ShopwareCoreCheckoutCustomer, "Shopware\Core\Checkout\Customer\n(Customer)") {
    customer Table
@@ -173,6 +194,17 @@ Table(ShopwareCoreCheckoutCustomer, "Shopware\Core\Checkout\Customer\n(Customer)
    customer_address Table
    customer_group Table
    customer_tag Table
+}
+Table(ShopwareCoreCheckoutDiscountSurcharge, "Shopware\Core\Checkout\DiscountSurcharge\n(Discount/Surcharge)") {
+   discount_surcharge Table
+   discount_surcharge_translation Table
+}
+Table(ShopwareCoreCheckoutDocument, "Shopware\Core\Checkout\Document\n(Printed works)") {
+   document Table
+   document_type Table
+   document_type_translation Table
+   document_base_config Table
+   document_base_config_sales_channel Table
 }
 Table(ShopwareCoreCheckoutOrder, "Shopware\Core\Checkout\Order\n(Orders)") {
    order Table
@@ -187,7 +219,17 @@ Table(ShopwareCoreCheckoutOrder, "Shopware\Core\Checkout\Order\n(Orders)") {
 Table(ShopwareCoreCheckoutPayment, "Shopware\Core\Checkout\Payment\n(Payments)") {
    payment_method Table
    payment_method_translation Table
-   payment_method_rule Table
+}
+Table(ShopwareCoreCheckoutPromotion, "Shopware\Core\Checkout\Promotion\n(Promotions)") {
+   promotion Table
+   promotion_sales_channel Table
+   promotion_discount Table
+   promotion_order_rule Table
+   promotion_persona_customer Table
+   promotion_persona_rule Table
+   promotion_cart_rule Table
+   promotion_discount_rule Table
+   promotion_translation Table
 }
 Table(ShopwareCoreCheckoutShipping, "Shopware\Core\Checkout\Shipping\n(Shipping)") {
    shipping_method Table
@@ -195,25 +237,9 @@ Table(ShopwareCoreCheckoutShipping, "Shopware\Core\Checkout\Shipping\n(Shipping)
    shipping_method_price Table
    shipping_method_translation Table
 }
-Table(ShopwareCoreCheckoutDiscountSurcharge, "Shopware\Core\Checkout\DiscountSurcharge\n(Discount/Surcharge)") {
-   discount_surcharge Table
-   discount_surcharge_translation Table
-}
 Table(ShopwareStorefront, "Shopware\Storefront\n(Storefront)") {
    seo_url Table
    seo_url_template Table
-}
-ForeignTable(ShopwareCoreContentNewsletterReceiver, "newsletter_receiver") {
-}
-ForeignTable(ShopwareCoreContentCms, "cms_page") {
-}
-ForeignTable(ShopwareCoreContentMailTemplate, "mail_template_media") {
-}
-ForeignTable(ShopwareCoreContentDeliveryTime, "delivery_time") {
-}
-ForeignTable(ShopwareCoreCheckoutPromotion, "promotion") {
-}
-ForeignTable(ShopwareCoreCheckoutDocument, "document") {
 }
 
 ' relationshipd
@@ -223,17 +249,11 @@ ShopwareCoreFrameworkScheduledTask --> ShopwareCoreFrameworkMessageQueue
 ShopwareCoreFrameworkPlugin --> ShopwareCoreFrameworkPlugin
 ShopwareCoreCheckoutPayment --> ShopwareCoreFrameworkPlugin
 ShopwareCoreFrameworkLanguage --> ShopwareCoreFrameworkPlugin
-ShopwareCoreContentProduct --> ShopwareCoreFrameworkTag
-ShopwareCoreContentMedia --> ShopwareCoreFrameworkTag
-ShopwareCoreContentCategory --> ShopwareCoreFrameworkTag
-ShopwareCoreCheckoutCustomer --> ShopwareCoreFrameworkTag
-ShopwareCoreCheckoutOrder --> ShopwareCoreFrameworkTag
-ShopwareCoreCheckoutShipping --> ShopwareCoreFrameworkTag
 ShopwareCoreFrameworkLanguage --> ShopwareCoreFrameworkLanguage
 ShopwareCoreSystemLocale --> ShopwareCoreFrameworkLanguage
 ShopwareCoreSystemSalesChannel --> ShopwareCoreFrameworkLanguage
 ShopwareCoreCheckoutCustomer --> ShopwareCoreFrameworkLanguage
-ShopwareCoreFrameworkLanguage --> ShopwareCoreContentNewsletterReceiver
+ShopwareCoreContentNewsletterReceiver --> ShopwareCoreFrameworkLanguage
 ShopwareCoreContentCategory --> ShopwareCoreFrameworkLanguage
 ShopwareCoreSystemCountry --> ShopwareCoreFrameworkLanguage
 ShopwareCoreSystemCurrency --> ShopwareCoreFrameworkLanguage
@@ -245,14 +265,14 @@ ShopwareCoreSystemUnit --> ShopwareCoreFrameworkLanguage
 ShopwareCoreContentProperty --> ShopwareCoreFrameworkLanguage
 ShopwareCoreCheckoutDiscountSurcharge --> ShopwareCoreFrameworkLanguage
 ShopwareCoreSystemSalutation --> ShopwareCoreFrameworkLanguage
-ShopwareCoreFrameworkSearch --> ShopwareCoreFrameworkLanguage
 ShopwareCoreContentProductStream --> ShopwareCoreFrameworkLanguage
 ShopwareCoreSystemStateMachine --> ShopwareCoreFrameworkLanguage
-ShopwareCoreFrameworkLanguage --> ShopwareCoreContentCms
-ShopwareCoreContentNavigation --> ShopwareCoreFrameworkLanguage
-ShopwareCoreFrameworkLanguage --> ShopwareCoreContentMailTemplate
+ShopwareCoreContentCms --> ShopwareCoreFrameworkLanguage
+ShopwareCoreContentMailTemplate --> ShopwareCoreFrameworkLanguage
+ShopwareCoreCheckoutDocument --> ShopwareCoreFrameworkLanguage
 ShopwareCoreSystemNumberRange --> ShopwareCoreFrameworkLanguage
-ShopwareCoreFrameworkLanguage --> ShopwareCoreContentDeliveryTime
+ShopwareCoreContentDeliveryTime --> ShopwareCoreFrameworkLanguage
+ShopwareCoreCheckoutPromotion --> ShopwareCoreFrameworkLanguage
 ShopwareCoreSystemSalesChannel --> ShopwareCoreSystemSalesChannel
 ShopwareCoreCheckoutCustomer --> ShopwareCoreSystemSalesChannel
 ShopwareCoreSystemCurrency --> ShopwareCoreSystemSalesChannel
@@ -261,12 +281,13 @@ ShopwareCoreCheckoutShipping --> ShopwareCoreSystemSalesChannel
 ShopwareCoreSystemCountry --> ShopwareCoreSystemSalesChannel
 ShopwareCoreCheckoutOrder --> ShopwareCoreSystemSalesChannel
 ShopwareCoreSystemSystemConfig --> ShopwareCoreSystemSalesChannel
-ShopwareCoreContentNavigation --> ShopwareCoreSystemSalesChannel
+ShopwareCoreContentCategory --> ShopwareCoreSystemSalesChannel
 ShopwareCoreContentProduct --> ShopwareCoreSystemSalesChannel
-ShopwareCoreSystemSalesChannel --> ShopwareCoreContentMailTemplate
-ShopwareCoreSystemSalesChannel --> ShopwareCoreContentNewsletterReceiver
+ShopwareCoreContentMailTemplate --> ShopwareCoreSystemSalesChannel
+ShopwareCoreContentNewsletterReceiver --> ShopwareCoreSystemSalesChannel
 ShopwareCoreSystemNumberRange --> ShopwareCoreSystemSalesChannel
-ShopwareCoreSystemSalesChannel --> ShopwareCoreCheckoutPromotion
+ShopwareCoreCheckoutPromotion --> ShopwareCoreSystemSalesChannel
+ShopwareCoreCheckoutDocument --> ShopwareCoreSystemSalesChannel
 ShopwareStorefront --> ShopwareCoreSystemSalesChannel
 ShopwareCoreFrameworkSnippet --> ShopwareCoreSystemSalesChannel
 ShopwareCoreSystemCountry --> ShopwareCoreSystemCountry
@@ -282,7 +303,7 @@ ShopwareCoreFrameworkSnippet --> ShopwareCoreFrameworkSnippet
 ShopwareCoreSystemSalutation --> ShopwareCoreSystemSalutation
 ShopwareCoreCheckoutCustomer --> ShopwareCoreSystemSalutation
 ShopwareCoreCheckoutOrder --> ShopwareCoreSystemSalutation
-ShopwareCoreSystemSalutation --> ShopwareCoreContentNewsletterReceiver
+ShopwareCoreContentNewsletterReceiver --> ShopwareCoreSystemSalutation
 ShopwareCoreContentProduct --> ShopwareCoreSystemTax
 ShopwareCoreContentProduct --> ShopwareCoreSystemUnit
 ShopwareCoreSystemUnit --> ShopwareCoreSystemUnit
@@ -292,38 +313,53 @@ ShopwareCoreSystemStateMachine --> ShopwareCoreSystemUser
 ShopwareCoreSystemStateMachine --> ShopwareCoreSystemStateMachine
 ShopwareCoreCheckoutOrder --> ShopwareCoreSystemStateMachine
 ShopwareCoreSystemNumberRange --> ShopwareCoreSystemNumberRange
+ShopwareCoreContentProduct --> ShopwareCoreSystemTag
+ShopwareCoreContentMedia --> ShopwareCoreSystemTag
+ShopwareCoreContentCategory --> ShopwareCoreSystemTag
+ShopwareCoreCheckoutCustomer --> ShopwareCoreSystemTag
+ShopwareCoreCheckoutOrder --> ShopwareCoreSystemTag
+ShopwareCoreCheckoutShipping --> ShopwareCoreSystemTag
+ShopwareCoreContentNewsletterReceiver --> ShopwareCoreSystemTag
 ShopwareCoreContentCategory --> ShopwareCoreContentCategory
 ShopwareCoreContentMedia --> ShopwareCoreContentCategory
-ShopwareCoreContentNavigation --> ShopwareCoreContentCategory
 ShopwareCoreContentProduct --> ShopwareCoreContentCategory
+ShopwareCoreContentCms --> ShopwareCoreContentCategory
 ShopwareCoreContentProduct --> ShopwareCoreContentMedia
 ShopwareCoreContentMedia --> ShopwareCoreContentMedia
 ShopwareCoreContentProperty --> ShopwareCoreContentMedia
-ShopwareCoreContentMedia --> ShopwareCoreContentMailTemplate
+ShopwareCoreContentMailTemplate --> ShopwareCoreContentMedia
+ShopwareCoreCheckoutDocument --> ShopwareCoreContentMedia
 ShopwareCoreCheckoutShipping --> ShopwareCoreContentMedia
+ShopwareCoreCheckoutPayment --> ShopwareCoreContentMedia
+ShopwareCoreCheckoutOrder --> ShopwareCoreContentMedia
+ShopwareCoreContentCms --> ShopwareCoreContentMedia
 ShopwareCoreContentProduct --> ShopwareCoreContentProduct
-ShopwareCoreContentProduct --> ShopwareCoreFrameworkSearch
 ShopwareCoreContentProduct --> ShopwareStorefront
 ShopwareCoreContentProperty --> ShopwareCoreContentProduct
 ShopwareCoreContentRule --> ShopwareCoreContentProduct
-ShopwareCoreContentNavigation --> ShopwareCoreContentCms
-ShopwareCoreContentNavigation --> ShopwareCoreContentNavigation
+ShopwareCoreCheckoutShipping --> ShopwareCoreContentDeliveryTime
+ShopwareCoreContentDeliveryTime --> ShopwareCoreContentDeliveryTime
+ShopwareCoreContentNewsletterReceiver --> ShopwareCoreContentNewsletterReceiver
 ShopwareCoreContentRule --> ShopwareCoreContentRule
 ShopwareCoreCheckoutDiscountSurcharge --> ShopwareCoreContentRule
 ShopwareCoreCheckoutShipping --> ShopwareCoreContentRule
 ShopwareCoreCheckoutPayment --> ShopwareCoreContentRule
-ShopwareCoreContentRule --> ShopwareCoreCheckoutPromotion
+ShopwareCoreCheckoutPromotion --> ShopwareCoreContentRule
 ShopwareCoreContentProductStream --> ShopwareCoreContentProductStream
 ShopwareCoreContentProperty --> ShopwareCoreContentProperty
+ShopwareCoreContentCms --> ShopwareCoreContentCms
+ShopwareCoreContentMailTemplate --> ShopwareCoreContentMailTemplate
 ShopwareCoreCheckoutCustomer --> ShopwareCoreCheckoutCustomer
 ShopwareCoreCheckoutPayment --> ShopwareCoreCheckoutCustomer
 ShopwareCoreCheckoutOrder --> ShopwareCoreCheckoutCustomer
-ShopwareCoreCheckoutOrder --> ShopwareCoreCheckoutOrder
+ShopwareCoreCheckoutPromotion --> ShopwareCoreCheckoutCustomer
+ShopwareCoreCheckoutDiscountSurcharge --> ShopwareCoreCheckoutDiscountSurcharge
+ShopwareCoreCheckoutDocument --> ShopwareCoreCheckoutDocument
 ShopwareCoreCheckoutOrder --> ShopwareCoreCheckoutDocument
+ShopwareCoreCheckoutOrder --> ShopwareCoreCheckoutOrder
 ShopwareCoreCheckoutShipping --> ShopwareCoreCheckoutOrder
 ShopwareCoreCheckoutPayment --> ShopwareCoreCheckoutOrder
 ShopwareCoreCheckoutPayment --> ShopwareCoreCheckoutPayment
-ShopwareCoreCheckoutShipping --> ShopwareCoreContentDeliveryTime
+ShopwareCoreCheckoutPromotion --> ShopwareCoreCheckoutPromotion
 ShopwareCoreCheckoutShipping --> ShopwareCoreCheckoutShipping
-ShopwareCoreCheckoutDiscountSurcharge --> ShopwareCoreCheckoutDiscountSurcharge
 @enduml

@@ -24,12 +24,11 @@ skinparam backgroundColor #FFFFFF
 
 Table(ShopwareCoreSystemSystemConfigSystemConfigDefinition, "system_config\n(System configuration)") {
    primary_key(id) id
-   not_null(namespace) string
    not_null(configurationKey) string
-   not_null(configurationValue) longText
+   not_null(configurationValue) configurationValue
+   salesChannelId foreignKey
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   salesChannelId foreignKey
 }
 ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
 }

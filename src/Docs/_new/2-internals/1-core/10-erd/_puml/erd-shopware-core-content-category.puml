@@ -32,43 +32,52 @@ Table(ShopwareCoreContentCategoryCategoryDefinition, "category\n(Category tree)"
    mediaId foreignKey
    not_null(displayNestedProducts) bool
    autoIncrement int
-   path treePath
    level treeLevel
-   active bool
+   path treePath
    childCount childCount
-   not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   not_null(type) string
+   visible bool
+   active bool
    name translated
    customFields translated
+   slotConfig translated
+   externalLink translated
+   description translated
+   cmsPageId foreignKey
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
    translated json
 }
 TranslationTable(ShopwareCoreContentCategoryAggregateCategoryTranslationCategoryTranslationDefinition, "category_translation\n((Translations))") {
    not_null(name) string
+   slotConfig json
+   externalLink string
+   description longTextWithHtml
    customFields customFields
-   primary_key(categoryId) foreignKey
-   primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
+   primary_key(categoryId) foreignKey
+   primary_key(languageId) foreignKey
    primary_key(categoryVersionId) referenceVersion
 }
 Table(ShopwareCoreContentCategoryAggregateCategoryTagCategoryTagDefinition, "category_tag\n(M:N Mapping)") {
    primary_key(categoryId) foreignKey
    primary_key(categoryVersionId) referenceVersion
    primary_key(tagId) foreignKey
-   not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
 }
 ForeignTable(ShopwareCoreContentMediaMediaDefinition, "media") {
-}
-ForeignTable(ShopwareCoreContentNavigationNavigationDefinition, "navigation") {
 }
 ForeignTable(ShopwareCoreContentProductAggregateProductCategoryProductCategoryDefinition, "product_category") {
 }
 ForeignTable(ShopwareCoreContentProductAggregateProductCategoryTreeProductCategoryTreeDefinition, "product_category_tree") {
 }
+ForeignTable(ShopwareCoreContentCmsCmsPageDefinition, "cms_page") {
+}
+ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
+}
 ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 }
-ForeignTable(ShopwareCoreFrameworkTagTagDefinition, "tag") {
+ForeignTable(ShopwareCoreSystemTagTagDefinition, "tag") {
 }
 
 ' relationshipd
@@ -76,10 +85,11 @@ ForeignTable(ShopwareCoreFrameworkTagTagDefinition, "tag") {
 ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreContentCategoryCategoryDefinition
 ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentCategoryAggregateCategoryTranslationCategoryTranslationDefinition --> ShopwareCoreContentCategoryCategoryDefinition
-ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreContentNavigationNavigationDefinition
 ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreContentProductAggregateProductCategoryProductCategoryDefinition
 ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreContentProductAggregateProductCategoryTreeProductCategoryTreeDefinition
 ShopwareCoreContentCategoryAggregateCategoryTagCategoryTagDefinition --> ShopwareCoreContentCategoryCategoryDefinition
+ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreContentCmsCmsPageDefinition
+ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreContentCategoryAggregateCategoryTranslationCategoryTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
-ShopwareCoreContentCategoryAggregateCategoryTagCategoryTagDefinition --> ShopwareCoreFrameworkTagTagDefinition
+ShopwareCoreContentCategoryAggregateCategoryTagCategoryTagDefinition --> ShopwareCoreSystemTagTagDefinition
 @enduml

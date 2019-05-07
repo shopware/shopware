@@ -1,10 +1,10 @@
-[titleEn]: <>(CustomField/EAV)
+[titleEn]: <>(Custom Fields/EAV)
 
 [Back to modules](./../10-modules.md)
 
-Custom fields are part of almost every entity of the system. The term describes object attribute-values (see EAV). The configuration of these custom fields is stored here.
+Custom fields are part of almost every entity of the system. The term describes object custom field-values (see EAV). The configuration of these custom fields is stored here.
 
-![CustomField/EAV](./dist/erd-shopware-core-framework-custom-field.png)
+![Custom Fields/EAV](./dist/erd-shopware-core-framework-customfield.png)
 
 
 ### Table `custom_field`

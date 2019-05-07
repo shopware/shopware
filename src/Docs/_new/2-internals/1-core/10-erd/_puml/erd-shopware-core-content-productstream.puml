@@ -26,21 +26,21 @@ Table(ShopwareCoreContentProductStreamProductStreamDefinition, "product_stream\n
    primary_key(id) id
    apiFilter json
    invalid bool
-   not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
    name translated
    description translated
    customFields translated
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
    translated json
 }
 TranslationTable(ShopwareCoreContentProductStreamAggregateProductStreamTranslationProductStreamTranslationDefinition, "product_stream_translation\n((Translations))") {
    not_null(name) string
    description longText
    customFields customFields
-   primary_key(productStreamId) foreignKey
-   primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
+   primary_key(productStreamId) foreignKey
+   primary_key(languageId) foreignKey
 }
 Table(ShopwareCoreContentProductStreamAggregateProductStreamFilterProductStreamFilterDefinition, "product_stream_filter\n(A Product stream filter term)") {
    primary_key(id) id
@@ -52,9 +52,9 @@ Table(ShopwareCoreContentProductStreamAggregateProductStreamFilterProductStreamF
    value longText
    parameters json
    position int
+   customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   customFields customFields
 }
 ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 }

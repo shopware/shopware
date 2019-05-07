@@ -35,10 +35,10 @@ Table(ShopwareCoreSystemStateMachineStateMachineDefinition, "state_machine\n(Sta
 TranslationTable(ShopwareCoreSystemStateMachineStateMachineTranslationDefinition, "state_machine_translation\n((Translations))") {
    not_null(name) string
    customFields customFields
-   primary_key(stateMachineId) foreignKey
-   primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
+   primary_key(stateMachineId) foreignKey
+   primary_key(languageId) foreignKey
 }
 Table(ShopwareCoreSystemStateMachineAggregationStateMachineStateStateMachineStateDefinition, "state_machine_state\n(State)") {
    primary_key(id) id
@@ -53,10 +53,10 @@ Table(ShopwareCoreSystemStateMachineAggregationStateMachineStateStateMachineStat
 TranslationTable(ShopwareCoreSystemStateMachineAggregationStateMachineStateStateMachineStateTranslationDefinition, "state_machine_state_translation\n((Translations))") {
    not_null(name) string
    customFields customFields
-   primary_key(stateMachineStateId) foreignKey
-   primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
+   primary_key(stateMachineStateId) foreignKey
+   primary_key(languageId) foreignKey
 }
 Table(ShopwareCoreSystemStateMachineAggregationStateMachineTransitionStateMachineTransitionDefinition, "state_machine_transition\n(State transition)") {
    primary_key(id) id
@@ -64,9 +64,9 @@ Table(ShopwareCoreSystemStateMachineAggregationStateMachineTransitionStateMachin
    not_null(stateMachineId) foreignKey
    not_null(fromStateId) foreignKey
    not_null(toStateId) foreignKey
+   customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   customFields customFields
 }
 Table(ShopwareCoreSystemStateMachineAggregationStateMachineHistoryStateMachineHistoryDefinition, "state_machine_history\n(State transition history)") {
    primary_key(id) id
@@ -78,6 +78,7 @@ Table(ShopwareCoreSystemStateMachineAggregationStateMachineHistoryStateMachineHi
    transitionActionName string
    userId foreignKey
    not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
 }
 ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 }

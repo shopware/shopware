@@ -26,6 +26,7 @@ Table(ShopwareCoreSystemCurrencyCurrencyDefinition, "currency\n(Currency)") {
    primary_key(id) id
    not_null(factor) float
    not_null(symbol) string
+   not_null(isoCode) string
    shortName translated
    name translated
    not_null(decimalPrecision) int
@@ -40,10 +41,10 @@ TranslationTable(ShopwareCoreSystemCurrencyAggregateCurrencyTranslationCurrencyT
    not_null(shortName) string
    not_null(name) string
    customFields customFields
-   primary_key(currencyId) foreignKey
-   primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
+   primary_key(currencyId) foreignKey
+   primary_key(languageId) foreignKey
 }
 ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
 }

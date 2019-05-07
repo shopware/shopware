@@ -35,42 +35,42 @@ Table(ShopwareCoreContentMediaMediaDefinition, "media\n(Media / Files)") {
    mediaTypeRaw blob
    metaData json
    mediaType json
-   not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
    alt translated
    title translated
    url string
    customFields translated
    thumbnailsRo blob
    hasFile bool
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
    translated json
 }
 Table(ShopwareCoreContentMediaAggregateMediaDefaultFolderMediaDefaultFolderDefinition, "media_default_folder\n(Default folders)") {
    primary_key(id) id
    not_null(associationFields) list
    not_null(entity) string
+   customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   customFields customFields
 }
 Table(ShopwareCoreContentMediaAggregateMediaThumbnailMediaThumbnailDefinition, "media_thumbnail\n(Generated Thumbnail)") {
    primary_key(id) id
    not_null(mediaId) foreignKey
-   not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
    not_null(width) int
    not_null(height) int
    url string
    customFields customFields
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
 }
 TranslationTable(ShopwareCoreContentMediaAggregateMediaTranslationMediaTranslationDefinition, "media_translation\n((Translations))") {
    title string
    alt longText
    customFields customFields
-   primary_key(mediaId) foreignKey
-   primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
+   primary_key(mediaId) foreignKey
+   primary_key(languageId) foreignKey
 }
 Table(ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition, "media_folder\n(Folder structure)") {
    primary_key(id) id
@@ -80,9 +80,9 @@ Table(ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition, "media_
    parentId parentFk
    childCount childCount
    not_null(name) string
+   customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   customFields customFields
 }
 Table(ShopwareCoreContentMediaAggregateMediaThumbnailSizeMediaThumbnailSizeDefinition, "media_thumbnail_size\n(Generated Thumbnails)") {
    primary_key(id) id
@@ -98,20 +98,17 @@ Table(ShopwareCoreContentMediaAggregateMediaFolderConfigurationMediaFolderConfig
    keepAspectRatio bool
    thumbnailQuality int
    mediaThumbnailSizesRo blob
+   customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   customFields customFields
 }
 Table(ShopwareCoreContentMediaAggregateMediaFolderConfigurationMediaThumbnailSizeMediaFolderConfigurationMediaThumbnailSizeDefinition, "media_folder_configuration_media_thumbnail_size\n(M:N Mapping)") {
    primary_key(mediaFolderConfigurationId) foreignKey
    primary_key(mediaThumbnailSizeId) foreignKey
-   not_null(createdAt) createdAt
 }
 Table(ShopwareCoreContentMediaAggregateMediaTagMediaTagDefinition, "media_tag\n(M:N Mapping)") {
    primary_key(mediaId) foreignKey
    primary_key(tagId) foreignKey
-   not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
 }
 ForeignTable(ShopwareCoreSystemUserUserDefinition, "user") {
 }
@@ -125,11 +122,23 @@ ForeignTable(ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGrou
 }
 ForeignTable(ShopwareCoreContentMailTemplateAggregateMailTemplateMediaMailTemplateMediaDefinition, "mail_template_media") {
 }
+ForeignTable(ShopwareCoreCheckoutDocumentAggregateDocumentBaseConfigDocumentBaseConfigDefinition, "document_base_config") {
+}
 ForeignTable(ShopwareCoreCheckoutShippingShippingMethodDefinition, "shipping_method") {
+}
+ForeignTable(ShopwareCoreCheckoutPaymentPaymentMethodDefinition, "payment_method") {
+}
+ForeignTable(ShopwareCoreContentProductAggregateProductConfiguratorSettingProductConfiguratorSettingDefinition, "product_configurator_setting") {
+}
+ForeignTable(ShopwareCoreCheckoutOrderAggregateOrderLineItemOrderLineItemDefinition, "order_line_item") {
+}
+ForeignTable(ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition, "cms_block") {
+}
+ForeignTable(ShopwareCoreContentCmsCmsPageDefinition, "cms_page") {
 }
 ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 }
-ForeignTable(ShopwareCoreFrameworkTagTagDefinition, "tag") {
+ForeignTable(ShopwareCoreSystemTagTagDefinition, "tag") {
 }
 
 ' relationshipd
@@ -144,12 +153,18 @@ ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition --> ShopwareCo
 ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition
 ShopwareCoreContentMediaAggregateMediaTagMediaTagDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreContentMailTemplateAggregateMailTemplateMediaMailTemplateMediaDefinition
+ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreCheckoutDocumentAggregateDocumentBaseConfigDocumentBaseConfigDefinition
 ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreCheckoutShippingShippingMethodDefinition
+ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreCheckoutPaymentPaymentMethodDefinition
+ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreContentProductAggregateProductConfiguratorSettingProductConfiguratorSettingDefinition
+ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreCheckoutOrderAggregateOrderLineItemOrderLineItemDefinition
+ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition
+ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreContentCmsCmsPageDefinition
 ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition --> ShopwareCoreContentMediaAggregateMediaDefaultFolderMediaDefaultFolderDefinition
 ShopwareCoreContentMediaAggregateMediaTranslationMediaTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition --> ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition
 ShopwareCoreContentMediaAggregateMediaFolderConfigurationMediaFolderConfigurationDefinition --> ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition
 ShopwareCoreContentMediaAggregateMediaFolderConfigurationMediaThumbnailSizeMediaFolderConfigurationMediaThumbnailSizeDefinition --> ShopwareCoreContentMediaAggregateMediaThumbnailSizeMediaThumbnailSizeDefinition
 ShopwareCoreContentMediaAggregateMediaFolderConfigurationMediaThumbnailSizeMediaFolderConfigurationMediaThumbnailSizeDefinition --> ShopwareCoreContentMediaAggregateMediaFolderConfigurationMediaFolderConfigurationDefinition
-ShopwareCoreContentMediaAggregateMediaTagMediaTagDefinition --> ShopwareCoreFrameworkTagTagDefinition
+ShopwareCoreContentMediaAggregateMediaTagMediaTagDefinition --> ShopwareCoreSystemTagTagDefinition
 @enduml

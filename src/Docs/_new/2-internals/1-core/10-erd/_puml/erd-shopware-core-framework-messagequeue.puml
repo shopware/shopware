@@ -42,6 +42,8 @@ Table(ShopwareCoreFrameworkMessageQueueMessageQueueStatsDefinition, "message_que
    primary_key(id) id
    not_null(name) string
    not_null(size) int
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
 }
 ForeignTable(ShopwareCoreFrameworkScheduledTaskScheduledTaskDefinition, "scheduled_task") {
 }

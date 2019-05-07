@@ -46,9 +46,9 @@ Table(ShopwareStorefrontFrameworkSeoSeoUrlTemplateSeoUrlTemplateDefinition, "seo
    not_null(routeName) string
    not_null(template) string
    isValid bool
+   customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   customFields customFields
 }
 ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
 }

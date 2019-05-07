@@ -61,9 +61,9 @@ class ErdDefinition
 
     public function toModuleName(): string
     {
-        $parts = explode('\\', $this->definition);
+        $parts = explode('\\', $this->definition->getClass());
 
-        if (strpos($this->definition, 'Shopware\\Core') === 0) {
+        if (strpos($this->definition->getClass(), 'Shopware\\Core') === 0) {
             $moduleName = implode('\\', array_slice($parts, 0, 4));
         } else {
             $moduleName = implode('\\', array_slice($parts, 0, 2));

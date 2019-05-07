@@ -52,18 +52,18 @@ Table(ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition, "cou
 TranslationTable(ShopwareCoreSystemCountryAggregateCountryStateTranslationCountryStateTranslationDefinition, "country_state_translation\n((Translations))") {
    not_null(name) string
    customFields customFields
-   primary_key(countryStateId) foreignKey
-   primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
+   primary_key(countryStateId) foreignKey
+   primary_key(languageId) foreignKey
 }
 TranslationTable(ShopwareCoreSystemCountryAggregateCountryTranslationCountryTranslationDefinition, "country_translation\n((Translations))") {
    not_null(name) string
    customFields customFields
-   primary_key(countryId) foreignKey
-   primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
+   primary_key(countryId) foreignKey
+   primary_key(languageId) foreignKey
 }
 ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
 }

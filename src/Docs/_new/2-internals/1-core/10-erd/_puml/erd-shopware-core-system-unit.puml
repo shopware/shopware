@@ -35,10 +35,10 @@ TranslationTable(ShopwareCoreSystemUnitAggregateUnitTranslationUnitTranslationDe
    not_null(shortCode) string
    not_null(name) string
    customFields customFields
-   primary_key(unitId) foreignKey
-   primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
+   primary_key(unitId) foreignKey
+   primary_key(languageId) foreignKey
 }
 ForeignTable(ShopwareCoreContentProductProductDefinition, "product") {
 }

@@ -31,7 +31,9 @@ Table(ShopwareCoreCheckoutPaymentPaymentMethodDefinition, "payment_method\n(Paym
    position int
    active bool
    customFields translated
-   availabilityRuleIds list
+   availabilityRuleId foreignKey
+   mediaId foreignKey
+   formattedHandlerIdentifier string
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    translated json
@@ -40,16 +42,10 @@ TranslationTable(ShopwareCoreCheckoutPaymentAggregatePaymentMethodTranslationPay
    not_null(name) string
    description longText
    customFields customFields
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
    primary_key(paymentMethodId) foreignKey
    primary_key(languageId) foreignKey
-   not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
-}
-Table(ShopwareCoreCheckoutPaymentAggregatePaymentMethodRulesPaymentMethodRuleDefinition, "payment_method_rule\n(M:N Mapping)") {
-   primary_key(paymentMethodId) foreignKey
-   primary_key(ruleId) foreignKey
-   not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
 }
 ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
 }
@@ -61,9 +57,11 @@ ForeignTable(ShopwareCoreCheckoutOrderAggregateOrderTransactionOrderTransactionD
 }
 ForeignTable(ShopwareCoreSystemSalesChannelAggregateSalesChannelPaymentMethodSalesChannelPaymentMethodDefinition, "sales_channel_payment_method") {
 }
-ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
-}
 ForeignTable(ShopwareCoreContentRuleRuleDefinition, "rule") {
+}
+ForeignTable(ShopwareCoreContentMediaMediaDefinition, "media") {
+}
+ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 }
 
 ' relationshipd
@@ -74,7 +72,7 @@ ShopwareCoreCheckoutPaymentPaymentMethodDefinition --> ShopwareCoreCheckoutCusto
 ShopwareCoreCheckoutPaymentPaymentMethodDefinition --> ShopwareCoreCheckoutOrderAggregateOrderTransactionOrderTransactionDefinition
 ShopwareCoreCheckoutPaymentAggregatePaymentMethodTranslationPaymentMethodTranslationDefinition --> ShopwareCoreCheckoutPaymentPaymentMethodDefinition
 ShopwareCoreCheckoutPaymentPaymentMethodDefinition --> ShopwareCoreSystemSalesChannelAggregateSalesChannelPaymentMethodSalesChannelPaymentMethodDefinition
-ShopwareCoreCheckoutPaymentAggregatePaymentMethodRulesPaymentMethodRuleDefinition --> ShopwareCoreCheckoutPaymentPaymentMethodDefinition
+ShopwareCoreCheckoutPaymentPaymentMethodDefinition --> ShopwareCoreContentRuleRuleDefinition
+ShopwareCoreCheckoutPaymentPaymentMethodDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreCheckoutPaymentAggregatePaymentMethodTranslationPaymentMethodTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
-ShopwareCoreCheckoutPaymentAggregatePaymentMethodRulesPaymentMethodRuleDefinition --> ShopwareCoreContentRuleRuleDefinition
 @enduml

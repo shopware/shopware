@@ -2,26 +2,8 @@
 
 namespace Shopware\Docs\Command;
 
-use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountDefinition;
-use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSalesChannelDefinition;
-use Shopware\Core\Checkout\Promotion\PromotionDefinition;
-use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockDefinition;
-use Shopware\Core\Content\Cms\Aggregate\CmsPageTranslation\CmsPageTranslationDefinition;
-use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotDefinition;
-use Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation\CmsSlotTranslationDefinition;
-use Shopware\Core\Content\Cms\CmsPageDefinition;
-use Shopware\Core\Content\DeliveryTime\Aggregate\DeliveryTimeTranslation\DeliveryTimeTranslationDefinition;
-use Shopware\Core\Content\DeliveryTime\DeliveryTimeDefinition;
-use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition;
-use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooterTranslation\MailHeaderFooterTranslationDefinition;
-use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateMediaDefinition;
-use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateSalesChannel\MailTemplateSalesChannelDefinition;
-use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTranslation\MailTemplateTypeTranslationDefinition;
-use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
-use Shopware\Core\Content\NewsletterReceiver\NewsletterReceiverDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\Store\StoreSettingsDefinition;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitDefinition;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 use Shopware\Core\Framework\Version\VersionDefinition;
@@ -42,31 +24,6 @@ class DocsDumpErd extends Command
         VersionCommitDataDefinition::class,
         VersionCommitDefinition::class,
         VersionDefinition::class,
-
-        CmsBlockDefinition::class,
-        CmsPageDefinition::class,
-        CmsSlotDefinition::class,
-        CmsPageTranslationDefinition::class,
-        CmsSlotTranslationDefinition::class,
-
-        MailHeaderFooterTranslationDefinition::class,
-        MailHeaderFooterDefinition::class,
-        MailTemplateDefinition::class,
-        MailTemplateSalesChannelDefinition::class,
-        MailTemplateTypeTranslationDefinition::class,
-        MailTemplateDefinition::class,
-        MailTemplateMediaDefinition::class,
-
-        PromotionDefinition::class,
-        PromotionSalesChannelDefinition::class,
-        PromotionDiscountDefinition::class,
-
-        StoreSettingsDefinition::class,
-
-        NewsletterReceiverDefinition::class,
-
-        DeliveryTimeDefinition::class,
-        DeliveryTimeTranslationDefinition::class,
     ];
 
     /**
@@ -207,7 +164,7 @@ class DocsDumpErd extends Command
             return !in_array($definition->getClass(), $this->ignoredDefinitions, true);
         });
 
-        return array_map(function (string $definition) {
+        return array_map(function (EntityDefinition $definition) {
             return new ErdDefinition($definition);
         }, $definitions);
     }

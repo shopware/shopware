@@ -65,6 +65,12 @@
         <service id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader">
             <argument type="service" id="language.repository"/>
             <argument type="service" id="currency.repository"/>
+            <argument type="service" id="sales_channel.category.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Category\Service\NavigationLoader"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Storefront\Pagelet\Footer\FooterPageletLoader">
             <argument type="service" id="Shopware\Core\Content\Category\Service\NavigationLoader"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
@@ -96,6 +102,7 @@
 
         <service id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader">
             <argument type="service" id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader"/>
+            <argument type="service" id="Shopware\Storefront\Pagelet\Footer\FooterPageletLoader"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Search\SearchPageLoader" public="true">

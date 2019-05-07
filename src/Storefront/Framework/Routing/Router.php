@@ -2,14 +2,16 @@
 
 namespace Shopware\Storefront\Framework\Routing;
 
+use Symfony\Bundle\FrameworkBundle\Routing\Router as SymfonyRouter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpKernel\CacheWarmer\WarmableInterface;
 use Symfony\Component\Routing\Matcher\RequestMatcherInterface;
 use Symfony\Component\Routing\RequestContext;
-use Symfony\Component\Routing\Router as SymfonyRouter;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\Service\ServiceSubscriberInterface;
 
-class Router implements RouterInterface, RequestMatcherInterface
+class Router implements RouterInterface, RequestMatcherInterface, WarmableInterface, ServiceSubscriberInterface
 {
     /**
      * @var SymfonyRouter
@@ -25,6 +27,16 @@ class Router implements RouterInterface, RequestMatcherInterface
     {
         $this->decorated = $decorated;
         $this->requestStack = $requestStack;
+    }
+
+    public static function getSubscribedServices()
+    {
+        return SymfonyRouter::getSubscribedServices();
+    }
+
+    public function warmUp($cacheDir)
+    {
+        return $this->decorated->warmUp($cacheDir);
     }
 
     public function matchRequest(Request $request)

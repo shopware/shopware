@@ -104,22 +104,23 @@
 
         <!-- API Docs -->
         <service id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator"/>
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Controller\InfoController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService"/>
             <argument type="service" id="parameter_bag"/>
             <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventRegistry"/>
+            <argument>%shopware.api.api_browser.public%</argument>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

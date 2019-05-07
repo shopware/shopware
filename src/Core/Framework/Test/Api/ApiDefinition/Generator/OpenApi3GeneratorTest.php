@@ -35,8 +35,8 @@ class OpenApi3GeneratorTest extends TestCase
             ['simple' => SimpleDefinition::class],
             ['simple' => 'simple.repository']
         );
-        $openApiGenerator = new OpenApi3Generator($definitionRegistry);
-        $this->schema = $openApiGenerator->getSchema();
+        $openApiGenerator = new OpenApi3Generator();
+        $this->schema = $openApiGenerator->getSchema($definitionRegistry->getDefinitions());
         $this->entityName = 'simple';
     }
 

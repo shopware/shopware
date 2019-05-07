@@ -4,8 +4,9 @@ namespace Shopware\Core\Content\Product\SalesChannel;
 
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deferred;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -45,13 +46,13 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
         $fields = parent::defineFields();
 
         $fields->add(
-            (new BlobField('calculated_price', 'calculatedPrice'))->addFlags(new Deferred())
+            (new JsonField('calculated_price', 'calculatedPrice'))->addFlags(new Deferred())
         );
         $fields->add(
-            (new BlobField('calculated_listing_price', 'calculatedListingPrice'))->addFlags(new Deferred())
+            (new JsonField('calculated_listing_price', 'calculatedListingPrice'))->addFlags(new Deferred())
         );
         $fields->add(
-            (new BlobField('calculated_prices', 'calculatedPrices'))->addFlags(new Deferred())
+            (new ListField('calculated_prices', 'calculatedPrices'))->addFlags(new Deferred())
         );
 
         return $fields;

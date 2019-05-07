@@ -542,7 +542,9 @@
   },
   "sw-property-assignment": {
     "columnGroup": "Property",
-    "columnOptions": "Options"
+    "columnOptions": "Options",
+    "messageEmptyTitle": "No properties yet",
+    "messageEmptySubline": "Manage properties here."
   },
   "sw-language-info": {
     "infoTextChildLanguage": "\"{entityDescription}\" displayed in the language <span>\"{language}\"</span>, which inherits from",

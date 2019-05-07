@@ -10,13 +10,7 @@ export default function initializeWorker() {
     const loginService = this.getContainer('service').loginService;
     const context = this.getContainer('init').contextService;
 
-    if (loginService.isLoggedIn()) {
-        configureWorker();
-    } else {
-        loginService.addOnLoginListener(configureWorker);
-    }
-
-    function configureWorker() {
+    return function configureWorker() {
         if (context.config.adminWorker.enableAdminWorker && !enabled) {
             enableAdminWorker(loginService, context, context.config.adminWorker);
             enableWorkerNotificationListener(
@@ -24,7 +18,7 @@ export default function initializeWorker() {
                 context
             );
         }
-    }
+    };
 }
 
 function enableAdminWorker(loginService, context, config) {

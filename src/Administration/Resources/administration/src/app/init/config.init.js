@@ -1,13 +1,20 @@
-export default function initializeConfig() {
+export default function initializeConfigDecorator() {
     const configService = this.getContainer('service').configService;
     const loginService = this.getContainer('service').loginService;
     const context = this.getContainer('init').contextService;
 
-    if (!loginService.isLoggedIn()) {
-        return;
-    }
+    this.addInitializerDecorator('worker', (service) => {
+        function getConfig() {
+            return configService.getConfig().then((response) => {
+                context.config = response;
+                service();
+            });
+        }
+        if (loginService.isLoggedIn()) {
+            getConfig().catch();
+            return;
+        }
 
-    configService.getConfig().then((response) => {
-        context.config = response;
-    }).catch();
+        loginService.addOnLoginListener(getConfig);
+    });
 }

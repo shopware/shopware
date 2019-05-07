@@ -90,6 +90,7 @@
                                                  variant="regular"
                                                  :label="$tc('sw-settings-shipping.detail.labelLogoUpload')"
                                                  :defaultFolder="shippingMethod.getEntityName()"
+                                                 @media-drop="onDropMedia"
                                                  @media-upload-sidebar-open="openMediaSidebar"
                                                  @media-upload-remove-image="onUnlinkLogo">
                                 </sw-media-upload>

@@ -144,6 +144,10 @@ Component.register('sw-settings-payment-detail', {
             this.paymentMethod.mediaId = null;
         },
 
+        onDropMedia(mediaItem) {
+            this.setMediaItem({ targetId: mediaItem.id });
+        },
+
         openMediaSidebar() {
             this.$refs.mediaSidebarItem.openContent();
         }

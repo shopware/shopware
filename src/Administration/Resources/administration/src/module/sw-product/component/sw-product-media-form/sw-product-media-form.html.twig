@@ -13,7 +13,7 @@
                     variant="regular"
                     :scrollTarget="$parent.$el"
                     :defaultFolder="product.getEntityName()"
-                    @media-dropped="$emit('media-dropped', $event)"
+                    @media-drop="$emit('media-drop', $event)"
                     @media-upload-sidebar-open="onMediaUploadButtonOpenSidebar">
             </sw-media-upload>
         {% endblock %}

@@ -126,7 +126,7 @@
 
                 {% block sw_mail_template_detail_attachments_info %}
                     <sw-card :title="$tc('sw-mail-template.detail.media.titleCard')" :isLoading="mailTemplate.isLoading">
-                        <sw-mail-template-media-form  :mailTemplate="mailTemplate"/>
+                        <sw-mail-template-media-form  :mailTemplate="mailTemplate" @media-drop="onDropMedia"/>
                     </sw-card>
                 {% endblock %}
             </sw-card-view>

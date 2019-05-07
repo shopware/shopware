@@ -220,7 +220,7 @@ export default {
         },
 
         onDropMedia(dragData) {
-            this.$emit('media-dropped', dragData.mediaItem);
+            this.$emit('media-drop', dragData.mediaItem);
         },
 
         onDragEnter() {

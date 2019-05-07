@@ -184,6 +184,10 @@ Component.register('sw-profile-index', {
             this.user.avatarId = targetId;
         },
 
+        onDropMedia(mediaItem) {
+            this.setMediaItem({ targetId: mediaItem.id });
+        },
+
         setMediaFromSidebar(mediaEntity) {
             this.avatarMediaItem = mediaEntity;
             this.user.avatarId = mediaEntity.id;

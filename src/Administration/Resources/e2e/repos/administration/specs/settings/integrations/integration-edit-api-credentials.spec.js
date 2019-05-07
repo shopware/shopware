@@ -15,6 +15,8 @@ module.exports = {
                 targetPath: '#/sw/settings/index',
                 mainMenuId: 'sw-settings'
             })
+            .click('.sw-settings__tab-system')
+            .waitForElementVisible('#sw-integration')
             .click('#sw-integration')
             .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Integrations');
 

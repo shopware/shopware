@@ -18,7 +18,7 @@ Component.register('sw-tag-field', {
             default: false
         },
 
-        label: {
+        showLabel: {
             type: Boolean,
             required: false,
             default: true

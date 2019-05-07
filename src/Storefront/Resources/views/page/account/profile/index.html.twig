@@ -100,13 +100,14 @@
 
                                                     {% block page_account_profile_mail_input %}
                                                         <input type="email"
-                                                               class="form-control"
+                                                               class="form-control{% if formViolations.getViolations('/email') %} is-invalid{% endif %}"
                                                                autocomplete="section-personal email"
                                                                id="personalMail"
                                                                placeholder="{{ "account.personalMailPlaceholder"|trans }}{{ "general.required"|trans }}"
                                                                name="email[email]"
                                                                data-form-validation-equal="personalMail"
                                                                required="required">
+                                                        {% sw_include '@Storefront/layout/_utilities/form-violation.html.twig' with {violationPath: '/email'} %}
                                                     {% endblock %}
                                                 </div>
                                             {% endblock %}

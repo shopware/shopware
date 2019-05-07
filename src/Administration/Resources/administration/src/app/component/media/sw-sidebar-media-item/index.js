@@ -162,9 +162,11 @@ export default {
         },
 
         getListingParams() {
-            const searchCriteria = [
-                CriteriaFactory.equals('mediaFolderId', this.mediaFolderId)
-            ];
+            const searchCriteria = [];
+
+            if (!this.term.length) {
+                searchCriteria.push(CriteriaFactory.equals('mediaFolderId', this.mediaFolderId));
+            }
 
             if (this.additionalSearchCriteria) {
                 searchCriteria.push(this.additionalSearchCriteria);

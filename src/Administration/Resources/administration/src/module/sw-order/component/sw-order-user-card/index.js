@@ -68,7 +68,11 @@ Component.register('sw-order-user-card', {
                         { year: '2-digit', hour: '2-digit', minute: '2-digit' }
                     );
                 }
-                return this.orderDate;
+
+                return format.date(
+                    this.currentOrder.orderDate,
+                    { year: '2-digit', hour: '2-digit', minute: '2-digit' }
+                );
             }
             return '';
         }

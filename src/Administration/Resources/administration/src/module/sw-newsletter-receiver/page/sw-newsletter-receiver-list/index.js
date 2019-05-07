@@ -21,13 +21,22 @@ Component.register('sw-newsletter-receiver-list', {
         return {
             isLoading: false,
             items: null,
+            total: 0,
             repository: null,
+            sortBy: 'createdAt',
+            sortDirection: 'DESC',
             filterSidebarIsOpen: false,
             languageFilters: [],
             salesChannelFilters: [],
             tagFilters: [],
             internalFilters: {},
             tagCollection: null
+        };
+    },
+
+    metaInfo() {
+        return {
+            title: this.$createTitle()
         };
     },
 
@@ -76,6 +85,7 @@ Component.register('sw-newsletter-receiver-list', {
         getList() {
             this.isLoading = true;
             const criteria = new Criteria(this.page, this.limit, this.term);
+            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
             Object.values(this.internalFilters).forEach((item) => {
                 criteria.addFilter(item);
@@ -84,6 +94,7 @@ Component.register('sw-newsletter-receiver-list', {
             this.repository = this.repositoryFactory.create('newsletter_receiver');
             this.repository.search(criteria, this.context).then((searchResult) => {
                 this.items = searchResult;
+                this.total = searchResult.total;
 
                 this.isLoading = false;
             });
@@ -151,30 +162,24 @@ Component.register('sw-newsletter-receiver-list', {
 
         getColumns() {
             return [{
+                property: 'firstName',
+                dataIndex: 'firstName,lastName',
+                inlineEdit: 'string',
+                label: this.$tc('sw-newsletter-receiver.list.name'),
+                routerLink: 'sw.newsletter.receiver.detail',
+                allowResize: true,
+                primary: true
+            }, {
                 property: 'email',
                 dataIndex: 'email',
                 label: this.$tc('sw-newsletter-receiver.list.email'),
                 allowResize: true,
-                align: 'left',
                 inlineEdit: 'string'
             }, {
                 property: 'status',
                 dataIndex: 'status',
                 label: this.$tc('sw-newsletter-receiver.list.status'),
-                allowResize: true,
-                align: 'left'
-            }, {
-                property: 'firstName',
-                dataIndex: 'firstName',
-                label: this.$tc('sw-newsletter-receiver.list.firstName'),
-                allowResize: true,
-                align: 'left'
-            }, {
-                property: 'lastName',
-                dataIndex: 'lastName',
-                label: this.$tc('sw-newsletter-receiver.list.lastName'),
-                allowResize: true,
-                align: 'left'
+                allowResize: true
             }, {
                 property: 'zipCode',
                 dataIndex: 'zipCode',
@@ -185,14 +190,24 @@ Component.register('sw-newsletter-receiver-list', {
                 property: 'city',
                 dataIndex: 'city',
                 label: this.$tc('sw-newsletter-receiver.list.city'),
-                allowResize: true,
-                align: 'left'
+                allowResize: true
             }, {
                 property: 'street',
                 dataIndex: 'street',
                 label: this.$tc('sw-newsletter-receiver.list.street'),
+                allowResize: true
+            }, {
+                property: 'updatedAt',
+                dataIndex: 'updatedAt',
+                label: this.$tc('sw-newsletter-receiver.list.updatedAt'),
                 allowResize: true,
-                align: 'left'
+                visible: false
+            }, {
+                property: 'createdAt',
+                dataIndex: 'createdAt',
+                label: this.$tc('sw-newsletter-receiver.list.createdAt'),
+                allowResize: true,
+                visible: false
             }];
         }
     }

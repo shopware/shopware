@@ -14,7 +14,7 @@ Component.register('sw-mail-template-detail', {
         Mixin.getByName('notification')
     ],
 
-    inject: ['mailService', 'mediaService'],
+    inject: ['mailService'],
 
     data() {
         return {
@@ -50,10 +50,6 @@ Component.register('sw-mail-template-detail', {
 
         salesChannelAssociationStore() {
             return this.mailTemplate.getAssociation('salesChannels');
-        },
-
-        mailTemplateMediaStore() {
-            return this.mailTemplate.getAssociation('media');
         },
 
         mailTemplateTypeStore() {
@@ -102,11 +98,6 @@ Component.register('sw-mail-template-detail', {
 
         loadEntityData() {
             this.mailTemplate = this.mailTemplateStore.getById(this.mailTemplateId);
-
-            this.mailTemplate.getAssociation('media').getList({
-                page: 1,
-                limit: 50
-            });
         },
 
         abortOnLanguageChange() {
@@ -119,10 +110,6 @@ Component.register('sw-mail-template-detail', {
 
         onChangeLanguage() {
             this.loadEntityData();
-        },
-
-        openMediaSidebar() {
-            this.$refs.mediaSidebarItem.openContent();
         },
 
         saveFinish() {
@@ -144,7 +131,6 @@ Component.register('sw-mail-template-detail', {
             return this.mailTemplate.save().then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
-                this.$refs.mediaSidebarItem.getList();
             }).catch((exception) => {
                 this.isLoading = false;
                 this.createNotificationError(notificationSaveError);
@@ -184,32 +170,6 @@ Component.register('sw-mail-template-detail', {
             } else {
                 this.createNotificationError(notificationTestMailErrorSalesChannel);
             }
-        },
-
-        onAddMediaToMailTemplate(mediaItem) {
-            this.addMedia(mediaItem);
-        },
-
-        addMedia(mediaItem) {
-            if (this._checkIfMediaIsAlreadyUsed(mediaItem.id)) {
-                this.createNotificationInfo({
-                    message: this.$tc('sw-mail-template.list.errorMediaItemDuplicated')
-                });
-                return;
-            }
-            const mailTemplateMedia = this.mailTemplateMediaStore.create();
-            mailTemplateMedia.mediaId = mediaItem.id;
-            this.mailTemplate.media.push(mailTemplateMedia);
-        },
-
-        onDropMedia(mediaItem) {
-            this.addMedia(mediaItem);
-        },
-
-        _checkIfMediaIsAlreadyUsed(mediaId) {
-            return this.mailTemplate.media.some((mailTemplateMedia) => {
-                return mailTemplateMedia.mediaId === mediaId;
-            });
         },
 
         onMailTemplateTypeChanged() {

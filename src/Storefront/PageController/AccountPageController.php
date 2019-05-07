@@ -248,14 +248,25 @@ class AccountPageController extends StorefrontController
 
             $this->accountRegistrationService->register($data, $data->has('guest'), $context);
         } catch (ConstraintViolationException $formViolations) {
-            return $this->forward('Shopware\Storefront\PageController\AccountPageController::register', ['formViolations' => $formViolations]);
+            if (!$request->request->has('errorRoute')) {
+                throw new MissingRequestParameterException('errorRoute');
+            }
+            $errorRoute = $request->get('errorRoute');
+
+            // this is to show the correct form because we have different usecases (account/register||checkout/register)
+            $formUrl = $this->generateUrl($errorRoute);
+            $router = $this->container->get('router');
+            $router->getContext()->setMethod(Request::METHOD_GET);
+            $formRoute = $router->match($formUrl);
+
+            $forwardController = $formRoute['_controller'];
+
+            return $this->forward($forwardController, ['formViolations' => $formViolations]);
         }
 
         $this->accountService->login($data->get('email'), $context, $data->has('guest'));
 
-        $redirectTo = $request->get('redirectTo', 'frontend.account.home.page');
-
-        return $this->redirectToRoute($redirectTo);
+        return $this->createActionResponse($request);
     }
 
     /**

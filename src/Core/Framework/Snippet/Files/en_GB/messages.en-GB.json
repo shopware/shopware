@@ -228,6 +228,7 @@
         "cartItemInfoId": "Order number:",
         "addPromotionLabel": "Enter promotion code",
         "addPromotionPlaceholder": "promotion code",
+        "promotionAlreadyExistsInfo": "Promotion code was not applied to the cart because already added",
         "summaryPositionPrice": "Sum",
         "summaryShipping": "Shipping costs",
         "summaryTotalPrice": "Total amount",

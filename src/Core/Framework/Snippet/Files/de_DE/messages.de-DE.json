@@ -228,6 +228,7 @@
         "cartItemInfoId": "Artikel-Nr.:",
         "addPromotionLabel": "Gutschein-Code eingeben",
         "addPromotionPlaceholder": "Gutschein-Code",
+        "promotionAlreadyExistsInfo": "Der Gutschein-Code wurde nicht auf den Warenkorb angewendet, da er bereits hinzugefügt wurde.",
         "summaryPositionPrice": "Summe",
         "summaryShipping": "Versandkosten",
         "summaryTotalPrice": "Gesamtsumme",

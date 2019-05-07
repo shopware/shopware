@@ -19,7 +19,7 @@ class CustomerRegisterEvent extends Event implements BusinessEventInterface, Mai
     /**
      * @var CustomerEntity
      */
-    public $customer;
+    private $customer;
 
     /**
      * @var Context

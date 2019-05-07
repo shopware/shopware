@@ -134,6 +134,10 @@ Component.register('sw-manufacturer-detail', {
             this.isSaveSuccessful = false;
         },
 
+        onDropMedia(dragData) {
+            this.setMediaItem({ targetId: dragData.id });
+        },
+
         onSave() {
             const manufacturerName = this.manufacturer.name || this.manufacturer.translated.name;
             const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');

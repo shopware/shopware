@@ -224,6 +224,7 @@
                         :uploadTag="category.id"
                         :allowMultiSelect="false"
                         :defaultFolder="category.getEntityName()"
+                        @media-dropped="$emit('media-dropped', $event)"
                         @media-upload-sidebar-open="openMediaSidebar"
                         @media-upload-remove-image="removeMediaItem">
                     </sw-media-upload>

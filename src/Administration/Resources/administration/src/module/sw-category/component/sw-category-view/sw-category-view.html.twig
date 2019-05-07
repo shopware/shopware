@@ -35,6 +35,7 @@
                 :cmsPage="cmsPage"
                 :mediaItem="mediaItem"
                 :isLoading="isLoading"
+                @media-dropped="$emit('media-dropped', $event)"
                 @sw-category-base-on-layout-change="onCmsLayoutChange"
                 @sw-category-base-on-open-sidebar="openSidebar"
                 @sw-category-base-on-set-media="setMediaItem"

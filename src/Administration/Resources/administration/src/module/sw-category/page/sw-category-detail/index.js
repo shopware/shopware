@@ -274,6 +274,10 @@ Component.register('sw-category-detail', {
             this.category.mediaId = media.id;
         },
 
+        onDropMedia(dragItem) {
+            this.setMediaItem(dragItem);
+        },
+
         removeMediaItem() {
             this.category.mediaId = null;
             this.mediaItem = null;

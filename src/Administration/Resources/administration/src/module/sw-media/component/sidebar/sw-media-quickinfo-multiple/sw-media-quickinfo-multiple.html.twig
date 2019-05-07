@@ -20,11 +20,30 @@
 
                             {% block sw_media_quickinfo_multiple_quickactions_delete %}
                                 <li class="sw-media-sidebar__quickaction is--danger"
+                                    v-if="!hasSystem"
                                     @click="openModalDelete">
 
                                     <sw-icon small name="default-action-trash" class="sw-media-sidebar__quickactions-icon is--danger"></sw-icon>
                                     {{ $tc('sw-media.sidebar.actions.delete') }}
                                 </li>
+                            {% endblock %}
+
+                            {% block sw_media_quickinfo_multiple_quickactions_hide %}
+                            <li class="sw-media-sidebar__quickaction"
+                                @click="openModalHide">
+
+                                <sw-icon small name="default-eye-crossed" class="sw-media-sidebar__quickactions-icon"></sw-icon>
+                                {{ $tc('sw-media.sidebar.actions.hide') }}
+                            </li>
+                            {% endblock %}
+
+                            {% block sw_media_quickinfo_multiple_quickactions_unhide %}
+                            <li class="sw-media-sidebar__quickaction"
+                                @click="openModalUnhide">
+
+                                <sw-icon small name="default-eye-open" class="sw-media-sidebar__quickactions-icon"></sw-icon>
+                                {{ $tc('sw-media.sidebar.actions.unhide') }}
+                            </li>
                             {% endblock %}
 
                             {% block sw_media_quickinfo_folder_quickactions_dissolve %}
@@ -90,6 +109,24 @@
                 @media-move-modal-close="closeModalMove"
                 @media-move-modal-items-move="onFolderMoved">
             </sw-media-modal-move>
+        {% endblock %}
+
+        {% block sw_media_media_item_hide_modal %}
+            <sw-media-modal-hide
+                v-if="showModalHide"
+                :itemsToHide="items"
+                @media-hide-modal-items-hide="hideSelectedItems"
+                @media-hide-modal-close="closeModalHide">
+            </sw-media-modal-hide>
+        {% endblock %}
+
+        {% block sw_media_media_item_unhide_modal %}
+            <sw-media-modal-unhide
+                v-if="showModalUnhide"
+                :itemsToUnhide="items"
+                @media-unhide-modal-items-unhide="unhideSelectedItems"
+                @media-unhide-modal-close="closeModalUnhide">
+            </sw-media-modal-unhide>
         {% endblock %}
     </div>
 {% endblock %}

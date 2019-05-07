@@ -53,7 +53,9 @@ SQL;
               `order_version_id` BINARY(16) NOT NULL,
               `config` JSON NULL,
               `sent` TINYINT(1) NOT NULL DEFAULT 0,
+              `static` TINYINT(1) NOT NULL DEFAULT 0,
               `deep_link_code` VARCHAR(32) NOT NULL,
+              `document_media_file_id` BINARY(16) NULL,
               `custom_fields` JSON NULL,
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
@@ -66,7 +68,9 @@ SQL;
               CONSTRAINT `fk.document.referenced_document_id` FOREIGN  KEY (`referenced_document_id`)
                 REFERENCES `document` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
               CONSTRAINT `fk.document.order_id` FOREIGN KEY (`order_id`,`order_version_id`)
-                REFERENCES `order` (`id`,`version_id`) ON DELETE RESTRICT ON UPDATE CASCADE
+                REFERENCES `order` (`id`,`version_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+              CONSTRAINT `fk.document.document_media_file_id` FOREIGN KEY (`document_media_file_id`)
+                REFERENCES `media` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL;
         $connection->executeUpdate($sql);

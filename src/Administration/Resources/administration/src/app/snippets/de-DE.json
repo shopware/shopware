@@ -128,6 +128,8 @@
       "labelContextMenuRename": "Umbenennen",
       "labelContextMenuDetail": "Informationen",
       "labelContextMenuMove": "Verschieben",
+      "labelContextMenuHide": "Verstecken",
+      "labelContextMenuUnhide": "Aufdecken",
       "notification": {
         "errorBlankItemName": {
           "title": "Fehler",
@@ -190,6 +192,106 @@
             "media": "Die Dateien konnten nicht gelöscht werden.",
             "folder": "Die Ordner konnten nicht gelöscht werden.",
             "mediaAndFolder": "Die Dateien und Ordner konnten nicht gelöscht werden."
+          }
+        }
+      }
+    },
+    "sw-media-modal-hide": {
+      "titleModal": {
+        "media": "Medien verstecken",
+        "folder": "Ordner verstecken",
+        "mediaAndFolder": "Ordner und Medien verstecken"
+      },
+      "hideMessage": {
+        "media": "Möchtest Du die Datei \"{name}\" wirklich verstecken? | Möchtest Du diese {count} Dateien wirklich verstecken?",
+        "folder": "Möchtest Du den Ordner \"{name}\" wirklich verstecken?<br>Es werden auch alle Unterordner und Medien in diesem Ordner versteckt. | Möchtest Du diese {count} Ordner wirklich verstecken?<br>Es werden auch alle Unterordner und Medien in diesem Ordner versteckt.",
+        "mediaAndFolder": "Möchtest Du {mediaCount} Dateien und {folderCount} Ordner wirklich verstecken?<br>Es werden auch alle Unterordner und Dateien aus den Ordner versteckt."
+
+      },
+      "buttonHide": "Verstecken",
+      "buttonCancel": "Abbrechen",
+      "notification": {
+        "successSingle": {
+          "title": "Erfolg",
+          "message": {
+            "media": "Datei \"{name}\" erfolgreich versteckt.",
+            "folder": "Ordner \"{name}\" erfolgreich versteckt."
+          }
+        },
+        "errorSingle": {
+          "title": "Fehler",
+          "message": {
+            "media": "Fehler beim verstecken der Datei \"{name}\".",
+            "folder": "Fehler beim verstecken des Ordners \"{name}\"."
+          }
+        },
+        "successOverall": {
+          "title": "Erfolg",
+          "message": {
+            "media": "Dateien erfolgreich versteckt.",
+            "folder": "Ordner erfolgreich versteckt.",
+            "mediaAndFolder": "Dateien und Ordner erfolgreich versteckt.",
+            "media": "Keine Datei erfolgreich versteckt. | Eine Datei erfolgreich versteckt. | {count} / {total} Dateien erfolgreich versteckt.",
+            "folder": "Kein Ordner erfolgreich versteckt. | Ein Ordner erfolgreich versteckt. | {count} / {total} Ordner erfolgreich versteckt.",
+            "mediaAndFolder": "Keine Dateien bzw. kein Ordner erfolgreich versteckt. | Eine Datei bzw. ein Ordner erfolgreich versteckt. | {count} / {total} Dateien bzw. Ordner erfolgreich versteckt."
+          }
+        },
+        "errorOverall": {
+          "title": "Fehler",
+          "message": {
+            "media": "Die Dateien konnten nicht gelöscht werden.",
+            "folder": "Die Ordner konnten nicht gelöscht werden.",
+            "mediaAndFolder": "Die Dateien und Ordner konnten nicht gelöscht werden."
+          }
+        }
+      }
+    },
+    "sw-media-modal-unhide": {
+      "titleModal": {
+        "media": "Medien aufdecken",
+        "folder": "Ordner aufdecken",
+        "mediaAndFolder": "Ordner und Medien aufdecken"
+      },
+      "unhideMessage": {
+        "media": "Möchtest Du die Datei \"{name}\" wirklich aufdecken? | Möchtest Du diese {count} Dateien wirklich verstecken?",
+        "folder": "Möchtest Du den Ordner \"{name}\" wirklich aufdecken?<br>Es werden auch alle Unterordner und Medien in diesem Ordner aufgedeckt. | Möchtest Du diese {count} Ordner wirklich aufdecken?<br>Es werden auch alle Unterordner und Medien in diesem Ordner aufgedeckt.",
+        "mediaAndFolder": "Möchtest Du {mediaCount} Dateien und {folderCount} Ordner wirklich aufdecken?<br>Es werden auch alle Unterordner und Dateien aus den Ordner aufgedeckt."
+
+      },
+      "buttonUnhide": "Aufdecken",
+      "buttonCancel": "Abbrechen",
+      "notification": {
+        "successSingle": {
+          "title": "Erfolg",
+          "message": {
+            "media": "Datei \"{name}\" erfolgreich aufgedeckt.",
+            "folder": "Ordner \"{name}\" erfolgreich aufgedeckt."
+          }
+        },
+        "errorSingle": {
+          "title": "Fehler",
+          "message": {
+            "media": "Fehler beim aufdecken der Datei \"{name}\".",
+            "folder": "Fehler beim aufdecken des Ordners \"{name}\"."
+          }
+        },
+        "successOverall": {
+          "title": "Erfolg",
+          "message": {
+            "media": "Dateien erfolgreich aufgedeckt.",
+            "folder": "Ordner erfolgreich aufgedeckt.",
+            "mediaAndFolder": "Dateien und Ordner erfolgreich aufgedeckt.",
+            "media": "Keine Datei erfolgreich aufgedeckt. | Eine Datei erfolgreich aufgedeckt. | {count} / {total} Dateien erfolgreich aufgedeckt.",
+            "folder": "Kein Ordner erfolgreich aufgedeckt. | Ein Ordner erfolgreich aufgedeckt. | {count} / {total} Ordner erfolgreich aufgedeckt.",
+            "mediaAndFolder": "Keine Dateien bzw. kein Ordner erfolgreich aufgedeckt. | Eine Datei bzw. ein Ordner erfolgreich aufgedeckt. | {count} / {total} Dateien bzw. Ordner erfolgreich aufgedeckt."
+          }
+        },
+        "errorOverall": {
+          "title": "Fehler",
+          "message": {
+            "media": "Die Dateien konnten nicht aufgedeckt werden.",
+            "folder": "Die Ordner konnten nicht aufgedeckt werden.",
+            "mediaAndFolder": "Die Dateien und Ordner konnten nicht aufgedeckt werden."
           }
         }
       }
@@ -299,6 +401,7 @@
     },
     "sw-media-modal-folder-settings": {
       "labelSettings": "Einstellungen",
+      "labelSystem": "Systemordner",
       "labelThumbnails": "Thumbnails",
       "labelFolderName": "Name",
       "labelInheritSettings": "Einstellungen vom überliegenden Ordner übernehmen",
@@ -450,6 +553,7 @@
       "cart": "Warenkorb | Warenkörbe",
       "category": "Kategorie | Kategorien",
       "cms_page": "Seite | Seiten",
+      "document": "Dokument | Dokumente",
       "property": "Eigenschaft | Eigenschaften",
       "country": "Land | Länder",
       "currency": "Währung | Währungen",

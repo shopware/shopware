@@ -49,7 +49,9 @@ class UrlGenerator implements UrlGeneratorInterface
 
         $extension = $media->getFileExtension() ? '.' . $media->getFileExtension() : '';
 
-        return 'media/' . $encodedFileName . $extension;
+        $mainDir = 'media/';
+
+        return $mainDir . $encodedFileName . $extension;
     }
 
     /**

@@ -8,7 +8,9 @@
             <template #preview="{ item }">
                 <sw-media-preview
                     :source="item.id"
-                    @media-preview-play="emitPlayEvent($event, item)">
+                    @media-preview-play="emitPlayEvent($event, item)"
+                    :mediaIsHidden="item.hidden"
+                    :mediaIsSystem="item.system">
                 </sw-media-preview>
             </template>
         {% endblock %}
@@ -53,7 +55,7 @@
                 {% block sw_media_media_item_context_group_quick_actions %}
                     <div :class="defaultContextMenuClass">
                         {% block sw_media_media_item_context_item_rename_item %}
-                            <sw-context-menu-item v-if="item.hasFile" @click="startInlineEdit">
+                            <sw-context-menu-item :disabled="!item.hasFile || item.system" @click="startInlineEdit">
                                 {{ $tc('global.sw-media-media-item.labelContextMenuRename') }}
                             </sw-context-menu-item>
                         {% endblock %}
@@ -65,7 +67,7 @@
                         {% endblock %}
 
                         {% block sw_media_media_item_context_item_replace %}
-                            <sw-context-menu-item class="sw-media-context-item__replace-media-action"  @click="openModalReplace">
+                            <sw-context-menu-item :disabled="item.system" class="sw-media-context-item__replace-media-action"  @click="openModalReplace">
                                 {{ $tc('global.sw-media-media-item.labelContextMenuReplace') }}
                             </sw-context-menu-item>
                         {% endblock %}
@@ -77,9 +79,21 @@
                         {% endblock %}
 
                         {% block sw_media_media_item_context_item_delete %}
-                            <sw-context-menu-item @click="openModalDelete" variant="danger">
+                            <sw-context-menu-item :disabled="item.system" @click="openModalDelete" variant="danger">
                                 {{ $tc('global.sw-media-media-item.labelContextMenuDelete') }}
                             </sw-context-menu-item>
+                        {% endblock %}
+
+                        {% block sw_media_media_item_context_item_hide %}
+                        <sw-context-menu-item @click="openModalHide">
+                            {{ $tc('global.sw-media-media-item.labelContextMenuHide') }}
+                        </sw-context-menu-item>
+                        {% endblock %}
+
+                        {% block sw_media_media_item_context_item_unhide %}
+                        <sw-context-menu-item @click="openModalUnhide">
+                            {{ $tc('global.sw-media-media-item.labelContextMenuUnhide') }}
+                        </sw-context-menu-item>
                         {% endblock %}
                     </div>
                 {% endblock %}
@@ -111,6 +125,24 @@
                     @media-move-modal-close="closeModalMove"
                     @media-move-modal-items-move="onMediaItemMoved">
                 </sw-media-modal-move>
+            {% endblock %}
+
+            {% block sw_media_media_item_hide_modal %}
+            <sw-media-modal-hide
+                v-if="showModalHide"
+                :itemsToHide="[item]"
+                @media-hide-modal-items-hide="emitItemHidden"
+                @media-hide-modal-close="closeModalHide">
+            </sw-media-modal-hide>
+            {% endblock %}
+
+            {% block sw_media_media_item_unhide_modal %}
+            <sw-media-modal-unhide
+                v-if="showModalUnhide"
+                :itemsToUnhide="[item]"
+                @media-unhide-modal-items-unhide="emitItemUnhidden"
+                @media-unhide-modal-close="closeModalUnhide">
+            </sw-media-modal-unhide>
             {% endblock %}
         </template>
     </sw-media-base-item>

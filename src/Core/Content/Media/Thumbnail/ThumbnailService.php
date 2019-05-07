@@ -33,7 +33,12 @@ class ThumbnailService
     /**
      * @var FilesystemInterface
      */
-    private $fileSystem;
+    private $filesystemPublic;
+
+    /**
+     * @var FilesystemInterface
+     */
+    private $filesystemPrivate;
 
     /**
      * @var UrlGeneratorInterface
@@ -48,13 +53,15 @@ class ThumbnailService
     public function __construct(
         EntityRepositoryInterface $mediaRepository,
         EntityRepositoryInterface $thumbnailRepository,
-        FilesystemInterface $fileSystem,
+        FilesystemInterface $fileSystemPublic,
+        FilesystemInterface $fileSystemPrivate,
         UrlGeneratorInterface $urlGenerator,
         EntityRepositoryInterface $mediaFolderRepository
     ) {
         $this->mediaRepository = $mediaRepository;
         $this->thumbnailRepository = $thumbnailRepository;
-        $this->fileSystem = $fileSystem;
+        $this->filesystemPublic = $fileSystemPublic;
+        $this->filesystemPrivate = $fileSystemPrivate;
         $this->urlGenerator = $urlGenerator;
         $this->mediaFolderRepository = $mediaFolderRepository;
     }
@@ -168,7 +175,7 @@ class ThumbnailService
                     $size->getWidth(),
                     $size->getHeight()
                 );
-                $this->writeThumbnail($thumbnail, $media->getMimeType(), $url, $config->getThumbnailQuality());
+                $this->writeThumbnail($thumbnail, $media, $url, $config->getThumbnailQuality());
                 $savedThumbnails[] = [
                     'width' => $size->getWidth(),
                     'height' => $size->getHeight(),
@@ -215,7 +222,7 @@ class ThumbnailService
     private function getImageResource(MediaEntity $media)
     {
         $filePath = $this->urlGenerator->getRelativeMediaUrl($media);
-        $file = $this->fileSystem->read($filePath);
+        $file = $this->getFileSystem($media)->read($filePath);
         $image = @imagecreatefromstring($file);
         if (!$image) {
             throw new FileTypeNotSupportedException($media->getId());
@@ -295,10 +302,10 @@ class ThumbnailService
     /**
      * @throws ThumbnailCouldNotBeSavedException
      */
-    private function writeThumbnail($thumbnail, string $mimeType, string $url, int $quality): void
+    private function writeThumbnail($thumbnail, MediaEntity $media, string $url, int $quality): void
     {
         ob_start();
-        switch ($mimeType) {
+        switch ($media->getMimeType()) {
             case 'image/png':
                 imagepng($thumbnail);
                 break;
@@ -313,7 +320,7 @@ class ThumbnailService
         $imageFile = ob_get_contents();
         ob_end_clean();
 
-        if ($this->fileSystem->put($url, $imageFile) === false) {
+        if ($this->getFileSystem($media)->put($url, $imageFile) === false) {
             throw new ThumbnailCouldNotBeSavedException($url);
         }
     }
@@ -348,5 +355,14 @@ class ThumbnailService
     {
         $associatedThumbnails = $media->getThumbnails()->getIds();
         $this->thumbnailRepository->delete($associatedThumbnails, $context);
+    }
+
+    private function getFileSystem(MediaEntity $media): FilesystemInterface
+    {
+        if ($media->isSystem()) {
+            return $this->filesystemPrivate;
+        }
+
+        return $this->filesystemPublic;
     }
 }

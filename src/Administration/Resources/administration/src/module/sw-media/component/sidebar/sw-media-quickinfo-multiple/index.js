@@ -50,6 +50,12 @@ Component.register('sw-media-quickinfo-multiple', {
             return this.items.some((item) => {
                 return item.getEntityName() === 'media';
             });
+        },
+
+        hasSystem() {
+            return this.items.some((item) => {
+                return item.system === true;
+            });
         }
     },
 

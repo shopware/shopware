@@ -60,6 +60,20 @@ class FileFetcher
         );
     }
 
+    public function fetchBlob(string $blob, string $extension, string $contentType): MediaFile
+    {
+        $tempFile = tempnam(sys_get_temp_dir(), '');
+        $fh = @fopen($tempFile, 'wb');
+        $blobSize = @fwrite($fh, $blob);
+
+        return new MediaFile(
+            $tempFile,
+            $contentType,
+            $extension,
+            $blobSize
+        );
+    }
+
     /**
      * @throws MissingFileExtensionException
      */
@@ -101,7 +115,7 @@ class FileFetcher
         $inputStream = @fopen($url, 'rb');
 
         if ($inputStream === false) {
-            throw new UploadException("Could open source stream from {$url}");
+            throw new UploadException("Could not open source stream from {$url}");
         }
 
         return $inputStream;

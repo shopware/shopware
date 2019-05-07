@@ -8,7 +8,9 @@ Mixin.register('media-sidebar-modal-mixin', {
             showModalDelete: false,
             showFolderSettings: false,
             showFolderDissolve: false,
-            showModalMove: false
+            showModalMove: false,
+            showModalHide: false,
+            showModalUnhide: false
         };
     },
 
@@ -27,6 +29,22 @@ Mixin.register('media-sidebar-modal-mixin', {
 
         closeModalDelete() {
             this.showModalDelete = false;
+        },
+
+        openModalHide() {
+            this.showModalHide = true;
+        },
+
+        closeModalHide() {
+            this.showModalHide = false;
+        },
+
+        openModalUnhide() {
+            this.showModalUnhide = true;
+        },
+
+        closeModalUnhide() {
+            this.showModalUnhide = false;
         },
 
         openFolderSettings() {
@@ -57,6 +75,20 @@ Mixin.register('media-sidebar-modal-mixin', {
             this.closeModalDelete();
             deletePromise.then((ids) => {
                 this.$emit('media-sidebar-items-delete', ids);
+            });
+        },
+
+        hideSelectedItems(deletePromise) {
+            this.closeModalHide();
+            deletePromise.then((ids) => {
+                this.$emit('media-sidebar-items-hide', ids);
+            });
+        },
+
+        unhideSelectedItems(deletePromise) {
+            this.closeModalUnhide();
+            deletePromise.then((ids) => {
+                this.$emit('media-sidebar-items-unhide', ids);
             });
         },
 

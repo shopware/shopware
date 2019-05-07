@@ -20,6 +20,8 @@
         "dissolve": "Dissolve",
         "download": "Download",
         "move": "Move",
+        "hide": "Hide",
+        "unhide": "Reveal",
         "replace": "Replace",
         "settings": "Settings"
       },

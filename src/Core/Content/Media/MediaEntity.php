@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Media;
 
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
+use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
@@ -143,6 +144,16 @@ class MediaEntity extends Entity
     protected $hasFile = false;
 
     /**
+     * @var bool
+     */
+    protected $hidden = false;
+
+    /**
+     * @var bool
+     */
+    protected $system = false;
+
+    /**
      * @var PropertyGroupOptionCollection|null
      */
     protected $propertyGroupOptions;
@@ -201,6 +212,11 @@ class MediaEntity extends Entity
      * @var CmsBlockCollection|null
      */
     protected $cmsPages;
+
+    /**
+     * @var DocumentCollection|null
+     */
+    protected $documents;
 
     public function get(string $property)
     {
@@ -562,5 +578,35 @@ class MediaEntity extends Entity
     public function setCmsPages(CmsBlockCollection $cmsPages): void
     {
         $this->cmsPages = $cmsPages;
+    }
+
+    public function isHidden(): bool
+    {
+        return $this->hidden;
+    }
+
+    public function setHidden(bool $hidden): void
+    {
+        $this->hidden = $hidden;
+    }
+
+    public function isSystem(): bool
+    {
+        return $this->system;
+    }
+
+    public function setSystem(bool $system): void
+    {
+        $this->system = $system;
+    }
+
+    public function getDocuments(): ?DocumentCollection
+    {
+        return $this->documents;
+    }
+
+    public function setDocuments(?DocumentCollection $documents): void
+    {
+        $this->documents = $documents;
     }
 }

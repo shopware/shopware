@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\File;
 
+use League\Flysystem\AdapterInterface;
 use League\Flysystem\FileExistsException;
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
@@ -40,7 +41,7 @@ class FileSaver
     /**
      * @var FilesystemInterface
      */
-    private $filesystem;
+    private $filesystemPublic;
 
     /**
      * @var UrlGeneratorInterface
@@ -72,9 +73,15 @@ class FileSaver
      */
     private $typeDetector;
 
+    /**
+     * @var FilesystemInterface
+     */
+    private $filesystemPrivate;
+
     public function __construct(
         EntityRepositoryInterface $mediaRepository,
-        FilesystemInterface $filesystem,
+        FilesystemInterface $filesystemPublic,
+        FilesystemInterface $filesystemPrivate,
         UrlGeneratorInterface $urlGenerator,
         ThumbnailService $thumbnailService,
         MetadataLoader $metadataLoader,
@@ -82,7 +89,8 @@ class FileSaver
         MessageBusInterface $messageBus
     ) {
         $this->mediaRepository = $mediaRepository;
-        $this->filesystem = $filesystem;
+        $this->filesystemPublic = $filesystemPublic;
+        $this->filesystemPrivate = $filesystemPrivate;
         $this->urlGenerator = $urlGenerator;
         $this->thumbnailService = $thumbnailService;
         $this->fileNameValidator = new FileNameValidator();
@@ -167,6 +175,34 @@ class FileSaver
         $this->doRenameMedia($currentMedia, $destination, $context);
     }
 
+    public function hideMediaFile(string $mediaId, Context $context): void
+    {
+        $currentMedia = $this->findMediaById($mediaId, $context);
+
+        if (!$currentMedia->hasFile()) {
+            return;
+        }
+
+        $this->getFileSystem($currentMedia)->setVisibility(
+            $this->urlGenerator->getRelativeMediaUrl($currentMedia),
+            AdapterInterface::VISIBILITY_PRIVATE
+        );
+    }
+
+    public function revealMediaFile(string $mediaId, Context $context): void
+    {
+        $currentMedia = $this->findMediaById($mediaId, $context);
+
+        if (!$currentMedia->hasFile()) {
+            return;
+        }
+
+        $this->getFileSystem($currentMedia)->setVisibility(
+            $this->urlGenerator->getRelativeMediaUrl($currentMedia),
+            AdapterInterface::VISIBILITY_PUBLIC
+        );
+    }
+
     /**
      * @throws CouldNotRenameFileException
      * @throws FileExistsException
@@ -181,7 +217,8 @@ class FileSaver
         try {
             $renamedFiles = $this->renameFile(
                 $this->urlGenerator->getRelativeMediaUrl($currentMedia),
-                $this->urlGenerator->getRelativeMediaUrl($updatedMedia)
+                $this->urlGenerator->getRelativeMediaUrl($updatedMedia),
+                $this->getFileSystem($currentMedia)
             );
         } catch (\Exception $e) {
             throw new CouldNotRenameFileException($currentMedia->getId(), $currentMedia->getFileName());
@@ -233,7 +270,8 @@ class FileSaver
                 $updatedMedia,
                 $thumbnail->getWidth(),
                 $thumbnail->getHeight()
-            )
+            ),
+            $this->getFileSystem($currentMedia)
         );
     }
 
@@ -245,7 +283,7 @@ class FileSaver
 
         $oldMediaFilePath = $this->urlGenerator->getRelativeMediaUrl($media);
         try {
-            $this->filesystem->delete($oldMediaFilePath);
+            $this->getFileSystem($media)->delete($oldMediaFilePath);
         } catch (FileNotFoundException $e) {
             //nth
         }
@@ -257,8 +295,12 @@ class FileSaver
     {
         $stream = fopen($mediaFile->getFileName(), 'rb');
         $path = $this->urlGenerator->getRelativeMediaUrl($media);
+        $config = [];
+        if ($media->isHidden() === true) {
+            $config = ['visibility' => AdapterInterface::VISIBILITY_PRIVATE];
+        }
         try {
-            $this->filesystem->putStream($path, $stream);
+            $this->getFileSystem($media)->putStream($path, $stream, $config);
         } finally {
             // The Google Cloud Storage filesystem closes the stream even though it should not. To prevent a fatal
             // error, we therefore need to check whether the stream has been closed yet.
@@ -266,6 +308,15 @@ class FileSaver
                 fclose($stream);
             }
         }
+    }
+
+    private function getFileSystem(MediaEntity $media): FilesystemInterface
+    {
+        if ($media->isSystem()) {
+            return $this->filesystemPrivate;
+        }
+
+        return $this->filesystemPublic;
     }
 
     private function updateMediaEntity(
@@ -292,16 +343,19 @@ class FileSaver
             $this->mediaRepository->update([$data], $context);
         });
 
-        return $this->mediaRepository->search(new Criteria([$media->getId()]), $context)->get($media->getId());
+        $criteria = new Criteria([$media->getId()]);
+        $criteria->addAssociation('mediaFolder');
+
+        return $this->mediaRepository->search($criteria, $context)->get($media->getId());
     }
 
     /**
      * @throws FileExistsException
      * @throws FileNotFoundException
      */
-    private function renameFile($source, $destination): array
+    private function renameFile($source, $destination, FilesystemInterface $filesystem): array
     {
-        $this->filesystem->rename($source, $destination);
+        $filesystem->rename($source, $destination);
 
         return [$source => $destination];
     }
@@ -314,7 +368,7 @@ class FileSaver
     private function rollbackRenameAction(MediaEntity $oldMedia, array $renamedFiles): void
     {
         foreach ($renamedFiles as $oldFileName => $newFileName) {
-            $this->filesystem->rename($newFileName, $oldFileName);
+            $this->getFileSystem($oldMedia)->rename($newFileName, $oldFileName);
         }
 
         throw new CouldNotRenameFileException($oldMedia->getId(), $oldMedia->getFileName());
@@ -325,8 +379,10 @@ class FileSaver
      */
     private function findMediaById(string $mediaId, Context $context): MediaEntity
     {
+        $criteria = new Criteria([$mediaId]);
+        $criteria->addAssociation('mediaFolder');
         $currentMedia = $this->mediaRepository
-            ->search(new Criteria([$mediaId]), $context)
+            ->search($criteria, $context)
             ->get($mediaId);
 
         if ($currentMedia === null) {

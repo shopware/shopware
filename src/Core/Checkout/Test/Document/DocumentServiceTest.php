@@ -167,19 +167,22 @@ class DocumentServiceTest extends TestCase
             $this->context
         );
 
+        $documentId = $document->getId();
+
         $criteria = new Criteria();
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
             new EqualsFilter('id', $document->getId()),
             new EqualsFilter('deepLinkCode', $document->getDeepLinkCode()),
         ]));
+        /** @var EntityRepositoryInterface $documentRepository */
         $documentRepository = $this->getContainer()->get('document.repository');
-        $document = $documentRepository->search($criteria, $this->context)->get($document->getId());
+        $document = $documentRepository->search($criteria, $this->context)->first();
 
         if (!$document) {
             throw new InvalidDocumentException($documentId);
         }
 
-        $renderedDocument = $documentService->generate($document, $this->context);
+        $renderedDocument = $documentService->getDocument($document, $this->context);
 
         $parser = new Parser();
         $parsedDocument = $parser->parseContent($renderedDocument->getFileBlob());

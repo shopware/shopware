@@ -73,7 +73,11 @@ export default {
             type: Boolean,
             required: false,
             default: true
-        }
+        },
+
+        mediaIsHidden: false,
+
+        mediaIsSystem: false
     },
 
     data() {

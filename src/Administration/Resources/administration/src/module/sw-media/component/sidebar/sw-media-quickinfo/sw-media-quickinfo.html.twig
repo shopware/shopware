@@ -16,14 +16,14 @@
                     {% block sw_media_quickinfo_quickactions_content %}
                         <ul class="sw-media-sidebar__quickactions-list">
                             {% block sw_media_quickinfo_quickactions_replace %}
-                                <li class="sw-media-sidebar__quickaction quickaction--replace" @click="openModalReplace">
-                                    <sw-icon small name="default-action-replace" class="sw-media-sidebar__quickactions-icon"> </sw-icon>
-                                    {{ $tc('sw-media.sidebar.actions.replace') }}
-                                </li>
+                            <li v-if="!item.system" class="sw-media-sidebar__quickaction quickaction--replace" @click="openModalReplace">
+                                <sw-icon small name="default-action-replace" class="sw-media-sidebar__quickactions-icon"> </sw-icon>
+                                {{ $tc('sw-media.sidebar.actions.replace') }}
+                            </li>
                             {% endblock %}
 
                             {% block sw_media_quickinfo_quickactions_download %}
-                                <li v-if="item.hasFile" class="sw-media-sidebar__quickaction quickaction--download">
+                                <li v-if="item.hasFile && !item.hidden" class="sw-media-sidebar__quickaction quickaction--download">
                                     <a class="sw-media-sidebar__quickaction"
                                        :href="item.url"
                                        target="_blank"
@@ -46,7 +46,7 @@
 
                             {% block sw_media_quickinfo_quickactions_copy_link %}
                                 <li class="sw-media-sidebar__quickaction quickaction--copy-link"
-                                    v-if="item.hasFile"
+                                    v-if="item.hasFile && !item.hidden"
                                     @click="copyLinkToClipboard">
 
                                     <sw-icon small name="default-web-link" class="sw-media-sidebar__quickactions-icon"></sw-icon>
@@ -56,11 +56,30 @@
 
                             {% block sw_media_quickinfo_quickactions_delete %}
                                 <li class="sw-media-sidebar__quickaction is--danger quickaction--delete"
+                                    v-if="!item.system"
                                     @click="openModalDelete">
 
                                     <sw-icon small name="default-action-trash" class="sw-media-sidebar__quickactions-icon is--danger"></sw-icon>
                                     {{ $tc('sw-media.sidebar.actions.delete') }}
                                 </li>
+                            {% endblock %}
+
+                            {% block sw_media_quickinfo_multiple_quickactions_hide %}
+                            <li class="sw-media-sidebar__quickaction"
+                                @click="openModalHide">
+
+                                <sw-icon small name="default-eye-crossed" class="sw-media-sidebar__quickactions-icon"></sw-icon>
+                                {{ $tc('sw-media.sidebar.actions.hide') }}
+                            </li>
+                            {% endblock %}
+
+                            {% block sw_media_quickinfo_multiple_quickactions_unhide %}
+                            <li class="sw-media-sidebar__quickaction"
+                                @click="openModalUnhide">
+
+                                <sw-icon small name="default-eye-open" class="sw-media-sidebar__quickactions-icon"></sw-icon>
+                                {{ $tc('sw-media.sidebar.actions.unhide') }}
+                            </li>
                             {% endblock %}
                         </ul>
                     {% endblock %}
@@ -291,6 +310,24 @@
                     :isLoading="isLoading"
                     :isSaveSuccessful="isSaveSuccessful">
             </sw-custom-field-set-renderer>
+        {% endblock %}
+
+        {% block sw_media_media_item_hide_modal %}
+            <sw-media-modal-hide
+                v-if="showModalHide"
+                :itemsToHide="[item]"
+                @media-hide-modal-items-hide="hideSelectedItems"
+                @media-hide-modal-close="closeModalHide">
+            </sw-media-modal-hide>
+        {% endblock %}
+
+        {% block sw_media_media_item_unhide_modal %}
+            <sw-media-modal-unhide
+                v-if="showModalUnhide"
+                :itemsToUnhide="[item]"
+                @media-unhide-modal-items-unhide="unhideSelectedItems"
+                @media-unhide-modal-close="closeModalUnhide">
+            </sw-media-modal-unhide>
         {% endblock %}
     </div>
 {% endblock %}

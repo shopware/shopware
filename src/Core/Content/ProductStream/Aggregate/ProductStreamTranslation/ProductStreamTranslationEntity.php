@@ -13,7 +13,7 @@ class ProductStreamTranslationEntity extends TranslationEntity
     protected $productStreamId;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
@@ -42,7 +42,7 @@ class ProductStreamTranslationEntity extends TranslationEntity
         $this->productStreamId = $productStreamId;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }

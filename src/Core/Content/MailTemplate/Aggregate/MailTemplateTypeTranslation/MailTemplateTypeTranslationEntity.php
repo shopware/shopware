@@ -18,7 +18,7 @@ class MailTemplateTypeTranslationEntity extends TranslationEntity
     protected $mailTemplateType;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
@@ -47,7 +47,7 @@ class MailTemplateTypeTranslationEntity extends TranslationEntity
         $this->mailTemplateType = $mailTemplateType;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }

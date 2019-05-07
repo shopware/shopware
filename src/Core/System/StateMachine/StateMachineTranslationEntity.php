@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 class StateMachineTranslationEntity extends TranslationEntity
 {
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
@@ -26,7 +26,7 @@ class StateMachineTranslationEntity extends TranslationEntity
      */
     protected $customFields;
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }

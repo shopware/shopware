@@ -16,7 +16,7 @@ class PluginTranslationEntity extends TranslationEntity
     protected $pluginId;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $label;
 
@@ -60,7 +60,7 @@ class PluginTranslationEntity extends TranslationEntity
         $this->pluginId = $pluginId;
     }
 
-    public function getLabel(): string
+    public function getLabel(): ?string
     {
         return $this->label;
     }

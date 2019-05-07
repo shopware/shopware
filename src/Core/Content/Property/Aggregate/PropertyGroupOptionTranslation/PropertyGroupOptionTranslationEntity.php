@@ -18,7 +18,7 @@ class PropertyGroupOptionTranslationEntity extends TranslationEntity
     protected $name;
 
     /**
-     * @var int
+     * @var int|null
      */
     protected $position;
 
@@ -62,7 +62,7 @@ class PropertyGroupOptionTranslationEntity extends TranslationEntity
         $this->propertyGroupOption = $propertyGroupOption;
     }
 
-    public function getPosition(): int
+    public function getPosition(): ?int
     {
         return $this->position;
     }

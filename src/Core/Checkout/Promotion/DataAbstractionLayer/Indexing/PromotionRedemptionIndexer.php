@@ -146,7 +146,7 @@ class PromotionRedemptionIndexer implements IndexerInterface
             if (!array_key_exists($rawOrder['id'], $orders)) {
                 $orders[$rawOrder['id']] = [
                     'id' => $rawOrder['id'],
-                    'customerId' => $rawOrder['customer_id'],
+                    'customerId' => strtolower($rawOrder['customer_id']),
                     'lineItems' => [],
                 ];
             }

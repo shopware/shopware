@@ -546,7 +546,9 @@
   },
   "sw-property-assignment": {
     "columnGroup": "Eigenschaft",
-    "columnOptions": "Optionen"
+    "columnOptions": "Optionen",
+    "messageEmptyTitle": "Noch keine Eigenschaften",
+    "messageEmptySubline": "Verwaltung von Eigenschaften."
   },
   "sw-language-info": {
     "infoTextChildLanguage": "Darstellung von \"{entityDescription}\" in der Sprache \"{language}\". Diese erbt von",

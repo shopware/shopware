@@ -28,6 +28,12 @@
                         {% endblock %}
                     </template>
                 {% endblock %}
+
+                {% block sw_property_assignment_empty_state %}
+                    <template slot="empty">
+                            <sw-empty-state v-if="!isLoading" :title="$tc('sw-property-assignment.messageEmptyTitle')" :subline="$tc('sw-property-assignment.messageEmptySubline')"></sw-empty-state>
+                    </template>
+                {% endblock %}
             </sw-grid>
         {% endblock %}
     </div>

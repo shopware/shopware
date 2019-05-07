@@ -17,7 +17,8 @@ export default {
         return {
             groups: [],
             displayTree: false,
-            displaySearch: false
+            displaySearch: false,
+            isLoading: false
         };
     },
 
@@ -35,9 +36,11 @@ export default {
         createdComponent() {
             const params = { page: 1, limit: 500 };
 
+            this.isLoading = true;
             return this.options.getList(params).then(() => {
                 this.groupOptions(this.options);
                 this.$emit('options-loaded');
+                this.isLoading = false;
             });
         },
 

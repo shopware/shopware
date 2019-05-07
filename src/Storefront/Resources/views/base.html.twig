@@ -56,13 +56,11 @@
         {% block base_main %}
             <main class="content-main">
                 {% block base_flashbags %}
-                    {% if app.flashes %}
-                        <div id="flashbags" class="container">
-                            {% for type, messages in app.flashes %}
-                                {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with { type: type, list: messages } %}
-                            {% endfor %}
-                        </div>
-                    {% endif %}
+                    <div class="flashbags container">
+                        {% for type, messages in app.flashes %}
+                            {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with { type: type, list: messages } %}
+                        {% endfor %}
+                    </div>
                 {% endblock %}
 
                 {% block base_main_inner %}

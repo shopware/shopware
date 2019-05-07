@@ -46,6 +46,8 @@
 {% endblock %}
 
 {% block page_checkout_sidebar %}
+    {{ parent() }}
+
     {% block page_checkout_cart_actions %}
         <div class="checkout-main-actions">
             {% block page_checkout_cart_actions_add_promotion %}
@@ -81,8 +83,6 @@
             {% endblock %}
         </div>
     {% endblock %}
-
-    {{ parent() }}
 {% endblock %}
 
 {% block page_checkout_sidebar_actions %}

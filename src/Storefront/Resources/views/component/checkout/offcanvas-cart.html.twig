@@ -7,6 +7,17 @@
 {% block layout_utilities_offcanvas_content %}
 	{% block layout_cart_mini %}
 		<div class="offcanvas-cart">
+            {% block layout_utilities_offcanvas_flashbags %}
+				<div class="flashbags">
+                    {% for type, messages in app.flashes %}
+                        {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with {
+                            type: type,
+                            list: messages
+                        } %}
+                    {% endfor %}
+				</div>
+            {% endblock %}
+
 			{% set isCartNotEmpty = (page.cart.lineItems|length > 0) %}
 
 			{% if isCartNotEmpty %}

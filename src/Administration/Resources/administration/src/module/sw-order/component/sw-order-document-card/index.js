@@ -9,8 +9,11 @@ import '../sw-order-document-settings-modal/';
 
 Component.register('sw-order-document-card', {
     template,
+
     inject: ['documentService', 'numberRangeService'],
+
     mixins: [Mixin.getByName('listing')],
+
     props: {
         order: {
             type: Object,
@@ -21,6 +24,7 @@ Component.register('sw-order-document-card', {
             required: true
         }
     },
+
     data() {
         return {
             documentsLoading: false,
@@ -34,6 +38,7 @@ Component.register('sw-order-document-card', {
             term: ''
         };
     },
+
     computed: {
         creditItems() {
             const items = [];
@@ -46,12 +51,15 @@ Component.register('sw-order-document-card', {
 
             return items;
         },
+
         documentStore() {
             return this.order.getAssociation('documents');
         },
+
         documentTypeStore() {
             return State.getStore('document_type');
         },
+
         documentModal() {
             const subComponentName = this.currentDocumentType.technicalName.replace('_', '-');
             if (this.$options.components[`sw-order-document-settings-${subComponentName}-modal`]) {
@@ -60,9 +68,11 @@ Component.register('sw-order-document-card', {
             return 'sw-order-document-settings-modal';
         }
     },
+
     created() {
         this.createdComponent();
     },
+
     methods: {
         createdComponent() {
             this.cardLoading = true;
@@ -74,6 +84,7 @@ Component.register('sw-order-document-card', {
                 this.cardLoading = false;
             });
         },
+
         getList() {
             this.documentsLoading = true;
 
@@ -89,6 +100,7 @@ Component.register('sw-order-document-card', {
                 this.documentsLoading = false;
             });
         },
+
         documentTypeAvailable(documentType) {
             return (
                 (
@@ -106,28 +118,34 @@ Component.register('sw-order-document-card', {
                 )
             );
         },
+
         invoiceExists() {
             return this.documents.some((document) => {
                 return (document.documentType.technicalName === 'invoice');
             });
         },
+
         onSearchTermChange(searchTerm) {
             this.term = searchTerm;
             this.getList();
         },
+
         createDocument(orderId, documentTypeName, params) {
             return this.documentService.createDocument(orderId, documentTypeName, params).then(() => {
                 this.getList();
             });
         },
+
         onCancelCreation() {
             this.showModal = false;
             this.currentDocumentType = null;
         },
+
         onPrepareDocument(documentType) {
             this.currentDocumentType = documentType;
             this.showModal = true;
         },
+
         onCreateDocument(params, additionalAction) {
             this.showModal = false;
             this.$nextTick().then(() => {
@@ -144,6 +162,7 @@ Component.register('sw-order-document-card', {
                 });
             });
         },
+
         onPreview(params) {
             const config = JSON.stringify(params);
             window.open(
@@ -154,6 +173,10 @@ Component.register('sw-order-document-card', {
                 ),
                 '_blank'
             );
+        },
+
+        onDownload(id, deepLink) {
+            window.open(this.documentService.generateDocumentLink(id, deepLink), '_blank');
         }
     }
 });

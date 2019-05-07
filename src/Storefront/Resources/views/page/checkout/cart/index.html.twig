@@ -42,50 +42,102 @@
                 </div>
             </div>
         {% endblock %}
-    {% endblock %}
-{% endblock %}
 
-{% block page_checkout_sidebar %}
-    {{ parent() }}
+        {% block page_checkout_cart_add_product %}
+            {#TODO: NEXT-2834 - add form action: {{ path('frontend.checkout.product.add') }}#}
+            <form action="#"
+                  class="cart-add-product"
+                  method="post"
+                  data-add-to-cart="true">
+                {% block page_checkout_cart_add_product_redirect %}
+                    <input type="hidden"
+                           name="redirectTo"
+                           value="frontend.checkout.cart.page">
+                {% endblock %}
 
-    {% block page_checkout_cart_actions %}
-        <div class="checkout-main-actions">
-            {% block page_checkout_cart_actions_add_promotion %}
-                <form action="{{ path('frontend.checkout.promotion.add') }}"
-                      method="post">
-                    <input type="hidden" name="forwardTo" value="frontend.checkout.cart.page">
-                    {% block page_checkout_cart_actions_add_promotion_input_group %}
-                        <div class="input-group">
-                            {% block page_checkout_cart_actions_add_promotion_input %}
-                                <input type="text"
-                                       name="code"
-                                       class="form-control"
-                                       placeholder="{{ "checkout.addPromotionPlaceholder"|trans }}"
-                                       aria-label="{{ "checkout.addPromotionLabel"|trans }}"
-                                       aria-describedby="addPromotion"
-                                       required="required">
-                            {% endblock %}
+                {% block page_checkout_cart_add_product_input_group %}
+                    <div class="input-group">
+                        {% block page_checkout_cart_add_product_label %}
+                            <label class="sr-only" for="addProductInput">
+                                {{ "checkout.addProductLabel"|trans }}
+                            </label>
+                        {% endblock %}
 
-                            {% block page_checkout_cart_actions_add_promotion_submit %}
-                                <div class="input-group-append">
-                                    <button class="btn btn-dark"
-                                            type="submit"
-                                            id="addPromotion">
-                                        {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-                                            'name': 'basic-plus-circle'
-                                        } %}
-                                    </button>
-                                </div>
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
-                </form>
-            {% endblock %}
-        </div>
+                        {% block page_checkout_cart_add_product_input %}
+                            <input type="text"
+                                   name="number"
+                                   class="form-control"
+                                   id="addProductInput"
+                                   placeholder="{{ "checkout.addProductPlaceholder"|trans }}"
+                                   aria-label="{{ "checkout.addProductLabel"|trans }}"
+                                   aria-describedby="addProduct"
+                                   required="required">
+                        {% endblock %}
+
+                        {% block page_checkout_cart_add_product_submit %}
+                            <div class="input-group-append">
+                                <button class="btn btn-dark"
+                                        type="submit"
+                                        id="addProductInput">
+                                    {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
+                                        'name': 'basic-plus-circle'
+                                    } %}
+                                </button>
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </form>
+        {% endblock %}
     {% endblock %}
 {% endblock %}
 
 {% block page_checkout_sidebar_actions %}
+    {% block page_checkout_cart_add_promotion %}
+        <form action="{{ path('frontend.checkout.promotion.add') }}"
+              class="cart-add-promotion"
+              method="post">
+            {% block page_checkout_cart_add_promotion_forward %}
+                <input type="hidden"
+                       name="forwardTo"
+                       value="frontend.checkout.cart.page">
+            {% endblock %}
+
+            {% block page_checkout_cart_add_promotion_input_group %}
+                <div class="input-group">
+                    {% block page_checkout_cart_add_promotion_label %}
+                        <label class="sr-only" for="addPromotionInput">
+                            {{ "checkout.addPromotionLabel"|trans }}
+                        </label>
+                    {% endblock %}
+
+                    {% block page_checkout_cart_add_promotion_input %}
+                        <input type="text"
+                               name="code"
+                               class="form-control"
+                               id="addPromotionInput"
+                               placeholder="{{ "checkout.addPromotionPlaceholder"|trans }}"
+                               aria-label="{{ "checkout.addPromotionLabel"|trans }}"
+                               aria-describedby="addPromotion"
+                               required="required">
+                    {% endblock %}
+
+                    {% block page_checkout_cart_add_promotion_submit %}
+                        <div class="input-group-append">
+                            <button class="btn btn-dark"
+                                    type="submit"
+                                    id="addPromotion">
+                                {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
+                                    'name': 'basic-plus-circle'
+                                } %}
+                            </button>
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </form>
+    {% endblock %}
+
     {% block page_checkout_sidebar_actions_proceed %}
         <a href="{{ path('frontend.checkout.confirm.page') }}"
            class="btn btn-primary btn-block btn-lg"

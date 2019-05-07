@@ -40,7 +40,6 @@ Component.register('sw-category-detail-base', {
             isLoadingProducts: false,
             deleteButtonDisabled: true,
             showLayoutSelectionModal: false,
-            cmsPages: [],
             reversedVisibility: null
         };
     },
@@ -77,9 +76,8 @@ Component.register('sw-category-detail-base', {
             this.isLoadingProducts = true;
             const params = this.getListingParams();
 
-            Promise.all([this.cmsPageStore.getList({}, true), this.categoryProductStore.getList(params)])
-                .then(([cmsPagesResponse, productResponse]) => {
-                    this.cmsPages = cmsPagesResponse.items;
+            this.categoryProductStore.getList(params)
+                .then((productResponse) => {
                     this.products = productResponse.items;
                     this.total = productResponse.total;
                     this.isLoadingProducts = false;
@@ -87,7 +85,7 @@ Component.register('sw-category-detail-base', {
                     this.reversedVisibility = !this.category.visible;
 
                     this.buildGridArray();
-                    return [this.products, this.cmsPages];
+                    return this.products;
                 });
         },
 

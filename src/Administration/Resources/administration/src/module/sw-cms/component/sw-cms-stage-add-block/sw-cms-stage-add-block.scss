@@ -22,7 +22,7 @@
 
     &.is--valid-drop {
         background: rgba($color-shopware-blue, 0.2);
-        border: 1px solid $color-shopware-blue;
+        border: 2px dashed $color-shopware-blue;
 
         .sw-cms-stage-add-block__handle,
         .sw-cms-stage-add-block__button {

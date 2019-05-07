@@ -22,6 +22,7 @@ Component.register('sw-cms-detail', {
             page: {
                 blocks: []
             },
+            cmsPageState: State.getStore('cmsPageState'),
             salesChannels: [],
             isLoading: false,
             isSaveSuccessful: false,
@@ -58,10 +59,6 @@ Component.register('sw-cms-detail', {
             return State.getStore('media_default_folder');
         },
 
-        cmsPageState() {
-            return State.getStore('cmsPageState');
-        },
-
         cmsBlocks() {
             return this.cmsService.getCmsBlockRegistry();
         },
@@ -92,6 +89,10 @@ Component.register('sw-cms-detail', {
             return {
                 product_detail: {
                     entity: 'product',
+                    mode: 'single'
+                },
+                product_list: {
+                    entity: 'category',
                     mode: 'single'
                 }
             };
@@ -155,13 +156,18 @@ Component.register('sw-cms-detail', {
             // ToDo: Remove, when language handling is added to CMS
             this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
 
-            this.cmsPageState.currentPage = null;
+            this.resetCmsPageState();
 
             if (this.$route.params.id) {
                 this.pageId = this.$route.params.id;
                 this.isLoading = true;
+                const defaultStorefrontId = '8A243080F92E4C719546314B577CF82B';
 
-                this.salesChannelStore.getList({ page: 1, limit: 25 }).then((response) => {
+                this.salesChannelStore.getList({
+                    page: 1,
+                    limit: 25,
+                    criteria: CriteriaFactory.equals('typeId', defaultStorefrontId)
+                }).then((response) => {
                     this.salesChannels = response.items;
 
                     if (this.salesChannels.length > 0) {
@@ -178,6 +184,13 @@ Component.register('sw-cms-detail', {
             this.getDefaultFolderId().then((folderId) => {
                 this.cmsPageState.defaultMediaFolderId = folderId;
             });
+        },
+
+        resetCmsPageState() {
+            this.cmsPageState.currentPage = null;
+            this.cmsPageState.currentMappingEntity = null;
+            this.cmsPageState.currentMappingTypes = {};
+            this.cmsPageState.currentDemoEntity = null;
         },
 
         getDefaultFolderId() {
@@ -254,17 +267,36 @@ Component.register('sw-cms-detail', {
             if (!mappingEntity) {
                 this.cmsPageState.currentMappingEntity = null;
                 this.cmsPageState.currentMappingTypes = {};
+                this.cmsPageState.currentDemoEntity = null;
 
                 this.currentMappingEntity = null;
                 this.currentMappingEntityStore = null;
+                this.demoEntityId = null;
                 return;
             }
 
-            this.cmsPageState.currentMappingEntity = mappingEntity;
-            this.cmsPageState.currentMappingTypes = this.cmsService.getEntityMappingTypes(mappingEntity);
+            if (this.cmsPageState.currentMappingEntity !== mappingEntity) {
+                this.cmsPageState.currentMappingEntity = mappingEntity;
+                this.cmsPageState.currentMappingTypes = this.cmsService.getEntityMappingTypes(mappingEntity);
 
-            this.currentMappingEntity = mappingEntity;
-            this.currentMappingEntityStore = State.getStore(mappingEntity);
+                this.currentMappingEntity = mappingEntity;
+                this.currentMappingEntityStore = State.getStore(mappingEntity);
+
+                this.loadFirstDemoEntity();
+            }
+        },
+
+        loadFirstDemoEntity() {
+            const params = { page: 1, limit: 1 };
+
+            if (this.cmsPageState.currentMappingEntity === 'category') {
+                params.associations = { media: {} };
+            }
+
+            this.currentMappingEntityStore.getList(params).then((response) => {
+                this.demoEntityId = response.items[0].id;
+                this.cmsPageState.currentDemoEntity = response.items[0];
+            });
         },
 
         onDeviceViewChange(view) {
@@ -300,14 +332,6 @@ Component.register('sw-cms-detail', {
         onPageTypeChange() {
             const blockStore = this.page.getAssociation('blocks');
 
-            if (this.page.blocks.length > 0) {
-                // ToDo: Show modal before deleting blocks.
-                blockStore.forEach((block) => {
-                    block.delete();
-                });
-                this.page.blocks = [];
-            }
-
             if (this.page.type === 'product_list') {
                 const listingBlock = blockStore.create();
                 const blockConfig = this.cmsBlocks['product-listing'];
@@ -330,19 +354,54 @@ Component.register('sw-cms-detail', {
 
                 listingBlock.slots.push(listingEl);
                 this.page.blocks.splice(0, 0, listingBlock);
-                this.updateBlockPositions();
+            } else {
+                this.page.blocks.forEach((block, index) => {
+                    if (block.type === 'product-listing') {
+                        block.delete();
+                        this.page.blocks.splice(index, 1);
+                    }
+                });
             }
 
+            this.updateBlockPositions();
             this.updateDataMapping();
+            this.checkSlotMappings();
+        },
+
+        checkSlotMappings() {
+            this.page.blocks.forEach((block) => {
+                block.slots.forEach((slot) => {
+                    Object.keys(slot.config).forEach((key) => {
+                        if (slot.config[key].source && slot.config[key].source === 'mapped') {
+                            const mappingPath = slot.config[key].value.split('.');
+
+                            if (mappingPath[0] !== this.currentMappingEntity) {
+                                slot.config[key].value = null;
+                                slot.config[key].source = 'static';
+                            }
+                        }
+                    });
+                });
+            });
         },
 
         onDemoEntityChange(demoEntityId) {
-            const demoEntity = this.currentMappingEntityStore.getById(demoEntityId);
-
             this.cmsPageState.currentDemoEntity = null;
+
+            if (!demoEntityId) {
+                return;
+            }
+
+            const demoEntity = this.currentMappingEntityStore.getById(demoEntityId);
 
             if (!demoEntity) {
                 return;
+            }
+
+            if (this.cmsPageState.currentMappingEntity === 'category' && demoEntity.mediaId !== null) {
+                State.getStore('media').getByIdAsync(demoEntity.mediaId).then((media) => {
+                    demoEntity.media = media;
+                });
             }
 
             this.cmsPageState.currentDemoEntity = demoEntity;

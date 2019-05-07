@@ -71,7 +71,12 @@
     .sw-cms-mapping-field__preview {
         padding: 20px;
         border: 1px solid $color-steam-cloud;
+        margin-top: 10px;
         margin-bottom: 22px;
+    }
+
+    .sw-cms-mapping-field__empty-demo {
+        margin: 0;
     }
 }
 

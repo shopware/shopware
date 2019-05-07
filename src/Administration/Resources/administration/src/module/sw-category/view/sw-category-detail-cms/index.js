@@ -23,15 +23,5 @@ Component.register('sw-category-detail-cms', {
             type: Boolean,
             required: true
         }
-    },
-
-    created() {
-        this.createdComponent();
-    },
-
-    methods: {
-        createdComponent() {
-            this.$emit('sw-category-base-on-layout-change', this.category.cmsPageId);
-        }
     }
 });

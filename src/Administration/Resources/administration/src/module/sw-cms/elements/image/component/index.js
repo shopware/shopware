@@ -29,7 +29,13 @@ Component.register('sw-cms-el-image', {
             const initContainer = Application.getContainer('init');
             const context = initContainer.contextService;
 
-            if (this.element.data.media) {
+            if (this.element.config.media.source === 'mapped') {
+                const media = this.getDemoValue(this.element.config.media.value);
+
+                if (media && media.id && media.url) {
+                    return media.url;
+                }
+            } else if (this.element.data.media) {
                 if (this.element.data.media.id) {
                     return this.element.data.media.url;
                 }
@@ -38,6 +44,15 @@ Component.register('sw-cms-el-image', {
             }
 
             return `${context.assetsPath}/administration/static/img/cms/preview_mountain_large.jpg`;
+        }
+    },
+
+    watch: {
+        cmsPageState: {
+            deep: true,
+            handler() {
+                this.$forceUpdate();
+            }
         }
     },
 

@@ -15,13 +15,12 @@ Component.register('sw-cms-list-item', {
 
     computed: {
         previewMedia() {
-            let backgroundImage = null;
-            if (this.page.previewMedia && this.page.previewMedia.id) {
-                backgroundImage = `url(${this.page.previewMedia.url})`;
+            if (!this.page.previewMedia || !this.page.previewMedia.id) {
+                return null;
             }
 
             return {
-                'background-image': backgroundImage,
+                'background-image': `url(${this.page.previewMedia.url})`,
                 'background-size': 'cover'
             };
         }

@@ -22,14 +22,14 @@
     "detail": {
       "labelButtonSave": "Save",
       "headlineEmptyState": "Space for creativity",
-      "claimEmptyState": "Design you layout by placing new blocks on the stage.",
+      "claimEmptyState": "Create a new layout using blocks. You can simply add them by drag & drop and fill them with your content.",
       "actionEmptyState": "Add first block",
       "sidebarTitlePageSettings": "Settings",
       "sidebarHeaderPageSettings": "Basic information",
       "labelPageName": "Name",
       "labelPageType": "Layout type",
-      "labelDemoEntity": "Demo entity",
-      "placeholderDemoEntity": "Select a demo entity",
+      "labelDemoEntity": "Preview entity",
+      "placeholderDemoEntity": "Select an entity for preview",
       "labelPageTypeLandingpage": "Landingpage",
       "labelPageTypeShopPage": "Shop page",
       "labelPageTypeCategory": "Listing page",
@@ -44,7 +44,7 @@
       "labelBlockCategoryImage": "Images",
       "labelBlockCategoryCommerce": "Commerce",
       "titleElementSettingsModal": "Element settings",
-      "labelButtonElementSettingsConfirm": "Ok",
+      "labelButtonElementSettingsConfirm": "Done",
       "titleElementChangeModal": "Change element",
       "labelButtonElementChangeAbort": "Cancel",
       "labelBlockNameField": "Block name",
@@ -67,6 +67,7 @@
       "labelButtonMappingAction": "Data mapping",
       "labelButtonMappingRemoveAction": "Remove mapping",
       "labelMappingPreview": "Field mapped to:",
+      "labelMappingEmptyPreview": "There is no available preview for this mapping of the current preview entity.",
       "notificationTitleMissingFields": "Missing configuration",
       "notificationMessageMissingFields": "Please fill out the required configuration fields.",
       "notificationTitlePageError": "Layout could not be saved!",
@@ -77,6 +78,7 @@
     },
     "elements": {
       "captionMediaUpload": "Upload an image",
+      "labelMedia": "Image",
       "labelMediaDisplayMode": "Display mode",
       "labelMediaDisplayModeStandard": "Standard",
       "labelMediaDisplayModeCover": "Cover",
@@ -99,7 +101,8 @@
       "labelProductDisplayModeContain": "Contain",
       "placeholderSettingsEnterUrl": "Enter URL",
       "labelSettingsLinkTo": "Link to",
-      "labelSettingsLinkNewTab": "Open link in new tab"
+      "labelSettingsLinkNewTab": "Open link in new tab",
+      "infoTextListingElement": "The product data for this element is loaded automatically by the category which uses this layout. The content just shows a simple preview."
     },
     "components": {
       "cmsLayoutModal": {

@@ -22,11 +22,13 @@ Mixin.register('cms-element', {
         }
     },
 
-    computed: {
-        cmsPageState() {
-            return State.getStore('cmsPageState');
-        },
+    data() {
+        return {
+            cmsPageState: State.getStore('cmsPageState')
+        };
+    },
 
+    computed: {
         cmsElements() {
             return this.cmsService.getCmsElementRegistry();
         }

@@ -13,8 +13,8 @@ Application.getContainer('service').cmsService.registerCmsBlock({
     defaultConfig: {
         marginBottom: '20px',
         marginTop: '20px',
-        marginLeft: null,
-        marginRight: null,
+        marginLeft: '20px',
+        marginRight: '20px',
         sizingMode: 'boxed'
     },
     slots: {

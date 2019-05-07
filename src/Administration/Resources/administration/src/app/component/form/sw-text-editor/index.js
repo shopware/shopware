@@ -176,11 +176,40 @@ export default {
             isActive: false,
             hasSelection: false,
             selection: null,
+            currentSelection: null,
             toolbar: null,
             textLength: 0,
-            content: this.value,
-            placeholderHeight: null
+            content: '',
+            placeholderHeight: null,
+            placeholderVisible: true
         };
+    },
+
+    computed: {
+        classes() {
+            return {
+                'is--active': this.isActive,
+                'is--boxed': !this.isInlineEdit
+            };
+        }
+    },
+
+    watch: {
+        value: {
+            handler() {
+                if (this.value !== this.$refs.editor.innerHTML) {
+                    this.content = this.value;
+                }
+
+                this.$nextTick(() => {
+                    this.setWordcount();
+                });
+            }
+        },
+
+        placeholderVisible() {
+            this.setPlaceholderHeight();
+        }
     },
 
     created() {
@@ -195,42 +224,14 @@ export default {
         this.destroyedComponent();
     },
 
-    watch: {
-        // @todo fix input cursor bug
-        // testable in categories
-        value: {
-            handler() {
-                if (!this.isActive) {
-                    this.content = this.value;
-                    this.$nextTick(() => {
-                        this.setWordcount();
-                    });
-                } else {
-                    this.setWordcount();
-                }
-            }
-        },
-
-        placeholderVisible() {
-            this.setPlaceholderHeight();
-        }
-    },
-
-    computed: {
-        classes() {
-            return {
-                'is--active': this.isActive,
-                'is--boxed': !this.isInlineEdit
-            };
-        },
-
-        placeholderVisible() {
-            return this.textLength === 0;
-        }
-    },
-
     methods: {
         createdComponent() {
+            this.content = this.value;
+
+            if (!this.content || !this.content.length || this.content.length <= 0) {
+                this.placeholderVisible = true;
+            }
+
             document.addEventListener('mouseup', this.onSelectionChange);
             document.addEventListener('mousedown', this.onSelectionChange);
         },
@@ -327,12 +328,17 @@ export default {
             if (!this.isActive) {
                 document.addEventListener('mousedown', this.onDocumentClick);
                 this.isActive = true;
+                this.placeholderVisible = false;
             }
         },
 
         removeFocus() {
             if (!this.isActive) {
                 return;
+            }
+
+            if (this.$refs.editor.innerHTML.length <= 0) {
+                this.placeholderVisible = true;
             }
 
             this.isActive = false;

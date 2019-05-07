@@ -61,7 +61,11 @@
 
             {% block sw_cms_mapping_field_preview %}
                 <div class="sw-cms-mapping-field__preview" v-if="hasPreview">
-                    <slot name="preview" :demoValue="demoValue"></slot>
+                    <slot name="preview" :demoValue="demoValue" v-if="this.demoValue !== null"></slot>
+
+                    <sw-alert variant="info" class="sw-cms-mapping-field__empty-demo" v-else>
+                        {{ $tc('sw-cms.detail.labelMappingEmptyPreview') }}
+                    </sw-alert>
                 </div>
             {% endblock %}
         </template>

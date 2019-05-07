@@ -1,4 +1,5 @@
 import { Component, State } from 'src/core/shopware';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import EntityProxy from 'src/core/data/EntityProxy';
 import utils from 'src/core/service/util.service';
 import template from './sw-cms-create.html.twig';
@@ -33,7 +34,12 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
                 this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
             }
 
-            this.salesChannelStore.getList({ page: 1, limit: 25 }).then((response) => {
+            const defaultStorefrontId = '8A243080F92E4C719546314B577CF82B';
+            this.salesChannelStore.getList({
+                page: 1,
+                limit: 25,
+                criteria: CriteriaFactory.equals('typeId', defaultStorefrontId)
+            }).then((response) => {
                 this.salesChannels = response.items;
 
                 if (this.salesChannels.length > 0) {
@@ -45,7 +51,6 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
                 this.page = new EntityProxy('cms_page', this.cmsPageService, this.$route.params.id, null);
             }
         },
-
 
         saveFinish() {
             this.isSaveSuccessful = false;

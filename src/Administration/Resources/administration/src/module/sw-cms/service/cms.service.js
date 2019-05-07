@@ -67,7 +67,7 @@ function getEntityMappingTypes(entityName = null) {
 }
 
 function handlePropertyMappings(propertyDefinitions, mappings, pathPrefix, deep = true) {
-    const blacklist = ['parent'];
+    const blacklist = ['parent', 'cmsPage'];
     const formatBlacklist = ['uuid'];
 
     Object.keys(propertyDefinitions).forEach((property) => {
@@ -87,32 +87,43 @@ function handlePropertyMappings(propertyDefinitions, mappings, pathPrefix, deep 
         }
 
         if (propSchema.type === 'object') {
-            if (propSchema.properties) {
+            if (propSchema.entity) {
+                if (!mappings.entity) {
+                    mappings.entity = {};
+                }
+
+                if (!mappings.entity[propSchema.entity]) {
+                    mappings.entity[propSchema.entity] = [];
+                }
+
+                mappings.entity[propSchema.entity].push(`${pathPrefix}.${property}`);
+
+                if (deep === true) {
+                    const schema = Entity.getDefinition(propSchema.entity);
+
+                    if (schema) {
+                        handlePropertyMappings(schema.properties, mappings, `${pathPrefix}.${property}`, false);
+                    }
+                }
+            } else if (propSchema.properties) {
                 handlePropertyMappings(
                     propSchema.properties,
                     mappings,
                     `${pathPrefix}.${property}`,
                     false
                 );
-            } else if (propSchema.entity && deep === true) {
-                const schema = Entity.getDefinition(propSchema.entity);
-
-                if (schema) {
-                    handlePropertyMappings(
-                        schema.properties,
-                        mappings,
-                        `${pathPrefix}.${property}`,
-                        false
-                    );
-                }
             }
         } else if (propSchema.type === 'array') {
             if (propSchema.entity) {
                 if (!mappings.entity) {
-                    mappings.entity = [];
+                    mappings.entity = {};
                 }
 
-                mappings.entity.push(`${pathPrefix}.${property}`);
+                if (!mappings.entity[propSchema.entity]) {
+                    mappings.entity[propSchema.entity] = [];
+                }
+
+                mappings.entity[propSchema.entity].push(`${pathPrefix}.${property}`);
             }
         } else {
             if (!mappings[propSchema.type]) {

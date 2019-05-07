@@ -9,11 +9,11 @@ Application.getContainer('service').cmsService.registerCmsBlock({
     component: 'sw-cms-block-text-on-image',
     previewComponent: 'sw-cms-preview-text-on-image',
     defaultConfig: {
-        marginBottom: null,
-        marginTop: null,
-        marginLeft: null,
-        marginRight: null,
-        sizingMode: 'full_width',
+        marginBottom: '20px',
+        marginTop: '20px',
+        marginLeft: '20px',
+        marginRight: '20px',
+        sizingMode: 'boxed',
         backgroundMedia: {
             url: '/administration/static/img/cms/preview_mountain_large.jpg'
         }
@@ -29,8 +29,7 @@ Application.getContainer('service').cmsService.registerCmsBlock({
                         <h2 style="text-align: center; color: #FFFFFF">Lorem Ipsum</h2>
                         <p style="text-align: center; color: #FFFFFF">Lorem ipsum dolor sit amet, consetetur
                         sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-                        lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt
-                        ut labore et dolore magna aliquyam</p>
+                        lorem ipsum dolor sit amet.</p>
                         `.trim()
                     }
                 }

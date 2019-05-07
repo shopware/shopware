@@ -1,17 +1,16 @@
 {% block sw_cms_element_text %}
     <div class="sw-cms-el-text">
-        <sw-text-editor v-if="element.config.content.source === 'static'"
+        <div class="sw-cms-el-text__mapping-preview content-editor"
+             v-html="$sanitize(demoValue)"
+             v-if="element.config.content.source === 'mapped'">
+        </div>
+
+        <sw-text-editor v-else
                         v-model="element.config.content.value"
                         :placeholder="element.data.content"
                         @blur="onBlur"
                         @input="onInput"
                         :isInlineEdit="true">
         </sw-text-editor>
-
-        <div class="content-editor"
-             v-html="$sanitize(demoValue)"
-             v-if="element.config.content.source === 'mapped'">
-        </div>
-
     </div>
 {% endblock %}

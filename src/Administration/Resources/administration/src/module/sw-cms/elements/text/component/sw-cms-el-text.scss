@@ -3,23 +3,8 @@
 .sw-cms-el-text {
     position: relative;
 
-    .content-editor {
-        h1, h2, h3, h4, h5, h6 {
-            word-break: break-word;
-        }
-
-        &[contenteditable="true"] {
-            border: 1px solid transparent;
-            caret-color: $color-shopware-blue;
-            outline: none;
-        }
-        &[contenteditable="true"]:hover {
-            border: 1px dashed $color-steam-cloud;
-        }
-        &[contenteditable="true"]:focus,
-        &[contenteditable="true"]:active {
-            border: 1px solid $color-steam-cloud;
-        }
+    .sw-cms-el-text__mapping-preview {
+        min-height: 40px;
     }
 
     .content-editor__toolbar {

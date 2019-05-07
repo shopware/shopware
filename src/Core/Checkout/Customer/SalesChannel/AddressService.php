@@ -160,19 +160,7 @@ class AddressService
 
         $this->customerAddressRepository->upsert([$addressData], $context->getContext());
 
-        $contextualAddressIds = [];
-        $contextualAddressIds[] = $context->getCustomer()->getDefaultBillingAddressId();
-        $contextualAddressIds[] = $context->getCustomer()->getDefaultShippingAddressId();
-
-        array_unique($contextualAddressIds);
-
-        if (in_array($id, $contextualAddressIds, true)) {
-            $this->contextService->refresh(
-                $context->getSalesChannel()->getId(),
-                $context->getToken(),
-                $context->getContext()->getLanguageId()
-            );
-        }
+        $this->refreshContext($context);
 
         return $id;
     }
@@ -197,6 +185,8 @@ class AddressService
         }
 
         $this->customerAddressRepository->delete([['id' => $addressId]], $context->getContext());
+
+        $this->refreshContext($context);
     }
 
     /**
@@ -241,5 +231,14 @@ class AddressService
         $this->eventDispatcher->dispatch($validationEvent->getName(), $validationEvent);
 
         return $validation;
+    }
+
+    private function refreshContext(SalesChannelContext $context): void
+    {
+        $this->contextService->refresh(
+            $context->getSalesChannel()->getId(),
+            $context->getToken(),
+            $context->getContext()->getLanguageId()
+        );
     }
 }

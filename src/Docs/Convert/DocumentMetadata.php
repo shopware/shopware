@@ -149,7 +149,7 @@ class DocumentMetadata
         $metadata = $this->document->loadRawMetadata();
 
         if (!isset($metadata[$key])) {
-            throw new \InvalidArgumentException(sprintf('Key %s on %s not found', $key, $this->document->getFile()->getRelativePath()));
+            throw new \InvalidArgumentException(sprintf('Key %s on %s not found', $key, $this->document->getFile()->getRealPath()));
         }
 
         return $metadata[$key];

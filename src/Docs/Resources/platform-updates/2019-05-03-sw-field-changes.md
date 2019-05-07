@@ -1,4 +1,4 @@
-[title]: <>(Changes in sw-field component)
+[titleEn]: <>(Changes in sw-field component)
 
 The `sw-field` component got a complete overhaul in order to remove unused properties, doubled configuration
 and a lot of unnecessary template and logic inheritance.

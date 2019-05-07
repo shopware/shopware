@@ -206,6 +206,7 @@
         <service id="Shopware\Storefront\PageletController\CheckoutPageletController" public="true">
             <argument type="service" id="Shopware\Storefront\Pagelet\Checkout\Info\CheckoutInfoPageletLoader"/>
             <argument type="service" id="Shopware\Storefront\Pagelet\Checkout\AjaxCart\CheckoutAjaxCartPageletLoader"/>
+            <argument type="service" id="Shopware\Storefront\Pagelet\Account\AddressList\AccountAddressListPageletLoader"/>
         </service>
 
         <service id="Shopware\Storefront\Pagelet\AddressBook\AddressBookPageletLoader">
@@ -286,6 +287,7 @@
             <argument type="service" id="Shopware\Core\Content\NewsletterReceiver\SalesChannel\NewsletterSubscriptionService"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
             <argument type="service" id="translator"/>
+            <argument type="service" id="Shopware\Storefront\Pagelet\Account\AddressList\AccountAddressListPageletLoader"/>
         </service>
 
         <service id="Shopware\Storefront\PageController\ProductPageController" public="true">

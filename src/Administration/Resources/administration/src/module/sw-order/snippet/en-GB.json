@@ -124,7 +124,9 @@
       "labelSent": "Sent",
       "labelAmount": "Amount",
       "labelDownloadPdf": "Download as PDF",
-      "labelCreateNew": "Create new"
+      "labelCreateNew": "Create new",
+      "messageEmptyTitle": "No documents yet",
+      "messageEmptySubline": "Manage documents here."
     },
     "documentModal": {
       "modalTitle": "Create document",

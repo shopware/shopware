@@ -89,5 +89,14 @@
                        @document-modal-show-preview="onPreview">
             </component>
         {% endblock %}
+
+        {% block sw_order_document_card_empty_state %}
+            <sw-empty-state
+                    v-if="!documents.length && !documentsLoading"
+                    :title="$tc('sw-order.documentCard.messageEmptyTitle')"
+                    icon="default-documentation-file"
+                    :subline="$tc('sw-order.documentCard.messageEmptySubline')">
+            </sw-empty-state>
+        {% endblock %}
     </sw-card>
 {% endblock %}

@@ -1,6 +1,7 @@
 import { Mixin } from 'src/core/shopware';
 import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-form-field-renderer.html.twig';
+import './sw-form-field-renderer.scss';
 
 /**
  * @public

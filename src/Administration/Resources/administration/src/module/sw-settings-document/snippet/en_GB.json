@@ -24,6 +24,7 @@
     "detail": {
       "textHeadline": "New document",
       "configCard": "Settings",
+      "companyCard": "Company settings",
       "assignmentCard": "Assignment",
       "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Document \"{name}\" has been saved successfully.",

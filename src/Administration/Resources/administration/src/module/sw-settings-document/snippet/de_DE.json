@@ -24,6 +24,7 @@
     "detail": {
       "textHeadline": "Neues Dokument",
       "configCard": "Einstellungen",
+      "companyCard": "Geschäftseinstellungen",
       "assignmentCard": "Zuweisung",
       "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Dokument \"{name}\" wurde erfolgreich gespeichert.",
@@ -37,7 +38,7 @@
       "labelDisplayPageCount": "Seitennummerierung anzeigen",
       "labelPageOrientation": "Seitenausrichtung",
       "labelPageSize": "Seitenformat",
-      "labelItemsPerPage": "positionen pro Seite",
+      "labelItemsPerPage": "Positionen pro Seite",
       "labelDisplayCompanyAddress": "Geschäftsadresse anzeigen",
       "labelCompanyAddress": "Geschäftsadresse",
       "labelCompanyName": "Firmenname",

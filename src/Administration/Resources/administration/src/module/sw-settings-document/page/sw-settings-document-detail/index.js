@@ -26,292 +26,264 @@ Component.register('sw-settings-document-detail', {
             salesChannels: {},
             salesChannelsTypeCriteria: {},
             selectedType: {},
-            formFieldSet: {
-                id: 'documentconfiguration',
-                name: 'Document Konfiguration',
-                config: {
-                    label: {
-                        'de-DE': 'Dokumente',
-                        'en-GB': 'Documents'
+            generalFormFields: [
+                {
+                    name: 'pageOrientation',
+                    type: 'radio',
+                    config: {
+                        componentName: 'sw-select',
+                        options: [
+                            { id: 'portrait', name: 'Portrait' },
+                            { id: 'landscape', name: 'Landscape' }
+                        ],
+                        label: {
+                            'en-GB': this.$t('sw-settings-document.detail.labelPageOrientation', 'en-GB'),
+                            'de-DE': this.$t('sw-settings-document.detail.labelPageOrientation', 'de-DE')
+                        }
                     }
                 },
-                formFields: [
-                    {
-                        id: 'docconfigdisplayprice',
-                        name: 'displayPrices',
-                        type: 'bool',
-                        config: {
-                            type: 'checkbox',
-                            label: {
-                                'en-GB': this.$t('sw-settings-document.detail.labelDisplayPrices', 'en-GB'),
-                                'de-DE': this.$t('sw-settings-document.detail.labelDisplayPrices', 'de-DE')
-                            }
-                        }
-                    },
-                    {
-                        id: 'docconfigdisplayfooter',
-                        name: 'displayFooter',
-                        type: 'bool',
-                        config: {
-                            type: 'checkbox',
-                            label: {
-                                'en-GB': this.$t('sw-settings-document.detail.labelDisplayFooter', 'en-GB'),
-                                'de-DE': this.$t('sw-settings-document.detail.labelDisplayFooter', 'de-DE')
-                            }
-                        }
-                    },
-                    {
-                        id: 'docconfigdisplayheader',
-                        name: 'displayHeader',
-                        type: 'bool',
-                        config: {
-                            type: 'checkbox',
-                            label: {
-                                'en-GB': this.$t('sw-settings-document.detail.labelDisplayHeader', 'en-GB'),
-                                'de-DE': this.$t('sw-settings-document.detail.labelDisplayHeader', 'de-DE')
-                            }
-                        }
-                    },
-                    {
-                        id: 'docconfigdisplaylineitems',
-                        name: 'displayLineItems',
-                        type: 'bool',
-                        config: {
-                            type: 'checkbox',
-                            label: {
-                                'en-GB': this.$t('sw-settings-document.detail.labelDisplayLineItems', 'en-GB'),
-                                'de-DE': this.$t('sw-settings-document.detail.labelDisplayLineItems', 'de-DE')
-                            }
-                        }
-                    },
-                    {
-                        id: 'docconfigdisplaylineitemposition',
-                        name: 'displayLineItemPosition',
-                        type: 'bool',
-                        config: {
-                            type: 'checkbox',
-                            label: {
-                                'en-GB': this.$t('sw-settings-document.detail.labelDisplayLineItemPosition', 'en-GB'),
-                                'de-DE': this.$t('sw-settings-document.detail.labelDisplayLineItemPosition', 'de-DE')
-                            }
-                        }
-                    },
-                    {
-                        id: 'docconfigdisplaypagecount',
-                        name: 'displayPageCount',
-                        type: 'bool',
-                        config: {
-                            type: 'checkbox',
-                            label: {
-                                'en-GB': this.$t('sw-settings-document.detail.labelDisplayPageCount', 'en-GB'),
-                                'de-DE': this.$t('sw-settings-document.detail.labelDisplayPageCount', 'de-DE')
-                            }
-                        }
-                    },
-                    {
-                        id: 'docconfigpageorientiation',
-                        name: 'pageOrientation',
-                        type: 'radio',
-                        config: {
-                            componentName: 'sw-select',
-                            options: [
-                                { id: 'portrait', name: 'Portrait' },
-                                { id: 'landscape', name: 'Landscape' }
-                            ],
-                            label: {
-                                'en-GB': this.$t('sw-settings-document.detail.labelPageOrientation', 'en-GB'),
-                                'de-DE': this.$t('sw-settings-document.detail.labelPageOrientation', 'de-DE')
-                            }
-                        }
-                    },
-                    {
-                        id: 'docconfigpagesize',
-                        name: 'pageSize',
-                        type: 'radio',
-                        config: {
-                            componentName: 'sw-select',
-                            options: [
-                                { id: 'a4', name: 'A4' },
-                                { id: 'a5', name: 'A5' },
-                                { id: 'legal', name: 'Legal' },
-                                { id: 'letter', name: 'Letter' }
-                            ],
-                            label: {
-                                'en-GB': this.$t('sw-settings-document.detail.labelPageSize', 'en-GB'),
-                                'de-DE': this.$t('sw-settings-document.detail.labelPageSize', 'de-DE')
-                            }
-                        }
-                    },
-                    {
-                        id: 'docconfigitemsperpage',
-                        name: 'itemsPerPage',
-                        type: 'text',
-                        config: {
-                            type: 'text',
-                            label: {
-                                'en-GB': this.$t('sw-settings-document.detail.labelItemsPerPage', 'en-GB'),
-                                'de-DE': this.$t('sw-settings-document.detail.labelItemsPerPage', 'de-DE')
-                            }
-                        }
-                    },
-                    {
-                        id: 'docconfigdisplaycompanyaddress',
-                        name: 'displayCompanyAddress',
-                        type: 'bool',
-                        config: {
-                            type: 'checkbox',
-                            label: {
-                                'en-GB': this.$t('sw-settings-document.detail.labelDisplayCompanyAddress', 'en-GB'),
-                                'de-DE': this.$t('sw-settings-document.detail.labelDisplayCompanyAddress', 'de-DE')
-                            }
-                        }
-                    },
-                    {
-                        id: 'docconfigcompanyaddress',
-                        name: 'companyAddress',
-                        type: 'text',
-                        config: {
-                            type: 'text',
-                            label: {
-                                'en-GB': this.$t('sw-settings-document.detail.labelCompanyAddress', 'en-GB'),
-                                'de-DE': this.$t('sw-settings-document.detail.labelCompanyAddress', 'de-DE')
-                            }
-                        }
-                    },
-                    {
-                        id: 'docconfigcompanyname',
-                        name: 'companyName',
-                        type: 'text',
-                        config: {
-                            type: 'text',
-                            label: {
-                                'en-GB': this.$t('sw-settings-document.detail.labelCompanyName', 'en-GB'),
-                                'de-DE': this.$t('sw-settings-document.detail.labelCompanyName', 'de-DE')
-                            }
-                        }
-                    },
-                    {
-                        id: 'docconfigcompanyemail',
-                        name: 'companyEmail',
-                        type: 'text',
-                        config: {
-                            type: 'text',
-                            label: {
-                                'en-GB': this.$t('sw-settings-document.detail.labelCompanyEmail', 'en-GB'),
-                                'de-DE': this.$t('sw-settings-document.detail.labelCompanyEmail', 'de-DE')
-                            }
-                        }
-                    },
-                    {
-                        id: 'docconfigcompanyurl',
-                        name: 'companyUrl',
-                        type: 'text',
-                        config: {
-                            type: 'text',
-                            label: {
-                                'en-GB': this.$t('sw-settings-document.detail.labelCompanyUrl', 'en-GB'),
-                                'de-DE': this.$t('sw-settings-document.detail.labelCompanyUrl', 'de-DE')
-                            }
-                        }
-                    },
-                    {
-                        id: 'docconfigtaxnumber',
-                        name: 'taxNumber',
-                        type: 'text',
-                        config: {
-                            type: 'text',
-                            label: {
-                                'en-GB': this.$t('sw-settings-document.detail.labelTaxNumber', 'en-GB'),
-                                'de-DE': this.$t('sw-settings-document.detail.labelTaxNumber', 'de-DE')
-                            }
-                        }
-                    },
-                    {
-                        id: 'docconfigvatid',
-                        name: 'vatId',
-                        type: 'text',
-                        config: {
-                            type: 'text',
-                            label: {
-                                'en-GB': this.$t('sw-settings-document.detail.labelVatId', 'en-GB'),
-                                'de-DE': this.$t('sw-settings-document.detail.labelVatId', 'de-DE')
-                            }
-                        }
-                    },
-                    {
-                        id: 'docconfigbankname',
-                        name: 'bankName',
-                        type: 'text',
-                        config: {
-                            type: 'text',
-                            label: {
-                                'en-GB': this.$t('sw-settings-document.detail.labelBankName', 'en-GB'),
-                                'de-DE': this.$t('sw-settings-document.detail.labelBankName', 'de-DE')
-                            }
-                        }
-                    },
-                    {
-                        id: 'docconfigiban',
-                        name: 'bankIban',
-                        type: 'text',
-                        config: {
-                            type: 'text',
-                            label: {
-                                'en-GB': this.$t('sw-settings-document.detail.labelBankIban', 'en-GB'),
-                                'de-DE': this.$t('sw-settings-document.detail.labelBankIban', 'de-DE')
-                            }
-                        }
-                    },
-                    {
-                        id: 'docconfigbic',
-                        name: 'bankBic',
-                        type: 'text',
-                        config: {
-                            type: 'text',
-                            label: {
-                                'en-GB': this.$t('sw-settings-document.detail.labelBankBic', 'en-GB'),
-                                'de-DE': this.$t('sw-settings-document.detail.labelBankBic', 'de-DE')
-                            }
-                        }
-                    },
-                    {
-                        id: 'docconfigcompanyplaceofjurisdiction',
-                        name: 'placeOfJurisdiction',
-                        type: 'text',
-                        config: {
-                            type: 'text',
-                            label: {
-                                'en-GB': this.$t('sw-settings-document.detail.labelPlaceOfJurisdiction', 'en-GB'),
-                                'de-DE': this.$t('sw-settings-document.detail.labelPlaceOfJurisdiction', 'de-DE')
-                            }
-                        }
-                    },
-                    {
-                        id: 'docconfigplaceoffulillment',
-                        name: 'placeOfFulfillment',
-                        type: 'text',
-                        config: {
-                            type: 'text',
-                            label: {
-                                'en-GB': this.$t('sw-settings-document.detail.labelPlaceOfFulfillment', 'en-GB'),
-                                'de-DE': this.$t('sw-settings-document.detail.labelPlaceOfFulfillment', 'de-DE')
-                            }
-                        }
-                    },
-                    {
-                        id: 'docconfigexecutivedirector',
-                        name: 'executiveDirector',
-                        type: 'text',
-                        config: {
-                            type: 'text',
-                            label: {
-                                'en-GB': this.$t('sw-settings-document.detail.labelExecutiveDirector', 'en-GB'),
-                                'de-DE': this.$t('sw-settings-document.detail.labelExecutiveDirector', 'de-DE')
-                            }
+                {
+                    name: 'pageSize',
+                    type: 'radio',
+                    config: {
+                        componentName: 'sw-select',
+                        options: [
+                            { id: 'a4', name: 'A4' },
+                            { id: 'a5', name: 'A5' },
+                            { id: 'legal', name: 'Legal' },
+                            { id: 'letter', name: 'Letter' }
+                        ],
+                        label: {
+                            'en-GB': this.$t('sw-settings-document.detail.labelPageSize', 'en-GB'),
+                            'de-DE': this.$t('sw-settings-document.detail.labelPageSize', 'de-DE')
                         }
                     }
-                ]
-            }
+                },
+                {
+                    name: 'displayHeader',
+                    type: 'bool',
+                    config: {
+                        type: 'checkbox',
+                        label: {
+                            'en-GB': this.$t('sw-settings-document.detail.labelDisplayHeader', 'en-GB'),
+                            'de-DE': this.$t('sw-settings-document.detail.labelDisplayHeader', 'de-DE')
+                        }
+                    }
+                },
+                {
+                    name: 'displayFooter',
+                    type: 'bool',
+                    config: {
+                        type: 'checkbox',
+                        label: {
+                            'en-GB': this.$t('sw-settings-document.detail.labelDisplayFooter', 'en-GB'),
+                            'de-DE': this.$t('sw-settings-document.detail.labelDisplayFooter', 'de-DE')
+                        }
+                    }
+                },
+                {
+                    name: 'displayPageCount',
+                    type: 'bool',
+                    config: {
+                        type: 'checkbox',
+                        label: {
+                            'en-GB': this.$t('sw-settings-document.detail.labelDisplayPageCount', 'en-GB'),
+                            'de-DE': this.$t('sw-settings-document.detail.labelDisplayPageCount', 'de-DE')
+                        }
+                    }
+                },
+                {
+                    name: 'displayLineItems',
+                    type: 'bool',
+                    config: {
+                        type: 'checkbox',
+                        label: {
+                            'en-GB': this.$t('sw-settings-document.detail.labelDisplayLineItems', 'en-GB'),
+                            'de-DE': this.$t('sw-settings-document.detail.labelDisplayLineItems', 'de-DE')
+                        }
+                    }
+                },
+                {
+                    name: 'displayLineItemPosition',
+                    type: 'bool',
+                    config: {
+                        type: 'checkbox',
+                        label: {
+                            'en-GB': this.$t('sw-settings-document.detail.labelDisplayLineItemPosition', 'en-GB'),
+                            'de-DE': this.$t('sw-settings-document.detail.labelDisplayLineItemPosition', 'de-DE')
+                        }
+                    }
+                },
+                {
+                    name: 'displayPrices',
+                    type: 'bool',
+                    config: {
+                        type: 'checkbox',
+                        label: {
+                            'en-GB': this.$t('sw-settings-document.detail.labelDisplayPrices', 'en-GB'),
+                            'de-DE': this.$t('sw-settings-document.detail.labelDisplayPrices', 'de-DE')
+                        }
+                    }
+                },
+
+
+                {
+                    name: 'itemsPerPage',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: {
+                            'en-GB': this.$t('sw-settings-document.detail.labelItemsPerPage', 'en-GB'),
+                            'de-DE': this.$t('sw-settings-document.detail.labelItemsPerPage', 'de-DE')
+                        }
+                    }
+                }
+            ],
+            companyFormFields: [
+                {
+                    name: 'displayCompanyAddress',
+                    type: 'bool',
+                    config: {
+                        type: 'checkbox',
+                        label: {
+                            'en-GB': this.$t('sw-settings-document.detail.labelDisplayCompanyAddress', 'en-GB'),
+                            'de-DE': this.$t('sw-settings-document.detail.labelDisplayCompanyAddress', 'de-DE')
+                        }
+                    }
+                },
+                {
+                    name: 'companyAddress',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: {
+                            'en-GB': this.$t('sw-settings-document.detail.labelCompanyAddress', 'en-GB'),
+                            'de-DE': this.$t('sw-settings-document.detail.labelCompanyAddress', 'de-DE')
+                        }
+                    }
+                },
+                {
+                    name: 'companyName',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: {
+                            'en-GB': this.$t('sw-settings-document.detail.labelCompanyName', 'en-GB'),
+                            'de-DE': this.$t('sw-settings-document.detail.labelCompanyName', 'de-DE')
+                        }
+                    }
+                },
+                {
+                    name: 'companyEmail',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: {
+                            'en-GB': this.$t('sw-settings-document.detail.labelCompanyEmail', 'en-GB'),
+                            'de-DE': this.$t('sw-settings-document.detail.labelCompanyEmail', 'de-DE')
+                        }
+                    }
+                },
+                {
+                    name: 'companyUrl',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: {
+                            'en-GB': this.$t('sw-settings-document.detail.labelCompanyUrl', 'en-GB'),
+                            'de-DE': this.$t('sw-settings-document.detail.labelCompanyUrl', 'de-DE')
+                        }
+                    }
+                },
+                {
+                    name: 'taxNumber',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: {
+                            'en-GB': this.$t('sw-settings-document.detail.labelTaxNumber', 'en-GB'),
+                            'de-DE': this.$t('sw-settings-document.detail.labelTaxNumber', 'de-DE')
+                        }
+                    }
+                },
+                {
+                    name: 'vatId',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: {
+                            'en-GB': this.$t('sw-settings-document.detail.labelVatId', 'en-GB'),
+                            'de-DE': this.$t('sw-settings-document.detail.labelVatId', 'de-DE')
+                        }
+                    }
+                },
+                {
+                    name: 'bankName',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: {
+                            'en-GB': this.$t('sw-settings-document.detail.labelBankName', 'en-GB'),
+                            'de-DE': this.$t('sw-settings-document.detail.labelBankName', 'de-DE')
+                        }
+                    }
+                },
+                {
+                    name: 'bankIban',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: {
+                            'en-GB': this.$t('sw-settings-document.detail.labelBankIban', 'en-GB'),
+                            'de-DE': this.$t('sw-settings-document.detail.labelBankIban', 'de-DE')
+                        }
+                    }
+                },
+                {
+                    name: 'bankBic',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: {
+                            'en-GB': this.$t('sw-settings-document.detail.labelBankBic', 'en-GB'),
+                            'de-DE': this.$t('sw-settings-document.detail.labelBankBic', 'de-DE')
+                        }
+                    }
+                },
+                {
+                    name: 'placeOfJurisdiction',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: {
+                            'en-GB': this.$t('sw-settings-document.detail.labelPlaceOfJurisdiction', 'en-GB'),
+                            'de-DE': this.$t('sw-settings-document.detail.labelPlaceOfJurisdiction', 'de-DE')
+                        }
+                    }
+                },
+                {
+                    name: 'placeOfFulfillment',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: {
+                            'en-GB': this.$t('sw-settings-document.detail.labelPlaceOfFulfillment', 'en-GB'),
+                            'de-DE': this.$t('sw-settings-document.detail.labelPlaceOfFulfillment', 'de-DE')
+                        }
+                    }
+                },
+                {
+                    name: 'executiveDirector',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: {
+                            'en-GB': this.$t('sw-settings-document.detail.labelExecutiveDirector', 'en-GB'),
+                            'de-DE': this.$t('sw-settings-document.detail.labelExecutiveDirector', 'de-DE')
+                        }
+                    }
+                }
+            ]
         };
     },
 

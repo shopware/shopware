@@ -8,6 +8,8 @@ module.exports = {
                 targetPath: '#/sw/settings/index',
                 mainMenuId: 'sw-settings'
             })
+            .click('.sw-settings__tab-system')
+            .waitForElementVisible('#sw-integration')
             .click('#sw-integration')
             .assert.urlContains('#/sw/integration/index');
     },

@@ -70,6 +70,10 @@ class CachedEntitySearcher implements EntitySearcherInterface
             return $this->decorated->search($definition, $criteria, $context);
         }
 
+        if (!$context->getUseCache()) {
+            return $this->decorated->search($definition, $criteria, $context);
+        }
+
         if (in_array($definition->getClass(), self::BLACKLIST, true)) {
             return $this->decorated->search($definition, $criteria, $context);
         }

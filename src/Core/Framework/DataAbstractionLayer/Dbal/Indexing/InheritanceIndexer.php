@@ -133,11 +133,7 @@ class InheritanceIndexer implements IndexerInterface
 
         /** @var AssociationField $association */
         foreach ($associations as $association) {
-            if ($association instanceof ManyToManyAssociationField) {
-                $reference = $association->getReferenceDefinition();
-            } else {
-                $reference = $association->getReferenceDefinition();
-            }
+            $reference = $association->getReferenceDefinition();
 
             $sql = sprintf(
                 'UPDATE #root# SET #property# = IFNULL(
@@ -148,7 +144,7 @@ class InheritanceIndexer implements IndexerInterface
                             %s
                             LIMIT 1
                         ),
-                        #root#.parent_id
+                        IFNULL(#root#.parent_id, #root#.id)
                      )
                      WHERE #root#.id IN (:ids)
                      %s',

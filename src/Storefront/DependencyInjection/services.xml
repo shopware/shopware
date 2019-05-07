@@ -7,6 +7,11 @@
     <services>
         <defaults autowire="true"/>
 
+        <service id="Shopware\Storefront\Framework\Routing\Router" decorates="router">
+            <argument type="service" id="Shopware\Storefront\Framework\Routing\Router.inner" />
+            <argument type="service" id="request_stack"/>
+        </service>
+
         <service id="Shopware\Storefront\Framework\Twig\TemplateDataExtension">
             <tag name="twig.extension"/>
             <argument type="service" id="request_stack"/>
@@ -258,6 +263,9 @@
             <argument type="service" id="translator"/>
             <argument type="service" id="media.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentService"/>
+            <argument type="service" id="sales_channel_domain.repository"/>
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="router"/>
         </service>
 
         <service id="Shopware\Storefront\PageController\ErrorPageController" public="true">

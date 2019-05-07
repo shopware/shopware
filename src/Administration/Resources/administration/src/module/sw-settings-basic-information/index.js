@@ -6,7 +6,8 @@ import enGB from './snippet/en-GB.json';
 
 Module.register('sw-settings-basic-information', {
     type: 'core',
-    name: 'Basic information',
+    name: 'settings-basic-information',
+    title: 'sw-settings-basic-information.general.mainMenuItemGeneral',
     description: 'sw-settings-basic-information.general.description',
     version: '1.0.0',
     targetVersion: '1.0.0',

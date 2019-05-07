@@ -8,6 +8,13 @@ Component.register('sw-settings-store', {
         Mixin.getByName('notification')
     ],
 
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    },
+
+
     methods: {
         onSave() {
             this.$refs.systemConfig.saveAll().then(() => {

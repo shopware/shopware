@@ -15,6 +15,12 @@ Component.register('sw-settings-login-registration', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    },
+
     methods: {
         saveFinish() {
             this.isSaveSuccessful = false;

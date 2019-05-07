@@ -2,6 +2,7 @@
   "sw-settings-document": {
     "general": {
       "mainMenuItemGeneral": "Documents",
+      "description": "Document configuration section in the settings module",
       "placeholderSearchBar": "Search documents"
     },
     "list": {

@@ -9,6 +9,7 @@ Component.register('sw-settings-document-detail', {
     template,
 
     inject: ['repositoryFactory', 'context'],
+
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('placeholder')
@@ -314,19 +315,33 @@ Component.register('sw-settings-document-detail', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
     computed: {
+        identifier() {
+            return this.documentConfig.name;
+        },
+
         documentBaseConfigStore() {
             return State.getStore('document_base_config');
         },
+
         documentTypeStore() {
             return State.getStore('document_type');
         },
+
         salesChannelStore() {
             return State.getStore('sales_channel');
         },
+
         documentBaseConfigSalesChannelAssociationStore() {
             return this.documentConfig.getAssociation('salesChannels');
         },
+
         salesChannelAssociationStore() {
             return State.getStore('document_base_config_sales_channel');
         }

@@ -91,6 +91,12 @@
                                         </template>
                                     {% endblock %}
 
+                                    {% block sw_order_list_grid_columns_transaction_state %}
+                                        <template slot="column-transactions[0].stateMachineState.name" slot-scope="{ item }">
+                                            <sw-label small>{{ item.transactions[0].stateMachineState.name }}</sw-label>
+                                        </template>
+                                    {% endblock %}
+
                                     {% block sw_order_list_grid_columns_order_date %}
                                         <template slot="column-orderDate" slot-scope="{ item }">
                                             {{ item.orderDate | date({ year: '2-digit', hour: '2-digit', minute: '2-digit' }) }}

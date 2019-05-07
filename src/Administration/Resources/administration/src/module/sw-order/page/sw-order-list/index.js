@@ -71,6 +71,7 @@ Component.register('sw-order-list', {
             }
 
             params.associations.addresses = {};
+            params.associations.transactions = {};
 
             return this.orderStore.getList(params, true).then((response) => {
                 this.total = response.total;
@@ -119,6 +120,11 @@ Component.register('sw-order-list', {
                 property: 'stateMachineState.name',
                 dataIndex: 'stateMachineState.name',
                 label: this.$tc('sw-order.list.columnState'),
+                allowResize: true
+            }, {
+                property: 'transactions[0].stateMachineState.name',
+                dataIndex: 'transactions[0].stateMachineState.name',
+                label: this.$tc('sw-order.list.columnTransactionState'),
                 allowResize: true
             }, {
                 property: 'orderDate',

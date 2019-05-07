@@ -123,23 +123,10 @@
                         {% endblock %}
                     </sw-card>
                 {% endblock %}
-
-                {% block sw_mail_template_detail_attachments_info %}
-                    <sw-card :title="$tc('sw-mail-template.detail.media.titleCard')" :isLoading="mailTemplate.isLoading">
-                        <sw-mail-template-media-form  :mailTemplate="mailTemplate" @media-drop="onDropMedia"/>
-                    </sw-card>
-                {% endblock %}
             </sw-card-view>
 
             <template slot="sidebar">
                 <sw-sidebar :propagateWidth="true">
-                    <sw-sidebar-media-item ref="mediaSidebarItem">
-                        <template slot="context-menu-items" slot-scope="media">
-                            <sw-context-menu-item  @click="onAddMediaToMailTemplate(media.mediaItem)">
-                                {{ $tc('sw-mail-template.detail.sidebar.labelContextMenuAddToMailTemplate') }}
-                            </sw-context-menu-item>
-                        </template>
-                    </sw-sidebar-media-item>
                     <sw-sidebar-item icon="default-object-paperplane"
                                      :title="$tc('sw-mail-template.detail.sidebar.titleTestMail')"
                                      class="sw-mail-template-detail__test-mail-sidebar">

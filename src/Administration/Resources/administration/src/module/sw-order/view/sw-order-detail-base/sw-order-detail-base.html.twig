@@ -19,7 +19,9 @@
                         columns="minmax(min-content, 1fr) minmax(min-content, 1fr) 1fr"
                         gap="0 15px">
                         {% block sw_order_detail_base_status_change_transaction %}
-                            <sw-order-state-select class="sw-order-state-select__payment-state"
+                            <sw-order-state-select
+                                    v-if="!isLoading"
+                                    class="sw-order-state-select__payment-state"
                                     :transitionOptions="transactionOptions"
                                     roundedStyle
                                     @state-selected="onQuickTransactionStatusChange"
@@ -28,7 +30,9 @@
                             </sw-order-state-select>
                         {% endblock %}
                         {% block sw_order_detail_base_status_change_order %}
-                            <sw-order-state-select class="sw-order-state-select__order-state"
+                            <sw-order-state-select
+                                    v-if="!isLoading"
+                                    class="sw-order-state-select__order-state"
                                     :transitionOptions="orderOptions"
                                     roundedStyle
                                     @state-selected="onQuickOrderStatusChange"

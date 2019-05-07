@@ -6,7 +6,7 @@
                            multi
                            ref="swTagSelect"
                            :label="label ? $tc('global.sw-tag-field.title') : ''"
-                           :placeholder="$tc('global.sw-tag-field.placeholder')"
+                           :placeholder="disabled ? null : $tc('global.sw-tag-field.placeholder')"
                            :associationStore="associationStore"
                            :store="tagStore"
                            :possibleMinPosition="-1"

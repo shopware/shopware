@@ -1,6 +1,6 @@
 {% block sw_order_document_card %}
     <sw-card :title="$tc('sw-order.documentCard.cardTitle')"
-             class="sw-order-document-card"
+             :class="documentCardStyles"
              :isLoading="isLoading || documentsLoading || cardLoading">
         <template slot="grid">
         {% block sw_order_document_card_header %}
@@ -90,7 +90,7 @@
 
         {% block sw_order_document_card_empty_state %}
             <sw-empty-state
-                    v-if="!documents.length && !documentsLoading"
+                    v-if="documentCardEmpty && !documentsLoading"
                     :title="$tc('sw-order.documentCard.messageEmptyTitle')"
                     icon="default-documentation-file"
                     :subline="$tc('sw-order.documentCard.messageEmptySubline')">

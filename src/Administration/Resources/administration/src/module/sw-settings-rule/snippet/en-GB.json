@@ -46,7 +46,7 @@
       "titleSaveError": "Error",
       "messageSaveError": "An error occurred while saving rule \"{name}\".",
       "types": {
-        "dispatch": "Dispatch",
+        "shipping": "Shipping",
         "payment": "Payment",
         "price": "Price"
       }

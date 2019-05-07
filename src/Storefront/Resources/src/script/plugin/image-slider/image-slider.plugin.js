@@ -100,12 +100,23 @@ export default class ImageSliderPlugin extends Plugin {
      * destroys the slider
      */
     destroy() {
+
         if (this._slider && typeof this._slider.destroy === 'function') {
-            this._slider.destroy();
+            try {
+                this._slider.destroy();
+            } catch (e) {
+                // don't handle
+            }
         }
+
         if (this._thumbnailSlider && typeof this._thumbnailSlider.destroy === 'function') {
-            this._thumbnailSlider.destroy();
+            try {
+                this._thumbnailSlider.destroy();
+            } catch (e) {
+                // don't handle
+            }
         }
+
         this.el.classList.remove(this.initializedCls);
     }
 

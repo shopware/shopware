@@ -47,7 +47,8 @@
                                       :label="$tc('sw-mail-header-footer.detail.basic.labelName')"
                                       :placeholder="$tc('sw-mail-header-footer.detail.basic.placeholderName')"
                                       v-model="mailHeaderFooter.name"
-                                      validation="required">
+                                      validation="required"
+                                      :required="true">
                             </sw-field>
                         {% endblock %}
 

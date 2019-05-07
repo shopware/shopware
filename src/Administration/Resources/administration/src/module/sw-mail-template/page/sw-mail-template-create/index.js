@@ -1,7 +1,10 @@
 import { Component } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
+import template from './sw-mail-template-create.html.twig';
 
 Component.extend('sw-mail-template-create', 'sw-mail-template-detail', {
+    template,
+
     beforeRouteEnter(to, from, next) {
         if (to.name.includes('sw.mail.template.create') && !to.params.id) {
             to.params.id = utils.createId();

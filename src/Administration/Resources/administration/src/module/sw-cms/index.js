@@ -1,4 +1,3 @@
-import { NEXT134 } from 'src/flag/feature_next134';
 import { Module } from 'src/core/shopware';
 import './service/cms.service';
 import './state/cms-page.state';
@@ -14,7 +13,6 @@ import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
 
 Module.register('sw-cms', {
-    flag: NEXT134,
     type: 'core',
     name: 'cms',
     title: 'sw-cms.general.mainMenuItemGeneral',

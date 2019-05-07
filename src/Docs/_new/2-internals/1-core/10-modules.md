@@ -70,6 +70,13 @@ Structured data
 
 Abstract translations
 
+### [Framework/CustomField](https://github.com/shopware/platform/tree/master/src/Core/Framework/CustomField) 
+*[Data store]*, *[Custom actions]*, *[Extension]*
+
+Custom field management
+
+* [Entity relationship diagram](./10-erd/erd-shopware-core-framework-custom-field.md)
+
 ### [Framework/Pricing](https://github.com/shopware/platform/tree/master/src/Core/Framework/Pricing) 
 *[Extension]*
 
@@ -106,26 +113,12 @@ Cron jobs
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-framework-scheduledtask.md)
 
-### [Framework/Tag](https://github.com/shopware/platform/tree/master/src/Core/Framework/Tag) 
-*[Data store]*, *[Extension]*
-
-Taxonomies
-
-* [Entity relationship diagram](./10-erd/erd-shopware-core-framework-tag.md)
-
 ### [Framework/MessageQueue](https://github.com/shopware/platform/tree/master/src/Core/Framework/MessageQueue) 
 *[Data store]*, *[Custom Extendable]*, *[Extension]*
 
 Async processing
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-framework-messagequeue.md)
-
-### [Framework/Search](https://github.com/shopware/platform/tree/master/src/Core/Framework/Search) 
-*[Data store]*, *[Custom Extendable]*, *[Extension]*
-
-Search indexing
-
-* [Entity relationship diagram](./10-erd/erd-shopware-core-framework-search.md)
 
 ### [Framework/Twig](https://github.com/shopware/platform/tree/master/src/Core/Framework/Twig) 
 
@@ -142,25 +135,18 @@ Business events
 
 Main context
 
-### [Framework/CustomField](https://github.com/shopware/platform/tree/master/src/Core/Framework/CustomField) 
-*[Data store]*, *[Custom actions]*, *[Custom Extendable]*, *[Extension]*
-
-Attribut management
-
-* [Entity relationship diagram](10-erd/erd-shopware-core-framework-custom-field.md)
-
 ### [Framework/Validation](https://github.com/shopware/platform/tree/master/src/Core/Framework/Validation) 
 *[Custom Extendable]*
 
 Validation
 
 ### [Framework/Api](https://github.com/shopware/platform/tree/master/src/Core/Framework/Api) 
-*[Maintenance]*, *[SalesChannel-API]*, *[Custom Extendable]*
+*[Maintenance]*, *[Custom Extendable]*
 
 Rest-API
 
 ### [Framework/Store](https://github.com/shopware/platform/tree/master/src/Core/Framework/Store) 
-*[Data store]*, *[Extension]*
+*[Extension]*
 
 Plugin store
 
@@ -172,7 +158,7 @@ Translation management
 * [Entity relationship diagram](./10-erd/erd-shopware-core-framework-snippet.md)
 
 ### [System/SalesChannel](https://github.com/shopware/platform/tree/master/src/Core/System/SalesChannel) 
-*[Data store]*, *[Maintenance]*, *[SalesChannel-API]*, *[Custom Extendable]*, *[Extension]*
+*[Data store]*, *[Maintenance]*, *[Custom Extendable]*, *[Extension]*
 
 Sales Channels
 
@@ -198,6 +184,11 @@ Order state management
 Currencies
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-system-currency.md)
+
+### [System/Tag](https://github.com/shopware/platform/tree/master/src/Core/System/Tag) 
+*[Data store]*, *[Extension]*
+
+Content Tagging
 
 ### [System/Unit](https://github.com/shopware/platform/tree/master/src/Core/System/Unit) 
 *[Data store]*, *[Extension]*
@@ -255,15 +246,22 @@ Countries
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-system-country.md)
 
+### [Content/MailTemplate](https://github.com/shopware/platform/tree/master/src/Core/Content/MailTemplate) 
+*[Data store]*, *[Custom actions]*, *[Extension]*
+
+Mailing
+
+* [Entity relationship diagram](./10-erd/erd-shopware-core-content-mailtemplate.md)
+
 ### [Content/Category](https://github.com/shopware/platform/tree/master/src/Core/Content/Category) 
-*[Data store]*, *[SalesChannel-API]*, *[Extension]*
+*[Data store]*, *[Extension]*
 
 Product Categories
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-content-category.md)
 
 ### [Content/NewsletterReceiver](https://github.com/shopware/platform/tree/master/src/Core/Content/NewsletterReceiver) 
-*[Data store]*, *[Extension]*
+*[Data store]*, *[Custom Extendable]*, *[Extension]*
 
 Newsletter
 
@@ -271,13 +269,6 @@ Newsletter
 *[Data store]*, *[Extension]*
 
 Rule Builder
-
-### [Content/Navigation](https://github.com/shopware/platform/tree/master/src/Core/Content/Navigation) 
-*[Data store]*, *[Extension]*
-
-Sales Channel Navigation
-
-* [Entity relationship diagram](./10-erd/erd-shopware-core-content-navigation.md)
 
 ### [Content/Property](https://github.com/shopware/platform/tree/master/src/Core/Content/Property) 
 *[Data store]*, *[Extension]*
@@ -287,9 +278,16 @@ Content configuration
 * [Entity relationship diagram](./10-erd/erd-shopware-core-content-property.md)
 
 ### [Content/Cms](https://github.com/shopware/platform/tree/master/src/Core/Content/Cms) 
-*[Data store]*, *[Maintenance]*, *[SalesChannel-API]*, *[Custom Extendable]*, *[Extension]*
+*[Data store]*, *[Maintenance]*, *[Custom Extendable]*, *[Extension]*
 
 Content Management System
+
+### [Content/DeliveryTime](https://github.com/shopware/platform/tree/master/src/Core/Content/DeliveryTime) 
+*[Data store]*, *[Extension]*
+
+Delivery time
+
+* [Entity relationship diagram](./10-erd/erd-shopware-core-content-deliverytime.md)
 
 ### [Content/Media](https://github.com/shopware/platform/tree/master/src/Core/Content/Media) 
 *[Data store]*, *[Maintenance]*, *[Custom Extendable]*, *[Extension]*
@@ -306,7 +304,7 @@ Product Streams
 * [Entity relationship diagram](./10-erd/erd-shopware-core-content-productstream.md)
 
 ### [Content/Product](https://github.com/shopware/platform/tree/master/src/Core/Content/Product) 
-*[Data store]*, *[Custom actions]*, *[SalesChannel-API]*, *[Custom Extendable]*, *[Extension]*
+*[Data store]*, *[Custom actions]*, *[Custom Extendable]*, *[Extension]*
 
 Products and Variants
 
@@ -339,13 +337,20 @@ Discounts and Surcharges
 Shipping methods
 
 ### [Checkout/Customer](https://github.com/shopware/platform/tree/master/src/Core/Checkout/Customer) 
-*[Data store]*, *[SalesChannel-API]*, *[Custom Extendable]*, *[Rule Provider]*, *[Extension]*
+*[Data store]*, *[Custom Extendable]*, *[Rule Provider]*, *[Extension]*
 
 SalesChannel Customer
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-checkout-customer.md)
 
+### [Checkout/Promotion](https://github.com/shopware/platform/tree/master/src/Core/Checkout/Promotion) 
+*[Data store]*, *[Custom Extendable]*, *[Extension]*
+
+Promotions
+
+* [Entity relationship diagram](./10-erd/erd-shopware-core-checkout-promotion.md)
+
 ### [Checkout/Cart](https://github.com/shopware/platform/tree/master/src/Core/Checkout/Cart) 
-*[Custom actions]*, *[SalesChannel-API]*, *[Custom Extendable]*, *[Rule Provider]*, *[Extension]*
+*[Custom actions]*, *[Custom Extendable]*, *[Rule Provider]*, *[Extension]*
 
 Cart processes

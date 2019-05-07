@@ -82,7 +82,7 @@ Business events
 EOD
     ,
     'Framework/CustomField' => <<<'EOD'
-Attribut management
+Custom field management
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-framework-custom-field.md)
 EOD
@@ -269,6 +269,28 @@ EOD
 Languages
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-framework-language.md)
+EOD
+    ,
+    'System/Tag' => <<<'EOD'
+Content Tagging
+EOD
+    ,
+    'Content/MailTemplate' => <<<'EOD'
+Mailing
+
+* [Entity relationship diagram](./10-erd/erd-shopware-core-content-mailtemplate.md)
+EOD
+    ,
+    'Content/DeliveryTime' => <<<'EOD'
+Delivery time
+
+* [Entity relationship diagram](./10-erd/erd-shopware-core-content-deliverytime.md)
+EOD
+    ,
+    'Checkout/Promotion' => <<<'EOD'
+Promotions
+
+* [Entity relationship diagram](./10-erd/erd-shopware-core-checkout-promotion.md)
 EOD
     ,
 ];

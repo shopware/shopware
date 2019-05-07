@@ -118,25 +118,30 @@ EOD;
             ->filter(function (SplFileInfo $fileInfo) {
                 return !in_array($fileInfo->getRelativePathname(), [
                     'Profiling/DependencyInjection',
+                    'Framework/DependencyInjection',
+                    'System/DependencyInjection',
+                    'Checkout/DependencyInjection',
+                    'Content/DependencyInjection',
+
+                    'Checkout/Resources',
+                    'System/Resources',
+                    'Content/Resources',
+
                     'Migration/Test',
+                    'Framework/Test',
+                    'Checkout/Test',
+                    'System/Test',
+                    'Content/Test',
+
                     'Profiling/Entity',
                     'Profiling/Checkout',
-                    'Framework/DependencyInjection',
-                    'Framework/Test',
-                    'System/DependencyInjection',
-                    'System/Test',
-                    'Checkout/DependencyInjection',
-                    'Checkout/Test',
-                    'Content/DependencyInjection',
-                    'Content/Test',
-                    'Checkout/Resources',
                     'Checkout/Util',
                     'Checkout/Document',
                     'Checkout/Exception',
-                    'System/Command',
-                    'System/Event',
+
                     'System/Listing',
                     'System/Exception',
+
                     'Framework/Command',
                     'Framework/Resources',
                     'Framework/Faker',
@@ -144,13 +149,11 @@ EOD;
                     'Framework/Provisioning',
                     'Framework/Exception',
                     'Framework/Demodata',
+                    'Framework/Version',
+
                     'Profiling/Doctrine',
                     'Profiling/Resources',
                     'Profiling/Twig',
-                    'Checkout/Promotion',
-                    'Framework/Version',
-                    'Content/MailTemplate',
-                    'Content/DeliveryTime',
                 ], true);
             })
             ->depth('1');

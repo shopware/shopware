@@ -325,6 +325,7 @@ export default {
             // emit a new value if the value has changed during instance recreation
             this.$nextTick(() => {
                 if (this.value !== this.flatpickrInstance.input.defaultValue) {
+                    this.resetFormError();
                     this.$emit('input', this.flatpickrInstance.input.defaultValue);
                 }
             });
@@ -377,6 +378,7 @@ export default {
             }
 
             this.$nextTick(() => {
+                this.resetFormError();
                 this.$emit('input', this.flatpickrInstance.input.defaultValue);
             });
         }

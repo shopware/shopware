@@ -1,15 +1,14 @@
 {% block sw_confirm_field %}
     <div class="sw-confirm-field" :class="confirmFieldClasses">
         {% block sw_confirm_field_input_field %}
-            <sw-field
+            <sw-text-field
                 v-model="draft"
-                type="text"
                 v-bind="$attrs"
                 @focus="onStartEditing"
                 @blur="onBlurField"
                 @keyup.enter="onSubmitFromKey"
                 @keyup.esc="onCancelFromKey">
-            </sw-field>
+            </sw-text-field>
         {% endblock %}
 
         {% block sw_confirm_field_button_list %}

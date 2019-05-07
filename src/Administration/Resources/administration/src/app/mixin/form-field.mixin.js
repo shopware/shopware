@@ -44,5 +44,13 @@ Mixin.register('sw-form-field', {
         if (this.pointer) {
             this.$store.dispatch('deleteFieldError', this.pointer);
         }
+    },
+
+    methods: {
+        resetFormError() {
+            if (this.actualError.code !== 0 && !!this.pointer) {
+                this.$store.dispatch('resetFormError', this.pointer);
+            }
+        }
     }
 });

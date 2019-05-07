@@ -131,6 +131,7 @@ export default {
         onInput(event) {
             const val = Number.parseFloat(event.target.value);
             if (val !== Number.NaN) {
+                this.resetFormError();
                 this.$emit('input-change', val);
             }
         },
@@ -146,6 +147,7 @@ export default {
         },
 
         computeValue(stringRepresentation) {
+            this.resetFormError();
             const value = this.getNumberFromString(stringRepresentation);
             this.currentValue = this.parseValue(value);
         },

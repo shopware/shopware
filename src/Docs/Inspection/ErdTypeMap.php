@@ -2,6 +2,7 @@
 
 namespace Shopware\Docs\Inspection;
 
+use Shopware\Core\Content\Cms\DataAbstractionLayer\Field\SlotConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlacklistRuleField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CalculatedPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CartPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
@@ -20,9 +22,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\LockedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyIdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ObjectField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -34,7 +38,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceDefinitionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceRulesJsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\SearchKeywordAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
@@ -79,7 +82,6 @@ class ErdTypeMap
         PriceDefinitionField::class => 'priceDefinition',
         PriceField::class => 'price',
         ReferenceVersionField::class => 'referenceVersion',
-        SearchKeywordAssociationField::class => 'searchKeywordAssociation',
         StringField::class => 'string',
         TranslatedField::class => 'translated',
         TreeLevelField::class => 'treeLevel',
@@ -93,6 +95,10 @@ class ErdTypeMap
         CanonicalUrlAssociationField::class => 'CanonicalUrlAssociation',
         PriceRulesJsonField::class => 'priceRulesJson',
         NumberRangeField::class => 'numberRange',
+        ConfigJsonField::class => 'configurationValue',
+        ManyToManyIdField::class => 'manyToManyId',
+        LockedField::class => 'writeLockIndicator',
+        SlotConfigField::class => 'configurationValue',
     ];
 
     public function map(Field $field): string

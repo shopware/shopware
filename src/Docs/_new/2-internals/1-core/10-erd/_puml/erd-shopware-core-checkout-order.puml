@@ -125,6 +125,7 @@ Table(ShopwareCoreCheckoutOrderAggregateOrderLineItemOrderLineItemDefinition, "o
    not_null(orderVersionId) referenceVersion
    parentId parentFk
    not_null(parentVersionId) referenceVersion
+   coverId foreignKey
    not_null(identifier) string
    not_null(quantity) int
    not_null(label) string
@@ -132,7 +133,6 @@ Table(ShopwareCoreCheckoutOrderAggregateOrderLineItemOrderLineItemDefinition, "o
    good bool
    removable bool
    stackable bool
-   priority int
    not_null(price) calculatedPrice
    not_null(priceDefinition) priceDefinition
    unitPrice float
@@ -147,8 +147,6 @@ Table(ShopwareCoreCheckoutOrderAggregateOrderTagOrderTagDefinition, "order_tag\n
    primary_key(orderId) foreignKey
    primary_key(orderVersionId) referenceVersion
    primary_key(tagId) foreignKey
-   not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
 }
 Table(ShopwareCoreCheckoutOrderAggregateOrderTransactionOrderTransactionDefinition, "order_transaction\n(Order transaction)") {
    primary_key(id) id
@@ -180,7 +178,9 @@ ForeignTable(ShopwareCoreCheckoutCustomerCustomerDefinition, "customer") {
 }
 ForeignTable(ShopwareCoreCheckoutShippingShippingMethodDefinition, "shipping_method") {
 }
-ForeignTable(ShopwareCoreFrameworkTagTagDefinition, "tag") {
+ForeignTable(ShopwareCoreContentMediaMediaDefinition, "media") {
+}
+ForeignTable(ShopwareCoreSystemTagTagDefinition, "tag") {
 }
 ForeignTable(ShopwareCoreCheckoutPaymentPaymentMethodDefinition, "payment_method") {
 }
@@ -207,8 +207,8 @@ ShopwareCoreCheckoutOrderAggregateOrderDeliveryOrderDeliveryDefinition --> Shopw
 ShopwareCoreCheckoutOrderAggregateOrderDeliveryOrderDeliveryDefinition --> ShopwareCoreCheckoutShippingShippingMethodDefinition
 ShopwareCoreCheckoutOrderAggregateOrderDeliveryPositionOrderDeliveryPositionDefinition --> ShopwareCoreCheckoutOrderAggregateOrderDeliveryOrderDeliveryDefinition
 ShopwareCoreCheckoutOrderAggregateOrderLineItemOrderLineItemDefinition --> ShopwareCoreCheckoutOrderAggregateOrderDeliveryPositionOrderDeliveryPositionDefinition
-ShopwareCoreCheckoutOrderAggregateOrderLineItemOrderLineItemDefinition --> ShopwareCoreCheckoutOrderAggregateOrderLineItemOrderLineItemDefinition
-ShopwareCoreCheckoutOrderAggregateOrderTagOrderTagDefinition --> ShopwareCoreFrameworkTagTagDefinition
+ShopwareCoreCheckoutOrderAggregateOrderLineItemOrderLineItemDefinition --> ShopwareCoreContentMediaMediaDefinition
+ShopwareCoreCheckoutOrderAggregateOrderTagOrderTagDefinition --> ShopwareCoreSystemTagTagDefinition
 ShopwareCoreCheckoutOrderAggregateOrderTransactionOrderTransactionDefinition --> ShopwareCoreSystemStateMachineAggregationStateMachineStateStateMachineStateDefinition
 ShopwareCoreCheckoutOrderAggregateOrderTransactionOrderTransactionDefinition --> ShopwareCoreCheckoutPaymentPaymentMethodDefinition
 @enduml

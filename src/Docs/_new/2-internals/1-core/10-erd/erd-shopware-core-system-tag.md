@@ -4,7 +4,7 @@
 
 Additionally to categories tagging is used throughout Shopware to flag contents with different properties. In contrast to categories tags are a more lightweight alternative that can easily be created, discarded and assigned.
 
-![Tags](./dist/erd-shopware-core-framework-tag.png)
+![Tags](./dist/erd-shopware-core-system-tag.png)
 
 
 ### Table `tag`

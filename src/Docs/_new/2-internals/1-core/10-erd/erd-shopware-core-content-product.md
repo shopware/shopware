@@ -22,6 +22,16 @@ Association from a root product to a configuration set. Used to generate variant
 Different product prices based on rules.
 
 
+### Table `product_search_keyword`
+
+SQL based product search table, containing the keywords.
+
+
+### Table `product_keyword_dictionary`
+
+SQL based product search table containing the dictionary.
+
+
 ### Table `product_manufacturer`
 
 The product manufacturer list.

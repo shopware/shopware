@@ -30,6 +30,8 @@ Table(ShopwareCoreFrameworkScheduledTaskScheduledTaskDefinition, "scheduled_task
    not_null(status) string
    lastExecutionTime date
    not_null(nextExecutionTime) date
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
 }
 ForeignTable(ShopwareCoreFrameworkMessageQueueDeadMessageDeadMessageDefinition, "dead_message") {
 }

@@ -1,0 +1,113 @@
+@startuml
+' uncomment the line below if you're using computer with a retina display
+' skinparam dpi 300
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define ForeignTable(name,desc) class name as "desc" << (T,#ada6a6) >>
+!define TranslationTable(name,desc) class name as "desc" << (I,#4286f4) >>
+' we use bold for primary key
+' green color for unique
+' and underscore for not_null
+!define primary_key(x) <b>x</b>
+!define unique(x) <color:green>x</color>
+!define not_null(x) <u>x</u>
+' other tags available:
+' <i></i>
+' <back:COLOR></color>, where color is a color name or html color code
+' (#FFAACC)
+' see: http://plantuml.com/classes.html#More
+hide methods
+hide stereotypes
+hide empty members
+skinparam backgroundColor #FFFFFF
+
+' entities
+
+Table(ShopwareCoreCheckoutPromotionPromotionDefinition, "promotion\n(Discounts with settings)") {
+   primary_key(id) id
+   name translated
+   active bool
+   validFrom date
+   validUntil date
+   maxRedemptionsGlobal int
+   maxRedemptionsPerCustomer int
+   exclusive bool
+   useCodes bool
+   code string
+   orderCount int
+   ordersPerCustomerCount json
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+   translated json
+}
+Table(ShopwareCoreCheckoutPromotionAggregatePromotionSalesChannelPromotionSalesChannelDefinition, "promotion_sales_channel\n(Promotion configuration)") {
+   primary_key(id) id
+   not_null(promotionId) foreignKey
+   not_null(salesChannelId) foreignKey
+   not_null(priority) int
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+Table(ShopwareCoreCheckoutPromotionAggregatePromotionDiscountPromotionDiscountDefinition, "promotion_discount\n(Discounts)") {
+   primary_key(id) id
+   not_null(promotionId) foreignKey
+   not_null(scope) string
+   not_null(type) string
+   not_null(value) float
+   not_null(considerAdvancedRules) bool
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+Table(ShopwareCoreCheckoutPromotionAggregatePromotionOrderRulePromotionOrderRuleDefinition, "promotion_order_rule\n(M:N Mapping)") {
+   primary_key(promotionId) foreignKey
+   primary_key(ruleId) foreignKey
+}
+Table(ShopwareCoreCheckoutPromotionAggregatePromotionPersonaCustomerPromotionPersonaCustomerDefinition, "promotion_persona_customer\n(M:N Mapping)") {
+   primary_key(promotionId) foreignKey
+   primary_key(customerId) foreignKey
+}
+Table(ShopwareCoreCheckoutPromotionAggregatePromotionPersonaRulePromotionPersonaRuleDefinition, "promotion_persona_rule\n(M:N Mapping)") {
+   primary_key(promotionId) foreignKey
+   primary_key(ruleId) foreignKey
+}
+Table(ShopwareCoreCheckoutPromotionAggregatePromotionCartRulePromotionCartRuleDefinition, "promotion_cart_rule\n(M:N Mapping)") {
+   primary_key(promotionId) foreignKey
+   primary_key(ruleId) foreignKey
+}
+Table(ShopwareCoreCheckoutPromotionAggregatePromotionDiscountRulePromotionDiscountRuleDefinition, "promotion_discount_rule\n(M:N Mapping)") {
+   primary_key(discountId) foreignKey
+   primary_key(ruleId) foreignKey
+}
+TranslationTable(ShopwareCoreCheckoutPromotionAggregatePromotionTranslationPromotionTranslationDefinition, "promotion_translation\n((Translations))") {
+   name string
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+   primary_key(promotionId) foreignKey
+   primary_key(languageId) foreignKey
+}
+ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
+}
+ForeignTable(ShopwareCoreContentRuleRuleDefinition, "rule") {
+}
+ForeignTable(ShopwareCoreCheckoutCustomerCustomerDefinition, "customer") {
+}
+ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
+}
+
+' relationshipd
+
+ShopwareCoreCheckoutPromotionAggregatePromotionSalesChannelPromotionSalesChannelDefinition --> ShopwareCoreCheckoutPromotionPromotionDefinition
+ShopwareCoreCheckoutPromotionAggregatePromotionDiscountPromotionDiscountDefinition --> ShopwareCoreCheckoutPromotionPromotionDefinition
+ShopwareCoreCheckoutPromotionAggregatePromotionPersonaRulePromotionPersonaRuleDefinition --> ShopwareCoreCheckoutPromotionPromotionDefinition
+ShopwareCoreCheckoutPromotionAggregatePromotionPersonaCustomerPromotionPersonaCustomerDefinition --> ShopwareCoreCheckoutPromotionPromotionDefinition
+ShopwareCoreCheckoutPromotionAggregatePromotionOrderRulePromotionOrderRuleDefinition --> ShopwareCoreCheckoutPromotionPromotionDefinition
+ShopwareCoreCheckoutPromotionAggregatePromotionCartRulePromotionCartRuleDefinition --> ShopwareCoreCheckoutPromotionPromotionDefinition
+ShopwareCoreCheckoutPromotionAggregatePromotionTranslationPromotionTranslationDefinition --> ShopwareCoreCheckoutPromotionPromotionDefinition
+ShopwareCoreCheckoutPromotionAggregatePromotionSalesChannelPromotionSalesChannelDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreCheckoutPromotionAggregatePromotionDiscountRulePromotionDiscountRuleDefinition --> ShopwareCoreCheckoutPromotionAggregatePromotionDiscountPromotionDiscountDefinition
+ShopwareCoreCheckoutPromotionAggregatePromotionOrderRulePromotionOrderRuleDefinition --> ShopwareCoreContentRuleRuleDefinition
+ShopwareCoreCheckoutPromotionAggregatePromotionPersonaCustomerPromotionPersonaCustomerDefinition --> ShopwareCoreCheckoutCustomerCustomerDefinition
+ShopwareCoreCheckoutPromotionAggregatePromotionPersonaRulePromotionPersonaRuleDefinition --> ShopwareCoreContentRuleRuleDefinition
+ShopwareCoreCheckoutPromotionAggregatePromotionCartRulePromotionCartRuleDefinition --> ShopwareCoreContentRuleRuleDefinition
+ShopwareCoreCheckoutPromotionAggregatePromotionDiscountRulePromotionDiscountRuleDefinition --> ShopwareCoreContentRuleRuleDefinition
+ShopwareCoreCheckoutPromotionAggregatePromotionTranslationPromotionTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+@enduml

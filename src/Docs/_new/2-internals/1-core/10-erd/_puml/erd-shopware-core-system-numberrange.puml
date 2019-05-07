@@ -29,10 +29,10 @@ Table(ShopwareCoreSystemNumberRangeNumberRangeDefinition, "number_range\n(Number
    name translated
    description translated
    not_null(pattern) string
-   start int
+   not_null(start) int
+   customFields translated
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   customFields translated
    translated json
 }
 Table(ShopwareCoreSystemNumberRangeAggregateNumberRangeSalesChannelNumberRangeSalesChannelDefinition, "number_range_sales_channel\n(M:N Mapping)") {
@@ -40,11 +40,15 @@ Table(ShopwareCoreSystemNumberRangeAggregateNumberRangeSalesChannelNumberRangeSa
    not_null(numberRangeId) foreignKey
    not_null(salesChannelId) foreignKey
    numberRangeTypeId foreignKey
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
 }
 Table(ShopwareCoreSystemNumberRangeAggregateNumberRangeStateNumberRangeStateDefinition, "number_range_state\n(Current number range max value)") {
    primary_key(id) id
    not_null(numberRangeId) foreignKey
    not_null(lastValue) int
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
 }
 Table(ShopwareCoreSystemNumberRangeAggregateNumberRangeTypeNumberRangeTypeDefinition, "number_range_type\n(Type)") {
    primary_key(id) id
@@ -59,12 +63,19 @@ Table(ShopwareCoreSystemNumberRangeAggregateNumberRangeTypeNumberRangeTypeDefini
 TranslationTable(ShopwareCoreSystemNumberRangeAggregateNumberRangeTypeTranslationNumberRangeTypeTranslationDefinition, "number_range_type_translation\n((Translations))") {
    not_null(typeName) string
    customFields customFields
-   primary_key(numberRangeTypeId) foreignKey
-   primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
+   primary_key(numberRangeTypeId) foreignKey
+   primary_key(languageId) foreignKey
 }
-ForeignTable(ShopwareCoreSystemNumberRangeAggregateNumberRangeTranslationNumberRangeTranslationDefinition, "number_range_translation") {
+TranslationTable(ShopwareCoreSystemNumberRangeAggregateNumberRangeTranslationNumberRangeTranslationDefinition, "number_range_translation\n((Translations))") {
+   not_null(name) string
+   description string
+   customFields customFields
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+   primary_key(numberRangeId) foreignKey
+   primary_key(languageId) foreignKey
 }
 ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
 }
@@ -76,9 +87,10 @@ ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 ShopwareCoreSystemNumberRangeAggregateNumberRangeTypeNumberRangeTypeDefinition --> ShopwareCoreSystemNumberRangeNumberRangeDefinition
 ShopwareCoreSystemNumberRangeAggregateNumberRangeSalesChannelNumberRangeSalesChannelDefinition --> ShopwareCoreSystemNumberRangeNumberRangeDefinition
 ShopwareCoreSystemNumberRangeAggregateNumberRangeStateNumberRangeStateDefinition --> ShopwareCoreSystemNumberRangeNumberRangeDefinition
-ShopwareCoreSystemNumberRangeNumberRangeDefinition --> ShopwareCoreSystemNumberRangeAggregateNumberRangeTranslationNumberRangeTranslationDefinition
+ShopwareCoreSystemNumberRangeAggregateNumberRangeTranslationNumberRangeTranslationDefinition --> ShopwareCoreSystemNumberRangeNumberRangeDefinition
 ShopwareCoreSystemNumberRangeAggregateNumberRangeSalesChannelNumberRangeSalesChannelDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreSystemNumberRangeAggregateNumberRangeTypeNumberRangeTypeDefinition --> ShopwareCoreSystemNumberRangeAggregateNumberRangeSalesChannelNumberRangeSalesChannelDefinition
 ShopwareCoreSystemNumberRangeAggregateNumberRangeTypeTranslationNumberRangeTypeTranslationDefinition --> ShopwareCoreSystemNumberRangeAggregateNumberRangeTypeNumberRangeTypeDefinition
 ShopwareCoreSystemNumberRangeAggregateNumberRangeTypeTranslationNumberRangeTypeTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreSystemNumberRangeAggregateNumberRangeTranslationNumberRangeTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 @enduml

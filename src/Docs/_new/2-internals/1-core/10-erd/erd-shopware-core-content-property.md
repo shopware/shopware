@@ -1,10 +1,10 @@
-[titleEn]: <>(__EMPTY__)
+[titleEn]: <>(Property)
 
 [Back to modules](./../10-modules.md)
 
 Contains the configuration options for product variants.
 
-![__EMPTY__](./dist/erd-shopware-core-content-property.png)
+![Property](./dist/erd-shopware-core-content-property.png)
 
 
 ### Table `property_group`

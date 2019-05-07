@@ -46,19 +46,21 @@ Table(ShopwareCoreCheckoutCustomerCustomerDefinition, "customer\n(The sales chan
    lastLogin date
    newsletter bool
    birthday date
+   lastOrderDate date
+   orderCount int
    customFields customFields
-   not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
    legacyPassword string
    legacyEncoder string
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
 }
 TranslationTable(ShopwareCoreCheckoutCustomerAggregateCustomerGroupTranslationCustomerGroupTranslationDefinition, "customer_group_translation\n((Translations))") {
    not_null(name) string
    customFields customFields
-   primary_key(customerGroupId) foreignKey
-   primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
+   primary_key(customerGroupId) foreignKey
+   primary_key(languageId) foreignKey
 }
 Table(ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinition, "customer_address\n(The customer addresses.)") {
    primary_key(id) id
@@ -94,8 +96,6 @@ Table(ShopwareCoreCheckoutCustomerAggregateCustomerGroupCustomerGroupDefinition,
 Table(ShopwareCoreCheckoutCustomerAggregateCustomerTagCustomerTagDefinition, "customer_tag\n(M:N Mapping)") {
    primary_key(customerId) foreignKey
    primary_key(tagId) foreignKey
-   not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
 }
 ForeignTable(ShopwareCoreCheckoutPaymentPaymentMethodDefinition, "payment_method") {
 }
@@ -107,11 +107,13 @@ ForeignTable(ShopwareCoreSystemSalutationSalutationDefinition, "salutation") {
 }
 ForeignTable(ShopwareCoreCheckoutOrderAggregateOrderCustomerOrderCustomerDefinition, "order_customer") {
 }
+ForeignTable(ShopwareCoreCheckoutPromotionAggregatePromotionPersonaCustomerPromotionPersonaCustomerDefinition, "promotion_persona_customer") {
+}
 ForeignTable(ShopwareCoreSystemCountryCountryDefinition, "country") {
 }
 ForeignTable(ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition, "country_state") {
 }
-ForeignTable(ShopwareCoreFrameworkTagTagDefinition, "tag") {
+ForeignTable(ShopwareCoreSystemTagTagDefinition, "tag") {
 }
 
 ' relationshipd
@@ -124,11 +126,12 @@ ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinition --
 ShopwareCoreCheckoutCustomerCustomerDefinition --> ShopwareCoreSystemSalutationSalutationDefinition
 ShopwareCoreCheckoutCustomerCustomerDefinition --> ShopwareCoreCheckoutOrderAggregateOrderCustomerOrderCustomerDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerTagCustomerTagDefinition --> ShopwareCoreCheckoutCustomerCustomerDefinition
+ShopwareCoreCheckoutCustomerCustomerDefinition --> ShopwareCoreCheckoutPromotionAggregatePromotionPersonaCustomerPromotionPersonaCustomerDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerGroupCustomerGroupDefinition --> ShopwareCoreCheckoutCustomerAggregateCustomerGroupTranslationCustomerGroupTranslationDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerGroupTranslationCustomerGroupTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinition --> ShopwareCoreSystemCountryCountryDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinition --> ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinition --> ShopwareCoreSystemSalutationSalutationDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerGroupCustomerGroupDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
-ShopwareCoreCheckoutCustomerAggregateCustomerTagCustomerTagDefinition --> ShopwareCoreFrameworkTagTagDefinition
+ShopwareCoreCheckoutCustomerAggregateCustomerTagCustomerTagDefinition --> ShopwareCoreSystemTagTagDefinition
 @enduml

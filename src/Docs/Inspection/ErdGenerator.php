@@ -33,6 +33,9 @@ class ErdGenerator
                 $dumper->addField(
                     $this->toId($moduleName),
                     new class($definition->entityName()) extends Field {
+                        protected function getSerializerClass(): string
+                        { /* nth */
+                        }
                     },
                     'Table'
                 );
@@ -41,7 +44,7 @@ class ErdGenerator
                     if (!$field instanceof AssociationField) {
                         continue;
                     }
-                    $associated = new ErdDefinition($field->getReferenceClass());
+                    $associated = new ErdDefinition($field->getReferenceDefinition());
 
                     $dumper->addAssociation(
                         $this->toId($moduleName),
@@ -71,7 +74,7 @@ class ErdGenerator
 
             foreach ($definition->fields() as $field) {
                 if ($field instanceof AssociationField) {
-                    $associated = new ErdDefinition($field->getReferenceClass());
+                    $associated = new ErdDefinition($field->getReferenceDefinition());
 
                     $dumper->addAssociation(
                         $this->toId($definition->toClassName()),

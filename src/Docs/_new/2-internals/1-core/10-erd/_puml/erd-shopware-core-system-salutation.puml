@@ -34,10 +34,10 @@ Table(ShopwareCoreSystemSalutationSalutationDefinition, "salutation\n(Salutation
 TranslationTable(ShopwareCoreSystemSalutationAggregateSalutationTranslationSalutationTranslationDefinition, "salutation_translation\n((Translations))") {
    not_null(displayName) string
    not_null(letterName) string
-   primary_key(salutationId) foreignKey
-   primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
+   primary_key(salutationId) foreignKey
+   primary_key(languageId) foreignKey
 }
 ForeignTable(ShopwareCoreCheckoutCustomerCustomerDefinition, "customer") {
 }

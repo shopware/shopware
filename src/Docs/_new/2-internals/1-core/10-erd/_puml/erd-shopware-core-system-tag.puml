@@ -22,7 +22,7 @@ skinparam backgroundColor #FFFFFF
 
 ' entities
 
-Table(ShopwareCoreFrameworkTagTagDefinition, "tag\n(Taxonomy)") {
+Table(ShopwareCoreSystemTagTagDefinition, "tag\n(Taxonomy)") {
    primary_key(id) id
    not_null(name) string
    not_null(createdAt) createdAt
@@ -40,13 +40,16 @@ ForeignTable(ShopwareCoreCheckoutOrderAggregateOrderTagOrderTagDefinition, "orde
 }
 ForeignTable(ShopwareCoreCheckoutShippingAggregateShippingMethodTagShippingMethodTagDefinition, "shipping_method_tag") {
 }
+ForeignTable(ShopwareCoreContentNewsletterReceiverAggregateNewsletterReceiverTagNewsletterReceiverTagDefinition, "newsletter_receiver_tag") {
+}
 
 ' relationshipd
 
-ShopwareCoreFrameworkTagTagDefinition --> ShopwareCoreContentProductAggregateProductTagProductTagDefinition
-ShopwareCoreFrameworkTagTagDefinition --> ShopwareCoreContentMediaAggregateMediaTagMediaTagDefinition
-ShopwareCoreFrameworkTagTagDefinition --> ShopwareCoreContentCategoryAggregateCategoryTagCategoryTagDefinition
-ShopwareCoreFrameworkTagTagDefinition --> ShopwareCoreCheckoutCustomerAggregateCustomerTagCustomerTagDefinition
-ShopwareCoreFrameworkTagTagDefinition --> ShopwareCoreCheckoutOrderAggregateOrderTagOrderTagDefinition
-ShopwareCoreFrameworkTagTagDefinition --> ShopwareCoreCheckoutShippingAggregateShippingMethodTagShippingMethodTagDefinition
+ShopwareCoreSystemTagTagDefinition --> ShopwareCoreContentProductAggregateProductTagProductTagDefinition
+ShopwareCoreSystemTagTagDefinition --> ShopwareCoreContentMediaAggregateMediaTagMediaTagDefinition
+ShopwareCoreSystemTagTagDefinition --> ShopwareCoreContentCategoryAggregateCategoryTagCategoryTagDefinition
+ShopwareCoreSystemTagTagDefinition --> ShopwareCoreCheckoutCustomerAggregateCustomerTagCustomerTagDefinition
+ShopwareCoreSystemTagTagDefinition --> ShopwareCoreCheckoutOrderAggregateOrderTagOrderTagDefinition
+ShopwareCoreSystemTagTagDefinition --> ShopwareCoreCheckoutShippingAggregateShippingMethodTagShippingMethodTagDefinition
+ShopwareCoreSystemTagTagDefinition --> ShopwareCoreContentNewsletterReceiverAggregateNewsletterReceiverTagNewsletterReceiverTagDefinition
 @enduml

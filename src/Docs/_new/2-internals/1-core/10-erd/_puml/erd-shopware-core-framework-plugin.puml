@@ -24,6 +24,7 @@ skinparam backgroundColor #FFFFFF
 
 Table(ShopwareCoreFrameworkPluginPluginDefinition, "plugin\n(Plugin)") {
    primary_key(id) id
+   not_null(baseClass) string
    not_null(name) string
    composerName string
    not_null(autoload) json
@@ -56,10 +57,10 @@ TranslationTable(ShopwareCoreFrameworkPluginAggregatePluginTranslationPluginTran
    supportLink string
    changelog json
    customFields customFields
-   primary_key(pluginId) foreignKey
-   primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
+   primary_key(pluginId) foreignKey
+   primary_key(languageId) foreignKey
 }
 ForeignTable(ShopwareCoreCheckoutPaymentPaymentMethodDefinition, "payment_method") {
 }

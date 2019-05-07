@@ -73,7 +73,11 @@ class ArrayWriter
         $content = '';
 
         foreach ($this->data as $key => $value) {
-            $content .= '    ' . $this->formatKey($key) . ' => <<<\'EOD\'' . PHP_EOL . $value . PHP_EOL . 'EOD' . PHP_EOL . '    ,' . PHP_EOL;
+            if ($value === '') {
+                $content .= '    ' . $this->formatKey($key) . ' => ' . var_export($value, true) . ',' . PHP_EOL;
+            } else {
+                $content .= '    ' . $this->formatKey($key) . ' => <<<\'EOD\'' . PHP_EOL . $value . PHP_EOL . 'EOD' . PHP_EOL . '    ,' . PHP_EOL;
+            }
         }
 
         return $content;

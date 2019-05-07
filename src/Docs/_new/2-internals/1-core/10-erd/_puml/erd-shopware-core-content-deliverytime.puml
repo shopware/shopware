@@ -22,33 +22,33 @@ skinparam backgroundColor #FFFFFF
 
 ' entities
 
-Table(ShopwareCoreCheckoutDiscountSurchargeDiscountSurchargeDefinition, "discount_surcharge\n(Discounts/Surcharges)") {
+Table(ShopwareCoreContentDeliveryTimeDeliveryTimeDefinition, "delivery_time\n(Delivery time)") {
    primary_key(id) id
-   name translated
-   not_null(ruleId) foreignKey
-   not_null(type) string
-   not_null(amount) float
+   not_null(name) translated
+   not_null(min) int
+   not_null(max) int
+   not_null(unit) string
    customFields translated
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    translated json
 }
-TranslationTable(ShopwareCoreCheckoutDiscountSurchargeAggregateDiscountSurchargeTranslationDiscountSurchargeTranslationDefinition, "discount_surcharge_translation\n((Translations))") {
+TranslationTable(ShopwareCoreContentDeliveryTimeAggregateDeliveryTimeTranslationDeliveryTimeTranslationDefinition, "delivery_time_translation\n((Translations))") {
    not_null(name) string
    customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   primary_key(discountSurchargeId) foreignKey
+   primary_key(deliveryTimeId) foreignKey
    primary_key(languageId) foreignKey
 }
-ForeignTable(ShopwareCoreContentRuleRuleDefinition, "rule") {
+ForeignTable(ShopwareCoreCheckoutShippingShippingMethodDefinition, "shipping_method") {
 }
 ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 }
 
 ' relationshipd
 
-ShopwareCoreCheckoutDiscountSurchargeAggregateDiscountSurchargeTranslationDiscountSurchargeTranslationDefinition --> ShopwareCoreCheckoutDiscountSurchargeDiscountSurchargeDefinition
-ShopwareCoreCheckoutDiscountSurchargeDiscountSurchargeDefinition --> ShopwareCoreContentRuleRuleDefinition
-ShopwareCoreCheckoutDiscountSurchargeAggregateDiscountSurchargeTranslationDiscountSurchargeTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreContentDeliveryTimeDeliveryTimeDefinition --> ShopwareCoreCheckoutShippingShippingMethodDefinition
+ShopwareCoreContentDeliveryTimeAggregateDeliveryTimeTranslationDeliveryTimeTranslationDefinition --> ShopwareCoreContentDeliveryTimeDeliveryTimeDefinition
+ShopwareCoreContentDeliveryTimeAggregateDeliveryTimeTranslationDeliveryTimeTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 @enduml

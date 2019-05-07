@@ -321,7 +321,7 @@ EOD
 Relates products to media items, usually images.
 EOD
     ,
-    Shopware\Core\Framework\Search\SearchDocumentDefinition::class => <<<'EOD'
+    'Shopware\\Core\\Framework\\Search\\SearchDocumentDefinition' => <<<'EOD'
 Main search index
 EOD
     ,
@@ -401,186 +401,57 @@ EOD
 Represents a list of available shipping methods for customers to choose from during checkout.
 EOD
     ,
-    Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition::class => <<<'EOD'
-
-EOD
-    ,
+    Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition::class => '',
     Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeDefinition::class => <<<'EOD'
 Stores discounts or surcharges of a specific amount and is assigned based on a rule set.
 EOD
     ,
-    'Shopware\\Storefront\\Framework\\Seo\\SeoUrlDefinition' => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesChannelTranslationDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCountry\SalesChannelCountryDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChannelCurrencyDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\System\SalesChannel\Aggregate\SalesChannelLanguage\SalesChannelLanguageDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\System\SalesChannel\Aggregate\SalesChannelPaymentMethod\SalesChannelPaymentMethodDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\System\SalesChannel\Aggregate\SalesChannelShippingMethod\SalesChannelShippingMethodDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation\SalesChannelTypeTranslationDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\System\Salutation\Aggregate\SalutationTranslation\SalutationTranslationDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\System\StateMachine\StateMachineTranslationDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateTranslationDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel\NumberRangeSalesChannelDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\Content\Category\Aggregate\CategoryTag\CategoryTagDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\Content\Media\Aggregate\MediaFolderConfigurationMediaThumbnailSize\MediaFolderConfigurationMediaThumbnailSizeDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\Content\Media\Aggregate\MediaTag\MediaTagDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\Content\Product\Aggregate\ProductTag\ProductTagDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    'Shopware\\Core\\Content\\Product\\Aggregate\\ProductDatasheet\\ProductDatasheetDefinition' => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    'Shopware\\Core\\Content\\Product\\Aggregate\\ProductVariation\\ProductVariationDefinition' => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\Content\Navigation\Aggregate\NavigationTranslation\NavigationTranslationDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    'Shopware\\Core\\Content\\Configuration\\Aggregate\\ConfigurationGroupOptionTranslation\\ConfigurationGroupOptionTranslationDefinition' => <<<'EOD'
-
-EOD
-    ,
-    'Shopware\\Core\\Content\\Configuration\\Aggregate\\ConfigurationGroupTranslation\\ConfigurationGroupTranslationDefinition' => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\Checkout\Customer\Aggregate\CustomerTag\CustomerTagDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation\DiscountSurchargeTranslationDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\Checkout\Order\Aggregate\OrderTag\OrderTagDefinition::class => <<<'EOD'
-
-EOD
-    ,
-    Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodRules\PaymentMethodRuleDefinition::class => <<<'EOD'
-
-EOD
-    ,
+    'Shopware\\Storefront\\Framework\\Seo\\SeoUrlDefinition' => '',
+    Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationDefinition::class => '',
+    Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesChannelTranslationDefinition::class => '',
+    Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCountry\SalesChannelCountryDefinition::class => '',
+    Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChannelCurrencyDefinition::class => '',
+    Shopware\Core\System\SalesChannel\Aggregate\SalesChannelLanguage\SalesChannelLanguageDefinition::class => '',
+    Shopware\Core\System\SalesChannel\Aggregate\SalesChannelPaymentMethod\SalesChannelPaymentMethodDefinition::class => '',
+    Shopware\Core\System\SalesChannel\Aggregate\SalesChannelShippingMethod\SalesChannelShippingMethodDefinition::class => '',
+    Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation\SalesChannelTypeTranslationDefinition::class => '',
+    Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationDefinition::class => '',
+    Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationDefinition::class => '',
+    Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition::class => '',
+    Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition::class => '',
+    Shopware\Core\System\Salutation\Aggregate\SalutationTranslation\SalutationTranslationDefinition::class => '',
+    Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition::class => '',
+    Shopware\Core\System\StateMachine\StateMachineTranslationDefinition::class => '',
+    Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateTranslationDefinition::class => '',
+    Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel\NumberRangeSalesChannelDefinition::class => '',
+    Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition::class => '',
+    Shopware\Core\Content\Category\Aggregate\CategoryTag\CategoryTagDefinition::class => '',
+    Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition::class => '',
+    Shopware\Core\Content\Media\Aggregate\MediaFolderConfigurationMediaThumbnailSize\MediaFolderConfigurationMediaThumbnailSizeDefinition::class => '',
+    Shopware\Core\Content\Media\Aggregate\MediaTag\MediaTagDefinition::class => '',
+    Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition::class => '',
+    Shopware\Core\Content\Product\Aggregate\ProductTag\ProductTagDefinition::class => '',
+    'Shopware\\Core\\Content\\Product\\Aggregate\\ProductDatasheet\\ProductDatasheetDefinition' => '',
+    Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition::class => '',
+    Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition::class => '',
+    'Shopware\\Core\\Content\\Product\\Aggregate\\ProductVariation\\ProductVariationDefinition' => '',
+    Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition::class => '',
+    'Shopware\\Core\\Content\\Navigation\\Aggregate\\NavigationTranslation\\NavigationTranslationDefinition' => '',
+    Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationDefinition::class => '',
+    'Shopware\\Core\\Content\\Configuration\\Aggregate\\ConfigurationGroupOptionTranslation\\ConfigurationGroupOptionTranslationDefinition' => '',
+    'Shopware\\Core\\Content\\Configuration\\Aggregate\\ConfigurationGroupTranslation\\ConfigurationGroupTranslationDefinition' => '',
+    Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationDefinition::class => '',
+    Shopware\Core\Checkout\Customer\Aggregate\CustomerTag\CustomerTagDefinition::class => '',
+    Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationDefinition::class => '',
+    Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationDefinition::class => '',
+    Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation\DiscountSurchargeTranslationDefinition::class => '',
+    Shopware\Core\Checkout\Order\Aggregate\OrderTag\OrderTagDefinition::class => '',
+    'Shopware\\Core\\Checkout\\Payment\\Aggregate\\PaymentMethodRules\\PaymentMethodRuleDefinition' => '',
     'Shopware\\Core\\Checkout\\Shipping\\Aggregate\\ShippingMethodPriceRule\\ShippingMethodPriceRuleDefinition' => <<<'EOD'
 Contains `quantityFrom` as a selection criteria to provide different prices for different orders with the same shipping method.
 EOD
     ,
-    'Shopware\\Core\\Checkout\\Shipping\\Aggregate\\ShippingMethodRules\\ShippingMethodRuleDefinition' => <<<'EOD'
-
-EOD
-    ,
+    'Shopware\\Core\\Checkout\\Shipping\\Aggregate\\ShippingMethodRules\\ShippingMethodRuleDefinition' => '',
     Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlDefinition::class => <<<'EOD'
 Search engine optimized urls manually created from user input to optimize for different search engines and make the storefronts content a more prominent search result.
 EOD
@@ -589,28 +460,116 @@ EOD
 A template to generate seo urls from.
 EOD
     ,
-    Shopware\Core\System\NumberRange\Aggregate\NumberRangeTypeTranslation\NumberRangeTypeTranslationDefinition::class => <<<'EOD'
-
+    Shopware\Core\System\NumberRange\Aggregate\NumberRangeTypeTranslation\NumberRangeTypeTranslationDefinition::class => '',
+    Shopware\Core\Content\Product\Aggregate\ProductProperty\ProductPropertyDefinition::class => '',
+    Shopware\Core\Content\Product\Aggregate\ProductOption\ProductOptionDefinition::class => '',
+    Shopware\Core\Content\Property\Aggregate\PropertyGroupOptionTranslation\PropertyGroupOptionTranslationDefinition::class => '',
+    Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation\PropertyGroupTranslationDefinition::class => '',
+    Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTag\ShippingMethodTagDefinition::class => '',
+    Shopware\Core\System\NumberRange\Aggregate\NumberRangeTranslation\NumberRangeTranslationDefinition::class => '',
+    Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition::class => <<<'EOD'
+SQL based product search table, containing the keywords.
 EOD
     ,
-    Shopware\Core\Content\Product\Aggregate\ProductProperty\ProductPropertyDefinition::class => <<<'EOD'
-
+    Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary\ProductKeywordDictionaryDefinition::class => <<<'EOD'
+SQL based product search table containing the dictionary.
 EOD
     ,
-    Shopware\Core\Content\Product\Aggregate\ProductOption\ProductOptionDefinition::class => <<<'EOD'
-
+    Shopware\Core\Content\NewsletterReceiver\Aggregate\NewsletterReceiverTag\NewsletterReceiverTagDefinition::class => '',
+    Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTranslation\MailTemplateTranslationDefinition::class => '',
+    Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeDefinition::class => <<<'EOD'
+Different mail template types.
 EOD
     ,
-    Shopware\Core\Content\Property\Aggregate\PropertyGroupOptionTranslation\PropertyGroupOptionTranslationDefinition::class => <<<'EOD'
-
+    Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTypeTranslation\MailTemplateTypeTranslationDefinition::class => '',
+    Shopware\Core\Checkout\Document\DocumentDefinition::class => <<<'EOD'
+A printable document referencing bills, offers and the like.
 EOD
     ,
-    Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation\PropertyGroupTranslationDefinition::class => <<<'EOD'
-
+    Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition::class => <<<'EOD'
+A list of available document types.
 EOD
     ,
-    Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTag\ShippingMethodTagDefinition::class => <<<'EOD'
-
+    Shopware\Core\Checkout\Document\Aggregate\DocumentTypeTranslation\DocumentTypeTranslationDefinition::class => '',
+    Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition::class => <<<'EOD'
+Configuration for the document generator.
+EOD
+    ,
+    Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition::class => <<<'EOD'
+Overwrite the configuration based on a sales channel relation.
+EOD
+    ,
+    Shopware\Core\Checkout\Promotion\Aggregate\PromotionOrderRule\PromotionOrderRuleDefinition::class => '',
+    Shopware\Core\Checkout\Promotion\Aggregate\PromotionPersonaCustomer\PromotionPersonaCustomerDefinition::class => '',
+    Shopware\Core\Checkout\Promotion\Aggregate\PromotionPersonaRule\PromotionPersonaRuleDefinition::class => '',
+    Shopware\Core\Checkout\Promotion\Aggregate\PromotionCartRule\PromotionCartRuleDefinition::class => '',
+    Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountRule\PromotionDiscountRuleDefinition::class => '',
+    Shopware\Core\Checkout\Promotion\Aggregate\PromotionTranslation\PromotionTranslationDefinition::class => '',
+    'Shopware\\Core\\Content\\NewsletterReceiver' => '',
+    'Shopware\\Core\\Content\\MailTemplate' => <<<'EOD'
+Mailing content, setup and rendering.
+EOD
+    ,
+    'Shopware\\Core\\Checkout\\Document' => <<<'EOD'
+Printable and downloadable document generator. 
+EOD
+    ,
+    'Shopware\\Core\\Checkout\\Promotion' => <<<'EOD'
+Promotions based on rules.
+EOD
+    ,
+    Shopware\Core\Content\DeliveryTime\DeliveryTimeDefinition::class => <<<'EOD'
+Delivery time of a shipping method.
+EOD
+    ,
+    Shopware\Core\Content\NewsletterReceiver\NewsletterReceiverDefinition::class => <<<'EOD'
+Newsletter receiver. Denormalized from the account so anyone can subscribe.
+EOD
+    ,
+    Shopware\Core\Content\Cms\CmsPageDefinition::class => <<<'EOD'
+A content page containing content blocks and related to categories.
+EOD
+    ,
+    Shopware\Core\Content\Cms\Aggregate\CmsPageTranslation\CmsPageTranslationDefinition::class => '',
+    Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockDefinition::class => <<<'EOD'
+The layout of a part of a page.
+EOD
+    ,
+    Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotDefinition::class => <<<'EOD'
+An element containing static content or a dynamic template.
+EOD
+    ,
+    Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation\CmsSlotTranslationDefinition::class => '',
+    Shopware\Core\Content\MailTemplate\MailTemplateDefinition::class => <<<'EOD'
+A log of rendered and sent mails.
+EOD
+    ,
+    Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateSalesChannel\MailTemplateSalesChannelDefinition::class => '',
+    Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateMediaDefinition::class => '',
+    Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition::class => <<<'EOD'
+A log of rendered and sent header or footer content.
+EOD
+    ,
+    Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooterTranslation\MailHeaderFooterTranslationDefinition::class => '',
+    Shopware\Core\Content\DeliveryTime\Aggregate\DeliveryTimeTranslation\DeliveryTimeTranslationDefinition::class => '',
+    Shopware\Core\Checkout\Promotion\PromotionDefinition::class => <<<'EOD'
+A promotion that is applied during the checkout process.
+EOD
+    ,
+    Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSalesChannelDefinition::class => <<<'EOD'
+SalesChannel relation.
+EOD
+    ,
+    Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountDefinition::class => <<<'EOD'
+A single discount definition of a promotion with a list of satisfiable rules.
+EOD
+    ,
+    'Shopware\\Core\\Content\\DeliveryTime' => <<<'EOD'
+Delivery time of a specific shipping method.
+EOD
+    ,
+    'Shopware\\Core\\Content\\Cms' => <<<'EOD'
+The Content Management System to set up complex storefronts
 EOD
     ,
 ];

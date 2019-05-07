@@ -22,7 +22,7 @@ skinparam backgroundColor #FFFFFF
 
 ' entities
 
-Table(ShopwareCoreContentPropertyPropertyGroupDefinition, "property_group\n(__EMPTY__)") {
+Table(ShopwareCoreContentPropertyPropertyGroupDefinition, "property_group\n(Property Group)") {
    primary_key(id) id
    name translated
    description translated
@@ -33,7 +33,7 @@ Table(ShopwareCoreContentPropertyPropertyGroupDefinition, "property_group\n(__EM
    not_null(updatedAt) updatedAt
    translated json
 }
-Table(ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition, "property_group_option\n(__EMPTY__)") {
+Table(ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition, "property_group_option\n(Property option)") {
    primary_key(id) id
    not_null(groupId) foreignKey
    name translated
@@ -49,19 +49,19 @@ TranslationTable(ShopwareCoreContentPropertyAggregatePropertyGroupOptionTranslat
    not_null(name) string
    position int
    customFields customFields
-   primary_key(propertyGroupOptionId) foreignKey
-   primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
+   primary_key(propertyGroupOptionId) foreignKey
+   primary_key(languageId) foreignKey
 }
 TranslationTable(ShopwareCoreContentPropertyAggregatePropertyGroupTranslationPropertyGroupTranslationDefinition, "property_group_translation\n((Translations))") {
    not_null(name) string
    description longText
    customFields customFields
-   primary_key(propertyGroupId) foreignKey
-   primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
+   primary_key(propertyGroupId) foreignKey
+   primary_key(languageId) foreignKey
 }
 ForeignTable(ShopwareCoreContentMediaMediaDefinition, "media") {
 }

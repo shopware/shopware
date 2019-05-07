@@ -30,9 +30,9 @@ Table(ShopwareCoreContentRuleRuleDefinition, "rule\n(Rule)") {
    payload blob
    invalid bool
    customFields customFields
+   moduleTypes json
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   moduleTypes json
 }
 Table(ShopwareCoreContentRuleAggregateRuleConditionRuleConditionDefinition, "rule_condition\n(Rule condition)") {
    primary_key(id) id
@@ -42,6 +42,8 @@ Table(ShopwareCoreContentRuleAggregateRuleConditionRuleConditionDefinition, "rul
    value json
    position int
    customFields customFields
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
 }
 ForeignTable(ShopwareCoreCheckoutDiscountSurchargeDiscountSurchargeDefinition, "discount_surcharge") {
 }
@@ -51,9 +53,15 @@ ForeignTable(ShopwareCoreCheckoutShippingAggregateShippingMethodPriceShippingMet
 }
 ForeignTable(ShopwareCoreCheckoutShippingShippingMethodDefinition, "shipping_method") {
 }
-ForeignTable(ShopwareCoreCheckoutPaymentAggregatePaymentMethodRulesPaymentMethodRuleDefinition, "payment_method_rule") {
+ForeignTable(ShopwareCoreCheckoutPaymentPaymentMethodDefinition, "payment_method") {
 }
-ForeignTable(ShopwareCoreCheckoutPromotionPromotionDefinition, "promotion") {
+ForeignTable(ShopwareCoreCheckoutPromotionAggregatePromotionPersonaRulePromotionPersonaRuleDefinition, "promotion_persona_rule") {
+}
+ForeignTable(ShopwareCoreCheckoutPromotionAggregatePromotionOrderRulePromotionOrderRuleDefinition, "promotion_order_rule") {
+}
+ForeignTable(ShopwareCoreCheckoutPromotionAggregatePromotionCartRulePromotionCartRuleDefinition, "promotion_cart_rule") {
+}
+ForeignTable(ShopwareCoreCheckoutPromotionAggregatePromotionDiscountRulePromotionDiscountRuleDefinition, "promotion_discount_rule") {
 }
 
 ' relationshipd
@@ -63,7 +71,10 @@ ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreCheckoutDiscountSurchargeD
 ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreContentProductAggregateProductPriceProductPriceDefinition
 ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreCheckoutShippingAggregateShippingMethodPriceShippingMethodPriceDefinition
 ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreCheckoutShippingShippingMethodDefinition
-ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreCheckoutPaymentAggregatePaymentMethodRulesPaymentMethodRuleDefinition
-ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreCheckoutPromotionPromotionDefinition
+ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreCheckoutPaymentPaymentMethodDefinition
+ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreCheckoutPromotionAggregatePromotionPersonaRulePromotionPersonaRuleDefinition
+ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreCheckoutPromotionAggregatePromotionOrderRulePromotionOrderRuleDefinition
+ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreCheckoutPromotionAggregatePromotionCartRulePromotionCartRuleDefinition
+ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreCheckoutPromotionAggregatePromotionDiscountRulePromotionDiscountRuleDefinition
 ShopwareCoreContentRuleAggregateRuleConditionRuleConditionDefinition --> ShopwareCoreContentRuleAggregateRuleConditionRuleConditionDefinition
 @enduml

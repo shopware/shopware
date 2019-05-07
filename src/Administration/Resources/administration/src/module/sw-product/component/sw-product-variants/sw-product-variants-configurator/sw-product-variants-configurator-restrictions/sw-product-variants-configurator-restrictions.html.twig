@@ -5,6 +5,8 @@
             <div class="sw-product-variants-configurator-restrictions__search">
                 {% block sw_product_variants_configurator_restrictions_search_field %}
                     <sw-simple-search-field
+                            size="small"
+                            variant="form"
                             v-model="term"
                             :placeholder="$tc('sw-product.variations.configuratorModal.searchRestrictions')">
                     </sw-simple-search-field>

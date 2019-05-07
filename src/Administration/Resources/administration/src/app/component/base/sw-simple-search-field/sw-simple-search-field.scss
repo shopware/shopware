@@ -4,24 +4,40 @@ $sw-simple-search-field-search-icon-color: $color-gray;
 
 .sw-simple-search-field {
     position: relative;
-    margin-bottom: 8px;
     outline: none;
 
-    .sw-simple-search-field__input {
-        margin-bottom: 0;
-
-        &.sw-block-field .sw-block-field__block,
-        &.sw-block-field.has--focus .sw-block-field__block {
-            border: none;
-            box-shadow: none;
+    &.sw-simple-search-field--small {
+        &.sw-simple-search-field--form,
+        &.sw-simple-search-field--default {
+            .sw-simple-search-field__input input {
+                padding: 4px 16px;
+            }
         }
+    }
 
-        input {
-            background: $color-light-gray;
-            border-radius: 30px;
-            padding-right: 44px;
-            padding-left: 20px;
-            padding: 9px 16px;
+    &.sw-simple-search-field--default {
+        .sw-simple-search-field__input {
+            margin-bottom: 0;
+
+            &.sw-block-field .sw-block-field__block,
+            &.sw-block-field.has--focus .sw-block-field__block {
+                border: none;
+                box-shadow: none;
+            }
+
+            input {
+                background: $color-light-gray;
+                border-radius: 30px;
+                padding-right: 44px;
+                padding-left: 20px;
+                padding: 9px 16px;
+            }
+        }
+    }
+
+    &.sw-simple-search-field--form {
+        .sw-simple-search-field__input {
+            margin-bottom: 0;
         }
     }
 

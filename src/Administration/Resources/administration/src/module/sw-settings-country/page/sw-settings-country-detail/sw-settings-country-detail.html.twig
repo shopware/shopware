@@ -101,6 +101,8 @@
                             <sw-container columns="1fr 32px minmax(100px, 200px)" gap="0 10px">
                                 {% block sw_attribute_list_toolbar_searchfield %}
                                     <sw-simple-search-field
+                                            size="small"
+                                            variant="form"
                                             @searchTermChanged="onSearchCountryState"
                                             v-model="term">
                                     </sw-simple-search-field>

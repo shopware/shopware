@@ -8,8 +8,10 @@
 
                         {% block sw_product_variants_overview_option_list_toolbar_container_search_field %}
                             <sw-simple-search-field
-                                @searchTermChanged="onSearch"
-                                v-model="term">
+                                variant="form"
+                                size="small"
+                                v-model="term"
+                                @searchTermChanged="onSearch">
                             </sw-simple-search-field>
                         {% endblock %}
 

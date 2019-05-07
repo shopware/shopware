@@ -10,6 +10,8 @@
                 <sw-label class="sw-product-stream-modal-preview__search-field-label">
                     {% block sw_product_stream_modal_preview_search_field %}
                         <sw-simple-search-field
+                                size="small"
+                                variant="form"
                                 @searchTermChanged="searchTermChanged"
                                 :searchTerm="term"
                                 :delay="750"

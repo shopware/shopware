@@ -202,7 +202,8 @@
         "deleteCombination": "Delete combination",
         "isOneFrom": "is one from",
         "cancel": "Cancel",
-        "save": "Save"
+        "save": "Save",
+        "searchPlaceholder": "Search for groups and properties"
       },
       "deliveryModal": {
         "modalHeadline": "Variants delivery",

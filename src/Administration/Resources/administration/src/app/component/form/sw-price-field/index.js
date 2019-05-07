@@ -55,6 +55,12 @@ export default {
         compact: {
             required: false,
             default: false
+        },
+
+        rootPointer: {
+            tye: String,
+            required: false,
+            default: null
         }
     },
 
@@ -75,6 +81,14 @@ export default {
     computed: {
         calculatePriceApiService() {
             return Application.getContainer('factory').apiService.getByName('calculate-price');
+        },
+
+        grossPointer() {
+            return this.rootPointer ? `${this.rootPointer}.price.gross` : null;
+        },
+
+        netPointer() {
+            return this.rootPointer ? `${this.rootPointer}.price.net` : null;
         }
     },
 

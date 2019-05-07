@@ -30,6 +30,7 @@
                 :price="product.price"
                 :taxRate="productTaxRate"
                 :currency="defaultCurrency"
+                rootPointer="product"
                 validation="required"
                 @calculating="priceIsCalculating">
             </sw-price-field>

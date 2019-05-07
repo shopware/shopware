@@ -1,4 +1,6 @@
+import ShopwareError from 'src/core/data/ShopwareError';
 import template from './sw-field-error.html.twig';
+import './sw-field-error.scss';
 
 /**
  * @private
@@ -8,13 +10,12 @@ export default {
     template,
 
     props: {
-        formError: {
+        error: {
             type: Object,
-            required: false
-        },
-        errorMessage: {
-            type: String,
-            required: false
+            required: false,
+            default() {
+                return new ShopwareError();
+            }
         }
     }
 };

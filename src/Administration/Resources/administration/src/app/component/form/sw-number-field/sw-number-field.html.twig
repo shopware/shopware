@@ -1,4 +1,4 @@
-<sw-contextual-field class="sw-field--number" v-bind="$attrs" :name="formFieldName">
+<sw-contextual-field class="sw-field--number" v-bind="$attrs" :name="formFieldName" :error="actualError">
     <template #sw-field-input="{ identification, error, disabled, swBlockSize, setFocusClass, removeFocusClass }">
         <input :id="identification"
                :name="identification"

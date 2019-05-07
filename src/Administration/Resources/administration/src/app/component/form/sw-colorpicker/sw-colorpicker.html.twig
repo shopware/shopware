@@ -2,7 +2,8 @@
     class="sw-field--colorpicker"
     v-bind="$attrs"
     :name="formFieldName"
-    :disabled="disabled">
+    :disabled="disabled"
+    :error="actualError">
 
     <template #sw-contextual-field-prefix>
         <div class="sw-colorpicker__previewWrapper">

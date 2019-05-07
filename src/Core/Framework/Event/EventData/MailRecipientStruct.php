@@ -19,6 +19,9 @@ class MailRecipientStruct
      */
     private $cc;
 
+    /**
+     * @param array $recipients ['email' => 'firstName lastName']
+     */
     public function __construct(array $recipients)
     {
         $this->recipients = $recipients;

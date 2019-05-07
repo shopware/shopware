@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
@@ -59,15 +60,18 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
         $mediaFolderId = null;
         $context->getConsole()->progressStart($count);
 
-        $mailTypeIds = $this->mailTemplateTypeRepository->search(new Criteria(), $context->getContext())->getIds();
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('mail_template_type.mailTemplates.id', null));
+
+        $mailTypeIds = $this->mailTemplateTypeRepository->search($criteria, $context->getContext())->getIds();
 
         $payload = [];
-        for ($i = 0; $i < $count; ++$i) {
-            $mailTemplate = $this->createSimpleMailTemplate($context, $mailTypeIds);
+        foreach ($mailTypeIds as $mailTypeId => $id) {
+            $mailTemplate = $this->createSimpleMailTemplate($context, $mailTypeId);
 
             $payload[] = $mailTemplate;
 
-            if (\count($payload) >= 50) {
+            if (\count($payload) >= 10) {
                 $context->getConsole()->progressAdvance(\count($payload));
                 $this->write($payload, $context);
                 $payload = [];
@@ -90,7 +94,7 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
         $context->add(MailTemplateDefinition::class, ...array_column($payload, 'id'));
     }
 
-    private function createSimpleMailTemplate(DemodataContext $context, array $mailTypeIds): array
+    private function createSimpleMailTemplate(DemodataContext $context, string $mailTypeId): array
     {
         $faker = $context->getFaker();
         $mailTemplate = [
@@ -105,7 +109,7 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
                 $context
             ),
             'contentPlain' => $faker->text,
-            'mailTemplateTypeId' => \array_rand($mailTypeIds),
+            'mailTemplateTypeId' => $mailTypeId,
         ];
 
         return $mailTemplate;

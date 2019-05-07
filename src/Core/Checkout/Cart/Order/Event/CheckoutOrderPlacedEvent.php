@@ -71,7 +71,11 @@ class CheckoutOrderPlacedEvent extends Event implements BusinessEventInterface, 
             return $this->mailRecipientStruct;
         }
 
-        return new MailRecipientStruct([$this->order->getOrderCustomer()->getEmail() => $this->order->getOrderCustomer()->getFirstName() . ' ' . $this->order->getOrderCustomer()->getLastName()]);
+        return new MailRecipientStruct(
+            [
+                $this->order->getOrderCustomer()->getEmail() => $this->order->getOrderCustomer()->getFirstName() . ' ' . $this->order->getOrderCustomer()->getLastName(),
+            ]
+        );
     }
 
     public function getSalesChannelId(): string

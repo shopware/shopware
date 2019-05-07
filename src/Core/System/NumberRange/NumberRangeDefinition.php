@@ -50,7 +50,7 @@ class NumberRangeDefinition extends EntityDefinition
             new TranslatedField('name'),
             new TranslatedField('description'),
             (new StringField('pattern', 'pattern'))->addFlags(new Required()),
-            new IntField('start', 'start'),
+            (new IntField('start', 'start'))->addFlags(new Required()),
             new TranslatedField('customFields'),
 
             (new ManyToOneAssociationField('type', 'type_id', NumberRangeTypeDefinition::class)),

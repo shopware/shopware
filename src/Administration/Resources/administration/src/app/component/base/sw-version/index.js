@@ -1,3 +1,4 @@
+import { Application } from 'src/core/shopware';
 import template from './sw-version.html.twig';
 import './sw-version.scss';
 
@@ -13,5 +14,52 @@ import './sw-version.scss';
  */
 export default {
     name: 'sw-version',
-    template
+    template,
+
+    computed: {
+        version() {
+            const version = Application.getContainer('init').contextService.config.version;
+            const match = version.match(/(\d+\.?\d+?\.?\d+?)-?([a-z]+)?([0-9]+)?/i);
+
+            if (match === null) {
+                return version;
+            }
+
+            let output = `v${match[1]}`;
+
+            if (match[2]) {
+                output += ` ${this.getHumanReadableText(match[2])}`;
+            } else {
+                output += ' Stable Version';
+            }
+
+            if (match[3]) {
+                output += ` ${match[3]}`;
+            }
+
+            return output;
+        }
+    },
+
+    methods: {
+        getHumanReadableText(text) {
+            if (text === 'dp') {
+                return 'Developer Preview';
+            }
+
+            if (text === 'rc') {
+                return 'Release Candidate';
+            }
+
+            if (text === 'dev') {
+                return 'Developer Version';
+            }
+
+            if (text === 'ea') {
+                return 'Early Access';
+            }
+
+            return text;
+        }
+    }
 };

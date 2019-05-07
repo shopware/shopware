@@ -35,8 +35,12 @@ class InfoController extends AbstractController
      */
     private $isApiBrowserPublic;
 
-    public function __construct(DefinitionService $definitionService, ParameterBagInterface $params, BusinessEventRegistry $actionEventRegistry, bool $isApiBrowserPublic)
-    {
+    public function __construct(
+        DefinitionService $definitionService,
+        ParameterBagInterface $params,
+        BusinessEventRegistry $actionEventRegistry,
+        bool $isApiBrowserPublic
+    ) {
         $this->definitionService = $definitionService;
         $this->params = $params;
         $this->actionEventRegistry = $actionEventRegistry;
@@ -92,7 +96,7 @@ class InfoController extends AbstractController
             throw new ApiBrowserNotPublicException();
         }
 
-        return $this->render('@Shopware/swagger.html.twig', ['schemaUrl' => 'api.info.openapi3']);
+        return $this->render('@Framework/swagger.html.twig', ['schemaUrl' => 'api.info.openapi3']);
     }
 
     /**
@@ -101,6 +105,8 @@ class InfoController extends AbstractController
     public function config(): JsonResponse
     {
         return $this->json([
+            'version' => $this->params->get('kernel.shopware_version'),
+            'versionRevision' => $this->params->get('kernel.shopware_version_revision'),
             'adminWorker' => [
                 'enableAdminWorker' => $this->params->get('shopware.admin_worker.enable_admin_worker'),
                 'transports' => $this->params->get('shopware.admin_worker.transports'),

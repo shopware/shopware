@@ -28,9 +28,9 @@
             <title>{% block document_title_tag %}{% endblock %}</title>
             {#{% endif %}#}
             {% if config.custom.pageOrientation == 'landscape' %}
-                {% include '@Shopware/documents/style_base_landscape.css.twig' %}
+                {% include '@Framework/documents/style_base_landscape.css.twig' %}
             {% else %}
-                {% include '@Shopware/documents/style_base_portrait.css.twig' %}
+                {% include '@Framework/documents/style_base_portrait.css.twig' %}
             {% endif %}
         {% endblock %}
     </head>

@@ -7,29 +7,18 @@ let enabled = false;
  * Starts the worker
  */
 export default function initializeWorker() {
-    const configService = this.getContainer('service').configService;
     const loginService = this.getContainer('service').loginService;
     const context = this.getContainer('init').contextService;
 
-    if (loginService.isLoggedIn()) {
-        configureWorker();
-    } else {
-        loginService.addOnLoginListener(configureWorker);
-    }
-
-    function configureWorker() {
-        configService.getConfig()
-            .then((response) => {
-                if (response.adminWorker.enableAdminWorker && !enabled) {
-                    enableAdminWorker(loginService, context, response.adminWorker);
-                    enableWorkerNotificationListener(
-                        loginService,
-                        context
-                    );
-                }
-            })
-            .catch();
-    }
+    return function configureWorker() {
+        if (context.config.adminWorker.enableAdminWorker && !enabled) {
+            enableAdminWorker(loginService, context, context.config.adminWorker);
+            enableWorkerNotificationListener(
+                loginService,
+                context
+            );
+        }
+    };
 }
 
 function enableAdminWorker(loginService, context, config) {

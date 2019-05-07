@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Context\AdminApiSource;
 use Shopware\Core\Framework\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Framework;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Exception\StoreHostMissingException;
@@ -21,6 +20,7 @@ use Shopware\Core\Framework\Store\Struct\StoreLicenseStruct;
 use Shopware\Core\Framework\Store\Struct\StoreLicenseSubscriptionStruct;
 use Shopware\Core\Framework\Store\Struct\StoreLicenseTypeStruct;
 use Shopware\Core\Framework\Store\Struct\StoreUpdateStruct;
+use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 final class StoreClient
@@ -52,14 +52,21 @@ final class StoreClient
      */
     private $configService;
 
+    /**
+     * @var string
+     */
+    private $shopwareVersion;
+
     public function __construct(
         OpenSSLVerifier $openSSLVerifier,
         EntityRepositoryInterface $pluginRepo,
-        SystemConfigService $configService
+        SystemConfigService $configService,
+        string $shopwareVersion
     ) {
         $this->configService = $configService;
         $this->openSSLVerifier = $openSSLVerifier;
         $this->pluginRepo = $pluginRepo;
+        $this->shopwareVersion = $shopwareVersion;
         $this->client = $this->getClient();
     }
 
@@ -263,7 +270,7 @@ final class StoreClient
         }
 
         return [
-            'shopwareVersion' => Framework::VERSION,
+            'shopwareVersion' => $this->getShopwareVersion(),
             'language' => $language,
             'domain' => $licenseHost,
         ];
@@ -312,5 +319,14 @@ final class StoreClient
         ];
 
         return new Client($config);
+    }
+
+    private function getShopwareVersion(): string
+    {
+        if ($this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION) {
+            return '___VERSION___';
+        }
+
+        return $this->shopwareVersion;
     }
 }

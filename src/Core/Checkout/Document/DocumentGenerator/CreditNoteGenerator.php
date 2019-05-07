@@ -12,7 +12,7 @@ use Twig\Error\Error;
 
 class CreditNoteGenerator implements DocumentGeneratorInterface
 {
-    public const DEFAULT_TEMPLATE = '@Shopware/documents/credit_note.html.twig';
+    public const DEFAULT_TEMPLATE = '@Framework/documents/credit_note.html.twig';
     public const CREDIT_NOTE = 'credit_note';
 
     /**

@@ -7,7 +7,6 @@ use function Flag\next1797;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Framework;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime;
@@ -94,6 +93,11 @@ class PluginLifecycleService
      */
     private $requirementValidator;
 
+    /**
+     * @var string
+     */
+    private $shopwareVersion;
+
     public function __construct(
         EntityRepositoryInterface $pluginRepo,
         EventDispatcherInterface $eventDispatcher,
@@ -105,7 +109,8 @@ class PluginLifecycleService
         Connection $connection,
         AssetService $assetInstaller,
         CommandExecutor $executor,
-        RequirementsValidator $requirementValidator
+        RequirementsValidator $requirementValidator,
+        string $shopwareVersion
     ) {
         $this->pluginRepo = $pluginRepo;
         $this->eventDispatcher = $eventDispatcher;
@@ -118,6 +123,7 @@ class PluginLifecycleService
         $this->assetInstaller = $assetInstaller;
         $this->executor = $executor;
         $this->requirementValidator = $requirementValidator;
+        $this->shopwareVersion = $shopwareVersion;
     }
 
     /**
@@ -131,7 +137,7 @@ class PluginLifecycleService
         $installContext = new InstallContext(
             $pluginBaseClass,
             $shopwareContext,
-            Framework::VERSION,
+            $this->shopwareVersion,
             $pluginVersion
         );
 
@@ -203,7 +209,7 @@ class PluginLifecycleService
         $uninstallContext = new UninstallContext(
             $pluginBaseClass,
             $shopwareContext,
-            Framework::VERSION,
+            $this->shopwareVersion,
             $plugin->getVersion(),
             $keepUserData
         );
@@ -248,7 +254,7 @@ class PluginLifecycleService
         $updateContext = new UpdateContext(
             $pluginBaseClass,
             $shopwareContext,
-            Framework::VERSION,
+            $this->shopwareVersion,
             $plugin->getVersion(),
             $plugin->getUpgradeVersion() ?? $plugin->getVersion()
         );
@@ -309,7 +315,7 @@ class PluginLifecycleService
         $activateContext = new ActivateContext(
             $pluginBaseClass,
             $shopwareContext,
-            Framework::VERSION,
+            $this->shopwareVersion,
             $plugin->getVersion()
         );
 
@@ -362,7 +368,7 @@ class PluginLifecycleService
         $deactivateContext = new DeactivateContext(
             $pluginBaseClass,
             $shopwareContext,
-            Framework::VERSION,
+            $this->shopwareVersion,
             $plugin->getVersion()
         );
 

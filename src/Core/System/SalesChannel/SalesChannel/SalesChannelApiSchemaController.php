@@ -67,6 +67,6 @@ class SalesChannelApiSchemaController extends AbstractController
             throw new ApiBrowserNotPublicException();
         }
 
-        return $this->render('@Shopware/swagger.html.twig', ['schemaUrl' => 'sales-channel-api.info.openapi3']);
+        return $this->render('@Framework/swagger.html.twig', ['schemaUrl' => 'sales-channel-api.info.openapi3']);
     }
 }

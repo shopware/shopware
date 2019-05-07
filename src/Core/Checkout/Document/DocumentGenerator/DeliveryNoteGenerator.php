@@ -11,7 +11,7 @@ use Twig\Error\Error;
 
 class DeliveryNoteGenerator implements DocumentGeneratorInterface
 {
-    public const DEFAULT_TEMPLATE = '@Shopware/documents/delivery_note.html.twig';
+    public const DEFAULT_TEMPLATE = '@Framework/documents/delivery_note.html.twig';
     public const DELIVERY_NOTE = 'delivery_note';
 
     /**

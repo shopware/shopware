@@ -11,7 +11,7 @@ use Twig\Error\Error;
 
 class InvoiceGenerator implements DocumentGeneratorInterface
 {
-    public const DEFAULT_TEMPLATE = '@Shopware/documents/invoice.html.twig';
+    public const DEFAULT_TEMPLATE = '@Framework/documents/invoice.html.twig';
     public const INVOICE = 'invoice';
 
     /**

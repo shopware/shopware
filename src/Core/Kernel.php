@@ -8,7 +8,6 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Framework\Api\Controller\FallbackController;
-use Shopware\Core\Framework\Framework;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
@@ -31,6 +30,11 @@ class Kernel extends HttpKernel
     public const CONFIG_EXTS = '.{php,xml,yaml,yml}';
 
     /**
+     * @var string Fallback version if nothing is provided via kernel constructor
+     */
+    public const SHOPWARE_FALLBACK_VERSION = '9999999-dev';
+
+    /**
      * @var Connection|null
      */
     protected static $connection;
@@ -46,9 +50,19 @@ class Kernel extends HttpKernel
     protected $classLoader;
 
     /**
+     * @var string
+     */
+    protected $shopwareVersion;
+
+    /**
+     * @var string|null
+     */
+    protected $shopwareVersionRevision;
+
+    /**
      * {@inheritdoc}
      */
-    public function __construct(string $environment, bool $debug, ClassLoader $classLoader)
+    public function __construct(string $environment, bool $debug, ClassLoader $classLoader, ?string $version = self::SHOPWARE_FALLBACK_VERSION)
     {
         parent::__construct($environment, $debug);
 
@@ -56,6 +70,7 @@ class Kernel extends HttpKernel
         self::$connection = null;
 
         $this->classLoader = $classLoader;
+        $this->parseShopwareVersion($version);
     }
 
     public function registerBundles()
@@ -140,7 +155,7 @@ class Kernel extends HttpKernel
             '%s/var/cache/%s_%s',
             $this->getProjectDir(),
             $this->getEnvironment(),
-            Framework::REVISION
+            $this->shopwareVersionRevision
         );
     }
 
@@ -211,6 +226,8 @@ class Kernel extends HttpKernel
         return array_merge(
             $parameters,
             [
+                'kernel.shopware_version' => $this->shopwareVersion,
+                'kernel.shopware_version_revision' => $this->shopwareVersionRevision,
                 'kernel.plugin_dir' => $this->getPluginDir(),
                 'kernel.active_plugins' => $activePluginMeta,
             ]
@@ -219,13 +236,14 @@ class Kernel extends HttpKernel
 
     protected function getContainerClass(): string
     {
-        $pluginHash = sha1(implode('', array_keys(self::getPlugins()->getActives())));
+        $pluginHash = md5(implode('', array_keys(self::getPlugins()->getActives())));
 
-        return $this->name
-            . ucfirst($this->environment)
-            . $pluginHash
-            . ($this->debug ? 'Debug' : '')
-            . 'ProjectContainer';
+        return sprintf(
+            'k%s_p%s_%s_container',
+            $this->shopwareVersionRevision,
+            $pluginHash,
+            $this->debug ? 'debug' : 'nodebug'
+        );
     }
 
     protected function initializePlugins(): void
@@ -377,5 +395,26 @@ SQL;
         $route->setDefault('_controller', FallbackController::class . '::rootFallback');
 
         $routes->addRoute($route, 'root.fallback');
+    }
+
+    private function parseShopwareVersion(?string $version): void
+    {
+        // does not come from composer, was set manually
+        if ($version === null || mb_strpos($version, '@') === false) {
+            $this->shopwareVersion = self::SHOPWARE_FALLBACK_VERSION;
+            $this->shopwareVersionRevision = str_repeat('0', 32);
+
+            return;
+        }
+
+        [$version, $hash] = explode('@', $version);
+
+        // checks if the version is a valid version pattern
+        if (!preg_match('#\d+\.\d+\.\d+(-\w+)?#', $version)) {
+            $version = self::SHOPWARE_FALLBACK_VERSION;
+        }
+
+        $this->shopwareVersion = $version;
+        $this->shopwareVersionRevision = $hash;
     }
 }

@@ -37,8 +37,29 @@ export default {
                 onDone: this.onDone
             });
 
-            this.colorPicker.setOptions(this.config);
-            this.setColor(this.value);
+            this.$nextTick(() => {
+                if (this.isOverflowingLeft()) {
+                    this.config.popup = 'right';
+                }
+
+                this.colorPicker.setOptions(this.config);
+                this.setColor(this.value);
+            });
+        },
+
+        isOverflowingLeft() {
+            const boundary = this.$el.getBoundingClientRect();
+            const pickerWidth = 250;
+
+
+            const modalDialog = this.$el.closest('.sw-modal__dialog');
+            if (modalDialog) {
+                if (modalDialog.offsetLeft > (boundary.left - pickerWidth)) {
+                    return true;
+                }
+            }
+
+            return boundary.left < pickerWidth;
         },
 
         onDone(value) {

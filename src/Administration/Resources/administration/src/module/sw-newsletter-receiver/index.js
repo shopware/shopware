@@ -26,10 +26,7 @@ Module.register('sw-newsletter-receiver', {
     routes: {
         index: {
             component: 'sw-newsletter-receiver-list',
-            path: 'index',
-            meta: {
-                parentPath: 'sw.marketing.index'
-            }
+            path: 'index'
         },
 
         detail: {

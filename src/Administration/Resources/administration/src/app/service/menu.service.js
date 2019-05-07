@@ -31,6 +31,9 @@ export default function createMenuService(moduleFactory) {
     function getMainMenu() {
         const modules = moduleFactory.getModuleRegistry();
 
+        // Reset tree when not empty
+        resetTree();
+
         navigation.forEach((navItem) => {
             flatTree.add(navItem);
         });
@@ -82,5 +85,18 @@ export default function createMenuService(moduleFactory) {
         }
 
         return 0;
+    }
+
+    /**
+     * Reset the flatTree
+     *
+     * @memberOf module:app/service/menu
+     * @return {Boolean}
+     */
+    function resetTree() {
+        const flatTreeKeys = [...flatTree._registeredNodes.keys()];
+        flatTreeKeys.forEach((node) => {
+            flatTree.remove(node);
+        });
     }
 }

@@ -120,7 +120,13 @@
 
                             {% block sw_custoemr_base_metadata_birthday_editor %}
                                 <dd v-else>
-                                    <sw-datepicker type="date" v-model="customer.birthday" slot="inline-edit" size="small"></sw-datepicker>
+                                    <sw-datepicker
+                                            type="date"
+                                            v-model="customer.birthday"
+                                            slot="inline-edit"
+                                            size="small"
+                                            dateType="date"
+                                    ></sw-datepicker>
                                 </dd>
                             {% endblock %}
                         </sw-description-list>

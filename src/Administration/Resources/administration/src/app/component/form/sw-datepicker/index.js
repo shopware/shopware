@@ -78,6 +78,10 @@ export default {
             altFormat = 'H:i';
         }
 
+        if (this.dateType === 'date') {
+            altFormat = 'Y-m-d';
+        }
+
         return {
             flatpickrInstance: null,
             inputValue: this.value || '',

@@ -6,6 +6,7 @@
                 {% block sw_customer_base_form_first_salutation_field %}
                     <sw-select-field :label="$tc('sw-customer.baseForm.labelSalutation')"
                                      v-model="customer.salutationId"
+                                     :placeholder="$tc('sw-customer.baseForm.placeholderSalutation')"
                                      validation="required">
                         <option v-for="salutation in salutations" :key="salutation.id" :value="salutation.id">
                             {{ salutation.translated.displayName }}

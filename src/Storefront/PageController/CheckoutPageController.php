@@ -462,7 +462,7 @@ class CheckoutPageController extends StorefrontController
             $initialCartState = md5(json_encode($cart));
 
             $cart = $this->cartService->add($cart, $lineItem, $context);
-
+            $cart->getErrors();
             if (!$this->hasCode($cart, $code)) {
                 throw new LineItemNotFoundException($code);
             }
@@ -473,6 +473,10 @@ class CheckoutPageController extends StorefrontController
             } else {
                 $this->addFlash('info', $this->translator->trans('checkout.promotionAlreadyExistsInfo'));
             }
+        } catch (LineItemNotFoundException $exception) {
+            // todo this could have a multitude of reasons - imagine a code is valid but cannot be added because of restrictions
+            // wouldn't it be the appropriate way to display the reason what avoided the promotion to be added
+            $this->addFlash('warning', 'Gutschein-Code konnte nicht hinzugefügt werden - ist der Code falsch?');
         } catch (\Exception $exception) {
             $this->addFlash('danger', $this->translator->trans('error.message-default'));
         }

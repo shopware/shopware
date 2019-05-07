@@ -5,6 +5,8 @@
                 <slot name="toolbar-search-field">
                     {% block sw_product_variants_configurator_selection_search_field %}
                         <sw-simple-search-field
+                            size="small"
+                            variant="form"
                             class="sw-property-search__search-field sw-product-variants-configurator-selection-search__search-field"
                             ref="searchField"
                             @focus="onFocusSearch"

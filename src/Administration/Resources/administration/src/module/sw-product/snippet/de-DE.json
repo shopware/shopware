@@ -201,7 +201,8 @@
         "deleteCombination": "Kombination entfernen",
         "isOneFrom": "ist eine von",
         "cancel": "Abbrechen",
-        "save": "Speichern"
+        "save": "Speichern",
+        "searchPlaceholder": "Durchsuche Gruppen und Eigenschaften"
       },
       "deliveryModal": {
         "modalHeadline": "Varianten Ausspielung",

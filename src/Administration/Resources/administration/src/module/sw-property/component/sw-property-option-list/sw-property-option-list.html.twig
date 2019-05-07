@@ -8,7 +8,12 @@
                     <sw-container columns="1fr 32px minmax(100px, 200px)" gap="0 10px">
 
                         {% block sw_property_option_list_toolbar_search %}
-                            <sw-simple-search-field @searchTermChanged="onSearch" v-model="term" />
+                            <sw-simple-search-field
+                                size="small"
+                                variant="form"
+                                v-model="term"
+                                @searchTermChanged="onSearch">
+                            </sw-simple-search-field>
                         {% endblock %}
 
                         {% block sw_property_option_list_toolbar_delete %}

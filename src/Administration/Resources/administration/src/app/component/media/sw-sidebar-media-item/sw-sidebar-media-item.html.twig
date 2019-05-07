@@ -8,7 +8,7 @@
         {% block sw_sidebar_media_item_content %}
             <div class="sw-sidebar-media-item__content">
                 {% block sw_sidebar_media_item_search_field %}
-                    <sw-simple-search-field v-model="term" :class="{ 'is--searching': term.length }"></sw-simple-search-field>
+                    <sw-simple-search-field v-model="term"></sw-simple-search-field>
                 {% endblock %}
 
                 {% block sw_sidebar_media_item_folder_navigation%}

@@ -4,6 +4,8 @@
             <div :class="hasFilterClass">
                 {% block sw_card_filter_bar_container_field %}
                     <sw-simple-search-field
+                            size="small"
+                            variant="form"
                             @searchTermChanged="onTermChange"
                             :placeholder="placeholder"
                             :delay="delay"

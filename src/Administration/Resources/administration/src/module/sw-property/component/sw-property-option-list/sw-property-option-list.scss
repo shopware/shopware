@@ -30,19 +30,5 @@
                 opacity: 0.2;
             }
         }
-
-        .sw-simple-search-field .sw-simple-search-field__input {
-            margin-bottom: 0;
-
-            input {
-                height: 32px;
-                background: $color-white;
-                padding: 0 20px 0 56px;
-            }
-        }
     }
-
-	.sw-simple-search-field {
-		margin: unset;
-	}
 }

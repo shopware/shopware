@@ -41,9 +41,11 @@
                                 {% block sw_cms_list_listing_actions %}
                                     <div class="sw-cms-list__actions">
                                         {% block sw_cms_list_listing_actions_search %}
-                                            <sw-simple-search-field :placeholder="$tc('sw-cms.general.placeholderSearchBar')"
-                                                           :searchType="$tc('sw-cms.general.mainMenuItemGeneral')"
-                                                           @searchTermChanged="onSearch">
+                                            <sw-simple-search-field
+                                                variant="form"
+                                                :placeholder="$tc('sw-cms.general.placeholderSearchBar')"
+                                                :searchType="$tc('sw-cms.general.mainMenuItemGeneral')"
+                                                @searchTermChanged="onSearch">
                                             </sw-simple-search-field>
                                         {% endblock %}
 

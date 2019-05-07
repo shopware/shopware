@@ -21,8 +21,10 @@
                     <div class="sw-product-variants-configurator-prices__search">
                         {% block sw_product_variants_configurator_prices_search_field %}
                             <sw-simple-search-field
-                                    v-model="term"
-                                    placeholder="Durchsuche Gruppe und Eigenschaften">
+                                size="small"
+                                variant="form"
+                                v-model="term"
+                                :placeholder="$tc('sw-product.variations.configuratorModal.searchPlaceholder')">
                             </sw-simple-search-field>
                         {% endblock %}
                     </div>

@@ -20,6 +20,32 @@ export default {
     },
 
     props: {
+        variant: {
+            type: String,
+            required: false,
+            default: 'default',
+            validValues: ['default', 'form'],
+            validator(value) {
+                if (!value.length) {
+                    return true;
+                }
+                return ['default', 'form'].includes(value);
+            }
+        },
+
+        size: {
+            type: String,
+            required: false,
+            default: 'large',
+            validValues: ['large', 'small'],
+            validator(value) {
+                if (!value.length) {
+                    return true;
+                }
+                return ['large', 'small'].includes(value);
+            }
+        },
+
         searchTerm: {
             type: String,
             required: false
@@ -44,6 +70,13 @@ export default {
     },
 
     computed: {
+        fieldClasses() {
+            return {
+                [`sw-simple-search-field--${this.variant}`]: this.variant,
+                [`sw-simple-search-field--${this.size}`]: this.size
+            };
+        },
+
         fallbackPlaceholder() {
             return this.placeholder || this.$tc('global.sw-simple-search-field.defaultPlaceholder');
         },

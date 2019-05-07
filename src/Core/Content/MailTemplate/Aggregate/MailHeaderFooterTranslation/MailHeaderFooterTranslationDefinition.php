@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooterTranslati
 
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -34,7 +35,7 @@ class MailHeaderFooterTranslationDefinition extends EntityTranslationDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            new StringField('name', 'name'),
+            (new StringField('name', 'name'))->setFlags(new Required()),
             new StringField('description', 'description'),
             new LongTextWithHtmlField('header_html', 'headerHtml'),
             new LongTextField('header_plain', 'headerPlain'),

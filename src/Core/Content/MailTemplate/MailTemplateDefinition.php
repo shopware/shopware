@@ -39,7 +39,7 @@ class MailTemplateDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
 
-            new FkField('mail_template_type_id', 'mailTemplateTypeId', MailTemplateTypeDefinition::class),
+            (new FkField('mail_template_type_id', 'mailTemplateTypeId', MailTemplateTypeDefinition::class))->setFlags(new Required()),
             new BoolField('system_default', 'systemDefault'),
 
             // translatable fields

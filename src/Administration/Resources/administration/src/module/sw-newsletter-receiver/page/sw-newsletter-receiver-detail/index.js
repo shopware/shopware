@@ -12,7 +12,8 @@ Component.register('sw-newsletter-receiver-detail', {
     ],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
+        Mixin.getByName('salutation')
     ],
 
     data() {
@@ -25,7 +26,17 @@ Component.register('sw-newsletter-receiver-detail', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
     computed: {
+        identifier() {
+            return this.newsletterReceiver !== null ? this.salutation(this.newsletterReceiver) : '';
+        },
+
         newsletterReceiverStore() {
             return this.repositoryFactory.create('newsletter_receiver');
         }

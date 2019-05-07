@@ -9,13 +9,14 @@ import enGB from './snippet/en_GB.json';
 
 Module.register('sw-newsletter-receiver', {
     type: 'core',
-    name: 'Newsletter receiver',
+    name: 'newsletter-receiver',
+    title: 'sw-newsletter-receiver.general.mainMenuItemGeneral',
     description: 'sw-newsletter-receiver.general.description',
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#FFD700',
     icon: 'default-object-marketing',
-    favicon: 'icon-module-products.png',
+    favicon: 'icon-module-promotions.png',
     entity: 'newsletter_receiver',
 
     snippets: {

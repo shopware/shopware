@@ -114,9 +114,11 @@ export default {
                 }
             }
 
-            this.items.criteria.addSorting(
-                Criteria.sort(column.dataIndex, direction)
-            );
+            column.dataIndex.split(',').forEach((field) => {
+                this.items.criteria.addSorting(
+                    Criteria.sort(field, direction, column.naturalSort)
+                );
+            });
 
             this.currentSortBy = column.dataIndex;
             this.currentSortDirection = direction;

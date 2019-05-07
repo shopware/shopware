@@ -156,7 +156,6 @@ const resolve = {
     alias: {
         src: getPath('src'),
         assets: getPath('assets'),
-        jquery: require.resolve('jquery-slim'),
     },
 };
 

@@ -63,12 +63,13 @@
   "dependencies": {
     "bootstrap": "4.3.1",
     "deepmerge": "3.2.0",
+    "formdata-polyfill": "3.0.17",
     "hammerjs": "2.0.8",
     "history": "4.9.0",
-    "jquery-slim": "3.0.0",
+    "jquery": "3.4.1",
     "nunito-fontface": "0.7.3",
     "popper.js": "1.14.7",
-    "query-string": "6.5.0",
+    "query-string": "5.1.1",
     "tiny-slider": "2.9.1"
   }
 }

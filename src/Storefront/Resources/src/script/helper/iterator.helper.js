@@ -32,7 +32,9 @@ export default class Iterator {
         }
 
         if (source instanceof Object) {
-            return Object.entries(source).forEach(entry => callback(entry[1], entry[0]));
+            return Object.keys(source).forEach(key => {
+                callback(source[key], key)
+            });
         }
 
         throw new Error(`The element type ${typeof source} is not iterable!`);

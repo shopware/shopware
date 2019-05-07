@@ -95,7 +95,8 @@
 
 @for $i from 1 through 10 {
     .icon-#{$i}x {
-        @include size($i * $icon-base-size);
+        width: $i * $icon-base-size;
+        height: $i * $icon-base-size;
     }
 }
 

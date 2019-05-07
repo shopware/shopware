@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Migration\Migration1555313295CreateDefaultFoldersForBasicEntities;
+use Shopware\Core\Migration\Migration1536233490CreateDefaultFoldersForBasicEntities;
 
 class Migration1555313295CreateDefaultFoldersForBasicEntitiesTest extends TestCase
 {
@@ -20,7 +20,7 @@ class Migration1555313295CreateDefaultFoldersForBasicEntitiesTest extends TestCa
         $defaultFolderRepository = $this->getContainer()->get('media_default_folder.repository');
         $context = Context::createDefaultContext();
 
-        $migration = new Migration1555313295CreateDefaultFoldersForBasicEntities();
+        $migration = new Migration1536233490CreateDefaultFoldersForBasicEntities();
 
         $assignedDefaultFolderId = Uuid::randomHex();
         $unassignedDefaultFolderId = Uuid::randomHex();

@@ -103,7 +103,7 @@ class MigrationCommand extends Command
             }
         } catch (\Exception $e) {
             $this->finishProgress($migratedCounter, $total);
-            throw new MigrateException($e->getMessage());
+            throw new MigrateException($e->getMessage() . PHP_EOL . 'Trace: ' . PHP_EOL . $e->getTraceAsString());
         }
 
         $this->finishProgress($migratedCounter, $total);

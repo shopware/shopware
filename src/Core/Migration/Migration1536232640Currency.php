@@ -16,14 +16,14 @@ class Migration1536232640Currency extends MigrationStep
     {
         $connection->executeQuery('
             CREATE TABLE `currency` (
-              `id` BINARY(16) NOT NULL,
-              `is_default` TINYINT(1) NOT NULL DEFAULT 0,
-              `factor` DOUBLE NOT NULL,
-              `symbol` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-              `placed_in_front` TINYINT(1) NOT NULL DEFAULT 0,
-              `position` INT(11) NOT NULL DEFAULT 1,
-              `created_at` DATETIME(3) NOT NULL,
-              `updated_at` DATETIME(3) NULL,
+              `id`                  BINARY(16)                              NOT NULL,
+              `iso_code`            CHAR(3)                                 NOT NULL,
+              `factor`              DOUBLE                                  NOT NULL,
+              `symbol`              VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+              `position`            INT(11)                                 NOT NULL DEFAULT 1,
+              `decimal_precision`   INT(11)                                 NOT NULL,
+              `created_at`          DATETIME(3)                             NOT NULL,
+              `updated_at`          DATETIME(3)                             NULL,
                PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
@@ -34,11 +34,11 @@ class Migration1536232640Currency extends MigrationStep
               `language_id` BINARY(16) NOT NULL,
               `short_name` VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL,
               `name` VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL,
-              `attributes` JSON NULL,
+              `custom_fields` JSON NULL,
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`currency_id`, `language_id`),
-              CONSTRAINT `json.currency_translation.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.currency_translation.custom_fields` CHECK (JSON_VALID(`custom_fields`)),
               CONSTRAINT `fk.currency_translation.language_id`
                 FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.currency_translation.currency_id`

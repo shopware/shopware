@@ -26,14 +26,14 @@ class Migration1551969523SeoUrlTemplate extends MigrationStep
               `entity_name` VARCHAR(64) NOT NULL,
               `template` VARCHAR(750) NOT NULL,
               `is_valid` TINYINT(1) NOT NULL DEFAULT 1,              
-              `attributes` JSON NULL,
+              `custom_fields` JSON NULL,
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               CONSTRAINT `uniq.seo_url_template.route_name`
                 UNIQUE (`sales_channel_id`, `route_name`),
               CONSTRAINT `fk.seo_url_template.sales_channel_id` FOREIGN KEY (`sales_channel_id`)
                 REFERENCES `sales_channel` (`id`) ON UPDATE CASCADE ON DELETE CASCADE,
-              CONSTRAINT `json.seo_url_template.attributes` CHECK (JSON_VALID(`attributes`))
+              CONSTRAINT `json.seo_url_template.custom_fields` CHECK (JSON_VALID(`custom_fields`))
             )
         ');
 

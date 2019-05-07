@@ -73,10 +73,7 @@ class ClassNamespaceTest extends TestCase
                     'Framework/Test/TestCaseBase/TestValidityListener.php',
                     'Framework/Test/TestCaseHelper/TestClient.php',
                     'Framework/Translation/Translator.php',
-                    'Migration/Migration1536232740StorefrontApiContext.php',
-                    'Migration/Migration1536233420BasicData.php',
-                    'Migration/Migration1554724978ChangeTokenToVarchar.php',
-                    'Migration/Migration1554901441SalesChannelApiContext.php',
+                    'Migration/Migration1536233560BasicData.php',
                 ], true)) {
                     return false;
                 }

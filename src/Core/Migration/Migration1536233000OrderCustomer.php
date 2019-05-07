@@ -19,19 +19,25 @@ class Migration1536233000OrderCustomer extends MigrationStep
               `id` BINARY(16) NOT NULL,
               `version_id` BINARY(16) NOT NULL,
               `customer_id` BINARY(16) NULL,
+              `order_id` BINARY(16) NOT NULL,
+              `order_version_id` BINARY(16) NOT NULL,
               `email` VARCHAR(254) COLLATE utf8mb4_unicode_ci NOT NULL,
+              `salutation_id` BINARY(16) NOT NULL,
               `first_name` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
               `last_name` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-              `salutation` VARCHAR(30) COLLATE utf8mb4_unicode_ci NULL,
               `title` VARCHAR(100) COLLATE utf8mb4_unicode_ci NULL,
               `customer_number` VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL,
-              `attributes` JSON NULL,
+              `custom_fields` JSON NULL,
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`, `version_id`),
+              CONSTRAINT `json.order_customer.custom_fields` CHECK (JSON_VALID(`custom_fields`)),
               CONSTRAINT `fk.order_customer.customer_id` FOREIGN KEY (`customer_id`)
                 REFERENCES `customer` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-              CONSTRAINT `json.order_customer.attributes` CHECK (JSON_VALID(`attributes`))
+              CONSTRAINT `fk.order_customer.order_id` FOREIGN KEY (`order_id`, `order_version_id`)
+                REFERENCES `order` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+              CONSTRAINT `fk.order_customer.salutation_id` FOREIGN KEY (`salutation_id`)
+                REFERENCES `salutation` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

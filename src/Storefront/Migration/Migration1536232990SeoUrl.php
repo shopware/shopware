@@ -32,7 +32,7 @@ class Migration1536232990SeoUrl extends MigrationStep
               `is_deleted` TINYINT(1) NOT NULL DEFAULT 0,
               `is_valid` TINYINT(1) NOT NULL DEFAULT 1,
               `auto_increment` BIGINT unsigned NOT NULL AUTO_INCREMENT,
-              `attributes` JSON NULL,
+              `custom_fields` JSON NULL,
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`),
@@ -40,7 +40,7 @@ class Migration1536232990SeoUrl extends MigrationStep
               INDEX `idx.path_info` (`sales_channel_id`, `path_info`),
               INDEX `idx.foreign_key` (`sales_channel_id`, `foreign_key`),
               INDEX `idx.auto_increment` (`auto_increment`),
-              CONSTRAINT `json.seo_url.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.seo_url.custom_fields` CHECK (JSON_VALID(`custom_fields`)),
               CONSTRAINT `fk.seo_url.sales_channel_id` FOREIGN KEY (`sales_channel_id`)
                 REFERENCES `sales_channel` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci

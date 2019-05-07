@@ -66,7 +66,20 @@ export default function conditionService() {
         'shippingMethods',
         'markAsTopseller',
         'variantRestrictions',
-        'configuratorGroupSorting'
+        'configuratorGroupSorting',
+        'cmsPageId',
+        'navigationCategoryId',
+        'navigationCategoryVersionId',
+        'footerCategoryId',
+        'footerCategoryVersionId',
+        'serviceCategoryId',
+        'serviceCategoryVersionId',
+        'position',
+        'navigationCategory',
+        'footerCategory',
+        'serviceCategory',
+        'numberRangeSalesChannels',
+        'documentBaseConfigSalesChannels'
     ];
 
     const entityBlacklist = {
@@ -100,12 +113,19 @@ export default function conditionService() {
             'media',
             'navigations',
             'nestedProducts',
-            'productBoxLayout'
+            'productBoxLayout',
+            'navigationSalesChannels',
+            'footerSalesChannels',
+            'serviceSalesChannels',
+            'cmsPage',
+            'externalLink',
+            'slotConfig'
         ],
         product_manufacturer: [
             'link',
             'customFields',
-            'media'
+            'media',
+            'description'
         ],
         unit: [
             'customFields',
@@ -119,7 +139,6 @@ export default function conditionService() {
             'customFields'
         ],
         property_group_option: [
-            'position',
             'colorHexCode',
             'productConfigurators',
             'productServices',
@@ -129,7 +148,6 @@ export default function conditionService() {
         ],
         property_group: [
             'description',
-            'position',
             'filterable',
             'comparable',
             'displayType',
@@ -183,7 +201,6 @@ export default function conditionService() {
             'searchKeywords',
             'categoriesRo',
             'canonicalUrl',
-            'position',
             'purchaseSteps',
             'options'
         ]

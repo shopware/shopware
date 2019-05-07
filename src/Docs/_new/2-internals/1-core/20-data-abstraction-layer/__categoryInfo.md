@@ -22,9 +22,9 @@ Events
  : All DAL requests dispatch events to trigger handling inside of the Shopware Platform. Be it adding static data, triggering re indexing or handling a file upload.
 
 ## Table of contents
- 
+
 This category contains in depth descriptions of the different concerns of the Data Abstraction Layer.
- 
+
 ### Working with the Data Abstraction Layer
 
 * [Read](./010-read.md) - Learn the basics on reading data
@@ -45,6 +45,7 @@ This category contains in depth descriptions of the different concerns of the Da
 * [Write protection](./100-write-protection.md) - Defining protected data
 * [Parent/Child](./110-data-inheritance.md) - Entity inheritance
 * [Translations](./120-translations.md) - Add translatable fields to your entities
+* [M:N mapping](./125-mapping.md) - Add many to many relationships
 * [Indexing](./130-indexing.md) - Custom search abilities
 * [Black and whitelisting](./140-black-white-listing.md) - Black an Whitelist results based on rules
  

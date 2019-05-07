@@ -54,7 +54,10 @@
                 {% endblock %}
 
                 {% block sw_media_upload_regular_drop_zone %}
-                    <div class="sw-media-upload__dropzone" ref="dropzone" :class="isDragActiveClass">
+                    <div class="sw-media-upload__dropzone"
+                         ref="dropzone"
+                         v-droppable="{ dragGroup: 'media', onDrop: onDropMedia }"
+                         :class="isDragActiveClass">
 
                         {% block sw_media_upload_preview %}
                             <template v-if="showPreview">

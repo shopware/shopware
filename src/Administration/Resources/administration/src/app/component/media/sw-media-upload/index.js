@@ -219,6 +219,10 @@ export default {
             this.handleUpload(newMediaFiles);
         },
 
+        onDropMedia(dragData) {
+            this.$emit('media-dropped', dragData.mediaItem);
+        },
+
         onDragEnter() {
             this.isDragActive = true;
         },

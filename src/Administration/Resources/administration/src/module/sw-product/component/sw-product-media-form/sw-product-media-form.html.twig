@@ -13,12 +13,16 @@
                     variant="regular"
                     :scrollTarget="$parent.$el"
                     :defaultFolder="product.getEntityName()"
+                    @media-dropped="$emit('media-dropped', $event)"
                     @media-upload-sidebar-open="onMediaUploadButtonOpenSidebar">
             </sw-media-upload>
         {% endblock %}
 
         {% block sw_product_media_form_grid %}
-            <div class="sw-product-media-form__grid" ref="grid" :style="gridAutoRows">
+            <div class="sw-product-media-form__grid"
+                 ref="grid"
+                 v-droppable="{ dragGroup: 'media', onDrop: onDropMedia }"
+                 :style="gridAutoRows">
                 <sw-loader v-if="product.isLoading"></sw-loader>
                 {%  block sw_product_media_form_grid_items %}
                     <sw-product-image v-for="mediaItem in mediaItems"

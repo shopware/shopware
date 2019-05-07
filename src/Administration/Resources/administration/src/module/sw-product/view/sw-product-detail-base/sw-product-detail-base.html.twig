@@ -19,7 +19,9 @@
         {% block sw_product_detail_base_media_card %}
             <sw-card :title="$tc('sw-product.detailBase.cardTitleMedia')" :isLoading="product.isLoading">
                 {% block sw_product_detail_base_media_form %}
-                    <sw-product-media-form :product="product"></sw-product-media-form>
+                    <sw-product-media-form :product="product"
+                                           @media-dropped="$emit('media-dropped', $event)">
+                    </sw-product-media-form>
                 {% endblock %}
             </sw-card>
         {% endblock %}

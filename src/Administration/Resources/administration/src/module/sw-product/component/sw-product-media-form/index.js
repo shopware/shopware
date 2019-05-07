@@ -198,6 +198,10 @@ Component.register('sw-product-media-form', {
 
         markMediaAsCover(productMedia) {
             this.product.coverId = productMedia.id;
+        },
+
+        onDropMedia(dragData) {
+            this.$emit('media-dropped', dragData.mediaItem);
         }
     }
 });

@@ -18,7 +18,7 @@ class DeliveryTimeTranslationEntity extends TranslationEntity
     protected $deliveryTimeId;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
@@ -57,7 +57,7 @@ class DeliveryTimeTranslationEntity extends TranslationEntity
         $this->deliveryTimeId = $deliveryTimeId;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }

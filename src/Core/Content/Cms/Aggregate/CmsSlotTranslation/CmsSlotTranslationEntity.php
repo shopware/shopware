@@ -74,7 +74,7 @@ class CmsSlotTranslationEntity extends TranslationEntity
         $this->customFields = $customFields;
     }
 
-    public function getFieldConfig(): FieldConfigCollection
+    public function getFieldConfig(): ?FieldConfigCollection
     {
         if ($this->fieldConfig) {
             return $this->fieldConfig;

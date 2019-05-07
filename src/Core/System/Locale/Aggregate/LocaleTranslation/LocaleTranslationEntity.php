@@ -52,7 +52,7 @@ class LocaleTranslationEntity extends TranslationEntity
         $this->name = $name;
     }
 
-    public function getTerritory(): string
+    public function getTerritory(): ?string
     {
         return $this->territory;
     }

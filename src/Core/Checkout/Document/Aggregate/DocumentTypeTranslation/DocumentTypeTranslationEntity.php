@@ -18,7 +18,7 @@ class DocumentTypeTranslationEntity extends TranslationEntity
     protected $documentType;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
@@ -47,7 +47,7 @@ class DocumentTypeTranslationEntity extends TranslationEntity
         $this->documentType = $documentType;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }

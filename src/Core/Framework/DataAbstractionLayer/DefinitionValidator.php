@@ -110,6 +110,7 @@ class DefinitionValidator
             $violations = array_merge_recursive($violations, $this->validateAssociations($definition));
 
             if (is_subclass_of($definition, EntityTranslationDefinition::class)) {
+                $violations = array_merge_recursive($violations, $this->validateEntityTranslationGettersAreNullable($definition));
                 $violations = array_merge_recursive($violations, $this->validateEntityTranslationDefinitions($definition));
             }
 
@@ -377,6 +378,41 @@ class DefinitionValidator
                     $violations,
                     $this->validateManyToMany($definition, $association)
                 );
+            }
+        }
+
+        return $violations;
+    }
+
+    private function validateEntityTranslationGettersAreNullable(EntityTranslationDefinition $translationDefinition): array
+    {
+        $violations = [];
+
+        $classReflection = new \ReflectionClass($translationDefinition->getEntityClass());
+        $reflectionMethods = $classReflection->getMethods(\ReflectionMethod::IS_PUBLIC);
+
+        foreach ($reflectionMethods as $method) {
+            if (strpos($method->getName(), 'get') !== 0
+                || $method->getDeclaringClass()->getName() !== $translationDefinition->getEntityClass()
+                || strpos($method->getName(), 'Id') === strlen($method->getName()) - 2
+            ) {
+                continue;
+            }
+
+            if (!$method->hasReturnType()) {
+                $violations[$translationDefinition->getClass()][] = sprintf('No return type is declared in `%s` for method `%s`', $translationDefinition->getClass(), $method->getName());
+                continue;
+            }
+
+            /** @var \ReflectionNamedType $returnType */
+            $returnType = $method->getReturnType();
+
+            if ($returnType->getName() === $translationDefinition->getParentDefinition()->getEntityClass()) {
+                continue;
+            }
+
+            if (!$returnType->allowsNull()) {
+                $violations[$translationDefinition->getClass()][] = sprintf('The return type of `%s` is not nullable. All getter functions of EntityTranslationDefinitions need to be nullable!', $method->getName());
             }
         }
 

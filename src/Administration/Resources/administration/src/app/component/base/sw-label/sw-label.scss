@@ -57,6 +57,10 @@ $sw-label-neutral-color-border: $color-steam-cloud;
         font-size: 12px;
         line-height: 18px;
         padding: 2px 5px;
+
+        .sw-label__dismiss {
+            width: 28px;
+        }
     }
 
     .sw-label__dismiss {

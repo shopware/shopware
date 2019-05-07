@@ -20,8 +20,13 @@ $sw-condition-base-text-access-key: $color-gutenberg;
         width: 100%;
 
         .sw-icon {
-            width: 18px;
-            height: 24px;
+            width: 16px;
+            height: 16px;
+        }
+
+        .sw-label__dismiss .sw-icon {
+            width: 12px;
+            height: 12px;
         }
 
         .sw-select:first-child {
@@ -53,6 +58,15 @@ $sw-condition-base-text-access-key: $color-gutenberg;
         border-bottom: 1px solid $sw-condition-base-color-border;
         padding-left: 0;
 
+        &.sw-select--small .sw-select__inner {
+            min-height: 38px;
+            padding: 0 4px 0 18px;
+        }
+
+        &.sw-select--small .sw-select__input {
+            line-height: 22px;
+        }
+
         .sw-select__inner {
             background: transparent;
             min-height: 40px;
@@ -61,8 +75,16 @@ $sw-condition-base-text-access-key: $color-gutenberg;
             padding-top: 4px;
             cursor: pointer;
 
+            .sw-select__selections {
+                padding-top: 7px;
+            }
+
             .sw-select__selection-item-holder {
                 padding-bottom: 0;
+
+                .sw-label {
+                    margin: 0 0 7px 0;
+                }
             }
 
             .sw-select__single-selection {
@@ -196,31 +218,12 @@ $sw-condition-base-text-access-key: $color-gutenberg;
         padding: 0;
 
         .sw-select__inner, .sw-tagged-field__inner {
-            border: none;
-            padding: 0 45px 0 13px;
+            padding: 0 45px 0 18px;
             min-height: 38px;
+            border: none;
 
             .sw-select__input, .sw-tagged-field__input {
-                margin-top: 7px;
-                margin-bottom: 7px;
                 padding: 0 8px;
-                line-height: 24px;
-            }
-
-            .sw-label {
-                font-size: 14px;
-                margin-top: 7px;
-                margin-bottom: 7px;
-                padding: 0 24px 0 8px;
-
-                .sw-label__dismiss {
-                    width: 24px;
-
-                    .sw-icon {
-                        height: 10px;
-                        width: 10px;
-                    }
-                }
             }
 
             .sw-select__selection-item-input, .sw-tagged-field__tag-item-input {

@@ -13,13 +13,9 @@
                                   class="sw-tagged-field__tags"
                                   mode="out-in">
                     {% block sw_tagged_field_tag_items %}
-                        <li v-for="(tag, index) in tags"
-                            :key="tag + index">
-                            <sw-label dismissAble
-                                      @dismiss="dismissTag(index)">
-                                <template>
-                                        {{ tag }}
-                                </template>
+                        <li class="sw-tagged-field__tags-wrapper" v-for="(tag, index) in tags" :key="tag + index">
+                            <sw-label small dismissAble @dismiss="dismissTag(index)">
+                                {{ tag }}
                             </sw-label>
                         </li>
                     {% endblock %}

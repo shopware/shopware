@@ -79,7 +79,8 @@
                                           @change="onChange()"
                                           :label="$tc('sw-settings-number-range.detail.labelStart')"
                                           :placeholder="$tc('sw-settings-number-range.detail.placeholderStart')"
-                                          v-model="numberRange.start">
+                                          v-model="numberRange.start"
+                                          validation="required">
                                 </sw-field>
                             {% endblock %}
 

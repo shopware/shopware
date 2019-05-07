@@ -9,6 +9,253 @@
 
 <h2>May 2019</h2>
 
+<h3>2019-05-06: Split setting UI in categories</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>The Settings are now split up in the categories <code>Shop</code>, <code>System</code> and <code>Plugins</code>.</p>
+<p>To add your setting to the different categories you just have to extend the right template block.</p>
+<p>Instead of the old <code>sw_settings_content_card_slot_default</code> block you now have three specific blocks for each category:</p>
+<p><code>sw_settings_content_card_slot_shop</code></p>
+<p><code>sw_settings_content_card_slot_system</code></p>
+<p><code>sw_settings_content_card_slot_plugins</code></p>
+<h3>2019-05-06: New E2E commands for select components</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>There are two new custom E2E commands for the new <code>sw-single-select</code> and <code>sw-multi-select</code> components:</p>
+<pre><code>.fillMultiSelect(
+    '.selector', 
+    'Search term', 
+    'Value'
+);
+
+.fillSingleSelect(
+    '.selector', 
+    'Value', 
+    1 /* Desired result position */
+);</code></pre>
+<p>Those are also valid when using the <strong>entity</strong> select components.</p>
+<h3>2019-05-03: Changes in sw-field component</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>The <code>sw-field</code> component got a complete overhaul in order to remove unused properties, doubled configuration
+and a lot of unnecessary template and logic inheritance.</p>
+<h3>New structure for fields</h3>
+<p>The <code>sw-field</code> component now uses slot mechanics and property consumption instead of component inheritance.</p>
+<p>If you inspect an <code>sw-field</code> you may notice that it has several child components depending on your fields type:</p>
+<pre><code class="language-XML">&lt;sw-field&gt;
+    &lt;sw-contextual-field&gt;
+        &lt;sw-block-field&gt;
+            &lt;sw-base-field&gt;</code></pre>
+<p>This child components consume basic information for example <code>label</code> and <code>size</code> properties, apply them to their own
+elements and expose them back to you via slots.</p>
+<h3>Remove properties, types and components</h3>
+<ul>
+<li>The <code>sw-number-field</code> now changes its model on 'change' instead of input. This makes it easier to validate numbers</li>
+<li><code>sw-fiel-addition</code>: Was removed. Its purpose was to style the prefix and suffix sections of <code>sw-field</code></li>
+<li><code>sw-field-label</code>: Was removed. </li>
+<li><code>sw-field-help-text</code>: We removed the <code>sw-field-help-text</code> because it wasn't really used in the project.
+Also this old grey description text did not comply with our design system any more.</li>
+<li><code>tooltipText</code>: Having two properties for <code>helpText</code> and <code>tooltipText</code> could be confusing
+so we removed the  property in favor of <code>helpText</code>. The <code>helpText</code> property is now rendered in an <code>sw-help-text</code> bubble.</li>
+<li><code>type="bool"</code>: It was very confusing to have to two switch typed variants of <code>sw-field</code> (<code>type="switch"</code> and <code>type="bool"</code>)
+which' only difference was a border. We removed <code>&lt;sw-field type="bool"&gt;</code> an replace it with an <code>bordered</code> attribute.
+<pre><code class="language-HTMl">
+&lt;sw-field type="switch" borderd [...] &gt;&lt;/sw-field&gt;</code></pre></li>
+</ul>
+<pre><code>* `prefix` and `suffix`: We removed the `prefix` and `suffix` properties in all fields in favour of using slots instead.
+This change removes the possibility to define two different values. With Vue.js' new slot syntax defining prefixes and suffixes is easy:
+```HTML
+&lt;sw-fiel type="text" [...]&gt;
+    &lt;template #prefix&gt;
+      {{ dynamicPrefix }}
+    &lt;/template&gt;
+
+    &lt;template #suffix&gt;
+        constant
+    &lt;/template&gt;
+&lt;/sw-fiel&gt;
+</code></pre>
+<h3>Added properties</h3>
+<ul>
+<li>size (String): Got new values <code>'medium'</code> and <code>small</code>. Also the the sizes of the input fields changed to <code>small</code> = 32px
+<code>medium</code> = 40px and <code>default</code> = 48px height.</li>
+<li>type=&quot;switch&quot; got a new prop <code>bordered</code> (Boolean) that made <code>type="boolean"</code> obsolete.</li>
+<li>type=&quot;select&quot; got a new prop <code>aside</code> (Boolean) to set the label left to the select box.</li>
+</ul>
+<h3>&quot;Strict types&quot; in properties</h3>
+<p>We removed the <code>sw-inline-snippet</code> mixin from all <code>sw-fields</code> and set the translated properties (e.g. <code>label</code>) to type string.
+That means you can't pass objects with translations anymore. </p>
+<h3>sw-base-field</h3>
+<p>The <code>sw-base-field</code> component consumes basic information about your form field and is intended to display a basic header and error information. </p>
+<h4>Props</h4>
+<ul>
+<li>name (String): Use this to override the exposed identifier  </li>
+<li>label (String): The label of the component </li>
+<li>helpText (String): The help text is displayed as an <code>sw-help-text</code> component on the top right corner of the field </li>
+<li>error/errorMessage (String, Object): Don't mind them now as they will be refactored soon</li>
+<li>disabled (Boolean): Sets the disabled State</li>
+<li>required (Boolean): (not fully implemented yet)</li>
+<li>inherited (Boolean): (not fully implemented yet)</li>
+</ul>
+<h4>Slots</h4>
+<ul>
+<li><code>sw-field-input</code> scope: { identification, disabled }
+<ul>
+<li>identification (String): If name property is set this will be just the given name. If not this the value is <code>sw-field--${Uuid}</code>.
+which can be used to link elements that have an <code>for</code> attribute to your inputs.</li>
+<li>disabled (Boolean): You may need the information in your slot since you actually do not want to have an own disabled prop.</li>
+</ul></li>
+</ul>
+<h3>sw-block-field</h3>
+<p>The main purpose of the <code>sw-block-field</code> component is intended to take care of sizes borders and border colors</p>
+<h4>Props</h4>
+<ul>
+<li>size (String): Defines the can be either 'small', 'medium', or 'default' </li>
+</ul>
+<h4>Slots</h4>
+<ul>
+<li><code>sw-field-input</code> scope: { identification, disabled, swBlockSize, setFocusClass, removeFocusClass }
+<ul>
+<li>identification, disabled are just exposed from <code>sw-base-field</code></li>
+<li>swBlockSize (String): A CSS selector that can be used by your component to react to different sizes</li>
+<li>setFocusClass, removeFocusClass (function): You can use this in your component to set or remove the focuses state of an <code>sw-block-field</code></li>
+</ul></li>
+</ul>
+<p>(e.g. bind it to the click of a button)</p>
+<h3>sw-contextual-field</h3>
+<p>The <code>sw-contextual-field</code> is intended to render a &quot;context&quot; to the field. This context is displayed as pre and suffix.</p>
+<h4>Props</h4>
+<ul>
+<li>None</li>
+</ul>
+<h4>Slots</h4>
+<ul>
+<li><code>sw-contextual-field-prefix</code> scope: { disabled, identification }</li>
+<li><code>sw-contextual-field-suffix</code> scope: { disabled, identification }</li>
+<li><code>sw-field-input</code> scope: { identification, error, disabled, swBlockSize, setFocusClass, removeFocusClass, hasSuffix, hasPrefix }
+<ul>
+<li>identification, error, disabled, swBlockSize, setFocusClass, removeFocusClass - as described above</li>
+<li>hasSuffix, hasPrefix: selfexplaining</li>
+</ul></li>
+</ul>
+<h3>Follow ups</h3>
+<ul>
+<li>In the next few days we will apply the <code>sw-field</code> structure to <code>sw-media-field</code>
+and <code>sw-select</code>.</li>
+<li>Errorhandling and fieldvalidation are in progress</li>
+<li>integrate inherited values</li>
+</ul>
+<h3>2019-05-03: Product streams</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>Product streams are now released. With this feature you can filter products based on DAL fields in the admin and via API.</p>
+<p>The filters start from the product entity and can be restricted for the admin with a blacklist.</p>
+<p>This blacklist can be found in the module <code>app/service/product-stream-condition</code>. There you can add blacklist keywords for general or entity based purpose.</p>
+<p>With a <code>ServiceProviderDecorator</code> you can extend the blacklists for the admin view with a plugin. An rule-builder based implementation can be found here: <code>platform/src/Administration/Resources/administration/src/app/decorator/condition-type-data-provider.js</code>.</p>
+<p>If you extend the DAL, please check the admin for a possible new restriction with the blacklists. If the new DAL field should be used in the product streams, then translate the field. The translations can be found here: <code>platform/src/Administration/Resources/administration/src/module/sw-product-stream/snippet</code>.</p>
+<h3>2019-05-03: Database debugging</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<pre><code class="language-bash">
+&gt;  bin/console database:generate-debug-views
+</code></pre>
+<p>Execute this command to create views in the database that replace all binary ids with hex values. All these views are named <code>debug_ORIGINAL_TABLE_NAME</code>.</p>
+<h4>Example</h4>
+<p>Executing <code>SELECT * FROM debug_tax</code> will result in:</p>
+<pre><code>+----------------------------------+----------+------+---------------+-------------------------+------------+
+| id                               | tax_rate | name | custom_fields | created_at              | updated_at |
++----------------------------------+----------+------+---------------+-------------------------+------------+
+| 12cb17bab0264ae4a518c0e053146a9c |    20.00 | 20%  | NULL          | 2019-05-03 12:04:10.000 | NULL       |
+| 1eceb1547afe476ca39d49ca6a9c0047 |     5.00 | 5%   | NULL          | 2019-05-03 12:04:10.000 | NULL       |
+| 6a456bf51f0b4a7c8655de754372be59 |     7.00 | 7%   | NULL          | 2019-05-03 12:04:10.000 | NULL       |
+| 9015c672349c43f88c1143f6e382f52d |    19.00 | 19%  | NULL          | 2019-05-03 12:04:10.000 | NULL       |
+| c081e2c696d04426840073a925634914 |     1.00 | 1%   | NULL          | 2019-05-03 12:04:10.000 | NULL       |
++----------------------------------+----------+------+---------------+-------------------------+------------+</code></pre>
+<h3>2019-05-02: Rule scope in administration</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>The rule scope of rules are now supported and required to define in the administration.</p>
+<p>The scopes filter the matching rules so it's possible to show only <code>cart</code> or <code>lineItem</code> based rules.</p>
+<p>The scopes can be added in the in the condition type data provider. See <code>platform/src/Administration/Resources/administration/src/app/decorator/condition-type-data-provider.js</code></p>
+<p>At the moment, these types are supported</p>
+<ul>
+<li><code>global</code> --&gt; used for rules which has no restriction (like <code>DateRangeRule</code>)</li>
+<li><code>cart</code> --&gt; used for rules which require the CartRuleScope (like <code>CartAmountRule</code>)</li>
+<li><code>checkout</code> --&gt; used for rules which require the CheckoutRuleScope (like <code>LastNameRule</code>)</li>
+<li><code>lineItem</code> --&gt; used for rules which require the LineItemScope (like <code>LineItemTagRule</code>)</li>
+</ul>
 <h3>2019-05-02: Remove static methods from EntityDefinition</h3>
 
 <style type="text/css">
@@ -266,8 +513,8 @@ If the user deletes the notification and you update it, it will be recreated wit
 <ul>
 <li><code>growl</code> <strong>recommended</strong> -&gt; Show the notification as a growl message. It will also be in the notification center. The default is <code>true</code>, but you should consider setting this to <code>false</code> to not overwhelm the user in notifications.</li>
 <li><code>visited</code> <strong>optional</strong> -&gt; If set to false, the notification is mark as not seen by the user and will be displayed so. The default is <code>false</code>.</li>
-<li><code>isLoading</code> <strong>required</strong> -&gt; The title of the notification.</li>
-<li><code>metadata</code> <strong>optional</strong> -&gt; You can store a object here. If the object is different from the already attached one, the notification will automaticly set to <code>visited</code> false (as long as not other specified). This is useful to show a progress in the notification where you want to notify the user about progress changes.</li>
+<li><code>isLoading</code> <strong>optional</strong> -&gt; Shows a loading indicator if set to true. Also the notification will not be saved if it is set to <code>true</code>. If The default is <code>false</code></li>
+<li><code>metadata</code> <strong>optional</strong> -&gt; You can store a object here. If the object is different from the already attached one, the notification will automatically set <code>visited</code> to false (as long as not other specified). This is useful to show a progress in the notification where you want to notify the user about progress changes.</li>
 </ul>
 <h3>2019-04-30: New ManyToManyIdField</h3>
 

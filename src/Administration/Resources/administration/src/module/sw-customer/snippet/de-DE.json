@@ -16,7 +16,13 @@
       "placeholderFirstName": "Vorname",
       "placeholderLastName": "Nachname",
       "placeholderCompany": "Firma",
-      "placeholderEmail": "E-Mail"
+      "placeholderEmail": "E-Mail",
+      "labelSalutation": "Anrede",
+      "labelTitle": "Titel",
+      "labelFirstName": "Vorname",
+      "labelLastName": "Nachnahme",
+      "labelCompany": "Firma",
+      "labelEmail": "E-Mail"
     },
     "list": {
       "textCustomers": "Kunden",

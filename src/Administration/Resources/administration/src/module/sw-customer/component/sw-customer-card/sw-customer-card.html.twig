@@ -35,7 +35,7 @@
                                                     <sw-container columns="1fr 1fr" gap="10px">
                                                         {% block sw_customer_card_metadata_customer_name_editor_salutation %}
                                                             <sw-select-field v-model="customer.salutationId"
-                                                                             size="small"
+                                                                             :label="$tc('sw-customer.card.labelSalutation')"
                                                                              validation="required">
                                                                 <option v-for="salutation in salutations" :key="salutation.id" :value="salutation.id">
                                                                     {{ salutation.translated.displayName }}
@@ -45,7 +45,7 @@
 
                                                         {% block sw_customer_card_metadata_customer_name_editor_title %}
                                                             <sw-text-field v-model="customer.title"
-                                                                           size="small"
+                                                                           :label="$tc('sw-customer.card.labelTitle')"
                                                                            :placeholder="$tc('sw-customer.card.placeholderTitle')">
                                                             </sw-text-field>
                                                         {% endblock %}
@@ -54,7 +54,7 @@
                                                     <sw-container columns="1fr 1fr" gap="10px">
                                                         {% block sw_customer_card_metadata_customer_name_editor_first_name %}
                                                             <sw-text-field v-model="customer.firstName"
-                                                                           size="small"
+                                                                           :label="$tc('sw-customer.card.labelFirstName')"
                                                                            validation="required"
                                                                            :placeholder="$tc('sw-customer.card.placeholderFirstName')">
                                                             </sw-text-field>
@@ -62,7 +62,7 @@
 
                                                         {% block sw_customer_card_metadata_customer_name_editor_last_name %}
                                                             <sw-text-field v-model="customer.lastName"
-                                                                           size="small"
+                                                                           :label="$tc('sw-customer.card.labelLastName')"
                                                                            validation="required"
                                                                            :placeholder="$tc('sw-customer.card.placeholderLastName')">
                                                             </sw-text-field>
@@ -71,7 +71,7 @@
 
                                                     {% block sw_customer_card_metadata_customer_name_editor_company %}
                                                         <sw-text-field v-model="customer.company"
-                                                                       size="small"
+                                                                       :label="$tc('sw-customer.card.labelCompany')"
                                                                        :placeholder="$tc('sw-customer.card.placeholderCompany')">
                                                         </sw-text-field>
                                                     {% endblock %}
@@ -89,7 +89,7 @@
                                             {% block sw_customer_card_metadata_customer_email_editor %}
                                                 <sw-text-field v-else
                                                                v-model="customer.email"
-                                                               size="small"
+                                                               :label="$tc('sw-customer.card.labelEmail')"
                                                                validation="required"
                                                                :placeholder="$tc('sw-customer.card.placeholderEmail')">
                                                 </sw-text-field>
@@ -99,8 +99,7 @@
                                         {% block sw_customer_card_metadata_customer_tag %}
                                             <sw-tag-field :entity="customer"
                                                           :disabled="!editMode"
-                                                          :label="false"
-                                                          size="small">
+                                                          :showLabel="editMode ? true : false">
                                             </sw-tag-field>
                                         {% endblock %}
 

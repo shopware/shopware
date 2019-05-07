@@ -1,4 +1,4 @@
-<div class="sw-field sw-field--switch" :class="swSwitchFieldClasses">
+<div class="sw-field--switch" :class="swSwitchFieldClasses">
     <div class="sw-field--switch__content">
         <div class="sw-field--switch__input">
             <input type="checkbox"
@@ -12,31 +12,13 @@
             </div>
         </div>
 
-        <div v-if="isInheritanceField"
-             class="sw-field--switch__inheritance-icon">
-                <sw-icon v-if="isInherited"
-                         :multicolor="true"
-                         name="custom-inherited"
-                         size="16">
-                </sw-icon>
-                <sw-icon v-else
-                         class="sw-field--switch__inheritance-unInherited"
-                         :multicolor="true"
-                         name="custom-uninherited"
-                         v-tooltip="$tc('global.sw-field.tooltipRestoreInheritance')"
-                         @click="onClickRestoreInheritance"
-                         size="16">
-                </sw-icon>
-        </div>
+        <sw-base-field v-bind="$attrs"
+                       :disabled="disabled"
+                       :isInheritanceField="isInheritanceField"
+                       :isInherited="isInherited"
+                       @inheritance-restore="restoreInheritance">
+        </sw-base-field>
 
-        <div v-if="label">
-            <label class="sw-field--switch__label" :for="formFieldName || identification">
-                {{ label }}{{ required ? '*' : '' }}
-            </label>
-        </div>
-
-        <span>
-            <sw-help-text v-if="helpText" :text="helpText"></sw-help-text>
-        </span>
     </div>
+    <sw-field-error :error="actualError"></sw-field-error>
 </div>

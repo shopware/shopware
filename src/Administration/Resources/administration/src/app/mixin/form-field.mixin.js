@@ -31,6 +31,14 @@ Mixin.register('sw-form-field', {
 
         actualError() {
             return this.$store.getters.boundError(this.pointer);
+        },
+
+        isInheritanceField() {
+            return this.inheritedValue !== null;
+        },
+
+        isInherited() {
+            return this.isInheritanceField && this.currentValue === null;
         }
     },
 

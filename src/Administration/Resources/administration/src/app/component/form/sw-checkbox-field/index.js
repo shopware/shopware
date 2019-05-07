@@ -1,5 +1,5 @@
+import utils from 'src/core/service/util.service';
 import { Mixin } from 'src/core/shopware';
-import SwBaseField from '../field-base/sw-base-field/index';
 import template from './sw-checkbox-field.html.twig';
 import './sw-checkbox-field.scss';
 
@@ -14,7 +14,6 @@ import './sw-checkbox-field.scss';
 export default {
     name: 'sw-checkbox-field',
     template,
-    extends: SwBaseField,
     inheritAttrs: false,
 
     model: {
@@ -27,7 +26,19 @@ export default {
     ],
 
     props: {
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
         value: {
+            type: Boolean,
+            required: false,
+            default: null
+        },
+
+        inheritedValue: {
             type: Boolean,
             required: false,
             default: null
@@ -36,15 +47,26 @@ export default {
 
     data() {
         return {
-            currentValue: this.value
+            currentValue: this.value,
+            id: utils.createId()
         };
     },
 
     computed: {
         swCheckboxFieldClasses() {
             return {
-                ...this.swFieldClasses
+                'has--error': this.hasError,
+                'is--disabled': this.disabled,
+                'is--inherited': this.isInherited
             };
+        },
+
+        identification() {
+            return this.formFieldName() || `sw-field--${this.id}`;
+        },
+
+        hasError() {
+            return this.actualError && this.actualError.code !== 0;
         },
 
         inputState() {
@@ -65,7 +87,7 @@ export default {
             this.$emit('change', changeEvent.target.checked);
         },
 
-        onClickRestoreInheritance() {
+        restoreInheritance() {
             this.$emit('change', null);
         }
     }

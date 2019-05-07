@@ -40,12 +40,18 @@ export default {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        inheritedValue: {
+            type: String,
+            required: false,
+            default: null
         }
     },
 
     data() {
         return {
-            currentValue: this.value || ''
+            currentValue: this.value
         };
     },
 
@@ -70,7 +76,7 @@ export default {
 
     watch: {
         value(value) {
-            this.currentValue = value || '';
+            this.currentValue = value;
         }
     },
 
@@ -83,6 +89,10 @@ export default {
         onInput(event) {
             this.currentValue = event.target.value || '';
             this.$emit('input', this.currentValue);
+        },
+
+        restoreInheritance() {
+            this.$emit('input', null);
         }
     }
 };

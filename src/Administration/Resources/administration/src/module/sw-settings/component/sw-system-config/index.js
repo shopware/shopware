@@ -1,4 +1,5 @@
 import { Mixin, Component } from 'src/core/shopware';
+import { object } from 'src/core/service/util.service';
 import template from './sw-system-config.html.twig';
 import './sw-system-config.scss';
 
@@ -73,13 +74,13 @@ Component.register('sw-system-config', {
                 });
         },
         readAll() {
-            // Return when data for this salesChannel was already loaded
-            if (this.actualConfigData.hasOwnProperty(this.currentSalesChannelId)) {
-                return Promise.resolve();
-            }
-
             this.isLoading = true;
 
+            // Return when data for this salesChannel was already loaded
+            if (this.actualConfigData.hasOwnProperty(this.currentSalesChannelId)) {
+                this.isLoading = false;
+                return Promise.resolve();
+            }
 
             return this.systemConfigApiService.getValues(this.domain, this.currentSalesChannelId)
                 .then(values => {
@@ -119,7 +120,8 @@ Component.register('sw-system-config', {
             this.readAll();
         },
         getElementBind(element) {
-            const bind = Object.assign({}, element);
+            const bind = object.deepCopyObject(element);
+
             // Add inherited values
             if (this.currentSalesChannelId !== null
                     && this.inherit

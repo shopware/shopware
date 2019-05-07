@@ -38,15 +38,22 @@ $sw-label-warning-color-border: $color-pumpkin-spice;
     flex-shrink: 0;
     cursor: default;
 
-    &:hover {
-        &, .sw-label__dismiss {
-            border-color: $color-shopware-blue;
-            color: $color-shopware-blue;
+    &.sw-label--dismiss-able {
+        padding-right: 40px;
+
+        &:hover {
+            &, .sw-label__dismiss {
+                border-color: $color-shopware-blue;
+                color: $color-shopware-blue;
+            }
         }
     }
 
-    &.sw-label--dismiss-able {
-        padding-right: 40px;
+    &.sw-label--small {
+        height: 24px;
+        font-size: 12px;
+        line-height: 18px;
+        padding: 2px 5px;
     }
 
     .sw-label__dismiss {
@@ -93,12 +100,6 @@ $sw-label-warning-color-border: $color-pumpkin-spice;
         .sw-label__dismiss {
             border-radius: $sw-label-pill-border-radius;
         }
-    }
-
-    &.sw-label--small {
-        font-size: 12px;
-        line-height: 12px ;
-        padding: 2px 5px;
     }
 
     &.sw-label--caps {

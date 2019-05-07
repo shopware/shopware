@@ -98,6 +98,7 @@
                                         variant="regular"
                                         :label="$tc('sw-settings-payment.detail.labelLogoUpload')"
                                         :defaultFolder="paymentMethod.getEntityName()"
+                                        @media-drop="onDropMedia"
                                         @media-upload-sidebar-open="openMediaSidebar"
                                         @media-upload-remove-image="onUnlinkLogo">
                                 </sw-media-upload>

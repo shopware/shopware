@@ -143,6 +143,10 @@ Component.register('sw-settings-shipping-detail', {
             this.shippingMethod.mediaId = targetId;
         },
 
+        onDropMedia(mediaItem) {
+            this.setMediaItem({ targetId: mediaItem.id });
+        },
+
         setMediaFromSidebar(mediaEntity) {
             this.logoMediaItem = mediaEntity;
             this.shippingMethod.mediaId = mediaEntity.id;

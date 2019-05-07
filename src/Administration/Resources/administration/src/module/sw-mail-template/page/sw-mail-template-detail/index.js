@@ -187,6 +187,10 @@ Component.register('sw-mail-template-detail', {
         },
 
         onAddMediaToMailTemplate(mediaItem) {
+            this.addMedia(mediaItem);
+        },
+
+        addMedia(mediaItem) {
             if (this._checkIfMediaIsAlreadyUsed(mediaItem.id)) {
                 this.createNotificationInfo({
                     message: this.$tc('sw-mail-template.list.errorMediaItemDuplicated')
@@ -196,6 +200,10 @@ Component.register('sw-mail-template-detail', {
             const mailTemplateMedia = this.mailTemplateMediaStore.create();
             mailTemplateMedia.mediaId = mediaItem.id;
             this.mailTemplate.media.push(mailTemplateMedia);
+        },
+
+        onDropMedia(mediaItem) {
+            this.addMedia(mediaItem);
         },
 
         _checkIfMediaIsAlreadyUsed(mediaId) {

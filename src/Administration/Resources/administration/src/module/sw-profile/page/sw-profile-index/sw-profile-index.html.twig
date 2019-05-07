@@ -65,6 +65,7 @@
                                     variant="regular"
                                     :label="$tc('sw-profile.index.labelUploadAvatar')"
                                     :defaultFolder="userStore.getEntityName()"
+                                    @media-drop="onDropMedia"
                                     @media-upload-sidebar-open="openMediaSidebar"
                                     @media-upload-remove-image="onUnlinkAvatar">
                                 </sw-media-upload>

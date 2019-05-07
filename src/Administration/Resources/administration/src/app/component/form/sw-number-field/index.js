@@ -125,24 +125,29 @@ export default {
     methods: {
         onChange(event) {
             this.computeValue(event.target.value);
+            this.$emit('change', this.currentValue);
         },
 
         onInput(event) {
-            this.$emit('input-change', event.target.value);
+            const val = Number.parseFloat(event.target.value);
+            if (val !== Number.NaN) {
+                this.$emit('input-change', val);
+            }
         },
 
         increaseNumberByStep() {
             this.computeValue((this.currentValue + this.realStep).toString());
+            this.$emit('change', this.currentValue);
         },
 
         decreaseNumberByStep() {
             this.computeValue((this.currentValue - this.realStep).toString());
+            this.$emit('change', this.currentValue);
         },
 
         computeValue(stringRepresentation) {
             const value = this.getNumberFromString(stringRepresentation);
             this.currentValue = this.parseValue(value);
-            this.$emit('change', this.currentValue);
         },
 
         parseValue(value) {

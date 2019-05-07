@@ -33,7 +33,6 @@
 
 .image-slider-thumbnails-image,
 .image-slider-image {
-    margin: auto;
     max-height: 100%;
     max-width: 100%;
 }
@@ -53,6 +52,7 @@
 }
 
 .image-slider-image {
+    flex-shrink: 0;
     padding: 0;
 }
 

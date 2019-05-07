@@ -32,7 +32,6 @@ module.exports = {
             .waitForElementNotPresent('.is--compact')
             .tickCheckbox('input[name=sw-field--currentCompact]', true)
             .waitForElementVisible('.is--compact');
-
     },
     'check that name column cannot be hidden': (browser) => {
         browser.expect.element('.sw-data-grid__settings-item--1').to.have.text.that.contains('Name');
@@ -81,7 +80,7 @@ module.exports = {
             .waitForElementVisible(`${page.elements.dataGridRow}--0`)
             .moveToElement(`${page.elements.dataGridRow}--0`, 5, 5).doubleClick()
             .waitForElementPresent('.is--inline-edit')
-            .fillField(`${page.elements.dataGridRow}--0 .sw-customer-list__inline-edit-fist-name input`, 'Meghan', true)
+            .fillField(`${page.elements.dataGridRow}--0 .sw-customer-list__inline-edit-first-name input`, 'Meghan', true)
             .fillField(`${page.elements.dataGridRow}--0 .sw-customer-list__inline-edit-last-name input`, 'Markle', true)
             .click(`${page.elements.dataGridRow}--0 ${page.elements.dataGridInlineEditSave}`)
             .waitForElementNotPresent('.is--inline-edit')

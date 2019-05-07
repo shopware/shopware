@@ -67,12 +67,16 @@ module.exports = {
             .waitForElementVisible('.icon--small-arrow-small-right')
             .click('.icon--small-arrow-small-right')
             .waitForElementVisible('.icon--small-arrow-small-down')
+            .waitForElementNotPresent(page.elements.loader)
             .expect.element('.sw-tree-item__children').to.have.text.that.equals('Subcategory');
     },
     'set category active': (browser) => {
+        const page = productPage(browser);
         browser
             .click('.sw-tree-item')
-            .tickCheckbox('#sw-field--category-active', true);
+            .waitForElementNotPresent(page.elements.loader)
+            .expect.element('#categoryActive').to.not.be.selected;
+        browser.tickCheckbox('#categoryActive', true);
     },
     'set product assignment': (browser) => {
         browser

@@ -1,6 +1,6 @@
 [titleEn]: <>(Definition)
 
-A definition is the representation of storage data in an object, so-called: an entity or model. In terms of relational databases, it's a representation of a table.
+A definition is the configuration of storage data in an object, so-called: an entity or model. In terms of relational databases, it's a representation of a table.
 
 The benefit of these definitions is that you can rely on a defined structure. Your own definitions behave in the exact same way as core definitions do and because of that, they are deeply integrated into the system. This also means, that your definition is instantly available via API and other informational services.
 
@@ -15,6 +15,7 @@ A definition provides the following information:
 - Does this definition support inheritance?
 - Does this definition support the [parent/child concept](./110-data-inheritance.md)?
 - Does this definition support data versions?
+- Is this definition a [M:N mapping](./125-mapping.md) table?
 
 ## Basic configuration
 

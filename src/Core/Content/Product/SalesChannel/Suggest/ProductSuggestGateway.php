@@ -48,7 +48,9 @@ class ProductSuggestGateway implements ProductSuggestGatewayInterface
     public function suggest(Request $request, SalesChannelContext $context): EntitySearchResult
     {
         $criteria = new Criteria();
-        $criteria->setLimit(15);
+        $criteria->setLimit(50);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+        $criteria->addFilter(new EqualsFilter('product.parentId', null));
 
         $term = trim((string) $request->query->get('search'));
 

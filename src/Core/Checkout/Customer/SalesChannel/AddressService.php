@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\Country\CountryCollection;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -53,18 +54,25 @@ class AddressService
      */
     private $eventDispatcher;
 
+    /**
+     * @var SalesChannelContextServiceInterface
+     */
+    private $contextService;
+
     public function __construct(
         EntityRepositoryInterface $countryRepository,
         EntityRepositoryInterface $customerAddressRepository,
         AddressValidationService $addressValidationService,
         DataValidator $validator,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        SalesChannelContextServiceInterface $contextService
     ) {
         $this->countryRepository = $countryRepository;
         $this->customerAddressRepository = $customerAddressRepository;
         $this->addressValidationService = $addressValidationService;
         $this->validator = $validator;
         $this->eventDispatcher = $eventDispatcher;
+        $this->contextService = $contextService;
     }
 
     /**
@@ -151,6 +159,20 @@ class AddressService
         $addressData['customerId'] = $context->getCustomer()->getId();
 
         $this->customerAddressRepository->upsert([$addressData], $context->getContext());
+
+        $contextualAddressIds = [];
+        $contextualAddressIds[] = $context->getCustomer()->getDefaultBillingAddressId();
+        $contextualAddressIds[] = $context->getCustomer()->getDefaultShippingAddressId();
+
+        array_unique($contextualAddressIds);
+
+        if (in_array($id, $contextualAddressIds, true)) {
+            $this->contextService->refresh(
+                $context->getSalesChannel()->getId(),
+                $context->getToken(),
+                $context->getContext()->getLanguageId()
+            );
+        }
 
         return $id;
     }

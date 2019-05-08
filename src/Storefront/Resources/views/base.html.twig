@@ -131,10 +131,10 @@
     {% block base_script_hmr_mode %}
         {% if isHMRMode %}
         <script type="text/javascript"
-                src="{{ app.request.server.get('APP_URL') }}:9999/bundles/storefront/js/app.js"></script>
+                src="{{ app.request.server.get('APP_URL') }}:9999/js/app.js"></script>
         {% else %}
         <script type="text/javascript"
-                src="{{ asset('bundles/storefront/js/app.js') }}"></script>
+                src="{{ asset('js/app.js') }}"></script>
         {% endif %}
     {% endblock %}
     {% endblock %}

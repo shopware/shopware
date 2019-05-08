@@ -65,9 +65,9 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
                     'favicon' => 'favicon.ico',
                     'appleTouch' => 'apple-touch-icon.png',
                     'androidTouch' => 'android-touch-icon.png',
-                    'desktop' => 'bundles/storefront/assets/logo/logo-desktop.png',
-                    'tablet' => 'bundles/storefront/assets/logo/logo-desktop.png',
-                    'mobile' => 'bundles/storefront/assets/logo/logo-mobile.png',
+                    'desktop' => 'assets/logo/logo-desktop.png',
+                    'tablet' => 'assets/logo/logo-desktop.png',
+                    'mobile' => 'assets/logo/logo-mobile.png',
                 ],
                 'breakpoint' => [
                     'xs' => 0,
@@ -77,7 +77,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
                     'xl' => 1200,
                 ],
                 'general' => [
-                    'noPicture' => 'bundles/storefront/assets/fallbacks/no-picture.png',
+                    'noPicture' => 'assets/fallbacks/no-picture.png',
                 ],
             ]
         );

@@ -18,11 +18,19 @@ Mixin.register('sw-form-field', {
         },
 
         formFieldName() {
+            if (this.$attrs.name) {
+                return this.$attrs.name;
+            }
+
+            if (this.name) {
+                return this.name;
+            }
+
             if (this.boundExpression) {
                 return `sw-field--${this.$vnode.data.model.expression.replace(/\./g, '-')}`;
             }
 
-            return this.$attrs.name || this.name;
+            return null;
         },
 
         pointer() {

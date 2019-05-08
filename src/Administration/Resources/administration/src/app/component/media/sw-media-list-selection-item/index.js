@@ -13,27 +13,18 @@ export default {
     props: {
         item: {
             required: true
-        },
-
-        isPlaceholder: {
-            type: Boolean,
-            required: false,
-            default: false
         }
     },
 
     computed: {
+        isPlaceholder() {
+            return !!this.item.isPlaceholder;
+        },
+
         productImageClasses() {
             return {
                 'is--placeholder': this.isPlaceholder
             };
-        },
-
-        mediaItem() {
-            if (typeof this.item === 'string') {
-                return this.item;
-            }
-            return this.item.media;
         },
 
         sourceId() {

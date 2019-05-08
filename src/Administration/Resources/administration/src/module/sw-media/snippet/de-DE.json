@@ -85,9 +85,6 @@
       "labelTabItemUpload": "Dateien hochladen",
       "labelButtonCancel": "Abbrechen",
       "labelButtonSaveSelection": "Medien hinzufügen"
-    },
-    "sw-media-list-selection-item": {
-      "buttonRemove": "Entfernen"
     }
   }
 }

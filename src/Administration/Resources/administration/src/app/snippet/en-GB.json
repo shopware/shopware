@@ -329,6 +329,9 @@
       "placeholderSearch": "Search",
       "labelLoadMore": "Load more items"
     },
+    "sw-media-list-selection-item": {
+      "buttonRemove": "Remove"
+    },
     "sw-select": {
       "messageNoResults": "No results found for \"{term}\"."
     },

@@ -1,0 +1,68 @@
+{% block sw_cms_element_image_slider %}
+    <div class="sw-cms-el-image-slider" :class="outsideNavArrows">
+        {% block sw_cms_element_image_slider_img %}
+            <div class="sw-cms-el-image-slider__image-box" :class="displayModeClass" :style="styles">
+                <img class="sw-cms-el-image-slider__image" :src="imgSrc">
+            </div>
+        {% endblock %}
+        <template v-if="element.data !== null && element.data.navigation">
+            {% block sw_cms_element_image_slider_nav %}
+                <div class="sw-cms-el-image-slider__navigation">
+                    {% block sw_cms_element_image_slider_nav_dots %}
+                        <div v-if="element.data.navigation.dots !== null"
+                             class="sw-cms-el-image-slider__navigation-dots"
+                             :class="`is--nav-${element.data.navigation.dots}`">
+                            <div class="sw-cms-el-image-slider__navigation-buttons">
+                                <template v-if="sliderItems.length > 0">
+                                    <div v-for="sliderItem in sliderItems"
+                                         :class="activeButtonClass(sliderItem.media.url)"
+                                         @click="setSliderItem(sliderItem.media.url)"
+                                         class="sw-cms-el-image-slider__navigation-button">
+                                    </div>
+                                </template>
+                                <template v-else>
+                                    <div class="sw-cms-el-image-slider__navigation-button is--active"></div>
+                                    <div class="sw-cms-el-image-slider__navigation-button"></div>
+                                    <div class="sw-cms-el-image-slider__navigation-button"></div>
+                                </template>
+                            </div>
+                        </div>
+                    {% endblock %}
+                    {% block sw_cms_element_image_slider_nav_arrows %}
+                        <div v-if="element.data.navigation.arrows !== null"
+                             class="sw-cms-el-image-slider__navigation-arrows"
+                             :class="`is--nav-${element.data.navigation.arrows}`">
+                            <sw-icon @click="setSliderArrowItem(-1)"
+                                     class="sw-cms-el-image-slider__navigation-button"
+                                     name="default-arrow-head-left"
+                                     size="24">
+                            </sw-icon>
+                            <sw-icon @click="setSliderArrowItem()"
+                                     class="sw-cms-el-image-slider__navigation-button"
+                                     name="default-arrow-head-right"
+                                     size="24">
+                            </sw-icon>
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </template>
+
+        <template v-else>
+            {% block sw_cms_element_image_slider_nav_default %}
+                <div class="sw-cms-el-image-slider__navigation">
+                    <div class="sw-cms-el-image-slider__navigation-arrows is--nav-outside">
+                        <sw-icon class="sw-cms-el-image-slider__navigation-button"
+                                 name="default-arrow-head-left"
+                                 size="24">
+                        </sw-icon>
+                        <sw-icon class="sw-cms-el-image-slider__navigation-button"
+                                 name="default-arrow-head-right"
+                                 size="24">
+                        </sw-icon>
+                    </div>
+                </div>
+            {% endblock %}
+        </template>
+    </div>
+{% endblock %}

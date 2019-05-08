@@ -24,6 +24,12 @@ Component.register('sw-media-list-selection', {
             type: String,
             required: false,
             default: null
+        },
+
+        defaultFolderName: {
+            type: String,
+            required: false,
+            default: null
         }
     },
 
@@ -45,10 +51,29 @@ Component.register('sw-media-list-selection', {
     },
 
     computed: {
+        placeholderCount() {
+            let columnCount = this.columnCount;
+
+            if (this.entityMediaImages.length + 2 < columnCount * 2) {
+                columnCount *= 2;
+            }
+
+            const placeholderCount = columnCount - ((this.entityMediaImages.length + 2) % columnCount);
+            if (placeholderCount === columnCount) {
+                return 0;
+            }
+
+            if (columnCount < this.entityMediaImages.length) {
+                return 0;
+            }
+
+            return placeholderCount;
+        },
+
         mediaItems() {
             const mediaItems = this.entityMediaImages.slice();
 
-            const placeholderCount = this.getPlaceholderCount(this.columnCount);
+            const placeholderCount = this.placeholderCount;
             if (placeholderCount === 0) {
                 return mediaItems;
             }
@@ -56,6 +81,7 @@ Component.register('sw-media-list-selection', {
             for (let i = 0; i < placeholderCount; i += 1) {
                 mediaItems.push(this.createPlaceholderMedia(mediaItems));
             }
+
             return mediaItems;
         },
 
@@ -73,6 +99,10 @@ Component.register('sw-media-list-selection', {
 
         uploadId() {
             return this.uploadTag || this.entity.id;
+        },
+
+        defaultFolder() {
+            return this.defaultFolderName || this.entity.getEntityName();
         }
     },
 
@@ -82,11 +112,8 @@ Component.register('sw-media-list-selection', {
 
     methods: {
         mountedComponent() {
-            const that = this;
             this.$device.onResize({
-                listener() {
-                    that.updateColumnCount();
-                },
+                listener: this.updateColumnCount,
                 component: this
             });
             this.updateColumnCount();
@@ -100,19 +127,6 @@ Component.register('sw-media-list-selection', {
                 this.columnCount = cssColumns.length;
                 this.columnWidth = cssColumns[0];
             });
-        },
-
-        getPlaceholderCount(columnCount) {
-            if (this.entityMediaImages.length + 2 < columnCount * 2) {
-                columnCount *= 2;
-            }
-            const placeholderCount = columnCount - ((this.entityMediaImages.length + 2) % columnCount);
-
-            if (placeholderCount === columnCount) {
-                return 0;
-            }
-
-            return placeholderCount;
         },
 
         createPlaceholderMedia(mediaItems) {
@@ -140,10 +154,6 @@ Component.register('sw-media-list-selection', {
 
         onMediaUploadButtonOpenSidebar() {
             this.$emit('open-sidebar');
-        },
-
-        getKey(media) {
-            return media.id;
         },
 
         successfulUpload({ targetId }) {

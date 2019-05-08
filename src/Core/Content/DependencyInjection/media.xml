@@ -272,5 +272,9 @@
         <service id="Shopware\Core\Content\Media\Cms\ImageCmsElementResolver">
             <tag name="shopware.cms.data_resolver" />
         </service>
+
+        <service id="Shopware\Core\Content\Media\Cms\Type\ImageSliderTypeDataResolver">
+            <tag name="shopware.cms.data_resolver" />
+        </service>
     </services>
 </container>

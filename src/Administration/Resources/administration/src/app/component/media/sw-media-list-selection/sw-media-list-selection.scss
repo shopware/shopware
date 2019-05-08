@@ -1,16 +1,6 @@
 @import "~scss/variables";
 
 .sw-media-list-selection {
-
-    .sw-media-list-selection__file-input {
-        display: none;
-    }
-
-    .sw-media-list-selection__upload-button {
-        display: block;
-        margin: 0 auto 20px;
-    }
-
     .sw-media-list-selection__grid {
         border-radius: $border-radius-default;
         border: 1px solid $color-steam-cloud;
@@ -20,12 +10,5 @@
         grid-gap: 10px;
         grid-auto-flow: dense;
         margin-top: 20px;
-    }
-
-    .sw-product-image.is--cover {
-        grid-column-start: 1;
-        grid-column-end: 3;
-        grid-row-start: 1;
-        grid-row-end: 3;
     }
 }

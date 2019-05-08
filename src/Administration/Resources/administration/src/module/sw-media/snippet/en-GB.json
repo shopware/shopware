@@ -85,9 +85,6 @@
       "labelTabItemUpload": "Upload files",
       "labelButtonCancel": "Cancel",
       "labelButtonSaveSelection": "Add media"
-    },
-    "sw-media-list-selection-item": {
-      "buttonRemove": "Remove"
     }
   }
 }

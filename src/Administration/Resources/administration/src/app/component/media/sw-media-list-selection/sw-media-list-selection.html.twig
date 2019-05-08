@@ -3,15 +3,15 @@
 
         {% block sw_media_list_selection_upload %}
             <sw-upload-store-listener
-                :uploadTag="uploadTag || entity.id"
+                :uploadTag="uploadId"
                 @media-upload-add="onUploadsAdded"
                 @media-upload-finish="successfulUpload"
                 @media-upload-fail="onUploadFailed">
             </sw-upload-store-listener>
             <sw-media-upload
-                    :uploadTag="uploadTag || entity.id"
+                    :uploadTag="uploadId"
                     variant="regular"
-                    :defaultFolder="entity.getEntityName()"
+                    :defaultFolder="defaultFolderName"
                     @media-upload-sidebar-open="onMediaUploadButtonOpenSidebar">
             </sw-media-upload>
         {% endblock %}
@@ -22,8 +22,7 @@
                 {%  block sw_media_list_selection_grid_items %}
                     <sw-media-list-selection-item v-for="mediaItem in mediaItems"
                             @item-remove="removeItem(mediaItem)"
-                            :key="getKey(mediaItem)"
-                            :isPlaceholder="mediaItem.isPlaceholder"
+                            :key="mediaItem.id"
                             :item="mediaItem">
                     </sw-media-list-selection-item>
                 {% endblock %}

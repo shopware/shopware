@@ -10,7 +10,7 @@
             <sw-context-button class="sw-media-list-selection-item__context-button">
                 {% block sw_media_list_selection_item_context %}
                     {% block sw_media_list_selection_item_context_delete_action %}
-                        <sw-context-menu-item variant="danger" @click="$emit('item-remove')">{{ $tc('sw-media.sw-media-list-selection-item.buttonRemove') }}</sw-context-menu-item>
+                        <sw-context-menu-item variant="danger" @click="$emit('item-remove')">{{ $tc('global.sw-media-list-selection-item.buttonRemove') }}</sw-context-menu-item>
                     {% endblock %}
                 {% endblock %}
             </sw-context-button>

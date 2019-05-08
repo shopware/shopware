@@ -126,12 +126,13 @@ trait StorefrontPageTestBehaviour
         $paymentMethodId = $this->getValidPaymentMethodId();
         $shippingMethodId = $this->getAvailableShippingMethodId();
         $countryId = $this->getValidCountryId();
+        $snippetSetId = $this->getSnippetSetIdForLocale('en-GB');
         $data = [
             'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
             'name' => 'store front',
             'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
             'languageId' => Defaults::LANGUAGE_SYSTEM,
-            'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+            'snippetSetId' => $snippetSetId,
             'currencyId' => Defaults::CURRENCY,
             'currencyVersionId' => Defaults::LIVE_VERSION,
             'paymentMethodId' => $paymentMethodId,
@@ -147,6 +148,9 @@ trait StorefrontPageTestBehaviour
             'paymentMethods' => [['id' => $paymentMethodId]],
             'shippingMethods' => [['id' => $shippingMethodId]],
             'countries' => [['id' => $countryId]],
+            'domains' => [
+                ['url' => 'http://test.com/' . Uuid::randomHex(), 'currencyId' => Defaults::CURRENCY, 'languageId' => Defaults::LANGUAGE_SYSTEM, 'snippetSetId' => $snippetSetId],
+            ],
         ];
 
         return $this->createContext($data, []);
@@ -157,12 +161,13 @@ trait StorefrontPageTestBehaviour
         $paymentMethodId = $this->getValidPaymentMethodId();
         $shippingMethodId = $this->getAvailableShippingMethodId();
         $countryId = $this->getValidCountryId();
+        $snippetSetId = $this->getSnippetSetIdForLocale('en-GB');
         $data = [
             'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
             'name' => 'store front',
             'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
             'languageId' => Defaults::LANGUAGE_SYSTEM,
-            'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+            'snippetSetId' => $snippetSetId,
             'currencyId' => Defaults::CURRENCY,
             'currencyVersionId' => Defaults::LIVE_VERSION,
             'paymentMethodId' => $paymentMethodId,
@@ -177,6 +182,9 @@ trait StorefrontPageTestBehaviour
             'paymentMethods' => [['id' => $paymentMethodId]],
             'shippingMethods' => [['id' => $shippingMethodId]],
             'countries' => [['id' => $countryId]],
+            'domains' => [
+                ['url' => 'http://test.com/' . Uuid::randomHex(), 'currencyId' => Defaults::CURRENCY, 'languageId' => Defaults::LANGUAGE_SYSTEM, 'snippetSetId' => $snippetSetId],
+            ],
         ];
 
         return $this->createContext($data, [
@@ -189,12 +197,13 @@ trait StorefrontPageTestBehaviour
         $paymentMethodId = $this->getValidPaymentMethodId();
         $shippingMethodId = $this->getAvailableShippingMethodId();
         $countryId = $this->getValidCountryId();
+        $snippetSetId = $this->getSnippetSetIdForLocale('en-GB');
         $data = [
             'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
             'name' => 'store front',
             'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
             'languageId' => Defaults::LANGUAGE_SYSTEM,
-            'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+            'snippetSetId' => $snippetSetId,
             'currencyId' => Defaults::CURRENCY,
             'currencyVersionId' => Defaults::LIVE_VERSION,
             'paymentMethodId' => $paymentMethodId,
@@ -210,6 +219,9 @@ trait StorefrontPageTestBehaviour
             'paymentMethods' => [['id' => $paymentMethodId]],
             'shippingMethods' => [['id' => $shippingMethodId]],
             'countries' => [['id' => $countryId]],
+            'domains' => [
+                ['url' => 'http://test.com/' . Uuid::randomHex(), 'currencyId' => Defaults::CURRENCY, 'languageId' => Defaults::LANGUAGE_SYSTEM, 'snippetSetId' => $snippetSetId],
+            ],
         ];
 
         return $this->createContext($data, []);

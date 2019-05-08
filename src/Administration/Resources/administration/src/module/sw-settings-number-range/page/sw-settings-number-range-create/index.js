@@ -1,7 +1,9 @@
 import { Component } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
+import template from './sw-settings-number-range-create.html.twig';
 
 Component.extend('sw-settings-number-range-create', 'sw-settings-number-range-detail', {
+    template,
 
     beforeRouteEnter(to, from, next) {
         if (to.name.includes('sw.settings.number.range.create') && !to.params.id) {
@@ -13,6 +15,10 @@ Component.extend('sw-settings-number-range-create', 'sw-settings-number-range-de
 
     methods: {
         createdComponent() {
+            if (this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId) {
+                this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+            }
+
             if (this.$route.params.id) {
                 this.numberRange = this.numberRangeStore.create(this.$route.params.id);
             } else {

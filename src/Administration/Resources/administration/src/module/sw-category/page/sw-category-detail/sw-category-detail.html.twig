@@ -72,7 +72,8 @@
             <template slot="content">
 
                 {% block sw_category_content_view %}
-                    <sw-category-view v-if="category"
+                    <sw-category-view
+                        v-if="category"
                         ref="categoryView"
                         :category="category"
                         :cmsPage="cmsPage"

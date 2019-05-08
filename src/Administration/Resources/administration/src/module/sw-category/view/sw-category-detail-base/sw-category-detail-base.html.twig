@@ -55,6 +55,16 @@
                     <sw-tag-field class="sw-category-detail-base__tags" :entity="category"></sw-tag-field>
                 {% endblock %}
 
+                {% block sw_category_detail_information_product_subcategories %}
+                    <sw-field
+                        class="sw-category-detail-base__product-subcategories"
+                        name="categoryShowSubcategories"
+                        type="switch"
+                        :label="$tc('sw-category.base.general.showSubcategoryProductsLabel')"
+                        v-model="category.displayNestedProducts">
+                    </sw-field>
+                {% endblock %}
+
             </sw-card>
         {% endblock %}
 
@@ -358,22 +368,10 @@
                             v-else
                             slot="grid"
                             :title="$tc('sw-category.base.products.productAssignmentEmptyStateTitle')"
-                            subline="sw-category.base.products.productAssignmentEmptyStateSubline"
+                            :subline="$tc('sw-category.base.products.productAssignmentEmptyStateSubline')"
                             icon="default-package-closed">
                         </sw-empty-state>
                     {% endblock %}
-                {% endblock %}
-
-                {% block sw_category_detail_products_subcategories %}
-                    <template slot="footer">
-                        <sw-field
-                            class="sw-category-detail-base__product-subcategories"
-                            name="categoryShowSubcategories"
-                            type="switch"
-                            :label="$tc('sw-category.base.products.showSubcategoryProductsLabel')"
-                            v-model="category.displayNestedProducts">
-                        </sw-field>
-                    </template>
                 {% endblock %}
 
             </sw-card>

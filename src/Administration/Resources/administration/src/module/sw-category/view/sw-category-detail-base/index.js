@@ -33,6 +33,7 @@ Component.register('sw-category-detail-base', {
 
     data() {
         return {
+            disableRouteParams: true,
             products: [],
             entityName: 'product',
             sortBy: 'name',
@@ -73,17 +74,23 @@ Component.register('sw-category-detail-base', {
 
     methods: {
         getList() {
+            if (this.isLoadingProducts === true) {
+                return;
+            }
+
             this.isLoadingProducts = true;
+
+            if (this.$refs.productAssignmentSelect) {
+                this.$refs.productAssignmentSelect.resetAssociations();
+            }
+
             const params = this.getListingParams();
 
             this.categoryProductStore.getList(params)
                 .then((productResponse) => {
                     this.products = productResponse.items;
                     this.total = productResponse.total;
-                    this.isLoadingProducts = false;
-
                     this.reversedVisibility = !this.category.visible;
-
                     this.buildGridArray();
                     return this.products;
                 });
@@ -100,6 +107,7 @@ Component.register('sw-category-detail-base', {
         buildGridArray() {
             this.products = this.products.filter(value => value.isLocal === false);
             this.products.splice(0, 0, ...this.getNewItems());
+            this.isLoadingProducts = false;
         },
 
         getNewItems() {

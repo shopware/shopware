@@ -41,6 +41,7 @@
             "headlineInformationCard": "General",
             "isCategoryActiveLabel": "Category is active",
             "useAsLink": "Use as link",
+            "showSubcategoryProductsLabel": "Also show products from subcategories",
 
             "types": {
               "title": "Category type",
@@ -92,8 +93,7 @@
             "productAssignmentEmptyStateTitle": "No products assigned",
             "productAssignmentEmptyStateSubline": "Use the search to add products",
             "columnNameLabel": "Name",
-            "columnManufacturerLabel": "Manufacturer",
-            "showSubcategoryProductsLabel": "Also show products from subcategories"
+            "columnManufacturerLabel": "Manufacturer"
           }
         },
 

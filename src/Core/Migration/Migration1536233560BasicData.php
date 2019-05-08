@@ -1545,17 +1545,17 @@ class Migration1536233560BasicData extends MigrationStep
             MailTemplateTypes::MAILTYPE_CUSTOMER_REGISTER => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Customer registration',
-                'nameDe' => 'Kunden Registrierung',
+                'nameDe' => 'Kunden-Registrierung',
             ],
             NewsletterSubscriptionServiceInterface::MAIL_TYPE_OPT_IN => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Newsletter double opt-in',
-                'nameDe' => 'Newsletter Double Opt-In',
+                'nameDe' => 'Newsletter Double-Opt-In',
             ],
             NewsletterSubscriptionServiceInterface::MAIL_TYPE_REGISTER => [
                 'id' => Uuid::randomHex(),
-                'name' => 'Newsletter register',
-                'nameDe' => 'Newsletter Registrierung',
+                'name' => 'Newsletter registration',
+                'nameDe' => 'Newsletter-Registrierung',
             ],
             MailTemplateTypes::MAILTYPE_ORDER_CONFIRM => [
                 'id' => Uuid::randomHex(),
@@ -1579,8 +1579,8 @@ class Migration1536233560BasicData extends MigrationStep
             ],
             MailTemplateTypes::MAILTYPE_SEPA_CONFIRMATION => [
                 'id' => Uuid::randomHex(),
-                'name' => 'Sepa authorization',
-                'nameDe' => 'Sepa Authorisierung',
+                'name' => 'SEPA authorization',
+                'nameDe' => 'SEPA-Autorisierung',
             ],
             MailTemplateTypes::MAILTYPE_STOCK_WARNING => [
                 'id' => Uuid::randomHex(),

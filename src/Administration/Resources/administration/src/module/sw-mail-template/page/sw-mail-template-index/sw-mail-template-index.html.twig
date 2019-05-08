@@ -1,6 +1,13 @@
 {% block sw_mail_template_list %}
     <sw-page class="sw-mail-template-list">
-
+        {% block sw_mail_templates_list_search_bar %}
+            <template slot="search-bar">
+                <sw-search-bar initialSearchType="mail_template"
+                               :initialSearch="term"
+                               @search="onSearch">
+                </sw-search-bar>
+            </template>
+        {% endblock %}
         {% block sw_mail_template_list_smart_bar_header %}
             <template slot="smart-bar-header">
                 {% block sw_mail_template_list_smart_bar_header_title %}

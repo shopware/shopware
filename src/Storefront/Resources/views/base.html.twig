@@ -98,6 +98,10 @@
         {% sw_include '@Storefront/layout/cookie-permission.html.twig' %}
     {% endblock %}
 
+    {% block base_pseudo_modal %}
+        {% sw_include '@Storefront/component/pseudo-modal.html.twig' %}
+    {% endblock %}
+
     {% block base_body_script %}
     {% block base_script_token %}
         <script>

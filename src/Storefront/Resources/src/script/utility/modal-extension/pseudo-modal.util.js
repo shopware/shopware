@@ -3,37 +3,14 @@ import { REMOVE_BACKDROP_DELAY } from 'src/script/utility/backdrop/backdrop.util
 
 const PSEUDO_MODAL_CLASS = 'js-pseudo-modal';
 
-// todo: maybe outsource into twig markup
-const MODAL_MARKUP = (content) => {
-    return `
-        <div class="modal"
-             tabindex="-1"
-             role="dialog">
-            <div class="modal-dialog"
-                   role="document">
-                <div class="modal-content">
-                    <div class="modal-header only-close">
-                        <div class="modal-close close btn btn-light"
-                             data-dismiss="modal"
-                             aria-label="Close">
-                            <span aria-hidden="true"><i class="fas fa-times"></i></span>
-                        </div>
-                    </div>
-                    <div class="modal-body">
-                        ${content}
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-};
-
 export default class PseudoModalUtil {
 
-    constructor(content, modalMarkup, useBackdrop = true) {
+    constructor(content, useBackdrop = true) {
         this._content = content;
-        this._modalMarkup = modalMarkup || MODAL_MARKUP;
         this._useBackdrop = useBackdrop;
+
+        this._templateSelector = '.js-pseudo-modal-template';
+        this._templateContentSelector = '.js-pseudo-modal-template-content-element';
     }
 
     /**
@@ -44,6 +21,15 @@ export default class PseudoModalUtil {
     open(cb) {
         this._create();
         setTimeout(this._open.bind(this, cb), REMOVE_BACKDROP_DELAY);
+    }
+
+    /**
+     * opens the modal
+     *
+     */
+    close() {
+        const modal = this.getModal();
+        $(modal).modal('hide');
     }
 
     /**
@@ -86,6 +72,7 @@ export default class PseudoModalUtil {
      * @private
      */
     _create() {
+        this._modalMarkupEl = DomAccess.querySelector(document, this._templateSelector);
         this._createModalWrapper();
         this._modalWrapper.innerHTML = this._content;
         this._modal = this._createModalMarkup();
@@ -123,7 +110,11 @@ export default class PseudoModalUtil {
         }
 
         const content = this._modalWrapper.innerHTML;
-        this._modalWrapper.innerHTML = this._modalMarkup(content);
+        this._modalWrapper.innerHTML = this._modalMarkupEl.innerHTML;
+
+        const contentElement = DomAccess.querySelector(this._modalWrapper, this._templateContentSelector);
+        contentElement.innerHTML = content;
+
         return DomAccess.querySelector(this._modalWrapper, '.modal');
     }
 }

@@ -58,7 +58,7 @@ export default class ElementLoadingIndicatorUtil extends LoadingIndicatorUtil {
     static getTemplate() {
         return `
         <div class="${ELEMENT_LOADER_CLASS}">
-            <div class="spinner-border" role="status">
+            <div class="loader" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
         </div>

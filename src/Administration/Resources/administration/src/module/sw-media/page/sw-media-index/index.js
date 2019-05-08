@@ -164,6 +164,7 @@ Component.register('sw-media-index', {
         },
 
         updateRoute(newFolderId) {
+            this.term = this.$route.query ? this.$route.query.term : '';
             this.$router.push({
                 name: 'sw.media.index',
                 params: {

@@ -47,7 +47,7 @@ export default {
                 return '';
             }
 
-            return this.urlPrefix + trimmedValue;
+            return `${this.urlPrefix}${trimmedValue}`;
         }
     },
 
@@ -91,6 +91,7 @@ export default {
             }
 
             this.sslActive = !this.sslActive;
+            this.resetFormError();
             this.$emit('input', this.url);
         }
     }

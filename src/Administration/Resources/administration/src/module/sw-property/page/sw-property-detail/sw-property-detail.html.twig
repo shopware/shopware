@@ -1,50 +1,49 @@
 {% block sw_property_detail %}
-<sw-page class="sw-property-detail">
+    <sw-page class="sw-property-detail">
 
-    {% block sw_property_detail_smart_bar_header %}
-        <template slot="smart-bar-header">
+        {% block sw_property_detail_smart_bar_header %}
+            <template slot="smart-bar-header">
 
-            {% block sw_property_detail_smart_bar_header_title %}
-                <h2 v-if="group.name">{{ group.name }}</h2>
-                <h2 v-else>{{ $tc('sw-property.detail.textHeadline') }}</h2>
-            {% endblock %}
+                {% block sw_property_detail_smart_bar_header_title %}
+                    <h2>{{ placeholder(group, 'name', $tc('sw-property.detail.textHeadline')) }}</h2>
+                {% endblock %}
 
-        </template>
-    {% endblock %}
+            </template>
+        {% endblock %}
 
-    {% block sw_property_detail_smart_bar_actions %}
-        <template slot="smart-bar-actions">
-            {% block sw_property_detail_smart_bar_actions_cancel %}
-                <sw-button :disabled="group.isLoading" :routerLink="{ name: 'sw.property.index' }">
-                    {{ $tc('sw-property.detail.buttonCancel') }}
-                </sw-button>
-            {% endblock %}
+        {% block sw_property_detail_smart_bar_actions %}
+            <template slot="smart-bar-actions">
+                {% block sw_property_detail_smart_bar_actions_cancel %}
+                    <sw-button :disabled="group.isLoading" :routerLink="{ name: 'sw.property.index' }">
+                        {{ $tc('sw-property.detail.buttonCancel') }}
+                    </sw-button>
+                {% endblock %}
 
-            {% block sw_property_detail_smart_bar_actions_save %}
-            <sw-button-process
-                    class="sw-property-detail__save-action"
-                    :isLoading="isLoading"
-                    :processSuccess="isSaveSuccessful"
-                    :disabled="group.isLoading"
-                    variant="primary"
-                    @process-finish="saveFinish"
-                    @click.prevent="onSave">
-                {{ $tc('sw-property.detail.buttonSave') }}
-            </sw-button-process>
-            {% endblock %}
-        </template>
-    {% endblock %}
+                {% block sw_property_detail_smart_bar_actions_save %}
+                    <sw-button-process
+                            class="sw-property-detail__save-action"
+                            :isLoading="isLoading"
+                            :processSuccess="isSaveSuccessful"
+                            :disabled="group.isLoading"
+                            variant="primary"
+                            @process-finish="saveFinish"
+                            @click.prevent="onSave">
+                        {{ $tc('sw-property.detail.buttonSave') }}
+                    </sw-button-process>
+                {% endblock %}
+            </template>
+        {% endblock %}
 
-    {% block sw_property_detail_content %}
-        <sw-card-view slot="content">
-            {% block sw_property_detail_content_detail_base %}
-                <sw-property-detail-base :group="group" />
-            {% endblock %}
+        {% block sw_property_detail_content %}
+            <sw-card-view slot="content">
+                {% block sw_property_detail_content_detail_base %}
+                    <sw-property-detail-base :group="group" />
+                {% endblock %}
 
-            {% block sw_property_detail_content_option_list %}
-                <sw-property-option-list v-if="group.sortingType" :group="group" ref="optionListing" />
-            {% endblock %}
-        </sw-card-view>
-    {% endblock %}
-</sw-page>
+                {% block sw_property_detail_content_option_list %}
+                    <sw-property-option-list v-if="group.sortingType" :group="group" ref="optionListing" />
+                {% endblock %}
+            </sw-card-view>
+        {% endblock %}
+    </sw-page>
 {% endblock %}

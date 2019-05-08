@@ -23,7 +23,7 @@ That's already all the setup you need.
 The main entry point to customize the administration via plugin is the `main.js` file.
 It has to be placed into a `<plugin root>/src/Resources/admininistration` directory in order to be found by the Shopware
 platform.
-*Note: This path can be changed by overriding the [getAdministrationEntryPath](../2-internals/4-plugins/020-plugin-base-class.md#getAdministrationEntryPath) method of your plugin's base class.*
+*Note: This path can be changed by overriding the [getAdministrationEntryPath](./../2-internals/4-plugins/020-plugin-base-class.md#getAdministrationEntryPath) method of your plugin's base class.*
 
 ### Creating a new tab
 

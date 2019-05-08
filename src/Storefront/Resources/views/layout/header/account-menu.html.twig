@@ -3,9 +3,11 @@
 {% block layout_utilities_offcanvas_content %}
     <div class="account-menu">
         {% block layout_header_actions_account_widget_dropdown_header %}
-            <div class="dropdown-header account-widget-header">
-                {{ "account.myAccount"|trans }}
-            </div>
+            {% if not context.customer.guest %}
+                <div class="dropdown-header account-widget-header">
+                    {{ "account.myAccount"|trans }}
+                </div>
+            {% endif %}
         {% endblock %}
 
         {% block layout_header_actions_account_widget_dropdown_login %}

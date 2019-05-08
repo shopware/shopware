@@ -3,6 +3,7 @@
         <sw-container columns="1fr 1fr" gap="0px 30px">
             {% block sw_promotion_discount_component_scope %}
                 <sw-select-field v-model="discount.scope"
+                                 required
                                  validation="required"
                                  :label="$tc('sw-promotion.detail.main.discounts.labelScope')">
                     <option v-for="scope in getScopes()" :value="scope.key">
@@ -45,6 +46,7 @@
             {% block sw_promotion_discount_component_value %}
                 <sw-field type="number"
                           validation="required"
+                          required
                           v-model="discount.value"
                           :min="getValueMin()"
                           :max="getValueMax()"

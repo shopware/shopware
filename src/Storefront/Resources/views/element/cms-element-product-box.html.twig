@@ -1,0 +1,8 @@
+{% block element_product_box %}
+    <div class="cms-element-{{ element.type }}">
+        {% sw_include '@Storefront/component/product/widget/box.html.twig' with {
+            'product': element.data.product,
+            'layout': element.config.boxLayout.value
+        } %}
+    </div>
+{% endblock %}

@@ -131,7 +131,7 @@
                                          :placeholder="placeholder(item, 'alt', $tc('sw-media.sidebar.metadata.altText'))"
                                          :value="item.alt"
                                          @input="onSubmitAltText">
-                                     </sw-confirm-field><template v-else>{{ item.alt }}</template>
+                                     </sw-confirm-field><template v-else>{{ placeholder(item, 'alt') }}</template>
                                  </sw-media-quickinfo-metadata-item>
 
                                  <sw-media-quickinfo-metadata-item
@@ -146,7 +146,7 @@
                                          :placeholder="placeholder(item, 'title', $tc('sw-media.sidebar.metadata.title'))"
                                          ref="inlineEditFieldTitle"
                                          @input="onSubmitTitle">
-                                     </sw-confirm-field><template v-else>{{ item.title }}</template>
+                                     </sw-confirm-field><template v-else>{{ placeholder(item, 'title') }}</template>
                                  </sw-media-quickinfo-metadata-item>
 
                                  <sw-media-quickinfo-metadata-item

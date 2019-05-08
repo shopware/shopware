@@ -23,7 +23,9 @@
                             <div class="input-group-append">
                                 <button type="submit"
                                         class="btn btn-light search-form-button">
-                                    <i class="fas fa-search"></i>
+                                    {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
+                                        'name': 'action-search'
+                                    } %}
                                 </button>
                             </div>
                         {% endblock %}

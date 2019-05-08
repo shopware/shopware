@@ -37,7 +37,7 @@ export default {
         },
 
         moduleDescription() {
-            return this.subline || this.$route.meta.$module.description;
+            return this.subline || this.$tc(this.$route.meta.$module.description);
         },
 
         moduleIcon() {

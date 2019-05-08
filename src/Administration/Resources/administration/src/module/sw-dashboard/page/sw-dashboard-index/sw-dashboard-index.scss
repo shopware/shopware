@@ -1,0 +1,135 @@
+@import "~scss/variables";
+.sw-dashboard-index{
+
+  .sw-card {
+    max-width: inherit;
+    margin: inherit;
+  }
+
+  .sw-dashboard__container {
+    max-width: 800px;
+    margin: 0 auto;
+    position: relative;
+
+
+    .sw-dashboard-card-headline {
+      font-weight: 600;
+      font-size: 24px;
+    }
+
+    .sw-dashboard__welcome {
+      grid-column-start: 1;
+      grid-column-end: 3;
+
+      .sw-card__content {
+        padding: 56px;
+      }
+
+      .sw-dashboard__welcome-content {
+        display: flex;
+        height: 100%;
+        width: 686px;
+
+        .sw-dashboard__welcome-content-left {
+          flex: 1;
+
+          .sw-dashboard-card-headline {
+            font-size: 32px;
+          }
+
+          .sw-dashboard__welcome-version {
+            font-size: 14px;
+            color: darken($color-steam-cloud, 10%);
+            margin-bottom: 15px;
+          }
+
+          .sw-dashboard__welcome-text {
+            margin-top: 24px;
+            line-height: 22px;
+            font-size: 14px;
+          }
+
+          .sw-dashboard__welcome-subText {
+            line-height: 22px;
+            font-size: 14px;
+          }
+
+          .sw-dashboard__welcome-subSubText {
+            margin-bottom: 32px;
+            line-height: 22px;
+            font-size: 14px;
+          }
+
+          .sw-dashboard__issueTrackerButton {
+            margin-left: 15px;
+          }
+        }
+
+        .sw-dashboard__welcome-content-right {
+          flex: 1;
+        }
+      }
+    }
+    .sw-dashboard__paypal {
+      text-align: center;
+
+      .sw-button {
+        width: 100%;
+      }
+
+      .sw-dashboard__paypal-icon {
+        display: block;
+        height: 145px;
+      }
+    }
+    .sw-dashboard__documentation {
+      width: 100%;
+      //min-height: 250px;
+
+      .sw-card__content {
+        height: 100%;
+        padding: 40px;
+      }
+
+      .sw-dashboard-card-headline {
+        margin-bottom: 20px;
+      }
+
+      .sw-dashboard__documentation-link {
+        margin-top: 16px;
+      }
+    }
+
+    .sw-dashboard__migration {
+      grid-column-start: 1;
+      grid-column-end: 3;
+
+      .sw-card__content {
+        padding: 40px;
+        padding-right: 0;
+        padding-bottom: 0;
+      }
+
+      .sw-dashboard__migration-content {
+        display: flex;
+
+        .sw-dashboard__migration-content-left {
+          flex: 1;
+
+          .sw-dashboard__migration-content-description {
+            margin-top: 24px;
+            margin-bottom: 24px;
+            line-height: 22px;
+            font-size: 14px;
+          }
+          .sw-button {
+            margin-top: 14px;
+          }
+        }
+        .sw-dashboard__migration-content-right {
+          flex: 1;
+        }
+      }
+    }
+  }
+}

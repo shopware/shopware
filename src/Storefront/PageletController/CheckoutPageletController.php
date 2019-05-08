@@ -24,10 +24,19 @@ class CheckoutPageletController extends StorefrontController
      */
     private $ajaxCartLoader;
 
-    public function __construct(PageLoaderInterface $infoLoader, PageLoaderInterface $ajaxCartLoader)
-    {
+    /**
+     * @var PageLoaderInterface
+     */
+    private $accountAddresslistLoader;
+
+    public function __construct(
+        PageLoaderInterface $infoLoader,
+        PageLoaderInterface $ajaxCartLoader,
+        PageLoaderInterface $accountAddresslistLoader
+    ) {
         $this->infoLoader = $infoLoader;
         $this->ajaxCartLoader = $ajaxCartLoader;
+        $this->accountAddresslistLoader = $accountAddresslistLoader;
     }
 
     /**
@@ -51,6 +60,18 @@ class CheckoutPageletController extends StorefrontController
     {
         $page = $this->ajaxCartLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/layout/header/offcanvas-cart.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/component/checkout/offcanvas-cart.html.twig', ['page' => $page]);
+    }
+
+    /**
+     * @Route(path="/widgets/checkout/addresses", name="widgets.checkout.ajax-addresses", methods={"GET"}, defaults={"XmlHttpRequest"=true})
+     */
+    public function ajaxAddresses(Request $request, SalesChannelContext $context): Response
+    {
+        $this->denyAccessUnlessLoggedIn();
+
+        $page = $this->accountAddresslistLoader->load($request, $context);
+
+        return $this->renderStorefront('@Storefront/component/checkout/address-list.html.twig', ['page' => $page]);
     }
 }

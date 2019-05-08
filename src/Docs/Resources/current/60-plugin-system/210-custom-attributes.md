@@ -2,10 +2,10 @@
 [titleDe]: <>(Custom Fields)
 [wikiUrl]: <>(../plugin-system/custom-fields?category=shopware-platform-en/plugin-system)
 
-Before starting you should read [Custom Field System](../80-framework/20-custom-field.md) first, then
-[Creating a component](../10-administration/20-create-a-component.md) 
+Before starting you should read [Custom Field System](./../80-framework/20-custom-field.md) first, then
+[Creating a component](./../10-administration/20-create-a-component.md) 
 and you should know how to 
-[create a plugin](../10-administration/01-administration-start-development.md#create-your-first-plugin).
+[create a plugin](./../10-administration/01-administration-start-development.md#create-your-first-plugin).
 ## Intro
 In the administration it is possible to define custom field sets that will be shown in the configuration of defined entities. Every custom field set can have several custom fields assigned to it. There are some built-in custom field types, for example string fields, number fields, select fields and other commonly used types. For third party developers there is also the possibility to add custom field types. This documentation will show how types are added to the administration with a small example.
 
@@ -170,7 +170,7 @@ This is the corresponding template:
 ```
 This will render the following config form:
 
-![Swag Radio Config](img/210-swag-radio-config.png)
+![Swag Radio Config](./img/210-swag-radio-config.png)
 
 ## Implement the component for rendering the new type in the administration
 The next step is to create the component which will be rendered on the entity detail pages. The radio button is a very basic example component.

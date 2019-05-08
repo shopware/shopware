@@ -171,13 +171,13 @@ Component.register('sw-settings-country-detail', {
             return [{
                 property: 'name',
                 dataIndex: 'name',
-                label: 'Name',
+                label: this.$tc('sw-settings-country.detail.columnStateNameLabel'),
                 inlineEdit: 'string',
                 primary: true
             }, {
                 property: 'shortCode',
                 dataIndex: 'shortCode',
-                label: 'Kürzel',
+                label: this.$tc('sw-settings-country.detail.columnStateShortCodeLabel'),
                 inlineEdit: 'string'
             }];
         }

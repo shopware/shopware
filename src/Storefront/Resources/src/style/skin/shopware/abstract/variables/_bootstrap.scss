@@ -1,0 +1,93 @@
+// Bootstrap
+
+// Color system
+$gray-100: #f8f8fa; // ~ 'sw5 gray-light'
+$gray-200: #f5f5f8; // ~ 'sw5 gray'
+$gray-300: #d1d9e0; // ~ 'sw5 gray-dark'
+$gray-600: #576574; // ~ 'sw5 brand-secondary'
+$gray-800: #3f4c58; // ~ 'sw5 brand-secondary-dark'
+
+$primary: #30b4aa;
+$secondary: $gray-600;
+
+$success: #05c46b;
+$info: #0fbcf9;
+$warning: #ffa801;
+$danger: #ff3f34;
+
+$light: $gray-100;
+$dark: $gray-800;
+
+$headings-color: $gray-800;
+
+// Body
+$body-color: #545454;
+
+// Components
+$border-color: $gray-300;
+
+$border-radius: 3px;
+$border-radius-lg: 3px;
+$border-radius-sm: 3px;
+
+// Typography
+$font-family-base: 'Nunito Sans', sans-serif;
+
+$font-size-base: 0.875rem;
+$font-size-lg: 1rem;
+$font-size-sm: 0.75rem;
+$font-weight-normal: 500;
+
+$h1-font-size: 26px;
+$h2-font-size: 21px;
+$h3-font-size: 18px;
+$h4-font-size: 16px;
+$h5-font-size: 14px;
+$h6-font-size: 12px;
+
+$headings-font-weight: 700;
+$headings-font-family: $font-family-base;
+
+// Buttons + Forms
+$input-btn-padding-y: 0.5625rem;
+$input-btn-padding-x: 0.5625rem;
+
+$input-placeholder-color: #b3bfcc;
+
+// Buttons
+$btn-padding-y: 2px;
+$btn-padding-x: 12px;
+$btn-line-height: 34px;
+
+$btn-padding-y-sm: 2px;
+$btn-padding-x-sm: 12px;
+$btn-font-size-sm: 14px;
+$btn-line-height-sm: 30px;
+
+$btn-padding-y-lg: 2px;
+$btn-padding-x-lg: 12px;
+$btn-font-size-lg: 16px;
+$btn-line-height-lg: 38px;
+
+// Forms
+$input-color: #8798a9;
+$input-border-color: $gray-300;
+$custom-select-indicator-color: $input-color;
+
+// Badges
+$badge-font-size: 12px;
+
+// Spinners
+$spinner-width: 26px;
+$spinner-border-width: 2px;
+
+// Modals
+$modal-header-padding-y: 10px;
+$modal-header-padding-x: 10px;
+
+// Breadcrumb
+$breadcrumb-bg: transparent;
+$breadcrumb-border-radius: 0;
+
+// Cards
+$card-border-color: transparent;

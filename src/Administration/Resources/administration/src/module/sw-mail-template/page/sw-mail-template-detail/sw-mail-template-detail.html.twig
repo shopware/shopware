@@ -50,7 +50,8 @@
                                 :label="$tc('sw-mail-template.detail.basic.labelMailType')"
                                 :placeholder="$tc('sw-mail-template.detail.basic.placeholderMailType')"
                                 @input="onMailTemplateTypeChanged"
-                                validation="required">
+                                validation="required"
+                                required>
                             </sw-select>
                         {% endblock %}
 
@@ -86,7 +87,7 @@
                                 {% block sw_mail_template_options_form_subject_field %}
                                     <sw-field type="text"
                                               :label="$tc('sw-mail-template.detail.options.labelSubject')"
-                                              :placeholder="$tc('sw-mail-template.detail.options.placeholderSubject')"
+                                              :placeholder="placeholder(mailTemplate, 'subject', $tc('sw-mail-template.detail.options.placeholderSubject'))"
                                               v-model="mailTemplate.subject">
                                     </sw-field>
                                 {% endblock %}
@@ -95,7 +96,7 @@
                             {% block sw_mail_template_options_form_sender_name_field %}
                                 <sw-field type="text"
                                           :label="$tc('sw-mail-template.detail.options.labelSenderName')"
-                                          :placeholder="$tc('sw-mail-template.detail.options.placeholderSenderName')"
+                                          :placeholder="placeholder(mailTemplate, 'senderName', $tc('sw-mail-template.detail.options.placeholderSenderName'))"
                                           v-model="mailTemplate.senderName">
                                 </sw-field>
                             {% endblock %}
@@ -108,7 +109,7 @@
                         {% block sw_mail_template_mail_text_form_content_plain_field %}
                             <sw-field type="textarea"
                                       :label="$tc('sw-mail-template.detail.mailText.labelContentPlain')"
-                                      :placeholder="$tc('sw-mail-template.detail.mailText.placeholderPlain')"
+                                      :placeholder="placeholder(mailTemplate, 'contentPlain', $tc('sw-mail-template.detail.mailText.placeholderPlain'))"
                                       v-model="mailTemplate.contentPlain">
                             </sw-field>
                         {% endblock %}
@@ -116,7 +117,7 @@
                         {% block sw_mail_template_mail_text_form_content_html_field %}
                             <sw-code-editor
                                     :label="$tc('sw-mail-template.detail.mailText.labelContentHtml')"
-                                    :placeholder="$tc('sw-mail-template.detail.mailText.placeholderHtml')"
+                                    :placeholder="placeholder(mailTemplate, 'contentHtml', $tc('sw-mail-template.detail.mailText.placeholderHtml'))"
                                     name="content_html"
                                     v-model="mailTemplate.contentHtml">
                             </sw-code-editor>

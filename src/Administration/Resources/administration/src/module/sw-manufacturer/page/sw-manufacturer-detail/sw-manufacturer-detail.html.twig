@@ -60,6 +60,7 @@
                                     :placeholder="placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.placeholderName'))"
                                     name="name"
                                     validation="required"
+                                    required
                                     v-model="manufacturer.name">
                                 </sw-field>
                             {% endblock %}
@@ -98,7 +99,7 @@
                     {% block sw_manufacturer_detail_base_info_field_description %}
                         <sw-text-editor
                             :label="$tc('sw-manufacturer.detail.labelDescription')"
-                            :placeholder="placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.placeholderDescription'))"
+                            :placeholder="placeholder(manufacturer, 'description', $tc('sw-manufacturer.detail.placeholderDescription'))"
                             name="description"
                             v-model="manufacturer.description">
                         </sw-text-editor>

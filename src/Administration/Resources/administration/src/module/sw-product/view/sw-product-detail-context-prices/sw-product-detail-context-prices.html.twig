@@ -28,6 +28,7 @@
                                        :criteria="ruleFilter"
                                        :value="priceGroup.ruleId"
                                        validation="required"
+                                       required
                                        @input="onRuleChange($event, priceGroup.ruleId)">
                                 <template slot="result_items" slot-scope="{ item, index }">
                                         <sw-select-option
@@ -68,7 +69,7 @@
                                                           :disabled="!!priceGroup.currencies[currency.id] || priceGroup.ruleId === null"
                                                           @click="onAddCurrency(priceGroup.ruleId, currency)">
                                         <span slot="icon" class="currency-symbol">{{ currency.symbol }}</span>
-                                        {{ currency.name }}
+                                        {{ currency.translated.name }}
                                         {{ (currency.isDefault) ? $tc('sw-product.prices.textCurrencyDefault') : '' }}
                                     </sw-context-menu-item>
                                 {% endblock %}
@@ -82,7 +83,7 @@
 
                         {% block sw_product_detail_prices_price_matrix_title %}
                             <h3 v-if="currencyRule.currency">
-                                {{ $tc('sw-product.prices.textPriceRuleForCurrency') }}: {{ currencyRule.currency.name }} {{ (currencyRule.currency.isDefault) ? $tc('sw-product.prices.textCurrencyDefault') : '' }}
+                                {{ $tc('sw-product.prices.textPriceRuleForCurrency') }}: {{ currencyRule.currency.translated.name }} {{ (currencyRule.currency.isDefault) ? $tc('sw-product.prices.textCurrencyDefault') : '' }}
                             </h3>
                         {% endblock %}
 
@@ -97,6 +98,7 @@
                                                             :label="$tc('sw-product.prices.columnQuantityStart')">
                                                 <sw-field type="number"
                                                           validation="required"
+                                                          required
                                                           v-model="item.quantityStart">
                                                 </sw-field>
                                             </sw-grid-column>
@@ -122,6 +124,7 @@
                                                 <sw-price-field :price="item.price"
                                                                 :taxRate="productTaxRate"
                                                                 :currency="currencyRule.currency"
+                                                                required
                                                                 validation="required">
                                                 </sw-price-field>
                                             </sw-grid-column>

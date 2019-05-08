@@ -7,7 +7,7 @@ import 'src/script/helper/polyfill-loader.helper';
 import base requirements
  */
 import 'bootstrap';
-import jQuery from 'jquery';
+import jQuery from 'jquery/dist/jquery.slim';
 
 /*
 import styles
@@ -37,13 +37,15 @@ import CartWidgetPlugin from 'src/script/plugin/header/cart-widget.plugin';
 import SearchWidgetPlugin from 'src/script/plugin/header/search-widget/search-widget.plugin';
 import AccountMenuPlugin from 'src/script/plugin/header/account-menu.plugin';
 import OffCanvasCartPlugin from 'src/script/plugin/offcanvas-cart/offcanvas-cart.plugin';
+import AddToCartPlugin from 'src/script/plugin/add-to-cart/add-to-cart.plugin';
 import CookiePermissionPlugin from 'src/script/plugin/cookie-permission/cookie-permission.plugin';
 import CollapseFooterColumnsPlugin from 'src/script/plugin/collapse/collapse-footer-columns.plugin';
 import FlyoutMenuPlugin from 'src/script/plugin/main-menu/flyout-menu.plugin';
 import OffcanvasMenuPlugin from 'src/script/plugin/main-menu/offcanvas-menu.plugin';
 import FormAutoSubmitPlugin from 'src/script/plugin/forms/form-auto-submit.plugin';
+import FormAjaxSubmitPlugin from 'src/script/plugin/forms/form-ajax-submit.plugin';
 import FormValidationPlugin from 'src/script/plugin/forms/form-validation.plugin';
-import FormSubmitLoaderPlugin from 'src/script/plugin/forms/from-submit-loader.plugin';
+import FormSubmitLoaderPlugin from 'src/script/plugin/forms/form-submit-loader.plugin';
 import FormFieldTogglePlugin from 'src/script/plugin/forms/form-field-toggle.plugin';
 import FromScrollToInvalidFieldPlugin from 'src/script/plugin/forms/form-scroll-to-invalid-field.plugin';
 import OffCanvasTabsPlugin from 'src/script/plugin/offcanvas-tabs/offcanvas-tabs.plugin';
@@ -54,14 +56,14 @@ import ImageZoomPlugin from 'src/script/plugin/image-zoom/image-zoom.plugin';
 import VariantSwitchPlugin from 'src/script/plugin/variant-switch/variant-switch.plugin';
 import CmsSlotReloadPlugin from 'src/script/plugin/cms-slot-reload/cms-slot-reload.plugin';
 import CmsSlotHistoryReloadPlugin from 'src/script/plugin/cms-slot-reload/cms-slot-history-reload.plugin';
+import RemoteClickPlugin from 'src/script/plugin/remote-click/remote-click.plugin';
 
 /*
 initialisation
 */
 new ViewportDetection();
 // Expose jQuery and plugin manager to the global window object
-window.jQuery = jQuery;
-window.$ = jQuery;
+window.jQuery = window.$ = jQuery;
 
 // Necessary for the webpack hot module reloading server
 if (module.hot) {
@@ -74,7 +76,7 @@ register plugins
 
 // example plugin (remove before release)
 // PluginManager.register('Simple', SimplePlugin, 'body', { plugin: 'simple' });
-// PluginManager.executePlugin('Simple', 'body');
+// PluginManager.initializePlugin('Simple', 'body');
 // PluginManager.register('VanillaExtendSimple', SimplePlugin, 'body', { plugin: 'simple' });
 // PluginManager.extend('VanillaExtendSimple', 'VanillaExtendSimple', VanillaExtendPlugin, 'body', { plugin: 'simple vanilla extend' });
 //
@@ -90,6 +92,7 @@ PluginManager.register('CookiePermission', CookiePermissionPlugin, '[data-cookie
 PluginManager.register('SearchWidget', SearchWidgetPlugin, '[data-search-form]');
 PluginManager.register('CartWidget', CartWidgetPlugin, '[data-cart-widget]');
 PluginManager.register('OffCanvasCart', OffCanvasCartPlugin, '[data-offcanvas-cart]');
+PluginManager.register('AddToCart', AddToCartPlugin, '[data-add-to-cart]');
 PluginManager.register('CollapseFooterColumns', CollapseFooterColumnsPlugin, '[data-collapse-footer]');
 PluginManager.register('FlyoutMenu', FlyoutMenuPlugin, '[data-flyout-menu]');
 PluginManager.register('OffcanvasMenu', OffcanvasMenuPlugin, '[data-offcanvas-menu]');
@@ -98,8 +101,9 @@ PluginManager.register('FormScrollToInvalidField', FromScrollToInvalidFieldPlugi
 PluginManager.register('FormSubmitLoader', FormSubmitLoaderPlugin, '[data-form-submit-loader]');
 PluginManager.register('FormFieldToggle', FormFieldTogglePlugin, '[data-form-field-toggle]');
 PluginManager.register('FormAutoSubmit', FormAutoSubmitPlugin, '[data-form-auto-submit]');
+PluginManager.register('FormAjaxSubmit', FormAjaxSubmitPlugin, '[data-form-ajax-submit]');
 PluginManager.register('AccountMenu', AccountMenuPlugin, '[data-offcanvas-account-menu]');
-PluginManager.register('OffCanvasTabs', OffCanvasTabsPlugin, '[data-offcanvas-tab]');
+PluginManager.register('OffCanvasTabs', OffCanvasTabsPlugin, '[data-offcanvas-tabs]');
 PluginManager.register('ImageSlider', ImageSliderPlugin, '[data-image-slider]');
 PluginManager.register('ZoomModal', ZoomModalPlugin, '[data-zoom-modal]');
 PluginManager.register('Magnifier', MagnifierPlugin, '[data-magnifier]');
@@ -107,6 +111,7 @@ PluginManager.register('ImageZoom', ImageZoomPlugin, '[data-image-zoom]');
 PluginManager.register('VariantSwitch', VariantSwitchPlugin, '[data-variant-switch]');
 PluginManager.register('CmsSlotReload', CmsSlotReloadPlugin, '[data-cms-slot-reload]');
 PluginManager.register('CmsSlotHistoryReload', CmsSlotHistoryReloadPlugin, document);
+PluginManager.register('RemoteClick', RemoteClickPlugin, '[data-remote-click]');
 
 /*
 add configurations
@@ -119,7 +124,7 @@ add configurations
 /*
 run plugins
 */
-document.addEventListener('DOMContentLoaded', () => PluginManager.executePlugins(), false);
+document.addEventListener('DOMContentLoaded', () => PluginManager.initializePlugins(), false);
 
 /*
 run utils

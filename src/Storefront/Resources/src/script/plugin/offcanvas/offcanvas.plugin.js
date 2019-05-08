@@ -1,5 +1,6 @@
 import DeviceDetection from 'src/script/helper/device-detection.helper';
 import Backdrop, { BACKDROP_EVENT } from 'src/script/utility/backdrop/backdrop.util';
+import Iterator from 'src/script/helper/iterator.helper';
 
 const OFF_CANVAS_CLASS = 'js-offcanvas';
 const OFF_CANVAS_OPEN_CLASS = 'is-open';
@@ -68,7 +69,8 @@ class OffCanvasSingleton {
      */
     close(delay) {
         // remove open class to make any css animation effects possible
-        this.getOffCanvas().forEach(backdrop => backdrop.classList.remove(OFF_CANVAS_OPEN_CLASS));
+        const OffCanvasElements = this.getOffCanvas();
+        Iterator.iterate(OffCanvasElements, backdrop => backdrop.classList.remove(OFF_CANVAS_OPEN_CLASS));
 
         // wait before removing backdrop to let css animation effects take place
         setTimeout(this._removeExistingOffCanvas.bind(this), delay);
@@ -89,12 +91,13 @@ class OffCanvasSingleton {
      *
      * @param {HTMLElement} offCanvas
      * @param {function} callback
+     *
      * @private
      */
     _openOffcanvas(offCanvas, callback) {
         // the timeout allows to apply the animation effects
-        setTimeout(function () {
-            Backdrop.create(function () {
+        setTimeout(() => {
+            Backdrop.create(() => {
                 offCanvas.classList.add(OFF_CANVAS_OPEN_CLASS);
 
                 // if a callback function is being injected execute it after opening the OffCanvas
@@ -102,7 +105,7 @@ class OffCanvasSingleton {
                     callback();
                 }
             });
-        }, 1);
+        }, 75);
     }
 
     /**
@@ -125,10 +128,7 @@ class OffCanvasSingleton {
         }
 
         const closeTriggers = document.querySelectorAll(`.${OFF_CANVAS_CLOSE_TRIGGER_CLASS}`);
-
-        closeTriggers.forEach((trigger) => {
-            trigger.addEventListener(event, this.close.bind(this, delay));
-        });
+        Iterator.iterate(closeTriggers, trigger => trigger.addEventListener(event, this.close.bind(this, delay)));
     }
 
     /**
@@ -136,7 +136,8 @@ class OffCanvasSingleton {
      * @private
      */
     _removeExistingOffCanvas() {
-        this.getOffCanvas().forEach(offCanvas => offCanvas.remove());
+        const offCanvasELements = this.getOffCanvas();
+        Iterator.iterate(offCanvasELements, offCanvas => offCanvas.remove());
     }
 
     /**
@@ -174,11 +175,10 @@ class OffCanvasSingleton {
 
 
 /**
- * Make the OffCanvas being a Singleton
- * @type {OffCanvasSingleton}
+ * Create the OffCanvas instance.
+ * @type {Readonly<OffCanvasSingleton>}
  */
-export const OffcanvasInstance = new OffCanvasSingleton();
-Object.freeze(OffcanvasInstance);
+export const OffCanvasInstance = Object.freeze(new OffCanvasSingleton());
 
 export default class OffCanvas {
 
@@ -192,7 +192,7 @@ export default class OffCanvas {
      * @param {boolean} fullwidth
      */
     static open(content, callback = null, position = 'left', closable = true, delay = REMOVE_OFF_CANVAS_DELAY, fullwidth = false) {
-        OffcanvasInstance.open(content, callback, position, closable, delay, fullwidth);
+        OffCanvasInstance.open(content, callback, position, closable, delay, fullwidth);
     }
 
     /**
@@ -202,7 +202,7 @@ export default class OffCanvas {
      * @param {number} delay
      */
     static setContent(content, closable = true, delay = REMOVE_OFF_CANVAS_DELAY) {
-        OffcanvasInstance.setContent(content, closable, delay);
+        OffCanvasInstance.setContent(content, closable, delay);
     }
 
     /**
@@ -211,7 +211,7 @@ export default class OffCanvas {
      * @param {string} className
      */
     static setAdditionalClassName(className) {
-        OffcanvasInstance.setAdditionalClassName(className);
+        OffCanvasInstance.setAdditionalClassName(className);
     }
 
     /**
@@ -219,7 +219,7 @@ export default class OffCanvas {
      * @param {number} delay
      */
     static close(delay = REMOVE_OFF_CANVAS_DELAY) {
-        OffcanvasInstance.close(delay);
+        OffCanvasInstance.close(delay);
     }
 
     /**
@@ -227,7 +227,7 @@ export default class OffCanvas {
      * @returns {boolean}
      */
     static exists() {
-        return OffcanvasInstance.exists();
+        return OffCanvasInstance.exists();
     }
 
     /**
@@ -236,7 +236,7 @@ export default class OffCanvas {
      * @returns {NodeListOf<Element>}
      */
     static getOffCanvas() {
-        return OffcanvasInstance.getOffCanvas();
+        return OffCanvasInstance.getOffCanvas();
     }
 
     /**

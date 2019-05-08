@@ -42,6 +42,7 @@
                                               :label="$tc('sw-settings-document.detail.labelName')"
                                               :placeholder="$tc('sw-settings-document.detail.placeholderName')"
                                               validation="required"
+                                              required
                                               v-model="documentConfig.name">
                                     </sw-field>
                                 </div>
@@ -109,6 +110,7 @@
                         <sw-container columns="repeat(auto-fit, minmax(100%, 1fr)" gap="0px 30px">
                             {% block sw_document_detail_base_general_input_type %}
                                 <sw-select :store="documentTypeStore"
+                                           required
                                            v-model="documentConfig.documentType.id"
                                            v-if="documentConfig.documentType"
                                            id="documentConfigTypes"
@@ -135,6 +137,7 @@
                                            :showSearch="false"
                                            ref="documentSalesChannel"
                                            :disabled="selectedType.id === undefined"
+                                           required
                                            validation="required">
                             </sw-select>
                             {% endblock %}

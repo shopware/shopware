@@ -2,7 +2,94 @@
     <sw-page class="sw-dashboard-index" :showSmartBar="false">
         {% block sw_dashboard_index_content %}
             <sw-card-view slot="content" class="sw-dashboard-index__content">
-                {% block sw_dashboard_index_content_view %}{% endblock %}
+                {% block sw_dashboard_index_content_view %}
+                    <sw-container columns=" 1fr 2fr" gap="32px" class="sw-dashboard__container">
+                        <sw-card class="sw-dashboard__welcome">
+                            <div class="sw-dashboard__welcome-content">
+                                <div class="sw-dashboard__welcome-content-left">
+                                    <div class="sw-dashboard-card-headline">
+                                        {{ $tc("sw-dashboard.welcome.header", 1, {firstName: username}) }}
+                                    </div>
+                                    <div class="sw-dashboard__welcome-subHeader">
+                                        {{ $tc("sw-dashboard.welcome.subHeader") }}
+                                    </div>
+
+                                    <div class="sw-dashboard__welcome-text">
+                                        {{ $tc("sw-dashboard.welcome.text") }}
+                                    </div>
+
+                                    <div class="sw-dashboard__welcome-subText">
+                                        {{ $tc("sw-dashboard.welcome.subText") }}
+                                    </div>
+
+                                    <div class="sw-dashboard__welcome-subSubText">
+                                        {{ $tc("sw-dashboard.welcome.subSubText") }}
+                                    </div>
+
+                                    <div>
+                                        <sw-button class="sw-dashboard__roadmapButton" variant="primary" :link=roadmapLink>
+                                            {{ $tc("sw-dashboard.welcome.roadmapButton") }}
+                                        </sw-button>
+                                        <sw-button class="sw-dashboard__issueTrackerButton" link="https://issues.shopware.com">
+                                            {{ $tc("sw-dashboard.welcome.issueTrackerButton") }}
+                                        </sw-button>
+                                    </div>
+
+                                </div>
+                                <img class=".sw-dashboard__welcome-content-right" :src="'/administration/static/img/dashboard-logo.svg' | asset">
+                            </div>
+                        </sw-card>
+                        <sw-card class="sw-dashboard__paypal">
+                            <img class="sw-dashboard__paypal-icon" :src="'/administration/static/img/paypal-official-logo.png' | asset">
+                            <sw-button variant="primary" link="https://github.com/shopwarelabs/SwagPayPal">
+                                {{ $tc("sw-dashboard.paypal.buttonText") }}
+                            </sw-button>
+                        </sw-card>
+                        <sw-card class="sw-dashboard__documentation">
+                            <div class="sw-dashboard-card-headline">
+                                {{ $tc("sw-dashboard.documentation.header") }}
+                            </div>
+                            <div class="sw-dashboard__documentation-link">
+                                <sw-dashboard-external-link
+                                        :title="$tc('sw-dashboard.documentation.pluginLinkLabel')"
+                                        link="https://docs.shopware.com/en/shopware-platform-dev-en/how-to">
+                                </sw-dashboard-external-link>
+                                <sw-dashboard-external-link
+                                        :title="$tc('sw-dashboard.documentation.devLinkLabel')"
+                                        link="https://docs.shopware.com/en/shopware-platform-dev-en/internals">
+                                </sw-dashboard-external-link>
+                                <sw-dashboard-external-link
+                                        :title="$tc('sw-dashboard.documentation.userLinkLabel')"
+                                        link="https://docs.shopware.com/en/shopware-platform-dev-en/getting-started">
+                                </sw-dashboard-external-link>
+                            </div>
+                        </sw-card>
+                        <sw-card class="sw-dashboard__migration">
+                            <div class="sw-dashboard__migration-content">
+                                <div class="sw-dashboard__migration-content-left">
+                                    <div class="sw-dashboard-card-headline">
+                                        {{ $tc("sw-dashboard.migration.header") }}
+                                    </div>
+                                    <div class="sw-dashboard__migration-content-description">
+                                        {{ $tc("sw-dashboard.migration.description") }}
+                                    </div>
+                                    <sw-dashboard-external-link
+                                            :title="$tc('sw-dashboard.migration.githubLinkLabel')"
+                                            link="https://docs.shopware.com/en/shopware-platform-dev-en/getting-started">
+                                    </sw-dashboard-external-link>
+                                    <sw-dashboard-external-link
+                                            :title="$tc('sw-dashboard.migration.sw5pluginLinkLabel')"
+                                            link="https://docs.shopware.com/en/shopware-platform-dev-en/getting-started">
+                                    </sw-dashboard-external-link>
+                                    <sw-button variant="primary" link="#/sw/media/index">
+                                        {{ $tc("sw-dashboard.migration.buttonText") }}
+                                    </sw-button>
+                                </div>
+                                <img class="sw-dashboard__migration-content-right" :src="'/administration/static/img/migration-illustration.svg' | asset">
+                            </div>
+                        </sw-card>
+                    </sw-container>
+                {% endblock %}
             </sw-card-view>
         {% endblock %}
     </sw-page>

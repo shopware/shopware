@@ -1,28 +1,36 @@
-{% set navigationMaxDepth = 3 %}
-
-{% if not level %}
-    {% set level = 0 %}
-{% endif %}
-
 {% block layout_navigation_categories %}
+    {% set navigationMaxDepth = 3 %}
+
+    {% if not level %}
+        {% set level = 0 %}
+    {% endif %}
+
     <ul class="list-unstyled category-list level-{{ level }}">
         {% for treeItem in navigationTree %}
             {% block layout_navigation_categories_item %}
                 <li>
                     {% block layout_navigation_categories_item_link %}
-                        <a class="nav-item nav-link navigation-flyout-link level-{{ level }}{% if treeItem.category.id is same as(page.header.navigation.active.id) %} active{% endif %}"
-                           href="{{ path('frontend.navigation.page', {'navigationId': treeItem.category.id}) }}"
-                           itemprop="url"
-                           title="{{ treeItem.category.translated.name }}">
-                            {% block layout_navigation_categories_item_link_text %}
+                        {% if treeItem.category.type == 'folder' %}
+                            <div class="nav-item nav-link navigation-flyout-link level-{{ level }}"
+                                 title="{{ treeItem.category.translated.name }}">
                                 <span itemprop="name">{{ treeItem.category.translated.name }}</span>
-                            {% endblock %}
-                        </a>
+                            </div>
+                        {% else %}
+                            <a class="nav-item nav-link navigation-flyout-link level-{{ level }}{% if treeItem.category.id is same as(page.header.navigation.active.id) %} active{% endif %}"
+                               href="{% if treeItem.category.externalLink %}{{ treeItem.category.externalLink }}{% else %}{{ path('frontend.navigation.page', {'navigationId': treeItem.category.id}) }}{% endif %}"
+                               itemprop="url"
+                               title="{{ treeItem.category.translated.name }}">
+                                <span itemprop="name">{{ treeItem.category.translated.name }}</span>
+                            </a>
+                        {% endif %}
                     {% endblock %}
 
                     {% block layout_navigation_categories_recoursion %}
                         {% if level < navigationMaxDepth %}
-                            {% sw_include '@Storefront/layout/navigation/categories.html.twig' with { navigationTree: treeItem.children, level: level + 1  } only %}
+                            {% sw_include '@Storefront/layout/navigation/categories.html.twig' with {
+                                navigationTree: treeItem.children,
+                                level: level + 1
+                            } only %}
                         {% endif %}
                     {% endblock %}
                 </li>

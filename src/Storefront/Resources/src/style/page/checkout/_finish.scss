@@ -1,15 +1,31 @@
 // general
 .checkout {
     &.is-finish {
+        .checkout-main {
+            @extend .row;
+        }
+
         .checkout-main-left {
-            @extend .col-12;
+            @extend .offset-lg-3;
+            @extend .col-lg-6;
+
         }
 
         .checkout-main-right {
-            @extend .offset-lg-8;
+            @extend .offset-lg-4;
             @extend .col-lg-4;
         }
     }
+}
+
+.finish-content {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.finish-ordernumber {
+    font-size: $h4-font-size;
+    font-weight: $headings-font-weight;
 }
 
 .finish-teaser {

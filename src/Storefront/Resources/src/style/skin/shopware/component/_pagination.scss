@@ -1,0 +1,26 @@
+.pagination {
+    .page-item {
+        .page-link {
+            cursor: pointer;
+        }
+
+        &.disabled {
+            .page-link {
+                cursor: default;
+                opacity: 1;
+                background: $gray-200;
+                color: $gray-300;
+            }
+
+            a {
+                color: $gray-300;
+            }
+        }
+
+        &.active {
+            a {
+                color: $white;
+            }
+        }
+    }
+}

@@ -33,11 +33,10 @@ class PageLoadingIndicatorUtilSingleton extends LoadingIndicatorUtil {
 }
 
 /**
- * Make the PageLoadingIndicatorUtil being a Singleton
- * @type {PageLoadingIndicatorUtilSingleton}
+ * Create the PageLoadingIndicatorUtil instance.
+ * @type {Readonly<PageLoadingIndicatorUtilSingleton>}
  */
-const instance = new PageLoadingIndicatorUtilSingleton();
-Object.freeze(instance);
+export const PageLoadingIndicatorUtilInstance = Object.freeze(new PageLoadingIndicatorUtilSingleton());
 
 export default class PageLoadingIndicatorUtil {
 
@@ -45,13 +44,13 @@ export default class PageLoadingIndicatorUtil {
      * Open the PageLoadingIndicator
      */
     static create() {
-        instance.create();
+        PageLoadingIndicatorUtilInstance.create();
     }
 
     /**
      * Close the PageLoadingIndicator
      */
     static remove() {
-        instance.remove();
+        PageLoadingIndicatorUtilInstance.remove();
     }
 }

@@ -1,16 +1,10 @@
 {% block component_product_box_include %}
     {# Includes a custom product-box template defined by the layout variable.
-       The basic template is used if no custom layout is set. #}
+       The standard template is used if no custom layout is set. #}
 
     {% if layout is empty %}
-        {% set layout = 'basic' %}
+        {% set layout = 'standard' %}
     {% endif %}
 
-    {% if layout == 'basic' %}
-        {% sw_include "@Storefront/component/product/widget/box-basic.html.twig" %}
-    {% elseif layout == 'minimal' %}
-        {% sw_include "@Storefront/component/product/widget/box-minimal.html.twig" %}
-    {% elseif layout == 'list' %}
-        {% sw_include "@Storefront/component/product/widget/box-list.html.twig" %}
-    {% endif %}
+    {% sw_include "@Storefront/component/product/widget/box-" ~ layout ~ ".html.twig" ignore missing %}
 {% endblock %}

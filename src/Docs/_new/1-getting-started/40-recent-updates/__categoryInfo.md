@@ -504,7 +504,7 @@ If the user deletes the notification and you update it, it will be recreated wit
 <ul>
 <li><code>title</code> <strong>required</strong> -&gt; The title of the notification.</li>
 <li><code>message</code> <strong>required</strong> -&gt; The text of the notification.</li>
-<li><code>variant</code> <strong>recommended</strong> -&gt; The styling of the notification. Possible values are <code>success</code>, <code>info</code>, <code>warning</code> and <code>error</code>. The default value is <code>info</code>.</li>
+<li><code>variant</code> <strong>recommended</strong> -&gt; The styling of the notification. Possible values are <code>success</code>, <code>info</code>, <code>warning</code> and <code>error</code>. If set to <code>success</code> the notification will be growl only. The default value is <code>info</code>.</li>
 <li><code>system</code> <strong>optional</strong> -&gt; Applies also to the styling of the notification. If set to true it will be darker. The default is <code>false</code>.</li>
 <li><code>autoClose</code> <strong>optional</strong> -&gt; If set to true the growl notification will close after the specified <code>duration</code>. The default is <code>true</code>.</li>
 <li><code>duration</code> <strong>optional</strong> -&gt; The duration of the growl message in ms. The default is <code>5000</code></li>
@@ -683,6 +683,28 @@ This should give you more information about the current checkout and saleschanne
 but it breaks the current interfaces. Please adjust your payment handler accordingly.
 Please be also aware that the SalesChannelContext <strong>may</strong> contain certain information. Some of its properties are nullable,
 so make sure they are set, before you use them. </p>
+<h3>2019-04-29: Added Api-Browser for SalesChannelEntities</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>We have added the ApiBrowser functionality of the EntityDefinitions for the SalesChannelApi-Entities as well.
+You can find the SwaggerUI under <code>/sales-channel-api/v1/_info/swagger.html</code>.</p>
+<p>We also added a configuration, to control whether the ApiBrowser functionality is available or not.
+You can control it over the <code>api.api_browser.public</code> entry in your shopware.yaml:</p>
+<pre><code class="language-yaml">api:
+  api_browser:
+    public: true</code></pre>
 <h3>2019-04-26: Removed public shorthand functions of context</h3>
 
 <style type="text/css">

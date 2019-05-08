@@ -71,7 +71,7 @@
                                                 </router-link>
 
                                                 {% block sw_manufacturer_list_grid_columns_name_editor %}
-                                                    <sw-field type="text" v-model="item.name" slot="inline-edit"></sw-field>
+                                                    <sw-field type="text" v-model="item.name" :placeholder="placeholder(item, 'name')" slot="inline-edit"></sw-field>
                                                 {% endblock %}
                                             </sw-grid-column>
                                         {% endblock %}

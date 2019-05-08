@@ -105,7 +105,7 @@ class EntityRepository implements EntityRepositoryInterface
             }
 
             $data = $search[$element->getUniqueIdentifier()];
-            unset($data['primary_key']);
+            unset($data['id']);
 
             if (empty($data)) {
                 continue;

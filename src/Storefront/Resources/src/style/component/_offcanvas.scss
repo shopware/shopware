@@ -1,6 +1,5 @@
 .js-offcanvas {
     z-index: $offcanvas-zindex;
-    width: 280px;
     height: 100%;
     background: $white;
     position: fixed;
@@ -18,19 +17,11 @@
             align-items: center;
             flex-direction: row-reverse;
         }
-
-        .offcanvas-close-icon {
-            @extend .fa-chevron-right;
-        }
     }
 
     &.is-right {
         transform: translateX(100%);
         right: 0;
-
-        .offcanvas-close-icon {
-            @extend .fa-chevron-left;
-        }
     }
 
     &.is-open {
@@ -51,15 +42,20 @@
         margin-right: $spacer-xs;
     }
 
-    > .spinner-border {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        margin-left: -$spacer;
-        margin-top: -$spacer;
+    &,
+    .offcanvas-content-container {
+        > .loader {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            margin-left: -$spacer;
+            margin-top: -$spacer;
+        }
     }
 
     .offcanvas-content-container {
         padding: $spacer;
+        width: 280px;
+        height: 100%;
     }
 }

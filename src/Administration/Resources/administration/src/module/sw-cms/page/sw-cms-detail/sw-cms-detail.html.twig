@@ -24,7 +24,7 @@
                                 {% endblock %}
 
                                 {% block sw_cms_detail_toolbar_page_name %}
-                                    <h2 class="sw-cms-detail__page-name">{{ page.name }}</h2>
+                                    <h2 class="sw-cms-detail__page-name">{{ placeholder(page, 'name') }}</h2>
                                 {% endblock %}
 
                                 {% block sw_cms_detail_toolbar_page_type %}
@@ -187,7 +187,7 @@
                                                 {% block sw_cms_detail_sidebar_page_settings_form %}
                                                     <div class="sw-cms-detail__settings" slot="content">
                                                         {% block sw_cms_detail_sidebar_page_settings_name_field %}
-                                                            <sw-field type="text" :label="$tc('sw-cms.detail.labelPageName')" v-model="page.name"></sw-field>
+                                                            <sw-field type="text" :label="$tc('sw-cms.detail.labelPageName')" :placeholder="placeholder(page, 'name')" v-model="page.name"></sw-field>
                                                         {% endblock %}
 
                                                         {% block sw_cms_detail_sidebar_page_settings_type_field %}

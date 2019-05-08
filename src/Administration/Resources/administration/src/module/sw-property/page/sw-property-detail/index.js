@@ -48,9 +48,11 @@ Component.register('sw-property-detail', {
         },
 
         onSave() {
+            const entityName = this.group.name || this.placeholder(this.group, 'name');
+
             const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');
             const messageSaveError = this.$tc(
-                'global.notification.notificationSaveErrorMessage', 0, { entityName: this.group.name }
+                'global.notification.notificationSaveErrorMessage', 0, { entityName: entityName }
             );
 
             this.isSaveSuccessful = false;

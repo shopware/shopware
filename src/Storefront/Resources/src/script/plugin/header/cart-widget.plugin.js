@@ -1,17 +1,14 @@
 import Plugin from 'src/script/helper/plugin/plugin.class';
 import HttpClient from 'src/script/service/http-client.service';
+import Storage from 'src/script/helper/storage/storage.helper';
 
 const CART_WIDGET_STORAGE_KEY = 'cart-widget-template';
 
 export default class CartWidgetPlugin extends Plugin {
 
     init() {
-        this._parentElement = this.el.parentElement;
-
-        if (!this._parentElement) return;
 
         this._client = new HttpClient(window.accessKey, window.contextToken);
-        this._storageExists = (window.sessionStorage instanceof Storage);
 
         this.insertStoredContent();
         this.fetch();
@@ -20,13 +17,13 @@ export default class CartWidgetPlugin extends Plugin {
     /**
      * reads the persisted content
      * from the session cache an renders it
-     * into the parent element
+     * into the element
      */
     insertStoredContent() {
         if (this._storageExists) {
-            const storedContent = window.sessionStorage.getItem(CART_WIDGET_STORAGE_KEY);
+            const storedContent = Storage.getItem(CART_WIDGET_STORAGE_KEY);
             if (storedContent) {
-                this._parentElement.innerHTML = storedContent;
+                this.el.innerHTML = storedContent;
             }
         }
     }
@@ -38,12 +35,8 @@ export default class CartWidgetPlugin extends Plugin {
     fetch() {
         this._client.get(window.router['widgets.checkout.info'], (response) => {
 
-            // try to persist the fetched template in the storage
-            if (this._storageExists) {
-                window.sessionStorage.setItem(CART_WIDGET_STORAGE_KEY, response);
-            }
-
-            this._parentElement.innerHTML = response;
+            Storage.setItem(CART_WIDGET_STORAGE_KEY, response);
+            this.el.innerHTML = response;
         });
     }
 }

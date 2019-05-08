@@ -3,6 +3,7 @@ import { tns } from 'tiny-slider/src/tiny-slider.module';
 import ViewportDetection from 'src/script/helper/viewport-detection.helper';
 import SliderSettingsHelper from 'src/script/plugin/image-slider/helper/image-slider-settings.helper';
 import PluginManager from 'src/script/helper/plugin/plugin.manager';
+import Iterator from 'src/script/helper/iterator.helper';
 
 /**
  *
@@ -99,12 +100,23 @@ export default class ImageSliderPlugin extends Plugin {
      * destroys the slider
      */
     destroy() {
+
         if (this._slider && typeof this._slider.destroy === 'function') {
-            this._slider.destroy();
+            try {
+                this._slider.destroy();
+            } catch (e) {
+                // don't handle
+            }
         }
+
         if (this._thumbnailSlider && typeof this._thumbnailSlider.destroy === 'function') {
-            this._thumbnailSlider.destroy();
+            try {
+                this._thumbnailSlider.destroy();
+            } catch (e) {
+                // don't handle
+            }
         }
+
         this.el.classList.remove(this.initializedCls);
     }
 
@@ -220,8 +232,8 @@ export default class ImageSliderPlugin extends Plugin {
                     ...this._sliderSettings,
                 });
 
-                PluginManager.executePlugin('Magnifier', '[data-magnifier]');
-                PluginManager.executePlugin('ZoomModal', '[data-zoom-modal]');
+                PluginManager.initializePlugin('Magnifier', '[data-magnifier]');
+                PluginManager.initializePlugin('ZoomModal', '[data-zoom-modal]');
             } else {
                 container.style.display = 'none';
             }
@@ -273,7 +285,7 @@ export default class ImageSliderPlugin extends Plugin {
         const currentIndex = (index) ? index : thumbnailSliderInfo.index;
         const activeClass = 'tns-nav-active';
 
-        Object.values(thumbnailSlides).forEach((slide) => slide.classList.remove(activeClass));
+        Iterator.iterate(thumbnailSlides, slide => slide.classList.remove(activeClass));
         thumbnailSlides[currentIndex].classList.add(activeClass);
     }
 

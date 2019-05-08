@@ -1,0 +1,157 @@
+// Credit: https://github.com/FortAwesome/Font-Awesome
+
+// Mixins
+// --------------------------
+
+@mixin sw-icon-rotate($degrees, $rotation) {
+    filter: 'progid:DXImageTransform.Microsoft.BasicImage(rotation=#{$rotation})';
+    transform: rotate($degrees);
+}
+
+@mixin sw-icon-flip($horiz, $vert, $rotation) {
+    filter: 'progid:DXImageTransform.Microsoft.BasicImage(rotation=#{$rotation}, mirror=1)';
+    transform: scale($horiz, $vert);
+}
+
+@mixin sw-icon-size($size) {
+    width: $size;
+    height: $size;
+}
+
+// Basics
+// --------------------------
+
+.sw-icon {
+    @include sw-icon-size($icon-base-size);
+    display: inline-block;
+    font-size: inherit;
+    overflow: visible;
+    vertical-align: middle;
+    line-height: 0;
+
+    > svg {
+        width: 100%;
+        height: 100%;
+        vertical-align: middle;
+        fill: currentColor;
+
+        path,
+        use {
+            fill: currentColor;
+        }
+    }
+}
+
+// Icon Colors
+// -------------------------
+
+.icon-primary {
+    color: $primary;
+}
+
+.icon-secondary {
+    color: $secondary;
+}
+
+.icon-success {
+    color: $success;
+}
+
+.icon-info {
+    color: $info;
+}
+
+.icon-warning {
+    color: $warning;
+}
+
+.icon-danger {
+    color: $danger;
+}
+
+.icon-light {
+    color: $light;
+}
+
+.icon-dark {
+    color: $dark;
+}
+
+// Icon Sizes
+// -------------------------
+
+.icon-lg {
+    @include sw-icon-size($icon-base-size / 3 * 4);
+}
+
+// 33% bigger icon
+.icon-sm {
+    @include sw-icon-size($icon-base-size * 0.875);
+}
+
+.icon-xs {
+    @include sw-icon-size($icon-base-size * 0.75);
+}
+
+@for $i from 1 through 10 {
+    .icon-#{$i}x {
+        width: $i * $icon-base-size;
+        height: $i * $icon-base-size;
+    }
+}
+
+// Rotated & Flipped Icons
+// -------------------------
+
+.icon-rotate-90 {
+    svg {
+        @include sw-icon-rotate(90deg, 1);
+    }
+}
+
+.icon-rotate-180 {
+    svg {
+        @include sw-icon-rotate(180deg, 2);
+    }
+}
+
+.icon-rotate-270 {
+    svg {
+        @include sw-icon-rotate(270deg, 3);
+    }
+}
+
+.icon-flip-horizontal {
+    svg {
+        @include sw-icon-flip(-1, 1, 0);
+    }
+}
+
+.icon-flip-vertical {
+    svg {
+        @include sw-icon-flip(1, -1, 2);
+    }
+}
+
+.icon-flip-both,
+.icon-flip-horizontal.icon-flip-vertical {
+    svg {
+        @include sw-icon-flip(-1, -1, 2);
+    }
+}
+
+// Hook for IE8-9
+// -------------------------
+
+:root {
+    .icon-rotate-90,
+    .icon-rotate-180,
+    .icon-rotate-270,
+    .icon-flip-horizontal,
+    .icon-flip-vertical,
+    .icon-flip-both {
+        svg {
+            filter: none;
+        }
+    }
+}

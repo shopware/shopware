@@ -66,7 +66,7 @@ Component.register('sw-settings-customer-group-list', {
 
         onInlineEditSave(item) {
             this.isLoading = true;
-            const name = item.name;
+            const name = item.name || this.placeholder(item, 'name');
 
             return item.save().then(() => {
                 this.createNotificationSuccess({

@@ -15,7 +15,6 @@
  * Vendors
  * ------- */
 @import 'vendor/bootstrap';
-@import 'vendor/font-awesome';
 @import 'vendor/tiny-slider';
 
 /*
@@ -53,7 +52,7 @@
 @import 'component/product-box';
 @import 'component/search-widget';
 @import 'component/cookie-permission';
-@import 'component/spinner';
+@import 'component/loader';
 @import 'component/modal';
 @import 'component/zoom-modal';
 @import 'component/image-zoom';
@@ -61,14 +60,14 @@
 @import 'component/account-dropdown';
 @import 'component/account-offcanvas';
 @import 'component/flags';
+@import 'component/icon';
 @import 'component/element-loading-indicator';
+@import 'component/cms-block';
+@import 'component/cms-element';
 
 /*
  * Page-specific styles
  * -------------------- */
-@import 'page/content/content';
-@import 'page/content/listing';
-
 @import 'page/product-detail/product-detail';
 @import 'page/product-detail/configurator';
 
@@ -81,11 +80,14 @@
 
 @import 'page/checkout/cart';
 @import 'page/checkout/cart-item';
+@import 'page/checkout/summary';
 @import 'page/checkout/register';
 @import 'page/checkout/confirm';
 @import 'page/checkout/finish';
 
 @import 'page/newsletter/newsletter';
+
+@import 'page/search/search';
 
 /*
  * Skins

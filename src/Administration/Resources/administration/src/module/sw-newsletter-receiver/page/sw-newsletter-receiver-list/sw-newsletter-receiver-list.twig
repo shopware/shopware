@@ -92,6 +92,19 @@
                                     {% endblock %}
                                 </template>
                             {% endblock %}
+
+                             {% block sw_newsletter_receiverlist_list_grid_updated_at %}
+                                <template slot="column-updatedAt" slot-scope="{ item }">
+                                    {{ item.updatedAt | date({ year: '2-digit', hour: '2-digit', minute: '2-digit' }) }}
+                                </template>
+                            {% endblock %}
+
+                            {% block sw_newsletter_receiverlist_list_grid_created_at %}
+                                <template slot="column-createdAt" slot-scope="{ item }">
+                                    {{ item.createdAt | date({ year: '2-digit', hour: '2-digit', minute: '2-digit' }) }}
+                                </template>
+                            {% endblock %}
+
                         </sw-entity-listing>
 
                         {% block sw_newsletter_receiver_list_empty_state %}

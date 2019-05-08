@@ -60,7 +60,7 @@
       },
       "titleShowPassword": "Passwort anzeigen",
       "titleHidePassword": "Passwort verbergen",
-      "buttonRestoreInheritance": "Vererbung wiederherstellen"
+      "tooltipRestoreInheritance": "Vererbung wiederherstellen"
     },
     "sw-field-copyable": {
       "tooltip": {

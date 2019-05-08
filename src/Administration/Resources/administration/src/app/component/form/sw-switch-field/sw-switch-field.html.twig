@@ -1,10 +1,10 @@
-<div class="sw-field sw-field--switch" :class="switchFieldClasses">
+<div class="sw-field--switch" :class="swSwitchFieldClasses">
     <div class="sw-field--switch__content">
         <div class="sw-field--switch__input">
             <input type="checkbox"
                    :id="formFieldName || identification"
                    :name="formFieldName || identification"
-                   :checked="currentValue"
+                   :checked="inputState"
                    :disabled="disabled"
                    @change="onChange">
             <div class="sw-field__switch-state">
@@ -12,13 +12,13 @@
             </div>
         </div>
 
-        <label v-if="label" class="sw-field--switch__label" :for="formFieldName || identification">
-            {{ label }}{{ this.inherited ? '*' : '' }}
-        </label>
+        <sw-base-field v-bind="$attrs"
+                       :disabled="disabled"
+                       :isInheritanceField="isInheritanceField"
+                       :isInherited="isInherited"
+                       @inheritance-restore="restoreInheritance">
+        </sw-base-field>
 
-        <span>
-            <button v-if="inherited" class="sw-field__button-restore">{{ $tc('global.sw-field.buttonRestoreInheritance') }}</button>
-            <sw-help-text v-if="helpText" :text="helpText"></sw-help-text>
-        </span>
     </div>
+    <sw-field-error :error="actualError"></sw-field-error>
 </div>

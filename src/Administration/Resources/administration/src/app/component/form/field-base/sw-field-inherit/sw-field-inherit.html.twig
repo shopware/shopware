@@ -1,0 +1,17 @@
+{% block sw_field_error %}
+    <div class="sw-field-inherit">
+        <sw-icon v-if="isInherited"
+                 :multicolor="true"
+                 name="custom-inherited"
+                 size="16">
+        </sw-icon>
+        <sw-icon v-else
+                 :class="unInheritClasses"
+                 :multicolor="true"
+                 name="custom-uninherited"
+                 v-tooltip="$tc('global.sw-field.tooltipRestoreInheritance')"
+                 @click="onClickRestoreInheritance"
+                 size="16">
+        </sw-icon>
+    </div>
+{% endblock %}

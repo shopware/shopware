@@ -25,5 +25,17 @@ export default {
     isString,
     isBoolean,
     isEqual,
-    isNumber
+    isNumber,
+    isUndefined
 };
+
+
+/**
+ * Checks if a value is undefined
+ *
+ * @param {*} value
+ * @returns {Boolean}
+ */
+export function isUndefined(value) {
+    return typeof value === 'undefined';
+}

@@ -7,8 +7,16 @@ $sw-field--switch-color-focus: $color-shopware-blue;
 $sw-field--switch-color-error: $color-crimson;
 $sw-field--switch-color-inherit: $color-purple;
 
-.sw-field.sw-field--switch {
-    margin-top: 24px;
+.sw-field--switch {
+    margin-bottom: 22px;
+
+    .sw-field {
+        margin-bottom: 0;
+
+        .sw-field__label {
+            margin-bottom: 0;
+        }
+    }
 
     &.sw-field--switch-no-margin-top {
         margin-top: 0;
@@ -17,6 +25,7 @@ $sw-field--switch-color-inherit: $color-purple;
     .sw-field--switch__content {
         display: grid;
         grid-template-columns: 24px 1fr auto;
+        align-items: center;
         grid-column-gap: 10px;
         background: $sw-field--switch-color-background;
         color: $sw-field--switch-color-text;
@@ -112,32 +121,7 @@ $sw-field--switch-color-inherit: $color-purple;
         }
     }
 
-    &.is--inherited .sw-field__switch {
-        .sw-field__switch-state {
-            background: $sw-field--switch-color-inherit;
-        }
-
-        input[type="checkbox"] {
-            &:disabled ~ .sw-field__switch-state {
-                background: lighten($sw-field--switch-color-inherit, 5%);
-
-                .sw-field__switch-state-knob {
-                    background: darken($sw-field--switch-color-inherit, 5%);
-                }
-
-            }
-
-            &:checked ~ .sw-field__switch-state {
-                background: $sw-field--switch-color-inherit;
-            }
-
-            &:checked:disabled ~ .sw-field__switch-state {
-                background: lighten($sw-field--switch-color-inherit, 5%);
-            }
-        }
-    }
-
-    &.has--error .sw-field__switch {
+    &.has--error {
         .sw-field__switch-state {
             background: $sw-field--switch-color-error;
         }
@@ -157,6 +141,17 @@ $sw-field--switch-color-inherit: $color-purple;
 
             &:checked:disabled ~ .sw-field__switch-state {
                 background: $sw-field--switch-color-error;
+            }
+        }
+    }
+
+    &.is--inherited {
+        .sw-field--switch__label {
+            color:  $sw-field--switch-color-inherit;
+        }
+        input[type="checkbox"] {
+            &:checked ~ .sw-field__switch-state {
+                background: $sw-field--switch-color-border;
             }
         }
     }

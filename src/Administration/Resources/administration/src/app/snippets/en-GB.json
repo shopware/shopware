@@ -60,7 +60,7 @@
       },
       "titleShowPassword": "Show password",
       "titleHidePassword": "Hide password",
-      "buttonRestoreInheritance": "Restore inheritance"
+      "tooltipRestoreInheritance": "Restore inheritance"
     },
     "sw-field-copyable": {
       "tooltip": {

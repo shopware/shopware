@@ -1,4 +1,3 @@
-
 {% block sw_order_saveable_field %}
     <sw-container v-if="isEditing"
                   columns="1fr 25px 25px"
@@ -7,28 +6,25 @@
         {% block sw_order_saveable_field_input %}
             {% block  sw_order_saveable_field_input_field%}
                 <sw-field ref="edit-field"
-                          :type="type"
-                          :value="value"
-                          :placeholder="placeholder">
-
+                    :type="type"
+                    :value="value"
+                    :placeholder="placeholder">
                 </sw-field>
             {% endblock %}
         {% endblock %}
-
         {% block sw_order_saveable_field_actions %}
             {%  block sw_order_saveable_field_save_button %}
                 <sw-button size="small"
-                           variant="primary"
-                           square
-                           @click="onSaveButtonClicked">
+                    variant="primary"
+                    square
+                    @click="onSaveButtonClicked">
                     <sw-icon name = "small-default-checkmark-line-small"></sw-icon>
                 </sw-button>
             {%  endblock %}
-
             {% block sw_order_saveable_field_cancel_button %}
                 <sw-button size="small"
-                           square
-                           @click="onCancelButtonClicked">
+                    square
+                    @click="onCancelButtonClicked">
                     <sw-icon name="small-default-x-line-small"></sw-icon>
                 </sw-button>
             {%  endblock %}
@@ -36,11 +32,8 @@
     </sw-container>
     <div v-else
         @click="onClick">
-        {% block w_order_saveable_field_content %}
-
-            <div>{{ displayValue() }}</div>
+        {% block sw_order_saveable_field_content %}
+            <slot></slot>
         {% endblock %}
     </div>
-
-
 {% endblock %}

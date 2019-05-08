@@ -9,7 +9,9 @@ import template from './sw-order-detail-base.html.twig';
 
 Component.register('sw-order-detail-base', {
     template,
+
     inject: ['orderService', 'stateStyleDataProviderService'],
+
     props: {
         order: {
             type: Object,
@@ -20,6 +22,7 @@ Component.register('sw-order-detail-base', {
             required: true
         }
     },
+
     data() {
         return {
             isLoading: true,
@@ -34,6 +37,7 @@ Component.register('sw-order-detail-base', {
             liveVersionId: ''
         };
     },
+
     computed: {
         shippingCostsDetail() {
             const calcTaxes = this.sortByTaxRate(this.currentOrder.shippingCosts.calculatedTaxes);
@@ -46,30 +50,36 @@ Component.register('sw-order-detail-base', {
 
             return `${this.$tc('sw-order.detailBase.tax')}<br>${formattedTaxes}`;
         },
+
         sortedCalculatedTaxes() {
             return this.sortByTaxRate(this.currentOrder.price.calculatedTaxes).filter(price => price.tax !== 0);
         },
+
         documentStore() {
             return this.currentOrder.getAssociation('documents');
         },
+
         transactionOptionPlaceholder() {
             if (this.isLoading) return null;
 
             return `${this.$tc('sw-order.stateCard.headlineTransactionState')}: \
             ${this.currentOrder.transactions[0].stateMachineState.translated.name}`;
         },
+
         transactionOptionsBackground() {
             if (this.isLoading) return null;
 
             return this.stateStyleDataProviderService.getStyle('order_transaction.state',
                 this.currentOrder.transactions[0].stateMachineState.technicalName).selectBackgroundStyle;
         },
+
         orderOptionPlaceholder() {
             if (this.isLoading) return null;
 
             return `${this.$tc('sw-order.stateCard.headlineOrderState')}: \
             ${this.currentOrder.stateMachineState.translated.name}`;
         },
+
         orderOptionsBackground() {
             if (this.isLoading) return null;
 
@@ -77,9 +87,11 @@ Component.register('sw-order-detail-base', {
                 this.currentOrder.stateMachineState.technicalName).selectBackgroundStyle;
         }
     },
+
     created() {
         this.createdComponent();
     },
+
     beforeRouteLeave(to, from, next) {
         if (this.isEditing) {
             this.nextRoute = next;
@@ -88,6 +100,7 @@ Component.register('sw-order-detail-base', {
             next();
         }
     },
+
     methods: {
         createdComponent() {
             this.isLoading = true;
@@ -101,6 +114,7 @@ Component.register('sw-order-detail-base', {
             this.currentOrder = this.order;
             this.reloadOrderAssociations();
         },
+
         createVersionedOrder() {
             this.isLoading = true;
 
@@ -111,6 +125,7 @@ Component.register('sw-order-detail-base', {
                 this.$emit('sw-order-detail-base-error', error);
             });
         },
+
         reloadVersionedOrder(versionId) {
             this.isLoading = true;
 
@@ -120,6 +135,7 @@ Component.register('sw-order-detail-base', {
                 return this.reloadOrderAssociations();
             });
         },
+
         reloadOrderAssociations() {
             this.isLoading = true;
 
@@ -145,24 +161,29 @@ Component.register('sw-order-detail-base', {
                 return Promise.resolve();
             });
         },
+
         saveAndReloadVersionedOrder() {
             return this.currentOrder.save().then(() => {
                 return this.reloadVersionedOrder(this.currentOrder.versionId);
             });
         },
+
         loadLiveVersion() {
             this.reloadVersionedOrder(this.liveVersionId);
         },
+
         startEditing() {
             if (this.currentOrder.versionId === this.liveVersionId) {
                 this.createVersionedOrder();
             }
             this.isEditing = true;
         },
+
         cancelEditing() {
             this.isEditing = false;
             this.loadLiveVersion();
         },
+
         mergeOrder() {
             this.isLoading = true;
             this.orderService.mergeVersion(this.currentOrder.id, this.currentOrder.versionId).then(() => {
@@ -171,11 +192,13 @@ Component.register('sw-order-detail-base', {
                 this.$emit('sw-order-detail-base-error', error);
             });
         },
+
         onLeaveModalClose() {
             this.nextRoute(false);
             this.nextRoute = null;
             this.isDisplayingLeavePageWarning = false;
         },
+
         onLeaveModalConfirm() {
             this.isDisplayingLeavePageWarning = false;
 
@@ -183,7 +206,8 @@ Component.register('sw-order-detail-base', {
                 this.nextRoute();
             });
         },
-        onLineItemsDeleted() {
+
+        onLineItemsEdited() {
             this.isLoading = true;
 
             this.orderService.recalculateOrder(this.currentOrder.id, this.currentOrder.versionId, {}, {}).then(() => {
@@ -192,24 +216,25 @@ Component.register('sw-order-detail-base', {
                 this.$emit('sw-order-detail-base-error', error);
             });
         },
-        onLineItemsEdited() {
-            this.reloadVersionedOrder(this.currentOrder.versionId);
-        },
+
         onShippingChargeEdited(amount) {
             this.currentOrder.deliveries[0].shippingCosts.unitPrice = amount;
             this.currentOrder.deliveries[0].shippingCosts.totalPrice = amount;
-            return this.currentOrder.save().then(() => {
-                this.onLineItemChanges();
+            return this.currentOrder.deliveries[0].save().then(() => {
+                this.onLineItemsEdited();
             });
         },
+
         sortByTaxRate(price) {
             return price.sort((prev, current) => {
                 return prev.taxRate - current.taxRate;
             });
         },
+
         changeLanguage() {
             this.reloadVersionedOrder(this.currentOrder.versionId);
         },
+
         onStateTransitionOptionsChanged(stateMachineName, options) {
             if (stateMachineName === 'order.states') {
                 this.orderOptions = options;
@@ -217,9 +242,11 @@ Component.register('sw-order-detail-base', {
                 this.transactionOptions = options;
             }
         },
+
         onQuickOrderStatusChange(actionName) {
             this.$refs['state-card'].onOrderStateSelected(actionName);
         },
+
         onQuickTransactionStatusChange(actionName) {
             this.$refs['state-card'].onTransactionStateSelected(actionName);
         }

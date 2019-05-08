@@ -82,6 +82,7 @@ class PluginManagementService
         if ($statusCode !== Response::HTTP_OK) {
             return $statusCode;
         }
+
         $this->extractPluginZip($tempFileName);
 
         $this->pluginService->refreshPlugins($context, new NullIO());

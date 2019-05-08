@@ -232,13 +232,16 @@ final class StoreClient
         return $updateList;
     }
 
-    public function getDownloadDataForPlugin(string $pluginName, string $storeToken, string $language, Context $context): PluginDownloadDataStruct
+    public function getDownloadDataForPlugin(string $pluginName, string $storeToken, string $language, bool $validateHost = true): PluginDownloadDataStruct
     {
         $shopSecret = $this->getShopSecret();
 
-        $headers = [
-            self::SHOPWARE_PLATFORM_TOKEN_HEADER => $storeToken,
-        ];
+        $headers = [];
+
+        if (!empty($storeToken)) {
+            $headers[self::SHOPWARE_PLATFORM_TOKEN_HEADER] = $storeToken;
+        }
+
         if ($shopSecret) {
             $headers[self::SHOPWARE_SHOP_SECRET_HEADER] = $shopSecret;
         }
@@ -246,7 +249,7 @@ final class StoreClient
         $response = $this->client->get(
             '/swplatform/pluginfiles/' . $pluginName,
             [
-                'query' => $this->getDefaultQueryParameters($language),
+                'query' => $this->getDefaultQueryParameters($language, $validateHost),
                 'headers' => array_merge(
                     $this->client->getConfig('headers'),
                     $headers
@@ -262,17 +265,18 @@ final class StoreClient
         return $dataStruct;
     }
 
-    private function getDefaultQueryParameters(string $language): array
+    private function getDefaultQueryParameters(string $language, $validateHost = true): array
     {
         $licenseHost = $this->configService->get(self::CONFIG_KEY_STORE_LICENSE_HOST);
-        if (!$licenseHost) {
+
+        if ($validateHost && !$licenseHost) {
             throw new StoreHostMissingException();
         }
 
         return [
             'shopwareVersion' => $this->getShopwareVersion(),
             'language' => $language,
-            'domain' => $licenseHost,
+            'domain' => $licenseHost ?? '',
         ];
     }
 

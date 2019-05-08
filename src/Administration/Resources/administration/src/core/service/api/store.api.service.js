@@ -76,11 +76,14 @@ class StoreApiService extends ApiService {
             });
     }
 
-    downloadPlugin(pluginName) {
+    downloadPlugin(pluginName, unauthenticated = false) {
         const headers = this.getBasicHeaders();
         const params = this.getBasicParams({
             pluginName: pluginName
         });
+        if (unauthenticated) {
+            params.unauthenticated = true;
+        }
 
         return this.httpClient
             .get(`/_action/${this.getApiBasePath()}/download`, { params, headers })

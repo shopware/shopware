@@ -15,7 +15,8 @@
       "roadmapLink": "https://www.shopware.com/de/roadmap/"
     },
     "paypal": {
-      "buttonText": "PayPal einrichten"
+      "setupButtonText": "PayPal einrichten",
+      "settingsLinkButtonText": "PayPal Einstellungen öffnen"
     },
     "documentation":{
       "header": "Dokumentation",
@@ -28,7 +29,11 @@
       "description": "Erkunde die Möglichkeiten von Shopware mit echten Daten. Gemeinsam stellen wir eine Verbindung der Systeme her. Im Anschluss hast Du die Möglichkeit mit dem Migrationsassistenten Deine Daten zu migrieren.",
       "githubLinkLabel": "Migration Plugin auf Github",
       "sw5pluginLinkLabel": "Plugin für Shopware 5",
-      "buttonText": "Meine Daten migrieren"
+      "setupButtonText": "Migration einrichten",
+      "settingsLinkButtonText": "Meine Daten migrieren"
+    },
+    "plugin": {
+      "setupSuccessfulMsg": "{pluginName} Installation abgeschlossen"
     }
   }
 }

@@ -8,7 +8,7 @@
                 aside
                 :label="$tc('sw-media.presentation.labelPresentation')"
                 :value="presentation"
-                @input="onPresentationChanged">
+                @change="onPresentationChanged">
 
                 {% block sw_media_display_options_presentations_options %}
                     <option v-for="previewType in previewOptions"
@@ -28,7 +28,7 @@
                 aside
                 :label="$tc('sw-media.sorting.labelSort')"
                 :value="sortingConCat"
-                @input="onSortingChanged">
+                @change="onSortingChanged">
 
                 {% block sw_media_display_options_sorting_options %}
                     <option v-for="sortOption in sortOptions"

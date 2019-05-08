@@ -117,6 +117,34 @@ $sw-label-neutral-color-border: $color-steam-cloud;
         color: lighten($sw-label-color-text, 10);
     }
 
+    &.sw-label--info,
+    &.sw-label--danger,
+    &.sw-label--success,
+    &.sw-label--warning,
+    &.sw-label--neutral {
+
+        &.sw-label--small {
+            border-radius: $sw-label-pill-border-radius;
+            line-height: 14px;
+            font-weight: 600;
+            font-size: 12px;
+            padding: 0 5px;
+            padding-left: 15px;
+            height: 16px;
+        }
+
+        &.sw-label--small::before {
+            content: '';
+            display: block;
+            height: 6px;
+            width: 6px;
+            position: absolute;
+            border-radius: 50%;
+            top: 4px;
+            left: 5px;
+        }
+    }
+
     &.sw-label--info {
         @include sw-label-variant($sw-label-info-color-background, $sw-label-info-color-text, $sw-label-info-color-border);
     }

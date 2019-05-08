@@ -1,3 +1,6 @@
+import { State } from 'src/core/shopware';
+import { string } from 'src/core/service/util.service';
+import ErrorStore from 'src/core/data/ErrorStore';
 import Criteria from './criteria.data';
 
 export default class Repository {
@@ -88,8 +91,9 @@ export default class Repository {
                     this.sendChanges(entity, changes, context)
                         .then(() => {
                             resolve();
-                        })
-                        .catch((exception) => {
+                        }).catch((exception) => {
+                            return this.handleException(exception);
+                        }).catch((exception) => {
                             reject(exception);
                         });
                 });
@@ -152,7 +156,9 @@ export default class Repository {
 
         const url = `${this.route}/${id}`;
 
-        return this.httpClient.delete(url, { headers });
+        return this.httpClient.delete(url, { headers }).catch((error) => {
+            return this.handleException(error);
+        });
     }
 
     /**
@@ -193,6 +199,8 @@ export default class Repository {
 
         return this.httpClient.post(url, params, { headers }).then((response) => {
             return { ...context, ...{ versionId: response.data.versionId } };
+        }).catch((error) => {
+            return this.handleException(error);
         });
     }
 
@@ -208,7 +216,9 @@ export default class Repository {
 
         const url = `_action/version/merge/${this.schema.entity}/${versionId}`;
 
-        return this.httpClient.post(url, {}, { headers });
+        return this.httpClient.post(url, {}, { headers }).catch((error) => {
+            return this.handleException(error);
+        });
     }
 
     /**
@@ -223,7 +233,9 @@ export default class Repository {
 
         const url = `/_action/version/${versionId}/${this.schema.entity}/${entityId}`;
 
-        return this.httpClient.post(url, {}, { headers });
+        return this.httpClient.post(url, {}, { headers }).catch((error) => {
+            return this.handleException(error);
+        });
     }
 
     /**
@@ -294,5 +306,24 @@ export default class Repository {
         }
 
         return headers;
+    }
+
+    /**
+     * @private
+     */
+    handleException(errorResponse) {
+        if (!errorResponse.response.data && !errorResponse.response.data.errors) {
+            return Promise.reject(errorResponse);
+        }
+
+        const errors = errorResponse.response.data.errors;
+        const entityName = string.camelCase(this.schema.entity);
+        errors.forEach((error) => {
+            const errorStore = State.getStore('error');
+            const { propertyPath, shopwareError } = ErrorStore.transformApiError(error, entityName);
+            errorStore.setErrorData(propertyPath, shopwareError, 'api');
+        });
+
+        return Promise.reject(errorResponse);
     }
 }

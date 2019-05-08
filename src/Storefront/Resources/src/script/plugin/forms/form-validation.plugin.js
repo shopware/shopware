@@ -1,6 +1,7 @@
 import Plugin from 'src/script/helper/plugin/plugin.class';
 import DomAccess from 'src/script/helper/dom-access.helper';
 import Debouncer from 'src/script/helper/debouncer.helper';
+import Iterator from 'src/script/helper/iterator.helper';
 
 const EQUAL_VALIDATION_ATTRIBUTE = 'data-form-validation-equal';
 const LENGTH_VALIDATION_ATTRIBUTE = 'data-form-validation-length';
@@ -105,8 +106,8 @@ export default class FormValidation extends Plugin {
     _registerValidationListener(attribute, listener, events) {
         const fields = DomAccess.querySelectorAll(this.el, `[${attribute}]`, false);
         if (fields) {
-            fields.forEach(field => {
-                events.forEach((event) => {
+            Iterator.iterate(fields, field => {
+                Iterator.iterate(events, event => {
                     field.removeEventListener(event, listener);
                     field.addEventListener(event, listener);
                 });
@@ -142,7 +143,7 @@ export default class FormValidation extends Plugin {
         const selector = DomAccess.getDataAttribute(event.target, EQUAL_VALIDATION_ATTRIBUTE);
         const fields = DomAccess.querySelectorAll(this.el, `[${EQUAL_VALIDATION_ATTRIBUTE}='${selector}']`);
 
-        fields.forEach(field => {
+        Iterator.iterate(fields, field => {
             field.dispatchEvent(new CustomEvent(VALIDATE_EQUAL_EVENT, { target: event.target }));
         });
     }
@@ -167,7 +168,7 @@ export default class FormValidation extends Plugin {
             }
         });
 
-        fields.forEach(field => {
+        Iterator.iterate(fields, field => {
             if (!valid) {
                 this._setFieldToInvalid(field, EQUAL_VALIDATION_ATTRIBUTE);
             } else {
@@ -273,7 +274,7 @@ export default class FormValidation extends Plugin {
         if (parent) {
             const message = DomAccess.querySelector(parent, `.js-validation-message[data-type=${attribute}]`, false);
             if (message) {
-                message.remove()
+                message.remove();
             }
         }
     }

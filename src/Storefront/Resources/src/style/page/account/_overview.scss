@@ -1,3 +1,18 @@
+// general
+.account-content {
+    @extend .row;
+
+    .account-content-aside {
+        @extend .offset-lg-2;
+        @extend .col-lg-2;
+    }
+
+    .account-content-main {
+        @extend .col-lg-6;
+    }
+
+}
+
 .is-ctl-accountpage:not(.is-act-login) {
     .content-main-inner {
         padding-top: 0;

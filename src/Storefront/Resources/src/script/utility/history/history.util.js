@@ -86,8 +86,11 @@ class HistoryUtilSingleton {
     }
 }
 
-const instance = new HistoryUtilSingleton();
-Object.freeze(instance);
+/**
+ * Create the HistoryUtil instance.
+ * @type {Readonly<HistoryUtilSingleton>}
+ */
+export const HistoryUtilInstance = Object.freeze(new HistoryUtilSingleton());
 
 export default class HistoryUtil {
 
@@ -95,14 +98,7 @@ export default class HistoryUtil {
      * returns the current location
      */
     static getLocation() {
-        instance.getLocation();
-    }
-
-    /**
-     * returns the current location
-     */
-    getLocation() {
-        return this._history.location;
+        HistoryUtilInstance.getLocation();
     }
 
     /**
@@ -113,7 +109,7 @@ export default class HistoryUtil {
      * @returns {*|void|History}
      */
     static listen(cb) {
-        instance.listen(cb);
+        HistoryUtilInstance.listen(cb);
     }
 
     /**
@@ -123,7 +119,7 @@ export default class HistoryUtil {
      * @param listener
      */
     static unlisten(listener) {
-        instance.unlisten(listener);
+        HistoryUtilInstance.unlisten(listener);
     }
 
     /**
@@ -133,7 +129,7 @@ export default class HistoryUtil {
      * @param {*} state
      */
     static push(path, state) {
-        instance.push(path, state);
+        HistoryUtilInstance.push(path, state);
     }
 
     /**
@@ -143,7 +139,7 @@ export default class HistoryUtil {
      * @param {*} state
      */
     static replace(path, state) {
-        instance.replace(path, state);
+        HistoryUtilInstance.replace(path, state);
     }
 
     /**
@@ -153,7 +149,7 @@ export default class HistoryUtil {
      * @param {*} state
      */
     static pushParams(params, state) {
-        instance.pushParams(params, state);
+        HistoryUtilInstance.pushParams(params, state);
     }
 
     /**
@@ -163,6 +159,6 @@ export default class HistoryUtil {
      * @param {*} state
      */
     static replaceParams(params, state) {
-        instance.replaceParams(params, state);
+        HistoryUtilInstance.replaceParams(params, state);
     }
 }

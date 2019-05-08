@@ -48,6 +48,8 @@ class ProductSearchGateway implements ProductSearchGatewayInterface
     public function search(Request $request, SalesChannelContext $context): EntitySearchResult
     {
         $criteria = new Criteria();
+
+        // todo: set limit back to default of 20/25 after search pagination is implemented
         $criteria->setLimit(50);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
         $criteria->addFilter(new EqualsFilter('product.parentId', null));

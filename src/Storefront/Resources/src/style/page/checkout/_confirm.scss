@@ -1,19 +1,28 @@
 // general
 .checkout {
     &.is-confirm {
+        .checkout-main {
+            @extend .row;
+        }
+
         .checkout-main-left {
             @extend .col-12;
         }
 
         .checkout-main-right {
-            @extend .offset-lg-8;
-            @extend .col-lg-4;
+            @extend .offset-lg-2;
+            @extend .col-lg-8;
         }
     }
 }
 
 .confirm-main-header {
     margin-bottom: $spacer-lg;
+}
+
+.confirm-content {
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .confirm-terms {

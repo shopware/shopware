@@ -1,5 +1,6 @@
 import Plugin from 'src/script/helper/plugin/plugin.class';
 import PageLoadingIndicatorUtil from 'src/script/utility/loading-indicator/page-loading-indicator.util';
+import Iterator from 'src/script/helper/iterator.helper';
 
 /**
  * this plugin submits the variant form
@@ -31,7 +32,7 @@ export default class VariantSwitchPlugin extends Plugin {
      * @private
      */
     _preserveCurrentValues() {
-        this.el.elements.forEach(field => {
+        Iterator.iterate(this.el.elements, field => {
             if (VariantSwitchPlugin._isFieldSerializable(field)) {
                 field.dataset.variantSwitchValue = field.value;
             }
@@ -86,7 +87,7 @@ export default class VariantSwitchPlugin extends Plugin {
      */
     _getFormValue() {
         const serialized = {};
-        this.el.elements.forEach(field => {
+        Iterator.iterate(this.el.elements, field => {
             if (VariantSwitchPlugin._isFieldSerializable(field)) {
                 if (field.checked) {
                     serialized[field.name] = field.value;
@@ -116,7 +117,7 @@ export default class VariantSwitchPlugin extends Plugin {
      * @private
      */
     _disableFields() {
-        this.el.elements.forEach(field => {
+        Iterator.iterate(this.el.elements, field => {
             field.classList.add('disabled', 'disabled');
         });
     }
@@ -130,8 +131,8 @@ export default class VariantSwitchPlugin extends Plugin {
      */
     _submitForm(data) {
         this._disableFields();
-        this.el.insertAdjacentHTML('beforeend', `<input type="hidden" name="switched" value='${data.switched}'>`);
-        this.el.insertAdjacentHTML('beforeend', `<input type="hidden" name="options" value='${JSON.stringify(data.options)}'>`);
+        this.el.insertAdjacentHTML('beforeend', `<input type="hidden" name="switched" value="${data.switched}">`);
+        this.el.insertAdjacentHTML('beforeend', `<input type="hidden" name="options" value="${JSON.stringify(data.options)}">`);
         PageLoadingIndicatorUtil.create();
         this.el.submit();
     }

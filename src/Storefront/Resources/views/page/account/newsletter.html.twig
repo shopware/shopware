@@ -9,26 +9,33 @@
         {% endif %}
     {% endblock %}
     {% block page_account_overview_newsletter_content_form %}
-        <form name="newsletterRegister" method="post" action="{{ path("widgets.account.newsletter") }}">
-            {% block page_account_overview_newsletter_content_form_check %}
-                <div class="form-check">
+        <form name="newsletterRegister"
+              method="post"
+              action="{{ path("widgets.account.newsletter") }}"
+              data-form-auto-submit="true"
+              data-form-auto-submit-options='{
+                  "useAjax": true,
+                  "ajaxContainerSelector": ".js-newsletter-wrapper"
+              }'>
+            {% block page_account_overview_newsletter_content_form_check_control %}
+                <div class="custom-control custom-checkbox">
                     {% block page_account_overview_newsletter_content_form_input %}
                         <input type="checkbox"
-                               class="form-check-input"
+                               class="custom-control-input"
                                id="newsletterRegister"
                                name="option"
                                value="direct"
                                {% if customer.newsletter %}checked="checked"{% endif %}>
                     {% endblock %}
+
                     {% block page_account_overview_newsletter_content_form_label %}
-                        <label class="form-check-label" for="newsletterRegister">
+                        <label class="form-check-label custom-control-label"
+                               for="newsletterRegister">
                             {{ "account.newsletterSettings"|trans({'%shopname%': shopware.config.shopName}) }}
                         </label>
                     {% endblock %}
                 </div>
             {% endblock %}
-            {#TODO: NEXT-2793 - remove submit button and use js plugin to auto submit the form#}
-            <button type="submit">submit</button>
         </form>
     {% endblock %}
 {% endblock %}

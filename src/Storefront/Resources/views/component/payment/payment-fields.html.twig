@@ -35,11 +35,7 @@
                         </div>
                     {% endblock %}
 
-                    {% block component_payment_fieldset_template %}
-                        <div class="payment-method-template">
-                            {% sw_include '@Storefront/component/payment/#{payment.template}' ignore missing %}
-                        </div>
-                    {% endblock %}
+                    {% block component_payment_fieldset_template %}{% endblock %}
                 </div>
             {% endblock %}
         {% endfor %}

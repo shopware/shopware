@@ -1,15 +1,37 @@
 {% sw_extends '@Storefront/base.html.twig' %}
 
 {% block base_content %}
-    <div class="cms-page search-page">
-        <div class="col-12 listing-wrapper">
-            <div class="row">
-                {% for product in page.searchResult %}
-                    <div class="listing-col col-sm-6 col-lg-3">
-                        {% sw_include '@Storefront/component/product/widget/box.html.twig' with {layout: 'minimal'} %}
-                    </div>
-                {% endfor %}
-            </div>
+    {% block page_search %}
+        <div class="cms-page search-page">
+            {% block page_search_headline %}
+                <h1 class="search-headline">
+                    {% block page_search_headline_text %}
+                        {{ "search.headline"|trans({
+                            '%searchTerm%': page.searchTerm,
+                            '%totalCount%': page.searchResult.total,
+                        }) }}
+                    {% endblock %}
+                </h1>
+            {% endblock %}
+
+            {% block page_search_listing %}
+                <div class="listing-wrapper">
+                    {% block page_search_listing_row %}
+                        <div class="row">
+                            {% for product in page.searchResult %}
+                                {% block page_search_listing_column %}
+                                    <div class="listing-col col-sm-6 col-lg-3">
+                                        {% block page_search_listing_item %}
+                                            {% sw_include '@Storefront/component/product/widget/box.html.twig' with {layout: 'minimal'} %}
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
+                            {% endfor %}
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
         </div>
-    </div>
+    {% endblock %}
 {% endblock %}
+

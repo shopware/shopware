@@ -17,7 +17,11 @@
                                    aria-controls="description-tab-pane"
                                    aria-selected="true">
                                     {{ "detail.tabsDescription"|trans }}
-                                    <i class="fas fa-chevron-right nav-link-icon"></i>
+                                    <span class="nav-link-icon">
+                                        {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
+                                            'name': 'small-questionmark'
+                                        } %}
+                                    </span>
                                 </a>
                             </li>
                         {% endblock %}

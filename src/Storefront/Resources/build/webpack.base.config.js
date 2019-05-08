@@ -27,6 +27,9 @@ function getPath(dir) {
     return basePath;
 }
 
+const outPutFolder = 'bundles/storefront';
+const assetOutPutFolder = `${outPutFolder}/assets`;
+
 /**
  * -------------------------------------------------------
  * GENERAL WEBPACK CONFIGURATIONS
@@ -56,9 +59,10 @@ const entries = {
  * https://webpack.js.org/configuration/output
  * @type {{path: *, filename: string, publicPath: string}}
  */
+console.log(buildDirectory);
 const output = {
     path: buildDirectory,
-    filename: 'js/main.bundle.js',
+    filename: `${outPutFolder}/js/app.js`,
     publicPath: publicPath,
 };
 
@@ -92,8 +96,8 @@ const modules = {
                     loader: 'file-loader',
                     options: {
                         name: '[name].[ext]',
-                        outputPath: 'fonts',
-                        publicPath: './../fonts',
+                        outputPath: `${assetOutPutFolder}/font`,
+                        publicPath: '../assets/font',
                     },
                 },
             ],
@@ -118,13 +122,13 @@ const plugins = [
     }),
     new CopyPlugin([
         {
-            from: getPath('assets/media'),
-            to: 'media',
+            from: getPath('assets'),
+            to: assetOutPutFolder,
         },
     ]),
     new MiniCssExtractPlugin({
-        filename: 'css/main.bundle.css',
-        chunkFilename: 'css/main.bundle.css',
+        filename: `${outPutFolder}/css/app.css`,
+        chunkFilename: `${outPutFolder}/css/app.css`,
     }),
 ];
 

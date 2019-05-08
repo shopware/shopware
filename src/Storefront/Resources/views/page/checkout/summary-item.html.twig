@@ -1,0 +1,11 @@
+{% block page_checkout_summary_item %}
+    {% if lineItem.type == 'product' %}
+        {% block page_checkout_summary_item_product %}
+            {% sw_include '@Storefront/page/checkout/items/product-summary.html.twig' %}
+        {% endblock %}
+    {% elseif lineItem.type == 'promotion' %}
+        {% block page_checkout_summary_item_promotion %}
+            {% sw_include '@Storefront/page/checkout/items/promotion-summary.html.twig' %}
+        {% endblock %}
+    {% endif %}
+{% endblock %}

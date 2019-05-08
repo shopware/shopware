@@ -5,7 +5,7 @@ export default class DomAccess {
     /**
      * Returns whether or not the element is an HTML node
      *
-     * @param {Element} element
+     * @param {HTMLElement} element
      * @returns {boolean}
      */
     static isNode(element) {
@@ -27,7 +27,7 @@ export default class DomAccess {
 
     /**
      * Returns if the given element has the requested attribute/property
-     * @param {Element} element
+     * @param {HTMLElement} element
      * @param {string} attribute
      */
     static hasAttribute(element, attribute) {
@@ -42,7 +42,7 @@ export default class DomAccess {
 
     /**
      * Returns the value of a given element's attribute/property
-     * @param {Element|EventTarget} element
+     * @param {HTMLElement|EventTarget} element
      * @param {string} attribute
      * @param {boolean} strict
      * @returns {*|this|string}
@@ -66,7 +66,7 @@ export default class DomAccess {
     /**
      * Returns the value of a given elements dataset entry
      *
-     * @param {Element|EventTarget} element
+     * @param {HTMLElement|EventTarget} element
      * @param {string} key
      * @param {boolean} strict
      * @returns {*|this|string}
@@ -105,10 +105,10 @@ export default class DomAccess {
 
     /**
      * Returns the selected element of a defined parent node
-     * @param {Element|EventTarget} parentNode
+     * @param {HTMLElement|EventTarget} parentNode
      * @param {string} selector
      * @param {boolean} strict
-     * @returns {Element}
+     * @returns {HTMLElement}
      */
     static querySelector(parentNode, selector, strict = true) {
         if (strict && !DomAccess.isNode(parentNode)) {
@@ -127,7 +127,7 @@ export default class DomAccess {
     /**
      * Returns the selected elements of a defined parent node
      *
-     * @param {Element|EventTarget} parentNode
+     * @param {HTMLElement|EventTarget} parentNode
      * @param {string} selector
      * @param {boolean} strict
      * @returns {NodeList|false}

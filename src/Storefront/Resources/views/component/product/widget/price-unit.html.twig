@@ -10,7 +10,7 @@
                         </span>
                         <span class="price-unit-content">
                             {{ product.purchaseUnit }} {{ product.packUnit }}
-                        </span><br>
+                        </span>
                     {% endif %}
                 {% endblock %}
 
@@ -19,7 +19,6 @@
                     {% if product.purchaseUnit and product.referenceUnit and product.purchaseUnit !=  product.referenceUnit %}
                         <span class="price-unit-reference">
                             {% set referencePrice = product.calculatedPrice.unitPrice * product.referenceUnit / product.purchaseUnit %}
-                            {#TODO: NEXT-2675 - reference price#}
                             ({{ referencePrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}
                             {{ "general.star"|trans }} / {{ product.referenceUnit }} {{ product.packUnit }})
                         </span>

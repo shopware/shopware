@@ -7,7 +7,13 @@
 {% block base_navigation %}{% endblock %}
 
 {% block page_checkout_container %}
-    {% sw_include '@Storefront/page/checkout/confirm/confirm-page.html.twig' %}
+    <div class="row">
+        {% block page_checkout_confirm_main_content %}
+            <div class="col-12 col-xl-7 col-lg-10 confirm-content">
+                {% sw_include '@Storefront/page/checkout/confirm/confirm-page.html.twig' %}
+            </div>
+        {% endblock %}
+    </div>
 {% endblock %}
 
 {% block base_footer %}

@@ -15,7 +15,7 @@
         "deliveryShippingDelay": "Delivery time approx. 5 working days",
         "offcanvasCloseMenu": "Close menu",
         "noscriptNotice": "To be able to use our shop in full range, we recommend activating Javascript in your browser.",
-        "toCategory": "To Category",
+        "toCategory": "Show all",
         "readMore": "read more",
         "mainMenu": "Mainmenu",
         "closeMenu": "Close Menu",
@@ -49,6 +49,7 @@
         "VIOLATION::TOO_LOW_ERROR": "%field% should not be empty.",
         "VIOLATION::STRICT_CHECK_FAILED_ERROR": "%field% is invalid",
         "VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE": "This email address is already registered",
+        "VIOLATION::CUSTOMER_PASSWORD_NOT_CORRECT": "Your current password is invalid.",
         "message-default": "Unfortunately, something went wrong.",
         "message-404": "The requested page cannot be found.",
         "addToCartError": "An error occurred while adding the item(s) to cart.",
@@ -112,6 +113,7 @@
         "paymentTitle": "Payment methods",
         "ordersTitle": "Orders",
         "logout": "Logout",
+        "guestAbort": "Close guest session",
         "logoutSucceeded": "You have successfully logged off",
         "overviewWelcome": "Welcome, ",
         "overviewInfo": "This is your account dashboard which enables you to view your account activities.",
@@ -201,7 +203,9 @@
         "countryPlaceholder": "Country"
     },
     "checkout": {
-        "registerLoginToggle": "Show login",
+        "addressHeader": "Shipping information",
+        "addressLoginToggle": "Already have an account? Click here to login.",
+        "addressRegisterCardTitle": "Your personal details",
         "registerGuestmodeLabel": "Don't create customer account",
         "cartTitle": "Shopping cart",
         "cartHeader": "Shopping cart",
@@ -238,6 +242,8 @@
         "confirmTermsHeader": "Terms, conditions and cancellation policy",
         "confirmRevocationNotice": "Terms, conditions and cancellation policy.",
         "confirmTerms": "I have read and accepted the <a href='#' title='General terms and conditions'>General terms and conditions</a> of your shop.",
+        "confirmPaymentMethod": "Payment method:",
+        "confirmDispatchMethod": "Shipping type:",
         "finishHeader": "Thank you for your order with %shop%!",
         "finishInfoHeader": "Information",
         "finishInfoOrdernumber": "Order number: ",
@@ -264,8 +270,12 @@
         "subscriptionPersistedSuccess": "You have just subscribed to our newsletter.\n To complete the registration look in your e-mail box for a confirmation mail.",
         "subscriptionPersistedInfo": "If you have not received a mail please repeat the process or contact the shop operator.",
         "subscriptionRevokeSuccess": "You have successfully unsubscribed from the newsletter.",
+        "subscriptionConfirmationSuccess": "You have successfully subscribed to the newsletter.",
         "subscriptionConfirmationFailed": "newsletter subscription did not work properly, please contact us",
         "subscriptionCompleted": "Thank you! We have entered your address."
+    },
+    "search": {
+      "headline": "%totalCount% articles found for \"%searchTerm%\"!"
     },
     "detail": {
         "ordernumberLabel": "Order number: ",
@@ -292,7 +302,7 @@
         "copyrightInfo": "Realized with Shopware"
     },
     "cookie": {
-        "message": "Diese Website verwendet Cookies, um Ihnen die bestmögliche Funktionalität bieten zu können.&nbsp;<a href='#'>Mehr Informationen</a>",
+        "message": "This website uses cookies to ensure you get the best experience on our website.&nbsp;<a href='#'>More&nbsp;information</a>",
         "accept": "Accept"
     },
     "document": {

@@ -13,7 +13,7 @@
                 <div class="form-group col-md-4">
                     <select id="personalBirthday"
                             name="birthdayDay"
-                            class="custom-select"
+                            class="custom-select{% if formViolations.getViolations('/birthdayDay') is not empty %} is-invalid{% endif %}"
                             required="required">
                         {% if not birthday %}
                             <option selected="selected"
@@ -28,13 +28,21 @@
                             </option>
                         {% endfor %}
                     </select>
+
+                    {% block page_account_profile_personal_fields_birthday_select_day_error %}
+                        {% if formViolations.getViolations('/birthdayDay') is not empty %}
+                            {% sw_include '@Storefront/layout/_utilities/form-violation.html.twig' with {
+                                violationPath: '/birthdayDay'
+                            } %}
+                        {% endif %}
+                    {% endblock %}
                 </div>
             {% endblock %}
 
             {% block page_account_profile_personal_fields_birthday_select_month %}
                 <div class="form-group col-md-4">
                     <select name="birthdayMonth"
-                            class="custom-select"
+                            class="custom-select{% if formViolations.getViolations('/birthdayMonth') is not empty %} is-invalid{% endif %}"
                             required="required">
                         {% if not birthmonth %}
                             <option selected="selected"
@@ -49,6 +57,14 @@
                             </option>
                         {% endfor %}
                     </select>
+
+                    {% block page_account_profile_personal_fields_birthday_select_month_error %}
+                        {% if formViolations.getViolations('/birthdayMonth') is not empty %}
+                            {% sw_include '@Storefront/layout/_utilities/form-violation.html.twig' with {
+                                violationPath: '/birthdayMonth'
+                            } %}
+                        {% endif %}
+                    {% endblock %}
                 </div>
             {% endblock %}
 
@@ -58,7 +74,7 @@
                     {% set startYear = currentYear - 120 %}
 
                     <select name="birthdayYear"
-                            class="custom-select"
+                            class="custom-select{% if formViolations.getViolations('/birthdayYear') is not empty %} is-invalid{% endif %}"
                             required="required">
                         {% if not birthyear %}
                             <option selected="selected"
@@ -73,6 +89,14 @@
                             </option>
                         {% endfor %}
                     </select>
+
+                    {% block page_account_profile_personal_fields_birthday_select_year_error %}
+                        {% if formViolations.getViolations('/birthdayYear') is not empty %}
+                            {% sw_include '@Storefront/layout/_utilities/form-violation.html.twig' with {
+                                violationPath: '/birthdayYear'
+                            } %}
+                        {% endif %}
+                    {% endblock %}
                 </div>
             {% endblock %}
         </div>

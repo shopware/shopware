@@ -45,6 +45,12 @@
     &:last-child {
         border-bottom: 0;
     }
+
+    &.active {
+        a {
+            color: $primary;
+        }
+    }
 }
 
 .result-total {

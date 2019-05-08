@@ -1,5 +1,5 @@
 import Plugin from 'src/script/helper/plugin/plugin.class';
-import CookieHandler from 'src/script/helper/cookie.helper';
+import CookieStorage from 'src/script/helper/storage/cookie-storage.helper';
 import Debouncer from 'src/script/helper/debouncer.helper';
 import DeviceDetection from 'src/script/helper/device-detection.helper';
 
@@ -38,7 +38,7 @@ export default class CookiePermissionPlugin extends Plugin {
      * If there is no cookie permission set it initializes the cookie bar
      */
     _isCookieAllowed() {
-        const cookiePermission = CookieHandler.hasCookie('allowCookie', '1');
+        const cookiePermission = CookieStorage.getItem('allowCookie', '1');
 
         if (!cookiePermission) {
             this._showCookieBar();
@@ -75,7 +75,7 @@ export default class CookiePermissionPlugin extends Plugin {
             this._button.addEventListener(submitEvent, () => {
                 this._hideCookieBar();
                 this._removeBodyPadding();
-                CookieHandler.setCookie('allowCookie', '1', this.options.cookieExpiration);
+                CookieStorage.setItem('allowCookie', '1', this.options.cookieExpiration);
             });
         }
 

@@ -23,7 +23,9 @@ module.exports = {
     rootDir: path.resolve(__dirname),
 
     // This option allows the use of a custom resolver.
-    resolver: 'jest-webpack-resolver',
+    moduleNameMapper: {
+        '^src/(.*)$': '<rootDir>/src/$1'
+    },
 
     // The glob patterns Jest uses to detect test files
     testMatch: [

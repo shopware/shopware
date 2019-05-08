@@ -4,19 +4,22 @@
             {% block layout_navigation_flyout_bar_category %}
                 <div class="col">
                     <div class="navigation-flyout-category-link">
-                        {% block layout_navigation_flyout_bar_category_link %}
+						{% block layout_navigation_flyout_bar_category_link %}
                             {% if navigationTree.category.type == 'page' %}
                                 <a class="nav-link"
                                    href="{{ path('frontend.navigation.page', {'navigationId': navigationTree.category.id}) }}"
                                    itemprop="url"
                                    title="{{ navigationTree.category.translated.name }}">
                                     {% block layout_navigation_flyout_bar_category_link_text %}
-                                        {{ "general.toCategory"|trans }} {{ navigationTree.category.translated.name }}
-                                        <i class="fas fa-chevron-right"></i>
+										{% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
+											'name': 'arrow-simple-right',
+											'style': 'dark'
+										} %}
+										{{ "general.toCategory"|trans }} {{ navigationTree.category.translated.name }}
                                     {% endblock %}
                                 </a>
                             {% endif %}
-                        {% endblock %}
+						{% endblock %}
                     </div>
                 </div>
             {% endblock %}
@@ -25,7 +28,11 @@
                 <div class="col-auto">
                     <div class="navigation-flyout-close js-close-flyout-menu">
                         {% block layout_navigation_flyout_bar_close_content %}
-                            <i class="fas fa-times"></i>
+                            {% block layout_utilities_offcanvas_close_icon %}
+                                {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
+                                    'name': 'basic-x-line'
+                                } %}
+                            {% endblock %}
                         {% endblock %}
                     </div>
                 </div>
@@ -42,7 +49,6 @@
                     {% endblock %}
                 </div>
             {% endblock %}
-
 
             {% block layout_navigation_flyout_teaser %}
                 {% if navigationTree.category.media %}

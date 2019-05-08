@@ -27,7 +27,7 @@ function getPath(dir) {
     return basePath;
 }
 
-const outPutFolder = 'bundles/storefront';
+const outPutFolder = '.';
 const assetOutPutFolder = `${outPutFolder}/assets`;
 
 /**

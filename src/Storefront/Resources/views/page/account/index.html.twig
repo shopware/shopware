@@ -37,13 +37,12 @@
                                                     {{ page.customer.title }}<br/>
                                                 {% endif %}
                                                 {{ page.customer.firstName }} {{ page.customer.lastName }}
-
-                                                {{ page.customer.email }}
                                             </p>
                                         {% endblock %}
 
                                         {% block page_account_overview_profile_email %}
-                                            <p>{{ page.customer.email }}
+                                            <p>
+                                                {{ page.customer.email }}
                                             </p>
                                         {% endblock %}
 

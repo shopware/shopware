@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryCollection;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionCollection;
-use Shopware\Core\System\StateMachine\StateMachineCollection;
 use Shopware\Core\System\StateMachine\StateMachineEntity;
 
 class StateMachineStateEntity extends Entity
@@ -44,11 +43,6 @@ class StateMachineStateEntity extends Entity
      * @var StateMachineTransitionCollection|null
      */
     protected $toStateMachineTransitions;
-
-    /**
-     * @var StateMachineCollection|null
-     */
-    protected $initialStateStateMachines;
 
     /**
      * @var StateMachineStateTranslationCollection
@@ -153,16 +147,6 @@ class StateMachineStateEntity extends Entity
     public function setToStateMachineTransitions(StateMachineTransitionCollection $toStateMachineTransitions): void
     {
         $this->toStateMachineTransitions = $toStateMachineTransitions;
-    }
-
-    public function getInitialStateStateMachines(): ?StateMachineCollection
-    {
-        return $this->initialStateStateMachines;
-    }
-
-    public function setInitialStateStateMachines(StateMachineCollection $initialStateStateMachines): void
-    {
-        $this->initialStateStateMachines = $initialStateStateMachines;
     }
 
     public function getTranslations(): StateMachineStateTranslationCollection

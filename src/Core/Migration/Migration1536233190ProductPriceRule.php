@@ -29,13 +29,13 @@ class Migration1536233190ProductPriceRule extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`, `version_id`),
-              CONSTRAINT `json.product_price_rule.price` CHECK (JSON_VALID(`price`)),
-              CONSTRAINT `json.product_price_rule.custom_fields` CHECK (JSON_VALID(`custom_fields`)),
-              CONSTRAINT `fk.product_price_rule.product_id` FOREIGN KEY (`product_id`, `product_version_id`) 
+              CONSTRAINT `json.product_price.price` CHECK (JSON_VALID(`price`)),
+              CONSTRAINT `json.product_price.custom_fields` CHECK (JSON_VALID(`custom_fields`)),
+              CONSTRAINT `fk.product_price.product_id` FOREIGN KEY (`product_id`, `product_version_id`) 
                 REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-              CONSTRAINT `fk.product_price_rule.currency_id` FOREIGN KEY (`currency_id`) 
+              CONSTRAINT `fk.product_price.currency_id` FOREIGN KEY (`currency_id`) 
                 REFERENCES `currency` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-              CONSTRAINT `fk.product_price_rule.rule_id` FOREIGN KEY (`rule_id`) 
+              CONSTRAINT `fk.product_price.rule_id` FOREIGN KEY (`rule_id`) 
                 REFERENCES `rule` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');

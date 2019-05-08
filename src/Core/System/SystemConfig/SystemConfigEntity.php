@@ -13,11 +13,6 @@ class SystemConfigEntity extends Entity
     /**
      * @var string
      */
-    protected $namespace;
-
-    /**
-     * @var string
-     */
     protected $configurationKey;
 
     /**
@@ -34,16 +29,6 @@ class SystemConfigEntity extends Entity
      * @var ?SalesChannelEntity
      */
     protected $salesChannel;
-
-    public function getNamespace(): string
-    {
-        return $this->namespace;
-    }
-
-    public function setNamespace(string $namespace): void
-    {
-        $this->namespace = $namespace;
-    }
 
     public function getConfigurationKey(): string
     {

@@ -6,7 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Snippet\SnippetCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
-use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 class SnippetSetEntity extends Entity
 {
@@ -31,11 +30,6 @@ class SnippetSetEntity extends Entity
      * @var SnippetCollection|null
      */
     protected $snippets;
-
-    /**
-     * @var SalesChannelCollection
-     */
-    protected $salesChannels;
 
     /**
      * @var SalesChannelDomainCollection|null
@@ -85,16 +79,6 @@ class SnippetSetEntity extends Entity
     public function setSnippets(SnippetCollection $snippets): void
     {
         $this->snippets = $snippets;
-    }
-
-    public function getSalesChannels(): SalesChannelCollection
-    {
-        return $this->salesChannels;
-    }
-
-    public function setSalesChannels(SalesChannelCollection $salesChannels): void
-    {
-        $this->salesChannels = $salesChannels;
     }
 
     public function getSalesChannelDomains(): ?SalesChannelDomainCollection

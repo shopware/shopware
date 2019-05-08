@@ -22,8 +22,11 @@ class DeadMessageEntity extends Entity
 
     /**
      * @var object
+     *
+     * @internal
      */
     protected $originalMessage;
+
     /**
      * @var string
      */

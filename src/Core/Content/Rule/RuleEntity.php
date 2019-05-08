@@ -84,11 +84,6 @@ class RuleEntity extends Entity
     protected $shippingMethodPrices;
 
     /**
-     * @var PromotionCollection|null
-     */
-    protected $scopePromotions;
-
-    /**
      * @var PromotionDiscountCollection|null
      */
     protected $promotionDiscounts;
@@ -241,16 +236,6 @@ class RuleEntity extends Entity
     public function setShippingMethodPrices(ShippingMethodPriceCollection $shippingMethodPrices): void
     {
         $this->shippingMethodPrices = $shippingMethodPrices;
-    }
-
-    public function getScopePromotions(): ?PromotionCollection
-    {
-        return $this->scopePromotions;
-    }
-
-    public function setScopePromotions(PromotionCollection $scopePromotions): void
-    {
-        $this->scopePromotions = $scopePromotions;
     }
 
     public function getPromotionDiscounts(): ?PromotionDiscountCollection

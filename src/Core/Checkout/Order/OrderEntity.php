@@ -86,16 +86,6 @@ class OrderEntity extends Entity
     protected $shippingTotal;
 
     /**
-     * @var bool
-     */
-    protected $isNet;
-
-    /**
-     * @var bool
-     */
-    protected $isTaxFree;
-
-    /**
      * @var OrderCustomerEntity
      */
     protected $orderCustomer;

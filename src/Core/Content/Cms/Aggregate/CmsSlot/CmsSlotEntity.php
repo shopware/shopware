@@ -41,6 +41,8 @@ class CmsSlotEntity extends Entity
 
     /**
      * @var FieldConfigCollection|null
+     *
+     * @internal
      */
     protected $fieldConfig;
 

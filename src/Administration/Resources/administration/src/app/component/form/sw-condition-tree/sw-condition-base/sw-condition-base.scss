@@ -11,6 +11,7 @@ $sw-condition-base-font-size: 14px;
 $sw-condition-base-z-index-arrow: 100;
 $sw-condition-base-color-error: $color-crimson;
 $sw-condition-base-text-access-key: $color-gutenberg;
+$sw-condition-base-color-disabled: $color-light-gray;
 
 .sw-condition-base {
     background: none;
@@ -224,6 +225,24 @@ $sw-condition-base-text-access-key: $color-gutenberg;
 
             .sw-select__input, .sw-tagged-field__input {
                 padding: 0 8px;
+                line-height: 24px;
+            }
+
+            .sw-label {
+                font-size: 14px;
+                margin-top: 7px;
+                margin-bottom: 7px;
+                padding: 0 24px 0 8px;
+                height: 24px;
+
+                .sw-label__dismiss {
+                    width: 24px;
+
+                    .sw-icon {
+                        height: 10px;
+                        width: 10px;
+                    }
+                }
             }
 
             .sw-select__selection-item-input, .sw-tagged-field__tag-item-input {
@@ -294,6 +313,10 @@ $sw-condition-base-text-access-key: $color-gutenberg;
 
         &.has--focus .sw-block-field__block {
             box-shadow: none;
+        }
+
+        &.is--disabled {
+            background-color: $sw-condition-base-color-disabled;
         }
     }
 

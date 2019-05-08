@@ -36,11 +36,11 @@
                                     </div>
 
                                 </div>
-                                <img class=".sw-dashboard__welcome-content-right" src="/static/img/dashboard-logo.svg">
+                                <img class=".sw-dashboard__welcome-content-right" :src="'/administration/static/img/dashboard-logo.svg' | asset">
                             </div>
                         </sw-card>
                         <sw-card class="sw-dashboard__paypal">
-                            <img class="sw-dashboard__paypal-icon" src="/static/img/paypal-official-logo.png">
+                            <img class="sw-dashboard__paypal-icon" :src="'/administration/static/img/paypal-official-logo.png' | asset">
                             <sw-button variant="primary" link="https://github.com/shopwarelabs/SwagPayPal">
                                 {{ $tc("sw-dashboard.paypal.buttonText") }}
                             </sw-button>
@@ -85,7 +85,7 @@
                                         {{ $tc("sw-dashboard.migration.buttonText") }}
                                     </sw-button>
                                 </div>
-                                <img class="sw-dashboard__migration-content-right" src="/static/img/migration-illustration.svg">
+                                <img class="sw-dashboard__migration-content-right" :src="'/administration/static/img/migration-illustration.svg' | asset">
                             </div>
                         </sw-card>
                     </sw-container>

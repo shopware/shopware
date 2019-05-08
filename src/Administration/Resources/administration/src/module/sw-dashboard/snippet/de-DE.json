@@ -7,7 +7,7 @@
     "welcome": {
       "header": "Willkommen {firstName}",
       "subHeader": "schön, dass Du hier bist.",
-      "text": "Entdecke und erlebe die neue Shopware Generation. Wir freuen uns",
+      "text": "Entdecke die neue Shopware Generation. Wir freuen uns",
       "subText": "auf Dein Feedback. Über unsere transparente Roadmap kannst",
       "subSubText": "Du jederzeit den aktuellen Entwicklungsstand verfolgen.",
       "roadmapButton": "Roadmap",

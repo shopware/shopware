@@ -157,7 +157,7 @@
                     <template slot="action-modals" slot-scope="{ item }">
                         <sw-modal v-if="showDeleteModal === item.id"
                                   @modal-close="onCloseDeleteModal"
-                                  title="Variante"
+                                  :title="$tc('sw-product.variations.generatedListDeleteModalTitle')"
                                   variant="small">
 
                             <p class="sw-product-variants-overview__modal--confirm-delete-text">

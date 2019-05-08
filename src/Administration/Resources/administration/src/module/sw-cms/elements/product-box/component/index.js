@@ -6,7 +6,8 @@ Component.register('sw-cms-el-product-box', {
     template,
 
     mixins: [
-        Mixin.getByName('cms-element')
+        Mixin.getByName('cms-element'),
+        Mixin.getByName('placeholder')
     ],
 
     computed: {

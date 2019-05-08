@@ -5,7 +5,8 @@ Component.register('sw-manufacturer-list', {
     template,
 
     mixins: [
-        Mixin.getByName('listing')
+        Mixin.getByName('listing'),
+        Mixin.getByName('placeholder')
     ],
 
     data() {

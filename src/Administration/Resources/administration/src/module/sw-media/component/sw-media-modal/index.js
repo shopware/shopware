@@ -171,7 +171,7 @@ Component.register('sw-media-modal', {
             this.selection.push(item);
         },
 
-        onMeidaItemSelect({ item }) {
+        onMediaItemSelect({ item }) {
             if (!this.allowMultiSelect) {
                 this.selection = [item];
                 this.selectedMediaItem = item;

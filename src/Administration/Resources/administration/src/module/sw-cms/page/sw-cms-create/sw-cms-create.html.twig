@@ -4,6 +4,6 @@
 
 {% block sw_cms_detail_toolbar_actions_sales_channel %}
     <sw-select-field v-model="currentSalesChannelKey" size="medium" disabled>
-        <option v-for="salesChannel in salesChannels" :value="salesChannel.id">{{ salesChannel.name }}</option>
+        <option v-for="salesChannel in salesChannels" :value="salesChannel.id">{{ placeholder(salesChannel, 'name') }}</option>
     </sw-select-field>
 {% endblock %}

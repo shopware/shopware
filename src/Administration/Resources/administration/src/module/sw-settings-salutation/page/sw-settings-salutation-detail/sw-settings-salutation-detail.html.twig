@@ -73,7 +73,7 @@
                                           required
                                           class="sw-settings-salutation-detail__displayName"
                                           :label="$tc('sw-settings-salutation.detail.fieldDisplayNameLabel')"
-                                          :placeholder="$tc('sw-settings-salutation.detail.fieldDisplayNamePlaceholder')">
+                                          :placeholder="placeholder(salutation, 'displayName', $tc('sw-settings-salutation.detail.fieldDisplayNamePlaceholder'))">
                                 </sw-field>
                             {% endblock %}
 
@@ -82,7 +82,7 @@
                                           required
                                           class="sw-settings-salutation-detail__letterName"
                                           :label="$tc('sw-settings-salutation.detail.fieldLetterNameLabel')"
-                                          :placeholder="$tc('sw-settings-salutation.detail.fieldLetterNamePlaceholder')">
+                                          :placeholder="placeholder(salutation, 'letterName', $tc('sw-settings-salutation.detail.fieldLetterNamePlaceholder'))">
                                 </sw-field>
                             {% endblock %}
 

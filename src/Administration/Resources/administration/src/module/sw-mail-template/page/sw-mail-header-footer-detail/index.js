@@ -82,7 +82,7 @@ Component.register('sw-mail-header-footer-detail', {
         },
 
         onSave() {
-            const mailHeaderFooterName = this.mailHeaderFooter.name;
+            const mailHeaderFooterName = this.mailHeaderFooter.name || this.placeholder(this.mailHeaderFooter, 'name');
 
             const notificationError = {
                 title: this.$tc('global.notification.notificationSaveErrorTitle'),

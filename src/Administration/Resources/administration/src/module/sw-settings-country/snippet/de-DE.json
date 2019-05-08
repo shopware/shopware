@@ -37,7 +37,9 @@
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
       "buttonAddCountryState": "Bundesland hinzufügen",
-      "editAction": "Editieren"
+      "editAction": "Editieren",
+      "columnStateNameLabel": "Name",
+      "columnStateShortCodeLabel": "Kürzel"
     }
   },
   "sw-country-state-detail": {

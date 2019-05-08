@@ -161,7 +161,7 @@ class CmsSlotEntity extends Entity
         }
 
         $collection = new FieldConfigCollection();
-        $config = $this->config ?? [];
+        $config = $this->getTranslation('config') ?? [];
 
         foreach ($config as $key => $value) {
             $collection->add(

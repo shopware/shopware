@@ -41,12 +41,12 @@ export default {
     },
 
     computed: {
-        switchFieldClasses() {
+        swSwitchFieldClasses() {
             return [
                 {
                     'sw-field--switch-bordered': this.bordered,
                     'sw-field--switch-no-margin-top': this.noMarginTop,
-                    ...this.swFieldClasses
+                    ...this.swCheckboxFieldClasses
                 },
                 `sw-field--${this.size}`
             ];

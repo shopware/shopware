@@ -1,7 +1,6 @@
 {% block page_account_order_item_detail_overview %}
     {#TODO: NEXT-2695 - delivery admin configs not available#}
-    {% set orderDetails = order.deliveries.elements|last.positions.elements %}
-    {% set trackingCode = order.deliveries.elements|last.trackingCode %}
+    {% set orderDetails = order.lineItems.elements %}
 
     <tr>
         <td class="col order-item-detail">
@@ -9,29 +8,31 @@
                  id="order{{ order.orderNumber }}">
                 <table class="table order-detail-table">
                     {% block page_account_order_item_detail_table_header %}
-                        <thead class="order-detail-table-header">
-                        <tr>
-                            {% block page_account_order_item_detail_table_header_name %}
-                                <th class="col-6 order-header-name"
-                                    scope="col">{{ "account.orderItemColumnName"|trans }}</th>
-                            {% endblock %}
-
-                            {% block page_account_order_item_detail_table_header_quantity %}
-                                <th class="col-2 order-header-quantity"
-                                    scope="col">{{ "account.orderItemColumnQuantity"|trans }}</th>
-                            {% endblock %}
-
-                            {% block page_account_order_item_detail_table_header_price %}
-                                <th class="col-2 order-header-price"
-                                    scope="col">{{ "account.orderItemColumnPrice"|trans }}</th>
-                            {% endblock %}
-
-                            {% block page_account_order_item_detail_table_header_total %}
-                                <th class="col-2 order-header-total"
-                                    scope="col">{{ "account.orderItemColumnTotal"|trans }}</th>
-                            {% endblock %}
-                        </tr>
-                        </thead>
+                        {% if orderDetails %}
+                            <thead class="order-detail-table-header">
+                                <tr>
+                                    {% block page_account_order_item_detail_table_header_name %}
+                                        <th class="col-6 order-header-name"
+                                            scope="col">{{ "account.orderItemColumnName"|trans }}</th>
+                                    {% endblock %}
+        
+                                    {% block page_account_order_item_detail_table_header_quantity %}
+                                        <th class="col-2 order-header-quantity"
+                                            scope="col">{{ "account.orderItemColumnQuantity"|trans }}</th>
+                                    {% endblock %}
+        
+                                    {% block page_account_order_item_detail_table_header_price %}
+                                        <th class="col-2 order-header-price"
+                                            scope="col">{{ "account.orderItemColumnPrice"|trans }}</th>
+                                    {% endblock %}
+        
+                                    {% block page_account_order_item_detail_table_header_total %}
+                                        <th class="col-2 order-header-total"
+                                            scope="col">{{ "account.orderItemColumnTotal"|trans }}</th>
+                                    {% endblock %}
+                                </tr>
+                            </thead>
+                        {% endif %}
                     {% endblock %}
 
                     {% block page_account_order_item_detail_table_body %}
@@ -41,7 +42,9 @@
                                 {% block page_account_order_item_detail_name %}
                                     <td class="col-12 col-md-6 order-item order-item-name">
                                         {% block page_account_order_item_detail_name_value %}
-                                            <strong class="name-value">{{ product.orderLineItem.label }}</strong>
+                                            <strong class="name-value">
+                                                {{ product.label }}
+                                            </strong>
                                         {% endblock %}
 
                                         {% block page_account_order_item_detail_unitprice %}
@@ -49,17 +52,18 @@
                                             {% if product.purchaseunit %}
                                                 <div class="order-price-unit">
                                                     {% block page_account_order_item_detail_purchaseunit %}
-                                                        <p>{{ "account.orderItemInfoContent"|trans }}
-                                                            : {{ product.purchaseunit }} {{ product.packUnit }}</p>
+                                                        <p>
+                                                            {{ "account.orderItemInfoContent"|trans }}: {{ product.purchaseunit }} {{ product.packUnit }}
+                                                        </p>
                                                     {% endblock %}
 
                                                     {% block page_account_order_item_detail_referenceunit %}
                                                         {% if product.purchaseunit != product.referenceunit %}
                                                             <p>
                                                                 {% if product.referenceunit %}
-                                                                    <span
-                                                                        class="order-base-price">{{ "account.orderItemInfoBaseprice"|trans }}
-                                                                        :</span>
+                                                                    <span class="order-base-price">
+                                                                        {{ "account.orderItemInfoBaseprice"|trans }}:
+                                                                    </span>
                                                                     {{ product.referenceunit }} {{ product.packUnit }} = {{ product.referencePrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
                                                                 {% endif %}
                                                             </p>
@@ -91,13 +95,15 @@
                                 {% block page_account_order_item_detail_quantity %}
                                     <td class="col-12 col-md-2 order-item order-item-quantity">
                                         {% block page_account_order_item_detail_quantity_label %}
-                                            <strong
-                                                class="order-item-label order-item-quantity-label">{{ "account.orderItemColumnQuantity"|trans }}</strong>
+                                            <strong class="order-item-label order-item-quantity-label">
+                                                {{ "account.orderItemColumnQuantity"|trans }}
+                                            </strong>
                                         {% endblock %}
 
                                         {% block page_account_order_item_detail_quantity_value %}
-                                            <span
-                                                class="order-item-value order-item-quantity-value">{{ product.quantity }}</span>
+                                            <span class="order-item-value order-item-quantity-value">
+                                                {{ product.quantity }}
+                                            </span>
                                         {% endblock %}
                                     </td>
                                 {% endblock %}
@@ -105,18 +111,19 @@
                                 {% block page_account_order_item_detail_price %}
                                     <td class="col-12 col-md-2 order-item order-item-price">
                                         {% block page_account_order_item_detail_price_label %}
-                                            <strong
-                                                class="order-item-label order-item-price-label">{{ "account.orderItemColumnPrice"|trans }}</strong>
+                                            <strong class="order-item-label order-item-price-label">
+                                                {{ "account.orderItemColumnPrice"|trans }}
+                                            </strong>
                                         {% endblock %}
 
                                         {% block page_account_order_item_detail_price_value %}
                                             <span class="order-item-value order-item-price-value">
-                                                    {% if product.unitPrice %}
-                                                        {{ product.unitPrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
-                                                    {% else %}
-                                                        {{ "account.orderItemInfoFree"|trans }}
-                                                    {% endif %}
-                                                </span>
+                                                {% if product.unitPrice %}
+                                                    {{ product.unitPrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
+                                                {% else %}
+                                                    {{ "account.orderItemInfoFree"|trans }}
+                                                {% endif %}
+                                            </span>
                                         {% endblock %}
                                     </td>
                                 {% endblock %}
@@ -124,18 +131,19 @@
                                 {% block page_account_order_item_detail_total %}
                                     <td class="col-12 col-md-2 order-item order-item-total">
                                         {% block page_account_order_item_detail_total_label %}
-                                            <strong
-                                                class="order-item-label order-item-total-label">{{ "account.orderItemColumnTotal"|trans }}</strong>
+                                            <strong class="order-item-label order-item-total-label">
+                                                {{ "account.orderItemColumnTotal"|trans }}
+                                            </strong>
                                         {% endblock %}
 
                                         {% block page_account_order_item_detail_total_value %}
                                             <span class="order-item-value order-item-total-value">
-                                                    {% if product.totalPrice %}
-                                                        {{ product.totalPrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
-                                                    {% else %}
-                                                        {{ "account.orderItemInfoFree"|trans }}
-                                                    {% endif %}
-                                                </span>
+                                                {% if product.totalPrice %}
+                                                    {{ product.totalPrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
+                                                {% else %}
+                                                    {{ "account.orderItemInfoFree"|trans }}
+                                                {% endif %}
+                                            </span>
                                         {% endblock %}
                                     </td>
                                 {% endblock %}
@@ -183,31 +191,6 @@
                                                         {% endblock %}
                                                     {% endif %}
                                                 {% endblock %}
-
-                                                {#TODO: NEXT-2695 - dispatch.name, dispatch.status_link#}
-                                                {% block page_account_order_item_detail_trackingcode %}
-                                                    {% if trackingCode %}
-                                                        {% block page_account_order_item_detail_trackingcode_label %}
-                                                            <dt class="col-6 col-md-5">{{ "account.orderItemTracking"|trans }}</dt>
-                                                        {% endblock %}
-
-                                                        {% block page_account_order_item_detail_trackingcode_value %}
-                                                            <dd class="col-6 col-md-7">
-                                                                {% if order.dispatch.status_link %}
-                                                                    <a href="{{ order.dispatch.status_link }}"
-                                                                       title="{{ order.dispatch.translated.name }}"
-                                                                       data-toggle="modal"
-                                                                       data-target="#trackingModal"
-                                                                       data-url="{{ order.dispatch.status_link }}">
-                                                                        {{ trackingCode }}
-                                                                    </a>
-                                                                {% else %}
-                                                                    {{ trackingCode }}
-                                                                {% endif %}
-                                                            </dd>
-                                                        {% endblock %}
-                                                    {% endif %}
-                                                {% endblock %}
                                             </dl>
                                         </div>
                                         <div class="col-12 col-md-5 col-xl-6">
@@ -252,37 +235,6 @@
                             </tr>
                         {% endblock %}
 
-                        {#TODO: NEXT-2695 - activeBuyButton#}
-                        {% block page_account_order_item_detail_table_repeat_order %}
-                            {% if not order.activeBuyButton %}
-                                <tr>
-                                    <td class="col order-detail-repeat">
-                                        {% block page_account_order_item_detail_table_repeat_order_form %}
-                                            {#TODO: NEXT-2695 - form action and hidden input names#}
-                                            <form method="post"
-                                                  action="#">
-                                                {% for product in orderDetails %}
-                                                    {% if product.orderLineItem.type == "product" %}
-                                                        <input name="sAddAccessories[]"
-                                                               type="hidden"
-                                                               value="{{ product.orderLineItem.identifier }}"/>
-                                                        <input name="sAddAccessoriesQuantity[]"
-                                                               type="hidden"
-                                                               value="{{ product.orderLineItem.quantity }}"/>
-                                                    {% endif %}
-                                                {% endfor %}
-
-                                                {% block page_account_order_item_detail_table_repeat_order_button %}
-                                                    <input type="submit"
-                                                           class="btn btn-primary btn-sm"
-                                                           value="{{ "account.orderLinkRepeat"|trans }}"/>
-                                                {% endblock %}
-                                            </form>
-                                        {% endblock %}
-                                    </td>
-                                </tr>
-                            {% endif %}
-                        {% endblock %}
                         </tfoot>
                     {% endblock %}
                 </table>

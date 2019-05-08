@@ -1,4 +1,4 @@
-import { Component } from 'src/core/shopware';
+import { Component, State } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
 import template from './sw-settings-payment-create.html.twig';
 
@@ -13,8 +13,18 @@ Component.extend('sw-settings-payment-create', 'sw-settings-payment-detail', {
         next();
     },
 
+    computed: {
+        languageStore() {
+            return State.getStore('language');
+        }
+    },
+
     methods: {
         createdComponent() {
+            if (this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId) {
+                this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+            }
+
             if (this.$route.params.id) {
                 this.paymentMethodStore.create(this.$route.params.id);
             }

@@ -117,7 +117,7 @@ Component.register('sw-mail-template-detail', {
         },
 
         onSave() {
-            const mailTemplateSubject = this.mailTemplate.subject;
+            const mailTemplateSubject = this.mailTemplate.subject || this.placeholder(this.mailTemplate, 'subject');
 
             const notificationSaveError = {
                 title: this.$tc('global.notification.notificationSaveErrorTitle'),

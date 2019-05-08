@@ -1,4 +1,4 @@
-import { Component } from 'src/core/shopware';
+import { Component, Application } from 'src/core/shopware';
 import template from './sw-cms-list-item.html.twig';
 import './sw-cms-list-item.scss';
 
@@ -15,20 +15,38 @@ Component.register('sw-cms-list-item', {
 
     computed: {
         previewMedia() {
-            if (!this.page.previewMedia || !this.page.previewMedia.id) {
-                return null;
+            if (this.page.previewMedia && this.page.previewMedia.id && this.page.previewMedia.url) {
+                return {
+                    'background-image': `url(${this.page.previewMedia.url})`,
+                    'background-size': 'cover'
+                };
             }
 
-            return {
-                'background-image': `url(${this.page.previewMedia.url})`,
-                'background-size': 'cover'
-            };
+            if (this.page.locked === true) {
+                return {
+                    'background-image': this.defaultLayoutAsset,
+                    'background-size': 'cover'
+                };
+            }
+
+            return null;
+        },
+
+        defaultLayoutAsset() {
+            const initContainer = Application.getContainer('init');
+            const context = initContainer.contextService;
+
+            return `url(${context.assetsPath}/administration/static/img/cms/default_preview_${this.page.type}.jpg)`;
         }
     },
 
     methods: {
         onChangePreviewImage(page) {
             this.$emit('preview-image-change', page);
+        },
+
+        onElementClick() {
+            this.$emit('onItemClick', this.page);
         },
 
         onRemovePreviewImage(page) {

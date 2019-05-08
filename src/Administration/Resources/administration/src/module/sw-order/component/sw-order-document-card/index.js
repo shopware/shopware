@@ -1,6 +1,6 @@
 import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-order-document-card.html.twig';
-import './sw-order-document.card.scss';
+import './sw-order-document-card.scss';
 import '../sw-order-document-settings-invoice-modal/';
 import '../sw-order-document-settings-storno-modal/';
 import '../sw-order-document-settings-delivery-note-modal/';
@@ -12,7 +12,10 @@ Component.register('sw-order-document-card', {
 
     inject: ['documentService', 'numberRangeService'],
 
-    mixins: [Mixin.getByName('listing')],
+    mixins: [
+        Mixin.getByName('listing'),
+        Mixin.getByName('placeholder')
+    ],
 
     props: {
         order: {

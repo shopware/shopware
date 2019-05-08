@@ -1,4 +1,9 @@
-<sw-contextual-field class="sw-field--text" v-bind="$attrs" :name="formFieldName">
+<sw-contextual-field class="sw-field--text"
+                     v-bind="$attrs"
+                     :name="formFieldName"
+                     :isInheritanceField="isInheritanceField"
+                     :isInherited="isInherited"
+                     @inheritance-restore="restoreInheritance">
     <template v-if="hasPrefix" #sw-contextual-field-prefix="{ disabled, identification }">
         <slot name="prefix" v-bind="{disabled, identification}"></slot>
     </template>
@@ -9,7 +14,7 @@
                :id="identification"
                :disabled="disabled"
                :value="currentValue"
-               :placeHolder="placeholder"
+               :placeHolder="placeholder || inheritedValue"
                @input="onInput"
                @change="onChange"
                @focus="setFocusClass"

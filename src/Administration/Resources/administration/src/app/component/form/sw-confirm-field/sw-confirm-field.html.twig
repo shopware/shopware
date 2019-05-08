@@ -4,6 +4,8 @@
             <sw-text-field
                 v-model="draft"
                 v-bind="$attrs"
+                :required="required"
+                validation="required"
                 @focus="onStartEditing"
                 @blur="onBlurField"
                 @keyup.enter="onSubmitFromKey"

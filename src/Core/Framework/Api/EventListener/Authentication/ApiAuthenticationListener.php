@@ -79,18 +79,18 @@ class ApiAuthenticationListener implements EventSubscriberInterface
             return;
         }
 
-        $tenMinuteInterval = new \DateInterval('PT1M');
-        $oneHour = new \DateInterval('PT1H');
+        $tenMinuteInterval = new \DateInterval('PT10M');
+        $oneWeekInterval = new \DateInterval('P1W');
 
         $passwordGrant = new PasswordGrant($this->userRepository, $this->refreshTokenRepository);
-        $passwordGrant->setRefreshTokenTTL($oneHour);
+        $passwordGrant->setRefreshTokenTTL($oneWeekInterval);
 
         $refreshTokenGrant = new RefreshTokenGrant($this->refreshTokenRepository);
-        $refreshTokenGrant->setRefreshTokenTTL($oneHour);
+        $refreshTokenGrant->setRefreshTokenTTL($oneWeekInterval);
 
         $this->authorizationServer->enableGrantType($passwordGrant, $tenMinuteInterval);
-        $this->authorizationServer->enableGrantType($refreshTokenGrant, $oneHour);
-        $this->authorizationServer->enableGrantType(new ClientCredentialsGrant(), $oneHour);
+        $this->authorizationServer->enableGrantType($refreshTokenGrant, $oneWeekInterval);
+        $this->authorizationServer->enableGrantType(new ClientCredentialsGrant(), $oneWeekInterval);
     }
 
     public function validateRequest(FilterControllerEvent $event): void

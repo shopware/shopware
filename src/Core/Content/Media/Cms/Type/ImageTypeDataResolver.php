@@ -26,7 +26,7 @@ class ImageTypeDataResolver extends TypeDataResolver
         $config = $slot->getFieldConfig();
         $mediaConfig = $config->get('media');
 
-        if (!$mediaConfig || $mediaConfig->isMapped()) {
+        if (!$mediaConfig || $mediaConfig->isMapped() || $mediaConfig->getValue() === null) {
             return null;
         }
 
@@ -61,7 +61,8 @@ class ImageTypeDataResolver extends TypeDataResolver
             }
         }
 
-        if ($mediaConfig = $config->get('media')) {
+        $mediaConfig = $config->get('media');
+        if ($mediaConfig && $mediaConfig->getValue()) {
             $this->addMediaEntity($slot, $image, $result, $mediaConfig, $resolverContext);
         }
     }

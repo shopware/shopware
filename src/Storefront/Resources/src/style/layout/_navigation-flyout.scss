@@ -58,19 +58,9 @@
 .navigation-flyout-content {
     padding-bottom: 60px;
 
-    .navigation-flyout-categories,
     .navigation-flyout-teaser {
-        float: left;
-    }
-
-    .navigation-flyout-categories {
-        width: 25%;
-    }
-
-    .navigation-flyout-teaser {
-        width: 75%;
         border-left: 1px solid $border-color;
-        padding-left: $grid-gutter-width;
+        padding-left: 30px;
     }
 
     .teaser-image {

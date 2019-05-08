@@ -12,7 +12,7 @@
 			{% if isCartNotEmpty %}
 				{% for lineItem in page.cart.lineItems %}
 					{% block layout_cart_mini_item %}
-						<div class="cart-item cart-item-{{ lineItem.type }}">
+						<div class="cart-item cart-item-{{ lineItem.type }} js-cart-item">
 							{% block layout_cart_mini_item_image %}
 								<div class="cart-item-image">
 									{% if lineItem.type == 'product' %}

@@ -139,7 +139,7 @@ Component.register('sw-sales-channel-detail', {
                     this.createNotificationError({
                         title: this.$tc('sw-sales-channel.detail.titleSaveError'),
                         message: this.$tc('sw-sales-channel.detail.messageSaveError', 0, {
-                            name: this.salesChannel.name
+                            name: this.salesChannel.name || this.placeholder(this.salesChannel, 'name')
                         })
                     });
                 });

@@ -1,9 +1,12 @@
-import { Component, State } from 'src/core/shopware';
+import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-order-address-modal.html.twig';
 import './sw-order-address-modal.scss';
 
 Component.register('sw-order-address-modal', {
     template,
+    mixins: [
+        Mixin.getByName('placeholder')
+    ],
     props: {
         address: {
             type: Object,

@@ -52,7 +52,13 @@ export default {
             default: false
         },
 
-        inherited: {
+        isInherited: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
+        isInheritanceField: {
             type: Boolean,
             required: false,
             default: false
@@ -75,7 +81,7 @@ export default {
         },
 
         hasLabel() {
-            return !!this.label || !!this.helpText;
+            return !!this.label || !!this.helpText || this.isInheritanceField;
         },
 
         hasError() {
@@ -86,7 +92,7 @@ export default {
             return {
                 'has--error': this.hasError,
                 'is--disabled': this.disabled,
-                'is--inherited': this.inherited
+                'is--inherited': this.isInherited
             };
         }
     }

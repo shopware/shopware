@@ -42,6 +42,7 @@
             "headlineInformationCard": "Allgemein",
             "isCategoryActiveLabel": "Kategorie ist aktiv",
             "useAsLink": "Als Link verwenden",
+            "showSubcategoryProductsLabel": "Auch Produkte aus Subkategorien anzeigen",
 
             "types": {
               "title": "Kategorietyp",
@@ -93,8 +94,7 @@
             "productAssignmentEmptyStateTitle": "Keine Produkte zugewiesen",
             "productAssignmentEmptyStateSubline": "Füge über die Suche neue Produkte hinzu",
             "columnNameLabel": "Name",
-            "columnManufacturerLabel": "Hersteller",
-            "showSubcategoryProductsLabel": "Auch Produkte aus Subkategorien anzeigen"
+            "columnManufacturerLabel": "Hersteller"
           }
         },
 

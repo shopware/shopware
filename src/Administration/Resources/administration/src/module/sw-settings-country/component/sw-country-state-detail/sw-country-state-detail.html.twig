@@ -9,6 +9,7 @@
                     <sw-field
                             type="text"
                             :label="$tc('sw-country-state-detail.labelName')"
+                            :placeholder="placeholder(countryState, 'name')"
                             v-model="countryState.name">
                     </sw-field>
                 {% endblock %}

@@ -68,13 +68,14 @@
                         {% block sw_order_detail_base_order_overview_left_column %}
                             <sw-description-list columns="1fr" grid="1fr" class="sw-order-user-card__summary-vertical">
                                 {% block sw_order_detail_base_order_overview_email %}
-                                    <dt>{{ $tc('sw-order.detailBase.labelCustomerEmail') }}</dt>
+                                    <dt>{{ $tc('sw-order.detailBase.labelCustomerEmail') }}*</dt>
                                     <dd>
                                         <sw-order-inline-field :displayValue="currentOrder.orderCustomer.email"
-                                            :value="currentOrder.orderCustomer.email"
-                                            :editable="isEditing"
-                                            @input="$emit('order-changed')"
-                                            v-model="currentOrder.orderCustomer.email">
+                                                               required
+                                                               :value="currentOrder.orderCustomer.email"
+                                                               :editable="isEditing"
+                                                               @input="$emit('order-changed')"
+                                                               v-model="currentOrder.orderCustomer.email">
                                         </sw-order-inline-field>
                                     </dd>
                                 {% endblock %}

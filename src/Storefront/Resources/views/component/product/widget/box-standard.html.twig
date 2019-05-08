@@ -1,103 +1,56 @@
 {% block component_product_box %}
-    <div class="card product-box box-{{ layout }}">
-        {% block component_product_box_content %}
-            <div class="card-body">
-                {% block component_product_box_badges %}
-                    {% sw_include '@Storefront/component/product/widget/badges.html.twig' %}
-                {% endblock %}
+    {% if product %}
+        <div class="card product-box box-{{ layout }}">
+            {% block component_product_box_content %}
+                <div class="card-body">
+                    {% block component_product_box_badges %}
+                        {% sw_include '@Storefront/component/product/widget/badges.html.twig' %}
+                    {% endblock %}
 
-                {% block component_product_box_image %}
-                    <div class="product-image-wrapper">
-                        <a href="{{ path('frontend.detail.page', {'productId': product.id}) }}"
-                           title="{{ product.translated.name }}"
-                           class="product-image-link">
-                            {% if product.cover.media.url %}
-                                {% set imgSrc = product.cover.media.url %}
-                            {% else %}
-                                {% set imgSrc = asset(shopware.theme.general.noPicture) %}
-                            {% endif %}
-                            <img class="product-image img-fluid"
-                                 src="{{ imgSrc }}"
-                                 alt="{{ product.cover.media.alt }}">
-                        </a>
-                    </div>
-                {% endblock %}
-
-                {% block component_product_box_info %}
-                    <div class="product-info">
-                        {% block component_product_box_name %}
+                    {% block component_product_box_image %}
+                        <div class="product-image-wrapper">
                             <a href="{{ path('frontend.detail.page', {'productId': product.id}) }}"
-                               class="product-name"
-                               title="{{ product.translated.name }}">
-                                {{ product.translated.name }}
+                               title="{{ product.translated.name }}"
+                               class="product-image-link">
+                                {% if product.cover.media.url %}
+                                    {% set imgSrc = product.cover.media.url %}
+                                {% else %}
+                                    {% set imgSrc = asset(shopware.theme.general.noPicture) %}
+                                {% endif %}
+                                <img class="product-image is-{{ displayMode }}"
+                                     src="{{ imgSrc }}"
+                                     alt="{{ product.cover.media.alt }}">
                             </a>
-                        {% endblock %}
+                        </div>
+                    {% endblock %}
 
-                        {% block component_product_box_description %}
-                            <div class="product-description">
-                                {{ product.translated.description }}
-                            </div>
-                        {% endblock %}
+                    {% block component_product_box_info %}
+                        <div class="product-info">
+                            {% block component_product_box_name %}
+                                <a href="{{ path('frontend.detail.page', {'productId': product.id}) }}"
+                                   class="product-name"
+                                   title="{{ product.translated.name }}">
+                                    {{ product.translated.name }}
+                                </a>
+                            {% endblock %}
 
-                        {% block component_product_box_price %}
-                            {% sw_include '@Storefront/component/product/widget/price-unit.html.twig' %}
-                        {% endblock %}
-
-                        {% block component_product_box_action %}
-                            {% if shopware.config.listing.allowBuyInListing %}
-                                <div class="product-btn">
-                                    {% if not product.variantRestrictions %}
-                                        {% block component_product_box_action_buy %}
-                                            <form action="{{ path('frontend.checkout.line-item.add') }}"
-                                                  method="post"
-                                                  class="buy-widget"
-                                                  data-add-to-cart="true">
-
-                                                {% block component_product_box_action_buy_redirect_input %}
-                                                    <input type="hidden"
-                                                           name="redirectTo"
-                                                           value="frontend.cart.detail"/>
-                                                {% endblock %}
-
-                                                {% block page_product_detail_buy_product_buy_info %}
-                                                    <input type="hidden"
-                                                           name="lineItems[{{ product.id }}][id]"
-                                                           value="{{ product.id }}">
-                                                    <input type="hidden"
-                                                           name="lineItems[{{ product.id }}][type]"
-                                                           value="product">
-                                                    <input type="hidden"
-                                                           name="lineItems[{{ product.id }}][stackable]"
-                                                           value="1">
-                                                    <input type="hidden"
-                                                           name="lineItems[{{ product.id }}][removable]"
-                                                           value="1">
-                                                    <input type="hidden"
-                                                           name="lineItems[{{ product.id }}][quantity]"
-                                                           value="1">
-                                                {% endblock %}
-
-                                                <button class="btn btn-block buy-widget-submit"
-                                                        title="{{ "listing.boxAddProduct"|trans }}">
-                                                    {{ "listing.boxAddProduct"|trans }}
-                                                </button>
-                                            </form>
-                                        {% endblock %}
-                                    {% else %}
-                                        {% block component_product_box_action_detail %}
-                                            <a href="{{ path('frontend.detail.page', {'productId': product.id}) }}"
-                                               class="btn btn-block btn-light"
-                                               title="{{ "listing.boxProductDetails"|trans }}">
-                                                {{ "listing.boxProductDetails"|trans }}
-                                            </a>
-                                        {% endblock %}
-                                    {% endif %}
+                            {% block component_product_box_description %}
+                                <div class="product-description">
+                                    {{ product.translated.description }}
                                 </div>
-                            {% endif %}
-                        {% endblock %}
-                    </div>
-                {% endblock %}
-            </div>
-        {% endblock %}
-    </div>
+                            {% endblock %}
+
+                            {% block component_product_box_price %}
+                                {% sw_include '@Storefront/component/product/widget/price-unit.html.twig' %}
+                            {% endblock %}
+
+                            {% block component_product_box_action %}
+                                {% sw_include '@Storefront/component/product/widget/action.html.twig' %}
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </div>
+    {% endif %}
 {% endblock %}

@@ -221,6 +221,15 @@ Component.register('sw-category-detail', {
                     this.getAssignedCmsPage(this.category.cmsPageId);
                     this.updateCmsPageDataMapping();
 
+                    this.$nextTick(() => {
+                        if (this.$refs.categoryView &&
+                            this.$refs.categoryView.$refs &&
+                            this.$refs.categoryView.$refs.categoryRouterView &&
+                            type.isFunction(this.$refs.categoryView.$refs.categoryRouterView.getList)) {
+                            this.$refs.categoryView.$refs.categoryRouterView.getList();
+                        }
+                    });
+
                     this.mediaItem = this.category.mediaId ? this.mediaStore.getById(this.category.mediaId) : null;
                     this.isLoading = false;
                     this.isLoadingCategory = false;
@@ -343,8 +352,8 @@ Component.register('sw-category-detail', {
 
             this.isLoading = true;
             return this.category.save().then(() => {
-                this.isLoading = false;
                 this.isSaveSuccessful = true;
+                this.setCategory();
             }).catch(exception => {
                 this.isLoading = false;
                 this.createNotificationError({

@@ -3,8 +3,7 @@
 
         {% block sw_settings_currency_detail_header %}
             <template slot="smart-bar-header">
-                <h2 v-if="currency.name">{{ currency.name }}</h2>
-                <h2 v-else>{{ $tc('sw-settings-currency.detail.textHeadline') }}</h2>
+                <h2>{{ placeholder(currency, 'name', $tc('sw-settings-currency.detail.textHeadline')) }}</h2>
             </template>
         {% endblock %}
 
@@ -54,6 +53,7 @@
 
                             {% block sw_settings_currency_detail_content_field_name %}
                                 <sw-field type="text"
+                                          required
                                           :label="$tc('sw-settings-currency.detail.labelName')"
                                           :placeholder="placeholder(currency, 'name', $tc('sw-settings-currency.detail.placeholderName'))"
                                           v-model="currency.name">
@@ -62,6 +62,7 @@
 
                             {% block sw_settings_currency_detail_content_field_iso_code %}
                                 <sw-field type="text"
+                                          required
                                           :label="$tc('sw-settings-currency.detail.labelIsoCode')"
                                           :placeholder="placeholder(currency, 'isoCode', $tc('sw-settings-currency.detail.placeholderIsoCode'))"
                                           v-model="currency.isoCode">
@@ -70,6 +71,7 @@
 
                             {% block sw_settings_currency_detail_content_field_short_name %}
                                 <sw-field type="text"
+                                          required
                                           :label="$tc('sw-settings-currency.detail.labelShortName')"
                                           :placeholder="placeholder(currency, 'shortName', $tc('sw-settings-currency.detail.placeholderShortName'))"
                                           v-model="currency.shortName">
@@ -78,6 +80,7 @@
 
                             {% block sw_settings_currency_detail_content_field_symbol %}
                                 <sw-field type="text"
+                                          required
                                           :label="$tc('sw-settings-currency.detail.labelSymbol')"
                                           :placeholder="$tc('sw-settings-currency.detail.placeholderSymbol')"
                                           v-model="currency.symbol">
@@ -86,6 +89,7 @@
 
                             {% block sw_settings_currency_detail_content_field_factor %}
                                 <sw-field type="number"
+                                          required
                                           :label="$tc('sw-settings-currency.detail.labelFactor')"
                                           :placeholder="$tc('sw-settings-currency.detail.placeholderFactor')"
                                           v-model="currency.factor"
@@ -95,6 +99,7 @@
 
                             {% block sw_settings_currency_detail_content_field_decimal_precision %}
                                 <sw-field type="number"
+                                          required
                                           :label="$tc('sw-settings-currency.detail.labelPrecision')"
                                           :placeholder="$tc('sw-settings-currency.detail.placeholderPrecision')"
                                           v-model="currency.decimalPrecision">

@@ -4,7 +4,7 @@
         {% block sw_order_detail_header %}
             <template slot="smart-bar-header">
                 {% block sw_order_detail_header_title %}
-                    <h2 v-if="order.id">{{ $tc('sw-order.detail.textHeadline') }} {{ order.id }}</h2>
+                    <h2 v-if="identifier">{{ $tc('sw-order.detail.textHeadline') }} {{ identifier }}</h2>
                 {% endblock %}
 
                 {% block sw_order_detail_header_title_new %}

@@ -101,7 +101,7 @@ class HeaderPageletLoader implements PageLoaderInterface
     private function loadLanguages(SalesChannelContext $context): EntityCollection
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('language.salesChannels.id', $context->getSalesChannel()->getId()));
+        $criteria->addFilter(new EqualsFilter('language.salesChannelDomains.salesChannelId', $context->getSalesChannel()->getId()));
 
         return $this->languageRepository->search($criteria, $context->getContext())->getEntities();
     }

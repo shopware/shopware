@@ -6,5 +6,12 @@
 {% endblock %}
 
 {% block page_checkout_item_product_quantity_form %}
-    {{ lineItem.quantity }}
+    {% block page_checkout_item_product_quantity_label %}
+        <div class="cart-item-quantity-label">
+            {{ "checkout.cartHeaderQuantity"|trans }}
+        </div>
+    {% endblock %}
+    {% block page_product_detail_buy_quantity %}
+        {{ lineItem.quantity }}
+    {% endblock %}
 {% endblock %}

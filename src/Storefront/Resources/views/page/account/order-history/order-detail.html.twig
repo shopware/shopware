@@ -252,37 +252,6 @@
                             </tr>
                         {% endblock %}
 
-                        {#TODO: NEXT-2695 - activeBuyButton#}
-                        {% block page_account_order_item_detail_table_repeat_order %}
-                            {% if not order.activeBuyButton %}
-                                <tr>
-                                    <td class="col order-detail-repeat">
-                                        {% block page_account_order_item_detail_table_repeat_order_form %}
-                                            {#TODO: NEXT-2695 - form action and hidden input names#}
-                                            <form method="post"
-                                                  action="#">
-                                                {% for product in orderDetails %}
-                                                    {% if product.orderLineItem.type == "product" %}
-                                                        <input name="sAddAccessories[]"
-                                                               type="hidden"
-                                                               value="{{ product.orderLineItem.identifier }}"/>
-                                                        <input name="sAddAccessoriesQuantity[]"
-                                                               type="hidden"
-                                                               value="{{ product.orderLineItem.quantity }}"/>
-                                                    {% endif %}
-                                                {% endfor %}
-
-                                                {% block page_account_order_item_detail_table_repeat_order_button %}
-                                                    <input type="submit"
-                                                           class="btn btn-primary btn-sm"
-                                                           value="{{ "account.orderLinkRepeat"|trans }}"/>
-                                                {% endblock %}
-                                            </form>
-                                        {% endblock %}
-                                    </td>
-                                </tr>
-                            {% endif %}
-                        {% endblock %}
                         </tfoot>
                     {% endblock %}
                 </table>

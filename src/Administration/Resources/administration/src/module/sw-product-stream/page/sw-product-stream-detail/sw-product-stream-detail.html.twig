@@ -53,6 +53,7 @@
                             <sw-field type="text"
                                       :label="$tc('sw-product-stream.detail.labelName')"
                                       :validation="nameRequired"
+                                      required
                                       :placeholder="placeholder(productStream, 'name', $tc('sw-product-stream.detail.placeholderName'))"
                                       v-model="productStream.name">
                             </sw-field>

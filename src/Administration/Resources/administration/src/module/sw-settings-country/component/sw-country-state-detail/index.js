@@ -1,8 +1,12 @@
-import { Component } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-country-state-detail.html.twig';
 
 Component.register('sw-country-state-detail', {
     template,
+
+    mixins: [
+        Mixin.getByName('placeholder')
+    ],
 
     props: {
         countryState: {

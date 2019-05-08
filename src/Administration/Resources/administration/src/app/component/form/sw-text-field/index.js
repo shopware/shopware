@@ -40,12 +40,18 @@ export default {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        inheritedValue: {
+            type: String,
+            required: false,
+            default: null
         }
     },
 
     data() {
         return {
-            currentValue: this.value || ''
+            currentValue: this.value
         };
     },
 
@@ -70,19 +76,25 @@ export default {
 
     watch: {
         value(value) {
-            this.currentValue = value || '';
+            this.currentValue = value;
         }
     },
 
     methods: {
         onChange(event) {
+            this.resetFormError();
             this.currentValue = event.target.value || '';
             this.$emit('change', this.currentValue);
         },
 
         onInput(event) {
+            this.resetFormError();
             this.currentValue = event.target.value || '';
             this.$emit('input', this.currentValue);
+        },
+
+        restoreInheritance() {
+            this.$emit('input', null);
         }
     }
 };

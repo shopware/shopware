@@ -55,6 +55,7 @@
                                           :label="$tc('sw-settings-language.detail.labelName')"
                                           :placeholder="$tc('sw-settings-language.detail.placeholderName')"
                                           validation="required"
+                                          required
                                           v-model="language.name">
                                 </sw-field>
                             {% endblock %}
@@ -163,11 +164,10 @@
                                     <sw-field type="switch"
                                               bordered
                                               disabled
+                                              :helpText="$tc('sw-settings-language.detail.helpTextDefaultField')"
                                               :label="$tc('sw-settings-language.detail.labelDefault')"
                                               v-model="language.active">
                                     </sw-field>
-                                    <sw-help-text :text="$tc('sw-settings-language.detail.helpTextDefaultField')">
-                                    </sw-help-text>
                                 </div>
                             {% endblock %}
                         </sw-container>

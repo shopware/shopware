@@ -160,7 +160,10 @@
                                     <button type="submit"
                                             title="{{ "checkout.removeLineItem"|trans }}"
                                             class="btn btn-light btn-sm cart-item-remove-button">
-                                        <i class="fas fa-times"></i>
+                                        {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
+                                            'name': 'basic-x-line',
+                                            'style': 'sm'
+                                        } %}
                                     </button>
                                 {% endblock %}
                             </form>

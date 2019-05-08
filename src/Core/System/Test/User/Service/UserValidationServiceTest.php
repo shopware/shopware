@@ -26,7 +26,7 @@ class UserValidationServiceTest extends \PHPUnit\Framework\TestCase
 
         $context = Context::createDefaultContext();
         $localeIds = $this->localeRepository->searchIds(new Criteria(), $context)->getData();
-        $firstLocale = array_pop($localeIds)['primary_key'];
+        $firstLocale = array_pop($localeIds)['id'];
 
         $this->userRepository->create([
             [
@@ -51,7 +51,7 @@ class UserValidationServiceTest extends \PHPUnit\Framework\TestCase
 
         $context = Context::createDefaultContext();
         $localeIds = $this->localeRepository->searchIds(new Criteria(), $context)->getData();
-        $firstLocale = array_pop($localeIds)['primary_key'];
+        $firstLocale = array_pop($localeIds)['id'];
 
         $this->userRepository->create([
             [
@@ -75,7 +75,7 @@ class UserValidationServiceTest extends \PHPUnit\Framework\TestCase
 
         $context = Context::createDefaultContext();
         $localeIds = $this->localeRepository->searchIds(new Criteria(), $context)->getData();
-        $firstLocale = array_pop($localeIds)['primary_key'];
+        $firstLocale = array_pop($localeIds)['id'];
 
         $this->userRepository->create([
             [
@@ -100,7 +100,7 @@ class UserValidationServiceTest extends \PHPUnit\Framework\TestCase
 
         $context = Context::createDefaultContext();
         $localeIds = $this->localeRepository->searchIds(new Criteria(), $context)->getData();
-        $firstLocale = array_pop($localeIds)['primary_key'];
+        $firstLocale = array_pop($localeIds)['id'];
 
         $this->userRepository->create([
             [

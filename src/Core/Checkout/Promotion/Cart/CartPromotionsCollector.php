@@ -49,10 +49,9 @@ class CartPromotionsCollector implements CollectorInterface
     }
 
     /**
-     * This function extracts all place holder promotion items from
-     * the cart and makes sure they get converted into real promotion line items later.
-     * Only these codes along with all automatic non-code promotions will be
-     * loaded later when collecting the eligible promotions.
+     * This function extracts all placeholder line items, as well as promotion-discount line items, that have a
+     * promotion code. Later, the codes will be loaded along with all automatic non-code promotions when collection
+     * all eligible promotions
      */
     public function prepare(StructCollection $definitions, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
     {
@@ -62,10 +61,11 @@ class CartPromotionsCollector implements CollectorInterface
         $promotionLineItems = $this->getPromotionLineItems($cart);
 
         // We must not touch any existing items!
-        // we do only search for new promotion placeholders and extract their IDs.
+        // This loops searches for promotion line items (both placeholders and real line items) that have a
+        // promotion code
         /** @var LineItem $lineItem */
         foreach ($promotionLineItems as $lineItem) {
-            if ($this->isPromotionPlaceholder($lineItem)) {
+            if ($this->isPromotionLineItem($lineItem) && $lineItem->hasPayloadValue('code')) {
                 $placeholderItemIds[] = $lineItem->getKey();
             }
         }
@@ -75,7 +75,7 @@ class CartPromotionsCollector implements CollectorInterface
 
     /**
      * This function is used to collect our promotion data for our cart.
-     * It queries the database for all placeholder promotions and their codes
+     * It queries the database for all promotions with codes from placeholders and existing promotion line items
      * along with all non-code promotions that are applied automatically if conditions are met.
      * The eligible promotions will then be passed on to the enrichment function.
      *
@@ -99,7 +99,7 @@ class CartPromotionsCollector implements CollectorInterface
         $definition = $promotionDefinitions->getElements()[0];
 
         /** @var array $codes */
-        $codes = $this->getCodesFromPlaceholdersIds($cart, $definition->getLineItemIds());
+        $codes = $this->getCodesFromLineItems($cart, $definition->getLineItemIds());
 
         /** @var array $promotions */
         $promotions = $this->searchPromotions($codes, $context);
@@ -212,6 +212,11 @@ class CartPromotionsCollector implements CollectorInterface
         );
     }
 
+    private function isPromotionLineItem(LineItem $lineItem): bool
+    {
+        return $lineItem->getType() === self::LINE_ITEM_TYPE;
+    }
+
     /**
      * Gets if the line item is a placeholder and not yet satisfied
      * promotion line item. This is done by verifying if the key
@@ -219,7 +224,7 @@ class CartPromotionsCollector implements CollectorInterface
      */
     private function isPromotionPlaceholder(LineItem $lineItem): bool
     {
-        if ($lineItem->getType() !== self::LINE_ITEM_TYPE) {
+        if (!$this->isPromotionLineItem($lineItem)) {
             return false;
         }
 
@@ -231,7 +236,7 @@ class CartPromotionsCollector implements CollectorInterface
      */
     private function isRealPromotionItem(LineItem $lineItem): bool
     {
-        if ($lineItem->getType() !== self::LINE_ITEM_TYPE) {
+        if (!$this->isPromotionLineItem($lineItem)) {
             return false;
         }
 
@@ -241,10 +246,9 @@ class CartPromotionsCollector implements CollectorInterface
     }
 
     /**
-     * This function extracts all code strings from the
-     * placeholder items of the provided Ids within the cart.
+     * This function extracts all code strings from line items with the provided ids.
      */
-    private function getCodesFromPlaceholdersIds(Cart $cart, array $lineItemIDs): array
+    private function getCodesFromLineItems(Cart $cart, array $lineItemIDs): array
     {
         $codes = [];
 
@@ -253,8 +257,7 @@ class CartPromotionsCollector implements CollectorInterface
 
         /** @var LineItem $lineItem */
         foreach ($promotionLineItems as $lineItem) {
-            // if our line item is in our list of Ids and
-            // if it is a placeholder item, then collect that code.
+            // if our line item is in our list of Ids then collect that code.
             if (!in_array($lineItem->getKey(), $lineItemIDs, true)) {
                 continue;
             }

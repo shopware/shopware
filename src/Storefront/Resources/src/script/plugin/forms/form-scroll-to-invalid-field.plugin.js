@@ -1,5 +1,6 @@
 import Plugin from 'src/script/helper/plugin/plugin.class';
 import Debouncer from 'src/script/helper/debouncer.helper';
+import Iterator from 'src/script/helper/iterator.helper';
 
 /**
  * this plugin scrolls to invalid form fields
@@ -75,7 +76,7 @@ export default class FormScrollToInvalidFieldPlugin extends Plugin {
      * @private
      */
     _registerEvents() {
-        this._formFields.forEach(field => {
+        Iterator.iterate(this._formFields, field => {
             field.addEventListener('invalid', this._onInvalid.bind(this), false);
         });
 
@@ -124,8 +125,7 @@ export default class FormScrollToInvalidFieldPlugin extends Plugin {
      * @private
      */
     _getFirstInvalidFormFields(event) {
-        this._formFields.forEach(field => {
-
+        Iterator.iterate(this._formFields, field => {
             if (field === event.target) {
                 this._firstInvalidElement = field;
             }

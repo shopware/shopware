@@ -24,7 +24,7 @@ skinparam backgroundColor #FFFFFF
 
 Table(ShopwareCoreContentMailTemplateMailTemplateDefinition, "mail_template\n(Mail Template)") {
    primary_key(id) id
-   mailTemplateTypeId foreignKey
+   not_null(mailTemplateTypeId) foreignKey
    systemDefault bool
    senderName translated
    description translated
@@ -87,7 +87,7 @@ Table(ShopwareCoreContentMailTemplateAggregateMailHeaderFooterMailHeaderFooterDe
    translated json
 }
 TranslationTable(ShopwareCoreContentMailTemplateAggregateMailHeaderFooterTranslationMailHeaderFooterTranslationDefinition, "mail_header_footer_translation\n((Translations))") {
-   name string
+   not_null(name) string
    description string
    headerHtml longTextWithHtml
    headerPlain longText

@@ -58,6 +58,7 @@
                         <sw-container columns="3fr 1fr" gap="0px 30px">
                             {% block sw_settings_payment_detail_content_field_name %}
                                 <sw-field type="text"
+                                          required
                                           :label="$tc('sw-settings-payment.detail.labelName')"
                                           :placeholder="placeholder(paymentMethod, 'name', $tc('sw-settings-payment.detail.placeholderName'))"
                                           v-model="paymentMethod.name">

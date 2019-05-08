@@ -18,7 +18,7 @@
                                                       :disabled="!documentTypeAvailable(documentType)"
                                                       @click="onPrepareDocument(documentType)"
                                 >
-                                    {{ documentType.name }}
+                                    {{ placeholder(documentType, 'name') }}
                                 </sw-context-menu-item>
                             </template>
                         </sw-context-button>
@@ -50,7 +50,7 @@
                                         :label="$tc('sw-order.documentCard.labelType')"
                                         dataIndex="item.documentType.name"
                                         truncate>
-                            {{ item.documentType.name }}
+                            {{ placeholder(item.documentType, 'name') }}
                         </sw-grid-column>
                     {% endblock %}
                     {% block sw_order_document_card_grid_column_sent %}

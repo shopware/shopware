@@ -6,16 +6,23 @@
             {% block layout_footer_navigation_hotline %}
                 <div class="col-md-4 footer-column js-footer-column">
                     {% block layout_footer_navigation_hotline_headline %}
-                        <div
-                            class="footer-column-headline footer-headline js-footer-column-headline js-collapse-footer-column-trigger"
+                        <div class="footer-column-headline footer-headline js-footer-column-headline js-collapse-footer-column-trigger"
                             data-target="#collapseOneFooter"
                             aria-expanded="true"
                             aria-controls="collapseOneFooter">
                             {{ 'footer.serviceHotlineHeadline'|trans }}
                             {% block layout_footer_navigation_hotline_icons %}
                                 <div class="toggle-icon">
-                                    <i class="fas fa-plus plus-icon"></i>
-                                    <i class="fas fa-minus minus-icon"></i>
+                                    <span class="plus-icon">
+                                        {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
+                                            'name': 'basic-plus-line'
+                                        } %}
+                                    </span>
+                                    <span class="minus-icon">
+                                        {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
+                                            'name': 'basic-minus-line'
+                                        } %}
+                                    </span>
                                 </div>
                             {% endblock %}
                         </div>
@@ -31,52 +38,62 @@
                 </div>
             {% endblock %}
 
-            {% for root in page.footer.navigation.tree %}
-                {% block layout_footer_navigation_column %}
-                    <div class="col-md-4 footer-column js-footer-column">
-                        {% block layout_footer_navigation_information_headline %}
-                            <div class="footer-column-headline footer-headline js-collapse-footer-column-trigger"
-                                 data-target="#collapseThreeFooter"
-                                 aria-expanded="true"
-                                 aria-controls="collapseThreeFooter">
+            {% block layout_footer_navigation_columns %}
+                {% for root in page.footer.navigation.tree %}
+                    {% block layout_footer_navigation_column %}
+                        <div class="col-md-4 footer-column js-footer-column">
+                            {% block layout_footer_navigation_information_headline %}
+                                <div class="footer-column-headline footer-headline js-collapse-footer-column-trigger"
+                                     data-target="#collapseThreeFooter"
+                                     aria-expanded="true"
+                                     aria-controls="collapseThreeFooter">
 
-                                {{ root.category.translated.name }}
-                                {% block layout_footer_navigation_information_icons %}
-                                    <div class="toggle-icon">
-                                        <i class="fas fa-plus plus-icon"></i>
-                                        <i class="fas fa-minus minus-icon"></i>
-                                    </div>
-                                {% endblock %}
-                            </div>
-                        {% endblock %}
+                                    {{ root.category.translated.name }}
+                                    {% block layout_footer_navigation_information_icons %}
+                                        <div class="toggle-icon">
+                                            <span class="plus-icon">
+                                                {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
+                                                    'name': 'basic-plus-line'
+                                                } %}
+                                            </span>
+                                            <span class="minus-icon">
+                                                {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
+                                                    'name': 'basic-minus-line'
+                                                } %}
+                                            </span>
+                                        </div>
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
 
-                        {% block layout_footer_navigation_information_content %}
-                            <div id="collapseThreeFooter"
-                                 class="footer-column-content js-footer-column-content"
-                                 aria-labelledby="headingThree">
+                            {% block layout_footer_navigation_information_content %}
+                                <div id="collapseThreeFooter"
+                                     class="footer-column-content js-footer-column-content"
+                                     aria-labelledby="headingThree">
 
-                                {% block layout_footer_navigation_information_links %}
-                                    <ul class="list-group">
-                                        {% for treeItem in root.children %}
-                                            {% block layout_footer_navigation_information_link_item %}
-                                                <li class="footer-link-item list-group-item">
-                                                    {% block layout_footer_navigation_information_link %}
-                                                        <a class="footer-link"
-                                                           href="{{ path('frontend.navigation.page', {'navigationId': treeItem.category.id}) }}"
-                                                           title="{{ treeItem.category.translated.name }}">
-                                                            {{ treeItem.category.translated.name }}
-                                                        </a>
-                                                    {% endblock %}
-                                                </li>
-                                            {% endblock %}
-                                        {% endfor %}
-                                    </ul>
-                                {% endblock %}
-                            </div>
-                        {% endblock %}
-                    </div>
-                {% endblock %}
-            {% endfor %}
+                                    {% block layout_footer_navigation_information_links %}
+                                        <ul class="list-group">
+                                            {% for treeItem in root.children %}
+                                                {% block layout_footer_navigation_information_link_item %}
+                                                    <li class="footer-link-item list-group-item">
+                                                        {% block layout_footer_navigation_information_link %}
+                                                            <a class="footer-link"
+                                                               href="{{ path('frontend.navigation.page', {'navigationId': treeItem.category.id}) }}"
+                                                               title="{{ treeItem.category.translated.name }}">
+                                                                {{ treeItem.category.translated.name }}
+                                                            </a>
+                                                        {% endblock %}
+                                                    </li>
+                                                {% endblock %}
+                                            {% endfor %}
+                                        </ul>
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                {% endfor %}
+            {% endblock %}
         </div>
     {% endblock %}
 

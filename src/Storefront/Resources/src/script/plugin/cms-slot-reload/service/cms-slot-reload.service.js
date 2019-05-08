@@ -1,9 +1,12 @@
+import querystring from 'query-string';
+import deepmerge from 'deepmerge';
 import HttpClient from 'src/script/service/http-client.service';
 import HistoryUtil from 'src/script/utility/history/history.util';
 import ElementLoadingIndicatorUtil from 'src/script/utility/loading-indicator/element-loading-indicator.util';
 import DomAccess from 'src/script/helper/dom-access.helper';
-import querystring from 'query-string';
 import CmsSlotOptionValidatorHelper from 'src/script/plugin/cms-slot-reload/helper/cms-slot-option-validator.helper';
+import Iterator from 'src/script/helper/iterator.helper';
+import ElementReplaceHelper from 'src/script/helper/element-replace.helper';
 
 export default class CmsSlotReloadService {
 
@@ -29,7 +32,7 @@ export default class CmsSlotReloadService {
      */
     reloadFromHistory(history) {
         this._options = history.state.options;
-        this._data = querystring.parse(history.search);
+        this._data = deepmerge(querystring.parse(history.search), history.state.hiddenParams);
         this._prevData = history.state.prevData;
 
         this._loadFromHistory = true;
@@ -48,7 +51,6 @@ export default class CmsSlotReloadService {
         }
 
         this._historyChanged = this._historyChanged || false;
-        this._domParser = new DOMParser();
         this._client = new HttpClient(window.accessKey, window.contextToken);
 
         this._requestSlot();
@@ -63,7 +65,7 @@ export default class CmsSlotReloadService {
         const url = this._getUrl();
 
         let data = {
-            slots: Object.keys(this._options.slots),
+            elements: Object.keys(this._options.elements),
         };
 
         if (this._data) {
@@ -82,10 +84,28 @@ export default class CmsSlotReloadService {
      * @private
      */
     _createLoadingIndicators() {
-        this._options.slots.forEach((selectors, slotId) => {
-            const targetSlots = DomAccess.querySelectorAll(document, `[data-slot-id="${slotId}"]`);
-            targetSlots.forEach(slot => {
-                ElementLoadingIndicatorUtil.create(slot);
+        this._handleLoadingIndicators(ElementLoadingIndicatorUtil.create);
+    }
+
+    /**
+     * removes loading indicators for each element
+     *
+     * @private
+     */
+    _removeLoadingIndicators() {
+        this._handleLoadingIndicators(ElementLoadingIndicatorUtil.remove);
+    }
+    
+    /**
+     * iterates over cms elements
+     *
+     * @private
+     */
+    _handleLoadingIndicators(callback) {
+        Iterator.iterate(this._options.elements, (selectors, elementId) => {
+            const targetElements = DomAccess.querySelectorAll(document, `[data-cms-element-id="${elementId}"]`);
+            Iterator.iterate(targetElements, element => {
+                callback(element);
             });
         });
     }
@@ -104,17 +124,58 @@ export default class CmsSlotReloadService {
             return;
         }
 
-        const state = {
-            cmsPageLoader: true,
-            options: this._options,
-        };
-
         if (!this._historyChanged) {
-            HistoryUtil.replaceParams(this._prevData, state);
-            this._historyChanged = true;
+            this._replaceInitialHistory();
         }
 
-        HistoryUtil.pushParams(this._data, state);
+        const params = this._prepareParams(this._data);
+        HistoryUtil.pushParams(params.visibleParams, {
+            cmsPageLoader: true,
+            options: this._options,
+            hiddenParams: params.hiddenParams,
+        });
+    }
+
+    /**
+     * if the history was never changed before
+     * we need to replace the current history
+     * with the current state
+     *
+     * @private
+     */
+    _replaceInitialHistory() {
+        const params = this._prepareParams(this._prevData);
+        HistoryUtil.replaceParams(params.visibleParams, {
+            cmsPageLoader: true,
+            options: this._options,
+            hiddenParams: params.hiddenParams,
+        });
+        this._historyChanged = true;
+    }
+
+    /**
+     * splits the parameters
+     * into visible and hidden
+     *
+     * @param data
+     * @returns {{visibleParams: {}, hiddenParams: {}}}
+     * @private
+     */
+    _prepareParams(data) {
+        const params = {
+            visibleParams: {},
+            hiddenParams: {},
+        };
+
+        Iterator.iterate(data, (value, name) => {
+            if (this._options.hiddenParams.indexOf(name) !== -1) {
+                params.hiddenParams[name] = value;
+            } else {
+                params.visibleParams[name] = value;
+            }
+        });
+
+        return params;
     }
 
     /**
@@ -143,45 +204,28 @@ export default class CmsSlotReloadService {
      * @private
      */
     _onLoaded(response) {
-        const markup = this._createMarkupFromString(response);
-        this._replaceElements(markup);
+        const preparedSelectors = this._prepareSelectors();
+        ElementReplaceHelper.replaceFromMarkup(response, preparedSelectors);
+        window.PluginManager.initializePlugins();
+        this._removeLoadingIndicators();
     }
 
     /**
-     * returns a dom element parsed from the passed string
+     * @returns {Array}
      *
-     * @param {string} string
-     *
-     * @returns {HTMLElement}
      * @private
      */
-    _createMarkupFromString(string) {
-        return this._domParser.parseFromString(string, 'text/html');
-    }
+    _prepareSelectors() {
+        const preparedSelectors = [];
 
-    /**
-     * replace all elements from the target
-     * @param {HTMLElement} src
-     * @private
-     */
-    _replaceElements(src) {
-        this._options.slots.forEach((selectors, slotId) => {
-            const srcSlots = DomAccess.querySelectorAll(src, `[data-slot-id="${slotId}"]`);
-            const targetSlots = DomAccess.querySelectorAll(document, `[data-slot-id="${slotId}"]`);
+        Iterator.iterate(this._options.elements, (selectors, id) => {
+            selectors = selectors.join(',').split(',');
 
-            srcSlots.forEach(slot => {
-                selectors.forEach(selector => {
-                    const srcEls = DomAccess.querySelectorAll(slot, selector);
-
-                    targetSlots.forEach(slot => {
-                        ElementLoadingIndicatorUtil.remove(slot);
-                        const targetEls = DomAccess.querySelectorAll(slot, selector);
-                        targetEls.forEach((el, key) => {
-                            el.innerHTML = srcEls[key].innerHTML;
-                        });
-                    });
-                });
+            Iterator.iterate(selectors, selector => {
+                preparedSelectors.push(`[data-cms-element-id="${id}"] ${selector}`);
             });
         });
+
+        return preparedSelectors;
     }
 }

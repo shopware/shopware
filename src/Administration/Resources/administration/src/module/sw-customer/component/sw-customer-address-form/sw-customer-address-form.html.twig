@@ -20,6 +20,7 @@
                             <sw-field type="select"
                                       :label="$tc('sw-customer.addressForm.labelSalutation')"
                                       v-model="address.salutationId"
+                                      required
                                       validation="required">
                                 <option v-for="salutation in salutations" :key="salutation.id" :value="salutation.id">
                                     {{ salutation.translated.displayName }}
@@ -38,6 +39,7 @@
                 {% block sw_customer_address_form_first_name_field %}
                     <sw-field :label="$tc('sw-customer.addressForm.labelFirstName')"
                               validation="required"
+                              required
                               v-model="address.firstName">
                     </sw-field>
                 {% endblock %}
@@ -45,6 +47,7 @@
                 {% block sw_customer_address_form_last_name_field %}
                     <sw-field :label="$tc('sw-customer.addressForm.labelLastName')"
                               validation="required"
+                              required
                               v-model="address.lastName">
                     </sw-field>
                 {% endblock %}
@@ -52,6 +55,7 @@
                 {% block sw_customer_address_form_street_field %}
                     <sw-field :label="$tc('sw-customer.addressForm.labelStreet')"
                               validation="required"
+                              required
                               v-model="address.street">
                     </sw-field>
                 {% endblock %}
@@ -73,6 +77,7 @@
                         {% block sw_customer_address_form_zipcode_field %}
                             <sw-field :label="$tc('sw-customer.addressForm.labelZipcode')"
                                       validation="required"
+                                      required
                                       v-model="address.zipcode">
                             </sw-field>
                         {% endblock %}
@@ -80,6 +85,7 @@
                         {% block sw_customer_address_form_city_field %}
                             <sw-field :label="$tc('sw-customer.addressForm.labelCity')"
                                       validation="required"
+                                      required
                                       v-model="address.city">
                             </sw-field>
                         {% endblock %}
@@ -90,6 +96,7 @@
                     <sw-field type="select"
                               :label="$tc('sw-customer.addressForm.labelCountry')"
                               validation="required"
+                              required
                               v-model="address.countryId">
                         {% block sw_customer_address_form_country_field_options %}
                             <option v-for="country in countries" :key="country.id" :value="country.id">

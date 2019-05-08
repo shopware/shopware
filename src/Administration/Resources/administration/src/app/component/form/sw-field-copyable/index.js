@@ -17,7 +17,7 @@ export default {
     props: {
         copyableText: {
             type: String,
-            required: true
+            required: false
         },
 
         tooltip: {
@@ -45,6 +45,10 @@ export default {
 
     methods: {
         copyToClipboard() {
+            if (!this.copyableText) {
+                return;
+            }
+
             try {
                 domUtils.copyToClipboard(this.copyableText);
                 if (this.tooltip) {

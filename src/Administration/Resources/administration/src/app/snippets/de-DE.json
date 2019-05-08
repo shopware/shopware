@@ -60,7 +60,7 @@
       },
       "titleShowPassword": "Passwort anzeigen",
       "titleHidePassword": "Passwort verbergen",
-      "buttonRestoreInheritance": "Vererbung wiederherstellen"
+      "tooltipRestoreInheritance": "Vererbung wiederherstellen"
     },
     "sw-field-copyable": {
       "tooltip": {
@@ -447,7 +447,7 @@
       "cart": "Warenkorb | Warenkörbe",
       "category": "Kategorie | Kategorien",
       "cms_page": "Seite | Seiten",
-      "configuration": "Eigenschaft | Eigenschaften",
+      "property": "Eigenschaft | Eigenschaften",
       "country": "Land | Länder",
       "currency": "Währung | Währungen",
       "customer": "Kunde | Kunden",

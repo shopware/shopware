@@ -88,7 +88,7 @@
                                   variant="small">
                             {% block sw_mail_template_list_delete_modal_confirm_delete_text %}
                                 <p class="sw-mail-template-list__confirm-delete-text">
-                                    {{ $tc('sw-mail-template.list.textDeleteConfirm', 0, { name: item.subject }) }}
+                                    {{ $tc('sw-mail-template.list.textDeleteConfirm', 0, { subject: item.translated.subject }) }}
                                 </p>
                             {% endblock %}
 

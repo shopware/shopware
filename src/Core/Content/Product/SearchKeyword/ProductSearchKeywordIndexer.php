@@ -149,64 +149,65 @@ class ProductSearchKeywordIndexer implements IndexerInterface
             return;
         }
 
-        $context->disableCache(function (Context $context) use ($ids) {
-            $versionId = Uuid::fromHexToBytes($context->getVersionId());
-            $languageId = Uuid::fromHexToBytes($context->getLanguageId());
+        $products = $context->disableCache(function (Context $context) use ($ids) {
             $context->setConsiderInheritance(true);
 
-            $products = $this->productRepository->search(new Criteria($ids), $context);
-
-            $insert = new MultiInsertQueryQueue($this->connection, 250, false, true);
-
-            $now = (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT);
-
-            /** @var ProductEntity $product */
-            foreach ($products as $product) {
-                $keywords = $this->analyzer->analyze($product, $context);
-
-                $productId = Uuid::fromHexToBytes($product->getId());
-
-                foreach ($keywords as $keyword) {
-                    $insert->addInsert(
-                        $this->productSearchKeywordDefinition->getEntityName(),
-                        [
-                            'id' => Uuid::randomBytes(),
-                            'version_id' => $versionId,
-                            'product_version_id' => $versionId,
-                            'language_id' => $languageId,
-                            'product_id' => $productId,
-                            'keyword' => $keyword->getKeyword(),
-                            'ranking' => $keyword->getRanking(),
-                            'created_at' => $now,
-                        ]
-                    );
-
-                    $insert->addInsert(
-                        $this->productKeywordDictionaryDefinition->getEntityName(),
-                        [
-                            'id' => Uuid::randomBytes(),
-                            'language_id' => $languageId,
-                            'keyword' => $keyword->getKeyword(),
-                        ]
-                    );
-                }
-            }
-
-            $this->connection->transactional(
-                function () use ($insert, $ids, $languageId) {
-                    $bytes = array_map(function ($id) {
-                        return Uuid::fromHexToBytes($id);
-                    }, $ids);
-
-                    $this->connection->executeUpdate(
-                        'DELETE FROM product_search_keyword WHERE product_id IN (:ids) AND language_id = :language',
-                        ['ids' => $bytes, 'language' => $languageId],
-                        ['ids' => Connection::PARAM_STR_ARRAY]
-                    );
-
-                    $insert->execute();
-                }
-            );
+            return $this->productRepository->search(new Criteria($ids), $context);
         });
+
+        $versionId = Uuid::fromHexToBytes($context->getVersionId());
+        $languageId = Uuid::fromHexToBytes($context->getLanguageId());
+
+        $insert = new MultiInsertQueryQueue($this->connection, 250, false, true);
+
+        $now = (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT);
+
+        /** @var ProductEntity $product */
+        foreach ($products as $product) {
+            $keywords = $this->analyzer->analyze($product, $context);
+
+            $productId = Uuid::fromHexToBytes($product->getId());
+
+            foreach ($keywords as $keyword) {
+                $insert->addInsert(
+                    $this->productSearchKeywordDefinition->getEntityName(),
+                    [
+                        'id' => Uuid::randomBytes(),
+                        'version_id' => $versionId,
+                        'product_version_id' => $versionId,
+                        'language_id' => $languageId,
+                        'product_id' => $productId,
+                        'keyword' => $keyword->getKeyword(),
+                        'ranking' => $keyword->getRanking(),
+                        'created_at' => $now,
+                    ]
+                );
+
+                $insert->addInsert(
+                    $this->productKeywordDictionaryDefinition->getEntityName(),
+                    [
+                        'id' => Uuid::randomBytes(),
+                        'language_id' => $languageId,
+                        'keyword' => $keyword->getKeyword(),
+                    ]
+                );
+            }
+        }
+
+        $this->connection->transactional(
+            function () use ($insert, $ids, $languageId) {
+                $bytes = array_map(function ($id) {
+                    return Uuid::fromHexToBytes($id);
+                }, $ids);
+
+                $this->connection->executeUpdate(
+                    'DELETE FROM product_search_keyword WHERE product_id IN (:ids) AND language_id = :language',
+                    ['ids' => $bytes, 'language' => $languageId],
+                    ['ids' => Connection::PARAM_STR_ARRAY]
+                );
+
+                $insert->execute();
+            }
+        );
     }
 }

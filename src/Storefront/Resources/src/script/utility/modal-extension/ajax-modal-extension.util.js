@@ -1,34 +1,10 @@
 import HttpClient from 'src/script/service/http-client.service';
 import DomAccess from 'src/script/helper/dom-access.helper';
 import PageLoadingIndicatorUtil from 'src/script/utility/loading-indicator/page-loading-indicator.util';
-import { REMOVE_BACKDROP_DELAY } from 'src/script/utility/backdrop/backdrop.util';
+import PseudoModalUtil from 'src/script/utility/modal-extension/pseudo-modal.util';
+import Iterator from 'src/script/helper/iterator.helper';
 
 const URL_DATA_ATTRIBUTE = 'data-url';
-const MODAL_AJAX_CLASS = 'js-ajax-modal';
-
-const MODAL_MARKUP = (content) => {
-    return `
-        <div class="modal"
-             tabindex="-1"
-             role="dialog">
-            <div class="modal-dialog"
-                   role="document">
-                <div class="modal-content">
-                    <div class="modal-header only-close">
-                        <div class="modal-close close btn btn-light"
-                             data-dismiss="modal"
-                             aria-label="Close">
-                            <span aria-hidden="true"><i class="fas fa-times"></i></span>
-                        </div>
-                    </div>
-                    <div class="modal-body">
-                        ${content}
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-};
 
 /**
  * This class extends the Bootstrap modal functionality by
@@ -44,10 +20,9 @@ export default class AjaxModalExtensionUtil {
     /**
      * Constructor.
      */
-    constructor(modalMarkup = false) {
+    constructor() {
         this._client = new HttpClient(window.accessKey, window.contextToken);
         this._registerEvents();
-        this._modalMarkup = modalMarkup || MODAL_MARKUP;
     }
 
     /**
@@ -65,7 +40,7 @@ export default class AjaxModalExtensionUtil {
      */
     _registerAjaxModalExtension() {
         const modalTriggers = document.querySelectorAll(`[data-toggle="modal"][${URL_DATA_ATTRIBUTE}]`);
-        modalTriggers.forEach(trigger => trigger.addEventListener('click', this._onClickHandleAjaxModal.bind(this)));
+        Iterator.iterate(modalTriggers, trigger => trigger.addEventListener('click', this._onClickHandleAjaxModal.bind(this)));
     }
 
     /**
@@ -85,49 +60,16 @@ export default class AjaxModalExtensionUtil {
         this._client.get(url, response => this._openModal(response));
     }
 
-
-    _openModal(response) {
-        PageLoadingIndicatorUtil.remove();
-
-        // append the temporarily created ajax modal content to the end of the DOM
-        const pseudoModal = this._createPseudoModal(response);
-        document.body.insertAdjacentElement('beforeend', pseudoModal);
-        let modal = DomAccess.querySelector(pseudoModal, '.modal', false);
-        if (!modal) {
-            modal = this._createModalWrapper(pseudoModal);
-        }
-        setTimeout(function () {
-            // register on modal hidden event to remove the ajax modal pseudoModal
-            $(modal).on('hidden.bs.modal', pseudoModal.remove);
-            $(modal).modal({ backdrop: true });
-            $(modal).modal('show');
-        }, REMOVE_BACKDROP_DELAY);
-    }
-
     /**
-     * Prepare a temporarily needed wrapper div
-     * to insert the response's html content into
+     * opens the ajax modal
      *
-     * @param {string} content
-     * @returns {HTMLElement}
+     * @param response
      * @private
      */
-    _createPseudoModal(content) {
-        let element = document.querySelector(`.${MODAL_AJAX_CLASS}`);
+    _openModal(response) {
+        PageLoadingIndicatorUtil.remove();
+        const modal = new PseudoModalUtil(response);
 
-        if (!element) {
-            element = document.createElement('div');
-            element.classList.add(MODAL_AJAX_CLASS);
-        }
-
-        element.innerHTML = content;
-
-        return element;
-    }
-
-    _createModalWrapper(pseudoModal) {
-        const originalContent = pseudoModal.innerHTML;
-        pseudoModal.innerHTML = this._modalMarkup(originalContent);
-        return DomAccess.querySelector(pseudoModal, '.modal');
+        modal.open();
     }
 }

@@ -10,6 +10,7 @@
                             <sw-field
                                 type="text"
                                 validation="required"
+                                required
                                 :placeholder="placeholder(salesChannel, 'name', $tc('sw-sales-channel.detail.placeholderName'))"
                                 :label="$tc('sw-sales-channel.detail.labelInputName')"
                                 v-model="salesChannel.name">
@@ -359,7 +360,7 @@
                             {% block sw_sales_channel_detail_options_delete_modal_confirmtext %}
                                 <p class="sw-sales-channel-detail-base__delete-modal-confirm-text">{{ $tc('sw-sales-channel.detail.textConfirmDelete') }}</p>
                                 <p class="sw-sales-channel-detail-base__delete-modal-name">
-                                    <strong>{{ salesChannel.name }}</strong>
+                                    <strong>{{ placeholder(salesChannel, 'name') }}</strong>
                                 </p>
                                 <p>{{ $tc('sw-sales-channel.detail.textDeleteInfo') }}</p>
                             {% endblock %}

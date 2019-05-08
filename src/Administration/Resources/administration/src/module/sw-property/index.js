@@ -20,6 +20,7 @@ Module.register('sw-property', {
     color: '#57D9A3',
     icon: 'default-symbol-products',
     favicon: 'icon-module-products.png',
+    entity: 'property',
 
     snippets: {
         'de-DE': deDE,

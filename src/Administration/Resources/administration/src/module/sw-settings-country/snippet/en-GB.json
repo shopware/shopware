@@ -37,7 +37,9 @@
       "buttonCancel": "Cancel",
       "buttonSave": "Save",
       "buttonAddCountryState": "Add country state",
-      "editAction": "Edit"
+      "editAction": "Edit",
+      "columnStateNameLabel": "Name",
+      "columnStateShortCodeLabel": "Short code"
     }
   },
   "sw-country-state-detail": {

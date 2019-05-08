@@ -11,7 +11,14 @@
                 <form id="confirmShippingForm"
                       name="confirmShippingForm"
                       action="{{ path('frontend.checkout.configure') }}"
-                      method="post">
+                      method="post"
+                      data-form-ajax-submit="true"
+                      data-form-ajax-submit-options='{
+                            "replaceSelectors": [
+                                ".js-reload-on-confirm-change"
+                            ],
+                            "submitOnChange": true
+                      }'>
 
                     {% block page_checkout_confirm_shipping_form_redirect %}
                         <input type="hidden" name="redirectTo" value="frontend.checkout.confirm.page">

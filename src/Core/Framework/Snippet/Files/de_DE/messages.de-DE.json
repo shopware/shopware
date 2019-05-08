@@ -49,7 +49,8 @@
         "VIOLATION::TOO_LOW_ERROR": "%field% darf nicht leer sein.",
         "VIOLATION::STRICT_CHECK_FAILED_ERROR": "%field% ist ungültig",
         "VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE": "Diese E-Mail-Adresse ist bereits registriert.",
-        "message-default": "Leider ist etwas ist schief gelaufen",
+        "VIOLATION::CUSTOMER_PASSWORD_NOT_CORRECT": "Das aktuelle Passwort ist nicht korrekt.",
+        "message-default": "Leider ist etwas schief gelaufen",
         "message-404": "Die angeforderte Seite kann nicht gefunden werden.",
         "addToCartError": "Beim Hinzufügen zum Warenkorb ist ein Fehler aufgetreten.",
         "FRAMEWORK__INVALID_UUID": "Die gewählte Zahlungsart konnte nicht gefunden werden.",
@@ -112,6 +113,7 @@
         "paymentTitle": "Zahlungsarten",
         "ordersTitle": "Bestellungen",
         "logout": "Abmelden",
+        "guestAbort": "Gastsitzung beenden",
         "logoutSucceeded": "Sie haben sich erfolgreich abgemeldet",
         "overviewWelcome": "Willkommen, ",
         "overviewInfo": "Dies ist Ihr Konto Dashboard, wo Sie die Möglichkeit haben, Ihre letzten Kontoaktivitäten einzusehen.",
@@ -201,8 +203,10 @@
         "countryPlaceholder": "Land"
     },
     "checkout": {
-        "registerLoginToggle": "Login anzeigen",
+        "addressHeader": "Ihre Daten",
+        "addressLoginToggle": "Bereits Kunde? Klicken Sie hier um sich einzuloggen.",
         "registerGuestmodeLabel": "Kein Kundenkonto anlegen",
+        "addressRegisterCardTitle": "Persönliche Informationen",
         "cartTitle": "Warenkorb",
         "cartHeader": "Warenkorb",
         "cartUpdateSuccess": "Warenkorb erfolgreich aktualisiert",
@@ -238,6 +242,8 @@
         "confirmTermsHeader": "AGB und Widerrufsbelehrung",
         "confirmRevocationNotice": "Bitte beachten Sie bei Ihrer Bestellung auch unsere <a href='#' title='Widerrufsbelehrung'>Widerrufsbelehrung</a>.",
         "confirmTerms": "Ich habe die <a href='#' title='AGB'>AGB</a> Ihres Shops gelesen und bin mit deren Geltung einverstanden.",
+        "confirmPaymentMethod": "Zahlungsart:",
+        "confirmDispatchMethod": "Versandart:",
         "finishHeader": "Vielen Dank für Ihre Bestellung bei %shop%!",
         "finishInfoHeader": "Informationen",
         "finishInfoOrdernumber": "Bestellnummer:",
@@ -267,6 +273,9 @@
         "subscriptionConfirmationSuccess": "Ihr Newsletter-Abonnement wurde erfolgreich registriert!",
         "subscriptionConfirmationFailed": "Bei Ihrer Newsletter-Anmeldung ist etwas schief gelaufen, Bitte wenden Sie sich an den Shop-Betreiber.",
         "subscriptionCompleted": "Vielen Dank. Wir haben Ihre Adresse eingetragen."
+    },
+    "search": {
+      "headline": "Zu \"%searchTerm%\" wurden %totalCount% Artikel gefunden!"
     },
     "detail": {
         "ordernumberLabel": "Artikel-Nr.:",

@@ -10,9 +10,6 @@ class VuexErrorStore extends ErrorStore {
 
         this.mutations = {
             setErrorData(state, { expression, error, type }) {
-                if (expression === null) {
-                    return;
-                }
                 const { errorName, container } = ErrorStore.getErrorContainer(expression, state[type]);
                 if (container !== null) {
                     container[errorName] = error;
@@ -24,11 +21,14 @@ class VuexErrorStore extends ErrorStore {
             },
 
             deleteError(state, { expression, type }) {
-                if (expression === null) {
-                    return;
-                }
-
                 ErrorStore.deleteAtPath(expression, state[type], deleteReactive);
+            },
+
+            resetError(state, { expression, type }) {
+                const { errorName, container } = ErrorStore.getErrorContainer(expression, state[type]);
+                if (container !== null && container[errorName].code !== 0) {
+                    container[errorName] = new ShopwareError();
+                }
             }
         };
 
@@ -57,6 +57,10 @@ class VuexErrorStore extends ErrorStore {
 
             deleteFieldError({ commit }, expression) {
                 commit('deleteError', { expression, type: 'api' });
+            },
+
+            resetFormError({ commit }, expression) {
+                commit('resetError', { expression, type: 'api' });
             }
         };
     }

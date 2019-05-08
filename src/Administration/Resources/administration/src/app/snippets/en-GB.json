@@ -60,7 +60,7 @@
       },
       "titleShowPassword": "Show password",
       "titleHidePassword": "Hide password",
-      "buttonRestoreInheritance": "Restore inheritance"
+      "tooltipRestoreInheritance": "Restore inheritance"
     },
     "sw-field-copyable": {
       "tooltip": {
@@ -443,7 +443,7 @@
       "cart": "Cart | Carts",
       "category": "Category | Categories",
       "cms_page": "Page | Pages",
-      "configuration": "Property | Properties",
+      "property": "Property | Properties",
       "country": "Country | Countries",
       "currency": "Currency | Currencies",
       "customer": "Customer | Customers",

@@ -1,5 +1,5 @@
+import utils from 'src/core/service/util.service';
 import { Mixin } from 'src/core/shopware';
-import SwBaseField from '../field-base/sw-base-field/index';
 import template from './sw-checkbox-field.html.twig';
 import './sw-checkbox-field.scss';
 
@@ -14,7 +14,6 @@ import './sw-checkbox-field.scss';
 export default {
     name: 'sw-checkbox-field',
     template,
-    extends: SwBaseField,
     inheritAttrs: false,
 
     model: {
@@ -27,26 +26,70 @@ export default {
     ],
 
     props: {
-        value: {
+        disabled: {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        value: {
+            type: Boolean,
+            required: false,
+            default: null
+        },
+
+        inheritedValue: {
+            type: Boolean,
+            required: false,
+            default: null
         }
     },
 
     data() {
         return {
-            currentValue: this.value || false
+            currentValue: this.value,
+            id: utils.createId()
         };
     },
 
+    computed: {
+        swCheckboxFieldClasses() {
+            return {
+                'has--error': this.hasError,
+                'is--disabled': this.disabled,
+                'is--inherited': this.isInherited
+            };
+        },
+
+        identification() {
+            return this.formFieldName || `sw-field--${this.id}`;
+        },
+
+        hasError() {
+            return this.actualError && this.actualError.code !== 0;
+        },
+
+        inputState() {
+            if (this.isInherited) {
+                return this.inheritedValue;
+            }
+
+            return this.currentValue || false;
+        }
+    },
+
     watch: {
-        value() { this.currentValue = this.value || false; }
+        value() { this.currentValue = this.value; }
     },
 
     methods: {
         onChange(changeEvent) {
+            this.resetFormError();
             this.$emit('change', changeEvent.target.checked);
+        },
+
+        restoreInheritance() {
+            this.$emit('change', null);
         }
     }
 };

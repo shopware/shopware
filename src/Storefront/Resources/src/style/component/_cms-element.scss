@@ -1,0 +1,19 @@
+.cms-element-image {
+    &.display-cover {
+        .cms-image {
+            object-fit: cover;
+            height: 200px;
+            width: 100%;
+        }
+    }
+}
+
+.cms-element-product-listing {
+    .listing-col {
+        margin-bottom: $spacer-lg;
+    }
+}
+
+.cms-element-product-box {
+    width: 100%;
+}

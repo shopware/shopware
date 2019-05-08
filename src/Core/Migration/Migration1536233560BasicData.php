@@ -928,8 +928,61 @@ class Migration1536233560BasicData extends MigrationStep
         $queue->addInsert('media_default_folder', ['id' => Uuid::randomBytes(), 'association_fields' => '["mailTemplateMedia"]', 'entity' => 'mail_template', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);
         $queue->addInsert('media_default_folder', ['id' => Uuid::randomBytes(), 'association_fields' => '["categories"]', 'entity' => 'category', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);
         $queue->addInsert('media_default_folder', ['id' => Uuid::randomBytes(), 'association_fields' => '[]', 'entity' => 'cms_page', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
-
         $queue->execute();
+
+        $notCreatedDefaultFolders = $connection->executeQuery('
+            SELECT `media_default_folder`.`id` default_folder_id, `media_default_folder`.`entity` entity
+            FROM `media_default_folder`
+                LEFT JOIN `media_folder` ON `media_folder`.`default_folder_id` = `media_default_folder`.`id`
+            WHERE `media_folder`.`id` IS NULL
+        ')->fetchAll();
+
+        foreach ($notCreatedDefaultFolders as $notCreatedDefaultFolder) {
+            $this->createDefaultFolder(
+                $connection,
+                $notCreatedDefaultFolder['default_folder_id'],
+                $notCreatedDefaultFolder['entity']
+            );
+        }
+    }
+
+    private function createDefaultFolder(Connection $connection, string $defaultFolderId, string $entity): void
+    {
+        $connection->transactional(function (Connection $connection) use ($defaultFolderId, $entity) {
+            $configurationId = Uuid::randomBytes();
+            $folderId = Uuid::randomBytes();
+            $folderName = $this->getMediaFolderName($entity);
+
+            $connection->executeUpdate('
+                INSERT INTO `media_folder_configuration` (`id`, `thumbnail_quality`, `create_thumbnails`, created_at)
+                VALUES (:id, 80, 1, :createdAt)
+            ', [
+                'id' => $configurationId,
+                'createdAt' => date(Defaults::STORAGE_DATE_FORMAT),
+            ]);
+
+            $connection->executeUpdate('
+                INSERT into `media_folder` (`id`, `name`, `default_folder_id`, `media_folder_configuration_id`, `use_parent_configuration`, `child_count`, `created_at`)
+                VALUES (:folderId, :folderName, :defaultFolderId, :configurationId, 0, 0, :createdAt)
+            ', [
+                'folderId' => $folderId,
+                'folderName' => $folderName,
+                'defaultFolderId' => $defaultFolderId,
+                'configurationId' => $configurationId,
+                'createdAt' => date(Defaults::STORAGE_DATE_FORMAT),
+            ]);
+        });
+    }
+
+    private function getMediaFolderName(string $entity): string
+    {
+        $capitalizedEntityParts = array_map(function ($part) {
+            return ucfirst($part);
+        },
+            explode('_', $entity)
+        );
+
+        return implode(' ', $capitalizedEntityParts) . ' Media';
     }
 
     private function createOrderStateMachine(Connection $connection): void

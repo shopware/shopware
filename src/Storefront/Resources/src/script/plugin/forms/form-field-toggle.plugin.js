@@ -1,5 +1,6 @@
 import Plugin from 'src/script/helper/plugin/plugin.class';
 import DomAccess from 'src/script/helper/dom-access.helper';
+import Iterator from 'src/script/helper/iterator.helper';
 
 
 export default class FormFieldTogglePlugin extends Plugin {
@@ -85,7 +86,7 @@ export default class FormFieldTogglePlugin extends Plugin {
     _onChange() {
         const shouldHide = this._shouldHideTarget();
 
-        this._targets.forEach(node => {
+        Iterator.iterate(this._targets, node => {
             if (shouldHide) {
                 this._hideTarget(node);
             } else {
@@ -119,7 +120,7 @@ export default class FormFieldTogglePlugin extends Plugin {
      */
     _hideTarget(target) {
         const fields = this._getFields(target);
-        fields.forEach(field => {
+        Iterator.iterate(fields, field => {
             const isRequired = DomAccess.hasAttribute(field, 'required');
             if (isRequired) {
                 field.classList.add(this.options.wasRequiredCls);
@@ -144,7 +145,7 @@ export default class FormFieldTogglePlugin extends Plugin {
      */
     _showTarget(target) {
         const fields = this._getFields(target);
-        fields.forEach(field => {
+        Iterator.iterate(fields, field => {
             if (field.classList.contains(this.options.wasRequiredCls)) {
                 field.classList.remove(this.options.wasRequiredCls);
                 field.setAttribute('required', 'required');

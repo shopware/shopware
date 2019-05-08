@@ -1,23 +1,23 @@
-<div class="sw-field sw-field--checkbox" :class="swFieldClasses">
-    <div class="sw-field__checkbox">
-        <input type="checkbox"
-               :id="formFieldName || identification"
-               :name="formFieldName || identification"
-               :checked="currentValue"
-               :disabled="disabled"
-               @change="onChange">
-        <div class="sw-field__checkbox-state">
-            <sw-icon name="small-default-checkmark-line-small" size="16"></sw-icon>
+<div class="sw-field--checkbox" :class="swCheckboxFieldClasses">
+    <div class="sw-field--checkbox__content">
+        <div class="sw-field__checkbox">
+            <input type="checkbox"
+                   :id="formFieldName || identification"
+                   :name="formFieldName || identification"
+                   :checked="inputState"
+                   :disabled="disabled"
+                   @change="onChange">
+            <div class="sw-field__checkbox-state">
+                <sw-icon name="small-default-checkmark-line-small" size="16"></sw-icon>
+            </div>
         </div>
+
+        <sw-base-field v-bind="$attrs"
+                       :disabled="disabled"
+                       :isInheritanceField="isInheritanceField"
+                       :isInherited="isInherited"
+                       @inheritance-restore="restoreInheritance">
+        </sw-base-field>
     </div>
-
-    <label v-if="label" class="sw-field__label" :for="formFieldName || identification">
-        {{ label }}{{ this.required ? '*' : '' }}
-    </label>
-
-    <span>
-        <button v-if="inherited" class="sw-field__button-restore">{{ $tc('global.sw-field.buttonRestoreInheritance') }}</button>
-        <sw-help-text v-if="helpText" :text="helpText"></sw-help-text>
-    </span>
     <sw-field-error :error="actualError"></sw-field-error>
 </div>

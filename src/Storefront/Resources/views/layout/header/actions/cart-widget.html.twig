@@ -1,16 +1,13 @@
 {% block layout_header_actions_cart_widget %}
-    <a class="btn btn-light cart-widget-btn header-actions-btn"
-       href="{{ path('frontend.checkout.cart.page') }}"
-       data-cart-widget="true"
-       title="{{ 'checkout.cartTitle'|trans }}">
-        <span class="cart-widget-display">
-            <i class="fas fa-shopping-bag"></i>
-        </span>
-        {% if page.cart.lineItems|length > 0 %}
-            <span class="badge badge-primary cart-widget-badge">{{ page.cart.lineItems|length }}</span>
-        {% endif %}
-        <span class="cart-widget-total">
-            {{ page.cart.price.positionPrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
-        </span>
-    </a>
+	<span class="cart-widget-display">
+        {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
+			'name': 'shopping-paper-bag'
+		} %}
+    </span>
+	{% if page.cart.lineItems|length > 0 %}
+		<span class="badge badge-primary cart-widget-badge">{{ page.cart.lineItems|length }}</span>
+	{% endif %}
+	<span class="cart-widget-total">
+        {{ page.cart.price.positionPrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
+    </span>
 {% endblock %}

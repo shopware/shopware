@@ -16,7 +16,7 @@ Module.register('sw-newsletter-receiver', {
     targetVersion: '1.0.0',
     color: '#FFD700',
     icon: 'default-object-marketing',
-    favicon: 'icon-module-promotions.png',
+    favicon: 'icon-module-marketing.png',
     entity: 'newsletter_receiver',
 
     snippets: {

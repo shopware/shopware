@@ -148,7 +148,9 @@ class PromotionItemBuilder
 
         // always make sure we have a valid code entry.
         // this helps us to identify the item by code later on
-        $payload['code'] = (string) $promotion->getCode();
+        if ($promotion->isUseCodes()) {
+            $payload['code'] = (string) $promotion->getCode();
+        }
 
         // to save how many times a promotion has been used, we need to know the promotion's id during checkout
         $payload['promotionId'] = $promotion->getId();

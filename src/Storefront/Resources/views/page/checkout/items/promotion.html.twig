@@ -2,7 +2,9 @@
 
 {% block page_checkout_item_product_info_image_link %}
     <div class="cart-item-promotion-icon">
-        <i class="fas fa-percentage fa-2x"></i>
+        {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
+            'name': 'object-marketing'
+        } %}
     </div>
 {% endblock %}
 

@@ -100,14 +100,21 @@
 
                                                     {% block page_account_profile_mail_input %}
                                                         <input type="email"
-                                                               class="form-control{% if formViolations.getViolations('/email') %} is-invalid{% endif %}"
+                                                               class="form-control{% if formViolations.getViolations('/email') is not empty %} is-invalid{% endif %}"
                                                                autocomplete="section-personal email"
                                                                id="personalMail"
                                                                placeholder="{{ "account.personalMailPlaceholder"|trans }}{{ "general.required"|trans }}"
                                                                name="email[email]"
                                                                data-form-validation-equal="personalMail"
                                                                required="required">
-                                                        {% sw_include '@Storefront/layout/_utilities/form-violation.html.twig' with {violationPath: '/email'} %}
+                                                    {% endblock %}
+
+                                                    {% block page_account_profile_mail_input_error %}
+                                                        {% if formViolations.getViolations('/email') is not empty %}
+                                                            {% sw_include '@Storefront/layout/_utilities/form-violation.html.twig' with {
+                                                                violationPath: '/email'
+                                                            } %}
+                                                        {% endif %}
                                                     {% endblock %}
                                                 </div>
                                             {% endblock %}
@@ -123,7 +130,7 @@
 
                                                     {% block page_account_profile_mail_confirmation_input %}
                                                         <input type="email"
-                                                               class="form-control"
+                                                               class="form-control{% if formViolations.getViolations('/email') is not empty %} is-invalid{% endif %}"
                                                                autocomplete="section-personal email"
                                                                id="personalMailConfirmation"
                                                                placeholder="{{ "account.personalMailConfirmationPlaceholder"|trans }}{{ "general.required"|trans }}"
@@ -132,26 +139,42 @@
                                                                data-form-validation-equal="personalMail"
                                                                data-form-validation-equal-message="{{ "account.personalMailConfirmationInvalidMessage"|trans }}">
                                                     {% endblock %}
+
+                                                    {% block page_account_profile_mail_confirmation_input_error %}
+                                                        {% if formViolations.getViolations('/email') is not empty %}
+                                                            {% sw_include '@Storefront/layout/_utilities/form-violation.html.twig' with {
+                                                                violationPath: '/email'
+                                                            } %}
+                                                        {% endif %}
+                                                    {% endblock %}
                                                 </div>
                                             {% endblock %}
 
                                             {% block page_account_profile_mail_password %}
                                                 <div class="form-group">
-                                                    {% block page_account_profile_password_label %}
+                                                    {% block page_account_profile_mail_password_label %}
                                                         <label class="form-label"
-                                                               for="personalMailPassword">
-                                                            {{ "account.personalPasswordLabel"|trans }}{{ "general.required"|trans }}
+                                                               for="personalMailPasswordCurrent">
+                                                            {{ "account.profilePasswordCurrent"|trans }}{{ "general.required"|trans }}
                                                         </label>
                                                     {% endblock %}
 
                                                     {% block page_account_profile_mail_password_input %}
                                                         <input type="password"
-                                                               class="form-control"
+                                                               class="form-control{% if formViolations.getViolations('/password') is not empty %} is-invalid{% endif %}"
                                                                autocomplete="new-password"
-                                                               id="personalMailPassword"
-                                                               placeholder="{{ "account.personalPasswordPlaceholder"|trans }}{{ "general.required"|trans }}"
+                                                               id="personalMailPasswordCurrent"
+                                                               placeholder="{{ "account.profilePasswordCurrent"|trans }}{{ "general.required"|trans }}"
                                                                name="email[password]"
                                                                required="required">
+                                                    {% endblock %}
+
+                                                    {% block page_account_profile_mail_password_input_error %}
+                                                        {% if formViolations.getViolations('/password') is not empty %}
+                                                            {% sw_include '@Storefront/layout/_utilities/form-violation.html.twig' with {
+                                                                violationPath: '/password'
+                                                            } %}
+                                                        {% endif %}
                                                     {% endblock %}
                                                 </div>
                                             {% endblock %}
@@ -204,7 +227,7 @@
 
                                                     {% block page_account_profile_new_password_input %}
                                                         <input type="password"
-                                                               class="form-control"
+                                                               class="form-control{% if formViolations.getViolations('/newPassword') is not empty %} is-invalid{% endif %}"
                                                                autocomplete="new-password"
                                                                id="newPassword"
                                                                placeholder="{{ "account.profilePasswordCreateNew"|trans }}{{ "general.required"|trans }}"
@@ -215,6 +238,14 @@
                                                                    '%minLength%': shopware.config.register.minPasswordLength
                                                                }) }}"
                                                                required="required">
+                                                    {% endblock %}
+
+                                                    {% block page_account_profile_new_password_input_error %}
+                                                        {% if formViolations.getViolations('/newPassword') is not empty %}
+                                                            {% sw_include '@Storefront/layout/_utilities/form-violation.html.twig' with {
+                                                                violationPath: '/newPassword'
+                                                            } %}
+                                                        {% endif %}
                                                     {% endblock %}
                                                 </div>
                                             {% endblock %}
@@ -230,7 +261,7 @@
 
                                                     {% block page_account_profile_new_password_confirmation_input %}
                                                         <input type="password"
-                                                               class="form-control"
+                                                               class="form-control{% if formViolations.getViolations('/newPassword') is not empty %} is-invalid{% endif %}"
                                                                autocomplete="new-password"
                                                                id="passwordConfirmation"
                                                                placeholder="{{ "account.personalPasswordConfirmationLabel"|trans }}{{ "general.required"|trans }}"
@@ -238,6 +269,14 @@
                                                                required="required"
                                                                data-form-validation-equal="newPassword"
                                                                data-form-validation-equal-message="{{ "account.personalPasswordConfirmationInvalidMessage"|trans }}">
+                                                    {% endblock %}
+
+                                                    {% block page_account_profile_new_password_confirmation_error %}
+                                                        {% if formViolations.getViolations('/newPassword') is not empty %}
+                                                            {% sw_include '@Storefront/layout/_utilities/form-violation.html.twig' with {
+                                                                violationPath: '/newPassword'
+                                                            } %}
+                                                        {% endif %}
                                                     {% endblock %}
                                                 </div>
                                             {% endblock %}
@@ -253,12 +292,20 @@
 
                                                     {% block page_account_profile_current_password_input %}
                                                         <input type="password"
-                                                               class="form-control"
+                                                               class="form-control{% if formViolations.getViolations('/password') is not empty %} is-invalid{% endif %}"
                                                                autocomplete="new-password"
                                                                id="password"
                                                                placeholder="{{ "account.profilePasswordCurrent"|trans }}{{ "general.required"|trans }}"
                                                                name="password[password]"
                                                                required="required">
+                                                    {% endblock %}
+
+                                                    {% block page_account_profile_current_password_input_error %}
+                                                        {% if formViolations.getViolations('/password') is not empty %}
+                                                            {% sw_include '@Storefront/layout/_utilities/form-violation.html.twig' with {
+                                                                violationPath: '/password'
+                                                            } %}
+                                                        {% endif %}
                                                     {% endblock %}
                                                 </div>
                                             {% endblock %}

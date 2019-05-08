@@ -356,7 +356,7 @@ class CheckoutPageController extends StorefrontController
     }
 
     /**
-     * @Route("/checkout/configure", name="frontend.checkout.configure", options={"seo"="false"}, methods={"POST"})
+     * @Route("/checkout/configure", name="frontend.checkout.configure", methods={"POST"}, options={"seo"="false"}, defaults={"XmlHttpRequest": true})
      */
     public function configure(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
@@ -414,7 +414,7 @@ class CheckoutPageController extends StorefrontController
     }
 
     /**
-     * @Route("/checkout/line-item/delete/{id}", name="frontend.checkout.line-item.delete", defaults={"XmlHttpRequest": true}, methods={"POST", "DELETE"})
+     * @Route("/checkout/line-item/delete/{id}", name="frontend.checkout.line-item.delete", methods={"POST", "DELETE"}, defaults={"XmlHttpRequest": true})
      */
     public function removeLineItem(string $id, Request $request, SalesChannelContext $context): Response
     {

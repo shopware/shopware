@@ -22,7 +22,7 @@ Component.register('sw-settings-snippet-set-list', {
             snippetSets: [],
             showDeleteModal: false,
             showCloneModal: false,
-            snippetsEditiable: false,
+            snippetsEditable: false,
             selection: {}
         };
     },
@@ -109,7 +109,7 @@ Component.register('sw-settings-snippet-set-list', {
         },
 
         onEditSnippetSets() {
-            if (!this.snippetsEditiable) {
+            if (!this.snippetsEditable) {
                 this.createNotEditableErrorNote();
 
                 return;
@@ -125,7 +125,7 @@ Component.register('sw-settings-snippet-set-list', {
         onSelectionChanged(selection) {
             this.selection = selection;
             this.selectionCount = Object.keys(selection).length;
-            this.snippetsEditiable = this.selectionCount >= 1;
+            this.snippetsEditable = this.selectionCount >= 1;
         },
 
         onInlineEditCancel() {

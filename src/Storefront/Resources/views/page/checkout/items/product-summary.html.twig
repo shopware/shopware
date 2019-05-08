@@ -1,0 +1,40 @@
+{% block page_checkout_summary_item %}
+	<div class="row summary-item summary-item-{{ lineItem.type }}">
+		{% block page_checkout_summary_item_image %}
+			<div class="col-4 summary-item-image">
+				{% block page_checkout_summary_item_image_inner %}
+					{% if lineItem.cover.url %}
+						{% set imgSrc = lineItem.cover.url %}
+					{% else %}
+						{% set imgSrc = asset(shopware.theme.general.noPicture) %}
+					{% endif %}
+					<img src="{{ imgSrc }}"
+						 class="img-fluid"
+						 alt="{{ lineItem.label }}"
+						 title="{{ lineItem.label }}">
+				{% endblock %}
+			</div>
+		{% endblock %}
+
+		{% block page_checkout_summary_item_data %}
+			<div class="col-8 summary-item-data">
+				{% block page_checkout_summary_item_title %}
+					<div class="summary-item-title">
+						{{ lineItem.label }}
+					</div>
+				{% endblock %}
+				{% block page_checkout_summary_item_quantity %}
+					<div class="summary-item-link-quantity">
+						Quantity: {{ lineItem.quantity }}
+					</div>
+				{% endblock %}
+
+				{% block page_checkout_summary_item_price %}
+					<div class="summary-item-link-price">
+						{{ lineItem.price.totalPrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
+					</div>
+				{% endblock %}
+			</div>
+		{% endblock %}
+	</div>
+{% endblock %}

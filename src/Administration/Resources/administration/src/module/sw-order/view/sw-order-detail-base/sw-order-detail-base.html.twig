@@ -57,7 +57,7 @@
                             <sw-order-line-items-grid :order="currentOrder"
                                 :editable="isEditing"
                                 ref="sw-order-line-item-grid"
-                                @item-deleted="onLineItemsDeleted"
+                                @item-deleted="onLineItemsEdited"
                                 @item-edited="onLineItemsEdited">
                             </sw-order-line-items-grid>
                         {% endblock %}
@@ -83,6 +83,7 @@
                                                         :editable="isEditing"
                                                         :value="currentOrder.deliveries[0].shippingCosts.unitPrice"
                                                         @valueChanged="onShippingChargeEdited">
+                                                        {{ currentOrder.deliveries[0].shippingCosts.unitPrice | currency(order.currency.translated.shortName) }}
                                                     </sw-order-saveable-field>
                                                 </dd>
                                             {% endblock %}
@@ -94,8 +95,8 @@
 
                                             {% block sw_order_detail_base_line_items_summary_taxes %}
                                                 <template v-for="calculatedTax in sortedCalculatedTaxes">
-                                                    <dt>{{ $t('sw-order.detailBase.summaryLabelTaxes', { taxRate: calculatedTax.taxRate }) }}</dt>
-                                                    <dd>{{ calculatedTax.tax | currency(order.currency.translated.shortName)}}</dd>
+                                                    <dt>{{ $tc('sw-order.detailBase.summaryLabelTaxes', { taxRate: calculatedTax.taxRate }) }}</dt>
+                                                    <dd>{{ calculatedTax.tax | currency(order.currency.translated.shortName) }}</dd>
                                                 </template>
                                             {% endblock %}
 

@@ -7,6 +7,7 @@
                           :label="$tc('sw-product.priceForm.labelTaxRate')"
                           :placeholder="$tc('sw-product.priceForm.placeholderTaxRate')"
                           validation="required"
+                          required
                           v-model="product.taxId">
                         <option v-for="tax in taxRates" :value="tax.id">{{ tax.name }}</option>
                 </sw-field>
@@ -32,6 +33,7 @@
                 :currency="defaultCurrency"
                 rootPointer="product"
                 validation="required"
+                required
                 @calculating="priceIsCalculating">
             </sw-price-field>
         {% endblock %}

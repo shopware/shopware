@@ -54,7 +54,7 @@ class EntitySearcher implements EntitySearcherInterface
         $query = new QueryBuilder($this->connection);
         $query->select([
             EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape('id') . ' as array_key',
-            EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape('id') . ' as primary_key',
+            EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape('id') . ' as id',
         ]);
 
         if (!empty($criteria->getIds())) {
@@ -92,7 +92,7 @@ class EntitySearcher implements EntitySearcherInterface
         $converted = [];
         foreach ($data as $key => $values) {
             $key = Uuid::fromBytesToHex($key);
-            $values['primary_key'] = $key;
+            $values['id'] = $key;
             $converted[$key] = $values;
         }
 

@@ -9,7 +9,9 @@
             <div class="sw-cms-list-item__image"
                  v-if="page"
                  :style="previewMedia"
-                 @click="$emit('onItemClick', page)"></div>
+                 @click="onElementClick">
+            </div>
+
             <div class="sw-cms-list-item__image is--empty" v-else>
                 {{ $tc('sw-cms.components.cmsListItem.emptyText') }}
             </div>
@@ -18,7 +20,7 @@
         {% block sw_cms_list_item_info %}
             <div class="sw-cms-list-item__info">
                 <sw-icon class="sw-cms-list-item__status" name="small-default-circle-medium" small></sw-icon>
-                <div class="sw-cms-list-item__title" v-if="page" @click="$emit('onItemClick', page)">{{ page.translated.name }}</div>
+                <div class="sw-cms-list-item__title" v-if="page" @click="onElementClick">{{ page.translated.name }}</div>
                 <sw-icon v-if="page && page.locked" class="sw-cms-list-item__locked" name="small-lock-closed" small></sw-icon>
             </div>
         {% endblock %}

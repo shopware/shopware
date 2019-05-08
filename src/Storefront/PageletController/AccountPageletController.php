@@ -9,6 +9,7 @@ use Shopware\Core\Content\NewsletterReceiver\SalesChannel\NewsletterSubscription
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
+use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -31,14 +32,21 @@ class AccountPageletController extends StorefrontController
      */
     private $accountService;
 
+    /**
+     * @var PageLoaderInterface
+     */
+    private $accountAddresslistLoader;
+
     public function __construct(
         NewsletterSubscriptionServiceInterface $newsletterSubscriptionService,
         AccountService $accountService,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        PageLoaderInterface $accountAddresslistLoader
     ) {
         $this->newsletterSubscriptionService = $newsletterSubscriptionService;
         $this->translator = $translator;
         $this->accountService = $accountService;
+        $this->accountAddresslistLoader = $accountAddresslistLoader;
     }
 
     /**
@@ -94,6 +102,18 @@ class AccountPageletController extends StorefrontController
             'messages' => $messages,
             'success' => $success,
         ]);
+    }
+
+    /**
+     * @Route(path="/widgets/account/addresses", name="widgets.account.ajax-addresses", methods={"GET"}, defaults={"XmlHttpRequest"=true})
+     */
+    public function ajaxAddresses(Request $request, SalesChannelContext $context): Response
+    {
+        $this->denyAccessUnlessLoggedIn();
+
+        $page = $this->accountAddresslistLoader->load($request, $context);
+
+        return $this->renderStorefront('@Storefront/component/account/address-list.html.twig', ['page' => $page]);
     }
 
     private function hydrateFromCustomer(RequestDataBag $dataBag, CustomerEntity $customer): RequestDataBag

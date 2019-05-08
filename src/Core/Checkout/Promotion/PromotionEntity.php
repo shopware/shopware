@@ -53,12 +53,12 @@ class PromotionEntity extends Entity
     protected $maxRedemptionsPerCustomer;
 
     /**
-     * @var bool
+     * @var bool|null
      */
     protected $exclusive;
 
     /**
-     * @var bool
+     * @var bool|null
      */
     protected $useCodes;
 
@@ -172,7 +172,7 @@ class PromotionEntity extends Entity
         $this->maxRedemptionsPerCustomer = $maxRedemptionsPerCustomer;
     }
 
-    public function isExclusive(): bool
+    public function isExclusive(): ?bool
     {
         return $this->exclusive;
     }
@@ -186,7 +186,7 @@ class PromotionEntity extends Entity
      * Gets if the promotion requires codes
      * in order to be used
      */
-    public function isUseCodes(): bool
+    public function isUseCodes(): ?bool
     {
         return $this->useCodes;
     }

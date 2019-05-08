@@ -19,6 +19,10 @@ $sw-category-tree-border-color: $color-steam-cloud;
         }
     }
 
+    .sw-field--checkbox {
+        margin-bottom: 0;
+    }
+
     .tree-link {
         cursor: pointer;
         color: inherit;

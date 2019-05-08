@@ -34,6 +34,7 @@ class ApiService {
      * @param {Object} associations
      * @param {Object} headers
      * @param {String} versionId
+     * @param {Array} ids
      * @returns {Promise<T>}
      */
     getList({
@@ -46,7 +47,8 @@ class ApiService {
         aggregations,
         associations,
         headers,
-        versionId
+        versionId,
+        ids
     }) {
         let requestHeaders = this.getBasicHeaders(headers);
         const params = { page, limit };
@@ -55,6 +57,10 @@ class ApiService {
             params.sort = sortings;
         } else if (sortBy && sortBy.length) {
             params.sort = (sortDirection.toLowerCase() === 'asc' ? '' : '-') + sortBy;
+        }
+
+        if (ids) {
+            params.ids = ids.join('|');
         }
 
         if (term) {

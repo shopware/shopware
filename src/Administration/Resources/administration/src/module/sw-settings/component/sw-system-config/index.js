@@ -1,5 +1,5 @@
 import { Mixin, Component } from 'src/core/shopware';
-import { object } from 'src/core/service/util.service';
+import { object, types } from 'src/core/service/util.service';
 import template from './sw-system-config.html.twig';
 import './sw-system-config.scss';
 
@@ -127,7 +127,7 @@ Component.register('sw-system-config', {
                     && this.inherit
                     && this.actualConfigData.hasOwnProperty('null')
                     && this.actualConfigData.null[bind.name] !== null
-                    && this.actualConfigData.null[bind.name] !== undefined) {
+                    && !types.isUndefined(this.actualConfigData.null[bind.name])) {
                 if (bind.type === 'single-select') {
                     // Add inherited placeholder option
                     bind.placeholder = this.$tc('sw-settings.system-config.inherited');

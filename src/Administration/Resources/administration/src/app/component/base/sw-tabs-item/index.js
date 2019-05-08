@@ -87,7 +87,7 @@ export default {
 
     methods: {
         createdComponent() {
-            this.$parent.$on('newActiveItem', this.checkIfActive);
+            this.$parent.$on('new-item-active', this.checkIfActive);
             if (this.active) {
                 this.isActive = true;
             }

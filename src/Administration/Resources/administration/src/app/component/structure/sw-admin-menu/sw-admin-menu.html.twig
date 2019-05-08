@@ -29,8 +29,8 @@
 
                                         {% block sw_admin_menu_navigation_main_items %}
                                             <sw-admin-menu-item v-for="(entry, index) in mainMenuEntries"
-                                                                @menuItemHovered="openFlyout"
-                                                                @menuItemClicked="openSubMenu"
+                                                                @menu-item-hover="openFlyout"
+                                                                @menu-item-click="openSubMenu"
                                                                 :sidebarExpanded="isExpanded"
                                                                 :entry="entry"
                                                                 :key="entry.id || entry.path"
@@ -165,8 +165,8 @@
                                                     :key="entry.id || entry.path"
                                                     :collapsibleText="false"
                                                     :displayIcon="false"
-                                                    @menuItemClicked="closeFlyout"
-                                                    @menuItemHovered="openFlyout"
+                                                    @menu-item-click="closeFlyout"
+                                                    @menu-item-hover="openFlyout"
                                 >
                                 </sw-admin-menu-item>
                             </ul>

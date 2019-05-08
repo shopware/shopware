@@ -59,11 +59,11 @@
                     :isLoadingInitialData="isLoadingInitialData"
                     :activeCategory="category"
                     :disableContextMenu="disableContextMenu"
-                    @sw-category-on-save="onSaveCategories"
-                    @sw-category-on-refresh="onRefreshCategories"
-                    @sw-category-on-reset-details="resetCategory"
-                    @sw-category-load-children="getCategories"
-                    @sw-category-tree-on-unsaved-changes="openChangeModal"
+                    @save="onSaveCategories"
+                    @refresh="onRefreshCategories"
+                    @details-reset="resetCategory"
+                    @children-load="getCategories"
+                    @unsaved-changes="openChangeModal"
                 ></sw-category-tree>
             {% endblock %}
         </template>
@@ -80,18 +80,18 @@
                         :mediaItem="mediaItem"
                         :isLoading="isLoading"
                         @media-drop="onDropMedia"
-                        @sw-category-view-on-page-change="onCmsPageChange"
-                        @sw-category-view-on-open-sidebar="openSidebar"
-                        @sw-category-view-on-set-media="setMediaItem"
-                        @sw-category-view-on-upload-media="onUploadAdded"
-                        @sw-category-view-on-remove-media="onUnlinkLogo"
+                        @page-change="getAssignedCmsPage"
+                        @sidebar-open="openSidebar"
+                        @media-set="setMediaItem"
+                        @media-upload="onUploadAdded"
+                        @media-remove="onUnlinkLogo"
                     ></sw-category-view>
                 {% endblock %}
 
                 {% block sw_category_content_leave_modal %}
                     <sw-category-leave-page-modal v-if="isDisplayingLeavePageWarning"
-                        @leave-page-cancel="onLeaveModalClose(nextRoute)"
-                        @leave-page-confirm="onLeaveModalConfirm(nextRoute)">
+                        @page-leave-cancel="onLeaveModalClose(nextRoute)"
+                        @page-leave-confirm="onLeaveModalConfirm(nextRoute)">
                     </sw-category-leave-page-modal>
                 {% endblock %}
 

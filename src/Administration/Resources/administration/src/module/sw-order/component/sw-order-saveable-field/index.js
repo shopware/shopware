@@ -42,7 +42,7 @@ Component.register('sw-order-saveable-field', {
 
         onSaveButtonClicked() {
             this.isEditing = false;
-            this.$emit('valueChanged', this.$refs['edit-field'].currentValue);
+            this.$emit('value-change', this.$refs['edit-field'].currentValue);
         },
 
         onCancelButtonClicked() {

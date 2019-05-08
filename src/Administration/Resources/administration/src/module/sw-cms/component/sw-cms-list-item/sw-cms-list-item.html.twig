@@ -9,7 +9,7 @@
             <div class="sw-cms-list-item__image"
                  v-if="page"
                  :style="previewMedia"
-                 @click="onElementClick">
+                 @click="$emit('item-click', page)"></div>
             </div>
 
             <div class="sw-cms-list-item__image is--empty" v-else>

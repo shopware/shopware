@@ -27,10 +27,10 @@ Component.register('sw-country-state-detail', {
 
     methods: {
         onCancel() {
-            this.$emit('cancel-attribute-edit', this.countryState);
+            this.$emit('attribute-edit-cancel', this.countryState);
         },
         onSave() {
-            this.$emit('save-attribute-edit', this.countryState);
+            this.$emit('attribute-edit-save', this.countryState);
         }
     }
 });

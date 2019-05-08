@@ -213,7 +213,7 @@ export default {
         },
 
         setActiveItem(item) {
-            this.$emit('newActiveItem', item);
+            this.$emit('new-item-active', item);
             this.active = item.name;
             this.updateActiveItem();
         },

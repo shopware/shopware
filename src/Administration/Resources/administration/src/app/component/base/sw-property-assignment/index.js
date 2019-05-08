@@ -67,7 +67,7 @@ export default {
                 if (this.propertyCollection) {
                     this.groupProperties();
                     this.isLoading = false;
-                    this.$emit('options-loaded');
+                    this.$emit('options-load');
                 }
             },
             immediate: true

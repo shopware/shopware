@@ -12,7 +12,7 @@
             :disableContextMenu="disableContextMenu"
             @delete-element="onDeleteCategory"
             @save-tree-items="saveCategories"
-            @sw-tree-on-drag-end="onUpdatePositions"
+            @drag-end="onUpdatePositions"
             @get-tree-items="onGetTreeItems">
 
 
@@ -40,7 +40,7 @@
                         :draggedItem="draggedItem"
                         :disableContextMenu="disableContextMenu"
                         :newElementId="newElementId"
-                        @itemChecked="checkItem">
+                        @check-item="checkItem">
                     </sw-tree-item>
                 </template>
             {% endblock %}

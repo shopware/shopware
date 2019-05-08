@@ -13,10 +13,10 @@
                            :highlightSearchTerm="true"
                            :disabled="disabled"
                            :size="size"
-                           @sw-select-search-term-change="onSearchTermChange"
-                           @sw-select-on-arrow-down="onArrowDown"
-                           @sw-select-list-applied="onSearchResultChange"
-                           @sw-select-option-clicked="onClickAdd"
+                           @search-term-change="onSearchTermChange"
+                           @on-arrow-down="onArrowDown"
+                           @list-load="onSearchResultChange"
+                           @option-click="onClickAdd"
                            @input="emitInput"
                     >
                     {% block sw_tag_field_form_select_add_option %}

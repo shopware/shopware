@@ -52,7 +52,7 @@ Component.register('sw-product-stream-modal-preview', {
             this.getList();
         },
         beforeDestroyComponent() {
-            this.$emit('sw-product-stream-modal-preview-destroy');
+            this.$emit('destroy');
         },
         getList() {
             this.isLoading = true;
@@ -125,7 +125,7 @@ Component.register('sw-product-stream-modal-preview', {
             return CriteriaFactory.multi(operator, ...handledFilters);
         },
         closeModal() {
-            this.$emit('sw-product-stream-modal-preview-close');
+            this.$emit('close');
         },
         searchTermChanged(term) {
             this.searchTerm = String(term);

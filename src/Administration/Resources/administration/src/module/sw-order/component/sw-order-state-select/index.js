@@ -54,7 +54,7 @@ Component.register('sw-order-state-select', {
 
     methods: {
         onStateChangeClicked() {
-            this.$emit('state-selected', this.selectedActionName);
+            this.$emit('state-select', this.selectedActionName);
         }
     }
 });

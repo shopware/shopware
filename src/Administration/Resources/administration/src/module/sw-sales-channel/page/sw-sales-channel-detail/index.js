@@ -131,7 +131,7 @@ Component.register('sw-sales-channel-detail', {
                     this.isLoading = false;
                     this.isSaveSuccessful = true;
 
-                    this.$root.$emit('changed-sales-channel');
+                    this.$root.$emit('sales-channel-change');
                     this.loadEntityData();
                 }).catch(() => {
                     this.isLoading = false;

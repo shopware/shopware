@@ -28,7 +28,7 @@
                                               :editMode="editMode"
                                               :isLoading="customer.isLoading">
                                 {% block sw_customer_detail_base_info_metadata %}
-                                    <sw-customer-base-info @activateCustomerEditMode="onActivateCustomerEditMode"
+                                    <sw-customer-base-info @customer-active-edit-mode="onActivateCustomerEditMode"
                                                            :customerEditMode="editMode"
                                                            :customerGroups="customerGroups"
                                                            :paymentMethods="paymentMethods"

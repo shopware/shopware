@@ -44,7 +44,7 @@ Component.register('sw-order-address-modal', {
         createdComponent() {
             this.customerStore.getByIdAsync(this.orderCustomer.customerId).then((customer) => {
                 if (customer.isLocal) {
-                    this.$emit('sw-address-modal-error', 'Invalid customerid');
+                    this.$emit('error', 'Invalid customer id');
                 } else {
                     customer.getAssociation('addresses').getList({ page: 1, limit: 25 }).then(() => {
                         this.availableAddresses = customer.addresses;
@@ -63,16 +63,16 @@ Component.register('sw-order-address-modal', {
             this.selectedAddressId = address.id;
         },
         onClose() {
-            this.$emit('sw-address-modal-close');
+            this.$emit('close');
         },
         onSave() {
             if (this.selectedAddressId !== 0) {
                 const address = this.availableAddresses.find((addr) => {
                     return addr.id === this.selectedAddressId;
                 });
-                this.$emit('sw-address-modal-selected-address', address);
+                this.$emit('address-select', address);
             } else {
-                this.$emit('sw-address-modal-save');
+                this.$emit('save');
             }
         }
     }

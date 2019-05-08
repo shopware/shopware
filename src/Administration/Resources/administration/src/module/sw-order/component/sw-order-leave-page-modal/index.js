@@ -5,10 +5,10 @@ Component.register('sw-order-leave-page-modal', {
     template,
     methods: {
         onConfirm() {
-            this.$emit('leave-page-confirm');
+            this.$emit('page-leave-confirm');
         },
         onCancel() {
-            this.$emit('leave-page-cancel');
+            this.$emit('page-leave-cancel');
         }
     }
 });

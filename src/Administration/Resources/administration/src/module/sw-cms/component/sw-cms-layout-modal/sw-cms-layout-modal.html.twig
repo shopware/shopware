@@ -13,7 +13,7 @@
                 {% block sw_cms_layout_modal_header_search %}
                     <sw-simple-search-field class="sw-cms-layout-modal__header-search"
                         :placeholder="$tc('sw-cms.general.placeholderSearchBar')"
-                        @search-term-changed="onSearch">
+                        @search-term-change="onSearch">
                     </sw-simple-search-field>
                 {% endblock %}
 
@@ -42,7 +42,7 @@
                                         <sw-cms-list-item
                                             :page="cmsPage"
                                             :key="cmsPage.id"
-                                            @onItemClick="selectItem(cmsPage.id)">
+                                            @item-click="selectItem(cmsPage.id)">
                                         </sw-cms-list-item>
                                     {% endblock %}
 

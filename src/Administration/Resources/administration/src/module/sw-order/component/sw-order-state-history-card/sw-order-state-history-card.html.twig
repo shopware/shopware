@@ -7,7 +7,7 @@
             <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="30px 30px">
                 {% block sw_order_state_history_card_transaction %}
                     <sw-order-state-card-entry class="sw-order-state-history-card__payment-state"
-                            @state-selected="onTransactionStateSelected"
+                            @state-select="onTransactionStateSelected"
                             :history="transactionHistory"
                             :transitionOptions="transactionOptions"
                             stateMachineName="order_transaction.state"
@@ -17,7 +17,7 @@
 
                 {% block sw_order_state_history_card_order%}
                     <sw-order-state-card-entry  class="sw-order-state-history-card__order-state"
-                            @state-selected="onOrderStateSelected"
+                            @state-select="onOrderStateSelected"
                             :history="orderHistory"
                             :transitionOptions="orderOptions"
                             stateMachineName="order.state"

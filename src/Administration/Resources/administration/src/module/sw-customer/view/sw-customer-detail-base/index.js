@@ -86,7 +86,7 @@ Component.register('sw-customer-detail-base', {
 
     methods: {
         onActivateCustomerEditMode() {
-            this.$emit('activateCustomerEditMode');
+            this.$emit('customer-active-edit-mode');
         }
     }
 });

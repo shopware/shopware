@@ -38,7 +38,7 @@ Component.register('sw-plugin-updates-grid', {
                         message: this.$tc('sw-plugin.updates.messageUpdateSuccess')
                     });
                     this.getList();
-                    this.$root.$emit('sw-plugin-refresh-updates');
+                    this.$root.$emit('updates-refresh');
                     this.updateQueue = this.updateQueue.filter(queueObj => queueObj.pluginName !== update.pluginName);
                 }).catch((exception) => {
                     if (exception.response && exception.response.data && exception.response.data.errors) {
@@ -94,7 +94,7 @@ Component.register('sw-plugin-updates-grid', {
         loginSuccess() {
             this.showLoginModal = false;
             this.getList();
-            this.$root.$emit('sw-plugin-login');
+            this.$root.$emit('plugin-login');
         },
 
         loginAbort() {
@@ -107,7 +107,7 @@ Component.register('sw-plugin-updates-grid', {
                 this.updates = data.items;
                 this.total = data.total;
                 this.isLoading = false;
-                this.$root.$emit('sw-plugin-refresh-updates', this.total);
+                this.$root.$emit('updates-refresh', this.total);
             }).catch((exception) => {
                 this.handleErrorResponse(exception);
                 this.isLoading = false;

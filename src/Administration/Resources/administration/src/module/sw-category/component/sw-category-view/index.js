@@ -33,19 +33,19 @@ Component.register('sw-category-view', {
 
     methods: {
         onUploadAdded({ uploadTag }) {
-            this.$emit('sw-category-view-on-upload-media', uploadTag);
+            this.$emit('media-upload', uploadTag);
         },
         setMediaItem(mediaItem) {
-            this.$emit('sw-category-view-on-set-media', mediaItem);
+            this.$emit('media-set', mediaItem);
         },
         onUnlinkLogo() {
-            this.$emit('sw-category-view-on-remove-media');
+            this.$emit('media-remove');
         },
         openSidebar() {
-            this.$emit('sw-category-view-on-open-sidebar');
+            this.$emit('sidebar-open');
         },
         onCmsLayoutChange(cmsPageId) {
-            this.$emit('sw-category-view-on-page-change', cmsPageId);
+            this.$emit('page-change', cmsPageId);
         }
     }
 });

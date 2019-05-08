@@ -38,11 +38,11 @@ Component.register('sw-plugin-license-list', {
 
     methods: {
         createdComponent() {
-            this.$root.$on('sw-plugin-logout', this.getList);
+            this.$root.$on('plugin-logout', this.getList);
         },
 
         destroyedComponent() {
-            this.$root.$off('sw-plugin-logout', this.getList);
+            this.$root.$off('plugin-logout', this.getList);
         },
 
         downloadPlugin(pluginName, update = false) {
@@ -59,7 +59,7 @@ Component.register('sw-plugin-license-list', {
                     });
                 }
                 this.getList();
-                this.$root.$emit('sw-plugin-refresh-last-updates');
+                this.$root.$emit('last-updates-refresh');
             });
         },
 
@@ -92,7 +92,7 @@ Component.register('sw-plugin-license-list', {
         loginSuccess() {
             this.showLoginModal = false;
             this.getList();
-            this.$root.$emit('sw-plugin-login');
+            this.$root.$emit('plugin-login');
         },
 
         loginAbort() {

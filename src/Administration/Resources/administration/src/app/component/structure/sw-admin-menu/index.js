@@ -104,7 +104,7 @@ export default {
         createdComponent() {
             this.collapseMenuOnSmallViewports();
             this.getUser();
-            this.$root.$on('toggleOffCanvas', (state) => {
+            this.$root.$on('toggle-offcanvas', (state) => {
                 this.isOffCanvasShown = state;
             });
         },

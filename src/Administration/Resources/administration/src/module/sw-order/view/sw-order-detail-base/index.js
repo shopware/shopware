@@ -122,7 +122,7 @@ Component.register('sw-order-detail-base', {
                 const tmpVersionId = response.data.versionId;
                 this.reloadVersionedOrder(tmpVersionId);
             }).catch((error) => {
-                this.$emit('sw-order-detail-base-error', error);
+                this.$emit('error', error);
             });
         },
 
@@ -225,7 +225,7 @@ Component.register('sw-order-detail-base', {
             this.orderService.mergeVersion(this.currentOrder.id, this.currentOrder.versionId).then(() => {
                 this.cancelEditing();
             }).catch((error) => {
-                this.$emit('sw-order-detail-base-error', error);
+                this.$emit('error', error);
             });
         },
 
@@ -249,7 +249,7 @@ Component.register('sw-order-detail-base', {
             this.orderService.recalculateOrder(this.currentOrder.id, this.currentOrder.versionId, {}, {}).then(() => {
                 this.reloadVersionedOrder(this.currentOrder.versionId);
             }).catch((error) => {
-                this.$emit('sw-order-detail-base-error', error);
+                this.$emit('error', error);
             });
         },
 

@@ -182,7 +182,7 @@ Component.register('sw-product-stream-detail', {
             return new Promise((resolve) => {
                 this.showModalPreview = false;
                 if (this.$refs.modalPreview) {
-                    this.$refs.modalPreview.$on('sw-product-stream-modal-preview-destroy', () => {
+                    this.$refs.modalPreview.$on('destroy', () => {
                         resolve();
                     });
                 }

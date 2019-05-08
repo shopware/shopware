@@ -11,7 +11,7 @@
                                 variant="form"
                                 size="small"
                                 v-model="term"
-                                @search-term-changed="onSearch">
+                                @search-term-change="onSearch">
                             </sw-simple-search-field>
                         {% endblock %}
 
@@ -54,7 +54,7 @@
                                                                 :sortable="false"
                                                                 :key="item.id"
                                                                 :item="item"
-                                                                @itemChecked="filterOptionChecked"
+                                                                @check-item="filterOptionChecked"
                                                                 :disableContextMenu="true">
                                                         </sw-tree-item>
                                                     </template>

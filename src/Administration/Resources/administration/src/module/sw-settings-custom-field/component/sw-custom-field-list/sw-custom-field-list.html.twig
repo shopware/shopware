@@ -9,7 +9,7 @@
                             size="small"
                             variant="form"
                             v-model="term"
-                            @search-term-changed="onSearch">
+                            @search-term-change="onSearch">
                         </sw-simple-search-field>
                     {% endblock %}
 
@@ -159,8 +159,8 @@
                     v-if="currentCustomField"
                     :set="set"
                     :currentCustomField="currentCustomField"
-                    @save-custom-field-edit="onSaveCustomField"
-                    @cancel-custom-field-edit="onCancelCustomField">
+                    @custom-field-edit-save="onSaveCustomField"
+                    @custom-field-edit-cancel="onCancelCustomField">
             </sw-custom-field-detail>
         {% endblock %}
 

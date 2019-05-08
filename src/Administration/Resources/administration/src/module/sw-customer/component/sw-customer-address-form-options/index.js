@@ -40,11 +40,11 @@ Component.register('sw-customer-address-form-options', {
         },
 
         onChangeDefaultShippingAddress(active) {
-            this.$emit('change-default-address', { name: 'shipping-address', id: this.address.id, value: active });
+            this.$emit('default-address-change', { name: 'shipping-address', id: this.address.id, value: active });
         },
 
         onChangeDefaultBillingAddress(active) {
-            this.$emit('change-default-address', { name: 'billing-address', id: this.address.id, value: active });
+            this.$emit('default-address-change', { name: 'billing-address', id: this.address.id, value: active });
         }
     }
 

@@ -39,7 +39,7 @@ Component.register('sw-plugin-last-updates-grid', {
 
     methods: {
         createdComponent() {
-            this.$root.$on('sw-plugin-refresh-updates', (total) => {
+            this.$root.$on('updates-refresh', (total) => {
                 if (total) {
                     return;
                 }

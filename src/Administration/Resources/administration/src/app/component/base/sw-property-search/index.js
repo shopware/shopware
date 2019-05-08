@@ -74,7 +74,7 @@ export default {
                 this.showTree();
             }
 
-            this.$parent.$on('options-loaded', this.addOptionCount);
+            this.$parent.$on('options-load', this.addOptionCount);
         },
 
         destroyedComponent() {
@@ -103,7 +103,7 @@ export default {
                 return;
             }
 
-            this.$emit('sw-property-search-option-selected', { item, selected });
+            this.$emit('option-select', { item, selected });
             this.addOptionCount();
         },
 

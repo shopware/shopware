@@ -55,19 +55,19 @@ Component.register('sw-order-document-settings-modal', {
         },
 
         onCreateDocument(additionalAction = false) {
-            this.$emit('document-modal-create-document', this.documentConfig, additionalAction);
+            this.$emit('document-create', this.documentConfig, additionalAction);
         },
 
         onPreview() {
-            this.$emit('document-modal-show-preview', this.documentConfig);
+            this.$emit('preview-show', this.documentConfig);
         },
 
         onConfirm() {
-            this.$emit('leave-page-confirm');
+            this.$emit('page-leave-confirm');
         },
 
         onCancel() {
-            this.$emit('document-modal-leave-page');
+            this.$emit('page-leave');
         }
 
     }

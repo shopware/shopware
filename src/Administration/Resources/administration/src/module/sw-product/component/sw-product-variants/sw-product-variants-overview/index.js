@@ -165,7 +165,7 @@ Component.register('sw-product-variants-overview', {
                         this.total = res.total;
                         this.variantList = res.items;
                         this.isLoading = false;
-                        this.$emit('variants-updated', this.variantList);
+                        this.$emit('variants-finish-update', this.variantList);
                         resolve();
                     });
             });

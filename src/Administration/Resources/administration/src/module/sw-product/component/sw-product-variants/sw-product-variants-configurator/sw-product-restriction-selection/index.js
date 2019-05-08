@@ -84,7 +84,7 @@ Component.register('sw-product-restriction-selection', {
         },
 
         deleteRestriction() {
-            this.$emit('deleteRestriction', this.restriction);
+            this.$emit('restriction-delete', this.restriction);
         }
     }
 });

@@ -229,7 +229,7 @@ export default {
         startDrag(draggedComponent) {
             draggedComponent.opened = false;
             this.draggedItem = draggedComponent.item;
-            this.$emit('sw-tree-on-drag-start');
+            this.$emit('drag-start');
         },
 
         endDrag() {
@@ -267,7 +267,7 @@ export default {
             this.draggedItem = null;
             this.droppedItem = null;
 
-            this.$emit('sw-tree-on-drag-end');
+            this.$emit('drag-end');
         },
 
         moveDrag(draggedComponent, droppedComponent) {

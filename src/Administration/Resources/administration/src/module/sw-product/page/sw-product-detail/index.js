@@ -94,7 +94,7 @@ Component.register('sw-product-detail', {
             // initialize default state
             this.initState();
 
-            this.$root.$on('sw-product-media-form-open-sidebar', this.openMediaSidebar);
+            this.$root.$on('sidebar-toggle-open', this.openMediaSidebar);
             this.$root.$on('media-remove', (mediaId) => {
                 this.$store.commit('swProductDetail/removeMediaItem', mediaId);
             });

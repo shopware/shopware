@@ -147,8 +147,8 @@ export default {
 
     methods: {
         createdComponent() {
-            this.$on('sw-sidebar-mounted', this.setSidebarOffset);
-            this.$on('sw-sidebar-destroyed', this.removeSidebarOffset);
+            this.$on('mount', this.setSidebarOffset);
+            this.$on('destroy', this.removeSidebarOffset);
             window.addEventListener('resize', this.readScreenWidth);
         },
 

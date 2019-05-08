@@ -90,7 +90,7 @@ export default {
         },
 
         onCancelSubmit() {
-            this.$emit('cancelSubmit');
+            this.$emit('submit-cancel');
             this.cancelSubmit();
             this.isEditing = false;
         },

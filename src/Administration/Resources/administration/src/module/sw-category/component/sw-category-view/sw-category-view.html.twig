@@ -37,11 +37,11 @@
                 :mediaItem="mediaItem"
                 :isLoading="isLoading"
                 @media-drop="$emit('media-drop', $event)"
-                @sw-category-base-on-layout-change="onCmsLayoutChange"
-                @sw-category-base-on-open-sidebar="openSidebar"
-                @sw-category-base-on-set-media="setMediaItem"
-                @sw-category-base-on-upload-media="onUploadAdded"
-                @sw-category-base-on-remove-media="onUnlinkLogo">
+                @layout-change="onCmsLayoutChange"
+                @sidebar-open="openSidebar"
+                @media-set="setMediaItem"
+                @media-upload="onUploadAdded"
+                @media-remove="onUnlinkLogo">
             </router-view>
         {% endblock %}
 

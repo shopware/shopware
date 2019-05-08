@@ -2,8 +2,8 @@
     <div class="sw-order-detail-base">
         {% block sw_order_detail_base_leave_page_modal %}
             <sw-order-leave-page-modal v-if="isDisplayingLeavePageWarning"
-                @leave-page-cancel = "onLeaveModalClose"
-                @leave-page-confirm = "onLeaveModalConfirm">
+                @page-leave-cancel="onLeaveModalClose"
+                @page-leave-cancel="onLeaveModalConfirm">
             </sw-order-leave-page-modal>
         {% endblock %}
         {% block sw_order_detail_base__user_card %}
@@ -11,8 +11,8 @@
                 :currentOrder="currentOrder"
                 :isLoading = "isLoading"
                 :isEditing = "isEditing"
-                @order-changed="saveAndReloadVersionedOrder"
-                @error="$emit('sw-order-detail-base-error',$event)">
+                @order-change="saveAndReloadVersionedOrder"
+                @error="$emit('error',$event)">
                 {% block  sw_order_detail_base_overview_status_change %}
                     <sw-container v-if="!isEditing"
                         slot="additional-actions"
@@ -24,7 +24,7 @@
                                     class="sw-order-state-select__payment-state"
                                     :transitionOptions="transactionOptions"
                                     roundedStyle
-                                    @state-selected="onQuickTransactionStatusChange"
+                                    @state-select="onQuickTransactionStatusChange"
                                     :placeholder="transactionOptionPlaceholder"
                                     :backgroundStyle="transactionOptionsBackground">
                             </sw-order-state-select>
@@ -35,7 +35,7 @@
                                     class="sw-order-state-select__order-state"
                                     :transitionOptions="orderOptions"
                                     roundedStyle
-                                    @state-selected="onQuickOrderStatusChange"
+                                    @state-select="onQuickOrderStatusChange"
                                     :placeholder="orderOptionPlaceholder"
                                     :backgroundStyle="orderOptionsBackground">
                             </sw-order-state-select>
@@ -82,7 +82,7 @@
                                                         }"
                                                         :editable="isEditing"
                                                         :value="currentOrder.deliveries[0].shippingCosts.unitPrice"
-                                                        @valueChanged="onShippingChargeEdited">
+                                                        @value-change="onShippingChargeEdited">
                                                         {{ currentOrder.deliveries[0].shippingCosts.unitPrice | currency(order.currency.translated.shortName) }}
                                                     </sw-order-saveable-field>
                                                 </dd>
@@ -121,8 +121,8 @@
                 :title="$tc('sw-order.stateCard.cardTitle')"
                 :isLoading="isLoading"
                 :order="currentOrder"
-                @order-state-changed="loadLiveVersion"
-                @state-transition-options-changed="onStateTransitionOptionsChanged"
+                @order-state-change="loadLiveVersion"
+                @options-change="onStateTransitionOptionsChanged"
                 ref="state-card">
             </sw-order-state-history-card>
         {% endblock %}

@@ -79,13 +79,13 @@ export default {
         },
 
         registerEvents() {
-            this.$parent.$on('sw-search-bar-active-item-index', this.checkActiveState);
-            this.$parent.$on('sw-search-bar-on-keyup-enter', this.onEnter);
+            this.$parent.$on('active-item-index-select', this.checkActiveState);
+            this.$parent.$on('keyup-enter', this.onEnter);
         },
 
         removeEvents() {
-            this.$parent.$off('sw-search-bar-active-item-index', this.checkActiveState);
-            this.$parent.$off('sw-search-bar-on-keyup-enter', this.onEnter);
+            this.$parent.$off('active-item-index-select', this.checkActiveState);
+            this.$parent.$off('keyup-enter', this.onEnter);
         },
 
         checkActiveState({ index, column }) {
@@ -109,7 +109,7 @@ export default {
         },
 
         onMouseEnter(originalDomEvent) {
-            this.$parent.$emit('sw-search-bar-item-mouse-over', {
+            this.$parent.$emit('mouse-over', {
                 originalDomEvent,
                 index: this.index,
                 column: this.column

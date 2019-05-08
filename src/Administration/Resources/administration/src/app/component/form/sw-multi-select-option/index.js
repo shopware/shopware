@@ -66,13 +66,13 @@ export default {
         },
 
         registerEvents() {
-            this.$parent.$on('sw-multi-select-active-item-index', this.checkActiveState);
-            this.$parent.$on('sw-multi-select-on-keyup-enter', this.selectOptionOnEnter);
+            this.$parent.$on('active-item-index-select', this.checkActiveState);
+            this.$parent.$on('keyup-enter', this.selectOptionOnEnter);
         },
 
         removeEvents() {
-            this.$parent.$off('sw-multi-select-active-item-index', this.checkActiveState);
-            this.$parent.$off('sw-multi-select-on-keyup-enter', this.selectOptionOnEnter);
+            this.$parent.$off('active-item-index-select', this.checkActiveState);
+            this.$parent.$off('keyup-enter', this.selectOptionOnEnter);
         },
 
         emitActiveResultPosition(originalDomEvent, index) {
@@ -84,7 +84,7 @@ export default {
                 return;
             }
 
-            this.$parent.$emit('sw-multi-select-option-clicked', {
+            this.$parent.$emit('option-click', {
                 originalDomEvent,
                 item: this.item
             });
@@ -111,7 +111,7 @@ export default {
         },
 
         onMouseEnter(originalDomEvent) {
-            this.$parent.$emit('sw-multi-select-option-mouse-over', { originalDomEvent, index: this.index });
+            this.$parent.$emit('option-mouse-over', { originalDomEvent, index: this.index });
             this.isActive = true;
         }
     }

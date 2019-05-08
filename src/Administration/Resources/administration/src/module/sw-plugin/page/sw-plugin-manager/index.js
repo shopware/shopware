@@ -32,7 +32,7 @@ Component.register('sw-plugin-manager', {
 
         createdComponent() {
             this.fetchAvailableUpdates();
-            this.$root.$on('sw-plugin-refresh-updates', (total) => {
+            this.$root.$on('updates-refresh', (total) => {
                 if (total) {
                     this.availableUpdates = total;
                     return;
@@ -54,7 +54,7 @@ Component.register('sw-plugin-manager', {
         },
 
         successfulUpload() {
-            this.$root.$emit('sw-plugin-force-refresh');
+            this.$root.$emit('force-refresh');
             this.$router.push({ name: 'sw.plugin.index.list' });
         }
     }

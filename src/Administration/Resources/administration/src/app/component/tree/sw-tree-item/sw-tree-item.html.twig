@@ -53,7 +53,7 @@
                                                       :preventEmptySubmit="true"
                                                       @input="onFinishNameingElement"
                                                       @blur="onCancelSubmit(item)"
-                                                      @cancelSubmit="onBlurTreeItemInput(item)"
+                                                      @submit-cancel="onBlurTreeItemInput(item)"
                                                       :placeholder="$tc(`${translationContext}.general.buttonCreate`)">
                                     </sw-confirm-field>
                                 </template>
@@ -132,7 +132,7 @@
                                           :newElementId="newElementId"
                                           :translationContext="translationContext"
                                           :onChangeRoute="onChangeRoute"
-                                          @itemChecked="emitCheckedItem"
+                                          @check-item="emitCheckedItem"
                                           :activeParentIds="activeParentIds"
                                           :activeItemIds="activeItemIds"
                                           :markInactive="markInactive"
@@ -154,7 +154,7 @@
                                                                               :preventEmptySubmit="true"
                                                                               @input="onFinishNameingElement"
                                                                               @blur="onBlurTreeItemInput(item)"
-                                                                              @cancelSubmit="onCancelSubmit(item)"
+                                                                              @submit-cancel="onCancelSubmit(item)"
                                                                               :placeholder="$tc(`${translationContext}.general.buttonCreate`)">
                                                             </sw-confirm-field>
                                                         </template>

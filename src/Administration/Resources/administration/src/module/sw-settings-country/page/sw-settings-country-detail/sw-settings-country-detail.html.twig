@@ -103,7 +103,7 @@
                                     <sw-simple-search-field
                                             size="small"
                                             variant="form"
-                                            @search-term-changed="onSearchCountryState"
+                                            @search-term-change="onSearchCountryState"
                                             v-model="term">
                                     </sw-simple-search-field>
                                 {% endblock %}
@@ -160,8 +160,8 @@
                     <sw-country-state-detail
                             v-if="currentCountryState"
                             :countryState="currentCountryState"
-                            @save-attribute-edit="onSaveCountryState"
-                            @cancel-attribute-edit="onCancelCountryState">
+                            @attribute-edit-save="onSaveCountryState"
+                            @attribute-edit-cancel="onCancelCountryState">
                     </sw-country-state-detail>
                 {% endblock %}
             </sw-card-view>

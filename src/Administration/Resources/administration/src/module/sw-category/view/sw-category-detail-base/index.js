@@ -119,7 +119,7 @@ Component.register('sw-category-detail-base', {
         },
 
         cmsPageChanged(cmsPageId) {
-            this.$emit('sw-category-base-on-layout-change', cmsPageId);
+            this.$emit('layout-change', cmsPageId);
         },
 
         onChangeLanguage() {
@@ -144,16 +144,16 @@ Component.register('sw-category-detail-base', {
 
         setMediaItem({ targetId }) {
             this.mediaStore.getByIdAsync(targetId).then((updatedMedia) => {
-                this.$emit('sw-category-base-on-set-media', updatedMedia);
+                this.$emit('media-set', updatedMedia);
             });
         },
 
         removeMediaItem() {
-            this.$emit('sw-category-base-on-remove-media');
+            this.$emit('media-remove');
         },
 
         openMediaSidebar() {
-            this.$emit('sw-category-base-on-open-sidebar');
+            this.$emit('sidebar-open');
         },
 
         onViewProduct(productId) {
@@ -248,12 +248,12 @@ Component.register('sw-category-detail-base', {
 
         onLayoutSelect(selectedLayout) {
             this.category.cmsPageId = selectedLayout;
-            this.$emit('sw-category-base-on-layout-change', selectedLayout);
+            this.$emit('layout-change', selectedLayout);
         },
 
         onLayoutReset() {
             this.category.cmsPageId = null;
-            this.$emit('sw-category-base-on-layout-change', null);
+            this.$emit('layout-change', null);
         },
 
         openInPagebuilder() {

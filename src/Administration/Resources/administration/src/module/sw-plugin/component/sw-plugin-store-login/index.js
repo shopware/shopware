@@ -26,14 +26,14 @@ Component.register('sw-plugin-store-login', {
                     title: this.$tc('sw-plugin.store-login.titleLoginSuccess'),
                     message: this.$tc('sw-plugin.store-login.titleLoginMessage')
                 });
-                this.$emit('sw-plugin-store-login-success');
+                this.$emit('login-success');
             }).catch((exception) => {
                 this.handleErrorResponse(exception);
             });
         },
 
         onCloseModal() {
-            this.$emit('sw-plugin-store-login-abort');
+            this.$emit('login-abort');
         }
     }
 });

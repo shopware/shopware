@@ -80,13 +80,13 @@ export default {
             if (this.propagateWidth) {
                 const sidebarWidth = this.$el.querySelector('.sw-sidebar__navigation').offsetWidth;
 
-                this._parent.$emit('sw-sidebar-mounted', sidebarWidth);
+                this._parent.$emit('mount', sidebarWidth);
             }
         },
 
         destroyedComponent() {
             if (this.propagateWidth) {
-                this._parent.$emit('sw-sidebar-destroyed');
+                this._parent.$emit('destroy');
             }
         },
 
@@ -115,13 +115,13 @@ export default {
 
             this.items.push(item);
 
-            this.$on('sw-sidebar-navigation-item-clicked', item.sidebarButtonClick);
-            item.$on('sw-sidebar-item-toggle-active', this.setItemActive);
-            item.$on('sw-sidebar-item-close-content', this.closeSidebar);
+            this.$on('item-click', item.sidebarButtonClick);
+            item.$on('toggle-active', this.setItemActive);
+            item.$on('close-content', this.closeSidebar);
         },
 
         setItemActive(clickedItem) {
-            this.$emit('sw-sidebar-navigation-item-clicked', clickedItem);
+            this.$emit('item-click', clickedItem);
 
             if (clickedItem.hasDefaultSlot) {
                 this.isOpened = this._isAnyItemActive();

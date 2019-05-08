@@ -38,12 +38,12 @@ Component.register('sw-product-modal-delivery', {
 
             // Save the product after generating
             this.productRepository.save(this.product, this.context).then(() => {
-                this.$emit('configuration-closed');
+                this.$emit('configuration-close');
             });
         },
 
         cancelDeliveryConfiguration() {
-            this.$emit('configuration-closed');
+            this.$emit('configuration-close');
         }
     }
 });

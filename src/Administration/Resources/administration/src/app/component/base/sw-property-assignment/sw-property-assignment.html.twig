@@ -2,7 +2,7 @@
     <div class="sw-property-assignment">
 
         {% block sw_property_assignment_search_field %}
-            <sw-property-search ref="searchField" :collapsible="true" :overlay="true" :options="properties" @sw-property-search-option-selected="onSelectOption"/>
+            <sw-property-search ref="searchField" :collapsible="true" :overlay="true" :options="properties" @option-select="onSelectOption"/>
         {% endblock %}
 
         {% block sw_property_assignment_grid %}

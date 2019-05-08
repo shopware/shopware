@@ -6,10 +6,10 @@ Component.register('sw-category-leave-page-modal', {
 
     methods: {
         onConfirm() {
-            this.$emit('leave-page-confirm');
+            this.$emit('page-leave-confirm');
         },
         onCancel() {
-            this.$emit('leave-page-cancel');
+            this.$emit('page-leave-cancel');
         }
     }
 });

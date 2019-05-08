@@ -15,7 +15,7 @@
                         :groups="groups"
                         :selectedGroups="selectedGroups"
                         ref="generatedVariants"
-                        @variants-updated="updateVariantListHasContent"
+                        @variants-finish-update="updateVariantListHasContent"
                         @generator-open="openModal('variantGeneration')"
                         @delivery-open="openModal('deliveryModal')"
                     ></sw-product-variants-overview>
@@ -51,7 +51,7 @@
                 :groups="groups"
                 :selectedGroups="selectedGroups"
                 @modal-close="activeModal = ''"
-                @variations-generated="updateVariations"
+                @variations-finish-generate="updateVariations"
             ></sw-product-modal-variant-generation>
         {% endblock %}
 
@@ -60,7 +60,7 @@
                 v-if="activeModal === 'deliveryModal'"
                 :product="productEntity"
                 :selectedGroups="selectedGroups"
-                @configuration-closed="onConfigurationClosed"
+                @configuration-close="onConfigurationClosed"
                 @modal-close="activeModal = ''"
             ></sw-product-modal-delivery>
         {% endblock %}

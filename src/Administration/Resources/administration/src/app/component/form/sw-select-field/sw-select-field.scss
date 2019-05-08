@@ -45,6 +45,7 @@ $sw-select-field-color-error: $color-crimson;
         option {
             color: $sw-select-field-color-text;
             background-color: $sw-select-field-color-background;
+            padding-right: 22px;
         }
 
         option:disabled {

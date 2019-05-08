@@ -4,6 +4,7 @@
                   :label="$tc('sw-settings-shipping.priceRuleModal.labelPrice')"
                   :placeholder="$tc('sw-settings-shipping.priceRuleModal.placeholderPrice')"
                   validation="required"
+                  required
                   v-model="currentPriceRule.price">
             <template #suffix>
                 {{ currencySuffix }}

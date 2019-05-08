@@ -21,6 +21,11 @@ Component.register('sw-order-inline-field', {
             type: Boolean,
             required: true,
             default: false
+        },
+        required: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
     methods: {

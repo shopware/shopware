@@ -49,6 +49,7 @@
                                           :label="$tc('sw-settings-number-range.detail.labelName')"
                                           :placeholder="$tc('sw-settings-number-range.detail.placeholderName')"
                                           validation="required"
+                                          required
                                           v-model="numberRange.name">
                                 </sw-field>
                             {% endblock %}
@@ -80,6 +81,7 @@
                                           :label="$tc('sw-settings-number-range.detail.labelStart')"
                                           :placeholder="$tc('sw-settings-number-range.detail.placeholderStart')"
                                           v-model="numberRange.start"
+                                          required
                                           validation="required">
                                 </sw-field>
                             {% endblock %}
@@ -160,7 +162,8 @@
                                                 numberRangeSalesChannels &&
                                                 numberRangeSalesChannels.length > 0
                                             )"
-                                            validation="required">
+                                            validation="required"
+                                            required>
                                 </sw-select>
                             {% endblock %}
                             {% block sw_sales_channel_detail_base_general_input_sales_channel %}
@@ -176,6 +179,7 @@
                                         :disabled="selectedType.id === undefined"
                                         :showSearch="false"
                                         ref="numberRangeSalesChannel"
+                                        required
                                         validation="required">
                                 </sw-select>
                             {% endblock %}

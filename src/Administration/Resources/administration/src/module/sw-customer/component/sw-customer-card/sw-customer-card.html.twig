@@ -36,6 +36,7 @@
                                                         {% block sw_customer_card_metadata_customer_name_editor_salutation %}
                                                             <sw-select-field v-model="customer.salutationId"
                                                                              :label="$tc('sw-customer.card.labelSalutation')"
+                                                                             required
                                                                              validation="required">
                                                                 <option v-for="salutation in salutations" :key="salutation.id" :value="salutation.id">
                                                                     {{ salutation.translated.displayName }}
@@ -56,6 +57,7 @@
                                                             <sw-text-field v-model="customer.firstName"
                                                                            :label="$tc('sw-customer.card.labelFirstName')"
                                                                            validation="required"
+                                                                           required
                                                                            :placeholder="$tc('sw-customer.card.placeholderFirstName')">
                                                             </sw-text-field>
                                                         {% endblock %}
@@ -64,6 +66,7 @@
                                                             <sw-text-field v-model="customer.lastName"
                                                                            :label="$tc('sw-customer.card.labelLastName')"
                                                                            validation="required"
+                                                                           required
                                                                            :placeholder="$tc('sw-customer.card.placeholderLastName')">
                                                             </sw-text-field>
                                                         {% endblock %}
@@ -91,6 +94,7 @@
                                                                v-model="customer.email"
                                                                :label="$tc('sw-customer.card.labelEmail')"
                                                                validation="required"
+                                                               required
                                                                :placeholder="$tc('sw-customer.card.placeholderEmail')">
                                                 </sw-text-field>
                                             {% endblock %}

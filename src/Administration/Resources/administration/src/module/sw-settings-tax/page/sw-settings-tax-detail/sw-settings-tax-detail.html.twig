@@ -33,6 +33,7 @@
 
                             {% block sw_settings_tax_detail_content_field_name %}
                                 <sw-field type="text"
+                                          required
                                           :label="$tc('sw-settings-tax.detail.labelName')"
                                           :placeholder="$tc('sw-settings-tax.detail.placeholderName')"
                                           v-model="tax.name">
@@ -41,6 +42,7 @@
 
                             {% block sw_settings_tax_detail_content_field_tax_rate %}
                                 <sw-field type="number"
+                                          required
                                           :label="$tc('sw-settings-tax.detail.labelTaxRate')"
                                           :placeholder="$tc('sw-settings-tax.detail.placeholderTaxRate')"
                                           v-model="tax.taxRate">

@@ -3,8 +3,7 @@
 
         {% block sw_settings_number_range_detail_header %}
             <template slot="smart-bar-header">
-                <h2 v-if="numberRange.name">{{ numberRange.name }}</h2>
-                <h2 v-else>{{ $tc('sw-settings-number-range.detail.textHeadline') }}</h2>
+                <h2>{{ placeholder(numberRange, 'name', $tc('sw-settings-number-range.detail.textHeadline')) }}</h2>
             </template>
         {% endblock %}
         {% block sw_settings_customer_group_list_language_switch %}
@@ -47,7 +46,7 @@
                             {% block sw_settings_number_range_detail_content_field_name %}
                                 <sw-field type="text"
                                           :label="$tc('sw-settings-number-range.detail.labelName')"
-                                          :placeholder="$tc('sw-settings-number-range.detail.placeholderName')"
+                                          :placeholder="placeholder(numberRange, 'name', $tc('sw-settings-number-range.detail.placeholderName'))"
                                           validation="required"
                                           required
                                           v-model="numberRange.name">
@@ -57,7 +56,7 @@
                             {% block sw_settings_number_range_detail_content_field_description %}
                                 <sw-field type="text"
                                           :label="$tc('sw-settings-number-range.detail.labelDescription')"
-                                          :placeholder="$tc('sw-settings-number-range.detail.placeholderDescription')"
+                                          :placeholder="placeholder(numberRange, 'description', $tc('sw-settings-number-range.detail.placeholderDescription'))"
                                           v-model="numberRange.description">
                                 </sw-field>
                             {% endblock %}

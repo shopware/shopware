@@ -38,7 +38,7 @@
                                     {{ address | salutation }}<br>
                                     {{ address.street }} <br>
                                     {{ address.zipcode }} {{ address.city }}<br>
-                                    {{ address.country.name }}<br>
+                                    {{ placeholder(address.country, 'name') }}<br>
                                 </sw-button>
                             {% endblock %}
                         </div>

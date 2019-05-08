@@ -66,7 +66,7 @@
                                                         <router-link :title="$tc('sw-settings-number-range.list.contextMenuEdit')"
                                                                      :to="{ name: 'sw.settings.number.range.detail', params: { id: item.id } }">
                                                             {% block sw_settings_number_range_list_columns_name_link %}
-                                                                {{ item.name }}
+                                                                {{ item.translated.name }}
                                                             {% endblock %}
                                                         </router-link>
                                                     {% endblock %}
@@ -136,7 +136,7 @@
                                                           variant="small">
                                                     {% block sw_settings_number_range_list_delete_modal_confirm_text %}
                                                         <p>
-                                                            {{ $tc('sw-settings-number-range.list.textDeleteConfirm', 0, { name: item.name }) }}
+                                                            {{ $tc('sw-settings-number-range.list.textDeleteConfirm', 0, { name: item.translated.name }) }}
                                                         </p>
                                                     {% endblock %}
 

@@ -61,7 +61,7 @@
         {% endblock %}
 
         {% block sw_product_variants_configurator_restrictions_modal %}
-            <sw-modal title="Aussschluss hinzufügen"
+            <sw-modal :title="$tc('sw-product.variations.configuratorModal.singleRestrictionAddTitle')"
                       @modal-close="cancelAddRestriction"
                       v-if="restrictionModalIsOpen"
                       class="sw-product-variants-configurator-restrictions__modal">

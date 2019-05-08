@@ -19,7 +19,7 @@
                 {% block sw_cms_element_product_box_media %}
                     <div class="sw-cms-el-product-box__media">
                         <a href="#"
-                           :title="product.name"
+                           :title="placeholder(product, 'name')"
                            class="sw-cms-el-product-box__image-link">
                             <img class="sw-cms-el-product-box__image"
                                  :class="displayModeClass"
@@ -33,14 +33,14 @@
                     <div class="sw-cms-el-product-box__info">
 
                         {% block sw_cms_element_product_box_name %}
-                            <a href="#" class="sw-cms-el-product-box__name" :title="product.name">
-                                {{ product.name }}
+                            <a href="#" class="sw-cms-el-product-box__name" :title="placeholder(product, 'name')">
+                                {{ placeholder(product, 'name') }}
                             </a>
                         {% endblock %}
 
                         {% block sw_cms_element_product_box_description %}
                             <div class="sw-cms-el-product-box__description" v-if="element.config.boxLayout.value === 'standard'">
-                                {{ product.description | truncate(200, true, '...') }}
+                                {{ placeholder(product, 'description') | truncate(200, true, '...') }}
                             </div>
                         {% endblock %}
 

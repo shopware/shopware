@@ -1,4 +1,4 @@
-import { Component, State } from 'src/core/shopware';
+import { Component, Mixin, State } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import EntityProxy from 'src/core/data/EntityProxy';
 import utils from 'src/core/service/util.service';
@@ -6,6 +6,10 @@ import template from './sw-cms-create.html.twig';
 
 Component.extend('sw-cms-create', 'sw-cms-detail', {
     template,
+
+    mixins: [
+        Mixin.getByName('placeholder')
+    ],
 
     beforeRouteEnter(to, from, next) {
         if (to.name.includes('sw.cms.create') && !to.params.id) {

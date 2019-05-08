@@ -299,7 +299,7 @@ Component.register('sw-settings-number-range-detail', {
         onSave() {
             this.isSaveSuccessful = false;
             this.onChangeSalesChannel();
-            const numberRangeName = this.numberRange.name;
+            const numberRangeName = this.numberRange.name || this.placeholder(this.numberRange, 'name');
             this.onChange();
             if (this.noSalesChannelSelected()) {
                 this.createNotificationError(

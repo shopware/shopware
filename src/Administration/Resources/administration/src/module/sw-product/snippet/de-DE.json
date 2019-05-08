@@ -173,6 +173,7 @@
       "generatedListDeleteModalMessage": "Möchtest du die Variante löschen?",
       "generatedListDeleteModalButtonCancel": "Abbrechen",
       "generatedListDeleteModalButtonDelete": "Löschen",
+      "generatedListDeleteModalTitle": "Variante",
       "generatedListTitleSaveSuccess": "Gespeichert",
       "generatedListTitleSaveError": "Fehler",
       "generatedListMessageSaveSuccess": "Die Variante wurde gespeichert.",
@@ -186,6 +187,7 @@
         "storefrontDelivery": "Storefront Darstellung"
       },
       "configuratorModal": {
+        "title": "Varianten generieren",
         "selectOptions": "Optionen auswählen",
         "selectOptionsExplanation": "Beginne mit der Auswahl der Optionen, aus denen die Varianten generiert werden sollen.",
         "priceSurcharges": "Preis Auf-/Abschläge",
@@ -202,7 +204,8 @@
         "isOneFrom": "ist eine von",
         "cancel": "Abbrechen",
         "save": "Speichern",
-        "searchPlaceholder": "Durchsuche Gruppen und Eigenschaften"
+        "searchPlaceholder": "Durchsuche Gruppen und Eigenschaften",
+        "singleRestrictionAddTitle": "Ausschluss hinzufügen"
       },
       "deliveryModal": {
         "modalHeadline": "Varianten Ausspielung",

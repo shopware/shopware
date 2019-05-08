@@ -3,8 +3,7 @@
 
         {% block sw_mail_header_footer_detail_header %}
             <template slot="smart-bar-header">
-                <h2 v-if="mailHeaderFooter.name">{{ mailHeaderFooter.name }}</h2>
-                <h2 v-else class="sw-mail-header-footer-detail__empty-title">{{ $tc('sw-mail-header-footer.detail.textHeadline') }}</h2>
+                <h2>{{ placeholder(mailHeaderFooter, 'name', $tc('sw-mail-header-footer.detail.textHeadline')) }}</h2>
             </template>
         {% endblock %}
 
@@ -45,7 +44,7 @@
                         {% block sw_mail_header_footer_basic_form_name_field %}
                             <sw-field type="text"
                                       :label="$tc('sw-mail-header-footer.detail.basic.labelName')"
-                                      :placeholder="$tc('sw-mail-header-footer.detail.basic.placeholderName')"
+                                      :placeholder="placeholder(mailHeaderFooter, 'name', $tc('sw-mail-header-footer.detail.basic.placeholderName'))"
                                       v-model="mailHeaderFooter.name"
                                       validation="required"
                                       required>
@@ -55,7 +54,7 @@
                         {% block sw_mail_header_footer_basic_form_description_field %}
                             <sw-field type="textarea"
                                       :label="$tc('sw-mail-header-footer.detail.basic.labelDescription')"
-                                      :placeholder="$tc('sw-mail-header-footer.detail.basic.placeholderDescription')"
+                                      :placeholder="placeholder(mailHeaderFooter, 'description', $tc('sw-mail-header-footer.detail.basic.placeholderDescription'))"
                                       v-model="mailHeaderFooter.description">
                             </sw-field>
                         {% endblock %}
@@ -78,7 +77,7 @@
                         {% block sw_mail_header_footer_detail_content_header_plain_field %}
                             <sw-field type="textarea"
                                       :label="$tc('sw-mail-header-footer.detail.header.labelPlain')"
-                                      :placeholder="$tc('sw-mail-header-footer.detail.header.placeholderPlain')"
+                                      :placeholder="placeholder(mailHeaderFooter, 'headerPlain', $tc('sw-mail-header-footer.detail.header.placeholderPlain'))"
                                       v-model="mailHeaderFooter.headerPlain">
                             </sw-field>
                         {% endblock %}
@@ -86,7 +85,7 @@
                         {% block sw_mail_header_footer_detail_content_header_html_field %}
                             <sw-code-editor
                                     :label="$tc('sw-mail-header-footer.detail.header.labelHtml')"
-                                    :placeholder="$tc('sw-mail-header-footer.detail.header.placeholderHtml')"
+                                    :placeholder="placeholder(mailHeaderFooter, 'headerHtml', $tc('sw-mail-header-footer.detail.header.placeholderHtml'))"
                                     name="header_html"
                                     identifier="header_html"
                                     v-model="mailHeaderFooter.headerHtml">
@@ -100,7 +99,7 @@
                         {% block sw_mail_header_footer_detail_content_footer_plain_field %}
                             <sw-field type="textarea"
                                       :label="$tc('sw-mail-header-footer.detail.footer.labelPlain')"
-                                      :placeholder="$tc('sw-mail-header-footer.detail.footer.placeholderPlain')"
+                                      :placeholder="placeholder(mailHeaderFooter, 'footerPlain', $tc('sw-mail-header-footer.detail.footer.placeholderPlain'))"
                                       v-model="mailHeaderFooter.footerPlain">
                             </sw-field>
                         {% endblock %}
@@ -108,7 +107,7 @@
                         {% block sw_mail_header_footer_detail_content_footer_html_field %}
                             <sw-code-editor
                                     :label="$tc('sw-mail-header-footer.detail.footer.labelHtml')"
-                                    :placeholder="$tc('sw-mail-header-footer.detail.footer.placeholderHtml')"
+                                    :placeholder="placeholder(mailHeaderFooter, 'footerHtml', $tc('sw-mail-header-footer.detail.footer.placeholderHtml'))"
                                     name="footer_html"
                                     identifier="footer_html"
                                     v-model="mailHeaderFooter.footerHtml">

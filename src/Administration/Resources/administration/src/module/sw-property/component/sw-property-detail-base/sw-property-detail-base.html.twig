@@ -7,11 +7,14 @@
                       required
                       validation="required"
                       :label="$tc('sw-property.detail.labelName')"
-                      :placeholder="$tc('sw-property.detail.placeholderName')" />
+                      :placeholder="placeholder(group, 'name', $tc('sw-property.detail.placeholderName'))" />
         {% endblock %}
 
         {% block sw_property_detail_base_description %}
-            <sw-field v-model="group.description" type="textarea" :label="$tc('sw-property.detail.labelDescription')"  />
+            <sw-field v-model="group.description"
+                      type="textarea"
+                      :label="$tc('sw-property.detail.labelDescription')"
+                      :placeholder="placeholder(group, 'description')" />
         {% endblock %}
 
         {% block sw_property_detail_sorting_display_container %}

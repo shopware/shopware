@@ -8,7 +8,8 @@ Component.register('sw-product-list', {
 
     mixins: [
         Mixin.getByName('notification'),
-        Mixin.getByName('listing')
+        Mixin.getByName('listing'),
+        Mixin.getByName('placeholder')
     ],
 
     data() {
@@ -76,17 +77,19 @@ Component.register('sw-product-list', {
         },
 
         onInlineEditSave(product) {
+            const productName = product.name || this.placeholder(product, 'name');
+
             return product.save().then(() => {
                 this.createNotificationSuccess({
                     title: this.$tc('sw-product.list.titleSaveSuccess'),
-                    message: this.$tc('sw-product.list.messageSaveSuccess', 0, { name: product.name })
+                    message: this.$tc('sw-product.list.messageSaveSuccess', 0, { name: productName })
                 });
             }).catch(() => {
                 product.discardChanges();
 
                 this.createNotificationError({
                     title: this.$tc('global.notification.notificationSaveErrorTitle'),
-                    message: this.$tc('global.notification.notificationSaveErrorMessage', 0, { entityName: product.name })
+                    message: this.$tc('global.notification.notificationSaveErrorMessage', 0, { entityName: productName })
                 });
             });
         },

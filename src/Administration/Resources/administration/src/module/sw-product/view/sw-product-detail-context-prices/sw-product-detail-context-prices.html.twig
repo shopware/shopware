@@ -69,7 +69,7 @@
                                                           :disabled="!!priceGroup.currencies[currency.id] || priceGroup.ruleId === null"
                                                           @click="onAddCurrency(priceGroup.ruleId, currency)">
                                         <span slot="icon" class="currency-symbol">{{ currency.symbol }}</span>
-                                        {{ currency.name }}
+                                        {{ currency.translated.name }}
                                         {{ (currency.isDefault) ? $tc('sw-product.prices.textCurrencyDefault') : '' }}
                                     </sw-context-menu-item>
                                 {% endblock %}
@@ -83,7 +83,7 @@
 
                         {% block sw_product_detail_prices_price_matrix_title %}
                             <h3 v-if="currencyRule.currency">
-                                {{ $tc('sw-product.prices.textPriceRuleForCurrency') }}: {{ currencyRule.currency.name }} {{ (currencyRule.currency.isDefault) ? $tc('sw-product.prices.textCurrencyDefault') : '' }}
+                                {{ $tc('sw-product.prices.textPriceRuleForCurrency') }}: {{ currencyRule.currency.translated.name }} {{ (currencyRule.currency.isDefault) ? $tc('sw-product.prices.textCurrencyDefault') : '' }}
                             </h3>
                         {% endblock %}
 

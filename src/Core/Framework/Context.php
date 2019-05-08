@@ -205,11 +205,13 @@ class Context extends Struct
         $this->taxState = $taxState;
     }
 
-    public function disableCache(callable $function): void
+    public function disableCache(callable $function)
     {
         $this->useCache = false;
-        $function($this);
+        $result = $function($this);
         $this->useCache = true;
+
+        return $result;
     }
 
     public function getUseCache(): bool

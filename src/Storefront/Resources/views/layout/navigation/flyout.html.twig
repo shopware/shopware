@@ -41,17 +41,20 @@
     {% endblock %}
 
     {% block layout_navigation_flyout_content %}
-        <div class="navigation-flyout-content">
+        <div class="row navigation-flyout-content">
             {% block layout_navigation_flyout_categories %}
-                <div class="navigation-flyout-categories">
-                    {% block layout_navigation_flyout_categories_recoursion %}
-                        {% sw_include '@Storefront/layout/navigation/categories.html.twig' with { navigationTree: navigationTree.children } only %}
-                    {% endblock %}
+                <div class="col">
+                    <div class="navigation-flyout-categories">
+                        {% block layout_navigation_flyout_categories_recoursion %}
+                            {% sw_include '@Storefront/layout/navigation/categories.html.twig' with { navigationTree: navigationTree.children } only %}
+                        {% endblock %}
+                    </div>
                 </div>
             {% endblock %}
 
             {% block layout_navigation_flyout_teaser %}
                 {% if navigationTree.category.media %}
+                <div class="col-9">
                     <div class="navigation-flyout-teaser">
                         {% block layout_navigation_flyout_teaser_image %}
                             <a class="teaser-image"
@@ -60,10 +63,9 @@
                                style="background-image: url('{{ navigationTree.category.media.url }}');"></a>
                         {% endblock %}
                     </div>
+                </div>
                 {% endif %}
             {% endblock %}
-
-            <div class="clearfix"></div>
         </div>
     {% endblock %}
 {% endblock %}

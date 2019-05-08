@@ -8,4 +8,5 @@
     <import resource="../../Product/**/*Controller.php" type="annotation" />
     <import resource="../../Media/**/*Controller.php" type="annotation" />
     <import resource="../../MailTemplate/**/*Controller.php" type="annotation" />
+    <import resource="../../ImportExport/**/*Controller.php" type="annotation" />
 </routes>

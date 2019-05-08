@@ -68,6 +68,20 @@
         "canCopy": "copy to clipboard"
       }
     },
+    "sw-file-input": {
+      "buttonChoose": "Choose file",
+      "notification": {
+        "invalidFileType": {
+          "title": "Unsupported file type",
+          "message": "The selected file \"{name}\" has an unsupported format. Please use one of the following types: {supportedTypes}."
+        },
+        "invalidFileSize": {
+          "title": "File size exceeds upload limit",
+          "message": "The selected file \"{name}\" is too big to upload. File size must not exceed {limit}."
+        }
+      },
+      "caption": "Upload file"
+    },
     "sw-price-field": {
       "labelPriceGross": "Price (gross)",
       "labelPriceNet": "Price (net)"

@@ -1,0 +1,69 @@
+{% block sw_import_export_log_modal %}
+    <sw-modal class="sw-import-export-log-modal"
+              :title="$tc('sw-import-export-log.modal.title')"
+              v-on="$listeners">
+
+        {% block sw_import_export_log_modal_detail %}
+            <dl class="sw-import-export-log-modal-detail">
+
+                {% block sw_import_export_log_modal_detail_activity %}
+                    <dt class="sw-import-export-log-modal-detail__label">{{ $tc('sw-import-export-log.modal.activity') }}</dt>
+                    <dd class="sw-import-export-log-modal-detail__value">{{ translateFieldKey('activity', item.activity) }}</dd>
+                {% endblock %}
+
+                {% block sw_import_export_log_modal_detail_filename %}
+                    <dt class="sw-import-export-log-modal-detail__label">{{ $tc('sw-import-export-log.modal.filename') }}</dt>
+                    <dd class="sw-import-export-log-modal-detail__value" v-if="item.fileId">{{ item.file.originalName }}</dd>
+                    <dd class="sw-import-export-log-modal-detail__value" v-else>{{ $tc('sw-import-export-log.modal.referenceDeleted') }}</dd>
+                {% endblock %}
+
+                {% block sw_import_export_log_modal_detail_entity %}
+                    <dt class="sw-import-export-log-modal-detail__label">{{ $tc('sw-import-export-log.modal.entity') }}</dt>
+                    <dd class="sw-import-export-log-modal-detail__value" v-if="item.profileId">{{ item.profile.sourceEntity }}</dd>
+                {% endblock %}
+
+                {% block sw_import_export_log_modal_detail_filetype %}
+                    <dt class="sw-import-export-log-modal-detail__label">{{ $tc('sw-import-export-log.modal.format') }}</dt>
+                    <dd class="sw-import-export-log-modal-detail__value" v-if="item.profileId">{{ item.profile.fileType }}</dd>
+                {% endblock %}
+
+                {% block sw_import_export_log_modal_detail_records %}
+                    <dt class="sw-import-export-log-modal-detail__label">{{ $tc('sw-import-export-log.modal.records') }}</dt>
+                    <dd class="sw-import-export-log-modal-detail__value">{{ item.records }}</dd>
+                {% endblock %}
+
+                {% block sw_import_export_log_modal_detail_filesize %}
+                    <dt class="sw-import-export-log-modal-detail__label">{{ $tc('sw-import-export-log.modal.filesize') }}</dt>
+                    <dd class="sw-import-export-log-modal-detail__value" v-if="item.fileId">{{ item.file.size|fileSize }}</dd>
+                {% endblock %}
+
+                {% block sw_import_export_log_modal_detail_profile %}
+                    <dt class="sw-import-export-log-modal-detail__label">{{ $tc('sw-import-export-log.modal.profile') }}</dt>
+                    <dd class="sw-import-export-log-modal-detail__value">{{ item.profileName }}</dd>
+                {% endblock %}
+
+                {% block sw_import_export_log_modal_detail_user %}
+                    <dt class="sw-import-export-log-modal-detail__label">{{ $tc('sw-import-export-log.modal.user') }}</dt>
+                    <dd class="sw-import-export-log-modal-detail__value">{{ item.username }}</dd>
+                {% endblock %}
+
+                {% block sw_import_export_log_modal_detail_createdAt %}
+                    <dt class="sw-import-export-log-modal-detail__label">{{ $tc('sw-import-export-log.modal.createdAt') }}</dt>
+                    <dd class="sw-import-export-log-modal-detail__value">{{ item.createdAt|date({year: '2-digit', hour:'2-digit', minute:'2-digit'}) }}</dd>
+                {% endblock %}
+
+                {% block sw_import_export_log_modal_detail_updatedAt %}
+                    <dt class="sw-import-export-log-modal-detail__label">{{ $tc('sw-import-export-log.modal.updatedAt') }}</dt>
+                    <dd class="sw-import-export-log-modal-detail__value">{{ item.updatedAt|date({year: '2-digit', hour:'2-digit', minute:'2-digit'}) }}</dd>
+                {% endblock %}
+
+                {% block sw_import_export_log_modal_detail_state %}
+                    <dt class="sw-import-export-log-modal-detail__label">{{ $tc('sw-import-export-log.modal.state') }}</dt>
+                    <dd class="sw-import-export-log-modal-detail__value">{{ translateFieldKey('state', item.state) }}</dd>
+                {% endblock %}
+
+            </dl>
+        {% endblock %}
+
+    </sw-modal>
+{% endblock %}

@@ -29,5 +29,6 @@ class Content extends Bundle
         $loader->load('cms.xml');
         $loader->load('mail_template.xml');
         $loader->load('delivery_time.xml');
+        $loader->load('import_export.xml');
     }
 }

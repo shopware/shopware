@@ -5,16 +5,14 @@
         }
 
         .checkout-main-left {
-            @extend .col-lg-7;
-            @extend .offset-lg-1;
+            @extend .col-lg-8;
             margin-bottom: $spacer-lg;
         }
 
         .checkout-main-right {
             @extend .col-md-6;
-            @extend .offset-md-6;
+            @extend .offset-lg-1;
             @extend .col-lg-3;
-            @extend .offset-lg-0;
         }
 
         .checkout-sidebar {

@@ -16,22 +16,24 @@
                             {% block page_checkout_sidebar_inner %}
                                 <div class="checkout-sidebar">
                                     {% block page_checkout_sidebar_content %}
-                                        {% block page_checkout_sidebar_header %}
-                                            <h2 class="checkout-sidebar-header">
-                                                {{ "checkout.summaryHeader"|trans }}
-                                            </h2>
-                                        {% endblock %}
+                                        <div class="checkout-sidebar-summary">
+                                            {% block page_checkout_summary_header %}
+                                                <h2 class="checkout-summary-header">
+                                                    {{ "checkout.summaryHeader"|trans }}
+                                                </h2>
+                                            {% endblock %}
 
-                                        {% block page_checkout_sidebar_summary_card %}
-                                            <div class="card checkout-summary-card">
-                                                {% block page_checkout_sidebar_summary %}
-                                                    {% sw_include '@Storefront/page/checkout/summary.html.twig' %}
-                                                {% endblock %}
-                                            </div>
-                                        {% endblock %}
-
-                                        {% block page_checkout_sidebar_actions %}{% endblock %}
+                                            {% block page_checkout_summary_list %}
+                                                <div class="checkout-summary-list">
+                                                    {% block page_checkout_sidebar_list_inner %}
+                                                        {% sw_include '@Storefront/page/checkout/summary.html.twig' %}
+                                                    {% endblock %}
+                                                </div>
+                                            {% endblock %}
+                                        </div>
                                     {% endblock %}
+
+                                    {% block page_checkout_sidebar_actions %}{% endblock %}
                                 </div>
                             {% endblock %}
                         </div>

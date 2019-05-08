@@ -70,6 +70,10 @@ $sw-grid-column-color-link: $color-shopware-blue;
                 text-decoration: underline;
             }
         }
+
+        .sw-field--checkbox {
+            margin-bottom: 0;
+        }
     }
 
     &.sw-grid-column--left {

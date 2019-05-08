@@ -36,17 +36,17 @@
 
         <sw-container columns="1fr 1fr" gap="0px 30px">
             {% block sw_promotion_basic_form_valid_from_field %}
-                <sw-field type="date"
-                          :label="$tc('sw-promotion.detail.main.general.labelValidFrom')"
-                          v-model="promotion.validFrom">
-                </sw-field>
+                <sw-datepicker dateType="datetime-local"
+                               :label="$tc('sw-promotion.detail.main.general.labelValidFrom')"
+                               v-model="promotion.validFrom">
+                </sw-datepicker>
             {% endblock %}
 
             {% block sw_promotion_basic_form_valid_until_field %}
-                <sw-field type="date"
-                          :label="$tc('sw-promotion.detail.main.general.labelValidUntil')"
-                          v-model="promotion.validUntil">
-                </sw-field>
+                <sw-datepicker dateType="datetime-local"
+                               :label="$tc('sw-promotion.detail.main.general.labelValidUntil')"
+                               v-model="promotion.validUntil">
+                </sw-datepicker>
             {% endblock %}
         </sw-container>
 

@@ -34,7 +34,9 @@ Component.register('sw-media-quickinfo', {
 
     data() {
         return {
-            customFieldSets: []
+            customFieldSets: [],
+            isLoading: false,
+            isSaveSuccessful: false
         };
     },
 
@@ -82,7 +84,16 @@ Component.register('sw-media-quickinfo', {
         },
 
         onSaveCustomFields(item) {
-            item.save();
+            this.isSaveSuccessful = false;
+            this.isLoading = true;
+            item.save().then(() => {
+                this.isSaveSuccessful = true;
+                this.isLoading = false;
+            });
+        },
+
+        saveFinish() {
+            this.isSaveSuccessful = false;
         },
 
         copyLinkToClipboard() {

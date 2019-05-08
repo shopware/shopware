@@ -288,7 +288,10 @@
                     :entity="item"
                     variant="media-collapse"
                     @save="onSaveCustomFields(item)"
-                    :sets="customFieldSets">
+                    @process-finish="saveFinish"
+                    :sets="customFieldSets"
+                    :isLoading="isLoading"
+                    :isSaveSuccessful="isSaveSuccessful">
             </sw-custom-field-set-renderer>
         {% endblock %}
     </div>

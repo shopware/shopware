@@ -59,12 +59,16 @@
                                 {% endblock %}
                             </template>
                             {% block sw_custom_field_set_renderer_media_button_save %}
-                                <sw-button
+                                <sw-button-process
+                                        :isLoading="isLoading"
+                                        :processSuccess="isSaveSuccessful"
+                                        :disabled="isLoading"
                                         variant="primary"
                                         size="small"
+                                        @process-finish="$emit('process-finish')"
                                         @click="$emit('save')">
                                     {{ $tc('sw-custom-field-set-renderer.general.labelButtonSave') }}
-                                  </sw-button>
+                                </sw-button-process>
                             {% endblock %}
                         </template>
                     </sw-media-collapse>

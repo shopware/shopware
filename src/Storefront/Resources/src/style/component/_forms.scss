@@ -1,0 +1,14 @@
+@mixin custom-form-validation-state($state, $color, $icon) {
+    .form-control {
+        .was-validated &:#{$state},
+        &.is-#{$state} {
+            @if $enable-validation-icons {
+                background-position: 97% 50%;
+            }
+        }
+    }
+}
+
+@each $state, $data in $form-validation-states {
+    @include custom-form-validation-state($state, map-get($data, color), map-get($data, icon));
+}

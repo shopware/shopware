@@ -76,11 +76,13 @@ export default {
 
     methods: {
         onChange(event) {
+            this.resetFormError();
             this.currentValue = event.target.value || '';
             this.$emit('change', this.currentValue);
         },
 
         onInput(event) {
+            this.resetFormError();
             this.currentValue = event.target.value || '';
             this.$emit('input', this.currentValue);
         }

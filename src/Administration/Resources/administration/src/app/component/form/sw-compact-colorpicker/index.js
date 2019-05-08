@@ -63,6 +63,7 @@ export default {
         },
 
         onDone(value) {
+            this.resetFormError();
             this.$emit('input', value[this.colorCallback]);
             this.color = '';
         },

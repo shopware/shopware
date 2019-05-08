@@ -598,6 +598,7 @@ class ApiController extends AbstractController
             $parent = array_pop($pathSegments);
         }
 
+        /** @var EntityDefinition $definition */
         $definition = $child['definition'];
 
         $association = $child['field'];
@@ -618,7 +619,7 @@ class ApiController extends AbstractController
                 return $responseFactory->createRedirectResponse($definition, $parent['value'], $request, $context);
             }
 
-            $event = $events->getEventByDefinition($definition);
+            $event = $events->getEventByDefinition($definition->getClass());
 
             $repository = $this->definitionRegistry->getRepository($definition->getEntityName());
 

@@ -4,6 +4,7 @@ import './sw-order-saveable-field.scss';
 
 Component.register('sw-order-saveable-field', {
     template,
+
     props: {
         value: {
             required: true,
@@ -24,42 +25,28 @@ Component.register('sw-order-saveable-field', {
             default: true
         }
     },
+
     data() {
         return {
             isEditing: false,
             isLoading: false
         };
     },
+
     methods: {
         onClick() {
             if (this.editable) {
                 this.isEditing = true;
             }
         },
+
         onSaveButtonClicked() {
             this.isEditing = false;
-            if (this.type !== 'select') {
-                this.$emit('valueChanged', this.$refs['edit-field'].currentValue);
-            } else {
-                this.$emit('valueChanged', this.$refs['edit-field'].singleSelection);
-            }
+            this.$emit('valueChanged', this.$refs['edit-field'].currentValue);
         },
+
         onCancelButtonClicked() {
             this.isEditing = false;
-        },
-        displayValue() {
-            let retVal = '';
-            if (this.type === 'number') {
-                if (this.value !== null) {
-                    retVal = this.value;
-                }
-            }
-            if (this.placeholder) {
-                retVal = this.placeholder;
-            }
-
-            return retVal;
         }
     }
-
 });

@@ -54,9 +54,7 @@
 								<a href="{{ path('frontend.search.page') }}?search={{ page.searchTerm }}"
 								   title="{{ "header.searchAllResults"|trans }}"
 								   class="total-link">
-									{% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-										'name': 'arrow-head-right'
-									} %}
+									{% sw_icon 'arrow-head-right' %}
 									{{ "header.searchAllResults"|trans }}
 								</a>
 							{% endblock %}

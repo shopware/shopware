@@ -37,9 +37,7 @@
 											 alt="{{ lineItem.label }}"
 											 title="{{ lineItem.label }}">
 									{% elseif lineItem.type == 'promotion' %}
-										{% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-											'name': 'object-marketing'
-										} %}
+										{% sw_icon 'object-marketing' %}
 									{% endif %}
 								</div>
 							{% endblock %}
@@ -56,10 +54,7 @@
 										<button type="submit"
 												title="{{ "checkout.removeLineItem"|trans }}"
 												class="btn btn-light">
-											{% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-												'name': 'basic-x-line',
-												'style': 'sm'
-											} %}
+											{% sw_icon 'basic-x-line' style { 'size': 'sm' } %}
 										</button>
 									</form>
 								{% endif %}

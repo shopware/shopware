@@ -1,5 +1,5 @@
 {% block layout_utilities_icon %}
-	{% set styles = style|split(' ') %}
+	{% set styles = [ size, color, rotation, flip ] %}
 
 	{% if pack is not defined %}
 		<span class="sw-icon icon-{{ name }}{% for entry in styles %}{% if entry != "" %} icon-{{ entry }}{% endif %}{% endfor %}">

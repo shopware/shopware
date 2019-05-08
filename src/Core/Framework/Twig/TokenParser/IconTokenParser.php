@@ -37,7 +37,7 @@ final class IconTokenParser extends AbstractTokenParser
 
         $variables->addElement(
             new ConstantExpression($icon, $token->getLine()),
-            new ConstantExpression('icon', $token->getLine())
+            new ConstantExpression('name', $token->getLine())
         );
 
         return new IncludeNode($expr, $variables, false, false, $token->getLine(), $this->getTag());

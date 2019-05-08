@@ -16,9 +16,7 @@
         {% block page_checkout_login %}
             {% block page_checkout_login_collapse_toggle %}
                 <div class="address-login-collapse-toogle">
-                    {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-                        'name': 'avatar-single'
-                    } %}
+                    {% sw_icon 'avatar-single' %}
                     <a href="#loginCollapse" class="login-collapse-toggle"
                             data-toggle="collapse"
                             aria-expanded="false">

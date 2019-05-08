@@ -429,12 +429,16 @@ class PromotionEntity extends Entity
 
     public function isOrderCountValid(): bool
     {
-        return $this->getOrderCount() < $this->getMaxRedemptionsGlobal();
+        return $this->getMaxRedemptionsGlobal() <= 0
+            || $this->getOrderCount() < $this->getMaxRedemptionsGlobal();
     }
 
     public function isOrderCountPerCustomerCountValid(string $customerId): bool
     {
-        return $this->getOrdersPerCustomerCount() === null
+        $customerId = strtolower($customerId);
+
+        return $this->getMaxRedemptionsPerCustomer() <= 0
+            || $this->getOrdersPerCustomerCount() === null
             || !array_key_exists($customerId, $this->getOrdersPerCustomerCount())
             || $this->getOrdersPerCustomerCount()[$customerId] < $this->getMaxRedemptionsPerCustomer();
     }

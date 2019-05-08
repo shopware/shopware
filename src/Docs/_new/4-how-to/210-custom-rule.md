@@ -12,7 +12,7 @@ The shop administrator is then able to react on a lunar eclipse with special pri
 ## Setup
 
 This HowTo **does not** explain how you can create a new plugin for the Shopware platform.
-Head over to our [Plugin quick start guide](../2-internals/4-plugins/010-plugin-quick-start.md) to
+Head over to our [Plugin quick start guide](./../2-internals/4-plugins/010-plugin-quick-start.md) to
 learn creating a plugin at first.
 
 Creating a custom rule requires you to implement both Backend (PHP) code, as well as an UI for the administration.

@@ -75,7 +75,7 @@ Abstract translations
 
 Custom field management
 
-* [Entity relationship diagram](./10-erd/erd-shopware-core-framework-custom-field.md)
+* [Entity relationship diagram](./10-erd/erd-shopware-core-framework-customfield.md)
 
 ### [Framework/Pricing](https://github.com/shopware/platform/tree/master/src/Core/Framework/Pricing) 
 *[Extension]*

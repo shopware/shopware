@@ -84,7 +84,7 @@ EOD
     'Framework/CustomField' => <<<'EOD'
 Custom field management
 
-* [Entity relationship diagram](./10-erd/erd-shopware-core-framework-custom-field.md)
+* [Entity relationship diagram](./10-erd/erd-shopware-core-framework-customfield.md)
 EOD
     ,
     'Framework/Validation' => <<<'EOD'

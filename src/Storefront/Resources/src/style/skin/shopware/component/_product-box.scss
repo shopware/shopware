@@ -5,38 +5,3 @@
         padding: $spacer;
     }
 }
-
-.product-name {
-    color: $headings-color;
-    font-size: $font-size-lg;
-
-    &:hover {
-        color: $primary;
-        text-decoration: none;
-    }
-}
-
-.product-price {
-    color: $headings-color;
-    font-size: $font-size-lg;
-}
-
-.product-unit-label {
-    font-weight: $font-weight-bold;
-}
-
-.product-description {
-    height: 65px;
-}
-
-.product-badges {
-    .badge {
-        float: left;
-        clear: both;
-        color: $white;
-        text-transform: uppercase;
-        font-size: $font-size-base;
-        border-radius: 0;
-        border-color: transparent;
-    }
-}

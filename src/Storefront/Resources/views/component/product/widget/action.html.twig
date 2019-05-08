@@ -1,0 +1,52 @@
+{% block component_product_box_action_inner %}
+    {% if shopware.config.listing.allowBuyInListing %}
+        <div class="product-action">
+            {% if not product.variantRestrictions %}
+                {% block component_product_box_action_buy %}
+                    <form action="{{ path('frontend.checkout.line-item.add') }}"
+                          method="post"
+                          class="buy-widget"
+                          data-add-to-cart="true">
+
+                        {% block component_product_box_action_buy_redirect_input %}
+                            <input type="hidden"
+                                   name="redirectTo"
+                                   value="frontend.cart.detail"/>
+                        {% endblock %}
+
+                        {% block page_product_detail_buy_product_buy_info %}
+                            <input type="hidden"
+                                   name="lineItems[{{ product.id }}][id]"
+                                   value="{{ product.id }}">
+                            <input type="hidden"
+                                   name="lineItems[{{ product.id }}][type]"
+                                   value="product">
+                            <input type="hidden"
+                                   name="lineItems[{{ product.id }}][stackable]"
+                                   value="1">
+                            <input type="hidden"
+                                   name="lineItems[{{ product.id }}][removable]"
+                                   value="1">
+                            <input type="hidden"
+                                   name="lineItems[{{ product.id }}][quantity]"
+                                   value="1">
+                        {% endblock %}
+
+                        <button class="btn btn-block buy-widget-submit"
+                                title="{{ "listing.boxAddProduct"|trans }}">
+                            {{ "listing.boxAddProduct"|trans }}
+                        </button>
+                    </form>
+                {% endblock %}
+            {% else %}
+                {% block component_product_box_action_detail %}
+                    <a href="{{ path('frontend.detail.page', {'productId': product.id}) }}"
+                       class="btn btn-block btn-light"
+                       title="{{ "listing.boxProductDetails"|trans }}">
+                        {{ "listing.boxProductDetails"|trans }}
+                    </a>
+                {% endblock %}
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}

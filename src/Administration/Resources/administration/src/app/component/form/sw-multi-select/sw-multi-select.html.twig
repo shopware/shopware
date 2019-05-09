@@ -19,8 +19,9 @@
     {% block sw_multi_select_inner %}
         <div class="sw-multi-select__inner">
             <ul class="sw-multi-select__selections">
-                <li class="sw-multi-select__selection-item-holder"
-                    v-for="selection in visibleValues"
+                <li v-for="(selection, index) in visibleValues"
+                    class="sw-multi-select__selection-item-holder"
+                    :class="`sw-multi-select__selection-item-holder--${index}`"
                     :key="selection.id"
                     :data-id="selection.id">
 

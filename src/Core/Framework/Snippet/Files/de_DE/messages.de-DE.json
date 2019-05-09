@@ -280,7 +280,7 @@
         "subscriptionCompleted": "Vielen Dank. Wir haben Ihre Adresse eingetragen."
     },
     "search": {
-      "headline": "Zu \"%searchTerm%\" wurden %totalCount% Artikel gefunden!"
+      "headline": "Zu \"%searchTerm%\" wurden %totalCount% Artikel gefunden"
     },
     "detail": {
         "ordernumberLabel": "Artikel-Nr.:",

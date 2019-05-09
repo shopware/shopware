@@ -280,7 +280,7 @@
         "subscriptionCompleted": "Thank you! We have entered your address."
     },
     "search": {
-      "headline": "%totalCount% articles found for \"%searchTerm%\"!"
+      "headline": "%totalCount% articles found for \"%searchTerm%\""
     },
     "detail": {
         "ordernumberLabel": "Order number: ",

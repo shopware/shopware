@@ -16,7 +16,7 @@
                 {% endblock %}
 
                 {% block sw_promotion_detail_actions_save %}
-                <sw-button-process
+                    <sw-button-process
                         class="sw-promotion-detail__save-action"
                         :isLoading="isLoading || promotion.isLoading"
                         :processSuccess="isSaveSuccessful"
@@ -24,8 +24,8 @@
                         variant="primary"
                         @process-finish="saveFinish"
                         @click.prevent="onSave">
-                    {{ $tc('sw-promotion.detail.header.buttonSave') }}
-                </sw-button-process>
+                        {{ $tc('sw-promotion.detail.header.buttonSave') }}
+                    </sw-button-process>
                 {% endblock %}
             </template>
         {% endblock %}

@@ -33,7 +33,7 @@
                 {% endblock %}
 
                 {% block sw_order_detail_actions_save %}
-                <sw-button-process
+                    <sw-button-process
                         v-if="isEditing"
                         class="sw-order-detail__save_button"
                         :disabled="order.isLoading || isLoading"
@@ -42,8 +42,8 @@
                         variant="primary"
                         @process-finish="saveFinish"
                         @click.prevent="onSave">
-                    {{ $tc('sw-order.detail.buttonSave') }}
-                </sw-button-process>
+                        {{ $tc('sw-order.detail.buttonSave') }}
+                    </sw-button-process>
                 {% endblock %}
             </template>
         {% endblock %}

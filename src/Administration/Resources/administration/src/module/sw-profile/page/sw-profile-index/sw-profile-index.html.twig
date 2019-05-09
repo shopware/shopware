@@ -9,9 +9,16 @@
 
         <template slot="smart-bar-actions">
             {% block sw_profile_index_actions %}
-                <sw-button variant="primary" :disabled="isUserLoading" @click.prevent="onSave">
+                <sw-button-process
+                    class="sw-profile__save-action"
+                    :isLoading="isLoading || isUserLoading"
+                    :processSuccess="isSaveSuccessful"
+                    :disabled="isLoading || isUserLoading"
+                    variant="primary"
+                    @process-finish="saveFinish"
+                    @click.prevent="onSave">
                     {{ $tc('sw-profile.index.buttonSaveLabel') }}
-                </sw-button>
+                </sw-button-process>
             {% endblock %}
         </template>
 

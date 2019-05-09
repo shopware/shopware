@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition;
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -85,11 +84,11 @@ class DemodataCommand extends Command
         $request = new DemodataRequest();
 
         $request->add(RuleDefinition::class, 5);
+        $request->add(MediaDefinition::class, (int) $input->getOption('media'));
         $request->add(CustomerDefinition::class, (int) $input->getOption('customers'));
         $request->add(PropertyGroupDefinition::class, (int) $input->getOption('properties'));
         $request->add(ShippingMethodPriceDefinition::class, 1);
         $request->add(CategoryDefinition::class, (int) $input->getOption('categories'));
-        $request->add(MediaDefinition::class, (int) $input->getOption('media'));
 
         $request->add(ProductManufacturerDefinition::class, (int) $input->getOption('manufacturers'));
         $request->add(ProductDefinition::class, (int) $input->getOption('products'));
@@ -97,7 +96,6 @@ class DemodataCommand extends Command
         $request->add(ProductStreamDefinition::class, (int) $input->getOption('product-streams'));
 
         $request->add(OrderDefinition::class, (int) $input->getOption('orders'));
-        $request->add(CmsPageDefinition::class, 50);
 
         $request->add(
             CustomFieldSetDefinition::class,

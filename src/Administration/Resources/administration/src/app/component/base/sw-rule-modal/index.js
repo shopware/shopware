@@ -131,6 +131,17 @@ export default {
                 'sw-rule-modal.messageSaveError', 0, { name: this.rule.name }
             );
 
+            if (this.conditionsClientValidation(this.rule.conditions, false)) {
+                this.createNotificationError({
+                    title: titleSaveError,
+                    message: messageSaveError
+                });
+                warn(this._name, 'client validation failure');
+                this.$refs.conditionTree.$emit('entity-save', false);
+
+                return null;
+            }
+
             this.removeOriginalConditionTypes(this.rule.conditions);
 
             return this.rule.save().then(() => {
@@ -186,6 +197,62 @@ export default {
             return !propsA.find(property => {
                 return conditionA.value[property].toString() !== conditionB.value[property].toString();
             });
+        },
+
+        conditionsClientValidation(conditions, error) {
+            conditions.forEach((condition) => {
+                if (this.hasDeletedParent(condition.parentId, conditions)) {
+                    condition.remove();
+                    return;
+                }
+
+                if (condition.children) {
+                    error = this.conditionsClientValidation(condition.children, error);
+                }
+
+                if (this.treeConfig.isAndContainer(condition) || this.treeConfig.isOrContainer(condition)) {
+                    return;
+                }
+
+                if (condition.errors.map(obj => obj.id).includes('clientValidationError')) {
+                    error = true;
+                    return;
+                }
+
+                if (this.treeConfig.isPlaceholder(condition)) {
+                    condition.errors.push({
+                        id: 'clientValidationError',
+                        type: 'placeholder'
+                    });
+
+                    error = true;
+                }
+
+                if (!this.treeConfig.isDataSet(condition)) {
+                    condition.errors.push({
+                        id: 'clientValidationError',
+                        type: 'data'
+                    });
+
+                    error = true;
+                }
+            });
+
+            return error;
+        },
+
+        hasDeletedParent(parentId, conditions) {
+            if (!parentId) {
+                return false;
+            }
+
+            const parent = conditions.find(condition => condition.id === parentId);
+
+            if (!parent) {
+                return false;
+            }
+
+            return parent.isDeleted || this.hasDeletedParent(parent.parentId, conditions);
         }
     }
 };

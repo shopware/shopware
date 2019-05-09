@@ -55,11 +55,12 @@
     </div>
     {% block sw_condition_base_errors %}
         <div v-if="hasErrors" class="sw-condition-base__error-container">
-            <div v-for="(error, fieldName) in formErrors">
-                <span v-if="error.detail">
-                    {{ error.detail }}
-                </span>
-            </div>
+            {# TODO: Error Handling must be fixed NEXT-3271 #}
+{#            <div v-for="(error, fieldName) in formErrors">#}
+{#                <span v-if="error.detail">#}
+{#                    {{ error.detail }}#}
+{#                </span>#}
+{#            </div>#}
             <div v-for="error in condition.errors">
                 <template v-if="error.id === 'clientValidationError'">
                     <span v-if="error.type === 'placeholder'">

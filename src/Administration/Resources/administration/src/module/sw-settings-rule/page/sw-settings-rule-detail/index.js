@@ -147,6 +147,7 @@ Component.register('sw-settings-rule-detail', {
                 });
                 warn(this._name, 'client validation failure');
                 this.$refs.conditionTree.$emit('entity-save', false);
+                this.isLoading = false;
 
                 return null;
             }

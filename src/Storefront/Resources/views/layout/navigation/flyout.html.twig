@@ -11,8 +11,8 @@
                                    itemprop="url"
                                    title="{{ navigationTree.category.translated.name }}">
                                     {% block layout_navigation_flyout_bar_category_link_text %}
+                                        {{ "general.toCategory"|trans }} {{ navigationTree.category.translated.name }}
                                         {% sw_icon 'arrow-simple-right' style { 'color': 'dark' } %}
-										{{ "general.toCategory"|trans }} {{ navigationTree.category.translated.name }}
                                     {% endblock %}
                                 </a>
                             {% endif %}

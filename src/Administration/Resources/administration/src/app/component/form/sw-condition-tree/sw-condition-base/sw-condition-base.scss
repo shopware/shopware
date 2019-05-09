@@ -11,6 +11,7 @@ $sw-condition-base-font-size: 14px;
 $sw-condition-base-z-index-arrow: 100;
 $sw-condition-base-color-error: $color-crimson;
 $sw-condition-base-text-access-key: $color-gutenberg;
+$sw-condition-base-color-disabled: $color-light-gray;
 
 .sw-condition-base {
     background: none;
@@ -227,8 +228,8 @@ $sw-condition-base-text-access-key: $color-gutenberg;
                 padding: 0 8px;
             }
 
-            .sw-select__selection-item-input, .sw-tagged-field__tag-item-input {
-                margin-bottom: 0;
+            .sw-label {
+                height: 24px;
             }
         }
 
@@ -295,6 +296,10 @@ $sw-condition-base-text-access-key: $color-gutenberg;
 
         &.has--focus .sw-block-field__block {
             box-shadow: none;
+        }
+
+        &.is--disabled {
+            background-color: $sw-condition-base-color-disabled;
         }
     }
 

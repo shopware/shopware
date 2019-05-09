@@ -33,6 +33,11 @@
     &:not(.level-0) {
         margin-left: 10px;
     }
+
+    &:hover {
+        color: $primary;
+        padding-left: 3px;
+    }
 }
 
 .navigation-flyout-bar {

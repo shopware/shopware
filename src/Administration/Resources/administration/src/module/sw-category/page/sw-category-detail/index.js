@@ -128,7 +128,9 @@ Component.register('sw-category-detail', {
         },
 
         getCategories(parentId = null) {
-            this.isLoading = true;
+            if (parentId === null) {
+                this.isLoading = true;
+            }
 
             const params = {
                 page: 1,
@@ -141,7 +143,7 @@ Component.register('sw-category-detail', {
                     footerSalesChannels: {}
                 }
             };
-            return this.categoryStore.getList(params, true).then((response) => {
+            return this.categoryStore.getList(params).then((response) => {
                 this.categories = Object.values(this.categoryStore.store);
                 this.isLoading = false;
                 this.isLoadingInitialData = false;

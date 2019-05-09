@@ -1,4 +1,4 @@
-{% sw_extends '@Storefront/layout/_utilities/offcanvas.html.twig' %}
+{% sw_extends '@Storefront/utilities/offcanvas.html.twig' %}
 
 {% block layout_utilities_offcanvas_content %}
 
@@ -26,7 +26,7 @@
                                     {% block layout_navigation_offcanvas_navigation_home_link_text %}
                                         <span itemprop="{{ "general.mainMenu"|trans }}">
                                             <span class="offcanvas-menu-list-item-link-icon js-offcanvas-menu-loading-icon">
-                                                {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
+                                                {% sw_include '@Storefront/utilities/icon.html.twig' with {
                                                     'name': 'action-grab'
                                                 } %}
                                             </span>

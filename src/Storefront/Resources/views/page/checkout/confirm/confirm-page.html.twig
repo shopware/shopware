@@ -10,7 +10,7 @@
             {% set snippetName = "error.#{violation.code}" %}
             {% set fieldName = violation.propertyPath|trim('/', 'left') %}
 
-            {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with {
+            {% sw_include '@Storefront/utilities/alert.html.twig' with {
                 type: "danger",
                 content: snippetName|trans({'%field%': fieldName})
             } %}

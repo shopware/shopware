@@ -6,7 +6,7 @@
 
 {% block page_checkout_container %}
     {% if not page.cart.lineItems.elements %}
-        {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with {
+        {% sw_include '@Storefront/utilities/alert.html.twig' with {
             type: "info",
             content: "checkout.cartEmpty"|trans
         } %}
@@ -77,7 +77,7 @@
                                 <button class="btn btn-dark"
                                         type="submit"
                                         id="addProductInput">
-                                    {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
+                                    {% sw_include '@Storefront/utilities/icon.html.twig' with {
                                         'name': 'basic-plus-circle'
                                     } %}
                                 </button>
@@ -125,7 +125,7 @@
                             <button class="btn btn-dark"
                                     type="submit"
                                     id="addPromotion">
-                                {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
+                                {% sw_include '@Storefront/utilities/icon.html.twig' with {
                                     'name': 'basic-plus-circle'
                                 } %}
                             </button>

@@ -64,7 +64,7 @@
     
                                                 {% block page_newsletter_form_field_subscription_error %}
                                                     {% if formViolations.getViolations('/status') is not empty %}
-                                                        {% sw_include '@Storefront/layout/_utilities/form-violation.html.twig' with {
+                                                        {% sw_include '@Storefront/utilities/form-violation.html.twig' with {
                                                             violationPath: '/status'
                                                         } %}
                                                     {% endif %}
@@ -93,7 +93,7 @@
     
                                             {% block page_newsletter_form_field_email_error %}
                                                 {% if formViolations.getViolations('/email') is not empty %}
-                                                    {% sw_include '@Storefront/layout/_utilities/form-violation.html.twig' with {
+                                                    {% sw_include '@Storefront/utilities/form-violation.html.twig' with {
                                                         violationPath: '/email'
                                                     } %}
                                                 {% endif %}

@@ -6,12 +6,13 @@
                 <h2>{{ placeholder(numberRange, 'name', $tc('sw-settings-number-range.detail.textHeadline')) }}</h2>
             </template>
         {% endblock %}
-        {% block sw_settings_customer_group_list_language_switch %}
-        <template slot="language-switch">
-            <sw-language-switch @on-change="onChangeLanguage"
-                                :saveChangesFunction="saveOnLanguageChange"
-                                :abortChangeFunction="abortOnLanguageChange"></sw-language-switch>
-        </template>
+        {% block sw_settings_number_range_detail_language_switch %}
+            <template slot="language-switch">
+                <sw-language-switch @on-change="onChangeLanguage"
+                                    :saveChangesFunction="saveOnLanguageChange"
+                                    :abortChangeFunction="abortOnLanguageChange">
+                </sw-language-switch>
+            </template>
         {% endblock %}
         {% block sw_settings_number_range_detail_actions %}
             <template slot="smart-bar-actions">
@@ -22,23 +23,26 @@
                 {% endblock %}
 
                 {% block sw_settings_number_range_detail_actions_save %}
-                    <sw-button-process
-                            class="sw-settings-number-range-detail__save-action"
-                            :isLoading="isLoading"
-                            :processSuccess="isSaveSuccessful"
-                            :disabled="numberRange.isLoading"
-                            variant="primary"
-                            @process-finish="saveFinish"
-                            @click.prevent="onSave">
+                    <sw-button-process class="sw-settings-number-range-detail__save-action"
+                                       :isLoading="isLoading"
+                                       :processSuccess="isSaveSuccessful"
+                                       :disabled="numberRange.isLoading"
+                                       variant="primary"
+                                       @process-finish="saveFinish"
+                                       @click.prevent="onSave">
                         {{ $tc('sw-settings-number-range.detail.buttonSave') }}
-                     </sw-button>
-                </sw-button-process>
+                    </sw-button-process>
                 {% endblock %}
             </template>
         {% endblock %}
 
         {% block sw_settings_number_range_detail_content %}
             <sw-card-view slot="content">
+
+                {% block sw_settings_number_range_detail_language_info %}
+                    <sw-language-info :entityDescription="identifier"></sw-language-info>
+                {% endblock %}
+
                 {% block sw_settings_number_range_detail_content_card %}
                     <sw-card :title="$tc('sw-settings-number-range.detail.configCard')">
                         <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
@@ -46,7 +50,7 @@
                             {% block sw_settings_number_range_detail_content_field_name %}
                                 <sw-field type="text"
                                           :label="$tc('sw-settings-number-range.detail.labelName')"
-                                          :placeholder="placeholder(numberRange, 'name', $tc('sw-settings-number-range.detail.placeholderName'))"
+                                          :placeholder="placeholder(numberRange,'name', $tc('sw-settings-number-range.detail.placeholderName'))"
                                           validation="required"
                                           required
                                           v-model="numberRange.name">
@@ -56,7 +60,7 @@
                             {% block sw_settings_number_range_detail_content_field_description %}
                                 <sw-field type="text"
                                           :label="$tc('sw-settings-number-range.detail.labelDescription')"
-                                          :placeholder="placeholder(numberRange, 'description', $tc('sw-settings-number-range.detail.placeholderDescription'))"
+                                          :placeholder="placeholder(numberRange,'description', $tc('sw-settings-number-range.detail.placeholderDescription'))"
                                           v-model="numberRange.description">
                                 </sw-field>
                             {% endblock %}
@@ -167,19 +171,19 @@
                             {% endblock %}
                             {% block sw_sales_channel_detail_base_general_input_sales_channel %}
                                 <sw-select :store="salesChannelStore"
-                                        multi
-                                        v-model="numberRangeSalesChannels"
-                                        :associationStore="numberRangeSalesChannelsStore"
-                                        id="numberRangeSalesChannel"
-                                        :criteria="salesChannelsTypeCriteria"
-                                        v-if="numberRange && (!numberRange.global || numberRange.global === false)"
-                                        :label="$tc('sw-settings-number-range.detail.labelSalesChannel')"
-                                        class="sw-number-range-detail__select-type"
-                                        :disabled="selectedType.id === undefined"
-                                        :showSearch="false"
-                                        ref="numberRangeSalesChannel"
-                                        required
-                                        validation="required">
+                                           multi
+                                           v-model="numberRangeSalesChannels"
+                                           :associationStore="numberRangeSalesChannelsStore"
+                                           id="numberRangeSalesChannel"
+                                           :criteria="salesChannelsTypeCriteria"
+                                           v-if="numberRange && (!numberRange.global || numberRange.global === false)"
+                                           :label="$tc('sw-settings-number-range.detail.labelSalesChannel')"
+                                           class="sw-number-range-detail__select-type"
+                                           :disabled="selectedType.id === undefined"
+                                           :showSearch="false"
+                                           ref="numberRangeSalesChannel"
+                                           required
+                                           validation="required">
                                 </sw-select>
                             {% endblock %}
                         </sw-container>

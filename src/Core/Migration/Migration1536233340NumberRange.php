@@ -31,7 +31,7 @@ SQL;
         $sql = <<<SQL
             CREATE TABLE `number_range_translation` (
               `number_range_id` BINARY(16) NOT NULL,
-              `name` VARCHAR(64) NOT NULL,
+              `name` VARCHAR(64) NULL,
               `description` VARCHAR(255) NULL,
               `custom_fields` JSON NULL,
               `language_id` BINARY(16) NOT NULL,

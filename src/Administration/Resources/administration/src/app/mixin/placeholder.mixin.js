@@ -1,4 +1,5 @@
 import { Mixin, State } from 'src/core/shopware';
+import { types } from 'src/core/service/util.service';
 
 Mixin.register('placeholder', {
     computed: {
@@ -11,6 +12,10 @@ Mixin.register('placeholder', {
         placeholder(entity, field, fallbackSnippet) {
             if (!entity) {
                 return fallbackSnippet;
+            }
+
+            if (types.isString(entity[field]) && entity[field].length > 0) {
+                return entity[field];
             }
 
             // Return the field from parent translation if set

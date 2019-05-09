@@ -96,6 +96,7 @@ export default {
                 this.nestedConditions = this.checkRootContainer(
                     this.buildNestedConditions(conditionCollection.items, this.parentId)
                 );
+                this.entity[this.config.conditionIdentifier] = [this.nestedConditions];
             });
         },
 

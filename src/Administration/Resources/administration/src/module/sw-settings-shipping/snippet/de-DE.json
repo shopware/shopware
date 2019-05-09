@@ -76,7 +76,7 @@
       "columnVolumeEnd": "Volumen bis",
       "columnPrice": "Preis (Brutto)",
       "columnCalculationRule": "Regel",
-      "buttonAddAdditionalPriceRule": "Weitere Preisregel hinzufügen",
+      "buttonAddAdditionalPriceMatrix": "Weitere Preismatrix hinzufügen",
       "any": "beliebig",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",

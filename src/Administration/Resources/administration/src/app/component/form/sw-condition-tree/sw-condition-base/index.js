@@ -41,7 +41,8 @@ export default {
 
     data() {
         return {
-            formErrors: {},
+            // TODO: Error Handling must be fixed NEXT-3271
+            // formErrors: {},
             hasErrors: false,
             conditionTreeComponent: null
         };
@@ -99,9 +100,11 @@ export default {
         },
 
         checkErrors() {
-            const values = Object.values(this.formErrors);
-            this.hasErrors = (values.length && values.filter(error => error.detail.length > 0).length)
-                || this.condition.errors.map(obj => obj.id).includes('clientValidationError');
+            // TODO: Error Handling must be fixed NEXT-3271
+            // const values = Object.values(this.formErrors);
+            // this.hasErrors = (values.length && values.filter(error => error.detail.length > 0).length)
+            //     || this.condition.errors.map(obj => obj.id).includes('clientValidationError');
+            this.hasErrors = this.condition.errors.map(obj => obj.id).includes('clientValidationError');
         },
 
         mountComponent() {
@@ -125,38 +128,58 @@ export default {
             const fieldNames = this.fieldNames;
             fieldNames.push('type');
 
-            fieldNames.forEach(fieldName => {
-                const boundExpression =
-                    `${this.config.entityName}.${this.config.conditionIdentifier}.${this.condition.id}.${fieldName}`;
-                this.formErrors[fieldName] = this.errorStore.registerFormField(boundExpression);
-            });
+            // TODO: Error Handling must be fixed NEXT-3271
+            // fieldNames.forEach(fieldName => {
+            //     const boundExpression =
+            //         `${this.config.entityName}.${this.config.conditionIdentifier}.${this.condition.id}.${fieldName}`;
+            //     this.formErrors[fieldName] = this.errorStore.registerFormField(boundExpression);
+            // });
 
             this.$children.forEach(child => {
                 if (!this.fieldNames.includes(child.$attrs.name)) {
                     return;
                 }
 
-                child.$on('input', () => { this.deleteError(child.$attrs.name); });
+                // TODO: Error Handling must be fixed NEXT-3271
+                // child.$on('input', () => { this.deleteError(child.$attrs.name); });
+                child.$on('input', () => { this.deleteError(); });
+                child.$on('change', () => { this.deleteError(); });
+                child.$on('input-change', () => { this.deleteError(); });
             });
 
             this.deleteError('type');
         },
 
-        deleteError(fieldName) {
-            if (!this.formErrors[fieldName].detail
-                && (!this.condition.errors
-                    || this.condition.errors.length === 0
-                    || !this.condition.errors.map(obj => obj.id).includes('clientValidationError'))) {
+        // TODO: Error Handling must be fixed NEXT-3271
+        // deleteError(fieldName) {
+        //     if (!this.formErrors[fieldName].detail
+        //         && (!this.condition.errors
+        //             || this.condition.errors.length === 0
+        //             || !this.condition.errors.map(obj => obj.id).includes('clientValidationError'))) {
+        //         return;
+        //     }
+        //
+        //     this.condition.errors = this.condition.errors.filter((error) => {
+        //         return error.id !== 'clientValidationError';
+        //     });
+        //
+        //     if (this.formErrors[fieldName].detail) {
+        //         this.errorStore.deleteError(this.formErrors[fieldName]);
+        //     }
+        //
+        //     this.checkErrors();
+        // },
+
+        deleteError() {
+            if (!this.condition.errors
+                || this.condition.errors.length === 0
+                || !this.condition.errors.map(obj => obj.id).includes('clientValidationError')) {
                 return;
             }
 
             this.condition.errors = this.condition.errors.filter((error) => {
                 return error.id !== 'clientValidationError';
             });
-
-            if (this.formErrors[fieldName].detail) {
-                this.errorStore.deleteError(this.formErrors[fieldName]);
-            }
 
             this.checkErrors();
         },

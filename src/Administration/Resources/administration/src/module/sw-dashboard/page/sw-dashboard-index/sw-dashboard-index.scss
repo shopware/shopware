@@ -73,13 +73,18 @@
     .sw-dashboard__paypal {
       text-align: center;
 
-      .sw-button {
-        width: 100%;
+      .sw-card__content {
+        height: 100%;
       }
 
       .sw-dashboard__paypal-icon {
         display: block;
-        height: 145px;
+        margin-top: 32px;
+      }
+
+      .sw-button {
+        margin-top: 40px;
+        width: 100%
       }
     }
     .sw-dashboard__documentation {

@@ -30,16 +30,12 @@
                                     {% block page_product_detail_media_image_controls_items %}
                                         <li class="carousel-control-prev image-slider-controls-prev">
                                             {% block page_product_detail_media_image_controls_items_prev_icon %}
-                                                {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-                                                    'name': 'arrow-head-left'
-                                                } %}
+                                                {% sw_icon 'arrow-head-left' %}
                                             {% endblock %}
                                         </li>
                                         <li class="carousel-control-next image-slider-controls-next">
                                             {% block page_product_detail_media_image_controls_items_next_icon %}
-                                                {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-                                                    'name': 'arrow-head-right'
-                                                } %}
+                                                {% sw_icon 'arrow-head-right' %}
                                             {% endblock %}
                                         </li>
                                     {% endblock %}

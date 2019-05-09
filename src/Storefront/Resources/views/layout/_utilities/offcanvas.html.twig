@@ -3,9 +3,7 @@
 		<a class="btn btn-dark btn-block js-offcanvas-close"
 		   href="#offcanvas-close">
 			{% block layout_utilities_offcanvas_close_icon %}
-				{% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-					'name': 'arrow-simple-left'
-				} %}
+                {% sw_icon 'arrow-simple-left' %}
 			{% endblock %}
 
 			{% block layout_utilities_offcanvas_close_text %}

@@ -26,9 +26,7 @@
 										type="button"
 										data-offcanvas-menu="true"
 										aria-label="{{ "general.menuLink"|trans }}">
-									{% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-										'name': 'action-grab'
-									} %}
+									{% sw_icon 'action-grab' %}
 								</button>
 							{% endblock %}
 						</div>
@@ -43,9 +41,7 @@
 									aria-expanded="false"
 									aria-controls="searchCollapse"
 									aria-label="{{ "header.searchButton"|trans }}">
-								{% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-									'name': 'action-search'
-								} %}
+								{% sw_icon 'action-search' %}
 							</button>
 						</div>
 					{% endblock %}
@@ -76,9 +72,7 @@
 										data-offcanvas-menu="true"
 										aria-label="{{ "general.menuLink"|trans }}">
 									{% block layout_header_tablet_main_navigation_toggle_button_icon %}
-										{% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-											'name': 'action-grab'
-										} %}
+										{% sw_icon 'action-grab' %}
 									{% endblock %}
 								</button>
 							{% endblock %}

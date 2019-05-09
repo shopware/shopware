@@ -11,10 +11,7 @@
                                    itemprop="url"
                                    title="{{ navigationTree.category.translated.name }}">
                                     {% block layout_navigation_flyout_bar_category_link_text %}
-										{% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-											'name': 'arrow-simple-right',
-											'style': 'dark'
-										} %}
+                                        {% sw_icon 'arrow-simple-right' style { 'color': 'dark' } %}
 										{{ "general.toCategory"|trans }} {{ navigationTree.category.translated.name }}
                                     {% endblock %}
                                 </a>
@@ -29,9 +26,7 @@
                     <div class="navigation-flyout-close js-close-flyout-menu">
                         {% block layout_navigation_flyout_bar_close_content %}
                             {% block layout_utilities_offcanvas_close_icon %}
-                                {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-                                    'name': 'basic-x-line'
-                                } %}
+                                {% sw_icon 'basic-x-line' %}
                             {% endblock %}
                         {% endblock %}
                     </div>

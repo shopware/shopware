@@ -71,11 +71,7 @@
                                                                data-remote-click-options='{
                                                                     "selector": "label.page-link[for=\"p-first\"]"
                                                                }'>
-                                                                    {% block component_pagination_first_icon %}
-                                                                        {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-                                                                                'name': 'small-arrow-large-double-left'
-                                                                        } %}
-                                                                    {% endblock %}
+                                                                    {% sw_icon 'small-arrow-large-double-left' %}
                                                             </a>
                                                         {% endblock %}
                                                     </label>
@@ -104,9 +100,7 @@
                                                                     "selector": "label.page-link[for=\"p-prev\"]"
                                                                }'>
                                                                 {% block component_pagination_prev_icon %}
-                                                                        {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-                                                                                'name': 'small-arrow-large-left'
-                                                                        } %}
+                                                                    {% sw_icon 'small-arrow-large-left' %}
                                                                 {% endblock %}
                                                             </a>
                                                         {% endblock %}
@@ -187,9 +181,7 @@
                                                                             "selector": "label.page-link[for=\"p-next\"]"
                                                                        }'>
                                                                 {% block component_pagination_next_icon %}
-                                                                        {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-                                                                                'name': 'small-arrow-large-right'
-                                                                        } %}
+                                                                    {% sw_icon 'small-arrow-large-right' %}
                                                                 {% endblock %}
                                                             </a>
                                                         {% endblock %}
@@ -219,9 +211,7 @@
                                                                             "selector": "label.page-link[for=\"p-last\"]"
                                                                        }'>
                                                                 {% block component_pagination_last_icon %}
-                                                                        {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-                                                                                'name': 'small-arrow-large-double-right'
-                                                                        } %}
+                                                                    {% sw_icon 'small-arrow-large-double-right' %}
                                                                 {% endblock %}
                                                             </a>
                                                         {% endblock %}

@@ -37,7 +37,7 @@ module.exports = {
         browser
             .waitForElementVisible(page.elements.accountRoot)
             .assert.urlContains('/account')
-            .expect.element(page.elements.accountHeadline).to.have.text.that.contains('Welcome, Prof. Dr. John Doe');
+            .expect.element(page.elements.accountHeadline).to.have.text.that.contains('This is your account dashboard which enables you to view your account activities.');
     },
     after: (browser) => {
         browser.end();

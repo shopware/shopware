@@ -37,7 +37,7 @@ module.exports = {
         const page = checkoutPage(browser);
 
         browser
-            .click('.buy-widget-submit')
+            .click('.btn-buy')
             .waitForElementVisible(`${page.elements.offCanvasCart}.is-open`);
     },
     'check off-canvas cart and continue': (browser) => {

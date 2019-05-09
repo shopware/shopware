@@ -13,7 +13,9 @@ Component.register('sw-promotion-detail', {
 
     data() {
         return {
-            promotion: {}
+            promotion: {},
+            isLoading: false,
+            isSaveSuccessful: false
         };
     },
 
@@ -66,22 +68,24 @@ Component.register('sw-promotion-detail', {
             this.loadEntityData();
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+        },
+
         onSave() {
             this.$emit('save');
             const promotionName = this.promotion.name;
-            const titleSaveSuccess = this.$tc('sw-promotion.detail.header.titleSaveSuccess');
-            const messageSaveSuccess = this.$tc('sw-promotion.detail.header.messageSaveSuccess', 0, { name: promotionName });
             const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');
             const messageSaveError = this.$tc(
                 'global.notification.notificationSaveErrorMessage', 0, { entityName: promotionName }
             );
+            this.isSaveSuccessful = false;
+            this.isLoading = true;
 
 
             return this.promotion.save().then(() => {
-                this.createNotificationSuccess({
-                    title: titleSaveSuccess,
-                    message: messageSaveSuccess
-                });
+                this.isLoading = false;
+                this.isSaveSuccessful = true;
             }).catch((exception) => {
                 let customMessage = `${messageSaveError} <br />`;
                 this.promotion.errors.forEach((promotionError) => {
@@ -93,6 +97,7 @@ Component.register('sw-promotion-detail', {
                     message: customMessage
                 });
                 warn(this._name, exception.message, exception.response);
+                this.isLoading = false;
                 throw exception;
             });
         }

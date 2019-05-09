@@ -15,7 +15,7 @@ module.exports = {
         browser
             .fillField('input[name=sw-field--user-email]', 'test@test.de', true)
             .click(page.elements.primaryButton)
-            .checkNotification('Profile information has been saved successfully.');
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium');
     },
     'log out': (browser) => {
         const page = loginPage(browser);

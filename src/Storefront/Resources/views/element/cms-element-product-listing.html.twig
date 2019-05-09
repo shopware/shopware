@@ -3,15 +3,6 @@
     {% set searchResult = element.data.listing %}
 
     <div class="cms-element-{{ element.type }}">
-
-        {% block element_product_listing_pagination_top %}
-            {% sw_include '@Storefront/component/pagination.html.twig' with {
-                searchResult: searchResult,
-                isCmsSlot: 1,
-                class: 'listing-top-pagination'
-            } %}
-        {% endblock %}
-
         {% block element_product_listing_row %}
             <div class="row listing-row js-listing-wrapper">
                 {% block element_product_listing_col %}

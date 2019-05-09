@@ -76,15 +76,21 @@ Component.register('sw-promotion-detail', {
                 'global.notification.notificationSaveErrorMessage', 0, { entityName: promotionName }
             );
 
+
             return this.promotion.save().then(() => {
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,
                     message: messageSaveSuccess
                 });
             }).catch((exception) => {
+                let customMessage = `${messageSaveError} <br />`;
+                this.promotion.errors.forEach((promotionError) => {
+                    customMessage += `${promotionError.detail} <br />`;
+                });
+                this.promotion.errors = [];
                 this.createNotificationError({
                     title: titleSaveError,
-                    message: messageSaveError
+                    message: customMessage
                 });
                 warn(this._name, exception.message, exception.response);
                 throw exception;

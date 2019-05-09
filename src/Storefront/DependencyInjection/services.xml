@@ -274,6 +274,7 @@
             <argument type="service" id="sales_channel_domain.repository"/>
             <argument type="service" id="request_stack"/>
             <argument type="service" id="router"/>
+            <argument type="service" id="product.repository"/>
         </service>
 
         <service id="Shopware\Storefront\PageController\ErrorPageController" public="true">

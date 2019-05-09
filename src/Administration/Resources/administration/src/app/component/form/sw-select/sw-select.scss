@@ -47,10 +47,6 @@ $sw-select-transition-result-icon: all ease-in-out .15s;
         width: calc(100% - 30px);
     }
 
-    .sw-label--dismiss-able .sw-label__dismiss {
-        display: none;
-    }
-
     .sw-select__load-more-list-item-button {
         padding: 2px 10px;
         line-height: 26px;
@@ -136,6 +132,10 @@ $sw-select-transition-result-icon: all ease-in-out .15s;
     .sw-select__selection-item {
         overflow: hidden;
         text-overflow: ellipsis;
+    }
+
+    .sw-label--dismiss-able .sw-label__dismiss {
+        display: none;
     }
 
     .sw-select__selections {
@@ -324,9 +324,6 @@ $sw-select-transition-result-icon: all ease-in-out .15s;
 
         .sw-select__input {
             line-height: 20px;
-        }
-        .sw-select__selection-item-input {
-            margin-bottom: 0;
         }
 
         .sw-select__indicators {

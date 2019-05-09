@@ -40,7 +40,9 @@ export default class AjaxModalExtensionUtil {
      */
     _registerAjaxModalExtension() {
         const modalTriggers = document.querySelectorAll(`[data-toggle="modal"][${URL_DATA_ATTRIBUTE}]`);
-        Iterator.iterate(modalTriggers, trigger => trigger.addEventListener('click', this._onClickHandleAjaxModal.bind(this)));
+        if (modalTriggers) {
+            Iterator.iterate(modalTriggers, trigger => trigger.addEventListener('click', this._onClickHandleAjaxModal.bind(this)));
+        }
     }
 
     /**
@@ -58,6 +60,12 @@ export default class AjaxModalExtensionUtil {
         const url = DomAccess.getAttribute(trigger, URL_DATA_ATTRIBUTE);
         PageLoadingIndicatorUtil.create();
         this._client.get(url, response => this._openModal(response));
+
+        const label = trigger.closest('label');
+        if (label) {
+            const event = new MouseEvent('click', { label });
+            label.dispatchEvent(event);
+        }
     }
 
     /**

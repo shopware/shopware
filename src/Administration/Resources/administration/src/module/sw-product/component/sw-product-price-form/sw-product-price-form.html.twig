@@ -9,7 +9,7 @@
                           validation="required"
                           required
                           v-model="product.taxId">
-                        <option v-for="tax in taxRates" :value="tax.id">{{ tax.name }}</option>
+                        <option v-for="tax in taxRates" :key="tax.id" :value="tax.id" :selected="product.taxId === tax.id">{{ tax.name }}</option>
                 </sw-field>
             {% endblock %}
 

@@ -44,11 +44,9 @@
         {% endblock %}
 
         {% block page_checkout_cart_add_product %}
-            {#TODO: NEXT-2834 - add form action: {{ path('frontend.checkout.product.add') }}#}
-            <form action="#"
+            <form action="{{ path('frontend.checkout.product.add-by-number') }}"
                   class="cart-add-product"
-                  method="post"
-                  data-add-to-cart="true">
+                  method="post">
                 {% block page_checkout_cart_add_product_redirect %}
                     <input type="hidden"
                            name="redirectTo"

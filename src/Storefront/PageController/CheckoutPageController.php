@@ -23,6 +23,7 @@ use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Checkout\Promotion\Cart\Builder\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsCollector;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Content\Product\Exception\ProductNumberNotFoundException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -133,6 +134,11 @@ class CheckoutPageController extends StorefrontController
      */
     private $router;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $productRepository;
+
     public function __construct(
         CartService $cartService,
         PageLoaderInterface $cartPageLoader,
@@ -149,7 +155,8 @@ class CheckoutPageController extends StorefrontController
         PaymentService $paymentService,
         EntityRepositoryInterface $domainRepository,
         RequestStack $requestStack,
-        RouterInterface $router
+        RouterInterface $router,
+        EntityRepositoryInterface $productRepository
     ) {
         $this->cartService = $cartService;
         $this->cartPageLoader = $cartPageLoader;
@@ -165,9 +172,9 @@ class CheckoutPageController extends StorefrontController
         $this->mediaRepository = $mediaRepository;
         $this->paymentService = $paymentService;
         $this->domainRepository = $domainRepository;
-
         $this->requestStack = $requestStack;
         $this->router = $router;
+        $this->productRepository = $productRepository;
     }
 
     /**
@@ -512,6 +519,43 @@ class CheckoutPageController extends StorefrontController
         }
 
         return $this->createActionResponse($request);
+    }
+
+    /**
+     * @Route("/checkout/product/add-by-number", name="frontend.checkout.product.add-by-number", methods={"POST"})
+     */
+    public function addProductByNumber(Request $request, SalesChannelContext $context): Response
+    {
+        $number = $request->request->getAlnum('number');
+        if (!$number) {
+            throw new MissingRequestParameterException('number');
+        }
+
+        $criteria = new Criteria();
+        $criteria->setLimit(1);
+        $criteria->addFilter(new EqualsFilter('productNumber', $number));
+
+        $idSearchResult = $this->productRepository->searchIds($criteria, $context->getContext());
+        $data = $idSearchResult->getIds();
+
+        if (empty($data)) {
+            throw new ProductNumberNotFoundException($number);
+        }
+
+        $productId = array_shift($data);
+        $request->request->add([
+            'lineItems' => [
+                $productId => [
+                    'id' => $productId,
+                    'quantity' => 1,
+                    'type' => 'product',
+                    'stackable' => true,
+                    'removable' => true,
+                ],
+            ],
+        ]);
+
+        return $this->forward('Shopware\Storefront\PageController\CheckoutPageController::addLineItems');
     }
 
     /**

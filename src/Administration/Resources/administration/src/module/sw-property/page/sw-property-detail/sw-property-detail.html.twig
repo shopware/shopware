@@ -34,8 +34,23 @@
             </template>
         {% endblock %}
 
+        {% block sw_property_detail_language_switch %}
+            <template slot="language-switch">
+                <sw-language-switch @on-change="onChangeLanguage"
+                                    :saveChangesFunction="saveOnLanguageChange"
+                                    :abortChangeFunction="abortOnLanguageChange">
+                </sw-language-switch>
+            </template>
+        {% endblock %}
+
         {% block sw_property_detail_content %}
             <sw-card-view slot="content">
+                {% block sw_property_detail_content_language_info %}
+                    <sw-language-info
+                            :entityDescription="placeholder(group, 'name', $tc('sw-property.detail.textHeadline'))">
+                    </sw-language-info>
+                {% endblock %}
+
                 {% block sw_property_detail_content_detail_base %}
                     <sw-property-detail-base :group="group" />
                 {% endblock %}

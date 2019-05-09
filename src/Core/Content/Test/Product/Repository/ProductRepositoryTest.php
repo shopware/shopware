@@ -59,6 +59,66 @@ class ProductRepositoryTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
+    public function testNameIsRequired()
+    {
+        $id = Uuid::randomHex();
+
+        $data = [
+            'id' => $id,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 10,
+            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+        ];
+
+        $e = null;
+        try {
+            $this->repository->create([$data], $this->context);
+        } catch (WriteStackException $e) {
+        }
+
+        static::assertInstanceOf(WriteStackException::class, $e);
+
+        $id = Uuid::randomHex();
+
+        $data = [
+            'id' => $id,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 10,
+            'name' => 'test',
+            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+        ];
+        $this->repository->create([$data], $this->context);
+
+        $product = $this->repository
+            ->search(new Criteria([$id]), $this->context)
+            ->get($id);
+
+        static::assertInstanceOf(ProductEntity::class, $product);
+
+        $variantId = Uuid::randomHex();
+
+        $data = [
+            'id' => $variantId,
+            'stock' => 10,
+            'productNumber' => 'variant',
+            'parentId' => $id,
+        ];
+        $this->repository->create([$data], $this->context);
+
+        $variant = $this->repository
+            ->search(new Criteria([$variantId]), $this->context)
+            ->get($variantId);
+
+        static::assertInstanceOf(ProductEntity::class, $variant);
+
+        /** @var ProductEntity $variant */
+        static::assertNull($variant->getName());
+    }
+
     public function testWriteCategories(): void
     {
         $id = Uuid::randomHex();

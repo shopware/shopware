@@ -78,6 +78,8 @@ class Migration1536233560BasicData extends MigrationStep
         $this->createOrderTransactionStateMachine($connection);
 
         $this->createSystemConfigOptions($connection);
+
+        $this->createCmsPages($connection);
     }
 
     public function updateDestructive(Connection $connection): void
@@ -2763,5 +2765,107 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
                 ]
             );
         }
+    }
+
+    private function createCmsPages(Connection $connection): void
+    {
+        $languageEn = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
+        $versionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
+
+        // cms page
+        $page = ['id' => Uuid::randomBytes(), 'type' => 'product_list', 'locked' => 1, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)];
+        $pageEng = ['cms_page_id' => $page['id'], 'language_id' => $languageEn, 'name' => 'Default category layout', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)];
+
+        $connection->insert('cms_page', $page);
+        $connection->insert('cms_page_translation', $pageEng);
+
+        // cms blocks
+        $blocks = [
+            [
+                'id' => Uuid::randomBytes(),
+                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+                'cms_page_id' => $page['id'],
+                'locked' => 1,
+                'position' => 1,
+                'type' => 'product-listing',
+                'name' => 'Category listing',
+                'sizing_mode' => 'boxed',
+                'margin_top' => '20px',
+                'margin_bottom' => '20px',
+                'margin_left' => '20px',
+                'margin_right' => '20px',
+                'background_media_mode' => 'cover',
+            ],
+            [
+                'id' => Uuid::randomBytes(),
+                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+                'cms_page_id' => $page['id'],
+                'locked' => 1,
+                'position' => 0,
+                'type' => 'image-text',
+                'name' => 'Category info',
+                'sizing_mode' => 'boxed',
+                'margin_top' => '20px',
+                'margin_bottom' => '20px',
+                'margin_left' => '20px',
+                'margin_right' => '20px',
+                'background_media_mode' => 'cover',
+            ],
+        ];
+
+        foreach ($blocks as $block) {
+            $connection->insert('cms_block', $block);
+        }
+
+        // cms slots
+        $slots = [
+            ['id' => Uuid::randomBytes(), 'locked' => 1, 'cms_block_id' => $blocks[0]['id'], 'type' => 'product-listing', 'slot' => 'content', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT), 'version_id' => $versionId],
+            ['id' => Uuid::randomBytes(), 'locked' => 1, 'cms_block_id' => $blocks[1]['id'], 'type' => 'image', 'slot' => 'left', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT), 'version_id' => $versionId],
+            ['id' => Uuid::randomBytes(), 'locked' => 1, 'cms_block_id' => $blocks[1]['id'], 'type' => 'text', 'slot' => 'right', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT), 'version_id' => $versionId],
+        ];
+
+        $slotTranslations = [
+            [
+                'cms_slot_id' => $slots[0]['id'],
+                'cms_slot_version_id' => $versionId,
+                'language_id' => $languageEn,
+                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+                'config' => json_encode([
+                    'boxLayout' => ['source' => 'static', 'value' => 'standard'],
+                ]),
+            ],
+            [
+                'cms_slot_id' => $slots[1]['id'],
+                'cms_slot_version_id' => $versionId,
+                'language_id' => $languageEn,
+                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+                'config' => json_encode([
+                    'media' => ['source' => 'mapped', 'value' => 'category.media'],
+                    'displayMode' => ['source' => 'static', 'value' => 'cover'],
+                    'url' => ['source' => 'static', 'value' => null],
+                    'newTab' => ['source' => 'static', 'value' => false],
+                    'minHeight' => ['source' => 'static', 'value' => '320px'],
+                ]),
+            ],
+            [
+                'cms_slot_id' => $slots[2]['id'],
+                'cms_slot_version_id' => $versionId,
+                'language_id' => $languageEn,
+                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+                'config' => json_encode([
+                    'content' => ['source' => 'mapped', 'value' => 'category.description'],
+                ]),
+            ],
+        ];
+
+        foreach ($slots as $slot) {
+            $connection->insert('cms_slot', $slot);
+        }
+
+        foreach ($slotTranslations as $translation) {
+            $connection->insert('cms_slot_translation', $translation);
+        }
+
+        $connection->executeUpdate('UPDATE `category` SET `cms_page_id` = :pageId', ['pageId' => $page['id']]);
     }
 }

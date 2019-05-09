@@ -64,7 +64,7 @@ Mixin.register('sw-form-field', {
 
     methods: {
         resetFormError() {
-            if (this.actualError.code !== 0 && !!this.pointer) {
+            if (this.actualError && this.actualError.code !== 0 && !!this.pointer) {
                 this.$store.dispatch('resetFormError', this.pointer);
             }
         }

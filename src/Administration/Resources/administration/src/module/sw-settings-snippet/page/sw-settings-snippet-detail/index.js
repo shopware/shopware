@@ -25,7 +25,9 @@ Component.register('sw-settings-snippet-detail', {
             translationKey: '',
             translationKeyOrigin: '',
             snippets: [],
-            sets: {}
+            sets: {},
+            isSaveSuccessful: false,
+            pushParams: null
         };
     },
 
@@ -143,8 +145,25 @@ Component.register('sw-settings-snippet-detail', {
             return snippets;
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+
+            this.$router.push({
+                name: 'sw.settings.snippet.detail',
+                params: this.pushParams,
+                query: {
+                    ids: this.queryIds,
+                    page: this.page,
+                    limit: this.limit
+                }
+            });
+        },
+
         onSave() {
             const responses = [];
+            this.isSaveSuccessful = false;
+            this.isLoading = true;
+
             this.snippets.forEach((snippet) => {
                 if (!snippet.author) {
                     snippet.author = this.currentAuthor;
@@ -180,16 +199,11 @@ Component.register('sw-settings-snippet-detail', {
             Promise.all(responses).then(() => {
                 this.onNewKeyRedirect(true);
                 this.prepareContent();
-                this.createNotificationSuccess({
-                    title: this.$tc('sw-settings-snippet.detail.titleSaveSuccess'),
-                    message: this.$tc(
-                        'sw-settings-snippet.detail.messageSaveSuccess',
-                        0,
-                        { key: this.translationKey }
-                    )
-                });
+                this.isLoading = false;
+                this.isSaveSuccessful = true;
             }).catch(() => {
                 this.prepareContent();
+                this.isLoading = false;
                 this.createNotificationError({
                     title: this.$tc('sw-settings-snippet.detail.titleSaveError'),
                     message: this.$tc(
@@ -232,6 +246,7 @@ Component.register('sw-settings-snippet-detail', {
         }, 500),
 
         onNewKeyRedirect(isNewOrigin = false) {
+            this.isSaveSuccessful = true;
             const params = {
                 key: this.translationKey
             };
@@ -241,15 +256,7 @@ Component.register('sw-settings-snippet-detail', {
             }
 
             this.isCreate = false;
-            this.$router.push({
-                name: 'sw.settings.snippet.detail',
-                params,
-                query: {
-                    ids: this.queryIds,
-                    page: this.page,
-                    limit: this.limit
-                }
-            });
+            this.pushParams = params;
         },
 
         getCustomList() {

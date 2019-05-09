@@ -18,7 +18,8 @@ Component.register('sw-settings-salutation-detail', {
             isLoading: false,
             salutation: null,
             invalidKey: false,
-            isKeyChecking: false
+            isKeyChecking: false,
+            isSaveSuccessful: false
         };
     },
 
@@ -66,15 +67,17 @@ Component.register('sw-settings-salutation-detail', {
             this.createdComponent();
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+        },
+
         onSave() {
             this.isLoading = true;
-            const key = this.salutation.salutationKey;
+            this.isSaveSuccessful = false;
 
             return this.salutation.save().then(() => {
-                this.createNotificationSuccess({
-                    title: this.$tc('sw-settings-salutation.general.titleSuccess'),
-                    message: this.$tc('sw-settings-salutation.detail.messageSaveSuccess', 0, { key })
-                });
+                this.isLoading = false;
+                this.isSaveSuccessful = true;
             }).catch(() => {
                 this.createNotificationError({
                     title: this.$tc('sw-settings-salutation.general.titleError'),

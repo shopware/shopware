@@ -14,7 +14,8 @@ Component.register('sw-settings-customer-group-detail', {
         return {
             entityName: 'customer_group',
             isLoading: false,
-            customerGroup: null
+            customerGroup: null,
+            isSaveSuccessful: false
         };
     },
 
@@ -60,17 +61,18 @@ Component.register('sw-settings-customer-group-detail', {
             this.$router.push({ name: 'sw.settings.customer.group.index' });
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+        },
+
         onSave() {
+            this.isSaveSuccessful = false;
             this.isLoading = true;
             this.customerGroup.name = this.customerGroup.name.trim();
 
-            const name = this.customerGroup.name;
-
             return this.customerGroup.save().then(() => {
-                this.createNotificationSuccess({
-                    title: this.$tc('sw-settings-customer-group.general.titleSuccess'),
-                    message: this.$tc('sw-settings-customer-group.detail.messageSaveSuccess', 0, { name })
-                });
+                this.isLoading = false;
+                this.isSaveSuccessful = true;
             }).catch(() => {
                 this.createNotificationError({
                     title: this.$tc('sw-settings-customer-group.general.titleError'),

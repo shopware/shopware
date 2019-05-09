@@ -29,12 +29,16 @@
                 {% endblock %}
 
                 {% block sw_settings_snippet_detail_actions_save %}
-                    <sw-button class="sw-snippet-detail__save-action"
-                               :disabled="isLoading || !this.translationKey || !this.isSavable"
-                               @click.prevent="onSave"
-                               variant="primary">
+                    <sw-button-process
+                        class="sw-snippet-detail__save-action"
+                        :isLoading="isLoading"
+                        :processSuccess="isSaveSuccessful"
+                        :disabled="isLoading || !this.translationKey || !this.isSavable"
+                        variant="primary"
+                        @process-finish="saveFinish"
+                        @click.prevent="onSave">
                         {{ $tc('sw-settings-snippet.detail.buttonSave') }}
-                    </sw-button>
+                    </sw-button-process>
                 {% endblock %}
             </template>
         {% endblock %}

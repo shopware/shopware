@@ -21,7 +21,7 @@
 // Basics
 // --------------------------
 
-.sw-icon {
+.icon {
     @include sw-icon-size($icon-base-size);
     display: inline-block;
     font-size: inherit;

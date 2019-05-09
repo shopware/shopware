@@ -15,7 +15,7 @@ The template provides an easy way to display messages in the storefront. The fol
 * light (white)
 * dark (dark gray)
 
-    {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with {
+    {% sw_include '@Storefront/utilities/alert.html.twig' with {
         type:"primary",
         content:"Primary Lorem ipsum dolor"
     } %}
@@ -23,7 +23,7 @@ The template provides an easy way to display messages in the storefront. The fol
 *Icons:
 To display icons, set the value of "icon" to true:
 
-    {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with {
+    {% sw_include '@Storefront/utilities/alert.html.twig' with {
         type:"primary",
         content:"Primary Lorem ipsum dolor",
         icon: true
@@ -33,7 +33,7 @@ To display icons, set the value of "icon" to true:
 The component requires the parameters ```content``` or ```list``` to display a message. If no ```type``` is defined it
 will use the fallback option (success).
 
-    {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with {
+    {% sw_include '@Storefront/utilities/alert.html.twig' with {
         type:"primary",
         content:"Primary Lorem ipsum dolor"
     } %}
@@ -48,7 +48,7 @@ of messages to the template using the parameter ```list```:
         'Error message 3'
     ] %}
 
-    {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with {
+    {% sw_include '@Storefront/utilities/alert.html.twig' with {
         type:"secondary",
         list: list1
     } %}
@@ -56,7 +56,7 @@ of messages to the template using the parameter ```list```:
 *Heading:
 To display a heading, use "heading".
 
-    {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with {
+    {% sw_include '@Storefront/utilities/alert.html.twig' with {
         type:"primary",
         content:"Primary Lorem ipsum dolor",
         heading: "Test Heading"
@@ -65,7 +65,7 @@ To display a heading, use "heading".
 *Dismissible Button:
 To display a dismissible button set the value of "dismissible" to true.
 
-    {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with {
+    {% sw_include '@Storefront/utilities/alert.html.twig' with {
         type:"primary",
         content:"Primary Lorem ipsum dolor",
         dismissible: true

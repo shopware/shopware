@@ -61,7 +61,7 @@
 
 										{% block component_account_register_personal_mail_input_error %}
 											{% if formViolations.getViolations('/email') is not empty %}
-												{% sw_include '@Storefront/layout/_utilities/form-violation.html.twig' with {
+												{% sw_include '@Storefront/utilities/form-violation.html.twig' with {
 													violationPath: '/email'
 												} %}
 											{% endif %}
@@ -91,7 +91,7 @@
 
 										{% block component_account_register_personal_mail_confirmation_input_error %}
 											{% if formViolations.getViolations('/email') is not empty %}
-												{% sw_include '@Storefront/layout/_utilities/form-violation.html.twig' with {
+												{% sw_include '@Storefront/utilities/form-violation.html.twig' with {
 													violationPath: '/email'
 												} %}
 											{% endif %}
@@ -129,7 +129,7 @@
 
 											{% block component_account_register_personal_password_input_error %}
 												{% if formViolations.getViolations('/password') is not empty %}
-													{% sw_include '@Storefront/layout/_utilities/form-violation.html.twig' with {
+													{% sw_include '@Storefront/utilities/form-violation.html.twig' with {
 														violationPath: '/password'
 													} %}
 												{% endif %}
@@ -160,7 +160,7 @@
 
 											{% block component_account_register_personal_password_confirmation_input_error %}
 												{% if formViolations.getViolations('/password') is not empty %}
-													{% sw_include '@Storefront/layout/_utilities/form-violation.html.twig' with {
+													{% sw_include '@Storefront/utilities/form-violation.html.twig' with {
 														violationPath: '/password'
 													} %}
 												{% endif %}

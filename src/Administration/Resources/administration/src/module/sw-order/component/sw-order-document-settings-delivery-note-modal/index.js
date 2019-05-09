@@ -7,12 +7,12 @@ Component.extend('sw-order-document-settings-delivery-note-modal', 'sw-order-doc
         return {
             documentConfig: {
                 custom: {
-                    deliveryDate: new Date(),
-                    deliveryNoteDate: new Date()
+                    deliveryDate: (new Date()).toISOString(),
+                    deliveryNoteDate: (new Date()).toISOString()
                 },
                 documentNumber: 0,
                 documentComment: '',
-                documentDate: {}
+                documentDate: ''
             }
         };
     },

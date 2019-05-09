@@ -38,7 +38,8 @@ Component.register('sw-order-document-card', {
             currentDocumentType: null,
             documentNumber: null,
             documentComment: '',
-            term: ''
+            term: '',
+            documentCardEmpty: true
         };
     },
 
@@ -69,6 +70,10 @@ Component.register('sw-order-document-card', {
                 return `sw-order-document-settings-${this.currentDocumentType.technicalName.replace('_', '-')}-modal`;
             }
             return 'sw-order-document-settings-modal';
+        },
+
+        documentCardStyles() {
+            return `sw-order-document-card ${this.documentCardEmpty ? 'sw-order-document-card--is-empty' : ''}`;
         }
     },
 
@@ -98,6 +103,7 @@ Component.register('sw-order-document-card', {
 
             this.documentStore.getList(params).then((response) => {
                 this.total = response.total;
+                this.documentCardEmpty = this.total === 0;
                 this.documents = response.items;
             }).then(() => {
                 this.documentsLoading = false;
@@ -134,9 +140,7 @@ Component.register('sw-order-document-card', {
         },
 
         createDocument(orderId, documentTypeName, params) {
-            return this.documentService.createDocument(orderId, documentTypeName, params).then(() => {
-                this.getList();
-            });
+            return this.documentService.createDocument(orderId, documentTypeName, params);
         },
 
         onCancelCreation() {
@@ -153,15 +157,22 @@ Component.register('sw-order-document-card', {
             this.showModal = false;
             this.$nextTick().then(() => {
                 this.createDocument(this.order.id, this.currentDocumentType.technicalName, params).then((response) => {
-                    this.getList();
+                    this.documentCardEmpty = false;
 
-                    if (additionalAction === 'download') {
-                        const docId = response.data.documentId;
-                        const docLink = response.data.documentDeepLink;
-                        window.open(
-                            this.documentService.generateDocumentLink(docId, docLink, true), '_blank'
-                        );
-                    }
+                    this.$nextTick().then(() => {
+                        this.getList();
+
+                        if (additionalAction === 'download') {
+                            window.open(
+                                this.documentService.generateDocumentLink(
+                                    response.data.documentId,
+                                    response.data.documentDeepLink,
+                                    true
+                                ),
+                                '_blank'
+                            );
+                        }
+                    });
                 });
             });
         },
@@ -179,7 +190,7 @@ Component.register('sw-order-document-card', {
         },
 
         onDownload(id, deepLink) {
-            window.open(this.documentService.generateDocumentLink(id, deepLink), '_blank');
+            window.open(this.documentService.generateDocumentLink(id, deepLink, false), '_blank');
         }
     }
 });

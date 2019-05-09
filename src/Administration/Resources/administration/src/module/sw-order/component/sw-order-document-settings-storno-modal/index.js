@@ -23,7 +23,7 @@ Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-s
                 },
                 documentNumber: 0,
                 documentComment: '',
-                documentDate: {}
+                documentDate: ''
             },
             invoiceNumbers: []
         };
@@ -45,7 +45,7 @@ Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-s
             ).then((response) => {
                 this.documentConfig.documentNumber = response.number;
                 this.documentConfig.documentNumberPreview = this.documentConfig.documentNumber;
-                this.documentConfig.documentDate = new Date();
+                this.documentConfig.documentDate = (new Date()).toISOString();
             });
             const criteria = CriteriaFactory.equals('documentType.technicalName', 'invoice');
             this.order.getAssociation('documents').getList(

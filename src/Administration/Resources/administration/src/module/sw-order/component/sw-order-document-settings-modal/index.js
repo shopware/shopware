@@ -21,7 +21,7 @@ Component.register('sw-order-document-settings-modal', {
                 custom: {},
                 documentNumber: 0,
                 documentComment: '',
-                documentDate: {}
+                documentDate: ''
             },
             documentNumberPreview: false
         };
@@ -44,7 +44,7 @@ Component.register('sw-order-document-settings-modal', {
             ).then((response) => {
                 this.documentConfig.documentNumber = response.number;
                 this.documentNumberPreview = this.documentConfig.documentNumber;
-                this.documentConfig.documentDate = new Date();
+                this.documentConfig.documentDate = (new Date()).toISOString();
             });
         },
         onCreateDocument(additionalAction = false) {

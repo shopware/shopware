@@ -71,6 +71,11 @@
 
 .cart-widget-total {
     color: $primary;
+    font-size: 16px;
+}
+
+.cart-widget-badge {
+    display: none;
 }
 
 @include media-breakpoint-up(md) {

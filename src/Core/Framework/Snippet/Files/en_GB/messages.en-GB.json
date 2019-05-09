@@ -234,7 +234,7 @@
         "summaryPositionPrice": "Sum",
         "summaryShipping": "Shipping costs",
         "summaryTotalPrice": "Total amount",
-        "summaryNetPrice": "Total amount without VAT",
+        "summaryNetPrice": "Amount without VAT",
         "summaryTax": "Plus %rate% % VAT",
         "proceedLink": "Checkout",
         "addressEqualHeader": "Billing and shipping address",

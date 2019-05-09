@@ -10,8 +10,8 @@
         }
 
         .checkout-main-right {
-            @extend .offset-lg-2;
-            @extend .col-lg-8;
+            @extend .col-6;
+            @extend .offset-lg-6;
         }
     }
 }

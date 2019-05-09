@@ -42,6 +42,10 @@
     display: block;
 }
 
+.logo-main-img {
+    width: 270px;
+}
+
 .header-logo-col {
     margin-bottom: $spacer;
 }
@@ -76,11 +80,6 @@
 .account-widget-btn::after,
 .cart-widget-total {
     display: none;
-}
-
-.cart-widget-display {
-    position: relative;
-    display: inline-block;
 }
 
 .cart-widget .cart-widget-badge {

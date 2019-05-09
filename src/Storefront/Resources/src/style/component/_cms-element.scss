@@ -2,9 +2,12 @@
     &.display-cover {
         .cms-image {
             object-fit: cover;
-            height: 200px;
             width: 100%;
         }
+    }
+    
+    .image-link {
+        display: block;
     }
 }
 

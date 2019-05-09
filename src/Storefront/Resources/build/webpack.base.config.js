@@ -59,7 +59,6 @@ const entries = {
  * https://webpack.js.org/configuration/output
  * @type {{path: *, filename: string, publicPath: string}}
  */
-console.log(buildDirectory);
 const output = {
     path: buildDirectory,
     filename: `${outPutFolder}/js/app.js`,
@@ -112,6 +111,11 @@ const modules = {
  */
 const plugins = [
     new webpack.NoEmitOnErrorsPlugin(),
+    new webpack.ProvidePlugin({
+        $: require.resolve('jquery/dist/jquery.slim'),
+        jQuery: require.resolve('jquery/dist/jquery.slim'),
+        'window.jQuery': require.resolve('jquery/dist/jquery.slim'),
+    }),
     new WebpackBar({
         name: 'Shopware Next Storefront',
     }),
@@ -156,6 +160,7 @@ const resolve = {
     alias: {
         src: getPath('src'),
         assets: getPath('assets'),
+        jquery: 'jquery/dist/jquery.slim',
     },
 };
 

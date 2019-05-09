@@ -1,8 +1,9 @@
-{% block page_checkout_confirm_header %}
-    <h1 class="confirm-main-header">
-        {{ "checkout.confirmHeader"|trans }}
-    </h1>
-{% endblock %}
+{% block page_checkout_confirm %}
+    {% block page_checkout_confirm_header %}
+        <h1 class="confirm-main-header">
+            {{ "checkout.confirmHeader"|trans }}
+        </h1>
+    {% endblock %}
 
     {% block page_checkout_confirm_errors %}
         {% for violation in formViolations.getViolations() %}
@@ -76,31 +77,30 @@
         </div>
     {% endblock %}
 
-    {#TODO: NEXT-1950 - order comment#}
+    {% block page_checkout_confirm_main %}
+        <div class="checkout-main js-reload-on-confirm-change">
+            {% block page_checkout_main %}
+                <div class="checkout-main-left">
+                    {% block page_checkout_main_content %}
+                        {% block page_checkout_confirm_table %}
+                            <div class="card cart-table confirm-table">
+                                <div class="card-body cart-table-body">
+                                    {% block page_checkout_confirm_table_header %}
+                                        {% sw_include '@Storefront/page/checkout/confirm/confirm-header.html.twig' %}
+                                    {% endblock %}
 
-<div class="checkout-main js-reload-on-confirm-change">
-    {% block page_checkout_main %}
-        <div class="checkout-main-left">
-            {% block page_checkout_main_content %}
-                {% block page_checkout_confirm %}
-                    {% block page_checkout_confirm_table %}
-                        <div class="card cart-table confirm-table">
-                            <div class="card-body cart-table-body">
-                                {% block page_checkout_confirm_table_header %}
-                                    {% sw_include '@Storefront/page/checkout/confirm/confirm-header.html.twig' %}
-                                {% endblock %}
-
-                                {% block page_checkout_confirm_items %}
-                                    {% for lineItem in page.cart.lineItems.elements %}
-                                        {% block page_checkout_confirm_item %}
-                                            {% sw_include '@Storefront/page/checkout/confirm/confirm-item.html.twig' %}
-                                        {% endblock %}
-                                    {% endfor %}
-                                {% endblock %}
+                                    {% block page_checkout_confirm_items %}
+                                        {% for lineItem in page.cart.lineItems.elements %}
+                                            {% block page_checkout_confirm_item %}
+                                                {% sw_include '@Storefront/page/checkout/confirm/confirm-item.html.twig' %}
+                                            {% endblock %}
+                                        {% endfor %}
+                                    {% endblock %}
+                                </div>
                             </div>
-                        </div>
+                        {% endblock %}
                     {% endblock %}
-                {% endblock %}
+                </div>
             {% endblock %}
         </div>
     {% endblock %}
@@ -108,7 +108,7 @@
     {% block page_checkout_sidebar %}
         <div class="checkout-main-right">
             {% block page_checkout_sidebar_inner %}
-                <aside class="checkout-sidebar">
+                <div class="checkout-sidebar">
                     {% block page_checkout_sidebar_content %}
                         {% block page_checkout_sidebar_header %}
                             <h2 class="checkout-sidebar-header">
@@ -140,8 +140,8 @@
                             </form>
                         {% endblock %}
                     {% endblock %}
-                </aside>
+                </div>
             {% endblock %}
         </div>
     {% endblock %}
-</div>
+{% endblock %}

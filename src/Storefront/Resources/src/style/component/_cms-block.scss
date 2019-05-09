@@ -57,6 +57,14 @@
     }
 }
 
+.cms-block-text-on-image {
+    .cms-element-text {
+        padding: 30px;
+        align-items: center;
+        min-height: 240px;
+    }
+}
+
 @include media-breakpoint-down(sm) {
     .cms-block-image-text-gallery,
     .cms-block-image-two-column,

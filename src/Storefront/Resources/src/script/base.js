@@ -6,8 +6,8 @@ import 'src/script/helper/polyfill-loader.helper';
 /*
 import base requirements
  */
+import 'jquery/dist/jquery.slim';
 import 'bootstrap';
-import jQuery from 'jquery/dist/jquery.slim';
 
 /*
 import styles
@@ -62,8 +62,6 @@ import RemoteClickPlugin from 'src/script/plugin/remote-click/remote-click.plugi
 initialisation
 */
 new ViewportDetection();
-// Expose jQuery and plugin manager to the global window object
-window.jQuery = window.$ = jQuery;
 
 // Necessary for the webpack hot module reloading server
 if (module.hot) {

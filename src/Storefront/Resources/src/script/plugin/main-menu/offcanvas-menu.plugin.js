@@ -14,6 +14,7 @@ const ADDITIONAL_OFFCANVAS_CLASS = 'offcanvas-menu';
 
 const LINK_SELECTOR = '.js-offcanvas-menu-link';
 const LOADING_ICON_SELECTOR = '.js-offcanvas-menu-loading-icon';
+const LINK_LOADING_CLASS = 'is-loading';
 const MENU_SELECTOR = '.js-offcanvas-menu';
 const OVERLAY_CONTENT_SELECTOR = '.js-offcanvas-menu-overlay-content';
 const INITIAL_CONTENT_SELECTOR = '.js-offcanvas-menu-initial-content';
@@ -91,6 +92,10 @@ export default class OffcanvasMenuPlugin extends Plugin {
         }
 
         OffcanvasMenuPlugin._stopEvent(event);
+        if (link.classList.contains(LINK_LOADING_CLASS)) {
+            return;
+        }
+
         OffcanvasMenuPlugin._setLoader(link);
 
         const url = DomAccess.getAttribute(link, 'href', true);
@@ -110,7 +115,9 @@ export default class OffcanvasMenuPlugin extends Plugin {
      * @private
      */
     static _setLoader(link) {
+        link.classList.add(LINK_LOADING_CLASS);
         const icon = link.querySelector(LOADING_ICON_SELECTOR);
+
         if (icon) {
             icon._linkIcon = icon.innerHTML;
             icon.innerHTML = LoadingIndicator.getTemplate();
@@ -124,6 +131,7 @@ export default class OffcanvasMenuPlugin extends Plugin {
      * @private
      */
     static _resetLoader(link) {
+        link.classList.remove(LINK_LOADING_CLASS);
         const icon = link.querySelector(LOADING_ICON_SELECTOR);
         if (icon && icon._linkIcon) {
             icon.innerHTML = icon._linkIcon;

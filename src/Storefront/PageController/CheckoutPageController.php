@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\PageController;
 
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
@@ -456,13 +457,26 @@ class CheckoutPageController extends StorefrontController
                 $code,
                 $context->getContext()->getCurrencyPrecision()
             );
+            $cart = $this->cartService->getCart($token, $context);
 
-            $cart = $this->cartService->add($this->cartService->getCart($token, $context), $lineItem, $context);
+            $initialCartState = md5(json_encode($cart));
 
-            if (!$cart->has($lineItem->getKey())) {
-                throw new \RuntimeException('code was not added');
+            $cart = $this->cartService->add($cart, $lineItem, $context);
+            $cart->getErrors();
+            if (!$this->hasCode($cart, $code)) {
+                throw new LineItemNotFoundException($code);
             }
-            $this->addFlash('success', $this->translator->trans('checkout.codeAddedSuccessful'));
+            $changedCartState = md5(json_encode($cart));
+
+            if ($initialCartState !== $changedCartState) {
+                $this->addFlash('success', $this->translator->trans('checkout.codeAddedSuccessful'));
+            } else {
+                $this->addFlash('info', $this->translator->trans('checkout.promotionAlreadyExistsInfo'));
+            }
+        } catch (LineItemNotFoundException $exception) {
+            // todo this could have a multitude of reasons - imagine a code is valid but cannot be added because of restrictions
+            // wouldn't it be the appropriate way to display the reason what avoided the promotion to be added
+            $this->addFlash('warning', 'Gutschein-Code konnte nicht hinzugefügt werden - ist der Code falsch?');
         } catch (\Exception $exception) {
             $this->addFlash('danger', $this->translator->trans('error.message-default'));
         }
@@ -551,6 +565,27 @@ class CheckoutPageController extends StorefrontController
         }
 
         return $this->createActionResponse($request);
+    }
+
+    private function hasCode(Cart $cart, string $code): bool
+    {
+        foreach ($cart->getLineItems() as $lineItem) {
+            if ($lineItem->getType() !== CartPromotionsCollector::LINE_ITEM_TYPE) {
+                continue;
+            }
+
+            $payload = $lineItem->getPayload();
+
+            if (!array_key_exists('code', $payload)) {
+                continue;
+            }
+
+            if ($code === $payload['code']) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

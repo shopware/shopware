@@ -5,6 +5,7 @@
 .top-bar-navigation {
     display: flex;
     justify-content: flex-end;
+    min-height: 10px;
 }
 
 .top-bar-nav-item {
@@ -52,6 +53,10 @@
 .header-actions-col {
     display: inline-flex;
     justify-content: flex-end;
+}
+
+.btn-header-action:focus {
+    box-shadow: none;
 }
 
 .nav-main-toggle {

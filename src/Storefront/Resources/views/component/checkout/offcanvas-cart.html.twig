@@ -28,14 +28,15 @@
 								<div class="cart-item-image">
 									{% if lineItem.type == 'product' %}
 										{% if lineItem.cover.url %}
-											{% set imgSrc = lineItem.cover.url %}
+											<img src="{{ lineItem.cover.url }}"
+												 class="img-fluid"
+												 alt="{{ lineItem.label }}"
+												 title="{{ lineItem.label }}">
 										{% else %}
-											{% set imgSrc = asset(shopware.theme.general.noPicture) %}
+											{% sw_icon 'placeholder' style {
+												'size': 'fluid'
+											} %}
 										{% endif %}
-										<img src="{{ imgSrc }}"
-											 class="img-fluid"
-											 alt="{{ lineItem.label }}"
-											 title="{{ lineItem.label }}">
 									{% elseif lineItem.type == 'promotion' %}
 										{% sw_icon 'object-marketing' %}
 									{% endif %}

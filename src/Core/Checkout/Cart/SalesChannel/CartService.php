@@ -165,6 +165,10 @@ class CartService
 
         $lineItem->setQuantity($quantity);
 
+        // quantity change should force new price finding and calculation
+        $lineItem->setPrice(null);
+        $lineItem->setPriceDefinition(null);
+
         return $this->calculate($cart, $context);
     }
 

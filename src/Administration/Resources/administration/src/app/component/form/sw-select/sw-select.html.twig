@@ -12,7 +12,7 @@
 
         {% block sw_select_label %}
             <label v-if="label" :for="selectId" class="sw-select__label">
-                {{ label }}
+                {{ label }}{{ required ? '*' : '' }}
             </label>
         {% endblock %}
 

@@ -19,10 +19,14 @@ Component.extend('sw-settings-tax-create', 'sw-settings-tax-detail', {
             this.$super.createdComponent();
         },
 
+
+        saveFinish() {
+            this.isSaveSuccessful = false;
+            this.$router.push({ name: 'sw.settings.tax.detail', params: { id: this.tax.id } });
+        },
+
         onSave() {
-            this.$super.onSave().then(() => {
-                this.$router.push({ name: 'sw.settings.tax.detail', params: { id: this.tax.id } });
-            });
+            this.$super.onSave();
         }
     }
 });

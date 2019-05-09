@@ -1,9 +1,9 @@
 import { Component, Mixin, State } from 'src/core/shopware';
 import { cloneDeep } from '../../../../../core/service/utils/object.utils';
-import template from './sw-cms-el-config-image-slider.html.twig';
-import './sw-cms-el-config-image-slider.scss';
+import template from './sw-cms-el-config-image-gallery.html.twig';
+import './sw-cms-el-config-image-gallery.scss';
 
-Component.register('sw-cms-el-config-image-slider', {
+Component.register('sw-cms-el-config-image-gallery', {
     template,
 
     mixins: [
@@ -14,34 +14,34 @@ Component.register('sw-cms-el-config-image-slider', {
         return {
             mediaModalIsOpen: false,
             initialFolderId: null,
-            entity: this.element,
+            enitiy: this.element,
             mediaItems: []
         };
     },
 
     computed: {
-        uploadTag() {
-            return `cms-element-media-config-${this.element.id}`;
-        },
-
         mediaStore() {
             return State.getStore('media');
+        },
+
+        uploadTag() {
+            return `cms-element-media-config-${this.element.id}`;
         },
 
         pageStore() {
             return State.getStore('cms_page');
         },
 
-        items() {
-            if (this.element.config && this.element.config.sliderItems && this.element.config.sliderItems.value) {
-                return this.element.config.sliderItems.value;
+        defaultFolderName() {
+            return this.pageStore._entityName;
+        },
+
+        sliderItems() {
+            if (this.element.data && this.element.data.sliderItems && this.element.data.sliderItems.length > 0) {
+                return this.element.data.sliderItems;
             }
 
             return [];
-        },
-
-        defaultFolderName() {
-            return this.cmsPageState.pageEntityName;
         }
     },
 
@@ -51,20 +51,27 @@ Component.register('sw-cms-el-config-image-slider', {
 
     methods: {
         createdComponent() {
-            this.initElementConfig('image-slider');
+            this.initElementConfig('image-gallery');
 
             if (this.element.config.sliderItems.value.length > 0) {
                 const mediaIds = [];
+
                 this.element.config.sliderItems.value.forEach((item) => {
                     mediaIds.push(item.mediaId);
                 });
 
-                this.mediaStore.getList({
-                    ids: mediaIds
-                }).then((response) => {
+                this.mediaStore.getList({ ids: mediaIds }).then((response) => {
                     this.mediaItems = response.items;
                 });
             }
+        },
+
+        onOpenMediaModal() {
+            this.mediaModalIsOpen = true;
+        },
+
+        onCloseMediaModal() {
+            this.mediaModalIsOpen = false;
         },
 
         onImageUpload(mediaItem) {
@@ -76,16 +83,16 @@ Component.register('sw-cms-el-config-image-slider', {
             });
 
             this.mediaItems.push(mediaItem);
-
             this.updateMediaDataValue();
             this.emitUpdateEl();
         },
 
         onItemRemove(mediaItem) {
             const key = mediaItem.id;
-            this.element.config.sliderItems.value = this.element.config.sliderItems.value.filter(
-                (item) => item.mediaId !== key
-            );
+            this.element.config.sliderItems.value =
+                this.element.config.sliderItems.value.filter(
+                    (item) => item.mediaId !== key
+                );
 
             this.mediaItems = this.mediaItems.filter(
                 (item) => item.id !== key
@@ -93,10 +100,6 @@ Component.register('sw-cms-el-config-image-slider', {
 
             this.updateMediaDataValue();
             this.emitUpdateEl();
-        },
-
-        onCloseMediaModal() {
-            this.mediaModalIsOpen = false;
         },
 
         onMediaSelectionChange(mediaItems) {
@@ -110,7 +113,6 @@ Component.register('sw-cms-el-config-image-slider', {
             });
 
             this.mediaItems.push(...mediaItems);
-
             this.updateMediaDataValue();
             this.emitUpdateEl();
         },
@@ -119,20 +121,16 @@ Component.register('sw-cms-el-config-image-slider', {
             if (this.element.data && this.element.config.sliderItems.value) {
                 const sliderItems = cloneDeep(this.element.config.sliderItems.value);
 
-                sliderItems.forEach((sliderItem) => {
+                sliderItems.forEach((galleryItem) => {
                     this.mediaItems.forEach((mediaItem) => {
-                        if (sliderItem.mediaId === mediaItem.id) {
-                            sliderItem.media = mediaItem;
+                        if (galleryItem.mediaId === mediaItem.id) {
+                            galleryItem.media = mediaItem;
                         }
                     });
                 });
 
                 this.$set(this.element.data, 'sliderItems', sliderItems);
             }
-        },
-
-        onOpenMediaModal() {
-            this.mediaModalIsOpen = true;
         },
 
         onChangeMinHeight(value) {

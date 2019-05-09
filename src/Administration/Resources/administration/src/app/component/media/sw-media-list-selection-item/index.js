@@ -13,6 +13,18 @@ export default {
     props: {
         item: {
             required: true
+        },
+
+        hideActions: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
+        hideTooltip: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

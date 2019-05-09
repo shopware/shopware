@@ -5,8 +5,6 @@ import './sw-cms-el-product-slider.scss';
 Component.register('sw-cms-el-product-slider', {
     template,
 
-    inject: ['context'],
-
     mixins: [
         Mixin.getByName('cms-element')
     ],
@@ -70,7 +68,7 @@ Component.register('sw-cms-el-product-slider', {
         },
 
         currentDeviceView() {
-            return this.context.currentCmsDeviceView;
+            return this.cmsPageState.currentCmsDeviceView;
         }
     },
 
@@ -118,7 +116,7 @@ Component.register('sw-cms-el-product-slider', {
             const elWidth = parseInt(this.element.config.elMinWidth.value.replace('px', ''), 0);
             const elGap = 32;
 
-            this.sliderBoxLimit = Math.floor(boxWidth / (elWidth + elGap),);
+            this.sliderBoxLimit = Math.floor(boxWidth / (elWidth + elGap));
         },
 
         getProductEl(product) {

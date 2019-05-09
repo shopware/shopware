@@ -1,10 +1,9 @@
 @import "~scss/variables";
 
-$sw-cms-el-image-slider-button-color: #a5a5a5;
-
 .sw-cms-el-image-slider {
     position: relative;
     width: 100%;
+    align-self: flex-start;
 
     &.has--outside-arrows {
         width: calc(100% - 48px);
@@ -13,7 +12,7 @@ $sw-cms-el-image-slider-button-color: #a5a5a5;
 
     .sw-cms-el-image-slider__image-box {
         display: grid;
-        align-items: center;
+        height: 100%;
 
         .sw-cms-el-image-slider__image {
             margin: 0 auto;
@@ -92,16 +91,16 @@ $sw-cms-el-image-slider-button-color: #a5a5a5;
                 .sw-cms-el-image-slider__navigation-button {
                     width: 15px;
                     height: 15px;
-                    background: $sw-cms-el-image-slider-button-color;
+                    background: $color-gray-400;
                     border-radius: 100%;
                     margin: 0 3px;
 
                     &.is--active {
-                        background: darken($sw-cms-el-image-slider-button-color, 50%);
+                        background: $color-gray-900
                     }
 
                     &:hover {
-                        background: darken($sw-cms-el-image-slider-button-color, 30%);
+                        background: $color-gray-900
                     }
                 }
             }
@@ -118,10 +117,10 @@ $sw-cms-el-image-slider-button-color: #a5a5a5;
 
         .sw-cms-el-image-slider__navigation-button {
             cursor: pointer;
-            color: $sw-cms-el-image-slider-button-color;
+            color: $color-gray-400;
 
             &:hover {
-                color: darken($sw-cms-el-image-slider-button-color, 30%);
+                color: $color-gray-900;
             }
         }
     }

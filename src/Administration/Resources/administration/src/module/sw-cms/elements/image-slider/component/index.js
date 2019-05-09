@@ -9,6 +9,14 @@ Component.register('sw-cms-el-image-slider', {
         Mixin.getByName('cms-element')
     ],
 
+    props: {
+        activeMedia: {
+            type: [Object, null],
+            required: false,
+            default: null
+        }
+    },
+
     data() {
         return {
             columnCount: 7,
@@ -59,34 +67,42 @@ Component.register('sw-cms-el-image-slider', {
                 };
             }
 
-            return {
-                'min-height': '340px'
-            };
+            return {};
         },
 
         outsideNavArrows() {
-            if (this.element.data && this.element.data.navigation) {
-                if (this.element.data.navigation.arrows === 'outside') {
-                    return 'has--outside-arrows';
-                }
-            } else if (this.element.config.navigation.value.arrows === 'outside') {
+            if (this.element.config.navigationArrows.value === 'outside') {
                 return 'has--outside-arrows';
             }
 
             return null;
+        },
+
+        verticalAlignStyle() {
+            if (!this.element.config.verticalAlign.value) {
+                return null;
+            }
+
+            return `align-self: ${this.element.config.verticalAlign.value};`;
         }
     },
 
     watch: {
         'element.data.sliderItems': {
             handler() {
-                if (this.element.data && this.element.data.sliderItems && this.element.data.sliderItems.length > 0) {
-                    this.imgSrc = this.element.data.sliderItems[0].media.url;
+                if (this.sliderItems.length > 0) {
+                    this.imgSrc = this.sliderItems[0].media.url;
+                    this.$emit('active-image-change', this.sliderItems[0].media);
                 } else {
                     this.imgSrc = '/administration/static/img/cms/preview_mountain_large.jpg';
                 }
             },
             deep: true
+        },
+
+        activeMedia() {
+            this.sliderPos = this.activeMedia.sliderIndex;
+            this.imgSrc = this.activeMedia.url;
         }
     },
 
@@ -99,12 +115,14 @@ Component.register('sw-cms-el-image-slider', {
             this.initElementConfig('image-slider');
 
             if (this.element.data && this.element.data.sliderItems && this.element.data.sliderItems.length > 0) {
-                this.imgSrc = this.element.data.sliderItems[0].media.url;
+                this.imgSrc = this.sliderItems[0].media.url;
+                this.$emit('active-image-change', this.sliderItems[this.sliderPos].media);
             }
         },
 
-        setSliderItem(url) {
-            this.imgSrc = url;
+        setSliderItem(mediaItem, index) {
+            this.imgSrc = mediaItem.url;
+            this.$emit('active-image-change', mediaItem, index);
         },
 
         activeButtonClass(url) {
@@ -114,6 +132,10 @@ Component.register('sw-cms-el-image-slider', {
         },
 
         setSliderArrowItem(direction = 1) {
+            if (this.sliderItems.length < 2) {
+                return;
+            }
+
             this.sliderPos += direction;
 
             if (this.sliderPos < 0) {
@@ -125,6 +147,7 @@ Component.register('sw-cms-el-image-slider', {
             }
 
             this.imgSrc = this.sliderItems[this.sliderPos].media.url;
+            this.$emit('active-image-change', this.sliderItems[this.sliderPos].media, this.sliderPos);
         }
     }
 });

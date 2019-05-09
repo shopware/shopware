@@ -8,10 +8,8 @@
         gap: 0 32px;
     }
 
-    .sw-field {
-        &.sw-field--switch {
-            margin: 8px 0;
-        }
+    .sw-cms-el-config-image-slider__setting-display-mode {
+        grid-column: 1 / -1;
     }
 
     .sw-cms-el-config-image-slider__settings-links {

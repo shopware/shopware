@@ -4,11 +4,12 @@ import './config';
 import './preview';
 
 Application.getContainer('service').cmsService.registerCmsElement({
-    name: 'image-slider',
-    label: 'Image Slider',
-    component: 'sw-cms-el-image-slider',
-    configComponent: 'sw-cms-el-config-image-slider',
-    previewComponent: 'sw-cms-el-preview-image-slider',
+    name: 'image-gallery',
+    label: 'Image gallery',
+    component: 'sw-cms-el-image-gallery',
+    configComponent: 'sw-cms-el-config-image-gallery',
+    previewComponent: 'sw-cms-el-preview-image-gallery',
+
     defaultConfig: {
         sliderItems: {
             source: 'static',
@@ -16,11 +17,15 @@ Application.getContainer('service').cmsService.registerCmsElement({
         },
         navigationArrows: {
             source: 'static',
-            value: 'outside'
+            value: 'inside'
         },
         navigationDots: {
             source: 'static',
             value: null
+        },
+        galleryPosition: {
+            source: 'static',
+            value: 'besides'
         },
         displayMode: {
             source: 'static',
@@ -28,7 +33,7 @@ Application.getContainer('service').cmsService.registerCmsElement({
         },
         minHeight: {
             source: 'static',
-            value: '300px'
+            value: '340px'
         },
         verticalAlign: {
             source: 'static',

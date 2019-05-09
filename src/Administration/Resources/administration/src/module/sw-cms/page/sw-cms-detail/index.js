@@ -302,7 +302,7 @@ Component.register('sw-cms-detail', {
         onDeviceViewChange(view) {
             this.currentDeviceView = view;
 
-            this.context.currentCmsDeviceView = view;
+            this.cmsPageState.currentCmsDeviceView = view;
 
             if (view === 'form') {
                 this.currentBlock = null;

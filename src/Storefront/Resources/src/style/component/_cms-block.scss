@@ -29,8 +29,13 @@
 
 .cms-block-image-text-bubble,
 .cms-block-image-bubble-row {
-    .cms-image {
+    .cms-element-image .cms-image-container {
+        height: 300px;
+        width: 300px;
+        margin: auto;
         border-radius: 50%;
+        background-clip: padding-box;
+        overflow: hidden;
     }
 }
 
@@ -62,6 +67,12 @@
         padding: 30px;
         align-items: center;
         min-height: 240px;
+    }
+}
+
+.cms-block-image-text-cover {
+    .cms-element-text {
+        padding-top: 30px;
     }
 }
 

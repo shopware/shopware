@@ -44,13 +44,6 @@ class SalesChannelCmsPageRepositoryTest extends TestCase
         $this->salesChannelContext = $contextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
     }
 
-    public function testWithEmptyIds(): void
-    {
-        $pageCollection = $this->pageRepository->read([], $this->salesChannelContext);
-
-        static::assertCount(0, $pageCollection);
-    }
-
     public function testLoadPageWithAssociations(): void
     {
         $pageId = $this->createPage();

@@ -9,8 +9,8 @@
         {% block sw_settings_number_range_detail_language_switch %}
             <template slot="language-switch">
                 <sw-language-switch @on-change="onChangeLanguage"
-                    :saveChangesFunction="saveOnLanguageChange"
-                    :abortChangeFunction="abortOnLanguageChange">
+                                    :saveChangesFunction="saveOnLanguageChange"
+                                    :abortChangeFunction="abortOnLanguageChange">
                 </sw-language-switch>
             </template>
         {% endblock %}
@@ -23,17 +23,15 @@
                 {% endblock %}
 
                 {% block sw_settings_number_range_detail_actions_save %}
-                    <sw-button-process
-                            class="sw-settings-number-range-detail__save-action"
-                            :isLoading="isLoading"
-                            :processSuccess="isSaveSuccessful"
-                            :disabled="numberRange.isLoading"
-                            variant="primary"
-                            @process-finish="saveFinish"
-                            @click.prevent="onSave">
+                    <sw-button-process class="sw-settings-number-range-detail__save-action"
+                                       :isLoading="isLoading"
+                                       :processSuccess="isSaveSuccessful"
+                                       :disabled="numberRange.isLoading"
+                                       variant="primary"
+                                       @process-finish="saveFinish"
+                                       @click.prevent="onSave">
                         {{ $tc('sw-settings-number-range.detail.buttonSave') }}
-                     </sw-button>
-                </sw-button-process>
+                    </sw-button-process>
                 {% endblock %}
             </template>
         {% endblock %}
@@ -42,8 +40,7 @@
             <sw-card-view slot="content">
 
                 {% block sw_settings_number_range_detail_language_info %}
-                    <sw-language-info :entityDescription="identifier">
-                    </sw-language-info>
+                    <sw-language-info :entityDescription="identifier"></sw-language-info>
                 {% endblock %}
 
                 {% block sw_settings_number_range_detail_content_card %}
@@ -174,19 +171,19 @@
                             {% endblock %}
                             {% block sw_sales_channel_detail_base_general_input_sales_channel %}
                                 <sw-select :store="salesChannelStore"
-                                        multi
-                                        v-model="numberRangeSalesChannels"
-                                        :associationStore="numberRangeSalesChannelsStore"
-                                        id="numberRangeSalesChannel"
-                                        :criteria="salesChannelsTypeCriteria"
-                                        v-if="numberRange && (!numberRange.global || numberRange.global === false)"
-                                        :label="$tc('sw-settings-number-range.detail.labelSalesChannel')"
-                                        class="sw-number-range-detail__select-type"
-                                        :disabled="selectedType.id === undefined"
-                                        :showSearch="false"
-                                        ref="numberRangeSalesChannel"
-                                        required
-                                        validation="required">
+                                           multi
+                                           v-model="numberRangeSalesChannels"
+                                           :associationStore="numberRangeSalesChannelsStore"
+                                           id="numberRangeSalesChannel"
+                                           :criteria="salesChannelsTypeCriteria"
+                                           v-if="numberRange && (!numberRange.global || numberRange.global === false)"
+                                           :label="$tc('sw-settings-number-range.detail.labelSalesChannel')"
+                                           class="sw-number-range-detail__select-type"
+                                           :disabled="selectedType.id === undefined"
+                                           :showSearch="false"
+                                           ref="numberRangeSalesChannel"
+                                           required
+                                           validation="required">
                                 </sw-select>
                             {% endblock %}
                         </sw-container>

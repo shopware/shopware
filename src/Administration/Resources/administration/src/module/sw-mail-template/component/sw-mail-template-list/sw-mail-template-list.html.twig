@@ -16,7 +16,6 @@
                                         class="sw-mail-template-list__column-mail-type"
                                         :label="$tc('sw-mail-template.list.columnMailType')"
                                         dataIndex="mailTemplateType"
-                                        sortable
                                         truncate>
                             {% block sw_mail_template_list_grid_columns_mail_type_link %}
                                 <router-link v-if="item.mailTemplateType" :to="{ name: 'sw.mail.template.detail', params: { id: item.id } }">
@@ -44,8 +43,7 @@
                         <sw-grid-column flex="minmax(200px, 1fr)"
                                         class="sw-mail-template-list__column-date-sales-channels"
                                         :label="$tc('sw-mail-template.list.columnSalesChannels')"
-                                        dataIndex="salesChannels"
-                                        sortable>
+                                        dataIndex="salesChannels">
                             {% block sw_mail_template_list_columns_sales_channels %}
                                 {% block sw_mail_template_list_columns_sales_channels_label %}
                                     <span>

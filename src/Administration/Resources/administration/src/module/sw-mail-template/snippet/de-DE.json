@@ -2,8 +2,8 @@
   "sw-mail-template": {
     "general": {
       "mainMenuItemList": "Übersicht",
-      "mainMenuItemGeneral": "E-Mail Vorlagen",
-      "placeholderSearchBar": "Durchsuchen aller E-Mail Vorlagen",
+      "mainMenuItemGeneral": "E-Mail-Vorlagen",
+      "placeholderSearchBar": "Durchsuchen aller E-Mail-Vorlagen",
       "notificationTestMailErrorTitle": "Fehler",
       "notificationTestMailSalesChannelErrorMessage": "Bitte wähle einen Verkaufskanal aus.",
       "notificationTestMailErrorMessage": "Beim Versand der Test-Mail ist ein Fehler aufgetreten.",
@@ -11,10 +11,10 @@
       "notificationTestMailSuccessMessage": "Die Test-Mail wurde erfolgreich versendet."
     },
     "list": {
-      "textMailTemplateOverview": "E-Mail Vorlagen",
+      "textMailTemplateOverview": "E-Mail-Vorlagen",
       "titleMailTemplateList" : "Vorlagen",
       "titleMailFooterList" : "Fußzeilen",
-      "buttonAddMailTemplate": "E-Mail Vorlage hinzufügen",
+      "buttonAddMailTemplate": "E-Mail-Vorlage hinzufügen",
       "buttonAdd": "Erstellen",
       "columnMailType": "Typ",
       "columnDescription": "Beschreibung",
@@ -22,11 +22,11 @@
       "contextMenuDelete": "Löschen",
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDuplicate": "Duplizieren",
-      "textDeleteConfirm": "Möchtest Du die E-Mail Vorlage \"{subject}\" wirklich löschen?",
-      "modalTitleDelete": "E-Mail Vorlage löschen",
+      "textDeleteConfirm": "Möchtest Du die E-Mail-Vorlage \"{subject}\" wirklich löschen?",
+      "modalTitleDelete": "E-Mail-Vorlage löschen",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
-      "messageEmpty": "Noch keine E-Mail Vorlagen",
+      "messageEmpty": "Noch keine E-Mail-Vorlagen",
       "titleSidebarItemRefresh": "Aktualisieren",
       "errorMediaItemDuplicated": "Medium bereits verwendet"
     },
@@ -42,18 +42,18 @@
       },
       "options": {
         "titleCard": "Optionen",
-        "labelSenderMail": "Absender Mail",
-        "labelSenderName": "Absender Name",
+        "labelSenderMail": "Absender-Mail",
+        "labelSenderName": "Absender",
         "labelSubject": "Betreff",
         "placeholderSenderMail": "shop@example.com",
         "placeholderSenderName": "Beispiel-Shop",
         "placeholderSubject": "Betreff eingeben..."
       },
       "mailText": {
-        "titleCard": "Mail Text",
-        "labelContentPlain": "Plaintext",
+        "titleCard": "Mail-Text",
+        "labelContentPlain": "Text",
         "labelContentHtml": "HTML",
-        "placeholderPlain": "Definiere den Inhalt in Plaintext...",
+        "placeholderPlain": "Definiere den Inhalt in Text...",
         "placeholderHtml": "Definiere den Inhalt in HTML..."
       },
       "media": {
@@ -69,11 +69,11 @@
       },
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
-      "textHeadline": "Neue E-Mail Vorlage",
-      "textHeadlineEdit": "E-Mail Vorlage bearbeiten",
-      "titleResult": "E-Mail Vorlagen",
+      "textHeadline": "Neue E-Mail-Vorlage",
+      "textHeadlineEdit": "E-Mail-Vorlage bearbeiten",
+      "titleResult": "E-Mail-Vorlagen",
       "titleSaveSuccess": "Erfolg",
-      "messageSaveSuccess": "Die E-Mail Vorlage \"{subject}\" wurde erfolgreich gespeichert."
+      "messageSaveSuccess": "Die E-Mail-Vorlage \"{subject}\" wurde erfolgreich gespeichert."
     }
   },
   "sw-mail-header-footer": {
@@ -109,25 +109,25 @@
         "placeholderSalesChannels": "Wähle zutreffende Verkaufskanäle"
       },
       "header": {
-        "titleCard": "Mail Header",
-        "labelPlain": "Plaintext",
+        "titleCard": "Mail-Header",
+        "labelPlain": "Text",
         "labelHtml": "HTML",
-        "placeholderPlain": "Definiere den Header in Plaintext...",
+        "placeholderPlain": "Definiere den Header in Text...",
         "placeholderHtml": "Definiere den Header in HTML..."
       },
       "footer": {
         "titleCard": "Mail Footer",
-        "labelPlain": "Plaintext",
+        "labelPlain": "Text",
         "labelHtml": "HTML",
-        "placeholderPlain": "Definiere den Footer in Plaintext...",
+        "placeholderPlain": "Definiere den Footer in Text...",
         "placeholderHtml": "Definiere den Footer in HTML..."
       },
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
-      "textHeadline": "Neuer E-Mail Header/Footer",
-      "titleResult": "E-Mail Header/Footer",
+      "textHeadline": "Neuer E-Mail-Header/Footer",
+      "titleResult": "E-Mail-Header/Footer",
       "titleSaveSuccess": "Erfolgreich",
-      "messageSaveSuccess": "Der E-Mail Header/Footer \"{name}\" wurde erfolgreich gespeichert."
+      "messageSaveSuccess": "Der E-Mail-Header/Footer \"{name}\" wurde erfolgreich gespeichert."
     }
   }
 }

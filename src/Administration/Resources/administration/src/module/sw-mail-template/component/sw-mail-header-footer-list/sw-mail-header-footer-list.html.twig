@@ -16,7 +16,6 @@
                                         class="sw-mail-header-footer-list__column-name"
                                         :label="$tc('sw-mail-header-footer.list.columnName')"
                                         dataIndex="name"
-                                        sortable
                                         truncate>
                             {% block sw_mail_header_footer_list_grid_columns_name_link %}
                                 <router-link :to="{ name: 'sw.mail.template.detail_head_foot', params: { id: item.id } }">
@@ -44,8 +43,7 @@
                         <sw-grid-column flex="minmax(200px, 1fr)"
                                         class="sw-mail-header-footer-list__column-date-sales-channels"
                                         :label="$tc('sw-mail-header-footer.list.columnSalesChannels')"
-                                        dataIndex="salesChannels"
-                                        sortable>
+                                        dataIndex="salesChannels">
                             {% block sw_mail_header_footer_list_columns_sales_channels_label %}
                                 <span>
                                     <span v-for="(salesChannel, index) in item.salesChannels.slice(0, 4)" :key="`salechannel-list-item--${index}`">{{ (index > 0) ?`, ${salesChannel.translated.name}`:`${salesChannel.translated.name}`}}</span>

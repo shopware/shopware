@@ -52,7 +52,11 @@
                 {% endblock %}
 
                 {% block sw_category_detail_information_tags %}
-                    <sw-tag-field class="sw-category-detail-base__tags" :entity="category"></sw-tag-field>
+                    <sw-tag-field
+                        v-if="category && !isLoading"
+                        class="sw-category-detail-base__tags"
+                        :entity="category">
+                    </sw-tag-field>
                 {% endblock %}
 
                 {% block sw_category_detail_information_product_subcategories %}

@@ -20,8 +20,8 @@ $sw-condition-base-text-access-key: $color-gutenberg;
         width: 100%;
 
         .sw-icon {
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
         }
 
         .sw-label__dismiss .sw-icon {
@@ -93,8 +93,9 @@ $sw-condition-base-text-access-key: $color-gutenberg;
             }
 
             .sw-select__indicators {
-                top: 10px;
+                top: 50%;
                 right: 6px;
+                transform: translate(0, -50%);
             }
 
             .sw-select__indicator .sw-icon {

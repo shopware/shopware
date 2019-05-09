@@ -38,4 +38,12 @@ $sw-settings-document-list-font-size-default: $font-size-default;
             font-size: $sw-settings-document-list-font-size-default;
         }
     }
+
+    .sw-document-list__label-wrapper {
+        display: flex;
+
+        .sw-label {
+            margin: 0;
+        }
+    }
 }

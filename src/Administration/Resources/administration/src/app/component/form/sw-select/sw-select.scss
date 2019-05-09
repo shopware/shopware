@@ -47,12 +47,8 @@ $sw-select-transition-result-icon: all ease-in-out .15s;
         width: calc(100% - 30px);
     }
 
-    .sw-label--dismiss-able {
-        padding-right: 12px;
-
-        .sw-label__dismiss {
-            display: none;
-        }
+    .sw-label--dismiss-able .sw-label__dismiss {
+        display: none;
     }
 
     .sw-select__load-more-list-item-button {
@@ -316,13 +312,9 @@ $sw-select-transition-result-icon: all ease-in-out .15s;
             padding: 3px 3px 0 3px;
         }
 
-        .sw-label {
-            padding: 0px 12px 0px 12px;
-        }
-
         .sw-select__selection-item-holder {
-            padding-bottom: 3px;
-            padding-right: 3px;
+            padding-bottom: 4px;
+            padding-right: 4px;
         }
 
         .sw-select__load-more-list-item-button {

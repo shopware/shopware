@@ -81,18 +81,16 @@
                                                 <sw-grid-column flex="minmax(100px, 1fr)"
                                                                 :label="$tc('sw-settings-document.list.columnAssignment')">
                                                     {% block sw_settings_document_list_columns_assignment_label %}
-                                                        <div class="sw-list" v-if="item.global">
-                                                            <span class="sw-label">
-                                                            {{ $tc('sw-settings-document.list.global') }}
-                                                            </span>
+                                                        <div class="sw-list sw-document-list__label-wrapper" v-if="item.global">
+                                                            <sw-label>
+                                                                {{ $tc('sw-settings-document.list.global') }}
+                                                            </sw-label>
                                                         </div>
-                                                        <ul class="sw-list" v-if="!item.global">
+                                                        <ul class="sw-list sw-document-list__label-wrapper" v-if="!item.global">
                                                             <li v-for="salesChannel in item.salesChannels">
-                                                                <span class="sw-label"
-                                                                      v-if="salesChannel.salesChannel &&
-                                                                      salesChannel.salesChannel.translated">
+                                                                <sw-label v-if="salesChannel.salesChannel && salesChannel.salesChannel.translated">
                                                                     {{ salesChannel.salesChannel.translated.name }}
-                                                                </span>
+                                                                </sw-label>
                                                             </li>
                                                         </ul>
                                                     {% endblock %}

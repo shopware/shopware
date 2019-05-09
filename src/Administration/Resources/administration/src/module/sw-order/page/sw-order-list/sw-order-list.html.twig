@@ -87,7 +87,17 @@
 
                                     {% block sw_order_list_grid_columns_state %}
                                         <template slot="column-stateMachineState.name" slot-scope="{ item }">
-                                            <sw-label small>{{ item.stateMachineState.translated.name }}</sw-label>
+                                            <sw-label :variant="getVariantFromOrderState(item)">
+                                                {{ item.stateMachineState.translated.name }}
+                                            </sw-label>
+                                        </template>
+                                    {% endblock %}
+
+                                    {% block sw_order_list_grid_columns_transaction_state %}
+                                        <template slot="column-transactions[0].stateMachineState.name" slot-scope="{ item }">
+                                            <sw-label :variant="getVariantFromPaymentState(item)">
+                                                {{ item.transactions[0].stateMachineState.name }}
+                                            </sw-label>
                                         </template>
                                     {% endblock %}
 

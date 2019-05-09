@@ -1,6 +1,13 @@
 @mixin sw-label-variant($color-background, $color-text, $color-border) {
+    border-radius: 16px;
     background-color: $color-background;
+    border-color: transparent;
+    line-height: 22px;
     color: $color-text;
+
+    &.sw-label--small::before {
+        background: $color-border;
+    }
 
     .sw-label__dismiss {
         color: $color-text;

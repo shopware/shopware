@@ -47,12 +47,8 @@ $sw-tag-multi-select-transition-result-icon: all ease-in-out .15s;
         width: calc(100% - 30px);
     }
 
-    .sw-label--dismiss-able {
-        padding-right: 12px;
-
-        .sw-label__dismiss {
-            display: none;
-        }
+    .sw-label--dismiss-able .sw-label__dismiss {
+        display: none;
     }
 
     .sw-tag-multi-select__load-more-list-item-button {

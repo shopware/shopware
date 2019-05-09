@@ -1,18 +1,40 @@
 .cms-element-image {
-    &.display-cover {
-        .cms-image {
-            object-fit: cover;
-            width: 100%;
+    position: relative;
+    height: 100%;
+
+    .cms-image {
+        display: block;
+        max-width: 100%;
+    }
+
+    .cms-image-container {
+        display: grid;
+        max-width: 100%;
+
+        &.is-cover {
+            height: 100%;
+
+            .cms-image {
+                object-fit: cover;
+                height: 100%;
+            }
+        }
+
+        &.is-cover,
+        &.is-stretch {
+            .cms-image {
+                width: 100%;
+            }
         }
     }
     
-    .image-link {
+    .cms-image-link {
         display: block;
     }
 }
 
 .cms-element-product-listing {
-    .listing-col {
+    .cms-listing-col {
         margin-bottom: $spacer-lg;
     }
 }

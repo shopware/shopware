@@ -1,17 +1,21 @@
 {% block element_image %}
-    <div class="cms-element-{{ element.type }} display-{{ element.config.displayMode.value }}">
+    <div class="cms-element-{{ element.type }}">
         {% block element_image_inner %}
             {% set imageElement %}
-                {% block page_content_element_image_media %}
-                    <img class="img-fluid cms-image"
-                         src="{{ asset(element.data.media.url) }}"
-                         alt="{{ element.data.media.alt }}">
+                {% block element_image_container %}
+                    <div class="cms-image-container is-{{ element.config.displayMode.value }}"{% if element.config.minHeight.value %} style="min-height: {{ element.config.minHeight.value }};"{% endif %}>
+                        {% block element_image_media %}
+                            <img class="cms-image"
+                                 src="{{ asset(element.data.media.url) }}"
+                                 alt="{{ element.data.media.alt }}">
+                        {% endblock %}
+                    </div>
                 {% endblock %}
             {% endset %}
 
             {% if element.config.url.value %}
                 <a href="{{ element.config.url.value }}"
-                   class="image-link"
+                   class="cms-image-link"
                    {% if element.config.newTab.value %}target="_blank"{% endif %}>
                     {{ imageElement }}
                 </a>

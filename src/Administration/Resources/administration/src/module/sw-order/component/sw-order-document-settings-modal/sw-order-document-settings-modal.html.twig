@@ -6,15 +6,15 @@
             <sw-container columns="1fr 1fr" gap="0px 10px">
                 {% block sw_order_document_settings_modal_form_document_number %}
                     <sw-field type="text"
-                        :label="$tc('sw-order.documentModal.labelDocumentNumber')"
-                        v-model="documentConfig.documentNumber"
-                        disabled>
+                              :label="$tc('sw-order.documentModal.labelDocumentNumber')"
+                              v-model="documentConfig.documentNumber"
+                              disabled>
                     </sw-field>
                 {% endblock %}
                 {% block sw_order_document_settings_modal_form_document_date %}
                     <sw-datepicker dateType="date"
-                        :label="$tc('sw-order.documentModal.labelDocumentDate')"
-                        v-model="documentConfig.documentDate">
+                                   :label="$tc('sw-order.documentModal.labelDocumentDate')"
+                                   v-model="documentConfig.documentDate">
                     </sw-datepicker>
                 {% endblock %}
             </sw-container>
@@ -24,7 +24,7 @@
 
         {% block sw_order_document_settings_modal_form_document_comment %}
             <sw-text-field :label="$tc('sw-order.documentModal.labelDocumentComment')"
-                v-model="documentConfig.documentComment">
+                           v-model="documentConfig.documentComment">
             </sw-text-field>
         {% endblock %}
 
@@ -46,9 +46,9 @@
                     <sw-button-group splitButton>
                         {% block sw_order_document_settings_modal_form_document_footer_split_button_create %}
                             <sw-button variant="primary"
-                                size="small"
-                                @click="onCreateDocument"
-                                :disabled="!documentPreconditionsFulfilled">
+                                       size="small"
+                                       @click="onCreateDocument"
+                                       :disabled="!documentPreconditionsFulfilled">
                                 {{ $tc('sw-order.documentModal.labelCreate') }}
                             </sw-button>
                         {% endblock %}

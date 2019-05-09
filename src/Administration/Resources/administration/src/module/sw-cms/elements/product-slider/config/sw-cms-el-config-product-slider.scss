@@ -1,0 +1,18 @@
+@import "~scss/variables";
+
+
+.sw-cms-el-config-product-slider {
+    .sw-cms-el-config-product-slider__tabs {
+        .sw-cms-el-config-product-slider__tab-content {
+            .sw-cms-el-config-product-slider__products {
+                margin-bottom: 22px;
+            }
+        }
+
+        .sw-cms-el-config-product-slider__tab-settings {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 305px));
+            gap: 0 30px;
+        }
+    }
+}

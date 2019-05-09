@@ -27,6 +27,15 @@ Component.extend('sw-product-create', 'sw-product-detail', {
         }
     },
 
+    watch: {
+        'taxes'() {
+            if (!this.taxes || this.taxes.length <= 0) {
+                return;
+            }
+            this.product.taxId = this.taxes[0].id;
+        }
+    },
+
     methods: {
         createdComponent() {
             if (this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId) {

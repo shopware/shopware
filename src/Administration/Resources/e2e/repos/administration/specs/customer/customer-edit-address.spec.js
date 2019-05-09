@@ -42,7 +42,7 @@ module.exports = {
 
         browser
             .click('.sw-customer-detail__tab-addresses')
-            .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains('Eroni');
+            .expect.element(`${page.elements.dataGridRow}--0`).to.have.text.that.contains('Eroni');
     },
     'ensure that a default shipping and billing address is given and cannot be deleted': (browser) => {
         const page = customerPage(browser);
@@ -72,10 +72,10 @@ module.exports = {
 
         browser
             .waitForElementVisible('.icon--default-shopping-cart')
-            .click(`${page.elements.gridRow}--1 #defaultShippingAddress-0`)
-            .click(`${page.elements.gridRow}--0 #defaultBillingAddress-0`)
-            .expect.element(`${page.elements.gridRow}--1 #defaultShippingAddress-0`).to.be.selected;
-        browser.expect.element(`${page.elements.gridRow}--0 #defaultBillingAddress-0`).to.be.selected;
+            .click(`${page.elements.dataGridRow}--1 #defaultShippingAddress-0`)
+            .click(`${page.elements.dataGridRow}--0 #defaultBillingAddress-0`)
+            .expect.element(`${page.elements.dataGridRow}--1 #defaultShippingAddress-0`).to.be.selected;
+        browser.expect.element(`${page.elements.dataGridRow}--0 #defaultBillingAddress-0`).to.be.selected;
     },
     'save customer': (browser) => {
         browser
@@ -91,25 +91,25 @@ module.exports = {
             .waitForElementVisible('.sw-customer-detail__save-action');
 
         browser
-            .waitForElementVisible('.sw-grid__header')
-            .click('.sw-grid__header .sw-grid-column:nth-of-type(4)')
+            .waitForElementVisible(`${page.elements.dataGridHeader}`)
+            .click(`${page.elements.dataGridHeader} ${page.elements.dataGridColumn}:nth-of-type(4)`)
             .waitForElementNotPresent(page.elements.loader)
-            .click(`${page.elements.gridRow}--1 #defaultShippingAddress-0`)
-            .click(`${page.elements.gridRow}--1 #defaultBillingAddress-0`)
-            .expect.element(`${page.elements.gridRow}--0 #defaultShippingAddress-0`).to.be.not.selected;
-        browser.expect.element(`${page.elements.gridRow}--0 #defaultBillingAddress-0`).to.be.not.selected;
+            .click(`${page.elements.dataGridRow}--1 #defaultShippingAddress-0`)
+            .click(`${page.elements.dataGridRow}--1 #defaultBillingAddress-0`)
+            .expect.element(`${page.elements.dataGridRow}--0 #defaultShippingAddress-0`).to.be.not.selected;
+        browser.expect.element(`${page.elements.dataGridRow}--0 #defaultBillingAddress-0`).to.be.not.selected;
 
         browser
             .clickContextMenuItem(page.elements.contextMenuButton, {
                 menuActionSelector: `${page.elements.contextMenu}-item--danger`,
-                scope: `${page.elements.gridRow}--0`
+                scope: `${page.elements.dataGridRow}--0`
             }).expect.element('.sw-customer-detail-addresses__confirm-delete-text').to.have.text.that.equals('Are you sure you want to delete this address?');
 
         browser
             .assert.containsText('.sw-address__full-name', 'Mr. Harry Potter')
             .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)
             .waitForElementNotPresent(page.elements.modal)
-            .waitForElementNotPresent(`${page.elements.gridRow}--1`);
+            .waitForElementNotPresent(`${page.elements.dataGridRow}--1`);
 
         browser
             .click('.sw-customer-detail__save-action')

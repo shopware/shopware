@@ -1,10 +1,15 @@
-import { Component, State } from 'src/core/shopware';
+import { Component } from 'src/core/shopware';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-customer-base-form.html.twig';
 
 Component.register('sw-customer-base-form', {
     template,
 
-    inject: ['swCustomerCreateOnChangeSalesChannel'],
+    inject: [
+        'repositoryFactory',
+        'context',
+        'swCustomerCreateOnChangeSalesChannel'
+    ],
 
     props: {
         customer: {
@@ -41,8 +46,8 @@ Component.register('sw-customer-base-form', {
     },
 
     computed: {
-        salutationStore() {
-            return State.getStore('salutation');
+        salutationRepository() {
+            return this.repositoryFactory.create('salutation');
         }
     },
 
@@ -52,7 +57,8 @@ Component.register('sw-customer-base-form', {
 
     methods: {
         createdComponent() {
-            this.salutationStore.getList({ page: 1, limit: 500 }).then(({ items }) => {
+            const criteria = new Criteria(1, 500);
+            this.salutationRepository.search(criteria, this.context).then(({ items }) => {
                 this.salutations = items;
             });
         }

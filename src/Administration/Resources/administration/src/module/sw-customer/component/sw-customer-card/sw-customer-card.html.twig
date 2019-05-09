@@ -101,10 +101,10 @@
                                         {% endblock %}
 
                                         {% block sw_customer_card_metadata_customer_tag %}
-                                            <sw-tag-field :entity="customer"
-                                                          :disabled="!editMode"
-                                                          :showLabel="editMode ? true : false">
-                                            </sw-tag-field>
+                                            <sw-tag-multi-select :entity="customer"
+                                                                 :disabled="!editMode"
+                                                                 :showLabel="editMode ? true : false">
+                                            </sw-tag-multi-select >
                                         {% endblock %}
 
                                         {% block sw_customer_card_metadata_additional %}

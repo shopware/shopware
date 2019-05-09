@@ -1,10 +1,15 @@
-import { Component, State } from 'src/core/shopware';
-import CriteriaFactory from 'src/core/factory/criteria.factory';
+import { Component } from 'src/core/shopware';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-customer-base-info.html.twig';
 import './sw-customer-base-info.scss';
 
 Component.register('sw-customer-base-info', {
     template,
+
+    inject: [
+        'repositoryFactory',
+        'context'
+    ],
 
     props: {
         customer: {
@@ -59,8 +64,8 @@ Component.register('sw-customer-base-info', {
     },
 
     computed: {
-        orderStore() {
-            return State.getStore('order');
+        orderRepository() {
+            return this.repositoryFactory.create('order');
         }
     },
 
@@ -70,13 +75,10 @@ Component.register('sw-customer-base-info', {
 
     methods: {
         createdComponent() {
-            const aggregations = {
-                orderAmount: { name: 'orderAmount', type: 'sum', field: 'amountTotal' }
-            };
-
-            const criteria = CriteriaFactory.equals('order.orderCustomer.customerId', this.$route.params.id);
-
-            this.orderStore.getList({ page: 1, limit: 1, aggregations, criteria }).then((response) => {
+            const criteria = new Criteria(1, 1);
+            criteria.addAggregation(Criteria.sum('orderAmount', 'amountTotal'));
+            criteria.addFilter(Criteria.equals('order.orderCustomer.customerId', this.$route.params.id));
+            this.orderRepository.search(criteria, this.context).then((response) => {
                 this.orderCount = response.total;
                 this.orderAmount = response.aggregations.orderAmount[0].sum;
             });

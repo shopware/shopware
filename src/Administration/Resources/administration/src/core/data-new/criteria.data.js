@@ -65,7 +65,7 @@ export default class Criteria {
     }
 
     /**
-     * Allows to provide a list of ids which are used as filter
+     * Allows to provide a list of ids which are used as a filter
      * @param {Array} ids
      */
     setIds(ids) {
@@ -148,8 +148,8 @@ export default class Criteria {
     }
 
     /**
-     * Creates a object for  \Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery.
-     * This queries are used to search for documents and score them with a ranking
+     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery.
+     * These queries are used to search for documents and score them with a ranking
      *
      * @param {Object} filter - a filter object like equals, contains, ...
      * @param {int} score - defines a score if the filter field match
@@ -215,7 +215,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates a object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AvgAggregation
+     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AvgAggregation
      * Allows to calculate the avg value for the provided field
      *
      * @param {String} name
@@ -227,7 +227,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates a object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueAggregation
+     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueAggregation
      * Allows to fetch all unique values for the provided field
      *
      * @param {String} name
@@ -239,7 +239,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates a object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\CountAggregation
+     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\CountAggregation
      * Allows to calculate the count value for the provided field
      *
      * @param {String} name
@@ -251,7 +251,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates a object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MaxAggregation
+     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MaxAggregation
      * Allows to calculate the max value for the provided field
      *
      * @param {String} name
@@ -263,7 +263,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates a object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MinAggregation
+     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MinAggregation
      * Allows to calculate the min value for the provided field
      *
      * @param {String} name
@@ -275,7 +275,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates a object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggregation
+     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggregation
      * Allows to calculate the sum, max, min, avg, count values for the provided field
      *
      * @param {String} name
@@ -287,7 +287,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates a object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\SumAggregation
+     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\SumAggregation
      * Allows to calculate the sum value for the provided field
      *
      * @param {String} name
@@ -299,7 +299,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates a object for
+     * Creates an object for
      * \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueCountAggregation.
      *
      * Allows to calculate the unique value and the counts for the selected entities.
@@ -313,7 +313,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates a object for  \Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting.
+     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting.
      * Allows to sort the documents by the provided field
      *
      * @param {string} field
@@ -327,7 +327,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates a object for  \Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting.
+     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting.
      * Allows to sort the documents by the provided field naturally
      *
      * @param {string} field
@@ -340,7 +340,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates a object for  \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter.
+     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter.
      * This allows to filter documents where the value are contained in the provided field.
      *
      * Sql representation: `{field} LIKE %{value}%`
@@ -355,7 +355,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates a object for  \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter.
+     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter.
      * This allows to filter documents where the field matches one of the provided values
      *
      * Sql representation: `{field} IN ({value}, {value})`
@@ -369,7 +369,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates a object for  \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter.
+     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter.
      * This allows to filter documents where the field matches a defined range
      *
      * Sql representation: `{field} >= {value}`, `{field} <= {value}`, ...
@@ -384,7 +384,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates a object for  \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter.
+     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter.
      * This allows to filter documents where the field matches a defined range
      *
      * Sql representation: `{field} = {value}`
@@ -399,7 +399,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates a object for  \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter.
+     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter.
      * This allows to filter documents which not matches for the provided filters
      * All above listed queries can be provided (equals, equalsAny, range, contains)
      *
@@ -415,7 +415,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates a object for  \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter.
+     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter.
      * This allows to filter documents which matches for the provided filters
      * All above listed queries can be provided (equals, equalsAny, range, contains)
      *

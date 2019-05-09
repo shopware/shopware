@@ -6,6 +6,7 @@ Component.extend('sw-customer-create', 'sw-customer-detail', {
     template,
 
     inject: ['numberRangeService'],
+
     beforeRouteEnter(to, from, next) {
         if (to.name.includes('sw.customer.create') && !to.params.id) {
             to.params.id = utils.createId();
@@ -29,12 +30,15 @@ Component.extend('sw-customer-create', 'sw-customer-detail', {
 
     methods: {
         createdComponent() {
-            this.customer = this.customerStore.create(this.$route.params.id);
-            const customerAddressesStore = this.customer.getAssociation('addresses');
+            this.customer = this.customerRepository.create(this.context, this.$route.params.id);
+            const addressRepository = this.repositoryFactory.create(
+                this.customer.addresses.entity,
+                this.customer.addresses.source
+            );
 
-            const defaultAddress = customerAddressesStore.create();
-            defaultAddress.customerId = this.customer.id;
+            const defaultAddress = addressRepository.create(this.context);
 
+            this.customer.addresses.add(defaultAddress);
             this.customer.defaultBillingAddressId = defaultAddress.id;
             this.customer.defaultShippingAddressId = defaultAddress.id;
 
@@ -43,6 +47,7 @@ Component.extend('sw-customer-create', 'sw-customer-detail', {
 
             this.$super.createdComponent();
 
+            this.isLoading = false;
             this.customerEditMode = true;
         },
 

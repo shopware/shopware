@@ -52,6 +52,16 @@ export default {
             type: Boolean,
             default: false,
             required: false
+        },
+        isLoading: {
+            type: Boolean,
+            default: false,
+            require: false
+        },
+        isSaveSuccessful: {
+            type: Boolean,
+            default: false,
+            require: false
         }
     },
 

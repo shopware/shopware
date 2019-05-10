@@ -5,7 +5,6 @@ namespace Shopware\Storefront\Pagelet\Account\AddressList;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Symfony\Component\HttpFoundation\Request;
 
 class AccountAddressListPageletLoadedEvent extends NestedEvent
@@ -13,7 +12,7 @@ class AccountAddressListPageletLoadedEvent extends NestedEvent
     public const NAME = 'account-address-list.pagelet.loaded';
 
     /**
-     * @var StorefrontSearchResult
+     * @var array
      */
     protected $pagelet;
 
@@ -28,7 +27,7 @@ class AccountAddressListPageletLoadedEvent extends NestedEvent
     protected $request;
 
     public function __construct(
-        StorefrontSearchResult $pagelet,
+        array $pagelet,
         SalesChannelContext $context,
         Request $request
     ) {
@@ -52,7 +51,7 @@ class AccountAddressListPageletLoadedEvent extends NestedEvent
         return $this->context;
     }
 
-    public function getPagelet(): StorefrontSearchResult
+    public function getPagelet(): array
     {
         return $this->pagelet;
     }

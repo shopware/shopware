@@ -31,7 +31,7 @@ class AccountAddressListPageletLoader implements PageLoaderInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function load(Request $request, SalesChannelContext $context): StorefrontSearchResult
+    public function load(Request $request, SalesChannelContext $context): array
     {
         $customer = $context->getCustomer();
         if ($customer === null) {
@@ -42,8 +42,12 @@ class AccountAddressListPageletLoader implements PageLoaderInterface
 
         /** @var CustomerAddressCollection $addresses */
         $addresses = $this->customerAddressRepository->search($criteria, $context->getContext());
+        $addresses = StorefrontSearchResult::createFrom($addresses);
 
-        $pagelet = StorefrontSearchResult::createFrom($addresses);
+        $pagelet = [
+            'customer' => $context->getCustomer(),
+            'addresses' => $addresses,
+        ];
 
         $this->eventDispatcher->dispatch(
             AccountAddressListPageletLoadedEvent::NAME,

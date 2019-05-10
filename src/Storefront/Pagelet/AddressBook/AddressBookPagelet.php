@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Pagelet\AddressBook;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Salutation\SalutationCollection;
@@ -22,12 +23,16 @@ class AddressBookPagelet extends Struct
     /** @var CountryCollection */
     private $countries;
 
-    public function __construct(SalutationCollection $salutations, CountryCollection $countries)
+    /** @var CustomerEntity */
+    private $customer;
+
+    public function __construct(SalutationCollection $salutations, CountryCollection $countries, CustomerEntity $customer)
     {
         $this->address = null;
         $this->addresses = null;
         $this->salutations = $salutations;
         $this->countries = $countries;
+        $this->customer = $customer;
     }
 
     public function setAddresses(StorefrontSearchResult $addresses)
@@ -58,5 +63,15 @@ class AddressBookPagelet extends Struct
     public function getAddress(): ?CustomerAddressEntity
     {
         return $this->address;
+    }
+
+    public function getCustomer(): CustomerEntity
+    {
+        return $this->customer;
+    }
+
+    public function setCustomer(CustomerEntity $customer): void
+    {
+        $this->customer = $customer;
     }
 }

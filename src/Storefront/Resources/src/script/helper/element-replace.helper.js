@@ -15,7 +15,7 @@ class ElementReplaceHelperSingleton {
      *
      * @private
      */
-    replaceFromMarkup(markup, selectors) {
+    replaceFromMarkup(markup, selectors, strict = true) {
         let src = markup;
         if (typeof src === 'string') {
             src = this._createMarkupFromString(src);
@@ -25,7 +25,7 @@ class ElementReplaceHelperSingleton {
             selectors = [selectors];
         }
 
-        this._replaceSelectors(src, selectors);
+        this._replaceSelectors(src, selectors, strict);
     }
 
     /**
@@ -33,16 +33,17 @@ class ElementReplaceHelperSingleton {
      *
      * @param {NodeList|HTMLElement|string} src
      * @param {NodeList|HTMLElement|string} target
+     * @param {boolean} strict
      *
      * @returns {boolean}
      */
-    replaceElement(src, target) {
+    replaceElement(src, target, strict = true) {
         if (typeof src === 'string') {
-            src = DomAccess.querySelectorAll(document, src);
+            src = DomAccess.querySelectorAll(document, src, strict);
         }
 
         if (typeof target === 'string') {
-            target = DomAccess.querySelectorAll(document, target);
+            target = DomAccess.querySelectorAll(document, target, strict);
         }
 
         if (src instanceof NodeList) {
@@ -59,6 +60,10 @@ class ElementReplaceHelperSingleton {
             return true;
         }
 
+        if (!target || !src || !src.innerHTML) {
+            return false;
+        }
+
         target.innerHTML = src.innerHTML;
         return true;
     }
@@ -69,14 +74,16 @@ class ElementReplaceHelperSingleton {
      *
      * @param {HTMLElement} src
      * @param {Array} selectors
+     * @param {boolean} strict
+     *
      * @private
      */
-    _replaceSelectors(src, selectors) {
+    _replaceSelectors(src, selectors, strict) {
         Iterator.iterate(selectors, (selector) => {
-            const srcElements = DomAccess.querySelectorAll(src, selector);
-            const targetElements = DomAccess.querySelectorAll(document, selector);
+            const srcElements = DomAccess.querySelectorAll(src, selector, strict);
+            const targetElements = DomAccess.querySelectorAll(document, selector, strict);
 
-            this.replaceElement(srcElements, targetElements);
+            this.replaceElement(srcElements, targetElements, strict);
         });
     }
 
@@ -86,6 +93,7 @@ class ElementReplaceHelperSingleton {
      * @param {string} string
      *
      * @returns {HTMLElement}
+     *
      * @private
      */
     _createMarkupFromString(string) {
@@ -106,10 +114,11 @@ export default class ElementReplaceHelper {
      *
      * @param {string|HTMLElement} markup
      * @param {array|string} selectors
+     * @param {boolean} strict
      *
      */
-    static replaceFromMarkup(markup, selectors) {
-        ElementReplaceHelperInstance.replaceFromMarkup(markup, selectors);
+    static replaceFromMarkup(markup, selectors, strict = true) {
+        ElementReplaceHelperInstance.replaceFromMarkup(markup, selectors, strict);
     }
 
     /**
@@ -117,10 +126,11 @@ export default class ElementReplaceHelper {
      *
      * @param {NodeList|HTMLElement|string} src
      * @param {NodeList|HTMLElement|string} target
+     * @param {boolean} strict
      *
      * @returns {boolean}
      */
-    static replaceElement(src, target) {
-        return ElementReplaceHelperInstance.replaceElement(src, target);
+    static replaceElement(src, target, strict = true) {
+        return ElementReplaceHelperInstance.replaceElement(src, target, strict);
     }
 }

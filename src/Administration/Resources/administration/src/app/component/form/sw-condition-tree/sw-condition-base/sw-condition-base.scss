@@ -54,7 +54,7 @@ $sw-condition-base-color-disabled: $color-light-gray;
 
     .sw-select {
         @extend .sw-condition-base__base-field;
-        width: 144px;
+        width: 170px;
         border-top: 1px solid $sw-condition-base-color-border;
         border-bottom: 1px solid $sw-condition-base-color-border;
         padding-left: 0;

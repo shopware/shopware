@@ -42,6 +42,7 @@ class CmsSlotTranslationEntity extends TranslationEntity
     public function setConfig(array $config): void
     {
         $this->config = $config;
+        $this->fieldConfig = null;
     }
 
     public function getCmsSlotId(): string

@@ -95,6 +95,7 @@ class SalesChannelCmsPageLoader
             );
 
             $slot->setConfig($merged);
+            $slot->addTranslated('config', $merged);
         }
     }
 }

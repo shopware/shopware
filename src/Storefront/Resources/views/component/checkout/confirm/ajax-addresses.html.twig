@@ -9,7 +9,7 @@
                 <div class="flash-bags">
                     {% for type, messages in app.flashes %}
                         {% block page_checkout_confirm_address_ajax_flash_bag_include %}
-                            {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with { type: type, list: messages } %}
+                            {% sw_include '@Storefront/utilities/alert.html.twig' with { type: type, list: messages } %}
                         {% endblock %}
                     {% endfor %}
                 </div>

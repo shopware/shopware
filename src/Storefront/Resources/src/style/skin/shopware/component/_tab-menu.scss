@@ -22,9 +22,10 @@ https://getbootstrap.com/docs/4.3/components/card/#navigation
     .nav-link {
         border: 0;
         border-bottom: 2px solid $border-color;
-        border-radius: 0 !important;
+        border-radius: 0;
         color: $gray-600;
         padding-left: 0;
+        padding-right: 0;
         padding-bottom: 5px;
 
         &:hover {

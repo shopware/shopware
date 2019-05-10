@@ -10,6 +10,12 @@
     font-weight: $font-weight-bold;
 }
 
+.product-detail-properties-table {
+    th, td {
+        border: 0;
+    }
+}
+
 @include media-breakpoint-down(xs) {
     .product-detail-tabs {
         .card-tabs .nav-link,

@@ -5,10 +5,10 @@
         {% set level = 0 %}
     {% endif %}
 
-    <ul class="list-unstyled category-list level-{{ level }}">
+    <div class="{% if level == 0 %}row {% endif %}category-list level-{{ level }}">
         {% for treeItem in navigationTree %}
             {% block layout_navigation_categories_item %}
-                <li>
+                <div class="{% if level == 0 %}{% if navigationMedia %}col-4 {% else %}col-3 {% endif %}{% endif %}category-col">
                     {% block layout_navigation_categories_item_link %}
                         {% if treeItem.category.type == 'folder' %}
                             <div class="nav-item nav-link navigation-flyout-link level-{{ level }}"
@@ -33,8 +33,8 @@
                             } only %}
                         {% endif %}
                     {% endblock %}
-                </li>
+                </div>
             {% endblock %}
         {% endfor %}
-    </ul>
+    </div>
 {% endblock %}

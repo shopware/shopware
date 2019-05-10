@@ -209,6 +209,10 @@
         min-width: 88px;
         max-width: 88px;
 
+        .sw-field--checkbox {
+            margin-bottom: 0;
+        }
+
         .sw-data-grid__cell-content {
             justify-content: center;
         }

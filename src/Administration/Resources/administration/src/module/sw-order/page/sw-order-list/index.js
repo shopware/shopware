@@ -125,7 +125,6 @@ Component.register('sw-order-list', {
                 allowResize: true
             }, {
                 property: 'transactions[0].stateMachineState.name',
-                dataIndex: 'transactions[0].stateMachineState.name',
                 label: this.$tc('sw-order.list.columnTransactionState'),
                 allowResize: true
             }, {

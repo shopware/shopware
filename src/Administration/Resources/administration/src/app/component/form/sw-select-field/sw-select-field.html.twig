@@ -1,4 +1,4 @@
-<sw-block-field class="sw-field--select" :class="swFieldSelectClasses" v-bind="$attrs" :name="formFieldName">
+<sw-block-field class="sw-field--select" :class="swFieldSelectClasses" v-bind="$attrs" :name="formFieldName" :error="actualError">
     <template #sw-field-input="{ identification, helpText, error, disabled, swBlockSize, setFocusClass, removeFocusClass }">
         <select :name="identification"
                 :id="identification"

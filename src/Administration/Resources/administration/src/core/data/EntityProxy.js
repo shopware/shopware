@@ -1,5 +1,5 @@
 import { Application, Entity, State } from 'src/core/shopware';
-import utils from 'src/core/service/util.service';
+import utils, { string } from 'src/core/service/util.service';
 import { deepCopyObject, hasOwnProperty, getArrayChanges, getObjectDiff } from 'src/core/service/utils/object.utils';
 import { required } from 'src/core/service/validation.service';
 import type from 'src/core/service/utils/types.utils';
@@ -491,7 +491,7 @@ export default class EntityProxy {
         this.errors.push(error);
 
         const errorStore = State.getStore('error');
-        const { propertyPath, shopwareError } = ErrorStore.transformApiError(error, this.getEntityName());
+        const { propertyPath, shopwareError } = ErrorStore.transformApiError(error, string.camelCase(this.getEntityName()));
         errorStore.setErrorData(propertyPath, shopwareError, 'api');
     }
 

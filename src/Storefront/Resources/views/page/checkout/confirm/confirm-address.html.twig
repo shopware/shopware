@@ -1,52 +1,59 @@
-{% block page_checkout_confirm_address_wrapper %}
+{% block page_checkout_confirm_address_inner %}
     {% set billingAddress = page.context.customer.defaultBillingAddress %}
     {% set shippingAddress = page.context.customer.defaultShippingAddress %}
 
-    <div class="card confirm-card js-confirm-overview-addresses">
-        {% block page_checkout_confirm_address_inner %}
-            <div class="card-body confirm-card-body">
-                {% block page_checkout_confirm_address %}
-                    <div class="row">
-                        {% block page_checkout_confirm_address_billing %}
-                            <div class="col-lg-6">
-                                {% block page_checkout_confirm_address_billing_title %}
-                                    <div class="card-title">
-                                        {% if billingAddress.id is same as(shippingAddress.id) %}
-                                            {{ "checkout.addressEqualHeader"|trans }}
-                                        {% else %}
-                                            {{ "checkout.billingAddressHeader"|trans }}
-                                        {% endif %}
-                                    </div>
-                                {% endblock %}
+    {% block page_checkout_confirm_address %}
+        <div class="row js-confirm-overview-addresses">
+            {% block page_checkout_confirm_address_billing %}
+                <div
+                    class="confirm-billing-address {% if billingAddress.id is not same as(shippingAddress.id) %}col-sm-6{% else %}col-lg-12{% endif %}">
+                    <div class="card checkout-card">
+                        <div class="card-body">
+                            {% block page_checkout_confirm_address_billing_title %}
+                                <div class="card-title">
+                                    {% if billingAddress.id is same as(shippingAddress.id) %}
+                                        {{ "checkout.addressEqualHeader"|trans }}
+                                    {% else %}
+                                        {{ "checkout.billingAddressHeader"|trans }}
+                                    {% endif %}
+                                </div>
+                            {% endblock %}
 
-                                {% block page_checkout_confirm_address_billing_data %}
-                                    <div class="confirm-address-billing">
-                                        {% sw_include '@Storefront/component/address/address.html.twig' with {'address': billingAddress} %}
-                                    </div>
-                                {% endblock %}
+                            {% block page_checkout_confirm_address_billing_data %}
+                                <div class="confirm-address-billing">
+                                    {% sw_include '@Storefront/component/address/address.html.twig' with {
+                                        'address': billingAddress
+                                    } %}
+                                </div>
+                            {% endblock %}
 
-                                {% block  page_checkout_confirm_address_billing_actions %}
-                                    <div class="card-actions">
-                                        {% block  page_checkout_confirm_address_billing_actions_link %}
-                                            <a href="{{ path('frontend.account.address.edit.page', {'addressId': billingAddress.id}) }}"
-                                               title="{{ "account.overviewChangeBilling"|trans }}"
-                                               class="btn btn-light"
-                                               data-address-editor="true"
-                                               data-address-editor-options='{
+                            {% block  page_checkout_confirm_address_billing_actions %}
+                                <div class="card-actions">
+                                    {% block  page_checkout_confirm_address_billing_actions_link %}
+                                        <a href="{{ path('frontend.account.address.edit.page', {'addressId': billingAddress.id}) }}"
+                                           title="{{ "account.overviewChangeBilling"|trans }}"
+                                           class="btn btn-light"
+                                           data-address-editor="true"
+                                           data-address-editor-options='{
                                                     "redirectRoute": "widgets.checkout.ajax-addresses",
                                                     "replaceSelector": ".js-confirm-overview-addresses",
                                                     "changeBilling": true
                                                 }'>
-                                                {{ "account.overviewChangeBilling"|trans }}
-                                            </a>
-                                        {% endblock %}
-                                    </div>
-                                {% endblock %}
-                            </div>
-                        {% endblock %}
+                                            {{ "account.overviewChangeBilling"|trans }}
+                                        </a>
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+                        </div>
+                    </div>
+                </div>
+            {% endblock %}
 
-                        {% block page_checkout_confirm_address_shipping %}
-                            <div class="col-lg-6">
+            {% block page_checkout_confirm_address_shipping %}
+                {% if billingAddress.id is not same as(shippingAddress.id) %}
+                    <div class="confirm-shipping-address col-sm-6">
+                        <div class="card checkout-card">
+                            <div class="card-body">
                                 {% block page_checkout_confirm_address_shipping_title %}
                                     <div class="card-title">
                                         {{ "checkout.shippingAddressHeader"|trans }}
@@ -55,11 +62,9 @@
 
                                 {% block page_checkout_confirm_address_shipping_data %}
                                     <div class="confirm-address-shipping">
-                                        {% if billingAddress.id is same as(shippingAddress.id) %}
-                                            <p>{{ "account.overviewAddressEqual"|trans }}</p>
-                                        {% else %}
-                                            {% sw_include '@Storefront/component/address/address.html.twig' with {'address': shippingAddress} %}
-                                        {% endif %}
+                                        {% sw_include '@Storefront/component/address/address.html.twig' with {
+                                            'address': shippingAddress
+                                        } %}
                                     </div>
                                 {% endblock %}
 
@@ -81,10 +86,10 @@
                                     </div>
                                 {% endblock %}
                             </div>
-                        {% endblock %}
+                        </div>
                     </div>
-                {% endblock %}
-            </div>
-        {% endblock %}
-    </div>
+                {% endif %}
+            {% endblock %}
+        </div>
+    {% endblock %}
 {% endblock %}

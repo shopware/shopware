@@ -1,18 +1,23 @@
 // general
 .checkout {
     &.is-finish {
-        .checkout-main {
+        padding-top: 70px;
+
+        .checkout-container {
             @extend .row;
         }
 
-        .checkout-main-left {
-            @extend .offset-lg-3;
-            @extend .col-lg-6;
-
+        .checkout-main {
+            @extend .offset-lg-2;
+            @extend .col-lg-8;
         }
 
-        .checkout-main-right {
-            @extend .offset-lg-4;
+        .checkout-aside {
+            @extend .offset-sm-5;
+            @extend .col-sm-7;
+            @extend .offset-md-6;
+            @extend .col-md-6;
+            @extend .offset-lg-6;
             @extend .col-lg-4;
         }
     }
@@ -29,46 +34,24 @@
 }
 
 .finish-teaser {
-    margin-bottom: $spacer-lg;
+    margin-bottom: $spacer;
     text-align: center;
 }
 
 .finish-header {
     margin-bottom: $spacer-lg;
+    text-align: center;
 }
 
-.finish-actions {
-    margin-bottom: $spacer;
+.finish-ordernumber {
+    text-align: center;
+}
+
+.finish-action {
+    margin-bottom: $spacer-lg;
+    text-align: center;
 }
 
 .finish-back-button {
     margin-right: $spacer-sm;
-}
-
-.finish-info {
-    margin-bottom: $spacer-lg;
-}
-
-.finish-address {
-    margin-bottom: $spacer-lg;
-}
-
-// equal height checkout finish card
-.finish-card {
-    height: 100%;
-
-    .btn {
-        align-self: flex-start;
-    }
-}
-
-.finish-card-body {
-    display: flex;
-    flex-direction: column;
-}
-
-@include media-breakpoint-up(lg) {
-    .finish-address {
-        margin-bottom: 0;
-    }
 }

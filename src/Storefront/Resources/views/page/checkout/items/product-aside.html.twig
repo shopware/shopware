@@ -1,0 +1,41 @@
+{% block page_checkout_aside_item %}
+    <div class="row checkout-aside-item aside-item-{{ lineItem.type }}">
+        {% block page_checkout_aside_item_image %}
+            <div class="col-4 aside-item-image">
+                {% block page_checkout_aside_item_image_inner %}
+                    {% if lineItem.cover.url %}
+                        <img src="{{ lineItem.cover.url }}"
+                             class="img-fluid"
+                             alt="{{ lineItem.label }}"
+                             title="{{ lineItem.label }}">
+                    {% else %}
+                        {% sw_icon 'placeholder' style {
+                            'size': 'fluid'
+                        } %}
+                    {% endif %}
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block page_checkout_aside_item_data %}
+            <div class="col-8 aside-item-data">
+                {% block page_checkout_aside_item_title %}
+                    <div class="aside-item-title">
+                        {{ lineItem.label }}
+                    </div>
+                {% endblock %}
+                {% block page_checkout_aside_item_quantity %}
+                    <div class="aside-item-link-quantity">
+                        Quantity: {{ lineItem.quantity }}
+                    </div>
+                {% endblock %}
+
+                {% block page_checkout_aside_item_price %}
+                    <div class="aside-item-link-price">
+                        {{ lineItem.price.totalPrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

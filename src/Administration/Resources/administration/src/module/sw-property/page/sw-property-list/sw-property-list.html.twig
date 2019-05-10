@@ -82,7 +82,8 @@
                             {% block sw_property_list_grid_columns_actions %}
                                 <template slot="actions" slot-scope="{ item }">
                                     {% block sw_property_list_grid_columns_actions_detail %}
-                                        <sw-context-menu-item :routerLink="{ name: 'sw.property.detail', params: { id: item.id } }">
+                                        <sw-context-menu-item class="sw-property-list__edit-action"
+                                                              :routerLink="{ name: 'sw.property.detail', params: { id: item.id } }">
                                             {{ $tc('sw-property.list.contextMenuView') }}
                                         </sw-context-menu-item>
                                     {% endblock %}

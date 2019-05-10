@@ -18,7 +18,7 @@ module.exports = {
                 mainMenuId: 'sw-catalogue',
                 subMenuId: 'sw-property'
             })
-            .expect.element(`${page.elements.gridRow}--0 a`).to.have.text.that.equals('Color');
+            .expect.element(`${page.elements.dataGridRow}--0 a`).to.have.text.that.equals('Color');
     },
     'edit property group': (browser) => {
         const page = propertyPage(browser);
@@ -26,7 +26,7 @@ module.exports = {
         browser
             .clickContextMenuItem(page.elements.contextMenuButton, {
                 menuActionSelector: '.sw-context-menu-item',
-                scope: `${page.elements.gridRow}--0`
+                scope: `${page.elements.dataGridRow}--0`
             })
             .expect.element(page.elements.cardTitle).to.have.text.that.equals('Basic information');
 
@@ -41,6 +41,6 @@ module.exports = {
         browser
             .click(page.elements.smartBarBack)
             .refresh()
-            .expect.element(`${page.elements.gridRow}--0 a`).to.have.text.that.equals('Coleur');
+            .expect.element(`${page.elements.dataGridRow}--0 a`).to.have.text.that.equals('Coleur');
     }
 };

@@ -4,6 +4,7 @@ namespace Shopware\Docs\Command;
 
 use Shopware\Docs\Inspection\ArrayWriter;
 use Shopware\Docs\Inspection\ModuleInspector;
+use Shopware\Docs\Inspection\ModuleTag;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -20,36 +21,42 @@ All core modules encapsulate domain concepts and provide a varying number of ext
 
 ## Possible characteristics
 
- **Data store**
+<span class="tip is--primary">Data store</span>
   : These modules are related to database tables and are manageable through the API. Simple CRUD actions will be available.
   
-**Maintenance**
+<span class="tip is--primary">Maintenance</span>
   : Provide commands executable through CLI to trigger maintenance tasks.
   
-**Custom actions**
+<span class="tip is--primary">Custom actions</span>
   : These modules contain more then simple CRUD actions. They provide special actions and services that ease management and additionally check consistency.
   
-**SalesChannel-API**
+<span class="tip is--primary">SalesChannel-API</span>
  : These modules provide logic through a sales channel for the storefront.
  
-**Custom Extendable**
+<span class="tip is--primary">Custom Extendable</span>
  : These modules contain interfaces, process container tags or provide custom events as extension points.
   
-**Rule Provider**
+<span class="tip is--primary">Rule Provider</span>
   : Cross-system process to validate workflow decisions. 
   
-**Business Event Dispatcher**
+<span class="tip is--primary">Business Event Dispatcher</span>
   : Provide special events to handle business cases.
  
-**Extension**
+<span class="tip is--primary">Extension</span>
   : These modules contain extensions of - usually Framework - interfaces and classes to provide more specific functions for the Platform. 
+  
+<span class="tip is--primary">Custom Rules</span>
+  : Provides rules for the rule system used by the checkout.
+
+## Modules
 
 %s
 EOD;
 
     const TEMPLATE_MODULE = <<<EOD
-### [%s](https://github.com/shopware/platform/tree/master/src/Core/%s) 
-%s
+#### %s %s
+
+* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/%s)) 
 
 %s
 
@@ -87,21 +94,28 @@ EOD;
 
         $markdown = [];
 
+        $allTags = [[]];
         /** @var SplFileInfo $moduleDirectory */
         foreach ($finder as $moduleDirectory) {
             $tags = $this->moduleInspector->inspectModule($moduleDirectory);
             $modulePathName = $moduleDirectory->getRelativePathname();
+            [$bundleName, $moduleName] = explode('/', $modulePathName);
+
+            $tagNames = array_map(function (ModuleTag $tag) { return $tag->name(); }, $tags);
+            $renderedTags = array_map(function (string $tagName) { return sprintf('<span class="tip is--primary">%s</span>', $tagName); }, $tagNames);
 
             $descriptions->ensure($modulePathName);
+            $markdown[$bundleName] = sprintf('### %s Bundle' . PHP_EOL, $bundleName);
+
             $markdown[$modulePathName] = sprintf(
                 self::TEMPLATE_MODULE,
+                $moduleName,
+                implode(' ', $renderedTags),
                 $modulePathName,
-                $modulePathName,
-                implode(', ', $tags),
                 $descriptions->get($modulePathName)
             );
 
-            $io->write($modulePathName . ': ' . implode(', ', $tags) . PHP_EOL);
+            $io->write($modulePathName . ': ' . implode(', ', $tagNames) . PHP_EOL);
         }
 
         $descriptions->dump(true);
@@ -115,6 +129,7 @@ EOD;
         return (new Finder())
             ->directories()
             ->in(__DIR__ . '/../../Core')
+            ->sortByName()
             ->filter(function (SplFileInfo $fileInfo) {
                 return !in_array($fileInfo->getRelativePathname(), [
                     'Profiling/DependencyInjection',

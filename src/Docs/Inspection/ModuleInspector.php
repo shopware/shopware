@@ -6,7 +6,7 @@ use Composer\EventDispatcher\Event;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\Event\BusinessEvent;
+use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Console\Command\Command;
@@ -21,51 +21,79 @@ class ModuleInspector
     public function inspectModule(SplFileInfo $module): array
     {
         $inspectors = [
-            'Data store' => function (ModuleTag $ModuleTag, SplFileInfo $module) {
-                $ModuleTag->addMarkers('Definitions', $this->containsSubclassesOf($module, EntityDefinition::class));
+            'Data store' => function (ModuleTag $moduleTag, SplFileInfo $module): void {
+                $moduleTag->addMarkers('Definitions', $this->containsSubclassesOf($module, EntityDefinition::class));
             },
-            'Maintenance' => function (ModuleTag $ModuleTag, SplFileInfo $module) {
-                $ModuleTag->addMarkers('commands', $this->containsSubclassesOf($module, Command::class));
+            'Maintenance' => function (ModuleTag $moduleTag, SplFileInfo $module): void {
+                $moduleTag->addMarkers('commands', $this->containsSubclassesOf($module, Command::class));
             },
-            'Custom actions' => function (ModuleTag $ModuleTag, SplFileInfo $module) {
-                $ModuleTag->addMarkers('action controller', $this->findFiles($module, '*ActionController.php'));
+            'Custom actions' => function (ModuleTag $moduleTag, SplFileInfo $module): void {
+                $moduleTag->addMarkers('action controller', $this->findFiles($module, '*ActionController.php'));
             },
-            'SalesChannel-API' => function (ModuleTag $ModuleTag, SplFileInfo $module) {
-                $ModuleTag->addMarkers('sales channel controller', $this->findFiles($module, 'Storefront*Controller.php'));
+            'SalesChannel-API' => function (ModuleTag $moduleTag, SplFileInfo $module): void {
+                $moduleTag->addMarkers('sales channel controller', $this->findFiles($module, 'Storefront*Controller.php'));
             },
-            'Custom Extendable' => function (ModuleTag $ModuleTag, SplFileInfo $module) {
-                $ModuleTag->addMarkers('extendable classes', $this->findExtendableClasses($module))
+            'Custom Extendable' => function (ModuleTag $moduleTag, SplFileInfo $module): void {
+                $moduleTag->addMarkers('extendable classes', $this->findExtendableClasses($module))
                     ->addMarkers('custom events', $this->findCustomEvents($module));
             },
-            'Rule Provider' => function (ModuleTag $ModuleTag, SplFileInfo $module) {
-                $ModuleTag->addMarkers('rules', $this->containsSubclassesOf($module, Rule::class));
+            'Rule Provider' => function (ModuleTag $moduleTag, SplFileInfo $module): void {
+                $moduleTag->addMarkers('rules', $this->containsSubclassesOf($module, Rule::class));
             },
-            'Business Event Dispatcher' => function (ModuleTag $ModuleTag, SplFileInfo $module) {
-                $ModuleTag->addMarkers('business events', $this->containsSubclassesOf($module, BusinessEvent::class));
+            'Business Event Dispatcher' => function (ModuleTag $moduleTag, SplFileInfo $module) {
+                $moduleTag->addMarkers('business events', $this->containsSubclassesOf($module, BusinessEventInterface::class));
             },
-            'Extension' => function (ModuleTag $ModuleTag, SplFileInfo $module): void {
-                $ModuleTag
+            'Extension' => function (ModuleTag $moduleTag, SplFileInfo $module): void {
+                $moduleTag
                     ->addMarkers('fields', $this->containsSubclassesOf($module, Field::class))
                     ->addMarkers('structs', $this->containsReflection($module, function (\ReflectionClass $reflectionClass) {
                         return $reflectionClass->isSubclassOf(Struct::class)
                             && !$reflectionClass->isSubclassOf(Entity::class);
                     }));
             },
+            'Custom Rules' => function (ModuleTag $moduleTag, SplFileInfo $module): void {
+                $moduleTag
+                    ->addMarkers('rules', $this->containsSubclassesOf($module, Rule::class));
+            },
         ];
 
         $moduleTags = [];
 
-        foreach ($inspectors as $ModuleTagName => $inspector) {
-            $ModuleTag = new ModuleTag($ModuleTagName);
+        foreach ($inspectors as $moduleTagName => $inspector) {
+            $moduleTag = new ModuleTag($moduleTagName);
 
-            $inspector($ModuleTag, $module);
+            $inspector($moduleTag, $module);
 
-            if ($ModuleTag->valid()) {
-                $moduleTags[] = '*[' . $ModuleTagName . ']*';
+            if ($moduleTag->fits()) {
+                $moduleTags[] = $moduleTag;
             }
         }
 
         return $moduleTags;
+    }
+
+    public function getClassName(SplFileInfo $file): string
+    {
+        $parts = explode('/', $file->getRealPath());
+
+        $startIndex = array_search('Core', $parts, true);
+
+        if ($startIndex === false) {
+            throw new \Exception('Unable to parse ' . $file->getRealPath());
+        }
+
+        $namespaceRelevantParts = array_slice($parts, $startIndex, -1);
+        $namespaceRelevantParts[] = $file->getBasename('.php');
+
+        $className = 'Shopware\\' . implode('\\', $namespaceRelevantParts);
+
+        try {
+            class_exists($className);
+        } catch (\Throwable $e) {
+            throw new \RuntimeException('No class in file');
+        }
+
+        return $className;
     }
 
     private function findFiles(SplFileInfo $in, string $pattern): Finder
@@ -127,29 +155,5 @@ class ModuleInspector
 
                 return $reflectionCheck($reflection);
             });
-    }
-
-    private function getClassName(SplFileInfo $file): string
-    {
-        $parts = explode('/', $file->getRealPath());
-
-        $startIndex = array_search('Core', $parts, true);
-
-        if ($startIndex === false) {
-            throw new \Exception('Unable to parse ' . $file->getRealPath());
-        }
-
-        $namespaceRelevantParts = array_slice($parts, $startIndex, -1);
-        $namespaceRelevantParts[] = $file->getBasename('.php');
-
-        $className = 'Shopware\\' . implode('\\', $namespaceRelevantParts);
-
-        try {
-            class_exists($className);
-        } catch (\Throwable $e) {
-            throw new \RuntimeException('No class in file');
-        }
-
-        return $className;
     }
 }

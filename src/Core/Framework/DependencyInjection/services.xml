@@ -258,5 +258,12 @@
             <tag name="console.command" command="feature:add"/>
             <argument type="service" id="Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Cache\CacheClearer">
+            <argument id="shopware.cache" type="service"/>
+            <argument id="cache_clearer" type="service"/>
+            <argument id="filesystem" type="service"/>
+            <argument>%kernel.cache_dir%</argument>
+        </service>
     </services>
 </container>

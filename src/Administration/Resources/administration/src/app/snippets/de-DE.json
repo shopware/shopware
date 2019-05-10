@@ -371,6 +371,9 @@
       },
       "placeholderErrorMessage": "Platzhalter können nicht gespeichert werden.",
       "dataErrorMessage": "Es wurden nicht alle Pflichtfelder befüllt.",
+      "tag": {
+        "placeholder": "Enter Taste benutzen um die Werte einzufügen."
+      },
       "condition": {
         "dateRangeRule": {
           "label":  "Datumsbereich",

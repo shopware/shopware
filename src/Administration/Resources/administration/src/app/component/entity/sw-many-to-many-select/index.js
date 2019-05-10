@@ -33,6 +33,10 @@ export default {
             type: Number,
             required: false,
             default: 25
+        },
+        criteria: {
+            type: Object,
+            required: false
         }
     },
 
@@ -156,7 +160,9 @@ export default {
 
         sendSearchRequest() {
             this.isLoading = true;
-
+            if (this.criteria) {
+                this.searchCriteria.addFilter(this.criteria);
+            }
             return this.searchRepository.search(this.searchCriteria, this.context)
                 .then((searchResult) => {
                     if (searchResult.length <= 0) {

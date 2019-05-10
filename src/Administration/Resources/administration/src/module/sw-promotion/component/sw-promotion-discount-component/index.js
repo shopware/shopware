@@ -1,4 +1,5 @@
 import { Component, Mixin, State } from 'src/core/shopware';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-promotion-discount-component.html.twig';
 import './sw-promotion-discount-component.scss';
 import DiscountTypes from './../../common/discount-type';
@@ -28,6 +29,7 @@ Component.register('sw-promotion-discount-component', {
                 id: 'addNewRule'
             },
             showRuleModal: false
+
         };
     },
     watch: {
@@ -46,7 +48,18 @@ Component.register('sw-promotion-discount-component', {
 
         rulesStore() {
             return State.getStore('rule');
+        },
+
+        ruleFilter() {
+            return Criteria.equalsAny(
+                'conditions.type',
+                [
+                    'cartLineItem', 'cartLineItemTag', 'cartLineItemTotalPrice',
+                    'cartLineItemUnitPrice', 'cartLineItemWithQuantity'
+                ]
+            );
         }
+
     },
     methods: {
         // Gets a list of all predefined scopes for the dropdown.

@@ -14,6 +14,7 @@
                     :placeholder="$tc('sw-promotion.detail.main.preconditions.order.rulesPlaceholder')"
                     @sw-select-option-clicked="onSelectRule"
                     :store="rulesStore"
+                    :criteria="ruleFilter"
                     :associationStore="orderRulesAssociationStore">
                 <template slot="sw_select_list_before">
                     <sw-select-option :index="-1"

@@ -17,6 +17,7 @@ Component.extend('sw-order-document-settings-credit-note-modal', 'sw-order-docum
             invoiceNumbers: []
         };
     },
+
     computed: {
         highlightedItems() {
             const items = [];
@@ -33,9 +34,11 @@ Component.extend('sw-order-document-settings-credit-note-modal', 'sw-order-docum
             return this.highlightedItems.length !== 0 && this.documentConfig.custom.invoiceNumber;
         }
     },
+
     created() {
         this.createdComponent();
     },
+
     methods: {
         createdComponent() {
             this.$super.createdComponent();
@@ -52,8 +55,9 @@ Component.extend('sw-order-document-settings-credit-note-modal', 'sw-order-docum
                 }
             });
         },
+
         onCreateDocument(additionalAction = false) {
-            if (this.documentConfig.documentNumberPreview === this.documentConfig.documentNumber) {
+            if (this.documentNumberPreview === this.documentConfig.documentNumber) {
                 this.numberRangeService.reserve(
                     `document_${this.currentDocumentType.technicalName}`,
                     this.order.salesChannelId,

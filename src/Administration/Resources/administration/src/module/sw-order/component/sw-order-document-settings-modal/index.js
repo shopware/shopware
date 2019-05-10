@@ -3,7 +3,9 @@ import template from './sw-order-document-settings-modal.html.twig';
 
 Component.register('sw-order-document-settings-modal', {
     template,
+
     inject: ['numberRangeService'],
+
     props: {
         order: {
             type: Object,
@@ -14,6 +16,7 @@ Component.register('sw-order-document-settings-modal', {
             required: true
         }
     },
+
     data() {
         return {
             showModal: false,
@@ -26,15 +29,18 @@ Component.register('sw-order-document-settings-modal', {
             documentNumberPreview: false
         };
     },
+
     computed: {
         documentPreconditionsFulfilled() {
             // can be overwritten in extending component
             return true;
         }
     },
+
     created() {
         this.createdComponent();
     },
+
     methods: {
         createdComponent() {
             this.numberRangeService.reserve(
@@ -47,17 +53,22 @@ Component.register('sw-order-document-settings-modal', {
                 this.documentConfig.documentDate = new Date();
             });
         },
+
         onCreateDocument(additionalAction = false) {
             this.$emit('document-modal-create-document', this.documentConfig, additionalAction);
         },
+
         onPreview() {
             this.$emit('document-modal-show-preview', this.documentConfig);
         },
+
         onConfirm() {
             this.$emit('leave-page-confirm');
         },
+
         onCancel() {
             this.$emit('document-modal-leave-page');
         }
+
     }
 });

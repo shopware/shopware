@@ -14,7 +14,7 @@ https://getbootstrap.com/docs/4.3/components/navs/
     .main-navigation-link {
         color: $gray-600;
 
-        &:first {
+        &:first-child {
             padding-left: 0;
         }
 
@@ -24,9 +24,13 @@ https://getbootstrap.com/docs/4.3/components/navs/
         }
 
         &:hover,
-        &.active,
         &.is-open {
+            color: $primary;
+        }
+
+        &.active {
             color: $gray-800;
+            font-weight: $font-weight-bold;
 
             .main-navigation-link-inner {
                 border-color: $primary;

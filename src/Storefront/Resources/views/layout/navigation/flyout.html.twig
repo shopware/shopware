@@ -12,7 +12,7 @@
                                    title="{{ navigationTree.category.translated.name }}">
                                     {% block layout_navigation_flyout_bar_category_link_text %}
                                         {{ "general.toCategory"|trans }} {{ navigationTree.category.translated.name }}
-                                        {% sw_icon 'arrow-simple-right' style { 'color': 'dark' } %}
+                                        {% sw_icon 'small-arrow-small-right' style { 'color': 'primary' } %}
                                     {% endblock %}
                                 </a>
                             {% endif %}
@@ -38,10 +38,13 @@
     {% block layout_navigation_flyout_content %}
         <div class="row navigation-flyout-content">
             {% block layout_navigation_flyout_categories %}
-                <div class="col">
+                <div class="{% if navigationTree.category.media %}col-8 col-xl-9{% else %}col{% endif %}">
                     <div class="navigation-flyout-categories">
                         {% block layout_navigation_flyout_categories_recoursion %}
-                            {% sw_include '@Storefront/layout/navigation/categories.html.twig' with { navigationTree: navigationTree.children } only %}
+                            {% sw_include '@Storefront/layout/navigation/categories.html.twig' with {
+                                navigationTree: navigationTree.children,
+                                navigationMedia: navigationTree.category.media
+                            } only %}
                         {% endblock %}
                     </div>
                 </div>
@@ -49,7 +52,7 @@
 
             {% block layout_navigation_flyout_teaser %}
                 {% if navigationTree.category.media %}
-                <div class="col-9">
+                <div class="col-4 col-xl-3">
                     <div class="navigation-flyout-teaser">
                         {% block layout_navigation_flyout_teaser_image %}
                             <a class="teaser-image"

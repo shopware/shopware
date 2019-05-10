@@ -15,7 +15,8 @@
       "roadmapLink": "https://www.shopware.com/en/roadmap/"
     },
     "paypal": {
-      "buttonText": "Setup PayPal"
+      "setupButtonText": "Setup PayPal",
+      "settingsLinkButtonText": "Open PayPal settings"
     },
     "documentation": {
       "header": "Documentation",
@@ -28,7 +29,11 @@
       "description": "Discover the possibilities of Shopware with real data. Together we will connect the systems. After that you can migrate your data with help of the migration assistant.",
       "githubLinkLabel": "Migration Plugin at Github",
       "sw5pluginLinkLabel": "Shopware 5 Plugin",
-      "buttonText": "Migrate my data"
+      "setupButtonText": "Setup Migration",
+      "settingsLinkButtonText": "Migrate my data"
+    },
+    "plugin": {
+      "setupSuccessfulMsg": "Completed {pluginName} setup"
     }
   }
 }

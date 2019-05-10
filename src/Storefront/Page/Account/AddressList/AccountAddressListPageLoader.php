@@ -30,8 +30,7 @@ class AccountAddressListPageLoader implements PageLoaderInterface
         PageLoaderInterface $pageWithHeaderLoader,
         PageLoaderInterface $accountAddressPageletLoader,
         EventDispatcherInterface $eventDispatcher
-    )
-    {
+    ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->pageWithHeaderLoader = $pageWithHeaderLoader;
         $this->accountAddressPageletLoader = $accountAddressPageletLoader;

@@ -93,7 +93,7 @@ module.exports = {
         browser
             .waitForElementVisible(`${page.elements.dataGridHeader}`)
             .click(`${page.elements.dataGridHeader} ${page.elements.dataGridColumn}:nth-of-type(4)`)
-            .waitForElementNotPresent(page.elements.loader)
+            .waitForElementPresent(`${page.elements.dataGridRow}--0 #defaultShippingAddress-0:checked`)
             .click(`${page.elements.dataGridRow}--1 #defaultShippingAddress-0`)
             .click(`${page.elements.dataGridRow}--1 #defaultBillingAddress-0`)
             .expect.element(`${page.elements.dataGridRow}--0 #defaultShippingAddress-0`).to.be.not.selected;

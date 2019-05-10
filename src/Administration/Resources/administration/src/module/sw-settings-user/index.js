@@ -1,5 +1,4 @@
 import { Module } from 'src/core/shopware';
-import { NEXT681 } from 'src/flag/feature_next681';
 
 import './extension/sw-settings-index';
 import './page/sw-settings-user-list';
@@ -11,7 +10,6 @@ import enGB from './snippet/en-GB.json';
 
 Module.register('sw-settings-user', {
     type: 'core',
-    flag: NEXT681,
     name: 'settings-user',
     title: 'sw-settings-user.general.mainMenuItemGeneral',
     description: 'sw-settings-user.general.mainMenuItemGeneral',

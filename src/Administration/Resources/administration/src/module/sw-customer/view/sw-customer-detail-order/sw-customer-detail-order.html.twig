@@ -60,7 +60,7 @@
             <template v-if="(!orders || orders.total === 0) && !isLoading && !term">
                 <sw-empty-state :icon="orderIcon"
                                 :title="emptyTitle"
-                                subline="sw-customer.detailOrder.emptySubline">
+                                :subline="$tc('sw-customer.detailOrder.emptySubline')">
                 </sw-empty-state>
             </template>
         {% endblock %}

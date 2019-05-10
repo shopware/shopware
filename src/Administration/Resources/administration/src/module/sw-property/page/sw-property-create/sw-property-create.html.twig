@@ -1,0 +1,11 @@
+{% block sw_property_detail_language_switch %}
+    <template slot="language-switch">
+        <sw-language-switch disabled></sw-language-switch>
+    </template>
+{% endblock %}
+
+{% block sw_property_detail_content_language_info %}
+    <sw-language-info :entityDescription="placeholder(group, 'name', $tc('sw-property.detail.textHeadline'))"
+                      isNewEntity>
+    </sw-language-info>
+{% endblock %}

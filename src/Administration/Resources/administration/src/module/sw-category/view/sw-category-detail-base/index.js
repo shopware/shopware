@@ -220,9 +220,8 @@ Component.register('sw-category-detail-base', {
                 || this.category.footerSalesChannels.length > 0;
         },
 
-        onChangeVisibility(visibility) {
-            this.reversedVisibility = visibility;
-            this.category.visible = !visibility;
+        onChangeVisibility() {
+            this.category.visible = !this.reversedVisibility;
         },
 
         onLayoutSelect(selectedLayout) {

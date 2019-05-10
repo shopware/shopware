@@ -69,11 +69,10 @@
                 {% block sw_tree_item_element_actions %}
                     <div class="sw-tree-item__actions">
                         <slot name="actions" :item="item" :openTreeItem="openTreeItem">
-                            <sw-context-button :disabled="isDisabled">
+                            <sw-context-button v-tooltip="toolTip" :disabled="isDisabled">
                             {% block sw_tree_items_actions_before %}
                                 <sw-context-menu-item
                                     class="sw-tree-item__before-action"
-                                    v-tooltip="toolTip"
                                     @click="addElement(item, 'before');">
                                     {{ $tc(`${translationContext}.general.actions.createBefore`) }}
                                 </sw-context-menu-item>
@@ -81,7 +80,6 @@
                             {% block sw_tree_items_actions_after %}
                                 <sw-context-menu-item
                                     class="sw-tree-item__after-action"
-                                    v-tooltip="toolTip"
                                     @click="addElement(item, 'after');">
                                     {{ $tc(`${translationContext}.general.actions.createAfter`) }}
                                 </sw-context-menu-item>
@@ -89,7 +87,6 @@
                             {% block sw_tree_items_actions_sub %}
                                 <sw-context-menu-item
                                     class="sw-tree-item__sub-action"
-                                    v-tooltip="toolTip"
                                     @click="addSubElement(item); openTreeItem(true)">
                                     {{ $tc(`${translationContext}.general.actions.createSub`) }}
                                 </sw-context-menu-item>
@@ -170,24 +167,21 @@
                                                                v-if="$scopedSlots.actions"></sw-vnode-renderer>
                                             <div v-else class="sw-tree-item__actions">
                                                 <slot name="actions" :item="item" :openTreeItem="openTreeItem">
-                                                    <sw-context-button :disabled="isDisabled">
+                                                    <sw-context-button v-tooltip="toolTip" :disabled="isDisabled">
                                                         {% block sw_tree_items_actions_before %}
                                                             <sw-context-menu-item
-                                                                v-tooltip="toolTip"
                                                                 @click="addElement(item, 'before');">
                                                                 {{ $tc(`${translationContext}.general.actions.createBefore`) }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}
                                                         {% block sw_tree_items_actions_after %}
                                                             <sw-context-menu-item
-                                                                v-tooltip="toolTip"
                                                                 @click="addElement(item, 'after');">
                                                                 {{ $tc(`${translationContext}.general.actions.createAfter`) }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}
                                                         {% block sw_tree_items_actions_sub %}
                                                             <sw-context-menu-item
-                                                                v-tooltip="toolTip"
                                                                 @click="addSubElement(item); openTreeItem(true)">
                                                                 {{ $tc(`${translationContext}.general.actions.createSub`) }}
                                                             </sw-context-menu-item>

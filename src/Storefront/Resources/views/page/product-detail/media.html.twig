@@ -46,14 +46,15 @@
                         {% block page_product_detail_image_container %}
                             <div class="product-detail-image-container js-magnifier-container">
                                 {% if mediaItems %}
-                                    {% set imgSrc = mediaItems|first.media.url %}
+                                    <img src="{{ mediaItems|first.media.url }}"
+                                         class="img-fluid image-slider-image magnifier-image js-magnifier-image"
+                                         data-full-image="{{ mediaItems|first.media.url }}"
+                                         alt="{{ page.product.translated.name }}"/>
                                 {% else %}
-                                    {% set imgSrc = asset(shopware.theme.general.noPicture) %}
+                                    {% sw_icon 'placeholder' style {
+                                        'size': 'fluid'
+                                    } %}
                                 {% endif %}
-                                <img src="{{ imgSrc }}"
-                                     class="img-fluid image-slider-image magnifier-image js-magnifier-image"
-                                     data-full-image="{{ imgSrc }}"
-                                     alt="{{ page.product.translated.name }}"/>
                             </div>
                         {% endblock %}
                     {% endif %}

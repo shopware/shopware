@@ -14,12 +14,13 @@
 										{% block layout_search_suggest_result_image %}
 											<span class="result-image">
                                                 {% if product.cover.media.url %}
-													{% set imgSrc = product.cover.media.url %}
+													<img src="{{ product.cover.media.url }}"
+														 alt="{{ product.translated.name }}">
 												{% else %}
-													{% set imgSrc = asset(shopware.theme.general.noPicture) %}
+													{% sw_icon 'placeholder' style {
+														'size': 'lg'
+													} %}
 												{% endif %}
-                                                <img src="{{ imgSrc }}"
-													 alt="{{ product.translated.name }}">
                                             </span>
 										{% endblock %}
 

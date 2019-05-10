@@ -4,6 +4,7 @@ import template from './sw-order-document-settings-storno-modal.html.twig';
 
 Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-settings-modal', {
     template,
+
     props: {
         order: {
             type: Object,
@@ -14,6 +15,7 @@ Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-s
             required: true
         }
     },
+
     data() {
         return {
             documentConfig: {
@@ -28,14 +30,17 @@ Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-s
             invoiceNumbers: []
         };
     },
+
     computed: {
         documentPreconditionsFulfilled() {
             return !!this.documentConfig.custom.invoiceNumber;
         }
     },
+
     created() {
         this.createdComponent();
     },
+
     methods: {
         createdComponent() {
             this.numberRangeService.reserve(
@@ -44,7 +49,7 @@ Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-s
                 true
             ).then((response) => {
                 this.documentConfig.documentNumber = response.number;
-                this.documentConfig.documentNumberPreview = this.documentConfig.documentNumber;
+                this.documentNumberPreview = this.documentConfig.documentNumber;
                 this.documentConfig.documentDate = new Date();
             });
             const criteria = CriteriaFactory.equals('documentType.technicalName', 'invoice');
@@ -59,8 +64,9 @@ Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-s
                 }
             });
         },
+
         onCreateDocument(additionalAction = false) {
-            if (this.documentConfig.documentNumberPreview === this.documentConfig.documentNumber) {
+            if (this.documentNumberPreview === this.documentConfig.documentNumber) {
                 this.numberRangeService.reserve(
                     `document_${this.currentDocumentType.technicalName}`,
                     this.order.salesChannelId,
@@ -74,12 +80,15 @@ Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-s
                 this.$emit('document-modal-create-document', this.documentConfig, additionalAction);
             }
         },
+
         onPreview() {
             this.documentConfig.custom.stornoNumber = this.documentConfig.documentNumber;
             this.$super.onPreview();
         },
+
         onSelectInvoice(selected) {
             this.documentConfig.custom.invoiceNumber = selected;
         }
+
     }
 });

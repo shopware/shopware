@@ -84,6 +84,7 @@
 .icon-fluid {
     @include sw-icon-size(100%);
 }
+
 .icon-lg {
     @include sw-icon-size($icon-base-size / 3 * 4);
 }

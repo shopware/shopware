@@ -25,10 +25,9 @@
                                    title="{{ "general.mainMenu"|trans }}">
                                     {% block layout_navigation_offcanvas_navigation_home_link_text %}
                                         <span itemprop="{{ "general.mainMenu"|trans }}">
-                                            <span class="offcanvas-menu-list-item-link-icon js-offcanvas-menu-loading-icon">
-                                                {% sw_include '@Storefront/utilities/icon.html.twig' with {
-                                                    'name': 'action-grab'
-                                                } %}
+                                            <span
+                                                class="offcanvas-menu-list-item-link-icon js-offcanvas-menu-loading-icon">
+                                                {% sw_icon 'basic-stack-line' %}
                                             </span>
                                             {{ "general.mainMenu"|trans }}
                                         </span>
@@ -122,7 +121,8 @@
                                                             <span itemprop="name">{{ entity.translated.name }}</span>
                                                             {% if hasChildren %}
                                                                 {% block layout_navigation_offcanvas_navigation_categories_list_category_item_link_icon %}
-                                                                    <span class="offcanvas-menu-list-item-link-icon js-offcanvas-menu-loading-icon">
+                                                                    <span
+                                                                        class="offcanvas-menu-list-item-link-icon js-offcanvas-menu-loading-icon">
                                                                         {% sw_icon 'small-arrow-medium-right' %}
                                                                     </span>
                                                                 {% endblock %}

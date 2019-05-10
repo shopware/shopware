@@ -6,115 +6,31 @@
 
 {% block base_navigation %}{% endblock %}
 
-{% block page_checkout_container %}
-    <div class="row">
-        {% block page_checkout_finish_main_content %}
-            <div class="col-12 col-xl-6 col-lg-10 finish-content">
-                {% block page_checkout_finish_teaser %}
-                    <div class="card finish-teaser">
-                        <div class="card-body">
-                            {% block page_checkout_finish_header %}
-                                <h1 class="finish-header">
-                                    {{ "checkout.finishHeader"|trans({
-                                        '%shop%': shopware.config.shopName
-                                    }) }}
-                                </h1>
-                            {% endblock %}
-
-                            {% block page_checkout_finish_ordernumber %}
-                                <p class="finish-ordernumber">
-                                    {{ "checkout.finishInfoOrdernumber"|trans }} #{{ page.order.orderNumber }}
-                                </p>
-                            {% endblock %}
-
-                            {% block page_checkout_finish_teaser_content %}
-                                {% block page_checkout_finish_teaser_text %}
-                                    <p>{{ "checkout.finishInfoConfirmationMail"|trans }}</p>
-                                {% endblock %}
-
-                                {% block page_checkout_finish_teaser_actions %}
-                                    <div class="finish-actions">
-                                        {% block page_checkout_finish_teaser_actions_back %}
-                                            <a href="{{ path('frontend.home.page') }}"
-                                               class="btn btn-primary finish-back-button"
-                                               title="{{ "checkout.finishButtonBackToShop"|trans }}">
-                                                {{ "checkout.finishButtonBackToShop"|trans }}
-                                            </a>
-                                        {% endblock %}
-                                    </div>
-                                {% endblock %}
-                            {% endblock %}
-                        </div>
-                    </div>
-                {% endblock %}
-
-                {% block page_checkout_finish_info %}
-                    <div class="row finish-info">
-                        {% block page_checkout_finish_address %}
-                            <div class="col-md-8 finish-address">
-                                {% sw_include '@Storefront/page/checkout/finish/finish-address.html.twig' %}
-                            </div>
-                        {% endblock %}
-
-                        {% block page_checkout_finish_order_details %}
-                            <div class="col-md-4 finish-order-details">
-                                <div class="card finish-card">
-                                    <div class="card-body finish-card-body">
-                                        {% block page_checkout_finish_order_details_title %}
-                                            <div class="card-title">
-                                                {{ "checkout.finishInfoHeader"|trans }}
-                                            </div>
-                                        {% endblock %}
-
-                                        {% block page_checkout_finish_order_details_payment_method %}
-                                            <p>
-                                                <strong>{{ "checkout.confirmPaymentMethod"|trans }}</strong>
-                                                {{ page.context.paymentMethod.translated.name }}
-                                            </p>
-                                        {% endblock %}
-
-                                        {% block page_checkout_finish_order_details_dispatch_method %}
-                                            <p>
-                                                <strong>{{ "checkout.confirmDispatchMethod"|trans }}</strong>
-                                                {{ page.context.shippingMethod.translated.name }}
-                                            </p>
-                                        {% endblock %}
-                                    </div>
-                                </div>
-                            </div>
-                        {% endblock %}
-                    </div>
-                {% endblock %}
-
-            </div>
-        {% endblock %}
-    </div>
-    {{ parent() }}
-{% endblock %}
-
 {% block page_checkout_main_content %}
     {% block page_checkout_finish %}
-        <div class="checkout-finish">
-            {% block page_checkout_finish_main %}
-                {% if page.order.lineItems.elements %}
-                    <div class="card cart-table">
-                        <div class="card-body cart-table-body">
-                            {% block page_checkout_finish_table_header %}
-                                {% sw_include '@Storefront/page/checkout/confirm/confirm-header.html.twig' %}
-                            {% endblock %}
+        {% block page_checkout_finish_details %}
+            {% sw_include '@Storefront/page/checkout/finish/finish-details.html.twig' %}
+        {% endblock %}
 
-                            {% block page_checkout_finish_items %}
-                                {% for lineItem in page.order.lineItems.elements %}
-                                    {% block page_checkout_finish_item %}
-                                        {% sw_include '@Storefront/page/checkout/finish/finish-item.html.twig' %}
-                                    {% endblock %}
-                                {% endfor %}
-                            {% endblock %}
-                        </div>
+        {% block page_checkout_finish_product_table %}
+            {% if page.order.lineItems.elements %}
+                <div class="card checkout-product-table">
+                    <div class="card-body">
+                        {% block page_checkout_finish_table_header %}
+                            {% sw_include '@Storefront/page/checkout/confirm/confirm-product-header.html.twig' %}
+                        {% endblock %}
+
+                        {% block page_checkout_finish_items %}
+                            {% for lineItem in page.order.lineItems.elements %}
+                                {% block page_checkout_finish_item %}
+                                    {% sw_include '@Storefront/page/checkout/finish/finish-item.html.twig' %}
+                                {% endblock %}
+                            {% endfor %}
+                        {% endblock %}
                     </div>
-                {% endif %}
-            {% endblock %}
-        </div>
+                </div>
+            {% endif %}
+        {% endblock %}
     {% endblock %}
 {% endblock %}
 

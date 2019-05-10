@@ -5,13 +5,8 @@
     {{ parent() }}
 {% endblock %}
 
-{% block page_checkout_item_product_quantity_form %}
-    {% block page_finish_item_product_quantity_label %}
-        <div class="cart-item-quantity-label">
-            {{ "checkout.cartHeaderQuantity"|trans }}
-        </div>
-    {% endblock %}
-    {% block page_finish_item_product_quantity_value %}
+{% block page_checkout_item_product_quantity_select %}
+    <div class="col-4 col-sm-12">
         {{ lineItem.quantity }}
-    {% endblock %}
+    </div>
 {% endblock %}

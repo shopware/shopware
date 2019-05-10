@@ -6,13 +6,25 @@
 
 {% block base_navigation %}{% endblock %}
 
-{% block page_checkout_container %}
-    <div class="row">
-        {% block page_checkout_confirm_main_content %}
-            <div class="col-12 col-xl-7 col-lg-10 confirm-content">
-                {% sw_include '@Storefront/page/checkout/confirm/confirm-page.html.twig' %}
-            </div>
-        {% endblock %}
+{% block page_checkout_main_content %}
+    {% sw_include '@Storefront/page/checkout/confirm/confirm-page.html.twig' %}
+{% endblock %}
+
+{% block page_checkout_aside_actions %}
+    <div class="checkout-aside-action">
+        <form id="confirmOrderForm"
+              data-form-submit-loader="true"
+              action="{{ path('frontend.checkout.finish.order') }}"
+              method="post">
+            {% block page_checkout_confirm_form_submit %}
+                <button id="confirmFormSubmit"
+                        class="btn btn-primary btn-block btn-lg"
+                        form="confirmOrderForm"
+                        type="submit">
+                    {{ "checkout.confirmSubmit"|trans }}
+                </button>
+            {% endblock %}
+        </form>
     </div>
 {% endblock %}
 

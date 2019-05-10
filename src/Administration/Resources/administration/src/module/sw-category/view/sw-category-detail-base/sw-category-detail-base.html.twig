@@ -221,7 +221,7 @@
                 {% block sw_category_detail_information_visible %}
                     <sw-field type="switch"
                         borderd
-                        @input="onChangeVisibility"
+                        @change="onChangeVisibility"
                         :label="$tc('sw-category.base.menu.visible')"
                         v-model="reversedVisibility">
                     </sw-field>

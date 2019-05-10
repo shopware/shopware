@@ -202,7 +202,7 @@ final class StoreClient
             $headers[self::SHOPWARE_SHOP_SECRET_HEADER] = $shopSecret;
         }
 
-        $query = $this->getDefaultQueryParameters($language);
+        $query = $this->getDefaultQueryParameters($language, false);
         $query['hostName'] = $hostName;
 
         $response = $this->client->post(

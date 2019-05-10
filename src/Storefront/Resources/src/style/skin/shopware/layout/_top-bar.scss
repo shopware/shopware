@@ -1,0 +1,32 @@
+.btn.top-bar-nav-btn {
+    color: $gray-600;
+    font-weight: normal;
+    padding: 0;
+
+    &:hover {
+        color: $primary;
+    }
+}
+
+.top-bar-list-item {
+    color: $gray-600;
+
+    &.item-checked {
+        color: $primary;
+    }
+
+    &:hover {
+        color: $primary;
+        background: transparent;
+        text-decoration: none;
+
+        .top-bar-list-label {
+            cursor: pointer;
+        }
+    }
+}
+
+.language-form {
+    display: flex;
+    align-items: center;
+}

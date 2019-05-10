@@ -1,13 +1,15 @@
 .cms-block {
     overflow: hidden;
 
-    &.boxed {
-        @extend .container;
-    }
-
     &.bg-image {
         background-repeat: no-repeat;
         background-position: 50%;
+    }
+}
+
+.cms-block-container {
+    &.boxed {
+        @extend .container;
     }
 }
 
@@ -76,6 +78,16 @@
     }
 }
 
+.cms-block-image-simple-grid {
+    .left-top {
+        margin-bottom: $grid-gutter-width;
+    }
+
+    .right {
+        height: 100%;
+    }
+}
+
 @include media-breakpoint-down(sm) {
     .cms-block-image-text-gallery,
     .cms-block-image-two-column,
@@ -84,14 +96,20 @@
     .cms-block-image-bubble-row,
     .cms-block-image-highlight-row {
         .cms-row > :not(:last-child) {
-            margin-bottom: 40px;
+            margin-bottom: $grid-gutter-width;
         }
     }
 
     .cms-block-image-text,
     .cms-block-image-text-cover {
         .cms-row > :first-child {
-            margin-bottom: 40px;
+            margin-bottom: $grid-gutter-width;
+        }
+    }
+
+    .cms-block-image-simple-grid {
+        .left-bottom {
+            margin-bottom: $grid-gutter-width;
         }
     }
 }

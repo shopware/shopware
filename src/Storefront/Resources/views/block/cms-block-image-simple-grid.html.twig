@@ -4,7 +4,7 @@
             {% block block_image_simple_grid_left_top %}
                 {% set element = block.slots.getSlot('left-top') %}
 
-                <div data-cms-element-id="{{ element.id }}">
+                <div class="left-top" data-cms-element-id="{{ element.id }}">
                     {% sw_include "@Storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
                 </div>
             {% endblock %}
@@ -12,7 +12,7 @@
             {% block block_image_simple_grid_left_bottom %}
                 {% set element = block.slots.getSlot('left-bottom') %}
 
-                <div data-cms-element-id="{{ element.id }}">
+                <div class="left-bottom" data-cms-element-id="{{ element.id }}">
                     {% sw_include "@Storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
                 </div>
             {% endblock %}
@@ -24,7 +24,7 @@
             {% block block_image_simple_grid_right_inner %}
                 {% set element = block.slots.getSlot('right') %}
 
-                <div data-cms-element-id="{{ element.id }}">
+                <div class="right" data-cms-element-id="{{ element.id }}">
                     {% sw_include "@Storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
                 </div>
             {% endblock %}

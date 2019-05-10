@@ -20,6 +20,9 @@ $dark: $gray-800;
 
 $headings-color: $gray-800;
 
+// Grid
+$grid-gutter-width: 40px;
+
 // Body
 $body-color: #545454;
 
@@ -38,12 +41,12 @@ $font-size-lg: 1rem;
 $font-size-sm: 0.75rem;
 $font-weight-normal: 500;
 
-$h1-font-size: 26px;
-$h2-font-size: 21px;
-$h3-font-size: 18px;
-$h4-font-size: 16px;
-$h5-font-size: 14px;
-$h6-font-size: 12px;
+$h1-font-size: 36px;
+$h2-font-size: 28px;
+$h3-font-size: 24px;
+$h4-font-size: 20px;
+$h5-font-size: 16px;
+$h6-font-size: 14px;
 
 $headings-font-weight: 700;
 $headings-font-family: $font-family-base;

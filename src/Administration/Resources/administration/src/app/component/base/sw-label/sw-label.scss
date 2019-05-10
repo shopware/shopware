@@ -42,8 +42,6 @@ $sw-label-neutral-color-border: $color-steam-cloud;
     cursor: default;
 
     &.sw-label--dismiss-able {
-        padding-right: 40px;
-
         &:hover {
             &, .sw-label__dismiss {
                 border-color: $color-shopware-blue;

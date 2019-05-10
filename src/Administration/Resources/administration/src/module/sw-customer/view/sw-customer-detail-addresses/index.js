@@ -214,8 +214,9 @@ Component.register('sw-customer-detail-addresses', {
         },
 
         onConfirmDeleteAddress(id) {
-            this.addressRepository.delete(id, this.context);
-            this.refreshList();
+            this.addressRepository.delete(id, this.context).then(() => {
+                this.refreshList();
+            });
             this.onCloseDeleteAddressModal();
         },
 

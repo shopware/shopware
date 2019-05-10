@@ -146,7 +146,7 @@ Component.register('sw-sales-channel-detail', {
         },
 
         abortOnLanguageChange() {
-            return this.salesChannel.getIsDirty();
+            return this.salesChannelRepository.hasChanges(this.salesChannel);
         },
 
         saveOnLanguageChange() {

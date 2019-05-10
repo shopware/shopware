@@ -15,35 +15,55 @@ use Symfony\Component\Finder\SplFileInfo;
 
 class ModuleInspector
 {
+    public const TAG_DATA_STORE = 'Data store';
+    public const TAG_MAINTENANCE = 'Maintenance';
+    public const TAG_CUSTOM_ACTIONS = 'Custom actions';
+    public const TAG_SALES_CHANNEL_API = 'SalesChannel-API';
+    public const TAG_CUSTOM_EXTENDABLE = 'Custom Extendable';
+    public const TAG_BUSINESS_EVENT_DISPATCHER = 'Business Event Dispatcher';
+    public const TAG_EXTENSION = 'Extension';
+    public const TAG_CUSTOM_RULES = 'Custom Rules';
+
+    public function getAllTags(): array
+    {
+        return [
+            self::TAG_DATA_STORE,
+            self::TAG_MAINTENANCE,
+            self::TAG_CUSTOM_ACTIONS,
+            self::TAG_SALES_CHANNEL_API,
+            self::TAG_CUSTOM_EXTENDABLE,
+            self::TAG_BUSINESS_EVENT_DISPATCHER,
+            self::TAG_EXTENSION,
+            self::TAG_CUSTOM_RULES,
+        ];
+    }
+
     /**
      * @return ModuleTag[]
      */
     public function inspectModule(SplFileInfo $module): array
     {
         $inspectors = [
-            'Data store' => function (ModuleTag $moduleTag, SplFileInfo $module): void {
+            self::TAG_DATA_STORE => function (ModuleTag $moduleTag, SplFileInfo $module): void {
                 $moduleTag->addMarkers('Definitions', $this->containsSubclassesOf($module, EntityDefinition::class));
             },
-            'Maintenance' => function (ModuleTag $moduleTag, SplFileInfo $module): void {
+            self::TAG_MAINTENANCE => function (ModuleTag $moduleTag, SplFileInfo $module): void {
                 $moduleTag->addMarkers('commands', $this->containsSubclassesOf($module, Command::class));
             },
-            'Custom actions' => function (ModuleTag $moduleTag, SplFileInfo $module): void {
+            self::TAG_CUSTOM_ACTIONS => function (ModuleTag $moduleTag, SplFileInfo $module): void {
                 $moduleTag->addMarkers('action controller', $this->findFiles($module, '*ActionController.php'));
             },
-            'SalesChannel-API' => function (ModuleTag $moduleTag, SplFileInfo $module): void {
+            self::TAG_SALES_CHANNEL_API => function (ModuleTag $moduleTag, SplFileInfo $module): void {
                 $moduleTag->addMarkers('sales channel controller', $this->findFiles($module, 'Storefront*Controller.php'));
             },
-            'Custom Extendable' => function (ModuleTag $moduleTag, SplFileInfo $module): void {
+            self::TAG_CUSTOM_EXTENDABLE => function (ModuleTag $moduleTag, SplFileInfo $module): void {
                 $moduleTag->addMarkers('extendable classes', $this->findExtendableClasses($module))
                     ->addMarkers('custom events', $this->findCustomEvents($module));
             },
-            'Rule Provider' => function (ModuleTag $moduleTag, SplFileInfo $module): void {
-                $moduleTag->addMarkers('rules', $this->containsSubclassesOf($module, Rule::class));
-            },
-            'Business Event Dispatcher' => function (ModuleTag $moduleTag, SplFileInfo $module) {
+            self::TAG_BUSINESS_EVENT_DISPATCHER => function (ModuleTag $moduleTag, SplFileInfo $module) {
                 $moduleTag->addMarkers('business events', $this->containsSubclassesOf($module, BusinessEventInterface::class));
             },
-            'Extension' => function (ModuleTag $moduleTag, SplFileInfo $module): void {
+            self::TAG_EXTENSION => function (ModuleTag $moduleTag, SplFileInfo $module): void {
                 $moduleTag
                     ->addMarkers('fields', $this->containsSubclassesOf($module, Field::class))
                     ->addMarkers('structs', $this->containsReflection($module, function (\ReflectionClass $reflectionClass) {
@@ -51,7 +71,7 @@ class ModuleInspector
                             && !$reflectionClass->isSubclassOf(Entity::class);
                     }));
             },
-            'Custom Rules' => function (ModuleTag $moduleTag, SplFileInfo $module): void {
+            self::TAG_CUSTOM_RULES => function (ModuleTag $moduleTag, SplFileInfo $module): void {
                 $moduleTag
                     ->addMarkers('rules', $this->containsSubclassesOf($module, Rule::class));
             },

@@ -5,6 +5,7 @@ namespace Shopware\Docs\Command;
 use Shopware\Docs\Inspection\ArrayWriter;
 use Shopware\Docs\Inspection\ModuleInspector;
 use Shopware\Docs\Inspection\ModuleTag;
+use Shopware\Docs\Inspection\ModuleTagCollection;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -14,43 +15,24 @@ use Symfony\Component\Finder\SplFileInfo;
 
 class DocsModuleCharacteristics extends Command
 {
-    const TEMPLATE_HEADER = <<<EOD
+    const TEMPLATE_PAGE = <<<EOD
 [titleEn]: <>(Core Module List)
 
 All core modules encapsulate domain concepts and provide a varying number of external interfaces to support this. The following list provides a rough overview what domain concepts offer what kinds of interfaces.  
 
 ## Possible characteristics
 
-<span class="tip is--primary">Data store</span>
-  : These modules are related to database tables and are manageable through the API. Simple CRUD actions will be available.
-  
-<span class="tip is--primary">Maintenance</span>
-  : Provide commands executable through CLI to trigger maintenance tasks.
-  
-<span class="tip is--primary">Custom actions</span>
-  : These modules contain more then simple CRUD actions. They provide special actions and services that ease management and additionally check consistency.
-  
-<span class="tip is--primary">SalesChannel-API</span>
- : These modules provide logic through a sales channel for the storefront.
- 
-<span class="tip is--primary">Custom Extendable</span>
- : These modules contain interfaces, process container tags or provide custom events as extension points.
-  
-<span class="tip is--primary">Rule Provider</span>
-  : Cross-system process to validate workflow decisions. 
-  
-<span class="tip is--primary">Business Event Dispatcher</span>
-  : Provide special events to handle business cases.
- 
-<span class="tip is--primary">Extension</span>
-  : These modules contain extensions of - usually Framework - interfaces and classes to provide more specific functions for the Platform. 
-  
-<span class="tip is--primary">Custom Rules</span>
-  : Provides rules for the rule system used by the checkout.
+%s
 
 ## Modules
 
 %s
+EOD;
+
+    const TEMPLATE_TAG = <<<EOD
+<span class="tip is--primary">%s</span>
+  : %s
+
 EOD;
 
     const TEMPLATE_MODULE = <<<EOD
@@ -65,7 +47,12 @@ EOD;
     /**
      * @var string
      */
-    private $descriptionPath = __DIR__ . '/../Resources/characteristics-module-descriptions.php';
+    private $moduleDescriptionPath = __DIR__ . '/../Resources/characteristics-module-descriptions.php';
+
+    /**
+     * @var string
+     */
+    private $tagDescriptionPath = __DIR__ . '/../Resources/characteristics-tag-descriptions.php';
 
     /**
      * @var ModuleInspector
@@ -89,22 +76,39 @@ EOD;
     {
         $io = new SymfonyStyle($input, $output);
 
-        $descriptions = new ArrayWriter($this->descriptionPath);
-        $finder = $this->createModuleFinder();
+        $tagCollection = new ModuleTagCollection();
 
-        $markdown = [];
+        $characteristics = $this->loadChracteristics($tagCollection);
 
-        $allTags = [[]];
-        /** @var SplFileInfo $moduleDirectory */
-        foreach ($finder as $moduleDirectory) {
-            $tags = $this->moduleInspector->inspectModule($moduleDirectory);
-            $modulePathName = $moduleDirectory->getRelativePathname();
+        $renderdTags = $this->renderTags([]);
+        $renderdModules = $this->renderCharacteristics($characteristics, [], $io);
+        file_put_contents(
+            __DIR__ . '/../_new/2-internals/1-core/10-modules.md',
+            sprintf(
+                self::TEMPLATE_PAGE,
+                implode(PHP_EOL, $renderdTags),
+                implode(PHP_EOL, $renderdModules)
+        ));
+
+//        print_r($tagCollection->filterName('Custom Rules'));
+
+        $io->success('Done');
+    }
+
+    protected function renderCharacteristics(array $characteristics, array $markdown, SymfonyStyle $io): array
+    {
+        $moduleDescriptions = new ArrayWriter($this->moduleDescriptionPath);
+        foreach ($characteristics as $modulePathName => $tags) {
             [$bundleName, $moduleName] = explode('/', $modulePathName);
 
-            $tagNames = array_map(function (ModuleTag $tag) { return $tag->name(); }, $tags);
-            $renderedTags = array_map(function (string $tagName) { return sprintf('<span class="tip is--primary">%s</span>', $tagName); }, $tagNames);
+            $tagNames = array_map(function (ModuleTag $tag) {
+                return $tag->name();
+            }, $tags);
+            $renderedTags = array_map(function (string $tagName) {
+                return sprintf('<span class="tip is--primary">%s</span>', $tagName);
+            }, $tagNames);
 
-            $descriptions->ensure($modulePathName);
+            $moduleDescriptions->ensure($modulePathName);
             $markdown[$bundleName] = sprintf('### %s Bundle' . PHP_EOL, $bundleName);
 
             $markdown[$modulePathName] = sprintf(
@@ -112,16 +116,15 @@ EOD;
                 $moduleName,
                 implode(' ', $renderedTags),
                 $modulePathName,
-                $descriptions->get($modulePathName)
+                $moduleDescriptions->get($modulePathName)
             );
 
             $io->write($modulePathName . ': ' . implode(', ', $tagNames) . PHP_EOL);
         }
 
-        $descriptions->dump(true);
-        file_put_contents(__DIR__ . '/../_new/2-internals/1-core/10-modules.md', sprintf(self::TEMPLATE_HEADER, implode(PHP_EOL, $markdown)));
+        $moduleDescriptions->dump(true);
 
-        $io->success('Done');
+        return $markdown;
     }
 
     private function createModuleFinder(): Finder
@@ -172,5 +175,38 @@ EOD;
                 ], true);
             })
             ->depth('1');
+    }
+
+    private function loadChracteristics(ModuleTagCollection $tagCollection): array
+    {
+        $finder = $this->createModuleFinder();
+        $characteristics = [];
+        /** @var SplFileInfo $moduleDirectory */
+        foreach ($finder as $moduleDirectory) {
+            $tags = $this->moduleInspector->inspectModule($moduleDirectory);
+            $tagCollection->merge($tags);
+            $modulePathName = $moduleDirectory->getRelativePathname();
+            $characteristics[$modulePathName] = $tags;
+        }
+
+        return $characteristics;
+    }
+
+    private function renderTags(array $markdown): array
+    {
+        $tagDescriptions = new ArrayWriter($this->tagDescriptionPath);
+
+        foreach ($this->moduleInspector->getAllTags() as $tagName) {
+            $tagDescriptions->ensure($tagName);
+            $markdown[$tagName] = sprintf(
+                self::TEMPLATE_TAG,
+                $tagName,
+                $tagDescriptions->get($tagName)
+            );
+        }
+
+        $tagDescriptions->dump(true);
+
+        return $markdown;
     }
 }

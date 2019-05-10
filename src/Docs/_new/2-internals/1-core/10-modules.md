@@ -6,42 +6,40 @@ All core modules encapsulate domain concepts and provide a varying number of ext
 
 <span class="tip is--primary">Data store</span>
   : These modules are related to database tables and are manageable through the API. Simple CRUD actions will be available.
-  
+
 <span class="tip is--primary">Maintenance</span>
   : Provide commands executable through CLI to trigger maintenance tasks.
-  
+
 <span class="tip is--primary">Custom actions</span>
-  : These modules contain more then simple CRUD actions. They provide special actions and services that ease management and additionally check consistency.
-  
+  : These modules contain more than simple CRUD actions. They provide special actions and services that ease management and additionally check consistency.
+
 <span class="tip is--primary">SalesChannel-API</span>
- : These modules provide logic through a sales channel for the storefront.
- 
+  : These modules provide logic through a sales channel for the storefront.
+
 <span class="tip is--primary">Custom Extendable</span>
- : These modules contain interfaces, process container tags or provide custom events as extension points.
-  
-<span class="tip is--primary">Rule Provider</span>
-  : Cross-system process to validate workflow decisions. 
-  
+  : These modules contain interfaces, process container tags or provide custom events as extension points.
+
 <span class="tip is--primary">Business Event Dispatcher</span>
   : Provide special events to handle business cases.
- 
+
 <span class="tip is--primary">Extension</span>
   : These modules contain extensions of - usually Framework - interfaces and classes to provide more specific functions for the Platform. 
-  
+
 <span class="tip is--primary">Custom Rules</span>
-  : Provides rules for the rule system used by the checkout.
+  : Cross-system process to validate workflow decisions. 
+
 
 ## Modules
 
 ### Checkout Bundle
 
-#### Cart <span class="tip is--primary">Custom actions</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Rule Provider</span> <span class="tip is--primary">Business Event Dispatcher</span> <span class="tip is--primary">Extension</span> <span class="tip is--primary">Custom Rules</span>
+#### Cart <span class="tip is--primary">Custom actions</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Business Event Dispatcher</span> <span class="tip is--primary">Extension</span> <span class="tip is--primary">Custom Rules</span>
 
 * [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Checkout/Cart)) 
 
 Cart processes
 
-#### Customer <span class="tip is--primary">Data store</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Rule Provider</span> <span class="tip is--primary">Business Event Dispatcher</span> <span class="tip is--primary">Extension</span> <span class="tip is--primary">Custom Rules</span>
+#### Customer <span class="tip is--primary">Data store</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Business Event Dispatcher</span> <span class="tip is--primary">Extension</span> <span class="tip is--primary">Custom Rules</span>
 
 * [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Checkout/Customer)) 
 
@@ -185,7 +183,7 @@ Custom field management
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-framework-customfield.md)
 
-#### DataAbstractionLayer <span class="tip is--primary">Data store</span> <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
+#### DataAbstractionLayer <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
 * [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Framework/DataAbstractionLayer)) 
 
@@ -259,7 +257,7 @@ Pricing
 
 Routing
 
-#### Rule <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Rule Provider</span> <span class="tip is--primary">Extension</span> <span class="tip is--primary">Custom Rules</span>
+#### Rule <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span> <span class="tip is--primary">Custom Rules</span>
 
 * [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Framework/Rule)) 
 
@@ -327,7 +325,7 @@ Countries
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-system-country.md)
 
-#### Currency <span class="tip is--primary">Data store</span> <span class="tip is--primary">Rule Provider</span> <span class="tip is--primary">Extension</span> <span class="tip is--primary">Custom Rules</span>
+#### Currency <span class="tip is--primary">Data store</span> <span class="tip is--primary">Extension</span> <span class="tip is--primary">Custom Rules</span>
 
 * [Sources]((https://github.com/shopware/platform/tree/master/src/Core/System/Currency)) 
 

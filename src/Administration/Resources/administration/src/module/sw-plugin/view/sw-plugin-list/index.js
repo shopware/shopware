@@ -71,7 +71,8 @@ Component.register('sw-plugin-list', {
             });
         },
 
-        changeActiveState(plugin) {
+        changeActiveState(plugin, event) {
+            plugin.active = event;
             if (!plugin.active) {
                 this.pluginService.deactivate(plugin.name).then(() => {
                     this.createNotificationSuccess({
@@ -92,6 +93,7 @@ Component.register('sw-plugin-list', {
         },
 
         onInstallPlugin(plugin) {
+            this.isLoading = true;
             this.pluginService.install(plugin.name).then(() => {
                 this.createNotificationSuccess({
                     title: this.$tc('sw-plugin.list.titleInstallSuccess'),
@@ -102,6 +104,7 @@ Component.register('sw-plugin-list', {
         },
 
         onUninstallPlugin(plugin) {
+            this.isLoading = true;
             this.pluginService.uninstall(plugin.name).then(() => {
                 this.createNotificationSuccess({
                     title: this.$tc('sw-plugin.list.titleUninstallSuccess'),
@@ -112,6 +115,7 @@ Component.register('sw-plugin-list', {
         },
 
         onUpdatePlugin(plugin) {
+            this.isLoading = true;
             this.pluginService.update(plugin.name).then(() => {
                 this.createNotificationSuccess({
                     title: this.$tc('sw-plugin.list.titleUpdateSuccess'),
@@ -122,6 +126,7 @@ Component.register('sw-plugin-list', {
         },
 
         onDeletePlugin(plugin) {
+            this.isLoading = true;
             this.pluginService.delete(plugin.name).then(() => {
                 this.createNotificationSuccess({
                     title: this.$tc('sw-plugin.list.titleDeleteSuccess'),

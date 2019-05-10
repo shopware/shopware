@@ -58,7 +58,10 @@ class PromotionDefinition extends EntityDefinition
 
         return [
             'active' => false,
+            'exclusive' => false,
             'useCodes' => false,
+            'maxRedemptionsGlobal' => 0,
+            'maxRedemptionsPerCustomer' => 0,
         ];
     }
 
@@ -67,13 +70,13 @@ class PromotionDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new TranslatedField('name'),
-            new BoolField('active', 'active'),
+            (new BoolField('active', 'active'))->addFlags(new Required()),
             new DateField('valid_from', 'validFrom'),
             new DateField('valid_until', 'validUntil'),
-            new IntField('max_redemptions_global', 'maxRedemptionsGlobal'),
-            new IntField('max_redemptions_per_customer', 'maxRedemptionsPerCustomer'),
-            new BoolField('exclusive', 'exclusive'),
-            new BoolField('use_codes', 'useCodes'),
+            (new IntField('max_redemptions_global', 'maxRedemptionsGlobal'))->addFlags(new Required()),
+            (new IntField('max_redemptions_per_customer', 'maxRedemptionsPerCustomer'))->addFlags(new Required()),
+            (new BoolField('exclusive', 'exclusive'))->addFlags(new Required()),
+            (new BoolField('use_codes', 'useCodes'))->addFlags(new Required()),
             new StringField('code', 'code'),
             (new IntField('order_count', 'orderCount'))->setFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             (new JsonField('orders_per_customer_count', 'ordersPerCustomerCount'))->setFlags(new WriteProtected(Context::SYSTEM_SCOPE)),

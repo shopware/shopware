@@ -94,72 +94,8 @@
                 </div>
             {% endblock %}
 
-            {% block page_account_overview_addresses %}
-                <div class="row">
-                    {% block page_account_overview_billing_address %}
-                        <div class="col-lg-6 card-col overview-billing-address">
-                            {% block page_account_overview_billing_address_card %}
-                                <div class="card">
-                                    <div class="card-body">
-                                        {% block page_account_overview_billing_address_title %}
-                                            <h2 class="card-title">
-                                                {{ "account.overviewBillingHeader"|trans }}
-                                            </h2>
-                                        {% endblock %}
-
-                                        {% block page_account_overview_billing_address_content %}
-                                            {% sw_include '@Storefront/component/address/address.html.twig' with {'address': page.customer.defaultBillingAddress} %}
-                                        {% endblock %}
-
-                                        {% block page_account_overview_billing_address_actions %}
-                                            <div class="card-actions">
-                                                <a href="{{ path('frontend.account.address.edit.page', {'addressId': page.customer.defaultBillingAddress.id}) }}"
-                                                   title="{{ "account.overviewChangeBilling"|trans }}"
-                                                   class="btn btn-light">
-                                                    {{ "account.overviewChangeBilling"|trans }}
-                                                </a>
-                                            </div>
-                                        {% endblock %}
-                                    </div>
-                                </div>
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
-
-                    {% block page_account_overview_shipping_address %}
-                        <div class="col-lg-6 card-col overview-shipping-address">
-                            {% block page_account_overview_shipping_address_card %}
-                                <div class="card">
-                                    <div class="card-body">
-                                        {% block page_account_overview_shipping_address_title %}
-                                            <h2 class="card-title">
-                                                {{ "account.overviewShippingHeader"|trans }}
-                                            </h2>
-                                        {% endblock %}
-
-                                        {% block page_account_overview_shipping_address_content %}
-                                            {% if page.customer.defaultBillingAddress.id is same as(page.customer.defaultShippingAddress.id) %}
-                                                <p>{{ "account.overviewAddressEqual"|trans }}</p>
-                                            {% else %}
-                                                {% sw_include '@Storefront/component/address/address.html.twig' with {'address': page.customer.defaultShippingAddress} %}
-                                            {% endif %}
-                                        {% endblock %}
-
-                                        {% block page_account_overview_shipping_address_actions %}
-                                            <div class="card-actions">
-                                                <a href="{{ path('frontend.account.address.edit.page', {'addressId': page.customer.defaultShippingAddress.id}) }}"
-                                                   title="{{ "account.overviewChangeShipping"|trans }}"
-                                                   class="btn btn-light">
-                                                    {{ "account.overviewChangeShipping"|trans }}
-                                                </a>
-                                            </div>
-                                        {% endblock %}
-                                    </div>
-                                </div>
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
-                </div>
+            {% block page_account_overview_addresses_include %}
+                {% sw_include "@Storefront/page/account/address.html.twig" %}
             {% endblock %}
 
             {% block page_account_overview_newsletter %}

@@ -6,11 +6,13 @@ use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
+use Shopware\Storefront\Pagelet\Account\AddressList\AccountAddressListPageletLoader;
 use Shopware\Storefront\Pagelet\Checkout\AjaxCart\CheckoutAjaxCartPageletLoader;
 use Shopware\Storefront\Pagelet\Checkout\Info\CheckoutInfoPageletLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CheckoutPageletController extends StorefrontController
 {
@@ -25,18 +27,25 @@ class CheckoutPageletController extends StorefrontController
     private $ajaxCartLoader;
 
     /**
-     * @var PageLoaderInterface
+     * @var AccountAddressListPageletLoader|PageLoaderInterface
      */
     private $accountAddresslistLoader;
+
+    /**
+     * @var TranslatorInterface
+     */
+    private $translator;
 
     public function __construct(
         PageLoaderInterface $infoLoader,
         PageLoaderInterface $ajaxCartLoader,
-        PageLoaderInterface $accountAddresslistLoader
+        PageLoaderInterface $accountAddresslistLoader,
+        TranslatorInterface $translator
     ) {
         $this->infoLoader = $infoLoader;
         $this->ajaxCartLoader = $ajaxCartLoader;
         $this->accountAddresslistLoader = $accountAddresslistLoader;
+        $this->translator = $translator;
     }
 
     /**
@@ -71,7 +80,8 @@ class CheckoutPageletController extends StorefrontController
         $this->denyAccessUnlessLoggedIn();
 
         $page = $this->accountAddresslistLoader->load($request, $context);
+        $this->addFlash('success', $this->translator->trans('account.addressDefaultChanged'));
 
-        return $this->renderStorefront('@Storefront/component/checkout/address-list.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/component/checkout/confirm/ajax-addresses.html.twig', ['page' => $page]);
     }
 }

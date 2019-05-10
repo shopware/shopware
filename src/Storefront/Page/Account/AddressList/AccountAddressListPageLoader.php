@@ -30,7 +30,8 @@ class AccountAddressListPageLoader implements PageLoaderInterface
         PageLoaderInterface $pageWithHeaderLoader,
         PageLoaderInterface $accountAddressPageletLoader,
         EventDispatcherInterface $eventDispatcher
-    ) {
+    )
+    {
         $this->eventDispatcher = $eventDispatcher;
         $this->pageWithHeaderLoader = $pageWithHeaderLoader;
         $this->accountAddressPageletLoader = $accountAddressPageletLoader;
@@ -42,9 +43,9 @@ class AccountAddressListPageLoader implements PageLoaderInterface
 
         $page = AccountAddressListPage::createFrom($page);
 
-        $page->setAddresses(
-            $this->accountAddressPageletLoader->load($request, $context)
-        );
+        $addressPagelet = $this->accountAddressPageletLoader->load($request, $context);
+
+        $page->setAddresses($addressPagelet['addresses']);
 
         $page->setCustomer($context->getCustomer());
 

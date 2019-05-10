@@ -8,7 +8,6 @@ use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
-use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Symfony\Component\HttpFoundation\Request;
 
 class AddressBookPageletLoader implements PageLoaderInterface
@@ -46,15 +45,13 @@ class AddressBookPageletLoader implements PageLoaderInterface
         /** @var SalutationCollection $salutations */
         $salutations = $this->accountService->getSalutationList($context);
 
-        $result = new AddressBookPagelet($salutations, $countries);
+        $customer = $context->getCustomer();
+        $result = new AddressBookPagelet($salutations, $countries, $customer);
+
+        $addressListPagelet = $this->addressListPageletLoader->load($request, $context);
+        $result->setAddresses($addressListPagelet['addresses']);
 
         if (!empty($addressId = $request->get('id', null))) {
-            if ($request->isMethod('get')) {
-                /** @var StorefrontSearchResult $addresses */
-                $addresses = $this->addressListPageletLoader->load($request, $context);
-                $result->setAddresses($addresses);
-            }
-
             $address = $this->addressService->getById($addressId, $context);
             $result->setAddress($address);
         }

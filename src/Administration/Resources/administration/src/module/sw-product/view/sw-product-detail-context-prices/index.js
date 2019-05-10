@@ -155,6 +155,7 @@ Component.register('sw-product-detail-context-prices', {
             newPriceRule.quantityStart = 1;
             newPriceRule.quantityEnd = null;
             newPriceRule.currencyId = this.defaultCurrency.id;
+            newPriceRule.price.linked = true;
 
             this.product.prices.push(newPriceRule);
         },

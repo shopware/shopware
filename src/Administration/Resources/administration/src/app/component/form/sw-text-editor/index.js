@@ -202,6 +202,7 @@ export default {
                 if (this.value !== this.$refs.editor.innerHTML) {
                     this.content = this.value;
                     this.isEmpty = this.emptyCheck(this.content);
+                    this.placeholderVisible = this.isEmpty;
                 }
 
                 this.$nextTick(() => {
@@ -233,7 +234,7 @@ export default {
 
         mountedComponent() {
             this.isEmpty = this.emptyCheck(this.content);
-            this.placeholderVisible = !this.isEmpty;
+            this.placeholderVisible = this.isEmpty;
 
             this.$nextTick(() => {
                 this.setWordCount();

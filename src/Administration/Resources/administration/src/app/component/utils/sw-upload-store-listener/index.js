@@ -8,7 +8,7 @@ import utils from 'src/core/service/util.service';
 
 function isIllegalFileNameException(error) {
     return error.response.data.errors.some((err) => {
-        return err.code === 'ILLEGAL_FILE_NAME_EXCEPTION';
+        return err.code === 'CONTENT__MEDIA_ILLEGAL_FILE_NAME';
     });
 }
 

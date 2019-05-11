@@ -1,6 +1,6 @@
 {% sw_extends '@Storefront/utilities/offcanvas.html.twig' %}
 
-{% block layout_utilities_offcanvas_content %}
+{% block utilities_offcanvas_content %}
 
     {% if page.header.offcanvasNavigation %}
         {% set offcanvasNavigation = page.header.offcanvasNavigation %}
@@ -27,7 +27,7 @@
                                         <span itemprop="{{ "general.mainMenu"|trans }}">
                                             <span
                                                 class="offcanvas-menu-list-item-link-icon js-offcanvas-menu-loading-icon">
-                                                {% sw_icon 'basic-stack-line' %}
+                                                {% sw_icon 'stack' %}
                                             </span>
                                             {{ "general.mainMenu"|trans }}
                                         </span>
@@ -57,7 +57,7 @@
                                             <span
                                                 class="offcanvas-menu-list-item-link-icon js-offcanvas-menu-loading-icon">
                                                 {% block layout_utilities_offcanvas_close_icon %}
-                                                    {% sw_icon 'basic-x-line' %}
+                                                    {% sw_icon 'x' %}
                                                 {% endblock %}
                                             </span>
                                             {{ "general.back"|trans }}
@@ -123,7 +123,8 @@
                                                                 {% block layout_navigation_offcanvas_navigation_categories_list_category_item_link_icon %}
                                                                     <span
                                                                         class="offcanvas-menu-list-item-link-icon js-offcanvas-menu-loading-icon">
-                                                                        {% sw_icon 'small-arrow-medium-right' %}
+                                                                        {#TODO: Add parameter solid for pack and remove svg from default pack#}
+                                                                        {% sw_icon 'solid-arrow-medium-right' %}
                                                                     </span>
                                                                 {% endblock %}
                                                             {% endif %}

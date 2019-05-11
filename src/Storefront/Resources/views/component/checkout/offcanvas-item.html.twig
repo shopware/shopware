@@ -1,0 +1,12 @@
+{% block utilities_offcanvas_item %}
+    {% if lineItem.type == 'product' %}
+        {% block utilities_offcanvas_item_product %}
+            {% sw_include '@Storefront/component/checkout/_item/product-offcanvas.html.twig' %}
+        {% endblock %}
+    {% elseif lineItem.type == 'promotion' %}
+        {% block utilities_offcanvas_item_promotion %}
+            {% sw_include '@Storefront/component/checkout/_item/promotion-offcanvas.html.twig' %}
+        {% endblock %}
+    {% endif %}
+{% endblock %}
+

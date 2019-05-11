@@ -12,7 +12,8 @@
                                    title="{{ navigationTree.category.translated.name }}">
                                     {% block layout_navigation_flyout_bar_category_link_text %}
                                         {{ "general.toCategory"|trans }} {{ navigationTree.category.translated.name }}
-                                        {% sw_icon 'small-arrow-small-right' style { 'color': 'primary' } %}
+                                        {#TODO: Add parameter solid for pack and remove svg from default pack#}
+                                        {% sw_icon 'solid-arrow-right' style { 'color': 'primary' } %}
                                     {% endblock %}
                                 </a>
                             {% endif %}
@@ -26,7 +27,7 @@
                     <div class="navigation-flyout-close js-close-flyout-menu">
                         {% block layout_navigation_flyout_bar_close_content %}
                             {% block layout_utilities_offcanvas_close_icon %}
-                                {% sw_icon 'basic-x-line' %}
+                                {% sw_icon 'x' %}
                             {% endblock %}
                         {% endblock %}
                     </div>

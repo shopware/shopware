@@ -18,7 +18,8 @@
                                    aria-selected="true">
                                     {{ "detail.tabsDescription"|trans }}
                                     <span class="nav-link-icon">
-                                        {% sw_icon 'small-arrow-medium-right' %}
+                                        {#TODO: Add parameter solid for pack and remove svg from default pack#}
+                                        {% sw_icon 'solid-arrow-medium-right' %}
                                     </span>
                                     <span class="product-detail-tab-preview">
                                         {{ page.product.translated.description|raw|striptags|truncate(125) }} <span class="product-detail-tab-preview-more">{{ "detail.tabsPreviewMore"|trans }}</span>

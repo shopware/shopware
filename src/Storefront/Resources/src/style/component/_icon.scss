@@ -23,17 +23,17 @@
 
 .icon {
     @include sw-icon-size($icon-base-size);
-    display: inline-block;
+    display: inline-flex;
+    align-self: center;
     font-size: inherit;
     overflow: visible;
-    vertical-align: middle;
-    line-height: 0;
     color: $icon-base-color;
 
     > svg {
         width: 100%;
         height: 100%;
-        vertical-align: middle;
+        top: 0.25em;
+        position: relative;
         fill: currentColor;
 
         path,
@@ -157,6 +157,33 @@
     .icon-flip-both {
         svg {
             filter: none;
+        }
+    }
+}
+
+// Make them work with bootstrap components
+// -------------------------
+
+@each $color, $value in $theme-colors {
+    .alert-#{$color} {
+        .icon {
+            color: $value;
+        }
+    }
+}
+
+@each $color, $value in $theme-colors {
+    .btn-#{$color} {
+        .icon {
+            color: color-yiq($value);
+        }
+    }
+}
+
+.btn {
+    .icon {
+        > svg {
+            top: 6px;
         }
     }
 }

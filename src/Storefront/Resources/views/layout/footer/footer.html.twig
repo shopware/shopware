@@ -14,10 +14,10 @@
                             {% block layout_footer_navigation_hotline_icons %}
                                 <div class="toggle-icon">
                                     <span class="plus-icon">
-                                        {% sw_icon 'basic-plus-line' %}
+                                        {% sw_icon 'plus' %}
                                     </span>
                                     <span class="minus-icon">
-                                        {% sw_icon 'basic-minus-line' %}
+                                        {% sw_icon 'minus' %}
                                     </span>
                                 </div>
                             {% endblock %}
@@ -48,10 +48,10 @@
                                     {% block layout_footer_navigation_information_icons %}
                                         <div class="toggle-icon">
                                             <span class="plus-icon">
-                                                {% sw_icon 'basic-plus-line' %}
+                                                {% sw_icon 'plus' %}
                                             </span>
                                             <span class="minus-icon">
-                                                {% sw_icon 'basic-minus-line' %}
+                                                {% sw_icon 'minus' %}
                                             </span>
                                         </div>
                                     {% endblock %}
@@ -104,6 +104,7 @@
 
             {% block layout_footer_copyright %}
                 <div class="footer-copyright">
+                    {% sw_icon 'shopware' style {'size':'xs'} %}
                     {{ "footer.copyrightInfo"|trans }}
                 </div>
             {% endblock %}

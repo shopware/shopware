@@ -1,13 +1,15 @@
 .cms-block {
     overflow: hidden;
 
-    &.boxed {
-        @extend .container;
-    }
-
     &.bg-image {
         background-repeat: no-repeat;
         background-position: 50%;
+    }
+}
+
+.cms-block-container {
+    &.boxed {
+        @extend .container;
     }
 }
 
@@ -29,8 +31,13 @@
 
 .cms-block-image-text-bubble,
 .cms-block-image-bubble-row {
-    .cms-image {
+    .cms-element-image .cms-image-container {
+        height: 300px;
+        width: 300px;
+        margin: auto;
         border-radius: 50%;
+        background-clip: padding-box;
+        overflow: hidden;
     }
 }
 
@@ -57,6 +64,30 @@
     }
 }
 
+.cms-block-text-on-image {
+    .cms-element-text {
+        padding: 30px;
+        align-items: center;
+        min-height: 240px;
+    }
+}
+
+.cms-block-image-text-cover {
+    .cms-element-text {
+        padding-top: 30px;
+    }
+}
+
+.cms-block-image-simple-grid {
+    .left-top {
+        margin-bottom: $grid-gutter-width;
+    }
+
+    .right {
+        height: 100%;
+    }
+}
+
 @include media-breakpoint-down(sm) {
     .cms-block-image-text-gallery,
     .cms-block-image-two-column,
@@ -65,14 +96,20 @@
     .cms-block-image-bubble-row,
     .cms-block-image-highlight-row {
         .cms-row > :not(:last-child) {
-            margin-bottom: 40px;
+            margin-bottom: $grid-gutter-width;
         }
     }
 
     .cms-block-image-text,
     .cms-block-image-text-cover {
         .cms-row > :first-child {
-            margin-bottom: 40px;
+            margin-bottom: $grid-gutter-width;
+        }
+    }
+
+    .cms-block-image-simple-grid {
+        .left-bottom {
+            margin-bottom: $grid-gutter-width;
         }
     }
 }

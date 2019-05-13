@@ -44,8 +44,8 @@ class MailTemplateDefinition extends EntityDefinition
 
             // translatable fields
             new TranslatedField('senderName'),
-            new TranslatedField('description'),
-            new TranslatedField('subject'),
+            (new TranslatedField('description'))->setFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new TranslatedField('subject'))->setFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new TranslatedField('contentHtml'),
             new TranslatedField('contentPlain'),
 

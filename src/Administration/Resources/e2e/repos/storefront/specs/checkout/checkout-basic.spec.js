@@ -37,7 +37,7 @@ module.exports = {
         const page = checkoutPage(browser);
 
         browser
-            .click('.buy-widget-submit')
+            .click('.btn-buy')
             .waitForElementVisible(`${page.elements.offCanvasCart}.is-open`);
     },
     'check off-canvas cart and continue': (browser) => {
@@ -48,7 +48,7 @@ module.exports = {
             .assert.containsText(`${page.elements.cartItem}-link-name`, currentProduct.attributes.name)
             .assert.containsText(`${page.elements.cartItem}-link-price`, currentProduct.attributes.price.gross)
             .assert.containsText('.cart-prices-subtotal', currentProduct.attributes.price.gross)
-            .click(`${page.elements.cartActions} ${page.elements.lightButton}`)
+            .click(`${page.elements.cartActions} .btn-link`)
             .waitForElementVisible('.card-body');
     },
     'check checkout page and continue': (browser) => {
@@ -84,8 +84,8 @@ module.exports = {
             .waitForElementVisible('.checkout-main')
             .assert.containsText(`${page.elements.cartItem}-label`, currentProduct.attributes.name)
             .assert.containsText(`${page.elements.cartItem}-total-price`, currentProduct.attributes.price.gross)
-            .assert.containsText('.checkout-summary-item:nth-of-type(1) .checkout-summary-value', currentProduct.attributes.price.gross)
-            .assert.containsText('.checkout-summary-total .checkout-summary-value', currentProduct.attributes.price.gross)
+            .assert.containsText('.cart-item-total-price', currentProduct.attributes.price.gross)
+            .assert.containsText('.checkout-summary-value.checkout-summary-total', currentProduct.attributes.price.gross)
             .click('#confirmFormSubmit');
     },
     'finish order': (browser) => {

@@ -47,6 +47,7 @@
       "labelDescription": "Description",
       "placeholderOptionSearch": "Search options",
       "addOption": "Add new",
+      "addOptionNotPossible": "Options can only be added in the default language",
       "contextMenuOptionResetDelete": "Restore",
       "textOptionHeadline": "New option",
       "titleSaveSuccess": "Success",

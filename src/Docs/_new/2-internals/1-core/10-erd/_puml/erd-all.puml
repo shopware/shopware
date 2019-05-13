@@ -830,7 +830,7 @@ Table(ShopwareCoreContentProductAggregateProductMediaProductMediaDefinition, "pr
 }
 TranslationTable(ShopwareCoreContentProductAggregateProductTranslationProductTranslationDefinition, "product_translation\n((Translations))") {
    additionalText string
-   name string
+   not_null(name) string
    keywords longText
    description longTextWithHtml
    metaTitle string
@@ -1452,13 +1452,13 @@ TranslationTable(ShopwareCoreCheckoutPaymentAggregatePaymentMethodTranslationPay
 Table(ShopwareCoreCheckoutPromotionPromotionDefinition, "promotion\n(Discounts with settings)") {
    primary_key(id) id
    name translated
-   active bool
+   not_null(active) bool
    validFrom date
    validUntil date
-   maxRedemptionsGlobal int
-   maxRedemptionsPerCustomer int
-   exclusive bool
-   useCodes bool
+   not_null(maxRedemptionsGlobal) int
+   not_null(maxRedemptionsPerCustomer) int
+   not_null(exclusive) bool
+   not_null(useCodes) bool
    code string
    orderCount int
    ordersPerCustomerCount json

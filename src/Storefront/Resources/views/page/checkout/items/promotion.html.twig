@@ -2,9 +2,7 @@
 
 {% block page_checkout_item_product_info_image_link %}
     <div class="cart-item-promotion-icon">
-        {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-            'name': 'object-marketing'
-        } %}
+        {% sw_icon 'object-marketing' %}
     </div>
 {% endblock %}
 
@@ -21,5 +19,3 @@
 {% block page_checkout_item_product_quantity_form %}{% endblock %}
 
 {% block page_checkout_item_product_unit_price_wrapper %}{% endblock %}
-
-{% block page_checkout_item_product_remove_form %}{% endblock %}

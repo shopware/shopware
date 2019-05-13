@@ -33,15 +33,15 @@ module.exports = {
         browser
             .click(page.elements.smartBarBack)
             .refresh()
-            .expect.element(`${page.elements.gridRow}--0 a`).to.have.text.that.equals('Coleur');
+            .expect.element(`${page.elements.dataGridRow}--0 a`).to.have.text.that.equals('Coleur');
     },
     'add option to property group': (browser) => {
         const page = propertyPage(browser);
 
         browser
             .clickContextMenuItem(page.elements.contextMenuButton, {
-                menuActionSelector: '.sw-context-menu-item',
-                scope: `${page.elements.gridRow}--0`
+                menuActionSelector: '.sw-property-list__edit-action',
+                scope: `${page.elements.dataGridRow}--0`
             })
             .expect.element(page.elements.cardTitle).to.have.text.that.equals('Basic information');
 
@@ -64,6 +64,6 @@ module.exports = {
         browser
             .click(page.elements.smartBarBack)
             .refresh()
-            .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains('Bleu');
+            .expect.element(`${page.elements.dataGridRow}--0`).to.have.text.that.contains('Bleu');
     }
 };

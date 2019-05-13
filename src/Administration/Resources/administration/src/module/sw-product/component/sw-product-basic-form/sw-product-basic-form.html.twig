@@ -3,6 +3,7 @@
         <sw-container columns="1fr 300px" gap="0px 30px">
             {% block sw_product_basic_form_title_field %}
                 <sw-field type="text"
+                          :required="isTitleRequired"
                           :label="$tc('sw-product.basicForm.labelTitle')"
                           :placeholder="placeholder(product, 'name', $tc('sw-product.basicForm.placeholderName'))"
                           v-model="product.name">
@@ -33,7 +34,6 @@
                 </sw-field>
             {% endblock %}
             {% block sw_product_basic_form_manufacturer_field %}
-
                 <sw-select :store="manufacturerStore"
                            class="sw-select-product__select_manufacturer"
                            id="manufacturerId"
@@ -42,8 +42,6 @@
                            :label="$tc('sw-product.basicForm.labelManufacturer')"
                            v-model="product.manufacturerId">
                 </sw-select>
-
-
             {% endblock %}
         </sw-container>
 

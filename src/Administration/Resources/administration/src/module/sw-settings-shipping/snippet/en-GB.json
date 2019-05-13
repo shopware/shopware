@@ -76,7 +76,7 @@
       "columnVolumeEnd": "Volume end",
       "columnPrice": "Price (gross)",
       "columnCalculationRule": "Rule",
-      "buttonAddAdditionalPriceRule": "Add additional price rule",
+      "buttonAddAdditionalPriceMatrix": "Add additional price matrix",
       "any": "any",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete",

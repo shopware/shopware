@@ -32,6 +32,7 @@
  * Layout-related sections
  * ----------------------- */
 @import 'layout/grid';
+@import 'layout/top-bar';
 @import 'layout/header';
 @import 'layout/header-minimal';
 @import 'layout/footer';
@@ -64,6 +65,8 @@
 @import 'component/element-loading-indicator';
 @import 'component/cms-block';
 @import 'component/cms-element';
+@import 'component/forms';
+@import 'component/address-editor';
 
 /*
  * Page-specific styles
@@ -78,9 +81,9 @@
 @import 'page/account/profile';
 @import 'page/account/orders';
 
+@import 'page/checkout/aside';
 @import 'page/checkout/cart';
 @import 'page/checkout/cart-item';
-@import 'page/checkout/summary';
 @import 'page/checkout/register';
 @import 'page/checkout/confirm';
 @import 'page/checkout/finish';

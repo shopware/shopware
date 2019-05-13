@@ -1,4 +1,4 @@
-<sw-base-field class="sw-field--radio" v-bind="$attrs" :name="formFieldName">
+<sw-base-field class="sw-field--radio" v-bind="$attrs" :name="formFieldName" :error="actualError">
     <template #sw-field-input="{ identification, helpText, error, disabled }">
         <sw-help-text v-if="helpText" :text="helpText"></sw-help-text>
             <div class="sw-field__radio-group">

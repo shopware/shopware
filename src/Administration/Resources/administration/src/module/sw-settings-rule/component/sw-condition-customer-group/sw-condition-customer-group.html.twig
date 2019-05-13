@@ -6,6 +6,7 @@
     {% endblock %}
     {% block sw_condition_customer_group_field_customer_group_ids %}
         <sw-condition-value multi
+                            size="small"
                             name="customerGroupIds"
                             :id="condition.id"
                             :store="getCustomerGroupStore()"

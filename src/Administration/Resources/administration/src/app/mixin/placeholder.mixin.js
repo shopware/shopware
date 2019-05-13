@@ -1,4 +1,5 @@
 import { Mixin, State } from 'src/core/shopware';
+import { types } from 'src/core/service/util.service';
 
 Mixin.register('placeholder', {
     computed: {
@@ -13,6 +14,11 @@ Mixin.register('placeholder', {
                 return fallbackSnippet;
             }
 
+            if (types.isString(entity[field]) && entity[field].length > 0) {
+                return entity[field];
+            }
+
+            // TODO: Refactor with NEXT-3304
             // Return the field from parent translation if set
             const parentLanguageId = this.languageStore.getCurrentLanguage().parentId;
             if (parentLanguageId && parentLanguageId.length > 0 && entity.translations) {
@@ -24,6 +30,14 @@ Mixin.register('placeholder', {
                     return translation[field];
                 }
             }
+
+            const currentLanguageId = this.languageStore.getCurrentLanguage().id;
+            const systemLanguageId = this.languageStore.systemLanguageId;
+
+            if (currentLanguageId === systemLanguageId) {
+                return fallbackSnippet;
+            }
+
             // Return the field from translated if set
             if (entity.translated != null && entity.translated.hasOwnProperty(field)) {
                 if (entity.translated[field] !== null) {

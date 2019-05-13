@@ -42,9 +42,9 @@ class AccountAddressListPageLoader implements PageLoaderInterface
 
         $page = AccountAddressListPage::createFrom($page);
 
-        $page->setAddresses(
-            $this->accountAddressPageletLoader->load($request, $context)
-        );
+        $addressPagelet = $this->accountAddressPageletLoader->load($request, $context);
+
+        $page->setAddresses($addressPagelet['addresses']);
 
         $page->setCustomer($context->getCustomer());
 

@@ -20,6 +20,12 @@ class CacheControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        $this->cache = $this->getContainer()->get('shopware.cache');
+    }
+
+    public function testClearCacheEndpoint(): void
+    {
         $this->cache = $this->getContainer()->get('shopware.cache');
 
         $item = $this->cache->getItem('foo');
@@ -31,10 +37,7 @@ class CacheControllerTest extends TestCase
         $item->set('foo');
         $item->tag(['bar-tag']);
         $this->cache->save($item);
-    }
 
-    public function testClearCacheEndpoint(): void
-    {
         static::assertTrue($this->cache->getItem('foo')->isHit());
         static::assertTrue($this->cache->getItem('bar')->isHit());
 
@@ -47,87 +50,5 @@ class CacheControllerTest extends TestCase
 
         static::assertFalse($this->cache->getItem('foo')->isHit());
         static::assertFalse($this->cache->getItem('bar')->isHit());
-    }
-
-    public function testClearCacheItems(): void
-    {
-        static::assertTrue($this->cache->getItem('foo')->isHit());
-        static::assertTrue($this->cache->getItem('bar')->isHit());
-
-        $ids = ['foo', 'bar'];
-
-        $this->getClient()->request('DELETE', '/api/v1/_action/cache/item', [], [], [], json_encode($ids));
-
-        /** @var JsonResponse $response */
-        $response = $this->getClient()->getResponse();
-
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($response->getContent(), true));
-
-        static::assertFalse($this->cache->getItem('foo')->isHit());
-        static::assertFalse($this->cache->getItem('bar')->isHit());
-    }
-
-    public function testClearCacheWithInvalidParameters(): void
-    {
-        $ids = [1, 2, 3];
-
-        /* @var JsonResponse $response */
-        $this->getClient()->request('DELETE', '/api/v1/_action/cache/item', [], [], [], json_encode($ids));
-        $response = $this->getClient()->getResponse();
-        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), print_r($response->getContent(), true));
-
-        $ids = [];
-
-        /* @var JsonResponse $response */
-        $this->getClient()->request('DELETE', '/api/v1/_action/cache/item', [], [], [], json_encode($ids));
-        $response = $this->getClient()->getResponse();
-        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), print_r($response->getContent(), true));
-
-        $ids = ['test', true];
-        /* @var JsonResponse $response */
-        $this->getClient()->request('DELETE', '/api/v1/_action/cache/item', [], [], [], json_encode($ids));
-        $response = $this->getClient()->getResponse();
-        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), print_r($response->getContent(), true));
-    }
-
-    public function testInvalidateTags(): void
-    {
-        static::assertTrue($this->cache->getItem('foo')->isHit());
-        static::assertTrue($this->cache->getItem('bar')->isHit());
-
-        $ids = ['foo-tag', 'bar-tag'];
-
-        $this->getClient()->request('DELETE', '/api/v1/_action/cache/tag', [], [], [], json_encode($ids));
-
-        /** @var JsonResponse $response */
-        $response = $this->getClient()->getResponse();
-
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($response->getContent(), true));
-
-        static::assertFalse($this->cache->getItem('foo')->isHit());
-        static::assertFalse($this->cache->getItem('bar')->isHit());
-    }
-
-    public function testInvalidateTagsWithInvalidParameters(): void
-    {
-        $ids = [1, 2, 3];
-
-        /* @var JsonResponse $response */
-        $this->getClient()->request('DELETE', '/api/v1/_action/cache/tag', [], [], [], json_encode($ids));
-        $response = $this->getClient()->getResponse();
-        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), print_r($response->getContent(), true));
-
-        $ids = [];
-
-        /* @var JsonResponse $response */
-        $this->getClient()->request('DELETE', '/api/v1/_action/cache/tag', [], [], [], json_encode($ids));
-        $response = $this->getClient()->getResponse();
-        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), print_r($response->getContent(), true));
-
-        $ids = ['test', true];
-        /* @var JsonResponse $response */
-        $this->getClient()->request('DELETE', '/api/v1/_action/cache/tag', [], [], [], json_encode($ids));
-        $response = $this->getClient()->getResponse();
-        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), print_r($response->getContent(), true));
     }
 }

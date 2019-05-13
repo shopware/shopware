@@ -111,7 +111,7 @@
 
                                                     {% block page_account_profile_mail_input_error %}
                                                         {% if formViolations.getViolations('/email') is not empty %}
-                                                            {% sw_include '@Storefront/layout/_utilities/form-violation.html.twig' with {
+                                                            {% sw_include '@Storefront/utilities/form-violation.html.twig' with {
                                                                 violationPath: '/email'
                                                             } %}
                                                         {% endif %}
@@ -142,7 +142,7 @@
 
                                                     {% block page_account_profile_mail_confirmation_input_error %}
                                                         {% if formViolations.getViolations('/email') is not empty %}
-                                                            {% sw_include '@Storefront/layout/_utilities/form-violation.html.twig' with {
+                                                            {% sw_include '@Storefront/utilities/form-violation.html.twig' with {
                                                                 violationPath: '/email'
                                                             } %}
                                                         {% endif %}
@@ -171,7 +171,7 @@
 
                                                     {% block page_account_profile_mail_password_input_error %}
                                                         {% if formViolations.getViolations('/password') is not empty %}
-                                                            {% sw_include '@Storefront/layout/_utilities/form-violation.html.twig' with {
+                                                            {% sw_include '@Storefront/utilities/form-violation.html.twig' with {
                                                                 violationPath: '/password'
                                                             } %}
                                                         {% endif %}
@@ -242,7 +242,7 @@
 
                                                     {% block page_account_profile_new_password_input_error %}
                                                         {% if formViolations.getViolations('/newPassword') is not empty %}
-                                                            {% sw_include '@Storefront/layout/_utilities/form-violation.html.twig' with {
+                                                            {% sw_include '@Storefront/utilities/form-violation.html.twig' with {
                                                                 violationPath: '/newPassword'
                                                             } %}
                                                         {% endif %}
@@ -273,7 +273,7 @@
 
                                                     {% block page_account_profile_new_password_confirmation_error %}
                                                         {% if formViolations.getViolations('/newPassword') is not empty %}
-                                                            {% sw_include '@Storefront/layout/_utilities/form-violation.html.twig' with {
+                                                            {% sw_include '@Storefront/utilities/form-violation.html.twig' with {
                                                                 violationPath: '/newPassword'
                                                             } %}
                                                         {% endif %}
@@ -302,7 +302,7 @@
 
                                                     {% block page_account_profile_current_password_input_error %}
                                                         {% if formViolations.getViolations('/password') is not empty %}
-                                                            {% sw_include '@Storefront/layout/_utilities/form-violation.html.twig' with {
+                                                            {% sw_include '@Storefront/utilities/form-violation.html.twig' with {
                                                                 violationPath: '/password'
                                                             } %}
                                                         {% endif %}

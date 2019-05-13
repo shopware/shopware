@@ -33,12 +33,16 @@
                 {% endblock %}
 
                 {% block sw_settings_customer_group_detail_actions_save %}
-                    <sw-button class="sw-settings-customer-group-detail__save"
-                               :disabled="!customerGroup.name"
-                               variant="primary"
-                               @click="onSave">
+                    <sw-button-process
+                            class="sw-settings-customer-group-detail__save"
+                            :isLoading="isLoading"
+                            :processSuccess="isSaveSuccessful"
+                            :disabled="!customerGroup.name || isLoading"
+                            variant="primary"
+                            @process-finish="saveFinish"
+                            @click="onSave">
                         {{ $tc('sw-settings-customer-group.general.buttonSave') }}
-                    </sw-button>
+                    </sw-button-process>
                 {% endblock %}
             </template>
         {% endblock %}

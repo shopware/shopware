@@ -1,13 +1,14 @@
-import { Component, State, Mixin } from 'src/core/shopware';
-import CriteriaFactory from 'src/core/factory/criteria.factory';
+import { Component } from 'src/core/shopware';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-customer-detail-order.html.twig';
 import './sw-customer-detail-order.scss';
 
 Component.register('sw-customer-detail-order', {
     template,
 
-    mixins: [
-        Mixin.getByName('listing')
+    inject: [
+        'repositoryFactory',
+        'context'
     ],
 
     props: {
@@ -21,11 +22,8 @@ Component.register('sw-customer-detail-order', {
         return {
             isLoading: false,
             activeCustomer: this.customer,
-            disableRouteParams: true,
-            offset: 0,
-            limit: 10,
-            paginationSteps: [10, 25, 50, 75, 100],
-            orders: [],
+            orders: null,
+            term: '',
             // todo after NEXT-2291: to be removed if new emptyState-Splashscreens are implemented
             orderIcon: 'default-shopping-paper-bag'
         };
@@ -36,12 +34,14 @@ Component.register('sw-customer-detail-order', {
     },
 
     computed: {
-        customerStore() {
-            return State.getStore('customer');
+        orderColumns() {
+            return this.getOrderColumns();
         },
-        customerOrderStore() {
-            return State.getStore('order');
+
+        orderRepository() {
+            return this.repositoryFactory.create('order');
         },
+
         emptyTitle() {
             return this.term ?
                 this.$tc('sw-customer.detailOrder.emptySearchTitle') :
@@ -51,42 +51,54 @@ Component.register('sw-customer-detail-order', {
 
     methods: {
         createdComponent() {
-            this.getList();
-        },
-
-        loadOrders() {
             this.isLoading = true;
-            const criteria = CriteriaFactory.equals('orderCustomer.customerId', this.activeCustomer.id);
-            const params = this.getListingParams();
-            params.criteria = criteria;
 
-            this.customerOrderStore.getList(params).then((response) => {
-                this.orders = response.items;
-            }).finally(() => {
-                this.isLoading = false;
-            });
+            this.refreshList();
         },
 
         onChange(term) {
             this.term = term;
-            this.getList();
+            this.orders.criteria.setPage(1);
+            this.orders.criteria.setTerm(term);
+
+            this.refreshList();
         },
 
-        getList() {
-            if (!this.activeCustomer.id && this.$route.params.id) {
-                this.activeCustomer = this.customerStore.getById(this.$route.params.id);
-            }
-            if (!this.activeCustomer.id) {
-                this.$router.push({ name: 'sw.customer.detail.base', params: { id: this.$route.params.id } });
-                return;
-            }
-            this.loadOrders();
+        getOrderColumns() {
+            return [{
+                property: 'orderNumber',
+                dataIndex: 'orderNumber',
+                label: this.$tc('sw-customer.detailOrder.columnNumber'),
+                align: 'center'
+            }, {
+                property: 'amountTotal',
+                dataIndex: 'amountTotal',
+                label: this.$tc('sw-customer.detailOrder.columnAmount'),
+                align: 'right'
+            }, {
+                property: 'stateMachineState.name',
+                dataIndex: 'stateMachineState.name',
+                label: this.$tc('sw-customer.detailOrder.columnOrderState')
+            }, {
+                property: 'createdAt',
+                dataIndex: 'createdAt',
+                label: this.$tc('sw-customer.detailOrder.columnOrderDate'),
+                align: 'center'
+            }];
         },
 
-        onPageChange(data) {
-            this.page = data.page;
-            this.limit = data.limit;
-            this.getList();
+        refreshList() {
+            let criteria = new Criteria();
+            if (!this.orders || !this.orders.criteria) {
+                criteria.addFilter(Criteria.equals('order.orderCustomer.customerId', this.customer.id));
+            } else {
+                criteria = this.orders.criteria;
+            }
+
+            this.orderRepository.search(criteria, this.context).then((orders) => {
+                this.orders = orders;
+                this.isLoading = false;
+            });
         }
     }
 });

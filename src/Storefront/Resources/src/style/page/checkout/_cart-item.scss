@@ -40,11 +40,19 @@
     font-weight: $font-weight-bold;
 }
 
+
 .cart-item-unit-price,
 .cart-item-total-price,
 .cart-item-tax-price {
     justify-content: space-between;
     display: flex;
+}
+
+@include media-breakpoint-up(sm) {
+    .cart-item-quantity {
+        justify-content: space-between;
+        display: flex;
+    }
 }
 
 .cart-item-quantity-label,

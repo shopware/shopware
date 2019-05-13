@@ -7,61 +7,63 @@
 {% block base_navigation %}{% endblock %}
 
 {% block page_checkout_main_content %}
-    {% block page_checkout_register %}
-        {% block page_checkout_register_header %}
+    {% block page_checkout_address %}
+        {% block page_checkout_address_header %}
             <h1 class="address-main-header">
                 {{ "checkout.addressHeader"|trans }}
             </h1>
         {% endblock %}
-        {% block page_checkout_login %}
-            {% block page_checkout_login_collapse_toggle %}
-                <div class="address-login-collapse-toogle">
-                    {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-                        'name': 'avatar-single'
-                    } %}
-                    <a href="#loginCollapse" class="login-collapse-toggle"
-                            data-toggle="collapse"
-                            aria-expanded="false">
-                        <strong>{{ "checkout.addressLoginToggle"|trans }}</strong>
-                    </a>
-                </div>
-            {% endblock %}
 
-            {% block page_checkout_login_collapse %}
-                <div class="collapse"
-                     id="loginCollapse">
-                    {% block page_checkout_login_card %}
-                        {% sw_include '@Storefront/component/account/login.html.twig' %}
-                    {% endblock %}
-                </div>
-            {% endblock %}
+        {% block page_checkout_address_login_toggle %}
+            <div class="address-login-collapse-toogle">
+                {% sw_icon 'avatar-single' %}
+                <a href="#loginCollapse"
+                   class="login-collapse-toggle"
+                   data-toggle="collapse"
+                   aria-expanded="false">
+                    <strong>{{ "checkout.addressLoginToggle"|trans }}</strong> </a>
+            </div>
         {% endblock %}
 
-        {% block page_checkout_register_collapse %}
-            {% block page_checkout_register_card %}
+        {% block page_checkout_address_login %}
+            <div class="collapse" id="loginCollapse">
+                {% block page_checkout_address_login_card %}
+                    {% sw_include '@Storefront/component/account/login.html.twig' %}
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block page_checkout_address_register %}
+            {% block page_checkout_address_register_card %}
                 {% sw_include '@Storefront/page/checkout/address/register.html.twig' with {
                     'cardTitle': "checkout.addressRegisterCardTitle"|trans
-                }%}
+                } %}
             {% endblock %}
         {% endblock %}
     {% endblock %}
 {% endblock %}
 
-{% block page_checkout_sidebar_summary %}
-          {{ parent() }}
+{% block page_checkout_aside_summary %}
+    {{ parent() }}
 
-          {% block page_checkout_sidebar_summary_header %}
-              <h2 class="checkout-sidebar-header">
-                  {{ "checkout.cartHeader"|trans }}
-              </h2>
-          {% endblock %}
-
-    {% block page_checkout_register_summary_products %}
-        {% for lineItem in page.cart.lineItems.elements %}
-            {% block page_checkout_register_summary_product %}
-                {% sw_include '@Storefront/page/checkout/summary-item.html.twig' %}
+    {% block page_checkout_address_products %}
+        <div class="checkout-aside-products">
+            {% block page_checkout_address_products_header %}
+                <h2 class="checkout-aside-product-header">
+                    {{ "checkout.cartHeader"|trans }}
+                </h2>
             {% endblock %}
-        {% endfor %}
+
+            {% block page_checkout_address_products_list %}
+                <div class="checkout-aside-product-list">
+                    {% block page_checkout_address_product_list_container %}
+                        {% for lineItem in page.cart.lineItems.elements %}
+                            {% sw_include '@Storefront/page/checkout/aside-item.html.twig' %}
+                        {% endfor %}
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </div>
     {% endblock %}
 {% endblock %}
 

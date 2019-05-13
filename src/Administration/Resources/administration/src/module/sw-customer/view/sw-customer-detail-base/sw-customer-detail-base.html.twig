@@ -47,7 +47,9 @@
                                      class="sw-customer-detail-base__default-addresses"
                                      :isLoading="customer.isLoading">
                                 {% block sw_customer_detail_base_default_addresses %}
-                                    <sw-customer-default-addresses :customerEditMode="customerEditMode" :customer="customer" slot="grid"></sw-customer-default-addresses>
+                                    <template #grid>
+                                        <sw-customer-default-addresses :customerEditMode="customerEditMode" :customer="customer"></sw-customer-default-addresses>
+                                    </template>
                                 {% endblock %}
                             </sw-card>
                         {% endblock %}

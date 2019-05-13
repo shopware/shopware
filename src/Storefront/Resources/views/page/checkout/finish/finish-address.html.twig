@@ -3,12 +3,12 @@
     {% set shippingAddress = page.context.customer.defaultShippingAddress %}
     <div class="row">
         {% block page_checkout_finish_address_billing %}
-            <div class="col-md-6">
-                <div class="card finish-card">
-                    <div class="card-body finish-card-body">
+            <div class="col-sm-6">
+                <div class="card checkout-card">
+                    <div class="card-body">
                         {% block page_checkout_finish_address_billing_title %}
                             <div class="card-title">
-                               {{ "checkout.billingAddressHeader"|trans }}
+                                {{ "checkout.billingAddressHeader"|trans }}
                             </div>
                         {% endblock %}
 
@@ -20,12 +20,12 @@
                     </div>
                 </div>
             </div>
-        {%  endblock %}
+        {% endblock %}
 
         {% block page_checkout_finish_address_shipping %}
-            <div class="col-md-6">
-                <div class="card finish-card">
-                    <div class="card-body finish-card-body">
+            <div class="col-sm-6">
+                <div class="card checkout-card">
+                    <div class="card-body">
                         {% block page_checkout_finish_address_shipping_title %}
                             <div class="card-title">
                                 {{ "checkout.shippingAddressHeader"|trans }}
@@ -40,6 +40,6 @@
                     </div>
                 </div>
             </div>
-        {%  endblock %}
+        {% endblock %}
     </div>
 {% endblock %}

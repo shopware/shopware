@@ -6,6 +6,7 @@
     {% endblock %}
     {% block sw_condition_shipping_country_field_country_ids %}
         <sw-condition-value multi
+                            size="small"
                             name="countryIds"
                             :id="condition.id"
                             :store="getCountryStore()"

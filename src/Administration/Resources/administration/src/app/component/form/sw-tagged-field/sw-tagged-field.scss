@@ -59,7 +59,12 @@ $sw-tagged-field-transition-tags:                 all ease-in-out .15s;
         display: flex;
         flex-wrap: wrap;
         list-style: none;
-        line-height: 8px;
+        padding-top: 6px;
+    }
+
+    .sw-tagged-field__tags-wrapper {
+        display: flex;
+        padding-top: 1px;
     }
 
     .sw-tagged-field__tag-item-input {
@@ -83,6 +88,38 @@ $sw-tagged-field-transition-tags:                 all ease-in-out .15s;
         &::placeholder {
             color: $sw-tagged-field-input-color-placeholder;
         }
+    }
+
+    .sw-tagged-field__selection {
+        max-width: 220px;
+        padding-right: 6px;
+        padding-bottom: 6px;
+        line-height: 0;
+
+        .sw-label {
+            margin: 0;
+        }
+
+        &:hover .sw-label--dismiss-able {
+            .sw-tagged-field__selection-item {
+                display: block;
+                width: calc(100% - 15px);
+            }
+
+            .sw-label__dismiss {
+                display: block;
+                color: $color-shopware-blue;
+            }
+        }
+    }
+
+    .sw-tagged-field__selection-item {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .sw-label--dismiss-able .sw-label__dismiss {
+        display: none;
     }
 
     &.has--error {

@@ -33,14 +33,17 @@
                 {% endblock %}
 
                 {% block sw_order_detail_actions_save %}
-                    <sw-button
-                            v-if="isEditing"
-                            class="sw-order-detail__save_button"
-                            :isLoading="order.isLoading"
-                            variant="primary"
-                            @click.prevent="onSave">
+                    <sw-button-process
+                        v-if="isEditing"
+                        class="sw-order-detail__save_button"
+                        :disabled="order.isLoading || isLoading"
+                        :isLoading="isLoading || order.isLoading"
+                        :processSuccess="isSaveSuccessful"
+                        variant="primary"
+                        @process-finish="saveFinish"
+                        @click.prevent="onSave">
                         {{ $tc('sw-order.detail.buttonSave') }}
-                    </sw-button>
+                    </sw-button-process>
                 {% endblock %}
             </template>
         {% endblock %}

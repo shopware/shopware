@@ -47,7 +47,7 @@
         {% block sw_media_folder_name %}
             <template #name="{ item, isInlineEdit, startInlineEdit, endInlineEdit }">
                 {% block sw_media_base_item_name %}
-                    <sw-field v-if="isInlineEdit || !item.name"
+                    <sw-field v-if="isInlineEdit || item.isLocal"
                               class="sw-media-base-item__name-field"
                               :value="item.name"
                               name="media-item-name"

@@ -94,14 +94,20 @@ export default {
 
         save(record) {
             // send save request to the server, immediately
-            return this.repository.save(record, this.items.context).then(() => {
+            const promise = this.repository.save(record, this.items.context).then(() => {
                 return this.doSearch();
             });
+            this.$emit('inline-edit-save', promise, record);
+
+            return promise;
         },
 
         revert() {
             // reloads the grid to revert all changes
-            return this.doSearch();
+            const promise = this.doSearch();
+            this.$emit('inline-edit-cancel', promise);
+
+            return promise;
         },
 
         sort(column) {
@@ -122,6 +128,7 @@ export default {
 
             this.currentSortBy = column.dataIndex;
             this.currentSortDirection = direction;
+            this.$emit('column-sort', column);
 
             return this.doSearch();
         },

@@ -92,8 +92,7 @@
             "productAssignmentEmptyStateTitle": "No products assigned",
             "productAssignmentEmptyStateSubline": "Use the search to add products",
             "columnNameLabel": "Name",
-            "columnManufacturerLabel": "Manufacturer",
-            "showSubcategoryProductsLabel": "Also show products from subcategories"
+            "columnManufacturerLabel": "Manufacturer"
           }
         },
 

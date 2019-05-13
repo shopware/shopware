@@ -22,6 +22,7 @@ class PromotionItemBuilderTest extends TestCase
     {
         $this->promotion = new PromotionEntity();
         $this->promotion->setId('PR-1');
+        $this->promotion->setUseCodes(false);
     }
 
     /**
@@ -43,7 +44,7 @@ class PromotionItemBuilderTest extends TestCase
         $discount->setType(PromotionDiscountEntity::TYPE_PERCENTAGE);
         $discount->setValue(50);
 
-        $item = $builder->buildDiscountLineItem($this->promotion, $discount, 1, []);
+        $item = $builder->buildDiscountLineItem($this->promotion, $discount, 1);
 
         static::assertEquals('My-TYPE', $item->getType());
     }
@@ -70,7 +71,7 @@ class PromotionItemBuilderTest extends TestCase
         $discount->setType(PromotionDiscountEntity::TYPE_PERCENTAGE);
         $discount->setValue(50);
 
-        $item = $builder->buildDiscountLineItem($this->promotion, $discount, 1, []);
+        $item = $builder->buildDiscountLineItem($this->promotion, $discount, 1);
 
         static::assertEquals('D5', $item->getKey());
     }
@@ -95,7 +96,7 @@ class PromotionItemBuilderTest extends TestCase
         $discount->setType(PromotionDiscountEntity::TYPE_PERCENTAGE);
         $discount->setValue(10);
 
-        $item = $builder->buildDiscountLineItem($this->promotion, $discount, 1, null);
+        $item = $builder->buildDiscountLineItem($this->promotion, $discount, 1);
 
         $expectedPriceDefinition = new PercentagePriceDefinition(-10, 1, null);
 

@@ -9,6 +9,7 @@
     text-align: center;
     padding: $spacer * 0.5;
     font-size: $font-size-sm;
+    z-index: $cookie-msg-zindex;
 }
 
 .cookie-permission-content {

@@ -1,4 +1,4 @@
-{% sw_extends '@Storefront/layout/_utilities/offcanvas.html.twig' %}
+{% sw_extends '@Storefront/utilities/offcanvas.html.twig' %}
 
 {% block layout_utilities_offcanvas_close_text %}
 	{{ "checkout.continueShopping"|trans }}
@@ -7,28 +7,38 @@
 {% block layout_utilities_offcanvas_content %}
 	{% block layout_cart_mini %}
 		<div class="offcanvas-cart">
+            {% block layout_utilities_offcanvas_flashbags %}
+				<div class="flashbags">
+                    {% for type, messages in app.flashes %}
+                        {% sw_include '@Storefront/utilities/alert.html.twig' with {
+                            type: type,
+                            list: messages
+                        } %}
+                    {% endfor %}
+				</div>
+            {% endblock %}
+
 			{% set isCartNotEmpty = (page.cart.lineItems|length > 0) %}
 
 			{% if isCartNotEmpty %}
 				{% for lineItem in page.cart.lineItems %}
 					{% block layout_cart_mini_item %}
-						<div class="cart-item cart-item-{{ lineItem.type }}">
+						<div class="cart-item cart-item-{{ lineItem.type }} js-cart-item">
 							{% block layout_cart_mini_item_image %}
 								<div class="cart-item-image">
 									{% if lineItem.type == 'product' %}
 										{% if lineItem.cover.url %}
-											{% set imgSrc = lineItem.cover.url %}
+											<img src="{{ lineItem.cover.url }}"
+												 class="img-fluid"
+												 alt="{{ lineItem.label }}"
+												 title="{{ lineItem.label }}">
 										{% else %}
-											{% set imgSrc = asset(shopware.theme.general.noPicture) %}
+											{% sw_icon 'placeholder' style {
+												'size': 'fluid'
+											} %}
 										{% endif %}
-										<img src="{{ imgSrc }}"
-											 class="img-fluid"
-											 alt="{{ lineItem.label }}"
-											 title="{{ lineItem.label }}">
 									{% elseif lineItem.type == 'promotion' %}
-										{% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-											'name': 'object-marketing'
-										} %}
+										{% sw_icon 'object-marketing' %}
 									{% endif %}
 								</div>
 							{% endblock %}
@@ -45,10 +55,7 @@
 										<button type="submit"
 												title="{{ "checkout.removeLineItem"|trans }}"
 												class="btn btn-light">
-											{% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-												'name': 'basic-x-line',
-												'style': 'sm'
-											} %}
+											{% sw_icon 'basic-x-line' style { 'size': 'sm' } %}
 										</button>
 									</form>
 								{% endif %}

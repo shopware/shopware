@@ -1,4 +1,4 @@
-import { Component, Mixin } from 'src/core/shopware';
+import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-property-option-list.html.twig';
 import './sw-property-option-list.scss';
 
@@ -19,7 +19,8 @@ Component.register('sw-property-option-list', {
             sortedOptions: [],
             deleteButtonDisabled: true,
             disableRouteParams: true,
-            sortings: []
+            sortings: [],
+            isSystemLanguage: false
         };
     },
 
@@ -33,10 +34,19 @@ Component.register('sw-property-option-list', {
     computed: {
         optionStore() {
             return this.group.getAssociation('options');
+        },
+
+        languageStore() {
+            return State.getStore('language');
         }
     },
 
     methods: {
+        checkSystemLanguage() {
+            // check if you are in the system language
+            this.isSystemLanguage = this.languageStore.getCurrentId() === this.languageStore.systemLanguageId;
+        },
+
         setSorting() {
             if (this.group.sortingType === 'alphanumeric') {
                 this.sortings = [{
@@ -81,6 +91,8 @@ Component.register('sw-property-option-list', {
 
         getList() {
             this.isLoading = true;
+
+            this.checkSystemLanguage();
             const params = this.getListingParams();
 
             if (this.sortings.length <= 0) {
@@ -141,9 +153,15 @@ Component.register('sw-property-option-list', {
         },
 
         onAddOption() {
+            if (!this.isSystemLanguage) {
+                return false;
+            }
+
             const option = this.optionStore.create();
             this.optionStore.removeById(option.id);
             this.onOptionEdit(option);
+
+            return true;
         },
 
         onCancelOption() {

@@ -22,13 +22,11 @@
 					{% block layout_header_main_navigation_toggle %}
 						<div class="nav-main-toggle">
 							{% block layout_header_main_navigation_toggle_button %}
-								<button class="btn btn-light nav-main-toggle-btn header-actions-btn"
+								<button class="btn nav-main-toggle-btn header-actions-btn"
 										type="button"
 										data-offcanvas-menu="true"
 										aria-label="{{ "general.menuLink"|trans }}">
-									{% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-										'name': 'action-grab'
-									} %}
+                                    {% sw_icon 'basic-stack-line' %}
 								</button>
 							{% endblock %}
 						</div>
@@ -36,16 +34,14 @@
 
 					{% block layout_header_search_toggle %}
 						<div class="search-toggle">
-							<button class="btn btn-light search-toggle-btn header-actions-btn collapsed"
+							<button class="btn search-toggle-btn header-actions-btn collapsed"
 									type="button"
 									data-toggle="collapse"
 									data-target="#searchCollapse"
 									aria-expanded="false"
 									aria-controls="searchCollapse"
 									aria-label="{{ "header.searchButton"|trans }}">
-								{% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-									'name': 'action-search'
-								} %}
+								{% sw_icon 'action-search' %}
 							</button>
 						</div>
 					{% endblock %}
@@ -59,7 +55,7 @@
 					{% block layout_header_actions_cart %}
 						<div class="cart-widget"
 							 data-offcanvas-cart="true">
-							<a class="btn btn-light cart-widget-btn header-actions-btn"
+							<a class="btn cart-widget-btn header-actions-btn"
 							   href="{{ path('frontend.checkout.cart.page') }}"
 							   data-cart-widget="true"
 							   title="{{ 'checkout.cartTitle'|trans }}">
@@ -71,14 +67,12 @@
 					{% block layout_header_tablet_main_navigation_toggle_button %}
 						<div class="menu-button">
 							{% block layout_header_tablet_main_navigation_toggle_button_inner %}
-								<button class="btn btn-light nav-main-toggle-btn header-actions-btn"
+								<button class="btn nav-main-toggle-btn header-actions-btn"
 										type="button"
 										data-offcanvas-menu="true"
 										aria-label="{{ "general.menuLink"|trans }}">
 									{% block layout_header_tablet_main_navigation_toggle_button_icon %}
-										{% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-											'name': 'action-grab'
-										} %}
+                                        {% sw_icon 'basic-stack-line' %}
 									{% endblock %}
 								</button>
 							{% endblock %}

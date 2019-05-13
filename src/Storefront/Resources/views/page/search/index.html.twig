@@ -13,14 +13,14 @@
                     {% endblock %}
                 </h1>
             {% endblock %}
-
+            
             {% block page_search_listing %}
-                <div class="listing-wrapper">
+                <div class="cms-element-product-listing">
                     {% block page_search_listing_row %}
-                        <div class="row">
+                        <div class="row listing-row">
                             {% for product in page.searchResult %}
                                 {% block page_search_listing_column %}
-                                    <div class="listing-col col-sm-6 col-lg-3">
+                                    <div class="cms-listing-col col-sm-6 col-lg-3">
                                         {% block page_search_listing_item %}
                                             {% sw_include '@Storefront/component/product/widget/box.html.twig' with {layout: 'minimal'} %}
                                         {% endblock %}
@@ -34,4 +34,3 @@
         </div>
     {% endblock %}
 {% endblock %}
-

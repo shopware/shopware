@@ -1,5 +1,5 @@
 .has-element-loader {
-    z-index: 9999;
+    z-index: 15;
     pointer-events: none;
     position: relative;
 }
@@ -13,7 +13,7 @@
     left: 0;
     position: absolute;
     background-color: $element-backdrop-bg;
-    z-index: 999;
+    z-index: 15;
 
     &.element-loader-backdrop-open {
         opacity: 1;

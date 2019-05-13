@@ -230,10 +230,15 @@ class StoreController extends AbstractController
             throw new CanNotDownloadPluginManagedByComposerException('can not downloads plugins managed by composer from store api');
         }
 
-        $storeToken = $this->getUserStoreToken($context);
+        $unauthenticated = $queryDataBag->has('unauthenticated');
+        if ($unauthenticated) {
+            $storeToken = '';
+        } else {
+            $storeToken = $this->getUserStoreToken($context);
+        }
 
         try {
-            $data = $this->storeClient->getDownloadDataForPlugin($pluginName, $storeToken, $language, $context);
+            $data = $this->storeClient->getDownloadDataForPlugin($pluginName, $storeToken, $language, !$unauthenticated);
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }

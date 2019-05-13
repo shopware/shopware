@@ -29,6 +29,7 @@
                         {% block sw_data_grid_settings_compact_switch %}
                             <sw-field type="switch"
                                       v-model="currentCompact"
+                                      noMarginTop
                                       @change="onChangeCompactMode(currentCompact)"
                                       :label="$tc('global.sw-data-grid.labelSettingsCompactMode')">
                             </sw-field>

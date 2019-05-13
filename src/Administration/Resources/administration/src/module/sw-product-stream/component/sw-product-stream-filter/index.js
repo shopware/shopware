@@ -23,7 +23,6 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             lastField: {},
             defaultPath: this.condition.field,
             multiValues: [],
-            value: null,
             typeCriteria: null,
             fieldPath: [],
             negatedCondition: null,
@@ -156,6 +155,15 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                 }
                 this.actualCondition.value = newValue.toString();
             }
+        },
+        condition() {
+            this.negatedCondition = null;
+            this.loadNegatedCondition();
+            this.fields = this.getPathFields();
+
+            this.type = this.findCorrectAbstractionForRangeType();
+
+            this.filterValue = this.actualCondition.value;
         }
     },
 

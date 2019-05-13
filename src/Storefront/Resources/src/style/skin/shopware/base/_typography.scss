@@ -18,6 +18,35 @@ h6,
 .h4,
 .h5,
 .h6 {
-    line-height: 26px;
     margin-bottom: 10px;
+}
+
+h1,
+.h1 {
+    line-height: 40px;
+}
+
+h2,
+.h2 {
+    line-height: 34px;
+}
+
+h3,
+.h3 {
+    line-height: 33px;
+}
+
+h4,
+.h4 {
+    line-height: 24px;
+}
+
+h5,
+.h5 {
+    line-height: 21px;
+}
+
+h6,
+.h6 {
+    line-height: 20px;
 }

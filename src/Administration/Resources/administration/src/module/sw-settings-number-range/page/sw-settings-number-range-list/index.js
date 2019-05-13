@@ -6,7 +6,8 @@ Component.register('sw-settings-number-range-list', {
     template,
 
     mixins: [
-        Mixin.getByName('sw-settings-list')
+        Mixin.getByName('sw-settings-list'),
+        Mixin.getByName('placeholder')
     ],
 
     data() {
@@ -61,6 +62,10 @@ Component.register('sw-settings-number-range-list', {
 
                 return this.items;
             });
+        },
+
+        onChangeLanguage() {
+            this.getList();
         }
     }
 });

@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\PageController;
 
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
@@ -22,6 +23,7 @@ use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Checkout\Promotion\Cart\Builder\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsCollector;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Content\Product\Exception\ProductNumberNotFoundException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -132,6 +134,11 @@ class CheckoutPageController extends StorefrontController
      */
     private $router;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $productRepository;
+
     public function __construct(
         CartService $cartService,
         PageLoaderInterface $cartPageLoader,
@@ -148,7 +155,8 @@ class CheckoutPageController extends StorefrontController
         PaymentService $paymentService,
         EntityRepositoryInterface $domainRepository,
         RequestStack $requestStack,
-        RouterInterface $router
+        RouterInterface $router,
+        EntityRepositoryInterface $productRepository
     ) {
         $this->cartService = $cartService;
         $this->cartPageLoader = $cartPageLoader;
@@ -164,9 +172,9 @@ class CheckoutPageController extends StorefrontController
         $this->mediaRepository = $mediaRepository;
         $this->paymentService = $paymentService;
         $this->domainRepository = $domainRepository;
-
         $this->requestStack = $requestStack;
         $this->router = $router;
+        $this->productRepository = $productRepository;
     }
 
     /**
@@ -257,6 +265,7 @@ class CheckoutPageController extends StorefrontController
             | UnknownPaymentMethodException $e
         ) {
             // TODO: Handle errors which might occur during payment process
+            throw $e;
         }
 
         return $this->forward(
@@ -456,13 +465,26 @@ class CheckoutPageController extends StorefrontController
                 $code,
                 $context->getContext()->getCurrencyPrecision()
             );
+            $cart = $this->cartService->getCart($token, $context);
 
-            $cart = $this->cartService->add($this->cartService->getCart($token, $context), $lineItem, $context);
+            $initialCartState = md5(json_encode($cart));
 
-            if (!$cart->has($lineItem->getKey())) {
-                throw new \RuntimeException('code was not added');
+            $cart = $this->cartService->add($cart, $lineItem, $context);
+            $cart->getErrors();
+            if (!$this->hasCode($cart, $code)) {
+                throw new LineItemNotFoundException($code);
             }
-            $this->addFlash('success', $this->translator->trans('checkout.codeAddedSuccessful'));
+            $changedCartState = md5(json_encode($cart));
+
+            if ($initialCartState !== $changedCartState) {
+                $this->addFlash('success', $this->translator->trans('checkout.codeAddedSuccessful'));
+            } else {
+                $this->addFlash('info', $this->translator->trans('checkout.promotionAlreadyExistsInfo'));
+            }
+        } catch (LineItemNotFoundException $exception) {
+            // todo this could have a multitude of reasons - imagine a code is valid but cannot be added because of restrictions
+            // wouldn't it be the appropriate way to display the reason what avoided the promotion to be added
+            $this->addFlash('warning', 'Gutschein-Code konnte nicht hinzugefügt werden - ist der Code falsch?');
         } catch (\Exception $exception) {
             $this->addFlash('danger', $this->translator->trans('error.message-default'));
         }
@@ -498,6 +520,43 @@ class CheckoutPageController extends StorefrontController
         }
 
         return $this->createActionResponse($request);
+    }
+
+    /**
+     * @Route("/checkout/product/add-by-number", name="frontend.checkout.product.add-by-number", methods={"POST"})
+     */
+    public function addProductByNumber(Request $request, SalesChannelContext $context): Response
+    {
+        $number = $request->request->getAlnum('number');
+        if (!$number) {
+            throw new MissingRequestParameterException('number');
+        }
+
+        $criteria = new Criteria();
+        $criteria->setLimit(1);
+        $criteria->addFilter(new EqualsFilter('productNumber', $number));
+
+        $idSearchResult = $this->productRepository->searchIds($criteria, $context->getContext());
+        $data = $idSearchResult->getIds();
+
+        if (empty($data)) {
+            throw new ProductNumberNotFoundException($number);
+        }
+
+        $productId = array_shift($data);
+        $request->request->add([
+            'lineItems' => [
+                $productId => [
+                    'id' => $productId,
+                    'quantity' => 1,
+                    'type' => 'product',
+                    'stackable' => true,
+                    'removable' => true,
+                ],
+            ],
+        ]);
+
+        return $this->forward('Shopware\Storefront\PageController\CheckoutPageController::addLineItems');
     }
 
     /**
@@ -551,6 +610,27 @@ class CheckoutPageController extends StorefrontController
         }
 
         return $this->createActionResponse($request);
+    }
+
+    private function hasCode(Cart $cart, string $code): bool
+    {
+        foreach ($cart->getLineItems() as $lineItem) {
+            if ($lineItem->getType() !== CartPromotionsCollector::LINE_ITEM_TYPE) {
+                continue;
+            }
+
+            $payload = $lineItem->getPayload();
+
+            if (!array_key_exists('code', $payload)) {
+                continue;
+            }
+
+            if ($code === $payload['code']) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

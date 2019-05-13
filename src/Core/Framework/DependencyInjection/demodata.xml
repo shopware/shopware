@@ -96,14 +96,6 @@
             <argument type="service" id="Shopware\Core\Checkout\Order\OrderDefinition" />
         </service>
 
-        <service id="Shopware\Core\Framework\Demodata\Generator\CmsPageGenerator">
-            <tag name="shopware.demodata_generator" />
-            <argument type="service" id="cms_page.repository" />
-            <argument type="service" id="product.repository" />
-            <argument type="service" id="media.repository" />
-            <argument type="service" id="Doctrine\DBAL\Connection" />
-        </service>
-
         <service id="Shopware\Core\Framework\Demodata\Generator\CustomFieldGenerator">
             <tag name="shopware.demodata_generator" />
             <argument type="service" id="custom_field_set.repository"/>

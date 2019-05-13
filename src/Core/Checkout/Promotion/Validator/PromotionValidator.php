@@ -92,7 +92,7 @@ class PromotionValidator implements WriteCommandValidatorInterface
         /** @var bool|null $useCodes */
         $useCodes = $this->getValue($payload, 'use_codes', null);
 
-        /** @var string $code */
+        /** @var string|null $code */
         $code = $this->getValue($payload, 'code', null);
 
         $validFrom = $this->getValue($payload, 'valid_from', null);
@@ -100,15 +100,19 @@ class PromotionValidator implements WriteCommandValidatorInterface
         /** @var string|null $validUntil */
         $validUntil = $this->getValue($payload, 'valid_until', null);
 
-        if ($useCodes !== null && $code !== null) {
+        if ($useCodes !== null) {
+            if ($code === null) {
+                $code = '';
+            }
+
             $trimmedCode = trim($code);
 
             if ($useCodes && trim($code) === '') {
-                $violationList->add($this->buildViolation('Please provide a valid code', $code));
+                $violationList->add($this->buildViolation('Please provide a valid code', $code, 'code'));
             }
 
             if ($useCodes && strlen($code) > strlen($trimmedCode)) {
-                $violationList->add($this->buildViolation('Code may not have any leading or ending whitespaces', $code));
+                $violationList->add($this->buildViolation('Code may not have any leading or ending whitespaces', $code, 'code'));
             }
         }
 
@@ -120,7 +124,7 @@ class PromotionValidator implements WriteCommandValidatorInterface
             $dateFrom = new \DateTime($validFrom);
             $dateUntil = new \DateTime($validUntil);
             if ($dateUntil < $dateFrom) {
-                $violationList->add($this->buildViolation('Expiration Date of Promotion must be after that Begin Data', $payload['valid_until']));
+                $violationList->add($this->buildViolation('Expiration Date of Promotion must be after Start of Promotion', $payload['valid_until'], 'validUntil'));
             }
         }
     }
@@ -145,13 +149,13 @@ class PromotionValidator implements WriteCommandValidatorInterface
         }
 
         if ($value < self::DISCOUNT_MIN_VALUE) {
-            $violationList->add($this->buildViolation('Value must not be less than ' . self::DISCOUNT_MIN_VALUE, $value));
+            $violationList->add($this->buildViolation('Value must not be less than ' . self::DISCOUNT_MIN_VALUE, $value, 'value'));
         }
 
         switch ($type) {
             case PromotionDiscountEntity::TYPE_PERCENTAGE:
                 if ($value > self::DISCOUNT_PERCENTAGE_MAX_VALUE) {
-                    $violationList->add($this->buildViolation('Absolute value must not greater than ' . self::DISCOUNT_PERCENTAGE_MAX_VALUE, $value));
+                    $violationList->add($this->buildViolation('Absolute value must not greater than ' . self::DISCOUNT_PERCENTAGE_MAX_VALUE, $value, 'value'));
                 }
                 break;
         }
@@ -185,7 +189,7 @@ class PromotionValidator implements WriteCommandValidatorInterface
      *
      * @return ConstraintViolationInterface the built constraint violation
      */
-    private function buildViolation(string $message, $invalidValue): ConstraintViolationInterface
+    private function buildViolation(string $message, $invalidValue, ?string $propertyPath): ConstraintViolationInterface
     {
         return new ConstraintViolation(
             $message,
@@ -194,7 +198,7 @@ class PromotionValidator implements WriteCommandValidatorInterface
                 'value' => $invalidValue,
             ],
             $invalidValue,
-            null,
+            $propertyPath,
             $invalidValue
         );
     }

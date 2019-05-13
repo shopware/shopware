@@ -2,7 +2,7 @@
     <sw-card :isLoading="group.isLoading" class="sw-property-option-list">
 
         {% block sw_property_option_list_toolbar %}
-            <div class="sw-property-option-list__toolbar">
+            <div class="sw-property-option-list__toolbar" v-if="options.length || term || !isLoading">
 
                 {% block sw_property_option_list_toolbar_container %}
                     <sw-container columns="1fr 32px minmax(100px, 200px)" gap="0 10px">
@@ -23,9 +23,17 @@
                         {% endblock %}
 
                         {% block sw_property_option_list_toolbar_add %}
-                            <sw-button :disabled="group.isLoading" @click="onAddOption(group)" size="small" class="sw-property-option-list__add-button">
-                                {{ $tc('sw-property.detail.addOption') }}
-                            </sw-button>
+                            <sw-container v-tooltip="{
+                                    message: $tc('sw-property.detail.addOptionNotPossible'),
+                                    disabled: isSystemLanguage
+                                }">
+                                <sw-button :disabled="group.isLoading || !isSystemLanguage"
+                                           @click="onAddOption(group)"
+                                           size="small"
+                                           class="sw-property-option-list__add-button">
+                                    {{ $tc('sw-property.detail.addOption') }}
+                                </sw-button>
+                            </sw-container>
                         {% endblock %}
 
                     </sw-container>
@@ -41,7 +49,7 @@
 
                         {% block sw_property_option_list_grid_column_name %}
                             <sw-grid-column dataIndex="name" editable truncate flex="minmax(150px, 1fr)" :label="$tc('sw-property.detail.labelOptionName')">
-                            {{ item.translated.name }}
+                                {{ item.name || item.translated.name }}
                             <sw-field type="text" slot="inline-edit" v-model="item.name" />
                         </sw-grid-column>
                         {% endblock %}

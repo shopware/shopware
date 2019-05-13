@@ -198,6 +198,11 @@
             <tag name="twig.extension"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Twig\IconExtension">
+            <argument type="service" id="Shopware\Core\Framework\Twig\TemplateFinder"/>
+            <tag name="twig.extension"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Twig\FeatureFlagExtension">
             <tag name="twig.extension"/>
         </service>
@@ -252,6 +257,13 @@
         <service id="Shopware\Core\Framework\FeatureFlag\Command\FeatureFlagCreateCommand">
             <tag name="console.command" command="feature:add"/>
             <argument type="service" id="Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Cache\CacheClearer">
+            <argument type="service" id="shopware.cache"/>
+            <argument type="service" id="cache_clearer"/>
+            <argument type="service" id="filesystem"/>
+            <argument>%kernel.cache_dir%</argument>
         </service>
     </services>
 </container>

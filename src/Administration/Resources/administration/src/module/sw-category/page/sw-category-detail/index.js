@@ -128,7 +128,9 @@ Component.register('sw-category-detail', {
         },
 
         getCategories(parentId = null) {
-            this.isLoading = true;
+            if (parentId === null) {
+                this.isLoading = true;
+            }
 
             const params = {
                 page: 1,
@@ -141,7 +143,7 @@ Component.register('sw-category-detail', {
                     footerSalesChannels: {}
                 }
             };
-            return this.categoryStore.getList(params, true).then((response) => {
+            return this.categoryStore.getList(params).then((response) => {
                 this.categories = Object.values(this.categoryStore.store);
                 this.isLoading = false;
                 this.isLoadingInitialData = false;
@@ -220,6 +222,15 @@ Component.register('sw-category-detail', {
                     this.category = response;
                     this.getAssignedCmsPage(this.category.cmsPageId);
                     this.updateCmsPageDataMapping();
+
+                    this.$nextTick(() => {
+                        if (this.$refs.categoryView &&
+                            this.$refs.categoryView.$refs &&
+                            this.$refs.categoryView.$refs.categoryRouterView &&
+                            type.isFunction(this.$refs.categoryView.$refs.categoryRouterView.getList)) {
+                            this.$refs.categoryView.$refs.categoryRouterView.getList();
+                        }
+                    });
 
                     this.mediaItem = this.category.mediaId ? this.mediaStore.getById(this.category.mediaId) : null;
                     this.isLoading = false;
@@ -343,8 +354,8 @@ Component.register('sw-category-detail', {
 
             this.isLoading = true;
             return this.category.save().then(() => {
-                this.isLoading = false;
                 this.isSaveSuccessful = true;
+                this.setCategory();
             }).catch(exception => {
                 this.isLoading = false;
                 this.createNotificationError({

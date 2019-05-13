@@ -7,6 +7,7 @@
     {% block sw_condition_billing_customer_number_field_numbers %}
         <sw-tagged-field class="field--main"
                          name="numbers"
+                         :placeholder="$tc('global.sw-condition.tag.placeholder')"
                          v-model="condition.value.numbers">
         </sw-tagged-field>
     {% endblock %}

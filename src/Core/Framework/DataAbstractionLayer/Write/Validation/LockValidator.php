@@ -90,7 +90,7 @@ class LockValidator implements WriteCommandValidatorInterface
             $locked[$entityName] = $this->connection->createQueryBuilder()
                 ->select('1')
                 ->from(EntityDefinitionQueryHelper::escape($entityName))
-                ->where('`locked` = 1')
+                ->where('`id` IN (:ids) AND `locked` = 1')
                 ->setParameter('ids', $primaryKeys, Connection::PARAM_STR_ARRAY)
                 ->execute()
                 ->rowCount() > 0;

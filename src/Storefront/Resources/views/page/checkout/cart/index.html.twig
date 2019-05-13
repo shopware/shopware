@@ -6,7 +6,7 @@
 
 {% block page_checkout_container %}
     {% if not page.cart.lineItems.elements %}
-        {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with {
+        {% sw_include '@Storefront/utilities/alert.html.twig' with {
             type: "info",
             content: "checkout.cartEmpty"|trans
         } %}
@@ -25,16 +25,16 @@
 
         {% block page_checkout_cart_messages %}{% endblock %}
 
-        {% block page_checkout_cart_table %}
-            <div class="card cart-table">
-                <div class="card-body cart-table-body">
+        {% block page_checkout_cart_product_table %}
+            <div class="card checkout-product-table">
+                <div class="card-body">
                     {% block page_checkout_cart_table_header %}
-                        {% sw_include '@Storefront/page/checkout/cart/cart-header.html.twig' %}
+                        {% sw_include '@Storefront/page/checkout/cart/cart-product-header.html.twig' %}
                     {% endblock %}
 
-                    {% block page_checkout_cart_items %}
+                    {% block page_checkout_cart_table_items %}
                         {% for lineItem in page.cart.lineItems.elements %}
-                            {% block page_checkout_cart_item %}
+                            {% block page_checkout_cart_table_item %}
                                 {% sw_include '@Storefront/page/checkout/checkout-item.html.twig' %}
                             {% endblock %}
                         {% endfor %}
@@ -42,25 +42,105 @@
                 </div>
             </div>
         {% endblock %}
+
+        {% block page_checkout_cart_add_product %}
+            <form action="{{ path('frontend.checkout.product.add-by-number') }}"
+                  class="cart-add-product"
+                  method="post">
+                {% block page_checkout_cart_add_product_redirect %}
+                    <input type="hidden"
+                           name="redirectTo"
+                           value="frontend.checkout.cart.page">
+                {% endblock %}
+
+                {% block page_checkout_cart_add_product_input_group %}
+                    <div class="input-group">
+                        {% block page_checkout_cart_add_product_label %}
+                            <label class="sr-only" for="addProductInput">
+                                {{ "checkout.addProductLabel"|trans }}
+                            </label>
+                        {% endblock %}
+
+                        {% block page_checkout_cart_add_product_input %}
+                            <input type="text"
+                                   name="number"
+                                   class="form-control"
+                                   id="addProductInput"
+                                   placeholder="{{ "checkout.addProductPlaceholder"|trans }}"
+                                   aria-label="{{ "checkout.addProductLabel"|trans }}"
+                                   aria-describedby="addProduct"
+                                   required="required">
+                        {% endblock %}
+
+                        {% block page_checkout_cart_add_product_submit %}
+                            <div class="input-group-append">
+                                <button class="btn btn-dark"
+                                        type="submit"
+                                        id="addProductInput">
+                                    {% sw_icon 'basic-plus-circle' %}
+                                </button>
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </form>
+        {% endblock %}
     {% endblock %}
 {% endblock %}
 
-{% block page_checkout_sidebar_actions %}
-    {% block page_checkout_sidebar_actions_add_voucher %}
-        {#TODO: NEXT-1955 - add voucher#}
-        {#		<form action="{{ path('frontend.checkout.promotion.add') }}"#}
-        {#			  method="post">#}
-        {#			<input type="text" name="code">#}
-        {#			<input type="hidden" name="forwardTo" value="frontend.checkout.cart.page">#}
-        {#			<button type="submit">add code</button>#}
-        {#		</form>#}
+{% block page_checkout_aside_actions %}
+    {% block page_checkout_cart_add_promotion %}
+        <div class="checkout-aside-action">
+            <form action="{{ path('frontend.checkout.promotion.add') }}"
+                  class="cart-add-promotion"
+                  method="post">
+                {% block page_checkout_cart_add_promotion_forward %}
+                    <input type="hidden"
+                           name="forwardTo"
+                           value="frontend.checkout.cart.page">
+                {% endblock %}
+
+                {% block page_checkout_cart_add_promotion_input_group %}
+                    <div class="input-group checkout-aside-code">
+                        {% block page_checkout_cart_add_promotion_label %}
+                            <label class="sr-only" for="addPromotionInput">
+                                {{ "checkout.addPromotionLabel"|trans }}
+                            </label>
+                        {% endblock %}
+
+                        {% block page_checkout_cart_add_promotion_input %}
+                            <input type="text"
+                                   name="code"
+                                   class="form-control"
+                                   id="addPromotionInput"
+                                   placeholder="{{ "checkout.addPromotionPlaceholder"|trans }}"
+                                   aria-label="{{ "checkout.addPromotionLabel"|trans }}"
+                                   aria-describedby="addPromotion"
+                                   required="required">
+                        {% endblock %}
+
+                        {% block page_checkout_cart_add_promotion_submit %}
+                            <div class="input-group-append">
+                                <button class="btn btn-dark"
+                                        type="submit"
+                                        id="addPromotion">
+                                    {% sw_icon 'basic-plus-circle' %}
+                                </button>
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </form>
+        </div>
     {% endblock %}
 
-    {% block page_checkout_sidebar_actions_proceed %}
-        <a href="{{ path('frontend.checkout.confirm.page') }}"
-           class="btn btn-primary btn-block btn-lg"
-           title="{{ "checkout.proceedLink"|trans }}">
-            {{ "checkout.proceedLink"|trans }}
-        </a>
+    {% block page_checkout_cart_action_proceed %}
+        <div class="checkout-aside-action">
+            <a href="{{ path('frontend.checkout.confirm.page') }}"
+               class="btn btn-primary btn-block btn-lg"
+               title="{{ "checkout.proceedLink"|trans }}">
+                {{ "checkout.proceedLink"|trans }}
+            </a>
+        </div>
     {% endblock %}
 {% endblock %}

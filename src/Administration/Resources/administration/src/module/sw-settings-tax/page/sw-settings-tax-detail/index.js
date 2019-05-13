@@ -11,7 +11,9 @@ Component.register('sw-settings-tax-detail', {
 
     data() {
         return {
-            tax: {}
+            tax: {},
+            isLoading: false,
+            isSaveSuccessful: false
         };
     },
 
@@ -43,16 +45,19 @@ Component.register('sw-settings-tax-detail', {
             }
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+        },
+
         onSave() {
-            const taxName = this.tax.name;
-            const titleSaveSuccess = this.$tc('sw-settings-tax.detail.titleSaveSuccess');
-            const messageSaveSuccess = this.$tc('sw-settings-tax.detail.messageSaveSuccess', 0, { name: taxName });
+            this.isSaveSuccessful = false;
+            this.isLoading = true;
 
             return this.tax.save().then(() => {
-                this.createNotificationSuccess({
-                    title: titleSaveSuccess,
-                    message: messageSaveSuccess
-                });
+                this.isLoading = false;
+                this.isSaveSuccessful = true;
+            }).catch(() => {
+                this.isLoading = false;
             });
         }
     }

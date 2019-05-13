@@ -1,7 +1,9 @@
-import { Component } from 'src/core/shopware';
+import { Component, State } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
+import template from './sw-property-create.html.twig';
 
 Component.extend('sw-property-create', 'sw-property-detail', {
+    template,
 
     beforeRouteEnter(to, from, next) {
         if (to.name.includes('sw.property.create') && !to.params.id) {
@@ -11,8 +13,18 @@ Component.extend('sw-property-create', 'sw-property-detail', {
         next();
     },
 
+    computed: {
+        languageStore() {
+            return State.getStore('language');
+        }
+    },
+
     methods: {
         createdComponent() {
+            if (this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId) {
+                this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+            }
+
             this.group = this.groupStore.create(this.$route.params.id);
             this.group.sortingType = 'alphanumeric';
             this.group.displayType = 'text';

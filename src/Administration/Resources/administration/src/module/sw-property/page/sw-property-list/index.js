@@ -25,6 +25,26 @@ Component.register('sw-property-list', {
     computed: {
         propertiesStore() {
             return State.getStore('property_group');
+        },
+
+        propertiesColumns() {
+            return [{
+                property: 'name',
+                dataIndex: 'name',
+                label: this.$tc('sw-property.list.columnName'),
+                routerLink: 'sw.property.detail',
+                inlineEdit: 'string',
+                allowResize: true,
+                primary: true
+            }, {
+                property: 'options',
+                label: this.$tc('sw-property.list.columnOptions'),
+                allowResize: true
+            }, {
+                property: 'description',
+                label: this.$tc('sw-property.list.columnDescription'),
+                allowResize: true
+            }];
         }
     },
 
@@ -45,6 +65,10 @@ Component.register('sw-property-list', {
             });
         },
 
+        onChangeLanguage() {
+            this.getList();
+        },
+
         getList() {
             this.isLoading = true;
             const params = this.getListingParams();
@@ -62,6 +86,10 @@ Component.register('sw-property-list', {
                 this.total = response.total;
                 this.properties = response.items;
                 this.isLoading = false;
+
+                this.$nextTick(() => {
+                    this.$refs.propertyList.compact = false;
+                });
 
                 return this.properties;
             });

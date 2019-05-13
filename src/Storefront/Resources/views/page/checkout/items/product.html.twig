@@ -17,13 +17,14 @@
                                                    title="{{ lineItem.label }}">
                                                     {% block page_checkout_item_product_info_image_element %}
                                                         {% if lineItem.cover.url %}
-                                                            {% set imgSrc = lineItem.cover.url %}
+                                                            <img src="{{ asset(lineItem.cover.url) }}"
+                                                                 class="img-fluid cart-item-img"
+                                                                 alt="{{ lineItem.cover.fileName }}">
                                                         {% else %}
-                                                            {% set imgSrc = shopware.theme.general.noPicture %}
+                                                            {% sw_icon 'placeholder' style {
+                                                                'size': 'fluid'
+                                                            } %}
                                                         {% endif %}
-                                                        <img src="{{ asset(imgSrc) }}"
-                                                             class="img-fluid cart-item-img"
-                                                             alt="{{ lineItem.cover.fileName }}">
                                                     {% endblock %}
                                                 </a>
                                             {% endblock %}
@@ -62,26 +63,27 @@
 
             {% block page_checkout_item_product_quantity %}
                 <div class="col-12 col-sm-4 col-md-auto cart-item-quantity">
-                    {% block page_checkout_item_product_quantity_form %}
-                        <form action="{{ path('frontend.checkout.line-item.update', {'id': lineItem.key}) }}"
-                              class="cart-item-quantity-container"
-                              method="post"
-                              data-form-auto-submit="true">
-                            {% block page_checkout_item_quantity_redirect %}
-                                <input type="hidden"
-                                       name="redirectTo"
-                                       value="frontend.checkout.cart.page">
-                            {% endblock %}
+                    <div class="row cart-item-quantity-row">
+                        {% block page_checkout_item_product_quantity_label %}
+                            <div class="col-8 col-sm-12 cart-item-quantity-label">
+                                {{ "checkout.cartHeaderQuantity"|trans }}
+                            </div>
+                        {% endblock %}
 
-                            <div class="row cart-item-quantity-row">
-                                {% block page_checkout_item_product_quantity_label %}
-                                    <div class="col-8 col-sm-12 cart-item-quantity-label">
-                                        {{ "checkout.cartHeaderQuantity"|trans }}
-                                    </div>
-                                {% endblock %}
+                        {% block page_checkout_item_product_quantity_select %}
+                            <div class="col-4 col-sm-12">
+                                {% block page_checkout_item_product_quantity_form %}
+                                    <form
+                                        action="{{ path('frontend.checkout.line-item.update', {'id': lineItem.key}) }}"
+                                        class="cart-item-quantity-container"
+                                        method="post"
+                                        data-form-auto-submit="true">
+                                        {% block page_checkout_item_quantity_redirect %}
+                                            <input type="hidden"
+                                                   name="redirectTo"
+                                                   value="frontend.checkout.cart.page">
+                                        {% endblock %}
 
-                                {% block page_checkout_item_product_quantity_select %}
-                                    <div class="col-4 col-sm-12">
                                         {% if lineItem.quantityInformation.maxPurchase %}
                                             {% if lineItem.deliveryInformation.stock < lineItem.quantityInformation.maxPurchase %}
                                                 {% set maxQuantity = lineItem.deliveryInformation.stock %}
@@ -93,21 +95,23 @@
                                         {% endif %}
 
                                         {% block page_product_detail_buy_quantity %}
-                                            <select name="quantity"
-                                                    class="custom-select quantity-select">
-                                                {% for quantity in range(lineItem.quantityInformation.minPurchase, maxQuantity, lineItem.quantityInformation.purchaseSteps) %}
-                                                    <option value="{{ quantity }}"
-                                                        {% if quantity == lineItem.quantity %} selected="selected"{% endif %}>
-                                                        {{ quantity }}
-                                                    </option>
-                                                {% endfor %}
-                                            </select>
+                                            <div class="form-group">
+                                                <select name="quantity"
+                                                        class="custom-select quantity-select">
+                                                    {% for quantity in range(lineItem.quantityInformation.minPurchase, maxQuantity, lineItem.quantityInformation.purchaseSteps) %}
+                                                        <option value="{{ quantity }}"
+                                                            {% if quantity == lineItem.quantity %} selected="selected"{% endif %}>
+                                                            {{ quantity }}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
                                         {% endblock %}
-                                    </div>
+                                    </form>
                                 {% endblock %}
                             </div>
-                        </form>
-                    {% endblock %}
+                        {% endblock %}
+                    </div>
                 </div>
             {% endblock %}
 
@@ -160,10 +164,7 @@
                                     <button type="submit"
                                             title="{{ "checkout.removeLineItem"|trans }}"
                                             class="btn btn-light btn-sm cart-item-remove-button">
-                                        {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-                                            'name': 'basic-x-line',
-                                            'style': 'sm'
-                                        } %}
+                                        {% sw_icon 'basic-x-line' style { 'size': 'sm' } %}
                                     </button>
                                 {% endblock %}
                             </form>

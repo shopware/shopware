@@ -17,9 +17,7 @@
                                  aria-label="Close">
                                 {% block product_detail_zoom_modal_close_button_content %}
                                     <span aria-hidden="true">
-                                        {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-                                            'name': 'basic-x-line'
-                                        } %}
+                                        {% sw_icon 'basic-x-line' %}
                                     </span>
                                 {% endblock %}
                             </div>
@@ -36,9 +34,7 @@
                                         {% block product_detail_zoom_modal_action_zoom_out %}
                                             <div class="btn btn-light js-image-zoom-out">
                                                 {% block product_detail_zoom_modal_action_zoom_out_icon %}
-                                                    {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-                                                        'name': 'basic-minus-circle'
-                                                    } %}
+                                                    {% sw_icon 'basic-minus-circle' %}
                                                 {% endblock %}
                                             </div>
                                         {% endblock %}
@@ -46,9 +42,7 @@
                                         {% block product_detail_zoom_modal_action_zoom_reset %}
                                             <div class="btn btn-light js-image-zoom-reset">
                                                 {% block product_detail_zoom_modal_action_zoom_reset_icon %}
-                                                    {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-                                                        'name': 'action-screen-minimize'
-                                                    } %}
+                                                    {% sw_icon 'action-screen-minimize' %}
                                                 {% endblock %}
                                             </div>
                                         {% endblock %}
@@ -56,9 +50,7 @@
                                         {% block product_detail_zoom_modal_action_zoom_in %}
                                             <div class="btn btn-light js-image-zoom-in">
                                                 {% block product_detail_zoom_modal_action_zoom_in_icon %}
-                                                    {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-                                                        'name': 'basic-plus-circle'
-                                                    } %}
+                                                    {% sw_icon 'basic-plus-circle' %}
                                                 {% endblock %}
                                             </div>
                                         {% endblock %}
@@ -100,18 +92,14 @@
                                             {% block product_detail_zoom_modal_image_slider_controls_prev %}
                                                 <li class="carousel-control-prev image-slider-controls-prev">
                                                     {% block product_detail_zoom_modal_image_slider_controls_prev_icon %}
-                                                        {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-                                                            'name': 'arrow-head-left'
-                                                        } %}
+                                                        {% sw_icon 'arrow-head-left' %}
                                                     {% endblock %}
                                                 </li>
                                             {% endblock %}
                                             {% block product_detail_zoom_modal_image_slider_controls_next %}
                                                 <li class="carousel-control-next image-slider-controls-next">
                                                     {% block product_detail_zoom_modal_image_slider_controls_next_icon %}
-                                                        {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-                                                            'name': 'arrow-head-right'
-                                                        } %}
+                                                        {% sw_icon 'arrow-head-right' %}
                                                     {% endblock %}
                                                 </li>
                                             {% endblock %}

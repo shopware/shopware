@@ -3,6 +3,7 @@
                      :name="formFieldName"
                      :isInheritanceField="isInheritanceField"
                      :isInherited="isInherited"
+                     :error="actualError"
                      @inheritance-restore="restoreInheritance">
     <template v-if="hasPrefix" #sw-contextual-field-prefix="{ disabled, identification }">
         <slot name="prefix" v-bind="{disabled, identification}"></slot>

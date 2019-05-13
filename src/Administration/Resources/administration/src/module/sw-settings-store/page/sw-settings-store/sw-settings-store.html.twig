@@ -26,11 +26,16 @@
         {% block sw_settings_store_smart_bar_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_settings_store_actions_save %}
-                <sw-button variant="primary"
-                           class="sw-settings-store__save-action"
-                           @click="onSave">
-                    {{ $tc('sw-settings-store.general.buttonSave') }}
-                </sw-button>
+                    <sw-button-process
+                        class="sw-store-detail__save-action"
+                        :isLoading="isLoading"
+                        :processSuccess="isSaveSuccessful"
+                        :disabled="isLoading"
+                        variant="primary"
+                        @process-finish="saveFinish"
+                        @click="onSave()">
+                        {{ $tc('sw-settings-store.general.buttonSave') }}
+                    </sw-button-process>
                 {% endblock %}
             </template>
         {% endblock %}

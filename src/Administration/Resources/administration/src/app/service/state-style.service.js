@@ -13,7 +13,8 @@ export default function createStateStyleService() {
             icon: 'small-arrow-small-down',
             iconStyle: 'sw-order-state__bg-neutral-icon',
             iconBackgroundStyle: 'sw-order-state__bg-neutral-icon-bg',
-            selectBackgroundStyle: 'sw-order-state__bg-neutral-select'
+            selectBackgroundStyle: 'sw-order-state__bg-neutral-select',
+            variant: 'neutral'
         }
     };
 
@@ -29,6 +30,13 @@ export default function createStateStyleService() {
         progress: 'sw-order-state__progress',
         danger: 'sw-order-state__danger',
         done: 'sw-order-state__success'
+    };
+
+    const $variants = {
+        neutral: 'neutral',
+        progress: 'info',
+        danger: 'danger',
+        done: 'success'
     };
 
     return {
@@ -56,6 +64,10 @@ export default function createStateStyleService() {
             entry.iconStyle = `${$colors[style.color]}-icon`;
             entry.iconBackgroundStyle = `${$colors[style.color]}-icon-bg`;
             entry.selectBackgroundStyle = `${$colors[style.color]}-select`;
+        }
+
+        if (style.variant in $variants) {
+            entry.variant = $variants[style.variant];
         }
 
         $store[stateMachine][state] = entry;

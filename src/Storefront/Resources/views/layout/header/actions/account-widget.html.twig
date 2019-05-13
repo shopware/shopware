@@ -1,16 +1,14 @@
 {% block layout_header_actions_account_widget %}
 	<div class="dropdown">
 		{% block layout_header_actions_account_widget_dropdown_button %}
-			<button class="btn btn-light account-widget-btn header-actions-btn"
+			<button class="btn account-widget-btn header-actions-btn"
 					type="button"
 					id="accountWidget"
 					data-offcanvas-account-menu="true"
 					data-toggle="dropdown"
 					aria-haspopup="true"
 					aria-expanded="false">
-				{% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-					'name': 'avatar-single'
-				} %}
+				{% sw_icon 'avatar-single' %}
 			</button>
 		{% endblock %}
 

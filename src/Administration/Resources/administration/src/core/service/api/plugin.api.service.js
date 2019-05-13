@@ -1,4 +1,5 @@
 import ApiService from '../api.service';
+import CacheApiService from './cache.api.service';
 
 /**
  * Gateway for the API end point "plugin"
@@ -9,6 +10,7 @@ class PluginApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'plugin') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'pluginService';
+        this.cacheService = new CacheApiService(this.httpClient, loginService);
     }
 
     upload(formData) {
@@ -51,7 +53,9 @@ class PluginApiService extends ApiService {
         return this.httpClient
             .post(`/_action/${this.getApiBasePath()}/activate`, {}, { params: { pluginName }, headers })
             .then((response) => {
-                return ApiService.handleResponse(response);
+                return this.cacheService.clear().then(() => {
+                    return ApiService.handleResponse(response);
+                });
             });
     }
 
@@ -61,7 +65,9 @@ class PluginApiService extends ApiService {
         return this.httpClient
             .post(`/_action/${this.getApiBasePath()}/deactivate`, {}, { params: { pluginName }, headers })
             .then((response) => {
-                return ApiService.handleResponse(response);
+                return this.cacheService.clear().then(() => {
+                    return ApiService.handleResponse(response);
+                });
             });
     }
 
@@ -71,7 +77,9 @@ class PluginApiService extends ApiService {
         return this.httpClient
             .post(`/_action/${this.getApiBasePath()}/update`, {}, { params: { pluginName }, headers })
             .then((response) => {
-                return ApiService.handleResponse(response);
+                return this.cacheService.clear().then(() => {
+                    return ApiService.handleResponse(response);
+                });
             });
     }
 
@@ -81,7 +89,9 @@ class PluginApiService extends ApiService {
         return this.httpClient
             .post(`/_action/${this.getApiBasePath()}/delete`, {}, { params: { pluginName }, headers })
             .then((response) => {
-                return ApiService.handleResponse(response);
+                return this.cacheService.clear().then(() => {
+                    return ApiService.handleResponse(response);
+                });
             });
     }
 

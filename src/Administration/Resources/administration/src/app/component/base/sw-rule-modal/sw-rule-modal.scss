@@ -1,9 +1,13 @@
-.sw-rule-modal {
-    .sw-modal__body {
+.sw-modal.sw-rule-modal.sw-modal--large {
+    .sw-modal__dialog {
         min-height: 700px;
 
-        .sw-condition-tree > .sw-condition-or-container >.sw-condition-or-container__condition-content {
-            padding: 0;
+        .sw-modal__body {
+            min-height: 700px;
+
+            .sw-condition-tree > .sw-condition-or-container > .sw-condition-or-container__condition-content {
+                padding: 0;
+            }
         }
     }
 }

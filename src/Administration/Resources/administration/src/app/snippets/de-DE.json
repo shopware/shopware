@@ -371,6 +371,9 @@
       },
       "placeholderErrorMessage": "Platzhalter können nicht gespeichert werden.",
       "dataErrorMessage": "Es wurden nicht alle Pflichtfelder befüllt.",
+      "tag": {
+        "placeholder": "Enter Taste benutzen um die Werte einzufügen."
+      },
       "condition": {
         "dateRangeRule": {
           "label":  "Datumsbereich",
@@ -456,13 +459,13 @@
       "integration": "Integration | Integrationen",
       "language": "Sprache | Sprachen",
       "mail_header_footer": "Header & Footer",
-      "mail_template": "E-Mail Vorlage | E-Mail Vorlagen",
+      "mail_template": "E-Mail-Vorlage | E-Mail-Vorlagen",
       "media": "Medium | Medien",
       "media_default_folder": "Standardordner",
       "media_folder": "Ordner",
       "media_thumbnail": "Thumbnail | Thumbnails",
       "media_thumbnail_size": "Thumbnailgröße | Thumbnailgrößen",
-      "number_range": "Nummernkreis | Nummerkreise",
+      "number_range": "Nummernkreis | Nummernkreise",
       "order": "Bestellung | Bestellungen",
       "order_address": "Adresse | Adressen",
       "order_delivery": "Lieferung | Lieferungen",

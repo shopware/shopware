@@ -23,7 +23,9 @@ Component.register('sw-profile-index', {
             newPassword: null,
             newPasswordConfirm: null,
             avatarMediaItem: null,
-            uploadTag: 'sw-profile-upload-tag'
+            uploadTag: 'sw-profile-upload-tag',
+            isLoading: false,
+            isSaveSuccessful: false
         };
     },
 
@@ -91,10 +93,16 @@ Component.register('sw-profile-index', {
             return this.userStore.getByIdAsync(this.userProfile.id);
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+        },
+
         onSave() {
             if (this.checkEmail() === false) {
                 return;
             }
+            this.isSaveSuccessful = false;
+            this.isLoading = true;
 
             const passwordCheck = this.checkPassword();
             if (passwordCheck === null) {
@@ -163,17 +171,15 @@ Component.register('sw-profile-index', {
         saveUser() {
             this.user.save().then(() => {
                 this.$refs.mediaSidebarItem.getList();
-                const successTitle = this.$tc('sw-profile.index.notificationSaveSuccessTitle');
-                const successMessage = this.$tc('sw-profile.index.notificationSaveSuccessMessage');
 
                 this.oldPassword = '';
                 this.newPassword = '';
                 this.newPasswordConfirm = '';
 
-                this.createNotificationSuccess({
-                    title: successTitle,
-                    message: successMessage
-                });
+                this.isLoading = false;
+                this.isSaveSuccessful = true;
+            }).catch(() => {
+                this.isLoading = false;
             });
         },
 

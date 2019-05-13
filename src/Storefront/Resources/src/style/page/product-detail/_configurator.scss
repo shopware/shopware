@@ -1,10 +1,11 @@
 .detail-configurator {
     .configurator-option-group {
-        padding-top: $spacer-md;
+        margin-bottom: $spacer-md;
     }
 
     .configurator-option-group-title {
-        @extend h4;
+        font-weight: $font-weight-bold;
+        margin-bottom: $spacer-sm;
     }
 
     .configurator-option {

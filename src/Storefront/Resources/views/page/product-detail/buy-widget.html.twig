@@ -79,6 +79,14 @@
                     {% endblock %}
                 {% endblock %}
 
+                {% block page_product_detail_configurator_include %}
+                    {% if page.product.parentId and page.configuratorSettings.elements %}
+                        <div class="product-detail-configurator">
+                            {% sw_include '@Storefront/page/product-detail/configurator.html.twig' %}
+                        </div>
+                    {% endif %}
+                {% endblock %}
+
                 {% block page_product_detail_buy_form %}
                     {% if page.product.active %}
                         <div class="product-detail-form-container">

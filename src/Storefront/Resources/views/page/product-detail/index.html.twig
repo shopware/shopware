@@ -31,13 +31,6 @@
                                 {% block page_product_detail_buy %}
                                     <div class="col-lg-5 product-detail-buy">
                                         {% sw_include '@Storefront/page/product-detail/buy-widget.html.twig' %}
-                                        {% block page_product_detail_configurator_include %}
-                                            {% if page.product.parentId and page.configuratorSettings.elements %}
-                                                <div class="product-detail-configurator">
-                                                    {% sw_include '@Storefront/page/product-detail/configurator.html.twig' %}
-                                                </div>
-                                            {% endif %}
-                                        {% endblock %}
                                     </div>
                                 {% endblock %}
                             </div>

@@ -169,6 +169,12 @@ Rule Builder
 
 Rest-API
 
+#### Cache 
+
+* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Framework/Cache)) 
+
+Cache helpers
+
 #### Context <span class="tip is--primary">Custom Extendable</span>
 
 * [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Framework/Context)) 
@@ -183,7 +189,7 @@ Custom field management
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-framework-customfield.md)
 
-#### DataAbstractionLayer <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
+#### DataAbstractionLayer <span class="tip is--primary">Data store</span> <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
 * [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Framework/DataAbstractionLayer)) 
 

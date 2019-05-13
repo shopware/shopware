@@ -18,10 +18,13 @@ Component.extend('sw-settings-salutation-create', 'sw-settings-salutation-detail
             this.salutation = this.salutationStore.create();
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+            this.$router.push({ name: 'sw.settings.salutation.detail', params: { id: this.salutation.id } });
+        },
+
         onSave() {
-            this.$super.onSave().then(() => {
-                this.$router.push({ name: 'sw.settings.salutation.detail', params: { id: this.salutation.id } });
-            });
+            this.$super.onSave();
         }
     }
 });

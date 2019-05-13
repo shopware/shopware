@@ -76,8 +76,8 @@
                                                 <sw-field type="switch"
                                                           :disabled="!item.installedAt"
                                                           :label="item.active ? $tc('sw-plugin.list.activated') : $tc('sw-plugin.list.deactivated')"
-                                                          v-model="item.active"
-                                                          v-on:change="changeActiveState(item)">
+                                                          :value="item.active"
+                                                          @change="changeActiveState(item, $event)">
                                                 </sw-field>
                                             {% endblock %}
                                         </sw-grid-column>

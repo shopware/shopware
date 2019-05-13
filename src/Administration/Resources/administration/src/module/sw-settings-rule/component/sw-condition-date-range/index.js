@@ -51,7 +51,7 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
                     this.condition.value.fromDate = null;
                     return;
                 }
-                this.condition.value.fromDate = this.convertValueToAtom(newValue);
+                this.condition.value.fromDate = newValue;
             }
         },
         toDate: {
@@ -60,7 +60,7 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
                     this.condition.value.toDate = null;
                     return;
                 }
-                this.condition.value.toDate = this.convertValueToAtom(newValue);
+                this.condition.value.toDate = newValue;
             }
         }
     },
@@ -72,24 +72,5 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
             toDate: this.condition.value.toDate,
             useTime: this.condition.value.useTime ? String(this.condition.value.useTime) : String(false)
         };
-    },
-
-    methods: {
-        convertValueToAtom(value) {
-            let date = new Date(value);
-            date = new Date(Date.UTC(
-                date.getFullYear(),
-                date.getMonth(),
-                date.getDate(),
-                date.getHours(),
-                date.getMinutes(),
-                date.getSeconds()
-            ));
-
-            let dateString = date.toISOString();
-            dateString = dateString.substring(0, dateString.length - 5);
-            dateString += '+00:00';
-            return dateString;
-        }
     }
 });

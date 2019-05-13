@@ -13,8 +13,7 @@ Component.register('sw-sales-channel-detail', {
 
     mixins: [
         Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('discard-detail-page-changes')('salesChannel')
+        Mixin.getByName('placeholder')
     ],
 
     data() {
@@ -133,6 +132,7 @@ Component.register('sw-sales-channel-detail', {
                     this.isSaveSuccessful = true;
 
                     this.$root.$emit('changed-sales-channel');
+                    this.loadEntityData();
                 }).catch(() => {
                     this.isLoading = false;
 
@@ -146,7 +146,7 @@ Component.register('sw-sales-channel-detail', {
         },
 
         abortOnLanguageChange() {
-            return this.salesChannel.hasChanges();
+            return this.salesChannelRepository.hasChanges(this.salesChannel);
         },
 
         saveOnLanguageChange() {

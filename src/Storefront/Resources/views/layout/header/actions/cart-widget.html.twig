@@ -1,8 +1,6 @@
 {% block layout_header_actions_cart_widget %}
 	<span class="cart-widget-display">
-        {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-			'name': 'shopping-paper-bag'
-		} %}
+		{% sw_icon 'shopping-paper-bag' %}
     </span>
 	{% if page.cart.lineItems|length > 0 %}
 		<span class="badge badge-primary cart-widget-badge">{{ page.cart.lineItems|length }}</span>

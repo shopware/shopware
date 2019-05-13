@@ -14,12 +14,13 @@
 										{% block layout_search_suggest_result_image %}
 											<span class="result-image">
                                                 {% if product.cover.media.url %}
-													{% set imgSrc = product.cover.media.url %}
+													<img src="{{ product.cover.media.url }}"
+														 alt="{{ product.translated.name }}">
 												{% else %}
-													{% set imgSrc = asset(shopware.theme.general.noPicture) %}
+													{% sw_icon 'placeholder' style {
+														'size': 'lg'
+													} %}
 												{% endif %}
-                                                <img src="{{ imgSrc }}"
-													 alt="{{ product.translated.name }}">
                                             </span>
 										{% endblock %}
 
@@ -54,16 +55,14 @@
 								<a href="{{ path('frontend.search.page') }}?search={{ page.searchTerm }}"
 								   title="{{ "header.searchAllResults"|trans }}"
 								   class="total-link">
-									{% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-										'name': 'arrow-head-right'
-									} %}
+									{% sw_icon 'arrow-head-right' %}
 									{{ "header.searchAllResults"|trans }}
 								</a>
 							{% endblock %}
 
 							{% block layout_search_suggest_result_total_count %}
 								<span class="total-count">
-                                    {{ page.listing.total }} {{ "header.searchResults"|trans }}
+                                    {{ page.searchResult.total }} {{ "header.searchResults"|trans }}
                                 </span>
 							{% endblock %}
 							</li>

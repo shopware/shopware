@@ -11,11 +11,8 @@
                                    itemprop="url"
                                    title="{{ navigationTree.category.translated.name }}">
                                     {% block layout_navigation_flyout_bar_category_link_text %}
-										{% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-											'name': 'arrow-simple-right',
-											'style': 'dark'
-										} %}
-										{{ "general.toCategory"|trans }} {{ navigationTree.category.translated.name }}
+                                        {{ "general.toCategory"|trans }} {{ navigationTree.category.translated.name }}
+                                        {% sw_icon 'small-arrow-small-right' style { 'color': 'primary' } %}
                                     {% endblock %}
                                 </a>
                             {% endif %}
@@ -29,9 +26,7 @@
                     <div class="navigation-flyout-close js-close-flyout-menu">
                         {% block layout_navigation_flyout_bar_close_content %}
                             {% block layout_utilities_offcanvas_close_icon %}
-                                {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-                                    'name': 'basic-x-line'
-                                } %}
+                                {% sw_icon 'basic-x-line' %}
                             {% endblock %}
                         {% endblock %}
                     </div>
@@ -41,17 +36,23 @@
     {% endblock %}
 
     {% block layout_navigation_flyout_content %}
-        <div class="navigation-flyout-content">
+        <div class="row navigation-flyout-content">
             {% block layout_navigation_flyout_categories %}
-                <div class="navigation-flyout-categories">
-                    {% block layout_navigation_flyout_categories_recoursion %}
-                        {% sw_include '@Storefront/layout/navigation/categories.html.twig' with { navigationTree: navigationTree.children } only %}
-                    {% endblock %}
+                <div class="{% if navigationTree.category.media %}col-8 col-xl-9{% else %}col{% endif %}">
+                    <div class="navigation-flyout-categories">
+                        {% block layout_navigation_flyout_categories_recoursion %}
+                            {% sw_include '@Storefront/layout/navigation/categories.html.twig' with {
+                                navigationTree: navigationTree.children,
+                                navigationMedia: navigationTree.category.media
+                            } only %}
+                        {% endblock %}
+                    </div>
                 </div>
             {% endblock %}
 
             {% block layout_navigation_flyout_teaser %}
                 {% if navigationTree.category.media %}
+                <div class="col-4 col-xl-3">
                     <div class="navigation-flyout-teaser">
                         {% block layout_navigation_flyout_teaser_image %}
                             <a class="teaser-image"
@@ -60,10 +61,9 @@
                                style="background-image: url('{{ navigationTree.category.media.url }}');"></a>
                         {% endblock %}
                     </div>
+                </div>
                 {% endif %}
             {% endblock %}
-
-            <div class="clearfix"></div>
         </div>
     {% endblock %}
 {% endblock %}

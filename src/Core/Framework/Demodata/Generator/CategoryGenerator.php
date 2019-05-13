@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 
 use Faker\Generator;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -59,6 +60,8 @@ class CategoryGenerator implements DemodataGeneratorInterface
                 'afterCategoryId' => $lastId,
                 'active' => true,
                 'cmsPageId' => $context->getFaker()->randomElement($pageIds),
+                'mediaId' => $context->getRandomId(MediaDefinition::class),
+                'description' => $context->getFaker()->text(),
             ];
 
             $lastId = $id;
@@ -78,6 +81,8 @@ class CategoryGenerator implements DemodataGeneratorInterface
                     'afterCategoryId' => $lastId,
                     'active' => true,
                     'cmsPageId' => $context->getFaker()->randomElement($pageIds),
+                    'mediaId' => $context->getRandomId(MediaDefinition::class),
+                    'description' => $context->getFaker()->text(),
                 ];
 
                 $lastId = $id;
@@ -144,6 +149,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
     private function getCmsPageIds(Context $getContext): array
     {
         $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('type', 'product_list'));
         $criteria->setLimit(500);
 
         return $this->cmsPageRepository->searchIds($criteria, $getContext)->getIds();

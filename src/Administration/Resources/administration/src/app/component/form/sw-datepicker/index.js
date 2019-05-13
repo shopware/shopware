@@ -70,30 +70,11 @@ export default {
     },
 
     data() {
-        let dateFormat = 'Y-m-dTH:i:S+00:00';
-        let altFormat = 'Y-m-d H:i';
-
-        if (this.dateType === 'time') {
-            dateFormat = 'H:i:S+00:00';
-            altFormat = 'H:i';
-        }
-
-        if (this.dateType === 'date') {
-            altFormat = 'Y-m-d';
-        }
-
         return {
             flatpickrInstance: null,
             inputValue: this.value || '',
             isDatepickerOpen: false,
-            defaultConfig: {
-                time_24hr: true,
-                locale: 'en',
-                dateFormat,
-                altInput: true,
-                altFormat
-                // disableMobile: true // only render the flatpickr and no native pickers on mobile
-            }
+            defaultConfig: {}
         };
     },
 
@@ -147,6 +128,10 @@ export default {
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     mounted() {
         if (this.flatpickrInstance === null) {
             this.createFlatpickrInstance();
@@ -173,6 +158,11 @@ export default {
             }
         },
 
+        dateType() {
+            this.createConfig();
+            this.updateFlatpickrInstance();
+        },
+
         locale: {
             immediate: true,
             handler() {
@@ -194,6 +184,10 @@ export default {
     },
 
     methods: {
+        createdComponent() {
+            this.createConfig();
+        },
+
         /**
          * Update DOM if the newValue is different from the DOM value.
          *
@@ -325,7 +319,6 @@ export default {
             // emit a new value if the value has changed during instance recreation
             this.$nextTick(() => {
                 if (this.value !== this.flatpickrInstance.input.defaultValue) {
-                    this.resetFormError();
                     this.$emit('input', this.flatpickrInstance.input.defaultValue);
                 }
             });
@@ -381,6 +374,28 @@ export default {
                 this.resetFormError();
                 this.$emit('input', this.flatpickrInstance.input.defaultValue);
             });
+        },
+
+        createConfig() {
+            let dateFormat = 'Y-m-dTH:i:S+00:00';
+            let altFormat = 'Y-m-d H:i';
+
+            if (this.dateType === 'time') {
+                dateFormat = 'H:i:S+00:00';
+                altFormat = 'H:i';
+            }
+
+            if (this.dateType === 'date') {
+                altFormat = 'Y-m-d';
+            }
+
+            this.defaultConfig = {
+                time_24hr: true,
+                locale: 'en',
+                dateFormat,
+                altInput: true,
+                altFormat
+            };
         }
 
     }

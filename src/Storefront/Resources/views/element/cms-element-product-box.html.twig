@@ -1,8 +1,11 @@
 {% block element_product_box %}
     <div class="cms-element-{{ element.type }}">
-        {% sw_include '@Storefront/component/product/widget/box.html.twig' with {
-            'product': element.data.product,
-            'layout': element.config.boxLayout.value
-        } %}
+        {% block element_product_box_inner %}
+            {% sw_include '@Storefront/component/product/widget/box.html.twig' with {
+                'product': element.data.product,
+                'layout': element.config.boxLayout.value,
+                'displayMode': element.config.displayMode.value
+            } %}
+        {% endblock %}
     </div>
 {% endblock %}

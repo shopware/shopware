@@ -62,7 +62,7 @@ Component.register('sw-product-detail', {
         },
 
         disableSaving() {
-            return this.product.isLoading || this.priceIsCalculating;
+            return this.product.isLoading;
         }
     },
 

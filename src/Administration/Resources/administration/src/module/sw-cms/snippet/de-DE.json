@@ -30,7 +30,7 @@
       "labelPageType": "Layout Typ",
       "labelDemoEntity": "Vorschaudatensatz",
       "placeholderDemoEntity": "Wähle einen Datensatz zur Vorschau",
-      "labelPageTypeLandingpage": "Einkaufswelt",
+      "labelPageTypeLandingpage": "Landingpage",
       "labelPageTypeShopPage": "Shopseite",
       "labelPageTypeCategory": "Kategorieseite",
       "labelPageTypeProduct": "Produktseite",
@@ -118,7 +118,7 @@
         "addPreviewImage": "Vorschau hinzufügen",
         "removePreviewImage": "Vorschau entfernen",
         "notificationDeleteErrorTitle": "Fehler",
-        "notificationDeleteErrorMessage": "Die Seite ist noch mindestens einer Kategorie zugewiesen.",
+        "notificationDeleteErrorMessage": "Das Layout ist noch mindestens einer Kategorie zugewiesen.",
         "modal": {
           "modalTitleDelete":  "Layout Löschen",
           "textDeleteConfirm": "Möchtest du das Layout \"{pageName}\" wirklich löschen?",

@@ -145,6 +145,7 @@ export default {
 
         convertGrossToNet(value) {
             if (!value || typeof value !== 'number') {
+                this.$emit('calculating', false);
                 return false;
             }
             this.$emit('calculating', true);

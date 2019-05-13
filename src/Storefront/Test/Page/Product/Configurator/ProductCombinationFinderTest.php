@@ -124,6 +124,7 @@ class ProductCombinationFinderTest extends TestCase
         $data = [
             [
                 'id' => $this->productId,
+                'name' => 'Test product',
                 'productNumber' => 'a.0',
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['taxRate' => 19, 'name' => 'test'],

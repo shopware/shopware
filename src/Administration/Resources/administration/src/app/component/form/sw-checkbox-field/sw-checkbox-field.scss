@@ -10,24 +10,19 @@ $sw-field-color-inherited: $color-purple;
 .sw-field--checkbox {
     margin-bottom: 22px;
 
-    .sw-field {
-        margin-bottom: 0;
-
-        .sw-field__label {
-            margin-bottom: 0;
-        }
-    }
-
     .sw-field--checkbox__content {
         display: grid;
-        grid-template-columns: 16px 1fr auto;
+        grid-template-columns: 16px 1fr;
         align-items: center;
-        grid-column-gap: 10px;
+    }
+
+    .sw-field {
+        margin-bottom: 0;
     }
 
     .sw-field__label {
-        color: $sw-field-color-text;
-        margin: 0;
+        margin-bottom: 0;
+        margin-left: 10px;
     }
 
     .sw-field__checkbox {
@@ -121,9 +116,6 @@ $sw-field-color-inherited: $color-purple;
     }
 
     &.is--inherited {
-        .sw-field--checkbox__label {
-            color:  $sw-field-color-inherited;
-        }
         input[type="checkbox"] {
             &:checked ~ .sw-field__checkbox-state {
                 border-color: $sw-field-color-border;

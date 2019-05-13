@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
+use Shopware\Storefront\Pagelet\Account\AddressList\AccountAddressListPageletLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -33,7 +34,7 @@ class AccountPageletController extends StorefrontController
     private $accountService;
 
     /**
-     * @var PageLoaderInterface
+     * @var AccountAddressListPageletLoader|PageLoaderInterface
      */
     private $accountAddresslistLoader;
 
@@ -112,8 +113,9 @@ class AccountPageletController extends StorefrontController
         $this->denyAccessUnlessLoggedIn();
 
         $page = $this->accountAddresslistLoader->load($request, $context);
+        $this->addFlash('success', $this->translator->trans('account.addressDefaultChanged'));
 
-        return $this->renderStorefront('@Storefront/component/account/address-list.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/component/account/ajax-addresses.html.twig', ['page' => $page]);
     }
 
     private function hydrateFromCustomer(RequestDataBag $dataBag, CustomerEntity $customer): RequestDataBag

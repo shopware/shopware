@@ -19,6 +19,7 @@
 /*
  * Layout-related sections
  * ----------------------- */
+@import 'layout/top-bar';
 @import 'layout/header';
 @import 'layout/footer';
 @import 'layout/grid';
@@ -40,11 +41,12 @@
 @import 'component/tab-menu';
 @import 'component/payment-form';
 @import 'component/pagination';
+@import 'component/cms-block';
 
 /*
  * Page-specific styles
  * -------------------- */
-@import 'page/product-detail';
+@import 'page/product-detail/product-detail';
 
 @import 'page/account/overview';
 @import 'page/account/register';
@@ -55,5 +57,6 @@
 @import 'page/checkout/cart';
 @import 'page/checkout/cart-item';
 @import 'page/checkout/confirm';
+@import 'page/checkout/summary';
 
 @import 'page/newsletter/newsletter';

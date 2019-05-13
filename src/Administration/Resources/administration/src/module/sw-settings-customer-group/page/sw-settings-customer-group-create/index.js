@@ -18,10 +18,13 @@ Component.extend('sw-settings-customer-group-create', 'sw-settings-customer-grou
             this.customerGroup = this.customerGroupStore.create();
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+            this.$router.push({ name: 'sw.settings.customer.group.detail', params: { id: this.customerGroup.id } });
+        },
+
         onSave() {
-            this.$super.onSave().then(() => {
-                this.$router.push({ name: 'sw.settings.customer.group.detail', params: { id: this.customerGroup.id } });
-            });
+            this.$super.onSave();
         }
     }
 });

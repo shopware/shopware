@@ -114,6 +114,7 @@ class CmsSlotEntity extends Entity
     public function setConfig(array $config): void
     {
         $this->config = $config;
+        $this->fieldConfig = null;
     }
 
     public function getTranslations(): ?EntityCollection

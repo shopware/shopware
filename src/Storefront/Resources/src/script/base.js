@@ -6,8 +6,8 @@ import 'src/script/helper/polyfill-loader.helper';
 /*
 import base requirements
  */
+import 'jquery/dist/jquery.slim';
 import 'bootstrap';
-import jQuery from 'jquery/dist/jquery.slim';
 
 /*
 import styles
@@ -57,13 +57,12 @@ import VariantSwitchPlugin from 'src/script/plugin/variant-switch/variant-switch
 import CmsSlotReloadPlugin from 'src/script/plugin/cms-slot-reload/cms-slot-reload.plugin';
 import CmsSlotHistoryReloadPlugin from 'src/script/plugin/cms-slot-reload/cms-slot-history-reload.plugin';
 import RemoteClickPlugin from 'src/script/plugin/remote-click/remote-click.plugin';
+import AddressEditorPlugin from 'src/script/plugin/address-editor/address-editor.plugin';
 
 /*
 initialisation
 */
 new ViewportDetection();
-// Expose jQuery and plugin manager to the global window object
-window.jQuery = window.$ = jQuery;
 
 // Necessary for the webpack hot module reloading server
 if (module.hot) {
@@ -112,6 +111,7 @@ PluginManager.register('VariantSwitch', VariantSwitchPlugin, '[data-variant-swit
 PluginManager.register('CmsSlotReload', CmsSlotReloadPlugin, '[data-cms-slot-reload]');
 PluginManager.register('CmsSlotHistoryReload', CmsSlotHistoryReloadPlugin, document);
 PluginManager.register('RemoteClick', RemoteClickPlugin, '[data-remote-click]');
+PluginManager.register('AddressEditor', AddressEditorPlugin, '[data-address-editor]');
 
 /*
 add configurations

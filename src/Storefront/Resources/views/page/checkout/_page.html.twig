@@ -4,35 +4,37 @@
     {% block page_checkout %}
         <div class="checkout is-{{ controllerAction }}">
             {% block page_checkout_container %}
-                <div class="checkout-main">
+                <div class="checkout-container">
                     {% block page_checkout_main %}
-                        <div class="checkout-main-left">
+                        <div class="checkout-main">
                             {% block page_checkout_main_content %}{% endblock %}
                         </div>
                     {% endblock %}
 
-                    {% block page_checkout_sidebar %}
-                        <div class="checkout-main-right">
-                            {% block page_checkout_sidebar_inner %}
-                                <aside class="checkout-sidebar">
-                                    {% block page_checkout_sidebar_content %}
-                                        {% block page_checkout_sidebar_header %}
-                                            <h2 class="checkout-sidebar-header">
-                                                {{ "checkout.summaryHeader"|trans }}
-                                            </h2>
-                                        {% endblock %}
+                    {% block page_checkout_aside %}
+                        <div class="checkout-aside">
+                            {% block page_checkout_aside_container %}
+                                <div class="checkout-aside-container">
+                                    {% block page_checkout_aside_summary %}
+                                        <div class="checkout-aside-summary">
+                                            {% block page_checkout_summary_header %}
+                                                <h2 class="checkout-summary-header">
+                                                    {{ "checkout.summaryHeader"|trans }}
+                                                </h2>
+                                            {% endblock %}
 
-                                        {% block page_checkout_sidebar_summary_card %}
-                                            <div class="card checkout-summary-card">
-                                                {% block page_checkout_sidebar_summary %}
-                                                    {% sw_include '@Storefront/page/checkout/summary.html.twig' %}
-                                                {% endblock %}
-                                            </div>
-                                        {% endblock %}
-
-                                        {% block page_checkout_sidebar_actions %}{% endblock %}
+                                            {% block page_checkout_summary_list %}
+                                                <div class="checkout-summary-list">
+                                                    {% block page_checkout_summary_list_container %}
+                                                        {% sw_include '@Storefront/page/checkout/summary.html.twig' %}
+                                                    {% endblock %}
+                                                </div>
+                                            {% endblock %}
+                                        </div>
                                     {% endblock %}
-                                </aside>
+
+                                    {% block page_checkout_aside_actions %}{% endblock %}
+                                </div>
                             {% endblock %}
                         </div>
                     {% endblock %}

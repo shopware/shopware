@@ -18,9 +18,10 @@
                                    aria-selected="true">
                                     {{ "detail.tabsDescription"|trans }}
                                     <span class="nav-link-icon">
-                                        {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-                                            'name': 'small-questionmark'
-                                        } %}
+                                        {% sw_icon 'small-arrow-medium-right' %}
+                                    </span>
+                                    <span class="product-detail-tab-preview">
+                                        {{ page.product.translated.description|raw|striptags|truncate(125) }} <span class="product-detail-tab-preview-more">{{ "detail.tabsPreviewMore"|trans }}</span>
                                     </span>
                                 </a>
                             </li>

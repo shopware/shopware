@@ -30,16 +30,12 @@
                                     {% block page_product_detail_media_image_controls_items %}
                                         <li class="carousel-control-prev image-slider-controls-prev">
                                             {% block page_product_detail_media_image_controls_items_prev_icon %}
-                                                {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-                                                    'name': 'arrow-head-left'
-                                                } %}
+                                                {% sw_icon 'arrow-head-left' %}
                                             {% endblock %}
                                         </li>
                                         <li class="carousel-control-next image-slider-controls-next">
                                             {% block page_product_detail_media_image_controls_items_next_icon %}
-                                                {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-                                                    'name': 'arrow-head-right'
-                                                } %}
+                                                {% sw_icon 'arrow-head-right' %}
                                             {% endblock %}
                                         </li>
                                     {% endblock %}
@@ -50,14 +46,15 @@
                         {% block page_product_detail_image_container %}
                             <div class="product-detail-image-container js-magnifier-container">
                                 {% if mediaItems %}
-                                    {% set imgSrc = mediaItems|first.media.url %}
+                                    <img src="{{ mediaItems|first.media.url }}"
+                                         class="img-fluid image-slider-image magnifier-image js-magnifier-image"
+                                         data-full-image="{{ mediaItems|first.media.url }}"
+                                         alt="{{ page.product.translated.name }}"/>
                                 {% else %}
-                                    {% set imgSrc = asset(shopware.theme.general.noPicture) %}
+                                    {% sw_icon 'placeholder' style {
+                                        'size': 'fluid'
+                                    } %}
                                 {% endif %}
-                                <img src="{{ imgSrc }}"
-                                     class="img-fluid image-slider-image magnifier-image js-magnifier-image"
-                                     data-full-image="{{ imgSrc }}"
-                                     alt="{{ page.product.translated.name }}"/>
                             </div>
                         {% endblock %}
                     {% endif %}

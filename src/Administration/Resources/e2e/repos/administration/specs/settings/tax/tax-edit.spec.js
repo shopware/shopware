@@ -33,7 +33,7 @@ module.exports = {
             .waitForElementVisible('.sw-settings-tax-detail .sw-card__content')
             .fillField('input[name=sw-field--tax-name]', 'Even higher tax rate', true)
             .click(page.elements.taxSaveAction)
-            .checkNotification('Tax "Even higher tax rate" has been saved successfully.')
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium')
             .assert.urlContains('#/sw/settings/tax/detail');
     },
     'verify edited tax': (browser) => {

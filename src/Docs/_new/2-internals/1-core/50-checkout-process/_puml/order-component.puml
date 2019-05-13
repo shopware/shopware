@@ -1,0 +1,28 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/release/1-0/C4_Container.puml
+
+title Cart context
+
+Container(cart, "Cart", "Checkout\Cart", "Central data collector and calculation unit of the system.")
+Container(order, "Order", "Checkout\Order", "After a cart was checked out it gets transformed into an order")
+Container(payment, "Payment", "Checkout\Payment", "Payment method")
+Container(shipping, "Shipping", "Checkout\Shipping", "Shipping method")
+Container(customer, "Admin", "System", "The owner is now the system itself and the Administrator manages it.")
+
+Container(products, "LineItems", "Checkout\Cart\LineItem", "LineItems are disconnected representations of products, surcharges or promotions.")
+
+Container(tax, "Tax", "System\Tax", "Taxing rules")
+Container(currency, "Currency", "System\Currency", "Currency selection and transformation")
+
+
+Rel_U(payment, order, "selected", "for calculation")
+Rel_U(shipping, order, "selected", "for calculation")
+Rel_U(tax, order, "selected", "for calculation")
+Rel_U(currency, order, "selected", "for calculation")
+
+Rel_R(products, order, "adds", "as line item")
+
+Rel_L(customer, order, "owns", "triggers actions")
+
+Rel_D(cart, order, "transforms", "transform cart into order after checkout")
+@enduml

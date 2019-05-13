@@ -31,7 +31,7 @@
                 <div class="account-orders-main">
                     {% if page.orders.total == 0 %}
                         {% block page_account_orders_info_empty %}
-                            {% sw_include '@Storefront/layout/_utilities/alert.html.twig' with {
+                            {% sw_include '@Storefront/utilities/alert.html.twig' with {
                                 type: "warning",
                                 content: "account.ordersInfoEmpty"|trans
                             } %}
@@ -93,9 +93,7 @@
                                                         {% if page.orders.pages.previous %}
                                                             <a href="{{ page.orders.pages.previous }}"
                                                                class="btn order-paging-link order-paging-prev">
-                                                                {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-                                                                    'name': 'arrow-head-left'
-                                                                } %}
+                                                                {% sw_icon 'arrow-head-left' %}
                                                             </a>
                                                         {% endif %}
 
@@ -112,9 +110,7 @@
                                                         {% if page.orders.pages.next %}
                                                             <a href="{{ page.orders.pages.next }}"
                                                                class="btn order-paging-link order-paging-next">
-                                                                {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-                                                                    'name': 'arrow-head-right'
-                                                                } %}
+                                                                {% sw_icon 'arrow-head-right' %}
                                                             </a>
                                                         {% endif %}
 

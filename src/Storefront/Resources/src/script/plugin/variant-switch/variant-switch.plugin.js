@@ -132,7 +132,7 @@ export default class VariantSwitchPlugin extends Plugin {
     _submitForm(data) {
         this._disableFields();
         this.el.insertAdjacentHTML('beforeend', `<input type="hidden" name="switched" value="${data.switched}">`);
-        this.el.insertAdjacentHTML('beforeend', `<input type="hidden" name="options" value="${JSON.stringify(data.options)}">`);
+        this.el.insertAdjacentHTML('beforeend', `<input type="hidden" name="options" value='${JSON.stringify(data.options)}'>`);
         PageLoadingIndicatorUtil.create();
         this.el.submit();
     }

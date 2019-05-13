@@ -1,19 +1,19 @@
 {% block sw_customer_detail %}
     <sw-page class="sw-customer-detail">
         {% block sw_customer_detail_header %}
-            <template slot="smart-bar-header">
+            <template #smart-bar-header>
                 <h2 v-if="customer && customer.salutation">{{ salutation(customer) }}</h2>
             </template>
         {% endblock %}
 
         {% block sw_customer_detail_header_language_switch %}
-            <template slot="language-switch">
+            <template #language-switch>
                 <sw-language-switch @on-change="onChangeLanguage"></sw-language-switch>
             </template>
         {% endblock %}
 
         {% block sw_customer_detail_actions %}
-            <template slot="smart-bar-actions">
+            <template #smart-bar-actions>
                 {% block sw_customer_detail_actions_edit %}
                     <sw-button v-if="!customerEditMode && !createMode"
                                class="sw-customer-detail__open-edit-mode-action"
@@ -32,70 +32,72 @@
                     {% endblock %}
 
                     {% block sw_customer_detail_actions_save %}
-                    <sw-button-process
-                            class="sw-customer-detail__save-action"
-                            :isLoading="isLoading"
-                            :processSuccess="isSaveSuccessful"
-                            :disabled="isLoading"
-                            variant="primary"
-                            @process-finish="saveFinish"
-                            @click.prevent="onSave">
-                        {{ $tc('sw-customer.detail.buttonSave') }}
-                    </sw-button-process>
+                        <sw-button-process
+                                class="sw-customer-detail__save-action"
+                                :isLoading="isLoading"
+                                :processSuccess="isSaveSuccessful"
+                                :disabled="isLoading"
+                                variant="primary"
+                                @process-finish="saveFinish"
+                                @click.prevent="onSave">
+                            {{ $tc('sw-customer.detail.buttonSave') }}
+                        </sw-button-process>
                     {% endblock %}
                 </span>
             </template>
         {% endblock %}
 
         {% block sw_customer_detail_content %}
-            <sw-card-view slot="content">
-                {% block sw_customer_detail_content_tabs %}
-                    <sw-tabs class="sw-customer-detail-page__tabs">
-                        {% block sw_customer_detail_content_tab_general %}
-                            <sw-tabs-item class="sw-customer-detail__tab-general"
-                                          :route="{ name: 'sw.customer.detail.base', params: { id: $route.params.id } }"
-                                          :title="$tc('sw-customer.detail.tabGeneral')">
-                                {{ $tc('sw-customer.detail.tabGeneral') }}
-                            </sw-tabs-item>
-                        {% endblock %}
+            <template #content>
+                <sw-card-view>
+                    {% block sw_customer_detail_content_tabs %}
+                        <sw-tabs class="sw-customer-detail-page__tabs">
+                            {% block sw_customer_detail_content_tab_general %}
+                                <sw-tabs-item class="sw-customer-detail__tab-general"
+                                              :route="{ name: 'sw.customer.detail.base', params: { id: $route.params.id } }"
+                                              :title="$tc('sw-customer.detail.tabGeneral')">
+                                    {{ $tc('sw-customer.detail.tabGeneral') }}
+                                </sw-tabs-item>
+                            {% endblock %}
 
-                        {% block sw_customer_detail_content_tab_addresses %}
-                            <sw-tabs-item class="sw-customer-detail__tab-addresses"
-                                          :route="{ name: 'sw.customer.detail.addresses', params: { id: $route.params.id } }"
-                                          :title="$tc('sw-customer.detail.tabAddresses')">
-                                {{ $tc('sw-customer.detail.tabAddresses') }}
-                            </sw-tabs-item>
-                        {% endblock %}
+                            {% block sw_customer_detail_content_tab_addresses %}
+                                <sw-tabs-item class="sw-customer-detail__tab-addresses"
+                                              :route="{ name: 'sw.customer.detail.addresses', params: { id: $route.params.id } }"
+                                              :title="$tc('sw-customer.detail.tabAddresses')">
+                                    {{ $tc('sw-customer.detail.tabAddresses') }}
+                                </sw-tabs-item>
+                            {% endblock %}
 
-                        {% block sw_customer_detail_content_tab_order %}
-                            <sw-tabs-item class="sw-customer-detail__tab-order"
-                                          :route="{ name: 'sw.customer.detail.order', params: { id: $route.params.id } }"
-                                          :title="$tc('sw-customer.detailBase.labelOrderCard')">
-                                {{ $tc('sw-customer.detailBase.labelOrderCard') }}
-                            </sw-tabs-item>
-                        {% endblock %}
-                    </sw-tabs>
-                {% endblock %}
+                            {% block sw_customer_detail_content_tab_order %}
+                                <sw-tabs-item class="sw-customer-detail__tab-order"
+                                              :route="{ name: 'sw.customer.detail.order', params: { id: $route.params.id } }"
+                                              :title="$tc('sw-customer.detailBase.labelOrderCard')">
+                                    {{ $tc('sw-customer.detailBase.labelOrderCard') }}
+                                </sw-tabs-item>
+                            {% endblock %}
+                        </sw-tabs>
+                    {% endblock %}
 
-                {% block sw_customer_detail_content_view %}
-                    <router-view :customer="customer"
-                                 customerName="salutation(customer)"
-                                 :addresses="addresses"
-                                 :salesChannels="salesChannels"
-                                 :customerGroups="customerGroups"
-                                 :paymentMethods="paymentMethods"
-                                 :countries="countries"
-                                 :customerEditMode="customerEditMode"
-                                 :languages="languages"
-                                 :customerAddressCustomFieldSets="customerAddressCustomFieldSets"
-                                 :customerCustomFieldSets="customerCustomFieldSets"
-                                 :language="language"
-                                 :isLoading="isLoading || isSaveSuccessful"
-                                 v-if="!isLoading"
-                                 @activateCustomerEditMode="onActivateCustomerEditMode">
-                    </router-view>
-                {% endblock %}
-            </sw-card-view>
+                    {% block sw_customer_detail_content_view %}
+                        <router-view :customer="customer"
+                                     :customerName="salutation(customer)"
+                                     :addresses="addresses"
+                                     :salesChannels="salesChannels"
+                                     :customerGroups="customerGroups"
+                                     :paymentMethods="paymentMethods"
+                                     :countries="countries"
+                                     :customerEditMode="customerEditMode"
+                                     :languages="languages"
+                                     :customerAddressCustomFieldSets="customerAddressCustomFieldSets"
+                                     :customerCustomFieldSets="customerCustomFieldSets"
+                                     :language="language"
+                                     :isLoading="isLoading || isSaveSuccessful"
+                                     v-if="!isLoading"
+                                     @activateCustomerEditMode="onActivateCustomerEditMode">
+                        </router-view>
+                    {% endblock %}
+                </sw-card-view>
+            </template>
         {% endblock %}
     </sw-page>
 {% endblock %}

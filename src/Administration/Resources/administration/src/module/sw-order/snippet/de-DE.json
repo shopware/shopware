@@ -11,6 +11,7 @@
       "columnBillingAddress": "Rechnungsadresse",
       "columnAmount": "Betrag",
       "columnState": "Bestellstatus",
+      "columnTransactionState": "Zahlungsstatus",
       "columnOrderNumber": "Bestellnummer",
       "columnSalesChannel": "Verkaufskanal",
       "orderDate": "Bestelldatum",

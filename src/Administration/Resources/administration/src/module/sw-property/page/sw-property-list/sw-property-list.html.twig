@@ -44,65 +44,60 @@
             </template>
         {% endblock %}
 
+        {% block sw_property_list_language_switch %}
+            <sw-language-switch slot="language-switch" @on-change="onChangeLanguage"></sw-language-switch>
+        {% endblock %}
+
         <template slot="content">
 
             {% block sw_property_list_content %}
                 <div class="sw-property-list__content">
 
                     {% block sw_property_list_grid %}
-                        <sw-grid v-if="total || term" :items="properties" :selectable="false" isFullpage>
+                        <sw-data-grid v-if="total || term"
+                                      :dataSource="properties"
+                                      :columns="propertiesColumns"
+                                      ref="propertyList"
+                                      :showSelection="false"
+                                      :showSettings="true"
+                                      :fullPage="true"
+                                      :sortBy="sortBy"
+                                      :sortDirection="sortDirection"
+                                      :isLoading="isLoading"
+                                      :allowColumnEdit="true"
+                                      identifier="sw-properties-list"
+                                      @column-sort="onSortColumn">
 
-                            {% block sw_property_list_grid_slots %}
-                                <template slot="columns" slot-scope="{ item }">
+                            {% block sw_property_list_grid_options %}
+                                <template slot="column-options" slot-scope="{ item }">
+                                    <span v-for="(option, index) in item.options" :key="option.id" v-if="index < 4">
+                                        {{ (index > 0) ? `, ${option.translated.name}` : option.translated.name }}
+                                    </span>
+                                    <span v-if="item.options.length >= 5">
+                                        , ...
+                                    </span>
+                                </template>
+                            {% endblock %}
 
-                                    {% block sw_property_list_grid_columns %}
-
-                                        {% block sw_property_list_grid_columns_name %}
-                                            <sw-grid-column flex="minmax(100px, 1fr)" :label="$tc('sw-property.list.columnName')" dataIndex="name" truncate sortable>
-                                                <router-link :to="{ name: 'sw.property.detail', params: { id: item.id } }">
-                                                    {{ item.translated.name }}
-                                                </router-link>
-                                            </sw-grid-column>
-                                        {% endblock %}
-
-                                        {% block sw_property_list_grid_columns_options %}
-                                            <sw-grid-column flex="minmax(200px, 2fr)" :label="$tc('sw-property.list.columnOptions')" truncate>
-                                                <span v-for="(option, index) in item.options" :key="option.id" v-if="index < 4">{{ (index > 0) ?`, ${option.translated.name}`:`${option.translated.name}`}}</span>
-                                                <span v-if="item.options.length >= 5">
-                                                    , ...
-                                                </span>
-                                            </sw-grid-column>
-                                        {% endblock %}
-
-                                        {% block sw_property_list_grid_columns_description %}
-                                            <sw-grid-column flex="minmax(200px, 2fr)" :label="$tc('sw-property.list.columnDescription')" truncate sortable >
-                                                {{ item.description }}
-                                            </sw-grid-column>
-                                        {% endblock %}
-
-                                        {% block sw_property_list_grid_columns_actions %}
-                                            <sw-grid-column flex="minmax(100px, 100px)" align="center">
-                                                <sw-context-button>
-
-                                                    {% block sw_property_list_grid_columns_actions_detail %}
-                                                        <sw-context-menu-item :routerLink="{ name: 'sw.property.detail', params: { id: item.id } }">
-                                                            {{ $tc('sw-property.list.contextMenuView') }}
-                                                        </sw-context-menu-item>
-                                                    {% endblock %}
-
-
-                                                    {% block sw_property_list_grid_columns_actions_delete %}
-                                                        <sw-context-menu-item variant="danger" @click="onDelete(item.id)">
-                                                            {{ $tc('sw-property.list.contextMenuDelete') }}
-                                                        </sw-context-menu-item>
-                                                    {% endblock %}
-
-                                                </sw-context-button>
-                                            </sw-grid-column>
-                                        {% endblock %}
-
+                            {% block sw_property_list_grid_columns_actions %}
+                                <template slot="actions" slot-scope="{ item }">
+                                    {% block sw_property_list_grid_columns_actions_detail %}
+                                        <sw-context-menu-item class="sw-property-list__edit-action"
+                                                              :routerLink="{ name: 'sw.property.detail', params: { id: item.id } }">
+                                            {{ $tc('sw-property.list.contextMenuView') }}
+                                        </sw-context-menu-item>
                                     {% endblock %}
 
+                                    {% block sw_property_list_grid_columns_actions_delete %}
+                                        <sw-context-menu-item variant="danger" @click="onDelete(item.id)">
+                                            {{ $tc('sw-property.list.contextMenuDelete') }}
+                                        </sw-context-menu-item>
+                                    {% endblock %}
+                                </template>
+                            {% endblock %}
+
+                            {% block sw_product_list_grid_action_modals %}
+                                <template slot="action-modals" slot-scope="{ item }">
                                     <sw-modal v-if="showDeleteModal === item.id" @modal-close="onCloseDeleteModal" :title="$tc('sw-property.list.modalTitleDelete')" variant="small">
                                         <p class="sw-property-list__confirm-delete-text">
                                             {{ $tc('sw-property.list.textDeleteConfirm', 0, { name: item.translated.name }) }}
@@ -121,13 +116,7 @@
                                 </template>
                             {% endblock %}
 
-                            <template slot="pagination">
-                                {% block sw_property_list_grid_pagination %}
-                                    <sw-pagination :page="page" :limit="limit" :total="total" :total-visible="7" @page-change="onPageChange" />
-                                {% endblock %}
-                            </template>
-
-                        </sw-grid>
+                        </sw-data-grid>
                     {% endblock %}
 
                     {% block sw_property_list_empty_state %}

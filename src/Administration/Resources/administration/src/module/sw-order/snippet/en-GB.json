@@ -11,6 +11,7 @@
       "columnBillingAddress": "Billing address",
       "columnAmount": "Amount",
       "columnState": "Order status",
+      "columnTransactionState": "Payment status",
       "columnOrderNumber": "Order number",
       "columnSalesChannel": "Sales channel",
       "orderDate": "Order date",

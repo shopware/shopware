@@ -1,9 +1,15 @@
 import { Component, Mixin } from 'src/core/shopware';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-customer-card.html.twig';
 import './sw-customer-card.scss';
 
 Component.register('sw-customer-card', {
     template,
+
+    inject: [
+        'repositoryFactory',
+        'context'
+    ],
 
     mixins: [
         Mixin.getByName('salutation')
@@ -40,9 +46,11 @@ Component.register('sw-customer-card', {
         hasActionSlot() {
             return !!this.$slots.actions;
         },
+
         hasAdditionalDataSlot() {
             return !!this.$slots['data-additional'];
         },
+
         hasSummarySlot() {
             return !!this.$slots.summary;
         },
@@ -61,6 +69,10 @@ Component.register('sw-customer-card', {
             };
 
             return Object.values(name).filter(item => item !== null).join(' - ').trim();
+        },
+
+        salutationRepository() {
+            return this.repositoryFactory.create('salutation');
         }
     },
 
@@ -70,7 +82,8 @@ Component.register('sw-customer-card', {
 
     methods: {
         createdComponent() {
-            return this.salutationStore.getList({ page: 1, limit: 500 }).then(({ items }) => {
+            const criteria = new Criteria(1, 500);
+            return this.salutationRepository.search(criteria, this.context).then(({ items }) => {
                 this.salutations = items;
             });
         },

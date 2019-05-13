@@ -40,7 +40,9 @@ export default class AjaxModalExtensionUtil {
      */
     _registerAjaxModalExtension() {
         const modalTriggers = document.querySelectorAll(`[data-toggle="modal"][${URL_DATA_ATTRIBUTE}]`);
-        Iterator.iterate(modalTriggers, trigger => trigger.addEventListener('click', this._onClickHandleAjaxModal.bind(this)));
+        if (modalTriggers) {
+            Iterator.iterate(modalTriggers, trigger => trigger.addEventListener('click', this._onClickHandleAjaxModal.bind(this)));
+        }
     }
 
     /**

@@ -367,6 +367,9 @@
       },
       "placeholderErrorMessage": "Placeholder can not be saved.",
       "dataErrorMessage": "Required fields not filled.",
+      "tag": {
+        "placeholder": "Use enter key to submit your values."
+      },
       "condition": {
         "dateRangeRule": {
           "label": "Date range",

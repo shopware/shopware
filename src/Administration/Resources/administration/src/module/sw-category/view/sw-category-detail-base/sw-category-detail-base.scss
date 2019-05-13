@@ -78,11 +78,10 @@
         }
 
         .sw-category-detail-base__layout-desc-actions {
-            display: grid;
-            grid-auto-flow: column dense;
-            justify-items: flex-start;
-            width: min-content;
-            gap: 12px;
+            .sw-button {
+                margin-bottom: 8px;
+                margin-right: 8px;
+            }
         }
 
         .sw-category-detail-base__layout-desc-link {
@@ -125,20 +124,6 @@
         position: absolute;
         right: 20px;
         top: 122px;
-    }
-
-    .sw-category-detail-base__product-subcategories.sw-field {
-        display: grid;
-        height: 64px;
-        align-content: center;
-        border-top: 1px solid $color-steam-cloud;
-        padding: 0 30px;
-        margin-bottom: 0;
-        margin-top: 0;
-
-        .sw-field--switch__content {
-            grid-template-columns: 24px 1fr;
-        }
     }
 
     .sw-empty-state {

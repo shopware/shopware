@@ -14,8 +14,9 @@ export default class FormAjaxSubmitPlugin extends Plugin {
 
     static options = {
         replaceSelectors: false,
-        loaderElementSelector: false,
         submitOnChange: false,
+        redirectTo: false,
+        forwardTo: false,
     };
 
     init() {
@@ -32,8 +33,18 @@ export default class FormAjaxSubmitPlugin extends Plugin {
             this.options.replaceSelectors = [this.options.replaceSelectors];
         }
 
+        this._callbacks = [];
         this._client = new HttpClient(window.accessKey, window.contextToken);
         this._registerEvents();
+    }
+
+    /**
+     * @param callback
+     */
+    addCallback(callback) {
+        if (typeof callback !== 'function') throw new Error('The callback must be a function!');
+
+        this._callbacks.push(callback);
     }
 
     /**
@@ -76,10 +87,29 @@ export default class FormAjaxSubmitPlugin extends Plugin {
     _onSubmit(event) {
         event.preventDefault();
         this._createLoadingIndicators();
-        const data = FormSerializeUtil.serialize(this._form);
         const action = DomAccess.getAttribute(this._form, 'action');
+        this._client.post(action, this._getFormData(), this._onAfterAjaxSubmit.bind(this));
+    }
 
-        this._client.post(action, data, this._onAfterAjaxSubmit.bind(this));
+    /**
+     * serializes the form
+     * and appends the redirect parameter
+     *
+     * @returns {FormData}
+     *
+     * @private
+     */
+    _getFormData() {
+        /** @type FormData **/
+        const data = FormSerializeUtil.serialize(this._form);
+
+        if (this.options.redirectTo) {
+            data.append('redirectTo', this.options.redirectTo);
+        } else if (this.options.forwardTo) {
+            data.append('forwardTo', this.options.forwardTo);
+        }
+
+        return data;
     }
 
     /**
@@ -92,8 +122,9 @@ export default class FormAjaxSubmitPlugin extends Plugin {
      */
     _onAfterAjaxSubmit(response) {
         this._removeLoadingIndicators();
-        ElementReplaceHelper.replaceFromMarkup(response, this.options.replaceSelectors);
+        ElementReplaceHelper.replaceFromMarkup(response, this.options.replaceSelectors, false);
         window.PluginManager.initializePlugins();
+        this._executeCallbacks();
     }
 
     /**
@@ -117,6 +148,18 @@ export default class FormAjaxSubmitPlugin extends Plugin {
         Iterator.iterate(this.options.replaceSelectors, (selector) => {
             const elements = DomAccess.querySelectorAll(document, selector);
             Iterator.iterate(elements, ElementLoadingIndicatorUtil.remove);
+        });
+    }
+
+    /**
+     * executes all registered callbacks
+     *
+     * @private
+     */
+    _executeCallbacks() {
+        Iterator.iterate(this._callbacks, callback => {
+            if (typeof callback !== 'function') throw new Error('The callback must be a function!');
+            callback.apply(this);
         });
     }
 

@@ -27,7 +27,7 @@
                         {% block sw_newsletter_receiver_detail_form_salutation %}
                             <sw-entity-single-select
                                     :label="$tc('sw-newsletter-receiver.general.salutation')"
-                                    :value="newsletterReceiver.salutationId"
+                                    v-model="newsletterReceiver.salutationId"
                                     labelProperty="displayName"
                                     entity="salutation">
                             </sw-entity-single-select>
@@ -76,7 +76,7 @@
                         {% block sw_newsletter_receiver_detail_form_language %}
                             <sw-entity-single-select
                                     :label="$tc('sw-newsletter-receiver.general.language')"
-                                    :value="newsletterReceiver.languageId"
+                                    v-model="newsletterReceiver.languageId"
                                     entity="language">
                             </sw-entity-single-select>
                         {% endblock %}
@@ -86,7 +86,7 @@
                                     disabled
                                     labelProperty="name"
                                     :label="$tc('sw-newsletter-receiver.general.salesChannel')"
-                                    :value="newsletterReceiver.salesChannelId"
+                                    v-model="newsletterReceiver.salesChannelId"
                                     entity="sales_channel">
                             </sw-entity-single-select>
                         {% endblock %}

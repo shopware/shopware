@@ -43,7 +43,7 @@ class DocumentHtml
             $html = end($parts);
         } else {
             $contents = $this->stripMetatags($contents);
-            $parsedown = new \ParsedownExtra();
+            $parsedown = new DocsParsedownExtra($this->document->getFile());
             $html = $parsedown->parse($contents);
         }
 

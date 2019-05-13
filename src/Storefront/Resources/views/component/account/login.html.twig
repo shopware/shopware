@@ -33,7 +33,7 @@
 
 					{% block component_account_login_form_error %}
 						{% if loginError %}
-							{% sw_include '@Storefront/layout/_utilities/alert.html.twig' with {
+							{% sw_include '@Storefront/utilities/alert.html.twig' with {
 								type: "danger",
 								content: "account.loginBadCredentials"|trans
 							} %}

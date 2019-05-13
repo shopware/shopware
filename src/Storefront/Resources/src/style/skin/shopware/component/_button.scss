@@ -7,13 +7,23 @@ https://getbootstrap.com/docs/4.3/components/buttons/
 */
 
 .btn {
-    border: 0 none;
     font-weight: $font-weight-bold;
+}
 
+// custom add to cart button, used e.g. in product-box and product detail buybox
+.btn-buy {
+    @extend .btn-lg;
+    @include button-variant($buy-button-bg, $buy-button-bg);
+    color: $buy-button-color;
+}
+
+.btn,
+.btn-buy {
     &.disabled,
     &:disabled {
         opacity: 1;
         background: #eee;
+        border-color: #eee;
         color: $gray-300;
     }
 }

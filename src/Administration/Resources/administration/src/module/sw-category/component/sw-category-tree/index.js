@@ -38,7 +38,8 @@ Component.register('sw-category-tree', {
             currentEditCategory: null,
             item: null,
             activeTreeItemId: '',
-            loadedParentIds: []
+            loadedParentIds: [],
+            hasInitiallyLoaded: false
         };
     },
 
@@ -56,8 +57,13 @@ Component.register('sw-category-tree', {
 
     watch: {
         activeCategory() {
+            if (this.hasInitiallyLoaded) {
+                return;
+            }
+
             if (this.activeCategory && this.activeCategory.id) {
                 if (!this.loadedParentIds.includes(this.activeCategory.parentId)) {
+                    this.hasInitiallyLoaded = true;
                     this.openTreeById();
                 }
             }

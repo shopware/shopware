@@ -23,13 +23,15 @@ Component.register('sw-settings-user-detail', {
             changePasswordModal: false,
             newPassword: '',
             isEmailUsed: false,
-            isUsernameUsed: false,
             integrations: [],
             isIntegrationsLoading: false,
             currentIntegration: null,
             isModalLoading: false,
             showSecretAccessKey: false,
-            showDeleteModal: null
+            showDeleteModal: null,
+            isUsernameUsed: false,
+            isSaveSuccessful: false,
+            isLoading: false
         };
     },
 
@@ -181,6 +183,10 @@ Component.register('sw-settings-user-detail', {
             this.clearSelection();
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+        },
+
         onSortColumn(column) {
             if (this.sortBy === column.dataIndex) {
                 this.sortDirection = (this.sortDirection === 'ASC' ? 'DESC' : 'ASC');
@@ -192,29 +198,27 @@ Component.register('sw-settings-user-detail', {
         },
 
         onSave() {
+            this.isSaveSuccessful = false;
+
             this.checkEmail().then(() => {
                 if (!this.isEmailUsed) {
                     const userName = this.username;
-                    const titleSaveSuccess = this.$tc('sw-settings-user.user-detail.notification.saveSuccess.title');
-                    const messageSaveSuccess = this.$tc('sw-settings-user.user-detail.notification.saveSuccess.message',
-                        0,
-                        { name: userName });
                     const titleSaveError = this.$tc('sw-settings-user.user-detail.notification.saveError.title');
                     const messageSaveError = this.$tc(
                         'sw-settings-user.user-detail.notification.saveError.message', 0, { name: userName }
                     );
+                    this.isLoading = true;
 
                     return this.repository.save(this.user, this.context).then(() => {
-                        this.createNotificationSuccess({
-                            title: titleSaveSuccess,
-                            message: messageSaveSuccess
-                        });
+                        this.isLoading = false;
+                        this.isSaveSuccessful = true;
                     }).catch((exception) => {
                         this.createNotificationError({
                             title: titleSaveError,
                             message: messageSaveError
                         });
                         warn(this._name, exception.message, exception.response);
+                        this.isLoading = false;
                         throw exception;
                     });
                 }

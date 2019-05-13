@@ -35,7 +35,7 @@ module.exports = {
             .expect.element(page.elements.customerGroupSaveAction).to.be.enabled;
 
         browser.click(page.elements.customerGroupSaveAction)
-            .checkNotification('Customer group "E2E Merchant" has been saved successfully.')
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium')
             .assert.urlContains('#/sw/settings/customer/group/detail');
     },
     'go back to listing and verify creation': (browser) => {

@@ -1,0 +1,41 @@
+.top-bar-nav-name {
+    display: none;
+}
+
+.top-bar-navigation {
+    display: flex;
+    justify-content: flex-end;
+    min-height: 10px;
+}
+
+.top-bar-nav-item {
+    display: flex;
+    align-items: center;
+    margin-right: $spacer;
+
+    &:last-child {
+        margin-right: 0;
+    }
+}
+
+.top-bar-list-input {
+    position: absolute;
+    clip: rect(0 0 0 0);
+    pointer-events: none;
+}
+
+.top-bar-list-label {
+    display: inline-block;
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.language-flag {
+    margin-right: $spacer-sm;
+}
+
+@include media-breakpoint-up(md) {
+    .top-bar-nav-name {
+        display: inline;
+    }
+}

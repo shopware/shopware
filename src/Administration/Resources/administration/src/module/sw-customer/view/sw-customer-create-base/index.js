@@ -6,18 +6,7 @@ Component.extend('sw-customer-create-base', 'sw-customer-detail-base', {
 
     data() {
         return {
-            createMode: true,
-            defaultAddress: null
+            createMode: true
         };
-    },
-
-    watch: {
-        customer() {
-            this.defaultAddress = this.customer.getAssociation('addresses').getById(this.customer.defaultBillingAddressId);
-        }
-    },
-
-    created() {
-        this.defaultAddress = this.customer.getAssociation('addresses').getById(this.customer.defaultBillingAddressId);
     }
 });

@@ -52,14 +52,22 @@
 
                     {% block page_product_detail_tax %}
                         <div class="product-detail-tax-container">
-                            <p class="product-detail-tax"
-                               data-toggle="modal"
-                               data-url="{{ path('widgets.cms.page',{ id: shopware.config.cms.taxCmsPageId }) }}">
-                                {% if context.taxState == "gross" %}
-                                    {{ "general.grossTaxInformation"|trans }}
-                                {% else %}
-                                    {{ "general.netTaxInformation"|trans }}
-                                {% endif %}
+                            {% if context.taxState == "gross" %}
+                                {% set taxText = "general.grossTaxInformation"|trans %}
+                            {% else %}
+                                {% set taxText = "general.netTaxInformation"|trans %}
+                            {% endif %}
+
+                            <p class="product-detail-tax">
+                                {% block page_product_detail_tax_link %}
+                                    <a class="product-detail-tax-link"
+                                       href="{{ path('widgets.cms.page',{ id: shopware.config.cms.taxCmsPageId }) }}"
+                                       title="{{ taxText }}"
+                                       data-toggle="modal"
+                                       data-url="{{ path('widgets.cms.page',{ id: shopware.config.cms.taxCmsPageId }) }}">
+                                        {{ taxText }}
+                                    </a>
+                                {% endblock %}
                             </p>
                         </div>
                     {% endblock %}

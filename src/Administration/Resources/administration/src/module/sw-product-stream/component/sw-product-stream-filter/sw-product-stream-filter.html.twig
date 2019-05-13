@@ -55,6 +55,7 @@
     {% block sw_product_stream_filter_multi_value %}
         <sw-condition-value v-else-if="lastField.name === 'id' && isEqualsAny(actualCondition.type)"
                             multi
+                            size="small"
                             :store="getStore(definition.name)"
                             :id="createId()"
                             class="field--main"

@@ -1,4 +1,4 @@
-{% sw_extends '@Storefront/layout/_utilities/offcanvas.html.twig' %}
+{% sw_extends '@Storefront/utilities/offcanvas.html.twig' %}
 
 {% block layout_utilities_offcanvas_content %}
 
@@ -27,7 +27,7 @@
                                         <span itemprop="{{ "general.mainMenu"|trans }}">
                                             <span
                                                 class="offcanvas-menu-list-item-link-icon js-offcanvas-menu-loading-icon">
-                                                <span class="fas fa-bars"></span>
+                                                {% sw_icon 'basic-stack-line' %}
                                             </span>
                                             {{ "general.mainMenu"|trans }}
                                         </span>
@@ -57,9 +57,7 @@
                                             <span
                                                 class="offcanvas-menu-list-item-link-icon js-offcanvas-menu-loading-icon">
                                                 {% block layout_utilities_offcanvas_close_icon %}
-                                                    {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-                                                        'name': 'basic-x-line'
-                                                    } %}
+                                                    {% sw_icon 'basic-x-line' %}
                                                 {% endblock %}
                                             </span>
                                             {{ "general.back"|trans }}
@@ -123,10 +121,9 @@
                                                             <span itemprop="name">{{ entity.translated.name }}</span>
                                                             {% if hasChildren %}
                                                                 {% block layout_navigation_offcanvas_navigation_categories_list_category_item_link_icon %}
-                                                                    <span class="offcanvas-menu-list-item-link-icon js-offcanvas-menu-loading-icon">
-                                                                        {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-                                                                            'name': 'small-arrow-large-double-right'
-                                                                        } %}
+                                                                    <span
+                                                                        class="offcanvas-menu-list-item-link-icon js-offcanvas-menu-loading-icon">
+                                                                        {% sw_icon 'small-arrow-medium-right' %}
                                                                     </span>
                                                                 {% endblock %}
                                                             {% endif %}

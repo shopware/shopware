@@ -21,13 +21,14 @@
 // Basics
 // --------------------------
 
-.sw-icon {
+.icon {
     @include sw-icon-size($icon-base-size);
     display: inline-block;
     font-size: inherit;
     overflow: visible;
     vertical-align: middle;
     line-height: 0;
+    color: $icon-base-color;
 
     > svg {
         width: 100%;
@@ -79,6 +80,10 @@
 
 // Icon Sizes
 // -------------------------
+
+.icon-fluid {
+    @include sw-icon-size(100%);
+}
 
 .icon-lg {
     @include sw-icon-size($icon-base-size / 3 * 4);

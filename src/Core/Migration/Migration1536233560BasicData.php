@@ -13,10 +13,7 @@ use Shopware\Core\Checkout\Document\DocumentGenerator\StornoGenerator;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderStates;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\CashPayment;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DebitPayment;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\InvoicePayment;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DefaultPayment;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
@@ -78,6 +75,8 @@ class Migration1536233560BasicData extends MigrationStep
         $this->createOrderTransactionStateMachine($connection);
 
         $this->createSystemConfigOptions($connection);
+
+        $this->createCmsPages($connection);
     }
 
     public function updateDestructive(Connection $connection): void
@@ -768,19 +767,19 @@ class Migration1536233560BasicData extends MigrationStep
         $connection->insert('rule_condition', ['id' => Uuid::randomBytes(), 'rule_id' => $ruleId, 'type' => 'cartCartAmount', 'value' => json_encode(['operator' => '>=', 'amount' => 0]), 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
 
         $debit = Uuid::randomBytes();
-        $connection->insert('payment_method', ['id' => $debit, 'handler_identifier' => DebitPayment::class, 'position' => 4, 'active' => 0, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('payment_method', ['id' => $debit, 'handler_identifier' => DefaultPayment::class, 'position' => 4, 'active' => 0, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
         $connection->insert('payment_method_translation', ['payment_method_id' => $debit, 'language_id' => $languageEN, 'name' => 'Direct Debit', 'description' => 'Additional text', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
 
         $invoice = Uuid::randomBytes();
-        $connection->insert('payment_method', ['id' => $invoice, 'handler_identifier' => InvoicePayment::class, 'position' => 5, 'active' => 1, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('payment_method', ['id' => $invoice, 'handler_identifier' => DefaultPayment::class, 'position' => 5, 'active' => 1, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
         $connection->insert('payment_method_translation', ['payment_method_id' => $invoice, 'language_id' => $languageEN, 'name' => 'Invoice', 'description' => 'Payment by invoice. Shopware provides automatic invoicing for all customers on orders after the first, in order to avoid defaults on payment.', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
 
         $cash = Uuid::randomBytes();
-        $connection->insert('payment_method', ['id' => $cash, 'handler_identifier' => CashPayment::class, 'position' => 1, 'active' => 1, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('payment_method', ['id' => $cash, 'handler_identifier' => DefaultPayment::class, 'position' => 1, 'active' => 1, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);
         $connection->insert('payment_method_translation', ['payment_method_id' => $cash, 'language_id' => $languageEN, 'name' => 'Cash on delivery', 'description' => 'Pay when you get the order', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);
 
         $pre = Uuid::randomBytes();
-        $connection->insert('payment_method', ['id' => $pre, 'handler_identifier' => PrePayment::class, 'position' => 2, 'active' => 1, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('payment_method', ['id' => $pre, 'handler_identifier' => DefaultPayment::class, 'position' => 2, 'active' => 1, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);
         $connection->insert('payment_method_translation', ['payment_method_id' => $pre, 'language_id' => $languageEN, 'name' => 'Paid in advance', 'description' => 'Pay in advance and get your order afterwards', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);
     }
 
@@ -1545,17 +1544,17 @@ class Migration1536233560BasicData extends MigrationStep
             MailTemplateTypes::MAILTYPE_CUSTOMER_REGISTER => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Customer registration',
-                'nameDe' => 'Kunden Registrierung',
+                'nameDe' => 'Kunden-Registrierung',
             ],
             NewsletterSubscriptionServiceInterface::MAIL_TYPE_OPT_IN => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Newsletter double opt-in',
-                'nameDe' => 'Newsletter Double Opt-In',
+                'nameDe' => 'Newsletter Double-Opt-In',
             ],
             NewsletterSubscriptionServiceInterface::MAIL_TYPE_REGISTER => [
                 'id' => Uuid::randomHex(),
-                'name' => 'Newsletter register',
-                'nameDe' => 'Newsletter Registrierung',
+                'name' => 'Newsletter registration',
+                'nameDe' => 'Newsletter-Registrierung',
             ],
             MailTemplateTypes::MAILTYPE_ORDER_CONFIRM => [
                 'id' => Uuid::randomHex(),
@@ -1579,8 +1578,8 @@ class Migration1536233560BasicData extends MigrationStep
             ],
             MailTemplateTypes::MAILTYPE_SEPA_CONFIRMATION => [
                 'id' => Uuid::randomHex(),
-                'name' => 'Sepa authorization',
-                'nameDe' => 'Sepa Authorisierung',
+                'name' => 'SEPA authorization',
+                'nameDe' => 'SEPA-Autorisierung',
             ],
             MailTemplateTypes::MAILTYPE_STOCK_WARNING => [
                 'id' => Uuid::randomHex(),
@@ -2763,5 +2762,107 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
                 ]
             );
         }
+    }
+
+    private function createCmsPages(Connection $connection): void
+    {
+        $languageEn = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
+        $versionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
+
+        // cms page
+        $page = ['id' => Uuid::randomBytes(), 'type' => 'product_list', 'locked' => 1, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)];
+        $pageEng = ['cms_page_id' => $page['id'], 'language_id' => $languageEn, 'name' => 'Default category layout', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)];
+
+        $connection->insert('cms_page', $page);
+        $connection->insert('cms_page_translation', $pageEng);
+
+        // cms blocks
+        $blocks = [
+            [
+                'id' => Uuid::randomBytes(),
+                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+                'cms_page_id' => $page['id'],
+                'locked' => 1,
+                'position' => 1,
+                'type' => 'product-listing',
+                'name' => 'Category listing',
+                'sizing_mode' => 'boxed',
+                'margin_top' => '20px',
+                'margin_bottom' => '20px',
+                'margin_left' => '20px',
+                'margin_right' => '20px',
+                'background_media_mode' => 'cover',
+            ],
+            [
+                'id' => Uuid::randomBytes(),
+                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+                'cms_page_id' => $page['id'],
+                'locked' => 1,
+                'position' => 0,
+                'type' => 'image-text',
+                'name' => 'Category info',
+                'sizing_mode' => 'boxed',
+                'margin_top' => '20px',
+                'margin_bottom' => '20px',
+                'margin_left' => '20px',
+                'margin_right' => '20px',
+                'background_media_mode' => 'cover',
+            ],
+        ];
+
+        foreach ($blocks as $block) {
+            $connection->insert('cms_block', $block);
+        }
+
+        // cms slots
+        $slots = [
+            ['id' => Uuid::randomBytes(), 'locked' => 1, 'cms_block_id' => $blocks[0]['id'], 'type' => 'product-listing', 'slot' => 'content', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT), 'version_id' => $versionId],
+            ['id' => Uuid::randomBytes(), 'locked' => 1, 'cms_block_id' => $blocks[1]['id'], 'type' => 'image', 'slot' => 'left', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT), 'version_id' => $versionId],
+            ['id' => Uuid::randomBytes(), 'locked' => 1, 'cms_block_id' => $blocks[1]['id'], 'type' => 'text', 'slot' => 'right', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT), 'version_id' => $versionId],
+        ];
+
+        $slotTranslations = [
+            [
+                'cms_slot_id' => $slots[0]['id'],
+                'cms_slot_version_id' => $versionId,
+                'language_id' => $languageEn,
+                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+                'config' => json_encode([
+                    'boxLayout' => ['source' => 'static', 'value' => 'standard'],
+                ]),
+            ],
+            [
+                'cms_slot_id' => $slots[1]['id'],
+                'cms_slot_version_id' => $versionId,
+                'language_id' => $languageEn,
+                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+                'config' => json_encode([
+                    'media' => ['source' => 'mapped', 'value' => 'category.media'],
+                    'displayMode' => ['source' => 'static', 'value' => 'cover'],
+                    'url' => ['source' => 'static', 'value' => null],
+                    'newTab' => ['source' => 'static', 'value' => false],
+                    'minHeight' => ['source' => 'static', 'value' => '320px'],
+                ]),
+            ],
+            [
+                'cms_slot_id' => $slots[2]['id'],
+                'cms_slot_version_id' => $versionId,
+                'language_id' => $languageEn,
+                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+                'config' => json_encode([
+                    'content' => ['source' => 'mapped', 'value' => 'category.description'],
+                ]),
+            ],
+        ];
+
+        foreach ($slots as $slot) {
+            $connection->insert('cms_slot', $slot);
+        }
+
+        foreach ($slotTranslations as $translation) {
+            $connection->insert('cms_slot_translation', $translation);
+        }
+
+        $connection->executeUpdate('UPDATE `category` SET `cms_page_id` = :pageId', ['pageId' => $page['id']]);
     }
 }

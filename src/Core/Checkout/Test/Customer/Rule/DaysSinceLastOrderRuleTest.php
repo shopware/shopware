@@ -201,6 +201,26 @@ class DaysSinceLastOrderRuleTest extends TestCase
         static::assertTrue($rule->match(new CheckoutRuleScope($checkoutContext)));
     }
 
+    public function testRuleMatchesWithDayBeforePlusOneMinute59(): void
+    {
+        $checkoutContext = $this->createMock(SalesChannelContext::class);
+        $customer = $this->createMock(CustomerEntity::class);
+
+        $dateTime = (new \DateTime())->setTime(11, 59);
+        $orderDate = clone $dateTime;
+        $orderDate->modify('-1 day +1 minute');
+
+        $checkoutContext->method('getCustomer')
+            ->willReturn($customer);
+        $customer->method('getLastOrderDate')
+            ->willReturn($orderDate);
+
+        $rule = new DaysSinceLastOrderRule($dateTime);
+        $rule->assign(['daysPassed' => 1, 'operator' => Rule::OPERATOR_EQ]);
+
+        static::assertTrue($rule->match(new CheckoutRuleScope($checkoutContext)));
+    }
+
     public function testRuleDoesNotMatchWithSameDay(): void
     {
         $checkoutContext = $this->createMock(SalesChannelContext::class);

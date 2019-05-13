@@ -55,7 +55,7 @@ module.exports = {
         browser
             .click('.sw-snippet-detail__save-action')
             .waitForElementNotPresent(page.elements.loader)
-            .checkNotification(`Snippet for "${global.SnippetFixtureService.snippetFixture.translationKey}" has been saved successfully.`);
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium');
     },
     'verify changed snippet': (browser) => {
         const page = settingsPage(browser);

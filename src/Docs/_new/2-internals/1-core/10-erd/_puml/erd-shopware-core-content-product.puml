@@ -172,7 +172,7 @@ Table(ShopwareCoreContentProductAggregateProductMediaProductMediaDefinition, "pr
 }
 TranslationTable(ShopwareCoreContentProductAggregateProductTranslationProductTranslationDefinition, "product_translation\n((Translations))") {
    additionalText string
-   name string
+   not_null(name) string
    keywords longText
    description longTextWithHtml
    metaTitle string

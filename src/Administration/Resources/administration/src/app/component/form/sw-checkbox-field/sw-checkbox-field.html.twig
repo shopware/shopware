@@ -2,8 +2,8 @@
     <div class="sw-field--checkbox__content">
         <div class="sw-field__checkbox">
             <input type="checkbox"
-                   :id="formFieldName || identification"
-                   :name="formFieldName || identification"
+                   :id="identification"
+                   :name="identification"
                    :checked="inputState"
                    :disabled="disabled"
                    @change="onChange">
@@ -16,6 +16,7 @@
                        :disabled="disabled"
                        :isInheritanceField="isInheritanceField"
                        :isInherited="isInherited"
+                       :name="identification"
                        @inheritance-restore="restoreInheritance">
         </sw-base-field>
     </div>

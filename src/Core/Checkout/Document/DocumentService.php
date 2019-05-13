@@ -190,6 +190,7 @@ class DocumentService
             ->addFilter(new EqualsFilter('deepLinkCode', $deepLinkCode))
             ->addAssociation('lineItems')
             ->addAssociation('transactions')
+            ->addAssociation('addresses')
             ->addAssociation('deliveries', (new Criteria())->addAssociation('positions'));
 
         return $this->orderRepository->search($criteria, $context->createWithVersionId($versionId))->get($orderId);
@@ -203,6 +204,7 @@ class DocumentService
         $criteria = (new Criteria([$orderId]))
             ->addAssociation('lineItems')
             ->addAssociation('transactions')
+            ->addAssociation('addresses')
             ->addAssociation('deliveries', (new Criteria())->addAssociation('positions'));
 
         return $this->orderRepository->search($criteria, $context->createWithVersionId($versionId))->get($orderId);

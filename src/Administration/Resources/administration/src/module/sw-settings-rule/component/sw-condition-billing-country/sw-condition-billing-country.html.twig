@@ -6,6 +6,7 @@
     {% endblock %}
     {% block sw_condition_billing_country_field_country_ids %}
         <sw-condition-value multi
+                            size="small"
                             :id="condition.id"
                             name="countryIds"
                             :store="getCountryStore()"

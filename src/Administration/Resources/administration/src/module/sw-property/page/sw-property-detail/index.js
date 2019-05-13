@@ -28,6 +28,7 @@ Component.register('sw-property-detail', {
         identifier() {
             return this.placeholder(this.group, 'name');
         },
+
         groupStore() {
             return State.getStore('property_group');
         }
@@ -40,11 +41,32 @@ Component.register('sw-property-detail', {
     methods: {
         createdComponent() {
             this.groupId = this.$route.params.id;
+            this.loadEntityData();
+        },
+
+        loadEntityData() {
             this.group = this.groupStore.getById(this.groupId);
+
+            if (this.$refs.optionListing) {
+                this.$refs.optionListing.setSorting();
+                this.$refs.optionListing.getList();
+            }
         },
 
         saveFinish() {
             this.isSaveSuccessful = false;
+        },
+
+        saveOnLanguageChange() {
+            return this.onSave();
+        },
+
+        abortOnLanguageChange() {
+            return this.group.hasChanges();
+        },
+
+        onChangeLanguage() {
+            this.loadEntityData();
         },
 
         onSave() {

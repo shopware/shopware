@@ -1,0 +1,47 @@
+.address-editor-modal {
+    .modal-dialog {
+        max-width: 700px;
+    }
+
+    .address-editor-current-wrapper {
+        margin-bottom: $spacer-lg;
+
+        .card {
+            margin-top: $spacer-md;
+        }
+
+        .card-title {
+            font-size: 20px;
+        }
+    }
+
+    .address-item-select,
+    .address-item-create {
+        cursor: pointer;
+
+        &:not(.collapsed) {
+            opacity: 0.5;
+        }
+    }
+
+    .address-editor-list-wrapper,
+    .address-editor-create-address-wrapper {
+        padding-top: $spacer-lg;
+        padding-bottom: $spacer-lg;
+
+        .card-title {
+            font-size: 20px;
+        }
+    }
+
+    .address-editor-list-wrapper {
+        .card.address-card {
+            padding-top: $spacer-md;
+
+            &:not(:last-child) {
+                padding-bottom: $spacer-md;
+                border-bottom: 1px solid $border-color;
+            }
+        }
+    }
+}

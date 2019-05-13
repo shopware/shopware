@@ -49,6 +49,10 @@
         <testsuite name="system">
             <directory>src/Core/System</directory>
         </testsuite>
+
+        <testsuite name="docs">
+            <directory  suffix="example.php">src/Docs/_new/</directory>
+        </testsuite>
     </testsuites>
 
     <filter>

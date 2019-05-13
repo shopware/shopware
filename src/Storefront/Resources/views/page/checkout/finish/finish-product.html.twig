@@ -5,6 +5,8 @@
     {{ parent() }}
 {% endblock %}
 
-{% block page_checkout_item_product_quantity_form %}
-    {{ lineItem.quantity }}
+{% block page_checkout_item_product_quantity_select %}
+    <div class="col-4 col-sm-12">
+        {{ lineItem.quantity }}
+    </div>
 {% endblock %}

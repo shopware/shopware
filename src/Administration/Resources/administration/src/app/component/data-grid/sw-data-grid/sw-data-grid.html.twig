@@ -42,8 +42,17 @@
                                                 {% block sw_data_grid_header_columns_content %}
                                                     <div class="sw-data-grid__cell-content">
 
+                                                        {% block sw_data_grid_header_columns_icon %}
+                                                            <sw-icon v-if="column.iconLabel"
+                                                                    :name="column.iconLabel">
+                                                                {{ column.label }}
+                                                            </sw-icon>
+                                                        {% endblock %}
+
                                                         {% block sw_data_grid_header_columns_label %}
-                                                            {{ column.label }}
+                                                            <template v-else>
+                                                                {{ column.label }}
+                                                            </template>
                                                         {% endblock %}
 
                                                         {% block sw_data_grid_column_actions %}

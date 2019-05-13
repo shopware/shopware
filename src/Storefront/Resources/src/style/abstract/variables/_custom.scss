@@ -1,7 +1,9 @@
 $search-suggest-zindex: 1000;
 $offcanvas-zindex: 1050;
+$cookie-msg-zindex: 1100;
 $menu-flyout-zindex: 750;
-$icon-base-size: 1rem;
+$icon-base-size: 22px;
+$icon-base-color: #878787;
 
 $spacer-xs: ( $spacer * 0.25 );
 $spacer-sm: ( $spacer * 0.5 );

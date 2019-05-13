@@ -27,10 +27,10 @@
                                     </div>
 
                                     <div>
-                                        <sw-button class="sw-dashboard__roadmapButton" variant="primary" :link=roadmapLink>
+                                        <sw-button class="sw-dashboard__roadmapButton" variant="primary" :link=roadmapLink target="_blank">
                                             {{ $tc("sw-dashboard.welcome.roadmapButton") }}
                                         </sw-button>
-                                        <sw-button class="sw-dashboard__issueTrackerButton" link="https://issues.shopware.com">
+                                        <sw-button class="sw-dashboard__issueTrackerButton" link="https://issues.shopware.com" target="_blank">
                                             {{ $tc("sw-dashboard.welcome.issueTrackerButton") }}
                                         </sw-button>
                                     </div>
@@ -40,9 +40,22 @@
                             </div>
                         </sw-card>
                         <sw-card class="sw-dashboard__paypal">
-                            <img class="sw-dashboard__paypal-icon" :src="'/administration/static/img/paypal-official-logo.png' | asset">
-                            <sw-button variant="primary" link="https://github.com/shopwarelabs/SwagPayPal">
-                                {{ $tc("sw-dashboard.paypal.buttonText") }}
+                            <img class="sw-dashboard__paypal-icon" :src="'/administration/static/img/paypal-official-logo.svg' | asset">
+                            <sw-button-process
+                                    v-if="!isPayPalActivated"
+                                    variant="primary"
+                                    :isLoading="pluginIsLoading"
+                                    :disabled="pluginIsLoading"
+                                    :processSuccess="pluginIsSaveSuccessful"
+                                    @process-finish="installPluginFinish"
+                                    @click="onInstallPayPal">
+                                {{ $tc("sw-dashboard.paypal.setupButtonText") }}
+                            </sw-button-process>
+                            <sw-button
+                                    v-else
+                                    variant="primary"
+                                    @click="$router.push({ name: 'swag.paypal.index'})">
+                                {{ $tc("sw-dashboard.paypal.settingsLinkButtonText") }}
                             </sw-button>
                         </sw-card>
                         <sw-card class="sw-dashboard__documentation">
@@ -81,8 +94,22 @@
                                             :title="$tc('sw-dashboard.migration.sw5pluginLinkLabel')"
                                             link="https://docs.shopware.com/en/shopware-platform-dev-en/getting-started">
                                     </sw-dashboard-external-link>
-                                    <sw-button variant="primary" link="#/sw/media/index">
-                                        {{ $tc("sw-dashboard.migration.buttonText") }}
+
+                                    <sw-button-process
+                                            v-if="!isMigrationActivated"
+                                            variant="primary"
+                                            :isLoading="pluginIsLoading"
+                                            :disabled="pluginIsLoading"
+                                            :processSuccess="pluginIsSaveSuccessful"
+                                            @process-finish="installPluginFinish"
+                                            @click="onInstallSwagMigration">
+                                        {{ $tc("sw-dashboard.migration.setupButtonText") }}
+                                    </sw-button-process>
+                                    <sw-button
+                                            v-else
+                                            variant="primary"
+                                            @click="$router.push({ name: 'swag.migration.index'})">
+                                        {{ $tc("sw-dashboard.migration.settingsLinkButtonText") }}
                                     </sw-button>
                                 </div>
                                 <img class="sw-dashboard__migration-content-right" :src="'/administration/static/img/migration-illustration.svg' | asset">

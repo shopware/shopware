@@ -12,15 +12,16 @@
                          data-image-slider="true">
 
                         {% block product_detail_zoom_modal_close_button %}
-                            <div class="modal-close close btn btn-light"
-                                 data-dismiss="modal"
-                                 aria-label="Close">
+                            <button type="button"
+                                    class="modal-close close"
+                                    data-dismiss="modal"
+                                    aria-label="Close">
                                 {% block product_detail_zoom_modal_close_button_content %}
                                     <span aria-hidden="true">
-                                        {% sw_icon 'x' %}
+                                        {% sw_icon 'x' style { 'size': 'sm' } %}
                                     </span>
                                 {% endblock %}
-                            </div>
+                            </button>
                         {% endblock %}
 
                         {% block product_detail_zoom_modal_body %}

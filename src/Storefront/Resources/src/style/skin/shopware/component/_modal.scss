@@ -20,16 +20,6 @@ https://getbootstrap.com/docs/4.3/components/modal/
 }
 
 .modal {
-    .modal-close {
-        opacity: 1;
-        padding: 7px;
-        margin: 5px;
-
-        .icon {
-            color: $white;
-        }
-    }
-
     &.is-fullscreen {
         .modal-dialog,
         .modal-content {
@@ -53,6 +43,3 @@ https://getbootstrap.com/docs/4.3/components/modal/
         }
     }
 }
-
-
-

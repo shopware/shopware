@@ -187,3 +187,14 @@
         }
     }
 }
+
+.pagination {
+    .icon {
+        width: 13px;
+        height: 13px;
+
+        > svg {
+            top: 2px;
+        }
+    }
+}

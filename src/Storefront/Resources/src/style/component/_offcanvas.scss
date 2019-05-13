@@ -54,7 +54,7 @@
     }
 
     .offcanvas-content-container {
-        padding: $spacer;
+        padding: $grid-gutter-width / 2;
         width: 400px;
     }
 }

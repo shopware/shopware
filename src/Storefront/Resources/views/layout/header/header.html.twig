@@ -40,8 +40,8 @@
             {% block layout_header_actions %}
                 <div class="col-12 order-1 col-sm-auto order-sm-2 header-actions-col">
                     <div class="row no-gutters">
-                        <div class="col d-sm-none">
-                            {% block layout_header_navigation_toggle %}
+                        {% block layout_header_navigation_toggle %}
+                            <div class="col d-sm-none">
                                 <div class="menu-button">
                                     {% block layout_header_navigation_toggle_button %}
                                         <button class="btn nav-main-toggle-btn header-actions-btn"
@@ -54,10 +54,11 @@
                                         </button>
                                     {% endblock %}
                                 </div>
-                            {% endblock %}
-                        </div>
-                        <div class="col-auto d-sm-none">
-                            {% block layout_header_search_toggle %}
+                            </div>
+                        {% endblock %}
+
+                        {% block layout_header_search_toggle %}
+                            <div class="col-auto d-sm-none">
                                 <div class="search-toggle">
                                     <button class="btn search-toggle-btn header-actions-btn collapsed"
                                             type="button"
@@ -69,17 +70,19 @@
                                         {% sw_icon 'search' %}
                                     </button>
                                 </div>
-                            {% endblock %}
-                        </div>
-                        <div class="col-auto">
-                            {% block layout_header_actions_account %}
+                            </div>
+                        {% endblock %}
+
+                        {% block layout_header_actions_account %}
+                            <div class="col-auto">
                                 <div class="account-widget">
                                     {% sw_include '@Storefront/layout/header/actions/account-widget.html.twig' %}
                                 </div>
-                            {% endblock %}
-                        </div>
-                        <div class="col-auto">
-                            {% block layout_header_actions_cart %}
+                            </div>
+                        {% endblock %}
+
+                        {% block layout_header_actions_cart %}
+                            <div class="col-auto">
                                 <div class="cart-widget"
                                      data-offcanvas-cart="true">
                                     <a class="btn cart-widget-btn header-actions-btn"
@@ -89,8 +92,8 @@
                                         {% sw_include '@Storefront/layout/header/actions/cart-widget.html.twig' %}
                                     </a>
                                 </div>
-                            {% endblock %}
-                        </div>
+                            </div>
+                        {% endblock %}
                     </div>
                 </div>
             {% endblock %}

@@ -7,7 +7,7 @@
     }
 
     .icon {
-        color: color-yiq($color);
+        color: $white;
     }
 }
 
@@ -33,35 +33,8 @@
     flex-grow: 1;
 }
 
-.alert-danger {
-    @include sw-skin-alert ($danger, #fff6f5);
-}
-
-.alert-warning,
-.alert-info {
-    @include sw-skin-alert ($info, #fff5d4);
-
-    .icon {
-        color: $white;
+@each $color, $value in $theme-colors {
+    .alert-#{$color} {
+        @include sw-skin-alert($value, theme-color-level($color, $alert-bg-level));
     }
-}
-
-.alert-success {
-    @include sw-skin-alert ($success, #ecf6e1);
-}
-
-.alert-primary {
-    @include sw-skin-alert($primary, theme-color-level('primary', $alert-bg-level));
-}
-
-.alert-secondary {
-    @include sw-skin-alert($secondary, theme-color-level('secondary', $alert-bg-level));
-}
-
-.alert-dark {
-    @include sw-skin-alert($dark, theme-color-level('dark', $alert-bg-level));
-}
-
-.alert-light {
-    @include sw-skin-alert($light, theme-color-level('light', $alert-bg-level));
 }

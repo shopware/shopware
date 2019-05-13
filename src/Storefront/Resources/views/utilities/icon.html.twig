@@ -1,12 +1,12 @@
 {% block utilities_icon %}
-	{% set styles = [ size, color, rotation, flip ] %}
+    {% set styles = [ size, color, rotation, flip ] %}
 
-	{% if pack is not defined %}
-		<span class="icon icon-{{ name }}{% for entry in styles %}{% if entry != "" %} icon-{{ entry }}{% endif %}{% endfor %}">
-			{{ source('@Storefront/../assets/icon/default/'~ name ~'.svg', ignore_missing = true) }}
+    {% if pack is not defined %}
+        {% set pack = 'default' %}
+    {% endif %}
+
+    <span
+        class="icon icon-{{ name }}{% for entry in styles %}{% if entry != "" %} icon-{{ entry }}{% endif %}{% endfor %}">
+			{{ source('@Storefront/../assets/icon/'~ pack ~'/'~ name ~'.svg', ignore_missing = true) }}
 		</span>
-	{% elseif pack == "fa" %}
-		<i class="fa fa-{{ name }}{% for entry in styles %}{% if entry != "" %} fa-{{ entry }}{% endif %}{% endfor %}"></i>
-	{% endif %}
-
 {% endblock %}

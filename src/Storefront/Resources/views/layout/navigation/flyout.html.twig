@@ -12,7 +12,10 @@
                                    title="{{ navigationTree.category.translated.name }}">
                                     {% block layout_navigation_flyout_bar_category_link_text %}
                                         {{ "general.toCategory"|trans }} {{ navigationTree.category.translated.name }}
-                                        {% sw_icon 'solid-arrow-right' style { 'color': 'primary' } %}
+                                        {% sw_icon 'arrow-right' style {
+                                            'color': 'primary',
+                                            'pack':'solid'
+                                        } %}
                                     {% endblock %}
                                 </a>
                             {% endif %}

@@ -20,6 +20,9 @@
                                     <span class="nav-link-icon">
                                         {% sw_icon 'small-arrow-medium-right' %}
                                     </span>
+                                    <span class="product-detail-tab-preview">
+                                        {{ page.product.translated.description|raw|striptags|truncate(125) }} <span class="product-detail-tab-preview-more">{{ "detail.tabsPreviewMore"|trans }}</span>
+                                    </span>
                                 </a>
                             </li>
                         {% endblock %}

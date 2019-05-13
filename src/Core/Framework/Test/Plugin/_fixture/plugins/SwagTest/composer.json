@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "shopware/platform": "dev-master"
+        "shopware/platform": ">=6.0"
     },
     "extra": {
         "shopware-plugin-class": "SwagTest\\SwagTest",

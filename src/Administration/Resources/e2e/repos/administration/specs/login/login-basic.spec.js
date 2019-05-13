@@ -8,7 +8,7 @@ module.exports = {
         browser
             .waitForElementVisible('.sw-dashboard-index__content')
             .waitForElementNotPresent('.sw-admin-menu__user-actions-toggle .sw-loader')
-            .clickUserActionMenu('admin');
+            .openUserActionMenu();
         page.logout('admin');
     },
     'view login screen': (browser) => {

@@ -41,10 +41,10 @@ class LoginPageObject extends GeneralPageObject {
             .expect.element(`${this.elements.loginForm}-headline`).text.that.equals('Log in to your Shopware store');
     }
 
-    verifyLogin(name) {
+    verifyLogin() {
         this.browser
             .waitForElementVisible(this.elements.adminMenu)
-            .clickUserActionMenu(name, false);
+            .openUserActionMenu();
     }
 
     verifyFailedLogin(notificationMessage) {

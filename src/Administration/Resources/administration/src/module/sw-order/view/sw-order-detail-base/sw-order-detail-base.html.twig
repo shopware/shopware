@@ -95,7 +95,7 @@
 
                                             {% block sw_order_detail_base_line_items_summary_taxes %}
                                                 <template v-for="calculatedTax in sortedCalculatedTaxes">
-                                                    <dt>{{ $tc('sw-order.detailBase.summaryLabelTaxes', { taxRate: calculatedTax.taxRate }) }}</dt>
+                                                    <dt>{{ $tc('sw-order.detailBase.summaryLabelTaxes', 1, { taxRate: calculatedTax.taxRate }) }}</dt>
                                                     <dd>{{ calculatedTax.tax | currency(order.currency.translated.shortName) }}</dd>
                                                 </template>
                                             {% endblock %}

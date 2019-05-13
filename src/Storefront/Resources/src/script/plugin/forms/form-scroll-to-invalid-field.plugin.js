@@ -1,6 +1,7 @@
 import Plugin from 'src/script/helper/plugin/plugin.class';
 import Debouncer from 'src/script/helper/debouncer.helper';
 import Iterator from 'src/script/helper/iterator.helper';
+import DomAccess from 'src/script/helper/dom-access.helper';
 
 /**
  * this plugin scrolls to invalid form fields
@@ -26,6 +27,12 @@ export default class FormScrollToInvalidFieldPlugin extends Plugin {
         noScrollClasses: [
             'modal-open',
         ],
+
+        /**
+         * selector for the fixed header element
+         */
+        fixedHeaderSelector: 'header.fixed-top',
+
     };
 
     init() {
@@ -159,10 +166,7 @@ export default class FormScrollToInvalidFieldPlugin extends Plugin {
      * @private
      */
     _scrollToInvalidFormFields() {
-        const rect = this._firstInvalidElement.getBoundingClientRect();
-        const elementScrollOffset = rect.top + window.scrollY;
-        const offset = elementScrollOffset - this.options.scrollOffset;
-
+        const offset = this._getOffset();
 
         // if the window is already scrolled to the right position
         // trigger the onScrollEnd callback instantly
@@ -193,6 +197,27 @@ export default class FormScrollToInvalidFieldPlugin extends Plugin {
         });
 
         return shouldScroll;
+
+    }
+
+    /**
+     * returns the calculated offset to scroll to
+     *
+     * @returns {number}
+     * @private
+     */
+    _getOffset() {
+        const rect = this._firstInvalidElement.getBoundingClientRect();
+        const elementScrollOffset = rect.top + window.scrollY;
+        let offset = elementScrollOffset - this.options.scrollOffset;
+
+        const fixedHeader = DomAccess.querySelector(document, this.options.fixedHeaderSelector, false);
+        if (fixedHeader) {
+            const headerRect = fixedHeader.getBoundingClientRect();
+            offset -= headerRect.height;
+        }
+
+        return offset;
     }
 
     /**

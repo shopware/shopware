@@ -32,16 +32,16 @@ export default class OffCanvasTabs extends Plugin {
      * On clicking the trigger item the OffCanvas shall open and the current
      * tab content may be fetched and shown inside the OffCanvas.
      * This only may happen in the defined valid viewports.
-     * @param {Event} e
+     * @param {Event} event
      * @private
      */
-    _onClickOffCanvasTab(e) {
+    _onClickOffCanvasTab(event) {
 
         // if the current viewport is not allowed return
         if (this._isInAllowedViewports() === false) return;
 
-        e.preventDefault();
-        const tab = e.target;
+        event.preventDefault();
+        const tab = event.currentTarget;
 
         if (DomAccess.hasAttribute(tab, 'href')) {
             const tabTarget = DomAccess.getAttribute(tab, 'href');

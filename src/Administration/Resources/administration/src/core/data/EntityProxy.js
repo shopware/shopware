@@ -796,13 +796,14 @@ export default class EntityProxy {
 
             // The property is an unstructured JSON field
             if (type.isPlainObject(b[key]) && properties[key].type === 'object') {
-                const changes = getObjectDiff(a[key], b[key]);
+                const compareA = JSON.stringify(a[key]);
+                const compareB = JSON.stringify(b[key]);
 
-                if (Object.keys(changes).length <= 0) {
+                if (compareA === compareB) {
                     return acc;
                 }
 
-                return { ...acc, [key]: Object.assign({}, a[key], b[key]) };
+                return { ...acc, [key]: deepCopyObject(b[key]) };
             }
 
             // The property is a OneToMany associated entity

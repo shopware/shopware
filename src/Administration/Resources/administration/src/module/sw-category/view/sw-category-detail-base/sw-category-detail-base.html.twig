@@ -59,16 +59,6 @@
                     </sw-tag-field>
                 {% endblock %}
 
-                {% block sw_category_detail_information_product_subcategories %}
-                    <sw-field
-                        class="sw-category-detail-base__product-subcategories"
-                        name="categoryShowSubcategories"
-                        type="switch"
-                        :label="$tc('sw-category.base.general.showSubcategoryProductsLabel')"
-                        v-model="category.displayNestedProducts">
-                    </sw-field>
-                {% endblock %}
-
             </sw-card>
         {% endblock %}
 

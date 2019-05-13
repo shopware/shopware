@@ -137,6 +137,13 @@ class CartService
     {
         $cart->add($item);
 
+        $lineItem = $cart->get($item->getKey());
+
+        if ($lineItem) {
+            $lineItem->setPriceDefinition(null);
+            $lineItem->setPrice(null);
+        }
+
         return $this->calculate($cart, $context);
     }
 

@@ -18,7 +18,7 @@ module.exports = {
                 mainMenuId: 'sw-catalogue',
                 subMenuId: 'sw-property'
             })
-            .expect.element(`${page.elements.gridRow}--0 a`).to.have.text.that.equals('Color');
+            .expect.element(`${page.elements.dataGridRow}--0 a`).to.have.text.that.equals('Color');
     },
     'open property and delete option': (browser) => {
         const page = propertyPage(browser);
@@ -26,7 +26,7 @@ module.exports = {
         browser
             .clickContextMenuItem(page.elements.contextMenuButton, {
                 menuActionSelector: '.sw-context-menu-item',
-                scope: `${page.elements.gridRow}--0`
+                scope: `${page.elements.dataGridRow}--0`
             })
             .expect.element(page.elements.cardTitle).to.have.text.that.equals('Basic information');
 
@@ -46,12 +46,12 @@ module.exports = {
 
         browser
             .click(page.elements.smartBarBack)
-            .expect.element(`${page.elements.gridRow}--0 a`).to.have.text.that.equals('Color');
+            .expect.element(`${page.elements.dataGridRow}--0 a`).to.have.text.that.equals('Color');
 
         browser
             .clickContextMenuItem(page.elements.contextMenuButton, {
                 menuActionSelector: `${page.elements.contextMenu}-item--danger`,
-                scope: `${page.elements.gridRow}--0`
+                scope: `${page.elements.dataGridRow}--0`
             })
             .expect.element(`${page.elements.modal} .sw-property-list__confirm-delete-text`).to.have.text.that
             .contains('Are you sure you really want to delete the property "Color"?');

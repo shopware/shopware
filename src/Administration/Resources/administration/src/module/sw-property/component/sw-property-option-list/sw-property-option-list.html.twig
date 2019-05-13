@@ -2,7 +2,7 @@
     <sw-card :isLoading="group.isLoading" class="sw-property-option-list">
 
         {% block sw_property_option_list_toolbar %}
-            <div class="sw-property-option-list__toolbar" v-if="options.length || term">
+            <div class="sw-property-option-list__toolbar" v-if="options.length || term || !isLoading">
 
                 {% block sw_property_option_list_toolbar_container %}
                     <sw-container columns="1fr 32px minmax(100px, 200px)" gap="0 10px">

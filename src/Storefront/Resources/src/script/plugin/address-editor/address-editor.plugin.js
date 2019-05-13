@@ -128,10 +128,16 @@ export default class AddressEditorPlugin extends Plugin {
      */
     _registerCollapseCallback(pseudoModal) {
         const modal = pseudoModal.getModal();
-        const collapses = DomAccess.querySelectorAll(modal, '[data-toggle="collapse"]', false);
-        if (collapses) {
-            Iterator.iterate(collapses, collapse => {
-                $(collapse).on('hidden.bs.collapse', function () {
+        const collapseTriggers = DomAccess.querySelectorAll(modal, '[data-toggle="collapse"]', false);
+        if (collapseTriggers) {
+            Iterator.iterate(collapseTriggers, collapseTrigger => {
+                const targetSelector = DomAccess.getDataAttribute(collapseTrigger, 'data-target');
+                const target = DomAccess.querySelector(modal, targetSelector);
+                const parentSelector = DomAccess.getDataAttribute(target, 'data-parent');
+                const parent = DomAccess.querySelector(modal, parentSelector);
+                const $parent = $(parent);
+
+                $parent.on('hidden.bs.collapse', () => {
                     pseudoModal.updatePosition();
                 });
             });

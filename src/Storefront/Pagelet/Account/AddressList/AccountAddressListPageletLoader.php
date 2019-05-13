@@ -47,6 +47,7 @@ class AccountAddressListPageletLoader implements PageLoaderInterface
         $pagelet = [
             'customer' => $context->getCustomer(),
             'addresses' => $addresses,
+            'context' => $context,
         ];
 
         $this->eventDispatcher->dispatch(

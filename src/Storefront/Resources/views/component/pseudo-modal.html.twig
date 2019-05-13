@@ -6,13 +6,13 @@
              role="document">
             <div class="modal-content">
                 <div class="modal-header only-close">
-                    <div class="modal-close close btn btn-light"
+                    <div class="modal-close close btn btn-primary btn-sm"
                          data-dismiss="modal"
                          aria-label="Close">
 
                         {% block product_detail_zoom_modal_close_button_content %}
                             <span aria-hidden="true">
-                                {% sw_icon 'basic-x-line' %}
+                                {% sw_icon 'basic-x-line'  style { 'size': 'sm' } %}
                             </span>
                         {% endblock %}
                     </div>

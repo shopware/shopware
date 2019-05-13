@@ -27,6 +27,7 @@ class Storefront extends Bundle
         }
 
         $loader->load('seo.xml');
+        $loader->load('controller.xml');
 
         $container->addCompilerPass(new DisableTemplateCachePass());
     }

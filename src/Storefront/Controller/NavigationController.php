@@ -1,26 +1,33 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\PageController;
+namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoader;
+use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class NavigationPageController extends StorefrontController
+class NavigationController extends StorefrontController
 {
     /**
      * @var NavigationPageLoader|PageLoaderInterface
      */
     private $navigationPageLoader;
 
-    public function __construct(PageLoaderInterface $navigationPageLoader)
+    /**
+     * @var MenuOffcanvasPageletLoader|PageLoaderInterface
+     */
+    private $offcanvasLoader;
+
+    public function __construct(PageLoaderInterface $navigationPageLoader, PageLoaderInterface $offcanvasLoader)
     {
         $this->navigationPageLoader = $navigationPageLoader;
+        $this->offcanvasLoader = $offcanvasLoader;
     }
 
     /**
@@ -45,5 +52,15 @@ class NavigationPageController extends StorefrontController
         }
 
         return $this->renderStorefront('@Storefront/page/content/index.html.twig', ['page' => $page]);
+    }
+
+    /**
+     * @Route("/widgets/menu/offcanvas", name="widgets.menu.offcanvas", methods={"GET"}, defaults={"XmlHttpRequest"=true})
+     */
+    public function offcanvasMenu(Request $request, SalesChannelContext $context): Response
+    {
+        $page = $this->offcanvasLoader->load($request, $context);
+
+        return $this->renderStorefront('@Storefront/layout/navigation/offcanvas/navigation.html.twig', ['page' => $page]);
     }
 }

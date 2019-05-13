@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
-use Shopware\Storefront\PageController\ErrorPageController;
+use Shopware\Storefront\Controller\ErrorController;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -31,11 +31,11 @@ class StorefrontSubscriber implements EventSubscriberInterface
     private $router;
 
     /**
-     * @var ErrorPageController
+     * @var ErrorController
      */
     private $errorController;
 
-    public function __construct(RequestStack $requestStack, RouterInterface $router, ErrorPageController $errorController)
+    public function __construct(RequestStack $requestStack, RouterInterface $router, ErrorController $errorController)
     {
         $this->requestStack = $requestStack;
         $this->router = $router;

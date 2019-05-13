@@ -25,7 +25,7 @@
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="request_stack"/>
             <argument type="service" id="router"/>
-            <argument type="service" id="Shopware\Storefront\PageController\ErrorPageController"/>
+            <argument type="service" id="Shopware\Storefront\Controller\ErrorController"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Command\SalesChannelCreateStorefrontCommand">
@@ -190,7 +190,7 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Storefront\Page\Account\AddressList\AccountAddressListPageLoader">
+        <service id="Shopware\Storefront\Page\Account\AddressList\AccountAddressListPageLoader" public="true">
             <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
             <argument type="service" id="Shopware\Storefront\Pagelet\Account\AddressList\AccountAddressListPageletLoader"/>
             <argument type="service" id="event_dispatcher"/>
@@ -203,53 +203,10 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Storefront\PageletController\CheckoutPageletController" public="true">
-            <argument type="service" id="Shopware\Storefront\Pagelet\Checkout\Info\CheckoutInfoPageletLoader"/>
-            <argument type="service" id="Shopware\Storefront\Pagelet\Checkout\AjaxCart\CheckoutAjaxCartPageletLoader"/>
-            <argument type="service" id="Shopware\Storefront\Pagelet\Account\AddressList\AccountAddressListPageletLoader"/>
-            <argument type="service" id="translator"/>
-        </service>
-
         <service id="Shopware\Storefront\Pagelet\AddressBook\AddressBookPageletLoader">
             <argument type="service" id="Shopware\Storefront\Pagelet\Account\AddressList\AccountAddressListPageletLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
-        </service>
-
-        <service id="Shopware\Storefront\PageletController\AddressBookPageletController" public="true">
-            <argument type="service" id="Shopware\Storefront\Pagelet\AddressBook\AddressBookPageletLoader"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
-            <argument type="service" id="translator"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
-        </service>
-
-        <service id="Shopware\Storefront\PageletController\CmsPageletController" public="true">
-            <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader"/>
-            <argument type="service" id="sales_channel.category.repository"/>
-        </service>
-
-        <service id="Shopware\Storefront\PageletController\MenuPageletController" public="true">
-            <argument type="service" id="Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoader"/>
-        </service>
-
-        <service id="Shopware\Storefront\PageletController\SuggestPageletController" public="true">
-            <argument type="service" id="Shopware\Storefront\Pagelet\Suggest\SuggestPageletLoader"/>
-        </service>
-
-        <service id="Shopware\Storefront\PageController\AccountPageController" public="true">
-            <argument type="service" id="Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\Account\AddressList\AccountAddressListPageLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\Account\Address\AccountAddressPageLoader"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService"/>
-            <argument type="service" id="translator"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader" public="true">
@@ -260,52 +217,6 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
         </service>
 
-        <service id="Shopware\Storefront\PageController\CheckoutPageController" public="true">
-            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
-            <argument type="service" id="Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\Checkout\AddressList\CheckoutAddressListPageLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\Checkout\Address\CheckoutAddressPageLoader"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelContextSwitcher"/>
-            <argument type="service" id="translator"/>
-            <argument type="service" id="media.repository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentService"/>
-            <argument type="service" id="sales_channel_domain.repository"/>
-            <argument type="service" id="request_stack"/>
-            <argument type="service" id="router"/>
-            <argument type="service" id="product.repository"/>
-        </service>
-
-        <service id="Shopware\Storefront\PageController\ErrorPageController" public="true">
-            <argument type="service" id="Shopware\Storefront\Framework\Twig\ErrorTemplateResolver"/>
-            <argument type="service" id="session.flash_bag"/>
-            <argument type="service" id="translator"/>
-            <argument type="service" id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader"/>
-        </service>
-
-        <service id="Shopware\Storefront\PageletController\AccountPageletController" public="true">
-            <argument type="service" id="Shopware\Core\Content\NewsletterReceiver\SalesChannel\NewsletterSubscriptionService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
-            <argument type="service" id="translator"/>
-            <argument type="service" id="Shopware\Storefront\Pagelet\Account\AddressList\AccountAddressListPageletLoader"/>
-        </service>
-
-        <service id="Shopware\Storefront\PageController\ProductPageController" public="true">
-            <argument type="service" id="Shopware\Storefront\Page\Product\ProductPageLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder"/>
-        </service>
-
-        <service id="Shopware\Storefront\PageController\SearchPageController" public="true">
-            <argument type="service" id="Shopware\Storefront\Page\Search\SearchPageLoader"/>
-        </service>
-
-        <service id="Shopware\Storefront\PageController\NavigationPageController" public="true">
-            <argument type="service" id="Shopware\Storefront\Page\Navigation\NavigationPageLoader"/>
-        </service>
 
         <service id="Shopware\Storefront\Page\Newsletter\Register\NewsletterRegisterLoader">
             <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
@@ -316,13 +227,6 @@
         <service id="Shopware\Storefront\Page\Newsletter\ConfirmSubscribe\NewsletterConfirmSubscribePageLoader">
             <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
             <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service id="Shopware\Storefront\PageController\NewsletterController" public="true">
-            <argument type="service" id="Shopware\Storefront\Page\Newsletter\Register\NewsletterRegisterLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\Newsletter\ConfirmSubscribe\NewsletterConfirmSubscribePageLoader"/>
-            <argument type="service" id="Shopware\Core\Content\NewsletterReceiver\SalesChannel\NewsletterSubscriptionService"/>
-            <argument type="service" id="request_stack"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder" public="true">

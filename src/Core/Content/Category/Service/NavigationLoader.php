@@ -56,8 +56,6 @@ class NavigationLoader
         /** @var CategoryCollection $categories */
         $categories = $this->categoryRepository->search($criteria, $context)->getEntities();
 
-        $categories->sortByPosition();
-
         return $this->getTree($rootId, $categories, $active);
     }
 
@@ -121,7 +119,7 @@ class NavigationLoader
      */
     private function buildTree(?string $parentId, array $categories): array
     {
-        $mapped = [];
+        $children = new CategoryCollection();
         foreach ($categories as $key => $category) {
             if ($category->getParentId() !== $parentId) {
                 continue;
@@ -129,15 +127,23 @@ class NavigationLoader
 
             unset($categories[$key]);
 
-            $item = clone $this->treeItem;
-            $item->setCategory($category);
-            $item->setChildren(
-                $this->buildTree($category->getId(), $categories)
-            );
-
-            $mapped[$category->getId()] = $item;
+            $children->add($category);
         }
 
-        return $mapped;
+        $children->sortByPosition();
+
+        $items = [];
+        foreach ($children as $child) {
+            $item = clone $this->treeItem;
+            $item->setCategory($child);
+
+            $item->setChildren(
+                $this->buildTree($child->getId(), $categories)
+            );
+
+            $items[$child->getId()] = $item;
+        }
+
+        return $items;
     }
 }

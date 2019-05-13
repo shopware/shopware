@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStat
 use Shopware\Core\Checkout\Payment\Cart\SyncPaymentTransactionStruct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class DefaultPayment implements SynchronousPaymentHandlerInterface
+class PrePayment implements SynchronousPaymentHandlerInterface
 {
     /**
      * @var OrderTransactionStateHandler

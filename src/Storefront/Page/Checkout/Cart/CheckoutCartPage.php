@@ -14,14 +14,21 @@ class CheckoutCartPage extends Page
      * @var Cart
      */
     protected $cart;
-    /** @var CountryCollection|null */
-    private $shippingCountries = null;
 
-    /** @var PaymentMethodCollection|null */
-    private $paymentMethods = null;
+    /**
+     * @var CountryCollection
+     */
+    private $countries;
 
-    /** @var ShippingMethodCollection|null */
-    private $shippingMethods = null;
+    /**
+     * @var PaymentMethodCollection
+     */
+    private $paymentMethods;
+
+    /**
+     * @var ShippingMethodCollection
+     */
+    private $shippingMethods;
 
     public function getCart(): Cart
     {
@@ -33,32 +40,32 @@ class CheckoutCartPage extends Page
         $this->cart = $cart;
     }
 
-    public function setShippingCountries(?CountryCollection $countries)
+    public function setCountries(CountryCollection $countries): void
     {
-        $this->shippingCountries = $countries;
+        $this->countries = $countries;
     }
 
-    public function getShippingCountries(): ?CountryCollection
+    public function getCountries(): CountryCollection
     {
-        return $this->shippingCountries;
+        return $this->countries;
     }
 
-    public function setShippingMethods(ShippingMethodCollection $shippings)
+    public function setShippingMethods(ShippingMethodCollection $shippingMethods): void
     {
-        $this->shippingMethods = $shippings;
+        $this->shippingMethods = $shippingMethods;
     }
 
-    public function getShippingMethods(): ?ShippingMethodCollection
+    public function getShippingMethods(): ShippingMethodCollection
     {
         return $this->shippingMethods;
     }
 
-    public function setPaymentMethods(PaymentMethodCollection $methods)
+    public function setPaymentMethods(PaymentMethodCollection $paymentMethods): void
     {
-        $this->paymentMethods = $methods;
+        $this->paymentMethods = $paymentMethods;
     }
 
-    public function getPaymentMethods(): ?PaymentMethodCollection
+    public function getPaymentMethods(): PaymentMethodCollection
     {
         return $this->paymentMethods;
     }

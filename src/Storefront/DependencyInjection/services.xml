@@ -125,7 +125,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="shipping_method.repository"/>
-            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="country.repository"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPageLoader">

@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoader;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -45,7 +44,7 @@ class CheckoutCartPageLoader
     /**
      * @var EntityRepositoryInterface
      */
-    private $salesChannelRepository;
+    private $countryRepository;
 
     public function __construct(
         GenericPageLoader $genericLoader,
@@ -53,29 +52,28 @@ class CheckoutCartPageLoader
         CartService $cartService,
         EntityRepositoryInterface $paymentMethodRepository,
         EntityRepositoryInterface $shippingMethodRepository,
-        EntityRepositoryInterface $salesChannelRepository
+        EntityRepositoryInterface $countryRepository
     ) {
         $this->genericLoader = $genericLoader;
         $this->eventDispatcher = $eventDispatcher;
         $this->cartService = $cartService;
         $this->paymentMethodRepository = $paymentMethodRepository;
         $this->shippingMethodRepository = $shippingMethodRepository;
-        $this->salesChannelRepository = $salesChannelRepository;
+        $this->countryRepository = $countryRepository;
     }
 
     public function load(Request $request, SalesChannelContext $context)
     {
         $page = $this->genericLoader->load($request, $context);
-        /** @var SalesChannelEntity $salesChannel */
-        $salesChannel = $context->getSalesChannel();
-        $this->updateSalesChannel($salesChannel, $context);
+
         $page = CheckoutCartPage::createFrom($page);
-        //todo load shipping countries to select from
-        $page->setShippingCountries($salesChannel->getCountries());
-        //todo load payment methods to select from
+
+        $page->setCountries($this->getCountries($context));
+
         $page->setPaymentMethods($this->getPaymentMethods($context));
-        //todo load dispatch methods to select from
+
         $page->setShippingMethods($this->getShippingMethods($context));
+
         $page->setCart($this->cartService->getCart($context->getToken(), $context));
 
         $this->eventDispatcher->dispatch(
@@ -88,40 +86,44 @@ class CheckoutCartPageLoader
 
     private function getPaymentMethods(SalesChannelContext $context): PaymentMethodCollection
     {
-        $criteria = (new Criteria())->addFilter(new EqualsFilter('active', true));
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('active', true))
+            ->addFilter(new EqualsFilter('payment_method.salesChannels.id', $context->getSalesChannel()->getId()));
+
         /** @var PaymentMethodCollection $paymentMethods */
-        $paymentMethods = $this->paymentMethodRepository->search($criteria, $context->getContext())->getEntities();
+        $paymentMethods = $this->paymentMethodRepository
+            ->search($criteria, $context->getContext())
+            ->getEntities();
 
         return $paymentMethods->filterByActiveRules($context);
     }
 
     private function getShippingMethods(SalesChannelContext $context): ShippingMethodCollection
     {
-        $criteria = (new Criteria())->addFilter(new EqualsFilter('active', true));
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('active', true))
+            ->addFilter(new EqualsFilter('shipping_method.salesChannels.id', $context->getSalesChannel()->getId()));
+
         /** @var ShippingMethodCollection $shippingMethods */
-        $shippingMethods = $this->shippingMethodRepository->search($criteria, $context->getContext())->getEntities();
+        $shippingMethods = $this->shippingMethodRepository
+            ->search($criteria, $context->getContext())
+            ->getEntities();
 
         return $shippingMethods->filterByActiveRules($context);
     }
 
-    private function updateSalesChannel(SalesChannelEntity $salesChannelEntity, SalesChannelContext $context): void
+    private function getCountries(SalesChannelContext $context): CountryCollection
     {
-        /** @var SalesChannelEntity $updateData */
-        $updateData = $this->salesChannelRepository
-            ->search((new Criteria([$salesChannelEntity->getId()]))
-                ->addAssociation('countries')
-                ->addAssociation('paymentMethods')
-                ->addAssociation('shippingMethods'), $context->getContext())
-            ->get($salesChannelEntity->getId());
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('active', true))
+            ->addFilter(new EqualsFilter('country.salesChannels.id', $context->getSalesChannel()->getId()))
+        ;
 
-        if (($countries = $updateData->getCountries()) instanceof CountryCollection) {
-            $salesChannelEntity->setCountries($countries);
-        }
-        if (($paymentMethods = $updateData->getPaymentMethods()) instanceof PaymentMethodCollection) {
-            $salesChannelEntity->setPaymentMethods($paymentMethods);
-        }
-        if (($shippingMethods = $updateData->getShippingMethods()) instanceof ShippingMethodCollection) {
-            $salesChannelEntity->setShippingMethods($shippingMethods);
-        }
+        /** @var CountryCollection $countries */
+        $countries = $this->countryRepository
+            ->search($criteria, $context->getContext())
+            ->getEntities();
+
+        return $countries;
     }
 }

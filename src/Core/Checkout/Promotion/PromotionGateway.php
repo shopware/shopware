@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Promotion;
 
+use Shopware\Core\Checkout\Promotion\Service\PromotionDateTimeServiceInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -20,9 +21,15 @@ class PromotionGateway implements PromotionGatewayInterface
      */
     private $promotionRepository;
 
-    public function __construct(EntityRepositoryInterface $promotionRepository)
+    /**
+     * @var PromotionDateTimeServiceInterface
+     */
+    private $promotionDateTimeService;
+
+    public function __construct(EntityRepositoryInterface $promotionRepository, PromotionDateTimeServiceInterface $promotionDateTimeService)
     {
         $this->promotionRepository = $promotionRepository;
+        $this->promotionDateTimeService = $promotionDateTimeService;
     }
 
     /**
@@ -30,7 +37,6 @@ class PromotionGateway implements PromotionGatewayInterface
      * require a code within the current checkout context.
      *
      * @throws InconsistentCriteriaIdsException
-     * @throws \Exception
      */
     public function getAutomaticPromotions(SalesChannelContext $context): EntityCollection
     {
@@ -100,11 +106,8 @@ class PromotionGateway implements PromotionGatewayInterface
      */
     private function getDateRangeFilter(): Filter
     {
-        $today = new \DateTime();
-        $today = $today->setTimezone(new \DateTimeZone('UTC'));
-
-        $todayStart = $today->format('Y-m-d H:i:s 0:0:0');
-        $todayEnd = $today->format('Y-m-d H:i:s 23:59:59');
+        /** @var string $nowAsString */
+        $nowAsString = $this->promotionDateTimeService->getNow();
 
         $filterNoDateRange = new MultiFilter(
             MultiFilter::CONNECTION_AND,
@@ -117,7 +120,7 @@ class PromotionGateway implements PromotionGatewayInterface
         $filterStartedNoEndDate = new MultiFilter(
             MultiFilter::CONNECTION_AND,
             [
-                new RangeFilter('validFrom', ['lte' => $todayStart]),
+                new RangeFilter('validFrom', ['lte' => $nowAsString]),
                 new EqualsFilter('validUntil', null),
             ]
         );
@@ -126,15 +129,15 @@ class PromotionGateway implements PromotionGatewayInterface
             MultiFilter::CONNECTION_AND,
             [
                 new EqualsFilter('validFrom', null),
-                new RangeFilter('validUntil', ['gte' => $todayEnd]),
+                new RangeFilter('validUntil', ['gte' => $nowAsString]),
             ]
         );
 
         $activeDateRangeFilter = new MultiFilter(
             MultiFilter::CONNECTION_AND,
             [
-                new RangeFilter('validFrom', ['lte' => $todayStart]),
-                new RangeFilter('validUntil', ['gte' => $todayEnd]),
+                new RangeFilter('validFrom', ['lte' => $nowAsString]),
+                new RangeFilter('validUntil', ['gte' => $nowAsString]),
             ]
         );
 

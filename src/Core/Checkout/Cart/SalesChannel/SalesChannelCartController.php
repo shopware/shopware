@@ -49,16 +49,23 @@ class SalesChannelCartController extends AbstractController
      */
     private $productLineItemFactory;
 
+    /**
+     * @var PromotionItemBuilder
+     */
+    private $promotionItemBuilder;
+
     public function __construct(
         CartService $service,
         EntityRepositoryInterface $mediaRepository,
         Serializer $serializer,
-        ProductLineItemFactory $productLineItemFactory
+        ProductLineItemFactory $productLineItemFactory,
+        PromotionItemBuilder $promotionItemBuilder
     ) {
         $this->serializer = $serializer;
         $this->cartService = $service;
         $this->mediaRepository = $mediaRepository;
         $this->productLineItemFactory = $productLineItemFactory;
+        $this->promotionItemBuilder = $promotionItemBuilder;
     }
 
     /**
@@ -132,13 +139,10 @@ class SalesChannelCartController extends AbstractController
         /** @var string $token */
         $token = $request->request->getAlnum('token', $context->getToken());
 
-        $itemBuilder = new PromotionItemBuilder();
+        /** @var LineItem $lineItem */
+        $lineItem = $this->promotionItemBuilder->buildPlaceholderItem($code, $context->getContext()->getCurrencyPrecision());
 
-        $lineItem = $itemBuilder->buildPlaceholderItem(
-            $code,
-            $context->getContext()->getCurrencyPrecision()
-        );
-
+        /** @var Cart $cart */
         $cart = $this->cartService->add($this->cartService->getCart($token, $context), $lineItem, $context);
 
         return new JsonResponse($this->serialize($cart));

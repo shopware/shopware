@@ -248,6 +248,7 @@
         "addPromotionLabel": "Enter code",
         "addPromotionPlaceholder": "Gift card or discount code",
         "promotionAlreadyExistsInfo": "Promotion code was not applied to the cart because it was already added",
+        "promotionExistsButRulesDoNotMatch": "Promotion code has been stored but hasn't been applied because the conditions do not apply. If conditions apply it will be added automatically",
         "addProductLabel": "Enter product number",
         "addProductPlaceholder": "Product number",
         "summaryPositionPrice": "Sum",

@@ -88,6 +88,7 @@
                 <argument type="service" id="service_container"/>
             </call>
             <argument type="service" id="Shopware\Core\Content\Product\Cart\ProductLineItemFactory"/>
+            <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\SalesChannel\SalesChannelCheckoutController" public="true">

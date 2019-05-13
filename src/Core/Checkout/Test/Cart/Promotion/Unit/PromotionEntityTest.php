@@ -1,11 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Cart\Promotion;
+namespace Shopware\Core\Checkout\Test\Cart\Promotion\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\CustomerNumberRule;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
@@ -242,5 +244,37 @@ class PromotionEntityTest extends TestCase
         );
 
         static::assertEquals($expected, $promotion->getPreconditionRule());
+    }
+
+    /**
+     * This test verifies that we get the correct
+     * FALSE result for hasDiscount, if no discount has been set.
+     *
+     * @test
+     * @group promotions
+     */
+    public function testPromotionHasDiscountNo()
+    {
+        $promotion = new PromotionEntity();
+
+        static::assertFalse($promotion->hasDiscount());
+    }
+
+    /**
+     * This test verifies that we get the correct
+     * FALSE result for hasDiscount, if discounts have been set.
+     *
+     * @test
+     * @group promotions
+     */
+    public function testPromotionHasDiscountYes()
+    {
+        $discount = new PromotionDiscountEntity();
+        $discount->setId('D1');
+
+        $promotion = new PromotionEntity();
+        $promotion->setDiscounts(new PromotionDiscountCollection([$discount]));
+
+        static::assertTrue($promotion->hasDiscount());
     }
 }

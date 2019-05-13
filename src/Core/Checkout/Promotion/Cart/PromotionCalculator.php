@@ -66,15 +66,26 @@ class PromotionCalculator
     {
         // @todo order $discountLineItems by priority
 
-        /** @var LineItem $discountLineItem */
-        foreach ($discountLineItems as $discountLineItem) {
+        /* @var LineItem $discountLineItem */
+        foreach ($discountLineItems as $discountItem) {
             // we have to verify if the line item is still valid depending on
             // the added requirements and conditions.
-            if (!$this->isRequirementValid($discountLineItem, $calculated, $context)) {
+            if (!$this->isRequirementValid($discountItem, $calculated, $context)) {
                 continue;
             }
 
-            $this->addStandardDiscount($discountLineItem, $calculated, $context);
+            /** @var LineItem $discountItem */
+            $discountItem = $this->calculateStandardDiscount($discountItem, $calculated, $context);
+
+            // if we our price is 0,00 because of whatever reason, make sure to skip it.
+            // this can be if the price-definition filter is none,
+            // or if a fixed price is set to the price of the product itself.
+            if ($discountItem->getPrice() === null || abs($discountItem->getPrice()->getTotalPrice()) <= 0.0) {
+                continue;
+            }
+
+            $calculated->addLineItems(new LineItemCollection([$discountItem]));
+            $this->calculateCart($calculated, $context);
         }
     }
 
@@ -85,7 +96,7 @@ class PromotionCalculator
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
      * @throws \Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException
      */
-    private function addStandardDiscount(LineItem $discount, Cart $calculated, SalesChannelContext $context): void
+    private function calculateStandardDiscount(LineItem $discount, Cart $calculated, SalesChannelContext $context): LineItem
     {
         /** @var LineItemCollection $cartLineItems */
         $cartLineItems = $calculated->getLineItems()->filterType(LineItem::PRODUCT_LINE_ITEM_TYPE);
@@ -153,20 +164,13 @@ class PromotionCalculator
                 break;
         }
 
-        // if we haven't calculated anything,
-        // we won't add anything on calculated cart
-        if (!$discountPrice instanceof CalculatedPrice) {
-            return;
-        }
-
         // set our new calculated and correct
         // price for our discount line item
-        $discount->setPrice($discountPrice);
+        if ($discountPrice instanceof CalculatedPrice) {
+            $discount->setPrice($discountPrice);
+        }
 
-        // add the new line item to our cart
-        // and calculate it after each line item!
-        $calculated->addLineItems(new LineItemCollection([$discount]));
-        $this->calculateCart($calculated, $context);
+        return $discount;
     }
 
     /**

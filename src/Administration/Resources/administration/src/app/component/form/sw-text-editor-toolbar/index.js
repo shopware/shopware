@@ -199,7 +199,6 @@ export default {
 
                 this.range = document.getSelection().getRangeAt(0);
                 this.range.setStart(this.range.startContainer, 0);
-                this.keepSelection(true);
             }
         },
 
@@ -246,6 +245,8 @@ export default {
             if (button.type === 'link' && event.target.closest('.sw-text-editor-toolbar__link-menu')) {
                 return;
             }
+
+            this.keepSelection();
 
             this.buttonConfig.forEach((item) => {
                 if (item === button) {

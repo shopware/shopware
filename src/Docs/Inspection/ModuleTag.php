@@ -49,7 +49,7 @@ class ModuleTag
         return $this->marker;
     }
 
-    public function valid(): bool
+    public function fits(): bool
     {
         return count($this->marker()) > 0;
     }

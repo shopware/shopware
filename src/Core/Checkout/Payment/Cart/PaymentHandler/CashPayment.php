@@ -2,25 +2,6 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart\PaymentHandler;
 
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
-use Shopware\Core\Checkout\Payment\Cart\SyncPaymentTransactionStruct;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-
-class CashPayment implements SynchronousPaymentHandlerInterface
+class CashPayment extends DefaultPayment
 {
-    /**
-     * @var OrderTransactionStateHandler
-     */
-    private $transactionStateHandler;
-
-    public function __construct(OrderTransactionStateHandler $transactionStateHandler)
-    {
-        $this->transactionStateHandler = $transactionStateHandler;
-    }
-
-    public function pay(SyncPaymentTransactionStruct $transaction, SalesChannelContext $salesChannelContext): void
-    {
-        $context = $salesChannelContext->getContext();
-        $this->transactionStateHandler->pay($transaction->getOrderTransaction()->getId(), $context);
-    }
 }

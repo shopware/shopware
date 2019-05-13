@@ -17,6 +17,10 @@
     }
 }
 
+.product-detail-quantity-select {
+    height: 100%;
+}
+
 @include media-breakpoint-down(xs) {
     .product-detail-tabs {
         .card-tabs .nav-link,

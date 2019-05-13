@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AddressService;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
@@ -584,25 +583,23 @@ class CheckoutPageController extends StorefrontController
             throw new MissingRequestParameterException('lineItems');
         }
 
-        $collection = new LineItemCollection();
-
-        /** @var RequestDataBag $lineItemData */
-        foreach ($lineItems as $lineItemData) {
-            $lineItem = new LineItem(
-                $lineItemData->getAlnum('id'),
-                $lineItemData->getAlnum('type'),
-                $lineItemData->getInt('quantity')
-            );
-
-            $lineItemData->remove('quantity');
-
-            $this->updateLineItemByRequest($lineItem, $lineItemData, $context->getContext());
-
-            $collection->add($lineItem);
-        }
+        $cart = $this->cartService->getCart($context->getToken(), $context);
 
         try {
-            $this->cartService->fill($this->cartService->getCart($context->getToken(), $context), $collection, $context);
+            /** @var RequestDataBag $lineItemData */
+            foreach ($lineItems as $lineItemData) {
+                $lineItem = new LineItem(
+                    $lineItemData->getAlnum('id'),
+                    $lineItemData->getAlnum('type'),
+                    $lineItemData->getInt('quantity')
+                );
+
+                $lineItemData->remove('quantity');
+
+                $this->updateLineItemByRequest($lineItem, $lineItemData, $context->getContext());
+
+                $this->cartService->add($cart, $lineItem, $context);
+            }
 
             $this->addFlash('success', $this->translator->trans('checkout.addToCartSuccess'));
         } catch (ProductNotFoundException $exception) {

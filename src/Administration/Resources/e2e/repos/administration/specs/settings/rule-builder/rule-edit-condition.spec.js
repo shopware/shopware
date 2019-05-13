@@ -37,15 +37,16 @@ module.exports = {
         page.createDateRangeCondition({
             type: 'Date range',
             ruleSelector: `${page.elements.conditionOrContainer}--0 ${page.elements.baseCondition}`,
-            fromDate: '2019-28-03 12:12',
-            toDate: '2019-28-04 12:12',
+            fromDate: '2019-05-03 12:12',
+            toDate: '2019-05-04 12:12',
             useTime: true
         });
     },
     'add an and-condition as subcondition to the rule': (browser) => {
         const page = ruleBuilderPage(browser);
 
-        browser.click('.sw-condition-and-container__actions--and')
+        browser
+            .click('.sw-condition-and-container__actions--and')
             .waitForElementVisible('.condition-content__spacer--and')
             .waitForElementVisible(`${page.elements.conditionOrContainer}--0 ${page.elements.conditionAndContainer}--1`);
 

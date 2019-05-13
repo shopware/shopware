@@ -14,7 +14,6 @@ use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemovableException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
 use Shopware\Core\Checkout\Cart\Processor;
@@ -143,18 +142,6 @@ class CartService
             $lineItem->setPriceDefinition(null);
             $lineItem->setPrice(null);
         }
-
-        return $this->calculate($cart, $context);
-    }
-
-    /**
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
-     */
-    public function fill(Cart $cart, LineItemCollection $lineItems, SalesChannelContext $context): Cart
-    {
-        $cart->addLineItems($lineItems);
 
         return $this->calculate($cart, $context);
     }

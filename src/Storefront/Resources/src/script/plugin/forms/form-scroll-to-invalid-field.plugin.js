@@ -19,6 +19,13 @@ export default class FormScrollToInvalidFieldPlugin extends Plugin {
          * how much px the scrolling should be offset
          */
         scrollOffset: 15,
+
+        /**
+         * body classes on which the scroll should not be triggered
+         */
+        noScrollClasses: [
+            'modal-open',
+        ],
     };
 
     init() {
@@ -156,16 +163,36 @@ export default class FormScrollToInvalidFieldPlugin extends Plugin {
         const elementScrollOffset = rect.top + window.scrollY;
         const offset = elementScrollOffset - this.options.scrollOffset;
 
+
         // if the window is already scrolled to the right position
         // trigger the onScrollEnd callback instantly
         if (window.scrollY === offset) {
             this._debouncedOnScroll();
-        } else {
+        } else if (this._shouldScroll()) {
             window.scrollTo({
                 top: offset,
                 behavior: 'smooth',
             });
+        } else {
+            this._onScrollEnd();
         }
+    }
+
+    /**
+     * returns if the body should be scrolled
+     *
+     * @returns {boolean}
+     * @private
+     */
+    _shouldScroll() {
+        let shouldScroll = true;
+        Iterator.iterate(this.options.noScrollClasses, cls => {
+            if (document.body.classList.contains(cls)) {
+                shouldScroll = false;
+            }
+        });
+
+        return shouldScroll;
     }
 
     /**

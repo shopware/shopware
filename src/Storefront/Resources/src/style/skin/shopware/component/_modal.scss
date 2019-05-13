@@ -19,26 +19,40 @@ https://getbootstrap.com/docs/4.3/components/modal/
     }
 }
 
-.modal.is-fullscreen {
-    .modal-dialog,
-    .modal-content {
-        width: 100%;
-        height: 100%;
-        min-height: 100%;
-        position: absolute;
-        max-width: 100%;
-        top: 0;
-        left: 0;
-        margin: 0;
-        overflow-y: scroll;
-        box-shadow: none;
+.modal {
+    .modal-close {
+        opacity: 1;
+        padding: 7px;
+        margin: 5px;
+
+        .icon {
+            color: $white;
+        }
     }
 
-    .modal-dialog,
-    .modal-header,
-    .modal-body,
-    .modal-footer {
-        border-radius: 0;
+    &.is-fullscreen {
+        .modal-dialog,
+        .modal-content {
+            width: 100%;
+            height: 100%;
+            min-height: 100%;
+            position: absolute;
+            max-width: 100%;
+            top: 0;
+            left: 0;
+            margin: 0;
+            overflow-y: scroll;
+            box-shadow: none;
+        }
+
+        .modal-dialog,
+        .modal-header,
+        .modal-body,
+        .modal-footer {
+            border-radius: 0;
+        }
     }
 }
+
+
 

@@ -84,6 +84,9 @@
 
 @include media-breakpoint-down(xs) {
     .product-detail-tabs {
+        margin-bottom: $spacer-lg;
+        padding: 0 5px;
+
         .card-header {
             border: 0;
             padding-bottom: 0;
@@ -100,11 +103,23 @@
 
         .card-tabs .nav-link {
             background: none;
-            padding: $spacer;
+            padding: $spacer 0;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            flex-wrap: wrap;
+            font-weight: $font-weight-bold;
         }
+    }
+
+    .product-detail-tab-preview {
+        font-weight: $font-weight-normal;
+        margin-top: $spacer-sm;
+    }
+
+    .product-detail-tab-preview-more {
+        color: $primary;
+        font-weight: $font-weight-bold;
     }
 
     .product-detail-tabs-content {
@@ -121,6 +136,10 @@
         .card-tabs .nav-link-icon {
             display: none;
         }
+    }
+
+    .product-detail-tab-preview {
+        display: none;
     }
 
     .product-detail-image-container {

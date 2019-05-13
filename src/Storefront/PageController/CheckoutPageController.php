@@ -265,6 +265,7 @@ class CheckoutPageController extends StorefrontController
             | UnknownPaymentMethodException $e
         ) {
             // TODO: Handle errors which might occur during payment process
+            throw $e;
         }
 
         return $this->forward(

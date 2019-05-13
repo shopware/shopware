@@ -9,10 +9,6 @@ use Shopware\Core\Framework\Snippet\Aggregate\SnippetSet\SnippetSetEntity;
 class SnippetEntity extends Entity
 {
     use EntityIdTrait;
-    /**
-     * @var string
-     */
-    protected $languageId;
 
     /**
      * @var string

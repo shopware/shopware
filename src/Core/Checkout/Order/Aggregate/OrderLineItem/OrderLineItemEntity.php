@@ -104,16 +104,6 @@ class OrderLineItemEntity extends Entity
     protected $orderDeliveryPositions;
 
     /**
-     * @var OrderLineItemEntity|null
-     */
-    protected $parent;
-
-    /**
-     * @var OrderLineItemCollection|null
-     */
-    protected $children;
-
-    /**
      * @var array|null
      */
     protected $customFields;
@@ -291,26 +281,6 @@ class OrderLineItemEntity extends Entity
     public function setOrderDeliveryPositions(OrderDeliveryPositionCollection $orderDeliveryPositions): void
     {
         $this->orderDeliveryPositions = $orderDeliveryPositions;
-    }
-
-    public function getParent(): ?OrderLineItemEntity
-    {
-        return $this->parent;
-    }
-
-    public function setParent(OrderLineItemEntity $parent): void
-    {
-        $this->parent = $parent;
-    }
-
-    public function getChildren(): ?OrderLineItemCollection
-    {
-        return $this->children;
-    }
-
-    public function setChildren(OrderLineItemCollection $children): void
-    {
-        $this->children = $children;
     }
 
     public function getCustomFields(): ?array

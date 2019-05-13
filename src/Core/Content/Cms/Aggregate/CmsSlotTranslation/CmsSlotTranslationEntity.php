@@ -3,8 +3,6 @@
 namespace Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
-use Shopware\Core\Content\Cms\SlotDataResolver\FieldConfig;
-use Shopware\Core\Content\Cms\SlotDataResolver\FieldConfigCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
 class CmsSlotTranslationEntity extends TranslationEntity
@@ -13,11 +11,6 @@ class CmsSlotTranslationEntity extends TranslationEntity
      * @var array|null
      */
     protected $config;
-
-    /**
-     * @var FieldConfigCollection|null
-     */
-    protected $fieldConfig;
 
     /**
      * @var string
@@ -72,28 +65,5 @@ class CmsSlotTranslationEntity extends TranslationEntity
     public function setCustomFields(?array $customFields): void
     {
         $this->customFields = $customFields;
-    }
-
-    public function getFieldConfig(): ?FieldConfigCollection
-    {
-        if ($this->fieldConfig) {
-            return $this->fieldConfig;
-        }
-
-        $collection = new FieldConfigCollection();
-        $config = $this->config ?? [];
-
-        foreach ($config as $key => $value) {
-            $collection->add(
-                new FieldConfig($key, $value['source'], $value['value'])
-            );
-        }
-
-        return $this->fieldConfig = $collection;
-    }
-
-    public function setFieldConfig(FieldConfigCollection $fieldConfig): void
-    {
-        $this->fieldConfig = $fieldConfig;
     }
 }

@@ -175,11 +175,6 @@ class LanguageEntity extends Entity
     protected $propertyGroupOptionTranslations;
 
     /**
-     * @var DiscountSurchargeTranslationCollection|null
-     */
-    protected $discountsurchargeTranslations;
-
-    /**
      * @var SalesChannelTranslationCollection|null
      */
     protected $salesChannelTranslations;
@@ -223,16 +218,6 @@ class LanguageEntity extends Entity
      * @var Collection|null
      */
     protected $stateMachineStateTranslations;
-
-    /**
-     * @var Collection|null
-     */
-    protected $orderStateTranslations;
-
-    /**
-     * @var Collection|null
-     */
-    protected $orderTransactionStateTranslations;
 
     /**
      * @var Collection|null
@@ -564,19 +549,19 @@ class LanguageEntity extends Entity
         return $this->propertyGroupOptionTranslations;
     }
 
-    public function setPropertyGroupOptionTranslations(PropertyGroupOptionTranslationCollection $propertyGroupOptionTranslations): void
+    public function setPropertyGroupOptionTranslations(PropertyGroupOptionTranslationCollection $propertyGroupOptionTranslationCollection): void
     {
-        $this->propertyGroupOptionTranslations = $propertyGroupOptionTranslations;
+        $this->propertyGroupOptionTranslations = $propertyGroupOptionTranslationCollection;
     }
 
     public function getDiscountsurchargeTranslations(): ?DiscountSurchargeTranslationCollection
     {
-        return $this->discountsurchargeTranslations;
+        return $this->discountSurchargeTranslations;
     }
 
-    public function setDiscountsurchargeTranslations(DiscountSurchargeTranslationCollection $discountsurchargeTranslations): void
+    public function setDiscountsurchargeTranslations(DiscountSurchargeTranslationCollection $discountSurchargeTranslations): void
     {
-        $this->discountsurchargeTranslations = $discountsurchargeTranslations;
+        $this->discountSurchargeTranslations = $discountSurchargeTranslations;
     }
 
     public function getSalesChannelTranslations(): ?SalesChannelTranslationCollection
@@ -647,26 +632,6 @@ class LanguageEntity extends Entity
     public function setStateMachineStateTranslations(Collection $stateMachineStateTranslations): void
     {
         $this->stateMachineStateTranslations = $stateMachineStateTranslations;
-    }
-
-    public function getOrderStateTranslations(): ?Collection
-    {
-        return $this->orderStateTranslations;
-    }
-
-    public function setOrderStateTranslations(?Collection $orderStateTranslations): void
-    {
-        $this->orderStateTranslations = $orderStateTranslations;
-    }
-
-    public function getOrderTransactionStateTranslations(): ?Collection
-    {
-        return $this->orderTransactionStateTranslations;
-    }
-
-    public function setOrderTransactionStateTranslations(?Collection $orderTransactionStateTranslations): void
-    {
-        $this->orderTransactionStateTranslations = $orderTransactionStateTranslations;
     }
 
     public function getCmsPageTranslations(): ?Collection

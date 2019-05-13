@@ -163,11 +163,6 @@ class ProductEntity extends Entity
     protected $length;
 
     /**
-     * @var string|null
-     */
-    protected $template;
-
-    /**
      * @var \DateTimeInterface|null
      */
     protected $releaseDate;

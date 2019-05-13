@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Payment;
 
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
-use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
@@ -61,11 +60,6 @@ class PaymentMethodEntity extends Entity
      * @var OrderTransactionCollection|null
      */
     protected $orderTransactions;
-
-    /**
-     * @var OrderCollection|null
-     */
-    protected $orders;
 
     /**
      * @var CustomerCollection|null
@@ -210,16 +204,6 @@ class PaymentMethodEntity extends Entity
     public function setOrderTransactions(OrderTransactionCollection $orderTransactions): void
     {
         $this->orderTransactions = $orderTransactions;
-    }
-
-    public function getOrders(): ?OrderCollection
-    {
-        return $this->orders;
-    }
-
-    public function setOrders(OrderCollection $orders): void
-    {
-        $this->orders = $orders;
     }
 
     public function getCustomers(): ?CustomerCollection

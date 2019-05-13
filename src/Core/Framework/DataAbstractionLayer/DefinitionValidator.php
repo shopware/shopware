@@ -29,6 +29,8 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 
 class DefinitionValidator
 {
+    private const FOREIGN_KEY_PREFIX = 'fk';
+
     private const IGNORE_FIELDS = [
         'product.cover',
         'order_line_item.cover',
@@ -39,38 +41,54 @@ class DefinitionValidator
         'product_configurator_setting.selected',
     ];
 
-    private const FOREIGN_KEY_PREFIX = 'fk';
-
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $registry;
-
-    private static $pluralExceptions = [
+    private const PLURAL_EXCEPTIONS = [
         'children', 'categoriesRo', 'properties', 'media',
     ];
 
-    private static $customPrefixedNames = [
-        'username', 'customerNumber', 'taxRate',
+    private const CUSTOM_PREFIXED_NAMED = [
+        'username',
+        'customerNumber',
+        'taxRate',
+        'orderNumber',
+        'orderDate',
+        'productNumber',
+        'mediaType',
+        'mediaTypeRaw',
+        'salutationKey',
+        'scheduledTaskClass',
     ];
 
-    private static $customShortNames = [
+    private const CUSTOM_SHORT_NAMES = [
         'property_group' => 'group',
         'property_group_option' => 'option',
         'version_commit' => 'commit',
     ];
 
-    private static $ignoredInPrefixCheck = [
+    private const INGNORED_IN_PREFIX_CHECK = [
         'properties', 'options', 'translationcode', 'blocks', 'logo',
     ];
 
-    private static $tablesWithoutDefinition = [
+    private const TABLES_WITHOUT_DEFINITION = [
         'schema_version',
-        'search_dictionary',
         'cart',
         'migration',
         'sales_channel_api_context',
     ];
+
+    private const INGNORED_ENTITY_PROPERTIES = [
+        'id',
+        'extensions',
+        '_uniqueIdentifier',
+        'versionId',
+        'translated',
+        'createdAt',
+        'updatedAt',
+    ];
+
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $registry;
 
     /**
      * @var Connection
@@ -84,7 +102,7 @@ class DefinitionValidator
         $this->connection->getEventManager()->addEventListener(Events::onSchemaIndexDefinition, new SchemaIndexListener());
     }
 
-    public function validate()
+    public function validate(): array
     {
         $violations = [];
 
@@ -142,7 +160,7 @@ class DefinitionValidator
             if ($struct !== ArrayEntity::class) {
                 $notices[$definition->getClass()] = array_merge_recursive(
                     $notices[$definition->getClass()],
-                    $this->findStructNotices($struct, $definition)
+                    $this->findEntityNotices($struct, $definition)
                 );
             }
             $notices[$definition->getClass()] = array_merge_recursive(
@@ -171,7 +189,7 @@ class DefinitionValidator
         $violations = [];
 
         foreach ($tables as $table) {
-            if (\in_array($table->getName(), self::$tablesWithoutDefinition, true)) {
+            if (\in_array($table->getName(), self::TABLES_WITHOUT_DEFINITION, true)) {
                 continue;
             }
             try {
@@ -195,7 +213,7 @@ class DefinitionValidator
         $fkViolations = [];
 
         foreach ($tables as $table) {
-            if (\in_array($table->getName(), self::$tablesWithoutDefinition, true)) {
+            if (\in_array($table->getName(), self::TABLES_WITHOUT_DEFINITION, true)) {
                 continue;
             }
 
@@ -225,7 +243,7 @@ class DefinitionValidator
         return ['Foreign key naming issues' => $fkViolations];
     }
 
-    private function findStructNotices(string $struct, EntityDefinition $definition): array
+    private function findEntityNotices(string $struct, EntityDefinition $definition): array
     {
         $reflection = new \ReflectionClass($struct);
 
@@ -242,12 +260,12 @@ class DefinitionValidator
                 continue;
             }
 
-            if (\in_array($property->getName(), ['id', 'extensions'], true)) {
+            if ($property->getDocComment() && strpos($property->getDocComment(), '@internal') !== false) {
                 continue;
             }
 
-            if (!$fields->get($property->getName())) {
-                $notices[] = sprintf('Missing field %s in %s', $property->getName(), $definition->getClass());
+            if (!$fields->get($property->getName()) && !in_array($property->getName(), self::INGNORED_ENTITY_PROPERTIES, true)) {
+                $notices[] = sprintf('Field %s in entity struct is missing in %s', $property->getName(), $definition->getClass());
             }
         }
 
@@ -714,7 +732,7 @@ class DefinitionValidator
         }
 
         $propName = $association->getPropertyName();
-        if (substr($propName, -1) === 's' || \in_array($propName, self::$pluralExceptions, true)) {
+        if (substr($propName, -1) === 's' || \in_array($propName, self::PLURAL_EXCEPTIONS, true)) {
             return [];
         }
 
@@ -741,11 +759,11 @@ class DefinitionValidator
     private function mapRefNameContainedName(string $ref): string
     {
         $normalized = strtolower(Inflector::tableize($ref));
-        if (!isset(self::$customShortNames[$normalized])) {
+        if (!isset(self::CUSTOM_SHORT_NAMES[$normalized])) {
             return $ref;
         }
 
-        return self::$customShortNames[$normalized];
+        return self::CUSTOM_SHORT_NAMES[$normalized];
     }
 
     private function validateReferenceNameContainedInName(EntityDefinition  $definition, AssociationField $association): array
@@ -755,7 +773,7 @@ class DefinitionValidator
         }
         $prop = $association->getPropertyName();
 
-        if (\in_array(strtolower($prop), self::$ignoredInPrefixCheck, true)) {
+        if (\in_array(strtolower($prop), self::INGNORED_IN_PREFIX_CHECK, true)) {
             return [];
         }
 
@@ -814,7 +832,7 @@ class DefinitionValidator
                 continue;
             }
 
-            if (\in_array($field->getPropertyName(), self::$customPrefixedNames, true)) {
+            if (\in_array($field->getPropertyName(), self::CUSTOM_PREFIXED_NAMED, true)) {
                 continue;
             }
 

@@ -35,9 +35,9 @@ class Migration1536232870ShippingMethodPrice extends MigrationStep
                 REFERENCES `shipping_method` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.shipping_method_price.currency_id` FOREIGN KEY (`currency_id`) 
                 REFERENCES `currency` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-              CONSTRAINT `fk.shipping_method_price_rule.rule_id` FOREIGN KEY (`rule_id`) 
+              CONSTRAINT `fk.shipping_method_price.rule_id` FOREIGN KEY (`rule_id`) 
                 REFERENCES `rule` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-              CONSTRAINT `fk.shipping_method_price_calculation_rule.rule_id` FOREIGN KEY (`calculation_rule_id`) 
+              CONSTRAINT `fk.shipping_method_price.calculation_rule_id` FOREIGN KEY (`calculation_rule_id`) 
                 REFERENCES `rule` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');

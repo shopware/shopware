@@ -348,7 +348,7 @@ Component.register('sw-category-detail', {
 
             const pageOverrides = this.getCmsPageOverrides();
 
-            if (type.isPlainObject(pageOverrides) && Object.keys(pageOverrides).length > 0) {
+            if (type.isPlainObject(pageOverrides)) {
                 this.category.slotConfig = cloneDeep(pageOverrides);
             }
 
@@ -379,7 +379,17 @@ Component.register('sw-category-detail', {
                     if (block.slots && block.slots.length > 0) {
                         block.slots.forEach((slot) => {
                             if (type.isPlainObject(slot.config)) {
-                                slotOverrides[slot.id] = slot.config;
+                                const slotConfig = {};
+
+                                Object.keys(slot.config).forEach((key) => {
+                                    if (slot.config[key].value !== null) {
+                                        slotConfig[key] = slot.config[key];
+                                    }
+                                });
+
+                                if (Object.keys(slotConfig).length > 0) {
+                                    slotOverrides[slot.id] = slotConfig;
+                                }
                             }
                         });
                     }

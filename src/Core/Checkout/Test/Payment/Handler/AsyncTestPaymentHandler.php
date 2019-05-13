@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStat
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,7 +25,7 @@ class AsyncTestPaymentHandler implements AsynchronousPaymentHandlerInterface
         $this->transactionStateHandler = $transactionStateHandler;
     }
 
-    public function pay(AsyncPaymentTransactionStruct $transaction, SalesChannelContext $salesChannelContext): RedirectResponse
+    public function pay(AsyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): RedirectResponse
     {
         return new RedirectResponse(self::REDIRECT_URL);
     }

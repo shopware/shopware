@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -82,6 +83,7 @@ class PaymentService
      */
     public function handlePaymentByOrder(
         string $orderId,
+        RequestDataBag $dataBag,
         SalesChannelContext $context,
         ?string $finishUrl = null
     ): ?RedirectResponse {
@@ -90,7 +92,7 @@ class PaymentService
         }
 
         try {
-            return $this->paymentProcessor->process($orderId, $context, $finishUrl);
+            return $this->paymentProcessor->process($orderId, $dataBag, $context, $finishUrl);
         } catch (AsyncPaymentProcessException | SyncPaymentProcessException $e) {
             $this->cancelOrderTransaction($e->getOrderTransactionId(), $context->getContext());
             throw $e;

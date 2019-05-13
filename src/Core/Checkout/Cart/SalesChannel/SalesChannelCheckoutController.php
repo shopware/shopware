@@ -157,10 +157,10 @@ class SalesChannelCheckoutController extends AbstractController
      * @throws SyncPaymentProcessException
      * @throws UnknownPaymentMethodException
      */
-    public function payOrder(string $orderId, Request $request, SalesChannelContext $context): Response
+    public function payOrder(string $orderId, RequestDataBag $dataBag, SalesChannelContext $context): Response
     {
-        $finishUrl = $request->request->get('finishUrl');
-        $response = $this->paymentService->handlePaymentByOrder($orderId, $context, $finishUrl);
+        $finishUrl = $dataBag->get('finishUrl');
+        $response = $this->paymentService->handlePaymentByOrder($orderId, $dataBag, $context, $finishUrl);
 
         if ($response) {
             return new JsonResponse(['paymentUrl' => $response->getTargetUrl()]);

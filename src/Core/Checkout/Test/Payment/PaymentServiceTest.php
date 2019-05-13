@@ -27,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Component\HttpFoundation\Request;
@@ -93,7 +94,7 @@ class PaymentServiceTest extends TestCase
         $salesChannelContext = Generator::createSalesChannelContext();
         $this->expectException(InvalidOrderException::class);
         $this->expectExceptionMessage(sprintf('The order with id %s is invalid or could not be found.', $orderId));
-        $this->paymentService->handlePaymentByOrder($orderId, $salesChannelContext);
+        $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
     }
 
     public function testHandlePaymentByOrderSyncPayment(): void
@@ -105,7 +106,7 @@ class PaymentServiceTest extends TestCase
 
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        static::assertNull($this->paymentService->handlePaymentByOrder($orderId, $salesChannelContext));
+        static::assertNull($this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext));
     }
 
     public function testHandlePaymentByOrderAsyncPayment(): void
@@ -117,7 +118,7 @@ class PaymentServiceTest extends TestCase
 
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        $response = $this->paymentService->handlePaymentByOrder($orderId, $salesChannelContext);
+        $response = $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
 
         static::assertEquals(AsyncTestPaymentHandler::REDIRECT_URL, $response->getTargetUrl());
     }
@@ -131,7 +132,7 @@ class PaymentServiceTest extends TestCase
 
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        $response = $this->paymentService->handlePaymentByOrder($orderId, $salesChannelContext);
+        $response = $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
 
         static::assertEquals(AsyncTestPaymentHandler::REDIRECT_URL, $response->getTargetUrl());
 
@@ -162,7 +163,7 @@ class PaymentServiceTest extends TestCase
 
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        static::assertNull($this->paymentService->handlePaymentByOrder($orderId, $salesChannelContext));
+        static::assertNull($this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext));
     }
 
     public function testFinalizeTransactionWithInvalidToken(): void
@@ -193,7 +194,7 @@ class PaymentServiceTest extends TestCase
 
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        $response = $this->paymentService->handlePaymentByOrder($orderId, $salesChannelContext);
+        $response = $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
 
         static::assertEquals(AsyncTestPaymentHandler::REDIRECT_URL, $response->getTargetUrl());
 

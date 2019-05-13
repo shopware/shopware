@@ -27,8 +27,8 @@
     "migration":{
       "header": "Teste die Migration aus Shopware 5",
       "description": "Erkunde die Möglichkeiten von Shopware mit echten Daten. Gemeinsam stellen wir eine Verbindung der Systeme her. Im Anschluss hast Du die Möglichkeit mit dem Migrationsassistenten Deine Daten zu migrieren.",
-      "githubLinkLabel": "Migration Plugin auf Github",
-      "sw5pluginLinkLabel": "Plugin für Shopware 5",
+      "sw6pluginLinkLabel": "Migration Plugin",
+      "sw5pluginLinkLabel": "Shopware 5 Connector",
       "setupButtonText": "Migration einrichten",
       "settingsLinkButtonText": "Meine Daten migrieren"
     },

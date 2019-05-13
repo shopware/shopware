@@ -4,33 +4,23 @@ namespace Shopware\Docs\Inspection;
 
 class TemplateCustomRulesList
 {
-    const TEMPLATE_MODULE_PAGE = <<<EOD
-[titleEn]: <>(Rule List)
+    private const TEMPLATE_PAGE = <<<EOD
+[titleEn]: <>(Rule classes)
 
-All core modules encapsulate domain concepts and provide a varying number of external interfaces to support this. The following list provides a rough overview what domain concepts offer what kinds of interfaces.  
-
-## Possible characteristics
+List of all rule classes across the Shopware Platform.
 
 %s
 
-## Modules
 
-%s
 EOD;
-
-    const TEMPLATE_MODULE_TAG_ITEM = '<span class="tip is--primary">%s</span>';
-
-    const TEMPLATE_BUNDLE_HEADLINE = <<<EOD
+    private const TEMPLATE_BUNDLE_HEADLINE = <<<EOD
 ### %s
 
 EOD;
 
-    const TEMPLATE_MODULE_MODULE = <<<EOD
-#### %s %s
-
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/%s)) 
-
-%s
+    private const TEMPLATE_RULE = <<<EOD
+[%s](https://github.com/shopware/platform/tree/master/src/Core/%s)
+ : %s
 
 EOD;
 
@@ -38,6 +28,8 @@ EOD;
      * @var string
      */
     private $ruleDescriptionPath = __DIR__ . '/../Resources/characteristics-rule-descriptions.php';
+
+    private $ruleListPath = __DIR__ . '/../_new/2-internals/1-core/60-rule-system/10-rule-list.md';
 
     /**
      * @var ModuleInspector
@@ -52,27 +44,36 @@ EOD;
     public function render(CharacteristicsCollection $tagCollection): void
     {
         $ruleCollection = $tagCollection->filterTagName(ModuleInspector::TAG_CUSTOM_RULES);
+        $ruleDescriptions = new ArrayWriter($this->ruleDescriptionPath);
 
         $markdown = [];
         /** @var ModuleTagCollection $tags */
         foreach ($ruleCollection as $tags) {
-            $markdown[] = sprintf(self::TEMPLATE_BUNDLE_HEADLINE, $tags->getBundleName());
-        }
+            $markdown[$tags->getBundleName()] = sprintf(self::TEMPLATE_BUNDLE_HEADLINE, $tags->getBundleName());
 
-        die;
-        $ruleDescriptions = new ArrayWriter($this->ruleDescriptionPath);
-        /** @var ModuleTag $tag */
-        foreach ($tagCollection->filterName(ModuleInspector::TAG_CUSTOM_RULES) as $tag) {
-            foreach ($tag->marker('rules') as $markerFile) {
-                $className = $this->moduleInspector
-                    ->getClassName($markerFile);
+            foreach ($tags as $tag) {
+                foreach ($tag->marker('rules') as $ruleFile) {
+                    $className = $this->moduleInspector
+                        ->getClassName($ruleFile);
 
-                $ruleDescriptions->ensure($className);
+                    $ruleDescriptions->ensure($className);
 
-                var_dump($className);
+                    $markdown[] = sprintf(self::TEMPLATE_RULE,
+                        $className,
+                        $className,
+                        $ruleDescriptions->get($className)
+                    );
+                }
             }
         }
 
         $ruleDescriptions->dump(true);
+
+        file_put_contents(
+            $this->ruleListPath,
+            sprintf(self::TEMPLATE_PAGE,
+                implode(PHP_EOL, $markdown)
+            )
+        );
     }
 }

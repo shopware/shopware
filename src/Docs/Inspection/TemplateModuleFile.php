@@ -6,7 +6,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class TemplateModuleFile
 {
-    const TEMPLATE_MODULE_PAGE = <<<EOD
+    private const TEMPLATE_MODULE_PAGE = <<<EOD
 [titleEn]: <>(Core Module List)
 
 All core modules encapsulate domain concepts and provide a varying number of external interfaces to support this. The following list provides a rough overview what domain concepts offer what kinds of interfaces.  
@@ -20,23 +20,23 @@ All core modules encapsulate domain concepts and provide a varying number of ext
 %s
 EOD;
 
-    const TEMPLATE_MODULE_TAG_ITEM = '<span class="tip is--primary">%s</span>';
+    private const TEMPLATE_MODULE_TAG_ITEM = '<span class="tip is--primary">%s</span>';
 
-    const TEMPLATE_MODULE_TAG = <<<EOD
+    private const TEMPLATE_MODULE_TAG = <<<EOD
 <span class="tip is--primary">%s</span>
   : %s
 
 EOD;
 
-    const TEMPLATE_MODULE_MODULE = <<<EOD
+    private const TEMPLATE_MODULE_MODULE = <<<EOD
 #### %s %s
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/%s)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/%s) 
 
 %s
 
 EOD;
-    const TEMPLATE_MODULE_BUNDLE_NAME = '### %s Bundle';
+    private const TEMPLATE_MODULE_BUNDLE_NAME = '### %s Bundle';
 
     /**
      * @var string

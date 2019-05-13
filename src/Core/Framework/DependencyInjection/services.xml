@@ -260,9 +260,9 @@
         </service>
 
         <service id="Shopware\Core\Framework\Cache\CacheClearer">
-            <argument id="shopware.cache" type="service"/>
-            <argument id="cache_clearer" type="service"/>
-            <argument id="filesystem" type="service"/>
+            <argument type="service" id="shopware.cache"/>
+            <argument type="service" id="cache_clearer"/>
+            <argument type="service" id="filesystem"/>
             <argument>%kernel.cache_dir%</argument>
         </service>
     </services>

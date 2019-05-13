@@ -16,9 +16,7 @@
                     {% block sw_media_quickinfo_quickactions_content %}
                         <ul class="sw-media-sidebar__quickactions-list">
                             {% block sw_media_quickinfo_quickactions_replace %}
-                                <li class="sw-media-sidebar__quickaction quickaction--replace"
-                                    @click="openModalReplace">
-
+                                <li class="sw-media-sidebar__quickaction quickaction--replace" @click="openModalReplace">
                                     <sw-icon small name="default-action-replace" class="sw-media-sidebar__quickactions-icon"> </sw-icon>
                                     {{ $tc('sw-media.sidebar.actions.replace') }}
                                 </li>
@@ -261,7 +259,7 @@
             <sw-media-modal-replace
                 v-if="showModalReplace"
                 :itemToReplace="item"
-                @sw-media-modal-replace-close="closeModalReplace">
+                @media-replace-modal-close="closeModalReplace">
             </sw-media-modal-replace>
         {% endblock %}
 

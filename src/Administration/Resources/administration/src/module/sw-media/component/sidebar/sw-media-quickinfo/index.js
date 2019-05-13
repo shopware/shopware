@@ -36,7 +36,8 @@ Component.register('sw-media-quickinfo', {
         return {
             customFieldSets: [],
             isLoading: false,
-            isSaveSuccessful: false
+            isSaveSuccessful: false,
+            showModalReplace: false
         };
     },
 
@@ -132,6 +133,14 @@ Component.register('sw-media-quickinfo', {
                 this.$refs.inlineEditFieldName.cancelSubmit();
                 this.createNotificationError({ message: 'Could not rename FileName' });
             });
+        },
+
+        openModalReplace() {
+            this.showModalReplace = true;
+        },
+
+        closeModalReplace() {
+            this.showModalReplace = false;
         }
     }
 });

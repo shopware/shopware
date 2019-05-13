@@ -1,7 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\PageController;
+namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
+use Shopware\Core\Content\NewsletterReceiver\SalesChannel\NewsletterSubscriptionService;
 use Shopware\Core\Content\NewsletterReceiver\SalesChannel\NewsletterSubscriptionServiceInterface;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -9,6 +12,7 @@ use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
+use Shopware\Storefront\Page\Newsletter\ConfirmSubscribe\NewsletterConfirmSubscribePageLoader;
 use Shopware\Storefront\Page\Newsletter\Register\NewsletterRegisterLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -24,7 +28,7 @@ class NewsletterController extends StorefrontController
     private $newsletterRegisterPageLoader;
 
     /**
-     * @var PageLoaderInterface
+     * @var PageLoaderInterface|NewsletterConfirmSubscribePageLoader
      */
     private $newsletterConfirmRegisterPageLoader;
 
@@ -43,14 +47,24 @@ class NewsletterController extends StorefrontController
      */
     private $translator;
 
+    /**
+     * @var NewsletterSubscriptionServiceInterface
+     */
+    private $newsletterSubscriptionService;
+
+    /**
+     * @var AccountService
+     */
+    private $accountService;
+
     public function __construct(
-        PageLoaderInterface $newsletterIndexPageLoader,
+        PageLoaderInterface $newsletterRegisterPageLoader,
         PageLoaderInterface $newsletterConfirmRegisterPageLoader,
         NewsletterSubscriptionServiceInterface $newsletterService,
         RequestStack $requestStack,
         TranslatorInterface $translator
     ) {
-        $this->newsletterRegisterPageLoader = $newsletterIndexPageLoader;
+        $this->newsletterRegisterPageLoader = $newsletterRegisterPageLoader;
         $this->newsletterConfirmRegisterPageLoader = $newsletterConfirmRegisterPageLoader;
         $this->newsletterService = $newsletterService;
         $this->requestStack = $requestStack;
@@ -104,7 +118,7 @@ class NewsletterController extends StorefrontController
     /**
      * @Route("/newsletter/subscribe", name="frontend.newsletter.subscribe", methods={"GET"})
      */
-    public function confirmSubscribe(SalesChannelContext $context, Request $request, QueryDataBag $queryDataBag)
+    public function subscribeMail(SalesChannelContext $context, Request $request, QueryDataBag $queryDataBag): Response
     {
         try {
             $this->newsletterService->confirm($queryDataBag, $context);
@@ -117,5 +131,68 @@ class NewsletterController extends StorefrontController
         $page = $this->newsletterConfirmRegisterPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/page/newsletter/confirm-subscribe.html.twig', ['page' => $page]);
+    }
+
+    /**
+     * @Route(path="/widgets/account/newsletter", name="widgets.account.newsletter", methods={"POST"}, defaults={"XmlHttpRequest"=true})
+     */
+    public function subscriberCustomer(Request $request, RequestDataBag $dataBag, SalesChannelContext $context): Response
+    {
+        $this->denyAccessUnlessLoggedIn();
+
+        /** @var bool $subscribed */
+        $subscribed = ($request->get('option', false) === NewsletterSubscriptionService::STATUS_DIRECT);
+
+        if (!$subscribed) {
+            $dataBag->set('option', 'unsubscribe');
+        }
+
+        $messages = [];
+        $success = null;
+
+        if ($subscribed) {
+            try {
+                $this->newsletterSubscriptionService->subscribe($this->hydrateFromCustomer($dataBag, $context->getCustomer()), $context);
+
+                $this->accountService->setNewsletterFlag($context->getCustomer(), true, $context);
+
+                $success = true;
+                $messages[] = ['type' => 'success', 'text' => $this->translator->trans('newsletter.subscriptionConfirmationSuccess')];
+            } catch (\Exception $exception) {
+                $success = false;
+                $messages[] = ['type' => 'danger', 'text' => $this->translator->trans('newsletter.subscriptionConfirmationFailed')];
+            }
+
+            return $this->renderStorefront('@Storefront/page/account/newsletter.html.twig', [
+                'customer' => $context->getCustomer(),
+                'messages' => $messages,
+                'success' => $success,
+            ]);
+        }
+
+        try {
+            $this->newsletterSubscriptionService->unsubscribe($this->hydrateFromCustomer($dataBag, $context->getCustomer()), $context);
+            $this->accountService->setNewsletterFlag($context->getCustomer(), false, $context);
+
+            $success = true;
+            $messages[] = ['type' => 'success', 'text' => $this->translator->trans('newsletter.subscriptionRevokeSuccess')];
+        } catch (\Exception $exception) {
+            $success = false;
+            $messages[] = ['type' => 'danger', 'text' => $this->translator->trans('error.message-default')];
+        }
+
+        return $this->renderStorefront('@Storefront/page/account/newsletter.html.twig', [
+            'customer' => $context->getCustomer(),
+            'messages' => $messages,
+            'success' => $success,
+        ]);
+    }
+
+    private function hydrateFromCustomer(RequestDataBag $dataBag, CustomerEntity $customer): RequestDataBag
+    {
+        $dataBag->set('email', $customer->getEmail());
+        $dataBag->set('salutationId', $customer->getSalutationId());
+
+        return $dataBag;
     }
 }

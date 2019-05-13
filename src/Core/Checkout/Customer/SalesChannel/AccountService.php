@@ -217,6 +217,8 @@ class AccountService
         ];
 
         $this->customerRepository->update([$customerData], $context->getContext());
+
+        $this->refreshContext($context);
     }
 
     public function saveEmail(DataBag $data, SalesChannelContext $context): void

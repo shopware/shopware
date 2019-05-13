@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Rule\Container\FilterRule;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Shopware\Core\Framework\Util\FloatComparator;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -54,22 +55,22 @@ class GoodsPriceRule extends FilterRule
 
         switch ($this->operator) {
             case self::OPERATOR_GTE:
-                return $goodsAmount >= $this->amount;
+                return FloatComparator::greaterThanOrEquals($goodsAmount, $this->amount);
 
             case self::OPERATOR_LTE:
-                return $goodsAmount <= $this->amount;
+                return FloatComparator::lessThanOrEquals($goodsAmount, $this->amount);
 
             case self::OPERATOR_GT:
-                return $goodsAmount > $this->amount;
+                return FloatComparator::greaterThan($goodsAmount, $this->amount);
 
             case self::OPERATOR_LT:
-                return $goodsAmount < $this->amount;
+                return FloatComparator::lessThan($goodsAmount, $this->amount);
 
             case self::OPERATOR_EQ:
-                return $goodsAmount === $this->amount;
+                return FloatComparator::equals($goodsAmount, $this->amount);
 
             case self::OPERATOR_NEQ:
-                return $goodsAmount !== $this->amount;
+                return FloatComparator::notEquals($goodsAmount, $this->amount);
 
             default:
                 throw new UnsupportedOperatorException($this->operator, __CLASS__);

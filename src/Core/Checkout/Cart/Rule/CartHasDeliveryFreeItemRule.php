@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraints\Type;
@@ -32,17 +32,9 @@ class CartHasDeliveryFreeItemRule extends Rule
             return false;
         }
 
-        /** @var LineItem $lineItem */
-        foreach ($scope->getCart()->getLineItems() as $lineItem) {
-            if (!$lineItem->getDeliveryInformation()) {
-                continue;
-            }
-            if ($lineItem->getDeliveryInformation()->getFreeDelivery() === $this->allowed) {
-                return true;
-            }
-        }
+        $hasFreeDeliveryItems = $this->hasFreeDeliveryItems($scope->getCart()->getLineItems());
 
-        return false;
+        return $hasFreeDeliveryItems === $this->allowed;
     }
 
     public function getConstraints(): array
@@ -50,5 +42,19 @@ class CartHasDeliveryFreeItemRule extends Rule
         return [
             'allowed' => [new Type('bool')],
         ];
+    }
+
+    private function hasFreeDeliveryItems(LineItemCollection $lineItems): bool
+    {
+        foreach ($lineItems->getIterator() as $lineItem) {
+            if (!$lineItem->getDeliveryInformation()) {
+                continue;
+            }
+            if ($lineItem->getDeliveryInformation()->getFreeDelivery()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

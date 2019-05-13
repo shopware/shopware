@@ -3,7 +3,9 @@
 namespace Shopware\Core\Checkout\Test\Cart\Rule;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Rule\LineItemRule;
+use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -12,6 +14,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class LineItemRuleTest extends TestCase
@@ -167,5 +170,49 @@ class LineItemRuleTest extends TestCase
         ], $this->context);
 
         static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+    }
+
+    public function testNotMatchesWithoutId(): void
+    {
+        $rule = new LineItemRule(LineItemRule::OPERATOR_EQ, ['A', 'B']);
+
+        $lineItem = new LineItem('A', 'test');
+
+        $matches = $rule->match(new LineItemScope($lineItem, $this->createMock(SalesChannelContext::class)));
+
+        static::assertFalse($matches);
+    }
+
+    public function testMatchesWithPayloadId(): void
+    {
+        $rule = new LineItemRule(LineItemRule::OPERATOR_EQ, ['A', 'B']);
+
+        $lineItem = (new LineItem('A', 'test'))->setPayloadValue('id', 'A');
+
+        $matches = $rule->match(new LineItemScope($lineItem, $this->createMock(SalesChannelContext::class)));
+
+        static::assertTrue($matches);
+    }
+
+    public function testNotMatchesWithPayloadId(): void
+    {
+        $rule = new LineItemRule(LineItemRule::OPERATOR_NEQ, ['A', 'B']);
+
+        $lineItem = (new LineItem('A', 'test'))->setPayloadValue('id', 'A');
+
+        $matches = $rule->match(new LineItemScope($lineItem, $this->createMock(SalesChannelContext::class)));
+
+        static::assertFalse($matches);
+    }
+
+    public function testNotMatchesDifferentPayloadId(): void
+    {
+        $rule = new LineItemRule(LineItemRule::OPERATOR_EQ, ['A', 'B']);
+
+        $lineItem = (new LineItem('C', 'test'))->setPayloadValue('id', 'C');
+
+        $matches = $rule->match(new LineItemScope($lineItem, $this->createMock(SalesChannelContext::class)));
+
+        static::assertFalse($matches);
     }
 }

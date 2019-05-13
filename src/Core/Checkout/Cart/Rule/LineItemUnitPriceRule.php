@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Shopware\Core\Framework\Util\FloatComparator;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -44,22 +45,22 @@ class LineItemUnitPriceRule extends Rule
 
         switch ($this->operator) {
             case self::OPERATOR_GTE:
-                return $unitPrice >= $this->amount;
+                return FloatComparator::greaterThanOrEquals($unitPrice, $this->amount);
 
             case self::OPERATOR_LTE:
-                return $unitPrice <= $this->amount;
+                return FloatComparator::lessThanOrEquals($unitPrice, $this->amount);
 
             case self::OPERATOR_GT:
-                return $unitPrice > $this->amount;
+                return FloatComparator::greaterThan($unitPrice, $this->amount);
 
             case self::OPERATOR_LT:
-                return $unitPrice < $this->amount;
+                return FloatComparator::lessThan($unitPrice, $this->amount);
 
             case self::OPERATOR_EQ:
-                return $unitPrice === $this->amount;
+                return FloatComparator::equals($unitPrice, $this->amount);
 
             case self::OPERATOR_NEQ:
-                return $unitPrice !== $this->amount;
+                return FloatComparator::notEquals($unitPrice, $this->amount);
 
             default:
                 throw new UnsupportedOperatorException($this->operator, __CLASS__);

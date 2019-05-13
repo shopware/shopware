@@ -35,12 +35,18 @@ class LineItemRule extends Rule
             return false;
         }
 
+        if (!$scope->getLineItem()->hasPayloadValue('id')) {
+            return false;
+        }
+
+        $identifier = $scope->getLineItem()->getPayloadValue('id');
+
         switch ($this->operator) {
             case self::OPERATOR_EQ:
-                return \in_array($scope->getLineItem()->getKey(), $this->identifiers, true);
+                return \in_array($identifier, $this->identifiers, true);
 
             case self::OPERATOR_NEQ:
-                return !\in_array($scope->getLineItem()->getKey(), $this->identifiers, true);
+                return !\in_array($identifier, $this->identifiers, true);
 
             default:
                 throw new UnsupportedOperatorException($this->operator, __CLASS__);

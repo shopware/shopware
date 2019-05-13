@@ -1,5 +1,12 @@
 {% block component_product_box_price_info %}
     <div class="product-price-info">
+        {# @var product \Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity #}
+        {% set price = product.calculatedPrice %}
+
+        {% if product.calculatedListingPrice %}
+            {% set price = product.calculatedListingPrice %}
+        {% endif %}
+
         {% block component_product_box_price_unit %}
             <p class="product-price-unit">
                 {# Price is based on the purchase unit #}
@@ -18,7 +25,7 @@
                 {% block component_product_box_price_reference_unit %}
                     {% if product.purchaseUnit and product.referenceUnit and product.purchaseUnit !=  product.referenceUnit %}
                         <span class="price-unit-reference">
-                            {% set referencePrice = product.calculatedPrice.unitPrice * product.referenceUnit / product.purchaseUnit %}
+                            {% set referencePrice = price.unitPrice * product.referenceUnit / product.purchaseUnit %}
                             ({{ referencePrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}
                             {{ "general.star"|trans }} / {{ product.referenceUnit }} {{ product.packUnit }})
                         </span>
@@ -29,7 +36,7 @@
 
         {% block component_product_box_price %}
             <p class="product-price">
-                {{ product.calculatedPrice.unitPrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}
+                {{ price.unitPrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}
             </p>
         {% endblock %}
     </div>

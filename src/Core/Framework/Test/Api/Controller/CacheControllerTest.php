@@ -41,10 +41,10 @@ class CacheControllerTest extends TestCase
         static::assertTrue($this->cache->getItem('foo')->isHit());
         static::assertTrue($this->cache->getItem('bar')->isHit());
 
-        $this->getClient()->request('DELETE', '/api/v1/_action/cache');
+        $this->getBrowser()->request('DELETE', '/api/v1/_action/cache');
 
         /** @var JsonResponse $response */
-        $response = $this->getClient()->getResponse();
+        $response = $this->getBrowser()->getResponse();
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($response->getContent(), true));
 

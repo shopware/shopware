@@ -83,15 +83,15 @@ class ProductSearchGateway implements ProductSearchGatewayInterface
         $criteria->addFilter(new EqualsFilter('product.searchKeywords.languageId', $context->getContext()->getLanguageId()));
 
         $this->eventDispatcher->dispatch(
-            ProductEvents::PRODUCT_SEARCH_CRITERIA,
-            new ProductSearchCriteriaEvent($request, $criteria, $context)
+            new ProductSearchCriteriaEvent($request, $criteria, $context),
+            ProductEvents::PRODUCT_SEARCH_CRITERIA
         );
 
         $result = $this->repository->search($criteria, $context);
 
         $this->eventDispatcher->dispatch(
-            ProductEvents::PRODUCT_SEARCH_RESULT,
-            new ProductSearchResultEvent($request, $result, $context)
+            new ProductSearchResultEvent($request, $result, $context),
+            ProductEvents::PRODUCT_SEARCH_RESULT
         );
 
         return $result;

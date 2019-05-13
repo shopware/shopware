@@ -47,8 +47,8 @@ class NewsletterRegisterPageLoader
         $page->setSalutations($searchResult->getEntities());
 
         $this->eventDispatcher->dispatch(
-            NewsletterRegisterPageLoadedEvent::NAME,
-            new NewsletterRegisterPageLoadedEvent($page, $context, $request)
+            new NewsletterRegisterPageLoadedEvent($page, $context, $request),
+            NewsletterRegisterPageLoadedEvent::NAME
         );
 
         return $page;

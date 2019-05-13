@@ -69,8 +69,8 @@ class AddressDetailPageLoader
         $page->setAddress($this->getAddress($request, $context));
 
         $this->eventDispatcher->dispatch(
-            AddressDetailPageLoadedEvent::NAME,
-            new AddressDetailPageLoadedEvent($page, $context, $request)
+            new AddressDetailPageLoadedEvent($page, $context, $request),
+            AddressDetailPageLoadedEvent::NAME
         );
 
         return $page;

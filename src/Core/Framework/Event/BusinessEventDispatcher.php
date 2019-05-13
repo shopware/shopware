@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\EventAction\EventActionCollection;
 use Shopware\Core\Framework\Event\EventAction\EventActionDefinition;
-use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -43,9 +42,9 @@ class BusinessEventDispatcher implements EventDispatcherInterface
         $this->eventActionDefinition = $eventActionDefinition;
     }
 
-    public function dispatch($eventName, ?Event $event = null)
+    public function dispatch($event, ?string $eventName = null): object
     {
-        $event = $this->dispatcher->dispatch($eventName, $event);
+        $event = $this->dispatcher->dispatch($event, $eventName);
 
         if ($event instanceof BusinessEventInterface) {
             $this->callActions($event);
@@ -108,10 +107,10 @@ class BusinessEventDispatcher implements EventDispatcherInterface
 
         foreach ($actions as $action) {
             $actionEvent = new BusinessEvent($action->getActionName(), $event, $action->getConfig());
-            $this->dispatcher->dispatch($actionEvent->getActionName(), $actionEvent);
+            $this->dispatcher->dispatch($actionEvent, $actionEvent->getActionName());
         }
 
         $globalEvent = new BusinessEvent(BusinessEvents::GLOBAL_EVENT, $event);
-        $this->dispatcher->dispatch($globalEvent->getActionName(), $globalEvent);
+        $this->dispatcher->dispatch($globalEvent, $globalEvent->getActionName());
     }
 }

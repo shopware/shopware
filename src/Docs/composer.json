@@ -11,13 +11,14 @@
             "/Test/"
         ]
     },
+    "minimum-stability": "dev",
     "require": {
         "erusev/parsedown-extra":"0.7.1",
-        "symfony/config": "4.2.8",
-        "symfony/console": "4.2.8",
-        "symfony/dependency-injection": "4.2.8",
-        "symfony/filesystem": "4.2.8",
-        "symfony/finder": "4.2.8",
-        "symfony/http-kernel": "4.2.8"
+        "symfony/config": "4.3.0",
+        "symfony/console": "4.3.0",
+        "symfony/dependency-injection": "4.3.0",
+        "symfony/filesystem": "4.3.0",
+        "symfony/finder": "4.3.0",
+        "symfony/http-kernel": "4.3.0"
     }
 }

@@ -82,8 +82,8 @@ class UserRecoveryService
         $recoveryUrl = $url . '#/login/user-recovery/' . $hash;
 
         $this->dispatcher->dispatch(
-            UserRecoveryRequestEvent::EVENT_NAME,
-            new UserRecoveryRequestEvent($recovery, $context)
+            new UserRecoveryRequestEvent($recovery, $context),
+            UserRecoveryRequestEvent::EVENT_NAME
         );
     }
 

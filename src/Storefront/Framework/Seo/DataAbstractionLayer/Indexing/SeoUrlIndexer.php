@@ -111,7 +111,6 @@ class SeoUrlIndexer implements IndexerInterface
                 $iterator = new RepositoryIterator($repo, $context);
 
                 $this->eventDispatcher->dispatch(
-                    ProgressStartedEvent::NAME,
                     new ProgressStartedEvent(
                         sprintf(
                             'Start indexing %s seo urls for language %s',
@@ -119,7 +118,8 @@ class SeoUrlIndexer implements IndexerInterface
                             $language->getName()
                         ),
                         $iterator->getTotal()
-                    )
+                    ),
+                    ProgressStartedEvent::NAME
                 );
 
                 while ($ids = $iterator->fetchIds()) {
@@ -127,18 +127,18 @@ class SeoUrlIndexer implements IndexerInterface
                     $this->seoUrlPersister->updateSeoUrls($context, $config->getRouteName(), $ids, $seoUrls);
 
                     $this->eventDispatcher->dispatch(
-                        ProgressAdvancedEvent::NAME,
-                        new ProgressAdvancedEvent(\count($ids))
+                        new ProgressAdvancedEvent(\count($ids)),
+                        ProgressAdvancedEvent::NAME
                     );
                 }
 
                 $this->eventDispatcher->dispatch(
-                    ProgressFinishedEvent::NAME,
                     new ProgressFinishedEvent(sprintf(
                         'Finished indexing %s seo urls for language %s',
                         $config->getRouteName(),
                         $language->getName()
-                    ))
+                    )),
+                    ProgressFinishedEvent::NAME
                 );
             }
         }

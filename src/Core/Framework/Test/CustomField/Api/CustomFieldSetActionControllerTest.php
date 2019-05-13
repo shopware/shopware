@@ -11,8 +11,8 @@ class CustomFieldSetActionControllerTest extends TestCase
 
     public function testGetAvailableRelations(): void
     {
-        $this->getClient()->request('GET', '/api/v1/_action/attribute-set/relations');
-        $response = $this->getClient()->getResponse();
+        $this->getBrowser()->request('GET', '/api/v1/_action/attribute-set/relations');
+        $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(200, $response->getStatusCode());
         static::assertEquals('application/json', $response->headers->get('Content-Type'));

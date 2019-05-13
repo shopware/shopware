@@ -105,8 +105,8 @@ class ProductPageLoader
         }
 
         $this->eventDispatcher->dispatch(
-            ProductPageLoadedEvent::NAME,
-            new ProductPageLoadedEvent($page, $context, $request)
+            new ProductPageLoadedEvent($page, $context, $request),
+            ProductPageLoadedEvent::NAME
         );
 
         return $page;
@@ -151,8 +151,8 @@ class ProductPageLoader
         $criteria->addAssociationPath('properties.group');
 
         $this->eventDispatcher->dispatch(
-            ProductPageCriteriaEvent::NAME,
-            new ProductPageCriteriaEvent($criteria, $context)
+            new ProductPageCriteriaEvent($criteria, $context),
+            ProductPageCriteriaEvent::NAME
         );
 
         /** @var SalesChannelProductEntity|null $product */

@@ -11,8 +11,8 @@ use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use League\OAuth2\Server\ResourceServer;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
-use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+use Symfony\Component\HttpKernel\Event\ControllerEvent;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class ApiAuthenticationListener implements EventSubscriberInterface
@@ -73,7 +73,7 @@ class ApiAuthenticationListener implements EventSubscriberInterface
         ];
     }
 
-    public function setupOAuth(GetResponseEvent $event): void
+    public function setupOAuth(RequestEvent $event): void
     {
         if (!$event->isMasterRequest()) {
             return;
@@ -93,7 +93,7 @@ class ApiAuthenticationListener implements EventSubscriberInterface
         $this->authorizationServer->enableGrantType(new ClientCredentialsGrant(), $oneWeekInterval);
     }
 
-    public function validateRequest(FilterControllerEvent $event): void
+    public function validateRequest(ControllerEvent $event): void
     {
         $request = $event->getRequest();
 

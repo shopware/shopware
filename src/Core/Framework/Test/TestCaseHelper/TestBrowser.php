@@ -4,13 +4,13 @@ namespace Shopware\Core\Framework\Test\TestCaseHelper;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
-use Symfony\Bundle\FrameworkBundle\Client;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\BrowserKit\CookieJar;
 use Symfony\Component\BrowserKit\History;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-class TestClient extends Client
+class TestBrowser extends KernelBrowser
 {
     /**
      * @var RequestTransformer

@@ -52,8 +52,8 @@ class AccountProfilePageLoader
         $page->setSalutations($this->getSalutations($context));
 
         $this->eventDispatcher->dispatch(
-            AccountProfilePageLoadedEvent::NAME,
-            new AccountProfilePageLoadedEvent($page, $context, $request)
+            new AccountProfilePageLoadedEvent($page, $context, $request),
+            AccountProfilePageLoadedEvent::NAME
         );
 
         return $page;

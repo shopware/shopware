@@ -20,3 +20,4 @@ parameters:
         - '#[F,f]unction Flag\\.* not found\.$#'
         - '#Access to an undefined property Faker\\Generator::\$[^.]+\.#'
         - '#Call to an undefined method Faker\\Generator::[^.]+\.#'
+        - '#Method Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface::dispatch\(\) invoked with 2 parameters, 1 required\.#'

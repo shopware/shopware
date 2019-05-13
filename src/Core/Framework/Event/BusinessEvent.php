@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class BusinessEvent extends Event implements BusinessEventInterface
 {

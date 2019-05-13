@@ -34,7 +34,7 @@ class MonitoringBusDecorator implements MessageBusInterface
      *
      * @param object|Envelope $message
      */
-    public function dispatch($message): Envelope
+    public function dispatch($message, array $stamps = []): Envelope
     {
         $messageName = $this->getMessageName($message);
 

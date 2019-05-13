@@ -63,7 +63,7 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
 
         if ($data['status'] === self::STATUS_DIRECT) {
             $event = new NewsletterConfirmEvent($context->getContext(), $recipient, $context->getSalesChannel()->getId());
-            $this->eventDispatcher->dispatch(NewsletterConfirmEvent::EVENT_NAME, $event);
+            $this->eventDispatcher->dispatch($event, NewsletterConfirmEvent::EVENT_NAME);
 
             return;
         }
@@ -76,7 +76,7 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
         );
 
         $event = new NewsletterRegisterEvent($context->getContext(), $recipient, $url, $context->getSalesChannel()->getId());
-        $this->eventDispatcher->dispatch(NewsletterRegisterEvent::EVENT_NAME, $event);
+        $this->eventDispatcher->dispatch($event, NewsletterRegisterEvent::EVENT_NAME);
     }
 
     public function confirm(DataBag $dataBag, SalesChannelContext $context): void
@@ -98,7 +98,7 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
         $this->newsletterRecipientRepository->update([$data], $context->getContext());
 
         $event = new NewsletterConfirmEvent($context->getContext(), $recipient, $context->getSalesChannel()->getId());
-        $this->eventDispatcher->dispatch(NewsletterConfirmEvent::EVENT_NAME, $event);
+        $this->eventDispatcher->dispatch($event, NewsletterConfirmEvent::EVENT_NAME);
     }
 
     public function unsubscribe(DataBag $dataBag, SalesChannelContext $context): void

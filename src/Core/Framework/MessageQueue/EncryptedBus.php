@@ -33,13 +33,9 @@ class EncryptedBus implements MessageBusInterface
     /**
      * @param object|Envelope $message
      */
-    public function dispatch($message): Envelope
+    public function dispatch($message, array $stamps = []): Envelope
     {
-        if ($message instanceof Envelope) {
-            $envelope = $message;
-        } else {
-            $envelope = new Envelope($message);
-        }
+        $envelope = Envelope::wrap($message, $stamps);
 
         $envelope = $this->encryptMessage($envelope);
 
@@ -58,6 +54,6 @@ class EncryptedBus implements MessageBusInterface
 
         $allStamps = $envelope->all() ? array_merge(...array_values($envelope->all())) : [];
 
-        return new Envelope(new EncryptedMessage($encryptedMessage), ...$allStamps);
+        return new Envelope(new EncryptedMessage($encryptedMessage), $allStamps);
     }
 }

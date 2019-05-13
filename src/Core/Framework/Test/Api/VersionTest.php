@@ -5,20 +5,20 @@ namespace Shopware\Core\Framework\Test\Api;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Client;
+use Symfony\Component\HttpKernel\HttpKernelBrowser;
 
 class VersionTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
     /**
-     * @var Client
+     * @var HttpKernelBrowser
      */
     private $unauthorizedClient;
 
     protected function setUp(): void
     {
-        $this->unauthorizedClient = $this->getClient();
+        $this->unauthorizedClient = $this->getBrowser();
         $this->unauthorizedClient->setServerParameters([
             'CONTENT_TYPE' => 'application/json',
             'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],

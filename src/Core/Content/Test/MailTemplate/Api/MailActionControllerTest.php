@@ -31,14 +31,14 @@ class MailActionControllerTest extends TestCase
         $data = $this->getTestData();
 
         $this->getProfiler()->enable();
-        $this->getClient()->request('POST', '/api/v1/_action/mail-template/send', $data);
+        $this->getBrowser()->request('POST', '/api/v1/_action/mail-template/send', $data);
         $this->getProfiler()->disable();
 
         // check response status code
-        static::assertSame(Response::HTTP_OK, $this->getClient()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
 
         /** @var MessageDataCollector $mailCollector */
-        $mailCollector = $this->getClient()->getProfile()->getCollector('swiftmailer');
+        $mailCollector = $this->getBrowser()->getProfile()->getCollector('swiftmailer');
 
         // checks that an email was sent
         $messages = $mailCollector->getMessages();
@@ -68,14 +68,14 @@ class MailActionControllerTest extends TestCase
         $data = $this->getTestDataWithAttachments();
 
         $this->getProfiler()->enable();
-        $this->getClient()->request('POST', '/api/v1/_action/mail-template/send', $data);
+        $this->getBrowser()->request('POST', '/api/v1/_action/mail-template/send', $data);
         $this->getProfiler()->disable();
 
         // check response status code
-        static::assertSame(Response::HTTP_OK, $this->getClient()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
 
         /** @var MessageDataCollector $mailCollector */
-        $mailCollector = $this->getClient()->getProfile()->getCollector('swiftmailer');
+        $mailCollector = $this->getBrowser()->getProfile()->getCollector('swiftmailer');
 
         // checks that an email was sent
         $messages = $mailCollector->getMessages();
@@ -134,6 +134,6 @@ class MailActionControllerTest extends TestCase
 
     private function getProfiler(): Profiler
     {
-        return $this->getClient()->getContainer()->get('profiler');
+        return $this->getBrowser()->getContainer()->get('profiler');
     }
 }

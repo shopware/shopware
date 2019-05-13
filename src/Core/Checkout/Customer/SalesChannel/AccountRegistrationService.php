@@ -108,7 +108,7 @@ class AccountRegistrationService
         $customerEntity = $this->customerRepository->search($criteria, $context->getContext())->first();
 
         $event = new CustomerRegisterEvent($context->getContext(), $customerEntity, $context->getSalesChannel()->getId());
-        $this->eventDispatcher->dispatch($event->getName(), $event);
+        $this->eventDispatcher->dispatch($event, $event->getName());
 
         return $customer['id'];
     }
@@ -174,7 +174,7 @@ class AccountRegistrationService
         );
 
         $event = new DataMappingEvent(CustomerEvents::MAPPING_REGISTER_ADDRESS_BILLING, $billing, $billingAddress, $context);
-        $this->eventDispatcher->dispatch($event->getName(), $event);
+        $this->eventDispatcher->dispatch($event, $event->getName());
 
         return $event->getOutput();
     }
@@ -197,7 +197,7 @@ class AccountRegistrationService
         );
 
         $event = new DataMappingEvent(CustomerEvents::MAPPING_REGISTER_ADDRESS_SHIPPING, $shipping, $shippingAddress, $context);
-        $this->eventDispatcher->dispatch($event->getName(), $event);
+        $this->eventDispatcher->dispatch($event, $event->getName());
 
         return $event->getOutput();
     }
@@ -230,7 +230,7 @@ class AccountRegistrationService
         }
 
         $event = new DataMappingEvent(CustomerEvents::MAPPING_REGISTER_CUSTOMER, $data, $customer, $context->getContext());
-        $this->eventDispatcher->dispatch($event->getName(), $event);
+        $this->eventDispatcher->dispatch($event, $event->getName());
 
         $customer = $event->getOutput();
         $customer['id'] = Uuid::randomHex();
@@ -243,7 +243,7 @@ class AccountRegistrationService
         $validation = $this->addressValidationService->buildCreateValidation($context);
 
         $validationEvent = new BuildValidationEvent($validation, $context);
-        $this->eventDispatcher->dispatch($validationEvent->getName(), $validationEvent);
+        $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         return $validation;
     }
@@ -258,7 +258,7 @@ class AccountRegistrationService
         }
 
         $validationEvent = new BuildValidationEvent($validation, $context);
-        $this->eventDispatcher->dispatch($validationEvent->getName(), $validationEvent);
+        $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         return $validation;
     }

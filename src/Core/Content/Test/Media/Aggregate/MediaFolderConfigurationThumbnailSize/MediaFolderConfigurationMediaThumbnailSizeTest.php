@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace src\Core\Content\Test\Media\Aggregate\MediaFolderConfigurationThumbnailSize;
+namespace Shopware\Core\Content\Test\Media\Aggregate\MediaFolderConfigurationThumbnailSize;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;

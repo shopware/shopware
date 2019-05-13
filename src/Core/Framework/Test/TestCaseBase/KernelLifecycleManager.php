@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Test\TestCaseBase;
 
 use Composer\Autoload\ClassLoader;
 use Shopware\Core\Framework\Test\Filesystem\Adapter\MemoryAdapterFactory;
-use Symfony\Bundle\FrameworkBundle\Client;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\DependencyInjection\ResettableContainerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
@@ -45,18 +45,18 @@ class KernelLifecycleManager
     /**
      * Create a web client with the default kernel and disabled reboots
      */
-    public static function createClient(KernelInterface $kernel, bool $enableReboot = false): Client
+    public static function createBrowser(KernelInterface $kernel, bool $enableReboot = false): KernelBrowser
     {
-        /** @var Client $apiClient */
-        $apiClient = $kernel->getContainer()->get('test.client');
+        /** @var KernelBrowser $apiBrowser */
+        $apiBrowser = $kernel->getContainer()->get('test.browser');
 
         if ($enableReboot) {
-            $apiClient->enableReboot();
+            $apiBrowser->enableReboot();
         } else {
-            $apiClient->disableReboot();
+            $apiBrowser->disableReboot();
         }
 
-        return $apiClient;
+        return $apiBrowser;
     }
 
     /**

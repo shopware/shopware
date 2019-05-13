@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Event;
 
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 abstract class NestedEvent extends Event implements ShopwareEvent
 {

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\NumberRange\ValueGenerator;
 
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class NumberRangeGeneratedEvent extends Event
 {

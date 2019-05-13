@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
-use Symfony\Component\Templating\EngineInterface;
+use Twig\Environment;
 use Twig\Error\Error;
 
 class DeliveryNoteGenerator implements DocumentGeneratorInterface
@@ -20,14 +20,14 @@ class DeliveryNoteGenerator implements DocumentGeneratorInterface
     private $rootDir;
 
     /**
-     * @var EngineInterface
+     * @var Environment
      */
-    private $twigEngine;
+    private $twig;
 
-    public function __construct(EngineInterface $twigEngine, string $rootDir)
+    public function __construct(Environment $twig, string $rootDir)
     {
         $this->rootDir = $rootDir;
-        $this->twigEngine = $twigEngine;
+        $this->twig = $twig;
     }
 
     public function supports(): string
@@ -51,7 +51,7 @@ class DeliveryNoteGenerator implements DocumentGeneratorInterface
             $deliveries = $order->getDeliveries()->first();
         }
 
-        return $this->twigEngine->render($templatePath, [
+        return $this->twig->render($templatePath, [
             'order' => $order,
             'orderDelivery' => $deliveries,
             'config' => DocumentConfigurationFactory::mergeConfiguration($config, new DocumentConfiguration())->jsonSerialize(),

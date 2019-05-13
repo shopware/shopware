@@ -17,9 +17,9 @@ class AccessKeyControllerTest extends TestCase
             '/api/v%s/_action/access-key/intergration',
             PlatformRequest::API_VERSION
         );
-        $this->getClient()->request('GET', $url);
+        $this->getBrowser()->request('GET', $url);
 
-        $response = $this->getClient()->getResponse();
+        $response = $this->getBrowser()->getResponse();
         $body = json_decode($response->getContent(), true);
 
         static::assertSame(200, $response->getStatusCode(), print_r($body, true));
@@ -43,9 +43,9 @@ class AccessKeyControllerTest extends TestCase
             '/api/v%s/_action/access-key/user',
             PlatformRequest::API_VERSION
         );
-        $this->getClient()->request('GET', $url);
+        $this->getBrowser()->request('GET', $url);
 
-        $response = $this->getClient()->getResponse();
+        $response = $this->getBrowser()->getResponse();
         $body = json_decode($response->getContent(), true);
 
         static::assertSame(200, $response->getStatusCode(), print_r($body, true));
@@ -69,9 +69,9 @@ class AccessKeyControllerTest extends TestCase
             '/api/v%s/_action/access-key/sales-channel',
             PlatformRequest::API_VERSION
         );
-        $this->getClient()->request('GET', $url);
+        $this->getBrowser()->request('GET', $url);
 
-        $response = $this->getClient()->getResponse();
+        $response = $this->getBrowser()->getResponse();
         $body = json_decode($response->getContent(), true);
 
         static::assertSame(200, $response->getStatusCode(), print_r($body, true));

@@ -33,8 +33,8 @@ class NewsletterSubscribePageLoader
         $page = NewsletterSubscribePage::createFrom($page);
 
         $this->eventDispatcher->dispatch(
-            NewsletterSubscribePageLoadedEvent::NAME,
-            new NewsletterSubscribePageLoadedEvent($page, $context, $request)
+            new NewsletterSubscribePageLoadedEvent($page, $context, $request),
+            NewsletterSubscribePageLoadedEvent::NAME
         );
 
         return $page;

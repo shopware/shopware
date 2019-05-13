@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class DataMappingEvent extends Event implements ShopwareEvent
 {

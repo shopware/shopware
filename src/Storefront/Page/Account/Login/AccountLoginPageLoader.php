@@ -56,8 +56,8 @@ class AccountLoginPageLoader
         $page->setSalutations($this->getSalutations($context));
 
         $this->eventDispatcher->dispatch(
-            AccountLoginPageLoadedEvent::NAME,
-            new AccountLoginPageLoadedEvent($page, $context, $request)
+            new AccountLoginPageLoadedEvent($page, $context, $request),
+            AccountLoginPageLoadedEvent::NAME
         );
 
         return $page;

@@ -155,8 +155,8 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
     {
         /** @var NumberRangeGeneratedEvent $generatedEvent */
         $generatedEvent = $this->eventDispatcher->dispatch(
-            NumberRangeEvents::NUMBER_RANGE_GENERATED,
-            new NumberRangeGeneratedEvent($generatedValue)
+            new NumberRangeGeneratedEvent($generatedValue),
+            NumberRangeEvents::NUMBER_RANGE_GENERATED
         );
 
         return $generatedEvent->getGeneratedValue();

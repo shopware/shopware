@@ -167,8 +167,8 @@ class PluginLifecycleService
         }
 
         $this->eventDispatcher->dispatch(
-            PluginPreInstallEvent::NAME,
-            new PluginPreInstallEvent($plugin, $installContext)
+            new PluginPreInstallEvent($plugin, $installContext),
+            PluginPreInstallEvent::NAME
         );
 
         $pluginBaseClass->install($installContext);
@@ -184,8 +184,8 @@ class PluginLifecycleService
         $pluginBaseClass->postInstall($installContext);
 
         $this->eventDispatcher->dispatch(
-            PluginPostInstallEvent::NAME,
-            new PluginPostInstallEvent($plugin, $installContext)
+            new PluginPostInstallEvent($plugin, $installContext),
+            PluginPostInstallEvent::NAME
         );
 
         return $installContext;
@@ -215,8 +215,8 @@ class PluginLifecycleService
         );
 
         $this->eventDispatcher->dispatch(
-            PluginPreUninstallEvent::NAME,
-            new PluginPreUninstallEvent($plugin, $uninstallContext)
+            new PluginPreUninstallEvent($plugin, $uninstallContext),
+            PluginPreUninstallEvent::NAME
         );
 
         $pluginBaseClass->uninstall($uninstallContext);
@@ -237,8 +237,8 @@ class PluginLifecycleService
         $plugin->setInstalledAt(null);
 
         $this->eventDispatcher->dispatch(
-            PluginPostUninstallEvent::NAME,
-            new PluginPostUninstallEvent($plugin, $uninstallContext)
+            new PluginPostUninstallEvent($plugin, $uninstallContext),
+            PluginPostUninstallEvent::NAME
         );
 
         return $uninstallContext;
@@ -267,8 +267,8 @@ class PluginLifecycleService
         }
 
         $this->eventDispatcher->dispatch(
-            PluginPreUpdateEvent::NAME,
-            new PluginPreUpdateEvent($plugin, $updateContext)
+            new PluginPreUpdateEvent($plugin, $updateContext),
+            PluginPreUpdateEvent::NAME
         );
 
         $pluginBaseClass->update($updateContext);
@@ -293,8 +293,8 @@ class PluginLifecycleService
         $pluginBaseClass->postUpdate($updateContext);
 
         $this->eventDispatcher->dispatch(
-            PluginPostUpdateEvent::NAME,
-            new PluginPostUpdateEvent($plugin, $updateContext)
+            new PluginPostUpdateEvent($plugin, $updateContext),
+            PluginPostUpdateEvent::NAME
         );
 
         return $updateContext;
@@ -324,8 +324,8 @@ class PluginLifecycleService
         }
 
         $this->eventDispatcher->dispatch(
-            PluginPreActivateEvent::NAME,
-            new PluginPreActivateEvent($plugin, $activateContext)
+            new PluginPreActivateEvent($plugin, $activateContext),
+            PluginPreActivateEvent::NAME
         );
 
         $pluginBaseClass->activate($activateContext);
@@ -341,8 +341,8 @@ class PluginLifecycleService
         $plugin->setActive(true);
 
         $this->eventDispatcher->dispatch(
-            PluginPostActivateEvent::NAME,
-            new PluginPostActivateEvent($plugin, $activateContext)
+            new PluginPostActivateEvent($plugin, $activateContext),
+            PluginPostActivateEvent::NAME
         );
 
         return $activateContext;
@@ -373,8 +373,8 @@ class PluginLifecycleService
         );
 
         $this->eventDispatcher->dispatch(
-            PluginPreDeactivateEvent::NAME,
-            new PluginPreDeactivateEvent($plugin, $deactivateContext)
+            new PluginPreDeactivateEvent($plugin, $deactivateContext),
+            PluginPreDeactivateEvent::NAME
         );
 
         $pluginBaseClass->deactivate($deactivateContext);
@@ -390,8 +390,8 @@ class PluginLifecycleService
         $plugin->setActive(false);
 
         $this->eventDispatcher->dispatch(
-            PluginPostDeactivateEvent::NAME,
-            new PluginPostDeactivateEvent($plugin, $deactivateContext)
+            new PluginPostDeactivateEvent($plugin, $deactivateContext),
+            PluginPostDeactivateEvent::NAME
         );
 
         return $deactivateContext;

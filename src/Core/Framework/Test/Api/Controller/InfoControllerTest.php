@@ -23,7 +23,7 @@ class InfoControllerTest extends TestCase
         ];
 
         $url = sprintf('/api/v%s/_info/config', PlatformRequest::API_VERSION);
-        $client = $this->getClient();
+        $client = $this->getBrowser();
         $client->request('GET', $url);
 
         static::assertSame(json_encode($expected), $client->getResponse()->getContent(), print_r($client->getResponse()->getContent(), true));

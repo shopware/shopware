@@ -11,7 +11,6 @@ use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
 use Shopware\Storefront\Framework\Seo\SeoResolver;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
 class RequestTransformer
 {
@@ -40,7 +39,7 @@ class RequestTransformer
         $this->connection = $connection;
     }
 
-    public function transform(SymfonyRequest $request): SymfonyRequest
+    public function transform(Request $request): Request
     {
         if (!$this->isSalesChannelRequired($request->getPathInfo())) {
             return $request;
@@ -128,7 +127,7 @@ class RequestTransformer
         return true;
     }
 
-    private function findSalesChannel(SymfonyRequest $request): ?array
+    private function findSalesChannel(Request $request): ?array
     {
         /** @var Statement $statement */
         $statement = $this->connection->createQueryBuilder()

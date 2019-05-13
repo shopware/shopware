@@ -101,11 +101,11 @@ class ProductSearchKeywordIndexer implements IndexerInterface
             $iterator = $this->iteratorFactory->createIterator($this->productRepository->getDefinition());
 
             $this->eventDispatcher->dispatch(
-                ProgressStartedEvent::NAME,
                 new ProgressStartedEvent(
                     sprintf('Start indexing product keywords for language %s', $language->getName()),
                     $iterator->fetchCount()
-                )
+                ),
+                ProgressStartedEvent::NAME
             );
 
             $this->connection->executeUpdate(
@@ -117,14 +117,14 @@ class ProductSearchKeywordIndexer implements IndexerInterface
                 $this->update($ids, $context);
 
                 $this->eventDispatcher->dispatch(
-                    ProgressAdvancedEvent::NAME,
-                    new ProgressAdvancedEvent(\count($ids))
+                    new ProgressAdvancedEvent(\count($ids)),
+                    ProgressAdvancedEvent::NAME
                 );
             }
 
             $this->eventDispatcher->dispatch(
-                ProgressFinishedEvent::NAME,
-                new ProgressFinishedEvent(sprintf('Finished indexing product keywords for language %s', $language->getName()))
+                new ProgressFinishedEvent(sprintf('Finished indexing product keywords for language %s', $language->getName())),
+                ProgressFinishedEvent::NAME
             );
         }
     }

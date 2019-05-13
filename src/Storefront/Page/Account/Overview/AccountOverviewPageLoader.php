@@ -39,8 +39,8 @@ class AccountOverviewPageLoader
         $page = AccountOverviewPage::createFrom($page);
 
         $this->eventDispatcher->dispatch(
-            AccountOverviewPageLoadedEvent::NAME,
-            new AccountOverviewPageLoadedEvent($page, $context, $request)
+            new AccountOverviewPageLoadedEvent($page, $context, $request),
+            AccountOverviewPageLoadedEvent::NAME
         );
 
         return $page;

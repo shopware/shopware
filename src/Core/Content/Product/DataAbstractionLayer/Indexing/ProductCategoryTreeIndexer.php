@@ -59,22 +59,22 @@ class ProductCategoryTreeIndexer implements IndexerInterface
         $query = $this->iteratorFactory->createIterator($this->productDefinition);
 
         $this->eventDispatcher->dispatch(
-            ProgressStartedEvent::NAME,
-            new ProgressStartedEvent('Start building product category assignment', $query->fetchCount())
+            new ProgressStartedEvent('Start building product category assignment', $query->fetchCount()),
+            ProgressStartedEvent::NAME
         );
 
         while ($ids = $query->fetch()) {
             $this->update($ids, $context);
 
             $this->eventDispatcher->dispatch(
-                ProgressAdvancedEvent::NAME,
-                new ProgressAdvancedEvent(\count($ids))
+                new ProgressAdvancedEvent(\count($ids)),
+                ProgressAdvancedEvent::NAME
             );
         }
 
         $this->eventDispatcher->dispatch(
-            ProgressFinishedEvent::NAME,
-            new ProgressFinishedEvent('Finish building product category assignment')
+            new ProgressFinishedEvent('Finish building product category assignment'),
+            ProgressFinishedEvent::NAME
         );
     }
 

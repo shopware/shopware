@@ -47,11 +47,11 @@ class MediaFolderControllerTest extends TestCase
             Uuid::randomHex()
         );
 
-        $this->getClient()->request(
+        $this->getBrowser()->request(
             'POST',
             $url
         );
-        $response = $this->getClient()->getResponse();
+        $response = $this->getBrowser()->getResponse();
         $responseData = json_decode($response->getContent(), true);
 
         static::assertEquals(404, $response->getStatusCode());
@@ -82,11 +82,11 @@ class MediaFolderControllerTest extends TestCase
             $folderId
         );
 
-        $this->getClient()->request(
+        $this->getBrowser()->request(
             'POST',
             $url
         );
-        $response = $this->getClient()->getResponse();
+        $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(200, $response->getStatusCode(), $response->getContent());
         static::assertEmpty($response->getContent());

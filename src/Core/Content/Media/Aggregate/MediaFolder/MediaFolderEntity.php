@@ -23,7 +23,7 @@ class MediaFolderEntity extends Entity
     protected $parentId;
 
     /**
-     * @var MediaFolderEntity| null
+     * @var MediaFolderEntity|null
      */
     protected $parent;
 
@@ -38,7 +38,7 @@ class MediaFolderEntity extends Entity
     protected $media;
 
     /**
-     * @var string| null
+     * @var string|null
      */
     protected $configurationId;
 

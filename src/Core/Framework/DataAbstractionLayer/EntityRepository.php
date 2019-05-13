@@ -117,7 +117,7 @@ class EntityRepository implements EntityRepositoryInterface
         $result = new EntitySearchResult($ids->getTotal(), $entities, $aggregations, $criteria, $context);
 
         $event = new EntitySearchResultLoadedEvent($this->definition, $result);
-        $this->eventDispatcher->dispatch($event->getName(), $event);
+        $this->eventDispatcher->dispatch($event, $event->getName());
 
         return $result;
     }
@@ -127,7 +127,7 @@ class EntityRepository implements EntityRepositoryInterface
         $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
 
         $event = new EntityAggregationResultLoadedEvent($this->definition, $result);
-        $this->eventDispatcher->dispatch($event->getName(), $event);
+        $this->eventDispatcher->dispatch($event, $event->getName());
 
         return $result;
     }
@@ -137,7 +137,7 @@ class EntityRepository implements EntityRepositoryInterface
         $result = $this->searcher->search($this->definition, $criteria, $context);
 
         $event = new EntityIdSearchResultLoadedEvent($this->definition, $result);
-        $this->eventDispatcher->dispatch($event->getName(), $event);
+        $this->eventDispatcher->dispatch($event, $event->getName());
 
         return $result;
     }
@@ -146,7 +146,7 @@ class EntityRepository implements EntityRepositoryInterface
     {
         $affected = $this->versionManager->update($this->definition, $data, WriteContext::createFromContext($context));
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, []);
-        $this->eventDispatcher->dispatch(EntityWrittenContainerEvent::NAME, $event);
+        $this->eventDispatcher->dispatch($event, EntityWrittenContainerEvent::NAME);
 
         return $event;
     }
@@ -155,7 +155,7 @@ class EntityRepository implements EntityRepositoryInterface
     {
         $affected = $this->versionManager->upsert($this->definition, $data, WriteContext::createFromContext($context));
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, []);
-        $this->eventDispatcher->dispatch(EntityWrittenContainerEvent::NAME, $event);
+        $this->eventDispatcher->dispatch($event, EntityWrittenContainerEvent::NAME);
 
         return $event;
     }
@@ -164,7 +164,7 @@ class EntityRepository implements EntityRepositoryInterface
     {
         $affected = $this->versionManager->insert($this->definition, $data, WriteContext::createFromContext($context));
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, []);
-        $this->eventDispatcher->dispatch(EntityWrittenContainerEvent::NAME, $event);
+        $this->eventDispatcher->dispatch($event, EntityWrittenContainerEvent::NAME);
 
         return $event;
     }
@@ -173,7 +173,7 @@ class EntityRepository implements EntityRepositoryInterface
     {
         $affected = $this->versionManager->delete($this->definition, $ids, WriteContext::createFromContext($context));
         $event = EntityWrittenContainerEvent::createWithDeletedEvents($affected->getDeleted(), $context, $affected->getNotFound());
-        $this->eventDispatcher->dispatch(EntityWrittenContainerEvent::NAME, $event);
+        $this->eventDispatcher->dispatch($event, EntityWrittenContainerEvent::NAME);
 
         return $event;
     }
@@ -204,7 +204,7 @@ class EntityRepository implements EntityRepositoryInterface
 
         $affected = $this->versionManager->clone($this->definition, $id, $newId, $context->getVersionId(), WriteContext::createFromContext($context));
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, []);
-        $this->eventDispatcher->dispatch(EntityWrittenContainerEvent::NAME, $event);
+        $this->eventDispatcher->dispatch($event, EntityWrittenContainerEvent::NAME);
 
         return $event;
     }
@@ -215,7 +215,7 @@ class EntityRepository implements EntityRepositoryInterface
         $entities = $this->reader->read($this->definition, $criteria, $context);
 
         $event = new EntityLoadedEvent($this->definition, $entities->getElements(), $context);
-        $this->eventDispatcher->dispatch($event->getName(), $event);
+        $this->eventDispatcher->dispatch($event, $event->getName());
 
         return $entities;
     }

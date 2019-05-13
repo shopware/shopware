@@ -177,8 +177,8 @@ class OrderConverter
         $event = new CartConvertedEvent($cart, $data, $context, $conversionContext);
 
         $this->eventDispatcher->dispatch(
-            CartConvertedEvent::NAME,
-            $event
+            $event,
+            CartConvertedEvent::NAME
         );
 
         return $event->getConvertedCart();
@@ -241,7 +241,7 @@ class OrderConverter
         );
 
         $event = new OrderConvertedEvent($order, $cart, $context);
-        $this->eventDispatcher->dispatch(OrderConvertedEvent::NAME, $event);
+        $this->eventDispatcher->dispatch($event, OrderConvertedEvent::NAME);
 
         return $event->getConvertedCart();
     }

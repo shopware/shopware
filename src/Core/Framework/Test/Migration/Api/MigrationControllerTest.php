@@ -50,7 +50,7 @@ class MigrationControllerTest extends TestCase
 
     public function testAddMigrationsActionCall(): void
     {
-        $client = $this->getClient();
+        $client = $this->getBrowser();
 
         $url = sprintf('/api/v%s/_action/database/sync-migration', PlatformRequest::API_VERSION);
 
@@ -61,7 +61,7 @@ class MigrationControllerTest extends TestCase
 
     public function testMigrateActionCall(): void
     {
-        $client = $this->getClient();
+        $client = $this->getBrowser();
 
         $client->request(
             'POST',
@@ -74,7 +74,7 @@ class MigrationControllerTest extends TestCase
 
     public function testMigrateDestructiveActionCall(): void
     {
-        $client = $this->getClient();
+        $client = $this->getBrowser();
 
         $client->request(
             'POST',

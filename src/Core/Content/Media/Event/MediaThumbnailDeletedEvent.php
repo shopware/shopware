@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Media\Event;
 
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Framework\Context;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class MediaThumbnailDeletedEvent extends Event
 {

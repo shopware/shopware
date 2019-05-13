@@ -52,7 +52,7 @@ class GenerateThumbnailsCommand extends Command
     private $batchSize;
 
     /**
-     * @var Filter | null
+     * @var Filter|null
      */
     private $folderFilter;
 

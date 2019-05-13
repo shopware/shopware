@@ -28,8 +28,7 @@ class ClientRepository implements ClientRepositoryInterface
      * @param string      $clientIdentifier   The client's identifier
      * @param string|null $grantType          The grant type used (if sent)
      * @param string|null $clientSecret       The client's secret (if sent)
-     * @param bool        $mustValidateSecret If true the client must attempt to validate the secret if the client
-     *                                        is confidential
+     * @param bool        $mustValidateSecret If true the client must attempt to validate the secret if the client                                        is confidential
      */
     public function getClientEntity($clientIdentifier, $grantType = null, $clientSecret = null, $mustValidateSecret = true): ?ClientEntityInterface
     {

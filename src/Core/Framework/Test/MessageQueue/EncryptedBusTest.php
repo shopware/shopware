@@ -52,7 +52,7 @@ class EncryptedBusTest extends TestCase
     public function testItCopiesStamps(): void
     {
         $testMsg = new TestMessage();
-        $envelope = new Envelope($testMsg, new SerializerStamp([]));
+        $envelope = new Envelope($testMsg, [new SerializerStamp([])]);
 
         $privateKey = $this->getContainer()->get('shopware.private_key');
         $bus = $this->createMock(MessageBusInterface::class);

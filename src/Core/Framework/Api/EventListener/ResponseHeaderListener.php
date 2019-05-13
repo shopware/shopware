@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Api\EventListener;
 
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
+use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class ResponseHeaderListener implements EventSubscriberInterface
@@ -22,7 +22,7 @@ class ResponseHeaderListener implements EventSubscriberInterface
         ];
     }
 
-    public function onResponse(FilterResponseEvent $event): void
+    public function onResponse(ResponseEvent $event): void
     {
         foreach (self::HEADERS as $header) {
             $event->getResponse()->headers->set(

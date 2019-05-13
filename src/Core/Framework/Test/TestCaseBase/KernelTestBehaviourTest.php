@@ -31,7 +31,7 @@ class KernelTestBehaviourTest extends TestCase
     {
         static::assertSame(
             spl_object_hash(KernelLifecycleManager::getKernel()),
-            spl_object_hash(KernelLifecycleManager::createClient(KernelLifecycleManager::getKernel())->getKernel())
+            spl_object_hash(KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel())->getKernel())
         );
     }
 }

@@ -108,10 +108,10 @@ class SalesChannelRepository
         $result = new EntitySearchResult($ids->getTotal(), $entities, $aggregations, $criteria, $context->getContext());
 
         $event = new EntitySearchResultLoadedEvent($this->definition, $result);
-        $this->eventDispatcher->dispatch($event->getName(), $event);
+        $this->eventDispatcher->dispatch($event, $event->getName());
 
         $event = new SalesChannelEntitySearchResultLoadedEvent($this->definition, $result, $context);
-        $this->eventDispatcher->dispatch($event->getName(), $event);
+        $this->eventDispatcher->dispatch($event, $event->getName());
 
         return $result;
     }
@@ -125,7 +125,7 @@ class SalesChannelRepository
         $result = $this->aggregator->aggregate($this->definition, $criteria, $context->getContext());
 
         $event = new EntityAggregationResultLoadedEvent($this->definition, $result);
-        $this->eventDispatcher->dispatch($event->getName(), $event);
+        $this->eventDispatcher->dispatch($event, $event->getName());
 
         return $result;
     }
@@ -145,10 +145,10 @@ class SalesChannelRepository
         $entities = $this->reader->read($this->definition, $criteria, $context->getContext());
 
         $event = new EntityLoadedEvent($this->definition, $entities->getElements(), $context->getContext());
-        $this->eventDispatcher->dispatch($event->getName(), $event);
+        $this->eventDispatcher->dispatch($event, $event->getName());
 
         $event = new SalesChannelEntityLoadedEvent($this->definition, $entities->getElements(), $context);
-        $this->eventDispatcher->dispatch($event->getName(), $event);
+        $this->eventDispatcher->dispatch($event, $event->getName());
 
         return $entities;
     }
@@ -158,7 +158,7 @@ class SalesChannelRepository
         $result = $this->searcher->search($this->definition, $criteria, $context->getContext());
 
         $event = new SalesChannelEntityIdSearchResultLoadedEvent($this->definition, $result, $context);
-        $this->eventDispatcher->dispatch($event->getName(), $event);
+        $this->eventDispatcher->dispatch($event, $event->getName());
 
         return $result;
     }

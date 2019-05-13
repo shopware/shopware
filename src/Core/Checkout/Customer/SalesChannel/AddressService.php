@@ -144,7 +144,7 @@ class AddressService
         ];
 
         $mappingEvent = new DataMappingEvent(CustomerEvents::MAPPING_ADDRESS_CREATE, $data, $addressData, $context->getContext());
-        $this->eventDispatcher->dispatch($mappingEvent->getName(), $mappingEvent);
+        $this->eventDispatcher->dispatch($mappingEvent, $mappingEvent->getName());
 
         $addressData = $mappingEvent->getOutput();
         $addressData['id'] = $id;
@@ -216,7 +216,7 @@ class AddressService
         $validation = $this->addressValidationService->buildCreateValidation($context);
 
         $validationEvent = new BuildValidationEvent($validation, $context);
-        $this->eventDispatcher->dispatch($validationEvent->getName(), $validationEvent);
+        $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         return $validation;
     }

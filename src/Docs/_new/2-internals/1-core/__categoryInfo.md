@@ -1,6 +1,6 @@
 [titleEn]: <>(Core)
 
-Repository Link: `https://github.com/shopware/platform/tree/master/src/Core`
+Repository Link: [`https://github.com/shopware/platform/tree/master/src/Core`](https://github.com/shopware/platform/tree/master/src/Core)
 
 The core is structured as a modular non strictly layered monolith. The modules are categorized and spread across different directories. 
 

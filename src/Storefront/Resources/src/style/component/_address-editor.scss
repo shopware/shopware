@@ -20,7 +20,7 @@
         cursor: pointer;
 
         &:not(.collapsed) {
-            opacity: 0.5;
+            @extend .btn-primary;
         }
     }
 

@@ -9,7 +9,7 @@ module.exports = {
         browser
             .waitForElementVisible('.sw-dashboard-index__content')
             .waitForElementNotPresent('.sw-admin-menu__user-actions-toggle .sw-loader')
-            .clickUserActionMenu('admin')
+            .openUserActionMenu()
             .click('.sw-admin-menu__toggle')
             .waitForElementNotVisible('.sw-admin-menu__user-type')
             .click('.sw-admin-menu__toggle')

@@ -49,11 +49,11 @@ export default class CollapseFooterColumnsPlugin extends Plugin {
     /**
      * On clicking the collapse trigger (column headline) the columns
      * content area shall be toggled open/close
-     * @param {Event} e
+     * @param {Event} event
      * @private
      */
-    _onClickCollapseTrigger(e) {
-        const trigger = e.target;
+    _onClickCollapseTrigger(event) {
+        const trigger = event.target;
         const collapse = trigger.parentNode.querySelector(COLLAPSE_COLUMN_CONTENT_SELECTOR);
         const $collapse = $(collapse);
 

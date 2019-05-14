@@ -17,9 +17,11 @@
 										 src="{{ product.cover.media.url }}"
 										 alt="{{ product.cover.media.alt }}">
 								{% else %}
-									{% sw_icon 'placeholder' style {
-										'size': 'fluid'
-									} %}
+									<div class="product-image-placeholder">
+										{% sw_icon 'placeholder' style {
+											'size': 'fluid'
+										} %}
+									</div>
 								{% endif %}
 							</a>
 						</div>

@@ -21,7 +21,16 @@ exports.command = function fillDateField(selector, date) {
     );
 
     // Set hidden ISO date
-    const isoDate = `${date.split(' ').join('T')}:00+00:00`;
+    const dateParts = date.split(' ');
+    let isoDate = '';
+
+    // no Time
+    if (dateParts.length === 1) {
+        isoDate = `${dateParts[0]}T00:00:00+00:00`;
+    } else {
+        isoDate = `${dateParts.join('T')}:00+00:00`;
+    }
+    console.log('isoDate :', isoDate);
     this.setValue(hiddenDateFieldSelector, isoDate);
     this.expect.element(hiddenDateFieldSelector).to.have.value.that.equals(isoDate);
 

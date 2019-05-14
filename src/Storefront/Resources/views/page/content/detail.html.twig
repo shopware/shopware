@@ -16,9 +16,10 @@
                 {% set bgImg = block.backgroundMedia.url %}
 
                 <div class="cms-block cms-block-{{ block.type }} pos-{{ block.position }}{% if block.cssClass %} {{ block.cssClass }}{% endif %}{% if bgImg %} bg-image{% endif %}{% if bgColor %} bg-color{% endif %}"
-                     style="{% if padding %}padding: {{ padding }};{% endif %}{% if bgColor %} background-color: {{ bgColor }};{% endif %}{% if bgImg %}background-image: url({{ bgImg }}); background-size: {{ block.backgroundMediaMode }};{% endif %}">
+                     style="{% if bgColor %} background-color: {{ bgColor }};{% endif %}{% if bgImg %}background-image: url({{ bgImg }}); background-size: {{ block.backgroundMediaMode }};{% endif %}">
                     {% block page_content_block_container %}
-                        <div class="cms-block-container {{ layout }}">
+                        <div class="cms-block-container {{ layout }}"
+                             style="{% if padding %}padding: {{ padding }};{% endif %}">
                             {% block page_content_block_row %}
                                 <div class="row cms-row">
                                     {% sw_include "@Storefront/block/cms-block-" ~ block.type ~ ".html.twig" ignore missing %}

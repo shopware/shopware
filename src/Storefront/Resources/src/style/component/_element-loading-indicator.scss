@@ -13,6 +13,7 @@
     left: 0;
     position: absolute;
     background-color: $element-backdrop-bg;
+    box-shadow: 0 0 11px 7px rgba($element-backdrop-bg, 1);
     z-index: 15;
 
     &.element-loader-backdrop-open {

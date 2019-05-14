@@ -6,17 +6,18 @@
             <div class="container">
                 {% block layout_footer_minimal_content %}
                     <ul class="footer-minimal-list">
-                        {#TODO: NEXT-2669 - Replace with service links#}
-                        {% for treeItem in page.header.navigation.tree %}
-                            {% block layout_footer_minimal_item %}
-                                <li class="footer-minimal-item">
-                                    <a class="footer-minimal-link"
-                                       href="{{ path('frontend.navigation.page', {'navigationId': treeItem.category.id}) }}"
-                                       title="{{ treeItem.category.translated.name }}">
-                                        {{ treeItem.category.translated.name }}
-                                    </a>
-                                </li>
-                            {% endblock %}
+                        {% for root in page.footer.navigation.tree %}
+                            {% for treeItem in root.children %}
+                                {% block layout_footer_minimal_item %}
+                                    <li class="footer-minimal-item">
+                                        <a class="footer-minimal-link"
+                                           href="{{ path('frontend.navigation.page', {'navigationId': treeItem.category.id}) }}"
+                                           title="{{ treeItem.category.translated.name }}">
+                                            {{ treeItem.category.translated.name }}
+                                        </a>
+                                    </li>
+                                {% endblock %}
+                            {% endfor %}
                         {% endfor %}
                     </ul>
                 {% endblock %}

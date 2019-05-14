@@ -42,10 +42,11 @@ $sw-select-field-color-error: $color-crimson;
     }
 
     select {
+        padding-right: 30px;
+
         option {
             color: $sw-select-field-color-text;
             background-color: $sw-select-field-color-background;
-            padding-right: 22px;
         }
 
         option:disabled {

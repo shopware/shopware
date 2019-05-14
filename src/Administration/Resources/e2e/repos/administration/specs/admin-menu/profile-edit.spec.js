@@ -8,7 +8,7 @@ module.exports = {
         browser
             .waitForElementVisible('.sw-dashboard-index__content')
             .waitForElementNotPresent('.sw-admin-menu__user-actions-toggle .sw-loader')
-            .clickUserActionMenu('admin')
+            .openUserActionMenu()
             .click('.sw-admin-menu__profile-item')
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals('Your profile');
 
@@ -19,6 +19,7 @@ module.exports = {
     },
     'log out': (browser) => {
         const page = loginPage(browser);
+        browser.openUserActionMenu();
         page.logout();
     },
     'log in user with updated credentials': (browser) => {
@@ -30,7 +31,7 @@ module.exports = {
 
         browser
             .waitForElementVisible('.sw-dashboard-index__content')
-            .clickUserActionMenu('admin')
+            .openUserActionMenu()
             .click('.sw-admin-menu__profile-item')
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals('Your profile');
         browser

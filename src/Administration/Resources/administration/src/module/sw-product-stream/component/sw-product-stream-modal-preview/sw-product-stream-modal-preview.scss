@@ -48,6 +48,7 @@ $sw-product-stream-modal-color-success: $color-emerald;
     }
 
     .sw-product-stream-modal-preview__grid {
+        overflow: scroll;
         grid-row: product-grid;
     }
 

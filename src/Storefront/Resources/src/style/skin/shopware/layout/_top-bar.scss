@@ -3,8 +3,28 @@
     font-weight: normal;
     padding: 0;
 
+    .icon {
+        transition: color 0.15s ease-in-out;
+    }
+
     &:hover {
-        color: $primary;
+        &,
+        .icon {
+            color: $primary;
+        }
+    }
+
+    &:focus {
+        box-shadow: none;
+    }
+}
+
+.dropdown.show {
+    .top-bar-nav-btn {
+        &,
+        .icon {
+            color: $primary;
+        }
     }
 }
 

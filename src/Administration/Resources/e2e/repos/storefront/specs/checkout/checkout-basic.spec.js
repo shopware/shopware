@@ -45,10 +45,10 @@ module.exports = {
 
         browser
             .waitForElementVisible(page.elements.cartItem)
-            .assert.containsText(`${page.elements.cartItem}-link-name`, currentProduct.attributes.name)
-            .assert.containsText(`${page.elements.cartItem}-link-price`, currentProduct.attributes.price.gross)
-            .assert.containsText('.cart-prices-subtotal', currentProduct.attributes.price.gross)
-            .click(`${page.elements.cartActions} .btn-link`)
+            .assert.containsText('.cart-item-label', currentProduct.attributes.name)
+            .assert.containsText('.cart-item-price', currentProduct.attributes.price.gross)
+            .assert.containsText('.summary-value.summary-total', currentProduct.attributes.price.gross)
+            .click('.offcanvas-cart-actions .btn-link')
             .waitForElementVisible('.card-body');
     },
     'check checkout page and continue': (browser) => {
@@ -58,7 +58,7 @@ module.exports = {
             .waitForElementVisible('.card-body')
             .assert.containsText(`${page.elements.cartItem}-label`, currentProduct.attributes.name)
             .assert.containsText(`${page.elements.cartItem}-unit-price`, currentProduct.attributes.price.gross)
-            .assert.containsText('.checkout-summary-value', currentProduct.attributes.price.gross)
+            .assert.containsText('.checkout-summary-list .summary-value.summary-total', currentProduct.attributes.price.gross)
             .click(`.checkout-aside-action ${page.elements.primaryButton}`);
     },
     'log in customer': (browser) => {
@@ -85,7 +85,7 @@ module.exports = {
             .assert.containsText(`${page.elements.cartItem}-label`, currentProduct.attributes.name)
             .assert.containsText(`${page.elements.cartItem}-total-price`, currentProduct.attributes.price.gross)
             .assert.containsText('.cart-item-total-price', currentProduct.attributes.price.gross)
-            .assert.containsText('.checkout-summary-value.checkout-summary-total', currentProduct.attributes.price.gross);
+            .assert.containsText('.checkout-summary-list .summary-value.summary-total', currentProduct.attributes.price.gross);
     },
     'finish order': (browser) => {
         browser

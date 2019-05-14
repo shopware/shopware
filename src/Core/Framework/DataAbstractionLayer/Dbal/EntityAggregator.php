@@ -86,6 +86,8 @@ class EntityAggregator implements EntityAggregatorInterface
 
     private function createAggregationQuery(Aggregation $aggregation, EntityDefinition $definition, Criteria $criteria, Context $context): QueryBuilder
     {
+        $criteria = clone $criteria;
+
         $table = $definition->getEntityName();
 
         $query = $this->queryHelper->getBaseQuery(new QueryBuilder($this->connection), $definition, $context);
@@ -93,6 +95,10 @@ class EntityAggregator implements EntityAggregatorInterface
         if ($definition->isInheritanceAware()) {
             $parent = $definition->getFields()->get('parent');
             $this->queryHelper->resolveField($parent, $definition, $definition->getEntityName(), $query, $context);
+        }
+
+        if ($aggregation->getFilter()) {
+            $criteria->addFilter($aggregation->getFilter());
         }
 
         $fields = array_merge(

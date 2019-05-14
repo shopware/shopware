@@ -15,9 +15,12 @@
                       data-form-ajax-submit="true"
                       data-form-ajax-submit-options='{
                             "replaceSelectors": [
-                                ".js-reload-on-confirm-change"
+                                ".js-reload-on-confirm-change",
+                                ".flashbags"
                             ],
-                            "submitOnChange": true
+                            "submitOnChange": [
+                                "[name=shippingMethodId]"
+                            ]
                       }'>
 
                     {% block page_checkout_confirm_shipping_form_redirect %}

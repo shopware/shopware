@@ -58,6 +58,7 @@ import CmsSlotReloadPlugin from 'src/script/plugin/cms-slot-reload/cms-slot-relo
 import CmsSlotHistoryReloadPlugin from 'src/script/plugin/cms-slot-reload/cms-slot-history-reload.plugin';
 import RemoteClickPlugin from 'src/script/plugin/remote-click/remote-click.plugin';
 import AddressEditorPlugin from 'src/script/plugin/address-editor/address-editor.plugin';
+import ConfirmOrderPlugin from 'src/script/plugin/confirm-order/confirm-order.plugin';
 
 /*
 initialisation
@@ -112,6 +113,7 @@ PluginManager.register('CmsSlotReload', CmsSlotReloadPlugin, '[data-cms-slot-rel
 PluginManager.register('CmsSlotHistoryReload', CmsSlotHistoryReloadPlugin, document);
 PluginManager.register('RemoteClick', RemoteClickPlugin, '[data-remote-click]');
 PluginManager.register('AddressEditor', AddressEditorPlugin, '[data-address-editor]');
+PluginManager.register('ConfirmOrder', ConfirmOrderPlugin, '[data-confirm-order]');
 
 /*
 add configurations

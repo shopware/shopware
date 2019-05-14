@@ -91,7 +91,7 @@ const modules = {
         {
             test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
             include: [
-                getPath('assets/fonts'),
+                getPath('assets/font'),
             ],
             use: [
                 {
@@ -107,7 +107,7 @@ const modules = {
         {
             test: /\.(jp(e)g|png|gif|svg)(\?v=\d+\.\d+\.\d+)?$/,
             exclude: [
-                getPath('assets/fonts'),
+                getPath('assets/font'),
             ],
             use: [
                 {

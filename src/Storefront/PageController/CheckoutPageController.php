@@ -49,7 +49,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\RouterInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class CheckoutPageController extends StorefrontController
 {
@@ -585,13 +585,19 @@ class CheckoutPageController extends StorefrontController
 
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
+
         try {
+
+            $count = 0;
+
             /** @var RequestDataBag $lineItemData */
             foreach ($lineItems as $lineItemData) {
+                $lineItemQuantity = (int) $lineItemData->getInt('quantity');
+
                 $lineItem = new LineItem(
                     $lineItemData->getAlnum('id'),
                     $lineItemData->getAlnum('type'),
-                    $lineItemData->getInt('quantity')
+                    $lineItemQuantity
                 );
 
                 $lineItemData->remove('quantity');
@@ -599,9 +605,12 @@ class CheckoutPageController extends StorefrontController
                 $this->updateLineItemByRequest($lineItem, $lineItemData, $context->getContext());
 
                 $this->cartService->add($cart, $lineItem, $context);
+
+                $count += $lineItemQuantity;
+
             }
 
-            $this->addFlash('success', $this->translator->trans('checkout.addToCartSuccess'));
+            $this->addFlash('success', $this->translator->transChoice('checkout.addToCartSuccess', $count, ['%count%' => $count]));
         } catch (ProductNotFoundException $exception) {
             $this->addFlash('danger', $this->translator->trans('error.addToCartError'));
         }

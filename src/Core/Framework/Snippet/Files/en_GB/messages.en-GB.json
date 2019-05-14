@@ -16,19 +16,19 @@
         "offcanvasCloseMenu": "Close menu",
         "noscriptNotice": "To be able to use our shop in full range, we recommend activating Javascript in your browser.",
         "toCategory": "Show all",
-        "readMore": "read more",
-        "mainMenu": "Mainmenu",
-        "closeMenu": "Close Menu",
-        "back": "back",
+        "readMore": "Read more",
+        "mainMenu": "Show all categories",
+        "closeMenu": "Close menu",
+        "back": "Back",
         "categories": "Categories",
-        "showCategory": "show %category%",
+        "showCategory": "Show %category%",
         "required": "*",
         "requiredFields": "The fields marked with * are required"
     },
     "header": {
         "logoLink": "Go to homepage",
         "searchButton": "Search",
-        "searchPlaceholder": "Search term...",
+        "searchPlaceholder": "Search in all categories...",
         "searchAllResults": "Show all search results",
         "searchResults": "Results",
         "supportInfo": "<strong>Questions about your order?</strong><br /><strong><a href='tel:+4912345-123456789'>12345-123456789</a></strong> <small>Daily from 7:30 am to 10:00 pm</small>",
@@ -208,6 +208,7 @@
         "countryPlaceholder": "Country"
     },
     "checkout": {
+        "itemCounter": "{1} 1 item|]1,Inf[ %count% items",
         "addressHeader": "Shipping information",
         "addressLoginToggle": "Already have an account? Click here to login.",
         "addressRegisterCardTitle": "Your personal details",
@@ -217,7 +218,7 @@
         "cartUpdateSuccess": "Cart updated successfully",
         "continueShopping": "Continue shopping",
         "emptyCart": "Your shopping cart is empty",
-        "proceedToCart": "Edit shopping cart",
+        "proceedToCart": "Go to cart",
         "proceedToCheckout": "Proceed to checkout",
         "quantityTimes": "x",
         "removeLineItem": "Remove product",
@@ -310,7 +311,7 @@
         "newsletter": "Subscribe now to our regularly released newsletter and be informed about the latest products and special offers.",
         "includeVat": "* All prices incl. value added tax",
         "excludeVat": "* All prices are quoted net of the statutory value-added tax and <a href='#'>shipping costs</a> and possibly delivery charges, if not otherwise described",
-        "copyrightInfo": "Realized with Shopware"
+        "copyrightInfo": "Realised with Shopware"
     },
     "cookie": {
         "message": "This website uses cookies to ensure you get the best experience on our website.&nbsp;<a href='#'>More&nbsp;information</a>",

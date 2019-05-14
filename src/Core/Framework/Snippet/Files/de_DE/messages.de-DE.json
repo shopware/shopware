@@ -208,6 +208,7 @@
         "countryPlaceholder": "Land"
     },
     "checkout": {
+        "itemCounter": "%count% Artikel",
         "addressHeader": "Ihre Daten",
         "addressLoginToggle": "Bereits Kunde? Klicken Sie hier um sich einzuloggen.",
         "registerGuestmodeLabel": "Kein Kundenkonto anlegen",

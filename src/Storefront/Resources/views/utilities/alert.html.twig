@@ -21,12 +21,12 @@ The template provides an easy way to display messages in the storefront. The fol
     } %}
 
 *Icons:
-To display icons, set the value of "icon" to true:
+Icons are shown by default. To hide the icon within the alert, set the value of "icon" to false:
 
     {% sw_include '@Storefront/utilities/alert.html.twig' with {
         type:"primary",
         content:"Primary Lorem ipsum dolor",
-        icon: true
+        icon: false
     } %}
 
 *Message Content:
@@ -73,30 +73,28 @@ To display a dismissible button set the value of "dismissible" to true.
 
 #}
 
-{% block layout_utilities_alert %}
+{% block utilities_alert %}
     <div role="alert"
-         class="alert alert-{% if type %}{{ type }}{% else %}success{% endif %}{% if dismissible %} alert-dismissible fade show{% endif %}{% if icon %} alert-has-icon{% endif %}">
-        {% block layout_utilities_alert_icon %}
-            {% if icon %}
-                {% set iconClass = "check-circle" %} {# primary, secondary, succes #}
-
-                {% if type is same as("danger") %}
-                    {% set iconClass = "exclamation-circle" %}
-                {% elseif type is same as("warning") %}
-                    {% set iconClass = "exclamation-triangle" %}
-                {% elseif type is same as("info") or (type is same as("light")) or (type is same as("dark")) %}
-                    {% set iconClass = "info-circle" %}
+         class="alert {% if type %}alert-{{ type }}{% endif %}{% if dismissible %} alert-dismissible fade show{% endif %}{% if icon != "error" %} alert-has-icon{% endif %}">
+        {% block utilities_alert_icon %}
+            {% if icon != "false" %}
+                {% if type == "danger" %}
+                    {% sw_icon 'blocked' %}
+                {% elseif type == "warning" %}
+                    {% sw_icon 'warning' %}
+                {% elseif type == "info" %}
+                    {% sw_icon 'info' %}
+                {% elseif type == "success" %}
+                    {% sw_icon 'checkmark-circle' %}
+                {% else %}
+                    {% sw_icon 'alert' %}
                 {% endif %}
-
-                <div class="alert-icon alert-icon-{{ type }}">
-                    <i class="fas fa-{{ iconClass }}"></i>
-                </div>
             {% endif %}
         {% endblock %}
 
-        {% block layout_utilities_alert_content_container %}
+        {% block utilities_alert_content_container %}
             <div class="alert-content-container">
-                {% block layout_utilities_alert_heading %}
+                {% block utilities_alert_heading %}
                     {% if heading %}
                         <h4 class="alert-heading">
                             {{ heading }}
@@ -104,7 +102,7 @@ To display a dismissible button set the value of "dismissible" to true.
                     {% endif %}
                 {% endblock %}
 
-                {% block layout_utilities_alert_content %}
+                {% block utilities_alert_content %}
                     <div class="alert-content">
                         {% if list|length > 1 %}
                             <ul>
@@ -122,7 +120,7 @@ To display a dismissible button set the value of "dismissible" to true.
                     </div>
                 {% endblock %}
 
-                {% block layout_utilities_alert_dismissible %}
+                {% block utilities_alert_dismissible %}
                     {% if dismissible %}
                         <button type="button"
                                 class="close"

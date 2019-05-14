@@ -1,11 +1,11 @@
 {% block page_checkout_summary_item %}
     {% if lineItem.type == 'product' %}
         {% block page_checkout_summary_item_product %}
-            {% sw_include '@Storefront/page/checkout/items/product-aside.html.twig' %}
+            {% sw_include '@Storefront/page/checkout/_item/product-aside.html.twig' %}
         {% endblock %}
     {% elseif lineItem.type == 'promotion' %}
         {% block page_checkout_summary_item_promotion %}
-            {% sw_include '@Storefront/page/checkout/items/promotion-aside.html.twig' %}
+            {% sw_include '@Storefront/page/checkout/_item/promotion-aside.html.twig' %}
         {% endblock %}
     {% endif %}
 {% endblock %}

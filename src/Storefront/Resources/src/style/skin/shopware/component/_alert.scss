@@ -1,0 +1,40 @@
+@mixin sw-skin-alert($color, $background) {
+    background-color: $color;
+
+    .alert-content-container {
+        background-color: $background;
+        color: $color;
+    }
+
+    .icon {
+        color: $white;
+    }
+}
+
+.alert {
+    padding: 0;
+    border: 0;
+
+    .icon {
+        margin: $spacer-sm;
+
+        svg {
+            top: 0;
+        }
+    }
+}
+
+.alert-has-icon {
+    align-items: normal;
+}
+
+.alert-content-container {
+    padding: $spacer-sm;
+    flex-grow: 1;
+}
+
+@each $color, $value in $theme-colors {
+    .alert-#{$color} {
+        @include sw-skin-alert($value, theme-color-level($color, $alert-bg-level));
+    }
+}

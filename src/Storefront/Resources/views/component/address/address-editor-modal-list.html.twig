@@ -10,11 +10,11 @@
                             {% block component_address_address_editor_modal_list_card_body %}
                                 <div class="card-body">
                                     {% block component_address_address_editor_modal_list_card_title %}
-                                        <h3 class="card-title cart-header">
+                                        <div class="card-title">
                                             {% block component_address_address_editor_modal_list_card_title_text %}
                                                 {{ "account.availableAddresses"|trans }}
                                             {% endblock %}
-                                        </h3>
+                                        </div>
                                     {% endblock %}
 
                                     {% block component_address_address_editor_modal_list_addresses %}
@@ -36,7 +36,7 @@
                                                                     <div class="row">
                                                                         {% block component_address_address_editor_modal_list_address_action_billing %}
                                                                             {% if changeBilling %}
-                                                                                <div class="col-6">
+                                                                                <div class="col-sm-6">
                                                                                     {% block component_address_address_editor_modal_list_address_action_billing_form %}
                                                                                         <form action="{{ path('widgets.account.addressbook') }}"
                                                                                               class="js-close-address-editor"

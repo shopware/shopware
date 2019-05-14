@@ -54,7 +54,17 @@
     }
 
     .offcanvas-content-container {
-        padding: $spacer;
-        width: 280px;
+        padding: $grid-gutter-width / 2;
+        width: 400px;
+    }
+}
+
+@include media-breakpoint-down(xs) {
+    .js-offcanvas {
+        width: 100%;
+
+        .offcanvas-content-container {
+            width: 100%;
+        }
     }
 }

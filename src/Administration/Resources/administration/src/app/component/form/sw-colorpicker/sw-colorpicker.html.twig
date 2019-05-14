@@ -3,7 +3,7 @@
     v-bind="$attrs"
     :name="formFieldName"
     :disabled="disabled"
-    :error="actualError">
+    :error="$attrs.error || actualError">
 
     <template #sw-contextual-field-prefix>
         <div class="sw-colorpicker__previewWrapper">

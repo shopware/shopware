@@ -1,5 +1,5 @@
 {% block page_product_detail_price_inner %}
-    {% if page.product.calculatedPrices|length > 1 %}
+    {% if page.product.calculatedPrices|length >= 1 %}
         {% block page_product_detail_price_block %}
             <div class="product-block-prices">
                 {% block page_product_detail_price_block_table %}
@@ -27,7 +27,6 @@
                         {% block page_product_detail_price_block_table_body %}
                             <tbody class="product-block-prices-body">
                                 {% block page_product_detail_price_block_table_body_inner %}
-                                    {% set firstPrice = true %}
                                     {% for price in page.product.calculatedPrices %}
                                         {% block page_product_detail_price_block_table_body_row %}
                                             <tr class="product-block-prices-row"
@@ -40,11 +39,12 @@
                                                         <meta itemprop="price" content="{{ price.unitPrice }}" />
                                                         <link itemprop="availability" href="http://schema.org/InStock" />
 
-                                                        {% if firstPrice == 1 %}
-                                                            {{ "detail.priceDataInfoUntil"|trans }}
-                                                            <span class="product-block-prices-quantity">{{ price.quantity }}</span>
-                                                        {% else %}
+                                                        {% if loop.last %}
                                                             {{ "detail.priceDataInfoFrom"|trans }}
+                                                            <span class="product-block-prices-quantity">{{ price.quantity }}</span>
+
+                                                        {% else %}
+                                                            {{ "detail.priceDataInfoUntil"|trans }}
                                                             <span class="product-block-prices-quantity">{{ price.quantity }}</span>
                                                         {% endif %}
                                                     </th>
@@ -67,8 +67,6 @@
                                                 {% endblock %}
                                             </tr>
                                         {% endblock %}
-
-                                        {% set firstPrice = false %}
                                     {% endfor %}
                                 {% endblock %}
                             </tbody>

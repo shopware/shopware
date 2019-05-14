@@ -223,7 +223,7 @@ export default {
 
             this.showTypeSelectContainer = false;
 
-            if (this.typeSearchAlwaysInContainer) {
+            if (this.typeSearchAlwaysInContainer && this.currentSearchType) {
                 this.doListSearchWithContainer();
                 return;
             }

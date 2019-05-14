@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Cart\Exception\LineItemCoverNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Cart\Builder\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsCollector;
@@ -225,27 +224,27 @@ class CartLineItemController extends StorefrontController
             throw new MissingRequestParameterException('lineItems');
         }
 
-        $collection = new LineItemCollection();
+        $count = 0;
 
-        /** @var RequestDataBag $lineItemData */
-        foreach ($lineItems as $lineItemData) {
-            $lineItem = new LineItem(
-                $lineItemData->getAlnum('id'),
-                $lineItemData->getAlnum('type'),
-                $lineItemData->getInt('quantity')
-            );
-
-            $lineItemData->remove('quantity');
-
-            $this->updateLineItemByRequest($lineItem, $lineItemData, $context->getContext());
-
-            $collection->add($lineItem);
-        }
+        $cart = $this->cartService->getCart($context->getToken(), $context);
 
         try {
-            $this->cartService->fill($this->cartService->getCart($context->getToken(), $context), $collection, $context);
+            /** @var RequestDataBag $lineItemData */
+            foreach ($lineItems as $lineItemData) {
+                $lineItem = new LineItem(
+                    $lineItemData->getAlnum('id'),
+                    $lineItemData->getAlnum('type'),
+                    $lineItemData->getInt('quantity', 1)
+                );
 
-            $this->addFlash('success', $this->translator->trans('checkout.addToCartSuccess'));
+                $this->updateLineItemByRequest($lineItem, $lineItemData, $context->getContext());
+
+                $count += $lineItem->getQuantity();
+
+                $this->cartService->add($cart, $lineItem, $context);
+            }
+
+            $this->addFlash('success', $this->translator->trans('checkout.addToCartSuccess', ['%count%' => $count]));
         } catch (ProductNotFoundException $exception) {
             $this->addFlash('danger', $this->translator->trans('error.addToCartError'));
         }

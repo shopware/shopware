@@ -2,9 +2,15 @@
     .modal-header {
         &.only-close {
             position: absolute;
-            z-index: 2;
+            z-index: 20;
             border-bottom-color: transparent;
             right: 0;
+            padding: 0;
         }
+    }
+
+    .modal-close {
+        z-index: 20;
+        cursor: pointer;
     }
 }

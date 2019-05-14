@@ -85,6 +85,7 @@ class SalesChannelPageObject extends GeneralPageObject {
                 me.accessKeyId = result.value;
 
                 me.browser
+                    .waitForElementPresent(me.elements.apiAccessKeyField)
                     .getLocationInView(me.elements.apiAccessKeyField)
                     .waitForElementVisible('.sw-field-copyable:nth-of-type(1)')
                     .click('.sw-field-copyable:nth-of-type(1)')

@@ -27,21 +27,7 @@ export default {
             existingMedia: null,
             targetEntity: null,
             failedUploadTasks: [],
-            postponedFailedUploads: [],
-            options: [
-                {
-                    value: 'Replace',
-                    name: this.$tc('global.sw-duplicated-media.labelOptionReplace')
-                },
-                {
-                    value: 'Rename',
-                    name: this.$tc('global.sw-duplicated-media.labelOptionRename')
-                },
-                {
-                    value: 'Skip',
-                    name: this.$tc('global.sw-duplicated-media.labelOptionSkip')
-                }
-            ]
+            postponedFailedUploads: []
         };
     },
 
@@ -99,6 +85,23 @@ export default {
 
         isWorkingOnMultipleTasks() {
             return this.isLoading && this.shouldSaveSelection;
+        },
+
+        options() {
+            return [
+                {
+                    value: 'Replace',
+                    name: this.$tc('global.sw-duplicated-media.labelOptionReplace')
+                },
+                {
+                    value: 'Rename',
+                    name: this.$tc('global.sw-duplicated-media.labelOptionRename')
+                },
+                {
+                    value: 'Skip',
+                    name: this.$tc('global.sw-duplicated-media.labelOptionSkip')
+                }
+            ];
         }
     },
 

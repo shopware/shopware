@@ -1,5 +1,7 @@
 {% sw_extends '@Storefront/base.html.twig' %}
 
+{% block base_flashbags %}{% endblock %}
+
 {% block base_content %}
     {% block page_checkout %}
         <div class="checkout is-{{ controllerAction }}">
@@ -7,6 +9,14 @@
                 <div class="checkout-container">
                     {% block page_checkout_main %}
                         <div class="checkout-main">
+                            {% block base_flashbags_checkout %}
+                                <div class="flashbags">
+                                    {% for type, messages in app.flashes %}
+                                        {% sw_include '@Storefront/utilities/alert.html.twig' with { type: type, list: messages } %}
+                                    {% endfor %}
+                                </div>
+                            {% endblock %}
+                            
                             {% block page_checkout_main_content %}{% endblock %}
                         </div>
                     {% endblock %}

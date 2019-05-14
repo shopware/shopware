@@ -48,11 +48,11 @@ export default class OffCanvasCartPlugin extends Plugin {
      * On clicking the trigger item the OffCanvas shall open and the current
      * cart template may be fetched and shown inside the OffCanvas
      *
-     * @param {Event} e
+     * @param {Event} event
      * @private
      */
-    _onOpenOffCanvasCart(e) {
-        e.preventDefault();
+    _onOpenOffCanvasCart(event) {
+        event.preventDefault();
 
         this.openOffCanvas(window.router['frontend.cart.detail'], false);
     }

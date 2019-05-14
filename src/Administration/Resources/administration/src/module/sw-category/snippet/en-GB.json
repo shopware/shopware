@@ -57,7 +57,7 @@
           },
 
           "menu": {
-            "title": "Menü-Settings",
+            "title": "Menu settings",
             "visible": "Hide in navigation",
             "imageLabel": "Display image",
             "description": "Description"

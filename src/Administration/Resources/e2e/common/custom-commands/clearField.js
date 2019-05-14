@@ -6,9 +6,10 @@
  * @returns {exports}
  */
 exports.command = function clearField(selector, type = 'input') {
-    this.clearValue(selector)
+    this.waitForElementVisible(selector)
         .setValue(selector, ['', this.Keys.CONTROL, 'a'])
-        .setValue(selector, ['', this.Keys.DELETE]);
+        .setValue(selector, this.Keys.DELETE)
+        .clearValue(selector);
 
     if (type === 'editor') {
         this.waitForElementPresent('.sw-text-editor__content-editor');

@@ -46,7 +46,7 @@ Component.register('sw-dashboard-index', {
             });
         },
         onInstallSwagMigration() {
-            this.setupPlugin('SwagMigrationNext').then(() => {
+            this.setupPlugin('SwagMigrationAssistant').then(() => {
                 document.location.reload();
             });
         },

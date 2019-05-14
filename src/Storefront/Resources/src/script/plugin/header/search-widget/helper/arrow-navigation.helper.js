@@ -42,10 +42,10 @@ export default class ArrowNavigationHelper {
 
     /**
      * Handle 'keydown' event
-     * @param {Event} e
+     * @param {Event} event
      * @private
      */
-    _onKeyDown(e) {
+    _onKeyDown(event) {
 
         const parent = DomAccess.querySelector(document, this._parentSelector, false);
         if (!parent) return;
@@ -54,17 +54,17 @@ export default class ArrowNavigationHelper {
         // early return if no items exist
         if (this._items.length === 0) return;
 
-        switch (e.key) {
+        switch (event.key) {
             case 'Enter':
-                e.preventDefault();
-                this._onPressEnter(e);
+                event.preventDefault();
+                this._onPressEnter(event);
                 return;
             case 'ArrowDown':
-                e.preventDefault();
+                event.preventDefault();
                 this._iterator++;
                 break;
             case 'ArrowUp':
-                e.preventDefault();
+                event.preventDefault();
                 this._iterator--;
                 break;
             default:
@@ -83,16 +83,16 @@ export default class ArrowNavigationHelper {
     /**
      * When pressing "Enter" the link inside the currently
      * selected result item shall be clicked
-     * @param {Event} e
+     * @param {Event} event
      * @private
      */
-    _onPressEnter(e) {
+    _onPressEnter(event) {
         // handle the original form submit event only if no search result has been selected before
         if (this._iterator <= ARROW_NAVIGATION_ITERATOR_DEFAULT) {
             return;
         }
 
-        e.preventDefault();
+        event.preventDefault();
 
         try {
             const a = DomAccess.querySelector(this._getCurrentSelection(), 'a');

@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -69,6 +70,7 @@ class PaymentTransactionChainProcessor
      */
     public function process(
         string $orderId,
+        RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext,
         ?string $finishUrl = null
     ): ?RedirectResponse {
@@ -103,7 +105,7 @@ class PaymentTransactionChainProcessor
             try {
                 $paymentHandler = $this->paymentHandlerRegistry->getSync($paymentMethod->getHandlerIdentifier());
                 $paymentTransaction = new SyncPaymentTransactionStruct($transaction, $order);
-                $paymentHandler->pay($paymentTransaction, $salesChannelContext);
+                $paymentHandler->pay($paymentTransaction, $dataBag, $salesChannelContext);
 
                 return null;
             } catch (UnknownPaymentMethodException $e) {
@@ -116,7 +118,7 @@ class PaymentTransactionChainProcessor
 
             $paymentHandler = $this->paymentHandlerRegistry->getAsync($paymentMethod->getHandlerIdentifier());
 
-            return $paymentHandler->pay($paymentTransaction, $salesChannelContext);
+            return $paymentHandler->pay($paymentTransaction, $dataBag, $salesChannelContext);
         }
 
         return null;

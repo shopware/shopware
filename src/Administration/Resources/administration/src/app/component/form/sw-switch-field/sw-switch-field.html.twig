@@ -21,5 +21,5 @@
         </sw-base-field>
 
     </div>
-    <sw-field-error :error="actualError"></sw-field-error>
+    <sw-field-error :error="$attrs.error || actualError"></sw-field-error>
 </div>

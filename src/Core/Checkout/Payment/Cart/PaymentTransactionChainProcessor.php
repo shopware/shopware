@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterface;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
@@ -102,21 +103,22 @@ class PaymentTransactionChainProcessor
                 throw new UnknownPaymentMethodException($transaction->getPaymentMethodId());
             }
 
-            try {
-                $paymentHandler = $this->paymentHandlerRegistry->getSync($paymentMethod->getHandlerIdentifier());
+            $paymentHandler = $this->paymentHandlerRegistry->getHandler($paymentMethod->getHandlerIdentifier());
+
+            if (!$paymentHandler) {
+                throw new UnknownPaymentMethodException($paymentMethod->getHandlerIdentifier());
+            }
+
+            if ($paymentHandler instanceof SynchronousPaymentHandlerInterface) {
                 $paymentTransaction = new SyncPaymentTransactionStruct($transaction, $order);
                 $paymentHandler->pay($paymentTransaction, $dataBag, $salesChannelContext);
 
                 return null;
-            } catch (UnknownPaymentMethodException $e) {
-                // intentionally empty, try to get an async payment handler instead
             }
 
             $token = $this->tokenFactory->generateToken($transaction, $finishUrl);
             $returnUrl = $this->assembleReturnUrl($token);
             $paymentTransaction = new AsyncPaymentTransactionStruct($transaction, $order, $returnUrl);
-
-            $paymentHandler = $this->paymentHandlerRegistry->getAsync($paymentMethod->getHandlerIdentifier());
 
             return $paymentHandler->pay($paymentTransaction, $dataBag, $salesChannelContext);
         }

@@ -184,8 +184,6 @@ module.exports = {
     },
     plugins: plugins,
     resolve: resolve,
-    stats: {
-        colors: true,
-    },
+    stats: 'minimal',
     target: 'web',
 };

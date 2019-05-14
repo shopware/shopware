@@ -90,6 +90,9 @@ const modules = {
         },
         {
             test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
+            include: [
+                getPath('assets/fonts'),
+            ],
             use: [
                 {
                     loader: 'file-loader',
@@ -97,6 +100,22 @@ const modules = {
                         name: '[name].[ext]',
                         outputPath: `${assetOutPutFolder}/font`,
                         publicPath: '../assets/font',
+                    },
+                },
+            ],
+        },
+        {
+            test: /\.(jp(e)g|png|gif|svg)(\?v=\d+\.\d+\.\d+)?$/,
+            exclude: [
+                getPath('assets/fonts'),
+            ],
+            use: [
+                {
+                    loader: 'file-loader',
+                    options: {
+                        name: '[name].[ext]',
+                        outputPath: `${assetOutPutFolder}/img`,
+                        publicPath: '../assets/img',
                     },
                 },
             ],

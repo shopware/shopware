@@ -23,11 +23,13 @@ export default {
             required: false,
             default: ''
         },
+
         label: {
             type: String,
             required: false,
             default: ''
         },
+
         mode: {
             type: String,
             required: false,
@@ -40,10 +42,18 @@ export default {
                 return ['twig', 'text'].includes(value);
             }
         },
+
         softWraps: {
             type: Boolean,
             required: false,
             default: true
+        },
+
+        // set focus to the component when initially mounted
+        setFocus: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -59,6 +69,7 @@ export default {
                 this.editor.setValue(value);
             }
         },
+
         softWraps() {
             this.editor.session.setOption('wrap', this.softWraps);
         }
@@ -79,11 +90,19 @@ export default {
                 showPrintMargin: false,
                 wrap: this.softWraps
             });
-            this.editor.setValue(this.value);
+
+            this.editor.setValue(this.value, 1);
+            this.editor.on('blur', this.onBlur);
+
+            if (this.setFocus) {
+                this.editor.focus();
+            }
         },
+
         destroyedComponent() {
             delete this.editor;
         },
+
         onInput() {
             const value = this.editor.getValue();
 
@@ -91,9 +110,15 @@ export default {
                 this.$emit('input', value);
             }
         },
+
         onChange() {
             const value = this.editor.getValue();
             this.$emit('change', value);
+        },
+
+        onBlur() {
+            const value = this.editor.getValue();
+            this.$emit('blur', value);
         }
     }
 };

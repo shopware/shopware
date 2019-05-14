@@ -4,7 +4,6 @@
         {% block sw_text_editor_label %}
             <div class="sw-text-editor__label" v-if="label.length">{{ label }}</div>
         {% endblock %}
-
         {% block sw_text_editor_box %}
             <div class="sw-text-editor__box">
                 {% block sw_text_editor_box_toolbar %}
@@ -13,6 +12,7 @@
                                             :isInlineEdit="isInlineEdit"
                                             :selection="selection"
                                             :buttonConfig="buttonConfig"
+                                            :isCodeEdit="isCodeEdit"
                                             @created-el="onToolbarCreated"
                                             @destroyed-el="onToolbarDestroyed"
                                             @on-set-link="onSetLink"
@@ -21,9 +21,16 @@
                 {% endblock %}
 
                 {% block sw_text_editor_box_content %}
-                    <div class="sw-text-editor__content">
+                    <sw-code-editor v-if="isCodeEdit"
+                                    :value="value"
+                                    setFocus
+                                    @blur="emitHtmlContent"
+                                    ref="codeEditor">
+                    </sw-code-editor>
+
+                    <div class="sw-text-editor__content" v-else>
                         <div class="sw-text-editor__content-editor"
-                             ref="editor"
+                             ref="textEditor"
                              :contenteditable="true"
                              spellcheck="false"
                              @focus="onFocus"
@@ -38,7 +45,7 @@
                 {% endblock %}
 
                 {% block sw_text_editor_box_word_count %}
-                    <div v-if="!isInlineEdit" class="sw-text-editor__word_count">
+                    <div v-if="!isInlineEdit && !isCodeEdit" class="sw-text-editor__word_count">
                         <sw-container columns="1fr" justify="right">
                             <span class="sw-text-editor__text-length">{{ $tc('global.sw-text-editor.labelTextLength', textLength, { count: textLength }) }}</span>
                         </sw-container>

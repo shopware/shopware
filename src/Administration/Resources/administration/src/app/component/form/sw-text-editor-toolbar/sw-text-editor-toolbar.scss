@@ -66,6 +66,15 @@ $sw-text-editor-toolbar-item-child-shadow: rgba(120, 138, 155, 0.5);
             color: $color-shopware-blue;
         }
 
+        &.is--active {
+            color: $color-shopware-blue;
+        }
+
+        &.is--disabled {
+            color: $color-steam-cloud;
+            cursor: initial;
+        }
+
         .sw-text-editor-toolbar__item-button {
             display: flex;
             align-items: center;

@@ -30,6 +30,12 @@ export default {
         buttonConfig: {
             type: Array,
             required: true
+        },
+
+        isCodeEdit: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -159,6 +165,24 @@ export default {
             }
         },
 
+        buttonHandler(button) {
+            if (this.isCodeEdit && button.type !== 'codeSwitch') {
+                return null;
+            }
+
+            return button.children || button.type === 'link' || button.type === 'foreColor' ?
+                { click: (event) => this.onToggleMenu(event, button) } :
+                { click: () => this.handleButtonClick(button) };
+        },
+
+        isDisabled(button) {
+            if (!this.isCodeEdit) {
+                return false;
+            }
+
+            return button.type !== 'codeSwitch';
+        },
+
         handleToolbarClick(event) {
             if (!event.target.classList.contains('sw-text-editor-toolbar')) {
                 return;
@@ -249,7 +273,7 @@ export default {
             this.keepSelection();
 
             this.buttonConfig.forEach((item) => {
-                if (item === button) {
+                if (item === button || item.type === 'codeSwitch') {
                     return;
                 }
                 if (item.expanded) {
@@ -263,7 +287,9 @@ export default {
         closeExpandedMenu() {
             this.buttonConfig.forEach((item) => {
                 if (item.expanded) {
-                    item.expanded = false;
+                    if (item.type !== 'codeSwitch') {
+                        item.expanded = false;
+                    }
                 }
             });
         }

@@ -182,7 +182,8 @@ export default {
             textLength: 0,
             content: '',
             placeholderHeight: null,
-            placeholderVisible: false
+            placeholderVisible: false,
+            isCodeEdit: false
         };
     },
 
@@ -199,12 +200,20 @@ export default {
     watch: {
         value: {
             handler() {
-                if (this.value !== this.$refs.editor.innerHTML) {
+                if (this.$refs.textEditor && this.value !== this.$refs.textEditor.innerHTML) {
                     this.content = this.value;
                     this.isEmpty = this.emptyCheck(this.content);
                     this.placeholderVisible = this.isEmpty;
                 }
 
+                this.$nextTick(() => {
+                    this.setWordCount();
+                });
+            }
+        },
+
+        isCodeEdit() {
+            if (!this.isCodeEdit) {
                 this.$nextTick(() => {
                     this.setWordCount();
                 });
@@ -228,8 +237,22 @@ export default {
         createdComponent() {
             this.content = this.value;
 
+            if (!this.isInlineEdit && !this.$options.buttonConfig) {
+                this.buttonConfig.push({
+                    type: 'codeSwitch',
+                    icon: 'default-text-editor-code',
+                    expanded: this.isCodeEdit,
+                    handler: this.toggleCodeEditor
+                });
+            }
+
             document.addEventListener('mouseup', this.onSelectionChange);
             document.addEventListener('mousedown', this.onSelectionChange);
+        },
+
+        toggleCodeEditor(buttonConf) {
+            this.isCodeEdit = !this.isCodeEdit;
+            buttonConf.expanded = !buttonConf.expanded;
         },
 
         mountedComponent() {
@@ -247,6 +270,10 @@ export default {
         },
 
         onSelectionChange(event) {
+            if (this.isCodeEdit) {
+                return;
+            }
+
             const path = this.getPath(event);
 
             if (event.type === 'mousedown' && !path.includes(this.$el) && !path.includes(this.toolbar)) {
@@ -336,7 +363,7 @@ export default {
                 return;
             }
 
-            if (this.$refs.editor.innerHTML.length <= 0) {
+            if (this.$refs.textEditor && this.$refs.textEditor.innerHTML.length <= 0) {
                 this.placeholderVisible = true;
             }
 
@@ -374,18 +401,23 @@ export default {
             this.$emit('input', this.getContentValue());
         },
 
+        emitHtmlContent(value) {
+            this.content = value;
+            this.$emit('input', value);
+        },
+
         getContentValue() {
-            if (!this.$refs.editor || !this.$refs.editor.innerHTML) {
+            if (!this.$refs.textEditor || !this.$refs.textEditor.innerHTML) {
                 return null;
             }
 
-            if (!this.$refs.editor.textContent ||
-                !this.$refs.editor.textContent.length ||
-                this.$refs.editor.textContent.length <= 0) {
+            if (!this.$refs.textEditor.textContent ||
+                !this.$refs.textEditor.textContent.length ||
+                this.$refs.textEditor.textContent.length <= 0) {
                 return null;
             }
 
-            return this.$refs.editor.innerHTML;
+            return this.$refs.textEditor.innerHTML;
         },
 
         emptyCheck(value) {
@@ -393,7 +425,9 @@ export default {
         },
 
         setWordCount() {
-            this.textLength = this.$refs.editor.innerText.length;
+            if (this.$refs.textEditor) {
+                this.textLength = this.$refs.textEditor.innerText.length;
+            }
         }
     }
 };

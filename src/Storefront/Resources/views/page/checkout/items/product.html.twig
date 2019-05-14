@@ -17,7 +17,7 @@
                                                    title="{{ lineItem.label }}">
                                                     {% block page_checkout_item_product_info_image_element %}
                                                         {% if lineItem.cover.url %}
-                                                            <img src="{{ asset(lineItem.cover.url) }}"
+                                                            <img src="{{ lineItem.cover.url }}"
                                                                  class="img-fluid cart-item-img"
                                                                  alt="{{ lineItem.cover.fileName }}">
                                                         {% else %}

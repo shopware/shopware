@@ -75,8 +75,6 @@ export default {
             default: true
         },
 
-        mediaIsHidden: false,
-
         mediaIsSystem: false
     },
 

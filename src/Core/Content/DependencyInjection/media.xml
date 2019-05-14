@@ -75,11 +75,6 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Content\Media\Subscriber\MediaWrittenSubscriber">
-            <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
         <service id="Shopware\Core\Content\Media\DataAbstractionLayer\Indexing\MediaFolderConfigIndexer">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="media_folder.repository"/>

@@ -128,8 +128,6 @@
       "labelContextMenuRename": "Rename",
       "labelContextMenuDetail": "Details",
       "labelContextMenuMove": "Move",
-      "labelContextMenuHide": "Hide",
-      "labelContextMenuUnhide": "Reveal",
       "notification": {
         "errorBlankItemName": {
           "title": "Error",
@@ -190,98 +188,6 @@
             "mediaAndFolder": "Error deleting files and folders."
           }
         }
-      }
-    },
-    "sw-media-modal-hide": {
-      "titleModal": {
-          "media": "Hide media files",
-          "folder": "Hide folders",
-          "mediaAndFolder": "Hide folders and media files"
-      },
-      "hideMessage": {
-          "media": "Are you sure you want to hide \"{name}\"? | Are you sure you want to hide {count} media items?",
-          "folder": "Are you sure you want to hide the folder \"{name}\"?<br>All subfolders and contained media items will be hidden too. | Are you sure you want to hide {count} folders?<br>All subfolders and contained media items will be hidden too.",
-          "mediaAndFolder": "Are you sure you want to hide {mediaCount} media items and {folderCount} folders?<br>All subfolders and contained media items will be hidden too."
-      },
-      "buttonHide": "Hide",
-      "buttonCancel": "Cancel",
-      "notification": {
-          "successSingle": {
-              "title": "Success",
-              "message": {
-                  "media": "File \"{name}\" has been hidden successfully.",
-                  "folder": "Folder \"{name}\" has been hidden successfully."
-              }
-          },
-          "errorSingle": {
-              "title": "Error",
-              "message": {
-                  "media": "Error hiding file \"{name}\".",
-                  "folder": "Error hiding folder \"{name}\"."
-              }
-          },
-          "successOverall": {
-              "title": "Success",
-              "message": {
-                  "media": "No file has been successfully hidden. | A file has been successfully hidden. | {count} / {total} files have been successfully hidden.",
-                  "folder": "No folder has been successfully hidden. | A folder has been successfully hidden. | {count} / {total} folders have been successfully hidden.",
-                  "mediaAndFolder": "No file or folder has been successfully hidden. | A file or a folder has been successfully hidden. | {count} / {total} files or folders have been successfully hidden."
-              }
-          },
-          "errorOverall": {
-              "title": "Error",
-              "message": {
-                  "media": "Error hiding files.",
-                  "folder": "Error hiding folders.",
-                  "mediaAndFolder": "Error hiding files and folders."
-              }
-          }
-      }
-    },
-    "sw-media-modal-unhide": {
-      "titleModal": {
-          "media": "Reveal media files",
-          "folder": "Reveal folders",
-          "mediaAndFolder": "Reveal folders and media files"
-      },
-      "unhideMessage": {
-          "media": "Are you sure you want to reveal \"{name}\"? | Are you sure you want to reveal {count} media items?",
-          "folder": "Are you sure you want to reveal the folder \"{name}\"?<br>All subfolders and contained media items will be revealed too. | Are you sure you want to reveal {count} folders?<br>All subfolders and contained media items will be revealed too.",
-          "mediaAndFolder": "Are you sure you want to reveal {mediaCount} media items and {folderCount} folders?<br>All subfolders and contained media items will be revealed too."
-      },
-      "buttonUnhide": "Reveal",
-      "buttonCancel": "Cancel",
-      "notification": {
-          "successSingle": {
-              "title": "Success",
-              "message": {
-                  "media": "File \"{name}\" has been revealed successfully.",
-                  "folder": "Folder \"{name}\" has been revealed successfully."
-              }
-          },
-          "errorSingle": {
-              "title": "Error",
-              "message": {
-                  "media": "Error revealing file \"{name}\".",
-                  "folder": "Error revealing folder \"{name}\"."
-              }
-          },
-          "successOverall": {
-              "title": "Success",
-              "message": {
-                  "media": "No file has been successfully revealed. | A file has been successfully revealed. | {count} / {total} files have been successfully revealed.",
-                  "folder": "No folder has been successfully revealed. | A folder has been successfully revealed. | {count} / {total} folders have been successfully revealed.",
-                  "mediaAndFolder": "No file or folder has been successfully revealed. | A file or a folder has been successfully revealed. | {count} / {total} files or folders have been successfully revealed."
-              }
-          },
-          "errorOverall": {
-              "title": "Error",
-              "message": {
-                  "media": "Error revealing files.",
-                  "folder": "Error revealing folders.",
-                  "mediaAndFolder": "Error revealing files and folders."
-              }
-          }
       }
     },
     "sw-media-modal-folder-dissolve": {

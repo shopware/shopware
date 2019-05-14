@@ -87,6 +87,7 @@ return [
                 'mediaFolderId' => null,
                 'customFields' => null,
                 'translated' => [],
+                'system' => false,
             ],
             'links' => [
                 'self' => '/api/media/548faa1f7846436c85944f4aea792d96',
@@ -201,6 +202,12 @@ return [
                     'data' => [],
                     'links' => [
                         'related' => '/api/media/548faa1f7846436c85944f4aea792d96/cms-pages',
+                    ],
+                ],
+                'documents' => [
+                    'data' => [],
+                    'links' => [
+                        'related' => '/api/media/548faa1f7846436c85944f4aea792d96/documents',
                     ],
                 ],
             ],

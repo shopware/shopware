@@ -26,7 +26,6 @@ class Migration1536232850Media extends MigrationStep
               `file_name`       LONGTEXT        COLLATE utf8mb4_unicode_ci  NULL,
               `media_type`      LONGBLOB                                    NULL,
               `thumbnails_ro`   LONGBLOB                                    NULL,
-              `hidden`          TINYINT(1)                                  NOT NULL DEFAULT 0,
               `system`          TINYINT(1)                                  NOT NULL DEFAULT 0,
               `uploaded_at`     DATETIME(3)                                 NULL,
               `created_at`      DATETIME(3)                                 NOT NULL,

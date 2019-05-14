@@ -84,6 +84,7 @@ class JsonApiEncoderTest extends TestCase
                     'customFields' => null,
                     'hasFile' => false,
                     'translated' => [],
+                    'system' => false,
                 ],
                 'links' => [
                     'self' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe',
@@ -195,6 +196,12 @@ class JsonApiEncoderTest extends TestCase
                         'data' => [],
                         'links' => [
                             'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/cms-pages',
+                        ],
+                    ],
+                    'documents' => [
+                        'data' => [],
+                        'links' => [
+                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/documents',
                         ],
                     ],
                 ],

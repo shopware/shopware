@@ -146,11 +146,6 @@ class MediaEntity extends Entity
     /**
      * @var bool
      */
-    protected $hidden = false;
-
-    /**
-     * @var bool
-     */
     protected $system = false;
 
     /**
@@ -578,16 +573,6 @@ class MediaEntity extends Entity
     public function setCmsPages(CmsBlockCollection $cmsPages): void
     {
         $this->cmsPages = $cmsPages;
-    }
-
-    public function isHidden(): bool
-    {
-        return $this->hidden;
-    }
-
-    public function setHidden(bool $hidden): void
-    {
-        $this->hidden = $hidden;
     }
 
     public function isSystem(): bool

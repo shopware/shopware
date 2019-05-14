@@ -8,9 +8,7 @@ Mixin.register('media-sidebar-modal-mixin', {
             showModalDelete: false,
             showFolderSettings: false,
             showFolderDissolve: false,
-            showModalMove: false,
-            showModalHide: false,
-            showModalUnhide: false
+            showModalMove: false
         };
     },
 
@@ -29,22 +27,6 @@ Mixin.register('media-sidebar-modal-mixin', {
 
         closeModalDelete() {
             this.showModalDelete = false;
-        },
-
-        openModalHide() {
-            this.showModalHide = true;
-        },
-
-        closeModalHide() {
-            this.showModalHide = false;
-        },
-
-        openModalUnhide() {
-            this.showModalUnhide = true;
-        },
-
-        closeModalUnhide() {
-            this.showModalUnhide = false;
         },
 
         openFolderSettings() {

@@ -9,7 +9,6 @@
                 <sw-media-preview
                     :source="item.id"
                     @media-preview-play="emitPlayEvent($event, item)"
-                    :mediaIsHidden="item.hidden"
                     :mediaIsSystem="item.system">
                 </sw-media-preview>
             </template>
@@ -84,17 +83,6 @@
                             </sw-context-menu-item>
                         {% endblock %}
 
-                        {% block sw_media_media_item_context_item_hide %}
-                        <sw-context-menu-item @click="openModalHide">
-                            {{ $tc('global.sw-media-media-item.labelContextMenuHide') }}
-                        </sw-context-menu-item>
-                        {% endblock %}
-
-                        {% block sw_media_media_item_context_item_unhide %}
-                        <sw-context-menu-item @click="openModalUnhide">
-                            {{ $tc('global.sw-media-media-item.labelContextMenuUnhide') }}
-                        </sw-context-menu-item>
-                        {% endblock %}
                     </div>
                 {% endblock %}
             </template>
@@ -125,24 +113,6 @@
                     @media-move-modal-close="closeModalMove"
                     @media-move-modal-items-move="onMediaItemMoved">
                 </sw-media-modal-move>
-            {% endblock %}
-
-            {% block sw_media_media_item_hide_modal %}
-            <sw-media-modal-hide
-                v-if="showModalHide"
-                :itemsToHide="[item]"
-                @media-hide-modal-items-hide="emitItemHidden"
-                @media-hide-modal-close="closeModalHide">
-            </sw-media-modal-hide>
-            {% endblock %}
-
-            {% block sw_media_media_item_unhide_modal %}
-            <sw-media-modal-unhide
-                v-if="showModalUnhide"
-                :itemsToUnhide="[item]"
-                @media-unhide-modal-items-unhide="emitItemUnhidden"
-                @media-unhide-modal-close="closeModalUnhide">
-            </sw-media-modal-unhide>
             {% endblock %}
         </template>
     </sw-media-base-item>

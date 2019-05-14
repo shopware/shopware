@@ -37,9 +37,7 @@ export default {
         return {
             showModalReplace: false,
             showModalDelete: false,
-            showModalMove: false,
-            showModalHide: false,
-            showModalUnhide: false
+            showModalMove: false
         };
     },
 
@@ -142,36 +140,6 @@ export default {
             this.closeModalDelete();
             deletePromise.then((ids) => {
                 this.$emit('media-item-delete', ids.mediaIds);
-            });
-        },
-
-        openModalHide() {
-            this.showModalHide = true;
-        },
-
-        closeModalHide() {
-            this.showModalHide = false;
-        },
-
-        emitItemHidden(hidePromise) {
-            this.closeModalHide();
-            hidePromise.then((ids) => {
-                this.$emit('media-item-hide', ids.mediaIds);
-            });
-        },
-
-        openModalUnhide() {
-            this.showModalUnhide = true;
-        },
-
-        closeModalUnhide() {
-            this.showModalUnhide = false;
-        },
-
-        emitItemUnhidden(unhidePromise) {
-            this.closeModalUnhide();
-            unhidePromise.then((ids) => {
-                this.$emit('media-item-unhide', ids.mediaIds);
             });
         },
 

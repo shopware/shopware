@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Media\File;
 
-use League\Flysystem\AdapterInterface;
 use League\Flysystem\FileExistsException;
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
@@ -175,34 +174,6 @@ class FileSaver
         $this->doRenameMedia($currentMedia, $destination, $context);
     }
 
-    public function hideMediaFile(string $mediaId, Context $context): void
-    {
-        $currentMedia = $this->findMediaById($mediaId, $context);
-
-        if (!$currentMedia->hasFile()) {
-            return;
-        }
-
-        $this->getFileSystem($currentMedia)->setVisibility(
-            $this->urlGenerator->getRelativeMediaUrl($currentMedia),
-            AdapterInterface::VISIBILITY_PRIVATE
-        );
-    }
-
-    public function revealMediaFile(string $mediaId, Context $context): void
-    {
-        $currentMedia = $this->findMediaById($mediaId, $context);
-
-        if (!$currentMedia->hasFile()) {
-            return;
-        }
-
-        $this->getFileSystem($currentMedia)->setVisibility(
-            $this->urlGenerator->getRelativeMediaUrl($currentMedia),
-            AdapterInterface::VISIBILITY_PUBLIC
-        );
-    }
-
     /**
      * @throws CouldNotRenameFileException
      * @throws FileExistsException
@@ -295,12 +266,8 @@ class FileSaver
     {
         $stream = fopen($mediaFile->getFileName(), 'rb');
         $path = $this->urlGenerator->getRelativeMediaUrl($media);
-        $config = [];
-        if ($media->isHidden() === true) {
-            $config = ['visibility' => AdapterInterface::VISIBILITY_PRIVATE];
-        }
         try {
-            $this->getFileSystem($media)->putStream($path, $stream, $config);
+            $this->getFileSystem($media)->putStream($path, $stream);
         } finally {
             // The Google Cloud Storage filesystem closes the stream even though it should not. To prevent a fatal
             // error, we therefore need to check whether the stream has been closed yet.

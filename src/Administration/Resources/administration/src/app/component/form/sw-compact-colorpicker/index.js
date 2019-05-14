@@ -29,6 +29,10 @@ export default {
 
     methods: {
         mountedComponent() {
+            if (this.disabled) {
+                return;
+            }
+
             this.colorPicker = new Picker({
                 parent: this.$el,
                 onClose: this.onClose,

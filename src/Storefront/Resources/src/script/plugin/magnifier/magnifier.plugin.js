@@ -77,7 +77,14 @@ export default class MagnifierPlugin extends Plugin {
      */
     _registerEvents() {
         Iterator.iterate(this._imageContainers, imageContainer => {
-            const image = DomAccess.querySelector(imageContainer, this.options.imageSelector);
+            let image = null;
+
+            try {
+                image = DomAccess.querySelector(imageContainer, this.options.imageSelector);
+            } catch (e) {
+                return;
+            }
+
             image.addEventListener('mousemove', (event) => this._onMouseMove(event, imageContainer, image), false);
             imageContainer.addEventListener('mouseout', (event) => this._stopMagnify(event), false);
         });

@@ -13,7 +13,7 @@
                :name="identification"
                :id="identification"
                :placeholder="placeholder">
-            <sw-icon v-if="!required && currentValue"
+            <sw-icon v-if="!required && value"
                      class="sw-field--datepicker__button-reset-value"
                      name="small-default-x-line-small"
                      @click="unsetValue"

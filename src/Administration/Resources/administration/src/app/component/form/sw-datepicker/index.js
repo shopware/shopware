@@ -79,7 +79,6 @@ export default {
     data() {
         return {
             flatpickrInstance: null,
-            currentValue: null,
             isDatepickerOpen: false,
             defaultConfig: {}
         };
@@ -101,6 +100,7 @@ export default {
 
             return this.flatpickrInstance.config;
         },
+
         placeholder() {
             if (this.flatpickrInstance === null) {
                 return this.defaultConfig.altFormat;
@@ -191,12 +191,8 @@ export default {
          *
          * @param newValue
          */
-        value: {
-            handler(value) {
-                if (value !== this.currentValue) {
-                    this.setDatepickerValue(value);
-                }
-            }
+        value(newValue) {
+            this.setDatepickerValue(newValue);
         }
     },
 
@@ -211,12 +207,10 @@ export default {
          * @param value
          */
         setDatepickerValue(value) {
-            this.currentValue = value;
-
             // Make sure we have a flatpickr instance
             if (this.flatpickrInstance !== null) {
                 // Notify flatpickr instance that there is a change in value
-                this.flatpickrInstance.setDate(this.currentValue, false);
+                this.flatpickrInstance.setDate(value, false);
             }
         },
 
@@ -258,8 +252,6 @@ export default {
             }
 
             const mergedConfig = this.getMergedConfig(this.config);
-            // Don't pass the original reference to the config object. Use a copy instead.
-            // const safeConfig = Object.assign({}, mergedConfig);
 
             if (mergedConfig.enableTime !== undefined
                     && mergedConfig.enableTime !== this.currentFlatpickrConfig.enableTime) {
@@ -316,8 +308,7 @@ export default {
             });
 
             this.flatpickrInstance.config.onChange.push((...args) => {
-                this.currentValue = args[1];
-                this.emitValue(this.currentValue);
+                this.emitValue(args[1]);
             });
 
             // Set the right datepicker value from the property.
@@ -405,7 +396,8 @@ export default {
                 locale: 'en',
                 dateFormat,
                 altInput: true,
-                altFormat
+                altFormat,
+                allowInput: true
             };
         }
 

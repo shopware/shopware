@@ -87,6 +87,9 @@ Component.register('sw-product-stream-modal-preview', {
             }
         },
         handleFilter(filter) {
+            if (filter.isDeleted) {
+                return null;
+            }
             if (filter.type === 'multi' || filter.type === 'not') {
                 return this.buildMultiFilter(filter.operator, filter.queries, filter.type);
             }

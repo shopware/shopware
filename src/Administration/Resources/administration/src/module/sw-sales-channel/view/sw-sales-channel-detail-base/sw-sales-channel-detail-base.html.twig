@@ -204,7 +204,7 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_domains %}
-            <sw-card v-if="salesChannel" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.titleDomains')">
+            <sw-card v-if="salesChannel && isStoreFront" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.titleDomains')">
 
                 {% block sw_sales_channel_detail_base_domains_container %}
                     <div v-for="(domain, index) in salesChannel.domains"

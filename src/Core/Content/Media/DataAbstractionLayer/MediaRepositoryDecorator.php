@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregatorResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -98,6 +99,8 @@ class MediaRepositoryDecorator implements EntityRepositoryInterface
 
     public function searchIds(Criteria $criteria, Context $context): IdSearchResult
     {
+        $criteria->addFilter(new EqualsFilter('system', false));
+
         return $this->innerRepo->searchIds($criteria, $context);
     }
 
@@ -108,6 +111,8 @@ class MediaRepositoryDecorator implements EntityRepositoryInterface
 
     public function search(Criteria $criteria, Context $context): EntitySearchResult
     {
+        $criteria->addFilter(new EqualsFilter('system', false));
+
         return $this->innerRepo->search($criteria, $context);
     }
 

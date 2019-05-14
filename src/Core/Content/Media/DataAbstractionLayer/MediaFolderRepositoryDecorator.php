@@ -55,6 +55,8 @@ class MediaFolderRepositoryDecorator implements EntityRepositoryInterface
 
     public function searchIds(Criteria $criteria, Context $context): IdSearchResult
     {
+        $criteria->addFilter(new EqualsFilter('media_folder.configuration.system', false));
+
         return $this->innerRepo->searchIds($criteria, $context);
     }
 
@@ -65,6 +67,8 @@ class MediaFolderRepositoryDecorator implements EntityRepositoryInterface
 
     public function search(Criteria $criteria, Context $context): EntitySearchResult
     {
+        $criteria->addFilter(new EqualsFilter('media_folder.configuration.system', false));
+
         return $this->innerRepo->search($criteria, $context);
     }
 

@@ -21,6 +21,11 @@ class MailTemplateTypeEntity extends Entity
     protected $technicalName;
 
     /**
+     * @var array|null
+     */
+    protected $availableEntities;
+
+    /**
      * @var MailTemplateTypeTranslationCollection|null
      */
     protected $translations;
@@ -68,6 +73,16 @@ class MailTemplateTypeEntity extends Entity
     public function getTranslations(): ?MailTemplateTypeTranslationCollection
     {
         return $this->translations;
+    }
+
+    public function getAvailableEntities(): ?array
+    {
+        return $this->availableEntities;
+    }
+
+    public function setAvailableEntities(?array $availableEntities): void
+    {
+        $this->availableEntities = $availableEntities;
     }
 
     public function setTranslations(?MailTemplateTypeTranslationCollection $translations): void

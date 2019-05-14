@@ -10,6 +10,7 @@
         }
     ],
     "require": {
+        "ext-json": "*",
         "shopware/platform": "dev-master"
     },
     "extra": {

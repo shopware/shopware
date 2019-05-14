@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\Plugin\Requirement;
 
 use Composer\Composer;
 use Composer\Package\Link;
+use Composer\Package\PackageInterface;
+use Composer\Repository\PlatformRepository;
 use Composer\Semver\Constraint\Constraint;
 use Composer\Semver\VersionParser;
 use Shopware\Core\Framework\Context;
@@ -104,6 +106,11 @@ class RequirementsValidator
         Composer $pluginComposer
     ): array {
         $packages = $pluginComposer->getRepositoryManager()->getLocalRepository()->getPackages();
+
+        // Get PHP extension "packages"
+        /** @var PackageInterface[] $packages */
+        $packages = array_merge($packages, (new PlatformRepository())->getPackages());
+
         foreach ($packages as $package) {
             $pluginRequirements = $this->checkRequirement(
                 $pluginRequirements,

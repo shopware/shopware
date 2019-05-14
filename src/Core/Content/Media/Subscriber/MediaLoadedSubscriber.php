@@ -47,7 +47,7 @@ class MediaLoadedSubscriber implements EventSubscriberInterface
     {
         /** @var MediaEntity $media */
         foreach ($event->getEntities() as $media) {
-            if (!$media->hasFile()) {
+            if (!$media->hasFile() || $media->isPrivate()) {
                 continue;
             }
 
@@ -102,6 +102,9 @@ class MediaLoadedSubscriber implements EventSubscriberInterface
 
     private function addThumbnailUrl(MediaThumbnailEntity $thumbnail, MediaEntity $media): void
     {
+        if ($media->isPrivate()) {
+            return;
+        }
         $thumbnail->setUrl(
             $this->urlGenerator->getAbsoluteThumbnailUrl(
                 $media,

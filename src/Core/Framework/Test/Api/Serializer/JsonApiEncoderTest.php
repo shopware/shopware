@@ -84,7 +84,7 @@ class JsonApiEncoderTest extends TestCase
                     'customFields' => null,
                     'hasFile' => false,
                     'translated' => [],
-                    'system' => false,
+                    'private' => false,
                 ],
                 'links' => [
                     'self' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe',

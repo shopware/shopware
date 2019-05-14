@@ -52,9 +52,9 @@ Component.register('sw-media-quickinfo-multiple', {
             });
         },
 
-        hasSystem() {
+        isPrivate() {
             return this.items.some((item) => {
-                return item.system === true;
+                return item.private === true;
             });
         }
     },

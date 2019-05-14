@@ -75,7 +75,7 @@ export default {
             default: true
         },
 
-        mediaIsSystem: false
+        mediaIsPrivate: false
     },
 
     data() {

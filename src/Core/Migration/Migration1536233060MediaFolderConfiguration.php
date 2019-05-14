@@ -21,7 +21,7 @@ class Migration1536233060MediaFolderConfiguration extends MigrationStep
               `thumbnail_quality` INT(11) DEFAULT 80,
               `media_thumbnail_sizes_ro` LONGBLOB NULL,
               `keep_aspect_ratio`  TINYINT(1) DEFAULT 1,
-              `system`  TINYINT(1) DEFAULT 0,
+              `private`  TINYINT(1) DEFAULT 0,
               `custom_fields` JSON NULL,
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,

@@ -87,7 +87,7 @@ return [
                 'mediaFolderId' => null,
                 'customFields' => null,
                 'translated' => [],
-                'system' => false,
+                'private' => false,
             ],
             'links' => [
                 'self' => '/api/media/548faa1f7846436c85944f4aea792d96',

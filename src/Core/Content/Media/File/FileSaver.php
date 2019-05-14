@@ -279,7 +279,7 @@ class FileSaver
 
     private function getFileSystem(MediaEntity $media): FilesystemInterface
     {
-        if ($media->isSystem()) {
+        if ($media->isPrivate()) {
             return $this->filesystemPrivate;
         }
 

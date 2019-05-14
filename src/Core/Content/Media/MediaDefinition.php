@@ -98,7 +98,7 @@ class MediaDefinition extends EntityDefinition
             (new OneToManyAssociationField('thumbnails', MediaThumbnailDefinition::class, 'media_id'))->addFlags(new CascadeDelete()),
             (new BlobField('thumbnails_ro', 'thumbnailsRo'))->addFlags(new Computed(), new Internal()),
             (new BoolField('has_file', 'hasFile'))->addFlags(new Deferred()),
-            new BoolField('system', 'system'),
+            new BoolField('private', 'private'),
             new ManyToOneAssociationField('mediaFolder', 'media_folder_id', MediaFolderDefinition::class, 'id', false),
             new OneToManyAssociationField('propertyGroupOptions', PropertyGroupOptionDefinition::class, 'media_id'),
             new ManyToManyAssociationField('tags', TagDefinition::class, MediaTagDefinition::class, 'media_id', 'tag_id'),

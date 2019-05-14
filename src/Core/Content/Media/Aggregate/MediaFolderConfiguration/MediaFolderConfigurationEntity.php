@@ -34,7 +34,7 @@ class MediaFolderConfigurationEntity extends Entity
     /**
      * @var bool
      */
-    protected $system;
+    protected $private;
 
     /**
      * @var MediaThumbnailSizeCollection|null
@@ -101,14 +101,14 @@ class MediaFolderConfigurationEntity extends Entity
         $this->thumbnailQuality = $thumbnailQuality;
     }
 
-    public function isSystem(): bool
+    public function isPrivate(): bool
     {
-        return $this->system;
+        return $this->private;
     }
 
-    public function setSystem(bool $system): void
+    public function setPrivate(bool $private): void
     {
-        $this->system = $system;
+        $this->private = $private;
     }
 
     public function getCustomFields(): ?array

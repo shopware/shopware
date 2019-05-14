@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregatorResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 
 class MediaFolderRepositoryDecorator implements EntityRepositoryInterface
@@ -55,7 +56,12 @@ class MediaFolderRepositoryDecorator implements EntityRepositoryInterface
 
     public function searchIds(Criteria $criteria, Context $context): IdSearchResult
     {
-        $criteria->addFilter(new EqualsFilter('media_folder.configuration.system', false));
+        $criteria->addFilter(
+            new MultiFilter('OR', [
+                new EqualsFilter('media_folder.configuration.private', false),
+                new EqualsFilter('media_folder.configuration.private', null),
+            ])
+        );
 
         return $this->innerRepo->searchIds($criteria, $context);
     }
@@ -67,7 +73,12 @@ class MediaFolderRepositoryDecorator implements EntityRepositoryInterface
 
     public function search(Criteria $criteria, Context $context): EntitySearchResult
     {
-        $criteria->addFilter(new EqualsFilter('media_folder.configuration.system', false));
+        $criteria->addFilter(
+            new MultiFilter('OR', [
+                new EqualsFilter('media_folder.configuration.private', false),
+                new EqualsFilter('media_folder.configuration.private', null),
+            ])
+        );
 
         return $this->innerRepo->search($criteria, $context);
     }

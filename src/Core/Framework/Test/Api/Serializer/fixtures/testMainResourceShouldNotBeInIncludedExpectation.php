@@ -87,7 +87,7 @@ return [
                 'customFields' => null,
                 'hasFile' => false,
                 'translated' => [],
-                'system' => false,
+                'private' => false,
             ],
             'links' => [
                 'self' => '/api/media/3e352be2d85846dd97529c0f6b544870',

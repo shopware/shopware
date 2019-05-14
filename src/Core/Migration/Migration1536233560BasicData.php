@@ -955,17 +955,17 @@ class Migration1536233560BasicData extends MigrationStep
             $configurationId = Uuid::randomBytes();
             $folderId = Uuid::randomBytes();
             $folderName = $this->getMediaFolderName($entity);
-            $system = 0;
+            $private = 0;
             if ($entity === 'document') {
-                $system = 1;
+                $private = 1;
             }
             $connection->executeUpdate('
-                INSERT INTO `media_folder_configuration` (`id`, `thumbnail_quality`, `create_thumbnails`, `system`, created_at)
-                VALUES (:id, 80, 1, :system, :createdAt)
+                INSERT INTO `media_folder_configuration` (`id`, `thumbnail_quality`, `create_thumbnails`, `private`, created_at)
+                VALUES (:id, 80, 1, :private, :createdAt)
             ', [
                 'id' => $configurationId,
                 'createdAt' => date(Defaults::STORAGE_DATE_FORMAT),
-                'system' => $system,
+                'private' => $private,
             ]);
 
             $connection->executeUpdate('

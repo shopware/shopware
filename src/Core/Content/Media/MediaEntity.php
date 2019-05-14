@@ -146,7 +146,7 @@ class MediaEntity extends Entity
     /**
      * @var bool
      */
-    protected $system = false;
+    protected $private = false;
 
     /**
      * @var PropertyGroupOptionCollection|null
@@ -575,14 +575,14 @@ class MediaEntity extends Entity
         $this->cmsPages = $cmsPages;
     }
 
-    public function isSystem(): bool
+    public function isPrivate(): bool
     {
-        return $this->system;
+        return $this->private;
     }
 
-    public function setSystem(bool $system): void
+    public function setPrivate(bool $private): void
     {
-        $this->system = $system;
+        $this->private = $private;
     }
 
     public function getDocuments(): ?DocumentCollection

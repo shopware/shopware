@@ -8,7 +8,7 @@ module.exports = {
         browser
             .waitForElementVisible('.sw-dashboard-index__content')
             .waitForElementNotPresent('.sw-admin-menu__user-actions-toggle .sw-loader')
-            .clickUserActionMenu('admin');
+            .openUserActionMenu();
         page.logout('admin');
         browser.clearValue('input[name=sw-field--username]');
     },
@@ -43,7 +43,7 @@ module.exports = {
     },
     'attempt to log in with correct password leaving user name field blank': (browser) => {
         const page = loginPage(browser);
-        page.login(null,'shopware');
+        page.login(null, 'shopware');
         page.verifyFailedLogin('Incorrect user credentials.');
     },
     'attempt to log in using invalid code credentials': (browser) => {

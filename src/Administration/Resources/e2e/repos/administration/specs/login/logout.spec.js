@@ -15,7 +15,7 @@ module.exports = {
 
         browser
             .waitForElementNotPresent('.sw-admin-menu__user-actions-toggle .sw-loader')
-            .clickUserActionMenu('admin');
+            .openUserActionMenu();
         page.logout('admin');
     },
     'verify logout': (browser) => {

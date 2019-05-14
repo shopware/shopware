@@ -59,7 +59,7 @@ module.exports = {
             .assert.containsText(`${page.elements.cartItem}-label`, currentProduct.attributes.name)
             .assert.containsText(`${page.elements.cartItem}-unit-price`, currentProduct.attributes.price.gross)
             .assert.containsText('.checkout-summary-value', currentProduct.attributes.price.gross)
-            .click(`.checkout-sidebar ${page.elements.primaryButton}`);
+            .click(`.checkout-aside-action ${page.elements.primaryButton}`);
     },
     'log in customer': (browser) => {
         const page = checkoutPage(browser);
@@ -85,15 +85,17 @@ module.exports = {
             .assert.containsText(`${page.elements.cartItem}-label`, currentProduct.attributes.name)
             .assert.containsText(`${page.elements.cartItem}-total-price`, currentProduct.attributes.price.gross)
             .assert.containsText('.cart-item-total-price', currentProduct.attributes.price.gross)
-            .assert.containsText('.checkout-summary-value.checkout-summary-total', currentProduct.attributes.price.gross)
-            .click('#confirmFormSubmit');
+            .assert.containsText('.checkout-summary-value.checkout-summary-total', currentProduct.attributes.price.gross);
     },
     'finish order': (browser) => {
         browser
-            .getLocationInView('.confirm-terms label')
-            .moveToElement('.confirm-terms label', 1, 1).mouseButtonClick('left')
+            .waitForElementVisible('.custom-checkbox label')
+            .moveToElement('.custom-checkbox label', 1, 1)
+            .mouseButtonClick('left')
             .getLocationInView('#confirmFormSubmit')
+            .waitForElementVisible('#confirmFormSubmit')
             .click('#confirmFormSubmit')
+            .waitForElementVisible('.finish-header')
             .expect.element('.finish-header').to.have.text.that.contains('Thank you for your order with Shopware Storefront!');
     },
     after: (browser) => {

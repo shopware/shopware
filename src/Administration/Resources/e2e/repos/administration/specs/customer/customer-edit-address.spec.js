@@ -49,13 +49,14 @@ module.exports = {
 
         browser
             .waitForElementVisible('.icon--default-shopping-cart')
+            .waitForElementVisible(`${page.elements.dataGridRow}--0`)
             .expect.element('#defaultShippingAddress-0').to.be.selected;
         browser.expect.element('#defaultBillingAddress-0').to.be.selected;
 
         browser
             .click(page.elements.contextMenuButton)
             .waitForElementVisible(page.elements.contextMenu)
-            .waitForElementVisible(`${page.elements.contextMenu}-item--danger`);
+            .waitForElementVisible(`${page.elements.contextMenu}-item--danger.is--disabled`);
     },
     'add second address': (browser) => {
         const page = customerPage(browser);
@@ -80,49 +81,49 @@ module.exports = {
     'save customer': (browser) => {
         browser
             .click('.sw-customer-detail__save-action')
-            .waitForElementVisible('.icon--small-default-checkmark-line-medium');
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium')
+            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium');
     },
     'remove address': (browser) => {
         const page = customerPage(browser);
 
         browser
-            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .click('.sw-customer-detail__open-edit-mode-action')
             .waitForElementVisible('.sw-customer-detail__save-action');
 
         browser
-            .waitForElementVisible(`${page.elements.dataGridHeader}`)
-            .click(`${page.elements.dataGridHeader} ${page.elements.dataGridColumn}:nth-of-type(4)`)
-            .waitForElementPresent(`${page.elements.dataGridRow}--0 #defaultShippingAddress-0:checked`)
-            .click(`${page.elements.dataGridRow}--1 #defaultShippingAddress-0`)
-            .click(`${page.elements.dataGridRow}--1 #defaultBillingAddress-0`)
-            .expect.element(`${page.elements.dataGridRow}--0 #defaultShippingAddress-0`).to.be.not.selected;
-        browser.expect.element(`${page.elements.dataGridRow}--0 #defaultBillingAddress-0`).to.be.not.selected;
+            .waitForElementPresent(`${page.elements.dataGridRow}--0`)
+            .waitForElementPresent(`${page.elements.dataGridRow}--1`)
+            .click(`${page.elements.dataGridRow}--0 #defaultShippingAddress-0`)
+            .click(`${page.elements.dataGridRow}--0 #defaultBillingAddress-0`);
+
+        browser.expect.element(`${page.elements.dataGridRow}--1 #defaultShippingAddress-0`).to.be.not.selected;
+        browser.expect.element(`${page.elements.dataGridRow}--1 #defaultBillingAddress-0`).to.be.not.selected;
 
         browser
             .clickContextMenuItem(page.elements.contextMenuButton, {
                 menuActionSelector: `${page.elements.contextMenu}-item--danger`,
-                scope: `${page.elements.dataGridRow}--0`
+                scope: `${page.elements.dataGridRow}--1`
             }).expect.element('.sw-customer-detail-addresses__confirm-delete-text').to.have.text.that.equals('Are you sure you want to delete this address?');
 
         browser
-            .assert.containsText('.sw-address__full-name', 'Mr. Harry Potter')
             .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)
             .waitForElementNotPresent(page.elements.modal)
             .waitForElementNotPresent(`${page.elements.dataGridRow}--1`);
 
         browser
             .click('.sw-customer-detail__save-action')
-            .waitForElementVisible('.icon--small-default-checkmark-line-medium');
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium')
+            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium');
     },
     'verify changed customer data': (browser) => {
         const page = customerPage(browser);
 
         browser
-            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .click('.sw-customer-detail__tab-general')
             .waitForElementVisible(page.elements.customerMetaData)
             .assert.containsText(`${page.elements.customerMetaData}-customer-name`, 'Mr. Cran Berry')
+            .assert.containsText('.sw-address__full-name', 'Mr. Harry Potter')
             .assert.containsText('.sw-customer-base__label-is-active', 'Inactive');
     }
 };

@@ -11,9 +11,13 @@
                ref="flatpickrInput"
                :name="identification"
                :id="identification"
-               :placeholder="currentFlatpickrConfig.dateFormat"
-               v-model="inputValue"
-               @input="onInput">
+               :placeholder="placeholder">
+            <sw-icon v-if="!required && currentValue"
+                     class="sw-field--datepicker__indicator--button"
+                     name="small-default-x-line-small"
+                     @click="unsetValue"
+                     small>
+            </sw-icon>
     </template>
 
     <template #sw-contextual-field-suffix>

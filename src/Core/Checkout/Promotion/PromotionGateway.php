@@ -51,7 +51,7 @@ class PromotionGateway implements PromotionGatewayInterface
         $criteria->addAssociation('personaCustomers');
         $criteria->addAssociation('cartRules');
         $criteria->addAssociation('orderRules');
-        $criteria->addAssociation('discounts');
+        $criteria->addAssociationPath('discounts.discountRules');
 
         /* @var EntityCollection $result */
         $result = $this->promotionRepository->search($criteria, $context->getContext())->getEntities();
@@ -86,7 +86,7 @@ class PromotionGateway implements PromotionGatewayInterface
         $criteria->addAssociation('personaCustomers');
         $criteria->addAssociation('cartRules');
         $criteria->addAssociation('orderRules');
-        $criteria->addAssociation('discounts');
+        $criteria->addAssociationPath('discounts.discountRules');
 
         /* @var EntityCollection $result */
         $result = $this->promotionRepository->search($criteria, $context->getContext())->getEntities();

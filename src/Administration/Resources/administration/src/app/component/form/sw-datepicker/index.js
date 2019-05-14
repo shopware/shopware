@@ -372,29 +372,27 @@ export default {
         },
 
         emitValue(value) {
-            let emitValue = value;
-
             this.resetFormError();
 
             // Prevent emitting an empty date, to reset a date, null should be emitted
-            if (emitValue === '') {
-                emitValue = null;
+            if (value === '') {
+                value = null;
             }
 
             // Prevent emit if value is already up to date
-            if (emitValue === this.value) {
+            if (value === this.value) {
                 return;
             }
 
-            this.$emit('input', emitValue);
+            this.$emit('input', value);
         },
 
         createConfig() {
-            let dateFormat = 'Y-m-dTH:i:S';
+            let dateFormat = 'Y-m-dTH:i:S+00:00';
             let altFormat = 'Y-m-d H:i';
 
             if (this.dateType === 'time') {
-                dateFormat = 'H:i:S';
+                dateFormat = 'H:i:S+00:00';
                 altFormat = 'H:i';
             }
 

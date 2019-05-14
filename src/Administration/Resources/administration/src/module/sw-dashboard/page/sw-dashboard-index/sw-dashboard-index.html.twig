@@ -30,7 +30,7 @@
                                         <sw-button class="sw-dashboard__roadmapButton" variant="primary" :link=roadmapLink target="_blank">
                                             {{ $tc("sw-dashboard.welcome.roadmapButton") }}
                                         </sw-button>
-                                        <sw-button class="sw-dashboard__issueTrackerButton" link="https://issues.shopware.com" target="_blank">
+                                        <sw-button class="sw-dashboard__issueTrackerButton" :link=issueTrackerLink target="_blank">
                                             {{ $tc("sw-dashboard.welcome.issueTrackerButton") }}
                                         </sw-button>
                                     </div>
@@ -73,7 +73,7 @@
                                 </sw-dashboard-external-link>
                                 <sw-dashboard-external-link
                                         :title="$tc('sw-dashboard.documentation.userLinkLabel')"
-                                        link="https://docs.shopware.com/en/shopware-platform-dev-en/getting-started">
+                                        :link=enduserDocumentationLink>
                                 </sw-dashboard-external-link>
                             </div>
                         </sw-card>
@@ -93,6 +93,10 @@
                                     <sw-dashboard-external-link
                                             :title="$tc('sw-dashboard.migration.sw5pluginLinkLabel')"
                                             link="https://store.shopware.com/search?sSearch=Swag226607479310">
+                                    </sw-dashboard-external-link>
+                                    <sw-dashboard-external-link
+                                            :title="$tc('sw-dashboard.migration.documentationLabel')"
+                                            :link=migrationDocumentationLink>
                                     </sw-dashboard-external-link>
 
                                     <sw-button-process

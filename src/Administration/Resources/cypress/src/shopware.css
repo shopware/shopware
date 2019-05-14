@@ -1,0 +1,85 @@
+/* Styling of general things and icons */
+
+.reporter .stats li.passed,
+.reporter .command-is-pinned > span > .command-wrapper .command-pin,
+.reporter .command-name-xhr .fa-circle.successful,
+.reporter .command-name-request .fa-circle.successful,
+.reporter .runnable.runnable-passed > .runnable-wrapper .runnable-state {
+    color: #189eff;
+}
+
+.reporter .stats li.pending {
+    color: #39546466;
+}
+
+.reporter .stats li.failed,
+.reporter .command-name-xhr .fa-circle.bad,
+.reporter .command-name-request .fa-circle.bad,
+.reporter .runnable.runnable-failed > .runnable-wrapper .runnable-state {
+    color: #E94F5F;
+}
+
+.reporter .commands-container {
+    background-color: #eef8ff;
+}
+
+/* Fonts */
+.reporter .runnable.suite > div > .runnable-wrapper .runnable-title,
+.reporter .test .runnable-content-region,
+.reporter header,
+.runner header,
+.runner header button,
+.runner .viewport-info button,
+.runner header button i,
+.reporter header button {
+    color: #142432;
+}
+
+.runner .iframes-container {
+    background-color: #eef8ff;
+}
+
+/* Styling of passed state */
+
+.reporter .runnable.test.runnable-passed > .runnable-wrapper,
+.reporter .runnable.suite.runnable-passed > div > .runnable-wrapper {
+    border-left: 10px solid #189eff;
+}
+
+.reporter .command-name-assert.command-state-passed .command-method span,
+.num-elements {
+    background-color: #189eff;
+}
+
+.reporter .command-name-assert.command-state-passed .command-message-text,
+.reporter .command-name-assert.command-state-passed .command-message-text strong {
+    color: #189eff;
+}
+
+.fa-check:before,
+.reporter .runnable.runnable-passed > .runnable-wrapper .runnable-state:before {
+    content: "\f5b5";
+    font-family: "Font Awesome 5 Brands";
+}
+
+.reporter .controls .toggle-auto-scrolling.auto-scrolling-enabled i:first-child {
+    color: #189eff66;
+}
+
+/* Failed state styling */
+
+.reporter .runnable pre:hover {
+    color: #142432;
+    background-color: #14243233;
+}
+.reporter .runnable pre {
+    color: #142432;
+    background-color: #1424321A;
+}
+
+/* Pinned styling */
+.reporter .command-is-pinned > span > .command-wrapper,
+.reporter .command-is-pinned > span > .command-wrapper:hover {
+    background-color: #189eff33;
+    border-left: 2px solid #189eff;
+}

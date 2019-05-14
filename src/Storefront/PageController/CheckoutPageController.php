@@ -22,7 +22,6 @@ use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Checkout\Promotion\Cart\Builder\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsCollector;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
-use Shopware\Core\Content\Product\Exception\ProductNumberNotFoundException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -539,7 +538,9 @@ class CheckoutPageController extends StorefrontController
         $data = $idSearchResult->getIds();
 
         if (empty($data)) {
-            throw new ProductNumberNotFoundException($number);
+            $this->addFlash('danger', $this->translator->trans('error.productNotFound', ['%number%' => $number]));
+
+            return $this->createActionResponse($request);
         }
 
         $productId = array_shift($data);

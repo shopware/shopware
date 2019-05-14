@@ -15,9 +15,12 @@
                       data-form-ajax-submit="true"
                       data-form-ajax-submit-options='{
                             "replaceSelectors": [
-                                ".js-reload-on-confirm-change"
+                                ".js-reload-on-confirm-change",
+                                ".flashbags"
                             ],
-                            "submitOnChange": true
+                            "submitOnChange": [
+                                "[name=paymentMethodId]"
+                            ]
                       }'>
                     {% block page_checkout_confirm_payment_form_redirect %}
                         <input type="hidden" name="redirectTo" value="{{ 'frontend.checkout.confirm.page' }}">

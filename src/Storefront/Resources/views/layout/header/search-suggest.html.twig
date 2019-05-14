@@ -55,7 +55,7 @@
 								<a href="{{ path('frontend.search.page') }}?search={{ page.searchTerm }}"
 								   title="{{ "header.searchAllResults"|trans }}"
 								   class="total-link">
-									{% sw_icon 'arrow-head-right' %}
+                                    {% sw_icon 'arrow-head-right' style { 'size': 'sm' } %}
 									{{ "header.searchAllResults"|trans }}
 								</a>
 							{% endblock %}

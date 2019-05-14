@@ -41,6 +41,7 @@ class NewsletterReceiverDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new StringField('email', 'email'))->addFlags(new Required()),
+            new StringField('title', 'title'),
             new StringField('first_name', 'firstName'),
             new StringField('last_name', 'lastName'),
             new StringField('zip_code', 'zipCode'),

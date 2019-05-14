@@ -1,0 +1,32 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="Shopware\Core\Content\NewsletterRecipient\NewsletterRecipientDefinition">
+            <tag name="shopware.entity.definition" entity="newsletter_recipient"/>
+        </service>
+
+        <service id="Shopware\Core\Content\NewsletterRecipient\Aggregate\NewsletterRecipientTag\NewsletterRecipientTagDefinition">
+            <tag name="shopware.entity.definition" entity="newsletter_recipient_tag"/>
+        </service>
+
+        <service id="Shopware\Core\Content\NewsletterRecipient\ScheduledTask\NewsletterRecipientTask">
+            <tag name="shopware.scheduled.task" />
+        </service>
+
+        <service id="Shopware\Core\Content\NewsletterRecipient\ScheduledTask\NewsletterRecipientTaskHandler">
+            <argument type="service" id="scheduled_task.repository" />
+            <argument type="service" id="newsletter_recipient.repository" />
+            <tag name="messenger.message_handler" />
+        </service>
+
+        <service id="Shopware\Core\Content\NewsletterRecipient\SalesChannel\NewsletterSubscriptionService">
+            <argument type="service" id="newsletter_recipient.repository" />
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+    </services>
+</container>

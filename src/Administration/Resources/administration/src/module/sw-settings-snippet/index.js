@@ -6,7 +6,7 @@ import './page/sw-settings-snippet-list';
 import './page/sw-settings-snippet-detail';
 import './page/sw-settings-snippet-create';
 import './component/sidebar/sw-settings-snippet-sidebar';
-import './component/sidebar/sw-settings-snippet-boolean-filter-item';
+import './component/sidebar/sw-settings-snippet-filter-switch';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';

@@ -257,7 +257,7 @@ EOD
 Main context
 EOD
     ,
-    'Content/NewsletterReceiver' => <<<'EOD'
+    'Content/NewsletterRecipient' => <<<'EOD'
 Newsletter
 EOD
     ,

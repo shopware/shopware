@@ -15,7 +15,7 @@ use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFoot
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeDefinition;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
-use Shopware\Core\Content\NewsletterReceiver\NewsletterReceiverCollection;
+use Shopware\Core\Content\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary\ProductKeywordDictionaryCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordCollection;
@@ -250,9 +250,9 @@ class LanguageEntity extends Entity
     protected $deliveryTimeTranslations;
 
     /**
-     * @var NewsletterReceiverCollection|null
+     * @var NewsletterRecipientCollection|null
      */
-    protected $newsletterReceivers;
+    protected $newsletterRecipients;
 
     /**
      * @var NumberRangeTypeTranslationCollection|null
@@ -694,14 +694,14 @@ class LanguageEntity extends Entity
         $this->deliveryTimeTranslations = $deliveryTimeTranslations;
     }
 
-    public function getNewsletterReceivers(): ?NewsletterReceiverCollection
+    public function getNewsletterRecipients(): ?NewsletterRecipientCollection
     {
-        return $this->newsletterReceivers;
+        return $this->newsletterRecipients;
     }
 
-    public function setNewsletterReceivers(NewsletterReceiverCollection $newsletterReceivers): void
+    public function setNewsletterRecipients(NewsletterRecipientCollection $newsletterRecipients): void
     {
-        $this->newsletterReceivers = $newsletterReceivers;
+        $this->newsletterRecipients = $newsletterRecipients;
     }
 
     public function getNumberRangeTypeTranslations(): ?NumberRangeTypeTranslationCollection

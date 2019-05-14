@@ -22,7 +22,7 @@ class Content extends Bundle
         $loader->load('category.xml');
         $loader->load('media.xml');
         $loader->load('product.xml');
-        $loader->load('newsletter_receiver.xml');
+        $loader->load('newsletter_recipient.xml');
         $loader->load('rule.xml');
         $loader->load('product_stream.xml');
         $loader->load('property.xml');

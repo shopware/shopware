@@ -1,15 +1,14 @@
 {% block utilities_offcanvas %}
 	{% block utilities_offcanvas_close %}
-		<a class="btn btn-light btn-block js-offcanvas-close sticky-top"
-		   href="#offcanvas-close">
+		<button class="btn btn-light btn-block offcanvas-close js-offcanvas-close sticky-top">
 			{% block utilities_offcanvas_close_icon %}
-                {% sw_icon 'x' %}
+                {% sw_icon 'x' style { 'size': 'sm' } %}
 			{% endblock %}
 
 			{% block utilities_offcanvas_close_text %}
 				{{ "general.offcanvasCloseMenu"|trans }}
 			{% endblock %}
-		</a>
+		</button>
 	{% endblock %}
 
     {% block utilities_offcanvas_content_container %}

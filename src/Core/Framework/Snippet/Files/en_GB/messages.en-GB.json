@@ -54,7 +54,8 @@
         "message-404": "The requested page cannot be found.",
         "addToCartError": "An error occurred while adding the item(s) to cart.",
         "FRAMEWORK__INVALID_UUID": "The selected payment method does not exist.",
-        "CHECKOUT__UNKNOWN_PAYMENT_METHOD": "The selected payment method does not exist."
+        "CHECKOUT__UNKNOWN_PAYMENT_METHOD": "The selected payment method does not exist.",
+        "productNotFound": "Product with number \"%number%\" not found."
     },
     "account": {
         "myAccount": "My Account",

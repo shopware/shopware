@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Shopware\Core\Framework\Util\FloatComparator;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -46,22 +47,22 @@ class CartWeightRule extends Rule
 
         switch ($this->operator) {
             case self::OPERATOR_EQ:
-                return $cartWeight === (float) $this->weight;
+                return FloatComparator::equals($cartWeight, $this->weight);
 
             case self::OPERATOR_NEQ:
-                return $cartWeight !== (float) $this->weight;
+                return FloatComparator::notEquals($cartWeight, $this->weight);
 
             case self::OPERATOR_GT:
-                return $cartWeight > (float) $this->weight;
+                return FloatComparator::greaterThan($cartWeight, $this->weight);
 
             case self::OPERATOR_LT:
-                return $cartWeight < (float) $this->weight;
+                return FloatComparator::lessThan($cartWeight, $this->weight);
 
             case self::OPERATOR_GTE:
-                return $cartWeight >= (float) $this->weight;
+                return FloatComparator::greaterThanOrEquals($cartWeight, $this->weight);
 
             case self::OPERATOR_LTE:
-                return $cartWeight <= (float) $this->weight;
+                return FloatComparator::lessThanOrEquals($cartWeight, $this->weight);
 
             default:
                 throw new UnsupportedOperatorException($this->operator, __CLASS__);

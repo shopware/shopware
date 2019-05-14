@@ -34,6 +34,22 @@ class LineItemsInCartRuleTest extends TestCase
         );
     }
 
+    public function testRuleWithLineItemsWithoutIdPayload(): void
+    {
+        $rule = (new LineItemsInCartRule())->assign(['identifiers' => ['A', 'B']]);
+
+        $cart = Generator::createCart();
+        foreach ($cart->getLineItems() as $lineItem) {
+            $lineItem->removePayloadValue('id');
+        }
+
+        $context = $this->createMock(SalesChannelContext::class);
+
+        static::assertFalse(
+            $rule->match(new CartRuleScope($cart, $context))
+        );
+    }
+
     public function testRuleWithLineItemSubsetMatch(): void
     {
         $rule = (new LineItemsInCartRule())->assign(['identifiers' => ['B']]);

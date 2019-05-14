@@ -178,15 +178,17 @@ class Generator extends TestCase
         $cart->setLineItems(
             new LineItemCollection([
                 (new LineItem('A', 'product', 27))
-                    ->setPrice(new CalculatedPrice(10, 270, new CalculatedTaxCollection(), new TaxRuleCollection(), 27)),
+                    ->setPrice(new CalculatedPrice(10, 270, new CalculatedTaxCollection(), new TaxRuleCollection(), 27))
+                    ->setPayloadValue('id', 'A'),
 
                 (new LineItem('B', 'test', 5))
                     ->setGood(false)
-                    ->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())),
+                    ->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))
+                    ->setPayloadValue('id', 'B'),
             ])
         );
         $cart->setPrice(
-            new CartPrice(275, 275, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS)
+            new CartPrice(275.0, 275.0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS)
         );
 
         return $cart;

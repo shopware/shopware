@@ -119,7 +119,7 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
         $rule = (new CartHasDeliveryFreeItemRule())->assign(['allowed' => false]);
         $match = $rule->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
 
-        static::assertFalse($match);
+        static::assertTrue($match);
     }
 
     public function testNotContainsFreeDeliveryItemsMatchesNotAllowed(): void
@@ -148,7 +148,7 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
         static::assertTrue($match);
     }
 
-    public function testContainsNotFreeDeliveryItems(): void
+    public function testNotContainsFreeDeliveryItemsWithDeliveryFreeItem(): void
     {
         $cart = new Cart('test', Uuid::randomHex());
 
@@ -180,7 +180,7 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
 
         $match = $rule->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
 
-        static::assertTrue($match);
+        static::assertFalse($match);
     }
 
     public function testIfRuleIsConsistent(): void

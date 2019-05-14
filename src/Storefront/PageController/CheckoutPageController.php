@@ -585,9 +585,7 @@ class CheckoutPageController extends StorefrontController
 
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
-
         try {
-
             $count = 0;
 
             /** @var RequestDataBag $lineItemData */
@@ -607,7 +605,6 @@ class CheckoutPageController extends StorefrontController
                 $this->cartService->add($cart, $lineItem, $context);
 
                 $count += $lineItemQuantity;
-
             }
 
             $this->addFlash('success', $this->translator->transChoice('checkout.addToCartSuccess', $count, ['%count%' => $count]));

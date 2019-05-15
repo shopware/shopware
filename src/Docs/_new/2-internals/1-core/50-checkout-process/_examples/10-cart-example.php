@@ -74,48 +74,6 @@ namespace ExampleAddToCart {
     }
 } // code-example-end
 
-namespace ExampleAddMultipleToCart {
-    use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-    use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
-    use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-    use Shopware\Core\System\SalesChannel\SalesChannelContext;
-    use Symfony\Component\Routing\Annotation\Route;
-
-    class AddMultipleToCartController
-    {
-        /** @var CartService */
-        private $cartService;
-
-        /**
-         * @Route("/", name="cart.test")
-         */
-        public function addToCart(SalesChannelContext $salesChannelContext)
-        {
-            $product = new LineItem(
-                '407f9c24dd414da485501085e3ead678',
-                LineItem::PRODUCT_LINE_ITEM_TYPE,
-                5
-            );
-            $product->setPayloadValue('id', '407f9c24dd414da485501085e3ead678');
-
-            $anotherProduct = new LineItem(
-                '43ab6d2834fc49e387ca089d537d6e39',
-                LineItem::PRODUCT_LINE_ITEM_TYPE,
-                1
-            );
-            $anotherProduct->setPayloadValue('id', '43ab6d2834fc49e387ca089d537d6e39');
-
-            $cart = $this->cartService->getCart('596a70b408014230a140fd5d94d3402b', $salesChannelContext);
-
-            $this->cartService->fill(
-                $cart,
-                new LineItemCollection([$product, $anotherProduct]),
-                $salesChannelContext
-            );
-        }
-    }
-} // code-example-end
-
 namespace ExampleChangeQuantity {
     use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
     use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -205,7 +163,6 @@ namespace ExampleOrder {
 } // code-example-end
 
 namespace DocsTest {
-    use ExampleAddMultipleToCart\AddMultipleToCartController;
     use ExampleAddToCart\AddToCartController;
     use ExampleChangeQuantity\ChangeQuantityController;
     use ExampleCreateNew\NewCartController;
@@ -278,19 +235,6 @@ namespace DocsTest {
 
             $this->ensureProduct('407f9c24dd414da485501085e3ead678');
             $this->setUpController($controller);
-            $controller->addToCart($this->getSalesChannelContext());
-
-            static::assertTrue(true); //indicate all went well
-        }
-
-        public function testExampleAddMultipleToCart()
-        {
-            $controller = new AddMultipleToCartController();
-
-            $this->setUpController($controller);
-            $this->ensureProduct('407f9c24dd414da485501085e3ead678');
-            $this->ensureProduct('43ab6d2834fc49e387ca089d537d6e39');
-
             $controller->addToCart($this->getSalesChannelContext());
 
             static::assertTrue(true); //indicate all went well

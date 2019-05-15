@@ -107,11 +107,17 @@
                 {% block sw_mail_template_detail_mail_text_info %}
                     <sw-card :title="$tc('sw-mail-template.detail.mailText.titleCard')">
                         {% block sw_mail_template_mail_text_form_content_plain_field %}
-                            <sw-field type="textarea"
-                                      :label="$tc('sw-mail-template.detail.mailText.labelContentPlain')"
-                                      :placeholder="placeholder(mailTemplate, 'contentPlain', $tc('sw-mail-template.detail.mailText.placeholderPlain'))"
-                                      v-model="mailTemplate.contentPlain">
-                            </sw-field>
+                            <sw-code-editor
+                                :label="$tc('sw-mail-template.detail.mailText.labelContentPlain')"
+                                :placeholder="placeholder(mailTemplate, 'contentPlain', $tc('sw-mail-template.detail.mailText.placeholderPlain'))"
+                                name="content_plain"
+                                :completerFunction="completerFunction"
+                                :editorConfig="editorConfig"
+                                completionMode="entity"
+                                ref="plainEditor"
+                                :key="`${mailTemplate.mailTemplateTypeId}plain`"
+                                v-model="mailTemplate.contentPlain">
+                            </sw-code-editor>
                         {% endblock %}
 
                         {% block sw_mail_template_mail_text_form_content_html_field %}
@@ -119,6 +125,11 @@
                                     :label="$tc('sw-mail-template.detail.mailText.labelContentHtml')"
                                     :placeholder="placeholder(mailTemplate, 'contentHtml', $tc('sw-mail-template.detail.mailText.placeholderHtml'))"
                                     name="content_html"
+                                    :completerFunction="completerFunction"
+                                    :editorConfig="editorConfig"
+                                    completionMode="entity"
+                                    :key="`${mailTemplate.mailTemplateTypeId}html`"
+                                    ref="htmlEditor"
                                     v-model="mailTemplate.contentHtml">
                             </sw-code-editor>
                         {% endblock %}

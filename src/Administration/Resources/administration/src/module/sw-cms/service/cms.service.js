@@ -81,11 +81,6 @@ function handlePropertyMappings(propertyDefinitions, mappings, pathPrefix, deep 
             return;
         }
 
-        // ToDo: Just a workaround because of issue NEXT-2617
-        if (propSchema.type === 'string' && property.includes('Id')) {
-            return;
-        }
-
         if (propSchema.type === 'object') {
             if (propSchema.entity) {
                 if (!mappings.entity) {

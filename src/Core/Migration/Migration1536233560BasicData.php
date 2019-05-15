@@ -1554,13 +1554,13 @@ class Migration1536233560BasicData extends MigrationStep
                 'id' => Uuid::randomHex(),
                 'name' => 'Newsletter double opt-in',
                 'nameDe' => 'Newsletter Double-Opt-In',
-                'availableEntities' => ['newsletterReceiver' => 'newsletter_receiver'],
+                'availableEntities' => ['newsletterRecipient' => 'newsletter_recipient'],
             ],
             NewsletterSubscriptionServiceInterface::MAIL_TYPE_REGISTER => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Newsletter registration',
                 'nameDe' => 'Newsletter-Registrierung',
-                'availableEntities' => ['newsletterReceiver' => 'newsletter_receiver'],
+                'availableEntities' => ['newsletterRecipient' => 'newsletter_recipient'],
             ],
             MailTemplateTypes::MAILTYPE_ORDER_CONFIRM => [
                 'id' => Uuid::randomHex(),
@@ -1582,9 +1582,9 @@ class Migration1536233560BasicData extends MigrationStep
             ],
             MailTemplateTypes::MAILTYPE_PASSWORD_CHANGE => [
                 'id' => Uuid::randomHex(),
-                'name' => 'Password changed',
-                'nameDe' => 'Passwort geändert',
-                'availableEntities' => ['customer' => 'customer'],
+                'name' => 'Password change request',
+                'nameDe' => 'Passwort Änderungsanfrage',
+                'availableEntities' => ['customer' => 'customer', 'urlResetPassword' => null],
             ],
             MailTemplateTypes::MAILTYPE_SEPA_CONFIRMATION => [
                 'id' => Uuid::randomHex(),

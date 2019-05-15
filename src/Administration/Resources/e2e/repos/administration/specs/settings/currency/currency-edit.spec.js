@@ -34,6 +34,7 @@ module.exports = {
             .fillField('input[name=sw-field--currency-name]', 'Yen but true', true)
             .click(page.elements.currencySaveAction)
             .waitForElementVisible('.icon--small-default-checkmark-line-medium')
+            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .assert.urlContains('#/sw/settings/currency/detail');
     },
     'verify edited currency': (browser) => {

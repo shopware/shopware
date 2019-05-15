@@ -26,6 +26,7 @@ module.exports = {
             .fillField('input[name=sw-field--currency-factor]', '1.0076')
             .click(page.elements.currencySaveAction)
             .waitForElementVisible('.icon--small-default-checkmark-line-medium')
+            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .assert.urlContains('#/sw/settings/currency/detail');
     },
     'go back to listing and verify creation': (browser) => {

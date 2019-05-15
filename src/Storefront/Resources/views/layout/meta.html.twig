@@ -87,9 +87,7 @@
         {% block layout_head_canonical %}{% endblock %}
 
         {% block layout_head_title %}
-            {#TODO: NEXT-1891 - add breadcrumb to title#}
-            <title
-                itemprop="name">{% block layout_head_title_inner %}{{ shopware.config.shopName }}{% endblock %}</title>
+            <title itemprop="name">{% block layout_head_title_inner %}{{ shopware.config.shopName }}{% endblock %}</title>
         {% endblock %}
 
         {% block layout_head_stylesheet %}

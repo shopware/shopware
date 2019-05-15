@@ -293,4 +293,8 @@ Promotions
 * [Entity relationship diagram](./10-erd/erd-shopware-core-checkout-promotion.md)
 EOD
     ,
+    'Framework/Cache' => <<<'EOD'
+Cache helpers
+EOD
+    ,
 ];

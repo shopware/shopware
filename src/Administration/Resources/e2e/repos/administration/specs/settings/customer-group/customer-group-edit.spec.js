@@ -31,7 +31,8 @@ module.exports = {
                 scope: `${page.elements.dataGridRow}--0`
             })
             .fillField('input[name=sw-field--customerGroup-name]', 'E2E Merchant', true)
-            .tickCheckbox('input[name=sw-field--customerGroup-displayGross]', false)
+            .waitForElementVisible('.sw-field__radio-group')
+            .click('input#sw-field--castedValue-0')
             .expect.element(page.elements.customerGroupSaveAction).to.be.enabled;
 
         browser.click(page.elements.customerGroupSaveAction)
@@ -46,6 +47,8 @@ module.exports = {
             .click(page.elements.smartBarBack)
             .refresh()
             .expect.element(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).to.have.text.that.contains('E2E Merchant');
-        browser.expect.element(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--displayGross`).to.have.text.that.contains('Net');
+
+        browser
+            .expect.element(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--displayGross`).to.have.text.that.contains('Gross');
     }
 };

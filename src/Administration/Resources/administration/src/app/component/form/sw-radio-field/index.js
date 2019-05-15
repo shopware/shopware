@@ -8,12 +8,15 @@ import './sw-radio-field.scss';
  * @status ready
  * @example-type static
  * @component-example
- * <sw-radio-field label="Radio field example" :options="[
- *     {'value': 'value1', 'name': 'Label #1'},
- *     {'value': 'value2', 'name': 'Label #2'},
- *     {'value': 'value3', 'name': 'Label #3'},
- *     {'value': 'value4', 'name': 'Label #4'},
- *     {'value': 'value5', 'name': 'Label #5'}
+ * <sw-radio-field
+ *      label="Radio field example"
+ *      bordered
+ *      :options="[
+ *          {'value': 'value1', 'name': 'Label #1'},
+ *          {'value': 'value2', 'name': 'Label #2'},
+ *          {'value': 'value3', 'name': 'Label #3'},
+ *          {'value': 'value4', 'name': 'Label #4'},
+ *          {'value': 'value5', 'name': 'Label #5'}
  * ]"></sw-radio-field>
  */
 export default {
@@ -31,6 +34,12 @@ export default {
     ],
 
     props: {
+        bordered: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
         options: {
             type: Array,
             required: false,
@@ -38,6 +47,7 @@ export default {
                 return [];
             }
         },
+
         value: {
             required: false
         }
@@ -51,6 +61,14 @@ export default {
 
     watch: {
         value() { this.currentValue = this.value; }
+    },
+
+    computed: {
+        classes() {
+            return [{
+                'sw-field--radio-bordered': this.bordered
+            }];
+        }
     },
 
     methods: {

@@ -22,12 +22,14 @@
             "messageSaveError": "Customer group could not be saved.",
             "messageSaveSuccess": "Customer group \"{name}\" has been saved successfully.",
             "textDeleteConfirm": "Are you sure you want to delete the customer group \"{name}\"?",
+            "titleDeleteSuccess": "Success",
             "textNetGross": "Gross | Net"
         },
         "detail": {
             "cardTitle": "Customer group",
             "fieldNameLabel": "Name",
-            "fieldDisplayGrossLabel": "Gross | Net",
+            "fieldDisplayGrossLabel": "Tax display",
+            "fieldDisplayGrossValues": "Gross | Net",
             "messageSaveError": "Customer group could not be saved.",
             "messageSaveSuccess": "Customer group \"{name}\" has been saved successfully.",
             "placeholderName": "Please choose a name",

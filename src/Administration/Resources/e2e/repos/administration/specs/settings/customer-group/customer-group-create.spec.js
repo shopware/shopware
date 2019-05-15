@@ -23,8 +23,11 @@ module.exports = {
         browser
             .assert.urlContains('#/sw/settings/customer/group/create')
             .fillField('input[name=sw-field--customerGroup-name]', 'E2E Merchant')
-            .tickCheckbox('input[name=sw-field--customerGroup-displayGross]', true)
+            .waitForElementVisible('.sw-field__radio-group')
+            .click('input#sw-field--castedValue-1')
             .expect.element(page.elements.customerGroupSaveAction).to.be.enabled;
+
+        // ToDo: Insert "Was not selected" case
 
         browser.click(page.elements.customerGroupSaveAction)
             .waitForElementVisible('.icon--small-default-checkmark-line-medium')
@@ -38,6 +41,9 @@ module.exports = {
             .click(page.elements.smartBarBack)
             .refresh()
             .expect.element(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).to.have.text.that.contains('E2E Merchant');
+
+        browser
+            .expect.element(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--displayGross`).to.have.text.that.contains('Net');
     },
     'check if customer group can be used in customer module': (browser) => {
         browser

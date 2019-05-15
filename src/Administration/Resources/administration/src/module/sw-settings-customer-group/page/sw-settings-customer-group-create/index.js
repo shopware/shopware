@@ -16,6 +16,7 @@ Component.extend('sw-settings-customer-group-create', 'sw-settings-customer-grou
                 this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
             }
             this.customerGroup = this.customerGroupStore.create();
+            this.customerGroup.displayGross = true;
         },
 
         saveFinish() {

@@ -23,7 +23,7 @@ export default class AddToCartPlugin extends Plugin {
      * @private
      */
     _getForm() {
-        if (this.el && this.el.nodeType === 'FORM') {
+        if (this.el && this.el.nodeName === 'FORM') {
             this._form = this.el;
         } else {
             this._form = this.el.closest('form');

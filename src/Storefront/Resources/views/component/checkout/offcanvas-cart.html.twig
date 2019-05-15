@@ -1,139 +1,105 @@
 {% sw_extends '@Storefront/utilities/offcanvas.html.twig' %}
 
-{% block layout_utilities_offcanvas_close_text %}
-	{{ "checkout.continueShopping"|trans }}
+{% block utilities_offcanvas_close_text %}
+    {{ "checkout.continueShopping"|trans }}
 {% endblock %}
 
-{% block layout_utilities_offcanvas_content %}
-	{% block layout_cart_mini %}
-		<div class="offcanvas-cart">
-            {% block layout_utilities_offcanvas_flashbags %}
-				<div class="flashbags">
+{% block utilities_offcanvas_close_icon %}
+    {% sw_icon 'arrow-head-left' style { 'size': 'sm' } %}
+{% endblock %}
+
+{% block utilities_offcanvas_content %}
+    {% block component_offcanvas_cart %}
+        {% set isCartNotEmpty = (page.cart.lineItems|length > 0) %}
+
+        <div class="offcanvas-cart">
+            {% block component_offcanvas_cart_header %}
+                <span class="offcanvas-cart-header">
+                    {{ "checkout.cartHeader"|trans }}
+                    {% if isCartNotEmpty %}
+                        <small>{{ "checkout.itemCounter"|trans({'%count%': page.cart.lineItems|length}) }}</small>
+                    {% endif %}
+                </span>
+            {% endblock %}
+
+            {% block component_offcanvas_cart_flashbags %}
+                <div class="flashbags">
                     {% for type, messages in app.flashes %}
                         {% sw_include '@Storefront/utilities/alert.html.twig' with {
                             type: type,
                             list: messages
                         } %}
                     {% endfor %}
-				</div>
+                </div>
             {% endblock %}
 
-			{% set isCartNotEmpty = (page.cart.lineItems|length > 0) %}
+            {% if isCartNotEmpty %}
+                {% block component_offcanvas_cart_items %}
+                    <div class="offcanvas-cart-items">
+                        {% for lineItem in page.cart.lineItems %}
+                            {% sw_include '@Storefront/component/checkout/offcanvas-item.html.twig' %}
+                        {% endfor %}
+                    </div>
+                {% endblock %}
+            {% else %}
+                {% block component_offcanvas_cart_empty %}
+                    {% sw_include '@Storefront/utilities/alert.html.twig' with {
+                        type: "info",
+                        content: "checkout.emptyCart"|trans
+                    } %}
+                {% endblock %}
+            {% endif %}
 
-			{% if isCartNotEmpty %}
-				{% for lineItem in page.cart.lineItems %}
-					{% block layout_cart_mini_item %}
-						<div class="cart-item cart-item-{{ lineItem.type }} js-cart-item">
-							{% block layout_cart_mini_item_image %}
-								<div class="cart-item-image">
-									{% if lineItem.type == 'product' %}
-										{% if lineItem.cover.url %}
-											<img src="{{ lineItem.cover.url }}"
-												 class="img-fluid"
-												 alt="{{ lineItem.label }}"
-												 title="{{ lineItem.label }}">
-										{% else %}
-											{% sw_icon 'placeholder' style {
-												'size': 'fluid'
-											} %}
-										{% endif %}
-									{% elseif lineItem.type == 'promotion' %}
-										{% sw_icon 'object-marketing' %}
-									{% endif %}
-								</div>
-							{% endblock %}
+            {% if isCartNotEmpty %}
+                {% block component_offcanvas_summary %}
+                    <div class="offcanvas-summary">
+                        <dl class="row summary-list">
+                            {% block component_offcanvas_summary_total %}
+                                {% block component_offcanvas_summary_total_label %}
+                                    <dt class="col-7 summary-label summary-total">
+                                        {{ "checkout.subtotalAmount"|trans }}
+                                    </dt>
+                                {% endblock %}
 
-							{% block layout_cart_mini_item_actions %}
-								{% if lineItem.isRemovable() %}
-									<form action="{{ path('frontend.checkout.line-item.delete', {'id': lineItem.key}) }}"
-										  class="cart-item-remove js-offcanvas-cart-remove-product"
-										  method="post">
-										<input type="hidden" name="_method" value="POST">
-										{% block layout_cart_mini_item_actions_redirect_input %}
-											<input type="hidden" name="redirectTo" value="frontend.cart.detail"/>
-										{% endblock %}
-										<button type="submit"
-												title="{{ "checkout.removeLineItem"|trans }}"
-												class="btn btn-light">
-											{% sw_icon 'basic-x-line' style { 'size': 'sm' } %}
-										</button>
-									</form>
-								{% endif %}
-							{% endblock %}
+                                {% block component_offcanvas_summary_total_value %}
+                                    <dd class="col-5 summary-value summary-total">
+                                        {{ page.cart.price.positionPrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}
+                                    </dd>
+                                {% endblock %}
+                            {% endblock %}
+                        </dl>
+                    </div>
+                    {% block component_offcanvas_summary_tax_info %}
+                        <p class="offcanvas-cart-tax">
+                            {% if page.cart.price.taxStatus == "gross" %}
+                                {{ "general.grossTaxInformation"|trans }}
+                            {% else %}
+                                {{ "general.netTaxInformation"|trans }}
+                            {% endif %}
+                        </p>
+                    {% endblock %}
+                {% endblock %}
+            {% endif %}
 
-							{% block layout_cart_mini_item_link %}
-								<a href="{{ path('frontend.detail.page', {'productId': lineItem.key}) }}"
-								   class="cart-item-link">
-									{% block layout_cart_mini_item_quantity %}
-										<span class="cart-item-link-quantity">
-                                            {{ lineItem.quantity }}{{ "checkout.quantityTimes"|trans }}
-										</span>
-									{% endblock %}
+            {% block component_offcanvas_cart_actions %}
+                <div class="offcanvas-cart-actions">
+                    {% block component_offcanvas_cart_actions_checkout %}
+                        <a href="{{ path('frontend.checkout.confirm.page') }}"
+                           class="btn btn-block {% if isCartNotEmpty %}btn-primary{% else %}btn-light disabled{% endif %}"
+                           title="{{ "checkout.proceedToCheckout"|trans }}">
+                            {{ "checkout.proceedToCheckout"|trans }}
+                        </a>
+                    {% endblock %}
 
-									{% block layout_cart_mini_item_name %}
-										<span class="cart-item-link-name">
-                                            {{ lineItem.label }}
-										</span>
-									{% endblock %}
-
-									{% block layout_cart_mini_item_price %}
-										<span class="cart-item-link-price">
-                                            {{ lineItem.price.totalPrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
-										</span>
-									{% endblock %}
-								</a>
-							{% endblock %}
-						</div>
-					{% endblock %}
-				{% endfor %}
-			{% else %}
-				{% block layout_cart_mini_cart_empty %}
-					<div class="cart-item is--empty">{{ "checkout.emptyCart"|trans }}</div>
-				{% endblock %}
-			{% endif %}
-
-			{% if isCartNotEmpty %}
-				{% block layout_cart_mini_cart_prices %}
-					<div class="cart-prices">
-						<span class="cart-prices-text">
-							{{ "checkout.subtotalAmount"|trans }}
-						</span>
-						<span class="cart-prices-subtotal">
-							{{ page.cart.price.positionPrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}
-						</span>
-					</div>
-				{% endblock %}
-
-				{% block layout_cart_mini_cart_tax_info %}
-					<p class="cart-tax">
-						{% if page.cart.price.taxStatus == "gross" %}
-							{{ "general.grossTaxInformation"|trans }}
-						{% else %}
-							{{ "general.netTaxInformation"|trans }}
-						{% endif %}
-					</p>
-				{% endblock %}
-			{% endif %}
-
-			{% block layout_cart_mini_cart_actions %}
-				<div class="cart-actions">
-					{% block layout_cart_mini_cart_actions_checkout %}
-						<a href="{{ path('frontend.checkout.confirm.page') }}"
-						   class="btn btn-block {% if isCartNotEmpty %}btn-primary{% else %}btn-light disabled{% endif %}"
-						   title="{{ "checkout.proceedToCheckout"|trans }}">
-							{{ "checkout.proceedToCheckout"|trans }}
-						</a>
-					{% endblock %}
-
-					{% block layout_cart_mini_cart_actions_cart %}
-						<a href="{{ path('frontend.checkout.cart.page') }}"
-						   class="btn btn-block btn-link"
-						   title="{{ "checkout.proceedToCart"|trans }}">
-							{{ "checkout.proceedToCart"|trans }}
-						</a>
-					{% endblock %}
-				</div>
-			{% endblock %}
-		</div>
-	{% endblock %}
+                    {% block component_offcanvas_cart_actions_cart %}
+                        <a href="{{ path('frontend.checkout.cart.page') }}"
+                           class="btn btn-block btn-link"
+                           title="{{ "checkout.proceedToCart"|trans }}">
+                            {{ "checkout.proceedToCart"|trans }}
+                        </a>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </div>
+    {% endblock %}
 {% endblock %}

@@ -12,7 +12,10 @@
       "subSubText": "Du jederzeit den aktuellen Entwicklungsstand verfolgen.",
       "roadmapButton": "Roadmap",
       "issueTrackerButton": "Feedback senden",
-      "roadmapLink": "https://www.shopware.com/de/roadmap/"
+      "roadmapLink": "https://www.shopware.com/de/roadmap/",
+      "issueTrackerLink": "https://issues.shopware.com",
+      "enduserDocumentationLink": "http://docs.shopware.com/de/shopware-6-de",
+      "migrationDocumentationLink": "http://docs.shopware.com/de/migration-de"
     },
     "paypal": {
       "setupButtonText": "PayPal einrichten",
@@ -29,6 +32,7 @@
       "description": "Erkunde die Möglichkeiten von Shopware mit echten Daten. Gemeinsam stellen wir eine Verbindung der Systeme her. Im Anschluss hast Du die Möglichkeit mit dem Migrationsassistenten Deine Daten zu migrieren.",
       "sw6pluginLinkLabel": "Migration Plugin",
       "sw5pluginLinkLabel": "Shopware 5 Connector",
+      "documentationLabel": "Migration Dokumentation",
       "setupButtonText": "Migration einrichten",
       "settingsLinkButtonText": "Meine Daten migrieren"
     },

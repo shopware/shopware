@@ -13,7 +13,7 @@
 {% block page_checkout_aside_actions %}
     <div class="checkout-aside-action">
         <form id="confirmOrderForm"
-              data-form-submit-loader="true"
+              data-confirm-order="true"
               action="{{ path('frontend.checkout.finish.order') }}"
               method="post">
             {% block page_checkout_confirm_form_submit %}

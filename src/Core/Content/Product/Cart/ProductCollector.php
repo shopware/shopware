@@ -120,7 +120,7 @@ class ProductCollector implements CollectorInterface
             }
 
             if (!$lineItem->getLabel()) {
-                $lineItem->setLabel($product->getName());
+                $lineItem->setLabel($product->getTranslation('name'));
             }
 
             if (!$lineItem->getCover() && $product->getCover()) {

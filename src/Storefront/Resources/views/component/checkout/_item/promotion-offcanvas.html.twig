@@ -1,0 +1,21 @@
+{% sw_extends '@Storefront/component/checkout/_item/product.html.twig' %}
+
+{% block componenent_offcanvas_item_product_info_image_link %}
+    <div class="cart-item-promotion-icon">
+        {% sw_icon 'marketing' %}
+    </div>
+{% endblock %}
+
+{% block componenent_offcanvas_item_product_info_details_inner %}
+    <div class="cart-item-details-container">
+        {% block page_checkout_item_product_info_label %}
+            <div class="cart-item-label">
+                {{ lineItem.label|truncate(60) }}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}
+
+{% block componenent_offcanvas_item_product_quantity_form %}{% endblock %}
+
+{% block componenent_offcanvas_item_product_unit_price_wrapper %}{% endblock %}

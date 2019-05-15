@@ -13,9 +13,31 @@ import Iterator from 'src/script/helper/iterator.helper';
 export default class FormAjaxSubmitPlugin extends Plugin {
 
     static options = {
+        /**
+         * list of selectors which should be
+         * replaced when the form is submitted
+         */
         replaceSelectors: false,
+
+        /**
+         * whether or not the form should be submitted on change
+         * can be boole or list of selectors for the elements which should trigger
+         * the submit
+         *
+         * @type bool|[]String
+         */
         submitOnChange: false,
+
+        /**
+         * route which should be redirected to
+         * when submitted
+         */
         redirectTo: false,
+
+        /*+
+         * route which should be forwarded to
+         * when submitted
+         */
         forwardTo: false,
     };
 
@@ -26,9 +48,6 @@ export default class FormAjaxSubmitPlugin extends Plugin {
             throw new Error(`No form found for the plugin: ${this.constructor.name}`);
         }
 
-        if (!this.options.replaceSelectors) {
-            throw new Error('The option "replaceSelectors" must ge given when using ajax.');
-        }
         if (typeof this.options.replaceSelectors === 'string') {
             this.options.replaceSelectors = [this.options.replaceSelectors];
         }
@@ -54,7 +73,7 @@ export default class FormAjaxSubmitPlugin extends Plugin {
      * @private
      */
     _getForm() {
-        if (this.el && this.el.nodeType === 'FORM') {
+        if (this.el && this.el.nodeName === 'FORM') {
             this._form = this.el;
         } else {
             this._form = this.el.closest('form');
@@ -72,8 +91,10 @@ export default class FormAjaxSubmitPlugin extends Plugin {
         this._form.addEventListener('submit', onSubmit);
 
         if (this.options.submitOnChange) {
-            this._form.removeEventListener('change', onSubmit);
-            this._form.addEventListener('change', onSubmit);
+            Iterator.iterate(this._form.elements, element => {
+                element.removeEventListener('change', onSubmit);
+                element.addEventListener('change', onSubmit);
+            });
         }
     }
 
@@ -86,6 +107,25 @@ export default class FormAjaxSubmitPlugin extends Plugin {
      */
     _onSubmit(event) {
         event.preventDefault();
+
+        if (event.type === 'change' && Array.isArray(this.options.submitOnChange)) {
+            const target = event.currentTarget;
+            Iterator.iterate(this.options.submitOnChange, selector => {
+                if (target.matches(selector)) {
+                    this._fireRequest();
+                }
+            });
+        } else {
+            this._fireRequest();
+        }
+    }
+
+    /**
+     * fire the ajax request for the form
+     *
+     * @private
+     */
+    _fireRequest() {
         this._createLoadingIndicators();
         const action = DomAccess.getAttribute(this._form, 'action');
         this._client.post(action, this._getFormData(), this._onAfterAjaxSubmit.bind(this));
@@ -121,9 +161,12 @@ export default class FormAjaxSubmitPlugin extends Plugin {
      * @private
      */
     _onAfterAjaxSubmit(response) {
-        this._removeLoadingIndicators();
-        ElementReplaceHelper.replaceFromMarkup(response, this.options.replaceSelectors, false);
-        window.PluginManager.initializePlugins();
+        if (this.options.replaceSelectors) {
+            this._removeLoadingIndicators();
+            ElementReplaceHelper.replaceFromMarkup(response, this.options.replaceSelectors, false);
+            window.PluginManager.initializePlugins();
+        }
+
         this._executeCallbacks();
     }
 
@@ -133,10 +176,12 @@ export default class FormAjaxSubmitPlugin extends Plugin {
      * @private
      */
     _createLoadingIndicators() {
-        Iterator.iterate(this.options.replaceSelectors, (selector) => {
-            const elements = DomAccess.querySelectorAll(document, selector);
-            Iterator.iterate(elements, ElementLoadingIndicatorUtil.create);
-        });
+        if (this.options.replaceSelectors) {
+            Iterator.iterate(this.options.replaceSelectors, (selector) => {
+                const elements = DomAccess.querySelectorAll(document, selector);
+                Iterator.iterate(elements, ElementLoadingIndicatorUtil.create);
+            });
+        }
     }
 
     /**

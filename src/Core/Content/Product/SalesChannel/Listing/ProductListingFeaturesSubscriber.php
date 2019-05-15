@@ -46,7 +46,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 
     private function handlePagination(Request $request, Criteria $criteria): void
     {
-        $limit = $request->query->getInt('limit', 25);
+        $limit = $request->query->getInt('limit', 24);
         $page = $request->query->getInt('p', 1);
 
         if ($request->isMethod(Request::METHOD_POST)) {

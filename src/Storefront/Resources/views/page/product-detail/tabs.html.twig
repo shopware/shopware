@@ -18,7 +18,7 @@
                                    aria-selected="true">
                                     {{ "detail.tabsDescription"|trans }}
                                     <span class="nav-link-icon">
-                                        {% sw_icon 'small-arrow-medium-right' %}
+                                        {% sw_icon 'arrow-medium-right' style {'pack':'solid'} %}
                                     </span>
                                     <span class="product-detail-tab-preview">
                                         {{ page.product.translated.description|raw|striptags|truncate(125) }} <span class="product-detail-tab-preview-more">{{ "detail.tabsPreviewMore"|trans }}</span>

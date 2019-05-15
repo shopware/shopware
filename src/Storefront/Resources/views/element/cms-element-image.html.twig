@@ -3,13 +3,15 @@
         {% block element_image_inner %}
             {% set imageElement %}
                 {% block element_image_container %}
-                    <div class="cms-image-container is-{{ element.config.displayMode.value }}"{% if element.config.minHeight.value %} style="min-height: {{ element.config.minHeight.value }};"{% endif %}>
-                        {% block element_image_media %}
-                            <img class="cms-image"
-                                 src="{{ asset(element.data.media.url) }}"
-                                 alt="{{ element.data.media.alt }}">
-                        {% endblock %}
-                    </div>
+                    {% if element.data.media.url %}
+                        <div class="cms-image-container is-{{ element.config.displayMode.value }}"{% if element.config.minHeight.value %} style="min-height: {{ element.config.minHeight.value }};"{% endif %}>
+                            {% block element_image_media %}
+                                <img class="cms-image"
+                                     src="{{ element.data.media.url }}"
+                                     alt="{{ element.data.media.alt }}">
+                            {% endblock %}
+                        </div>
+                    {% endif %}
                 {% endblock %}
             {% endset %}
 

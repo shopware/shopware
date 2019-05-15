@@ -4,7 +4,7 @@
 			{% block component_product_box_content %}
 				<div class="card-body">
 					{% block component_product_box_badges %}
-						{% sw_include '@Storefront/component/product/widget/badges.html.twig' %}
+						{% sw_include '@Storefront/component/product/card/badges.html.twig' %}
 					{% endblock %}
 
 					{% block component_product_box_image %}
@@ -44,11 +44,11 @@
 							{% endblock %}
 
 							{% block component_product_box_price %}
-								{% sw_include '@Storefront/component/product/widget/price-unit.html.twig' %}
+								{% sw_include '@Storefront/component/product/card/price-unit.html.twig' %}
 							{% endblock %}
 
 							{% block component_product_box_action %}
-								{% sw_include '@Storefront/component/product/widget/action.html.twig' %}
+								{% sw_include '@Storefront/component/product/card/action.html.twig' %}
 							{% endblock %}
 						</div>
 					{% endblock %}

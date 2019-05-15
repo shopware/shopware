@@ -299,4 +299,46 @@ class CalculatorTest extends TestCase
 
         static::assertSame(487.8, $calculated->get('A')->getPrice()->getTotalPrice());
     }
+
+    public function testNoDiscountOfDiscounts(): void
+    {
+        $cart = new Cart('test', 'test');
+
+        $noContainerRule = new LineItemOfTypeRule(LineItemOfTypeRule::OPERATOR_NEQ, 'container');
+
+        $nested = (new LineItem('A', 'container', 1))->assign([
+            'children' => new LineItemCollection([
+                (new LineItem('P1', 'product', 1))->assign([
+                    'priceDefinition' => new QuantityPriceDefinition(100, new TaxRuleCollection(), 2),
+                ]),
+                (new LineItem('D', 'discount', 1))->assign([
+                    'priceDefinition' => new PercentagePriceDefinition(-10, 2, $noContainerRule),
+                ]),
+                (new LineItem('B', 'container', 1))->assign([
+                    'children' => new LineItemCollection([
+                        (new LineItem('P1', 'product', 1))->assign([
+                            'priceDefinition' => new QuantityPriceDefinition(100, new TaxRuleCollection(), 2),
+                        ]),
+                        (new LineItem('D', 'discount', 1))->assign([
+                            'priceDefinition' => new PercentagePriceDefinition(-10, 2, $noContainerRule),
+                        ]),
+                    ]),
+                ]),
+            ]),
+        ]);
+
+        $cart->add($nested);
+
+        $calculated = $this->calculator->calculate($cart, $this->context, new CartBehavior());
+
+        static::assertCount(1, $calculated);
+
+        $root = $calculated->get('A');
+        static::assertSame(100.0, $root->getChildren()->get('P1')->getPrice()->getTotalPrice());
+        static::assertSame(-10.0, $root->getChildren()->get('D')->getPrice()->getTotalPrice());
+
+        $root = $root->getChildren()->get('B');
+        static::assertSame(100.0, $root->getChildren()->get('P1')->getPrice()->getTotalPrice());
+        static::assertSame(-10.0, $root->getChildren()->get('D')->getPrice()->getTotalPrice());
+    }
 }

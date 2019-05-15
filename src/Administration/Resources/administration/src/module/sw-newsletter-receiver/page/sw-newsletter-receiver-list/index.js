@@ -162,19 +162,19 @@ Component.register('sw-newsletter-receiver-list', {
 
         getColumns() {
             return [{
+                property: 'email',
+                dataIndex: 'email',
+                label: this.$tc('sw-newsletter-receiver.list.email'),
+                routerLink: 'sw.newsletter.receiver.detail',
+                allowResize: true,
+                inlineEdit: 'string'
+            }, {
                 property: 'firstName',
                 dataIndex: 'firstName,lastName',
                 inlineEdit: 'string',
                 label: this.$tc('sw-newsletter-receiver.list.name'),
-                routerLink: 'sw.newsletter.receiver.detail',
                 allowResize: true,
                 primary: true
-            }, {
-                property: 'email',
-                dataIndex: 'email',
-                label: this.$tc('sw-newsletter-receiver.list.email'),
-                allowResize: true,
-                inlineEdit: 'string'
             }, {
                 property: 'status',
                 dataIndex: 'status',
@@ -195,7 +195,8 @@ Component.register('sw-newsletter-receiver-list', {
                 property: 'street',
                 dataIndex: 'street',
                 label: this.$tc('sw-newsletter-receiver.list.street'),
-                allowResize: true
+                allowResize: true,
+                visible: false
             }, {
                 property: 'updatedAt',
                 dataIndex: 'updatedAt',

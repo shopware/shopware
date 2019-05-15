@@ -24,14 +24,22 @@
                 <sw-card v-if="newsletterReceiver" :title="$tc('sw-newsletter-receiver.general.information')">
                     {% block sw_newsletter_receiver_detail_form %}
 
-                        {% block sw_newsletter_receiver_detail_form_salutation %}
-                            <sw-entity-single-select
-                                    :label="$tc('sw-newsletter-receiver.general.salutation')"
-                                    v-model="newsletterReceiver.salutationId"
-                                    labelProperty="displayName"
-                                    entity="salutation">
-                            </sw-entity-single-select>
-                        {% endblock %}
+                        <sw-container columns="1fr 1fr" gap="10px">
+                            {% block sw_newsletter_receiver_detail_form_salutation %}
+                                <sw-entity-single-select
+                                        :label="$tc('sw-newsletter-receiver.general.salutation')"
+                                        v-model="newsletterReceiver.salutationId"
+                                        labelProperty="displayName"
+                                        entity="salutation">
+                                </sw-entity-single-select>
+                            {% endblock %}
+
+                            {% block sw_newsletter_receiver_detail_form_title %}
+                                <sw-field :label="$tc('sw-newsletter-receiver.list.title')"
+                                          v-model="newsletterReceiver.title">
+                                </sw-field>
+                            {% endblock %}
+                        </sw-container>
 
                         <sw-container columns="1fr 1fr" gap="10px">
                             {% block sw_newsletter_receiver_detail_form_first_name %}

@@ -121,6 +121,7 @@
             <argument type="service" id="Shopware\Core\Content\NewsletterReceiver\SalesChannel\NewsletterSubscriptionService"/>
             <argument type="service" id="request_stack"/>
             <argument type="service" id="translator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

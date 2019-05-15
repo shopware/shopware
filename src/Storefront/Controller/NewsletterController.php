@@ -48,11 +48,6 @@ class NewsletterController extends StorefrontController
     private $translator;
 
     /**
-     * @var NewsletterSubscriptionServiceInterface
-     */
-    private $newsletterSubscriptionService;
-
-    /**
      * @var AccountService
      */
     private $accountService;
@@ -62,13 +57,15 @@ class NewsletterController extends StorefrontController
         PageLoaderInterface $newsletterConfirmRegisterPageLoader,
         NewsletterSubscriptionServiceInterface $newsletterService,
         RequestStack $requestStack,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        AccountService $accountService
     ) {
         $this->newsletterRegisterPageLoader = $newsletterRegisterPageLoader;
         $this->newsletterConfirmRegisterPageLoader = $newsletterConfirmRegisterPageLoader;
         $this->newsletterService = $newsletterService;
         $this->requestStack = $requestStack;
         $this->translator = $translator;
+        $this->accountService = $accountService;
     }
 
     /**
@@ -152,7 +149,7 @@ class NewsletterController extends StorefrontController
 
         if ($subscribed) {
             try {
-                $this->newsletterSubscriptionService->subscribe($this->hydrateFromCustomer($dataBag, $context->getCustomer()), $context);
+                $this->newsletterService->subscribe($this->hydrateFromCustomer($dataBag, $context->getCustomer()), $context);
 
                 $this->accountService->setNewsletterFlag($context->getCustomer(), true, $context);
 
@@ -171,7 +168,7 @@ class NewsletterController extends StorefrontController
         }
 
         try {
-            $this->newsletterSubscriptionService->unsubscribe($this->hydrateFromCustomer($dataBag, $context->getCustomer()), $context);
+            $this->newsletterService->unsubscribe($this->hydrateFromCustomer($dataBag, $context->getCustomer()), $context);
             $this->accountService->setNewsletterFlag($context->getCustomer(), false, $context);
 
             $success = true;
@@ -192,6 +189,11 @@ class NewsletterController extends StorefrontController
     {
         $dataBag->set('email', $customer->getEmail());
         $dataBag->set('salutationId', $customer->getSalutationId());
+        $dataBag->set('title', $customer->getTitle());
+        $dataBag->set('firstName', $customer->getFirstName());
+        $dataBag->set('lastName', $customer->getLastName());
+        $dataBag->set('zipCode', $customer->getDefaultShippingAddress()->getZipCode());
+        $dataBag->set('city', $customer->getDefaultShippingAddress()->getCity());
 
         return $dataBag;
     }

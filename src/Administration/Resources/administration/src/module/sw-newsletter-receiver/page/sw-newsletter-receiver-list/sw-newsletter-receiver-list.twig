@@ -61,9 +61,9 @@
                                     {% endblock %}
 
                                     {% block sw_newsletter_receiverlist_list_grid_name_link %}
-                                        <router-link v-else :to="{ name: 'sw.newsletter.receiver.detail', params: { id: item.id } }">
+                                        <template v-else>
                                             {{ item.firstName }} {{ item.lastName }}
-                                        </router-link>
+                                        </template>
                                     {% endblock %}
                                 </template>
                             {% endblock %}

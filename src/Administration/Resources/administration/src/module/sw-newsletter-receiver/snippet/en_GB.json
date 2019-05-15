@@ -24,6 +24,7 @@
       "textHeadline": "Newsletter recipients",
       "email": "Email",
       "name": "Name",
+      "title": "Title",
       "firstName": "First name",
       "lastName": "Last name",
       "zipCode": "Zip code",

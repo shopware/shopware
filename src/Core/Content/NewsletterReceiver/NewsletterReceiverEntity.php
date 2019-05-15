@@ -21,6 +21,11 @@ class NewsletterReceiverEntity extends Entity
     /**
      * @var string|null
      */
+    protected $title;
+
+    /**
+     * @var string|null
+     */
     protected $firstName;
 
     /**
@@ -116,6 +121,16 @@ class NewsletterReceiverEntity extends Entity
     public function setEmail(string $email): void
     {
         $this->email = $email;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(string $title): void
+    {
+        $this->title = $title;
     }
 
     public function getFirstName(): ?string

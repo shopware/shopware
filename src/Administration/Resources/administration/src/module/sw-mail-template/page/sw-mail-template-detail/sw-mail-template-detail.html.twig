@@ -141,7 +141,7 @@
                                 {% endblock %}
 
                                 {% block sw_mail_template_mail_text_form_test_mail_button %}
-                                    <sw-button :disabled="mailTemplate.isLoading || !testerMail"  @click="onClickTestMailTemplate" >
+                                    <sw-button :disabled="mailTemplate.isLoading || !testMailRequirementsMet"  @click="onClickTestMailTemplate" >
                                         {{ $tc('sw-mail-template.detail.sidebar.buttonTestMail') }}
                                     </sw-button>
                                 {% endblock %}

@@ -25,7 +25,7 @@ class MailApiService extends ApiService {
             {
                 contentHtml: mailTemplate.contentHtml,
                 contentPlain: mailTemplate.contentPlain,
-                recipients: [recipient],
+                recipients: { [recipient]: 'test' },
                 salesChannelId: salesChannelId,
                 mediaIds: mediaIds,
                 subject: mailTemplate.subject,

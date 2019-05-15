@@ -64,6 +64,14 @@ Component.register('sw-mail-template-detail', {
                 // The DAL internally uses a left join for many to many relations, so we have to check for null values
                 // separately. Null values occur, when there is no template assigned to a sale channel yet.
                 CriteriaFactory.equals('mailTemplates.mailTemplateTypeId', null));
+        },
+
+        testMailRequirementsMet() {
+            return this.testerMail &&
+                this.mailTemplate.subject &&
+                this.mailTemplate.contentPlain &&
+                this.mailTemplate.contentHtml &&
+                this.mailTemplate.senderName;
         }
     },
 

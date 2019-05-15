@@ -249,7 +249,7 @@ class CheckoutPageController extends StorefrontController
                 'orderId' => $orderId,
             ]);
 
-            $response = $this->paymentService->handlePaymentByOrder($orderId, $context, $finishUrl);
+            $response = $this->paymentService->handlePaymentByOrder($orderId, $data, $context, $finishUrl);
 
             if ($response !== null) {
                 return $response;

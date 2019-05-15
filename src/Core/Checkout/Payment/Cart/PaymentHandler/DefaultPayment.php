@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Payment\Cart\PaymentHandler;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Checkout\Payment\Cart\SyncPaymentTransactionStruct;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class DefaultPayment implements SynchronousPaymentHandlerInterface
@@ -18,7 +19,7 @@ class DefaultPayment implements SynchronousPaymentHandlerInterface
         $this->transactionStateHandler = $transactionStateHandler;
     }
 
-    public function pay(SyncPaymentTransactionStruct $transaction, SalesChannelContext $salesChannelContext): void
+    public function pay(SyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): void
     {
         $context = $salesChannelContext->getContext();
         $this->transactionStateHandler->open($transaction->getOrderTransaction()->getId(), $context);

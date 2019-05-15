@@ -393,8 +393,8 @@ export default {
             event.preventDefault();
 
             const clipboardData = event.clipboardData || window.clipboardData;
-            const text = clipboardData.getData('text/plain');
-            document.execCommand('insertHTML', false, text);
+            const text = clipboardData.getData('text');
+            document.execCommand('insertText', false, text);
         },
 
         emitContent() {

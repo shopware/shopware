@@ -37,6 +37,7 @@
                 } %}
             {% endif %}
         {% endblock %}
+
         {% block page_account_address_error_messages %}
             {% if app.request.get('changedDefaultAddress') == '0' %}
                 {% sw_include '@Storefront/utilities/alert.html.twig' with {
@@ -55,7 +56,6 @@
         {% block page_account_address_main %}
             {% set defaultBillingAddress = page.context.customer.defaultBillingAddress %}
             {% set defaultShippingAddress = page.context.customer.defaultShippingAddress %}
-
 
             {% block page_account_address_default %}
                 <div class="row default-address">
@@ -120,7 +120,10 @@
             {% block page_account_address_list %}
                 {% if page.addresses.entities.elements|length > 1 %}
                     <div class="address-list">
-                        <h3>{{ "account.addressListHeader"|trans }}</h3>
+                        <div class="h3">
+                            {{ "account.addressListHeader"|trans }}
+                        </div>
+
                         <div class="row">
                             {% for address in page.addresses.entities.elements %}
                                 <div class="col-sm-6 card-col address-card">

@@ -1,6 +1,4 @@
 [titleEn]: <>(Scheduled Tasks)
-[titleDe]: <>(Scheduled Tasks)
-[wikiUrl]: <>(../framework/scheduled-tasks?category=shopware-platform-en/framework)
 
 Scheduled Tasks are a way to to add recurring tasks to the systems. These tasks will run in an defined interval. Scheduled Tasks work asynchronously over the message queue.
 

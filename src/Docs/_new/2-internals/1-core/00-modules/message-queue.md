@@ -1,6 +1,4 @@
 [titleEn]: <>(Message Queue)
-[titleDe]: <>(Message Queue)
-[wikiUrl]: <>(../framework/message-queue?category=shopware-platform-en/framework)
 
 Shopware integrates with the [Symfony Messenger](https://symfony.com/doc/current/components/messenger.html) component 
 and [Enqueue](https://enqueue.forma-pro.com/). This gives you the possibility to send and handle asynchonous messages.
@@ -63,6 +61,10 @@ To send a message you simply inject the message bus into your service.
 ```
 Inside your service you simply create the message you want to sent and dispatch it to the message bus.
 ```php
+<?php
+
+use \Symfony\Component\Messenger\MessageBusInterface;
+
 class MySender
 {
     /**
@@ -83,6 +85,10 @@ class MySender
 ```
 If you want to add metadata to your message you can simply dispatch an envelope with the necessary stamps.
 ```php
+<?php
+
+use \Symfony\Component\Messenger\MessageBusInterface;
+
 class MySender
 {
     /**
@@ -133,7 +139,11 @@ Simply create a service an tag it with the `messenger.message_handler` tag.
 ```
 In your handler extend the `AbstractHandler` and implement the necessary methods.
 ```php
-class MyHandler extends AbstractHandler
+<?php
+
+use \Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
+
+class MyHandler extends AbstractMessageHandler
 {
         /**
          * @param SmsNotification $message

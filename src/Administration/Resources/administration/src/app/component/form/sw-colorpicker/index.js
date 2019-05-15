@@ -97,8 +97,7 @@ export default {
         },
 
         color() {
-            this.resetFormError();
-            this.$emit('input', this.color);
+            this.colorWatcher();
         },
 
         disabled() {
@@ -127,6 +126,11 @@ export default {
 
         destroyedComponent() {
             delete this.colorPicker;
+        },
+
+        colorWatcher() {
+            this.resetFormError();
+            this.$emit('input', this.color);
         },
 
         setColor(value) {

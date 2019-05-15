@@ -48,82 +48,95 @@ export default {
                     {
                         type: 'paragparh',
                         icon: 'default-text-editor-style',
-                        expanded: false,
                         children: [
                             {
                                 type: 'formatBlock',
                                 name: 'Paragraph',
-                                value: 'p'
+                                value: 'p',
+                                tag: 'p'
                             },
                             {
                                 type: 'formatBlock',
                                 name: 'Heading 1',
-                                value: 'h1'
+                                value: 'h1',
+                                tag: 'h1'
                             },
                             {
                                 type: 'formatBlock',
                                 name: 'Heading 2',
-                                value: 'h2'
+                                value: 'h2',
+                                tag: 'h2'
                             },
                             {
                                 type: 'formatBlock',
                                 name: 'Heading 3',
-                                value: 'h3'
+                                value: 'h3',
+                                tag: 'h3'
                             },
                             {
                                 type: 'formatBlock',
                                 name: 'Heading 4',
-                                value: 'h4'
+                                value: 'h4',
+                                tag: 'h4'
                             },
                             {
                                 type: 'formatBlock',
                                 name: 'Heading 5',
-                                value: 'h5'
+                                value: 'h5',
+                                tag: 'h5'
                             },
                             {
                                 type: 'formatBlock',
                                 name: 'Heading 6',
-                                value: 'h6'
+                                value: 'h6',
+                                tag: 'h6'
                             },
                             {
                                 type: 'formatBlock',
                                 name: 'Blockquote',
-                                value: 'blockquote'
+                                value: 'blockquote',
+                                tag: 'blockquote'
                             }
                         ]
                     },
                     {
                         type: 'foreColor',
-                        value: ''
+                        value: '',
+                        tag: 'font'
                     },
                     {
                         type: 'bold',
-                        icon: 'default-text-editor-bold'
+                        icon: 'default-text-editor-bold',
+                        tag: 'b'
                     },
                     {
                         type: 'italic',
-                        icon: 'default-text-editor-italic'
+                        icon: 'default-text-editor-italic',
+                        tag: 'i'
                     },
                     {
                         type: 'underline',
-                        icon: 'default-text-editor-underline'
+                        icon: 'default-text-editor-underline',
+                        tag: 'u'
                     },
                     {
                         type: 'strikethrough',
-                        icon: 'default-text-editor-strikethrough'
+                        icon: 'default-text-editor-strikethrough',
+                        tag: 'strike'
                     },
                     {
                         type: 'superscript',
-                        icon: 'default-text-editor-superscript'
+                        icon: 'default-text-editor-superscript',
+                        tag: 'sup'
                     },
                     {
                         type: 'subscript',
-                        icon: 'default-text-editor-subscript'
+                        icon: 'default-text-editor-subscript',
+                        tag: 'sub'
                     },
                     {
                         type: 'justify',
                         icon: 'default-text-editor-align-left',
-                        expanded: false,
                         children: [
                             {
                                 type: 'justifyLeft',
@@ -145,18 +158,21 @@ export default {
                     },
                     {
                         type: 'insertUnorderedList',
-                        icon: 'default-text-editor-list-unordered'
+                        icon: 'default-text-editor-list-unordered',
+                        tag: 'ul'
                     },
                     {
                         type: 'insertOrderedList',
-                        icon: 'default-text-editor-list-numberd'
+                        icon: 'default-text-editor-list-numberd',
+                        tag: 'ol'
                     },
                     {
                         type: 'link',
                         icon: 'default-text-editor-link',
                         expanded: false,
                         newTab: false,
-                        value: ''
+                        value: '',
+                        tag: 'a'
                     },
                     {
                         type: 'undo',
@@ -291,9 +307,9 @@ export default {
 
             if (event.type === 'mousedown') {
                 document.getSelection().empty();
+                this.resetForeColor();
             }
 
-            this.resetForeColor();
             this.hasSelection = !!document.getSelection().toString();
             this.selection = document.getSelection();
         },

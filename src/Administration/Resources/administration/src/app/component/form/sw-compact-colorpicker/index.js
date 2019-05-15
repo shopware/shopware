@@ -24,7 +24,9 @@ export default {
     ],
 
     watch: {
-        color() {}
+        color() {
+            this.colorWatcher();
+        }
     },
 
     methods: {
@@ -75,6 +77,8 @@ export default {
         onClose() {
             this.open = false;
             this.$emit('sw-colorpicker-closed');
-        }
+        },
+
+        colorWatcher() {}
     }
 };

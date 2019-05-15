@@ -110,6 +110,10 @@ $sw-text-editor-toolbar-item-child-shadow: rgba(120, 138, 155, 0.5);
                 cursor: pointer;
                 color: $sw-text-editor-toolbar-item-child-color;
                 padding: 8px 15px;
+
+                &.is--active {
+                    color: $color-shopware-blue;
+                }
             }
 
             &.sw-text-editor-toolbar__link-menu {

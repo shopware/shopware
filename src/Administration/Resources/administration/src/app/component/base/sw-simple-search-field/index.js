@@ -13,10 +13,11 @@ import './sw-simple-search-field.scss';
 export default {
     name: 'sw-simple-search-field',
     template,
+    inheritAttrs: false,
 
     model: {
         prop: 'searchTerm',
-        event: 'searchTermChanged'
+        event: 'search-term-changed'
     },
 
     props: {
@@ -24,25 +25,12 @@ export default {
             type: String,
             required: false,
             default: 'default',
-            validValues: ['default', 'form'],
+            validValues: ['default', 'inverted', 'form'],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
-                return ['default', 'form'].includes(value);
-            }
-        },
-
-        size: {
-            type: String,
-            required: false,
-            default: 'large',
-            validValues: ['large', 'small'],
-            validator(value) {
-                if (!value.length) {
-                    return true;
-                }
-                return ['large', 'small'].includes(value);
+                return ['default', 'inverted', 'form'].includes(value);
             }
         },
 
@@ -65,26 +53,24 @@ export default {
 
         placeholder: {
             type: String,
-            required: false
+            required: false,
+            default() {
+                return this.$tc('global.sw-simple-search-field.defaultPlaceholder');
+            }
         }
     },
 
     computed: {
         fieldClasses() {
-            return {
-                [`sw-simple-search-field--${this.variant}`]: this.variant,
-                [`sw-simple-search-field--${this.size}`]: this.size
-            };
-        },
-
-        fallbackPlaceholder() {
-            return this.placeholder || this.$tc('global.sw-simple-search-field.defaultPlaceholder');
+            return [
+                `sw-simple-search-field--${this.variant}`
+            ];
         },
 
         onSearchTermChanged() {
             return utils.debounce((input) => {
                 const validInput = input || '';
-                this.$emit('searchTermChanged', validInput.trim());
+                this.$emit('search-term-changed', validInput.trim());
             }, this.delay);
         }
     }

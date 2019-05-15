@@ -6,38 +6,59 @@ $sw-simple-search-field-search-icon-color: $color-gray;
     position: relative;
     outline: none;
 
-    &.sw-simple-search-field--small {
-        &.sw-simple-search-field--form,
-        &.sw-simple-search-field--default {
-            .sw-simple-search-field__input input {
-                padding: 4px 16px;
-            }
-        }
+    .sw-field.sw-simple-search-field__input {
+        margin-bottom: 0;
     }
 
-    &.sw-simple-search-field--default {
-        .sw-simple-search-field__input {
-            margin-bottom: 0;
 
-            &.sw-block-field .sw-block-field__block,
-            &.sw-block-field.has--focus .sw-block-field__block {
-                border: none;
-                box-shadow: none;
-            }
+    .sw-simple-search-field__input.sw-simple-search-field--default {
+        .sw-block-field__block {
+            border: none;
+            box-shadow: none;
+        }
 
+        input {
+            border-radius: 24px;
+            background-color: $color-light-gray;
+        }
+
+        &.sw-field--default {
             input {
-                background: $color-light-gray;
-                border-radius: 30px;
-                padding-right: 44px;
-                padding-left: 20px;
-                padding: 9px 16px;
+                padding: 13px 17px;
+            }
+        }
+
+        &.sw-field--medium {
+            input {
+                padding: 9px 17px;
+            }
+        }
+
+        &.sw-field--small {
+            input {
+                padding: 5px 17px;
             }
         }
     }
 
-    &.sw-simple-search-field--form {
-        .sw-simple-search-field__input {
-            margin-bottom: 0;
+    .sw-simple-search-field__input.sw-simple-search-field--inverted {
+        .sw-block-field__block {
+            border: 1px solid $color-steam-cloud;
+            box-shadow: 0 0 4px lighten($color-steam-cloud, 30%);
+        }
+
+        &.has--error {
+            border: 1px solid $color-steam-cloud;
+            box-shadow: 0 0 4px lighten($color-steam-cloud, 30%);
+        }
+
+        &.has-focus {
+            border: 1px solid $color-steam-cloud;
+            box-shadow: 0 0 4px lighten($color-steam-cloud, 30%);
+        }
+
+        input {
+            background-color: $color-light-gray;
         }
     }
 

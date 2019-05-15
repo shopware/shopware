@@ -47,6 +47,15 @@ Component.register('sw-system-config', {
         };
     },
 
+    watch: {
+        actualConfigData: {
+            handler() {
+                this.emitConfig();
+            },
+            deep: true
+        }
+    },
+
     created() {
         this.createdComponent();
     },
@@ -147,6 +156,10 @@ Component.register('sw-system-config', {
             }
 
             return bind;
+        },
+
+        emitConfig() {
+            this.$emit('config-changed', this.actualConfigData[this.currentSalesChannelId]);
         }
     }
 });

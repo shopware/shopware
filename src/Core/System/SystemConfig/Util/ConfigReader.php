@@ -168,7 +168,7 @@ class ConfigReader extends XmlReader
 
     private function isBoolOption(\DOMElement $option): bool
     {
-        return \in_array($option->nodeName, ['copyable', 'disabled'], true);
+        return \in_array($option->nodeName, ['copyable', 'disabled', 'required'], true);
     }
 
     private function elementIsOptions(\DOMElement $option): bool

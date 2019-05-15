@@ -32,7 +32,9 @@
                                     <div class="card-body">
                                         {% block page_account_overview_profile_content %}
                                             <p>
-                                                {{ page.customer.salutation.translated.name }}
+                                                {% if page.customer.salutation.salutationKey != 'not_specified' %}
+                                                    {{ page.customer.salutation.translated.displayName }}
+                                                {% endif %}
                                                 {% if page.customer.title %}
                                                     {{ page.customer.title }}<br/>
                                                 {% endif %}

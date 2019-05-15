@@ -50,13 +50,45 @@ class RequestTransformer
             return $request;
         }
 
-        $baseUrl = str_replace($request->getSchemeAndHttpHost() . $request->getBasePath(), '', $salesChannel['url']);
+        $baseUrl = str_replace($request->getSchemeAndHttpHost() . $request->getBaseUrl(), '', $salesChannel['url']);
 
         $resolved = $this->resolveSeoUrl($request, $baseUrl, $salesChannel['salesChannelId']);
 
+        /**
+         * - Remove "virtual" suffix of domain mapping shopware.de/de
+         * - To get only the host shopware.de as real request uri shopware.de/
+         * - Resolve remaining seo url and get the real path info shopware.de/outdoor => shopware.de/navigation/{id}
+         *
+         * Possible domains
+         *
+         * same host, different "virtual" suffix
+         * http://shopware.de/de
+         * http://shopware.de/en
+         * http://shopware.de/fr
+         *
+         * same host, different location
+         * http://shopware.fr
+         * http://shopware.com
+         * http://shopware.de
+         *
+         * complete different host and location
+         * http://color.com
+         * http://farben.de
+         * http://couleurs.fr
+         *
+         * installation in sub directory
+         * http://localhost/development/public/de
+         * http://localhost/development/public/en
+         * http://localhost/development/public/fr
+         *
+         * installation with port
+         * http://localhost:8080
+         * http://localhost:8080/en
+         * http://localhost:8080/fr
+         */
         $server = array_merge(
             $_SERVER,
-            ['REQUEST_URI' => $request->getBaseUrl() . $resolved['pathInfo']]
+            ['REQUEST_URI' => rtrim($request->getBaseUrl(), '/') . '/' . $resolved['pathInfo']]
         );
 
         $clone = $request->duplicate(null, null, null, null, null, $server);
@@ -98,8 +130,8 @@ class RequestTransformer
         /** @var Statement $statement */
         $statement = $this->connection->createQueryBuilder()
             ->select([
-                'TRIM(TRAILING "/" FROM domain.url) `key`',
-                'TRIM(TRAILING "/" FROM domain.url) url',
+                'CONCAT(TRIM(TRAILING "/" FROM domain.url), "/") `key`',
+                'CONCAT(TRIM(TRAILING "/" FROM domain.url), "/") url',
                 'LOWER(HEX(domain.id)) id',
                 'LOWER(HEX(sales_channel.id)) salesChannelId',
                 'LOWER(HEX(domain.snippet_set_id)) snippetSetId',
@@ -119,12 +151,17 @@ class RequestTransformer
             return null;
         }
 
-        $requestUrl = rtrim($request->getSchemeAndHttpHost() . $request->getBasePath() . $request->getPathInfo(), '/');
+        // domain urls and request uri should be in same format, all with trailing slash
+        $requestUrl = rtrim($request->getSchemeAndHttpHost() . $request->getBasePath() . $request->getPathInfo(), '/') . '/';
 
         // direct hit
         if (array_key_exists($requestUrl, $domains)) {
-            return $domains[$requestUrl];
+            $domain = $domains[$requestUrl];
+            $domain['url'] = rtrim($domain['url'], '/');
+
+            return $domain;
         }
+
         // reduce shops to which base url is the beginning of the request
         $domains = array_filter($domains, function ($baseUrl) use ($requestUrl) {
             return strpos($requestUrl, $baseUrl) === 0;
@@ -146,12 +183,22 @@ class RequestTransformer
             $lastBaseUrl = $baseUrl;
         }
 
+        $bestMatch['url'] = rtrim($bestMatch['url'], '/');
+
         return $bestMatch;
     }
 
     private function resolveSeoUrl(Request $request, string $baseUrl, string $salesChannelId): array
     {
-        $seoPathInfo = $request->getPathInfo();
+        $seoPathInfo = rtrim($request->getPathInfo(), '/') . '/';
+
+        // only remove full base url not part
+        // registered domain: 'shop-dev.de/de'
+        // incoming request:  'shop-dev.de/detail'
+        // without leading slash, detail would be stripped
+
+        $baseUrl = rtrim($baseUrl, '/') . '/';
+
         if (!empty($baseUrl) && strpos($seoPathInfo, $baseUrl) === 0) {
             $seoPathInfo = substr($seoPathInfo, strlen($baseUrl));
         }
@@ -160,6 +207,6 @@ class RequestTransformer
             return (new SeoResolver($this->connection))->resolveSeoPath($salesChannelId, $seoPathInfo);
         }
 
-        return ['pathInfo' => $seoPathInfo];
+        return ['pathInfo' => rtrim($seoPathInfo, '/')];
     }
 }

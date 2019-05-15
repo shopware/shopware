@@ -74,6 +74,7 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandle
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -92,7 +93,7 @@ class ExamplePayment implements AsynchronousPaymentHandlerInterface
     /**
      * @throws AsyncPaymentProcessException
      */
-    public function pay(AsyncPaymentTransactionStruct $transaction, SalesChannelContext $salesChannelContext): RedirectResponse
+    public function pay(AsyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): RedirectResponse
     {
         // Method that sends the return URL to the external gateway and gets a redirect URL back
         try {
@@ -160,6 +161,7 @@ namespace PaymentPlugin\Service;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\SyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ExamplePayment implements SynchronousPaymentHandlerInterface
@@ -174,7 +176,7 @@ class ExamplePayment implements SynchronousPaymentHandlerInterface
         $this->transactionStateHandler = $transactionStateHandler;
     }
 
-    public function pay(SyncPaymentTransactionStruct $transaction, SalesChannelContext $salesChannelContext): void
+    public function pay(SyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): void
     {
         $context = $salesChannelContext->getContext();
         $this->transactionStateHandler->complete($transaction->getOrderTransaction()->getId(), $context);

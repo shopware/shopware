@@ -19,16 +19,16 @@
                     {% block layout_navigation_offcanvas_navigation_overlay_content %}
                         {% if not isRootLevel %}
                             {% block layout_navigation_offcanvas_navigation_home_link %}
-                                <a class="nav-item nav-link go-home offcanvas-menu-list-item js-offcanvas-menu-link"
+                                <a class="nav-item nav-link go-home offcanvas-menu-list-item-link js-offcanvas-menu-link"
                                    href="{{ path('widgets.menu.offcanvas') }}"
                                    itemprop="url"
                                    title="{{ "general.mainMenu"|trans }}">
                                     {% block layout_navigation_offcanvas_navigation_home_link_text %}
+                                        <span
+                                            class="offcanvas-menu-list-item-link-icon js-offcanvas-menu-loading-icon">
+                                            {% sw_icon 'stack' %}
+                                        </span>
                                         <span itemprop="{{ "general.mainMenu"|trans }}">
-                                            <span
-                                                class="offcanvas-menu-list-item-link-icon js-offcanvas-menu-loading-icon">
-                                                {% sw_icon 'stack' %}
-                                            </span>
                                             {{ "general.mainMenu"|trans }}
                                         </span>
                                     {% endblock %}
@@ -48,18 +48,18 @@
                             {% endblock %}
 
                             {% block layout_navigation_offcanvas_navigation_category_back_link %}
-                                <a class="nav-item nav-link go-back offcanvas-menu-list-item js-offcanvas-menu-link"
+                                <a class="nav-item nav-link go-back offcanvas-menu-list-item-link js-offcanvas-menu-link"
                                    href="{{ path('widgets.menu.offcanvas', {'navigationId': activeItem.parentId}) }}"
                                    itemprop="url"
                                    title="{{ "general.back"|trans }}">
                                     {% block layout_navigation_offcanvas_navigation_category_back_link_text %}
+                                        <span
+                                            class="offcanvas-menu-list-item-link-icon js-offcanvas-menu-loading-icon">
+                                            {% block layout_utilities_offcanvas_close_icon %}
+                                                {% sw_icon 'arrow-medium-left' style { 'pack':'solid', 'size': 'sm' } %}
+                                            {% endblock %}
+                                        </span>
                                         <span itemprop="name">
-                                            <span
-                                                class="offcanvas-menu-list-item-link-icon js-offcanvas-menu-loading-icon">
-                                                {% block layout_utilities_offcanvas_close_icon %}
-                                                    {% sw_icon 'x' style { 'size': 'sm' } %}
-                                                {% endblock %}
-                                            </span>
                                             {{ "general.back"|trans }}
                                         </span>
                                     {% endblock %}

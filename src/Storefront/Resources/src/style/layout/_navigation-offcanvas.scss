@@ -14,53 +14,74 @@
     @extend .nav-link;
     font-weight: $font-weight-bold;
     color: $secondary;
-    padding-top: 20px;
+    padding: 20px $spacer $spacer;
 }
 
-.offcanvas-menu-list {
-    .offcanvas-menu-list-item-link-icon {
-        float: right;
+.offcanvas-menu-list-item-link-icon {
+    position: absolute;
+    right: $spacer;
+    top: 50%;
+    transform: translateY(-50%);
 
-        .loader {
-            width: 13px;
-            height: 13px;
-            left: 3px;
-            position: relative;
-        }
+    .loader {
+        @extend .icon-sm;
     }
 }
 
 .offcanvas-menu-list-item {
-    border-bottom: 1px solid $gray-300;
     background-color: $white;
-    padding: $spacer-sm 0;
+    border-top: 1px solid $gray-300;
+    position: relative;
+
+    &:last-child {
+        border-bottom: 1px solid $gray-300;
+    }
+}
+
+.offcanvas-menu-list-item-link {
+    @include transition(color 0.45s cubic-bezier(0.3, 0, 0.15, 1));
+    align-items: center;
+    color: $body-color;
+    display: flex;
+    justify-content: space-between;
+    padding: $spacer-md $spacer;
+    position: relative;
+
+    &.go-home,
+    &.go-back {
+        justify-content: flex-start;
+        padding-left: 40px;
+
+        .offcanvas-menu-list-item-link-icon {
+            right: auto;
+        }
+    }
+
+    &.go-home {
+        .offcanvas-menu-list-item-link-icon {
+            left: 14px;
+        }
+
+        &,
+        .icon {
+            color: $primary;
+        }
+    }
 
     &.go-back {
         border-top: 1px solid $gray-300;
         font-weight: $font-weight-bold;
         color: $secondary;
 
-        .loader {
-            width: 13px;
-            height: 13px;
-            top: -3px;
-            position: relative;
+        .offcanvas-menu-list-item-link-icon {
+            left: 11px;
+
+            .loader {
+                left: 3px;
+                position: relative;
+            }
         }
     }
-
-    &.go-home {
-        .loader {
-            width: 13px;
-            height: 13px;
-            top: -3px;
-            position: relative;
-        }
-    }
-}
-
-.offcanvas-menu-list-item-link {
-    @include transition(color 0.45s cubic-bezier(0.3, 0, 0.15, 1));
-    color: $body-color;
 
     &.current-category {
         color: $primary;
@@ -70,7 +91,10 @@
     &:hover,
     &:active,
     &:focus {
-        color: $primary;
+        &,
+        .offcanvas-menu-list-item-link-icon .icon {
+            color: $primary;
+        }
     }
 }
 

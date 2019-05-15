@@ -1,7 +1,7 @@
 {% sw_extends '@Storefront/base.html.twig' %}
 
 {% block base_flashbags %}
-    <div class="flashbags">
+    <div class="flashbags container">
         {% for type, messages in app.flashes(["warning", "error", "danger"]) %}
             {% if messages is not empty %}
                 {% sw_include '@Storefront/utilities/alert.html.twig' with { type: type, list: messages } %}

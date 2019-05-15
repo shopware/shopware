@@ -13,3 +13,7 @@ https://getbootstrap.com/docs/4.3/components/forms/
 .form-group {
     margin-bottom: 20px;
 }
+
+.form-control:focus {
+    box-shadow: none;
+}

@@ -1,4 +1,3 @@
-// general
 .checkout {
     &.is-confirm {
         padding-top: 70px;
@@ -37,4 +36,14 @@
 .confirm-payment,
 .confirm-shipping {
     margin-bottom: $spacer-lg;
+}
+
+.confirm-billing-address {
+    margin-bottom: $spacer;
+}
+
+@include media-breakpoint-up(sm) {
+    .confirm-billing-address {
+        margin-bottom: 0;
+    }
 }

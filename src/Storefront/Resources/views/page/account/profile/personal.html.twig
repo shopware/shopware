@@ -10,7 +10,7 @@
             {% set birthyear = data.birthday|date('Y') %}
 
             {% block page_account_profile_personal_fields_birthday_select_day %}
-                <div class="form-group col-md-4">
+                <div class="form-group col-4 col-md-2">
                     <select id="personalBirthday"
                             name="birthdayDay"
                             class="custom-select{% if formViolations.getViolations('/birthdayDay') is not empty %} is-invalid{% endif %}"
@@ -40,7 +40,7 @@
             {% endblock %}
 
             {% block page_account_profile_personal_fields_birthday_select_month %}
-                <div class="form-group col-md-4">
+                <div class="form-group col-4 col-md-2">
                     <select name="birthdayMonth"
                             class="custom-select{% if formViolations.getViolations('/birthdayMonth') is not empty %} is-invalid{% endif %}"
                             required="required">
@@ -69,7 +69,7 @@
             {% endblock %}
 
             {% block page_account_profile_personal_fields_birthday_select_year %}
-                <div class="form-group col-md-4">
+                <div class="form-group col-4 col-md-2">
                     {% set currentYear = "now"|date('Y') %}
                     {% set startYear = currentYear - 120 %}
 

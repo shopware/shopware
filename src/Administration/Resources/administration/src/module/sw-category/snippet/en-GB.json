@@ -53,7 +53,16 @@
 
           "entry-point": {
             "title": "Entry point",
-            "descriptionGeneral": "You have assigned this node in the following sales channels as an entry point for the main navigation:"
+
+            "navigation": {
+              "descriptionGeneral": "You have assigned this node in the following sales channels as an entry point for the main navigation:"
+            },
+            "serviceSales": {
+              "descriptionGeneral": "You have assigned this node in the following sales channels as an entry point for the service navigation:"
+            },
+            "footerSales": {
+              "descriptionGeneral": "You have assigned this node in the following sales channels as an entry point for the footer navigation:"
+            }
           },
 
           "menu": {

@@ -54,7 +54,16 @@
 
           "entry-point": {
             "title": "Einstiegspunkt",
-            "descriptionGeneral": "Du hast diesen Knoten in folgenden Verkaufskanälen als Einstiegspunkt für die Hauptnavigation zugewiesen:"
+
+            "navigation": {
+              "descriptionGeneral": "Du hast diesen Knoten in folgenden Verkaufskanälen als Einstiegspunkt für die Hauptnavigation zugewiesen:"
+            },
+            "serviceSales": {
+              "descriptionGeneral": "Du hast diesen Knoten in folgenden Verkaufskanälen als Einstiegspunkt für die Servicenavigation zugewiesen:"
+            },
+            "footerSales": {
+              "descriptionGeneral": "Du hast diesen Knoten in folgenden Verkaufskanälen als Einstiegspunkt für die Footernavigation zugewiesen:"
+            }
           },
 
           "menu": {

@@ -73,10 +73,12 @@ module.exports = {
 
         browser
             .waitForElementVisible('.icon--default-shopping-cart')
-            .click(`${page.elements.dataGridRow}--1 #defaultShippingAddress-0`)
-            .click(`${page.elements.dataGridRow}--0 #defaultBillingAddress-0`)
-            .expect.element(`${page.elements.dataGridRow}--1 #defaultShippingAddress-0`).to.be.selected;
-        browser.expect.element(`${page.elements.dataGridRow}--0 #defaultBillingAddress-0`).to.be.selected;
+            .click('.sw-data-grid__cell--3')
+            .waitForElementPresent(`${page.elements.dataGridRow}--1 #defaultShippingAddress-0:checked`)
+            .click(`${page.elements.dataGridRow}--0 #defaultShippingAddress-0`)
+            .click(`${page.elements.dataGridRow}--1 #defaultBillingAddress-0`)
+            .expect.element(`${page.elements.dataGridRow}--0 #defaultShippingAddress-0`).to.be.selected;
+        browser.expect.element(`${page.elements.dataGridRow}--1 #defaultBillingAddress-0`).to.be.selected;
     },
     'save customer': (browser) => {
         browser
@@ -95,12 +97,11 @@ module.exports = {
 
         browser
             .click('.sw-data-grid__cell--3')
-            .waitForElementVisible('.icon--small-arrow-small-up')
-            .expect.element(`${page.elements.dataGridRow}--0`).to.have.text.that.contains('Eroni');
+            .waitForElementPresent(`${page.elements.dataGridRow}--0 #defaultShippingAddress-0:checked`)
+            .expect.element(`${page.elements.dataGridRow}--1`).to.have.text.that.contains('Eroni');
 
         browser
             .waitForElementPresent(`${page.elements.dataGridRow}--0`)
-            .waitForElementPresent(`${page.elements.dataGridRow}--1`)
             .click(`${page.elements.dataGridRow}--0 #defaultShippingAddress-0`)
             .click(`${page.elements.dataGridRow}--0 #defaultBillingAddress-0`);
 

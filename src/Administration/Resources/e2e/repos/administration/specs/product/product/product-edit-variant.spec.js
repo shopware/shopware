@@ -54,16 +54,10 @@ module.exports = {
     },
     'generate variants anew, with changed prizes and restrictions': (browser) => {
         const page = productPage(browser);
-        const priceInputSelector =
-            '.sw-data-grid__row--0 td:nth-of-type(3) .sw-product-variants-price-field__input:nth-of-type(1) input';
 
         browser
             .click('.sw-product-variants__generate-action')
             .waitForElementVisible(page.elements.modal)
-            .click('.sw-variant-modal__surcharge-configuration')
-            .waitForElementVisible('.sw-product-variants-configurator-prices')
-            .click('.sw-product-variants-configurator-prices__groupElement')
-            .fillField(priceInputSelector, '10')
             .click('.sw-variant-modal__restriction-configuration')
             .waitForElementVisible('.sw-product-variants-configurator-restrictions')
             .click('.sw-product-variants-configurator-restrictions .sw-button--ghost')

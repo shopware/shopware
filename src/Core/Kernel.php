@@ -351,13 +351,33 @@ SQL;
             }
 
             foreach ($psr4 as $namespace => $path) {
-                $this->classLoader->addPsr4($namespace, $this->getProjectDir() . '/' . $plugin['path'] . '/' . $path);
+                if (is_string($path)) {
+                    $path = [$path];
+                }
+                $path = $this->mapPsrPaths($path, $plugin['path']);
+                $this->classLoader->addPsr4($namespace, $path);
             }
 
             foreach ($psr0 as $namespace => $path) {
-                $this->classLoader->add($namespace, $this->getProjectDir() . '/' . $plugin['path'] . '/' . $path);
+                if (is_string($path)) {
+                    $path = [$path];
+                }
+                $path = $this->mapPsrPaths($path, $plugin['path']);
+
+                $this->classLoader->add($namespace, $path);
             }
         }
+    }
+
+    private function mapPsrPaths(array $psr, string $pluginPath): array
+    {
+        $mappedPaths = [];
+
+        foreach ($psr as $path) {
+            $mappedPaths[] = $this->getProjectDir() . '/' . $pluginPath . '/' . $path;
+        }
+
+        return $mappedPaths;
     }
 
     private function instantiatePlugins(array $plugins): void

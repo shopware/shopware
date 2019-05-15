@@ -69,7 +69,29 @@ Component.register('sw-category-detail-base', {
                 product_list: this.$tc('sw-cms.detail.labelPageTypeCategory'),
                 product_detail: this.$tc('sw-cms.detail.labelPageTypeProduct')
             };
+        },
+
+        navigationSalesChannels() {
+            if (this.category && this.category.navigationSalesChannels) {
+                return this.category.navigationSalesChannels;
+            }
+            return [];
+        },
+
+        serviceSalesChannels() {
+            if (this.category && this.category.serviceSalesChannels) {
+                return this.category.serviceSalesChannels;
+            }
+            return [];
+        },
+
+        footerSalesChannels() {
+            if (this.category && this.category.footerSalesChannels) {
+                return this.category.footerSalesChannels;
+            }
+            return [];
         }
+
     },
 
     methods: {

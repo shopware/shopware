@@ -11,7 +11,7 @@
 }
 
 .logo-main-img {
-    width: 280px;
+    max-width: 280px;
 }
 
 @include media-breakpoint-down(md) {

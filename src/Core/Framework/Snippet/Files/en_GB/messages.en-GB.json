@@ -243,7 +243,7 @@
         "summaryNetPrice": "Amount without VAT",
         "summaryTax": "Plus %rate% % VAT",
         "proceedLink": "Checkout",
-        "addressEqualHeader": "Billing and shipping address",
+        "addressEqualText": "Same as billing address",
         "billingAddressHeader": "Billing address",
         "shippingAddressHeader": "Shipping address",
         "confirmHeader": "Complete order",

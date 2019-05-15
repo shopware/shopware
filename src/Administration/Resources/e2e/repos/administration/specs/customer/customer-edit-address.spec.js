@@ -88,8 +88,15 @@ module.exports = {
         const page = customerPage(browser);
 
         browser
+            .refresh()
+            .waitForElementVisible('.sw-customer-detail__open-edit-mode-action')
             .click('.sw-customer-detail__open-edit-mode-action')
             .waitForElementVisible('.sw-customer-detail__save-action');
+
+        browser
+            .click('.sw-data-grid__cell--3')
+            .waitForElementVisible('.icon--small-arrow-small-up')
+            .expect.element(`${page.elements.dataGridRow}--0`).to.have.text.that.contains('Eroni');
 
         browser
             .waitForElementPresent(`${page.elements.dataGridRow}--0`)

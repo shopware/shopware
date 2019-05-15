@@ -22,6 +22,7 @@ module.exports = {
             .fillField('input[name=sw-field--tax-taxRate]', '99')
             .click(page.elements.taxSaveAction)
             .waitForElementVisible('.icon--small-default-checkmark-line-medium')
+            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .assert.urlContains('#/sw/settings/tax/detail');
     },
     'go back to listing and verify tax': (browser) => {

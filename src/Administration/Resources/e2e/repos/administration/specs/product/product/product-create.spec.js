@@ -55,6 +55,7 @@ module.exports = {
             .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .click('.sw-product-detail__save-action')
             .waitForElementVisible('.icon--small-default-checkmark-line-medium')
+            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .assert.urlContains('#/sw/product/detail');
     },
     'upload product image ': (browser) => {

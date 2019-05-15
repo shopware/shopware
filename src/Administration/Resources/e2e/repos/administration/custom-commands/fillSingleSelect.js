@@ -7,9 +7,10 @@ exports.command = function fillSingleSelect(selector, value, resultPosition = 0)
     this.waitForElementVisible(selector)
         .click(selector)
         .waitForElementVisible(`${selector} .sw-single-select__results`)
-        .assert.containsText(`${selector} .sw-single-select__results .sw-single-select-option--${resultPosition}`, value)
+        .expect.element(`${selector} .sw-single-select__results-list .sw-single-select-option--${resultPosition}`).to.have.text.that.contains(value);
+
+    this
         .click(`${selector} .sw-single-select__results-list .sw-single-select-option--${resultPosition}`)
-        .assert.containsText(`${selector} .sw-single-select__single-selection`, value)
         .waitForElementNotPresent(`${selector} .sw-single-select__results`);
     return this;
 };

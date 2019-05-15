@@ -6,12 +6,7 @@
     <h1>{% trans with {'%stornoNumber%': config.custom.stornoNumber, '%invoiceNumber%': config.custom.invoiceNumber} %}document.stornoHeadline{% endtrans %}</h1>
 {% endblock %}
 
- {% block document_side_info %}
-     <table>
-         <tr><td>{% trans with {'%customerNumber%': customer.customerNumber} %}document.customerNumber{% endtrans %}</td></tr>
-         <tr><td>{% trans with {'%stornoNumber%': config.custom.stornoNumber | truncate(10)} %}document.stornoNumber{% endtrans %}</td></tr>
-         <tr><td>{% trans with {'%orderNumber%': order.orderNumber | truncate(10)} %}document.orderNumber{% endtrans %}</td></tr>
-         <tr><td>{% trans with {'%orderDate%': order.date|localizeddate('medium', 'none', order.saleschannel.language.locale.code)} %}document.orderDate{% endtrans %}</td></tr>
-         <tr><td>{% trans with {'%date%': order.date|localizeddate('medium', 'none', order.saleschannel.language.locale.code)} %}document.date{% endtrans %}</td></tr>
-     </table><br/>
+ {% block document_side_info_contents %}
+     {{ parent() }}
+     <tr><td>{% trans with {'%stornoNumber%': config.custom.stornoNumber | truncate(10)} %}document.stornoNumber{% endtrans %}</td></tr>
  {% endblock %}

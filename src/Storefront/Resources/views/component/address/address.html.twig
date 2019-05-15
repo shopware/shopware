@@ -6,7 +6,9 @@
             </p>
         {% endif %}
         <p>
-            {{ address.salutation.translated.displayName }}
+            {% if address.salutation.salutationKey != 'not_specified' %}
+                {{ address.salutation.translated.displayName }}
+            {% endif %}
             {% if address.title %}
                 {{ address.title }}<br/>
             {% endif %}

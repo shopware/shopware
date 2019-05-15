@@ -42,6 +42,40 @@ export default {
         disableContextMenu: {
             type: Boolean,
             default: false
+        },
+
+        activeParentIds: {
+            type: Array,
+            required: false
+        },
+
+        activeItemIds: {
+            type: Array,
+            required: false
+        },
+
+        sortable: {
+            type: Boolean,
+            required: false,
+            default: true
+        },
+
+        markInactive: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
+        shouldFocus: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
+        activeFocusId: {
+            type: String,
+            required: false,
+            default: ''
         }
     },
 
@@ -59,6 +93,7 @@ export default {
             mouseStartY: 0,
             rootParent: null,
             checked: false,
+            checkedGhost: false,
             currentEditElement: null
         };
     },
@@ -67,8 +102,27 @@ export default {
         activeElementId(newId) {
             this.active = newId === this.item.id;
         },
+
         newElementId(newId) {
             this.currentEditElement = newId;
+        },
+
+        activeParentIds: {
+            handler() {
+                if (this.activeParentIds) {
+                    this.checkedGhost = this.activeParentIds.indexOf(this.item.id) >= 0;
+                }
+            },
+            immediate: true
+        },
+
+        activeItemIds: {
+            handler() {
+                if (this.activeItemIds) {
+                    this.checked = this.activeItemIds.indexOf(this.item.id) >= 0;
+                }
+            },
+            immediate: true
         }
     },
 
@@ -98,7 +152,9 @@ export default {
                 'is--dragging': this.isDragging,
                 'is--active': this.active,
                 'is--opened': this.isOpened,
-                'is--no-children': this.item.childCount <= 0
+                'is--no-children': this.item.childCount <= 0,
+                'is--marked-inactive': this.markInactive && !this.item.data.active,
+                'is--focus': this.shouldFocus && this.activeFocusId === this.item.id
             };
         },
 
@@ -111,7 +167,8 @@ export default {
                 onDragStart: this.dragStart,
                 onDragEnter: this.onMouseEnter,
                 onDrop: this.dragEnd,
-                preventEvent: true
+                preventEvent: true,
+                disabled: !this.sortable
             };
         },
 
@@ -228,8 +285,14 @@ export default {
 
         // Checks the item
         toggleItemCheck(event, item) {
-            this.checked = event;
-            this.item.checked = event;
+            if (this.checkedGhost && !item.checked) {
+                this.checked = true;
+                this.item.checked = true;
+            } else {
+                this.checked = event;
+                this.item.checked = event;
+            }
+
             this.$emit('itemChecked', item);
         },
 

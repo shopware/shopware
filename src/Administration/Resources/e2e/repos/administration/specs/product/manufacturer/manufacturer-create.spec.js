@@ -44,6 +44,8 @@ module.exports = {
             .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('MAN-U-FACTURE');
     },
     'check if the manufacturer can be used in product': (browser) => {
+        const page = manufacturerPage(browser);
+
         browser
             .openMainMenuEntry({
                 targetPath: '#/sw/product/index',
@@ -53,6 +55,7 @@ module.exports = {
             .waitForElementPresent('.smart-bar__actions a[href="#/sw/product/create"]')
             .click('.smart-bar__actions a[href="#/sw/product/create"]')
             .waitForElementPresent('.sw-select-product__select_manufacturer')
+            .waitForElementNotPresent(page.elements.loader)
             .fillSingleSelect(
                 '.sw-select-product__select_manufacturer',
                 'MAN-U-FACTURE',

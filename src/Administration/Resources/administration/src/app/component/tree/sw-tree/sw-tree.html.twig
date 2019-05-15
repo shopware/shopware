@@ -1,16 +1,19 @@
 {% block sw_tree %}
     <div class="sw-tree">
         {% block sw_tree_search %}
-            <div class="sw-tree__search" v-if="searchable">
-                <sw-field name="treeSearch" :placeholder="$tc('sw-tree.general.placeholderSearch')" v-model="currentTreeSearch" @input="searchItems" size="small">
-                    <template #prefix>
-                        <sw-icon name="default-action-search"></sw-icon>
-                    </template>
-                </sw-field>
-            </div>
+            <slot name="search">
+                <div class="sw-tree__search" v-if="searchable">
+                    <sw-field name="treeSearch" :placeholder="$tc('sw-tree.general.placeholderSearch')" v-model="currentTreeSearch" @input="searchItems" size="small">
+                        <template #prefix>
+                            <sw-icon name="default-action-search"></sw-icon>
+                        </template>
+                    </sw-field>
+                </div>
+            </slot>
         {% endblock %}
 
-        {% block sw_tree_actions %}
+        {% block sw_tree_actions_headline %}
+        <slot name="headline">
             <div v-if="checkedElementsCount > 0" class="sw-tree-actions__headline">
                 <span> {{ $tc(`${translationContext}.general.treeHeadSelected`, 0, { count: checkedElementsCount }) }}:</span>
                 <sw-button @click="onDeleteElements(null)"
@@ -23,6 +26,7 @@
             <div v-else class="sw-tree-actions__headline">
                 <span>{{ $tc(`${translationContext}.general.treeHeadline`) }}</span>
             </div>
+        </slot>
         {% endblock %}
 
         {% block sw_tree_content %}

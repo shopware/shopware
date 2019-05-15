@@ -3,6 +3,7 @@
  */
 import throttle from 'lodash/throttle';
 import debounce from 'lodash/debounce';
+import flattenDeep from 'lodash/flattenDeep';
 import get from 'lodash/get';
 import uuidV4 from 'uuid/v4';
 
@@ -74,6 +75,10 @@ export const sort = {
     afterSort: sortUtils.afterSort
 };
 
+export const array = {
+    flattenDeep: flattenDeep
+};
+
 export default {
     createId,
     throttle,
@@ -86,7 +91,8 @@ export default {
     string,
     types,
     fileReader,
-    sort
+    sort,
+    array
 };
 
 /**

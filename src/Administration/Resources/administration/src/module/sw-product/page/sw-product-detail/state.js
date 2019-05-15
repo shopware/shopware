@@ -51,6 +51,7 @@ const productCriteria = () => {
     criteria.addAssociation('visibilities', visibilitiesCriteria());
     criteria.addAssociation('prices', pricesCriteria());
     criteria.addAssociation('tags', tagsCriteria());
+    criteria.addAssociation('categories', defaultCriteria());
     return criteria;
 };
 

@@ -42,6 +42,12 @@ export default {
             type: Boolean,
             required: false,
             default: null
+        },
+
+        ghostValue: {
+            type: Boolean,
+            required: false,
+            default: null
         }
     },
 
@@ -57,7 +63,8 @@ export default {
             return {
                 'has--error': this.hasError,
                 'is--disabled': this.disabled,
-                'is--inherited': this.isInherited
+                'is--inherited': this.isInherited,
+                'sw-field__checkbox--ghost': this.ghostValue
             };
         },
 

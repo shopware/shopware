@@ -93,6 +93,18 @@ $sw-field-color-inherited: $color-purple;
         }
     }
 
+    &.sw-field__checkbox--ghost {
+        .sw-field__checkbox input[type="checkbox"]:not(:checked) ~ .sw-field__checkbox-state {
+            background-color: transparent;
+            border: 1px solid $color-shopware-blue;
+
+            .sw-icon {
+                display: inline-block;
+                color: $color-shopware-blue;
+            }
+        }
+    }
+
 
     &.has--error {
         .sw-field__checkbox-state {

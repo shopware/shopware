@@ -39,7 +39,7 @@ module.exports = {
     'add existing tag': (browser) => {
         browser
             .fillMultiSelect(
-                '.sw-tag-field .sw-multi-select',
+                '.sw-tag-field',
                 'Schöner Tag',
                 'Schöner'
             );
@@ -67,10 +67,10 @@ module.exports = {
             .waitForElementNotPresent(page.elements.loader)
             .getLocationInView('.sw-product-category-form')
             .waitForElementVisible('.sw-tag-field .sw-multi-select__selection-item-input')
-            .click(`.sw-tag-field .sw-multi-select__selection-item-input`)
-            .setValue(`.sw-tag-field .sw-multi-select__selection-item-input input`, browser.Keys.BACK_SPACE)
-            .waitForElementNotPresent(`.sw-tag-field .sw-multi-select__selection-item-holder--1 .sw-multi-select__selection-item`)
-            .expect.element(`.sw-tag-field .sw-multi-select__selection-item-holder--0 .sw-multi-select__selection-item`).to.not.have.text.that.equals('What does it means[TM]???');
+            .click('.sw-tag-field .sw-multi-select__selection-item-input')
+            .setValue('.sw-tag-field .sw-multi-select__selection-item-input input', browser.Keys.BACK_SPACE)
+            .waitForElementNotPresent('.sw-tag-field .sw-multi-select__selection-item-holder--1 .sw-multi-select__selection-item')
+            .expect.element('.sw-tag-field .sw-multi-select__selection-item-holder--0 .sw-multi-select__selection-item').to.not.have.text.that.equals('What does it means[TM]???');
     },
     'save product with tags once more': (browser) => {
         const page = productPage(browser);
@@ -84,6 +84,6 @@ module.exports = {
         const page = productPage(browser);
 
         page.createProductTag('Lorem ipsum dolor sit amet consetetur sadipscing elitr sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat sed diam voluptua At vero eos et accusam', 1);
-        browser.expect.element(`.sw-tag-field .sw-multi-select__selection-item-holder--1 .sw-multi-select__selection-item`).to.have.css('text-overflow').which.equals('ellipsis');
+        browser.expect.element('.sw-tag-field .sw-multi-select__selection-item-holder--1 .sw-multi-select__selection-item').to.have.css('text-overflow').which.equals('ellipsis');
     }
 };

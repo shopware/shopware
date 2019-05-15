@@ -17,7 +17,7 @@ Component.register('sw-promotion-detail-discounts', {
     data() {
         return {
             discounts: [],
-            isLoading: false,
+            isLoading: true,
             deleteDiscountId: null,
             repository: null
         };
@@ -64,7 +64,7 @@ Component.register('sw-promotion-detail-discounts', {
             newDiscount.promotionId = this.promotion.id;
             newDiscount.scope = DiscountScopes.CART;
             newDiscount.type = DiscountTypes.PERCENTAGE;
-            newDiscount.value = 0;
+            newDiscount.value = 0.01;
             newDiscount.considerAdvancedRules = false;
 
             this.promotion.discounts.push(newDiscount);

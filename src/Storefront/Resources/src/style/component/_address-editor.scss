@@ -9,10 +9,6 @@
         .card {
             margin-top: $spacer-md;
         }
-
-        .card-title {
-            font-size: 20px;
-        }
     }
 
     .address-item-select,
@@ -24,14 +20,14 @@
         }
     }
 
+    .address-item-select {
+        margin-bottom: $spacer;
+    }
+
     .address-editor-list-wrapper,
     .address-editor-create-address-wrapper {
         padding-top: $spacer-lg;
         padding-bottom: $spacer-lg;
-
-        .card-title {
-            font-size: 20px;
-        }
     }
 
     .address-editor-list-wrapper {
@@ -43,5 +39,11 @@
                 border-bottom: 1px solid $border-color;
             }
         }
+    }
+}
+
+@include media-breakpoint-up(md) {
+    .address-item-select {
+        margin-bottom: 0;
     }
 }

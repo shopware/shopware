@@ -34,7 +34,9 @@ export default class VariantSwitchPlugin extends Plugin {
     _preserveCurrentValues() {
         Iterator.iterate(this.el.elements, field => {
             if (VariantSwitchPlugin._isFieldSerializable(field)) {
-                field.dataset.variantSwitchValue = field.value;
+                if (field.dataset) {
+                    field.dataset.variantSwitchValue = field.value;
+                }
             }
         });
     }
@@ -118,7 +120,9 @@ export default class VariantSwitchPlugin extends Plugin {
      */
     _disableFields() {
         Iterator.iterate(this.el.elements, field => {
-            field.classList.add('disabled', 'disabled');
+            if (field.classList) {
+                field.classList.add('disabled', 'disabled');
+            }
         });
     }
 

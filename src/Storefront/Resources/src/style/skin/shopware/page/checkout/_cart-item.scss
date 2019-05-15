@@ -29,18 +29,9 @@
 @include media-breakpoint-up(md) {
     .cart-item {
         padding: 10px 0;
-
-        &:last-child {
-            border-bottom: 0;
-        }
     }
 
     .cart-item-details-container {
         padding-left: $spacer;
-    }
-
-    .cart-item-remove-button {
-        padding: 1px 4px;
-        line-height: 18px;
     }
 }

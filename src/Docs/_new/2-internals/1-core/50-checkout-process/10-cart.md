@@ -150,10 +150,6 @@ The Interface therefore handles alike:
 ```
 
 *Note: The add method of the cart service always triggers a recalculation of the cart.
-If you add multiple line items, please consider the following code example:*
-
-```php:./_examples/10-cart-example.php#ExampleAddMultipleToCart
-```
 
 #### Change line item quantity
 

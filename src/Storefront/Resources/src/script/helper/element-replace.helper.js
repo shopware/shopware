@@ -48,14 +48,18 @@ class ElementReplaceHelperSingleton {
 
         if (src instanceof NodeList) {
             Iterator.iterate(src, (srcEl, index) => {
-                target[index].innerHTML = srcEl.innerHTML;
+                if (srcEl.innerHTML) {
+                    target[index].innerHTML = srcEl.innerHTML;
+                }
             });
             return true;
         }
 
         if (target instanceof NodeList) {
             Iterator.iterate(target, (targetEl) => {
-                targetEl.innerHTML = src.innerHTML;
+                if (src.innerHTML) {
+                    targetEl.innerHTML = src.innerHTML;
+                }
             });
             return true;
         }

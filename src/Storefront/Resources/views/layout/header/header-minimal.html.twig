@@ -20,10 +20,13 @@
 
                         {% block layout_header_minimal_switch %}
                             <div class="col-6 col-md-4 header-minimal-home">
-                                {% sw_icon 'arrow-simple-left' %}
                                 <a class="btn btn-link btn-sm header-minimal-home-btn"
                                    href="{{ path('frontend.home.page') }}"
                                    title="{{ "header.logoLink"|trans }}">
+                                    {% sw_icon 'arrow-medium-left' style {
+                                        'size': 'sm',
+                                        'pack': 'solid'
+                                    } %}
                                     {{ "header.logoLink"|trans }}
                                 </a>
                             </div>

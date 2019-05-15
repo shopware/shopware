@@ -5,7 +5,8 @@ Defines the loader icon
 */
 
 .loader {
-    @extend .spinner-grow;
+    @extend .spinner-border;
+    @extend .text-primary;
 }
 
 /*

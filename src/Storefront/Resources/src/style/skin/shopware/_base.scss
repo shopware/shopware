@@ -4,7 +4,7 @@
  *
  * Vendors
  * ------- */
-@import 'vendor/nunito-fontface';
+@import 'vendor/inter-fontface';
 
 /*
  * Variables, Mixins, Functions
@@ -28,6 +28,7 @@
 /*
  * Components
  * ---------- */
+@import 'component/alert';
 @import 'component/badge';
 @import 'component/breadcrumb';
 @import 'component/button';

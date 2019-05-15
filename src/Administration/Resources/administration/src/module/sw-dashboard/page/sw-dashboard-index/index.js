@@ -25,6 +25,18 @@ Component.register('sw-dashboard-index', {
             return this.$tc('sw-dashboard.welcome.roadmapLink');
         },
 
+        issueTrackerLink() {
+            return this.$tc('sw-dashboard.welcome.issueTrackerLink');
+        },
+
+        enduserDocumentationLink() {
+            return this.$tc('sw-dashboard.welcome.enduserDocumentationLink');
+        },
+
+        migrationDocumentationLink() {
+            return this.$tc('sw-dashboard.welcome.migrationDocumentationLink');
+        },
+
         username() {
             if (this.$store.state.adminUser.currentProfile) {
                 return this.$store.state.adminUser.currentProfile.firstName;

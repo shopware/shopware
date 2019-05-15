@@ -1,5 +1,4 @@
 .js-offcanvas.offcanvas-menu {
-    background-color: $gray-100;
     overflow-x: hidden;
 
     .offcanvas-menu {
@@ -34,6 +33,7 @@
 .offcanvas-menu-list-item {
     border-bottom: 1px solid $gray-300;
     background-color: $white;
+    padding: $spacer-sm 0;
 
     &.go-back {
         border-top: 1px solid $gray-300;
@@ -83,7 +83,7 @@
 .offcanvas-menu-placeholder,
 .offcanvas-menu-overlay {
     width: 100%;
-    background-color: $gray-100;
+    background-color: $white;
     position: absolute;
     top: 0;
     left: 0;

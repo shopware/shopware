@@ -7,13 +7,13 @@ $gray-300: #d1d9e0; // ~ 'sw5 gray-dark'
 $gray-600: #576574; // ~ 'sw5 brand-secondary'
 $gray-800: #3f4c58; // ~ 'sw5 brand-secondary-dark'
 
-$primary: #30b4aa;
+$primary: #339999;
 $secondary: $gray-600;
 
-$success: #05c46b;
-$info: #0fbcf9;
-$warning: #ffa801;
-$danger: #ff3f34;
+$success: #6ed59f;
+$info: #76bce7;
+$warning: #fcc679;
+$danger: #f27f7f;
 
 $light: $gray-100;
 $dark: $gray-800;
@@ -27,14 +27,14 @@ $grid-gutter-width: 40px;
 $body-color: #545454;
 
 // Components
-$border-color: $gray-300;
+$border-color: #d4e2e2;
 
 $border-radius: 3px;
 $border-radius-lg: 3px;
 $border-radius-sm: 3px;
 
 // Typography
-$font-family-base: 'Nunito Sans', sans-serif;
+$font-family-base: 'Inter', sans-serif;
 
 $font-size-base: 0.875rem;
 $font-size-lg: 1rem;

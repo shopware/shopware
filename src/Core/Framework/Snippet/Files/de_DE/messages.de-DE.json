@@ -54,7 +54,8 @@
         "message-404": "Die angeforderte Seite kann nicht gefunden werden.",
         "addToCartError": "Beim Hinzufügen zum Warenkorb ist ein Fehler aufgetreten.",
         "FRAMEWORK__INVALID_UUID": "Die gewählte Zahlungsart konnte nicht gefunden werden.",
-        "CHECKOUT__UNKNOWN_PAYMENT_METHOD": "Die gewählte Zahlungsart konnte nicht gefunden werden."
+        "CHECKOUT__UNKNOWN_PAYMENT_METHOD": "Die gewählte Zahlungsart konnte nicht gefunden werden.",
+        "productNotFound": "Produkt mit der Nummer \"%number%\" konnte nicht gefunden werden."
     },
     "account": {
         "myAccount": "Mein Konto",
@@ -207,6 +208,7 @@
         "countryPlaceholder": "Land"
     },
     "checkout": {
+        "itemCounter": "%count% Artikel",
         "addressHeader": "Ihre Daten",
         "addressLoginToggle": "Bereits Kunde? Klicken Sie hier um sich einzuloggen.",
         "registerGuestmodeLabel": "Kein Kundenkonto anlegen",

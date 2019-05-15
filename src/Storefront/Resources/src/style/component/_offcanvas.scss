@@ -11,7 +11,7 @@
         transform: translateX(-100%);
         left: 0;
 
-        .js-offcanvas-close {
+        .offcanvas-close {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -32,7 +32,7 @@
         width: 100%;
     }
 
-    .js-offcanvas-close {
+    .offcanvas-close {
         border-radius: 0;
         text-align: left;
         padding: $spacer-xs $spacer-sm;
@@ -54,7 +54,17 @@
     }
 
     .offcanvas-content-container {
-        padding: $spacer;
-        width: 280px;
+        padding: $grid-gutter-width / 2;
+        width: 400px;
+    }
+}
+
+@include media-breakpoint-down(xs) {
+    .js-offcanvas {
+        width: 100%;
+
+        .offcanvas-content-container {
+            width: 100%;
+        }
     }
 }

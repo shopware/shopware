@@ -1,0 +1,35 @@
+@startuml LAYOUT_TOP_DOWN
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_TOP_DOWN
+
+title Storefront structure
+
+Component(core, "Core", "Shopware\Core", "The Core providing the SalesChannel interface")
+
+Container(framework, "Framework", "Shopware\Storefront\Framework", "")
+
+Container(page, "Page", "Shopware\Storefront\Page", "Contains whole page definitions  and loaders")
+Container(pagelet, "Pagelet", "Shopware\Storefront\Pagelet", "Contains the actual Core binding")
+
+Container(pageController, "PageController", "Shopware\Storefront\PageController", "Request handling and view rendering od whole pages.")
+Container(pageletController, "PageletController", "Shopware\Storefront\PageletController", "Request handling and view rendering for ajax routes")
+
+Container(template, "Template", "Resources/views", "Collection of Twig templates connected to the asset management")
+
+Rel_L(page, pagelet, "uses")
+
+Rel_U(pageController, page, "displays")
+Rel_U(pageletController, pagelet, "displays")
+
+Rel_U(page, framework, "utilizes")
+Rel_U(pagelet, framework, "utilizes")
+
+Rel_U(page, core, "reads")
+Rel_U(pagelet, core, "reads")
+
+Rel_U(pageController, core, "writes")
+Rel_U(pageletController, core, "writes")
+
+Rel_U(template, pageController, "renders")
+@enduml

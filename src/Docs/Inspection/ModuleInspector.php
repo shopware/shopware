@@ -41,7 +41,7 @@ class ModuleInspector
     /**
      * @return ModuleTag[]
      */
-    public function inspectModule(SplFileInfo $module): array
+    public function inspectModule(SplFileInfo $module): ModuleTagCollection
     {
         $inspectors = [
             self::TAG_DATA_STORE => function (ModuleTag $moduleTag, SplFileInfo $module): void {
@@ -77,7 +77,7 @@ class ModuleInspector
             },
         ];
 
-        $moduleTags = [];
+        $moduleTags = new ModuleTagCollection($module);
 
         foreach ($inspectors as $moduleTagName => $inspector) {
             $moduleTag = new ModuleTag($moduleTagName);
@@ -85,7 +85,7 @@ class ModuleInspector
             $inspector($moduleTag, $module);
 
             if ($moduleTag->fits()) {
-                $moduleTags[] = $moduleTag;
+                $moduleTags->add($moduleTag);
             }
         }
 
@@ -151,6 +151,10 @@ class ModuleInspector
     private function containsSubclassesOf(SplFileInfo $in, string $searchedClass): Finder
     {
         return $this->containsReflection($in, function (\ReflectionClass $reflectionClass) use ($searchedClass) {
+            if ($reflectionClass->isAbstract()) {
+                return false;
+            }
+
             return $reflectionClass->isSubclassOf($searchedClass);
         });
     }

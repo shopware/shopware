@@ -9,12 +9,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Page\PageLoaderInterface;
-use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
+use Shopware\Storefront\Page\GenericPageLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class CheckoutConfirmPageLoader implements PageLoaderInterface
+class CheckoutConfirmPageLoader
 {
     /**
      * @var EntityRepositoryInterface
@@ -27,7 +26,7 @@ class CheckoutConfirmPageLoader implements PageLoaderInterface
     private $shippingMethodRepository;
 
     /**
-     * @var PageWithHeaderLoader|PageLoaderInterface
+     * @var GenericPageLoader
      */
     private $genericLoader;
 
@@ -44,7 +43,7 @@ class CheckoutConfirmPageLoader implements PageLoaderInterface
     public function __construct(
         EntityRepositoryInterface $paymentMethodRepository,
         EntityRepositoryInterface $shippingMethodRepository,
-        PageLoaderInterface $genericLoader,
+        GenericPageLoader $genericLoader,
         EventDispatcherInterface $eventDispatcher,
         CartService $cartService
     ) {
@@ -57,7 +56,7 @@ class CheckoutConfirmPageLoader implements PageLoaderInterface
 
     public function load(Request $request, SalesChannelContext $context): CheckoutConfirmPage
     {
-        $page = $this->genericLoader->load($request, $context);
+        $page = $this->genericLoader->load($request, $context, false, false);
 
         $page = CheckoutConfirmPage::createFrom($page);
 

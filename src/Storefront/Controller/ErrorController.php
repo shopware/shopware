@@ -3,14 +3,12 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Controller\StorefrontController;
-use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Twig\ErrorTemplateResolver;
+use Shopware\Storefront\Pagelet\Header\HeaderPageletLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ErrorController extends StorefrontController
 {
@@ -25,24 +23,17 @@ class ErrorController extends StorefrontController
     private $flashBag;
 
     /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var PageLoaderInterface
+     * @var HeaderPageletLoader
      */
     private $headerPageletLoader;
 
     public function __construct(
         ErrorTemplateResolver $errorTemplateResolver,
         FlashBagInterface $flashBag,
-        TranslatorInterface $translator,
-        PageLoaderInterface $headerPageletLoader
+        HeaderPageletLoader $headerPageletLoader
     ) {
         $this->errorTemplateResolver = $errorTemplateResolver;
         $this->flashBag = $flashBag;
-        $this->translator = $translator;
         $this->headerPageletLoader = $headerPageletLoader;
     }
 
@@ -50,7 +41,7 @@ class ErrorController extends StorefrontController
     {
         try {
             if (!$this->flashBag->has('danger')) {
-                $this->flashBag->add('danger', $this->translator->trans('error.message-default'));
+                $this->flashBag->add('danger', $this->trans('error.message-default'));
             }
 
             $errorTemplate = $this->errorTemplateResolver->resolve($exception, $request);

@@ -9,12 +9,11 @@ use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\EntityResolverCon
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Page\PageLoaderInterface;
-use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
+use Shopware\Storefront\Page\GenericPageLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class NavigationPageLoader implements PageLoaderInterface
+class NavigationPageLoader
 {
     /**
      * @var SalesChannelCmsPageLoader
@@ -22,7 +21,7 @@ class NavigationPageLoader implements PageLoaderInterface
     private $cmsPageLoader;
 
     /**
-     * @var PageWithHeaderLoader|PageLoaderInterface
+     * @var GenericPageLoader
      */
     private $genericLoader;
 
@@ -38,7 +37,7 @@ class NavigationPageLoader implements PageLoaderInterface
 
     public function __construct(
         SalesChannelCmsPageLoader $cmsPageLoader,
-        PageLoaderInterface $genericLoader,
+        GenericPageLoader $genericLoader,
         EventDispatcherInterface $eventDispatcher,
         EntityDefinition $categoryDefinition
     ) {

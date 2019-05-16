@@ -67,7 +67,7 @@
             {% set defaultShippingAddress = page.context.customer.defaultShippingAddressId %}
 
             <div class="row address-content">
-                {% for address in page.addresses.entities.elements %}
+                {% for address in page.addresses %}
                     {% block page_account_address_item_content %}
                         <div class="col-lg-6 card-col address-box{% if defaultBillingAddress is same as(address.id) or defaultShippingAddress is same as(address.id) %} address-front{% endif %}">
                             <div class="card{% if defaultBillingAddress is same as(address.id) %} default-billing-address{% endif %}{% if defaultShippingAddress is same as(address.id) %} default-shipping-address{% endif %}">

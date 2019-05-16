@@ -9,7 +9,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ProductPageCriteriaEvent extends NestedEvent
 {
-    public const NAME = 'product-detail.page.criteria';
+    public const NAME = 'product.page.criteria';
 
     /**
      * @var Criteria

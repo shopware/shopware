@@ -8,19 +8,16 @@ use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Controller\StorefrontController;
-use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AccountPaymentController extends StorefrontController
 {
     /**
-     * @var AccountPaymentMethodPageLoader|PageLoaderInterface
+     * @var AccountPaymentMethodPageLoader
      */
     private $paymentMethodPageLoader;
 
@@ -29,19 +26,12 @@ class AccountPaymentController extends StorefrontController
      */
     private $accountService;
 
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
     public function __construct(
-        PageLoaderInterface $paymentMethodPageLoader,
-        AccountService $accountService,
-        TranslatorInterface $translator
+        AccountPaymentMethodPageLoader $paymentMethodPageLoader,
+        AccountService $accountService
     ) {
         $this->paymentMethodPageLoader = $paymentMethodPageLoader;
         $this->accountService = $accountService;
-        $this->translator = $translator;
     }
 
     /**
@@ -77,12 +67,12 @@ class AccountPaymentController extends StorefrontController
                 $context
             );
         } catch (UnknownPaymentMethodException | InvalidUuidException $exception) {
-            $this->addFlash('danger', $this->translator->trans('error.' . $exception->getErrorCode()));
+            $this->addFlash('danger', $this->trans('error.' . $exception->getErrorCode()));
 
-            return $this->forward('Shopware\Storefront\PageController\AccountPageController::paymentOverview', ['success' => false]);
+            return $this->forwardToRoute('frontend.account.payment.page', ['success' => false]);
         }
 
-        $this->addFlash('success', $this->translator->trans('account.paymentSuccess'));
+        $this->addFlash('success', $this->trans('account.paymentSuccess'));
 
         return new RedirectResponse($this->generateUrl('frontend.account.payment.page'));
     }

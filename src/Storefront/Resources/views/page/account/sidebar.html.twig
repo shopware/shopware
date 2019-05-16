@@ -5,9 +5,9 @@
                 {% if not headerWidget %}
                     <div class="card-header account-sidebar-header">
                         {{ "account.greetings"|trans }}
-                        {{ page.customer.title }}
-                        {{ page.customer.firstName }}
-                        {{ page.customer.lastName }}
+                        {{ page.context.customer.title }}
+                        {{ page.context.customer.firstName }}
+                        {{ page.context.customer.lastName }}
                     </div>
                 {% endif %}
             {% endblock %}

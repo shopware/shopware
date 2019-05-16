@@ -10,25 +10,22 @@ use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Controller\StorefrontController;
-use Shopware\Storefront\Framework\Page\PageLoaderInterface;
-use Shopware\Storefront\Page\Newsletter\ConfirmSubscribe\NewsletterConfirmSubscribePageLoader;
-use Shopware\Storefront\Page\Newsletter\Register\NewsletterRegisterLoader;
+use Shopware\Storefront\Page\Newsletter\Register\NewsletterRegisterPageLoader;
+use Shopware\Storefront\Page\Newsletter\Subscribe\NewsletterSubscribePageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class NewsletterController extends StorefrontController
 {
     /**
-     * @var NewsletterRegisterLoader|PageLoaderInterface
+     * @var NewsletterRegisterPageLoader
      */
     private $newsletterRegisterPageLoader;
 
     /**
-     * @var PageLoaderInterface|NewsletterConfirmSubscribePageLoader
+     * @var NewsletterSubscribePageLoader
      */
     private $newsletterConfirmRegisterPageLoader;
 
@@ -43,28 +40,21 @@ class NewsletterController extends StorefrontController
     private $requestStack;
 
     /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
      * @var AccountService
      */
     private $accountService;
 
     public function __construct(
-        PageLoaderInterface $newsletterRegisterPageLoader,
-        PageLoaderInterface $newsletterConfirmRegisterPageLoader,
+        NewsletterRegisterPageLoader $newsletterRegisterPageLoader,
+        NewsletterSubscribePageLoader $newsletterConfirmRegisterPageLoader,
         NewsletterSubscriptionServiceInterface $newsletterService,
         RequestStack $requestStack,
-        TranslatorInterface $translator,
         AccountService $accountService
     ) {
         $this->newsletterRegisterPageLoader = $newsletterRegisterPageLoader;
         $this->newsletterConfirmRegisterPageLoader = $newsletterConfirmRegisterPageLoader;
         $this->newsletterService = $newsletterService;
         $this->requestStack = $requestStack;
-        $this->translator = $translator;
         $this->accountService = $accountService;
     }
 
@@ -92,12 +82,12 @@ class NewsletterController extends StorefrontController
             if ($subscribe) {
                 $this->newsletterService->subscribe($requestDataBag, $context);
 
-                $this->addFlash('success', $this->translator->trans('newsletter.subscriptionPersistedSuccess'));
-                $this->addFlash('info', $this->translator->trans('newsletter.subscriptionPersistedInfo'));
+                $this->addFlash('success', $this->trans('newsletter.subscriptionPersistedSuccess'));
+                $this->addFlash('info', $this->trans('newsletter.subscriptionPersistedInfo'));
             } else {
                 $this->newsletterService->unsubscribe($requestDataBag, $context);
 
-                $this->addFlash('success', $this->translator->trans('newsletter.subscriptionRevokeSuccess'));
+                $this->addFlash('success', $this->trans('newsletter.subscriptionRevokeSuccess'));
             }
         } catch (ConstraintViolationException $exception) {
             foreach ($exception->getViolations() as $violation) {
@@ -105,7 +95,7 @@ class NewsletterController extends StorefrontController
             }
         } catch (\Exception $exception) {
             if ($subscribe) {
-                $this->addFlash('danger', $this->translator->trans('error.message-default'));
+                $this->addFlash('danger', $this->trans('error.message-default'));
             }
         }
 
@@ -120,7 +110,7 @@ class NewsletterController extends StorefrontController
         try {
             $this->newsletterService->confirm($queryDataBag, $context);
         } catch (\Throwable $throwable) {
-            $this->addFlash('danger', $this->translator->trans('newsletter.subscriptionConfirmationFailed'));
+            $this->addFlash('danger', $this->trans('newsletter.subscriptionConfirmationFailed'));
 
             throw new \Exception($throwable->getMessage(), $throwable->getCode(), $throwable);
         }
@@ -131,9 +121,9 @@ class NewsletterController extends StorefrontController
     }
 
     /**
-     * @Route(path="/widgets/account/newsletter", name="widgets.account.newsletter", methods={"POST"}, defaults={"XmlHttpRequest"=true})
+     * @Route("/widgets/account/newsletter", name="frontend.account.newsletter", methods={"POST"}, defaults={"XmlHttpRequest"=true})
      */
-    public function subscriberCustomer(Request $request, RequestDataBag $dataBag, SalesChannelContext $context): Response
+    public function subscribeCustomer(Request $request, RequestDataBag $dataBag, SalesChannelContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -154,10 +144,10 @@ class NewsletterController extends StorefrontController
                 $this->accountService->setNewsletterFlag($context->getCustomer(), true, $context);
 
                 $success = true;
-                $messages[] = ['type' => 'success', 'text' => $this->translator->trans('newsletter.subscriptionConfirmationSuccess')];
+                $messages[] = ['type' => 'success', 'text' => $this->trans('newsletter.subscriptionConfirmationSuccess')];
             } catch (\Exception $exception) {
                 $success = false;
-                $messages[] = ['type' => 'danger', 'text' => $this->translator->trans('newsletter.subscriptionConfirmationFailed')];
+                $messages[] = ['type' => 'danger', 'text' => $this->trans('newsletter.subscriptionConfirmationFailed')];
             }
 
             return $this->renderStorefront('@Storefront/page/account/newsletter.html.twig', [
@@ -172,10 +162,10 @@ class NewsletterController extends StorefrontController
             $this->accountService->setNewsletterFlag($context->getCustomer(), false, $context);
 
             $success = true;
-            $messages[] = ['type' => 'success', 'text' => $this->translator->trans('newsletter.subscriptionRevokeSuccess')];
+            $messages[] = ['type' => 'success', 'text' => $this->trans('newsletter.subscriptionRevokeSuccess')];
         } catch (\Exception $exception) {
             $success = false;
-            $messages[] = ['type' => 'danger', 'text' => $this->translator->trans('error.message-default')];
+            $messages[] = ['type' => 'danger', 'text' => $this->trans('error.message-default')];
         }
 
         return $this->renderStorefront('@Storefront/page/account/newsletter.html.twig', [

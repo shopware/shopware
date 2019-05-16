@@ -47,7 +47,7 @@
 
         <service id="Shopware\Storefront\Page\Navigation\NavigationPageLoader">
             <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Category\CategoryDefinition"/>
         </service>
@@ -57,9 +57,10 @@
             <argument type="service" id="Shopware\Core\Content\Category\Service\NavigationLoader"/>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\Suggest\SuggestPageletLoader">
+        <service id="Shopware\Storefront\Page\Suggest\SuggestPageLoader">
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestGateway" /><argument type="service" id="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestGateway" />
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader" />
         </service>
 
         <service id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader">
@@ -75,44 +76,19 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\Checkout\Info\CheckoutInfoPageletLoader">
-            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service id="Shopware\Storefront\Pagelet\Checkout\AjaxCart\CheckoutAjaxCartPageletLoader">
-            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service id="Shopware\Storefront\Pagelet\Account\PaymentMethod\AccountPaymentMethodPageletLoader">
-            <argument type="service" id="payment_method.repository"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service id="Shopware\Storefront\Pagelet\Account\Order\AccountOrderPageletLoader">
-            <argument type="service" id="order.repository"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service id="Shopware\Storefront\Pagelet\Account\AddressList\AccountAddressListPageletLoader">
-            <argument type="service" id="customer_address.repository"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader">
+        <service id="Shopware\Storefront\Page\GenericPageLoader">
             <argument type="service" id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader"/>
             <argument type="service" id="Shopware\Storefront\Pagelet\Footer\FooterPageletLoader"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Search\SearchPageLoader" public="true">
-            <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchGateway"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Product\ProductPageLoader">
-            <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageRepository"/>
@@ -132,85 +108,61 @@
         <service id="Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoader">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="order.repository"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader">
             <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="shipping_method.repository"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader">
-            <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
         </service>
 
-        <service id="Shopware\Storefront\Page\Checkout\Address\CheckoutAddressPageLoader">
+        <service id="Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPageLoader">
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
-        </service>
-
-        <service id="Shopware\Storefront\Page\Checkout\AddressList\CheckoutAddressListPageLoader">
-            <argument type="service" id="Shopware\Storefront\Pagelet\Account\AddressList\AccountAddressListPageletLoader"/>
-            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoader">
-            <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoader">
-            <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
-            <argument type="service" id="Shopware\Storefront\Pagelet\Account\PaymentMethod\AccountPaymentMethodPageletLoader"/>
+            <argument type="service" id="sales_channel.payment_method.repository" />
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoader">
-            <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader">
-            <argument type="service" id="Shopware\Storefront\Pagelet\Account\Order\AccountOrderPageletLoader"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="order.repository" />
         </service>
 
         <service id="Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader">
-            <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
             <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service id="Shopware\Storefront\Page\Account\AddressList\AccountAddressListPageLoader" public="true">
-            <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
-            <argument type="service" id="Shopware\Storefront\Pagelet\Account\AddressList\AccountAddressListPageletLoader"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service id="Shopware\Storefront\Page\Account\Address\AccountAddressPageLoader">
-            <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service id="Shopware\Storefront\Pagelet\AddressBook\AddressBookPageletLoader">
-            <argument type="service" id="Shopware\Storefront\Pagelet\Account\AddressList\AccountAddressListPageletLoader"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader" public="true">
-            <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService"/>
             <argument type="service" id="event_dispatcher"/>
@@ -218,19 +170,37 @@
         </service>
 
 
-        <service id="Shopware\Storefront\Page\Newsletter\Register\NewsletterRegisterLoader">
-            <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
+        <service id="Shopware\Storefront\Page\Newsletter\Register\NewsletterRegisterPageLoader">
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="salutation.repository"/>
         </service>
 
-        <service id="Shopware\Storefront\Page\Newsletter\ConfirmSubscribe\NewsletterConfirmSubscribePageLoader">
-            <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
+        <service id="Shopware\Storefront\Page\Newsletter\Subscribe\NewsletterSubscribePageLoader">
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder" public="true">
             <argument type="service" id="sales_channel.product.repository"/>
         </service>
+
+        <service id="Shopware\Storefront\Page\Address\Detail\AddressDetailPageLoader">
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
+            <argument type="service" id="country.repository"/>
+            <argument type="service" id="salutation.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Storefront\Page\Address\Listing\AddressListingPageLoader">
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
+            <argument type="service" id="country.repository"/>
+            <argument type="service" id="salutation.repository"/>
+            <argument type="service" id="customer_address.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
+        </service>
+
     </services>
 </container>

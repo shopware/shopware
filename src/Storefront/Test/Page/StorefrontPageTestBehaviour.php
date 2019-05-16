@@ -22,7 +22,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\Request;
@@ -43,7 +42,7 @@ trait StorefrontPageTestBehaviour
         TestCase::assertSame($page, $event->getPage());
     }
 
-    abstract protected function getPageLoader(): PageLoaderInterface;
+    abstract protected function getPageLoader();
 
     protected function assertFailsWithoutNavigation(): void
     {

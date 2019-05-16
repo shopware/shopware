@@ -4,8 +4,6 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Controller\StorefrontController;
-use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,11 +12,11 @@ use Symfony\Component\Routing\Annotation\Route;
 class AccountOrderController extends StorefrontController
 {
     /**
-     * @var AccountOrderPageLoader|PageLoaderInterface
+     * @var AccountOrderPageLoader
      */
     private $orderPageLoader;
 
-    public function __construct(PageLoaderInterface $orderPageLoader)
+    public function __construct(AccountOrderPageLoader $orderPageLoader)
     {
         $this->orderPageLoader = $orderPageLoader;
     }

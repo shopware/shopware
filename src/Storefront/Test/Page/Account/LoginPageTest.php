@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Test\Page\Account;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPage;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoadedEvent;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
@@ -45,7 +44,7 @@ class LoginPageTest extends TestCase
     /**
      * @return AccountLoginPageLoader
      */
-    protected function getPageLoader(): PageLoaderInterface
+    protected function getPageLoader()
     {
         return $this->getContainer()->get(AccountLoginPageLoader::class);
     }

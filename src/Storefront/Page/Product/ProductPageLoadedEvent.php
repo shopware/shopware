@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class ProductPageLoadedEvent extends NestedEvent
 {
-    public const NAME = 'product-detail.page.loaded';
+    public const NAME = 'product.page.loaded';
 
     /**
      * @var ProductPage

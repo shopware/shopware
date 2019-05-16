@@ -6,7 +6,7 @@ final class StorefrontPageTestConstants
 {
     public const CUSTOMER_FIRSTNAME = 'Max';
 
-    public const PAYMENT_METHOD_COUNT = 4;
+    public const PAYMENT_METHOD_COUNT = 1;
 
     public const PRODUCT_NAME = 'test';
 

@@ -6,9 +6,9 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Salutation\SalutationCollection;
-use Shopware\Storefront\Framework\Page\PageWithHeader;
+use Shopware\Storefront\Page\Page;
 
-class CheckoutRegisterPage extends PageWithHeader
+class CheckoutRegisterPage extends Page
 {
     /**
      * @var CountryCollection

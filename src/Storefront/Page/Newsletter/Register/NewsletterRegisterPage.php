@@ -3,9 +3,9 @@
 namespace Shopware\Storefront\Page\Newsletter\Register;
 
 use Shopware\Core\System\Salutation\SalutationCollection;
-use Shopware\Storefront\Framework\Page\PageWithHeader;
+use Shopware\Storefront\Page\Page;
 
-class NewsletterRegisterPage extends PageWithHeader
+class NewsletterRegisterPage extends Page
 {
     /**
      * @var SalutationCollection

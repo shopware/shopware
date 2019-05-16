@@ -5,12 +5,11 @@ namespace Shopware\Storefront\Page\Account\Profile;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Page\PageLoaderInterface;
-use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
+use Shopware\Storefront\Page\GenericPageLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class AccountProfilePageLoader implements PageLoaderInterface
+class AccountProfilePageLoader
 {
     /**
      * @var EventDispatcherInterface
@@ -18,9 +17,9 @@ class AccountProfilePageLoader implements PageLoaderInterface
     private $eventDispatcher;
 
     /**
-     * @var PageWithHeaderLoader|PageLoaderInterface
+     * @var GenericPageLoader
      */
-    private $pageWithHeaderLoader;
+    private $genericLoader;
 
     /**
      * @var AccountService
@@ -28,26 +27,25 @@ class AccountProfilePageLoader implements PageLoaderInterface
     private $accountService;
 
     public function __construct(
-        PageLoaderInterface $pageWithHeaderLoader,
+        GenericPageLoader $genericLoader,
         EventDispatcherInterface $eventDispatcher,
         AccountService $accountService
     ) {
         $this->eventDispatcher = $eventDispatcher;
-        $this->pageWithHeaderLoader = $pageWithHeaderLoader;
+        $this->genericLoader = $genericLoader;
         $this->accountService = $accountService;
     }
 
     public function load(Request $request, SalesChannelContext $context): AccountProfilePage
     {
-        $page = $this->pageWithHeaderLoader->load($request, $context);
+        if ($context->getCustomer() === null) {
+            throw new CustomerNotLoggedInException();
+        }
+
+        $page = $this->genericLoader->load($request, $context);
 
         $page = AccountProfilePage::createFrom($page);
 
-        $customer = $context->getCustomer();
-        if ($customer === null) {
-            throw new CustomerNotLoggedInException();
-        }
-        $page->setCustomer($customer);
         $page->setSalutations($this->accountService->getSalutationList($context));
 
         $this->eventDispatcher->dispatch(

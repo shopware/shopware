@@ -17,7 +17,6 @@
         <service id="Shopware\Storefront\Controller\AccountPaymentController">
             <argument type="service" id="Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
-            <argument type="service" id="translator"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -27,20 +26,16 @@
             <argument type="service" id="Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
-            <argument type="service" id="translator"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
         </service>
 
         <service id="Shopware\Storefront\Controller\AddressController">
-            <argument type="service" id="Shopware\Storefront\Pagelet\AddressBook\AddressBookPageletLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\Address\Listing\AddressListingPageLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\Address\Detail\AddressDetailPageLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
-            <argument type="service" id="translator"/>
-            <argument type="service" id="Shopware\Storefront\Page\Checkout\AddressList\CheckoutAddressListPageLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\Account\Address\AccountAddressPageLoader"/>
-            <argument type="service" id="Shopware\Storefront\Pagelet\Account\AddressList\AccountAddressListPageletLoader"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -49,7 +44,6 @@
         <service id="Shopware\Storefront\Controller\AuthController">
             <argument type="service" id="Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
-            <argument type="service" id="translator"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -57,8 +51,6 @@
 
         <service id="Shopware\Storefront\Controller\CartLineItemController">
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
-            <argument type="service" id="translator"/>
-            <argument type="service" id="media.repository"/>
             <argument type="service" id="sales_channel.product.repository"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -72,8 +64,7 @@
             <argument type="service" id="Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentService"/>
-            <argument type="service" id="Shopware\Storefront\Pagelet\Checkout\Info\CheckoutInfoPageletLoader"/>
-            <argument type="service" id="Shopware\Storefront\Pagelet\Checkout\AjaxCart\CheckoutAjaxCartPageletLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPageLoader"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -100,7 +91,6 @@
         <service id="Shopware\Storefront\Controller\ErrorController">
             <argument type="service" id="Shopware\Storefront\Framework\Twig\ErrorTemplateResolver"/>
             <argument type="service" id="session.flash_bag"/>
-            <argument type="service" id="translator"/>
             <argument type="service" id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -116,11 +106,10 @@
         </service>
 
         <service id="Shopware\Storefront\Controller\NewsletterController">
-            <argument type="service" id="Shopware\Storefront\Page\Newsletter\Register\NewsletterRegisterLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\Newsletter\ConfirmSubscribe\NewsletterConfirmSubscribePageLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\Newsletter\Register\NewsletterRegisterPageLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\Newsletter\Subscribe\NewsletterSubscribePageLoader"/>
             <argument type="service" id="Shopware\Core\Content\NewsletterRecipient\SalesChannel\NewsletterSubscriptionService"/>
             <argument type="service" id="request_stack"/>
-            <argument type="service" id="translator"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -148,7 +137,7 @@
 
         <service id="Shopware\Storefront\Controller\SearchController">
             <argument type="service" id="Shopware\Storefront\Page\Search\SearchPageLoader"/>
-            <argument type="service" id="Shopware\Storefront\Pagelet\Suggest\SuggestPageletLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\Suggest\SuggestPageLoader"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

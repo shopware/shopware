@@ -113,13 +113,13 @@
         <script>
             window.activeNavigationId = '{{ page.header.navigation.active.id }}';
             window.router = {
-                'frontend.cart.detail': '{{ path('frontend.cart.detail') }}',
+                'frontend.cart.offcanvas': '{{ path('frontend.cart.offcanvas') }}',
                 'frontend.checkout.finish.page': '{{ path('frontend.checkout.finish.page') }}',
-                'widgets.checkout.info': '{{ path('widgets.checkout.info') }}',
-                'widgets.menu.offcanvas': '{{ path('widgets.menu.offcanvas') }}',
-                'widgets.cms.page': '{{ path('widgets.cms.page') }}',
-                'widgets.cms.navigation.page': '{{ path('widgets.cms.navigation.page') }}',
-                'widgets.account.addressbook': '{{ path('widgets.account.addressbook') }}',
+                'frontend.checkout.info': '{{ path('frontend.checkout.info') }}',
+                'frontend.menu.offcanvas': '{{ path('frontend.menu.offcanvas') }}',
+                'frontend.cms.page': '{{ path('frontend.cms.page') }}',
+                'frontend.cms.navigation.page': '{{ path('frontend.cms.navigation.page') }}',
+                'frontend.account.addressbook': '{{ path('frontend.account.addressbook') }}',
             };
         </script>
     {% endblock %}

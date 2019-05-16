@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Test\Page\Account;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Account\Order\AccountOrderPage;
 use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoadedEvent;
 use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader;
@@ -40,7 +39,7 @@ class OrderPageTest extends TestCase
     /**
      * @return AccountOrderPageLoader
      */
-    protected function getPageLoader(): PageLoaderInterface
+    protected function getPageLoader()
     {
         return $this->getContainer()->get(AccountOrderPageLoader::class);
     }

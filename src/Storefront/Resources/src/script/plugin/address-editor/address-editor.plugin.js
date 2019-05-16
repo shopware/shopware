@@ -13,7 +13,7 @@ import PluginManager from 'src/script/helper/plugin/plugin.manager';
 export default class AddressEditorPlugin extends Plugin {
 
     static options = {
-        url: window.router['widgets.account.addressbook'],
+        url: window.router['frontend.account.addressbook'],
         redirectRoute: false,
         replaceSelector: false,
         addressId: false,

@@ -16,13 +16,10 @@ use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Controller\StorefrontController;
-use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoader;
-use Shopware\Storefront\Pagelet\Checkout\AjaxCart\CheckoutAjaxCartPageletLoader;
-use Shopware\Storefront\Pagelet\Checkout\Info\CheckoutInfoPageletLoader;
+use Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPageLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,17 +33,17 @@ class CheckoutController extends StorefrontController
     private $cartService;
 
     /**
-     * @var CheckoutCartPageLoader|PageLoaderInterface
+     * @var CheckoutCartPageLoader
      */
     private $cartPageLoader;
 
     /**
-     * @var CheckoutConfirmPageLoader|PageLoaderInterface
+     * @var CheckoutConfirmPageLoader
      */
     private $confirmPageLoader;
 
     /**
-     * @var CheckoutFinishPageLoader|PageLoaderInterface
+     * @var CheckoutFinishPageLoader
      */
     private $finishPageLoader;
 
@@ -61,24 +58,18 @@ class CheckoutController extends StorefrontController
     private $paymentService;
 
     /**
-     * @var CheckoutInfoPageletLoader|PageLoaderInterface
+     * @var OffcanvasCartPageLoader
      */
-    private $infoLoader;
-
-    /**
-     * @var CheckoutAjaxCartPageletLoader|PageLoaderInterface
-     */
-    private $ajaxCartLoader;
+    private $offcanvasCartPageLoader;
 
     public function __construct(
         CartService $cartService,
-        PageLoaderInterface $cartPageLoader,
-        PageLoaderInterface $confirmPageLoader,
-        PageLoaderInterface $finishPageLoader,
+        CheckoutCartPageLoader $cartPageLoader,
+        CheckoutConfirmPageLoader $confirmPageLoader,
+        CheckoutFinishPageLoader $finishPageLoader,
         OrderService $orderService,
         PaymentService $paymentService,
-        PageLoaderInterface $infoLoader,
-        PageLoaderInterface $ajaxCartLoader
+        OffcanvasCartPageLoader $offcanvasCartPageLoader
     ) {
         $this->cartService = $cartService;
         $this->cartPageLoader = $cartPageLoader;
@@ -86,8 +77,7 @@ class CheckoutController extends StorefrontController
         $this->finishPageLoader = $finishPageLoader;
         $this->orderService = $orderService;
         $this->paymentService = $paymentService;
-        $this->infoLoader = $infoLoader;
-        $this->ajaxCartLoader = $ajaxCartLoader;
+        $this->offcanvasCartPageLoader = $offcanvasCartPageLoader;
     }
 
     /**
@@ -169,32 +159,29 @@ class CheckoutController extends StorefrontController
             throw $e;
         }
 
-        return $this->forward(
-            'Shopware\Storefront\PageController\CheckoutPageController::confirm',
-            ['formViolations' => $formViolations]
-        );
+        return $this->forwardToRoute('frontend.checkout.confirm.page', ['formViolations' => $formViolations]);
     }
 
     /**
-     * @Route("/widgets/checkout/info", name="widgets.checkout.info", methods={"GET"}, defaults={"XmlHttpRequest"=true})
+     * @Route("/widgets/checkout/info", name="frontend.checkout.info", methods={"GET"}, defaults={"XmlHttpRequest"=true})
      *
      * @throws CartTokenNotFoundException
      */
-    public function infoAction(Request $request, SalesChannelContext $context): Response
+    public function info(Request $request, SalesChannelContext $context): Response
     {
-        $page = $this->infoLoader->load($request, $context);
+        $page = $this->offcanvasCartPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/layout/header/actions/cart-widget.html.twig', ['page' => $page]);
     }
 
     /**
-     * @Route("/checkout/ajax-cart", name="frontend.cart.detail", options={"seo"="false"}, methods={"GET"}, defaults={"XmlHttpRequest"=true})
+     * @Route("/checkout/offcanvas", name="frontend.cart.offcanvas", options={"seo"="false"}, methods={"GET"}, defaults={"XmlHttpRequest"=true})
      *
      * @throws CartTokenNotFoundException
      */
-    public function ajaxCart(Request $request, SalesChannelContext $context): Response
+    public function offcanvas(Request $request, SalesChannelContext $context): Response
     {
-        $page = $this->ajaxCartLoader->load($request, $context);
+        $page = $this->offcanvasCartPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/component/checkout/offcanvas-cart.html.twig', ['page' => $page]);
     }

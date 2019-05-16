@@ -15,7 +15,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
 use Shopware\Storefront\Page\Search\SearchPage;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
-use Shopware\Storefront\Pagelet\Suggest\SuggestPageletLoader;
+use Shopware\Storefront\Page\Suggest\SuggestPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 
 class ProductVisibilityTest extends TestCase
@@ -58,9 +58,9 @@ class ProductVisibilityTest extends TestCase
     private $searchPageLoader;
 
     /**
-     * @var SuggestPageletLoader
+     * @var SuggestPageLoader
      */
-    private $suggestPageletLoader;
+    private $suggestPageLoader;
 
     /**
      * @var SalesChannelContextFactory
@@ -82,7 +82,7 @@ class ProductVisibilityTest extends TestCase
         parent::setUp();
 
         $this->searchPageLoader = $this->getContainer()->get(SearchPageLoader::class);
-        $this->suggestPageletLoader = $this->getContainer()->get(SuggestPageletLoader::class);
+        $this->suggestPageLoader = $this->getContainer()->get(SuggestPageLoader::class);
         $this->productPageLoader = $this->getContainer()->get(ProductPageLoader::class);
 
         $this->productRepository = $this->getContainer()->get('product.repository');
@@ -164,7 +164,7 @@ class ProductVisibilityTest extends TestCase
         $request = new Request(['search' => 'test']);
 
         /** @var SearchPage $page */
-        $page = $this->suggestPageletLoader->load($request, $salesChannelContext);
+        $page = $this->suggestPageLoader->load($request, $salesChannelContext);
 
         static::assertCount(2, $page->getSearchResult());
         static::assertTrue($page->getSearchResult()->has($this->productId2));

@@ -3,19 +3,19 @@
 namespace Shopware\Storefront\Page\Account\PaymentMethod;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Page\PageLoaderInterface;
-use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
-use Shopware\Storefront\Pagelet\Account\PaymentMethod\AccountPaymentMethodPageletLoader;
+use Shopware\Storefront\Page\GenericPageLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class AccountPaymentMethodPageLoader implements PageLoaderInterface
+class AccountPaymentMethodPageLoader
 {
     /**
-     * @var PageWithHeaderLoader|PageLoaderInterface
+     * @var GenericPageLoader
      */
-    private $pageWithHeaderLoader;
+    private $genericLoader;
 
     /**
      * @var EventDispatcherInterface
@@ -23,35 +23,34 @@ class AccountPaymentMethodPageLoader implements PageLoaderInterface
     private $eventDispatcher;
 
     /**
-     * @var AccountPaymentMethodPageletLoader|PageLoaderInterface
+     * @var SalesChannelRepository
      */
-    private $accountPaymentMethodPageletLoader;
+    private $paymentMethodRepository;
 
     public function __construct(
-        PageLoaderInterface $pageWithHeaderLoader,
-        PageLoaderInterface $accountPaymentMethodPageletLoader,
+        SalesChannelRepository $paymentMethodRepository,
+        GenericPageLoader $genericLoader,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->eventDispatcher = $eventDispatcher;
-        $this->pageWithHeaderLoader = $pageWithHeaderLoader;
-        $this->accountPaymentMethodPageletLoader = $accountPaymentMethodPageletLoader;
+        $this->genericLoader = $genericLoader;
+        $this->paymentMethodRepository = $paymentMethodRepository;
     }
 
     public function load(Request $request, SalesChannelContext $context): AccountPaymentMethodPage
     {
-        $page = $this->pageWithHeaderLoader->load($request, $context);
+        if (!$context->getCustomer()) {
+            throw new CustomerNotLoggedInException();
+        }
+
+        $page = $this->genericLoader->load($request, $context);
 
         $page = AccountPaymentMethodPage::createFrom($page);
 
-        $customer = $context->getCustomer();
-
-        if ($customer === null) {
-            throw new CustomerNotLoggedInException();
-        }
-        $page->setCustomer($customer);
+        $criteria = $this->createCriteria($request);
 
         $page->setPaymentMethods(
-            $this->accountPaymentMethodPageletLoader->load($request, $context)
+            $this->paymentMethodRepository->search($criteria, $context)
         );
 
         $this->eventDispatcher->dispatch(
@@ -60,5 +59,16 @@ class AccountPaymentMethodPageLoader implements PageLoaderInterface
         );
 
         return $page;
+    }
+
+    private function createCriteria(Request $request): Criteria
+    {
+        $limit = $request->query->get('limit', 10);
+        $page = $request->query->get('p', 1);
+
+        return (new Criteria())
+            ->setOffset(($page - 1) * $limit)
+            ->setLimit($limit)
+            ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
     }
 }

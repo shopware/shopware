@@ -3,29 +3,21 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemCoverNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Cart\Builder\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsCollector;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CartLineItemController extends StorefrontController
 {
@@ -35,36 +27,22 @@ class CartLineItemController extends StorefrontController
     private $cartService;
 
     /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $mediaRepository;
-
-    /**
      * @var SalesChannelRepository
      */
     private $productRepository;
 
     public function __construct(
         CartService $cartService,
-        TranslatorInterface $translator,
-        EntityRepositoryInterface $mediaRepository,
         SalesChannelRepository $productRepository
     ) {
         $this->cartService = $cartService;
-        $this->translator = $translator;
-        $this->mediaRepository = $mediaRepository;
         $this->productRepository = $productRepository;
     }
 
     /**
      * @Route("/checkout/line-item/delete/{id}", name="frontend.checkout.line-item.delete", methods={"POST", "DELETE"}, defaults={"XmlHttpRequest": true})
      */
-    public function removeLineItem(string $id, Request $request, SalesChannelContext $context): Response
+    public function deleteLineItem(string $id, Request $request, SalesChannelContext $context): Response
     {
         try {
             $token = $request->request->getAlnum('token', $context->getToken());
@@ -77,9 +55,9 @@ class CartLineItemController extends StorefrontController
 
             $this->cartService->remove($cart, $id, $context);
 
-            $this->addFlash('success', $this->translator->trans('checkout.cartUpdateSuccess'));
+            $this->addFlash('success', $this->trans('checkout.cartUpdateSuccess'));
         } catch (\Exception $exception) {
-            $this->addFlash('danger', $this->translator->trans('error.message-default'));
+            $this->addFlash('danger', $this->trans('error.message-default'));
         }
 
         return $this->createActionResponse($request);
@@ -116,25 +94,25 @@ class CartLineItemController extends StorefrontController
             $changedCartState = md5(json_encode($cart));
 
             if ($initialCartState !== $changedCartState) {
-                $this->addFlash('success', $this->translator->trans('checkout.codeAddedSuccessful'));
+                $this->addFlash('success', $this->trans('checkout.codeAddedSuccessful'));
             } else {
-                $this->addFlash('info', $this->translator->trans('checkout.promotionAlreadyExistsInfo'));
+                $this->addFlash('info', $this->trans('checkout.promotionAlreadyExistsInfo'));
             }
         } catch (LineItemNotFoundException $exception) {
             // todo this could have a multitude of reasons - imagine a code is valid but cannot be added because of restrictions
             // wouldn't it be the appropriate way to display the reason what avoided the promotion to be added
-            $this->addFlash('warning', 'Gutschein-Code konnte nicht hinzugefügt werden - ist der Code falsch?');
+            $this->addFlash('warning', $this->trans('error.message-default'));
         } catch (\Exception $exception) {
-            $this->addFlash('danger', $this->translator->trans('error.message-default'));
+            $this->addFlash('danger', $this->trans('error.message-default'));
         }
 
         return $this->createActionResponse($request);
     }
 
     /**
-     * @Route("/checkout/line-item/update/{id}", name="frontend.checkout.line-item.update", defaults={"XmlHttpRequest": true}, methods={"POST"})
+     * @Route("/checkout/line-item/change-quantity/{id}", name="frontend.checkout.line-item.change-quantity", defaults={"XmlHttpRequest": true}, methods={"POST"})
      */
-    public function updateLineItem(string $id, Request $request, SalesChannelContext $context): Response
+    public function changeQuantity(string $id, Request $request, SalesChannelContext $context): Response
     {
         try {
             $token = $request->request->getAlnum('token', $context->getToken());
@@ -153,9 +131,9 @@ class CartLineItemController extends StorefrontController
 
             $this->cartService->changeQuantity($cart, $id, (int) $quantity, $context);
 
-            $this->addFlash('success', $this->translator->trans('checkout.cartUpdateSuccess'));
+            $this->addFlash('success', $this->trans('checkout.cartUpdateSuccess'));
         } catch (\Exception $exception) {
-            $this->addFlash('danger', $this->translator->trans('error.message-default'));
+            $this->addFlash('danger', $this->trans('error.message-default'));
         }
 
         return $this->createActionResponse($request);
@@ -179,7 +157,7 @@ class CartLineItemController extends StorefrontController
         $data = $idSearchResult->getIds();
 
         if (empty($data)) {
-            $this->addFlash('danger', $this->translator->trans('error.productNotFound', ['%number%' => $number]));
+            $this->addFlash('danger', $this->trans('error.productNotFound', ['%number%' => $number]));
 
             return $this->createActionResponse($request);
         }
@@ -187,17 +165,11 @@ class CartLineItemController extends StorefrontController
         $productId = array_shift($data);
         $request->request->add([
             'lineItems' => [
-                $productId => [
-                    'id' => $productId,
-                    'quantity' => 1,
-                    'type' => 'product',
-                    'stackable' => true,
-                    'removable' => true,
-                ],
+                ['id' => $productId, 'quantity' => 1, 'type' => 'product'],
             ],
         ]);
 
-        return $this->forward('Shopware\Storefront\PageController\CheckoutPageController::addLineItems');
+        return $this->forwardToRoute('frontend.checkout.line-item.add');
     }
 
     /**
@@ -238,16 +210,19 @@ class CartLineItemController extends StorefrontController
                     $lineItemData->getInt('quantity', 1)
                 );
 
-                $this->updateLineItemByRequest($lineItem, $lineItemData, $context->getContext());
+                $lineItem->setStackable($lineItemData->getBoolean('stackable', true));
+                $lineItem->setRemovable($lineItemData->getBoolean('removable', true));
+
+                $lineItem->setPayloadValue('id', $lineItem->getKey());
 
                 $count += $lineItem->getQuantity();
 
                 $this->cartService->add($cart, $lineItem, $context);
             }
 
-            $this->addFlash('success', $this->translator->trans('checkout.addToCartSuccess', ['%count%' => $count]));
+            $this->addFlash('success', $this->trans('checkout.addToCartSuccess', ['%count%' => $count]));
         } catch (ProductNotFoundException $exception) {
-            $this->addFlash('danger', $this->translator->trans('error.addToCartError'));
+            $this->addFlash('danger', $this->trans('error.addToCartError'));
         }
 
         return $this->createActionResponse($request);
@@ -272,55 +247,5 @@ class CartLineItemController extends StorefrontController
         }
 
         return false;
-    }
-
-    /**
-     * @throws InvalidQuantityException
-     * @throws LineItemCoverNotFoundException
-     * @throws LineItemNotStackableException
-     * @throws InvalidPayloadException
-     */
-    private function updateLineItemByRequest(LineItem $lineItem, RequestDataBag $requestDataBag, Context $context): void
-    {
-        $quantity = (int) $requestDataBag->get('quantity');
-        $payload = $requestDataBag->get('payload', []);
-        $payload = array_replace_recursive(['id' => $lineItem->getKey()], $payload);
-        $stackable = $requestDataBag->get('stackable');
-        $removable = $requestDataBag->get('removable');
-        $label = $requestDataBag->get('label');
-        $description = $requestDataBag->get('description');
-        $coverId = $requestDataBag->get('coverId');
-
-        $lineItem->setPayload($payload);
-
-        if ($quantity) {
-            $lineItem->setQuantity($quantity);
-        }
-
-        if ($stackable !== null) {
-            $lineItem->setStackable((bool) $stackable);
-        }
-
-        if ($removable !== null) {
-            $lineItem->setRemovable((bool) $removable);
-        }
-
-        if ($label !== null) {
-            $lineItem->setLabel($label);
-        }
-
-        if ($description !== null) {
-            $lineItem->setDescription($description);
-        }
-
-        if ($coverId !== null) {
-            $cover = $this->mediaRepository->search(new Criteria([$coverId]), $context)->get($coverId);
-
-            if (!$cover) {
-                throw new LineItemCoverNotFoundException($coverId, $lineItem->getKey());
-            }
-
-            $lineItem->setCover($cover);
-        }
     }
 }

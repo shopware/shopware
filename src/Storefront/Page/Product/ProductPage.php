@@ -5,9 +5,9 @@ namespace Shopware\Storefront\Page\Product;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
-use Shopware\Storefront\Framework\Page\PageWithHeader;
+use Shopware\Storefront\Page\Page;
 
-class ProductPage extends PageWithHeader
+class ProductPage extends Page
 {
     /**
      * @var SalesChannelProductEntity

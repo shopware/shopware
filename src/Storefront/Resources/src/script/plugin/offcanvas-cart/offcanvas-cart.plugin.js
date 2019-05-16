@@ -54,7 +54,7 @@ export default class OffCanvasCartPlugin extends Plugin {
     _onOpenOffCanvasCart(event) {
         event.preventDefault();
 
-        this.openOffCanvas(window.router['frontend.cart.detail'], false);
+        this.openOffCanvas(window.router['frontend.cart.offcanvas'], false);
     }
 
     /**

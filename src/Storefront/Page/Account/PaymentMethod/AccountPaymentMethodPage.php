@@ -2,21 +2,15 @@
 
 namespace Shopware\Storefront\Page\Account\PaymentMethod;
 
-use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Storefront\Page\Page;
 
-class AccountPaymentMethodPage extends Struct
+class AccountPaymentMethodPage extends Page
 {
     /**
      * @var EntitySearchResult
      */
     protected $paymentMethods;
-
-    /**
-     * @var CustomerEntity
-     */
-    protected $customer;
 
     public function getPaymentMethods(): EntitySearchResult
     {
@@ -26,15 +20,5 @@ class AccountPaymentMethodPage extends Struct
     public function setPaymentMethods(EntitySearchResult $paymentMethods): void
     {
         $this->paymentMethods = $paymentMethods;
-    }
-
-    public function getCustomer(): CustomerEntity
-    {
-        return $this->customer;
-    }
-
-    public function setCustomer(CustomerEntity $customer): void
-    {
-        $this->customer = $customer;
     }
 }

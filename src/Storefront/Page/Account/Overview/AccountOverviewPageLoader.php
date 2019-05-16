@@ -4,17 +4,16 @@ namespace Shopware\Storefront\Page\Account\Overview;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Page\PageLoaderInterface;
-use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
+use Shopware\Storefront\Page\GenericPageLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class AccountOverviewPageLoader implements PageLoaderInterface
+class AccountOverviewPageLoader
 {
     /**
-     * @var PageWithHeaderLoader|PageLoaderInterface
+     * @var GenericPageLoader
      */
-    private $pageWithHeaderLoader;
+    private $genericLoader;
 
     /**
      * @var EventDispatcherInterface
@@ -22,25 +21,22 @@ class AccountOverviewPageLoader implements PageLoaderInterface
     private $eventDispatcher;
 
     public function __construct(
-        PageLoaderInterface $pageWithHeaderLoader,
+        GenericPageLoader $genericLoader,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->eventDispatcher = $eventDispatcher;
-        $this->pageWithHeaderLoader = $pageWithHeaderLoader;
+        $this->genericLoader = $genericLoader;
     }
 
     public function load(Request $request, SalesChannelContext $context): AccountOverviewPage
     {
-        $page = $this->pageWithHeaderLoader->load($request, $context);
-
-        $page = AccountOverviewPage::createFrom($page);
-
-        $customer = $context->getCustomer();
-
-        if ($customer === null) {
+        if (!$context->getCustomer()) {
             throw new CustomerNotLoggedInException();
         }
-        $page->setCustomer($customer);
+
+        $page = $this->genericLoader->load($request, $context);
+
+        $page = AccountOverviewPage::createFrom($page);
 
         $this->eventDispatcher->dispatch(
             AccountOverviewPageLoadedEvent::NAME,

@@ -5,12 +5,11 @@ namespace Shopware\Storefront\Page\Account\Login;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AddressService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Page\PageLoaderInterface;
-use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
+use Shopware\Storefront\Page\GenericPageLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class AccountLoginPageLoader implements PageLoaderInterface
+class AccountLoginPageLoader
 {
     /**
      * @var EventDispatcherInterface
@@ -18,9 +17,9 @@ class AccountLoginPageLoader implements PageLoaderInterface
     private $eventDispatcher;
 
     /**
-     * @var PageWithHeaderLoader|PageLoaderInterface
+     * @var GenericPageLoader
      */
-    private $pageWithHeaderLoader;
+    private $genericLoader;
 
     /**
      * @var AddressService
@@ -33,20 +32,20 @@ class AccountLoginPageLoader implements PageLoaderInterface
     private $accountService;
 
     public function __construct(
-        PageLoaderInterface $pageWithHeaderLoader,
+        GenericPageLoader $genericLoader,
         AddressService $addressService,
         AccountService $accountService,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->eventDispatcher = $eventDispatcher;
-        $this->pageWithHeaderLoader = $pageWithHeaderLoader;
+        $this->genericLoader = $genericLoader;
         $this->addressService = $addressService;
         $this->accountService = $accountService;
     }
 
     public function load(Request $request, SalesChannelContext $context): AccountLoginPage
     {
-        $page = $this->pageWithHeaderLoader->load($request, $context);
+        $page = $this->genericLoader->load($request, $context);
 
         $page = AccountLoginPage::createFrom($page);
 

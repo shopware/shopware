@@ -4,9 +4,9 @@ namespace Shopware\Storefront\Page\Account\Login;
 
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Salutation\SalutationCollection;
-use Shopware\Storefront\Framework\Page\PageWithHeader;
+use Shopware\Storefront\Page\Page;
 
-class AccountLoginPage extends PageWithHeader
+class AccountLoginPage extends Page
 {
     /**
      * @var CountryCollection

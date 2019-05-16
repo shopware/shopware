@@ -33,7 +33,7 @@ export default class CartWidgetPlugin extends Plugin {
      * and persist the response to the browser's session storage
      */
     fetch() {
-        this._client.get(window.router['widgets.checkout.info'], (response) => {
+        this._client.get(window.router['frontend.checkout.info'], (response) => {
 
             Storage.setItem(CART_WIDGET_STORAGE_KEY, response);
             this.el.innerHTML = response;

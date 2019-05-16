@@ -204,7 +204,12 @@ class RequestTransformer
         }
 
         if ($_ENV['FEATURE_NEXT_741'] ?? false) {
-            return (new SeoResolver($this->connection))->resolveSeoPath($salesChannelId, $seoPathInfo);
+            $resolved = (new SeoResolver($this->connection))
+                ->resolveSeoPath($salesChannelId, $seoPathInfo);
+
+            $resolved['pathInfo'] = rtrim($seoPathInfo, '/');
+
+            return $resolved;
         }
 
         return ['pathInfo' => rtrim($seoPathInfo, '/')];

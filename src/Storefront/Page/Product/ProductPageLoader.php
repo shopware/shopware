@@ -20,13 +20,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Page\PageLoaderInterface;
-use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
+use Shopware\Storefront\Page\GenericPageLoader;
 use Shopware\Storefront\Page\Product\Configurator\ProductPageConfiguratorLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class ProductPageLoader implements PageLoaderInterface
+class ProductPageLoader
 {
     /**
      * @var SalesChannelRepository
@@ -39,9 +38,9 @@ class ProductPageLoader implements PageLoaderInterface
     private $eventDispatcher;
 
     /**
-     * @var PageWithHeaderLoader|PageLoaderInterface
+     * @var GenericPageLoader
      */
-    private $pageWithHeaderLoader;
+    private $genericLoader;
 
     /**
      * @var SalesChannelCmsPageRepository
@@ -64,7 +63,7 @@ class ProductPageLoader implements PageLoaderInterface
     private $configuratorLoader;
 
     public function __construct(
-        PageLoaderInterface $pageWithHeaderLoader,
+        GenericPageLoader $genericLoader,
         SalesChannelRepository $productRepository,
         EventDispatcherInterface $eventDispatcher,
         SalesChannelCmsPageRepository $cmsPageRepository,
@@ -73,7 +72,7 @@ class ProductPageLoader implements PageLoaderInterface
         ProductDefinition $productDefinition
     ) {
         $this->eventDispatcher = $eventDispatcher;
-        $this->pageWithHeaderLoader = $pageWithHeaderLoader;
+        $this->genericLoader = $genericLoader;
         $this->productRepository = $productRepository;
         $this->cmsPageRepository = $cmsPageRepository;
         $this->slotDataResolver = $slotDataResolver;
@@ -83,7 +82,7 @@ class ProductPageLoader implements PageLoaderInterface
 
     public function load(Request $request, SalesChannelContext $context): ProductPage
     {
-        $page = $this->pageWithHeaderLoader->load($request, $context);
+        $page = $this->genericLoader->load($request, $context);
         $page = ProductPage::createFrom($page);
 
         $productId = $request->attributes->get('productId');
@@ -148,7 +147,6 @@ class ProductPageLoader implements PageLoaderInterface
         $criteria->addFilter(new EqualsFilter('id', $productId));
         $criteria->addAssociation('product.media');
         $criteria->addAssociation('product.prices');
-
         $criteria->addAssociation('prices');
         $criteria->addAssociation('media');
         $criteria->addAssociation('cover');
@@ -194,7 +192,7 @@ class ProductPageLoader implements PageLoaderInterface
 
         usort(
             $sorted,
-            function (PropertyGroupEntity $a, PropertyGroupEntity $b) {
+            static function (PropertyGroupEntity $a, PropertyGroupEntity $b) {
                 return strnatcmp($a->getTranslation('name'), $b->getTranslation('name'));
             }
         );
@@ -202,7 +200,7 @@ class ProductPageLoader implements PageLoaderInterface
         /** @var PropertyGroupEntity $group */
         foreach ($sorted as $group) {
             $group->getOptions()->sort(
-                function (PropertyGroupOptionEntity $a, PropertyGroupOptionEntity $b) use ($group) {
+                static function (PropertyGroupOptionEntity $a, PropertyGroupOptionEntity $b) use ($group) {
                     if ($group->getSortingType() === PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC) {
                         return strnatcmp($a->getTranslation('name'), $b->getTranslation('name'));
                     }

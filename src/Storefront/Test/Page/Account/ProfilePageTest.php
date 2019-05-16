@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Test\Page\Account;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Account\Profile\AccountProfilePage;
 use Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoadedEvent;
 use Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoader;
@@ -34,14 +33,14 @@ class ProfilePageTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(AccountProfilePage::class, $page);
-        static::assertSame(StorefrontPageTestConstants::CUSTOMER_FIRSTNAME, $page->getCustomer()->getFirstName());
+        static::assertSame(StorefrontPageTestConstants::CUSTOMER_FIRSTNAME, $page->getContext()->getCustomer()->getFirstName());
         self::assertPageEvent(AccountProfilePageLoadedEvent::class, $event, $context, $request, $page);
     }
 
     /**
      * @return AccountProfilePageLoader
      */
-    protected function getPageLoader(): PageLoaderInterface
+    protected function getPageLoader()
     {
         return $this->getContainer()->get(AccountProfilePageLoader::class);
     }

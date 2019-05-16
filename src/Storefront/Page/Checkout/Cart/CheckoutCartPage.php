@@ -3,9 +3,9 @@
 namespace Shopware\Storefront\Page\Checkout\Cart;
 
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Storefront\Framework\Page\PageWithHeader;
+use Shopware\Storefront\Page\Page;
 
-class CheckoutCartPage extends PageWithHeader
+class CheckoutCartPage extends Page
 {
     /**
      * @var Cart

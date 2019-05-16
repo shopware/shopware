@@ -2,27 +2,13 @@
 
 namespace Shopware\Storefront\Event;
 
-use Shopware\Storefront\Page\Checkout\Address\CheckoutAddressPageLoadedEvent;
-use Shopware\Storefront\Page\Checkout\AddressList\CheckoutAddressListPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoadedEvent;
-use Shopware\Storefront\Pagelet\Checkout\AjaxCart\CheckoutAjaxCartPageletLoadedEvent;
-use Shopware\Storefront\Pagelet\Checkout\Info\CheckoutInfoPageletLoadedEvent;
 
 class CheckoutEvents
 {
-    /**
-     * @Event("Shopware\Storefront\Pagelet\Checkout\AjaxCart\CheckoutAjaxCartPageletLoadedEvent")
-     */
-    public const CHECKOUT_AJAXCART_PAGELET_LOADED_EVENT = CheckoutAjaxCartPageletLoadedEvent::NAME;
-
-    /**
-     * @Event("Shopware\Storefront\Pagelet\Checkout\Info\CheckoutInfoPageletLoadedEvent")
-     */
-    public const CHECKOUT_INFO_PAGELET_LOADED_EVENT = CheckoutInfoPageletLoadedEvent::NAME;
-
     /**
      * @Event("Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedEvent")
      */
@@ -42,14 +28,4 @@ class CheckoutEvents
      * @Event("Shopware\Storefront\Page\Checkout\Cart\CheckoutRegisterPageLoadedEvent")
      */
     public const CHECKOUT_REGISTER_PAGE_LOADED_EVENT = CheckoutRegisterPageLoadedEvent::NAME;
-
-    /**
-     * @Event("Shopware\Storefront\Page\Checkout\Address\CheckoutAddressPageLoadedEvent")
-     */
-    public const CHECKOUT_ADDRESS_PAGE_LOADED_EVENT = CheckoutAddressPageLoadedEvent::NAME;
-
-    /**
-     * @Event("Shopware\Storefront\Page\Checkout\AddressList\CheckoutAddressListPageLoadedEvent")
-     */
-    public const CHECKOUT_ADDRESS_LIST_PAGE_LOADED_EVENT = CheckoutAddressListPageLoadedEvent::NAME;
 }

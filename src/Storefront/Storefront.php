@@ -21,11 +21,6 @@ class Storefront extends Bundle
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection'));
         $loader->load('services.xml');
-
-        if ($container->getParameter('kernel.debug')) {
-            $loader->load('profiling.xml');
-        }
-
         $loader->load('seo.xml');
         $loader->load('controller.xml');
 

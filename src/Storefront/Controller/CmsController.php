@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -38,7 +37,7 @@ class CmsController extends StorefrontController
     /**
      * Route for stand alone cms pages
      *
-     * @Route("/widgets/cms/{id}", name="widgets.cms.page", methods={"GET", "POST"}, defaults={"id"=null, "XmlHttpRequest"=true})
+     * @Route("/widgets/cms/{id}", name="frontend.cms.page", methods={"GET", "POST"}, defaults={"id"=null, "XmlHttpRequest"=true})
      */
     public function page(string $id, Request $request, SalesChannelContext $context): Response
     {
@@ -55,7 +54,7 @@ class CmsController extends StorefrontController
      * Route to load a cms page which assigned to the provided navigation id.
      * Navigation id is required to load the slot config for the navigation
      *
-     * @Route("/widgets/cms/navigation/{navigationId}", name="widgets.cms.navigation.page", methods={"GET", "POST"}, defaults={"navigationId"=null, "XmlHttpRequest"=true})
+     * @Route("/widgets/cms/navigation/{navigationId}", name="frontend.cms.navigation.page", methods={"GET", "POST"}, defaults={"navigationId"=null, "XmlHttpRequest"=true})
      */
     public function category(string $navigationId, Request $request, SalesChannelContext $context): Response
     {

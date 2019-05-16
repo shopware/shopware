@@ -6,20 +6,22 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AddressService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Page\PageLoaderInterface;
+use Shopware\Storefront\Page\GenericPageLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class CheckoutRegisterPageLoader implements PageLoaderInterface
+class CheckoutRegisterPageLoader
 {
     /**
-     * @var PageLoaderInterface
+     * @var GenericPageLoader
      */
-    private $pageWithHeaderLoader;
+    private $genericLoader;
+
     /**
      * @var AccountService
      */
     private $accountService;
+
     /**
      * @var EventDispatcherInterface
      */
@@ -29,19 +31,20 @@ class CheckoutRegisterPageLoader implements PageLoaderInterface
      * @var AddressService
      */
     private $addressService;
+
     /**
      * @var CartService
      */
     private $cartService;
 
     public function __construct(
-        PageLoaderInterface $pageWithHeaderLoader,
+        GenericPageLoader $genericLoader,
         AccountService $accountService,
         AddressService $addressService,
         EventDispatcherInterface $eventDispatcher,
         CartService $cartService
     ) {
-        $this->pageWithHeaderLoader = $pageWithHeaderLoader;
+        $this->genericLoader = $genericLoader;
         $this->accountService = $accountService;
         $this->eventDispatcher = $eventDispatcher;
         $this->addressService = $addressService;
@@ -50,7 +53,7 @@ class CheckoutRegisterPageLoader implements PageLoaderInterface
 
     public function load(Request $request, SalesChannelContext $context): CheckoutRegisterPage
     {
-        $page = $this->pageWithHeaderLoader->load($request, $context);
+        $page = $this->genericLoader->load($request, $context);
 
         $page = CheckoutRegisterPage::createFrom($page);
 

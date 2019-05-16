@@ -3,10 +3,8 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Controller\StorefrontController;
-use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
-use Shopware\Storefront\Pagelet\Suggest\SuggestPageletLoader;
+use Shopware\Storefront\Page\Suggest\SuggestPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -14,19 +12,19 @@ use Symfony\Component\Routing\Annotation\Route;
 class SearchController extends StorefrontController
 {
     /**
-     * @var SearchPageLoader|PageLoaderInterface
+     * @var SearchPageLoader
      */
     private $searchPageLoader;
 
     /**
-     * @var SuggestPageletLoader|PageLoaderInterface
+     * @var SuggestPageLoader
      */
-    private $suggestPageletLoader;
+    private $suggestPageLoader;
 
-    public function __construct(PageLoaderInterface $searchPageLoader, PageLoaderInterface $suggestPageletLoader)
+    public function __construct(SearchPageLoader $searchPageLoader, SuggestPageLoader $suggestPageLoader)
     {
         $this->searchPageLoader = $searchPageLoader;
-        $this->suggestPageletLoader = $suggestPageletLoader;
+        $this->suggestPageLoader = $suggestPageLoader;
     }
 
     /**
@@ -44,7 +42,7 @@ class SearchController extends StorefrontController
      */
     public function suggest(SalesChannelContext $context, Request $request): Response
     {
-        $page = $this->suggestPageletLoader->load($request, $context);
+        $page = $this->suggestPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/layout/header/search-suggest.html.twig', ['page' => $page]);
     }

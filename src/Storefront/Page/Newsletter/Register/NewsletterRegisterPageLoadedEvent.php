@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class NewsletterRegisterPageLoadedEvent extends NestedEvent
 {
-    public const NAME = 'newsletter-recipient.page.loaded';
+    public const NAME = 'newsletter-register.page.loaded';
 
     /**
      * @var NewsletterRegisterPage

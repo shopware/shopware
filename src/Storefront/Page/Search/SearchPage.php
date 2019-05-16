@@ -2,10 +2,10 @@
 
 namespace Shopware\Storefront\Page\Search;
 
-use Shopware\Storefront\Framework\Page\PageWithHeader;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
+use Shopware\Storefront\Page\Page;
 
-class SearchPage extends PageWithHeader
+class SearchPage extends Page
 {
     /**
      * @var StorefrontSearchResult

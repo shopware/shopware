@@ -7,8 +7,8 @@ import Iterator from 'src/script/helper/iterator.helper';
 export default class CmsSlotReloadPlugin extends Plugin {
 
     static options = {
-        cmsUrl: window.router['widgets.cms.page'],
-        navigationUrl: window.router['widgets.cms.navigation.page'],
+        cmsUrl: window.router['frontend.cms.page'],
+        navigationUrl: window.router['frontend.cms.navigation.page'],
         cmsPageId: false,
         navigationId: false,
         elements: [],

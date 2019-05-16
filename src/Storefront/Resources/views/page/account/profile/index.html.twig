@@ -39,7 +39,7 @@
                                     {% block page_account_profile_personal_fields %}
                                         {% sw_include '@Storefront/page/account/profile/personal.html.twig' with {
                                             'showBirthdayField': shopware.config.register.birthdayField,
-                                            'data': page.customer
+                                            'data': page.context.customer
                                         } %}
                                     {% endblock %}
 
@@ -86,7 +86,7 @@
                                             {% block page_account_profile_current_mail_label %}
                                                 <span
                                                     class="account-current-mail">{{ "account.profileCurrentMail"|trans }}</span>
-                                                <p>{{ page.customer.email }}</p>
+                                                <p>{{ page.context.customer.email }}</p>
                                             {% endblock %}
 
                                             {% block page_account_profile_current_mail %}

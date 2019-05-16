@@ -4,8 +4,8 @@ namespace Shopware\Storefront\Event;
 
 use Shopware\Core\Content\NewsletterRecipient\Event\NewsletterConfirmEvent;
 use Shopware\Core\Content\NewsletterRecipient\Event\NewsletterRegisterEvent;
-use Shopware\Storefront\Page\Newsletter\ConfirmSubscribe\NewsletterConfirmSubscribePageLoadedEvent;
 use Shopware\Storefront\Page\Newsletter\Register\NewsletterRegisterPageLoadedEvent;
+use Shopware\Storefront\Page\Newsletter\Subscribe\NewsletterSubscribePageLoadedEvent;
 
 class NewsletterEvents
 {
@@ -25,7 +25,7 @@ class NewsletterEvents
     public const NEWSLETTER_PAGE_LOADED_EVENT = NewsletterRegisterPageLoadedEvent::NAME;
 
     /**
-     * @Event("Shopware\Storefront\Page\Newsletter\ConfirmSubscribe\NewsletterConfirmSubscribePageLoadedEvent")
+     * @Event("Shopware\Storefront\Page\Newsletter\ConfirmSubscribe\NewsletterSubscribePageLoadedEvent")
      */
-    public const NEWSLETTER_CONFIRM_SUBSCRIBE_PAGE_LOADED_EVENT = NewsletterConfirmSubscribePageLoadedEvent::NAME;
+    public const NEWSLETTER_CONFIRM_SUBSCRIBE_PAGE_LOADED_EVENT = NewsletterSubscribePageLoadedEvent::NAME;
 }

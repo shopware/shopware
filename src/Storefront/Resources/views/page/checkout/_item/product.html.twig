@@ -74,7 +74,7 @@
                             <div class="col-4 col-sm-12">
                                 {% block page_checkout_item_product_quantity_form %}
                                     <form
-                                        action="{{ path('frontend.checkout.line-item.update', {'id': lineItem.key}) }}"
+                                        action="{{ path('frontend.checkout.line-item.change-quantity', {'id': lineItem.key}) }}"
                                         class="cart-item-quantity-container"
                                         method="post"
                                         data-form-auto-submit="true">

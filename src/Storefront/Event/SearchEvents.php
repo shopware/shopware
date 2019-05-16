@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Event;
 
 use Shopware\Storefront\Page\Search\SearchPageLoadedEvent;
-use Shopware\Storefront\Pagelet\Suggest\SuggestPageletLoadedEvent;
+use Shopware\Storefront\Page\Suggest\SuggestPageLoadedEvent;
 
 class SearchEvents
 {
@@ -13,7 +13,7 @@ class SearchEvents
     public const SEARCH_PAGE_LOADED_EVENT = SearchPageLoadedEvent::NAME;
 
     /**
-     * @Event("Shopware\Storefront\Pagelet\Suggest\SuggestPageletLoadedEvent")
+     * @Event("Shopware\Storefront\Page\Suggest\SuggestPageLoadedEvent")
      */
-    public const SUGGEST_PAGELET_LOADED_EVENT = SuggestPageletLoadedEvent::NAME;
+    public const SUGGEST_PAGE_LOADED_EVENT = SuggestPageLoadedEvent::NAME;
 }

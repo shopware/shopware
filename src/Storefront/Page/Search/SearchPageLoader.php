@@ -5,13 +5,12 @@ namespace Shopware\Storefront\Page\Search;
 use Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchGatewayInterface;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Page\PageLoaderInterface;
-use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
+use Shopware\Storefront\Page\GenericPageLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class SearchPageLoader implements PageLoaderInterface
+class SearchPageLoader
 {
     /**
      * @var EventDispatcherInterface
@@ -19,9 +18,9 @@ class SearchPageLoader implements PageLoaderInterface
     private $eventDispatcher;
 
     /**
-     * @var PageWithHeaderLoader|PageLoaderInterface
+     * @var GenericPageLoader
      */
-    private $pageWithHeaderLoader;
+    private $genericLoader;
 
     /**
      * @var ProductSearchGatewayInterface
@@ -29,18 +28,18 @@ class SearchPageLoader implements PageLoaderInterface
     private $searchGateway;
 
     public function __construct(
-        PageLoaderInterface $pageWithHeaderLoader,
+        GenericPageLoader $genericLoader,
         ProductSearchGatewayInterface $searchGateway,
         EventDispatcherInterface $eventDispatcher
     ) {
-        $this->pageWithHeaderLoader = $pageWithHeaderLoader;
+        $this->genericLoader = $genericLoader;
         $this->eventDispatcher = $eventDispatcher;
         $this->searchGateway = $searchGateway;
     }
 
     public function load(Request $request, SalesChannelContext $context): SearchPage
     {
-        $page = $this->pageWithHeaderLoader->load($request, $context);
+        $page = $this->genericLoader->load($request, $context);
         $page = SearchPage::createFrom($page);
 
         if (!$request->query->has('search')) {

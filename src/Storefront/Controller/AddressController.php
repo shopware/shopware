@@ -14,25 +14,15 @@ use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Controller\StorefrontController;
-use Shopware\Storefront\Framework\Page\PageLoaderInterface;
-use Shopware\Storefront\Page\Account\Address\AccountAddressPageLoader;
-use Shopware\Storefront\Page\Checkout\AddressList\CheckoutAddressListPageLoader;
-use Shopware\Storefront\Pagelet\Account\AddressList\AccountAddressListPageletLoader;
-use Shopware\Storefront\Pagelet\AddressBook\AddressBookPageletLoader;
+use Shopware\Storefront\Page\Address\Detail\AddressDetailPageLoader;
+use Shopware\Storefront\Page\Address\Listing\AddressListingPageLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AddressController extends StorefrontController
 {
-    /**
-     * @var AddressBookPageletLoader|PageLoaderInterface
-     */
-    private $addressBookPageletLoader;
-
     /**
      * @var AddressService
      */
@@ -44,41 +34,25 @@ class AddressController extends StorefrontController
     private $accountService;
 
     /**
-     * @var TranslatorInterface
+     * @var AddressListingPageLoader
      */
-    private $translator;
+    private $addressListingPageLoader;
 
     /**
-     * @var CheckoutAddressListPageLoader|PageLoaderInterface
+     * @var AddressDetailPageLoader
      */
-    private $addressListPageLoader;
-
-    /**
-     * @var PageLoaderInterface|AccountAddressPageLoader
-     */
-    private $addressPageLoader;
-
-    /**
-     * @var AccountAddressListPageletLoader|PageLoaderInterface
-     */
-    private $accountAddressListLoader;
+    private $addressDetailPageLoader;
 
     public function __construct(
-        PageLoaderInterface $addressBookPageletLoader,
+        AddressListingPageLoader $addressListingPageLoader,
+        AddressDetailPageLoader $addressDetailPageLoader,
         AddressService $addressService,
-        AccountService $accountService,
-        TranslatorInterface $translator,
-        PageLoaderInterface $addressListPageLoader,
-        PageLoaderInterface $addressPageLoader,
-        PageLoaderInterface $accountAddressListLoader
+        AccountService $accountService
     ) {
-        $this->addressBookPageletLoader = $addressBookPageletLoader;
         $this->addressService = $addressService;
         $this->accountService = $accountService;
-        $this->translator = $translator;
-        $this->addressListPageLoader = $addressListPageLoader;
-        $this->addressPageLoader = $addressPageLoader;
-        $this->accountAddressListLoader = $accountAddressListLoader;
+        $this->addressListingPageLoader = $addressListingPageLoader;
+        $this->addressDetailPageLoader = $addressDetailPageLoader;
     }
 
     /**
@@ -90,7 +64,7 @@ class AddressController extends StorefrontController
     {
         $this->denyAccessUnlessLoggedIn();
 
-        $page = $this->addressListPageLoader->load($request, $context);
+        $page = $this->addressListingPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/page/account/addressbook/index.html.twig', ['page' => $page]);
     }
@@ -104,7 +78,7 @@ class AddressController extends StorefrontController
     {
         $this->denyAccessUnlessLoggedIn();
 
-        $page = $this->addressPageLoader->load($request, $context);
+        $page = $this->addressDetailPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/page/account/addressbook/create.html.twig', ['page' => $page]);
     }
@@ -118,7 +92,7 @@ class AddressController extends StorefrontController
     {
         $this->denyAccessUnlessLoggedIn();
 
-        $page = $this->addressPageLoader->load($request, $context);
+        $page = $this->addressDetailPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/page/account/addressbook/edit.html.twig', ['page' => $page]);
     }
@@ -129,7 +103,7 @@ class AddressController extends StorefrontController
      * @throws CustomerNotLoggedInException
      * @throws InvalidUuidException
      */
-    public function setDefaultAddress(string $type, string $addressId, SalesChannelContext $context): RedirectResponse
+    public function switchDefaultAddress(string $type, string $addressId, SalesChannelContext $context): RedirectResponse
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -150,9 +124,9 @@ class AddressController extends StorefrontController
             $success = false;
         }
 
-        return new RedirectResponse($this->generateUrl('frontend.account.address.page', [
-            'changedDefaultAddress' => $success,
-        ]));
+        return new RedirectResponse(
+            $this->generateUrl('frontend.account.address.page', ['changedDefaultAddress' => $success])
+        );
     }
 
     /**
@@ -198,30 +172,32 @@ class AddressController extends StorefrontController
         } catch (ConstraintViolationException $formViolations) {
         }
 
-        $forwardAction = $address->get('id') ? 'editAddress' : 'createAddress';
+        if ($address->get('id')) {
+            return $this->forwardToRoute('frontend.account.address.create', ['formViolations' => $formViolations]);
+        }
 
-        return $this->forward(
-            'Shopware\Storefront\PageController\AccountPageController::' . $forwardAction,
+        return $this->forwardToRoute(
+            'frontend.account.address.edit.page',
             ['formViolations' => $formViolations],
             ['addressId' => $address->get('id')]
         );
     }
 
     /**
-     * @Route(path="/widgets/account/addresses", name="widgets.account.ajax-addresses", methods={"GET"}, defaults={"XmlHttpRequest"=true})
+     * @Route("/widgets/account/addresses", name="frontend.account.ajax-addresses", methods={"GET"}, defaults={"XmlHttpRequest"=true})
      */
     public function accountAjaxAddresses(Request $request, SalesChannelContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
-        $page = $this->accountAddressListLoader->load($request, $context);
-        $this->addFlash('success', $this->translator->trans('account.addressDefaultChanged'));
+        $page = $this->addressListingPageLoader->load($request, $context);
+        $this->addFlash('success', $this->trans('account.addressDefaultChanged'));
 
         return $this->renderStorefront('@Storefront/component/account/ajax-addresses.html.twig', ['page' => $page]);
     }
 
     /**
-     * @Route(path="/widgets/account/address-book", name="widgets.account.addressbook", options={"seo"=true}, methods={"POST"}, defaults={"XmlHttpRequest"=true})
+     * @Route("/widgets/account/address-book", name="frontend.account.addressbook", options={"seo"=true}, methods={"POST"}, defaults={"XmlHttpRequest"=true})
      */
     public function addressBook(Request $request, RequestDataBag $dataBag, SalesChannelContext $context): Response
     {
@@ -231,12 +207,12 @@ class AddressController extends StorefrontController
         $replaceSelector = $request->get('replaceSelector');
 
         $viewData = [];
-
         $viewData = $this->handleChangeableAddresses($viewData, $dataBag);
         $viewData = $this->handleAddressCreation($viewData, $dataBag, $context);
         $viewData = $this->handleAddressSelection($viewData, $dataBag, $context);
 
-        $viewData['page'] = $this->addressBookPageletLoader->load($request, $context);
+        $viewData['page'] = $this->addressListingPageLoader->load($request, $context);
+
         $viewData['redirectRoute'] = $redirectRoute;
         $viewData['replaceSelector'] = $replaceSelector;
 
@@ -248,14 +224,15 @@ class AddressController extends StorefrontController
     }
 
     /**
-     * @Route(path="/widgets/checkout/addresses", name="widgets.checkout.ajax-addresses", methods={"GET"}, defaults={"XmlHttpRequest"=true})
+     * @Route("/widgets/checkout/addresses", name="frontend.checkout.ajax-addresses", methods={"GET"}, defaults={"XmlHttpRequest"=true})
      */
     public function checkoutAjaxAddresses(Request $request, SalesChannelContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
-        $page = $this->accountAddressListLoader->load($request, $context);
-        $this->addFlash('success', $this->translator->trans('account.addressDefaultChanged'));
+        $page = $this->addressListingPageLoader->load($request, $context);
+
+        $this->addFlash('success', $this->trans('account.addressDefaultChanged'));
 
         return $this->renderStorefront('@Storefront/component/checkout/confirm/ajax-addresses.html.twig', ['page' => $page]);
     }
@@ -276,10 +253,10 @@ class AddressController extends StorefrontController
             $this->addressService->create($addressData, $context);
 
             $success = true;
-            $messages = ['type' => 'success', 'text' => $this->translator->trans('account.addressSaved')];
+            $messages = ['type' => 'success', 'text' => $this->trans('account.addressSaved')];
         } catch (\Exception $exception) {
             $success = false;
-            $messages = ['type' => 'danger', 'text' => $this->translator->trans('error.message-default')];
+            $messages = ['type' => 'danger', 'text' => $this->trans('error.message-default')];
         }
 
         $viewData['addressId'] = $addressId;

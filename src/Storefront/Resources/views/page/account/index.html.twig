@@ -75,8 +75,8 @@
                                         {% endblock %}
 
                                         {% block page_account_overview_payment_content %}
-                                            <strong>{{ page.customer.defaultPaymentMethod.translated.name }}</strong>
-                                            <p>{{ page.customer.defaultPaymentMethod.additionalDescription }}</p>
+                                            <strong>{{ page.context.customer.defaultPaymentMethod.translated.name }}</strong>
+                                            <p>{{ page.context.customer.defaultPaymentMethod.additionalDescription }}</p>
                                         {% endblock %}
 
                                         {% block page_account_overview_payment_actions %}
@@ -111,7 +111,7 @@
 
                         {% block page_account_overview_newsletter_content %}
                             <div class="js-newsletter-wrapper">
-                                {% sw_include "@Storefront/page/account/newsletter.html.twig" with { "customer": page.customer } %}
+                                {% sw_include "@Storefront/page/account/newsletter.html.twig" with { "customer": page.context.customer } %}
                             </div>
                         {% endblock %}
                     </div>

@@ -1,5 +1,5 @@
-{% set defaultBillingAddress = page.customer.defaultBillingAddressId %}
-{% set defaultShippingAddress = page.customer.defaultShippingAddressId %}
+{% set defaultBillingAddress = page.context.customer.defaultBillingAddressId %}
+{% set defaultShippingAddress = page.context.customer.defaultShippingAddressId %}
 
 {% set AvailableAddressCount = 0 %}
 {% for address in page.addresses %}
@@ -31,7 +31,7 @@
 
                                             {% block component_address_address_editor_modal_accordion_overview_billing_card_address %}
                                                 {% sw_include '@Storefront/component/address/address.html.twig' with {
-                                                    'address': page.customer.defaultBillingAddress
+                                                    'address': page.context.customer.defaultBillingAddress
                                                 } %}
                                             {% endblock %}
                                         </div>
@@ -57,7 +57,7 @@
 
                                             {% block component_address_address_editor_modal_accordion_overview_shipping_card_address %}
                                                 {% sw_include '@Storefront/component/address/address.html.twig' with {
-                                                    'address': page.customer.defaultShippingAddress
+                                                    'address': page.context.customer.defaultShippingAddress
                                                 } %}
                                             {% endblock %}
                                         </div>

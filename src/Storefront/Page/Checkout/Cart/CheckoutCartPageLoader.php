@@ -4,15 +4,14 @@ namespace Shopware\Storefront\Page\Checkout\Cart;
 
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Page\PageLoaderInterface;
-use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
+use Shopware\Storefront\Page\GenericPageLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class CheckoutCartPageLoader implements PageLoaderInterface
+class CheckoutCartPageLoader
 {
     /**
-     * @var PageWithHeaderLoader|PageLoaderInterface
+     * @var GenericPageLoader
      */
     private $genericLoader;
 
@@ -27,7 +26,7 @@ class CheckoutCartPageLoader implements PageLoaderInterface
     private $cartService;
 
     public function __construct(
-        PageLoaderInterface $genericLoader,
+        GenericPageLoader $genericLoader,
         EventDispatcherInterface $eventDispatcher,
         CartService $cartService
     ) {

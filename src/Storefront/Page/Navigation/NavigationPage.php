@@ -3,9 +3,9 @@
 namespace Shopware\Storefront\Page\Navigation;
 
 use Shopware\Core\Content\Cms\CmsPageEntity;
-use Shopware\Storefront\Framework\Page\PageWithHeader;
+use Shopware\Storefront\Page\Page;
 
-class NavigationPage extends PageWithHeader
+class NavigationPage extends Page
 {
     /**
      * @var CmsPageEntity|null

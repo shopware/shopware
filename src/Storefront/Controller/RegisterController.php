@@ -9,8 +9,6 @@ use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Controller\StorefrontController;
-use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,7 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class RegisterController extends StorefrontController
 {
     /**
-     * @var AccountLoginPageLoader|PageLoaderInterface
+     * @var AccountLoginPageLoader
      */
     private $loginPageLoader;
 
@@ -40,16 +38,16 @@ class RegisterController extends StorefrontController
     private $cartService;
 
     /**
-     * @var CheckoutRegisterPageLoader|PageLoaderInterface
+     * @var CheckoutRegisterPageLoader
      */
     private $registerPageLoader;
 
     public function __construct(
-        PageLoaderInterface $loginPageLoader,
+        AccountLoginPageLoader $loginPageLoader,
         AccountService $accountService,
         AccountRegistrationService $accountRegistrationService,
         CartService $cartService,
-        PageLoaderInterface $registerPageLoader
+        CheckoutRegisterPageLoader $registerPageLoader
     ) {
         $this->loginPageLoader = $loginPageLoader;
         $this->accountService = $accountService;
@@ -126,17 +124,9 @@ class RegisterController extends StorefrontController
             if (!$request->request->has('errorRoute')) {
                 throw new MissingRequestParameterException('errorRoute');
             }
-            $errorRoute = $request->get('errorRoute');
 
             // this is to show the correct form because we have different usecases (account/register||checkout/register)
-            $formUrl = $this->generateUrl($errorRoute);
-            $router = $this->container->get('router');
-            $router->getContext()->setMethod(Request::METHOD_GET);
-            $formRoute = $router->match($formUrl);
-
-            $forwardController = $formRoute['_controller'];
-
-            return $this->forward($forwardController, ['formViolations' => $formViolations]);
+            return $this->forwardToRoute($request->get('errorRoute'), ['formViolations' => $formViolations]);
         }
 
         $this->accountService->login($data->get('email'), $context, $data->has('guest'));

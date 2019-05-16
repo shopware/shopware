@@ -2,23 +2,8 @@
 
 namespace Shopware\Storefront\Page\Account\Overview;
 
-use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Storefront\Framework\Page\PageWithHeader;
+use Shopware\Storefront\Page\Page;
 
-class AccountOverviewPage extends PageWithHeader
+class AccountOverviewPage extends Page
 {
-    /**
-     * @var CustomerEntity
-     */
-    protected $customer;
-
-    public function getCustomer(): CustomerEntity
-    {
-        return $this->customer;
-    }
-
-    public function setCustomer(CustomerEntity $customer): void
-    {
-        $this->customer = $customer;
-    }
 }

@@ -4,8 +4,6 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Controller\StorefrontController;
-use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -16,7 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class ProductController extends StorefrontController
 {
     /**
-     * @var ProductPageLoader|PageLoaderInterface
+     * @var ProductPageLoader
      */
     private $productPageLoader;
 
@@ -26,7 +24,7 @@ class ProductController extends StorefrontController
     private $combinationFinder;
 
     public function __construct(
-        PageLoaderInterface $productPageLoader,
+        ProductPageLoader $productPageLoader,
         ProductCombinationFinder $combinationFinder
     ) {
         $this->productPageLoader = $productPageLoader;

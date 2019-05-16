@@ -5,7 +5,7 @@ import HttpClient from 'src/script/service/http-client.service';
 import DomAccess from 'src/script/helper/dom-access.helper';
 import Iterator from 'src/script/helper/iterator.helper';
 
-const NAVIGATION_URL = window.router['widgets.menu.offcanvas'];
+const NAVIGATION_URL = window.router['frontend.menu.offcanvas'];
 
 const POSITION = 'left';
 const TRIGGER_EVENT = 'click';

@@ -4,11 +4,10 @@ namespace Shopware\Storefront\Pagelet\Footer;
 
 use Shopware\Core\Content\Category\Service\NavigationLoader;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class FooterPageletLoader implements PageLoaderInterface
+class FooterPageletLoader
 {
     /**
      * @var EventDispatcherInterface

@@ -4,7 +4,8 @@
          data-parent="#addressEditorAccordion">
         {% block component_address_address_editor_modal_list_wrapper %}
             <div class="address-editor-list-wrapper">
-                {% if addresses.total > 0 %}
+                {# @var addresses \Shopware\Core\Framework\DataAbstractionLayer\EntityCollection #}
+                {% if addresses.count > 0 %}
                     {% block component_address_address_editor_modal_list_card %}
                         <div class="card">
                             {% block component_address_address_editor_modal_list_card_body %}
@@ -38,7 +39,7 @@
                                                                             {% if changeBilling %}
                                                                                 <div class="col-sm-6">
                                                                                     {% block component_address_address_editor_modal_list_address_action_billing_form %}
-                                                                                        <form action="{{ path('widgets.account.addressbook') }}"
+                                                                                        <form action="{{ path('frontend.account.addressbook') }}"
                                                                                               class="js-close-address-editor"
                                                                                               method="post"
                                                                                               data-form-ajax-submit="true"
@@ -82,7 +83,7 @@
                                                                             {% if changeShipping %}
                                                                                 <div class="col-6">
                                                                                     {% block component_address_address_editor_modal_list_address_action_shipping_form %}
-                                                                                        <form action="{{ path('widgets.account.addressbook') }}"
+                                                                                        <form action="{{ path('frontend.account.addressbook') }}"
                                                                                               class="js-close-address-editor"
                                                                                               method="post"
                                                                                               data-form-ajax-submit="true"

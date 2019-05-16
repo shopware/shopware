@@ -82,6 +82,13 @@ class PropertyGroupOptionEntity extends Entity
      */
     private $configuratorSetting;
 
+    /**
+     * @internal
+     *
+     * @var bool
+     */
+    private $combinable;
+
     public function getGroupId(): string
     {
         return $this->groupId;
@@ -210,5 +217,15 @@ class PropertyGroupOptionEntity extends Entity
     public function setConfiguratorSetting(ProductConfiguratorSettingEntity $configuratorSetting): void
     {
         $this->configuratorSetting = $configuratorSetting;
+    }
+
+    public function getCombinable(): bool
+    {
+        return $this->combinable;
+    }
+
+    public function setCombinable(bool $combinable): void
+    {
+        $this->combinable = $combinable;
     }
 }

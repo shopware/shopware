@@ -7,11 +7,10 @@ use Shopware\Core\Content\Category\Service\NavigationLoader;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class MenuOffcanvasPageletLoader implements PageLoaderInterface
+class MenuOffcanvasPageletLoader
 {
     /**
      * @var EventDispatcherInterface

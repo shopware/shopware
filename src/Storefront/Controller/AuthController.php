@@ -2,25 +2,21 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException as CustomerNotLoggedInExceptionAlias;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Controller\StorefrontController;
-use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AuthController extends StorefrontController
 {
     /**
-     * @var AccountLoginPageLoader|PageLoaderInterface
+     * @var AccountLoginPageLoader
      */
     private $loginPageLoader;
 
@@ -29,16 +25,10 @@ class AuthController extends StorefrontController
      */
     private $accountService;
 
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    public function __construct(PageLoaderInterface $loginPageLoader, AccountService $accountService, TranslatorInterface $translator)
+    public function __construct(AccountLoginPageLoader $loginPageLoader, AccountService $accountService)
     {
         $this->loginPageLoader = $loginPageLoader;
         $this->accountService = $accountService;
-        $this->translator = $translator;
     }
 
     /**
@@ -76,7 +66,7 @@ class AuthController extends StorefrontController
         try {
             $this->accountService->logout($context);
 
-            $this->addFlash('success', $this->translator->trans('account.logoutSucceeded'));
+            $this->addFlash('success', $this->trans('account.logoutSucceeded'));
 
             $parameters = [];
         } catch (ConstraintViolationException $formViolations) {
@@ -105,48 +95,6 @@ class AuthController extends StorefrontController
 
         $data->set('password', null);
 
-        return $this->forward('Shopware\Storefront\PageController\AccountPageController::login', [
-            'loginError' => true,
-        ]);
-    }
-
-    /**
-     * @Route("/account/profile/email", name="frontend.account.profile.email.save", methods={"POST"})
-     *
-     * @throws CustomerNotLoggedInExceptionAlias
-     */
-    public function saveEmail(RequestDataBag $data, SalesChannelContext $context): Response
-    {
-        $this->denyAccessUnlessLoggedIn();
-
-        try {
-            $this->accountService->saveEmail($data->get('email'), $context);
-
-            $this->addFlash('success', $this->translator->trans('account.emailChangeSuccess'));
-        } catch (ConstraintViolationException $formViolations) {
-            return $this->forward(__CLASS__ . '::profileOverview', ['formViolations' => $formViolations]);
-        } catch (\Exception $exception) {
-            $this->addFlash('error', $this->translator->trans('error.message-default'));
-        }
-
-        return $this->redirectToRoute('frontend.account.profile.page');
-    }
-
-    /**
-     * @Route("/account/profile/password", name="frontend.account.profile.password.save", methods={"POST"})
-     *
-     * @throws CustomerNotLoggedInExceptionAlias
-     */
-    public function savePassword(RequestDataBag $data, SalesChannelContext $context): Response
-    {
-        $this->denyAccessUnlessLoggedIn();
-
-        try {
-            $this->accountService->savePassword($data->get('password'), $context);
-        } catch (ConstraintViolationException $formViolations) {
-            return $this->forward(__CLASS__ . '::profileOverview', ['formViolations' => $formViolations]);
-        }
-
-        return $this->redirectToRoute('frontend.account.profile.page');
+        return $this->forwardToRoute('frontend.account.login.page', ['loginError' => true]);
     }
 }

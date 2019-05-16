@@ -6,9 +6,9 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Page\GenericPage;
+use Shopware\Storefront\Page\Page;
 
-class CheckoutConfirmPage extends GenericPage
+class CheckoutConfirmPage extends Page
 {
     /**
      * @var Cart

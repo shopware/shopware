@@ -11,12 +11,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Page\PageLoaderInterface;
-use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
+use Shopware\Storefront\Page\GenericPageLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class CheckoutFinishPageLoader implements PageLoaderInterface
+class CheckoutFinishPageLoader
 {
     /**
      * @var EventDispatcherInterface
@@ -27,15 +26,16 @@ class CheckoutFinishPageLoader implements PageLoaderInterface
      * @var EntityRepositoryInterface
      */
     private $orderRepository;
+
     /**
-     * @var PageWithHeaderLoader|PageLoaderInterface
+     * @var GenericPageLoader
      */
     private $genericLoader;
 
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         EntityRepositoryInterface $orderRepository,
-        PageLoaderInterface $genericLoader
+        GenericPageLoader $genericLoader
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->orderRepository = $orderRepository;
@@ -70,8 +70,7 @@ class CheckoutFinishPageLoader implements PageLoaderInterface
      */
     private function getOrder(Request $request, SalesChannelContext $context): OrderEntity
     {
-        $customer = $context->getCustomer();
-        if ($customer === null) {
+        if ($context->getCustomer() === null) {
             throw new CustomerNotLoggedInException();
         }
 
@@ -81,7 +80,7 @@ class CheckoutFinishPageLoader implements PageLoaderInterface
         }
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $customer->getId()));
+        $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $context->getCustomer()->getId()));
         $criteria->addFilter(new EqualsFilter('order.id', $orderId));
         $criteria->addAssociationPath('lineItems.cover');
 

@@ -1,8 +1,4 @@
 [titleEn]: <>(Custom field system)
-[titleDe]: <>(Freitextfeld system)
-[wikiUrl]: <>(../framework/custom-field-system?category=shopware-platform-en/framework)
-
-# Custom field system
 
 The custom field system allows extending existing entities, without creating
 custom extensions for those entities. The data is stored in a JSON field.
@@ -109,7 +105,7 @@ class MyEntityDefinition extends EntityDefinition
 CREATE TABLE `my_entity` (
     id BINARY(16) NOT NULL PRIMARY KEY,
     custom_fields JSON NULL,
-    CONSTRAINT `json.custom_fields` CHECK (JSON_VALID(`custom_fields`)),
+    CONSTRAINT `json.custom_fields` CHECK (JSON_VALID(`custom_fields`))
 );
 ```
 

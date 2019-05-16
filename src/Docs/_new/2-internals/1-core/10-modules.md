@@ -236,6 +236,7 @@ Languages
 Async processing
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-framework-messagequeue.md)
+* [Guide](./00-modules/message-queue.md)
 
 #### Migration <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom Extendable</span>
 
@@ -276,6 +277,7 @@ Rule matching
 Cron jobs
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-framework-scheduledtask.md)
+* [Guide](./00-modules/scheduled-tasks.md)
 
 #### Snippet <span class="tip is--primary">Data store</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
@@ -362,6 +364,7 @@ Locales
 Number ranges (SKU)
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-system-numberrange.md)
+* [Guide](./00-modules/number-range.md)
 
 #### SalesChannel <span class="tip is--primary">Data store</span> <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Business Event Dispatcher</span> <span class="tip is--primary">Extension</span>
 

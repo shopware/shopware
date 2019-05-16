@@ -100,13 +100,13 @@ class Migration1536233550Tag extends MigrationStep
         ');
 
         $connection->executeQuery('
-            CREATE TABLE `newsletter_receiver_tag` (
-              `newsletter_receiver_id` BINARY(16) NOT NULL,
+            CREATE TABLE `newsletter_recipient_tag` (
+              `newsletter_recipient_id` BINARY(16) NOT NULL,
               `tag_id` BINARY(16) NOT NULL,
-              PRIMARY KEY (`newsletter_receiver_id`, `tag_id`),
-              CONSTRAINT `fk.newsletter_receiver_tag.id` FOREIGN KEY (`newsletter_receiver_id`)
-                REFERENCES `newsletter_receiver` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-              CONSTRAINT `fk.newsletter_receiver_tag.tag_id` FOREIGN KEY (`tag_id`)
+              PRIMARY KEY (`newsletter_recipient_id`, `tag_id`),
+              CONSTRAINT `fk.newsletter_recipient_tag.newsletter_recipient_id` FOREIGN KEY (`newsletter_recipient_id`)
+                REFERENCES `newsletter_recipient` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+              CONSTRAINT `fk.newsletter_recipient_tag.tag_id` FOREIGN KEY (`tag_id`)
                 REFERENCES `tag` (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');

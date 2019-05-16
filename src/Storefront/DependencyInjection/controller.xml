@@ -118,7 +118,7 @@
         <service id="Shopware\Storefront\Controller\NewsletterController">
             <argument type="service" id="Shopware\Storefront\Page\Newsletter\Register\NewsletterRegisterLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Newsletter\ConfirmSubscribe\NewsletterConfirmSubscribePageLoader"/>
-            <argument type="service" id="Shopware\Core\Content\NewsletterReceiver\SalesChannel\NewsletterSubscriptionService"/>
+            <argument type="service" id="Shopware\Core\Content\NewsletterRecipient\SalesChannel\NewsletterSubscriptionService"/>
             <argument type="service" id="request_stack"/>
             <argument type="service" id="translator"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>

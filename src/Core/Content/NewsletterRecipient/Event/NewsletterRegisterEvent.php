@@ -1,0 +1,95 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Content\NewsletterRecipient\Event;
+
+use Shopware\Core\Content\NewsletterRecipient\NewsletterRecipientDefinition;
+use Shopware\Core\Content\NewsletterRecipient\NewsletterRecipientEntity;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\BusinessEventInterface;
+use Shopware\Core\Framework\Event\EventData\EntityType;
+use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Event\MailActionInterface;
+use Symfony\Component\EventDispatcher\Event;
+
+class NewsletterRegisterEvent extends Event implements BusinessEventInterface, MailActionInterface
+{
+    public const EVENT_NAME = 'newsletter.register';
+
+    /**
+     * @var Context
+     */
+    private $context;
+
+    /**
+     * @var NewsletterRecipientEntity
+     */
+    private $recipientEntity;
+
+    /**
+     * @var MailRecipientStruct|null
+     */
+    private $mailRecipientStruct;
+
+    /**
+     * @var string
+     */
+    private $url;
+
+    /**
+     * @var string
+     */
+    private $salesChannelId;
+
+    public function __construct(Context $context, NewsletterRecipientEntity $recipientEntity, string $url, string $salesChannelId)
+    {
+        $this->context = $context;
+        $this->recipientEntity = $recipientEntity;
+        $this->url = $url;
+        $this->salesChannelId = $salesChannelId;
+    }
+
+    public static function getAvailableData(): EventDataCollection
+    {
+        return (new EventDataCollection())
+            ->add('recipientEntity', new EntityType(NewsletterRecipientDefinition::class));
+    }
+
+    public function getName(): string
+    {
+        return self::EVENT_NAME;
+    }
+
+    public function getContext(): Context
+    {
+        return $this->context;
+    }
+
+    public function getRecipientEntity(): NewsletterRecipientEntity
+    {
+        return $this->recipientEntity;
+    }
+
+    public function getUrl(): string
+    {
+        return $this->url;
+    }
+
+    public function getMailStruct(): MailRecipientStruct
+    {
+        if ($this->mailRecipientStruct) {
+            return $this->mailRecipientStruct;
+        }
+
+        return new MailRecipientStruct(
+            [
+                $this->recipientEntity->getEmail() => $this->recipientEntity->getFirstName() . ' ' . $this->recipientEntity->getLastName(),
+            ]
+        );
+    }
+
+    public function getSalesChannelId(): string
+    {
+        return $this->salesChannelId;
+    }
+}

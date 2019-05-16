@@ -1,0 +1,111 @@
+{% block sw_newsletter_recipient_detail %}
+    <sw-page class="sw-newsletter-recipient-detail">
+        {% block sw_newsletter_recipient_detail_header %}
+            <template slot="smart-bar-header">
+                <h2 v-if="newsletterRecipient">{{ newsletterRecipient.email }}</h2>
+            </template>
+        {% endblock %}
+
+        {% block sw_newsletter_recipient_detail_actions %}
+            <template slot="smart-bar-actions">
+                {% block sw_newsletter_recipient_detail_actions_edit %}
+                    <sw-button class="sw-newsletter-recipient-detail__open-edit-mode-action"
+                               variant="primary"
+                               :disabled="isLoading"
+                               @click="onClickSave">
+                        {{ $tc('sw-newsletter-recipient.general.buttonSave') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_newsletter_recipient_detail_content %}
+            <sw-card-view slot="content">
+                <sw-card v-if="newsletterRecipient" :title="$tc('sw-newsletter-recipient.general.information')">
+                    {% block sw_newsletter_recipient_detail_form %}
+
+                        <sw-container columns="1fr 1fr" gap="10px">
+                            {% block sw_newsletter_recipient_detail_form_salutation %}
+                                <sw-entity-single-select
+                                        :label="$tc('sw-newsletter-recipient.general.salutation')"
+                                        v-model="newsletterRecipient.salutationId"
+                                        labelProperty="displayName"
+                                        entity="salutation">
+                                </sw-entity-single-select>
+                            {% endblock %}
+
+                            {% block sw_newsletter_recipient_detail_form_title %}
+                                <sw-field :label="$tc('sw-newsletter-recipient.list.title')"
+                                          v-model="newsletterRecipient.title">
+                                </sw-field>
+                            {% endblock %}
+                        </sw-container>
+
+                        <sw-container columns="1fr 1fr" gap="10px">
+                            {% block sw_newsletter_recipient_detail_form_first_name %}
+                                <sw-field :label="$tc('sw-newsletter-recipient.list.firstName')"
+                                          v-model="newsletterRecipient.firstName">
+                                </sw-field>
+                            {% endblock %}
+
+                            {% block sw_newsletter_recipient_detail_form_last_name %}
+                                <sw-field :label="$tc('sw-newsletter-recipient.list.lastName')"
+                                          v-model="newsletterRecipient.lastName">
+                                </sw-field>
+                            {% endblock %}
+                        </sw-container>
+
+                        {% block sw_newsletter_recipient_detail_form_email %}
+                            <sw-field :label="$tc('sw-newsletter-recipient.list.email')"
+                                      v-model="newsletterRecipient.email">
+                            </sw-field>
+                        {% endblock %}
+
+                        {% block sw_newsletter_recipient_detail_form_street %}
+                            <sw-field :label="$tc('sw-newsletter-recipient.list.street')"
+                                      v-model="newsletterRecipient.street">
+                            </sw-field>
+                        {% endblock %}
+
+                         <sw-container columns="1fr 1fr" gap="10px">
+                            {% block sw_newsletter_recipient_detail_form_zip_code %}
+                                <sw-field :label="$tc('sw-newsletter-recipient.list.zipCode')"
+                                          v-model="newsletterRecipient.zipCode">
+                                </sw-field>
+                            {% endblock %}
+
+                            {% block sw_newsletter_recipient_detail_form_city %}
+                                <sw-field :label="$tc('sw-newsletter-recipient.list.city')"
+                                          v-model="newsletterRecipient.city">
+                                </sw-field>
+                            {% endblock %}
+                         </sw-container>
+
+                        {% block sw_newsletter_recipient_detail_form_language %}
+                            <sw-entity-single-select
+                                    :label="$tc('sw-newsletter-recipient.general.language')"
+                                    v-model="newsletterRecipient.languageId"
+                                    entity="language">
+                            </sw-entity-single-select>
+                        {% endblock %}
+
+                        {% block sw_newsletter_recipient_detail_form_sales_channel %}
+                            <sw-entity-single-select
+                                    disabled
+                                    labelProperty="name"
+                                    :label="$tc('sw-newsletter-recipient.general.salesChannel')"
+                                    v-model="newsletterRecipient.salesChannelId"
+                                    entity="sales_channel">
+                            </sw-entity-single-select>
+                        {% endblock %}
+
+                        {% block sw_newsletter_recipient_detail_form_tags %}
+                            <sw-tag-multi-select :entity="newsletterRecipient"></sw-tag-multi-select>
+                        {% endblock %}
+
+                    {% endblock %}
+                </sw-card>
+            </sw-card-view>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

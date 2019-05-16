@@ -12,8 +12,8 @@ use Shopware\Core\Content\Category\Aggregate\CategoryTag\CategoryTagDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaTag\MediaTagDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
-use Shopware\Core\Content\NewsletterReceiver\Aggregate\NewsletterReceiverTag\NewsletterReceiverTagDefinition;
-use Shopware\Core\Content\NewsletterReceiver\NewsletterReceiverDefinition;
+use Shopware\Core\Content\NewsletterRecipient\Aggregate\NewsletterRecipientTag\NewsletterRecipientTagDefinition;
+use Shopware\Core\Content\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTag\ProductTagDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -54,7 +54,7 @@ class TagDefinition extends EntityDefinition
             new ManyToManyAssociationField('customers', CustomerDefinition::class, CustomerTagDefinition::class, 'tag_id', 'customer_id'),
             new ManyToManyAssociationField('orders', OrderDefinition::class, OrderTagDefinition::class, 'tag_id', 'order_id'),
             new ManyToManyAssociationField('shippingMethods', ShippingMethodDefinition::class, ShippingMethodTagDefinition::class, 'tag_id', 'shipping_method_id'),
-            new ManyToManyAssociationField('newsletterReceivers', NewsletterReceiverDefinition::class, NewsletterReceiverTagDefinition::class, 'tag_id', 'newsletter_receiver_id'),
+            new ManyToManyAssociationField('newsletterRecipients', NewsletterRecipientDefinition::class, NewsletterRecipientTagDefinition::class, 'tag_id', 'newsletter_recipient_id'),
         ]);
     }
 }

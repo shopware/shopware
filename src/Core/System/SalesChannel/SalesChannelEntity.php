@@ -14,7 +14,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
-use Shopware\Core\Content\NewsletterReceiver\NewsletterReceiverCollection;
+use Shopware\Core\Content\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -245,9 +245,9 @@ class SalesChannelEntity extends Entity
     protected $customerGroup;
 
     /**
-     * @var NewsletterReceiverCollection|null
+     * @var NewsletterRecipientCollection|null
      */
-    protected $newsletterReceivers;
+    protected $newsletterRecipients;
 
     /**
      * @var PromotionSalesChannelCollection|null
@@ -629,14 +629,14 @@ class SalesChannelEntity extends Entity
         $this->customerGroup = $customerGroup;
     }
 
-    public function getNewsletterReceivers(): ?NewsletterReceiverCollection
+    public function getNewsletterRecipients(): ?NewsletterRecipientCollection
     {
-        return $this->newsletterReceivers;
+        return $this->newsletterRecipients;
     }
 
-    public function setNewsletterReceivers(NewsletterReceiverCollection $newsletterReceivers): void
+    public function setNewsletterRecipients(NewsletterRecipientCollection $newsletterRecipients): void
     {
-        $this->newsletterReceivers = $newsletterReceivers;
+        $this->newsletterRecipients = $newsletterRecipients;
     }
 
     public function getPromotionSalesChannels(): ?PromotionSalesChannelCollection

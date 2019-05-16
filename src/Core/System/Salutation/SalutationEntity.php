@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCol
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerCollection;
-use Shopware\Core\Content\NewsletterReceiver\NewsletterReceiverCollection;
+use Shopware\Core\Content\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Salutation\Aggregate\SalutationTranslation\SalutationTranslationCollection;
@@ -56,9 +56,9 @@ class SalutationEntity extends Entity
     protected $orderAddresses;
 
     /**
-     * @var NewsletterReceiverCollection|null
+     * @var NewsletterRecipientCollection|null
      */
-    protected $newsletterReceivers;
+    protected $newsletterRecipients;
 
     public function getSalutationKey(): string
     {
@@ -140,13 +140,13 @@ class SalutationEntity extends Entity
         $this->orderAddresses = $orderAddresses;
     }
 
-    public function getNewsletterReceivers(): ?NewsletterReceiverCollection
+    public function getNewsletterRecipients(): ?NewsletterRecipientCollection
     {
-        return $this->newsletterReceivers;
+        return $this->newsletterRecipients;
     }
 
-    public function setNewsletterReceivers(NewsletterReceiverCollection $newsletterReceivers): void
+    public function setNewsletterRecipients(NewsletterRecipientCollection $newsletterRecipients): void
     {
-        $this->newsletterReceivers = $newsletterReceivers;
+        $this->newsletterRecipients = $newsletterRecipients;
     }
 }

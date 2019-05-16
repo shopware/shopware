@@ -59,7 +59,7 @@ export default function conditionService() {
         'translated',
         'tagIds',
         'customerGroupId',
-        'newsletterReceivers',
+        'newsletterRecipients',
         'numberRanges',
         'promotionSalesChannels',
         'seoUrlTemplates',

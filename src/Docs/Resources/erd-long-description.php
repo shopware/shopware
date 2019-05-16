@@ -475,7 +475,7 @@ EOD
 SQL based product search table containing the dictionary.
 EOD
     ,
-    Shopware\Core\Content\NewsletterReceiver\Aggregate\NewsletterReceiverTag\NewsletterReceiverTagDefinition::class => '',
+    Shopware\Core\Content\NewsletterRecipient\Aggregate\NewsletterRecipientTag\NewsletterRecipientTagDefinition::class => '',
     Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTranslation\MailTemplateTranslationDefinition::class => '',
     Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeDefinition::class => <<<'EOD'
 Different mail template types.
@@ -505,7 +505,7 @@ EOD
     Shopware\Core\Checkout\Promotion\Aggregate\PromotionCartRule\PromotionCartRuleDefinition::class => '',
     Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountRule\PromotionDiscountRuleDefinition::class => '',
     Shopware\Core\Checkout\Promotion\Aggregate\PromotionTranslation\PromotionTranslationDefinition::class => '',
-    'Shopware\\Core\\Content\\NewsletterReceiver' => '',
+    'Shopware\\Core\\Content\\NewsletterRecipient' => '',
     'Shopware\\Core\\Content\\MailTemplate' => <<<'EOD'
 Mailing content, setup and rendering.
 EOD
@@ -522,8 +522,8 @@ EOD
 Delivery time of a shipping method.
 EOD
     ,
-    Shopware\Core\Content\NewsletterReceiver\NewsletterReceiverDefinition::class => <<<'EOD'
-Newsletter receiver. Denormalized from the account so anyone can subscribe.
+    Shopware\Core\Content\NewsletterRecipient\NewsletterRecipientDefinition::class => <<<'EOD'
+Newsletter recipient. Denormalized from the account so anyone can subscribe.
 EOD
     ,
     Shopware\Core\Content\Cms\CmsPageDefinition::class => <<<'EOD'

@@ -1,48 +1,28 @@
-[titleEn]: <>(Context object)
+[titleEn]: <>(Context and scope)
 
-The platform processes some user-, application- or environment specific information.
-For example it might be important to know what language the user prefer to offer a
-response which is correctly translated. In order to allow developers to work with this data,
-different contexts are created during the boot process. Here is a list of context objects
-and their properties:
+The Shopware Platform preprocesses some user-, application- or environment specific information. This data is wrapped into the different context objects and offer a necessary execution context for the various business relevant processes.
 
-* `Shopware\Core\Framework\SourceContext`
-    * origin (api, storefront, system)
-    * userId (optional)
-    * integrationId (optional)
-    * salesChannelId (optional)
-* `Shopware\Core\Framework\Context` most common context, includes the `SourceContext`
-    * languageId
-    * fallbackLanguageId
-    * versionId
-    * sourceContext (see above)
-    * catalogIds (optional)
-    * currencyId
-    * currencyFactor
-    * rules
-    * writeProtection
+For example it might be important to know what language the user prefers to offer a response which is correctly translated. 
 
-For the sake of completeness, there is an even more comprehensive context called `CheckoutContext`
-which is not part of the getting started guide.
+There are two different context classes. 
 
-The platform usually assembles a context during the kernel boot so you don't have to create your own.
-If you need a generic context for writing unit tests you can use:
+[`\Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/master/src/Core/Framework/Context.php)
+  : Supplying the Management-API and foremost the Data Abstraction Layer with necessary calculation and decision making information.
+  : Containing such information as `currencyFactor` or `language`.
+  
+[`\Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/master/src/Core/System/SalesChannel/SalesChannelContext.php)
+  : Supplying the SalesChannel-API with an additional data used from the checkout process and the catalogue for price calculation.
+  : Containing such information as the current customer, the cart token or a preselected payment method.
+  
+The diagram below illustrates the different contexts and relations:
 
-```php
-<?php declare(strict_types=1);
+![context](./dist/context-relation.png) 
 
-use Shopware\Core\Framework\Context;
+As you see usually the controllers are the entry point into the context distribution. The platform usually assembles a context during the kernel boot so you don't have to create your own. Each request is either marked as a sales channel or management type and the according context will be created.
 
-$context = Context::createDefaultContext();
-``` 
+### Accessing the context 
 
-Attention: Never assemble a generic context for production!
-
-### Using the context inside a controller
-
-If you write your own controller, you can just add the `Context` parameter
-and the `Shopware\Core\Framework\Api\Context\ContextValueResolver` will
-inject the right Context automatically.
+If you write your own **controller**, you can just add a type hinted `Context` or `SalesChannelContext` parameter and a `\Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface` will inject the fitting context automatically.
 
 ```php
 <?php declare(strict_types=1);
@@ -63,3 +43,15 @@ class IndexController extends AbstractController
     }
 }
 ```
+
+When **no Request** is dispatched you will have to create your own context - usually from system defaults. This may either happen while writing *unit tests* or when a *command* is executed. In these cases a system default context (with a system scope) can be created manually:
+
+```php
+<?php declare(strict_types=1);
+
+use Shopware\Core\Framework\Context;
+
+$context = Context::createDefaultContext();
+``` 
+
+*Attention: Never assemble a system context in requests, since the outcome might differ quite a lot from user expectations!*

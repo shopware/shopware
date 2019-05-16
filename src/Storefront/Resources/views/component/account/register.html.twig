@@ -3,9 +3,9 @@
 		<div class="card-body">
 			{% block component_account_register_header %}
 				{% if cardTitle %}
-					<h2 class="card-title">
+					<div class="card-title">
 						{{ cardTitle }}
-					</h2>
+					</div>
 				{% endif %}
 			{% endblock %}
 
@@ -203,9 +203,9 @@
 								{% block component_account_register_address_billing %}
 									<div class="register-billing">
 										{% block component_account_register_address_billing_header %}
-											<h2 class="card-title">
+											<div class="card-title">
 												{{ "account.registerAddressBillingHeader"|trans }} details
-											</h2>
+											</div>
 										{% endblock %}
 
 										{% block component_account_register_address_billing_fields %}
@@ -245,9 +245,9 @@
 										{% block component_account_register_address_shipping %}
 											<div class="register-shipping d-none js-form-field-toggle-shipping-address">
 												{% block component_account_register_address_shipping_header %}
-													<h2 class="card-title">
+													<div class="card-title">
 														{{ "account.registerAddressShippingHeader"|trans }}
-													</h2>
+													</div>
 												{% endblock %}
 
 												{% block component_account_register_address_shipping_fields %}

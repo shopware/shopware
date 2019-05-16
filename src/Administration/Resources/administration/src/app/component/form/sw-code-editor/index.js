@@ -7,7 +7,7 @@ import './sw-code-editor.scss';
  * @public
  * @status ready
  * @description
- * Renders a code ed
+ * Renders a code editor
  * @example-type dynamic
  * @component-example
  * <sw-code-editor label="Description">

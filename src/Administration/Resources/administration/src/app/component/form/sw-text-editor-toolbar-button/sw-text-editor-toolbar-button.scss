@@ -1,0 +1,109 @@
+@import "~scss/variables";
+
+$sw-text-editor-toolbar-button-child-color: #52667a;
+$sw-text-editor-toolbar-button-child-shadow: rgba(120, 138, 155, 0.5);
+$sw-text-editor-toolbar-button-arrow-shadow: rgba(120, 138, 155, 0.5);
+
+
+.sw-text-editor-toolbar-button {
+    cursor: pointer;
+    position: relative;
+    height: 36px;
+    width: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+        color: $color-shopware-blue;
+    }
+
+    &.is--active {
+        color: $color-shopware-blue;
+    }
+
+    &.is--disabled {
+        color: $color-steam-cloud;
+        cursor: initial;
+    }
+
+    .sw-text-editor-toolbar-button__icon {
+        display: flex;
+        align-items: center;
+    }
+
+    .sw-text-editor-toolbar-button__children {
+        background: $color-white;
+        border-radius: 4px;
+        flex-direction: column;
+        position: absolute;
+        left: 0;
+        top: calc(100% + 6px);
+        white-space: nowrap;
+        border: 1px solid $color-steam-cloud;
+        box-shadow: 0 3px 6px 0 $sw-text-editor-toolbar-button-child-shadow;
+
+
+        &::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: 10px;
+            height: 8px;
+            width: 8px;
+            transform: rotate(45deg);
+            background: $color-white;
+            border-top: 1px solid $sw-text-editor-toolbar-button-arrow-shadow;
+            border-left: 1px solid $sw-text-editor-toolbar-button-arrow-shadow;
+        }
+
+        .sw-text-editor-toolbar-button__children-child {
+            cursor: pointer;
+            color: $sw-text-editor-toolbar-button-child-color;
+            margin: 4px;
+            padding: 8px;
+            border-radius: $border-radius-default;
+
+            &:hover {
+                color: $color-shopware-blue;
+                background: $color-cadet-blue;
+            }
+
+            &.is--active {
+                color: $color-shopware-blue;
+            }
+
+            &.is--disabled {
+                color: $color-steam-cloud;
+                cursor: initial;
+            }
+        }
+
+        &.sw-text-editor-toolbar-button__link-menu {
+            padding: 15px;
+            cursor: initial;
+            color: $sw-text-editor-toolbar-button-child-color;
+
+            .sw-text-editor-toolbar-button__link-menu-text {
+                padding-bottom: 5px;
+            }
+
+            .sw-text-editor-toolbar-button__link-menu-buttons {
+                display: grid;
+                grid-auto-flow: column;
+                justify-content: end;
+            }
+
+            .sw-field {
+                &.sw-field--switch {
+                    margin-bottom: 5px;
+                }
+
+                &.sw-field--text {
+                    padding: 4px 0;
+                    margin-bottom: 10px;
+                }
+            }
+        }
+    }
+}

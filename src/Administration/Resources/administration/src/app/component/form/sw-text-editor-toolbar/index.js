@@ -48,12 +48,15 @@ export default {
             },
             activeTags: [],
             currentColor: null,
-            currentLink: null
+            currentLink: null,
+            leftButtons: [],
+            middleButtons: [],
+            rightButtons: []
         };
     },
 
     created() {
-        this.setActiveTags();
+        this.createdComponent();
     },
 
     mounted() {
@@ -73,12 +76,16 @@ export default {
     },
 
     methods: {
+        createdComponent() {
+            this.setButtonPositions();
+            this.setActiveTags();
+        },
+
         mountedComponent() {
             if (this.isInlineEdit) {
                 const body = document.querySelector('body');
                 body.appendChild(this.$el);
             }
-
             document.addEventListener('mouseup', this.onMouseUp);
             this.setToolbarPosition();
 
@@ -129,7 +136,7 @@ export default {
             }
 
             if (!path.includes(this.$el)) {
-                if (!this.isInlineEdit && this.selection.toString() !== '') {
+                if (!this.isInlineEdit && this.selection && this.selection.toString() !== '') {
                     this.setActiveTags();
                 } else if (this.activeTags.length > 0) {
                     this.activeTags = [];
@@ -179,16 +186,22 @@ export default {
             }
         },
 
-        buttonHandler(button) {
+        setButtonValues(button) {
             if (this.isCodeEdit && button.type !== 'codeSwitch') {
-                return null;
+                return button;
             }
 
-            if (button.children && typeof button.expanded === 'undefined') {
-                this.$set(button, 'expanded', false);
+            if (button.children) {
+                if (typeof button.expanded === 'undefined') {
+                    this.$set(button, 'expanded', false);
+                }
+
+                button.children.forEach((child) => {
+                    this.$set(child, 'active', !!this.activeTags.includes(child.tag));
+                });
             }
 
-            if (button.type === 'foreColor') {
+            if (button.type === 'foreColor' && this.currentColor) {
                 button.value = this.currentColor;
                 this.currentColor = null;
             }
@@ -199,15 +212,9 @@ export default {
                 this.currentLink = null;
             }
 
-            return button.children || button.type === 'link' || button.type === 'foreColor' ?
-                { click: (event) => this.onToggleMenu(event, button) } :
-                { click: () => this.handleButtonClick(button) };
-        },
-
-        buttonActive(button) {
             this.$set(button, 'active', !!this.activeTags.includes(button.tag));
 
-            return !!(button.expanded || button.active);
+            return button;
         },
 
         isDisabled(button) {
@@ -226,8 +233,9 @@ export default {
             this.keepSelection();
         },
 
-        handleButtonClick(button, parent = null) {
-            if (button.type === 'link' && !button.handler) {
+        onButtonClick(button, parent = null) {
+            if (button.type === 'link') {
+                this.handleTextStyleChangeLink(button);
                 return;
             }
 
@@ -237,18 +245,19 @@ export default {
 
             this.keepSelection();
 
-            if (button.handler) {
-                button.handler(button);
-                return;
-            }
-
             if (parent) {
                 parent.children.forEach((child) => {
                     child.active = false;
                 });
             }
 
+            if (button.handler) {
+                button.handler(button, parent);
+                return;
+            }
+
             this.$emit('text-style-change', button.type, button.value);
+
             this.$nextTick(() => {
                 this.setActiveTags();
                 button.active = !!this.activeTags.includes(button.tag);
@@ -288,6 +297,18 @@ export default {
                 this.activeTags.push(parentNode.tagName.toLowerCase());
                 parentNode = parentNode.parentNode;
             }
+        },
+
+        setButtonPositions() {
+            this.buttonConfig.forEach((item) => {
+                if (!item.position || item.position === 'left') {
+                    this.leftButtons.push(item);
+                } else if (item.position === 'middle') {
+                    this.middleButtons.push(item);
+                } else if (item.position === 'right') {
+                    this.rightButtons.push(item);
+                }
+            });
         },
 
         handleTextStyleChangeLink(button) {
@@ -343,14 +364,6 @@ export default {
         },
 
         onToggleMenu(event, button) {
-            if (button.type !== 'link' && !button.children) {
-                return;
-            }
-
-            if (button.type === 'link' && event.target.closest('.sw-text-editor-toolbar__link-menu')) {
-                return;
-            }
-
             this.keepSelection();
 
             this.buttonConfig.forEach((item) => {

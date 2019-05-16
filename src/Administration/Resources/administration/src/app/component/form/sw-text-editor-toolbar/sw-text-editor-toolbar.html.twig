@@ -1,68 +1,48 @@
 {% block sw_text_editor_toolbar %}
     <div class="sw-text-editor-toolbar" :style="[position, arrowPosition]" :class="classes" @click="handleToolbarClick">
-        {% block sw_text_editor_toolbar_item %}
-            <div class="sw-text-editor-toolbar__item"
-                 :class="{ 'is--active': buttonActive(button), 'is--disabled': isDisabled(button) }"
-                 v-for="(button, index) in buttonConfig"
-                 :key="index"
-                 v-on="buttonHandler(button)">
+        {% block sw_text_editor_toolbar_buttons %}
 
-                {% block sw_text_editor_toolbar_item_button %}
-                    <template v-if="button.icon">
-                        <div class="sw-text-editor-toolbar__item-button">
-                            <sw-icon :name="button.icon" size="12"></sw-icon>
-                            <sw-icon v-if="button.children" name="default-arrow-head-down" size="8"></sw-icon>
-                        </div>
-                    </template>
-                {% endblock %}
+            {% block sw_text_editor_toolbar_buttons_left %}
+                <div class="sw-text-editor-buttons is--left" v-if="leftButtons.length > 0">
+                    <sw-text-editor-toolbar-button
+                            v-for="(button, index) in leftButtons"
+                            :key="index"
+                            :buttonConfig="setButtonValues(button)"
+                            :disabled="isDisabled(button)"
+                            @button-click="onButtonClick"
+                            @menu-toggle="onToggleMenu">
+                    </sw-text-editor-toolbar-button>
+                </div>
+            {% endblock %}
 
-                {% block sw_text_editor_toolbar_item_name %}
-                    <div v-else-if="button.name">{{ button.name }}</div>
-                {% endblock %}
+            {% block sw_text_editor_toolbar_buttons_middle %}
+                <div class="sw-text-editor-buttons is--middle" v-if="middleButtons.length > 0">
+                    <sw-text-editor-toolbar-button
+                            v-for="(button, index) in middleButtons"
+                            :key="index"
+                            :buttonConfig="setButtonValues(button)"
+                            :disabled="isDisabled(button)"
+                            @button-click="onButtonClick"
+                            @menu-toggle="onToggleMenu">
+                    </sw-text-editor-toolbar-button>
+                </div>
+            {% endblock %}
 
-                {% block sw_text_editor_toolbar_color %}
-                    <div v-else-if="button.type === 'foreColor'">
-                        <sw-field type="compactColorpicker" :disabled="isDisabled(button)" v-model="button.value" compact @input="handleButtonClick(button)">
-                        </sw-field>
-                    </div>
-                {% endblock %}
+            {% block sw_text_editor_toolbar_buttons_right %}
+                <div class="sw-text-editor-buttons is--right" v-if="rightButtons.length > 0">
+                    <sw-text-editor-toolbar-button
+                            v-for="(button, index) in rightButtons"
+                            :key="index"
+                            :buttonConfig="setButtonValues(button)"
+                            :disabled="isDisabled(button)"
+                            @button-click="onButtonClick"
+                            @menu-toggle="onToggleMenu">
+                    </sw-text-editor-toolbar-button>
+                </div>
+            {% endblock %}
 
-                {% block sw_text_editor_toolbar_item_child %}
-                    <div v-if="button.children && button.expanded" class="sw-text-editor-toolbar__item-children">
-                        <div v-for="(child, childIndex) in button.children"
-                             :key="childIndex"
-                             :class="{ 'is--active': buttonActive(child) }"
-                             class="sw-text-editor-toolbar__item-children-child">
-                            {% block sw_text_editor_toolbar_item_child_item %}
-                                <div @click="handleButtonClick(child, button)"
-                                     class="sw-text-editor-toolbar__item-child-content">
-                                    <sw-icon v-if="child.icon" :name="child.icon" size="16"></sw-icon>
-                                    <div v-else>{{ child.name }}</div>
-                                </div>
-                            {% endblock %}
-                        </div>
-                    </div>
-                {% endblock %}
-
-                {% block sw_text_editor_toolbar_item_link_menu %}
-                    <div v-if="button.type === 'link' && button.expanded"
-                         class="sw-text-editor-toolbar__item-children sw-text-editor-toolbar__link-menu">
-                        {% block sw_text_editor_toolbar_item_link_menu_content %}
-                            <p class="sw-text-editor-toolbar__link-menu-text">{{ $tc('sw-text-editor-toolbar.link.linkTo') }}</p>
-                            <sw-field v-model="button.value" type="text" :placeholder="$tc('sw-text-editor-toolbar.link.placeholder')"></sw-field>
-                            <sw-field v-model="button.newTab" type="switch" :label="$tc('sw-text-editor-toolbar.link.openInNewTab')"></sw-field>
-                            <div class="sw-text-editor-toolbar__link-menu-buttons">
-                                {% block sw_text_editor_toolbar_item_link_menu_buttons %}
-                                    <sw-button size="small" variant="primary" @click="handleTextStyleChangeLink(button)">{{ $tc('sw-text-editor-toolbar.link.insert') }}</sw-button>
-                                {% endblock %}
-                            </div>
-                        {% endblock %}
-                    </div>
-                {% endblock %}
-            </div>
-
-            {% block sw_text_editor_toolbar_additional_items_slot %}
-                <slot name="items"></slot>
+            {% block sw_text_editor_toolbar_slot %}
+                <slot name="itemsSlot"></slot>
             {% endblock %}
         {% endblock %}
     </div>

@@ -14,12 +14,12 @@
     @extend .nav-link;
     font-weight: $font-weight-bold;
     color: $secondary;
-    padding: 20px $spacer $spacer;
+    padding: 20px $spacer-md $spacer-md;
 }
 
 .offcanvas-menu-list-item-link-icon {
     position: absolute;
-    right: $spacer;
+    right: $spacer-md;
     top: 50%;
     transform: translateY(-50%);
 
@@ -44,7 +44,7 @@
     color: $body-color;
     display: flex;
     justify-content: space-between;
-    padding: ($spacer-xs+$spacer-sm) $spacer;
+    padding: 12px $spacer-md;
     position: relative;
 
     &.go-home,

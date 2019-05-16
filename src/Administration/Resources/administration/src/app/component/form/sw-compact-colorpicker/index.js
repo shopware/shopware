@@ -24,11 +24,17 @@ export default {
     ],
 
     watch: {
-        color() {}
+        color() {
+            this.colorWatcher();
+        }
     },
 
     methods: {
         mountedComponent() {
+            if (this.disabled) {
+                return;
+            }
+
             this.colorPicker = new Picker({
                 parent: this.$el,
                 onClose: this.onClose,
@@ -71,6 +77,8 @@ export default {
         onClose() {
             this.open = false;
             this.$emit('sw-colorpicker-closed');
-        }
+        },
+
+        colorWatcher() {}
     }
 };

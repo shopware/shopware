@@ -56,7 +56,7 @@ export default {
 
         disabled: {
             type: Boolean,
-            require: false,
+            required: false,
             default: false
         }
     },
@@ -97,13 +97,22 @@ export default {
         },
 
         color() {
-            this.resetFormError();
-            this.$emit('input', this.color);
+            this.colorWatcher();
+        },
+
+        disabled() {
+            if (!this.disabled) {
+                this.mountedComponent();
+            }
         }
     },
 
     methods: {
         mountedComponent() {
+            if (this.disabled) {
+                return;
+            }
+
             this.colorPicker = new Picker({
                 parent: this.$el,
                 onClose: this.onClose,
@@ -117,6 +126,11 @@ export default {
 
         destroyedComponent() {
             delete this.colorPicker;
+        },
+
+        colorWatcher() {
+            this.resetFormError();
+            this.$emit('input', this.color);
         },
 
         setColor(value) {
@@ -141,19 +155,15 @@ export default {
             }
         },
 
-        openPicker() {
-            if (!this.disabled) {
-                this.colorPicker.show();
-            }
-        },
-
         onInput(event) {
             this.resetFormError();
             this.$emit('input', event.target.value);
         },
 
         onChange(value) {
-            this.color = value[this.colorCallback];
+            if (!this.disabled) {
+                this.color = value[this.colorCallback];
+            }
         },
 
         onClose(value) {

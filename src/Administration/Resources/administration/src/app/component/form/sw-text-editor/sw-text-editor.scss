@@ -18,6 +18,10 @@
             position: relative;
             border: 1px solid $color-steam-cloud;
             border-radius: $border-radius-default;
+
+            .sw-code-editor {
+                margin-bottom: 0;
+            }
         }
 
         .sw-text-editor__content {

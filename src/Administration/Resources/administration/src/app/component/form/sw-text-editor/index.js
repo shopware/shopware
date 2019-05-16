@@ -48,82 +48,95 @@ export default {
                     {
                         type: 'paragparh',
                         icon: 'default-text-editor-style',
-                        expanded: false,
                         children: [
                             {
                                 type: 'formatBlock',
                                 name: 'Paragraph',
-                                value: 'p'
+                                value: 'p',
+                                tag: 'p'
                             },
                             {
                                 type: 'formatBlock',
                                 name: 'Heading 1',
-                                value: 'h1'
+                                value: 'h1',
+                                tag: 'h1'
                             },
                             {
                                 type: 'formatBlock',
                                 name: 'Heading 2',
-                                value: 'h2'
+                                value: 'h2',
+                                tag: 'h2'
                             },
                             {
                                 type: 'formatBlock',
                                 name: 'Heading 3',
-                                value: 'h3'
+                                value: 'h3',
+                                tag: 'h3'
                             },
                             {
                                 type: 'formatBlock',
                                 name: 'Heading 4',
-                                value: 'h4'
+                                value: 'h4',
+                                tag: 'h4'
                             },
                             {
                                 type: 'formatBlock',
                                 name: 'Heading 5',
-                                value: 'h5'
+                                value: 'h5',
+                                tag: 'h5'
                             },
                             {
                                 type: 'formatBlock',
                                 name: 'Heading 6',
-                                value: 'h6'
+                                value: 'h6',
+                                tag: 'h6'
                             },
                             {
                                 type: 'formatBlock',
                                 name: 'Blockquote',
-                                value: 'blockquote'
+                                value: 'blockquote',
+                                tag: 'blockquote'
                             }
                         ]
                     },
                     {
                         type: 'foreColor',
-                        value: ''
+                        value: '',
+                        tag: 'font'
                     },
                     {
                         type: 'bold',
-                        icon: 'default-text-editor-bold'
+                        icon: 'default-text-editor-bold',
+                        tag: 'b'
                     },
                     {
                         type: 'italic',
-                        icon: 'default-text-editor-italic'
+                        icon: 'default-text-editor-italic',
+                        tag: 'i'
                     },
                     {
                         type: 'underline',
-                        icon: 'default-text-editor-underline'
+                        icon: 'default-text-editor-underline',
+                        tag: 'u'
                     },
                     {
                         type: 'strikethrough',
-                        icon: 'default-text-editor-strikethrough'
+                        icon: 'default-text-editor-strikethrough',
+                        tag: 'strike'
                     },
                     {
                         type: 'superscript',
-                        icon: 'default-text-editor-superscript'
+                        icon: 'default-text-editor-superscript',
+                        tag: 'sup'
                     },
                     {
                         type: 'subscript',
-                        icon: 'default-text-editor-subscript'
+                        icon: 'default-text-editor-subscript',
+                        tag: 'sub'
                     },
                     {
                         type: 'justify',
                         icon: 'default-text-editor-align-left',
-                        expanded: false,
                         children: [
                             {
                                 type: 'justifyLeft',
@@ -145,18 +158,21 @@ export default {
                     },
                     {
                         type: 'insertUnorderedList',
-                        icon: 'default-text-editor-list-unordered'
+                        icon: 'default-text-editor-list-unordered',
+                        tag: 'ul'
                     },
                     {
                         type: 'insertOrderedList',
-                        icon: 'default-text-editor-list-numberd'
+                        icon: 'default-text-editor-list-numberd',
+                        tag: 'ol'
                     },
                     {
                         type: 'link',
                         icon: 'default-text-editor-link',
                         expanded: false,
                         newTab: false,
-                        value: ''
+                        value: '',
+                        tag: 'a'
                     },
                     {
                         type: 'undo',
@@ -182,7 +198,8 @@ export default {
             textLength: 0,
             content: '',
             placeholderHeight: null,
-            placeholderVisible: false
+            placeholderVisible: false,
+            isCodeEdit: false
         };
     },
 
@@ -199,12 +216,20 @@ export default {
     watch: {
         value: {
             handler() {
-                if (this.value !== this.$refs.editor.innerHTML) {
+                if (this.$refs.textEditor && this.value !== this.$refs.textEditor.innerHTML) {
                     this.content = this.value;
                     this.isEmpty = this.emptyCheck(this.content);
                     this.placeholderVisible = this.isEmpty;
                 }
 
+                this.$nextTick(() => {
+                    this.setWordCount();
+                });
+            }
+        },
+
+        isCodeEdit() {
+            if (!this.isCodeEdit) {
                 this.$nextTick(() => {
                     this.setWordCount();
                 });
@@ -228,8 +253,22 @@ export default {
         createdComponent() {
             this.content = this.value;
 
+            if (!this.isInlineEdit && !this.$options.buttonConfig) {
+                this.buttonConfig.push({
+                    type: 'codeSwitch',
+                    icon: 'default-text-editor-code',
+                    expanded: this.isCodeEdit,
+                    handler: this.toggleCodeEditor
+                });
+            }
+
             document.addEventListener('mouseup', this.onSelectionChange);
             document.addEventListener('mousedown', this.onSelectionChange);
+        },
+
+        toggleCodeEditor(buttonConf) {
+            this.isCodeEdit = !this.isCodeEdit;
+            buttonConf.expanded = !buttonConf.expanded;
         },
 
         mountedComponent() {
@@ -247,6 +286,10 @@ export default {
         },
 
         onSelectionChange(event) {
+            if (this.isCodeEdit) {
+                return;
+            }
+
             const path = this.getPath(event);
 
             if (event.type === 'mousedown' && !path.includes(this.$el) && !path.includes(this.toolbar)) {
@@ -264,9 +307,9 @@ export default {
 
             if (event.type === 'mousedown') {
                 document.getSelection().empty();
+                this.resetForeColor();
             }
 
-            this.resetForeColor();
             this.hasSelection = !!document.getSelection().toString();
             this.selection = document.getSelection();
         },
@@ -336,7 +379,7 @@ export default {
                 return;
             }
 
-            if (this.$refs.editor.innerHTML.length <= 0) {
+            if (this.$refs.textEditor && this.$refs.textEditor.innerHTML.length <= 0) {
                 this.placeholderVisible = true;
             }
 
@@ -366,26 +409,31 @@ export default {
             event.preventDefault();
 
             const clipboardData = event.clipboardData || window.clipboardData;
-            const text = clipboardData.getData('text/plain');
-            document.execCommand('insertHTML', false, text);
+            const text = clipboardData.getData('text');
+            document.execCommand('insertText', false, text);
         },
 
         emitContent() {
             this.$emit('input', this.getContentValue());
         },
 
+        emitHtmlContent(value) {
+            this.content = value;
+            this.$emit('input', value);
+        },
+
         getContentValue() {
-            if (!this.$refs.editor || !this.$refs.editor.innerHTML) {
+            if (!this.$refs.textEditor || !this.$refs.textEditor.innerHTML) {
                 return null;
             }
 
-            if (!this.$refs.editor.textContent ||
-                !this.$refs.editor.textContent.length ||
-                this.$refs.editor.textContent.length <= 0) {
+            if (!this.$refs.textEditor.textContent ||
+                !this.$refs.textEditor.textContent.length ||
+                this.$refs.textEditor.textContent.length <= 0) {
                 return null;
             }
 
-            return this.$refs.editor.innerHTML;
+            return this.$refs.textEditor.innerHTML;
         },
 
         emptyCheck(value) {
@@ -393,7 +441,9 @@ export default {
         },
 
         setWordCount() {
-            this.textLength = this.$refs.editor.innerText.length;
+            if (this.$refs.textEditor) {
+                this.textLength = this.$refs.textEditor.innerText.length;
+            }
         }
     }
 };

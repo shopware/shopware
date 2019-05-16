@@ -2,9 +2,10 @@
     <div class="sw-text-editor-toolbar" :style="[position, arrowPosition]" :class="classes" @click="handleToolbarClick">
         {% block sw_text_editor_toolbar_item %}
             <div class="sw-text-editor-toolbar__item"
+                 :class="{ 'is--active': buttonActive(button), 'is--disabled': isDisabled(button) }"
                  v-for="(button, index) in buttonConfig"
                  :key="index"
-                 v-on="button.children || button.type === 'link' || button.type === 'foreColor' ? { click: (event) => onToggleMenu(event, button) } : { click: () => handleButtonClick(button) }">
+                 v-on="buttonHandler(button)">
 
                 {% block sw_text_editor_toolbar_item_button %}
                     <template v-if="button.icon">
@@ -21,7 +22,7 @@
 
                 {% block sw_text_editor_toolbar_color %}
                     <div v-else-if="button.type === 'foreColor'">
-                        <sw-field type="compactColorpicker" v-model="button.value" compact @input="handleButtonClick(button)">
+                        <sw-field type="compactColorpicker" :disabled="isDisabled(button)" v-model="button.value" compact @input="handleButtonClick(button)">
                         </sw-field>
                     </div>
                 {% endblock %}
@@ -30,9 +31,11 @@
                     <div v-if="button.children && button.expanded" class="sw-text-editor-toolbar__item-children">
                         <div v-for="(child, childIndex) in button.children"
                              :key="childIndex"
+                             :class="{ 'is--active': buttonActive(child) }"
                              class="sw-text-editor-toolbar__item-children-child">
                             {% block sw_text_editor_toolbar_item_child_item %}
-                                <div @click="handleButtonClick(child)">
+                                <div @click="handleButtonClick(child, button)"
+                                     class="sw-text-editor-toolbar__item-child-content">
                                     <sw-icon v-if="child.icon" :name="child.icon" size="16"></sw-icon>
                                     <div v-else>{{ child.name }}</div>
                                 </div>

@@ -30,6 +30,12 @@ export default {
         buttonConfig: {
             type: Array,
             required: true
+        },
+
+        isCodeEdit: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -39,8 +45,15 @@ export default {
             range: null,
             arrowPosition: {
                 '--left': '49%;'
-            }
+            },
+            activeTags: [],
+            currentColor: null,
+            currentLink: null
         };
+    },
+
+    created() {
+        this.setActiveTags();
     },
 
     mounted() {
@@ -109,12 +122,19 @@ export default {
         onMouseUp(event) {
             const path = [];
             let source = event.target;
+
             while (source) {
                 path.push(source);
                 source = source.parentNode;
             }
 
             if (!path.includes(this.$el)) {
+                if (!this.isInlineEdit && this.selection.toString() !== '') {
+                    this.setActiveTags();
+                } else if (this.activeTags.length > 0) {
+                    this.activeTags = [];
+                }
+
                 this.closeExpandedMenu();
                 return;
             }
@@ -159,6 +179,45 @@ export default {
             }
         },
 
+        buttonHandler(button) {
+            if (this.isCodeEdit && button.type !== 'codeSwitch') {
+                return null;
+            }
+
+            if (button.children && typeof button.expanded === 'undefined') {
+                this.$set(button, 'expanded', false);
+            }
+
+            if (button.type === 'foreColor') {
+                button.value = this.currentColor;
+                this.currentColor = null;
+            }
+
+            if (button.type === 'link' && this.currentLink) {
+                button.value = this.currentLink.url;
+                button.newTab = this.currentLink.newTab;
+                this.currentLink = null;
+            }
+
+            return button.children || button.type === 'link' || button.type === 'foreColor' ?
+                { click: (event) => this.onToggleMenu(event, button) } :
+                { click: () => this.handleButtonClick(button) };
+        },
+
+        buttonActive(button) {
+            this.$set(button, 'active', !!this.activeTags.includes(button.tag));
+
+            return !!(button.expanded || button.active);
+        },
+
+        isDisabled(button) {
+            if (!this.isCodeEdit) {
+                return false;
+            }
+
+            return button.type !== 'codeSwitch';
+        },
+
         handleToolbarClick(event) {
             if (!event.target.classList.contains('sw-text-editor-toolbar')) {
                 return;
@@ -167,7 +226,7 @@ export default {
             this.keepSelection();
         },
 
-        handleButtonClick(button) {
+        handleButtonClick(button, parent = null) {
             if (button.type === 'link' && !button.handler) {
                 return;
             }
@@ -183,7 +242,52 @@ export default {
                 return;
             }
 
+            if (parent) {
+                parent.children.forEach((child) => {
+                    child.active = false;
+                });
+            }
+
             this.$emit('text-style-change', button.type, button.value);
+            this.$nextTick(() => {
+                this.setActiveTags();
+                button.active = !!this.activeTags.includes(button.tag);
+            });
+        },
+
+        closeExpandedMenu() {
+            this.buttonConfig.forEach((item) => {
+                if (item.expanded) {
+                    if (item.type !== 'codeSwitch') {
+                        item.expanded = false;
+                    }
+                }
+            });
+        },
+
+        setActiveTags() {
+            this.currentColor = null;
+            this.currentLink = null;
+
+            if (!this.selection) {
+                return;
+            }
+
+            let parentNode = this.selection.baseNode.parentNode;
+            this.activeTags = [];
+
+            while (parentNode.tagName !== 'DIV') {
+                if (parentNode.tagName === 'FONT') {
+                    this.currentColor = parentNode.color;
+                }
+
+                if (parentNode.tagName === 'A') {
+                    this.currentLink = { url: parentNode.href, newTab: parentNode.target === '_blank' };
+                }
+
+                this.activeTags.push(parentNode.tagName.toLowerCase());
+                parentNode = parentNode.parentNode;
+            }
         },
 
         handleTextStyleChangeLink(button) {
@@ -199,6 +303,7 @@ export default {
 
                 this.range = document.getSelection().getRangeAt(0);
                 this.range.setStart(this.range.startContainer, 0);
+                button.expanded = false;
             }
         },
 
@@ -249,7 +354,7 @@ export default {
             this.keepSelection();
 
             this.buttonConfig.forEach((item) => {
-                if (item === button) {
+                if (item === button || item.type === 'codeSwitch') {
                     return;
                 }
                 if (item.expanded) {
@@ -258,14 +363,6 @@ export default {
             });
 
             button.expanded = !button.expanded;
-        },
-
-        closeExpandedMenu() {
-            this.buttonConfig.forEach((item) => {
-                if (item.expanded) {
-                    item.expanded = false;
-                }
-            });
         }
     }
 };

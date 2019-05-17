@@ -102,11 +102,42 @@ class ContextController extends StorefrontController
             $params = json_decode($params, true);
         }
 
-        $mappingRequest = new Request([], [], [], [], [], ['REQUEST_URI' => $domain->getUrl()]);
-
-        $this->requestStack->getMasterRequest()->attributes->set(RequestTransformer::SALES_CHANNEL_BASE_URL, $mappingRequest->getPathInfo());
+        /*
+         * possible domains
+         *
+         * http://shopware.de/de
+         * http://shopware.de/en
+         * http://shopware.de/fr
+         *
+         * http://shopware.fr
+         * http://shopware.com
+         * http://shopware.de
+         *
+         * http://color.com
+         * http://farben.de
+         * http://couleurs.fr
+         *
+         * http://localhost/development/public/de
+         * http://localhost/development/public/en
+         * http://localhost/development/public/fr
+         *
+         * http://localhost:8080
+         * http://localhost:8080/en
+         * http://localhost:8080/fr
+         */
+        $url = str_replace(
+            ['http://', 'https://'],
+            '',
+            $domain->getUrl()
+        );
 
         $this->router->getContext()->setMethod('GET');
+        $this->router->getContext()->setHost($url);
+        $this->router->getContext()->setBaseUrl('');
+
+        $this->requestStack->getMasterRequest()
+            ->attributes->set(RequestTransformer::SALES_CHANNEL_BASE_URL, '');
+
         $url = $this->router->generate($route, $params, Router::ABSOLUTE_URL);
 
         return new RedirectResponse($url);

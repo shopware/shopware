@@ -44,9 +44,13 @@ class ModuleTag
         return $this->name;
     }
 
-    public function marker(): array
+    public function marker(?string $name = null): array
     {
-        return $this->marker;
+        if ($name === null) {
+            return $this->marker;
+        }
+
+        return $this->marker[$name];
     }
 
     public function fits(): bool

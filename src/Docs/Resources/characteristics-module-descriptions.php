@@ -53,6 +53,7 @@ EOD
 Cron jobs
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-framework-scheduledtask.md)
+* [Guide](./00-modules/scheduled-tasks.md)
 EOD
     ,
     'Framework/Tag' => <<<'EOD'
@@ -65,6 +66,7 @@ EOD
 Async processing
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-framework-messagequeue.md)
+* [Guide](./00-modules/message-queue.md)
 EOD
     ,
     'Framework/Search' => <<<'EOD'
@@ -135,6 +137,7 @@ EOD
 Number ranges (SKU)
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-system-numberrange.md)
+* [Guide](./00-modules/number-range.md)
 EOD
     ,
     'System/Salutation' => <<<'EOD'
@@ -291,6 +294,10 @@ EOD
 Promotions
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-checkout-promotion.md)
+EOD
+    ,
+    'Framework/Cache' => <<<'EOD'
+Cache helpers
 EOD
     ,
 ];

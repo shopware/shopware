@@ -9,6 +9,25 @@
 
 <h2>May 2019</h2>
 
+<h3>2019-05-13: Added RequestDataBag to interface of payment handler</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+<p>The <code>\Shopware\Core\Framework\Validation\DataBag\RequestDataBag</code> was added to the pay methods of
+<code>\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface</code> and
+<code>\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface</code>.
+With this, you are able to send custom parameter into the payment handling.</p>
 <h3>2019-05-06: Split setting UI in categories</h3>
 
 <style type="text/css">

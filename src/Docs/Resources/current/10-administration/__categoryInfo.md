@@ -1,2 +1,0 @@
-[titleEn]: <>(Administration)
-[titleDe]: <>(Administration)

@@ -1,25 +1,8 @@
-// general
-.account-content {
-    @extend .row;
-
-    .account-content-aside {
-        @extend .col-lg-2;
-    }
-
-    .account-content-main {
-        @extend .offset-lg-1;
-        @extend .col-lg-6;
-    }
-
-}
-
-.is-ctl-accountpage:not(.is-act-login) {
-    .content-main-inner {
-        padding-top: 0;
-    }
-}
-
 .account-welcome {
+    margin-bottom: $spacer-lg;
+}
+
+.overview-newsletter {
     margin-bottom: $spacer-lg;
 }
 

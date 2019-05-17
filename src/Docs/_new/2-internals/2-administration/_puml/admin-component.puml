@@ -3,7 +3,7 @@
 
 LAYOUT_TOP_DOWN
 
-title Core structure
+title Admin structure
 
 Container(app, "App", "Application", "Routing, rendering, state management, common components ")
 Container(core,  "Core", "Backend bridge", "Data handling, plugin management, authentication")

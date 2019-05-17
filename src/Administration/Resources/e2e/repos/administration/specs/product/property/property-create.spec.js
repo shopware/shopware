@@ -47,6 +47,7 @@ module.exports = {
 
         browser
             .getLocationInView('.sw-property-option-list')
+            .waitForElementVisible('.sw-property-option-list__add-button')
             .click('.sw-property-option-list__add-button')
             .waitForElementVisible('.sw-modal')
             .fillField('input[name=sw-field--currentOption-name]', 'Bleu')

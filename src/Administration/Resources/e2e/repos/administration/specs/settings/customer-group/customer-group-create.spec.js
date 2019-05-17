@@ -28,6 +28,7 @@ module.exports = {
 
         browser.click(page.elements.customerGroupSaveAction)
             .waitForElementVisible('.icon--small-default-checkmark-line-medium')
+            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .assert.urlContains('#/sw/settings/customer/group/detail');
     },
     'go back to listing and verify creation': (browser) => {

@@ -6,11 +6,11 @@
             <div class="card address-editor-create-address-wrapper">
 
                 {% block component_address_address_editor_modal_create_address_title %}
-                    <h2 class="card-title create-address-title">
+                    <div class="card-title create-address-title">
                         {% block component_address_address_editor_modal_create_address_title_text %}
                             {{ "account.addressCreateWelcome"|trans }}
                         {% endblock %}
-                    </h2>
+                    </div>
                 {% endblock %}
 
                 {% block component_address_address_editor_modal_create_address_card_body %}
@@ -20,12 +20,15 @@
                                   action="{{ path('frontend.account.addressbook') }}"
                                   data-form-ajax-submit="true"
                                   data-form-ajax-submit-options='{
-                                  "replaceSelectors": ".js-address-editor"
-                              }'>
+                                      "replaceSelectors": ".js-address-editor"
+                                  }'>
                                 {% block component_address_address_editor_modal_create_address_form_hidden_inputs %}
                                     <input type="hidden"
                                            name="changeableAddresses[changeBilling]"
                                            value="{{ changeBilling }}">
+                                    <input type="hidden"
+                                           name="addressId"
+                                           value="{{ address.id }}">
                                     <input type="hidden"
                                            name="changeableAddresses[changeShipping]"
                                            value="{{ changeShipping }}">

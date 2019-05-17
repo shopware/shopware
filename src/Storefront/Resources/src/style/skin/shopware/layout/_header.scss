@@ -52,12 +52,7 @@
     font-size: $font-size-lg;
 }
 
-@include media-breakpoint-up(md) {
-    .header-actions-btn {
-        width: auto;
-        height: auto;
-    }
-
+@include media-breakpoint-up(sm) {
     .cart-widget-badge {
         display: none;
     }

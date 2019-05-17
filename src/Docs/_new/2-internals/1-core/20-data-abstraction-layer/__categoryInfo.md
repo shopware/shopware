@@ -31,6 +31,7 @@ This category contains in depth descriptions of the different concerns of the Da
 * [Search](./020-search.md) - Learn how to search for data
 * [Write](./030-write.md)  - Learn how to write entities
 * [Translations](./040-translation-handling.md) - Working with translations
+* [Custom fields](./045-custom-field.md) - Add custom data to core entities
  
 ### Extending existing Entities
  

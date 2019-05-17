@@ -1,0 +1,8 @@
+@startuml
+
+root --> lineItemCount : match() ?
+lineItemCount --> root : false
+root --> cartPrice : match() ?
+cartPrice --> root : false
+
+@enduml

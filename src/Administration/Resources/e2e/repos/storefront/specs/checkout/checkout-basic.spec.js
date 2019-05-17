@@ -65,7 +65,7 @@ module.exports = {
         const page = checkoutPage(browser);
 
         browser
-            .waitForElementVisible('.checkout.is-register')
+            .waitForElementVisible('.is-checkoutRegisterPage')
             .click('.login-collapse-toggle')
             .waitForElementVisible('.login-form')
             .fillField('#loginMail', 'test@example.com')

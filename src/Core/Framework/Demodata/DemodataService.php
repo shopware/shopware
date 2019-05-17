@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Demodata;
 use bheller\ImagesGenerator\ImagesGeneratorProvider;
 use Faker\Factory;
 use Faker\Generator;
+use Shopware\Core\Framework\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -49,7 +50,7 @@ class DemodataService
     public function generate(DemodataRequest $request, Context $context, ?SymfonyStyle $console): DemodataContext
     {
         if (!$console) {
-            $console = new SymfonyStyle(new ArgvInput(), new NullOutput());
+            $console = new ShopwareStyle(new ArgvInput(), new NullOutput());
         }
 
         $faker = $this->getFaker();

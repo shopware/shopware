@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Plugin\Command;
 
 use Composer\IO\ConsoleIO;
+use Shopware\Core\Framework\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Symfony\Component\Console\Application;
@@ -12,7 +13,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 class PluginRefreshCommand extends Command
 {
@@ -43,7 +43,7 @@ class PluginRefreshCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $io = new SymfonyStyle($input, $output);
+        $io = new ShopwareStyle($input, $output);
         $io->title('Shopware Plugin Service');
         $context = Context::createDefaultContext();
         $errors = $this->pluginService->refreshPlugins($context, new ConsoleIO($input, $output, new HelperSet()));

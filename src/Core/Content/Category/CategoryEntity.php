@@ -35,6 +35,11 @@ class CategoryEntity extends Entity
     protected $name;
 
     /**
+     * @var array|null
+     */
+    protected $breadcrumb;
+
+    /**
      * @var string|null
      */
     protected $path;
@@ -432,5 +437,15 @@ class CategoryEntity extends Entity
     public function setDescription(string $description): void
     {
         $this->description = $description;
+    }
+
+    public function getBreadcrumb(): ?array
+    {
+        return $this->breadcrumb;
+    }
+
+    public function setBreadcrumb(?array $breadcrumb): void
+    {
+        $this->breadcrumb = $breadcrumb;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Migration\Command;
 
+use Shopware\Core\Framework\Console\ShopwareStyle;
 use Shopware\Core\Framework\Migration\Exception\MigrateException;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime;
@@ -77,7 +78,7 @@ class MigrationCommand extends Command
             throw new \InvalidArgumentException('missing timestamp cap or --all option');
         }
 
-        $this->io = new SymfonyStyle($input, $output);
+        $this->io = new ShopwareStyle($input, $output);
 
         $this->io->writeln('Get collection from directories');
 

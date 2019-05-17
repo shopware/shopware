@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Command;
 
+use Shopware\Core\Framework\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -24,6 +26,11 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
      */
     private $indexer;
 
+    /**
+     * @var ProgressBar|null
+     */
+    private $progress;
+
     public function __construct(IndexerInterface $indexer)
     {
         parent::__construct('dbal:refresh:index');
@@ -39,30 +46,34 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
         ];
     }
 
-    public function finishProgress(ProgressFinishedEvent $event)
-    {
-        if (!$this->io) {
-            return;
-        }
-        $this->io->progressFinish();
-        $this->io->success($event->getMessage());
-    }
-
     public function startProgress(ProgressStartedEvent $event)
     {
         if (!$this->io) {
             return;
         }
-        $this->io->comment($event->getMessage());
-        $this->io->progressStart($event->getTotal());
+
+        $this->progress = $this->io->createProgressBar($event->getTotal());
+        $this->progress->setFormat("<info>[%message%]</info>\n%current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s% %memory:6s%");
+        $this->progress->setMessage($event->getMessage());
     }
 
     public function advanceProgress(ProgressAdvancedEvent $event)
     {
-        if (!$this->io) {
+        if (!$this->progress) {
             return;
         }
-        $this->io->progressAdvance($event->getStep());
+
+        $this->progress->advance($event->getStep());
+    }
+
+    public function finishProgress(ProgressFinishedEvent $event)
+    {
+        if (!$this->progress) {
+            return;
+        }
+        $this->progress->setMessage($event->getMessage());
+        $this->progress->finish();
+        $this->io->newLine(2);
     }
 
     /**
@@ -77,7 +88,8 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->io = new SymfonyStyle($input, $output);
+        $this->io = new ShopwareStyle($input, $output);
+
         $this->indexer->index(new \DateTime());
     }
 }

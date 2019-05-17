@@ -14,6 +14,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
+use Shopware\Core\Framework\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\Framework\Demodata\DemodataRequest;
@@ -22,7 +23,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 class DemodataCommand extends Command
 {
@@ -76,7 +76,7 @@ class DemodataCommand extends Command
             return null;
         }
 
-        $io = new SymfonyStyle($input, $output);
+        $io = new ShopwareStyle($input, $output);
         $io->title('Demodata Generator');
 
         $context = Context::createDefaultContext();

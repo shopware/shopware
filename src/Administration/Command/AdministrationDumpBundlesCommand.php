@@ -3,12 +3,12 @@
 namespace Shopware\Administration\Command;
 
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Console\ShopwareStyle;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Kernel;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 class AdministrationDumpBundlesCommand extends Command
 {
@@ -38,7 +38,7 @@ class AdministrationDumpBundlesCommand extends Command
     {
         $this->searchBundleDirectories();
 
-        $style = new SymfonyStyle($input, $output);
+        $style = new ShopwareStyle($input, $output);
         $style->success('Successfully dumped administration modules configuration');
     }
 

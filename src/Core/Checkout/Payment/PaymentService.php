@@ -117,6 +117,11 @@ class PaymentService
         $paymentTransactionStruct = $this->getPaymentTransactionStruct($transactionId, $context);
 
         $paymentHandler = $this->getPaymentHandlerById($paymentTokenStruct->getPaymentMethodId(), $context);
+
+        if (!$paymentHandler) {
+            throw new UnknownPaymentMethodException($paymentTokenStruct->getPaymentMethodId());
+        }
+
         try {
             $paymentHandler->finalize($paymentTransactionStruct, $request, $salesChannelContext);
         } catch (CustomerCanceledAsyncPaymentException | AsyncPaymentFinalizeException $e) {
@@ -146,7 +151,7 @@ class PaymentService
     /**
      * @throws UnknownPaymentMethodException
      */
-    private function getPaymentHandlerById(string $paymentMethodId, Context $context): AsynchronousPaymentHandlerInterface
+    private function getPaymentHandlerById(string $paymentMethodId, Context $context): ?AsynchronousPaymentHandlerInterface
     {
         $paymentMethods = $this->paymentMethodRepository->search(new Criteria([$paymentMethodId]), $context);
 
@@ -156,7 +161,7 @@ class PaymentService
             throw new UnknownPaymentMethodException($paymentMethodId);
         }
 
-        return $this->paymentHandlerRegistry->getAsync($paymentMethod->getHandlerIdentifier());
+        return $this->paymentHandlerRegistry->getAsyncHandler($paymentMethod->getHandlerIdentifier());
     }
 
     /**

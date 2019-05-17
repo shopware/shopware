@@ -128,9 +128,8 @@ class ProductRepositoryTest extends TestCase
 
         $context = Context::createDefaultContext();
         $this->getContainer()->get('rule.repository')->create([
-            ['id' => $ruleA, 'name' => 'test', 'priority' => 1]
+            ['id' => $ruleA, 'name' => 'test', 'priority' => 1],
         ], $context);
-
 
         $id = Uuid::randomHex();
         $data = [
@@ -148,7 +147,7 @@ class ProductRepositoryTest extends TestCase
                     'quantityStart' => 1,
                     'ruleId' => $ruleA,
                     'price' => ['gross' => 5, 'net' => 2, 'linked' => false],
-                ]
+                ],
             ],
         ];
 
@@ -168,7 +167,7 @@ class ProductRepositoryTest extends TestCase
 
         $update = [
             'id' => $ruleA,
-            'price' => ['gross' => 2, 'net' => 1, 'linked' => false]
+            'price' => ['gross' => 2, 'net' => 1, 'linked' => false],
         ];
 
         $this->getContainer()->get('product_price.repository')
@@ -199,7 +198,7 @@ class ProductRepositoryTest extends TestCase
             'name' => 'Default name',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
-            'tax' => ['name' => 'test', 'taxRate' => 15]
+            'tax' => ['name' => 'test', 'taxRate' => 15],
         ];
 
         $this->repository->create([$data], $this->context);
@@ -216,7 +215,7 @@ class ProductRepositoryTest extends TestCase
         /** @var ProductEntity $product */
         static::assertInstanceOf(ProductSearchKeywordCollection::class, $product->getSearchKeywords());
 
-        $keywords = $product->getSearchKeywords()->map(function(ProductSearchKeywordEntity $entity) {
+        $keywords = $product->getSearchKeywords()->map(function (ProductSearchKeywordEntity $entity) {
             return $entity->getKeyword();
         });
 
@@ -225,7 +224,7 @@ class ProductRepositoryTest extends TestCase
 
         $update = [
             'id' => $id,
-            'name' => 'updated'
+            'name' => 'updated',
         ];
 
         $this->repository->update([$update], $this->context);
@@ -239,7 +238,7 @@ class ProductRepositoryTest extends TestCase
         /** @var ProductEntity $product */
         static::assertInstanceOf(ProductSearchKeywordCollection::class, $product->getSearchKeywords());
 
-        $keywords = $product->getSearchKeywords()->map(function(ProductSearchKeywordEntity $entity) {
+        $keywords = $product->getSearchKeywords()->map(function (ProductSearchKeywordEntity $entity) {
             return $entity->getKeyword();
         });
 

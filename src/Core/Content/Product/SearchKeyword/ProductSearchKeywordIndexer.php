@@ -7,7 +7,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary\ProductKeyw
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Content\Product\Util\EventIdExtractor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -29,11 +28,6 @@ class ProductSearchKeywordIndexer implements IndexerInterface
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
-
-    /**
-     * @var EventIdExtractor
-     */
-    private $eventIdExtractor;
 
     /**
      * @var Connection
@@ -72,7 +66,6 @@ class ProductSearchKeywordIndexer implements IndexerInterface
 
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
-        EventIdExtractor $eventIdExtractor,
         Connection $connection,
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $languageRepository,
@@ -82,7 +75,6 @@ class ProductSearchKeywordIndexer implements IndexerInterface
         ProductKeywordDictionaryDefinition $productKeywordDictionaryDefinition
     ) {
         $this->eventDispatcher = $eventDispatcher;
-        $this->eventIdExtractor = $eventIdExtractor;
         $this->connection = $connection;
         $this->iteratorFactory = $iteratorFactory;
         $this->languageRepository = $languageRepository;

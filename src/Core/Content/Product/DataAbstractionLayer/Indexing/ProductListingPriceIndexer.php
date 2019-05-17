@@ -5,8 +5,6 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer\Indexing;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\Util\EventIdExtractor;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
@@ -70,8 +68,6 @@ class ProductListingPriceIndexer implements IndexerInterface
 
     public function index(\DateTimeInterface $timestamp): void
     {
-        $context = Context::createDefaultContext();
-
         $iterator = $this->iteratorFactory->createIterator($this->productDefinition);
 
         $this->eventDispatcher->dispatch(
@@ -80,7 +76,7 @@ class ProductListingPriceIndexer implements IndexerInterface
         );
 
         while ($ids = $iterator->fetch()) {
-            $this->update($ids, $context);
+            $this->update($ids);
 
             $this->eventDispatcher->dispatch(
                 ProgressAdvancedEvent::NAME,
@@ -96,34 +92,25 @@ class ProductListingPriceIndexer implements IndexerInterface
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
-        $ids = [];
-
-        $products = $event->getEventByDefinition(ProductDefinition::class);
-
-        if ($products) {
-            $ids = $products->getIds();
-        }
-
         $prices = $event->getEventByDefinition(ProductPriceDefinition::class);
-        if ($prices) {
-            $ids = array_merge(
-                $ids,
-                $this->fetchProductPriceIds($prices->getIds())
-            );
+        if (!$prices) {
+            return;
         }
+
+        $ids = $this->fetchProductPriceIds($prices->getIds());
 
         $ids = array_values(array_keys(array_flip($ids)));
 
-        $this->update($ids, $event->getContext());
+        $this->update($ids);
     }
 
-    private function update(array $ids, Context $context): void
+    private function update(array $ids): void
     {
         if (empty($ids)) {
             return;
         }
 
-        $prices = $this->fetchPrices($ids, $context);
+        $prices = $this->fetchPrices($ids);
 
         $tags = [];
 
@@ -152,7 +139,7 @@ class ProductListingPriceIndexer implements IndexerInterface
         $this->cache->invalidateTags($tags);
     }
 
-    private function fetchPrices(array $ids, Context $context): array
+    private function fetchPrices(array $ids): array
     {
         $query = $this->connection->createQueryBuilder();
         $query->select([
@@ -218,14 +205,14 @@ class ProductListingPriceIndexer implements IndexerInterface
 
     private function fetchProductPriceIds(array $priceIds): array
     {
-        $bytes = Uuid::fromHexToBytesList($priceIds);
+        $priceIds = Uuid::fromHexToBytesList($priceIds);
 
         $query = $this->connection->createQueryBuilder();
         $query->select(['DISTINCT LOWER(HEX(IFNULL(product.parent_id, product.id)))']);
         $query->from('product_price');
         $query->innerJoin('product_price', 'product', 'product', 'product.id = product_price.product_id AND product.version_id = product_price.product_version_id');
         $query->where('product_price.id IN (:ids)');
-        $query->setParameter(':ids', $bytes, Connection::PARAM_STR_ARRAY);
+        $query->setParameter(':ids', $priceIds, Connection::PARAM_STR_ARRAY);
 
         return $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
     }

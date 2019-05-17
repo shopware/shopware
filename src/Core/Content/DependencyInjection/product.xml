@@ -79,11 +79,12 @@
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductListingPriceIndexer">
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
             <tag name="shopware.dbal_indexing.indexer" priority="300"/>
+            <argument type="service" id="shopware.cache"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer">

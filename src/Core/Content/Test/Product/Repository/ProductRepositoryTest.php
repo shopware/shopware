@@ -6,6 +6,8 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordEntity;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
@@ -20,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Pricing\Price;
+use Shopware\Core\Framework\Pricing\PriceRuleCollection;
 use Shopware\Core\Framework\Pricing\PriceRuleEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -117,6 +120,132 @@ class ProductRepositoryTest extends TestCase
 
         /** @var ProductEntity $variant */
         static::assertNull($variant->getName());
+    }
+
+    public function testPriceUpdateConsideredInListingPriceIndexer()
+    {
+        $ruleA = Uuid::randomHex();
+
+        $context = Context::createDefaultContext();
+        $this->getContainer()->get('rule.repository')->create([
+            ['id' => $ruleA, 'name' => 'test', 'priority' => 1]
+        ], $context);
+
+
+        $id = Uuid::randomHex();
+        $data = [
+            'id' => $id,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 10,
+            'name' => 'price test',
+            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+            'prices' => [
+                [
+                    'id' => $ruleA,
+                    'currencyId' => Defaults::CURRENCY,
+                    'quantityStart' => 1,
+                    'ruleId' => $ruleA,
+                    'price' => ['gross' => 5, 'net' => 2, 'linked' => false],
+                ]
+            ],
+        ];
+
+        $this->repository->create([$data], $context);
+
+        /** @var ProductEntity $product */
+        $product = $this->repository
+            ->search(new Criteria([$id]), $context)
+            ->get($id);
+
+        $prices = $product->getListingPrices();
+
+        static::assertInstanceOf(PriceRuleCollection::class, $prices);
+        static::assertCount(1, $prices);
+        static::assertTrue($prices->has($ruleA));
+        static::assertEquals(5, $prices->get($ruleA)->getPrice()->getGross());
+
+        $update = [
+            'id' => $ruleA,
+            'price' => ['gross' => 2, 'net' => 1, 'linked' => false]
+        ];
+
+        $this->getContainer()->get('product_price.repository')
+            ->update([$update], $context);
+
+        /** @var ProductEntity $product */
+        $product = $this->repository
+            ->search(new Criteria([$id]), $context)
+            ->get($id);
+
+        $prices = $product->getListingPrices();
+
+        static::assertInstanceOf(PriceRuleCollection::class, $prices);
+
+        static::assertCount(1, $prices);
+        static::assertTrue($prices->has($ruleA));
+        static::assertEquals(2, $prices->get($ruleA)->getPrice()->getGross());
+    }
+
+    public function testSearchKeywordIndexerConsidersUpdate()
+    {
+        $id = Uuid::randomHex();
+
+        $data = [
+            'id' => $id,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 10,
+            'name' => 'Default name',
+            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['name' => 'test', 'taxRate' => 15]
+        ];
+
+        $this->repository->create([$data], $this->context);
+
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociationPath('searchKeywords');
+
+        $product = $this->repository
+            ->search($criteria, $this->context)
+            ->get($id);
+
+        static::assertInstanceOf(ProductEntity::class, $product);
+
+        /** @var ProductEntity $product */
+        static::assertInstanceOf(ProductSearchKeywordCollection::class, $product->getSearchKeywords());
+
+        $keywords = $product->getSearchKeywords()->map(function(ProductSearchKeywordEntity $entity) {
+            return $entity->getKeyword();
+        });
+
+        static::assertContains('default', $keywords);
+        static::assertContains('name', $keywords);
+
+        $update = [
+            'id' => $id,
+            'name' => 'updated'
+        ];
+
+        $this->repository->update([$update], $this->context);
+
+        $product = $this->repository
+            ->search($criteria, $this->context)
+            ->get($id);
+
+        static::assertInstanceOf(ProductEntity::class, $product);
+
+        /** @var ProductEntity $product */
+        static::assertInstanceOf(ProductSearchKeywordCollection::class, $product->getSearchKeywords());
+
+        $keywords = $product->getSearchKeywords()->map(function(ProductSearchKeywordEntity $entity) {
+            return $entity->getKeyword();
+        });
+
+        static::assertNotContains('default', $keywords);
+        static::assertNotContains('name', $keywords);
+        static::assertContains('updated', $keywords);
     }
 
     public function testWriteCategories(): void

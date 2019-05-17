@@ -10,7 +10,7 @@ The diagram shows how the Shopware Platform fits into your enterprise. It provid
 
 # Philosophy
 
-The central philosophy of the Shopware Platform is called **no waste**. The Shopware Platform is designed to not lightheartedly waste external resources. The Stack behaves predictably and executes in as few steps as possible. We do not wastefully iterate over data more often than necessary, we do not wastefully access the database more than necessary, weo do not wastefully perform costly calculations more than necessary. Apart from the performance perspective we keep the code clear and predictable and provide clear extension points across the different components.
+The central philosophy of the Shopware Platform is called **no waste**. The Shopware Platform is designed to not lightheartedly waste external resources. The Stack behaves predictably and executes in as few steps as possible. We do not wastefully iterate over data more often than necessary, we do not wastefully access the database more than necessary, we do not wastefully perform costly calculations more than necessary. Apart from the performance perspective we keep the code clear and predictable and provide clear extension points across the different components and layers.
 
 # On the inside
 

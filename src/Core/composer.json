@@ -8,10 +8,7 @@
         "shop"
     ],
     "homepage": "http://www.shopware.com",
-    "license": [
-        "MIT",
-        "proprietary"
-    ],
+    "license": "MIT",
     "autoload": {
         "exclude-from-classmap": [
             "*/Test/"

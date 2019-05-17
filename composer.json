@@ -7,10 +7,7 @@
         "shopware"
     ],
     "homepage": "https://www.shopware.com",
-    "license": [
-        "MIT",
-        "proprietary"
-    ],
+    "license": "MIT",
     "replace": {
         "shopware/core": "self.version",
         "shopware/storefront": "self.version",

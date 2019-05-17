@@ -2,6 +2,7 @@ const accountPage = require('./../../page-objects/account.page-object.js');
 
 module.exports = {
     '@tags': ['account', 'address'],
+    '@disabled': true,
     before: (browser, done) => {
         global.CustomerFixtureService.setCustomerFixture().then(() => {
             done();
@@ -31,19 +32,17 @@ module.exports = {
         browser
             .waitForElementVisible(page.elements.accountRoot)
             .waitForElementVisible(page.elements.overViewBillingAddress)
-            .assert.containsText(`${page.elements.overViewBillingAddress} ${page.elements.cardTitle}`, 'Primary billing address')
-            .assert.containsText(`${page.elements.overViewBillingAddress} address`, 'Pep Eroni')
+            .assert.containsText(`${page.elements.overViewBillingAddress} ${page.elements.cardTitle}`, 'Default billing address')
+            .assert.containsText(`${page.elements.overViewBillingAddress} p`, 'Pep Eroni')
             .assert.containsText(`${page.elements.overViewShippingAddress} p`, 'Equal to the billing address');
     },
     'change street in address': (browser) => {
         const page = accountPage(browser);
 
         browser
-            .waitForElementVisible(page.elements.accountRoot)
-            .waitForElementVisible(`${page.elements.accountSidebar} .list-group-item:nth-of-type(3)`)
             .click(`${page.elements.accountSidebar} .list-group-item:nth-of-type(3)`)
             .waitForElementVisible(page.elements.addressRoot)
-            .click(`.address-box ${page.elements.lightButton}`)
+            .click(`.address-item-create ${page.elements.primaryButton}`)
             .waitForElementVisible(page.elements.addressForm)
             .fillField('#addressAddressStreet', '12th Ebbinghoff Street', true)
             .click(`.address-form-submit${page.elements.primaryButton}`)
@@ -96,7 +95,7 @@ module.exports = {
             .click(`${page.elements.accountSidebar} .list-group-item:nth-of-type(1)`)
             .waitForElementVisible(page.elements.accountRoot)
             .waitForElementVisible(page.elements.overViewBillingAddress)
-            .assert.containsText(`${page.elements.overViewBillingAddress} .card-title`, 'Primary billing address')
+            .assert.containsText(`${page.elements.overViewBillingAddress} .card-title`, 'Default billing address')
             .assert.containsText(`${page.elements.overViewBillingAddress} address`, 'Pep Eroni')
             .assert.containsText(`${page.elements.overViewShippingAddress} address`, 'Max Monstermann');
     },

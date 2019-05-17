@@ -31,6 +31,7 @@ module.exports = {
             .fillField('input[name=sw-field--country-name]', '1.Niemandsland x2', true)
             .click(page.elements.countrySaveAction)
             .waitForElementVisible('.icon--small-default-checkmark-line-medium')
+            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .assert.urlContains('#/sw/settings/country/detail');
     },
     'verify edited country': (browser) => {

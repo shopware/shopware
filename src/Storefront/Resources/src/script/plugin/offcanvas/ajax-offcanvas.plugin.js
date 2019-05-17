@@ -55,9 +55,23 @@ export default class AjaxOffCanvas extends OffCanvas {
         };
 
         if (data) {
-            xhr = client.post(url, data, cb);
+            xhr = client.post(url, data, AjaxOffCanvas.executeCallback.bind(this,cb));
         } else {
-            xhr = client.get(url, cb);
+            xhr = client.get(url, AjaxOffCanvas.executeCallback.bind(this,cb));
         }
+    }
+
+    /**
+     * Executes the given callback
+     * and initializes all plugins
+     *
+     * @param {function} cb
+     * @param {string} response
+     */
+    static executeCallback(cb, response) {
+        if (typeof cb === 'function') {
+            cb(response);
+        }
+        window.PluginManager.initializePlugins();
     }
 }

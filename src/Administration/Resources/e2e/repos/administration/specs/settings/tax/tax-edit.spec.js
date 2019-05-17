@@ -34,6 +34,7 @@ module.exports = {
             .fillField('input[name=sw-field--tax-name]', 'Even higher tax rate', true)
             .click(page.elements.taxSaveAction)
             .waitForElementVisible('.icon--small-default-checkmark-line-medium')
+            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .assert.urlContains('#/sw/settings/tax/detail');
     },
     'verify edited tax': (browser) => {

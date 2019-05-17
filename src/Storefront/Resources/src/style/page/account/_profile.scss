@@ -1,7 +1,23 @@
 .profile-personal {
-    margin-bottom: $spacer-md;
+    margin-bottom: $spacer-xl;
+    margin-top: $spacer-lg;
 }
 
 .profile-required-info {
     margin-bottom: $spacer-md;
+}
+
+.account-change-mail,
+.account-change-password {
+    font-weight: $font-weight-bold;
+    font-size: $font-size-sm;
+}
+
+.profile-email-header {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+}
+
+.profile-content {
+    margin-top: $spacer-lg;
 }

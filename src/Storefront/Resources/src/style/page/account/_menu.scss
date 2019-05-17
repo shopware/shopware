@@ -1,4 +1,3 @@
-// Sidebar
 .account-sidebar {
     margin-bottom: $spacer-lg;
 
@@ -12,7 +11,6 @@
 }
 
 @include media-breakpoint-up(md) {
-    // Sidebar
     .account-sidebar {
         margin-bottom: 0;
     }

@@ -1,0 +1,12 @@
+.account-content {
+    @extend .row;
+
+    .account-content-aside {
+        @extend .col-lg-2;
+    }
+
+    .account-content-main {
+        @extend .offset-lg-1;
+        @extend .col-lg-7;
+    }
+}

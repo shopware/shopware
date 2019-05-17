@@ -199,10 +199,20 @@
     }
 }
 
-.offcanvas-close {
-    .icon {
-        > svg {
+.is-left {
+    .offcanvas-close {
+
+        svg {
             top: 0;
         }
     }
 }
+
+.is-right {
+    .offcanvas-close {
+        svg {
+            top: 0.3rem
+        }
+    }
+}
+

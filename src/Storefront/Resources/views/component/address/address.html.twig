@@ -1,5 +1,5 @@
 {% block component_address %}
-    <address>
+    <div class="address">
         {% if address.company %}
             <p>
                 {{ address.company }}{% if address.department %} - {{ address.department }}{% endif %}
@@ -33,5 +33,5 @@
             {% endif %}
             {{ address.country.translated.name }}
         </p>
-    </address>
+    </div>
 {% endblock %}

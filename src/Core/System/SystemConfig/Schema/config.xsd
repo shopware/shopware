@@ -30,6 +30,7 @@
             <xs:element name="name" type="name"/>
             <xs:element name="disabled" type="xs:boolean" minOccurs="0"/>
             <xs:element name="copyable" type="xs:boolean" minOccurs="0"/>
+            <xs:element name="required" type="xs:boolean" minOccurs="0"/>
             <xs:element name="label" type="translatableString" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="placeholder" type="translatableString" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="helpText" type="translatableString" minOccurs="0" maxOccurs="unbounded"/>

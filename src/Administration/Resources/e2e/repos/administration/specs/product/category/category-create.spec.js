@@ -34,6 +34,7 @@ module.exports = {
             .keys(browser.Keys.ENTER)
             .waitForElementVisible('.sw-confirm-field__button--cancel')
             .click('.sw-confirm-field__button--cancel')
+            .waitForElementVisible('.sw-tree-item:nth-child(2)')
             .refresh()
             .expect.element('.sw-tree-item:nth-child(2)').to.have.text.that.equals('Category after first');
     },
@@ -48,6 +49,7 @@ module.exports = {
             .keys(browser.Keys.ENTER)
             .waitForElementVisible('.sw-confirm-field__button--cancel')
             .click('.sw-confirm-field__button--cancel')
+            .waitForElementVisible('.sw-tree-item:nth-child(3)')
             .refresh()
             .expect.element('.sw-tree-item:nth-child(1)').to.have.text.that.equals('Category before');
     },

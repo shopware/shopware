@@ -1,2 +1,0 @@
-[titleEn]: <>(Checkout)
-[titleDe]: <>(Checkout)

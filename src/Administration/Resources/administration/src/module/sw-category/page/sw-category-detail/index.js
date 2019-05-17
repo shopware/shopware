@@ -143,7 +143,7 @@ Component.register('sw-category-detail', {
                     footerSalesChannels: {}
                 }
             };
-            return this.categoryStore.getList(params).then((response) => {
+            return this.categoryStore.getList(params, true).then((response) => {
                 this.categories = Object.values(this.categoryStore.store);
                 this.isLoading = false;
                 this.isLoadingInitialData = false;

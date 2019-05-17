@@ -1,23 +1,12 @@
 {% sw_extends '@Storefront/page/account/_page.html.twig' %}
 
-{% block base_breadcrumb %}
-    {% set breadcrumbList = [
-        {
-            "name": "account.overviewTitle"|trans,
-            "link": path('frontend.account.home.page')
-        }
-    ] %}
-
-    {{ parent() }}
-{% endblock %}
-
 {% block page_account_main_content %}
     {% block page_account_overview %}
         <div class="account-overview">
             {% block page_account_overview_welcome %}
                 <div class="account-welcome">
-
-                    {% block page_account_overview_welcome_content %}
+                    <h1>{{ "account.overviewTitle"|trans }}</h1>
+                    {% block page_account_overview_welcome_intro %}
                         <p>{{ "account.overviewInfo"|trans }}</p>
                     {% endblock %}
                 </div>
@@ -26,10 +15,16 @@
             {% block page_account_overview_main %}
                 <div class="row">
                     {% block page_account_overview_profile %}
-                        <div class="col-lg-12 card-col overview-profile">
+                        <div class="col-lg-6 card-col overview-profile">
                             {% block page_account_overview_profile_card %}
                                 <div class="card">
                                     <div class="card-body">
+                                        {% block page_account_overview_profile_title %}
+                                            <h2 class="card-title">
+                                                {{ "account.overviewProfileHeader"|trans }}
+                                            </h2>
+                                        {% endblock %}
+
                                         {% block page_account_overview_profile_content %}
                                             <p>
                                                 {% if page.customer.salutation.salutationKey != 'not_specified' %}
@@ -64,7 +59,7 @@
                     {% endblock %}
 
                     {% block page_account_overview_payment %}
-                        <div class="col-lg-12 card-col overview-payment">
+                        <div class="col-lg-6 card-col overview-payment">
                             {% block page_account_overview_payment_card %}
                                 <div class="card">
                                     <div class="card-body">
@@ -96,26 +91,28 @@
                 </div>
             {% endblock %}
 
-            {% block page_account_overview_addresses_include %}
-                {% sw_include "@Storefront/page/account/address.html.twig" %}
-            {% endblock %}
-
             {% block page_account_overview_newsletter %}
-                <div class="card">
-                    <div class="card-body">
-                        {% block page_account_overview_newsletter_title %}
-                            <h2 class="card-title">
-                                {{ "account.newsletterTitle"|trans }}
-                            </h2>
-                        {% endblock %}
+                <div class="overview-newsletter">
+                    <div class="card">
+                        <div class="card-body">
+                            {% block page_account_overview_newsletter_title %}
+                                <h2 class="card-title">
+                                    {{ "account.newsletterTitle"|trans }}
+                                </h2>
+                            {% endblock %}
 
-                        {% block page_account_overview_newsletter_content %}
-                            <div class="js-newsletter-wrapper">
-                                {% sw_include "@Storefront/page/account/newsletter.html.twig" with { "customer": page.context.customer } %}
-                            </div>
-                        {% endblock %}
+                            {% block page_account_overview_newsletter_content %}
+                                <div class="js-newsletter-wrapper">
+                                    {% sw_include "@Storefront/page/account/newsletter.html.twig" with { "customer": page.context.customer } %}
+                                </div>
+                            {% endblock %}
+                        </div>
                     </div>
                 </div>
+            {% endblock %}
+
+            {% block page_account_overview_addresses_include %}
+                {% sw_include "@Storefront/page/account/address.html.twig" %}
             {% endblock %}
         </div>
     {% endblock %}

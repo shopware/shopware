@@ -6,23 +6,19 @@
     margin-bottom: $spacer-lg;
 }
 
-.address-actions-set-defaults {
+.address-actions-defaults {
     margin-bottom: $spacer-sm;
 }
 
-.address-actions-form {
-    display: flex;
-
-    .btn {
-        margin-right: $spacer-sm;
-    }
-}
-
-.address-front {
-    order: -1;
-}
-
-// Forms
 .address-required-info {
     margin-bottom: $spacer-lg;
+}
+
+.address-list {
+    padding-top: $spacer-lg;
+}
+
+.address-action-delete {
+    display: inline-block;
+    margin-left: $spacer-sm;
 }

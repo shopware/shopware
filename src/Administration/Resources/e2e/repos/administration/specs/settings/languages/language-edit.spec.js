@@ -31,6 +31,7 @@ module.exports = {
             .fillField('input[name=sw-field--language-name]', 'Very Philippine English', true)
             .click(page.elements.languageSaveAction)
             .waitForElementVisible('.icon--small-default-checkmark-line-medium')
+            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .assert.urlContains('#/sw/settings/language/detail');
     },
     'verify edited language': (browser) => {

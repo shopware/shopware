@@ -42,10 +42,10 @@ class SeoResolverTest extends TestCase
         $salesChannel = $this->createSalesChannel(Uuid::randomHex(), 'test');
 
         $resolved = $this->seoResolver->resolveSeoPath($salesChannel->getId(), '/foo/bar');
-        static::assertEquals(['pathInfo' => '/foo/bar', 'isCanonical' => false], $resolved);
+        static::assertEquals(['pathInfo' => '/foo/bar/', 'isCanonical' => false], $resolved);
 
         $resolved = $this->seoResolver->resolveSeoPath($salesChannel->getId(), 'foo/bar');
-        static::assertEquals(['pathInfo' => '/foo/bar', 'isCanonical' => false], $resolved);
+        static::assertEquals(['pathInfo' => '/foo/bar/', 'isCanonical' => false], $resolved);
     }
 
     public function testResolveSeoPath(): void
@@ -80,28 +80,28 @@ class SeoResolverTest extends TestCase
         ], Context::createDefaultContext());
 
         $resolved = $this->seoResolver->resolveSeoPath($salesChannel->getId(), 'detail/1234');
-        static::assertEquals('/detail/1234', $resolved['pathInfo']);
+        static::assertEquals('/detail/1234/', $resolved['pathInfo']);
         static::assertEquals(0, $resolved['isCanonical']);
         static::assertEquals('/awesome-product-v2', $resolved['canonicalPathInfo']);
         $resolved = $this->seoResolver->resolveSeoPath($salesChannel->getId(), '/detail/1234');
-        static::assertEquals('/detail/1234', $resolved['pathInfo']);
+        static::assertEquals('/detail/1234/', $resolved['pathInfo']);
         static::assertEquals(0, $resolved['isCanonical']);
         static::assertEquals('/awesome-product-v2', $resolved['canonicalPathInfo']);
 
         $resolved = $this->seoResolver->resolveSeoPath($salesChannel->getId(), 'awesome-product');
-        static::assertEquals('/detail/1234', $resolved['pathInfo']);
+        static::assertEquals('/detail/1234/', $resolved['pathInfo']);
         static::assertEquals(0, $resolved['isCanonical']);
         static::assertEquals('/awesome-product-v2', $resolved['canonicalPathInfo']);
         $resolved = $this->seoResolver->resolveSeoPath($salesChannel->getId(), '/awesome-product');
-        static::assertEquals('/detail/1234', $resolved['pathInfo']);
+        static::assertEquals('/detail/1234/', $resolved['pathInfo']);
         static::assertEquals(0, $resolved['isCanonical']);
         static::assertEquals('/awesome-product-v2', $resolved['canonicalPathInfo']);
 
         $resolved = $this->seoResolver->resolveSeoPath($salesChannel->getId(), 'awesome-product-v2');
-        static::assertEquals('/detail/1234', $resolved['pathInfo']);
+        static::assertEquals('/detail/1234/', $resolved['pathInfo']);
         static::assertEquals(1, $resolved['isCanonical']);
         $resolved = $this->seoResolver->resolveSeoPath($salesChannel->getId(), '/awesome-product-v2');
-        static::assertEquals('/detail/1234', $resolved['pathInfo']);
+        static::assertEquals('/detail/1234/', $resolved['pathInfo']);
         static::assertEquals(1, $resolved['isCanonical']);
     }
 

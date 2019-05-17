@@ -29,6 +29,13 @@ export default class FormAjaxSubmitPlugin extends Plugin {
         submitOnChange: false,
 
         /**
+         * whether or not the form should only be submitted once
+         *
+         * @type bool
+         */
+        submitOnce: false,
+
+        /**
          * route which should be redirected to
          * when submitted
          */
@@ -42,6 +49,9 @@ export default class FormAjaxSubmitPlugin extends Plugin {
     };
 
     init() {
+        // indicates if form was at least submitted once
+        this.loaded = false;
+
         this._getForm();
 
         if (!this._form) {
@@ -108,6 +118,16 @@ export default class FormAjaxSubmitPlugin extends Plugin {
     _onSubmit(event) {
         event.preventDefault();
 
+        // checks form validity before submit
+        if (this._form.checkValidity() === false) {
+            return;
+        }
+
+        // checks if form should only be submitted once
+        if (this.loaded && this.options.submitOnce) {
+            return;
+        }
+
         if (event.type === 'change' && Array.isArray(this.options.submitOnChange)) {
             const target = event.currentTarget;
             Iterator.iterate(this.options.submitOnChange, selector => {
@@ -128,7 +148,13 @@ export default class FormAjaxSubmitPlugin extends Plugin {
     _fireRequest() {
         this._createLoadingIndicators();
         const action = DomAccess.getAttribute(this._form, 'action');
-        this._client.post(action, this._getFormData(), this._onAfterAjaxSubmit.bind(this));
+        const method = DomAccess.getAttribute(this._form, 'method');
+
+        if (method === 'get') {
+            this._client.get(action, this._onAfterAjaxSubmit.bind(this));
+        } else {
+            this._client.post(action, this._getFormData(), this._onAfterAjaxSubmit.bind(this));
+        }
     }
 
     /**
@@ -168,6 +194,8 @@ export default class FormAjaxSubmitPlugin extends Plugin {
         }
 
         this._executeCallbacks();
+
+        this.loaded = true;
     }
 
     /**
@@ -207,5 +235,4 @@ export default class FormAjaxSubmitPlugin extends Plugin {
             callback.apply(this);
         });
     }
-
 }

@@ -9,6 +9,7 @@
 
         <service id="Shopware\Storefront\Controller\AccountOrderController">
             <argument type="service" id="Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader"/>
+            <argument type="service" id="order.repository"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

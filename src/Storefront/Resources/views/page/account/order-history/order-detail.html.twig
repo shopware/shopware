@@ -1,261 +1,146 @@
 {% block page_account_order_item_detail_overview %}
-    <tr>
-        <td class="col order-item-detail">
-            <div class="collapse"
-                 id="order{{ order.orderNumber }}">
-                <table class="table order-detail-table">
-                    {% block page_account_order_item_detail_table_header %}
-                        {% if order.lineItems|length > 0 %}
-                            <thead class="order-detail-table-header">
-                                <tr>
-                                    {% block page_account_order_item_detail_table_header_name %}
-                                        <th class="col-6 order-header-name"
-                                            scope="col">{{ "account.orderItemColumnName"|trans }}</th>
-                                    {% endblock %}
-        
-                                    {% block page_account_order_item_detail_table_header_quantity %}
-                                        <th class="col-2 order-header-quantity"
-                                            scope="col">{{ "account.orderItemColumnQuantity"|trans }}</th>
-                                    {% endblock %}
-        
-                                    {% block page_account_order_item_detail_table_header_price %}
-                                        <th class="col-2 order-header-price"
-                                            scope="col">{{ "account.orderItemColumnPrice"|trans }}</th>
-                                    {% endblock %}
-        
-                                    {% block page_account_order_item_detail_table_header_total %}
-                                        <th class="col-2 order-header-total"
-                                            scope="col">{{ "account.orderItemColumnTotal"|trans }}</th>
-                                    {% endblock %}
-                                </tr>
-                            </thead>
-                        {% endif %}
-                    {% endblock %}
+    <div class="order-item-detail">
+        <div class="collapse"
+             id="order{{ order.orderNumber }}">
+            <div class="order-detail-content">
+                {% block page_account_order_item_detail_table_header %}
+                    <div class="order-detail-content-header">
+                        <div class="row">
+                            {% block page_account_order_item_detail_table_header_name %}
+                                <div class="col-6 order-header-name">
+                                    {{ "account.orderItemColumnName"|trans }}
+                                </div>
+                            {% endblock %}
 
-                    {% block page_account_order_item_detail_table_body %}
-                        <tbody class="order-detail-table-body">
-                        {% for product in order.lineItems %}
-                            <tr>
-                                {% block page_account_order_item_detail_name %}
-                                    <td class="col-12 col-md-6 order-item order-item-name">
-                                        {% block page_account_order_item_detail_name_value %}
-                                            <strong class="name-value">
-                                                {{ product.label }}
-                                            </strong>
-                                        {% endblock %}
+                            {% block page_account_order_item_detail_table_header_quantity %}
+                                <div class="col-2 order-header-quantity">
+                                    {{ "account.orderItemColumnQuantity"|trans }}
+                                </div>
+                            {% endblock %}
 
-                                        {% block page_account_order_item_detail_unitprice %}
-                                            {#TODO: NEXT-2695 - purchaseunit, referenceunit, referencePrice, packUnit#}
-                                            {% if product.purchaseunit %}
-                                                <div class="order-price-unit">
-                                                    {% block page_account_order_item_detail_purchaseunit %}
-                                                        <p>
-                                                            {{ "account.orderItemInfoContent"|trans }}: {{ product.purchaseunit }} {{ product.packUnit }}
-                                                        </p>
-                                                    {% endblock %}
+                            {% block page_account_order_item_detail_table_header_price %}
+                                <div class="col-2 order-header-price">
+                                    {{ "account.orderItemColumnPrice"|trans }}
+                                </div>
+                            {% endblock %}
 
-                                                    {% block page_account_order_item_detail_referenceunit %}
-                                                        {% if product.purchaseunit != product.referenceunit %}
-                                                            <p>
-                                                                {% if product.referenceunit %}
-                                                                    <span class="order-base-price">
-                                                                        {{ "account.orderItemInfoBaseprice"|trans }}:
-                                                                    </span>
-                                                                    {{ product.referenceunit }} {{ product.packUnit }} = {{ product.referencePrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
-                                                                {% endif %}
-                                                            </p>
-                                                        {% endif %}
-                                                    {% endblock %}
-                                                </div>
-                                            {% endif %}
-                                        {% endblock %}
+                            {% block page_account_order_item_detail_table_header_total %}
+                                <div class="col-2 order-header-total">
+                                    {{ "account.orderItemColumnTotal"|trans }}
+                                </div>
+                            {% endblock %}
+                        </div>
+                    </div>
+                {% endblock %}
 
-                                        {% block page_account_order_item_detail_pseudoprice %}
-                                            {#TODO: NEXT-2695 - currentHas_pseudoprice, currentPseudoprice#}
-                                            {% if product.currentHas_pseudoprice %}
-                                                <div class="order-pseudo-price">
-                                                    {% block page_account_order_item_detail_pseudoprice_value %}
-                                                        <span class="order-pseudo-price-value">
-                                                            {{ product.currentPseudoprice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
-                                                        </span>
-                                                    {% endblock %}
-                                                </div>
-                                            {% endif %}
-                                        {% endblock %}
+                {% block page_account_order_item_detail_table_body %}
+                    <div class="order-detail-content-body js-order-detail-container-{{ order.id }}"></div>
+                {% endblock %}
 
-                                        {% block page_account_order_item_detail_availability %}
-                                            {#TODO: NEXT-2695 - active, isAvailable#}
-                                        {% endblock %}
-                                    </td>
-                                {% endblock %}
-
-                                {% block page_account_order_item_detail_quantity %}
-                                    <td class="col-12 col-md-2 order-item order-item-quantity">
-                                        {% block page_account_order_item_detail_quantity_label %}
-                                            <strong class="order-item-label order-item-quantity-label">
-                                                {{ "account.orderItemColumnQuantity"|trans }}
-                                            </strong>
-                                        {% endblock %}
-
-                                        {% block page_account_order_item_detail_quantity_value %}
-                                            <span class="order-item-value order-item-quantity-value">
-                                                {{ product.quantity }}
-                                            </span>
-                                        {% endblock %}
-                                    </td>
-                                {% endblock %}
-
-                                {% block page_account_order_item_detail_price %}
-                                    <td class="col-12 col-md-2 order-item order-item-price">
-                                        {% block page_account_order_item_detail_price_label %}
-                                            <strong class="order-item-label order-item-price-label">
-                                                {{ "account.orderItemColumnPrice"|trans }}
-                                            </strong>
-                                        {% endblock %}
-
-                                        {% block page_account_order_item_detail_price_value %}
-                                            <span class="order-item-value order-item-price-value">
-                                                {% if product.unitPrice %}
-                                                    {{ product.unitPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
-                                                {% else %}
-                                                    {{ "account.orderItemInfoFree"|trans }}
-                                                {% endif %}
-                                            </span>
-                                        {% endblock %}
-                                    </td>
-                                {% endblock %}
-
-                                {% block page_account_order_item_detail_total %}
-                                    <td class="col-12 col-md-2 order-item order-item-total">
-                                        {% block page_account_order_item_detail_total_label %}
-                                            <strong class="order-item-label order-item-total-label">
-                                                {{ "account.orderItemColumnTotal"|trans }}
-                                            </strong>
-                                        {% endblock %}
-
-                                        {% block page_account_order_item_detail_total_value %}
-                                            <span class="order-item-value order-item-total-value">
-                                                {% if product.totalPrice %}
-                                                    {{ product.totalPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
-                                                {% else %}
-                                                    {{ "account.orderItemInfoFree"|trans }}
-                                                {% endif %}
-                                            </span>
-                                        {% endblock %}
-                                    </td>
-                                {% endblock %}
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    {% endblock %}
-
-                    {% block page_account_order_item_detail_table_footer %}
-                        <tfoot class="order-detail-table-footer">
+                {% block page_account_order_item_detail_table_footer %}
+                    <div class="order-detail-content-footer">
                         {% block page_account_order_item_detail_table_labels_summary %}
-                            <tr>
-                                <td class="col order-item-detail-footer">
-                                    <div class="row no-gutters order-item-detail-labels-summary">
-                                        <div class="col-12 col-md-7 col-xl-6">
-                                            <dl class="row no-gutters order-item-detail-labels">
-                                                {% block page_account_order_item_detail_date %}
-                                                    {% block page_account_order_item_detail_date_label %}
-                                                        <dt class="col-6 col-md-5">{{ "account.orderItemDate"|trans }}</dt>
+                            <div class="order-item-detail-footer">
+                                <div class="row no-gutters">
+                                    <div class="col-12 col-md-7 col-xl-6">
+                                        <dl class="row no-gutters order-item-detail-labels">
+                                            {% block page_account_order_item_detail_date %}
+                                                {% block page_account_order_item_detail_date_label %}
+                                                    <dt class="col-6 col-md-5">{{ "account.orderItemDate"|trans }}</dt>
+                                                {% endblock %}
+
+                                                {% block page_account_order_item_detail_date_value %}
+                                                    <dd class="col-6 col-md-7">{{ order.orderDate|localizeddate('short', 'none', app.request.locale) }}</dd>
+                                                {% endblock %}
+                                            {% endblock %}
+
+                                            {% block page_account_order_item_detail_number %}
+                                                {% block page_account_order_item_detail_number_label %}
+                                                    <dt class="col-6 col-md-5">{{ "account.orderItemNumber"|trans }}</dt>
+                                                {% endblock %}
+
+                                                {% block page_account_order_item_detail_number_value %}
+                                                    <dd class="col-6 col-md-7">{{ order.orderNumber }}</dd>
+                                                {% endblock %}
+                                            {% endblock %}
+
+                                            {% block page_account_order_item_detail_payment_method %}
+                                                {% if order.transactions|length > 0 %}
+                                                    {% block page_account_order_item_detail_payment_method_label %}
+                                                        <dt class="col-6 col-md-5">{{ "account.orderItemPaymentMethod"|trans }}</dt>
                                                     {% endblock %}
 
-                                                    {% block page_account_order_item_detail_date_value %}
-                                                        <dd class="col-6 col-md-7">{{ order.orderDate|localizeddate('short', 'none', app.request.locale) }}</dd>
+                                                    {% block page_account_order_item_detail_payment_method_value %}
+                                                        <dd class="col-6 col-md-7">
+                                                            {% for transaction in order.transactions %}
+                                                                {% if not loop.first and loop.index > 1 %}, {% endif %}{{ transaction.paymentMethod.translated.name }}
+                                                            {% endfor %}
+                                                        </dd>
+                                                    {% endblock %}
+                                                {% endif %}
+                                            {% endblock %}
+
+                                            {% block page_account_order_item_detail_shipping_method %}
+                                                {% if order.deliveries|length > 0 %}
+                                                    {% block page_account_order_item_detail_shipping_method_label %}
+                                                        <dt class="col-6 col-md-5">{{ "account.orderItemShippingMethod"|trans }}</dt>
+                                                    {% endblock %}
+
+                                                    {% block page_account_order_item_detail_shipping_method_value %}
+                                                        <dd class="col-6 col-md-7">
+                                                            {% for delivery in order.deliveries %}
+                                                                {% if not loop.first and loop.index > 1 %}, {% endif %}{{ delivery.shippingMethod.translated.name }}
+                                                            {% endfor %}
+                                                        </dd>
+                                                    {% endblock %}
+                                                {% endif %}
+                                            {% endblock %}
+                                        </dl>
+                                    </div>
+
+                                    <div class="col-12 col-md-5 col-xl-6">
+                                        {% block page_account_order_item_detail_summary %}
+                                            <dl class="row no-gutters order-item-detail-summary">
+                                                {% block page_account_order_item_detail_shipping_costs %}
+                                                    {% block page_account_order_item_detail_shipping_costs_label %}
+                                                        <dt class="col-6 col-md-8">{{ "account.orderItemShippingcosts"|trans }}</dt>
+                                                    {% endblock %}
+
+                                                    {% block page_account_order_item_detail_shipping_costs_value %}
+                                                        <dd class="col-6 col-md-4">{{ order.shippingTotal|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}</dd>
                                                     {% endblock %}
                                                 {% endblock %}
 
-                                                {% block page_account_order_item_detail_number %}
-                                                    {% block page_account_order_item_detail_number_label %}
-                                                        <dt class="col-6 col-md-5">{{ "account.orderItemNumber"|trans }}</dt>
+                                                {% block page_account_order_item_detail_amount %}
+                                                    {% block page_account_order_item_detail_amount_label %}
+                                                        <dt class="col-6 col-md-8">
+                                                            {% if order.isTaxFree %}
+                                                                {{ "account.orderItemNetTotal"|trans }}
+                                                            {% else %}
+                                                                {{ "account.orderItemTotal"|trans }}
+                                                            {% endif %}
+                                                        </dt>
                                                     {% endblock %}
 
-                                                    {% block page_account_order_item_detail_number_value %}
-                                                        <dd class="col-6 col-md-7">{{ order.orderNumber }}</dd>
+                                                    {% block page_account_order_item_detail_amount_value %}
+                                                        <dd class="col-6 col-md-4">
+                                                            {% if order.isTaxFree %}
+                                                                {{ order.amountNet|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
+                                                            {% else %}
+                                                                {{ order.amountTotal|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
+                                                            {% endif %}
+                                                        </dd>
                                                     {% endblock %}
-                                                {% endblock %}
-
-                                                {% block page_account_order_item_detail_payment_method %}
-                                                    {% if order.transactions|length > 0 %}
-                                                        {% block page_account_order_item_detail_payment_method_label %}
-                                                            <dt class="col-6 col-md-5">{{ "account.orderItemPaymentMethod"|trans }}</dt>
-                                                        {% endblock %}
-
-                                                        {% block page_account_order_item_detail_payment_method_value %}
-                                                            <dd class="col-6 col-md-7">
-                                                                {% for transaction in order.transactions %}
-                                                                    {% if not loop.first and loop.index > 1 %}, {% endif %}{{ transaction.paymentMethod.translated.name }}
-                                                                {% endfor %}
-                                                            </dd>
-                                                        {% endblock %}
-                                                    {% endif %}
-                                                {% endblock %}
-
-                                                {% block page_account_order_item_detail_shipping_method %}
-                                                    {% if order.deliveries|length > 0 %}
-                                                        {% block page_account_order_item_detail_shipping_method_label %}
-                                                            <dt class="col-6 col-md-5">{{ "account.orderItemShippingMethod"|trans }}</dt>
-                                                        {% endblock %}
-
-                                                        {% block page_account_order_item_detail_shipping_method_value %}
-                                                            <dd class="col-6 col-md-7">
-                                                                {% for delivery in order.deliveries %}
-                                                                    {% if not loop.first and loop.index > 1 %}, {% endif %}{{ delivery.shippingMethod.translated.name }}
-                                                                {% endfor %}
-                                                            </dd>
-                                                        {% endblock %}
-                                                    {% endif %}
                                                 {% endblock %}
                                             </dl>
-                                        </div>
-                                        <div class="col-12 col-md-5 col-xl-6">
-                                            {% block page_account_order_item_detail_summary %}
-                                                <dl class="row no-gutters order-item-detail-summary">
-                                                    {% block page_account_order_item_detail_shipping_costs %}
-                                                        {% block page_account_order_item_detail_shipping_costs_label %}
-                                                            <dt class="col-6 col-md-8">{{ "account.orderItemShippingcosts"|trans }}</dt>
-                                                        {% endblock %}
-
-                                                        {% block page_account_order_item_detail_shipping_costs_value %}
-                                                            <dd class="col-6 col-md-4">{{ order.shippingTotal|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}</dd>
-                                                        {% endblock %}
-                                                    {% endblock %}
-
-                                                    {% block page_account_order_item_detail_amount %}
-                                                        {% block page_account_order_item_detail_amount_label %}
-                                                            <dt class="col-6 col-md-8">
-                                                                {% if order.isTaxFree %}
-                                                                    {{ "account.orderItemNetTotal"|trans }}
-                                                                {% else %}
-                                                                    {{ "account.orderItemTotal"|trans }}
-                                                                {% endif %}
-                                                            </dt>
-                                                        {% endblock %}
-
-                                                        {% block page_account_order_item_detail_amount_value %}
-                                                            <dd class="col-6 col-md-4">
-                                                                {% if order.isTaxFree %}
-                                                                    {{ order.amountNet|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
-                                                                {% else %}
-                                                                    {{ order.amountTotal|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
-                                                                {% endif %}
-                                                            </dd>
-                                                        {% endblock %}
-                                                    {% endblock %}
-                                                </dl>
-                                            {% endblock %}
-                                        </div>
+                                        {% endblock %}
                                     </div>
-                                </td>
-                            </tr>
+                                </div>
+                            </div>
                         {% endblock %}
-
-                        </tfoot>
-                    {% endblock %}
-                </table>
+                    </div>
+                {% endblock %}
             </div>
-        </td>
-    </tr>
+        </div>
+    </div>
 {% endblock %}

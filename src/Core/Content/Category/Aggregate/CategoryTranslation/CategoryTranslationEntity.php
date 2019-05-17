@@ -19,6 +19,11 @@ class CategoryTranslationEntity extends TranslationEntity
     protected $name;
 
     /**
+     * @var array|null
+     */
+    protected $breadcrumb;
+
+    /**
      * @var CategoryEntity|null
      */
     protected $category;
@@ -116,5 +121,15 @@ class CategoryTranslationEntity extends TranslationEntity
     public function setDescription(string $description): void
     {
         $this->description = $description;
+    }
+
+    public function getBreadcrumb(): ?array
+    {
+        return $this->breadcrumb;
+    }
+
+    public function setBreadcrumb(?array $breadcrumb): void
+    {
+        $this->breadcrumb = $breadcrumb;
     }
 }

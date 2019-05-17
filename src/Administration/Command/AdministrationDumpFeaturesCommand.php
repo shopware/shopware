@@ -2,12 +2,12 @@
 
 namespace Shopware\Administration\Command;
 
+use Shopware\Core\Framework\Console\ShopwareStyle;
 use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
 use Shopware\Core\Kernel;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 class AdministrationDumpFeaturesCommand extends Command
 {
@@ -39,7 +39,7 @@ class AdministrationDumpFeaturesCommand extends Command
             json_encode(FeatureConfig::getAll())
         );
 
-        $style = new SymfonyStyle($input, $output);
+        $style = new ShopwareStyle($input, $output);
         $style->success('Successfully dumped administration feature configuration');
     }
 }

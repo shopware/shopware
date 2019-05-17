@@ -9,7 +9,6 @@ use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
@@ -90,8 +89,9 @@ class CategoryDefinition extends EntityDefinition
             (new BoolField('display_nested_products', 'displayNestedProducts'))->addFlags(new Required()),
             (new IntField('auto_increment', 'autoIncrement'))->addFlags(new WriteProtected()),
 
-            (new TreeLevelField('level', 'level'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
-            (new TreePathField('path', 'path'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new TranslatedField('breadcrumb'))->addFlags(new WriteProtected()),
+            new TreeLevelField('level', 'level'),
+            new TreePathField('path', 'path'),
             new ChildCountField(),
 
             (new StringField('type', 'type'))->addFlags(new Required()),

@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SalesChannel\Command;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
+use Shopware\Core\Framework\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -18,7 +19,6 @@ use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 class SalesChannelCreateCommand extends Command
 {
@@ -90,7 +90,7 @@ class SalesChannelCreateCommand extends Command
         $id = $input->getOption('id');
         $typeId = $input->getOption('typeId');
 
-        $io = new SymfonyStyle($input, $output);
+        $io = new ShopwareStyle($input, $output);
 
         $paymentMethod = $input->getOption('paymentMethodId') ?? $this->getFirstActivePaymentMethodId();
         $shippingMethod = $input->getOption('shippingMethodId') ?? $this->getFirstActiveShippingMethodId();

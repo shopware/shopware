@@ -3,11 +3,11 @@
 namespace Shopware\Core\Content\Media\Commands;
 
 use Shopware\Core\Content\Media\DeleteNotUsedMediaService;
+use Shopware\Core\Framework\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 class DeleteNotUsedMediaCommand extends Command
 {
@@ -39,7 +39,7 @@ class DeleteNotUsedMediaCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $io = new SymfonyStyle($input, $output);
+        $io = new ShopwareStyle($input, $output);
 
         $context = Context::createDefaultContext();
 

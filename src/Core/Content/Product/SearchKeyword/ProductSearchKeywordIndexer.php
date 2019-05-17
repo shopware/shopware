@@ -94,7 +94,7 @@ class ProductSearchKeywordIndexer implements IndexerInterface
                 new Context\SystemSource(),
                 [],
                 Defaults::CURRENCY,
-                [$language->getId(), $language->getParent(), Defaults::LANGUAGE_SYSTEM],
+                [$language->getId(), $language->getParentId(), Defaults::LANGUAGE_SYSTEM],
                 Defaults::LIVE_VERSION
             );
 

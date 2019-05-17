@@ -23,6 +23,7 @@ use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator;
 use Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator;
+use Shopware\Core\Checkout\Document\DocumentGenerator\StornoGenerator;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
@@ -111,6 +112,43 @@ class DocumentServiceTest extends TestCase
         static::assertNotSame(Defaults::LIVE_VERSION, $document->getOrderVersionId());
         static::assertSame(DeliveryNoteGenerator::DELIVERY_NOTE, $document->getDocumentType()->getTechnicalName());
         static::assertSame(FileTypes::PDF, $document->getFileType());
+    }
+
+    public function testCreateStornoBillReferencingInvoice(): void
+    {
+        $documentService = $this->getContainer()->get(DocumentService::class);
+
+        // create an invoice
+        $cart = $this->generateDemoCart(75);
+        $orderId = $this->persistCart($cart);
+
+        $invoiceStruct = $documentService->create(
+            $orderId,
+            InvoiceGenerator::INVOICE,
+            FileTypes::PDF,
+            new DocumentConfiguration(),
+            $this->context
+        );
+        static::assertTrue(Uuid::isValid($invoiceStruct->getId()));
+
+        $documentRepository = $this->getContainer()->get('document.repository');
+        /** @var DocumentEntity $invoice */
+        $invoice = $documentRepository->search(new Criteria([$invoiceStruct->getId()]), $this->context)->get($invoiceStruct->getId());
+
+        //create a storno bill which references the invoice
+        $stornoStruct = $documentService->create(
+            $orderId,
+            StornoGenerator::STORNO,
+            FileTypes::PDF,
+            new DocumentConfiguration(),
+            $this->context,
+            $invoice->getId()
+        );
+        static::assertTrue(Uuid::isValid($stornoStruct->getId()));
+
+        /** @var DocumentEntity $storno */
+        $storno = $documentRepository->search(new Criteria([$stornoStruct->getId()]), $this->context)->get($stornoStruct->getId());
+        static::assertSame($storno->getOrderVersionId(), $invoice->getOrderVersionId());
     }
 
     public function testGetInvoicePdfDocumentById(): void

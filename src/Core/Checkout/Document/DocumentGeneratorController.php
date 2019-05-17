@@ -34,13 +34,15 @@ class DocumentGeneratorController extends AbstractController
     {
         $fileType = $request->query->getAlnum('fileType', FileTypes::PDF);
         $config = DocumentConfigurationFactory::createConfiguration($request->request->get('config', []));
+        $referencedDocumentId = $request->request->get('referenced_document_id', null);
 
         $documentIdStruct = $this->documentService->create(
             $orderId,
             $documentTypeName,
             $fileType,
             $config,
-            $context
+            $context,
+            $referencedDocumentId
         );
 
         return new JsonResponse(

@@ -27,7 +27,7 @@ Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-s
                 documentComment: '',
                 documentDate: ''
             },
-            invoiceNumbers: []
+            invoices: []
         };
     },
 
@@ -56,16 +56,20 @@ Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-s
             this.order.getAssociation('documents').getList(
                 { page: 1, limit: 50, criteria: criteria }
             ).then((response) => {
-                this.invoiceNumbers = [];
+                this.invoices = [];
                 if (response.items.length > 0) {
                     response.items.forEach((item) => {
-                        this.invoiceNumbers.push(item.config.custom.invoiceNumber);
+                        this.invoices.push(item);
                     });
                 }
             });
         },
 
         onCreateDocument(additionalAction = false) {
+            const selectedInvoice = this.invoices.filter((item) => {
+                return item.config.custom.invoiceNumber === this.documentConfig.custom.invoiceNumber;
+            })[0];
+
             if (this.documentNumberPreview === this.documentConfig.documentNumber) {
                 this.numberRangeService.reserve(
                     `document_${this.currentDocumentType.technicalName}`,
@@ -73,11 +77,21 @@ Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-s
                     false
                 ).then((response) => {
                     this.documentConfig.custom.stornoNumber = response.number;
-                    this.$emit('document-modal-create-document', this.documentConfig, additionalAction);
+                    this.$emit(
+                        'document-modal-create-document',
+                        this.documentConfig,
+                        additionalAction,
+                        selectedInvoice.id
+                    );
                 });
             } else {
                 this.documentConfig.custom.stornoNumber = this.documentConfig.documentNumber;
-                this.$emit('document-modal-create-document', this.documentConfig, additionalAction);
+                this.$emit(
+                    'document-modal-create-document',
+                    this.documentConfig,
+                    additionalAction,
+                    selectedInvoice.id
+                );
             }
         },
 

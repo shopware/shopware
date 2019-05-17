@@ -15,7 +15,7 @@
             {% block page_account_overview_main %}
                 <div class="row">
                     {% block page_account_overview_profile %}
-                        <div class="col-lg-6 card-col overview-profile">
+                        <div class="col-lg-6 card-col account-overview-card overview-profile">
                             {% block page_account_overview_profile_card %}
                                 <div class="card">
                                     <div class="card-body">
@@ -59,7 +59,7 @@
                     {% endblock %}
 
                     {% block page_account_overview_payment %}
-                        <div class="col-lg-6 card-col overview-payment">
+                        <div class="col-lg-6 card-col account-overview-card overview-payment">
                             {% block page_account_overview_payment_card %}
                                 <div class="card">
                                     <div class="card-body">
@@ -92,7 +92,7 @@
             {% endblock %}
 
             {% block page_account_overview_newsletter %}
-                <div class="overview-newsletter">
+                <div class="account-overview-card overview-newsletter">
                     <div class="card">
                         <div class="card-body">
                             {% block page_account_overview_newsletter_title %}
@@ -113,6 +113,73 @@
 
             {% block page_account_overview_addresses_include %}
                 {% sw_include "@Storefront/page/account/address.html.twig" %}
+            {% endblock %}
+
+            {% block page_account_overview_newest_order %}
+                {% if page.newestOrder %}
+                    <div class="account-overview-card overview-newest-order">
+                        <div class="card">
+                            <div class="card-body">
+                                {% block page_account_overview_newest_order_title %}
+                                    <h2 class="card-title">
+                                        {{ "account.overviewNewestOrderHeader"|trans }}
+                                    </h2>
+                                {% endblock %}
+
+                                {% block page_account_overview_newest_order_content %}
+                                    <table class="table order-table">
+                                        {% block page_account_overview_newest_order_table_header %}
+                                            <thead class="order-table-header">
+                                            <tr>
+                                                {% block page_account_overview_newest_order_table_header_date %}
+                                                    <th class="col order-header-date"
+                                                        scope="col">{{ "account.orderItemColumnDate"|trans }}</th>
+                                                {% endblock %}
+
+                                                {% block page_account_overview_newest_order_table_header_number %}
+                                                    <th class="col order-header-number"
+                                                        scope="col">{{ "account.orderItemColumnNumber"|trans }}</th>
+                                                {% endblock %}
+
+                                                {% block page_account_overview_newest_order_table_header_payment_method %}
+                                                    <th class="col order-header-payment-method"
+                                                        scope="col">{{ "account.orderItemColumnPaymentMethod"|trans }}</th>
+                                                {% endblock %}
+
+                                                {% block page_account_overview_newest_order_table_header_shipping_method %}
+                                                    <th class="col order-header-shipping-method"
+                                                        scope="col">{{ "account.orderItemColumnShippingMethod"|trans }}</th>
+                                                {% endblock %}
+
+                                                {% block page_account_overview_newest_order_table_header_actions %}
+                                                    <th class="col order-header-actions"
+                                                        scope="col">{{ "account.orderItemColumnActions"|trans }}</th>
+                                                {% endblock %}
+                                            </tr>
+                                            </thead>
+                                        {% endblock %}
+
+                                        {% block page_account_overview_newest_order_table_body %}
+                                            <tbody class="order-table-body">
+                                                {% block page_account_overview_newest_order_items %}
+                                                    {% sw_include '@Storefront/page/account/order-history/order-item.html.twig' with {order: page.newestOrder} %}
+                                                {% endblock %}
+                                            </tbody>
+                                        {% endblock %}
+                                    </table>
+
+                                    <div class="card-actions">
+                                        <a href="{{ path('frontend.account.order.page') }}"
+                                           title="{{ "account.overviewViewOrders"|trans }}"
+                                           class="btn btn-light">
+                                            {{ "account.overviewViewOrders"|trans }}
+                                        </a>
+                                    </div>
+                                {% endblock %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
             {% endblock %}
         </div>
     {% endblock %}

@@ -2,10 +2,6 @@
     margin-bottom: $spacer-lg;
 }
 
-.overview-newsletter {
-    margin-bottom: $spacer-lg;
-}
-
 .account-sidebar-item {
     border: 0;
 
@@ -19,4 +15,8 @@
         color: $primary;
         background: $list-group-bg;
     }
+}
+
+.account-overview-card {
+    margin-bottom: $spacer-xl;
 }

@@ -70,6 +70,7 @@ td.order-item-detail-footer {
 .order-item-detail-labels-summary dl {
     dt.col,
     dt[class*='col-'] {
+        margin-bottom: $spacer-sm;
         padding-right: $spacer-sm;
     }
 }

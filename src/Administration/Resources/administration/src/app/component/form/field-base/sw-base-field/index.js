@@ -94,6 +94,12 @@ export default {
                 'is--disabled': this.disabled,
                 'is--inherited': this.isInherited
             };
+        },
+
+        swFieldLabelClasses() {
+            return {
+                'is--required': this.required
+            };
         }
     }
 };

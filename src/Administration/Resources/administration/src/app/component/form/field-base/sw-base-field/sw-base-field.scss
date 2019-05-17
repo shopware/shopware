@@ -16,6 +16,11 @@
         }
     }
 
+    .sw-field__label .is--required::after{
+        content: "*";
+        color: $color-shopware-blue
+    }
+
     .sw-field__inheritance-icon {
         margin-right: 8px;
     }

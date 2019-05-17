@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class CheckoutAjaxCartPageletLoadedEvent extends NestedEvent
 {
-    public const NAME = 'checkout-info.pagelet.loaded';
+    public const NAME = 'checkout-ajax-cart.pagelet.loaded';
 
     /**
      * @var CheckoutAjaxCartPagelet

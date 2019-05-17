@@ -329,7 +329,7 @@ class OrderConverter
      */
     private function updateLineItem(LineItem $lineItem, OrderLineItemEntity $entity, string $id): void
     {
-        $lineItem->setKey($entity->getIdentifier())
+        $lineItem->setId($entity->getIdentifier())
             ->setType($entity->getType())
             ->setStackable(true)
             ->setQuantity($entity->getQuantity())

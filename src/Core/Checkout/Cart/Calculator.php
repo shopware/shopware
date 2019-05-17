@@ -69,7 +69,7 @@ class Calculator
             $lineItem = LineItem::createFromLineItem($original);
 
             if (!$this->isValid($lineItem, $calculated, $context, $behavior)) {
-                $cart->getLineItems()->remove($lineItem->getKey());
+                $cart->getLineItems()->remove($lineItem->getId());
                 continue;
             }
 
@@ -77,7 +77,7 @@ class Calculator
                 $price = $this->calculatePrice($cart, $lineItem, $context, $calculated, $behavior);
             } catch (\Exception $e) {
                 // todo line item silently removed if an error occurs
-                $cart->getLineItems()->remove($lineItem->getKey());
+                $cart->getLineItems()->remove($lineItem->getId());
                 continue;
             }
 
@@ -140,7 +140,7 @@ class Calculator
             return $this->quantityPriceCalculator->calculate($definition, $context);
         }
 
-        throw new MissingLineItemPriceException($lineItem->getKey());
+        throw new MissingLineItemPriceException($lineItem->getId());
     }
 
     private function isValid(LineItem $lineItem, LineItemCollection $calculated, SalesChannelContext $context, CartBehavior $behavior): bool

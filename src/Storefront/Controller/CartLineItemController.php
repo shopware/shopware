@@ -207,13 +207,14 @@ class CartLineItemController extends StorefrontController
                 $lineItem = new LineItem(
                     $lineItemData->getAlnum('id'),
                     $lineItemData->getAlnum('type'),
+                    $lineItemData->get('referencedId'),
                     $lineItemData->getInt('quantity', 1)
                 );
 
                 $lineItem->setStackable($lineItemData->getBoolean('stackable', true));
                 $lineItem->setRemovable($lineItemData->getBoolean('removable', true));
 
-                $lineItem->setPayloadValue('id', $lineItem->getKey());
+                $lineItem->setPayloadValue('id', $lineItem->getId());
 
                 $count += $lineItem->getQuantity();
 

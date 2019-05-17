@@ -60,10 +60,10 @@ class CartPromotionsCollectorTest extends TestCase
 
         $this->cart = new Cart('C1', 'TOKEN-1');
         // add a prepared placeholder promotion
-        $this->cart->add(new LineItem('CODE-123', CartPromotionsCollector::LINE_ITEM_TYPE, 1));
+        $this->cart->add(new LineItem('CODE-123', CartPromotionsCollector::LINE_ITEM_TYPE));
         // add product items
-        $this->cart->add(new LineItem('P1', LineItem::PRODUCT_LINE_ITEM_TYPE, 1));
-        $this->cart->add(new LineItem('P2', LineItem::PRODUCT_LINE_ITEM_TYPE, 1));
+        $this->cart->add(new LineItem('P1', LineItem::PRODUCT_LINE_ITEM_TYPE));
+        $this->cart->add(new LineItem('P2', LineItem::PRODUCT_LINE_ITEM_TYPE));
 
         $this->promotionGlobal = new PromotionEntity();
         $this->promotionGlobal->setId('PROM-GLOBAL');
@@ -185,7 +185,7 @@ class CartPromotionsCollectorTest extends TestCase
         /** @var LineItem $item */
         $item = $promoLineItem->getElements()['D1'];
 
-        static::assertEquals('D1', $item->getKey());
+        static::assertEquals('D1', $item->getId());
     }
 
     private function getFakeRule(): RuleEntity

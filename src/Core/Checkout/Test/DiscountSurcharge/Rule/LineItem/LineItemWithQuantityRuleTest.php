@@ -23,7 +23,7 @@ class LineItemWithQuantityRuleTest extends TestCase
     {
         parent::setUp();
 
-        $this->lineItem = (new LineItem('A', 'product', 2))
+        $this->lineItem = (new LineItem('A', 'product', null, 2))
             ->setPrice(new CalculatedPrice(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection(), 2));
     }
 

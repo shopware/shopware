@@ -183,11 +183,11 @@ class LineItemRuleTest extends TestCase
         static::assertFalse($matches);
     }
 
-    public function testMatchesWithPayloadId(): void
+    public function testMatchesWithreferencedId(): void
     {
         $rule = new LineItemRule(LineItemRule::OPERATOR_EQ, ['A', 'B']);
 
-        $lineItem = (new LineItem('A', 'test'))->setPayloadValue('id', 'A');
+        $lineItem = new LineItem('A', 'test', 'A');
 
         $matches = $rule->match(new LineItemScope($lineItem, $this->createMock(SalesChannelContext::class)));
 

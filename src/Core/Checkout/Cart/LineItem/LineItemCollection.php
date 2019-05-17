@@ -28,10 +28,10 @@ class LineItemCollection extends Collection
     {
         $this->validateType($lineItem);
 
-        $exists = $this->get($lineItem->getKey());
+        $exists = $this->get($lineItem->getId());
 
         if ($exists && $exists->getType() !== $lineItem->getType()) {
-            throw new MixedLineItemTypeException($lineItem->getKey(), $exists->getType());
+            throw new MixedLineItemTypeException($lineItem->getId(), $exists->getType());
         }
 
         if ($exists) {
@@ -136,7 +136,7 @@ class LineItemCollection extends Collection
 
     protected function getKey(LineItem $element): string
     {
-        return $element->getKey();
+        return $element->getId();
     }
 
     protected function getExpectedClass(): ?string

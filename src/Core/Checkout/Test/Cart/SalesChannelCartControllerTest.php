@@ -117,7 +117,7 @@ class SalesChannelCartControllerTest extends TestCase
         static::assertCount(1, $cart['lineItems']);
 
         $product = array_shift($cart['lineItems']);
-        static::assertEquals($productId, $product['key']);
+        static::assertEquals($productId, $product['id']);
     }
 
     public function testAddMultipleProducts(): void
@@ -302,7 +302,7 @@ class SalesChannelCartControllerTest extends TestCase
         static::assertNotEmpty($cart);
         static::assertCount(1, $cart['lineItems']);
 
-        $keys = array_column($cart['lineItems'], 'key');
+        $keys = array_column($cart['lineItems'], 'id');
         static::assertNotContains($productId1, $keys);
     }
 
@@ -377,7 +377,7 @@ class SalesChannelCartControllerTest extends TestCase
         static::assertCount(2, $cart['lineItems']);
 
         foreach ($cart['lineItems'] as $lineItem) {
-            if ($lineItem['key'] === $productId1) {
+            if ($lineItem['id'] === $productId1) {
                 static::assertEquals(2, $lineItem['quantity']);
             } else {
                 static::assertEquals(11, $lineItem['quantity']);
@@ -414,7 +414,6 @@ class SalesChannelCartControllerTest extends TestCase
         $type = LineItem::PRODUCT_LINE_ITEM_TYPE;
         $stackable = true;
         $removable = true;
-        $priority = 500;
         $label = 'My custom label';
         $description = 'My custom description';
 
@@ -423,6 +422,7 @@ class SalesChannelCartControllerTest extends TestCase
             '/sales-channel-api/v1/checkout/cart/line-item/' . $productId,
             [
                 'type' => $type,
+                'referencedId' => $productId,
                 'quantity' => $quantity,
                 'stackable' => $stackable,
                 'removable' => $removable,
@@ -446,7 +446,7 @@ class SalesChannelCartControllerTest extends TestCase
 
         $product = array_shift($cart['lineItems']);
 
-        static::assertEquals($productId, $product['key']);
+        static::assertEquals($productId, $product['id']);
         static::assertEquals($type, $product['type']);
         static::assertEquals($quantity, $product['quantity']);
 
@@ -500,7 +500,6 @@ class SalesChannelCartControllerTest extends TestCase
         $quantity = 10;
         $stackable = true;
         $removable = true;
-        $priority = 500;
         $label = 'My custom label';
         $description = 'My custom description';
 
@@ -508,6 +507,7 @@ class SalesChannelCartControllerTest extends TestCase
             'PATCH',
             '/sales-channel-api/v1/checkout/cart/line-item/' . $productId,
             [
+                'referencedId' => $productId,
                 'quantity' => $quantity,
                 'stackable' => $stackable,
                 'removable' => $removable,
@@ -526,7 +526,7 @@ class SalesChannelCartControllerTest extends TestCase
         $cart = $content['data'];
         $product = array_shift($cart['lineItems']);
 
-        static::assertEquals($productId, $product['key']);
+        static::assertEquals($productId, $product['id']);
         static::assertEquals(LineItem::PRODUCT_LINE_ITEM_TYPE, $product['type']);
         static::assertEquals($quantity, $product['quantity']);
 

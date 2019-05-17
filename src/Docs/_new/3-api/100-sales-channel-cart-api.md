@@ -25,10 +25,11 @@ Include this token as an HTTP header for all future requests.
 
 **Parameter:**
 
-| Name     | Type  | Notes      | Required |
-| -------- | ----- | ---------- | -------- |
-| quantity | int   | Default: 1 |          |
-| payload  | array |            |          |
+| Name         | Type   | Notes                            | Required |
+| ------------ | ------ | -------------------------------- | -------- |
+| quantity     | int    | Default: 1                       |          |
+| payload      | array  |                                  |          |
+| referencedId | string | Default: id of the line item     |          |
 
 **Header:** sw-context-token is required
 
@@ -182,8 +183,8 @@ If the payment process is completed or the payment processor use an external pay
             .then(({ data }) => data)
     }
     
-    function changeLineItemQuantity(key, quantity) {
-        const url = `${baseUrl}/sales-channel-api/v1/checkout/cart/line-item/${key}/quantity/${quantity}`;
+    function changeLineItemQuantity(id, quantity) {
+        const url = `${baseUrl}/sales-channel-api/v1/checkout/cart/line-item/${id}/quantity/${quantity}`;
         return fetch(url, { method: 'PATCH', headers })
             .then((resp) => resp.json());
     }
@@ -223,7 +224,7 @@ If the payment process is completed or the payment processor use an external pay
         console.log('Cart', cart);
     
         const lineItem = cart.data.lineItems[0];
-        await changeLineItemQuantity(lineItem.key, 2);
+        await changeLineItemQuantity(lineItem.id, 2);
         console.log('Cart', await getCart());
     
         const country = await getCountry('deu');

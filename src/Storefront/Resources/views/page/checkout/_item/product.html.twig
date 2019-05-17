@@ -2,7 +2,7 @@
     <div class="cart-item cart-item-{{ lineItem.type }}">
         <div class="row cart-item-row">
             {% block page_checkout_item_product_info %}
-                {% set productId = lineItem.key %}
+                {% set productId = lineItem.id %}
 
                 <div class="col-10 col-md cart-item-info">
                     {% block page_checkout_item_product_info_inner %}
@@ -46,9 +46,9 @@
                                             {% endblock %}
 
                                             {% block page_checkout_item_product_info_ordernumber %}
-                                                {% if lineItem.payload.productNumber %}
+                                                {% if lineItem.referencedId %}
                                                     <div class="cart-item-ordernumber">
-                                                        {{ "checkout.cartItemInfoId"|trans }} {{ lineItem.payload.productNumber }}
+                                                        {{ "checkout.cartItemInfoId"|trans }} {{ lineItem.referencedId }}
                                                     </div>
                                                 {% endif %}
                                             {% endblock %}
@@ -74,7 +74,7 @@
                             <div class="col-4 col-sm-12">
                                 {% block page_checkout_item_product_quantity_form %}
                                     <form
-                                        action="{{ path('frontend.checkout.line-item.change-quantity', {'id': lineItem.key}) }}"
+                                        action="{{ path('frontend.checkout.line-item.change-quantity', {'id': lineItem.id}) }}"
                                         class="cart-item-quantity-container"
                                         method="post"
                                         data-form-auto-submit="true">
@@ -151,7 +151,7 @@
                 <div class="col-2 col-md-1 cart-item-remove">
                     {% block page_checkout_item_product_remove_form %}
                         {% if lineItem.isRemovable() %}
-                            <form action="{{ path('frontend.checkout.line-item.delete', {'id': lineItem.key}) }}"
+                            <form action="{{ path('frontend.checkout.line-item.delete', {'id': lineItem.id}) }}"
                                   method="post"
                                   data-form-auto-submit="true">
                                 {% block page_checkout_item_remove_redirect %}

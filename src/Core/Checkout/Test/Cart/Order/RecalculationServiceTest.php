@@ -215,7 +215,7 @@ class RecalculationServiceTest extends TestCase
         static::assertCount(1, $absoluteLineItem['price']['calculatedTaxes']);
         static::assertEquals(19, $absoluteLineItem['price']['calculatedTaxes'][0]['taxRate']);
         static::assertEquals(0.48, $absoluteLineItem['price']['calculatedTaxes'][0]['tax']);
-        static::assertEquals('2', $absoluteLineItem['key']);
+        static::assertEquals('2', $absoluteLineItem['id']);
         static::assertEquals(3, $absoluteLineItem['priceDefinition']['price']);
         static::assertNotEmpty($absoluteLineItem['priceDefinition']['filter']);
 
@@ -224,7 +224,7 @@ class RecalculationServiceTest extends TestCase
         static::assertCount(1, $nestedLineItem['children']);
         static::assertCount(1, $nestedLineItem['children'][0]['children']);
         $lineItemWithPrice = $nestedLineItem['children'][0]['children'][0];
-        static::assertEquals('3-1-1', $lineItemWithPrice['key']);
+        static::assertEquals('3-1-1', $lineItemWithPrice['id']);
         static::assertEquals(9.45, $lineItemWithPrice['price']['totalPrice']);
         static::assertCount(1, $lineItemWithPrice['price']['calculatedTaxes']);
         static::assertEquals(0.45, $lineItemWithPrice['price']['calculatedTaxes'][0]['tax']);
@@ -237,7 +237,7 @@ class RecalculationServiceTest extends TestCase
                 PlatformRequest::API_VERSION,
                 Defaults::SALES_CHANNEL,
                 PlatformRequest::API_VERSION,
-                $cart->getLineItems()->first()->getKey()
+                $cart->getLineItems()->first()->getId()
             ),
             [
                 'quantity' => 10,
@@ -896,7 +896,7 @@ class RecalculationServiceTest extends TestCase
             false
         );
         $cart->add(
-            (new LineItem('1', 'product_', 5))
+            (new LineItem('1', 'product_', null, 5))
                 ->setPriceDefinition(new QuantityPriceDefinition(10.0, new TaxRuleCollection([new TaxRule(19)]), 2, 5))
                 ->setLabel('First product')
                 ->setPayloadValue('id', '1')
@@ -904,21 +904,21 @@ class RecalculationServiceTest extends TestCase
                 ->setDeliveryInformation($deliveryInformation)
         );
         $cart->add(
-            (new LineItem('2', 'custom_absolute', 1))
+            (new LineItem('2', 'custom_absolute'))
                 ->setPriceDefinition(new AbsolutePriceDefinition(3.0, 2, new LineItemTotalPriceRule(Rule::OPERATOR_GT, 9.99)))
                 ->setLabel('Second custom line item with absolute price definition')
                 ->setDeliveryInformation($deliveryInformation)
         );
 
         $cart->add(
-            (new LineItem('abcdefg', 'nested', 1))
+            (new LineItem('abcdefg', 'nested'))
                 ->setLabel('Third line item (multi level nested)')
                 ->setDeliveryInformation($deliveryInformation)
                 ->addChild(
-                    (new LineItem('3-1', 'custom', 1))
+                    (new LineItem('3-1', 'custom'))
                         ->setLabel('Custom child depth 1 of the third line item')
                         ->addChild(
-                            (new LineItem('3-1-1', 'product_', 1))
+                            (new LineItem('3-1-1', 'product_'))
                                 ->setPriceDefinition(new QuantityPriceDefinition(9.0, new TaxRuleCollection([new TaxRule(5)]), 2, 1))
                                 ->setLabel('Product depth 2 of third line item')
                                 ->setPayloadValue('id', '3-1-1')

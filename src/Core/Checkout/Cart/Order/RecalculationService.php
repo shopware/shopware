@@ -156,10 +156,9 @@ class RecalculationService
     public function addProductToOrder(string $orderId, string $productId, int $quantity, Context $context): void
     {
         $this->validateProduct($productId, $context);
-        $lineItem = (new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, $quantity))
+        $lineItem = (new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId, $quantity))
             ->setRemovable(true)
-            ->setStackable(true)
-            ->setPayload(['id' => $productId]);
+            ->setStackable(true);
 
         $this->addCustomLineItem($orderId, $lineItem, $context);
     }

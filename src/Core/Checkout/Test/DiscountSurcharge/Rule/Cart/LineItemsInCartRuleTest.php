@@ -40,7 +40,7 @@ class LineItemsInCartRuleTest extends TestCase
 
         $cart = Generator::createCart();
         foreach ($cart->getLineItems() as $lineItem) {
-            $lineItem->removePayloadValue('id');
+            $lineItem->setReferencedId(null);
         }
 
         $context = $this->createMock(SalesChannelContext::class);

@@ -90,12 +90,9 @@ SQL;
 
         $lineItems = array_map(
             function ($product) {
-                $id = $product['id'];
+                $productId = $product['id'];
 
-                $quantity = random_int(1, 10);
-
-                return (new LineItem($id, LineItem::PRODUCT_LINE_ITEM_TYPE, $quantity))
-                    ->setPayload(['id' => $id])
+                return (new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId, random_int(1, 10)))
                     ->setStackable(true)
                     ->setRemovable(true);
             },

@@ -100,9 +100,9 @@ class SalesChannelCartController extends AbstractController
         $token = $request->request->getAlnum('token', $context->getToken());
         $quantity = $request->request->getInt('quantity', 1);
         $payload = $request->request->get('payload', []);
-        $payload = array_replace_recursive(['id' => $id], $payload);
+        $referencedId = $request->request->get('referencedId', $id);
 
-        $lineItem = (new LineItem($id, LineItem::PRODUCT_LINE_ITEM_TYPE, $quantity))
+        $lineItem = (new LineItem($id, LineItem::PRODUCT_LINE_ITEM_TYPE, $referencedId, $quantity))
             ->setPayload($payload)
             ->setRemovable(true)
             ->setStackable(true);
@@ -165,7 +165,7 @@ class SalesChannelCartController extends AbstractController
             throw new MissingRequestParameterException('type');
         }
 
-        $lineItem = new LineItem($id, $type, $quantity);
+        $lineItem = new LineItem($id, $type, null, $quantity);
         $this->updateLineItemByRequest($lineItem, $requestDataBag, $context->getContext());
 
         $cart = $this->cartService->add($this->cartService->getCart($token, $context), $lineItem, $context);
@@ -233,17 +233,21 @@ class SalesChannelCartController extends AbstractController
     {
         $quantity = $requestDataBag->get('quantity');
         $payload = $requestDataBag->get('payload', []);
-        $payload = array_replace_recursive(['id' => $lineItem->getKey()], $payload);
         $stackable = $requestDataBag->get('stackable');
         $removable = $requestDataBag->get('removable');
         $label = $requestDataBag->get('label');
         $description = $requestDataBag->get('description');
         $coverId = $requestDataBag->get('coverId');
+        $referencedId = $requestDataBag->get('referencedId');
 
         $lineItem->setPayload($payload);
 
         if ($quantity) {
             $lineItem->setQuantity($quantity);
+        }
+
+        if ($referencedId) {
+            $lineItem->setReferencedId($referencedId);
         }
 
         if ($stackable !== null) {
@@ -266,7 +270,7 @@ class SalesChannelCartController extends AbstractController
             $cover = $this->mediaRepository->search(new Criteria([$coverId]), $context)->get($coverId);
 
             if (!$cover) {
-                throw new LineItemCoverNotFoundException($coverId, $lineItem->getKey());
+                throw new LineItemCoverNotFoundException($coverId, $lineItem->getId());
             }
 
             $lineItem->setCover($cover);

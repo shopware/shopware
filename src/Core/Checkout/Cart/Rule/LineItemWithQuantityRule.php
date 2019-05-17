@@ -45,7 +45,7 @@ class LineItemWithQuantityRule extends Rule
             return false;
         }
 
-        if ($scope->getLineItem()->getKey() !== $this->id) {
+        if ($scope->getLineItem()->getId() !== $this->id) {
             return false;
         }
 

@@ -62,10 +62,8 @@ namespace ExampleAddToCart {
         public function addToCart(SalesChannelContext $salesChannelContext)
         {
             // unique identifier to reference the line item, usually the source id, but can be random
-            $product = new LineItem('___', LineItem::PRODUCT_LINE_ITEM_TYPE, 5);
-
-            // id of the referenced product
-            $product->setPayloadValue('id', '407f9c24dd414da485501085e3ead678');
+            // and id of the referenced product
+            $product = new LineItem('___', LineItem::PRODUCT_LINE_ITEM_TYPE, '407f9c24dd414da485501085e3ead678', 5);
 
             $cart = $this->cartService->getCart('596a70b408014230a140fd5d94d3402b', $salesChannelContext);
 
@@ -203,7 +201,7 @@ namespace DocsTest {
         public function testLineItemIsInCorrectVersion()
         {
             static::assertSame(
-                '8f2d46ce956ba3775c6ddcaa2e976f240b092c50',
+                '9927846cef4af9a552788a3622b90f7f159e1253',
                 sha1_file(TEST_PROJECT_DIR . '/platform/src/Core/Checkout/Cart/LineItem/LineItem.php'),
                 'The line item class changed apparently, ensure the docs are up to date'
             );
@@ -315,8 +313,7 @@ namespace DocsTest {
         private function ensureProductInCart(): void
         {
             $this->ensureProduct('407f9c24dd414da485501085e3ead678');
-            $product = new LineItem('407f9c24dd414da485501085e3ead678', LineItem::PRODUCT_LINE_ITEM_TYPE, 5);
-            $product->setPayloadValue('id', '407f9c24dd414da485501085e3ead678');
+            $product = new LineItem('407f9c24dd414da485501085e3ead678', LineItem::PRODUCT_LINE_ITEM_TYPE, '407f9c24dd414da485501085e3ead678', 5);
             $product->setStackable(true);
             $product->setRemovable(true);
             $cartService = $this->getContainer()->get(CartService::class);

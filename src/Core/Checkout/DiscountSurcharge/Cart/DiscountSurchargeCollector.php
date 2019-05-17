@@ -52,7 +52,7 @@ class DiscountSurchargeCollector implements CollectorInterface
             $ruleId = $payload['ruleId'];
 
             if (!\in_array($ruleId, $ruleIds, true)) {
-                $cart->getLineItems()->remove($lineItem->getKey());
+                $cart->getLineItems()->remove($lineItem->getId());
             }
         }
 

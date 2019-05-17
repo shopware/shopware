@@ -58,7 +58,7 @@ class DeliveryCollection extends Collection
     public function contains(LineItem $item): bool
     {
         foreach ($this->getIterator() as $delivery) {
-            if ($delivery->getPositions()->has($item->getKey())) {
+            if ($delivery->getPositions()->has($item->getId())) {
                 return true;
             }
         }

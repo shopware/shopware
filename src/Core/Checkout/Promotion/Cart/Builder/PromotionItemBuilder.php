@@ -46,7 +46,7 @@ class PromotionItemBuilder
         // that might not be from the promotion scope
         $uniqueKey = self::PLACEHOLDER_PREFIX . $code;
 
-        $item = new LineItem($uniqueKey, $this->lineItemType, 1);
+        $item = new LineItem($uniqueKey, $this->lineItemType);
         $item->setLabel($uniqueKey);
         $item->setGood(false);
 
@@ -117,7 +117,7 @@ class PromotionItemBuilder
         // build our discount line item
         // and make sure it has everything as dynamic content.
         // this is necessary for the recalculation process.
-        $promotionItem = new LineItem($discount->getId(), $this->lineItemType, 1);
+        $promotionItem = new LineItem($discount->getId(), $this->lineItemType);
         $promotionItem->setLabel($promotion->getName());
         $promotionItem->setDescription($promotion->getName());
         $promotionItem->setGood(false);

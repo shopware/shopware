@@ -7,11 +7,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PayloadKeyNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $key, string $lineItemId)
+    public function __construct(string $id, string $lineItemId)
     {
         parent::__construct(
-            'Payload key "{{ payloadKey }}" in line item "{{ identifier }}" not found.',
-            ['payloadKey' => $key, 'identifier' => $lineItemId]
+            'Payload key "{{ payloadKey }}" in line item "{{ id }}" not found.',
+            ['payloadKey' => $id, 'id' => $lineItemId]
         );
     }
 

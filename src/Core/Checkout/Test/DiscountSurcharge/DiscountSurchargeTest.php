@@ -93,12 +93,10 @@ class DiscountSurchargeTest extends TestCase
 
         $cart = new Cart('test', 'test');
         $cart->add(
-            (new LineItem('A', 'product'))
-                ->setPayload(['id' => $productA])
+            new LineItem('A', 'product', $productA)
         );
         $cart->add(
-            (new LineItem('B', 'product'))
-                ->setPayload(['id' => $productB])
+            (new LineItem('B', 'product', $productB))
         );
 
         self::$context->setRuleIds([$ruleId]);
@@ -133,14 +131,8 @@ class DiscountSurchargeTest extends TestCase
         $id = $this->createDiscountSurcharge($ruleId, DiscountSurchargeCollector::ABSOLUTE_MODIFIER, -2);
 
         $cart = new Cart('test', 'test');
-        $cart->add(
-            (new LineItem('A', 'product'))
-                ->setPayload(['id' => $productA])
-        );
-        $cart->add(
-            (new LineItem('B', 'product'))
-                ->setPayload(['id' => $productB])
-        );
+        $cart->add(new LineItem('A', 'product', $productA));
+        $cart->add(new LineItem('B', 'product', $productB));
 
         self::$context->setRuleIds([$ruleId]);
         self::$enrichment->enrich($cart, self::$context, new CartBehavior());
@@ -174,14 +166,8 @@ class DiscountSurchargeTest extends TestCase
         $id = $this->createDiscountSurcharge($ruleId, DiscountSurchargeCollector::PERCENTAL_MODIFIER, 10);
 
         $cart = new Cart('test', 'test');
-        $cart->add(
-            (new LineItem('A', 'product'))
-                ->setPayload(['id' => $productA])
-        );
-        $cart->add(
-            (new LineItem('B', 'product'))
-                ->setPayload(['id' => $productB])
-        );
+        $cart->add(new LineItem('A', 'product', $productA));
+        $cart->add(new LineItem('B', 'product', $productB));
 
         self::$context->setRuleIds([$ruleId]);
         self::$enrichment->enrich($cart, self::$context, new CartBehavior());
@@ -215,14 +201,8 @@ class DiscountSurchargeTest extends TestCase
         $id = $this->createDiscountSurcharge($ruleId, DiscountSurchargeCollector::PERCENTAL_MODIFIER, -10);
 
         $cart = new Cart('test', 'test');
-        $cart->add(
-            (new LineItem('A', 'product'))
-                ->setPayload(['id' => $productA])
-        );
-        $cart->add(
-            (new LineItem('B', 'product'))
-                ->setPayload(['id' => $productB])
-        );
+        $cart->add(new LineItem('A', 'product', $productA));
+        $cart->add(new LineItem('B', 'product', $productB));
 
         self::$context->setRuleIds([$ruleId]);
         self::$enrichment->enrich($cart, self::$context, new CartBehavior());

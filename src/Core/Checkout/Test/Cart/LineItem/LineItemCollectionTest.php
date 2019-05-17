@@ -23,9 +23,9 @@ class LineItemCollectionTest extends TestCase
     public function testCountReturnsCorrectValue(): void
     {
         $collection = new LineItemCollection([
-            new LineItem('A', '', 1),
-            new LineItem('B', '', 1),
-            new LineItem('C', '', 1),
+            new LineItem('A', ''),
+            new LineItem('B', ''),
+            new LineItem('C', ''),
         ]);
         static::assertCount(3, $collection);
     }
@@ -33,14 +33,14 @@ class LineItemCollectionTest extends TestCase
     public function testCollectionStacksSameIdentifier(): void
     {
         $collection = new LineItemCollection([
-            (new LineItem('A', 'a', 1))->setStackable(true),
-            (new LineItem('A', 'a', 2))->setStackable(true),
-            (new LineItem('A', 'a', 3))->setStackable(true),
+            (new LineItem('A', 'a'))->setStackable(true),
+            (new LineItem('A', 'a', null, 2))->setStackable(true),
+            (new LineItem('A', 'a', null, 3))->setStackable(true),
         ]);
 
         static::assertEquals(
             new LineItemCollection([
-                (new LineItem('A', 'a', 6))->setStackable(true),
+                (new LineItem('A', 'a', null, 6))->setStackable(true),
             ]),
             $collection
         );
@@ -49,34 +49,34 @@ class LineItemCollectionTest extends TestCase
     public function testFilterReturnsNewCollectionWithCorrectItems(): void
     {
         $collection = new LineItemCollection([
-            new LineItem('A1', 'A', 1),
-            new LineItem('A2', 'A', 1),
-            new LineItem('B', 'B', 1),
-            new LineItem('B2', 'B', 1),
-            new LineItem('B3', 'B', 1),
-            new LineItem('B4', 'B', 1),
-            new LineItem('C', 'C', 1),
+            new LineItem('A1', 'A'),
+            new LineItem('A2', 'A'),
+            new LineItem('B', 'B'),
+            new LineItem('B2', 'B'),
+            new LineItem('B3', 'B'),
+            new LineItem('B4', 'B'),
+            new LineItem('C', 'C'),
         ]);
 
         static::assertEquals(
             new LineItemCollection([
-                new LineItem('A1', 'A', 1),
-                new LineItem('A2', 'A', 1),
+                new LineItem('A1', 'A'),
+                new LineItem('A2', 'A'),
             ]),
             $collection->filterType('A')
         );
         static::assertEquals(
             new LineItemCollection([
-                new LineItem('B', 'B', 1),
-                new LineItem('B2', 'B', 1),
-                new LineItem('B3', 'B', 1),
-                new LineItem('B4', 'B', 1),
+                new LineItem('B', 'B'),
+                new LineItem('B2', 'B'),
+                new LineItem('B3', 'B'),
+                new LineItem('B4', 'B'),
             ]),
             $collection->filterType('B')
         );
         static::assertEquals(
             new LineItemCollection([
-                new LineItem('C', 'C', 1),
+                new LineItem('C', 'C'),
             ]),
             $collection->filterType('C')
         );
@@ -90,9 +90,9 @@ class LineItemCollectionTest extends TestCase
     public function testFilterReturnsCollection(): void
     {
         $collection = new LineItemCollection([
-            new LineItem('A', 'a', 1),
-            new LineItem('B', 'a', 1),
-            new LineItem('C', 'a', 1),
+            new LineItem('A', 'a'),
+            new LineItem('B', 'a'),
+            new LineItem('C', 'a'),
         ]);
 
         static::assertInstanceOf(LineItemCollection::class, $collection->filterType('a'));
@@ -101,9 +101,9 @@ class LineItemCollectionTest extends TestCase
     public function testFilterReturnsNewCollection(): void
     {
         $collection = new LineItemCollection([
-            new LineItem('A', 'a', 1),
-            new LineItem('B', 'a', 1),
-            new LineItem('C', 'a', 1),
+            new LineItem('A', 'a'),
+            new LineItem('B', 'a'),
+            new LineItem('C', 'a'),
         ]);
 
         static::assertNotSame($collection, $collection->filterType('a'));
@@ -112,9 +112,9 @@ class LineItemCollectionTest extends TestCase
     public function testLineItemsCanBeCleared(): void
     {
         $collection = new LineItemCollection([
-            new LineItem('A', 'a', 1),
-            new LineItem('B', 'a', 1),
-            new LineItem('C', 'a', 1),
+            new LineItem('A', 'a'),
+            new LineItem('B', 'a'),
+            new LineItem('C', 'a'),
         ]);
         $collection->clear();
         static::assertEquals(new LineItemCollection(), $collection);
@@ -123,24 +123,24 @@ class LineItemCollectionTest extends TestCase
     public function testLineItemsCanBeRemovedByIdentifier(): void
     {
         $collection = new LineItemCollection([
-            new LineItem('A', 'a', 1),
-            new LineItem('B', 'a', 1),
-            new LineItem('C', 'a', 1),
+            new LineItem('A', 'a'),
+            new LineItem('B', 'a'),
+            new LineItem('C', 'a'),
         ]);
         $collection->remove('A');
 
         static::assertEquals(new LineItemCollection([
-            new LineItem('B', 'a', 1),
-            new LineItem('C', 'a', 1),
+            new LineItem('B', 'a'),
+            new LineItem('C', 'a'),
         ]), $collection);
     }
 
     public function testIdentifiersCanEasyAccessed(): void
     {
         $collection = new LineItemCollection([
-            new LineItem('A', 'a', 1),
-            new LineItem('B', 'a', 1),
-            new LineItem('C', 'a', 1),
+            new LineItem('A', 'a'),
+            new LineItem('B', 'a'),
+            new LineItem('C', 'a'),
         ]);
 
         static::assertSame([
@@ -156,29 +156,29 @@ class LineItemCollectionTest extends TestCase
 
     public function testRemoveElement(): void
     {
-        $first = new LineItem('A', 'temp', 1);
+        $first = new LineItem('A', 'temp');
 
         $collection = new LineItemCollection([
             $first,
-            new LineItem('B', 'temp', 1),
+            new LineItem('B', 'temp'),
         ]);
 
         $collection->removeElement($first);
 
         static::assertEquals(
-            new LineItemCollection([new LineItem('B', 'temp', 1)]),
+            new LineItemCollection([new LineItem('B', 'temp')]),
             $collection
         );
     }
 
     public function testExists(): void
     {
-        $first = new LineItem('A', 'temp', 1);
-        $second = new LineItem('B2', 'temp', 1);
+        $first = new LineItem('A', 'temp');
+        $second = new LineItem('B2', 'temp');
 
         $collection = new LineItemCollection([
             $first,
-            new LineItem('B', 'temp', 1),
+            new LineItem('B', 'temp'),
         ]);
 
         static::assertTrue($collection->exists($first));
@@ -188,8 +188,8 @@ class LineItemCollectionTest extends TestCase
     public function testGetCollectivePayload(): void
     {
         $collection = new LineItemCollection([
-            (new LineItem('A', 'temp', 1))->setPayload(['foo' => 'bar']),
-            (new LineItem('B', 'temp', 1))->setPayload(['bar' => 'foo']),
+            (new LineItem('A', 'temp'))->setPayload(['foo' => 'bar']),
+            (new LineItem('B', 'temp'))->setPayload(['bar' => 'foo']),
         ]);
 
         static::assertEquals(
@@ -205,13 +205,13 @@ class LineItemCollectionTest extends TestCase
     {
         $collection = new LineItemCollection([
             (new LineItem('A', 'test'))->setStackable(true),
-            (new LineItem('A', 'test', 2))->setStackable(true),
-            (new LineItem('A', 'test', 3))->setStackable(true),
+            (new LineItem('A', 'test', null, 2))->setStackable(true),
+            (new LineItem('A', 'test', null, 3))->setStackable(true),
         ]);
 
         static::assertEquals(
             new LineItemCollection([
-                (new LineItem('A', 'test', 6))->setStackable(true),
+                (new LineItem('A', 'test', null, 6))->setStackable(true),
             ]),
             $collection
         );
@@ -230,14 +230,14 @@ class LineItemCollectionTest extends TestCase
     public function testGetLineItemByIdentifier(): void
     {
         $collection = new LineItemCollection([
-            new LineItem('A', 'test', 3),
-            new LineItem('B', 'test', 3),
-            new LineItem('C', 'test', 3),
-            new LineItem('D', 'test', 3),
+            new LineItem('A', 'test', null, 3),
+            new LineItem('B', 'test', null, 3),
+            new LineItem('C', 'test', null, 3),
+            new LineItem('D', 'test', null, 3),
         ]);
 
         static::assertEquals(
-            new LineItem('C', 'test', 3),
+            new LineItem('C', 'test', null, 3),
             $collection->get('C')
         );
     }
@@ -245,16 +245,16 @@ class LineItemCollectionTest extends TestCase
     public function testFilterGoodsReturnsOnlyGoods(): void
     {
         $collection = new LineItemCollection([
-            (new LineItem('A', 'test', 3))->setGood(true),
-            (new LineItem('B', 'test', 3))->setGood(false),
-            (new LineItem('C', 'test', 3))->setGood(false),
-            (new LineItem('D', 'test', 3))->setGood(true),
+            (new LineItem('A', 'test', null, 3))->setGood(true),
+            (new LineItem('B', 'test', null, 3))->setGood(false),
+            (new LineItem('C', 'test', null, 3))->setGood(false),
+            (new LineItem('D', 'test', null, 3))->setGood(true),
         ]);
 
         static::assertEquals(
             new LineItemCollection([
-                (new LineItem('A', 'test', 3))->setGood(true),
-                (new LineItem('D', 'test', 3))->setGood(true),
+                (new LineItem('A', 'test', null, 3))->setGood(true),
+                (new LineItem('D', 'test', null, 3))->setGood(true),
             ]),
             $collection->filterGoods()
         );
@@ -263,10 +263,10 @@ class LineItemCollectionTest extends TestCase
     public function testFilterGoodsReturnsNewCollection(): void
     {
         $collection = new LineItemCollection([
-            (new LineItem('A', 'test', 3))->setGood(true),
-            (new LineItem('B', 'test', 3))->setGood(true),
-            (new LineItem('C', 'test', 3))->setGood(true),
-            (new LineItem('D', 'test', 3))->setGood(true),
+            (new LineItem('A', 'test', null, 3))->setGood(true),
+            (new LineItem('B', 'test', null, 3))->setGood(true),
+            (new LineItem('C', 'test', null, 3))->setGood(true),
+            (new LineItem('D', 'test', null, 3))->setGood(true),
         ]);
 
         static::assertNotSame(
@@ -297,20 +297,20 @@ class LineItemCollectionTest extends TestCase
     public function testRemoveWithNoneExistingIdentifier(): void
     {
         $collection = new LineItemCollection([
-            new LineItem('A', 'test', 3),
-            new LineItem('B', 'test', 3),
-            new LineItem('C', 'test', 3),
-            new LineItem('D', 'test', 3),
+            new LineItem('A', 'test', null, 3),
+            new LineItem('B', 'test', null, 3),
+            new LineItem('C', 'test', null, 3),
+            new LineItem('D', 'test', null, 3),
         ]);
 
         $collection->remove('X');
 
         static::assertEquals(
             new LineItemCollection([
-                new LineItem('A', 'test', 3),
-                new LineItem('B', 'test', 3),
-                new LineItem('C', 'test', 3),
-                new LineItem('D', 'test', 3),
+                new LineItem('A', 'test', null, 3),
+                new LineItem('B', 'test', null, 3),
+                new LineItem('C', 'test', null, 3),
+                new LineItem('D', 'test', null, 3),
             ]),
             $collection
         );
@@ -318,21 +318,21 @@ class LineItemCollectionTest extends TestCase
 
     public function testRemoveWithNotExisting(): void
     {
-        $c = new LineItem('C', 'test', 3);
+        $c = new LineItem('C', 'test', null, 3);
 
         $collection = new LineItemCollection([
-            new LineItem('A', 'test', 3),
-            new LineItem('B', 'test', 3),
-            new LineItem('D', 'test', 3),
+            new LineItem('A', 'test', null, 3),
+            new LineItem('B', 'test', null, 3),
+            new LineItem('D', 'test', null, 3),
         ]);
 
         $collection->removeElement($c);
 
         static::assertEquals(
             new LineItemCollection([
-                new LineItem('A', 'test', 3),
-                new LineItem('B', 'test', 3),
-                new LineItem('D', 'test', 3),
+                new LineItem('A', 'test', null, 3),
+                new LineItem('B', 'test', null, 3),
+                new LineItem('D', 'test', null, 3),
             ]),
             $collection
         );

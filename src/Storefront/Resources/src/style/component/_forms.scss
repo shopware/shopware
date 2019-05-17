@@ -12,3 +12,12 @@
 @each $state, $data in $form-validation-states {
     @include custom-form-validation-state($state, map-get($data, color), map-get($data, icon));
 }
+
+//This class is used to overwrite the style applied by bootstrap on elements that don't need validation styling (e.g. checkbox that expands different shipping address)
+.was-validated .custom-control-input:valid ~ .custom-control-label.no-validation {
+    color: inherit;
+
+    &::before{
+        border-color: inherit;
+    }
+}

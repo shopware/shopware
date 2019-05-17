@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Seo\DbalIndexing\SeoUrl;
 
-use Shopware\Core\Content\Product\Util\EventIdExtractor;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -13,18 +13,12 @@ class ProductDetailPageSeoUrlIndexer extends SeoUrlIndexer
 {
     public const ROUTE_NAME = 'frontend.detail.page';
 
-    /**
-     * @var EventIdExtractor
-     */
-    private $idExtractor;
-
     public function __construct(
         EntityRepositoryInterface $salesChannelRepository,
         EventDispatcherInterface $eventDispatcher,
         SeoService $seoService,
         SalesChannelContextFactory $salesChannelContextFactory,
-        EntityRepositoryInterface $entityRepository,
-        EventIdExtractor $idExtractor
+        EntityRepositoryInterface $entityRepository
     ) {
         parent::__construct(
             $salesChannelRepository,
@@ -34,11 +28,16 @@ class ProductDetailPageSeoUrlIndexer extends SeoUrlIndexer
             self::ROUTE_NAME,
             $entityRepository
         );
-        $this->idExtractor = $idExtractor;
     }
 
     public function extractIds(EntityWrittenContainerEvent $event): array
     {
-        return $this->idExtractor->getProductIds($event);
+        $nested = $event->getEventByDefinition(ProductDefinition::class);
+
+        if ($nested) {
+            return $nested->getIds();
+        }
+
+        return [];
     }
 }

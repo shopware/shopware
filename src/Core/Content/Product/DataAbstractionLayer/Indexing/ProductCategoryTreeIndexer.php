@@ -3,8 +3,8 @@
 namespace Shopware\Core\Content\Product\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\Util\EventIdExtractor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -26,11 +26,6 @@ class ProductCategoryTreeIndexer implements IndexerInterface
     private $eventDispatcher;
 
     /**
-     * @var EventIdExtractor
-     */
-    private $eventIdExtractor;
-
-    /**
      * @var Connection
      */
     private $connection;
@@ -48,12 +43,10 @@ class ProductCategoryTreeIndexer implements IndexerInterface
     public function __construct(
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
-        EventIdExtractor $eventIdExtractor,
         IteratorFactory $iteratorFactory,
         ProductDefinition $productDefinition
     ) {
         $this->eventDispatcher = $eventDispatcher;
-        $this->eventIdExtractor = $eventIdExtractor;
         $this->connection = $connection;
         $this->iteratorFactory = $iteratorFactory;
         $this->productDefinition = $productDefinition;
@@ -87,7 +80,20 @@ class ProductCategoryTreeIndexer implements IndexerInterface
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
-        $ids = $this->eventIdExtractor->getProductIds($event);
+        $ids = [];
+
+        $nested = $event->getEventByDefinition(ProductDefinition::class);
+        if ($nested) {
+            $ids = $nested->getIds();
+        }
+
+        $nested = $event->getEventByDefinition(ProductCategoryDefinition::class);
+        if ($nested) {
+            foreach ($nested->getIds() as $id) {
+                $ids[] = $id['productId'];
+            }
+        }
+
         $this->update($ids, $event->getContext());
     }
 

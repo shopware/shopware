@@ -57,6 +57,26 @@ class Uuid
         return $uuid;
     }
 
+    public static function fromBytesToHexList(array $bytesList): array
+    {
+        $converted = [];
+        foreach ($bytesList as $key => $bytes) {
+            $converted[$key] = self::fromBytesToHex($bytes);
+        }
+
+        return $converted;
+    }
+
+    public static function fromHexToBytesList(array $uuids): array
+    {
+        $converted = [];
+        foreach ($uuids as $key => $uuid) {
+            $converted[$key] = self::fromHexToBytes($uuid);
+        }
+
+        return $converted;
+    }
+
     /**
      * @throws InvalidUuidException
      */

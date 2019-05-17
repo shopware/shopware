@@ -89,8 +89,8 @@
 {% endblock %}
 
 {% block page_checkout_aside_actions %}
-    {% block page_checkout_cart_add_promotion %}
-        <div class="checkout-aside-action">
+    <div class="checkout-aside-action">
+        {% block page_checkout_cart_add_promotion %}
             <form action="{{ path('frontend.checkout.promotion.add') }}"
                   class="cart-add-promotion"
                   method="post">
@@ -124,15 +124,59 @@
                                 <button class="btn btn-dark"
                                         type="submit"
                                         id="addPromotion">
-                                    {% sw_icon 'checkmark'%}
+                                    {% sw_icon 'checkmark' %}
                                 </button>
                             </div>
                         {% endblock %}
                     </div>
                 {% endblock %}
             </form>
-        </div>
-    {% endblock %}
+        {% endblock %}
+
+        {% block page_checkout_cart_shipping_costs %}
+            <form name="precalc" method="post" action="{{ path('frontend.checkout.configure') }}" data-form-auto-submit="true">
+                {% block page_checkout_cart_shipping_costs_trigger %}
+                    <a class="btn btn-primary" data-toggle="collapse" href="#collapseShippingCost" role="button" aria-expanded="false" aria-controls="collapseExample">
+                        {{ "checkout.shippingCosts"|trans }}
+                    </a>
+                {% endblock %}
+
+                {% block page_checkout_cart_shipping_costs_form_group %}
+                    <div class="collapse" id="collapseShippingCost">
+                        <div class="form-group">
+                            {% block page_checkout_cart_shipping_costs_form_group_country %}
+                                <label for="countryId">{{ "checkout.shippingCountry"|trans }}</label>
+                                <select class="form-control" type="text" id="countryId" name="countryId">
+                                    {% for country in page.countries %}
+                                        <option value="{{ country.id }}"{% if country.id == page.context.shippingLocation.country.id %} selected="selected"{% endif %}>{{ country.translated.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            {% endblock %}
+
+                            {% block page_checkout_cart_shipping_costs_form_group_payment_method %}
+                                <label for="paymentMethodId">{{ "checkout.paymentMethod"|trans }}</label>
+                                <select class="form-control" type="text" id="paymentMethodId" name="paymentMethodId">
+                                    {% for payment in page.paymentMethods %}
+                                        <option value="{{ payment.id }}"{% if payment.id == page.context.paymentMethod.id %} selected="selected"{% endif %}>{{ payment.translated.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            {% endblock %}
+
+                            {% block page_checkout_cart_shipping_costs_form_group_shipping_method %}
+                                <label for="shippingMethodId">{{ "checkout.shippingMethod"|trans }}</label>
+                                <select class="form-control" type="text" id="shippingMethodId" name="shippingMethodId">
+                                    {% for shipping in page.shippingMethods %}
+                                        <option value="{{ shipping.id }}"{% if shipping.id == page.context.shippingMethod.id %} selected="selected"{% endif %}>{{ shipping.translated.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            {% endblock %}
+                            <input type="hidden" name="redirectTo" value="frontend.checkout.cart.page">
+                        </div>
+                    </div>
+                {% endblock %}
+            </form>
+        {% endblock %}
+    </div>
 
     {% block page_checkout_cart_action_proceed %}
         <div class="checkout-aside-action">

@@ -21,30 +21,6 @@
                         </div>
                     {% endblock %}
 
-                    {# todo NEXT-1949 #}
-                    {#{% if not page.context.customer %}#}
-                        {#<form name="precalc" method="post" action="{{ path('frontend.checkout.configure') }}">#}
-                            {#<input type="hidden" name="redirectTo" value="frontend.checkout.cart.page">#}
-                            {#<select name="countryId">#}
-                                {#{% for country in page.countries %}#}
-                                    {#<option value="{{ country.id }}"{% if country.id == page.context.shippingLocation.countryId %} selected="selected"{% endif %}>{{ country.translated.name }}</option>#}
-                                {#{% endfor %}#}
-                            {#</select>#}
-                            {#<select type="text" name="paymentMethodId">#}
-                                {#{% for payment in page.paymentMethods %}#}
-                                    {#<option value="{{ payment.id }}"{% if payment.id == page.context.paymentMethod.id %} selected="selected"{% endif %}>{{ payment.translated.name }}</option>#}
-                                {#{% endfor %}#}
-                            {#</select>#}
-                            {#<select type="text" name="shippingMethodId">#}
-                                {#{% for shipping in page.shippingMethods %}#}
-                                    {#<option value="{{ shipping.id }}"{% if shipping.id == page.context.shippingMethod.id %} selected="selected"{% endif %}>{{ shipping.translated.name }}</option>#}
-                                {#{% endfor %}#}
-                            {#</select>#}
-                            {#<input type="hidden" name="redirectTo" value="frontend.checkout.cart.page">#}
-                            {#<button type="submit">calculateShippingCosts</button>#}
-                        {#</form>#}
-                    {#{% endif %}#}
-
                     {% block page_checkout_aside %}
                         <div class="checkout-aside js-reload-on-confirm-change">
                             {% block page_checkout_aside_container %}

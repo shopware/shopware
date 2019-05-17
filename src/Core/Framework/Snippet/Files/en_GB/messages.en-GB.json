@@ -261,7 +261,11 @@
         "finishInfoConfirmationMail": "We have sent you the order confirmation by email.",
         "finishButtonBackToShop": "Back to the shop",
         "codeAddedSuccessful": "Code was added successfully",
-        "addToCartSuccess": "{1} 1 item successfully added to cart.|]1,Inf[ %count% items successfully added to cart."
+        "addToCartSuccess": "{1} 1 item successfully added to cart.|]1,Inf[ %count% items successfully added to cart.",
+        "shippingCosts": "Shipping Costs",
+        "shippingCountry": "Shipping country",
+        "paymentMethod": "Payment method",
+        "shippingMethod": "Shipping method"
     },
     "listing": {
         "boxUnitLabel": "Content:",

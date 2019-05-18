@@ -1,15 +1,14 @@
-/* Styling of general things and icons */
+/*
+ * Styles for a Shopware-themed test runner
+ */
 
+/* Styling of general things and icons */
 .reporter .stats li.passed,
 .reporter .command-is-pinned > span > .command-wrapper .command-pin,
 .reporter .command-name-xhr .fa-circle.successful,
 .reporter .command-name-request .fa-circle.successful,
 .reporter .runnable.runnable-passed > .runnable-wrapper .runnable-state {
     color: #189eff;
-}
-
-.reporter .stats li.pending {
-    color: #39546466;
 }
 
 .reporter .stats li.failed,
@@ -20,7 +19,7 @@
 }
 
 .reporter .commands-container {
-    background-color: #eef8ff;
+    background-color: #eceff3;
 }
 
 /* Fonts */
@@ -32,15 +31,14 @@
 .runner .viewport-info button,
 .runner header button i,
 .reporter header button {
-    color: #142432;
+    color: #2b354b;
 }
 
 .runner .iframes-container {
-    background-color: #eef8ff;
+    background-color: #2b354b;
 }
 
 /* Styling of passed state */
-
 .reporter .runnable.test.runnable-passed > .runnable-wrapper,
 .reporter .runnable.suite.runnable-passed > div > .runnable-wrapper {
     border-left: 10px solid #189eff;
@@ -63,17 +61,41 @@
 }
 
 .reporter .controls .toggle-auto-scrolling.auto-scrolling-enabled i:first-child {
-    color: #189eff66;
+    color: #b46fff;
+}
+
+/* Styling of pending state */
+.reporter .stats li.pending,
+.reporter .runnable.runnable-pending > .runnable-wrapper .runnable-state,
+.reporter .runnable.runnable-pending > .runnable-wrapper .runnable-title {
+    color: #b46fff;
+}
+
+.reporter .runnable.test.runnable-pending > .runnable-wrapper,
+.reporter .runnable.suite.runnable-pending > div > .runnable-wrapper {
+    border-left: 10px solid #b46fff;
+}
+
+.reporter .command-name-assert.command-state-pending .command-method span,
+.num-elements {
+    background-color: #b46fff;
+}
+
+.reporter .command-wrapper .command-alias.route,
+.reporter .command-wrapper .command-alias.route span,
+.reporter .instruments-container .route-alias,
+.reporter .command-wrapper .num-duplicates, .reporter .command-wrapper .command-alias-count {
+    background-color: #b46fff;
+    color: #eceff3;
 }
 
 /* Failed state styling */
-
 .reporter .runnable pre:hover {
-    color: #142432;
+    color: #2b354b;
     background-color: #14243233;
 }
 .reporter .runnable pre {
-    color: #142432;
+    color: #2b354b;
     background-color: #1424321A;
 }
 

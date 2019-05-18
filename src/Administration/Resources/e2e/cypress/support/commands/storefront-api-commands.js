@@ -1,3 +1,6 @@
+const _ = require('lodash');
+const uuid = require('uuid/v4');
+
 /**
  * Get the sales channel Id via Admin API
  * @memberOf Cypress.Chainable#
@@ -52,7 +55,7 @@ Cypress.Commands.add('storefrontApiRequest', (method, endpoint, header = {}, bod
         return cy.request(requestConfig).then((result) => {
             return result.body.data;
         });
-    })
+    });
 });
 
 /**
@@ -62,10 +65,9 @@ Cypress.Commands.add('storefrontApiRequest', (method, endpoint, header = {}, bod
  * @function
  */
 Cypress.Commands.add('getRandomProductInformationForCheckout', () => {
-    var sample = require('lodash.sample');
+    const sample = require('lodash.sample');
     return cy.storefrontApiRequest('GET', 'product').then((result) => {
         const randomProduct = sample(result);
-        console.log('index :', randomProduct);
 
         return {
             id: randomProduct.id,
@@ -74,6 +76,28 @@ Cypress.Commands.add('getRandomProductInformationForCheckout', () => {
             gross: randomProduct.price.gross,
             listingPrice: randomProduct.calculatedListingPrice.unitPrice,
             url: `/detail/${randomProduct.id}`
-        }
-    })
+        };
+    });
+});
+
+/**
+ * Returns random product with id, name and url to view product
+ * @memberOf Cypress.Chainable#
+ * @name getRandomProductInformationForCheckout
+ * @function
+ */
+Cypress.Commands.add('setContextToken', () => {
+    const sample = require('lodash.sample');
+    return cy.storefrontApiRequest('GET', 'product').then((result) => {
+        const randomProduct = sample(result);
+
+        return {
+            id: randomProduct.id,
+            name: randomProduct.name,
+            net: randomProduct.price.net,
+            gross: randomProduct.price.gross,
+            listingPrice: randomProduct.calculatedListingPrice.unitPrice,
+            url: `/detail/${randomProduct.id}`
+        };
+    });
 });

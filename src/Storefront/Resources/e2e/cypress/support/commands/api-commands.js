@@ -14,9 +14,8 @@ Cypress.Commands.add('authenticate', () => {
             scopes: Cypress.env('scope') ? Cypress.env('scope') : 'write',
             username: Cypress.env('username') ? Cypress.env('user') : 'admin',
             password: Cypress.env('password') ? Cypress.env('pass') : 'shopware'
-        }).then((responseData) => {
-        console.log('responseData :', responseData);
-
+        }
+    ).then((responseData) => {
         return {
             access: responseData.body.access_token,
             refresh: responseData.body.refresh_token,
@@ -35,8 +34,8 @@ Cypress.Commands.add('setLocaleToEnGb', () => {
     cy.authenticate().then(() => {
         return cy.window().then((win) => {
             win.localStorage.setItem('sw-admin-locale', Cypress.env('locale'));
-        })
-    })
+        });
+    });
 });
 
 /**
@@ -144,7 +143,6 @@ Cypress.Commands.add('createViaAdminApi', (data) => {
         `${Cypress.env('apiPath')}/${data.endpoint}?response=true`,
         data
     ).then((responseData) => {
-        console.log('responseData :', responseData);
         return responseData;
     });
 });
@@ -157,6 +155,8 @@ Cypress.Commands.add('createViaAdminApi', (data) => {
  * @param {Object} data - Necessary data for the API request
  */
 Cypress.Commands.add('searchViaAdminApi', (data) => {
+    console.log('data :', data);
+    
     const filters = {
         filter: [{
             field: data.data.field,

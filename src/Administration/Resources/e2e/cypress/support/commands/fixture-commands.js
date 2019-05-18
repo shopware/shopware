@@ -1,4 +1,8 @@
-const createUuid = require('uuid/v4');
+import ProductFixture from '../service/administration/fixture/product.fixture';
+import CustomerFixture from '../service/administration/fixture/customer.fixture';
+import ShippingFixture from '../service/administration/fixture/shipping.fixture';
+import OrderFixture from '../service/saleschannel/fixture/order.fixture';
+import Fixture from '../service/administration/fixture.service';
 
 /**
  * Search for an existing entity using Shopware API at the given endpoint
@@ -8,17 +12,19 @@ const createUuid = require('uuid/v4');
  * @param {String} endpoint - API endpoint for the request
  * @param {Object} [options={}] - Options concerning deletion
  */
-Cypress.Commands.add("createDefaultFixture", (endpoint) => {
+Cypress.Commands.add('createDefaultFixture', (endpoint, data = {}) => {
+    const fixture = new Fixture();
+    let finalRawData = {};
+
     return cy.fixture(endpoint).then((json) => {
-        return cy.createViaAdminApi({
-            endpoint: endpoint,
-            data: json
-        })
+        finalRawData = Cypress._.merge(json, data);
+
+        return fixture.create(endpoint, finalRawData);
     });
 });
 
 /**
- * Search for an existing entity using Shopware API at the given endpoint
+ * Remove existing entity using Shopware API at the given endpoint
  * @memberOf Cypress.Chainable#
  * @name removeFixtureByName
  * @function
@@ -26,7 +32,7 @@ Cypress.Commands.add("createDefaultFixture", (endpoint) => {
  * @param {String} endpoint - API endpoint for the request
  * @param {Object} [options={}] - Options concerning deletion [options={}]
  */
-Cypress.Commands.add("removeFixtureByName", (name, endpoint, options = {}) => {
+Cypress.Commands.add('removeFixtureByName', (name, endpoint, options = {}) => {
     return cy.searchViaAdminApi({
         endpoint: endpoint,
         data: {
@@ -34,59 +40,26 @@ Cypress.Commands.add("removeFixtureByName", (name, endpoint, options = {}) => {
             value: name
         }
     }).then((result) => {
-        return cy.deleteViaAdminApi(endpoint, result.id)
-    })
+        return cy.deleteViaAdminApi(endpoint, result.id);
+    });
 });
 
 /**
- * Search for an existing entity using Shopware API at the given endpoint
+ * Create product fixture using Shopware API at the given endpoint
  * @memberOf Cypress.Chainable#
  * @name createProductFixture
  * @function
  * @param {String} endpoint - API endpoint for the request
  * @param {Object} [options={}] - Options concerning creation
  */
-Cypress.Commands.add("createProductFixture", (endpoint, options = {}) => {
-    let json = {};
-    let manufacturerId = '';
-    let categoryId = '';
+Cypress.Commands.add('createProductFixture', (userData = {}) => {
+    const fixture = new ProductFixture();
 
-    return cy.fixture(endpoint).then((result) => {
-        json = result;
-
-        return cy.createDefaultFixture('category')
-    }).then((result) => {
-        categoryId = result;
-
-        return cy.searchViaAdminApi({
-            endpoint: 'product-manufacturer',
-            data: {
-                field: 'name',
-                value: options.manufacturerName
-            }
-        })
-    }).then((result) => {
-        manufacturerId = result.id;
-
-        return cy.searchViaAdminApi({
-            endpoint: 'tax',
-            data: {
-                field: 'name',
-                value: options.taxName
-            }
-        })
-    }).then((result) => {
-        return Object.assign({}, {
-            taxId: result.id,
-            manufacturerId: manufacturerId,
-            categoryId: categoryId
-        }, json);
-    }).then((result) => {
-        return cy.createViaAdminApi({
-            endpoint: endpoint,
-            data: result
-        })
-    })
+    return cy.fixture('product').then((result) => {
+        return Cypress._.merge(result, userData);
+    }).then((data) => {
+        return fixture.setProductFixture(data);
+    });
 });
 
 /**
@@ -95,7 +68,7 @@ Cypress.Commands.add("createProductFixture", (endpoint, options = {}) => {
  * @name setProductFixtureVisibility
  * @function
  */
-Cypress.Commands.add("setProductFixtureVisibility", () => {
+Cypress.Commands.add('setProductFixtureVisibility', () => {
     let salesChannelId = '';
     let productId = '';
 
@@ -114,7 +87,7 @@ Cypress.Commands.add("setProductFixtureVisibility", () => {
                 field: 'name',
                 value: 'Product name'
             }
-        })
+        });
     }).then((result) => {
         productId = result.id;
 
@@ -127,13 +100,7 @@ Cypress.Commands.add("setProductFixtureVisibility", () => {
             }
         });
     }).then(() => {
-        return cy.searchViaAdminApi({
-            endpoint: 'category',
-            data: {
-                field: 'name',
-                value: 'MainCategory'
-            }
-        })
+        return cy.createDefaultFixture('category');
     }).then((result) => {
         return cy.updateViaAdminApi('product', productId, {
             data: {
@@ -142,5 +109,173 @@ Cypress.Commands.add("setProductFixtureVisibility", () => {
                 }]
             }
         });
-    })
+    });
+});
+
+/**
+ * Create customer fixture using Shopware API at the given endpoint
+ * @memberOf Cypress.Chainable#
+ * @name createCustomerFixture
+ * @function
+ * @param {Object} [userData={}] - Options concerning creation
+ */
+Cypress.Commands.add('createCustomerFixture', (userData = {}) => {
+    const fixture = new CustomerFixture();
+    let customerJson = null;
+
+    return cy.fixture('customer').then((result) => {
+        customerJson = Cypress._.merge(result, userData);
+        return cy.fixture('customer-address');
+    }).then((data) => {
+        return fixture.setCustomerFixture(customerJson, data);
+    });
+});
+
+/**
+ * Create property fixture using Shopware API at the given endpoint
+ * @memberOf Cypress.Chainable#
+ * @name createPropertyFixture
+ * @function
+ * @param {Object} [options={}] - Options concerning creation
+ * @param {Object} [userData={}] - Options concerning creation
+ */
+Cypress.Commands.add('createPropertyFixture', (options, userData) => {
+    let json = {};
+
+    return cy.fixture('property-group').then((result) => {
+        json = Cypress._.merge(result, options);
+    }).then(() => {
+        return Cypress._.merge(json, userData);
+    }).then((result) => {
+        return cy.createViaAdminApi({
+            endpoint: 'property-group',
+            data: result
+        });
+    });
+});
+
+/**
+ * Create language fixture using Shopware API at the given endpoint
+ * @memberOf Cypress.Chainable#
+ * @name createLanguageFixture
+ * @function
+ */
+Cypress.Commands.add('createLanguageFixture', () => {
+    let json = {};
+
+    return cy.fixture('language').then((result) => {
+        json = result;
+
+        return cy.searchViaAdminApi({
+            endpoint: 'locale',
+            data: {
+                field: 'code',
+                value: 'en-PH'
+            }
+        });
+    }).then((result) => {
+        return {
+            name: json.name,
+            localeId: result.id,
+            parentId: json.parentId
+        };
+    }).then((result) => {
+        return cy.createViaAdminApi({
+            endpoint: 'language',
+            data: result
+        });
+    });
+});
+
+/**
+ * Create shipping fixture using Shopware API at the given endpoint
+ * @memberOf Cypress.Chainable#
+ * @name createShippingFixture
+ * @function
+ * @param {Object} [options={}] - Options concerning creation
+ */
+Cypress.Commands.add('createShippingFixture', (userData) => {
+    const fixture = new ShippingFixture();
+
+    return cy.fixture('shipping-method').then((result) => {
+        return Cypress._.merge(result, userData);
+    }).then((data) => {
+        return fixture.setShippingFixture(data);
+    });
+});
+
+/**
+ * Create snippet fixture using Shopware API at the given endpoint
+ * @memberOf Cypress.Chainable#
+ * @name createSnippetFixture
+ * @function
+ * @param {Object} [options={}] - Options concerning creation
+ */
+Cypress.Commands.add('createSnippetFixture', (options) => {
+    let json = {};
+    let languageId = '';
+
+    return cy.fixture('snippet').then((result) => {
+        json = result;
+
+        return cy.searchViaAdminApi({
+            endpoint: 'language',
+            data: {
+                field: 'name',
+                value: 'English'
+            }
+        });
+    }).then((result) => {
+        languageId = result.id;
+
+        return cy.searchViaAdminApi({
+            endpoint: 'snippet-set',
+            data: {
+                field: 'name',
+                value: 'BASE en-GB'
+            }
+        });
+    }).then((result) => {
+        return Cypress._.merge(json, {
+            languageId: languageId,
+            setId: result.id
+        });
+    }).then((result) => {
+        return cy.createViaAdminApi({
+            endpoint: 'snippet',
+            data: result
+        });
+    });
+});
+
+/**
+ * Create guest order fixture
+ * @memberOf Cypress.Chainable#
+ * @name createGuestOrder
+ * @function
+ * @param {String} productId - Options concerning creation
+ * @param {Object} [userData={}] - Options concerning creation
+ */
+Cypress.Commands.add('createGuestOrder', (productId, userData) => {
+    const fixture = new OrderFixture();
+
+    return cy.fixture('storefront-customer').then((result) => {
+        return Cypress._.merge(result, userData);
+    }).then((data) => {
+        return fixture.createGuestOrder(productId, data);
+    });
+});
+
+/**
+ * Search for an existing entity using Shopware API at the given endpoint
+ * @memberOf Cypress.Chainable#
+ * @name setToInitialState
+ * @function
+ */
+Cypress.Commands.add('setToInitialState', () => {
+    return cy.log('Cleaning, please wait a little bit.').then(() => {
+        return cy.cleanUpPreviousState();
+    }).then(() => {
+        return cy.setLocaleToEnGb();
+    });
 });

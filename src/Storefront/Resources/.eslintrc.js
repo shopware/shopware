@@ -1,6 +1,7 @@
 const isDevMode = process.env.NODE_ENV !== 'production';
 
 module.exports = {
+  root: true,
   'extends': 'eslint:recommended',
   'parser': 'babel-eslint',
   'env': {

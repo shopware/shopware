@@ -52,7 +52,7 @@ Cypress.Commands.add('storefrontApiRequest', (method, endpoint, header = {}, bod
         return cy.request(requestConfig).then((result) => {
             return result.body.data;
         });
-    })
+    });
 });
 
 /**
@@ -62,10 +62,9 @@ Cypress.Commands.add('storefrontApiRequest', (method, endpoint, header = {}, bod
  * @function
  */
 Cypress.Commands.add('getRandomProductInformationForCheckout', () => {
-    var sample = require('lodash.sample');
+    const sample = require('lodash.sample');
     return cy.storefrontApiRequest('GET', 'product').then((result) => {
         const randomProduct = sample(result);
-        console.log('index :', randomProduct);
 
         return {
             id: randomProduct.id,
@@ -74,6 +73,6 @@ Cypress.Commands.add('getRandomProductInformationForCheckout', () => {
             gross: randomProduct.price.gross,
             listingPrice: randomProduct.calculatedListingPrice.unitPrice,
             url: `/detail/${randomProduct.id}`
-        }
-    })
+        };
+    });
 });

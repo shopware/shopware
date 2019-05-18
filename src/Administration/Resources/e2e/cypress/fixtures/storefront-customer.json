@@ -1,0 +1,10 @@
+{
+  "firstName": "Max",
+  "lastName": "Mustermann",
+  "email": "max.mustermann@example.com",
+  "billingAddress": {
+    "street": "Buchenweg 5",
+    "zipcode": "33602",
+    "city": "Bielefeld"
+  }
+}

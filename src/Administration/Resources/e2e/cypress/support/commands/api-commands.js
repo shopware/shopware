@@ -4,7 +4,7 @@
  * @name authenticate
  * @function
  */
-Cypress.Commands.add("authenticate", () => {
+Cypress.Commands.add('authenticate', () => {
     return cy.request(
         'POST',
         '/api/oauth/token',
@@ -14,9 +14,8 @@ Cypress.Commands.add("authenticate", () => {
             scopes: Cypress.env('scope') ? Cypress.env('scope') : 'write',
             username: Cypress.env('username') ? Cypress.env('user') : 'admin',
             password: Cypress.env('password') ? Cypress.env('pass') : 'shopware'
-        }).then((responseData) => {
-            console.log('responseData :', responseData);
-
+        }
+    ).then((responseData) => {
         return {
             access: responseData.body.access_token,
             refresh: responseData.body.refresh_token,
@@ -26,37 +25,21 @@ Cypress.Commands.add("authenticate", () => {
 });
 
 /**
- * Switches administration UI locale to EN_GB
- * @memberOf Cypress.Chainable#
- * @name setLocaleToEnGb
- * @function
- */
-Cypress.Commands.add("setLocaleToEnGb", () => {
-    cy.authenticate().then(() => {
-        return cy.window().then((win) => {
-            win.localStorage.setItem('sw-admin-locale', Cypress.env('locale'));
-        })
-    })
-});
-
-/**
  * Logs in silently using Shopware API
  * @memberOf Cypress.Chainable#
  * @name loginViaApi
  * @function
  */
-Cypress.Commands.add("loginViaApi", () => {
+Cypress.Commands.add('loginViaApi', () => {
     return cy.authenticate().then((result) => {
         return cy.window().then((win) => {
             win.localStorage.setItem('bearerAuth', JSON.stringify(result));
             // Return bearer token
-            return localStorage.getItem('bearerAuth');
+            return win.localStorage.getItem('bearerAuth');
         }, [result], (data) => {
             if (!data.value) {
                 cy.login('admin');
             }
-        }).then(() => {
-            cy.visit(Cypress.env('admin'));
         });
     });
 });
@@ -67,7 +50,7 @@ Cypress.Commands.add("loginViaApi", () => {
  * @name requestAdminApi
  * @function
  */
-Cypress.Commands.add("requestAdminApi", (method, url, requestData = {}) => {
+Cypress.Commands.add('requestAdminApi', (method, url, requestData = {}) => {
     return cy.authenticate().then((result) => {
         const requestConfig = {
             headers: {
@@ -102,7 +85,7 @@ Cypress.Commands.add("requestAdminApi", (method, url, requestData = {}) => {
  * @name searchRequestAdminApi
  * @function
  */
-Cypress.Commands.add("searchRequestAdminApi", (method, url, requestData = {}) => {
+Cypress.Commands.add('searchRequestAdminApi', (method, url, requestData = {}) => {
     return cy.authenticate().then((result) => {
         const requestConfig = {
             headers: {
@@ -136,15 +119,14 @@ Cypress.Commands.add("searchRequestAdminApi", (method, url, requestData = {}) =>
  * @memberOf Cypress.Chainable#
  * @name createViaAdminApi
  * @function
- * @param {Object} data - Necessary  for the API request
+ * @param {Object} data - Necessary for the API request
  */
-Cypress.Commands.add("createViaAdminApi", (data) => {
+Cypress.Commands.add('createViaAdminApi', (data) => {
     return cy.requestAdminApi(
         'POST',
         `${Cypress.env('apiPath')}/${data.endpoint}?response=true`,
         data
     ).then((responseData) => {
-        console.log('responseData :', responseData);
         return responseData;
     });
 });
@@ -156,7 +138,7 @@ Cypress.Commands.add("createViaAdminApi", (data) => {
  * @function
  * @param {Object} data - Necessary data for the API request
  */
-Cypress.Commands.add("searchViaAdminApi", (data) => {
+Cypress.Commands.add('searchViaAdminApi', (data) => {
     const filters = {
         filter: [{
             field: data.data.field,
@@ -182,7 +164,7 @@ Cypress.Commands.add("searchViaAdminApi", (data) => {
  * @param {String} endpoint - API endpoint for the request
  * @param {String} id - Id of the entity to be deleted
  */
-Cypress.Commands.add("deleteViaAdminApi", (endpoint, id) => {
+Cypress.Commands.add('deleteViaAdminApi', (endpoint, id) => {
     return cy.requestAdminApi('DELETE', `${Cypress.env('apiPath')}/${endpoint}/${id}`).then((responseData) => {
         return responseData;
     });
@@ -197,7 +179,7 @@ Cypress.Commands.add("deleteViaAdminApi", (endpoint, id) => {
  * @param {String} id - Id of the entity to be updated
  * @param {Object} data - Necessary data for the API request
  */
-Cypress.Commands.add("updateViaAdminApi", (endpoint, id, data) => {
+Cypress.Commands.add('updateViaAdminApi', (endpoint, id, data) => {
     return cy.requestAdminApi('PATCH', `${Cypress.env('apiPath')}/${endpoint}/${id}`, data).then((responseData) => {
         return responseData;
     });

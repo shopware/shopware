@@ -1,0 +1,11 @@
+{
+  "name": "Product name",
+  "stock": 1,
+  "productNumber": "RS-333",
+  "descriptionLong": "Product description",
+  "price": {
+    "net": 42,
+    "gross": 64
+  },
+  "url": "/product-name.html"
+}

@@ -1,4 +1,4 @@
-import PageObject from "../../../support/pages/sw-general.page-object";
+import PageObject from "../../support/pages/sw-general.page-object";
 
 describe('Administration: Check module navigation', function () {
     it('check product module', function () {

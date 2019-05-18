@@ -4,7 +4,7 @@
  * @name activateShopwareTheme
  * @function
  */
-Cypress.Commands.add("activateShopwareTheme", () => {
+Cypress.Commands.add('activateShopwareTheme', () => {
     const { join } = require('path');
     const isStyleLoaded = $head => $head.find('#cypress-dark').length > 0;
     const themeFilename = join(__dirname, './../../../src/shopware.css');

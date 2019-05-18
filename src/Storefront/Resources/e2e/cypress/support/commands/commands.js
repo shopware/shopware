@@ -31,7 +31,7 @@
  * @function
  * @param {Object} userType - The type of the user logging in
  */
-Cypress.Commands.add("login", (userType) => {
+Cypress.Commands.add('login', (userType) => {
     cy.server();
     cy.route('api/v1/*').as('getApi');
     const types = {
@@ -244,7 +244,7 @@ Cypress.Commands.add('clickContextMenuItem', (menuButtonSelector, menuOpenSelect
  * @param {String} obj.subMenuId - Id of the sub menu item
  */
 Cypress.Commands.add('clickMainMenuItem', ({ targetPath, mainMenuId, subMenuId = null }) => {
-    let finalMenuItem = `.sw-admin-menu__item--${mainMenuId}`;
+    const finalMenuItem = `.sw-admin-menu__item--${mainMenuId}`;
 
     cy.get('.sw-admin-menu').should('be.visible').then(() => {
         if (subMenuId) {

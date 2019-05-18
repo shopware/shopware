@@ -8,7 +8,7 @@ const createUuid = require('uuid/v4');
  * @param {String} endpoint - API endpoint for the request
  * @param {Object} [options={}] - Options concerning deletion
  */
-Cypress.Commands.add("createDefaultFixture", (endpoint) => {
+Cypress.Commands.add('createDefaultFixture', (endpoint) => {
     return cy.fixture(endpoint).then((json) => {
         return cy.createViaAdminApi({
             endpoint: endpoint,
@@ -26,7 +26,7 @@ Cypress.Commands.add("createDefaultFixture", (endpoint) => {
  * @param {String} endpoint - API endpoint for the request
  * @param {Object} [options={}] - Options concerning deletion [options={}]
  */
-Cypress.Commands.add("removeFixtureByName", (name, endpoint, options = {}) => {
+Cypress.Commands.add('removeFixtureByName', (name, endpoint, options = {}) => {
     return cy.searchViaAdminApi({
         endpoint: endpoint,
         data: {
@@ -46,7 +46,7 @@ Cypress.Commands.add("removeFixtureByName", (name, endpoint, options = {}) => {
  * @param {String} endpoint - API endpoint for the request
  * @param {Object} [options={}] - Options concerning creation
  */
-Cypress.Commands.add("createProductFixture", (endpoint, options = {}) => {
+Cypress.Commands.add('createProductFixture', (endpoint, options = {}) => {
     let json = {};
     let manufacturerId = '';
     let categoryId = '';
@@ -95,7 +95,7 @@ Cypress.Commands.add("createProductFixture", (endpoint, options = {}) => {
  * @name setProductFixtureVisibility
  * @function
  */
-Cypress.Commands.add("setProductFixtureVisibility", () => {
+Cypress.Commands.add('setProductFixtureVisibility', () => {
     let salesChannelId = '';
     let productId = '';
 

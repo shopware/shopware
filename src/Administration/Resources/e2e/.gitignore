@@ -31,5 +31,11 @@ typings/
 .yarn-integrity
 
 # temp
-/temp/*
-!/temp/.gitkeep
+/cypress/screenshots/*
+/cypress/videos/*
+build/
+
+.idea/
+dist/
+
+!**/.gitkeep

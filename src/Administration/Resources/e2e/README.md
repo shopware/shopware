@@ -1,99 +1,83 @@
-# E2E test suite
+# sw-cypress
 
-The E2E test suite is a mono repository for Nightwatch.js tests. The tests are split up into multiple repositories for
-a better scalability and getting it independent from the administration.
+This is a project dealing with the implementation of E2E tests for the [Shopware platform project](https://github.com/shopware/platform) using Cypress framework.
 
-## Features
-* ES6 support using `babel-register`
-* Split up code base in repositories
-    * Custom commands, spec folders, globals & custom config per section
-* Node.js path resolver will be extended
-    * Relative paths are no longer necessary
-* Support for `tag`, `skiptags` & `groups` using a PSH parameter
-* ESLint support using a custom configuration
+## Setup
+Shopware platform itself is not shipped with this project. This way, you need a running environment with a shopware platform repository. For more details about the setup steps, please refer to Shopware platform's [getting started guide](https://docs.shopware.com/en/shopware-platform-dev-en/getting-started).
 
-## Installation
-The test suite is independent from the administration and has its own `package.json` to work with. Therefore the test
-suite needs to be installed as well:
+At first, clone this project in a folder you like. After that, you can just run the tests in a Docker container (see below).
 
-```bash
-./psh.phar e2e:init
+## One thing to keep in mind
+
+Please notice that these Cypress tests in `cypress/integration/administration` rely on a clean installation without any custom or demo data. 
+
+When it comes to storefront tests, they don't rely on a specific dataset, but do need at least one entity of a kind to be available! E.g. one product, one customer, etc.
+
+One possibility to fulfill these requirements is the following
+
+| shell helper | test folder    |
+| ------------ |:--------------:|
+| psh install  | storefront     |
+| psh init     | administration |
+
+## Install Cypress
+
+The easiest way to install Cypress and all npm dependencies into your project folder is this docker helper:
+
+```
+docker run -ti --rm -v "$(pwd)":/cypress -v npm-root-cache:/root/.cache --workdir /cypress cypress/browsers:node11.13.0-chrome73 npm ci
 ```
 
-## Running tests
+You can also follow the [Cypress installation guide](https://docs.cypress.io/guides/getting-started/installing-cypress.html) for a manual installation. 
 
-After the installation of the dependencies, tests can be executed using PSH:
+## Configure Cypress
 
-```bash
-./psh.phar e2e:run
+### Environment 
+Some environment variable are needed to run Cypress with Shopware platform properly. Those environment variables have
+to be available thorough a `cypress.env.json` file. 
+
+We provide an example you can use out of the box. 
+Therefore, just copy `cypress.env.json.example` in the same folder and remove the `.example` of the file name in the 
+process. Afterwards, feel free to configure the environment variables according to your needs. 
+
+### Appearance
+By default, we use the shopware theme for Cypress test runner. IF you don't want to use it, please set the following to `false`:
+```
+"useShopwareTheme": true
 ```
 
-### Additional parameters
-It's possible to add additional Nightwatch.js parameters using the PSH parameter `--NIGHTWATCH_PARAMS`. 
-
-```bash
-./psh.phar e2e:run --NIGHTWATCH_PARAMS="--tag sales-channel"
+In this test suite, we integrated [cypress-dark plugin](https://github.com/bahmutov/cypress-dark) 
+to provide a dark mode for the test runner as well. You can activate it through setting the following variable in `cypress.json`:
+```
+"useDarkTheme": false
 ```
 
-### Run a different repo
-Running a different repository is as simple as providing an additional PSH parameter.
+## Run Cypress
 
-```bash
-./psh.phar e2e:run --NIGHTWATCH_ENV="installer"
+### Run tests in Docker
+
+Now you can run your tests in a Docker container:
+
+```
+docker run -ti --rm -v "$(pwd)":/cypress -v npm-root-cache:/root/.cache --workdir /cypress cypress/browsers:node11.13.0-chrome73 ./node_modules/cypress/bin/cypress run
 ```
 
-## Structure
-The test suite is separated into the different section (called repository) of Shopware. Each repository can have their
-own configuration file and therefore their own globals, src directory, globals file and settings.
+### Run tests on your machine (and watch them)
 
-```bash
-└── repos
-    ├── administration
-    │   ├── custom-commands
-    │   ├── specs
-    │   ├── globals.js
-    │   └── nightwatch.conf.js
-    └── installer
-        ├── specs
-        └── nightwatch.conf.js
-```
+You can also run the tests on your machine and watch them running with `cypress run`.
 
-Please keep in mind a `nightwatch.conf.js` file is mandatory when the repository needs custom commands, globals or launch_url etc. 
 
-## Running ESLint
-The test suite provides two additional NPM scripts which are used for ESLint:
+### Run only Storefront-Tests
 
-```bash
-npm run lint # Runs ESLint
-npm run fix  # Runs ESLint and automatically fixes errors
-```
+If you only want to run the Storefront-Tests simply add `--spec "cypress/integration/storefront/**/*"` to the `cypress open` command.
 
-## Additional path resolving
-The test suite extends the Node.js path resolving which results in clean path when requiring modules. The folder `repos`
-will be added so paths can be absolute starting from this folder.
+### Run tests against a remote URL
 
-In the following example we're loading a module from the administration page objects in a nested test spec:
+You can override the baseUrl to test a remote Shopware Installation by passing the `--config baseUrl=https://<remote-hostname>/` param.
 
-```js
-/** Before */
-require('../../../page-objects/sw-integration.page-object.js');
+## Further information
 
-/** After */
-require('administration/page-objects/sw-integration.page-object.js');
-```
-
-## ES6 support
-We're using `babel-register` to support ES6 features in the specs, page-objects and custom command files. Please keep in
-mind that `babel-register` hooks into Node.js's `require` function to transpiles the files on-the-fly which results
-in a slower startup and has a higher memory-consuming.
-
-## Headless Mode
-Nightwatch.js will be started in headless mode. If you want to watch what Nightwatch.js is doing, you can use the PSH
-parameter `NIGHTWATCH_HEADLESS`:
-
-```bash
-./psh.phar e2e:run --NIGHTWATCH_HEADLESS="false"
-```
-
-## Further documentation
-You can find a detailed documentation about the E2E test suite in the official [Shopware docs](https://docs.shopware.com/en/shopware-platform-en/testing).
+* [Cypress documentation](https://docs.cypress.io/guides/overview/why-cypress.html)
+* [Shopware platform documentation](https://docs.shopware.com/en/shopware-platform-dev-en)
+* [Shopware development template](https://github.com/shopware/development)
+* [Shopware platform project](https://github.com/shopware/platform) 

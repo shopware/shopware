@@ -24,15 +24,24 @@
             padding-top: 0;
             border-bottom: 0;
         }
-    }
 
-    .cart-item-link {
-        display: inline-block;
-    }
+        &.is-nested,
+        &.is-child {
+            padding-left: $spacer;
+        }
 
-    .cart-item-image {
-        border: solid 1px $border-color;
-        background: $white;
+        &.is-nested {
+            .cart-item-img {
+                background: none;
+                border: 0;
+            }
+        }
+
+        &.is-discount {
+            .cart-item-price {
+                color: $success;
+            }
+        }
     }
 
     .cart-item-link {
@@ -76,12 +85,3 @@
 .offcanvas-cart-promotion-form {
     margin-bottom: $spacer;
 }
-
-@include media-breakpoint-down(xs) {
-    .offcanvas-cart {
-        .cart-item-image {
-            margin-right: 10px;
-        }
-    }
-}
-

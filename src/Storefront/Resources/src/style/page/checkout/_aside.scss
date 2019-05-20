@@ -13,11 +13,9 @@
 
 .checkout-aside-item {
     margin-bottom: $spacer;
-
-    .aside-item-price {
-        font-weight: $font-weight-bold;
-        text-align: right;
-    }
 }
 
-
+.checkout-aside-item-price {
+    font-weight: $font-weight-bold;
+    text-align: right;
+}

@@ -214,8 +214,6 @@ class CartLineItemController extends StorefrontController
                 $lineItem->setStackable($lineItemData->getBoolean('stackable', true));
                 $lineItem->setRemovable($lineItemData->getBoolean('removable', true));
 
-                $lineItem->setPayloadValue('id', $lineItem->getId());
-
                 $count += $lineItem->getQuantity();
 
                 $this->cartService->add($cart, $lineItem, $context);

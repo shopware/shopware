@@ -66,7 +66,7 @@ class CartPromotionsCollector implements CollectorInterface
         /** @var LineItem $lineItem */
         foreach ($promotionLineItems as $lineItem) {
             if ($this->isPromotionLineItem($lineItem) && $lineItem->hasPayloadValue('code')) {
-                $placeholderItemIds[] = $lineItem->getKey();
+                $placeholderItemIds[] = $lineItem->getId();
             }
         }
 
@@ -228,7 +228,7 @@ class CartPromotionsCollector implements CollectorInterface
             return false;
         }
 
-        return substr($lineItem->getKey(), 0, strlen(PromotionItemBuilder::PLACEHOLDER_PREFIX)) === PromotionItemBuilder::PLACEHOLDER_PREFIX;
+        return substr($lineItem->getId(), 0, strlen(PromotionItemBuilder::PLACEHOLDER_PREFIX)) === PromotionItemBuilder::PLACEHOLDER_PREFIX;
     }
 
     /**
@@ -258,7 +258,7 @@ class CartPromotionsCollector implements CollectorInterface
         /** @var LineItem $lineItem */
         foreach ($promotionLineItems as $lineItem) {
             // if our line item is in our list of Ids then collect that code.
-            if (!in_array($lineItem->getKey(), $lineItemIDs, true)) {
+            if (!in_array($lineItem->getId(), $lineItemIDs, true)) {
                 continue;
             }
 

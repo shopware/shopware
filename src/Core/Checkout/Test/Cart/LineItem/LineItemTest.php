@@ -17,9 +17,9 @@ class LineItemTest extends TestCase
      */
     public function testCreateLineItem(): void
     {
-        $lineItem = new LineItem('A', 'type', 1);
+        $lineItem = new LineItem('A', 'type');
 
-        static::assertEquals('A', $lineItem->getKey());
+        static::assertEquals('A', $lineItem->getId());
         static::assertEquals('type', $lineItem->getType());
         static::assertEquals(1, $lineItem->getQuantity());
     }
@@ -30,7 +30,7 @@ class LineItemTest extends TestCase
     public function testCreateLineItemWithInvalidQuantity(): void
     {
         $this->expectException(InvalidQuantityException::class);
-        new LineItem('A', 'type', -1);
+        new LineItem('A', 'type', null, -1);
     }
 
     /**
@@ -40,7 +40,7 @@ class LineItemTest extends TestCase
     public function testChangeLineItemToInvalidQuantity(): void
     {
         $this->expectException(InvalidQuantityException::class);
-        $lineItem = new LineItem('A', 'type', 1);
+        $lineItem = new LineItem('A', 'type');
         $lineItem->setQuantity(0);
     }
 
@@ -50,7 +50,7 @@ class LineItemTest extends TestCase
      */
     public function testChangeLineItemQuantity(): void
     {
-        $lineItem = new LineItem('A', 'type', 1);
+        $lineItem = new LineItem('A', 'type');
         $lineItem->setStackable(true);
         $lineItem->setQuantity(5);
         static::assertEquals(5, $lineItem->getQuantity());
@@ -63,7 +63,7 @@ class LineItemTest extends TestCase
     public function testChangeNonStackableLineItemQuantity(): void
     {
         $this->expectException(LineItemNotStackableException::class);
-        $lineItem = new LineItem('A', 'type', 1);
+        $lineItem = new LineItem('A', 'type');
         $lineItem->setStackable(false);
         $lineItem->setQuantity(5);
         static::assertEquals(1, $lineItem->getQuantity());
@@ -76,14 +76,14 @@ class LineItemTest extends TestCase
      */
     public function testChangeQuantityOfParentLineItem(): void
     {
-        $lineItem = (new LineItem('A', 'type', 1))->setStackable(true);
+        $lineItem = (new LineItem('A', 'type'))->setStackable(true);
 
-        $child1 = (new LineItem('A.1', 'child', 3))->setStackable(true);
-        $child2 = (new LineItem('A.2', 'child', 2))->setStackable(true);
-        $child3 = (new LineItem('A.3', 'child', 1))->setStackable(true);
+        $child1 = (new LineItem('A.1', 'child', null, 3))->setStackable(true);
+        $child2 = (new LineItem('A.2', 'child', null, 2))->setStackable(true);
+        $child3 = (new LineItem('A.3', 'child'))->setStackable(true);
 
-        $child4 = (new LineItem('A.3.1', 'child', 5))->setStackable(true);
-        $child5 = (new LineItem('A.3.2', 'child', 10))->setStackable(true);
+        $child4 = (new LineItem('A.3.1', 'child', null, 5))->setStackable(true);
+        $child5 = (new LineItem('A.3.2', 'child', null, 10))->setStackable(true);
 
         $child3->setChildren(new LineItemCollection([$child4, $child5]));
 
@@ -124,16 +124,16 @@ class LineItemTest extends TestCase
      */
     public function testChangeQuantityOfParentLineItemWithNonStackableChildren(): void
     {
-        $lineItem = new LineItem('A', 'type', 1);
+        $lineItem = new LineItem('A', 'type');
 
-        $child1 = new LineItem('A.1', 'child', 3);
-        $child2 = new LineItem('A.2', 'child', 2);
+        $child1 = new LineItem('A.1', 'child', null, 3);
+        $child2 = new LineItem('A.2', 'child', null, 2);
         $child2->setStackable(false);
-        $child3 = new LineItem('A.3', 'child', 1);
+        $child3 = new LineItem('A.3', 'child');
         $child3->setStackable(false);
 
-        $child4 = new LineItem('A.3.1', 'child', 5);
-        $child5 = new LineItem('A.3.2', 'child', 10);
+        $child4 = new LineItem('A.3.1', 'child', null, 5);
+        $child5 = new LineItem('A.3.2', 'child', null, 10);
 
         $child3->setChildren(new LineItemCollection([$child4, $child5]));
 
@@ -176,11 +176,11 @@ class LineItemTest extends TestCase
      */
     public function testAddChildrenToLineItemWithInvalidQuantity(): void
     {
-        $lineItem = new LineItem('A', 'type', 15);
+        $lineItem = new LineItem('A', 'type', null, 15);
 
-        $child1 = new LineItem('A.1', 'child', 3);
-        $child2 = new LineItem('A.2', 'child', 2);
-        $child3 = new LineItem('A.3', 'child', 1);
+        $child1 = new LineItem('A.1', 'child', null, 3);
+        $child2 = new LineItem('A.2', 'child', null, 2);
+        $child3 = new LineItem('A.3', 'child');
 
         $this->expectException(InvalidChildQuantityException::class);
 
@@ -196,11 +196,11 @@ class LineItemTest extends TestCase
      */
     public function testSetChildrenToLineItemWithInvalidQuantity(): void
     {
-        $lineItem = new LineItem('A', 'type', 15);
+        $lineItem = new LineItem('A', 'type', null, 15);
 
-        $child1 = new LineItem('A.1', 'child', 3);
-        $child2 = new LineItem('A.2', 'child', 2);
-        $child3 = new LineItem('A.3', 'child', 1);
+        $child1 = new LineItem('A.1', 'child', null, 3);
+        $child2 = new LineItem('A.2', 'child', null, 2);
+        $child3 = new LineItem('A.3', 'child');
 
         $this->expectException(InvalidChildQuantityException::class);
 

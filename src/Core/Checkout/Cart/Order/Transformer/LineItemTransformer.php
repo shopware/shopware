@@ -33,7 +33,7 @@ class LineItemTransformer
 
         $data = [
             'id' => $id,
-            'identifier' => $lineItem->getKey(),
+            'identifier' => $lineItem->getId(),
             'quantity' => $lineItem->getQuantity(),
             'type' => $lineItem->getType(),
             'label' => $lineItem->getLabel(),
@@ -48,7 +48,7 @@ class LineItemTransformer
             'payload' => $lineItem->getPayload(),
         ];
 
-        $output[$lineItem->getKey()] = array_filter($data, function ($value) {
+        $output[$lineItem->getId()] = array_filter($data, function ($value) {
             return $value !== null;
         });
 

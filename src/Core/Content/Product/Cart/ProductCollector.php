@@ -54,10 +54,10 @@ class ProductCollector implements CollectorInterface
             if ($this->isSatisfied($lineItem)) {
                 continue;
             }
-
-            $payload = $lineItem->getPayload();
-
-            $ids[] = $payload['id'];
+            if (!$lineItem->getReferencedId()) {
+                continue;
+            }
+            $ids[] = $lineItem->getReferencedId();
         }
 
         $definitions->add(new ProductFetchDefinition($ids));
@@ -111,12 +111,12 @@ class ProductCollector implements CollectorInterface
                 continue;
             }
 
-            $id = $lineItem->getPayload()['id'];
+            $productId = $lineItem->getReferencedId();
 
-            $product = $products->get($id);
+            $product = $products->get($productId);
 
             if (!$product) {
-                throw new ProductNotFoundException($id);
+                throw new ProductNotFoundException($productId ?? 'undefined');
             }
 
             if (!$lineItem->getLabel()) {

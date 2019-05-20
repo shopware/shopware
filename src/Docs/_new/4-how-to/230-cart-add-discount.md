@@ -109,7 +109,7 @@ class AwesomeProductsCollector implements CollectorInterface
 
     private function createNewDiscountLineItem(string $name): LineItem
     {
-        $discountLineItem = new LineItem($name, 'awesome_discount', 1);
+        $discountLineItem = new LineItem($name, 'awesome_discount');
 
         $discountLineItem->setLabel('\'You are awesome!\' discount');
         $discountLineItem->setGood(false);

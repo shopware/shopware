@@ -29,7 +29,7 @@ class LineItemValidatorTest extends TestCase
     public function testValidateWithValidLineItem(): void
     {
         $cart = $this->createMock(Cart::class);
-        $lineItem = new LineItem('Key', 'fake', 1);
+        $lineItem = new LineItem('id', 'fake');
         $lineItem->setLabel('Label');
         $lineItem->setPrice($this->createMock(CalculatedPrice::class));
         $cart->expects(static::once())->method('getLineItems')->willReturn(new LineItemCollection([$lineItem]));
@@ -44,7 +44,7 @@ class LineItemValidatorTest extends TestCase
     public function testValidateWithoutLabel(): void
     {
         $cart = $this->createMock(Cart::class);
-        $lineItem = new LineItem('Key', 'fake', 1);
+        $lineItem = new LineItem('id', 'fake');
         $lineItem->setPrice($this->createMock(CalculatedPrice::class));
         $cart->expects(static::once())->method('getLineItems')->willReturn(new LineItemCollection([$lineItem]));
 
@@ -54,14 +54,14 @@ class LineItemValidatorTest extends TestCase
 
         static::assertCount(1, $errors);
         static::assertInstanceOf(IncompleteLineItemError::class, $errors->first());
-        static::assertSame('Key', $errors->first()->getKey());
+        static::assertSame('id', $errors->first()->getKey());
         static::assertSame('label', $errors->first()->getMessageKey());
     }
 
     public function testValidateWithoutPrice(): void
     {
         $cart = $this->createMock(Cart::class);
-        $lineItem = new LineItem('Key', 'fake', 1);
+        $lineItem = new LineItem('id', 'fake');
         $lineItem->setLabel('Label');
         $cart->expects(static::once())->method('getLineItems')->willReturn(new LineItemCollection([$lineItem]));
 
@@ -71,14 +71,14 @@ class LineItemValidatorTest extends TestCase
 
         static::assertCount(1, $errors);
         static::assertInstanceOf(IncompleteLineItemError::class, $errors->first());
-        static::assertSame('Key', $errors->first()->getKey());
+        static::assertSame('id', $errors->first()->getKey());
         static::assertSame('price', $errors->first()->getMessageKey());
     }
 
     public function testValidateWithoutLabelAndPrice(): void
     {
         $cart = $this->createMock(Cart::class);
-        $lineItem = new LineItem('Key', 'fake', 1);
+        $lineItem = new LineItem('id', 'fake');
         $cart->expects(static::once())->method('getLineItems')->willReturn(new LineItemCollection([$lineItem]));
 
         $validator = new LineItemValidator();
@@ -87,7 +87,7 @@ class LineItemValidatorTest extends TestCase
 
         static::assertCount(1, $errors);
         static::assertInstanceOf(IncompleteLineItemError::class, $errors->first());
-        static::assertSame('Key', $errors->first()->getKey());
+        static::assertSame('id', $errors->first()->getKey());
         static::assertSame('price', $errors->last()->getMessageKey());
     }
 }

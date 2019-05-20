@@ -61,13 +61,12 @@ class EnrichmentTest extends TestCase
 
     public function testMissingProductData(): void
     {
-        $id = Uuid::randomHex();
-        $productNumber = Uuid::randomHex();
+        $productId = Uuid::randomHex();
 
         $this->productRepository->create([
             [
-                'id' => $id,
-                'productNumber' => $productNumber,
+                'id' => $productId,
+                'productNumber' => Uuid::randomHex(),
                 'name' => 'Missing label',
                 'stock' => 1,
                 'description' => 'Missing description',
@@ -75,7 +74,7 @@ class EnrichmentTest extends TestCase
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'cover' => [
-                    'id' => $id,
+                    'id' => $productId,
                     'name' => 'test',
                     'media' => [
                         'mimeType' => 'image/jpeg',
@@ -88,10 +87,7 @@ class EnrichmentTest extends TestCase
         ], Context::createDefaultContext());
 
         $cart = new Cart('test', 'test');
-        $cart->add(
-            (new LineItem('A', 'product'))
-                ->setPayload(['id' => $id])
-        );
+        $cart->add(new LineItem('A', 'product', $productId));
 
         $enriched = $this->enrichment->enrich($cart, $this->context, new CartBehavior());
 
@@ -115,13 +111,12 @@ class EnrichmentTest extends TestCase
 
     public function testProductCollectorDoNotOverrideData(): void
     {
-        $id = Uuid::randomHex();
-        $productNumber = Uuid::randomHex();
+        $productId = Uuid::randomHex();
 
         $this->productRepository->create([
             [
-                'id' => $id,
-                'productNumber' => $productNumber,
+                'id' => $productId,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'name' => 'Missing label',
                 'description' => 'Missing description',
@@ -130,7 +125,7 @@ class EnrichmentTest extends TestCase
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'media' => [
                     [
-                        'id' => $id,
+                        'id' => $productId,
                         'name' => 'test',
                         'media' => [
                             'name' => 'test',
@@ -146,8 +141,7 @@ class EnrichmentTest extends TestCase
 
         $cart = new Cart('test', 'test');
         $cart->add(
-            (new LineItem('A', 'product'))
-                ->setPayload(['id' => $id])
+            (new LineItem('A', 'product', $productId))
                 ->setPriceDefinition(new QuantityPriceDefinition(1, new TaxRuleCollection(), 2))
                 ->setCover(
                     (new MediaEntity())->assign([

@@ -15,11 +15,11 @@ class LineItemValidator implements CartValidatorInterface
         /** @var LineItem $lineItem */
         foreach ($cart->getLineItems()->getFlat() as $lineItem) {
             if ($lineItem->getLabel() === null) {
-                $errorCollection->add(new IncompleteLineItemError($lineItem->getKey(), 'label'));
+                $errorCollection->add(new IncompleteLineItemError($lineItem->getId(), 'label'));
             }
 
             if ($lineItem->getPrice() === null) {
-                $errorCollection->add(new IncompleteLineItemError($lineItem->getKey(), 'price'));
+                $errorCollection->add(new IncompleteLineItemError($lineItem->getId(), 'price'));
             }
         }
     }

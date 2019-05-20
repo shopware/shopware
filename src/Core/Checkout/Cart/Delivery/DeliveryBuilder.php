@@ -49,7 +49,7 @@ class DeliveryBuilder
             $quantity = $item->getQuantity();
 
             $position = new DeliveryPosition(
-                $item->getKey(),
+                $item->getId(),
                 clone $item,
                 $quantity,
                 $item->getPrice(),
@@ -70,7 +70,7 @@ class DeliveryBuilder
             //completely out of stock? add full quantity to a delivery with same of out stock delivery date
             if ($item->getDeliveryInformation()->getStock() <= 0) {
                 $position = new DeliveryPosition(
-                    $item->getKey(),
+                    $item->getId(),
                     clone $item,
                     $quantity,
                     $item->getPrice(),
@@ -137,7 +137,7 @@ class DeliveryBuilder
         $price = $this->priceCalculator->calculate($definition, $context);
 
         return new DeliveryPosition(
-            $item->getKey(),
+            $item->getId(),
             clone $item,
             $quantity,
             $price,

@@ -25,7 +25,12 @@ class LineItem extends Struct
     /**
      * @var string
      */
-    protected $key;
+    protected $id;
+
+    /**
+     * @var string|null
+     */
+    protected $referencedId;
 
     /**
      * @var string|null
@@ -105,15 +110,16 @@ class LineItem extends Struct
     /**
      * @throws InvalidQuantityException
      */
-    public function __construct(string $key, string $type, int $quantity = 1)
+    public function __construct(string $id, string $type, ?string $referencedId = null, int $quantity = 1)
     {
-        $this->key = $key;
+        $this->id = $id;
         $this->type = $type;
         $this->children = new LineItemCollection();
 
         if ($quantity < 1) {
             throw new InvalidQuantityException($quantity);
         }
+        $this->referencedId = $referencedId;
         $this->quantity = $quantity;
     }
 
@@ -122,7 +128,7 @@ class LineItem extends Struct
      */
     public static function createFromLineItem(LineItem $lineItem): self
     {
-        $self = new static($lineItem->key, $lineItem->type, $lineItem->quantity);
+        $self = new static($lineItem->id, $lineItem->type, $lineItem->getReferencedId(), $lineItem->quantity);
 
         $vars = get_object_vars($lineItem);
         foreach ($vars as $property => $value) {
@@ -132,16 +138,26 @@ class LineItem extends Struct
         return $self;
     }
 
-    public function getKey(): string
+    public function getId(): string
     {
-        return $this->key;
+        return $this->id;
     }
 
-    public function setKey(string $key): self
+    public function setId(string $id): self
     {
-        $this->key = $key;
+        $this->id = $id;
 
         return $this;
+    }
+
+    public function getReferencedId(): ?string
+    {
+        return $this->referencedId;
+    }
+
+    public function setReferencedId(?string $referencedId): void
+    {
+        $this->referencedId = $referencedId;
     }
 
     public function getLabel(): ?string
@@ -172,7 +188,7 @@ class LineItem extends Struct
         }
 
         if (!$this->isStackable()) {
-            throw new LineItemNotStackableException($this->key);
+            throw new LineItemNotStackableException($this->id);
         }
 
         if ($this->hasChildren()) {
@@ -211,7 +227,7 @@ class LineItem extends Struct
     public function getPayloadValue(string $key): string
     {
         if (!$this->hasPayloadValue($key)) {
-            throw new PayloadKeyNotFoundException($key, $this->getKey());
+            throw new PayloadKeyNotFoundException($key, $this->getId());
         }
 
         return $this->payload[$key];
@@ -228,7 +244,7 @@ class LineItem extends Struct
     public function removePayloadValue(string $key): void
     {
         if (!$this->hasPayloadValue($key)) {
-            throw new PayloadKeyNotFoundException($key, $this->getKey());
+            throw new PayloadKeyNotFoundException($key, $this->getId());
         }
         unset($this->payload[$key]);
     }
@@ -239,7 +255,7 @@ class LineItem extends Struct
     public function setPayloadValue(string $key, $value): self
     {
         if (!is_string($key) || ($value !== null && !is_scalar($value) && !is_array($value))) {
-            throw new InvalidPayloadException($key, $this->getKey());
+            throw new InvalidPayloadException($key, $this->getId());
         }
 
         $this->payload[$key] = $value;

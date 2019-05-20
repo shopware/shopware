@@ -48,7 +48,7 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
         $cart = new Cart('test', Uuid::randomHex());
 
         $lineItemCollection = new LineItemCollection();
-        $lineItemCollection->add((new LineItem('dummyWithShippingCost', 'product', 3))->setDeliveryInformation(
+        $lineItemCollection->add((new LineItem('dummyWithShippingCost', 'product', null, 3))->setDeliveryInformation(
                 new DeliveryInformation(
                     9999,
                     50.0,
@@ -58,7 +58,7 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
                 )
             ));
         $lineItemCollection->add(
-            (new LineItem('dummyNoShippingCost', 'product', 3))->setDeliveryInformation(
+            (new LineItem('dummyNoShippingCost', 'product', null, 3))->setDeliveryInformation(
                 new DeliveryInformation(
                     9999,
                     50.0,
@@ -84,7 +84,7 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
 
         $lineItemCollection = new LineItemCollection();
         $lineItemCollection->add(
-            (new LineItem('dummyNoShippingCost', 'product', 3))->setDeliveryInformation(
+            (new LineItem('dummyNoShippingCost', 'product', null, 3))->setDeliveryInformation(
                 new DeliveryInformation(
                     9999,
                     50.0,
@@ -128,7 +128,7 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
 
         $lineItemCollection = new LineItemCollection();
         $lineItemCollection->add(
-            (new LineItem('dummyNoShippingCost', 'product', 3))->setDeliveryInformation(
+            (new LineItem('dummyNoShippingCost', 'product', null, 3))->setDeliveryInformation(
                 new DeliveryInformation(
                     9999,
                     50.0,
@@ -153,7 +153,7 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
         $cart = new Cart('test', Uuid::randomHex());
 
         $lineItemCollection = new LineItemCollection();
-        $lineItemCollection->add((new LineItem('dummyWithShippingCost', 'product', 3))->setDeliveryInformation(
+        $lineItemCollection->add((new LineItem('dummyWithShippingCost', 'product', null, 3))->setDeliveryInformation(
             new DeliveryInformation(
                 9999,
                 50.0,
@@ -163,7 +163,7 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
             )
         ));
         $lineItemCollection->add(
-            (new LineItem('dummyNoShippingCost', 'product', 3))->setDeliveryInformation(
+            (new LineItem('dummyNoShippingCost', 'product', null, 3))->setDeliveryInformation(
                 new DeliveryInformation(
                     9999,
                     50.0,

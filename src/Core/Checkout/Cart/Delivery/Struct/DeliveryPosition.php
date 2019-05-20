@@ -50,7 +50,7 @@ class DeliveryPosition extends Struct
     public static function createByLineItemForInStockDate(LineItem $lineItem): self
     {
         return new self(
-            $lineItem->getKey(),
+            $lineItem->getId(),
             clone $lineItem,
             $lineItem->getQuantity(),
             $lineItem->getPrice(),
@@ -61,7 +61,7 @@ class DeliveryPosition extends Struct
     public static function createByLineItemForOutOfStockDate(LineItem $lineItem): self
     {
         return new self(
-            $lineItem->getKey(),
+            $lineItem->getId(),
             clone $lineItem,
             $lineItem->getQuantity(),
             $lineItem->getPrice(),

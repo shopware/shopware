@@ -92,7 +92,7 @@ class OrderRecalculationController extends AbstractController
         $type = LineItem::CREDIT_LINE_ITEM_TYPE;
         $quantity = $request->request->getInt('quantity', 1);
 
-        $lineItem = new LineItem($identifier, $type, $quantity);
+        $lineItem = new LineItem($identifier, $type, null, $quantity);
         $label = $request->request->get('label');
         $description = $request->request->get('description');
         $removeable = $request->request->get('removeable', true);
@@ -138,7 +138,7 @@ class OrderRecalculationController extends AbstractController
         $type = $request->request->get('type', LineItem::PRODUCT_LINE_ITEM_TYPE);
         $quantity = $request->request->getInt('quantity', 1);
 
-        $lineItem = new LineItem($identifier, $type, $quantity);
+        $lineItem = new LineItem($identifier, $type, null, $quantity);
         $this->updateLineItemByRequest($request, $lineItem, $context);
 
         $this->recalculationService->addCustomLineItem($orderId, $lineItem, $context);

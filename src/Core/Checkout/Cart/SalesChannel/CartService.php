@@ -136,7 +136,7 @@ class CartService
     {
         $cart->add($item);
 
-        $lineItem = $cart->get($item->getKey());
+        $lineItem = $cart->get($item->getId());
 
         if ($lineItem) {
             $lineItem->setPriceDefinition(null);

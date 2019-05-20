@@ -73,7 +73,7 @@ class PromotionItemBuilderTest extends TestCase
 
         $item = $builder->buildDiscountLineItem($this->promotion, $discount, 1);
 
-        static::assertEquals('D5', $item->getKey());
+        static::assertEquals('D5', $item->getId());
     }
 
     /**

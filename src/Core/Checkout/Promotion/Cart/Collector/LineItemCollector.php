@@ -57,7 +57,7 @@ class LineItemCollector
         foreach ($lineItems as $lineItem) {
             $itemScope = new LineItemScope($lineItem, $context);
             if ($this->doesRuleCollectionMatchsLineItem($discountRuleCollection, $itemScope)) {
-                $matchingLineItems[$lineItem->getKey()] = $lineItem;
+                $matchingLineItems[$lineItem->getId()] = $lineItem;
             }
         }
 
@@ -76,7 +76,7 @@ class LineItemCollector
 
         /** @var LineItem $lineItem */
         foreach ($lineItems as $lineItem) {
-            $eligibleItems[] = $lineItem->getKey();
+            $eligibleItems[] = $lineItem->getId();
         }
 
         return $eligibleItems;
@@ -109,7 +109,7 @@ class LineItemCollector
 
         /** @var LineItem $lineItem */
         foreach ($lineItems as $lineItem) {
-            $lineItemKeys[] = $lineItem->getKey();
+            $lineItemKeys[] = $lineItem->getId();
         }
 
         return $lineItemKeys;

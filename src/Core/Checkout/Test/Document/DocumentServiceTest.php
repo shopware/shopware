@@ -182,10 +182,9 @@ class DocumentServiceTest extends TestCase
             shuffle($keywords);
             $name = ucfirst(implode($keywords, ' ') . ' product');
             $cart->add(
-                (new LineItem((string) $i, 'product_' . $i, $quantity))
+                (new LineItem((string) $i, 'product_' . $i, null, $quantity))
                     ->setPriceDefinition(new QuantityPriceDefinition($price, new TaxRuleCollection([new TaxRule($taxRate)]), $quantity))
                     ->setLabel($name)
-                    ->setPayloadValue('id', '1')
                     ->setStackable(true)
                     ->setDeliveryInformation($deliveryInformation)
             );

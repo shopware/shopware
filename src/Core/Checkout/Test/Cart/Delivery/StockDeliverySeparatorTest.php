@@ -118,7 +118,7 @@ class StockDeliverySeparatorTest extends TestCase
     {
         $location = self::createShippingLocation();
 
-        $itemA = (new LineItem('A', 'product', 5))
+        $itemA = (new LineItem('A', 'product', null, 5))
             ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
             ->setDeliveryInformation(
                 new DeliveryInformation(
@@ -130,7 +130,7 @@ class StockDeliverySeparatorTest extends TestCase
                 )
             );
 
-        $itemB = (new LineItem('B', 'product', 5))
+        $itemB = (new LineItem('B', 'product', null, 5))
             ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
             ->setDeliveryInformation(
                 new DeliveryInformation(
@@ -156,8 +156,8 @@ class StockDeliverySeparatorTest extends TestCase
         $delivery = $deliveries->first();
         static::assertCount(2, $delivery->getPositions());
 
-        static::assertContains($itemA->getKey(), $delivery->getPositions()->getKeys());
-        static::assertContains($itemB->getKey(), $delivery->getPositions()->getKeys());
+        static::assertContains($itemA->getId(), $delivery->getPositions()->getKeys());
+        static::assertContains($itemB->getId(), $delivery->getPositions()->getKeys());
     }
 
     public function testOutOfStockItemsCanBeDelivered(): void
@@ -166,7 +166,7 @@ class StockDeliverySeparatorTest extends TestCase
 
         $context = Generator::createSalesChannelContext(null, null, null, null, null, null, $location->getCountry(), $location->getState());
 
-        $itemA = (new LineItem('A', 'product', 5))
+        $itemA = (new LineItem('A', 'product', null, 5))
             ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
             ->setDeliveryInformation(
                 new DeliveryInformation(
@@ -178,7 +178,7 @@ class StockDeliverySeparatorTest extends TestCase
                 )
             );
 
-        $itemB = (new LineItem('B', 'product', 5))
+        $itemB = (new LineItem('B', 'product', null, 5))
             ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
             ->setDeliveryInformation(
                 new DeliveryInformation(
@@ -219,7 +219,7 @@ class StockDeliverySeparatorTest extends TestCase
         $location = self::createShippingLocation();
         $context = Generator::createSalesChannelContext(null, null, null, null, null, null, $location->getCountry(), $location->getState());
 
-        $product = (new LineItem('A', 'product', 5))
+        $product = (new LineItem('A', 'product', null, 5))
             ->setPrice(new CalculatedPrice(1, 5, new CalculatedTaxCollection(), new TaxRuleCollection(), 5))
             ->setDeliveryInformation(
                 new DeliveryInformation(
@@ -231,7 +231,7 @@ class StockDeliverySeparatorTest extends TestCase
                 )
             );
 
-        $calculatedLineItem = (new LineItem('B', 'product', 5))
+        $calculatedLineItem = (new LineItem('B', 'product', null, 5))
             ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
         $deliveries = new DeliveryCollection();
@@ -263,7 +263,7 @@ class StockDeliverySeparatorTest extends TestCase
 
         $context = Generator::createSalesChannelContext(null, null, null, null, null, null, $location->getCountry(), $location->getState());
 
-        $product = (new LineItem('A', 'product', 12))
+        $product = (new LineItem('A', 'product', null, 12))
             ->setPrice(new CalculatedPrice(1.19, 14.28, new CalculatedTaxCollection([new CalculatedTax(1.9, 19, 11.90)]), new TaxRuleCollection([new TaxRule(19)]), 12))
             ->setDeliveryInformation(
                 new DeliveryInformation(

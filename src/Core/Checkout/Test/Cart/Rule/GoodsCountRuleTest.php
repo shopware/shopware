@@ -352,15 +352,15 @@ class GoodsCountRuleTest extends TestCase
                 'operator' => GoodsCountRule::OPERATOR_LTE,
             ]);
 
-        $item = new LineItem('1', 'test', 1);
+        $item = new LineItem('1', 'test');
         $item->setGood(true);
         $item->setPrice(new CalculatedPrice(40, 40, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
-        $item2 = new LineItem('2', 'test', 1);
+        $item2 = new LineItem('2', 'test');
         $item2->setGood(true);
         $item2->setPrice(new CalculatedPrice(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
-        $item3 = new LineItem('3', 'test-not-matching', 1);
+        $item3 = new LineItem('3', 'test-not-matching');
         $item3->setGood(true);
         $item3->setPrice(new CalculatedPrice(30, 30, new CalculatedTaxCollection(), new TaxRuleCollection()));
 

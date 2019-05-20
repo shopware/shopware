@@ -19,7 +19,6 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Validation\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -236,7 +235,7 @@ class LineItemsInCartCountRuleTest extends TestCase
     private function addLineItemsToCart(Cart $cart): Cart
     {
         $lineItemCollection = new LineItemCollection();
-        $lineItemCollection->add((new LineItem('dummyWithShippingCost', 'product', 3))->setDeliveryInformation(
+        $lineItemCollection->add((new LineItem('dummyWithShippingCost', 'product', null, 3))->setDeliveryInformation(
             new DeliveryInformation(
                 9999,
                 50.0,
@@ -246,7 +245,7 @@ class LineItemsInCartCountRuleTest extends TestCase
             )
         ));
         $lineItemCollection->add(
-            (new LineItem('dummyNoShippingCost', 'product', 3))->setDeliveryInformation(
+            (new LineItem('dummyNoShippingCost', 'product', null, 3))->setDeliveryInformation(
                 new DeliveryInformation(
                     9999,
                     50.0,

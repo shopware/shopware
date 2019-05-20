@@ -38,7 +38,7 @@ class LineItemsInCartRule extends Rule
 
         $elements = $scope->getCart()->getLineItems()->getFlat();
         $identifiers = array_map(function (LineItem $element) {
-            return $element->hasPayloadValue('id') ? $element->getPayloadValue('id') : null;
+            return $element->getReferencedId() ? $element->getReferencedId() : null;
         }, $elements);
 
         switch ($this->operator) {

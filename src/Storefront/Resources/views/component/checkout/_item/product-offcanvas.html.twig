@@ -1,5 +1,5 @@
 {% block component_offcanvas_product %}
-    {% set productId = lineItem.key %}
+    {% set productId = lineItem.id %}
     <div class="cart-item cart-item-{{ lineItem.type }} js-cart-item">
         <div class="row cart-item-row">
             {% block component_offcanvas_product_image %}
@@ -52,7 +52,7 @@
                 <div class="col-2 cart-item-remove">
                     {% block component_offcanvas_product_remove_form %}
                         {% if lineItem.isRemovable() %}
-                            <form action="{{ path('frontend.checkout.line-item.delete', {'id': lineItem.key}) }}"
+                            <form action="{{ path('frontend.checkout.line-item.delete', {'id': lineItem.id}) }}"
                                   class="cart-item-remove js-offcanvas-cart-remove-product"
                                   method="post">
                                 <input type="hidden" name="_method" value="POST">

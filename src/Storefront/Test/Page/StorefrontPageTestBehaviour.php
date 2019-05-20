@@ -76,8 +76,7 @@ trait StorefrontPageTestBehaviour
     {
         $product = $this->getRandomProduct($context);
 
-        $lineItem = (new LineItem($product->getId(), LineItem::PRODUCT_LINE_ITEM_TYPE, 1))
-                    ->setPayload(['id' => $product->getId()])
+        $lineItem = (new LineItem($product->getId(), LineItem::PRODUCT_LINE_ITEM_TYPE, $product->getId()))
                     ->setRemovable(true)
                     ->setStackable(true);
 

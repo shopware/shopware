@@ -77,6 +77,6 @@ class PromotionItemBuilderPlaceholderTest extends TestCase
 
         $item = $builder->buildPlaceholderItem('CODE-123', 1);
 
-        static::assertEquals('promotion-CODE-123', $item->getKey());
+        static::assertEquals('promotion-CODE-123', $item->getId());
     }
 }

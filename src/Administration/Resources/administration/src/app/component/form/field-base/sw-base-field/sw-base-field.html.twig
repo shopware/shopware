@@ -7,8 +7,8 @@
                           @inheritance-restore="$emit('inheritance-restore')">
         </sw-field-inherit>
 
-        <label v-if="label" :for="identification">
-            {{ label }}{{ required ? '*' : '' }}
+        <label v-if="label" :for="identification" :class="swFieldLabelClasses">
+            {{ label }}
         </label>
 
         <sw-help-text class="sw-field__help-text" :text="helpText" v-if="helpText"></sw-help-text>

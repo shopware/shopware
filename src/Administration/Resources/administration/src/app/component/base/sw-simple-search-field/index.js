@@ -49,14 +49,6 @@ export default {
             type: String,
             required: false,
             default: 'small-search'
-        },
-
-        placeholder: {
-            type: String,
-            required: false,
-            default() {
-                return this.$tc('global.sw-simple-search-field.defaultPlaceholder');
-            }
         }
     },
 
@@ -65,6 +57,10 @@ export default {
             return [
                 `sw-simple-search-field--${this.variant}`
             ];
+        },
+
+        placeholder() {
+            return this.$attrs.placeholder || this.$tc('global.sw-simple-search-field.defaultPlaceholder');
         },
 
         onSearchTermChanged() {

@@ -14,6 +14,11 @@
 							   class="product-image-link">
 								{% if product.cover.media.url %}
 									<img class="product-image is-{{ displayMode }}"
+                                         {% if displayMode == 'cover' %}
+										 	data-object-fit="cover"
+										 {% elseif displayMode == 'contain' %}
+										 	data-object-fit="contain"
+										 {% endif %}
 										 src="{{ product.cover.media.url }}"
 										 alt="{{ product.cover.media.alt }}">
 								{% else %}

@@ -13,6 +13,14 @@
 							   title="{{ product.translated.name }}"
 							   class="product-image-link">
 								{% if product.cover.media.url %}
+									{# fallback if display mode is not set #}
+									{% set displayMode = displayMode ?: 'cover' %}
+
+									{# set display mode 'cover' for box-image with standard display mode #}
+                                    {% if layout == 'image' and displayMode == 'standard' %}
+                                        {% set displayMode = 'cover' %}
+                                    {% endif %}
+
 									<img class="product-image is-{{ displayMode }}"
                                          {% if displayMode == 'cover' %}
 										 	data-object-fit="cover"

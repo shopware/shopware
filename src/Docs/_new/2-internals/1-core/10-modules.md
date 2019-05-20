@@ -35,13 +35,13 @@ All core modules encapsulate domain concepts and provide a varying number of ext
 
 #### Cart <span class="tip is--primary">Custom actions</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Business Event Dispatcher</span> <span class="tip is--primary">Extension</span> <span class="tip is--primary">Custom Rules</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Checkout/Cart)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Checkout/Cart) 
 
 Cart processes
 
 #### Customer <span class="tip is--primary">Data store</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Business Event Dispatcher</span> <span class="tip is--primary">Extension</span> <span class="tip is--primary">Custom Rules</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Checkout/Customer)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Checkout/Customer) 
 
 SalesChannel Customer
 
@@ -49,7 +49,7 @@ SalesChannel Customer
 
 #### DiscountSurcharge <span class="tip is--primary">Data store</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Checkout/DiscountSurcharge)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Checkout/DiscountSurcharge) 
 
 Discounts and Surcharges
 
@@ -57,7 +57,7 @@ Discounts and Surcharges
 
 #### Order <span class="tip is--primary">Data store</span> <span class="tip is--primary">Custom actions</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Checkout/Order)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Checkout/Order) 
 
 Order management
 
@@ -65,7 +65,7 @@ Order management
 
 #### Payment <span class="tip is--primary">Data store</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Checkout/Payment)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Checkout/Payment) 
 
 Payment methods
 
@@ -73,7 +73,7 @@ Payment methods
 
 #### Promotion <span class="tip is--primary">Data store</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Checkout/Promotion)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Checkout/Promotion) 
 
 Promotions
 
@@ -81,7 +81,7 @@ Promotions
 
 #### Shipping <span class="tip is--primary">Data store</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Checkout/Shipping)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Checkout/Shipping) 
 
 Shipping methods
 
@@ -89,7 +89,7 @@ Shipping methods
 
 #### Category <span class="tip is--primary">Data store</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Content/Category)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Content/Category) 
 
 Product Categories
 
@@ -97,13 +97,13 @@ Product Categories
 
 #### Cms <span class="tip is--primary">Data store</span> <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Content/Cms)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Content/Cms) 
 
 Content Management System
 
 #### DeliveryTime <span class="tip is--primary">Data store</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Content/DeliveryTime)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Content/DeliveryTime) 
 
 Delivery time
 
@@ -111,7 +111,7 @@ Delivery time
 
 #### MailTemplate <span class="tip is--primary">Data store</span> <span class="tip is--primary">Custom actions</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Content/MailTemplate)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Content/MailTemplate) 
 
 Mailing
 
@@ -119,7 +119,7 @@ Mailing
 
 #### Media <span class="tip is--primary">Data store</span> <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Content/Media)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Content/Media) 
 
 Media/File management
 
@@ -127,13 +127,13 @@ Media/File management
 
 #### NewsletterReceiver <span class="tip is--primary">Data store</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Business Event Dispatcher</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Content/NewsletterReceiver)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Content/NewsletterReceiver) 
 
 Newsletter
 
 #### Product <span class="tip is--primary">Data store</span> <span class="tip is--primary">Custom actions</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Content/Product)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Content/Product) 
 
 Products and Variants
 
@@ -141,7 +141,7 @@ Products and Variants
 
 #### ProductStream <span class="tip is--primary">Data store</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Content/ProductStream)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Content/ProductStream) 
 
 Product Streams
 
@@ -149,7 +149,7 @@ Product Streams
 
 #### Property <span class="tip is--primary">Data store</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Content/Property)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Content/Property) 
 
 Content configuration
 
@@ -157,7 +157,7 @@ Content configuration
 
 #### Rule <span class="tip is--primary">Data store</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Content/Rule)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Content/Rule) 
 
 Rule Builder
 
@@ -165,33 +165,33 @@ Rule Builder
 
 #### Api <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom Extendable</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Framework/Api)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/Api) 
 
 Rest-API
 
 #### Cache 
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Framework/Cache)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/Cache) 
 
 Cache helpers
 
 #### Context <span class="tip is--primary">Custom Extendable</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Framework/Context)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/Context) 
 
 Main context
 
 #### CustomField <span class="tip is--primary">Data store</span> <span class="tip is--primary">Custom actions</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Framework/CustomField)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/CustomField) 
 
 Custom field management
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-framework-customfield.md)
 
-#### DataAbstractionLayer <span class="tip is--primary">Data store</span> <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
+#### DataAbstractionLayer <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Framework/DataAbstractionLayer)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/DataAbstractionLayer) 
 
 Data Abstraction Layer - the central component responsible for all storage access.
 
@@ -199,31 +199,31 @@ Data Abstraction Layer - the central component responsible for all storage acces
 
 #### Doctrine 
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Framework/Doctrine)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/Doctrine) 
 
 Doctrine DBAL extension
 
 #### Event <span class="tip is--primary">Data store</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Business Event Dispatcher</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Framework/Event)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/Event) 
 
 Business events
 
 #### FeatureFlag <span class="tip is--primary">Maintenance</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Framework/FeatureFlag)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/FeatureFlag) 
 
 Feature Flag configuration
 
 #### Filesystem <span class="tip is--primary">Custom Extendable</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Framework/Filesystem)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/Filesystem) 
 
 Filesystem handling
 
 #### Language <span class="tip is--primary">Data store</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Framework/Language)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/Language) 
 
 Languages
 
@@ -231,22 +231,22 @@ Languages
 
 #### MessageQueue <span class="tip is--primary">Data store</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Framework/MessageQueue)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/MessageQueue) 
 
 Async processing
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-framework-messagequeue.md)
-* [Guide](./00-modules/message-queue.md)
+* [Guide](./00-module/message-queue.md)
 
 #### Migration <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom Extendable</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Framework/Migration)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/Migration) 
 
 Database migration system
 
 #### Plugin <span class="tip is--primary">Data store</span> <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Framework/Plugin)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/Plugin) 
 
 Plugin services
 
@@ -254,34 +254,34 @@ Plugin services
 
 #### Pricing <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Framework/Pricing)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/Pricing) 
 
 Pricing
 
 #### Routing <span class="tip is--primary">Custom Extendable</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Framework/Routing)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/Routing) 
 
 Routing
 
 #### Rule <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span> <span class="tip is--primary">Custom Rules</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Framework/Rule)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/Rule) 
 
 Rule matching
 
 #### ScheduledTask <span class="tip is--primary">Data store</span> <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Framework/ScheduledTask)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/ScheduledTask) 
 
 Cron jobs
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-framework-scheduledtask.md)
-* [Guide](./00-modules/scheduled-tasks.md)
+* [Guide](./00-module/scheduled-tasks.md)
 
 #### Snippet <span class="tip is--primary">Data store</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Framework/Snippet)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/Snippet) 
 
 Translation management
 
@@ -289,37 +289,37 @@ Translation management
 
 #### Store <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Framework/Store)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/Store) 
 
 Plugin store
 
 #### Struct <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Framework/Struct)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/Struct) 
 
 Structured data
 
 #### Translation 
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Framework/Translation)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/Translation) 
 
 Abstract translations
 
 #### Twig 
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Framework/Twig)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/Twig) 
 
 Template extension
 
 #### Uuid 
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Framework/Uuid)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/Uuid) 
 
 UUID Handling
 
 #### Validation <span class="tip is--primary">Custom Extendable</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/Framework/Validation)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/Validation) 
 
 Validation
 
@@ -327,7 +327,7 @@ Validation
 
 #### Country <span class="tip is--primary">Data store</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/System/Country)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/System/Country) 
 
 Countries
 
@@ -335,7 +335,7 @@ Countries
 
 #### Currency <span class="tip is--primary">Data store</span> <span class="tip is--primary">Extension</span> <span class="tip is--primary">Custom Rules</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/System/Currency)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/System/Currency) 
 
 Currencies
 
@@ -343,7 +343,7 @@ Currencies
 
 #### Integration <span class="tip is--primary">Data store</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/System/Integration)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/System/Integration) 
 
 Admin integrations
 
@@ -351,7 +351,7 @@ Admin integrations
 
 #### Locale <span class="tip is--primary">Data store</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/System/Locale)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/System/Locale) 
 
 Locales
 
@@ -359,16 +359,16 @@ Locales
 
 #### NumberRange <span class="tip is--primary">Data store</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/System/NumberRange)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/System/NumberRange) 
 
 Number ranges (SKU)
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-system-numberrange.md)
-* [Guide](./00-modules/number-range.md)
+* [Guide](./00-module/number-range.md)
 
 #### SalesChannel <span class="tip is--primary">Data store</span> <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Business Event Dispatcher</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/System/SalesChannel)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/System/SalesChannel) 
 
 Sales Channels
 
@@ -376,7 +376,7 @@ Sales Channels
 
 #### Salutation <span class="tip is--primary">Data store</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/System/Salutation)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/System/Salutation) 
 
 Salutation
 
@@ -384,7 +384,7 @@ Salutation
 
 #### StateMachine <span class="tip is--primary">Data store</span> <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/System/StateMachine)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/System/StateMachine) 
 
 Order state management
 
@@ -392,7 +392,7 @@ Order state management
 
 #### SystemConfig <span class="tip is--primary">Data store</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/System/SystemConfig)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/System/SystemConfig) 
 
 Platform Configuration
 
@@ -400,13 +400,13 @@ Platform Configuration
 
 #### Tag <span class="tip is--primary">Data store</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/System/Tag)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/System/Tag) 
 
 Content Tagging
 
 #### Tax <span class="tip is--primary">Data store</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/System/Tax)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/System/Tax) 
 
 Taxes
 
@@ -414,7 +414,7 @@ Taxes
 
 #### Unit <span class="tip is--primary">Data store</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/System/Unit)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/System/Unit) 
 
 Product / Shipping Units
 
@@ -422,7 +422,7 @@ Product / Shipping Units
 
 #### User <span class="tip is--primary">Data store</span> <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Extension</span>
 
-* [Sources]((https://github.com/shopware/platform/tree/master/src/Core/System/User)) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/System/User) 
 
 Admin Users
 

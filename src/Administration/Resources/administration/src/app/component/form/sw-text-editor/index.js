@@ -5,7 +5,24 @@ import './sw-text-editor.scss';
  * @public
  * @status ready
  * @example-type static
- * @description A simple text editor which uses the browsers api, pass buttonConfig to configure the buttons you desire
+ * @description A simple text editor which uses the browsers api.
+ *              Pass a buttonConfig array to configure the buttons you desire.
+ *              Each Button needs to be an object with a type (this will be the executed Command as well),
+ *              a name or an icon which will be displayed as the button and
+ *              the created HTML-Tag (this is needed to set actives states in the Toolbar).
+ *              If the type requires a value you can set the value prop,
+ *              which will be passed in the execCommand function.
+ *              To read more about the execCommand function see
+ *              https://developer.mozilla.org/de/docs/Web/API/Document/execCommand.
+ *
+ *              If you want to generate a sub-menu you can set a children prop in the button-object which,
+ *              holds the buttonConfig of the children (Button syntax is the same as explained above).
+ *
+ *              If you need to call a custom callback instead you can pass your handler with a handler prop
+ *              e.g. handler: (button, parent = null) => { callback(button, parent) }
+ *
+ *              Furthermore you can pass the position prop [left (default), middle and right]
+ *              to set the buttons position in the toolbar.
  * @component-example
  *  <sw-text-editor value="Lorem ipsum dolor sit amet, consetetur sadipscing elitr" :isInlineEdit="true">
  *
@@ -176,11 +193,13 @@ export default {
                     },
                     {
                         type: 'undo',
-                        icon: 'default-text-editor-undo'
+                        icon: 'default-text-editor-undo',
+                        position: 'middle'
                     },
                     {
                         type: 'redo',
-                        icon: 'default-text-editor-redo'
+                        icon: 'default-text-editor-redo',
+                        position: 'middle'
                     }
                 ];
             }
@@ -258,12 +277,14 @@ export default {
                     type: 'codeSwitch',
                     icon: 'default-text-editor-code',
                     expanded: this.isCodeEdit,
-                    handler: this.toggleCodeEditor
+                    handler: this.toggleCodeEditor,
+                    position: 'right'
                 });
             }
 
             document.addEventListener('mouseup', this.onSelectionChange);
             document.addEventListener('mousedown', this.onSelectionChange);
+            document.addEventListener('keydown', this.onSelectionChange);
         },
 
         toggleCodeEditor(buttonConf) {
@@ -283,21 +304,19 @@ export default {
         destroyedComponent() {
             document.removeEventListener('mouseup', this.onSelectionChange);
             document.removeEventListener('mousedown', this.onSelectionChange);
+            document.removeEventListener('keydown', this.onSelectionChange);
         },
 
         onSelectionChange(event) {
-            if (this.isCodeEdit) {
+            if (this.isCodeEdit || !this.isActive) {
                 return;
             }
 
             const path = this.getPath(event);
 
-            if (event.type === 'mousedown' && !path.includes(this.$el) && !path.includes(this.toolbar)) {
+            if ((event.type === 'keydown' || event.type === 'mousedown') &&
+                !path.includes(this.$el) && !path.includes(this.toolbar)) {
                 this.hasSelection = false;
-                return;
-            }
-
-            if (!this.isActive) {
                 return;
             }
 

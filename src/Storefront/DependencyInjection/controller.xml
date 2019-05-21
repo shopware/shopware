@@ -108,7 +108,7 @@
         <service id="Shopware\Storefront\Controller\NewsletterController">
             <argument type="service" id="Shopware\Storefront\Page\Newsletter\Register\NewsletterRegisterPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Newsletter\Subscribe\NewsletterSubscribePageLoader"/>
-            <argument type="service" id="Shopware\Core\Content\NewsletterRecipient\SalesChannel\NewsletterSubscriptionService"/>
+            <argument type="service" id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscriptionService"/>
             <argument type="service" id="request_stack"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
             <call method="setContainer">

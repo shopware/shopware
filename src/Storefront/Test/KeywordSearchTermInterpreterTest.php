@@ -17,7 +17,7 @@ class KeywordSearchTermInterpreterTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var \Doctrine\DBAL\Connection
+     * @var Connection
      */
     private $connection;
 

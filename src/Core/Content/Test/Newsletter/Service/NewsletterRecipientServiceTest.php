@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\NewsletterRecipient\Service;
+namespace Shopware\Core\Content\Test\Newsletter\Service;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\NewsletterRecipient\Exception\NewsletterRecipientNotFoundException;
-use Shopware\Core\Content\NewsletterRecipient\NewsletterRecipientEntity;
-use Shopware\Core\Content\NewsletterRecipient\SalesChannel\NewsletterSubscriptionService;
-use Shopware\Core\Content\NewsletterRecipient\SalesChannel\NewsletterSubscriptionServiceInterface;
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
+use Shopware\Core\Content\Newsletter\Exception\NewsletterRecipientNotFoundException;
+use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscriptionService;
+use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscriptionServiceInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;

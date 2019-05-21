@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\NewsletterRecipient\Aggregate\NewsletterRecipientTag;
+namespace Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipientTag;
 
-use Shopware\Core\Content\NewsletterRecipient\NewsletterRecipientDefinition;
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;

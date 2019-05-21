@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\NewsletterRecipient\ScheduledTask;
+namespace Shopware\Core\Content\Newsletter\ScheduledTask;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;

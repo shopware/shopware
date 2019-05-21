@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\NewsletterRecipient;
+namespace Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient;
 
-use Shopware\Core\Content\NewsletterRecipient\Aggregate\NewsletterRecipientTag\NewsletterRecipientTagDefinition;
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipientTag\NewsletterRecipientTagDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;

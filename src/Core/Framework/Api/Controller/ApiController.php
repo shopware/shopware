@@ -66,7 +66,7 @@ class ApiController extends AbstractController
     private $searchCriteriaBuilder;
 
     /**
-     * @var \Shopware\Core\Framework\DataAbstractionLayer\Search\CompositeEntitySearcher
+     * @var CompositeEntitySearcher
      */
     private $compositeEntitySearcher;
 

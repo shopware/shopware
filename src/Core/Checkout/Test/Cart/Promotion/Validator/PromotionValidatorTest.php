@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
+use Shopware\Core\Framework\Uuid\Exception\InvalidUuidLengthException;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
 class PromotionValidatorTest extends TestCase
@@ -98,9 +100,9 @@ class PromotionValidatorTest extends TestCase
      *           ["absolute", 0.0]
      *
      * @throws \ReflectionException
-     * @throws \Shopware\Core\Framework\Uuid\Exception\InvalidUuidException
-     * @throws \Shopware\Core\Framework\Uuid\Exception\InvalidUuidLengthException
-     * @throws \Shopware\Core\Framework\Validation\WriteConstraintViolationException
+     * @throws InvalidUuidException
+     * @throws InvalidUuidLengthException
+     * @throws WriteConstraintViolationException
      */
     public function testDiscountValueInvalid(string $type, float $value)
     {
@@ -133,9 +135,9 @@ class PromotionValidatorTest extends TestCase
      *           ["absolute", 260.0]
      *
      * @throws \ReflectionException
-     * @throws \Shopware\Core\Framework\Uuid\Exception\InvalidUuidException
-     * @throws \Shopware\Core\Framework\Uuid\Exception\InvalidUuidLengthException
-     * @throws \Shopware\Core\Framework\Validation\WriteConstraintViolationException
+     * @throws InvalidUuidException
+     * @throws InvalidUuidLengthException
+     * @throws WriteConstraintViolationException
      */
     public function testDiscountValueValid(string $type, float $value)
     {

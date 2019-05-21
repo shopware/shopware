@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\NewsletterRecipient\SalesChannel;
+namespace Shopware\Core\Content\Newsletter\SalesChannel;
 
-use Shopware\Core\Content\NewsletterRecipient\Event\NewsletterConfirmEvent;
-use Shopware\Core\Content\NewsletterRecipient\Event\NewsletterRegisterEvent;
-use Shopware\Core\Content\NewsletterRecipient\Exception\NewsletterRecipientNotFoundException;
-use Shopware\Core\Content\NewsletterRecipient\NewsletterRecipientEntity;
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
+use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
+use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
+use Shopware\Core\Content\Newsletter\Exception\NewsletterRecipientNotFoundException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;

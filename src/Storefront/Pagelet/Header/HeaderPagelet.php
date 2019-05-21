@@ -13,12 +13,12 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 class HeaderPagelet extends Struct
 {
     /**
-     * @var \Shopware\Core\Content\Category\Tree\Tree
+     * @var Tree
      */
     private $navigation;
 
     /**
-     * @var \Shopware\Core\Content\Category\Tree\Tree
+     * @var Tree
      */
     private $offcanvasNavigation;
 

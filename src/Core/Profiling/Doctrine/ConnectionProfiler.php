@@ -15,7 +15,7 @@ class ConnectionProfiler implements DataCollectorInterface
     private $data = [];
 
     /**
-     * @var \Doctrine\DBAL\Logging\DebugStack|null
+     * @var DebugStack|null
      */
     private $logger;
 

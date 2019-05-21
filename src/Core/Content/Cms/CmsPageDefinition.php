@@ -62,7 +62,7 @@ class CmsPageDefinition extends EntityDefinition
             (new OneToManyAssociationField('blocks', CmsBlockDefinition::class, 'cms_page_id'))->addFlags(new CascadeDelete()),
             new TranslationsAssociationField(CmsPageTranslationDefinition::class, 'cms_page_id'),
 
-            new ManyToOneAssociationField('previewMedia', 'preview_media_id', MediaDefinition::class, 'id', true),
+            new ManyToOneAssociationField('previewMedia', 'preview_media_id', MediaDefinition::class, 'id', false),
 
             (new OneToManyAssociationField('categories', CategoryDefinition::class, 'cms_page_id'))->addFlags(new RestrictDelete()),
         ]);

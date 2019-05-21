@@ -67,9 +67,9 @@ class CustomerAddressDefinition extends EntityDefinition
             (new StringField('additional_address_line2', 'additionalAddressLine2'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             new CustomFields(),
             new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, 'id', false),
-            new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, 'id', true),
-            new ManyToOneAssociationField('countryState', 'country_state_id', CountryStateDefinition::class, 'id', true),
-            new ManyToOneAssociationField('salutation', 'salutation_id', SalutationDefinition::class, 'id', true),
+            new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, 'id', false),
+            new ManyToOneAssociationField('countryState', 'country_state_id', CountryStateDefinition::class, 'id', false),
+            new ManyToOneAssociationField('salutation', 'salutation_id', SalutationDefinition::class, 'id', false),
         ]);
     }
 }

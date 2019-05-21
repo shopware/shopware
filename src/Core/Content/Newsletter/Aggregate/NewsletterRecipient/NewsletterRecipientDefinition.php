@@ -58,13 +58,13 @@ class NewsletterRecipientDefinition extends EntityDefinition
             new ManyToManyAssociationField('tags', TagDefinition::class, NewsletterRecipientTagDefinition::class, 'newsletter_recipient_id', 'tag_id'),
 
             new FkField('salutation_id', 'salutationId', SalutationDefinition::class),
-            new ManyToOneAssociationField('salutation', 'salutation_id', SalutationDefinition::class, 'id', true),
+            new ManyToOneAssociationField('salutation', 'salutation_id', SalutationDefinition::class, 'id', false),
 
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new Required()),
-            new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', true),
+            new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false),
 
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new Required()),
-            new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', true),
+            new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
         ]);
     }
 }

@@ -65,7 +65,7 @@ class CreditNoteGenerator implements DocumentGeneratorInterface
         return $this->twigEngine->render($templatePath, [
             'order' => $order,
             'creditItems' => $creditItems,
-            'config' => DocumentConfigurationFactory::mergeConfiguration($config, new DocumentConfiguration())->toArray(),
+            'config' => DocumentConfigurationFactory::mergeConfiguration($config, new DocumentConfiguration())->jsonSerialize(),
             'rootDir' => $this->rootDir,
             'context' => $context,
         ]);

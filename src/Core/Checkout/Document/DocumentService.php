@@ -92,7 +92,7 @@ class DocumentService
         $documentConfiguration = $this->getConfiguration(
             $context,
             $documentType->getId(),
-            $config->toArray()
+            $config->jsonSerialize()
         );
 
         if (property_exists($documentConfiguration, 'referencedDocumentType')) {
@@ -123,7 +123,7 @@ class DocumentService
                 'fileType' => $fileType,
                 'orderId' => $orderId,
                 'orderVersionId' => $orderVersionId,
-                'config' => $documentConfiguration->toArray(),
+                'config' => $documentConfiguration->jsonSerialize(),
                 'deepLinkCode' => $deepLinkCode,
                 'referencedDocumentId' => $referencedDocumentId,
             ],
@@ -185,7 +185,7 @@ class DocumentService
         $documentConfiguration = $this->getConfiguration(
             $context,
             $documentType->getId(),
-            $config->toArray()
+            $config->jsonSerialize()
         );
 
         $generatedDocument = new GeneratedDocument();

@@ -51,7 +51,7 @@ class StornoGenerator implements DocumentGeneratorInterface
 
         return $this->twigEngine->render($templatePath, [
             'order' => $order,
-            'config' => DocumentConfigurationFactory::mergeConfiguration($config, new DocumentConfiguration())->toArray(),
+            'config' => DocumentConfigurationFactory::mergeConfiguration($config, new DocumentConfiguration())->jsonSerialize(),
             'rootDir' => $this->rootDir,
             'context' => $context,
         ]);

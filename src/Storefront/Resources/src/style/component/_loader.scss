@@ -25,3 +25,45 @@ input ~ .spinner-grow {
     z-index: 3;
     right: 50px;
 }
+
+/*
+Skeleton screen
+==============================================
+Skeleton screen for product-listing with subtle shimmer effect
+*/
+
+@keyframes skeletonShimmer{
+    0%{
+        background-position: -500px 0
+    }
+    100%{
+        background-position: 500px 0
+    }
+}
+
+.has-element-loader .cms-element-product-listing {
+    .product-badges,
+    .product-image-link {
+        display: none;
+    }
+
+    .product-image-wrapper,
+    .product-name,
+    .product-description,
+    .product-price-unit,
+    .product-price {
+        border-radius: $border-radius;
+        color: transparent;
+        animation: skeletonShimmer 1.5s linear 0s infinite normal forwards running;
+        background: linear-gradient(to right, $gray-200 8%, $gray-100 18%, $gray-200 33%);
+        background-size: 800px 100px;
+    }
+
+    .product-name {
+        width: 75%;
+    }
+
+    .product-price {
+        width: 35%;
+    }
+}

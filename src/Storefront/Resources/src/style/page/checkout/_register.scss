@@ -1,24 +1,26 @@
-.checkout.is-register {
-    padding-top: 70px;
+.is-act-checkoutregisterpage {
+    .checkout {
+        padding-top: 70px;
 
-    .checkout-container {
-        @extend .row;
-    }
+        .checkout-container {
+            @extend .row;
+        }
 
-    .checkout-main {
-        @extend .col-lg-8;
-        margin-bottom: $spacer-lg;
-    }
+        .checkout-main {
+            @extend .col-lg-8;
+            margin-bottom: $spacer-lg;
+        }
 
-    .checkout-aside {
-        @extend .col-md-6;
-        @extend .col-lg-4;
-        @extend .col-xl-3;
-        @extend .offset-md-6;
-        @extend .offset-lg-0;
-        @extend .offset-xl-1;
-        @extend .d-none;
-        @extend .d-lg-block;
+        .checkout-aside {
+            @extend .col-md-6;
+            @extend .col-lg-4;
+            @extend .col-xl-3;
+            @extend .offset-md-6;
+            @extend .offset-lg-0;
+            @extend .offset-xl-1;
+            @extend .d-none;
+            @extend .d-lg-block;
+        }
     }
 }
 

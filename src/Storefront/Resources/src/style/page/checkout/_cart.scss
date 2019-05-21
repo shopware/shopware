@@ -1,6 +1,5 @@
-// general
-.checkout {
-    &.is-cart {
+.is-act-cartpage {
+    .checkout {
         .checkout-container {
             @extend .row;
         }

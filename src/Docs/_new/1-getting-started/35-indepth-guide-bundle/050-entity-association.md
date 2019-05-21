@@ -1,4 +1,4 @@
-[titleEn]: <>(Bundle example: Adding associations to the entity)
+[titleEn]: <>(Step 5: Adding associations to the entity)
 
 You were probably wondering how this bundle is going to work now, because your bundle database table is not related to any products yet.
 

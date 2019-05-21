@@ -1,4 +1,4 @@
-[titleEn]: <>(Bundle example: The plugin setup)
+[titleEn]: <>(Step 2: The plugin setup)
 
 ### Basic structure
 
@@ -50,7 +50,7 @@ After having a look at the [composer schema](https://getcomposer.org/doc/04-sche
 }
 ```
 
-id>
+<dl>
     <dt>description</dt>
     <dd>
         The description should describe your composer package, or plugin in this case, in a few words.
@@ -60,7 +60,7 @@ id>
     
     <dt>version</dt>
     <dd>
-        A version in the Shopware platform mostly follows the specification for [semantic versioning](https://semver.org/).
+        A version in the Shopware platform mostly follows the specification for semantic versioning.
         The 'v' at the beginning is just a convention, since most tags in a version control system are named like that.
         It's okay though if you dismiss the 'v' prefix, your plugin will still work perfectly.
     </dd>
@@ -68,13 +68,13 @@ id>
     <dt>license</dt>
     <dd>
         The license is fully up to you, just make sure you're **not** using the MIT license if you want to release your plugin
-        in the [Shopware Community Store](https://store.shopware.com/), since that would allow your customers to use your plugin
+        in the Shopware Community Store (https://store.shopware.com/), since that would allow your customers to use your plugin
         and release it again with their own name and actually make some money with it.
     </dd>
     
     <dt>author</dt>
     <dd>
-        Last but not least there's the [author](https://getcomposer.org/doc/04-schema.md#authors) - for simplicities' sake we've only added the name here.
+        Last but not least there's the author - for simplicities' sake we've only added the name here.
         You can also add an e-mail, a website and a role to this.    
     </dd>
 </dl>

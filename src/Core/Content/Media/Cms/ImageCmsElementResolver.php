@@ -1,20 +1,20 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Media\Cms\Type;
+namespace Shopware\Core\Content\Media\Cms;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
+use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
+use Shopware\Core\Content\Cms\DataResolver\Element\AbstractCmsElementResolver;
+use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
+use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
+use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
+use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ImageStruct;
-use Shopware\Core\Content\Cms\SlotDataResolver\CriteriaCollection;
-use Shopware\Core\Content\Cms\SlotDataResolver\FieldConfig;
-use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\EntityResolverContext;
-use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
-use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolveResult;
-use Shopware\Core\Content\Cms\SlotDataResolver\Type\TypeDataResolver;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
-class ImageTypeDataResolver extends TypeDataResolver
+class ImageCmsElementResolver extends AbstractCmsElementResolver
 {
     public function getType(): string
     {
@@ -38,7 +38,7 @@ class ImageTypeDataResolver extends TypeDataResolver
         return $criteriaCollection;
     }
 
-    public function enrich(CmsSlotEntity $slot, ResolverContext $resolverContext, SlotDataResolveResult $result): void
+    public function enrich(CmsSlotEntity $slot, ResolverContext $resolverContext, ElementDataCollection $result): void
     {
         $config = $slot->getFieldConfig();
         $image = new ImageStruct();
@@ -67,7 +67,7 @@ class ImageTypeDataResolver extends TypeDataResolver
         }
     }
 
-    private function addMediaEntity(CmsSlotEntity $slot, ImageStruct $image, SlotDataResolveResult $result, FieldConfig $config, ResolverContext $resolverContext): void
+    private function addMediaEntity(CmsSlotEntity $slot, ImageStruct $image, ElementDataCollection $result, FieldConfig $config, ResolverContext $resolverContext): void
     {
         if ($config->isMapped() && $resolverContext instanceof EntityResolverContext) {
             /** @var MediaEntity|null $media */

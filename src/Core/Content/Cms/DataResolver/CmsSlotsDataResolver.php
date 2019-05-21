@@ -1,10 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Cms\SlotDataResolver;
+namespace Shopware\Core\Content\Cms\DataResolver;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
-use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
+use Shopware\Core\Content\Cms\DataResolver\Element\CmsElementResolverInterface;
+use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
+use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -15,10 +17,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class SlotDataResolver
+class CmsSlotsDataResolver
 {
     /**
-     * @var SlotTypeDataResolverInterface[]
+     * @var CmsElementResolverInterface[]
      */
     private $resolvers;
 
@@ -33,7 +35,7 @@ class SlotDataResolver
     private $definitionRegistry;
 
     /**
-     * @param SlotTypeDataResolverInterface[] $resolvers
+     * @param CmsElementResolverInterface[] $resolvers
      */
     public function __construct(iterable $resolvers, array $repositories, DefinitionInstanceRegistry $definitionRegistry)
     {
@@ -85,7 +87,7 @@ class SlotDataResolver
                 continue;
             }
 
-            $result = new SlotDataResolveResult();
+            $result = new ElementDataCollection();
 
             $this->mapSearchResults($result, $slot, $slotCriteriaList, $searchResults);
             $this->mapEntities($result, $slot, $slotCriteriaList, $entities);
@@ -261,7 +263,7 @@ class SlotDataResolver
      * @param CriteriaCollection[] $criteriaObjects
      * @param EntitySearchResult[] $searchResults
      */
-    private function mapSearchResults(SlotDataResolveResult $result, CmsSlotEntity $slot, array $criteriaObjects, array $searchResults): void
+    private function mapSearchResults(ElementDataCollection $result, CmsSlotEntity $slot, array $criteriaObjects, array $searchResults): void
     {
         if (!isset($criteriaObjects[$slot->getUniqueIdentifier()])) {
             return;
@@ -287,7 +289,7 @@ class SlotDataResolver
      * @param CriteriaCollection[] $criteriaObjects
      * @param EntitySearchResult[] $entities
      */
-    private function mapEntities(SlotDataResolveResult $result, CmsSlotEntity $slot, array $criteriaObjects, array $entities): void
+    private function mapEntities(ElementDataCollection $result, CmsSlotEntity $slot, array $criteriaObjects, array $entities): void
     {
         if (!isset($criteriaObjects[$slot->getUniqueIdentifier()])) {
             return;

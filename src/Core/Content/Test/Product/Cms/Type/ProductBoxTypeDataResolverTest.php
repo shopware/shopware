@@ -4,13 +4,13 @@ namespace Shopware\Core\Content\Test\Product\Cms\Type;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
+use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
+use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
+use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
+use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
+use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductBoxStruct;
-use Shopware\Core\Content\Cms\SlotDataResolver\FieldConfig;
-use Shopware\Core\Content\Cms\SlotDataResolver\FieldConfigCollection;
-use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\EntityResolverContext;
-use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
-use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolveResult;
-use Shopware\Core\Content\Product\Cms\Type\ProductBoxTypeDataResolver;
+use Shopware\Core\Content\Product\Cms\ProductBoxCmsElementResolver;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -22,13 +22,13 @@ use Symfony\Component\HttpFoundation\Request;
 class ProductBoxTypeDataResolverTest extends TestCase
 {
     /**
-     * @var ProductBoxTypeDataResolver
+     * @var ProductBoxCmsElementResolver
      */
     private $productBoxResolver;
 
     protected function setUp(): void
     {
-        $this->productBoxResolver = new ProductBoxTypeDataResolver();
+        $this->productBoxResolver = new ProductBoxCmsElementResolver();
     }
 
     public function testType(): void
@@ -90,7 +90,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
     public function testEnrichWithEmptyConfig(): void
     {
         $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
-        $result = new SlotDataResolveResult();
+        $result = new ElementDataCollection();
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
@@ -110,7 +110,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
         $product->setId('product123');
 
         $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
-        $result = new SlotDataResolveResult();
+        $result = new ElementDataCollection();
         $result->add('product_id', new EntitySearchResult(
             1,
             new ProductCollection([$product]),
@@ -137,7 +137,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
     public function testEnrichWithStaticConfigButNoResult(): void
     {
         $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
-        $result = new SlotDataResolveResult();
+        $result = new ElementDataCollection();
         $result->add('product_id', new EntitySearchResult(
             0,
             new ProductCollection(),
@@ -171,7 +171,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
         $product->setParent($parent);
 
         $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(ProductDefinition::class), $product);
-        $result = new SlotDataResolveResult();
+        $result = new ElementDataCollection();
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('product', FieldConfig::SOURCE_MAPPED, 'product.parent'));
@@ -194,7 +194,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
         $product->setId('product123');
 
         $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(ProductDefinition::class), $product);
-        $result = new SlotDataResolveResult();
+        $result = new ElementDataCollection();
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('product', FieldConfig::SOURCE_MAPPED, 'product.foo'));

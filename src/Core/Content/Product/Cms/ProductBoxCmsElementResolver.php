@@ -1,19 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product\Cms\Type;
+namespace Shopware\Core\Content\Product\Cms;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
+use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
+use Shopware\Core\Content\Cms\DataResolver\Element\AbstractCmsElementResolver;
+use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
+use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
+use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductBoxStruct;
-use Shopware\Core\Content\Cms\SlotDataResolver\CriteriaCollection;
-use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\EntityResolverContext;
-use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
-use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolveResult;
-use Shopware\Core\Content\Cms\SlotDataResolver\Type\TypeDataResolver;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
-class ProductBoxTypeDataResolver extends TypeDataResolver
+class ProductBoxCmsElementResolver extends AbstractCmsElementResolver
 {
     public function getType(): string
     {
@@ -37,7 +37,7 @@ class ProductBoxTypeDataResolver extends TypeDataResolver
         return $criteriaCollection;
     }
 
-    public function enrich(CmsSlotEntity $slot, ResolverContext $resolverContext, SlotDataResolveResult $result): void
+    public function enrich(CmsSlotEntity $slot, ResolverContext $resolverContext, ElementDataCollection $result): void
     {
         $productBox = new ProductBoxStruct();
         $slot->setData($productBox);
@@ -62,7 +62,7 @@ class ProductBoxTypeDataResolver extends TypeDataResolver
         }
     }
 
-    private function resolveProductFromRemote(CmsSlotEntity $slot, ProductBoxStruct $productBox, SlotDataResolveResult $result, string $productId): void
+    private function resolveProductFromRemote(CmsSlotEntity $slot, ProductBoxStruct $productBox, ElementDataCollection $result, string $productId): void
     {
         $searchResult = $result->get('product_' . $slot->getUniqueIdentifier());
         if (!$searchResult) {

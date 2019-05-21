@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Cms\SlotDataResolver;
+namespace Shopware\Core\Content\Cms\DataResolver\Element;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 
-class SlotDataResolveResult
+class ElementDataCollection
 {
     protected $searchResults = [];
 

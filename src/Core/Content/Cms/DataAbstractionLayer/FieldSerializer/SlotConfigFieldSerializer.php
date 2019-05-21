@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Cms\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Content\Cms\SlotDataResolver\FieldConfig;
+use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldValidatorTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;

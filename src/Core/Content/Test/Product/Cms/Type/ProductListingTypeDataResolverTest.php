@@ -4,10 +4,10 @@ namespace Shopware\Core\Content\Test\Product\Cms\Type;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
+use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
+use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductListingStruct;
-use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
-use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolveResult;
-use Shopware\Core\Content\Product\Cms\Type\ProductListingTypeDataResolver;
+use Shopware\Core\Content\Product\Cms\ProductListingCmsElementResolver;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingGatewayInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 class ProductListingTypeDataResolverTest extends TestCase
 {
     /**
-     * @var ProductListingTypeDataResolver
+     * @var ProductListingCmsElementResolver
      */
     private $listingResolver;
 
@@ -30,7 +30,7 @@ class ProductListingTypeDataResolverTest extends TestCase
             new EntitySearchResult(0, new EntityCollection(), null, new Criteria(), Context::createDefaultContext())
         );
 
-        $this->listingResolver = new ProductListingTypeDataResolver($mock);
+        $this->listingResolver = new ProductListingCmsElementResolver($mock);
     }
 
     public function testGetType(): void
@@ -54,7 +54,7 @@ class ProductListingTypeDataResolverTest extends TestCase
     public function testEnrichWithoutListingContext(): void
     {
         $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
-        $result = new SlotDataResolveResult();
+        $result = new ElementDataCollection();
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');

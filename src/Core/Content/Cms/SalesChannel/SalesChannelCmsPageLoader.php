@@ -5,8 +5,8 @@ namespace Shopware\Core\Content\Cms\SalesChannel;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\CmsPageEntity;
-use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
-use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver;
+use Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolver;
+use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -21,11 +21,11 @@ class SalesChannelCmsPageLoader
     private $cmsPageRepository;
 
     /**
-     * @var SlotDataResolver
+     * @var CmsSlotsDataResolver
      */
     private $slotDataResolver;
 
-    public function __construct(EntityRepositoryInterface $cmsPageRepository, SlotDataResolver $slotDataResolver)
+    public function __construct(EntityRepositoryInterface $cmsPageRepository, CmsSlotsDataResolver $slotDataResolver)
     {
         $this->cmsPageRepository = $cmsPageRepository;
         $this->slotDataResolver = $slotDataResolver;

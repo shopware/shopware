@@ -4,13 +4,13 @@ namespace Shopware\Core\Content\Test\Media\Cms\Type;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
+use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
+use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
+use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
+use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
+use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ImageStruct;
-use Shopware\Core\Content\Cms\SlotDataResolver\FieldConfig;
-use Shopware\Core\Content\Cms\SlotDataResolver\FieldConfigCollection;
-use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\EntityResolverContext;
-use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
-use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolveResult;
-use Shopware\Core\Content\Media\Cms\Type\ImageTypeDataResolver;
+use Shopware\Core\Content\Media\Cms\ImageCmsElementResolver;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -27,13 +27,13 @@ use Symfony\Component\HttpFoundation\Request;
 class ImageTypeDataResolverTest extends TestCase
 {
     /**
-     * @var ImageTypeDataResolver
+     * @var ImageCmsElementResolver
      */
     private $imageResolver;
 
     protected function setUp(): void
     {
-        $this->imageResolver = new ImageTypeDataResolver();
+        $this->imageResolver = new ImageCmsElementResolver();
     }
 
     public function testType(): void
@@ -82,7 +82,7 @@ class ImageTypeDataResolverTest extends TestCase
     public function testEnrichWithEmptyConfig(): void
     {
         $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
-        $result = new SlotDataResolveResult();
+        $result = new ElementDataCollection();
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
@@ -101,7 +101,7 @@ class ImageTypeDataResolverTest extends TestCase
     public function testEnrichWithUrlOnly(): void
     {
         $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
-        $result = new SlotDataResolveResult();
+        $result = new ElementDataCollection();
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('url', FieldConfig::SOURCE_STATIC, 'http://shopware.com/image.jpg'));
@@ -123,7 +123,7 @@ class ImageTypeDataResolverTest extends TestCase
     public function testEnrichWithUrlAndNewTabOnly(): void
     {
         $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
-        $result = new SlotDataResolveResult();
+        $result = new ElementDataCollection();
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('url', FieldConfig::SOURCE_STATIC, 'http://shopware.com/image.jpg'));
@@ -159,7 +159,7 @@ class ImageTypeDataResolverTest extends TestCase
             Context::createDefaultContext()
         );
 
-        $result = new SlotDataResolveResult();
+        $result = new ElementDataCollection();
         $result->add('media_id', $mediaSearchResult);
 
         $fieldConfig = new FieldConfigCollection();
@@ -195,7 +195,7 @@ class ImageTypeDataResolverTest extends TestCase
             Context::createDefaultContext()
         );
 
-        $result = new SlotDataResolveResult();
+        $result = new ElementDataCollection();
         $result->add('media_id', $mediaSearchResult);
 
         $fieldConfig = new FieldConfigCollection();
@@ -232,7 +232,7 @@ class ImageTypeDataResolverTest extends TestCase
             Context::createDefaultContext()
         );
 
-        $result = new SlotDataResolveResult();
+        $result = new ElementDataCollection();
         $result->add('media', $mediaSearchResult);
 
         $fieldConfig = new FieldConfigCollection();
@@ -267,7 +267,7 @@ class ImageTypeDataResolverTest extends TestCase
             Context::createDefaultContext()
         );
 
-        $result = new SlotDataResolveResult();
+        $result = new ElementDataCollection();
         $result->add('media_id', $mediaSearchResult);
 
         $fieldConfig = new FieldConfigCollection();
@@ -308,7 +308,7 @@ class ImageTypeDataResolverTest extends TestCase
             Context::createDefaultContext()
         );
 
-        $result = new SlotDataResolveResult();
+        $result = new ElementDataCollection();
         $result->add('media_id', $mediaSearchResult);
 
         $fieldConfig = new FieldConfigCollection();
@@ -337,7 +337,7 @@ class ImageTypeDataResolverTest extends TestCase
 
         $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(ProductDefinition::class), $product);
 
-        $result = new SlotDataResolveResult();
+        $result = new ElementDataCollection();
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('url', FieldConfig::SOURCE_MAPPED, 'manufacturer.link'));

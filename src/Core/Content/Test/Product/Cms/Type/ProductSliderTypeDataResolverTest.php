@@ -6,11 +6,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
-use Shopware\Core\Content\Cms\SlotDataResolver\FieldConfig;
-use Shopware\Core\Content\Cms\SlotDataResolver\FieldConfigCollection;
-use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\EntityResolverContext;
-use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
-use Shopware\Core\Content\Product\Cms\Type\ProductSliderTypeDataResolver;
+use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
+use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
+use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
+use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
+use Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -25,13 +25,13 @@ class ProductSliderTypeDataResolverTest extends TestCase
     use KernelTestBehaviour;
 
     /**
-     * @var ProductSliderTypeDataResolver
+     * @var ProductSliderCmsElementResolver
      */
     private $sliderResolver;
 
     protected function setUp(): void
     {
-        $this->sliderResolver = new ProductSliderTypeDataResolver();
+        $this->sliderResolver = new ProductSliderCmsElementResolver();
     }
 
     public function testGetType(): void

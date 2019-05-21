@@ -261,7 +261,7 @@
             <argument type="service" id="media_folder.repository"/>
         </service>
 
-        <service id="Shopware\Core\Content\Media\Cms\Type\ImageTypeDataResolver">
+        <service id="Shopware\Core\Content\Media\Cms\ImageCmsElementResolver">
             <tag name="shopware.cms.data_resolver" />
         </service>
     </services>

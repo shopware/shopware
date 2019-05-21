@@ -148,6 +148,10 @@
 }
 
 @include media-breakpoint-up(md) {
+    .product-detail-media-container {
+        justify-content: center;
+    }
+
     .product-detail-media-image-container {
         margin-bottom: $spacer-xl;
     }

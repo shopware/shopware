@@ -6,7 +6,8 @@
 exports.command = function fillSingleSelect(selector, value, resultPosition = 0) {
     this.waitForElementVisible(selector)
         .click(selector)
-        .waitForElementVisible(`${selector} .sw-single-select__results`)
+        .waitForElementVisible(`${selector} .sw-single-select__results-list`)
+        .waitForElementNotPresent(`${selector} .sw-loader__element`)
         .expect.element(`${selector} .sw-single-select__results-list .sw-single-select-option--${resultPosition}`).to.have.text.that.contains(value);
 
     this

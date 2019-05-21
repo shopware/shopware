@@ -2,7 +2,8 @@
     <div class="product-delivery-information">
         {% if page.product.shippingFree %}
             {% block component_delivery_information_shipping_free %}
-                <p class="delivery-information delivery-shipping-free text-info">
+                <p class="delivery-information delivery-shipping-free">
+                    <span class="delivery-status-indicator bg-info"></span>
                     {{ "general.deliveryShippingFree"|trans }}
                 </p>
             {% endblock %}
@@ -12,7 +13,8 @@
             {% block component_delivery_information_not_available %}
                 <link itemprop="availability"
                       href="http://schema.org/LimitedAvailability"/>
-                <p class="delivery-information text-danger">
+                <p class="delivery-information">
+                    <span class="delivery-status-indicator bg-danger"></span>
                     {{ "general.deliveryNotAvailable"|trans }}
                 </p>
             {% endblock %}
@@ -20,7 +22,8 @@
             {% block component_delivery_information_pre_order %}
                 <link itemprop="availability"
                       href="http://schema.org/PreOrder"/>
-                <p class="delivery-information text-warning">
+                <p class="delivery-information">
+                    <span class="delivery-status-indicator bg-warning"></span>
                     {{ "general.deliveryShipping"|trans }} {{ page.product.releaseDate|localizeddate('long', 'none', app.request.locale) }}
                 </p>
             {% endblock %}
@@ -30,7 +33,8 @@
             {% block component_delivery_information_partial_stock %}
                 <link itemprop="availability"
                       href="http://schema.org/LimitedAvailability"/>
-                <p class="delivery-information text-warning">
+                <p class="delivery-information">
+                    <span class="delivery-status-indicator bg-warning"></span>
                     {{ "general.deliveryPartialStock"|trans({
                         '%inStock%': page.product.stock,
                         '%quantity%': quantity
@@ -46,7 +50,8 @@
             {% block component_delivery_information_instock %}
                 <link itemprop="availability"
                       href="http://schema.org/InStock"/>
-                <p class="delivery-information text-success">
+                <p class="delivery-information">
+                    <span class="delivery-status-indicator bg-success"></span>
                     {{ "general.deliveryInStock"|trans }}
                 </p>
             {% endblock %}
@@ -54,7 +59,8 @@
             {% block component_delivery_information_shippinh_time %}
                 <link itemprop="availability"
                       href="http://schema.org/LimitedAvailability"/>
-                <p class="delivery-information text-warning">
+                <p class="delivery-information">
+                    <span class="delivery-status-indicator bg-warning"></span>
                     {{ "general.deliveryShippingTime"|trans({
                         '%shippingTime%': (page.product.minDeliveryTime + page.product.maxDeliveryTime)
                     }) }}
@@ -64,7 +70,8 @@
             {% block component_delivery_information_shippinh_delay %}
                 <link itemprop="availability"
                       href="http://schema.org/LimitedAvailability"/>
-                <p class="delivery-information text-danger">
+                <p class="delivery-information">
+                    <span class="delivery-status-indicator bg-danger"></span>
                     {{ "general.deliveryShippingDelay"|trans }}
                 </p>
             {% endblock %}

@@ -61,6 +61,21 @@ class DocumentEntity extends Entity
      */
     protected $documentType;
 
+    /**
+     * @var string|null
+     */
+    protected $referencedDocumentId;
+
+    /**
+     * @var DocumentEntity|null
+     */
+    protected $referencedDocument;
+
+    /**
+     * @var DocumentCollection|null
+     */
+    protected $dependentDocuments;
+
     public function getFileType(): string
     {
         return $this->fileType;
@@ -159,5 +174,35 @@ class DocumentEntity extends Entity
     public function setDocumentTypeId(string $documentTypeId): void
     {
         $this->documentTypeId = $documentTypeId;
+    }
+
+    public function getReferencedDocumentId(): ?string
+    {
+        return $this->referencedDocumentId;
+    }
+
+    public function setReferencedDocumentId(?string $referencedDocumentId): void
+    {
+        $this->referencedDocumentId = $referencedDocumentId;
+    }
+
+    public function getReferencedDocument(): ?DocumentEntity
+    {
+        return $this->referencedDocument;
+    }
+
+    public function setReferencedDocument(?DocumentEntity $referencedDocument): void
+    {
+        $this->referencedDocument = $referencedDocument;
+    }
+
+    public function getDependentDocuments(): ?DocumentCollection
+    {
+        return $this->dependentDocuments;
+    }
+
+    public function setDependentDocuments(?DocumentCollection $dependentDocuments): void
+    {
+        $this->dependentDocuments = $dependentDocuments;
     }
 }

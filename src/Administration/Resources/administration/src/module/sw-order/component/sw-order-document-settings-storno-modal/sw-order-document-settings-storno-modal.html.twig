@@ -12,8 +12,8 @@
                          v-model="documentConfig.custom.invoiceNumber"
                          :placeholder="$tc('sw-order.documentModal.selectInvoiceNumber')"
                          @change="onSelectInvoice">
-            <option v-for="number in invoiceNumbers" :value="number">
-                {{ number }}
+            <option v-for="invoice in invoices" :value="invoice.config.custom.invoiceNumber">
+                {{ invoice.config.custom.invoiceNumber }}
             </option>
         </sw-select-field>
     {% endblock %}

@@ -14,8 +14,10 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -74,7 +76,8 @@ class DocumentService
         string $documentTypeName,
         string $fileType,
         DocumentConfiguration $config,
-        Context $context
+        Context $context,
+        ?string $referencedDocumentId = null
     ): DocumentIdStruct {
         $documentType = $this->getDocumentTypeByName($documentTypeName, $context);
 
@@ -86,17 +89,32 @@ class DocumentService
             throw new InvalidFileGeneratorTypeException($fileType);
         }
 
-        // create version of order to ensure the document stays the same even if the order changes
-        $orderVersionId = $this->orderRepository->createVersion($orderId, $context, self::VERSION_NAME);
-
-        $documentId = Uuid::randomHex();
-
         $documentConfiguration = $this->getConfiguration(
             $context,
             $documentType->getId(),
             $config->toArray()
         );
 
+        if (property_exists($documentConfiguration, 'referencedDocumentType')) {
+            if ($referencedDocumentId === null) {
+                throw new DocumentGenerationException(
+                    'referencedDocumentId must not be null for documents of type ' . $documentTypeName
+                );
+            }
+
+            // if this document references a another document, retrive the version Id of its order
+            $orderVersionId = $this->getVersionIdFromReferencedDocument(
+                $referencedDocumentId,
+                $orderId,
+                $documentConfiguration,
+                $context
+            );
+        } else {
+            // create version of order to ensure the document stays the same even if the order changes
+            $orderVersionId = $this->orderRepository->createVersion($orderId, $context, self::VERSION_NAME);
+        }
+
+        $documentId = Uuid::randomHex();
         $deepLinkCode = Random::getAlphanumericString(32);
         $this->documentRepository->create([
             [
@@ -107,6 +125,7 @@ class DocumentService
                 'orderVersionId' => $orderVersionId,
                 'config' => $documentConfiguration->toArray(),
                 'deepLinkCode' => $deepLinkCode,
+                'referencedDocumentId' => $referencedDocumentId,
             ],
         ],
             $context
@@ -233,5 +252,43 @@ class DocumentService
         $typeConfig = $this->documentConfigRepository->search($criteria, $context)->first();
 
         return DocumentConfigurationFactory::createConfiguration($specificConfiguration, $typeConfig);
+    }
+
+    /**
+     * @throws DocumentGenerationException
+     * @throws InconsistentCriteriaIdsException
+     */
+    private function getVersionIdFromReferencedDocument(
+        string $referencedDocumentId,
+        string $orderId,
+        DocumentConfiguration $documentConfiguration,
+        Context $context
+    ): string {
+        $referencedDocumentType = $documentConfiguration->__get('referencedDocumentType');
+
+        $criteria = (new Criteria([$referencedDocumentId]))
+            ->addFilter(new MultiFilter(
+                    MultiFilter::CONNECTION_AND,
+                    [
+                        new EqualsFilter('document.documentType.technicalName', $referencedDocumentType),
+                        new EqualsFilter('orderId', $orderId),
+                    ]
+                )
+            )
+            ->setLimit(1);
+
+        /** @var DocumentEntity|null $referencedDocument */
+        $referencedDocument = $this->documentRepository->search($criteria, $context)->get($referencedDocumentId);
+
+        if (!$referencedDocument) {
+            throw new DocumentGenerationException(
+                sprintf(
+                    'The given referenced document with id %s with type %s for order %s could not be found',
+                    $referencedDocumentId, $referencedDocumentType, $orderId
+                )
+            );
+        }
+
+        return $referencedDocument->getOrderVersionId();
     }
 }

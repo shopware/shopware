@@ -139,8 +139,8 @@ Component.register('sw-order-document-card', {
             this.getList();
         },
 
-        createDocument(orderId, documentTypeName, params) {
-            return this.documentService.createDocument(orderId, documentTypeName, params);
+        createDocument(orderId, documentTypeName, params, referencedDocumentId) {
+            return this.documentService.createDocument(orderId, documentTypeName, params, referencedDocumentId);
         },
 
         onCancelCreation() {
@@ -153,10 +153,15 @@ Component.register('sw-order-document-card', {
             this.showModal = true;
         },
 
-        onCreateDocument(params, additionalAction) {
+        onCreateDocument(params, additionalAction, referencedDocumentId = null) {
             this.showModal = false;
             this.$nextTick().then(() => {
-                this.createDocument(this.order.id, this.currentDocumentType.technicalName, params).then((response) => {
+                this.createDocument(
+                    this.order.id,
+                    this.currentDocumentType.technicalName,
+                    params,
+                    referencedDocumentId
+                ).then((response) => {
                     this.documentCardEmpty = false;
 
                     this.$nextTick().then(() => {

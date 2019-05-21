@@ -1767,10 +1767,15 @@ class Migration1536233560BasicData extends MigrationStep
 
         $deliveryNoteConfig = $defaultConfig;
         $deliveryNoteConfig['displayPrices'] = false;
+
+        $stornoConfig = $defaultConfig;
+        $stornoConfig['referencedDocumentType'] = InvoiceGenerator::INVOICE;
+
         $configJson = json_encode($defaultConfig);
         $deliveryNoteConfigJson = json_encode($deliveryNoteConfig);
+        $stornoConfigJson = json_encode($stornoConfig);
 
-        $connection->insert('document_base_config', ['id' => $stornoConfigId, 'name' => StornoGenerator::STORNO, 'global' => 1, 'filename_prefix' => StornoGenerator::STORNO . '_', 'document_type_id' => $stornoId, 'config' => $configJson, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('document_base_config', ['id' => $stornoConfigId, 'name' => StornoGenerator::STORNO, 'global' => 1, 'filename_prefix' => StornoGenerator::STORNO . '_', 'document_type_id' => $stornoId, 'config' => $stornoConfigJson, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);
         $connection->insert('document_base_config', ['id' => $invoiceConfigId, 'name' => InvoiceGenerator::INVOICE, 'global' => 1, 'filename_prefix' => InvoiceGenerator::INVOICE . '_', 'document_type_id' => $invoiceId, 'config' => $configJson, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);
         $connection->insert('document_base_config', ['id' => $deliveryConfigId, 'name' => DeliveryNoteGenerator::DELIVERY_NOTE, 'global' => 1, 'filename_prefix' => DeliveryNoteGenerator::DELIVERY_NOTE . '_', 'document_type_id' => $deliverNoteId, 'config' => $deliveryNoteConfigJson, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);
         $connection->insert('document_base_config', ['id' => $creditConfigId, 'name' => CreditNoteGenerator::CREDIT_NOTE, 'global' => 1, 'filename_prefix' => CreditNoteGenerator::CREDIT_NOTE . '_', 'document_type_id' => $creditNoteId, 'config' => $configJson, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);

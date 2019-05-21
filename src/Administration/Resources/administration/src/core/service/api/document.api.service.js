@@ -11,12 +11,17 @@ class DocumentApiService extends ApiService {
         this.name = 'documentService';
     }
 
-    createDocument(orderId, documentTypeName, documentConfig = {}, additionalParams = {}, additionalHeaders = {}) {
+    createDocument(orderId,
+        documentTypeName,
+        documentConfig = {},
+        referencedDocumentId = null,
+        additionalParams = {},
+        additionalHeaders = {}) {
         const route = `/_action/order/${orderId}/document/${documentTypeName}`;
         const headers = this.getBasicHeaders(additionalHeaders);
 
         return this.httpClient
-            .post(route, { config: documentConfig }, {
+            .post(route, { config: documentConfig, referenced_document_id: referencedDocumentId }, {
                 additionalParams,
                 headers
             });

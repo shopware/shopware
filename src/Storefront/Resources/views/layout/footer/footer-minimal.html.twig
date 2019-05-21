@@ -2,27 +2,7 @@
 
 {% block layout_footer_inner_container %}
     <footer class="footer-minimal">
-        {% block layout_footer_minimal_navigation %}
-            <div class="container">
-                {% block layout_footer_minimal_content %}
-                    <ul class="footer-minimal-list">
-                        {% for root in page.footer.navigation.tree %}
-                            {% for treeItem in root.children %}
-                                {% block layout_footer_minimal_item %}
-                                    <li class="footer-minimal-item">
-                                        <a class="footer-minimal-link"
-                                           href="{{ path('frontend.navigation.page', {'navigationId': treeItem.category.id}) }}"
-                                           title="{{ treeItem.category.translated.name }}">
-                                            {{ treeItem.category.translated.name }}
-                                        </a>
-                                    </li>
-                                {% endblock %}
-                            {% endfor %}
-                        {% endfor %}
-                    </ul>
-                {% endblock %}
-            </div>
-        {% endblock %}
+        {% block layout_footer_navigation %}{% endblock %}
 
         {% block layout_footer_bottom %}
             {{ parent() }}

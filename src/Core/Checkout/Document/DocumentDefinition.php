@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Document;
 
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
@@ -47,10 +48,12 @@ class DocumentDefinition extends EntityDefinition
             new FkField('referenced_document_id', 'referencedDocumentId', self::class),
 
             (new FkField('order_id', 'orderId', OrderDefinition::class))->addFlags(new Required()),
+            new FkField('document_media_file_id', 'documentMediaFileId', MediaDefinition::class),
             (new ReferenceVersionField(OrderDefinition::class, 'order_version_id'))->addFlags(new Required()),
 
             new JsonField('config', 'config'),
             new BoolField('sent', 'sent'),
+            new BoolField('static', 'static'),
             (new StringField('deep_link_code', 'deepLinkCode'))->addFlags(new Required()),
 
             new CustomFields(),
@@ -59,6 +62,7 @@ class DocumentDefinition extends EntityDefinition
             new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, 'id', false),
             new ManyToOneAssociationField('referencedDocument', 'referenced_document_id', self::class, 'id', false),
             new OneToManyAssociationField('dependentDocuments', self::class, 'referenced_document_id'),
+            new ManyToOneAssociationField('documentMediaFile', 'document_media_file_id', MediaDefinition::class, 'id', false),
         ]);
     }
 }

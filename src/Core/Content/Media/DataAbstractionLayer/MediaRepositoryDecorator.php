@@ -99,7 +99,9 @@ class MediaRepositoryDecorator implements EntityRepositoryInterface
 
     public function searchIds(Criteria $criteria, Context $context): IdSearchResult
     {
-        $criteria->addFilter(new EqualsFilter('private', false));
+        if ($context->getScope() !== Context::SYSTEM_SCOPE) {
+            $criteria->addFilter(new EqualsFilter('private', false));
+        }
 
         return $this->innerRepo->searchIds($criteria, $context);
     }
@@ -111,7 +113,9 @@ class MediaRepositoryDecorator implements EntityRepositoryInterface
 
     public function search(Criteria $criteria, Context $context): EntitySearchResult
     {
-        $criteria->addFilter(new EqualsFilter('private', false));
+        if ($context->getScope() !== Context::SYSTEM_SCOPE) {
+            $criteria->addFilter(new EqualsFilter('private', false));
+        }
 
         return $this->innerRepo->search($criteria, $context);
     }

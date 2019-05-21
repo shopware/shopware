@@ -75,7 +75,11 @@ export default {
             default: true
         },
 
-        mediaIsPrivate: false
+        mediaIsPrivate: {
+            type: Boolean,
+            required: false,
+            default: false
+        }
     },
 
     data() {

@@ -73,7 +73,10 @@ class MediaRepositoryDecoratorTest extends TestCase
             ],
             $this->context
         );
-        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context);
+        $mediaRepository = $this->mediaRepository;
+        $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($mediaId, &$media, $mediaRepository) {
+            $media = $mediaRepository->search(new Criteria([$mediaId]), $this->context);
+        });
 
         static::assertEquals(0, $media->count());
     }
@@ -129,13 +132,19 @@ class MediaRepositoryDecoratorTest extends TestCase
             ],
             $this->context
         );
-        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context);
+        $mediaRepository = $this->mediaRepository;
+        $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($mediaId, &$media, $mediaRepository) {
+            $media = $mediaRepository->search(new Criteria([$mediaId]), $context);
+        });
 
         static::assertEquals(0, $media->count());
 
-        $criteria = new Criteria([$documentId]);
-        $criteria->addAssociation('documentMediaFile');
-        $document = $this->documentRepository->search($criteria, $this->context);
+        $documentRepository = $this->documentRepository;
+        $this->context->scope(Context::USER_SCOPE, function (Context $context) use (&$document, $documentId, $documentRepository) {
+            $criteria = new Criteria([$documentId]);
+            $criteria->addAssociation('documentMediaFile');
+            $document = $documentRepository->search($criteria, $context);
+        });
         static::assertEquals(1, $document->count());
         static::assertEquals($mediaId, $document->get($documentId)->getDocumentMediaFile()->getId());
         static::assertEquals('', $document->get($documentId)->getDocumentMediaFile()->getUrl());

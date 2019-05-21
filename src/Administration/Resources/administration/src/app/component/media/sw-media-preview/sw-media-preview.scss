@@ -2,6 +2,7 @@
 
 $sw-media-preview-play-button-size:         50%;
 $sw-media-preview-play-button-z-index:      5;
+$sw-media-preview-locked-icon-z-index:      5;
 $sw-media-preview-border-color:             $color-steam-cloud;
 $sw-media-preview-border-color-highlighted: $color-shopware-blue;
 $sw-media-preview-border-radius:            $border-radius-default;
@@ -63,6 +64,6 @@ $sw-media-preview-background:               $color-white;
         top: 2px;
         position: absolute;
         left: 16px;
-        z-index: 999;
+        z-index: $sw-media-preview-locked-icon-z-index;
     }
 }

@@ -56,12 +56,14 @@ class MediaFolderRepositoryDecorator implements EntityRepositoryInterface
 
     public function searchIds(Criteria $criteria, Context $context): IdSearchResult
     {
-        $criteria->addFilter(
-            new MultiFilter('OR', [
-                new EqualsFilter('media_folder.configuration.private', false),
-                new EqualsFilter('media_folder.configuration.private', null),
-            ])
-        );
+        if ($context->getScope() !== Context::SYSTEM_SCOPE) {
+            $criteria->addFilter(
+                new MultiFilter('OR', [
+                    new EqualsFilter('media_folder.configuration.private', false),
+                    new EqualsFilter('media_folder.configuration.private', null),
+                ])
+            );
+        }
 
         return $this->innerRepo->searchIds($criteria, $context);
     }
@@ -73,12 +75,14 @@ class MediaFolderRepositoryDecorator implements EntityRepositoryInterface
 
     public function search(Criteria $criteria, Context $context): EntitySearchResult
     {
-        $criteria->addFilter(
-            new MultiFilter('OR', [
-                new EqualsFilter('media_folder.configuration.private', false),
-                new EqualsFilter('media_folder.configuration.private', null),
-            ])
-        );
+        if ($context->getScope() !== Context::SYSTEM_SCOPE) {
+            $criteria->addFilter(
+                new MultiFilter('OR', [
+                    new EqualsFilter('media_folder.configuration.private', false),
+                    new EqualsFilter('media_folder.configuration.private', null),
+                ])
+            );
+        }
 
         return $this->innerRepo->search($criteria, $context);
     }

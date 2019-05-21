@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Document;
 
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
@@ -29,6 +30,11 @@ class DocumentEntity extends Entity
     /**
      * @var string
      */
+    protected $documentMediaFileId;
+
+    /**
+     * @var string
+     */
     protected $fileType;
 
     /**
@@ -45,6 +51,11 @@ class DocumentEntity extends Entity
      * @var bool
      */
     protected $sent;
+
+    /**
+     * @var bool
+     */
+    protected $static;
 
     /**
      * @var string
@@ -75,6 +86,11 @@ class DocumentEntity extends Entity
      * @var DocumentCollection|null
      */
     protected $dependentDocuments;
+
+    /**
+     * @var MediaEntity
+     */
+    protected $documentMediaFile;
 
     public function getFileType(): string
     {
@@ -204,5 +220,35 @@ class DocumentEntity extends Entity
     public function setDependentDocuments(?DocumentCollection $dependentDocuments): void
     {
         $this->dependentDocuments = $dependentDocuments;
+    }
+
+    public function isStatic(): bool
+    {
+        return $this->static;
+    }
+
+    public function setStatic(bool $static): void
+    {
+        $this->static = $static;
+    }
+
+    public function getDocumentMediaFile(): ?MediaEntity
+    {
+        return $this->documentMediaFile;
+    }
+
+    public function setDocumentMediaFile(?MediaEntity $documentMediaFile): void
+    {
+        $this->documentMediaFile = $documentMediaFile;
+    }
+
+    public function getDocumentMediaFileId(): ?string
+    {
+        return $this->documentMediaFileId;
+    }
+
+    public function setDocumentMediaFileId(?string $documentMediaFileId): void
+    {
+        $this->documentMediaFileId = $documentMediaFileId;
     }
 }

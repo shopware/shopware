@@ -10,7 +10,7 @@
         {% block sw_product_detail_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_product_detail_actions_abort %}
-                    <sw-button :disabled="product.isLoading" :routerLink="{ name: 'sw.product.index' }">
+                    <sw-button :disabled="isLoading" :routerLink="{ name: 'sw.product.index' }">
                         {{ $tc('sw-product.detail.buttonCancel') }}
                     </sw-button>
                 {% endblock %}
@@ -20,7 +20,7 @@
                         class="sw-product-detail__save-action"
                         :isLoading="isLoading"
                         :processSuccess="isSaveSuccessful"
-                        :disabled="disableSaving"
+                        :disabled="isLoading"
                         variant="primary"
                         @process-finish="saveFinish"
                         @click.prevent="onSave">
@@ -35,7 +35,8 @@
                 <sw-language-switch
                     @on-change="onChangeLanguage"
                     :saveChangesFunction="saveOnLanguageChange"
-                    :abortChangeFunction="abortOnLanguageChange">
+                    :abortChangeFunction="abortOnLanguageChange"
+                    :disabled="!productId">
                 </sw-language-switch>
             </template>
         {% endblock %}
@@ -45,12 +46,13 @@
 
                 {% block sw_product_detail_content_language_info %}
                     <sw-language-info
-                            :entityDescription="placeholder(product, 'name', $tc('sw-product.detail.textHeadline'))">
+                            :entityDescription="placeholder(product, 'name', $tc('sw-product.detail.textHeadline'))"
+                            :isNewEntity="!productId">
                     </sw-language-info>
                 {% endblock %}
 
                 {% block sw_product_detail_content_tabs %}
-                    <sw-tabs class="sw-product-detail-page__tabs">
+                    <sw-tabs class="sw-product-detail-page__tabs" v-if="productId">
                         {% block sw_product_detail_content_tabs_general %}
                             <sw-tabs-item class="sw-product-detail__tab-general"
                                           :route="{ name: 'sw.product.detail.base', params: { id: $route.params.id } }"
@@ -86,15 +88,7 @@
                 {% endblock %}
 
                 {% block sw_product_detail_content_view %}
-                    <router-view :product="product"
-                                 :manufacturers="manufacturers"
-                                 :manufacturerStore="manufacturerStore"
-                                 :taxes="taxes"
-                                 :customFieldSets="customFieldSets"
-                                 :currencies="currencies"
-                                 @media-drop="onAddItemToProduct"
-                                 @calculating="updatePriceIsCalculating">
-                    </router-view>
+                    <router-view @media-drop="onAddItemToProduct"></router-view>
                 {% endblock %}
 
 

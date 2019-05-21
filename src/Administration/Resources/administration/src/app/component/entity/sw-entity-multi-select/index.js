@@ -158,6 +158,7 @@ export default {
             result.forEach((item) => {
                 this.currentOptions.push(item);
             });
+            this.$emit('search-finished', this.currentOptions);
         }
     }
 };

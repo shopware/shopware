@@ -135,14 +135,25 @@
       "tabProperties": "Properties",
       "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Product \"{name}\" has been saved successfully.",
-      "messageUploadSuccess": "{count} of {total} files saved."
+      "messageUploadSuccess": "{count} of {total} files saved.",
+      "titleSaveWarning": "No change",
+      "messageSaveWarning": "You have not made any changes."
     },
     "mediaForm": {
+      "errorHeadline": "Error",
       "errorNoImage": "\"{file}\" is not an image",
       "errorMediaItemDuplicated": "Media item already assigned"
     },
+    "advancedPrices": {
+      "deletionNotPossibleTitle": "Deletion is not possible",
+      "deletionNotPossibleMessage": "The last price of the default currency can't get deleted."
+    },
     "properties": {
-      "cardTitleProperties": "Properties"
+      "cardTitleProperties": "Properties",
+      "emptyStateNoOptionsTitle": "No options available",
+      "emptyStateNoOptionsDescription": "You have to create options in the properties to be able to assign them.",
+      "emptyStateNoSelectedOptionsTitle": "No options selected",
+      "emptyStateNoSelectedOptionsDescription": "Please select options from the search above."
     },
     "variations": {
       "emptyStateDescription": "There are no variants for this product yet.",

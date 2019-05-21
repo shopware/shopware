@@ -2,27 +2,23 @@
     <div class="sw-product-category-form">
 
         {% block sw_product_category_form_category_field %}
-            <sw-select id="categories"
-                       multi
-                       class="sw-product-detail__select-category"
-                       ref="multiSelectCategories"
-                       :label="$tc('sw-product.categoryForm.labelCategory')"
-                       :placeholder="$tc('sw-product.categoryForm.placeholderCategory')"
-                       :associationStore="categoryAssociationStore"
-                       :store="categoryStore"
-                       v-model="product.categories">
-            </sw-select>
+            <sw-many-to-many-select v-if="!loading.product"
+                                    id="categories"
+                                    :collection="product.categories"
+                                    class="sw-product-detail__select-category"
+                                    :label="$tc('sw-product.categoryForm.labelCategory')"
+                                    :localMode="localMode"
+                                    :placeholder="$tc('sw-product.categoryForm.placeholderCategory')">
+            </sw-many-to-many-select>
         {% endblock %}
 
         {% block sw_product_category_form_visibility_field %}
-            <sw-product-visibility-select id="visibilities"
-                       multi
-                       class="sw-product-detail__select-visibility"
-                       :label="$tc('sw-product.visibility.labelVisibility')"
-                       :placeholder="$tc('sw-product.visibility.placeholderVisibility')"
-                       :associationStore="visibilityAssociationStore"
-                       :store="salesChannelStore"
-                       v-model="product.visibilities">
+            <sw-product-visibility-select v-if="!loading.product && multiSelectVisible"
+                                          class="sw-product-detail__select-visibility"
+                                          :collection="product.visibilities"
+                                          :label="$tc('sw-product.visibility.labelVisibility')"
+                                          :placeholder="$tc('sw-product.visibility.placeholderVisibility')"
+                                          :localMode="localMode">
             </sw-product-visibility-select>
         {% endblock %}
 
@@ -34,7 +30,7 @@
             </sw-container>
 
             <sw-modal v-if="displayVisibilityDetail" @modal-close="closeAdvancedVisibility" :title="$tc('sw-product.visibility.textHeadline')" class="sw-product-category-form__visibility_modal">
-                <sw-product-visibility-detail :visibilities="visibilityAssociationStore" />
+                <sw-product-visibility-detail />
 
                 <template slot="modal-footer">
                     <sw-button variant="primary" size="small" @click="closeAdvancedVisibility">

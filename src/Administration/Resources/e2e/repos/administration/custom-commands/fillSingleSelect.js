@@ -8,10 +8,11 @@ exports.command = function fillSingleSelect(selector, value, resultPosition = 0)
         .click(selector)
         .waitForElementVisible(`${selector} .sw-single-select__results-list`)
         .waitForElementNotPresent(`${selector} .sw-loader__element`)
-        .expect.element(`${selector} .sw-single-select__results-list .sw-single-select-option--${resultPosition}`).to.have.text.that.contains(value);
+        .fillField(`${selector} .sw-single-select__input-single`, value, true)
+        .assert.containsText(`${selector} .sw-single-select__results-list .sw-single-select-option--0`, value);
 
     this
-        .click(`${selector} .sw-single-select__results-list .sw-single-select-option--${resultPosition}`)
+        .click(`${selector} .sw-single-select__results-list .sw-single-select-option--0`)
         .waitForElementNotPresent(`${selector} .sw-single-select__results`);
     return this;
 };

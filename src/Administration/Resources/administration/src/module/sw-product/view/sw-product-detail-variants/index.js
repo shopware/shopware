@@ -1,4 +1,5 @@
 import { Component } from 'src/core/shopware';
+import { mapState, mapGetters } from 'vuex';
 import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-product-detail-variants.html.twig';
 import './sw-product-detail-variants.scss';
@@ -21,15 +22,15 @@ Component.register('sw-product-detail-variants', {
         };
     },
 
-    props: {
-        product: {
-            type: Object,
-            required: true,
-            default: {}
-        }
-    },
-
     computed: {
+        ...mapState('swProductDetail', [
+            'product'
+        ]),
+
+        ...mapGetters('swProductDetail', {
+            isStoreLoading: 'isLoading'
+        }),
+
         productRepository() {
             return this.repositoryFactory.create('product');
         },
@@ -54,6 +55,16 @@ Component.register('sw-product-detail-variants', {
         }
     },
 
+    watch: {
+        isStoreLoading: {
+            handler() {
+                if (this.isStoreLoading === false) {
+                    this.loadData();
+                }
+            }
+        }
+    },
+
     mounted() {
         this.mountedComponent();
     },
@@ -64,10 +75,12 @@ Component.register('sw-product-detail-variants', {
         },
 
         loadData() {
-            this.loadOptions()
-                .then(() => {
-                    return this.loadGroups();
-                });
+            if (!this.isStoreLoading) {
+                this.loadOptions()
+                    .then(() => {
+                        return this.loadGroups();
+                    });
+            }
         },
 
         loadOptions() {

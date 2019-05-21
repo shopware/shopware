@@ -18,13 +18,9 @@ class ProductPageObject extends GeneralPageObject {
         this.browser
             .fillField('input[name=sw-field--product-name]', productName)
             .fillField('.sw-text-editor__content-editor', 'My very first description', false, 'editor')
-            .fillSwSelectComponent(
+            .fillSingleSelect(
                 '.sw-select-product__select_manufacturer',
-                {
-                    value: 'shopware AG',
-                    searchTerm: 'shopware AG',
-                    isMulti: false
-                }
+                'shopware AG'
             )
             .fillField('input[name=sw-field--price-gross]', '99')
             .fillSelectField('select[name=sw-field--product-taxId]', '19%')
@@ -34,7 +30,12 @@ class ProductPageObject extends GeneralPageObject {
         this.browser
             .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .click(this.elements.productSaveAction)
-            .waitForElementVisible('.icon--small-default-checkmark-line-medium');
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium')
+            .waitForElementVisible('.sw-product-detail-page__tabs')
+            .assert.urlContains('detail');
+
+        this.browser
+            .checkNotification('Product "Marci Darci" has been saved successfully.');
     }
 
     addProductImageViaUrl(imagePath) {
@@ -48,12 +49,7 @@ class ProductPageObject extends GeneralPageObject {
             .waitForElementNotPresent('input[name=sw-field--url]')
             .waitForElementVisible('.sw-media-preview__item')
             .checkNotification('A file has been saved successfully.')
-            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .expect.element(this.elements.productSaveAction).to.not.have.attribute('disabled');
-
-        this.browser
-            .click(this.elements.productSaveAction)
-            .waitForElementVisible('.icon--small-default-checkmark-line-medium');
     }
 
     deleteProduct(productName) {
@@ -122,12 +118,15 @@ class ProductPageObject extends GeneralPageObject {
 
     createProductTag(value, position = 0) {
         this.browser
-            .fillField(`.sw-tag-field ${this.elements.selectInput}`, value)
-            .expect.element('.sw-select__results-empty-message').to.have.text.that.equals(`No results found for "${value}".`);
+            .fillField(`.sw-tag-field .sw-multi-select__selection-item-input input`, value)
+            .expect.element('.sw-multi-select__results-empty-message').to.have.text.that.equals(`No results found for "${value}".`);
 
         this.browser
-            .setValue(`.sw-tag-field ${this.elements.selectInput}`, this.browser.Keys.ENTER)
-            .expect.element(`${this.elements.selectSelectedItem}--${position}`).to.have.text.that.equals(value);
+            .setValue(`.sw-tag-field .sw-multi-select__selection-item-input input`, this.browser.Keys.ENTER)
+            .expect.element(`.sw-tag-field .sw-multi-select__selection-item-input input`).to.have.value.that.equals('');
+
+        this.browser
+            .expect.element(`.sw-multi-select__selection-item-holder--${position} .sw-multi-select__selection-item`).to.have.text.that.equals(value);
 
         this.browser.setValue(`.sw-tag-field ${this.elements.selectInput}`, this.browser.Keys.ESCAPE);
     }

@@ -33,29 +33,28 @@ module.exports = {
             .waitForElementNotPresent(page.elements.loader)
             .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .getLocationInView('.sw-product-detail__select-category')
-            .fillSwSelectComponent(
+            .fillMultiSelect(
                 '.sw-product-detail__select-category',
-                {
-                    value: global.AdminFixtureService.basicFixture.name,
-                    isMulti: true,
-                    searchTerm: global.AdminFixtureService.basicFixture.name
-                }
+                global.AdminFixtureService.basicFixture.name,
+                global.AdminFixtureService.basicFixture.name
             )
-            .fillSwSelectComponent(
+            .fillMultiSelect(
                 '.sw-product-detail__select-visibility',
-                {
-                    value: 'Storefront',
-                    isMulti: true,
-                    searchTerm: 'Storefront'
-                }
+                'Storefront',
+                'Storefront'
             )
+            .waitForElementNotPresent(`${page.elements.productSaveAction}.sw-button--disabled`)
             .expect.element(page.elements.productSaveAction).to.not.have.attribute('disabled');
 
         browser
             .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .click('.sw-product-detail__save-action')
-            .waitForElementVisible('.icon--small-default-checkmark-line-medium')
-            .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
+            .assert.urlContains('#/sw/product/detail');
+
+        browser
+            .checkNotification('You have not made any changes.');
+
+        browser
             .assert.urlContains('#/sw/product/detail');
     },
     'upload product image ': (browser) => {

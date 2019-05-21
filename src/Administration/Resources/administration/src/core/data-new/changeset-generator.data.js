@@ -1,3 +1,5 @@
+import types from 'src/core/service/utils/types.utils';
+
 export default class ChangesetGenerator {
     constructor(schema) {
         this.schema = schema;
@@ -37,8 +39,8 @@ export default class ChangesetGenerator {
                 return true;
             }
 
-            const draftValue = draft[property];
-            const originValue = origin[property];
+            const draftValue = typeof draft[property] === 'boolean' ? draft[property] : draft[property] || null;
+            const originValue = typeof origin[property] === 'boolean' ? origin[property] : origin[property] || null;
 
             if (this.scalar.includes(type.type)) {
                 if (draftValue !== originValue) {
@@ -48,7 +50,10 @@ export default class ChangesetGenerator {
             }
 
             if (this.jsonTypes.includes(type.type)) {
-                const equals = JSON.stringify(originValue) === JSON.stringify(draftValue);
+                const originValueStringified = types.isEmpty(originValue) ? null : JSON.stringify(originValue);
+                const draftValueStringified = types.isEmpty(draftValue) ? null : JSON.stringify(draftValue);
+
+                const equals = originValueStringified === draftValueStringified;
 
                 if (!equals) {
                     changes[property] = draftValue;

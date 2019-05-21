@@ -1,64 +1,64 @@
-import { Component, State } from 'src/core/shopware';
-import CriteriaFactory from 'src/core/factory/criteria.factory';
+import { Component, Mixin } from 'src/core/shopware';
+import { mapState, mapGetters } from 'vuex';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-product-detail-context-prices.html.twig';
 import './sw-product-detail-context-prices.scss';
 
 Component.register('sw-product-detail-context-prices', {
     template,
 
-    props: {
-        product: {
-            type: Object,
-            required: true,
-            default: {}
-        },
-        taxes: {
-            type: Array,
-            required: true,
-            default: []
-        },
-        currencies: {
-            type: Array,
-            required: true,
-            default: []
-        },
-        isLoading: {
-            type: Boolean,
-            required: false,
-            default: false
-        }
-    },
+    inject: ['repositoryFactory', 'context'],
+
+    mixins: [
+        Mixin.getByName('notification')
+    ],
 
     data() {
         return {
             rules: [],
-            totalRules: 0,
-            ruleFilter: CriteriaFactory.multi(
-                'OR',
-                CriteriaFactory.contains('rule.moduleTypes.types', 'price'),
-                CriteriaFactory.equals('rule.moduleTypes', null)
-            ),
-            isLoadingRules: false
+            totalRules: 0
         };
     },
 
     computed: {
-        priceRuleStore() {
-            return this.product.getAssociation('prices');
+        ...mapState('swProductDetail', [
+            'repositoryFactory',
+            'context',
+            'product',
+            'taxes',
+            'currencies'
+        ]),
+
+        ...mapGetters('swProductDetail', [
+            'isLoading'
+        ]),
+
+        priceRepository() {
+            if (this.product && this.product.prices) {
+                return this.repositoryFactory.create(
+                    this.product.prices.entity,
+                    this.product.prices.source
+                );
+            }
+            return null;
         },
 
-        ruleStore() {
-            return State.getStore('rule');
+        ruleRepository() {
+            return this.repositoryFactory.create('rule');
         },
 
         priceRuleGroups() {
             const priceRuleGroups = {};
 
-            this.product.prices.forEach((rule) => {
-                if (this.priceRuleStore.getById(rule.id).isDeleted) {
-                    return;
-                }
+            if (!this.product.prices || !this.product.prices.items) {
+                return priceRuleGroups;
+            }
 
+            if (!this.rules || !this.rules.items) {
+                return priceRuleGroups;
+            }
+
+            Object.values(this.product.prices.items).forEach((rule) => {
                 if (!priceRuleGroups[rule.ruleId]) {
                     priceRuleGroups[rule.ruleId] = {
                         ruleId: rule.ruleId,
@@ -78,6 +78,15 @@ Component.register('sw-product-detail-context-prices', {
                 priceRuleGroups[rule.ruleId].currencies[rule.currencyId].prices.push(rule);
             });
 
+            // Sort prices for quantity
+            Object.values(priceRuleGroups).forEach((priceRule) => {
+                Object.values(priceRule.currencies).forEach((currency) => {
+                    currency.prices = currency.prices.sort((a, b) => {
+                        return a.quantityStart - b.quantityStart;
+                    });
+                });
+            });
+
             return priceRuleGroups;
         },
 
@@ -91,19 +100,19 @@ Component.register('sw-product-detail-context-prices', {
         isLoaded() {
             return !this.isLoading &&
                    !this.isLoadingRules &&
-                   this.currencies.length &&
-                   this.taxes.length &&
+                   this.currencies.items &&
+                   this.taxes.items &&
                    this.product;
         },
 
         productTaxRate() {
-            return this.taxes.find((taxRate) => {
+            return Object.values(this.taxes.items).find((taxRate) => {
                 return taxRate.id === this.product.taxId;
             });
         },
 
         defaultCurrency() {
-            return this.currencies.find((currency) => {
+            return Object.values(this.currencies.items).find((currency) => {
                 return currency.isDefault;
             });
         }
@@ -115,23 +124,20 @@ Component.register('sw-product-detail-context-prices', {
 
     methods: {
         mountedComponent() {
-            this.product.getAssociation('prices').getList({
-                page: 1,
-                limit: 500,
-                sortBy: 'quantityStart'
-            });
+            const ruleCriteria = new Criteria(1, 500);
+            ruleCriteria.addFilter(
+                Criteria.multi('OR', [
+                    Criteria.contains('rule.moduleTypes.types', 'price'),
+                    Criteria.equals('rule.moduleTypes', null)
+                ])
+            );
 
-            this.isLoadingRules = true;
+            this.$store.commit('swProductDetail/setLoading', ['rules', true]);
+            this.ruleRepository.search(ruleCriteria, this.context).then((res) => {
+                this.rules = res;
+                this.totalRules = res.total;
 
-            this.ruleStore.getList({
-                page: 1,
-                limit: 500,
-                criteria: this.ruleFilter
-            }).then((response) => {
-                this.rules = response.items;
-                this.totalRules = response.total;
-
-                this.isLoadingRules = false;
+                this.$store.commit('swProductDetail/setLoading', ['rules', false]);
             });
         },
 
@@ -148,39 +154,40 @@ Component.register('sw-product-detail-context-prices', {
                 return;
             }
 
-            const newPriceRule = this.priceRuleStore.create();
+            const newPriceRule = this.priceRepository.create(this.context);
 
             newPriceRule.ruleId = null;
             newPriceRule.productId = this.product.id;
             newPriceRule.quantityStart = 1;
             newPriceRule.quantityEnd = null;
             newPriceRule.currencyId = this.defaultCurrency.id;
-            newPriceRule.price.linked = true;
+            newPriceRule.price = {
+                gross: null,
+                linked: true,
+                net: null
+            };
 
-            this.product.prices.push(newPriceRule);
+            this.product.prices.add(newPriceRule);
         },
 
         onAddCurrency(ruleId, currency) {
             const defaultCurrencyPrices = this.priceRuleGroups[ruleId].currencies[this.defaultCurrency.id].prices;
 
             defaultCurrencyPrices.forEach((price) => {
-                const newPriceRule = this.priceRuleStore.duplicate(price.id);
+                this.duplicatePriceRule(price.id).then((newPriceRule) => {
+                    // set the the new currency id
+                    newPriceRule.currencyId = currency.id;
 
-                newPriceRule.currencyId = currency.id;
-
-                this.product.prices.push(newPriceRule);
+                    this.product.prices.add(newPriceRule);
+                });
             });
         },
 
         onPriceGroupDelete(ruleId) {
-            this.priceRuleStore.forEach((item) => {
+            Object.values(this.product.prices.items).forEach((item) => {
                 if (item.ruleId === ruleId) {
-                    item.delete();
+                    this.product.prices.remove(item.id);
                 }
-            });
-
-            this.product.prices = this.product.prices.filter((priceRule) => {
-                return priceRule.ruleId !== ruleId;
             });
         },
 
@@ -189,19 +196,36 @@ Component.register('sw-product-detail-context-prices', {
                 return;
             }
 
-            Object.keys(priceGroup.currencies).forEach((currencyId) => {
-                priceGroup.currencies[currencyId].prices.forEach((price) => {
-                    const newPriceRule = this.priceRuleStore.duplicate(price.id);
-                    newPriceRule.ruleId = null;
+            const priceIdsToDuplicate = Object.keys(priceGroup.currencies).reduce((acc, currencyId) => {
+                const priceIds = priceGroup.currencies[currencyId].prices.map((price) => {
+                    return { priceId: price.id, currencyId };
+                });
+                acc = [...acc, ...priceIds];
+                return acc;
+            }, []);
 
-                    this.product.prices.push(newPriceRule);
+            const duplicatePromises = priceIdsToDuplicate.map((price) => {
+                return new Promise((resolve) => {
+                    this.duplicatePriceRule(price.priceId).then((newPriceRule) => {
+                        newPriceRule.ruleId = null;
+                        newPriceRule.currencyId = price.currencyId;
+                        resolve(newPriceRule);
+                    });
+                });
+            });
+
+            Promise.all(duplicatePromises).then((newPriceRules) => {
+                newPriceRules.forEach((newPriceRule) => {
+                    this.product.prices.add(newPriceRule);
                 });
             });
         },
 
         onPriceRuleDuplicate(priceRule) {
-            const newPriceRule = this.priceRuleStore.duplicate(priceRule.id);
-            this.product.prices.push(newPriceRule);
+            this.duplicatePriceRule(priceRule.id).then((newPriceRule) => {
+                newPriceRule.currencyId = priceRule.currencyId;
+                this.product.prices.add(newPriceRule);
+            });
         },
 
         onPriceRuleDelete(priceRule) {
@@ -210,16 +234,17 @@ Component.register('sw-product-detail-context-prices', {
                 const priceRuleGroup = this.priceRuleGroups[priceRule.ruleId];
                 const defaultCurrencyPrices = priceRuleGroup.currencies[this.defaultCurrency.id].prices;
 
-                if (defaultCurrencyPrices.length <= 1 && Object.keys(priceRuleGroup.currencies).length > 1) {
+                if (defaultCurrencyPrices.length <= 1 && Object.keys(priceRuleGroup.currencies.items).length >= 1) {
+                    this.createNotificationError({
+                        title: this.$tc('sw-product.advancedPrices.deletionNotPossibleTitle'),
+                        message: this.$tc('sw-product.advancedPrices.deletionNotPossibleMessage')
+                    });
                     return;
                 }
             }
 
-            this.product.prices = this.product.prices.filter((price) => {
-                return price.id !== priceRule.id;
-            });
-
-            this.priceRuleStore.getById(priceRule.id).delete();
+            const priceRuleToDelete = Object.values(this.product.prices.items).find((price) => price.id === priceRule.id);
+            this.product.prices.remove(priceRuleToDelete.id);
         },
 
         onQuantityEndChange(value, price, priceGroup) {
@@ -230,27 +255,50 @@ Component.register('sw-product-detail-context-prices', {
             }
 
             if (currencyPrices[currencyPrices.length - 1].id === price.id && value !== null) {
-                const newPriceRule = this.priceRuleStore.create();
+                const newPriceRule = this.priceRepository.create(this.context);
 
                 newPriceRule.productId = this.product.id;
                 newPriceRule.ruleId = priceGroup.ruleId;
                 newPriceRule.quantityStart = price.quantityEnd + 1;
                 newPriceRule.quantityEnd = null;
                 newPriceRule.currencyId = price.currencyId;
+                newPriceRule.price = {
+                    gross: null,
+                    linked: true,
+                    net: null
+                };
 
-                this.product.prices.push(newPriceRule);
+                this.product.prices.add(newPriceRule);
             }
         },
 
         findRuleById(ruleId) {
-            return this.rules.find((rule) => {
+            return Object.values(this.rules.items).find((rule) => {
                 return rule.id === ruleId;
             });
         },
 
         findCurrencyById(currencyId) {
-            return this.currencies.find((currency) => {
+            return Object.values(this.currencies.items).find((currency) => {
                 return currency.id === currencyId;
+            });
+        },
+
+        duplicatePriceRule(referencePriceId) {
+            return new Promise((resolve) => {
+                const ref = this.product.prices.get(referencePriceId);
+                const newPriceRule = this.priceRepository.create(this.context);
+
+                // copy the values from reference
+                newPriceRule.productId = ref.productId;
+                newPriceRule.productVersionId = ref.productVersionId;
+                newPriceRule.quantityEnd = ref.quantityEnd;
+                newPriceRule.quantityStart = ref.quantityStart;
+                newPriceRule.ruleId = ref.ruleId;
+                newPriceRule.versionId = ref.versionId;
+                newPriceRule.price = { ...ref.price };
+
+                resolve(newPriceRule);
             });
         }
     }

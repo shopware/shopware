@@ -156,7 +156,7 @@ export default {
             grid.selectAll(false);
 
             this.preventSelection = true;
-            this.options.forEach((option) => {
+            Object.values(this.options).forEach((option) => {
                 grid.selectItem(!option.isDeleted, option);
             });
             this.preventSelection = false;
@@ -255,7 +255,7 @@ export default {
         },
 
         addOptionCount() {
-            const options = Object.values(this.options.store);
+            const options = Object.values(this.options);
 
             this.groups.forEach((group) => {
                 const optionCount = options.filter((option) => {

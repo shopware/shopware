@@ -1,4 +1,4 @@
-import { State } from 'src/core/shopware';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-property-assignment.html.twig';
 import './sw-property-assignment.scss';
 
@@ -6,9 +6,14 @@ export default {
     name: 'sw-property-assignment',
     template,
 
+    inject: ['repositoryFactory', 'context'],
+
     props: {
-        options: {
-            type: Object, // requires an Association store
+        propertyCollection: {
+            validator: (prop) => {
+                // requires an EntityCollection Object
+                return typeof prop === 'undefined' || typeof prop === 'object';
+            },
             required: true
         }
     },
@@ -23,99 +28,103 @@ export default {
     },
 
     computed: {
-        groupStore() {
-            return State.getStore('property_group');
+        groupWithOptions() {
+            if (!this.groups.items) {
+                return [];
+            }
+
+            return Object.values(this.groups.items).reduce((acc, group) => {
+                // set options to group
+                group.options = Object.values(this.properties).filter((property) => property.groupId === group.id);
+
+                acc.push(group);
+                return acc;
+            }, []);
+        },
+
+        properties() {
+            if (this.propertyCollection) {
+                return this.propertyCollection.items;
+            }
+            return {};
+        },
+
+        propertyRepository() {
+            return this.repositoryFactory.create(
+                this.propertyCollection.entity,
+                this.propertyCollection.source
+            );
+        },
+
+        groupRepository() {
+            return this.repositoryFactory.create('property_group');
         }
     },
 
-    created() {
-        this.createdComponent();
+    watch: {
+        propertyCollection: {
+            handler() {
+                if (this.propertyCollection) {
+                    this.groupProperties();
+                    this.isLoading = false;
+                    this.$emit('options-loaded');
+                }
+            },
+            immediate: true
+        }
     },
 
     methods: {
-        createdComponent() {
-            const params = { page: 1, limit: 500 };
-
-            this.isLoading = true;
-            return this.options.getList(params).then(() => {
-                this.groupOptions(this.options);
-                this.$emit('options-loaded');
-                this.isLoading = false;
-            });
-        },
-
         onSelectOption(selection) {
             const item = selection.item;
 
+            // Check if it should be added or removed
             if (selection.selected === true) {
-                if (!this.options.hasId(item.id)) {
-                    const newOption = this.options.create(item.id);
-                    newOption.setData(item);
-                    newOption.isLocal = true;
-                }
+                // Add property
+                this.propertyCollection.add(item);
 
-                // In case the entity was already created but was deleted before
-                this.options.store[item.id].isDeleted = false;
-
-                this.groupOptions(this.options);
-
+                // update search field
                 this.$refs.searchField.addOptionCount();
                 this.$refs.searchField.refreshSelection();
-
-                return;
+            } else {
+                // remove property
+                this.propertyCollection.remove(item.id);
             }
 
-            const assigned = this.options.getById(item.id);
-            this.deleteOption(assigned);
+            // update view
+            this.groupProperties();
         },
 
         deleteOption(option) {
-            if (option.isLocal) {
-                this.options.removeById(option.id);
-            } else {
-                option.delete();
-            }
-            this.groupOptions(this.options);
-            this.$refs.searchField.addOptionCount();
-            this.$refs.searchField.refreshSelection();
+            this.propertyCollection.remove(option.id);
+            this.groupProperties();
         },
 
-        groupOptions(options) {
-            let groupedData = {};
-
-            options.forEach((option) => {
-                if (option.isDeleted) {
-                    return;
+        groupProperties() {
+            // Get Ids
+            const groupIds = Object.values(this.properties).reduce((acc, property) => {
+                if (acc.indexOf(property.groupId) < 0) {
+                    acc.push(property.groupId);
                 }
+                return acc;
+            }, []);
 
-                const groupId = option.groupId;
-                let grouped = groupedData[groupId];
+            if (groupIds.length <= 0) {
+                this.groups = [];
+                return false;
+            }
 
-                if (grouped) {
-                    grouped.options.push(option);
-                    return;
-                }
+            const groupSearchCriteria = new Criteria(1, 500);
+            groupSearchCriteria.addFilter(
+                Criteria.equalsAny('id', groupIds)
+            );
 
-                grouped = { };
-
-                if (option.group.id) {
-                    grouped.group = option.group;
-                } else {
-                    grouped.group = this.groupStore.getById(groupId);
-                    grouped.group.isLocal = false;
-                }
-                groupedData[groupId] = grouped;
-                grouped.options = [];
-                grouped.options.push(option);
+            // Fetch groups with options
+            this.groupRepository.search(groupSearchCriteria, this.context).then((res) => {
+                this.groups = res;
             });
 
-            groupedData = Object.values(groupedData);
-
-            groupedData.sort((a, b) => {
-                return a.group.id.localeCompare(b.group.id);
-            });
-
-            this.groups = groupedData;
+            return true;
         }
     }
 };

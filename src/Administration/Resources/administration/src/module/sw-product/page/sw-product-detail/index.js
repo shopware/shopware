@@ -1,27 +1,29 @@
 import { Component, Mixin, State } from 'src/core/shopware';
-import CriteriaFactory from 'src/core/factory/criteria.factory';
+import { mapState, mapGetters } from 'vuex';
 import template from './sw-product-detail.html.twig';
+import swProductDetailState from './state';
 
 Component.register('sw-product-detail', {
     template,
 
-    inject: ['mediaService'],
+    inject: ['mediaService', 'repositoryFactory', 'context', 'numberRangeService'],
 
     mixins: [
         Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('discard-detail-page-changes')('product')
+        Mixin.getByName('placeholder')
     ],
+
+    props: {
+        productId: {
+            type: String,
+            required: false,
+            default: null
+        }
+    },
 
     data() {
         return {
-            product: {},
-            manufacturers: [],
-            currencies: [],
-            taxes: [],
-            customFieldSets: [],
-            priceIsCalculating: false,
-            isLoading: false,
+            productNumberPreview: '',
             isSaveSuccessful: false
         };
     },
@@ -37,37 +39,40 @@ Component.register('sw-product-detail', {
             return this.placeholder(this.product, 'name');
         },
 
-        productStore() {
-            return State.getStore('product');
+        languageStore() {
+            return State.getStore('language');
         },
 
-        manufacturerStore() {
-            return State.getStore('product_manufacturer');
-        },
+        ...mapState('swProductDetail', [
+            'product',
+            'localMode'
+        ]),
 
-        currencyStore() {
-            return State.getStore('currency');
-        },
+        ...mapGetters('swProductDetail', [
+            'productRepository',
+            'isLoading'
+        ])
+    },
 
-        productMediaStore() {
-            return this.product.getAssociation('media');
-        },
+    beforeCreate() {
+        const store = this.$store;
 
-        taxStore() {
-            return State.getStore('tax');
-        },
-
-        customFieldSetStore() {
-            return State.getStore('custom_field_set');
-        },
-
-        disableSaving() {
-            return this.product.isLoading;
+        // register a new module only if doesn't exists
+        if (!(store && store.state && store.state.swProductDetail)) {
+            this.$store.registerModule('swProductDetail', swProductDetailState);
         }
     },
 
     created() {
         this.createdComponent();
+    },
+
+    beforeDestroy() {
+        this.$store.unregisterModule('swProductDetail');
+    },
+
+    destroyed() {
+        this.destroyedComponent();
     },
 
     watch: {
@@ -78,65 +83,67 @@ Component.register('sw-product-detail', {
 
     methods: {
         createdComponent() {
-            if (this.$route.params.id) {
-                this.productId = this.$route.params.id;
-                this.loadEntityData();
+            // when create
+            if (!this.productId) {
+                // set language to system language
+                if (this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId) {
+                    this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+                }
             }
 
+            // initialize default state
+            this.initState();
+
             this.$root.$on('sw-product-media-form-open-sidebar', this.openMediaSidebar);
+            this.$root.$on('media-remove', (mediaId) => {
+                this.$store.commit('swProductDetail/removeMediaItem', mediaId);
+            });
+            this.$root.$on('product-reload', () => {
+                this.$store.dispatch('swProductDetail/loadAll');
+            });
         },
 
-        updatePriceIsCalculating(value) {
-            this.priceIsCalculating = value;
+        destroyedComponent() {
+            this.$root.$off('sw-product-media-form-open-sidebar');
+            this.$root.$off('media-remove');
+            this.$root.$off('product-reload');
         },
 
-        loadEntityData() {
-            this.product = this.productStore.getById(this.productId);
+        initState() {
+            // when product exists
+            if (this.productId) {
+                // Init state with the repositoryFactory
+                return this.$store.dispatch('swProductDetail/loadState', {
+                    productId: this.productId,
+                    repositoryFactory: this.repositoryFactory,
+                    context: this.context
+                });
+            }
 
-            this.product.getAssociation('media').getList({
-                page: 1,
-                limit: 50,
-                sortBy: 'position',
-                sortDirection: 'ASC'
-            });
-
-            this.manufacturerStore.getList({ page: 1, limit: 100 }).then((response) => {
-                this.manufacturers = response.items;
-            });
-
-            this.currencyStore.getList({ page: 1, limit: 100 }).then((response) => {
-                this.currencies = response.items;
-            });
-
-            this.taxStore.getList({ page: 1, limit: 100 }).then((response) => {
-                this.taxes = response.items;
-            });
-
-            this.customFieldSetStore.getList({
-                page: 1,
-                limit: 100,
-                criteria: CriteriaFactory.equals('relations.entityName', 'product'),
-                associations: {
-                    customFields: {
-                        limit: 100,
-                        sort: 'config.customFieldPosition'
-                    }
-                }
-            }, true).then((response) => {
-                this.customFieldSets = response.items;
+            // When no product id exists init state and new product with the repositoryFactory
+            return this.$store.dispatch('swProductDetail/createState', {
+                repositoryFactory: this.repositoryFactory,
+                context: this.context
+            }).then(() => {
+                // create new product number
+                this.numberRangeService.reserve('product', '', true).then((response) => {
+                    this.productNumberPreview = response.number;
+                    this.product.productNumber = response.number;
+                });
             });
         },
 
         abortOnLanguageChange() {
-            return this.product.hasChanges();
+            return this.$store.getters['swProductDetail/hasChanges'];
         },
 
         saveOnLanguageChange() {
             return this.onSave();
         },
 
-        onChangeLanguage() {
-            this.loadEntityData();
+        onChangeLanguage(languageId) {
+            this.context.languageId = languageId;
+            this.initState();
         },
 
         openMediaSidebar() {
@@ -145,28 +152,67 @@ Component.register('sw-product-detail', {
 
         saveFinish() {
             this.isSaveSuccessful = false;
+
+            if (!this.productId) {
+                this.$router.push({ name: 'sw.product.detail', params: { id: this.product.id } });
+            }
         },
 
         onSave() {
-            const productName = this.product.name || this.product.translated.name;
-            const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');
-            const messageSaveError = this.$tc(
-                'global.notification.notificationSaveErrorMessage', 0, { entityName: productName }
-            );
-            this.isSaveSuccessful = false;
-            this.isLoading = true;
+            if (!this.productId) {
+                if (this.productNumberPreview === this.product.productNumber) {
+                    this.numberRangeService.reserve('product').then((response) => {
+                        this.productNumberPreview = 'reserved';
+                        this.product.productNumber = response.number;
+                    });
+                }
+            }
 
-            return this.product.save().then(() => {
-                this.isLoading = false;
-                this.isSaveSuccessful = true;
-                this.$refs.mediaSidebarItem.getList();
-            }).catch((exception) => {
-                this.createNotificationError({
-                    title: titleSaveError,
-                    message: messageSaveError
-                });
-                this.isLoading = false;
-                throw exception;
+            this.isSaveSuccessful = false;
+
+            return this.$store.dispatch('swProductDetail/saveProduct').then((res) => {
+                switch (res) {
+                case 'empty': {
+                    const titleSaveWarning = this.$tc('sw-product.detail.titleSaveWarning');
+                    const messageSaveWarning = this.$tc('sw-product.detail.messageSaveWarning');
+
+                    this.createNotificationWarning({
+                        title: titleSaveWarning,
+                        message: messageSaveWarning
+                    });
+                    break;
+                }
+
+                case 'success': {
+                    const titleSaveSuccess = this.$tc('sw-product.detail.titleSaveSuccess');
+                    const messageSaveSuccess = this.$tc('sw-product.detail.messageSaveSuccess', 0, {
+                        name: this.product.translated.name
+                    });
+
+                    this.createNotificationSuccess({
+                        title: titleSaveSuccess,
+                        message: messageSaveSuccess
+                    });
+
+                    this.isSaveSuccessful = true;
+
+                    break;
+                }
+
+                default: {
+                    const productName = this.product.translated ? this.product.translated.name : this.product.name;
+                    const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');
+                    const messageSaveError = this.$tc(
+                        'global.notification.notificationSaveErrorMessage', 0, { entityName: productName }
+                    );
+
+                    this.createNotificationError({
+                        title: titleSaveError,
+                        message: messageSaveError
+                    });
+                    break;
+                }
+                }
             });
         },
 
@@ -175,15 +221,25 @@ Component.register('sw-product-detail', {
                 this.createNotificationInfo({
                     message: this.$tc('sw-product.mediaForm.errorMediaItemDuplicated')
                 });
-                return;
+                return false;
             }
-            const productMedia = this.productMediaStore.create();
-            productMedia.mediaId = mediaItem.id;
-            this.product.media.push(productMedia);
+
+            this.$store.dispatch('swProductDetail/addMedia', mediaItem).then((mediaId) => {
+                this.$root.$emit('media-added', mediaId);
+                return true;
+            }).catch(() => {
+                this.createNotificationError({
+                    title: this.$tc('sw-product.mediaForm.errorHeadline'),
+                    message: this.$tc('sw-product.mediaForm.errorMediaItemDuplicated')
+                });
+
+                return false;
+            });
+            return true;
         },
 
         _checkIfMediaIsAlreadyUsed(mediaId) {
-            return this.product.media.some((productMedia) => {
+            return Object.values(this.product.media).some((productMedia) => {
                 return productMedia.mediaId === mediaId;
             });
         }

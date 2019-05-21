@@ -11,7 +11,7 @@
 
         {% block sw_single_select_label %}
             <label v-if="label" :for="selectId" class="sw-single-select__label">
-                {{ label }}
+                {{ label }}{{ required ? '*' : '' }}
             </label>
         {% endblock %}
 
@@ -30,7 +30,7 @@
 
                         <span v-else-if="!isExpanded"
                               class="sw-single-select__searchPlaceholder">
-                            {{ searchPlaceholder }}
+                            {{ searchPlaceholder || placeholder }}
                         </span>
                     {% endblock %}
                 </div>
@@ -67,7 +67,7 @@
                                         <input ref="swSelectInput"
                                                class="sw-single-select__input-single"
                                                type="text"
-                                               :placeholder="searchPlaceholder"
+                                               :placeholder="placeholder"
                                                v-model="searchTerm"
                                                @input="search">
                                         <sw-icon name="small-search" small></sw-icon>

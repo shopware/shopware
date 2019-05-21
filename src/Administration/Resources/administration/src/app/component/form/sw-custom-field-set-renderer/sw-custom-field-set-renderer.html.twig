@@ -10,7 +10,7 @@
                         <template slot-scope="{ active }">
                             <sw-tabs-item
                                     v-for="set in sets"
-                                    v-if="set.customFields.length > 0"
+                                    v-if="set.customFields"
                                     :key="`sw-tab--${set.id}`"
                                     variant="minimal"
                                     :name="set.name"
@@ -23,7 +23,7 @@
                     {% block sw_custom_field_set_renderer_card_tabs_content %}
                         <template slot="content" slot-scope="{ active }">
                             <div v-for="set in sets"
-                                 v-if="set.customFields.length > 0"
+                                 v-if="set.customFields"
                                  v-show="active === set.name">
                                 <template v-for="customField in set.customFields">
                                     {% block sw_custom_field_set_renderer_card_form_renderer %}

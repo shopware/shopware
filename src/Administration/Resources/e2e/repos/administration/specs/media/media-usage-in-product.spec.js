@@ -37,10 +37,6 @@ module.exports = {
     'upload media item': (browser) => {
         const page = productPage(browser);
         page.addProductImageViaUrl(`${process.env.APP_URL}/bundles/administration/static/fixtures/sw-test-image.png`, 'Ultimate Product');
-
-        browser
-            .click(page.elements.primaryButton)
-            .waitForElementVisible('.icon--small-default-checkmark-line-medium');
     },
     'verify upload in media module': (browser) => {
         const page = mediaPage(browser);

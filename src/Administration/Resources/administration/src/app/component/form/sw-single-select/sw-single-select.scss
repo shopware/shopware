@@ -224,6 +224,10 @@ $sw-single-select-transition-result-icon: all ease-in-out .15s;
             top: 14px;
             right: 12px;
         }
+
+        .sw-single-select__searchPlaceholder {
+            color: lighten($color-gutenberg, 25%);
+        }
     }
 
     .sw-single-select__results {

@@ -1,14 +1,15 @@
 {% block sw_product_media_form %}
     <div class="sw-product-media-form">
-
         {% block sw_product_media_form_upload %}
             <sw-upload-store-listener
+                v-if="!isLoading"
                 :uploadTag="product.id"
                 @media-upload-add="onUploadsAdded"
                 @media-upload-finish="successfulUpload"
                 @media-upload-fail="onUploadFailed">
             </sw-upload-store-listener>
             <sw-media-upload
+                    v-if="!isLoading"
                     :uploadTag="product.id"
                     variant="regular"
                     :scrollTarget="$parent.$el"
@@ -19,8 +20,9 @@
         {% endblock %}
 
         {% block sw_product_media_form_grid %}
-            <div class="sw-product-media-form__grid"
+            <div v-if="!isLoading"
                  ref="grid"
+                 class="sw-product-media-form__grid"
                  v-droppable="{ dragGroup: 'media', onDrop: onDropMedia }"
                  :style="gridAutoRows">
                 <sw-loader v-if="product.isLoading"></sw-loader>

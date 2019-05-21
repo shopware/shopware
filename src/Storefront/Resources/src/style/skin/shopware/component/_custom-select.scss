@@ -9,6 +9,10 @@ https://getbootstrap.com/docs/4.3/components/forms/#select-menu
 .custom-select {
     cursor: pointer;
 
+    &:invalid {
+        color: $input-placeholder-color;
+    }
+
     &:hover {
         border-color: $primary;
         color: $primary;

@@ -1,0 +1,12 @@
+{
+  "sw-settings-logging": {
+    "general": {
+      "mainMenuItemGeneral": "Logging",
+      "placeholderSearchBar": "Search logs"
+    },
+    "list": {
+      "columnDate": "Date",
+      "columnContent": "Contents"
+    }
+  }
+}

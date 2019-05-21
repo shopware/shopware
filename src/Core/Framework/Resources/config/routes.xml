@@ -12,4 +12,5 @@
     <import resource="../../MessageQueue/**/*Controller.php" type="annotation" />
     <import resource="../../Migration/**/*Controller.php" type="annotation" />
     <import resource="../../ScheduledTask/**/*Controller.php" type="annotation" />
+    <import resource="../../Logging/**/*Controller.php" type="annotation" />
 </routes>

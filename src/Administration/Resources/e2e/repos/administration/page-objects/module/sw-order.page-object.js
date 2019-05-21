@@ -17,9 +17,10 @@ class OrderPageObject extends GeneralPageObject {
 
         this.browser
             .waitForElementVisible(`.sw-order-state-${scope}__${type}-state select[name=sw-field--selectedActionName]`)
-            .waitForElementNotPresent(`.sw-order-state-${scope}__${type}-state .sw-loader__element`)
+            .waitForElementNotPresent(this.elements.loader)
             .click(`.sw-order-state-${scope}__${type}-state select[name=sw-field--selectedActionName]`)
             .waitForElementNotPresent(`.sw-order-state-${scope}__${type}-state .sw-loader__element`)
+            .waitForElementNotPresent(this.elements.loader)
             .setValue(
                 `.sw-order-state-${scope}__${type}-state select[name=sw-field--selectedActionName]`,
                 stateTitle

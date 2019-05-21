@@ -16,7 +16,15 @@ Component.register('sw-promotion-order-condition-form', {
             default: {}
         }
     },
-
+    data() {
+        return {
+            itemAddNewRule: {
+                index: -1,
+                id: ''
+            },
+            showRuleModal: false
+        };
+    },
     computed: {
 
         rulesStore() {
@@ -27,6 +35,22 @@ Component.register('sw-promotion-order-condition-form', {
             return this.promotion.getAssociation('orderRules');
         }
 
+    },
+    methods: {
+        onSaveRule(rule) {
+            this.$refs.orderRuleSelect.addSelection({ item: rule });
+        },
+        onSelectRule(event) {
+            if (event.item.index === -1) {
+                this.openCreateRuleModal();
+            }
+        },
+        openCreateRuleModal() {
+            this.showRuleModal = true;
+        },
+        onCloseRuleModal() {
+            this.showRuleModal = false;
+        }
     }
 
 });

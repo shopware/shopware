@@ -16,7 +16,15 @@ Component.register('sw-promotion-persona-form', {
             default: {}
         }
     },
-
+    data() {
+        return {
+            itemAddNewRule: {
+                index: -1,
+                id: ''
+            },
+            showRuleModal: false
+        };
+    },
     computed: {
         ruleStore() {
             return State.getStore('rule');
@@ -29,6 +37,22 @@ Component.register('sw-promotion-persona-form', {
         },
         personaCustomerAssociationStore() {
             return this.promotion.getAssociation('personaCustomers');
+        }
+    },
+    methods: {
+        onSaveRule(rule) {
+            this.$refs.personaRuleSelect.addSelection({ item: rule });
+        },
+        onSelectRule(event) {
+            if (event.item.index === -1) {
+                this.openCreateRuleModal();
+            }
+        },
+        openCreateRuleModal() {
+            this.showRuleModal = true;
+        },
+        onCloseRuleModal() {
+            this.showRuleModal = false;
         }
     }
 });

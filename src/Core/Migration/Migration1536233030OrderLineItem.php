@@ -23,6 +23,7 @@ class Migration1536233030OrderLineItem extends MigrationStep
               `parent_id` BINARY(16) NULL,
               `parent_version_id` BINARY(16) NULL,
               `identifier` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+              `referenced_id` VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL,
               `label` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
               `description` MEDIUMTEXT COLLATE utf8mb4_unicode_ci,
               `cover_id` BINARY(16) NULL,

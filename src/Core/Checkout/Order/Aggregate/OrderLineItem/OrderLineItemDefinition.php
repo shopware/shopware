@@ -66,6 +66,7 @@ class OrderLineItemDefinition extends EntityDefinition
             new ManyToOneAssociationField('cover', 'cover_id', MediaDefinition::class, 'id', false),
 
             (new StringField('identifier', 'identifier'))->addFlags(new Required()),
+            new StringField('referenced_id', 'referencedId'),
             (new IntField('quantity', 'quantity'))->addFlags(new Required()),
             (new StringField('label', 'label'))->addFlags(new Required()),
             new JsonField('payload', 'payload'),

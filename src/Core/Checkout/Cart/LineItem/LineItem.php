@@ -155,9 +155,11 @@ class LineItem extends Struct
         return $this->referencedId;
     }
 
-    public function setReferencedId(?string $referencedId): void
+    public function setReferencedId(?string $referencedId): self
     {
         $this->referencedId = $referencedId;
+
+        return $this;
     }
 
     public function getLabel(): ?string

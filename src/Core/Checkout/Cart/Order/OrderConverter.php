@@ -331,6 +331,7 @@ class OrderConverter
     {
         $lineItem->setId($entity->getIdentifier())
             ->setType($entity->getType())
+            ->setReferencedId($entity->getReferencedId())
             ->setStackable(true)
             ->setQuantity($entity->getQuantity())
             ->setStackable($entity->getStackable())

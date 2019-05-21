@@ -79,8 +79,9 @@ module.exports = {
 
         page.createCombinedInputSelectCondition({
             type: 'Price',
-            secondValue: '100',
-            firstValue: 'Gross',
+            // firstValue: 'Gross',
+            // secondValue: '100',
+            firstValue: '100',
             inputName: 'sw-field--filterValue',
             operator: 'Is not equal to',
             isMulti: false,

@@ -20,6 +20,11 @@ $sw-price-field-suffix-font-weight: 400;
         &.is--locked {
             color: $sw-price-field-lock-color-locked;
         }
+
+        &.is--disabled {
+            color: $color-gray;
+            cursor: default;
+        }
     }
 
     .sw-field {
@@ -32,7 +37,12 @@ $sw-price-field-suffix-font-weight: 400;
     &.sw-price-field--label .sw-price-field__lock {
         margin-top: 24px;
     }
+
     &.sw-price-field--compact .sw-price-field__lock {
         height: 32px;
+    }
+
+    &.sw-price-field--disabled {
+        pointer-events: none;
     }
 }

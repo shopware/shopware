@@ -82,8 +82,10 @@
                                 {% endblock %}
 
                                 {% block sw_product_list_grid_columns_price %}
-                                    <template #column-price.gross="{ item }">
-                                        {{ item.price.gross | currency }}
+                                    <template v-for="currency in currencyList"
+                                              :slot="`column-price-${currency.isoCode}`"
+                                              slot-scope="{ item }">
+                                        {{ getCurrencyPriceByCurrencyId(item.id, currency.id).gross | currency(currency.isoCode) }}
                                     </template>
                                 {% endblock %}
 

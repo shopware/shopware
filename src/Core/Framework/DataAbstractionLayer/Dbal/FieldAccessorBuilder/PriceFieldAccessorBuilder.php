@@ -21,17 +21,36 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
             $jsonAccessor = 'gross';
         }
 
+        $select = [];
+
         /*
          * It's not possible to cast to float/double, only decimal. But decimal has a fixed precision,
          * that would possibly result in rounding errors.
          *
          * We can indirectly cast to float by adding 0.0
          */
-        $currencyFactor = '+ 0.0';
+        $select[] = sprintf(
+            '(JSON_UNQUOTE(JSON_EXTRACT(`%s`.`%s`, "$.%s.%s")) %s)',
+            $root,
+            $field->getStorageName(),
+            'c' . $context->getCurrencyId(),
+            $jsonAccessor,
+            '+ 0.0'
+        );
+
         if ($context->getCurrencyId() !== Defaults::CURRENCY) {
             $currencyFactor = sprintf('* %F', $context->getCurrencyFactor());
+
+            $select[] = sprintf(
+                '(JSON_UNQUOTE(JSON_EXTRACT(`%s`.`%s`, "$.%s.%s")) %s)',
+                $root,
+                $field->getStorageName(),
+                'c' . Defaults::CURRENCY,
+                $jsonAccessor,
+                $currencyFactor
+            );
         }
 
-        return sprintf('(JSON_UNQUOTE(JSON_EXTRACT(`%s`.`%s`, "$.%s")) %s)', $root, $field->getStorageName(), $jsonAccessor, $currencyFactor);
+        return sprintf('(COALESCE(%s))', implode(',', $select));
     }
 }

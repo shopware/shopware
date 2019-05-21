@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 class ProductConfiguratorSettingEntity extends Entity
 {
     use EntityIdTrait;
+
     /**
      * @var string
      */

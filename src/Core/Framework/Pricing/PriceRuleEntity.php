@@ -8,10 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 class PriceRuleEntity extends Entity
 {
     use EntityIdTrait;
-    /**
-     * @var string
-     */
-    protected $currencyId;
 
     /**
      * @var string
@@ -19,19 +15,9 @@ class PriceRuleEntity extends Entity
     protected $ruleId;
 
     /**
-     * @var Price
+     * @var PriceCollection
      */
     protected $price;
-
-    public function getCurrencyId(): string
-    {
-        return $this->currencyId;
-    }
-
-    public function setCurrencyId(string $currencyId): void
-    {
-        $this->currencyId = $currencyId;
-    }
 
     public function getRuleId(): string
     {
@@ -43,12 +29,12 @@ class PriceRuleEntity extends Entity
         $this->ruleId = $ruleId;
     }
 
-    public function getPrice(): Price
+    public function getPrice(): PriceCollection
     {
         return $this->price;
     }
 
-    public function setPrice(Price $price): void
+    public function setPrice(PriceCollection $price): void
     {
         $this->price = $price;
     }

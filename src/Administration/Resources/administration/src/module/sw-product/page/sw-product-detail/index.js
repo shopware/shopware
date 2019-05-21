@@ -44,7 +44,8 @@ Component.register('sw-product-detail', {
         ...mapGetters('swProductDetail', [
             'productRepository',
             'isLoading',
-            'isChild'
+            'isChild',
+            'defaultCurrency'
         ]),
 
         identifier() {
@@ -264,13 +265,6 @@ Component.register('sw-product-detail', {
             this.$store.commit('swProductDetail/setProductId', this.product.id);
 
             // fill empty data
-            this.product.price = {
-                net: null,
-                linked: true,
-                gross: null,
-                extensions: []
-            };
-
             this.product.active = true;
             this.product.taxId = null;
 
@@ -282,6 +276,14 @@ Component.register('sw-product-detail', {
                 this.loadTaxes(),
                 this.loadAttributeSet()
             ]).then(() => {
+                // set default product price
+                this.product.price = [{
+                    currencyId: this.defaultCurrency.id,
+                    net: null,
+                    linked: true,
+                    gross: null
+                }];
+
                 this.$store.commit('swProductDetail/setLoading', ['product', false]);
             });
         },

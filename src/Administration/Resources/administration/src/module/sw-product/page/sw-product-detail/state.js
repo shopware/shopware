@@ -8,6 +8,7 @@ export default {
             currencies: {},
             context: {},
             taxes: {},
+            variants: {},
             customFieldSets: {},
             loading: {
                 init: false,
@@ -18,7 +19,8 @@ export default {
                 taxes: false,
                 customFieldSets: false,
                 media: false,
-                rules: false
+                rules: false,
+                variants: false
             },
             localMode: false
         };
@@ -27,6 +29,43 @@ export default {
     getters: {
         isLoading: (state) => {
             return Object.values(state.loading).some((loadState) => loadState);
+        },
+
+        defaultCurrency(state) {
+            if (!state.currencies.items) {
+                return {};
+            }
+
+            return Object.values(state.currencies.items).find((currency) => currency.isDefault);
+        },
+
+        defaultPrice(state, getters) {
+            let productPrice = state.product.price;
+
+            // check if price exists
+            if (!productPrice) {
+                // if parent price does not exists
+                if (!state.parentProduct.price) {
+                    return {};
+                }
+
+                productPrice = state.parentProduct.price;
+            }
+
+            // get default price bases on currency
+            return Object.values(productPrice).find((price) => {
+                return price.currencyId === getters.defaultCurrency.id;
+            });
+        },
+
+        productTaxRate(state) {
+            if (!state.taxes.items) {
+                return {};
+            }
+
+            return Object.values(state.taxes.items).find((tax) => {
+                return tax.id === state.product.taxId;
+            });
         },
 
         isChild(state) {
@@ -67,6 +106,10 @@ export default {
 
         setProduct(state, newProduct) {
             state.product = newProduct;
+        },
+
+        setVariants(state, newVariants) {
+            state.variants = newVariants;
         },
 
         setParentProduct(state, newProduct) {

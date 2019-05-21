@@ -5,7 +5,7 @@ const fixture = {
     name: 'Aserbaidschanische Drachme',
     factor: '0.12',
     symbol: 'A',
-    decimalPrecision: '2'
+    decimalPrecision: 2
 };
 
 module.exports = {

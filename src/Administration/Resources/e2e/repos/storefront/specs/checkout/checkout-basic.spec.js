@@ -30,7 +30,7 @@ module.exports = {
             .click('.result-product .result-link')
             .waitForElementVisible('.product-detail-content')
             .assert.containsText('.product-detail-name', currentProduct.attributes.name)
-            .assert.containsText('.product-detail-price', currentProduct.attributes.price.gross)
+            .assert.containsText('.product-detail-price', currentProduct.attributes.price[0].gross)
             .assert.containsText('.product-detail-ordernumber', currentProduct.attributes.productNumber);
     },
     'add product to card': (browser) => {
@@ -46,8 +46,8 @@ module.exports = {
         browser
             .waitForElementVisible(page.elements.cartItem)
             .assert.containsText('.cart-item-label', currentProduct.attributes.name)
-            .assert.containsText('.cart-item-price', currentProduct.attributes.price.gross)
-            .assert.containsText('.summary-value.summary-total', currentProduct.attributes.price.gross)
+            .assert.containsText('.cart-item-price', currentProduct.attributes.price[0].gross)
+            .assert.containsText('.summary-value.summary-total', currentProduct.attributes.price[0].gross)
             .click('.offcanvas-cart-actions .btn-link')
             .waitForElementVisible('.card-body');
     },
@@ -57,8 +57,8 @@ module.exports = {
         browser
             .waitForElementVisible('.card-body')
             .assert.containsText(`${page.elements.cartItem}-label`, currentProduct.attributes.name)
-            .assert.containsText(`${page.elements.cartItem}-unit-price`, currentProduct.attributes.price.gross)
-            .assert.containsText('.checkout-summary-list .summary-value.summary-total', currentProduct.attributes.price.gross)
+            .assert.containsText(`${page.elements.cartItem}-unit-price`, currentProduct.attributes.price[0].gross)
+            .assert.containsText('.checkout-summary-list .summary-value.summary-total', currentProduct.attributes.price[0].gross)
             .click(`${page.elements.primaryButton}[title="Checkout"]`);
     },
     'log in customer': (browser) => {
@@ -83,9 +83,9 @@ module.exports = {
             .getLocationInView('.checkout-main')
             .waitForElementVisible('.checkout-main')
             .assert.containsText(`${page.elements.cartItem}-label`, currentProduct.attributes.name)
-            .assert.containsText(`${page.elements.cartItem}-total-price`, currentProduct.attributes.price.gross)
-            .assert.containsText('.cart-item-total-price', currentProduct.attributes.price.gross)
-            .assert.containsText('.checkout-summary-list .summary-value.summary-total', currentProduct.attributes.price.gross);
+            .assert.containsText(`${page.elements.cartItem}-total-price`, currentProduct.attributes.price[0].gross)
+            .assert.containsText('.cart-item-total-price', currentProduct.attributes.price[0].gross)
+            .assert.containsText('.checkout-summary-list .summary-value.summary-total', currentProduct.attributes.price[0].gross);
     },
     'finish order': (browser) => {
         browser

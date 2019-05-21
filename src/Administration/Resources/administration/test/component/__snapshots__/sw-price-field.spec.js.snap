@@ -1,0 +1,36 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`components/form/sw-price-field should renders correctly 1`] = `
+<div
+  class="sw-price-field sw-price-field--label"
+>
+  <sw-field-stub
+    digits="2"
+    label="global.sw-price-field.labelPriceGross"
+    min="0"
+    name="sw-price-field-gross"
+    size="default"
+    type="number"
+    value="123"
+  />
+   
+  <button
+    class="sw-price-field__lock"
+  >
+    <sw-icon-stub
+      name="default-lock-open"
+      size="16"
+    />
+  </button>
+   
+  <sw-field-stub
+    digits="2"
+    label="global.sw-price-field.labelPriceNet"
+    min="0"
+    name="sw-price-field-net"
+    size="default"
+    type="number"
+    value="250"
+  />
+</div>
+`;

@@ -198,7 +198,7 @@ class CachedEntitySearcherTest extends TestCase
                 'name' => 'tax foo',
                 'taxRate' => 15,
             ],
-            'price' => ['gross' => 10.0, 'net' => 10.0, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10.0, 'net' => 10.0, 'linked' => false]],
             'stock' => 10,
             'visibilities' => [
                 [

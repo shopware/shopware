@@ -93,7 +93,7 @@ class ProductStreamIndexerTest extends TestCase
                     'productNumber' => Uuid::randomHex(),
                     'stock' => 10,
                     'name' => 'Test',
-                    'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                     'manufacturer' => ['name' => 'test'],
                     'tax' => ['taxRate' => 19, 'name' => 'without id'],
                 ],
@@ -157,7 +157,7 @@ class ProductStreamIndexerTest extends TestCase
                     'productNumber' => Uuid::randomHex(),
                     'stock' => 10,
                     'name' => 'Test',
-                    'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                     'manufacturer' => ['name' => 'test'],
                     'tax' => ['taxRate' => 19, 'name' => 'without id'],
                 ],
@@ -238,7 +238,7 @@ class ProductStreamIndexerTest extends TestCase
                     'productNumber' => Uuid::randomHex(),
                     'stock' => 10,
                     'name' => 'Test',
-                    'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                     'manufacturer' => ['name' => 'test'],
                     'tax' => ['taxRate' => 19, 'name' => 'without id'],
                 ],
@@ -300,7 +300,7 @@ class ProductStreamIndexerTest extends TestCase
                     'productNumber' => Uuid::randomHex(),
                     'stock' => 10,
                     'name' => 'Test',
-                    'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                     'manufacturer' => ['name' => 'test'],
                     'tax' => ['taxRate' => 19, 'name' => 'without id'],
                 ],
@@ -353,6 +353,21 @@ class ProductStreamIndexerTest extends TestCase
 
     public function testEmptyValue(): void
     {
+        $productId = Uuid::randomHex();
+        $this->productRepo->create(
+            [
+                [
+                    'id' => $productId,
+                    'productNumber' => Uuid::randomHex(),
+                    'stock' => 10,
+                    'name' => 'Test',
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                    'manufacturer' => ['name' => 'test'],
+                    'tax' => ['taxRate' => 19, 'name' => 'without id'],
+                ],
+            ], $this->context
+        );
+        $languageId = Defaults::LANGUAGE_SYSTEM;
         $id = Uuid::randomHex();
 
         $this->connection->insert(
@@ -400,6 +415,21 @@ class ProductStreamIndexerTest extends TestCase
 
     public function testWithParameters(): void
     {
+        $productId = Uuid::randomHex();
+        $this->productRepo->create(
+            [
+                [
+                    'id' => $productId,
+                    'productNumber' => Uuid::randomHex(),
+                    'stock' => 10,
+                    'name' => 'Test',
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                    'manufacturer' => ['name' => 'test'],
+                    'tax' => ['taxRate' => 19, 'name' => 'without id'],
+                ],
+            ], $this->context
+        );
+        $languageId = Defaults::LANGUAGE_SYSTEM;
         $id = Uuid::randomHex();
         $this->connection->insert(
             'product_stream',

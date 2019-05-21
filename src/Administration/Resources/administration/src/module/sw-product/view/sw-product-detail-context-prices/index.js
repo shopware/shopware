@@ -30,7 +30,10 @@ Component.register('sw-product-detail-context-prices', {
         ]),
 
         ...mapGetters('swProductDetail', [
-            'isLoading'
+            'isLoading',
+            'defaultCurrency',
+            'defaultPrice',
+            'productTaxRate'
         ]),
 
         priceRepository() {
@@ -63,31 +66,23 @@ Component.register('sw-product-detail-context-prices', {
                     priceRuleGroups[rule.ruleId] = {
                         ruleId: rule.ruleId,
                         rule: this.findRuleById(rule.ruleId),
-                        currencies: {}
+                        prices: this.findPricesByRuleId(rule.ruleId)
                     };
                 }
-
-                if (!priceRuleGroups[rule.ruleId].currencies[rule.currencyId]) {
-                    priceRuleGroups[rule.ruleId].currencies[rule.currencyId] = {
-                        currencyId: rule.currencyId,
-                        currency: this.findCurrencyById(rule.currencyId),
-                        prices: []
-                    };
-                }
-
-                priceRuleGroups[rule.ruleId].currencies[rule.currencyId].prices.push(rule);
             });
 
-            // Sort prices for quantity
+            // Sort prices
             Object.values(priceRuleGroups).forEach((priceRule) => {
-                Object.values(priceRule.currencies).forEach((currency) => {
-                    currency.prices = currency.prices.sort((a, b) => {
-                        return a.quantityStart - b.quantityStart;
-                    });
+                priceRule.prices.sort((a, b) => {
+                    return a.quantityStart - b.quantityStart;
                 });
             });
 
             return priceRuleGroups;
+        },
+
+        priceRuleGroupsExists() {
+            return Object.values(this.priceRuleGroups).length > 0;
         },
 
         canAddPriceRule() {
@@ -97,24 +92,62 @@ Component.register('sw-product-detail-context-prices', {
             return usedRules !== availableRules;
         },
 
+        emptyPriceRuleExists() {
+            return typeof this.priceRuleGroups.null !== 'undefined';
+        },
+
         isLoaded() {
             return !this.isLoading &&
-                   !this.isLoadingRules &&
                    this.currencies.items &&
                    this.taxes.items &&
                    this.product;
         },
 
-        productTaxRate() {
-            return Object.values(this.taxes.items).find((taxRate) => {
-                return taxRate.id === this.product.taxId;
+        currenciesList() {
+            if (this.currencies && this.currencies.items) {
+                return Object.values(this.currencies.items);
+            }
+
+            return [];
+        },
+
+        currencyColumns() {
+            return this.currenciesList.sort((a, b) => {
+                return b.isDefault ? 1 : -1;
+            }).map((currency) => {
+                return {
+                    property: `price-${currency.isoCode}`,
+                    label: currency.translated.name || currency.name,
+                    visible: true,
+                    allowResize: true,
+                    primary: false,
+                    rawData: false,
+                    width: '250px'
+                };
             });
         },
 
-        defaultCurrency() {
-            return Object.values(this.currencies.items).find((currency) => {
-                return currency.isDefault;
-            });
+        pricesColumns() {
+            return [
+                {
+                    property: 'quantityStart',
+                    label: this.$tc('sw-product.advancedPrices.columnFrom'),
+                    visible: true,
+                    allowResize: true,
+                    primary: true,
+                    rawData: false,
+                    width: '95px'
+                }, {
+                    property: 'quantityEnd',
+                    label: this.$tc('sw-product.advancedPrices.columnTo'),
+                    visible: true,
+                    allowResize: true,
+                    primary: true,
+                    rawData: false,
+                    width: '95px'
+                },
+                ...this.currencyColumns
+            ];
         }
     },
 
@@ -149,37 +182,36 @@ Component.register('sw-product-detail-context-prices', {
             });
         },
 
-        onAddNewPriceGroup() {
-            if (typeof this.priceRuleGroups.null !== 'undefined') {
+        onAddNewPriceGroup(ruleId = null) {
+            if (this.emptyPriceRuleExists) {
                 return;
             }
 
             const newPriceRule = this.priceRepository.create(this.context);
 
-            newPriceRule.ruleId = null;
+            newPriceRule.ruleId = ruleId;
             newPriceRule.productId = this.product.id;
             newPriceRule.quantityStart = 1;
             newPriceRule.quantityEnd = null;
             newPriceRule.currencyId = this.defaultCurrency.id;
-            newPriceRule.price = {
-                gross: null,
-                linked: true,
-                net: null
-            };
+            newPriceRule.price = [{
+                currencyId: this.defaultCurrency.id,
+                gross: this.defaultPrice.gross,
+                linked: this.defaultPrice.linked,
+                net: this.defaultPrice.net
+            }];
 
             this.product.prices.add(newPriceRule);
-        },
 
-        onAddCurrency(ruleId, currency) {
-            const defaultCurrencyPrices = this.priceRuleGroups[ruleId].currencies[this.defaultCurrency.id].prices;
+            this.$nextTick(() => {
+                const scrollableArea = this.$parent.$el.children.item(0);
 
-            defaultCurrencyPrices.forEach((price) => {
-                this.duplicatePriceRule(price.id).then((newPriceRule) => {
-                    // set the the new currency id
-                    newPriceRule.currencyId = currency.id;
-
-                    this.product.prices.add(newPriceRule);
-                });
+                if (scrollableArea) {
+                    scrollableArea.scrollTo({
+                        top: scrollableArea.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                }
             });
         },
 
@@ -196,36 +228,14 @@ Component.register('sw-product-detail-context-prices', {
                 return;
             }
 
-            const priceIdsToDuplicate = Object.keys(priceGroup.currencies).reduce((acc, currencyId) => {
-                const priceIds = priceGroup.currencies[currencyId].prices.map((price) => {
-                    return { priceId: price.id, currencyId };
-                });
-                acc = [...acc, ...priceIds];
-                return acc;
-            }, []);
-
-            const duplicatePromises = priceIdsToDuplicate.map((price) => {
-                return new Promise((resolve) => {
-                    this.duplicatePriceRule(price.priceId).then((newPriceRule) => {
-                        newPriceRule.ruleId = null;
-                        newPriceRule.currencyId = price.currencyId;
-                        resolve(newPriceRule);
-                    });
-                });
-            });
-
-            Promise.all(duplicatePromises).then((newPriceRules) => {
-                newPriceRules.forEach((newPriceRule) => {
-                    this.product.prices.add(newPriceRule);
-                });
+            // duplicate each price rule
+            priceGroup.prices.forEach((price) => {
+                this.duplicatePriceRule(price, null);
             });
         },
 
         onPriceRuleDuplicate(priceRule) {
-            this.duplicatePriceRule(priceRule.id).then((newPriceRule) => {
-                newPriceRule.currencyId = priceRule.currencyId;
-                this.product.prices.add(newPriceRule);
-            });
+            this.duplicatePriceRule(priceRule, priceRule.ruleId);
         },
 
         onPriceRuleDelete(priceRule) {
@@ -247,29 +257,34 @@ Component.register('sw-product-detail-context-prices', {
             this.product.prices.remove(priceRuleToDelete.id);
         },
 
-        onQuantityEndChange(value, price, priceGroup) {
-            const currencyPrices = priceGroup.currencies[price.currencyId].prices;
+        onInheritanceRestore(rule, currency) {
+            // remove price from rule.price with the currency id
+            const indexOfPrice = rule.price.findIndex((price) => price.currencyId === currency.id);
+            this.$delete(rule.price, indexOfPrice);
+        },
 
-            if (!currencyPrices.length) {
-                return;
-            }
+        onInheritanceRemove(rule, currency) {
+            // create new price based on the default price
+            const defaultPrice = this.findDefaultPriceOfRule(rule);
+            const newPrice = {
+                currencyId: currency.id,
+                gross: this.convertPrice(defaultPrice.gross, currency),
+                linked: defaultPrice.linked,
+                net: this.convertPrice(defaultPrice.net, currency)
+            };
 
-            if (currencyPrices[currencyPrices.length - 1].id === price.id && value !== null) {
-                const newPriceRule = this.priceRepository.create(this.context);
+            // add price to rule.price
+            this.$set(rule.price, rule.price.length, newPrice);
+        },
 
-                newPriceRule.productId = this.product.id;
-                newPriceRule.ruleId = priceGroup.ruleId;
-                newPriceRule.quantityStart = price.quantityEnd + 1;
-                newPriceRule.quantityEnd = null;
-                newPriceRule.currencyId = price.currencyId;
-                newPriceRule.price = {
-                    gross: null,
-                    linked: true,
-                    net: null
-                };
+        isPriceFieldInherited(rule, currency) {
+            return rule.price.findIndex((price) => price.currencyId === currency.id) < 0;
+        },
 
-                this.product.prices.add(newPriceRule);
-            }
+        convertPrice(value, currency) {
+            const calculatedPrice = value * currency.factor;
+            const priceRounded = calculatedPrice.toFixed(currency.decimalPrecision);
+            return Number(priceRounded);
         },
 
         findRuleById(ruleId) {
@@ -278,28 +293,68 @@ Component.register('sw-product-detail-context-prices', {
             });
         },
 
-        findCurrencyById(currencyId) {
-            return Object.values(this.currencies.items).find((currency) => {
-                return currency.id === currencyId;
+        findPricesByRuleId(ruleId) {
+            return Object.values(this.product.prices.items).filter((item) => {
+                return item.ruleId === ruleId;
             });
         },
 
-        duplicatePriceRule(referencePriceId) {
-            return new Promise((resolve) => {
-                const ref = this.product.prices.get(referencePriceId);
-                const newPriceRule = this.priceRepository.create(this.context);
+        findDefaultPriceOfRule(rule) {
+            return rule.price.find((price) => price.currencyId === this.defaultCurrency.id);
+        },
 
-                // copy the values from reference
-                newPriceRule.productId = ref.productId;
-                newPriceRule.productVersionId = ref.productVersionId;
-                newPriceRule.quantityEnd = ref.quantityEnd;
-                newPriceRule.quantityStart = ref.quantityStart;
-                newPriceRule.ruleId = ref.ruleId;
-                newPriceRule.versionId = ref.versionId;
-                newPriceRule.price = { ...ref.price };
+        onQuantityEndChange(price, priceGroup) {
+            // when not last price
+            if (priceGroup.prices.indexOf(price) + 1 !== priceGroup.prices.length) {
+                return;
+            }
 
-                resolve(newPriceRule);
+            this.createPriceRule(priceGroup);
+        },
+
+        createPriceRule(priceGroup) {
+            // create new price rule
+            const newPriceRule = this.priceRepository.create(this.context);
+            newPriceRule.productId = this.product.id;
+            newPriceRule.ruleId = priceGroup.ruleId;
+
+            const highestEndValue = Math.max(...priceGroup.prices.map((price) => price.quantityEnd));
+            newPriceRule.quantityStart = highestEndValue + 1;
+
+            newPriceRule.price = [{
+                currencyId: this.defaultCurrency.id,
+                gross: this.defaultPrice.gross,
+                linked: this.defaultPrice.linked,
+                net: this.defaultPrice.net
+            }];
+
+            this.product.prices.add(newPriceRule);
+        },
+
+        canCreatePriceRule(priceGroup) {
+            const emptyPrices = priceGroup.prices.filter((price) => {
+                return !price.quantityEnd;
             });
+
+            return !!emptyPrices.length;
+        },
+
+        duplicatePriceRule(referencePrice, ruleId = null) {
+            const newPriceRule = this.priceRepository.create(this.context);
+
+            newPriceRule.productId = referencePrice.productId;
+            newPriceRule.quantityEnd = referencePrice.quantityEnd;
+            newPriceRule.quantityStart = referencePrice.quantityStart;
+            newPriceRule.ruleId = ruleId;
+
+            // add prices
+            newPriceRule.price = [];
+
+            referencePrice.price.forEach((price, index) => {
+                this.$set(newPriceRule.price, index, { ...price });
+            });
+
+            this.product.prices.add(newPriceRule);
         }
     }
 });

@@ -91,6 +91,7 @@ Component.register('sw-product-detail-variants', {
                 configuratorSettingsCriteria.addAssociation('option');
 
                 criteria.addAssociation('configuratorSettings', configuratorSettingsCriteria);
+                criteria.addAssociation('prices', new Criteria(1, 500));
 
                 this.productRepository.get(this.product.id, this.context, criteria).then((product) => {
                     this.productEntity = product;

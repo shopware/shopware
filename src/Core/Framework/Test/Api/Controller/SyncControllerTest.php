@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Controller\SyncController;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -42,7 +43,7 @@ class SyncControllerTest extends TestCase
                         'manufacturer' => ['name' => 'test'],
                         'tax' => ['name' => 'test', 'taxRate' => 15],
                         'name' => 'CREATE-1',
-                        'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
                     ],
                     [
                         'id' => $id2,
@@ -51,7 +52,7 @@ class SyncControllerTest extends TestCase
                         'manufacturer' => ['name' => 'test'],
                         'name' => 'CREATE-2',
                         'tax' => ['name' => 'test', 'taxRate' => 15],
-                        'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
                     ],
                 ],
             ],
@@ -93,7 +94,7 @@ class SyncControllerTest extends TestCase
                         'tax' => ['name' => 'test', 'taxRate' => 15],
                         'name' => 'CREATE-1',
                         'manufacturer' => ['name' => 'test'],
-                        'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
                     ],
                     [
                         'id' => $id,
@@ -102,7 +103,7 @@ class SyncControllerTest extends TestCase
                         'stock' => 1,
                         'tax' => ['name' => 'test', 'taxRate' => 15],
                         'active' => false,
-                        'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
                     ],
                 ],
             ],
@@ -148,7 +149,7 @@ class SyncControllerTest extends TestCase
                         'stock' => 1,
                         'tax' => ['name' => 'test', 'taxRate' => 15],
                         'name' => 'PROD-1',
-                        'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
                         'manufacturer' => ['name' => 'test'],
                         'categories' => [
                             ['id' => $categoryId],
@@ -196,7 +197,7 @@ class SyncControllerTest extends TestCase
                         'name' => 'PROD-1',
                         'stock' => 1,
                         'manufacturer' => ['name' => 'test'],
-                        'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
                         'tax' => ['name' => 'test', 'taxRate' => 15],
                         'categories' => [
                             ['id' => $category, 'name' => 'NESTED-CAT-1'],
@@ -208,7 +209,7 @@ class SyncControllerTest extends TestCase
                         'name' => 'PROD-2',
                         'stock' => 1,
                         'tax' => ['name' => 'test', 'taxRate' => 15],
-                        'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
                         'manufacturer' => ['name' => 'test'],
                         'categories' => [
                             ['id' => $category],
@@ -259,7 +260,7 @@ class SyncControllerTest extends TestCase
                         'stock' => 1,
                         'name' => 'PROD-1',
                         'tax' => ['name' => 'test', 'taxRate' => 15],
-                        'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
                         'manufacturer' => ['name' => 'test'],
                     ],
                     [
@@ -268,7 +269,7 @@ class SyncControllerTest extends TestCase
                         'stock' => 1,
                         'tax' => ['name' => 'test', 'taxRate' => 15],
                         'name' => 'PROD-2',
-                        'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
                         'manufacturer' => ['name' => 'test'],
                     ],
                 ],

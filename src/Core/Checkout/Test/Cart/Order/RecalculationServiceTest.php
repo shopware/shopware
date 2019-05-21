@@ -672,7 +672,7 @@ class RecalculationServiceTest extends TestCase
             'productNumber' => $productNumber,
             'stock' => 1,
             'name' => $name,
-            'price' => ['gross' => $price + ($price * $taxRate / 100), 'net' => $price, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $price + ($price * $taxRate / 100), 'net' => $price, 'linked' => false]],
             'manufacturer' => ['name' => 'create'],
             'tax' => ['name' => 'create', 'taxRate' => $taxRate],
         ];

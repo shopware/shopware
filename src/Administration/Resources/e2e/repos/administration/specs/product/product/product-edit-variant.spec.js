@@ -48,9 +48,13 @@ module.exports = {
         browser.expect.element('.sw-data-grid__body').to.have.text.that.contains('Red');
         browser.expect.element('.sw-data-grid__body').to.have.text.that.contains('Yellow');
         browser.expect.element('.sw-data-grid__body').to.have.text.that.contains('Green');
-        browser.expect.element('.sw-data-grid__body').to.have.text.that.contains('.1');
-        browser.expect.element('.sw-data-grid__body').to.have.text.that.contains('.2');
-        browser.expect.element('.sw-data-grid__body').to.have.text.that.contains('.3');
+        // TODO: Failed here
+        browser.waitForElementVisible('.sw-data-grid__row--0 .sw-product-variants-overview_product-number');
+        browser.waitForElementVisible('.sw-data-grid__row--1 .sw-product-variants-overview_product-number');
+        browser.waitForElementVisible('.sw-data-grid__row--2 .sw-product-variants-overview_product-number');
+        browser.expect.element('.sw-data-grid__row--0 .sw-product-variants-overview_product-number').to.have.text.that.contains('.1');
+        browser.expect.element('.sw-data-grid__row--1 .sw-product-variants-overview_product-number').to.have.text.that.contains('.2');
+        browser.expect.element('.sw-data-grid__row--2 .sw-product-variants-overview_product-number').to.have.text.that.contains('.3');
     },
     'generate variants anew, with changed prizes and restrictions': (browser) => {
         const page = productPage(browser);

@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductPrice;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Pricing\PriceRuleEntity;
-use Shopware\Core\System\Currency\CurrencyEntity;
 
 class ProductPriceEntity extends PriceRuleEntity
 {
@@ -30,11 +29,6 @@ class ProductPriceEntity extends PriceRuleEntity
     protected $product;
 
     /**
-     * @var CurrencyEntity|null
-     */
-    protected $currency;
-
-    /**
      * @var RuleEntity|null
      */
     protected $rule;
@@ -52,16 +46,6 @@ class ProductPriceEntity extends PriceRuleEntity
     public function setProduct(ProductEntity $product): void
     {
         $this->product = $product;
-    }
-
-    public function getCurrency(): ?CurrencyEntity
-    {
-        return $this->currency;
-    }
-
-    public function setCurrency(CurrencyEntity $currency): void
-    {
-        $this->currency = $currency;
     }
 
     public function getRule(): ?RuleEntity

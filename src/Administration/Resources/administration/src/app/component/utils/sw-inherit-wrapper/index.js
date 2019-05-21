@@ -194,7 +194,7 @@ export default {
         removeInheritance(newValue = this.currentValue) {
             // if customRemoveInheritanceFunction exists
             if (typeof this.customRemoveInheritanceFunction === 'function') {
-                this.updateValue(this.customRemoveInheritanceFunction(this.value, newValue), 'remove');
+                this.updateValue(this.customRemoveInheritanceFunction(newValue, this.value), 'remove');
                 return;
             }
 

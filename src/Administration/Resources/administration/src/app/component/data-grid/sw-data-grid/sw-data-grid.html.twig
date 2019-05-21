@@ -173,7 +173,7 @@
 
                                                         {% block sw_data_grid_columns_slot %}
                                                             <slot :name="`column-${column.property}`"
-                                                                  v-bind="{ item, column, compact, isInlineEdit: (isInlineEdit(item) && column.hasOwnProperty('inlineEdit')) }">
+                                                                  v-bind="{ item, itemIndex, column, columnIndex, compact, isInlineEdit: (isInlineEdit(item) && column.hasOwnProperty('inlineEdit')) }">
 
                                                                 {% block sw_data_grid_columns_inline_edit %}
                                                                     <template v-if="isInlineEdit(item) && column.hasOwnProperty('inlineEdit')">

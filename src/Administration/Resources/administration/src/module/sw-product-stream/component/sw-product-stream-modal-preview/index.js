@@ -131,6 +131,15 @@ Component.register('sw-product-stream-modal-preview', {
             this.searchTerm = String(term);
             this.page = 1;
             this.getList();
+        },
+
+        getPriceOfDefaultCurrency(price) {
+            // TODO: Refactor without hardcoded string when the module get refactored
+            const foundPrice = price.find((item) => {
+                return item.currencyId === 'b7d2554b0ce847cd82f3ac9bd1c0dfca';
+            });
+
+            return foundPrice || null;
         }
     }
 });

@@ -130,7 +130,7 @@ class ProductCombinationFinderTest extends TestCase
                 'tax' => ['taxRate' => 19, 'name' => 'test'],
                 'stock' => 10,
                 'active' => true,
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => true],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => true]],
                 'configuratorSettings' => [
                     [
                         'option' => [

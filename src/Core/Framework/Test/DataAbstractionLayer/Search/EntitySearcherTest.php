@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -47,7 +48,7 @@ class EntitySearcherTest extends TestCase
                 'name' => 'test matching product',
                 'productNumber' => 'Test',
                 'stock' => 10,
-                'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
             ],
@@ -57,7 +58,7 @@ class EntitySearcherTest extends TestCase
                 'name' => 'test matching',
                 'productNumber' => 'Test 2',
                 'stock' => 10,
-                'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
             ],
@@ -135,7 +136,7 @@ class EntitySearcherTest extends TestCase
                 'productNumber' => Uuid::randomHex(),
                 'name' => 'test',
                 'stock' => 10,
-                'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
             ],
@@ -248,7 +249,7 @@ class EntitySearcherTest extends TestCase
                 'name' => 'test',
                 'productNumber' => 'test1',
                 'stock' => 10,
-                'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
             ],

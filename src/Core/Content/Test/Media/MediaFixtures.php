@@ -6,6 +6,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaType\BinaryType;
 use Shopware\Core\Content\Media\MediaType\DocumentType;
 use Shopware\Core\Content\Media\MediaType\ImageType;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Test\EntityFixturesBase;
 
@@ -94,7 +95,7 @@ trait MediaFixtures
                         'product' => [
                             'id' => Uuid::randomHex(),
                             'productNumber' => Uuid::randomHex(),
-                            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                             'stock' => 10,
                             'manufacturer' => [
                                 'name' => 'test',

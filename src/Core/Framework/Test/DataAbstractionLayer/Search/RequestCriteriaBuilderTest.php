@@ -40,13 +40,6 @@ class RequestCriteriaBuilderTest extends TestCase
                     'sort' => [
                         ['field' => 'quantityStart'],
                     ],
-                    'associations' => [
-                        'currency' => [
-                            'filter' => [
-                                ['type' => 'equals', 'field' => 'id', 'value' => 'test'],
-                            ],
-                        ],
-                    ],
                 ],
             ],
         ];
@@ -68,10 +61,5 @@ class RequestCriteriaBuilderTest extends TestCase
         static::assertInstanceOf(Criteria::class, $nested);
         static::assertCount(1, $nested->getFilters());
         static::assertCount(1, $nested->getSorting());
-
-        static::assertTrue($nested->hasAssociation('currency'));
-        $nested = $nested->getAssociation('currency');
-        static::assertInstanceOf(Criteria::class, $nested);
-        static::assertCount(1, $nested->getFilters());
     }
 }

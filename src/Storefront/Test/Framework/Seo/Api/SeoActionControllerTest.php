@@ -75,9 +75,12 @@ class SeoActionControllerTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'name' => 'test',
             'price' => [
-                'gross' => 10,
-                'net' => 20,
-                'linked' => false,
+                [
+                    'currencyId' => Defaults::CURRENCY,
+                    'gross' => 10,
+                    'net' => 20,
+                    'linked' => false,
+                ],
             ],
             'manufacturer' => [
                 'id' => Uuid::randomHex(),
@@ -108,9 +111,12 @@ class SeoActionControllerTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'name' => 'foo bar',
             'price' => [
-                'gross' => 10,
-                'net' => 20,
-                'linked' => false,
+                [
+                    'currencyId' => Defaults::CURRENCY,
+                    'gross' => 10,
+                    'net' => 20,
+                    'linked' => false,
+                ],
             ],
             'manufacturer' => [
                 'id' => Uuid::randomHex(),
@@ -165,9 +171,12 @@ class SeoActionControllerTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'name' => 'test',
             'price' => [
-                'gross' => 10,
-                'net' => 20,
-                'linked' => false,
+                [
+                    'currencyId' => Defaults::CURRENCY,
+                    'gross' => 10,
+                    'net' => 20,
+                    'linked' => false,
+                ],
             ],
             'manufacturer' => [
                 'id' => Uuid::randomHex(),
@@ -226,9 +235,12 @@ class SeoActionControllerTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'name' => 'test',
             'price' => [
-                'gross' => 10,
-                'net' => 20,
-                'linked' => false,
+                [
+                    'currencyId' => Defaults::CURRENCY,
+                    'gross' => 10,
+                    'net' => 20,
+                    'linked' => false,
+                ],
             ],
             'manufacturer' => [
                 'id' => Uuid::randomHex(),

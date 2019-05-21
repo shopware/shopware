@@ -21,9 +21,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Pricing\ListingPrice;
+use Shopware\Core\Framework\Pricing\ListingPriceCollection;
 use Shopware\Core\Framework\Pricing\Price;
-use Shopware\Core\Framework\Pricing\PriceRuleCollection;
-use Shopware\Core\Framework\Pricing\PriceRuleEntity;
+use Shopware\Core\Framework\Pricing\PriceCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
@@ -63,6 +64,91 @@ class ProductRepositoryTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
+    public function testWritePrice()
+    {
+        $id = Uuid::randomHex();
+
+        $data = [
+            'id' => $id,
+            'name' => 'test',
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 10,
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+            ],
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+        ];
+
+        $this->repository->create([$data], $this->context);
+
+        /** @var ProductEntity $product */
+        $product = $this->repository
+            ->search(new Criteria([$id]), $this->context)
+            ->get($id);
+
+        static::assertInstanceOf(PriceCollection::class, $product->getPrice());
+
+        static::assertEquals(
+            new Price(Defaults::CURRENCY, 10, 15, false),
+            $product->getPrice()->getCurrencyPrice(Defaults::CURRENCY)
+        );
+    }
+
+    public function testWriteMultipleCurrencyPrices()
+    {
+        $id = Uuid::randomHex();
+
+        $this->getContainer()->get('currency.repository')->create(
+            [
+                [
+                    'id' => $id,
+                    'factor' => 2,
+                    'shortName' => 'test',
+                    'name' => 'name',
+                    'symbol' => 'A',
+                    'isoCode' => 'A',
+                    'decimalPrecision' => 2,
+                ],
+            ],
+            $this->context
+        );
+
+        $data = [
+            'id' => $id,
+            'name' => 'test',
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 10,
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+                ['currencyId' => $id, 'gross' => 150, 'net' => 100, 'linked' => true],
+            ],
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+        ];
+
+        $this->repository->create([$data], $this->context);
+
+        /** @var ProductEntity $product */
+        $product = $this->repository
+            ->search(new Criteria([$id]), $this->context)
+            ->get($id);
+
+        static::assertInstanceOf(PriceCollection::class, $product->getPrice());
+
+        static::assertCount(2, $product->getPrice());
+
+        static::assertEquals(
+            new Price(Defaults::CURRENCY, 10, 15, false),
+            $product->getCurrencyPrice(Defaults::CURRENCY)
+        );
+
+        static::assertEquals(
+            new Price($id, 100, 150, true),
+            $product->getCurrencyPrice($id)
+        );
+    }
+
     public function testVariantNameIsNullable()
     {
         $parentId = Uuid::randomHex();
@@ -73,7 +159,9 @@ class ProductRepositoryTest extends TestCase
                 'id' => $parentId,
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
-                'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+                'price' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+                ],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 // name should be required
@@ -115,7 +203,7 @@ class ProductRepositoryTest extends TestCase
             'id' => $id,
             'productNumber' => Uuid::randomHex(),
             'stock' => 10,
-            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
         ];
@@ -135,7 +223,7 @@ class ProductRepositoryTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 10,
             'name' => 'test',
-            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
         ];
@@ -170,10 +258,14 @@ class ProductRepositoryTest extends TestCase
     public function testPriceUpdateConsideredInListingPriceIndexer()
     {
         $ruleA = Uuid::randomHex();
+        $ruleB = Uuid::randomHex();
+        $ruleC = Uuid::randomHex();
 
         $context = Context::createDefaultContext();
         $this->getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'priority' => 1],
+            ['id' => $ruleB, 'name' => 'test', 'priority' => 1],
+            ['id' => $ruleC, 'name' => 'test', 'priority' => 1],
         ], $context);
 
         $id = Uuid::randomHex();
@@ -182,17 +274,19 @@ class ProductRepositoryTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 10,
             'name' => 'price test',
-            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'prices' => [
-                [
-                    'id' => $ruleA,
-                    'currencyId' => Defaults::CURRENCY,
-                    'quantityStart' => 1,
-                    'ruleId' => $ruleA,
-                    'price' => ['gross' => 5, 'net' => 2, 'linked' => false],
-                ],
+                $this->formatPrice(15, Defaults::CURRENCY, $ruleA, 1, 10, 10.0, $id),
+                $this->formatPrice(10, Defaults::CURRENCY, $ruleA, 11, 20),
+                $this->formatPrice(5, Defaults::CURRENCY, $ruleA, 21, null),
+
+                $this->formatPrice(20, Defaults::CURRENCY, $ruleB, 1, 10),
+                $this->formatPrice(15, Defaults::CURRENCY, $ruleB, 11, null),
+
+                $this->formatPrice(10, Defaults::CURRENCY, $ruleC, 1, 10),
+                $this->formatPrice(5, Defaults::CURRENCY, $ruleC, 11, null),
             ],
         ];
 
@@ -205,14 +299,23 @@ class ProductRepositoryTest extends TestCase
 
         $prices = $product->getListingPrices();
 
-        static::assertInstanceOf(PriceRuleCollection::class, $prices);
-        static::assertCount(1, $prices);
-        static::assertTrue($prices->has($ruleA));
-        static::assertEquals(5, $prices->get($ruleA)->getPrice()->getGross());
+        static::assertInstanceOf(ListingPriceCollection::class, $prices);
+        static::assertCount(9, $prices);
+
+        $aPrices = $prices->filterByRuleId($ruleA);
+        $aPrices = $aPrices->filterByCurrencyId(Defaults::CURRENCY);
+
+        static::assertCount(1, $aPrices);
+
+        /** @var ListingPrice $aPrice */
+        $aPrice = $aPrices->first();
+
+        static::assertEquals(5, $aPrice->getFrom()->getGross());
+        static::assertEquals(15, $aPrice->getTo()->getGross());
 
         $update = [
-            'id' => $ruleA,
-            'price' => ['gross' => 2, 'net' => 1, 'linked' => false],
+            'id' => $id,
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 30, 'net' => 1, 'linked' => false]],
         ];
 
         $this->getContainer()->get('product_price.repository')
@@ -225,11 +328,20 @@ class ProductRepositoryTest extends TestCase
 
         $prices = $product->getListingPrices();
 
-        static::assertInstanceOf(PriceRuleCollection::class, $prices);
+        static::assertInstanceOf(ListingPriceCollection::class, $prices);
+        static::assertCount(9, $prices);
 
-        static::assertCount(1, $prices);
-        static::assertTrue($prices->has($ruleA));
-        static::assertEquals(2, $prices->get($ruleA)->getPrice()->getGross());
+        $aPrices = $prices->filterByRuleId($ruleA);
+        $aPrices = $aPrices->filterByCurrencyId(Defaults::CURRENCY);
+
+        static::assertCount(1, $aPrices);
+
+        /** @var ListingPrice $aPrice */
+        $aPrice = $aPrices->first();
+
+        static::assertEquals(5, $aPrice->getFrom()->getGross());
+        static::assertEquals(30, $aPrice->getTo()->getGross());
+        static::assertTrue($aPrice->isDifferent());
     }
 
     public function testSearchKeywordIndexerConsidersUpdate()
@@ -241,7 +353,7 @@ class ProductRepositoryTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 10,
             'name' => 'Default name',
-            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
         ];
@@ -301,7 +413,7 @@ class ProductRepositoryTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 10,
             'name' => 'test',
-            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'categories' => [
@@ -331,7 +443,7 @@ class ProductRepositoryTest extends TestCase
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'Test',
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['taxRate' => 19, 'name' => 'without id'],
             ],
@@ -340,7 +452,7 @@ class ProductRepositoryTest extends TestCase
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'Test',
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['id' => $tax, 'taxRate' => 17, 'name' => 'with id'],
             ],
@@ -349,7 +461,7 @@ class ProductRepositoryTest extends TestCase
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'Test',
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['name' => 'test'],
                 'taxId' => $tax,
             ],
@@ -358,7 +470,7 @@ class ProductRepositoryTest extends TestCase
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'Test',
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['id' => $tax, 'taxRate' => 18],
             ],
@@ -413,7 +525,7 @@ class ProductRepositoryTest extends TestCase
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'Test',
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'tax' => ['taxRate' => 17, 'name' => 'test'],
                 'manufacturer' => ['name' => 'without id'],
             ],
@@ -422,7 +534,7 @@ class ProductRepositoryTest extends TestCase
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'Test',
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'tax' => ['taxRate' => 17, 'name' => 'test'],
                 'manufacturer' => ['id' => $manufacturerId, 'name' => 'with id'],
             ],
@@ -431,7 +543,7 @@ class ProductRepositoryTest extends TestCase
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'Test',
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'tax' => ['taxRate' => 17, 'name' => 'test'],
                 'manufacturerId' => $manufacturerId,
             ],
@@ -440,7 +552,7 @@ class ProductRepositoryTest extends TestCase
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'Test',
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'tax' => ['taxRate' => 17, 'name' => 'test'],
                 'manufacturer' => ['id' => $manufacturerId, 'link' => 'test'],
             ],
@@ -499,7 +611,7 @@ class ProductRepositoryTest extends TestCase
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'Test',
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'tax' => ['name' => 'test', 'taxRate' => 19],
                 'manufacturer' => ['name' => 'test'],
             ],
@@ -551,23 +663,21 @@ class ProductRepositoryTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 10,
             'name' => 'price test',
-            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'prices' => [
                 [
                     'id' => $ruleA,
-                    'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'ruleId' => $ruleA,
-                    'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
                 ],
                 [
                     'id' => $ruleB,
-                    'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'ruleId' => $ruleB,
-                    'price' => ['gross' => 10, 'net' => 8, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 8, 'linked' => false]],
                 ],
             ],
         ];
@@ -590,17 +700,17 @@ class ProductRepositoryTest extends TestCase
         /* @var ProductEntity $product */
         static::assertEquals($id, $product->getId());
 
-        static::assertEquals(new Price(10, 15, false), $product->getPrice());
+        static::assertEquals(new Price(Defaults::CURRENCY, 10, 15, false), $product->getCurrencyPrice(Defaults::CURRENCY));
         static::assertCount(2, $product->getPrices());
 
         /** @var ProductPriceEntity $price */
         $price = $product->getPrices()->get($ruleA);
-        static::assertEquals(15, $price->getPrice()->getGross());
-        static::assertEquals(10, $price->getPrice()->getNet());
+        static::assertEquals(15, $price->getPrice()->getCurrencyPrice(Defaults::CURRENCY)->getGross());
+        static::assertEquals(10, $price->getPrice()->getCurrencyPrice(Defaults::CURRENCY)->getNet());
 
         $price = $product->getPrices()->get($ruleB);
-        static::assertEquals(10, $price->getPrice()->getGross());
-        static::assertEquals(8, $price->getPrice()->getNet());
+        static::assertEquals(10, $price->getPrice()->getCurrencyPrice(Defaults::CURRENCY)->getGross());
+        static::assertEquals(8, $price->getPrice()->getCurrencyPrice(Defaults::CURRENCY)->getNet());
     }
 
     public function testPriceRulesSorting(): void
@@ -623,16 +733,15 @@ class ProductRepositoryTest extends TestCase
                 'productNumber' => Uuid::randomHex(),
                 'name' => 'price test 1',
                 'stock' => 10,
-                'price' => ['gross' => 500, 'net' => 400, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 500, 'net' => 400, 'linked' => false]],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'ean' => $filterId,
                 'prices' => [
                     [
-                        'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 1,
                         'ruleId' => $ruleA,
-                        'price' => ['gross' => 15, 'net' => 14, 'linked' => false],
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 14, 'linked' => false]],
                     ],
                 ],
             ],
@@ -641,16 +750,15 @@ class ProductRepositoryTest extends TestCase
                 'productNumber' => Uuid::randomHex(),
                 'name' => 'price test 2',
                 'stock' => 10,
-                'price' => ['gross' => 500, 'net' => 400, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 500, 'net' => 400, 'linked' => false]],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'ean' => $filterId,
                 'prices' => [
                     [
-                        'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 1,
                         'ruleId' => $ruleA,
-                        'price' => ['gross' => 5, 'net' => 4, 'linked' => false],
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 5, 'net' => 4, 'linked' => false]],
                     ],
                 ],
             ],
@@ -659,16 +767,15 @@ class ProductRepositoryTest extends TestCase
                 'productNumber' => Uuid::randomHex(),
                 'name' => 'price test 3',
                 'stock' => 10,
-                'price' => ['gross' => 500, 'net' => 400, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 500, 'net' => 400, 'linked' => false]],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'ean' => $filterId,
                 'prices' => [
                     [
-                        'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 1,
                         'ruleId' => $ruleA,
-                        'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                     ],
                 ],
             ],
@@ -708,9 +815,9 @@ class ProductRepositoryTest extends TestCase
         $greenId = Uuid::randomHex();
         $parentId = Uuid::randomHex();
 
-        $parentPrice = ['gross' => 10, 'net' => 9, 'linked' => true];
+        $parentPrice = ['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => true];
         $parentName = 'T-shirt';
-        $greenPrice = ['gross' => 15, 'net' => 14, 'linked' => true];
+        $greenPrice = ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 14, 'linked' => true];
 
         $redName = 'Red shirt';
 
@@ -720,7 +827,7 @@ class ProductRepositoryTest extends TestCase
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => $parentName,
-                'price' => $parentPrice,
+                'price' => [$parentPrice],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'manufacturer' => ['name' => 'test'],
             ],
@@ -739,7 +846,7 @@ class ProductRepositoryTest extends TestCase
                 'id' => $greenId,
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
-                'price' => $greenPrice,
+                'price' => [$greenPrice],
                 'parentId' => $parentId,
             ],
         ];
@@ -767,19 +874,19 @@ class ProductRepositoryTest extends TestCase
         /** @var ProductEntity $green */
         $green = $products->get($greenId);
 
-        static::assertEquals($parentPrice['gross'], $parent->getPrice()->getGross());
+        static::assertEquals($parentPrice['gross'], $parent->getCurrencyPrice(Defaults::CURRENCY)->getGross());
         static::assertEquals($parentName, $parent->getName());
 
-        static::assertEquals($parentPrice['gross'], $red->getPrice()->getGross());
+        static::assertEquals($parentPrice['gross'], $red->getCurrencyPrice(Defaults::CURRENCY)->getGross());
         static::assertEquals($redName, $red->getName());
 
-        static::assertEquals($greenPrice['gross'], $green->getPrice()->getGross());
+        static::assertEquals($greenPrice['gross'], $green->getCurrencyPrice(Defaults::CURRENCY)->getGross());
         static::assertEquals($parentName, $green->getTranslated()['name']);
         static::assertNull($green->getName());
 
         /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($parentId)]);
-        static::assertEquals($parentPrice, json_decode($row['price'], true));
+        static::assertEquals(['c' . Defaults::CURRENCY => $parentPrice], json_decode($row['price'], true));
 
         /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($parentId)]);
@@ -795,7 +902,7 @@ class ProductRepositoryTest extends TestCase
 
         /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($greenId)]);
-        static::assertEquals($greenPrice, json_decode($row['price'], true));
+        static::assertEquals(['c' . Defaults::CURRENCY => $greenPrice], json_decode($row['price'], true));
 
         $row = $this->connection->fetchAssoc('SELECT * FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($greenId)]);
         static::assertEmpty($row);
@@ -811,7 +918,7 @@ class ProductRepositoryTest extends TestCase
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'Insert',
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
                 'manufacturer' => ['name' => 'test'],
                 'ean' => $filterId,
@@ -821,7 +928,7 @@ class ProductRepositoryTest extends TestCase
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'Update',
-                'price' => ['gross' => 12, 'net' => 10, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 12, 'net' => 10, 'linked' => false]],
                 'ean' => $filterId,
             ],
         ];
@@ -835,7 +942,7 @@ class ProductRepositoryTest extends TestCase
         $product = $products->get($id);
 
         static::assertEquals('Update', $product->getName());
-        static::assertEquals(12, $product->getPrice()->getGross());
+        static::assertEquals(12, $product->getCurrencyPrice(Defaults::CURRENCY)->getGross());
 
         $count = $this->connection->fetchColumn('SELECT COUNT(id) FROM product WHERE ean = :filterId', ['filterId' => $filterId]);
         static::assertEquals(1, $count);
@@ -848,8 +955,8 @@ class ProductRepositoryTest extends TestCase
 
         $filterId = Uuid::randomHex();
         $data = [
-            ['id' => $id, 'productNumber' => Uuid::randomHex(), 'stock' => 10, 'name' => 'Insert', 'price' => ['gross' => 10, 'net' => 9, 'linked' => false], 'tax' => ['name' => 'test', 'taxRate' => 10], 'manufacturer' => ['name' => 'test'], 'ean' => $filterId],
-            ['id' => $child, 'productNumber' => Uuid::randomHex(), 'stock' => 10, 'parentId' => $id, 'name' => 'Update', 'price' => ['gross' => 12, 'net' => 11, 'linked' => false], 'ean' => $filterId],
+            ['id' => $id, 'productNumber' => Uuid::randomHex(), 'stock' => 10, 'name' => 'Insert', 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]], 'tax' => ['name' => 'test', 'taxRate' => 10], 'manufacturer' => ['name' => 'test'], 'ean' => $filterId],
+            ['id' => $child, 'productNumber' => Uuid::randomHex(), 'stock' => 10, 'parentId' => $id, 'name' => 'Update', 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 12, 'net' => 11, 'linked' => false]], 'ean' => $filterId],
         ];
 
         $this->repository->upsert($data, Context::createDefaultContext());
@@ -893,7 +1000,7 @@ class ProductRepositoryTest extends TestCase
                 'stock' => 10,
                 'parentId' => null,
                 'name' => 'Child transformed to parent',
-                'price' => ['gross' => 13, 'net' => 12, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 13, 'net' => 12, 'linked' => false]],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'manufacturer' => ['name' => 'test3'],
             ],
@@ -914,7 +1021,7 @@ class ProductRepositoryTest extends TestCase
 
         /* @var ProductEntity $product */
         static::assertEquals('Child transformed to parent', $product->getName());
-        static::assertEquals(13, $product->getPrice()->getGross());
+        static::assertEquals(13, $product->getCurrencyPrice(Defaults::CURRENCY)->getGross());
         static::assertEquals('test3', $product->getManufacturer()->getName());
         static::assertEquals(15, $product->getTax()->getTaxRate());
     }
@@ -930,14 +1037,14 @@ class ProductRepositoryTest extends TestCase
             [
                 'id' => $id,
                 'name' => 'Insert',
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
                 'manufacturer' => ['name' => 'test'],
             ],
             [
                 'id' => $child,
                 'parentId' => $id,
-                'price' => ['gross' => 12, 'net' => 11, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 12, 'net' => 11, 'linked' => false]],
             ],
         ];
 
@@ -977,7 +1084,7 @@ class ProductRepositoryTest extends TestCase
                 'id' => $child,
                 'parentId' => null,
                 'name' => 'Child transformed to parent',
-                'price' => ['gross' => 13, 'net' => 12, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 13, 'net' => 12, 'linked' => false]],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'manufacturer' => ['name' => 'test3'],
             ],
@@ -997,7 +1104,7 @@ class ProductRepositoryTest extends TestCase
 
         /* @var ProductEntity $product */
         static::assertEquals('Child transformed to parent', $product->getName());
-        static::assertEquals(13, $product->getPrice()->getGross());
+        static::assertEquals(13, $product->getCurrencyPrice(Defaults::CURRENCY)->getGross());
         static::assertEquals('test3', $product->getManufacturer()->getName());
         static::assertEquals(15, $product->getTax()->getTaxRate());
     }
@@ -1016,7 +1123,9 @@ class ProductRepositoryTest extends TestCase
                 'id' => $parentId,
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => true],
+                'price' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => true],
+                ],
                 'manufacturer' => ['name' => 'test'],
                 'name' => 'parent',
                 'tax' => ['id' => $parentTax, 'taxRate' => 13, 'name' => 'green'],
@@ -1082,7 +1191,13 @@ class ProductRepositoryTest extends TestCase
 
         /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($parentId)]);
-        static::assertEquals(['gross' => 10, 'net' => 9, 'linked' => true], json_decode($row['price'], true));
+
+        static::assertEquals(
+            [
+                'c' . Defaults::CURRENCY => ['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => true],
+            ],
+            json_decode($row['price'], true)
+        );
         static::assertEquals($parentTax, Uuid::fromBytesToHex($row['tax_id']));
 
         /** @var array $row */
@@ -1108,7 +1223,7 @@ class ProductRepositoryTest extends TestCase
     public function testWriteProductWithSameTaxes(): void
     {
         $tax = ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'test'];
-        $price = ['gross' => 10, 'net' => 9, 'linked' => false];
+        $price = [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]];
         $data = [
             ['productNumber' => Uuid::randomHex(), 'name' => 'test', 'stock' => 10, 'tax' => $tax, 'price' => $price, 'manufacturer' => ['name' => 'test']],
             ['productNumber' => Uuid::randomHex(), 'name' => 'test', 'stock' => 10, 'tax' => $tax, 'price' => $price, 'manufacturer' => ['name' => 'test']],
@@ -1136,7 +1251,7 @@ class ProductRepositoryTest extends TestCase
                 'id' => $parentId,
                 'productNumber' => Uuid::randomHex(),
                 'name' => 'T-shirt',
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'stock' => 10,
@@ -1240,7 +1355,7 @@ class ProductRepositoryTest extends TestCase
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'T-shirt',
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
@@ -1318,9 +1433,9 @@ class ProductRepositoryTest extends TestCase
         $greenId = Uuid::randomHex();
         $parentId = Uuid::randomHex();
 
-        $parentPrice = ['gross' => 10, 'net' => 9, 'linked' => false];
+        $parentPrice = ['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false];
         $parentName = 'T-shirt';
-        $greenPrice = ['gross' => 12, 'net' => 11, 'linked' => false];
+        $greenPrice = ['currencyId' => Defaults::CURRENCY, 'gross' => 12, 'net' => 11, 'linked' => false];
         $redName = 'Red shirt';
 
         $products = [
@@ -1331,7 +1446,7 @@ class ProductRepositoryTest extends TestCase
                 'name' => $parentName,
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
-                'price' => $parentPrice,
+                'price' => [$parentPrice],
             ],
 
             //price should be inherited
@@ -1348,7 +1463,7 @@ class ProductRepositoryTest extends TestCase
                 'id' => $greenId,
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
-                'price' => $greenPrice,
+                'price' => [$greenPrice],
                 'parentId' => $parentId,
             ],
         ];
@@ -1380,9 +1495,9 @@ class ProductRepositoryTest extends TestCase
         $greenId = Uuid::randomHex();
         $parentId = Uuid::randomHex();
 
-        $parentPrice = ['gross' => 10, 'net' => 9, 'linked' => false];
+        $parentPrice = ['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false];
         $parentName = 'T-shirt';
-        $greenPrice = ['gross' => 12, 'net' => 11, 'linked' => false];
+        $greenPrice = ['currencyId' => Defaults::CURRENCY, 'gross' => 12, 'net' => 11, 'linked' => false];
         $redName = 'Red shirt';
 
         $manufacturerId = Uuid::randomHex();
@@ -1395,7 +1510,7 @@ class ProductRepositoryTest extends TestCase
                 'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => $parentName,
-                'price' => $parentPrice,
+                'price' => [$parentPrice],
             ],
 
             //price should be inherited
@@ -1412,7 +1527,7 @@ class ProductRepositoryTest extends TestCase
                 'id' => $greenId,
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
-                'price' => $greenPrice,
+                'price' => [$greenPrice],
                 'parentId' => $parentId,
             ],
         ];
@@ -1444,9 +1559,9 @@ class ProductRepositoryTest extends TestCase
         $greenId = Uuid::randomHex();
         $parentId = Uuid::randomHex();
 
-        $parentPrice = ['gross' => 10, 'net' => 9, 'linked' => false];
+        $parentPrice = ['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false];
         $parentName = 'T-shirt';
-        $greenPrice = ['gross' => 12, 'net' => 11, 'linked' => false];
+        $greenPrice = ['currencyId' => Defaults::CURRENCY, 'gross' => 12, 'net' => 11, 'linked' => false];
         $redName = 'Red shirt';
 
         $categoryId = Uuid::randomHex();
@@ -1458,7 +1573,7 @@ class ProductRepositoryTest extends TestCase
                 'stock' => 10,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => $parentName,
-                'price' => $parentPrice,
+                'price' => [$parentPrice],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
                     ['id' => $categoryId, 'name' => 'test'],
@@ -1479,7 +1594,7 @@ class ProductRepositoryTest extends TestCase
                 'id' => $greenId,
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
-                'price' => $greenPrice,
+                'price' => [$greenPrice],
                 'parentId' => $parentId,
             ],
         ];
@@ -1529,7 +1644,7 @@ class ProductRepositoryTest extends TestCase
                 'stock' => 10,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'Parent',
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => $parentCategories,
             ],
@@ -1539,7 +1654,7 @@ class ProductRepositoryTest extends TestCase
                 'stock' => 10,
                 'name' => 'Red',
                 'parentId' => $parentId,
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => $redCategories,
             ],
@@ -1575,9 +1690,9 @@ class ProductRepositoryTest extends TestCase
         $greenId = Uuid::randomHex();
         $parentId = Uuid::randomHex();
 
-        $parentPrice = ['gross' => 10, 'net' => 9, 'linked' => false];
+        $parentPrice = ['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false];
         $parentName = 'T-shirt';
-        $greenPrice = ['gross' => 12, 'net' => 11, 'linked' => false];
+        $greenPrice = ['currencyId' => Defaults::CURRENCY, 'gross' => 12, 'net' => 11, 'linked' => false];
         $redName = 'Red shirt';
 
         $manufacturerId = Uuid::randomHex();
@@ -1590,7 +1705,7 @@ class ProductRepositoryTest extends TestCase
                 'stock' => 10,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => $parentName,
-                'price' => $parentPrice,
+                'price' => [$parentPrice],
                 'manufacturer' => [
                     'id' => $manufacturerId,
                     'name' => 'test',
@@ -1613,7 +1728,7 @@ class ProductRepositoryTest extends TestCase
                 'id' => $greenId,
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
-                'price' => $greenPrice,
+                'price' => [$greenPrice],
                 'parentId' => $parentId,
             ],
         ];
@@ -1648,7 +1763,7 @@ class ProductRepositoryTest extends TestCase
                         'stock' => 10,
                         'tax' => ['name' => 'test', 'taxRate' => 15],
                         'name' => 'test',
-                        'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                         'manufacturer' => ['name' => 'test'],
                     ],
                 ],
@@ -1688,7 +1803,7 @@ class ProductRepositoryTest extends TestCase
                         'name' => 'test',
                         'tax' => ['name' => 'test', 'taxRate' => 15],
                         'manufacturerId' => $manufacturerId,
-                        'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                     ],
                 ],
             ],
@@ -1723,7 +1838,7 @@ class ProductRepositoryTest extends TestCase
             'name' => 'test',
             'stock' => 10,
             'tax' => ['name' => 'test', 'taxRate' => 15],
-            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
             'manufacturer' => ['name' => 'test'],
             'properties' => [
                 [
@@ -1776,7 +1891,7 @@ class ProductRepositoryTest extends TestCase
             'stock' => 10,
             'name' => 'test',
             'tax' => ['name' => 'test', 'taxRate' => 15],
-            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
             'manufacturer' => ['name' => 'test'],
             'options' => [
                 [
@@ -1829,12 +1944,12 @@ class ProductRepositoryTest extends TestCase
             'name' => 'test',
             'stock' => 10,
             'tax' => ['name' => 'test', 'taxRate' => 15],
-            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
             'manufacturer' => ['name' => 'test'],
             'configuratorSettings' => [
                 [
                     'id' => $redId,
-                    'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
+                    'price' => ['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false],
                     'option' => [
                         'id' => $redId,
                         'name' => 'red',
@@ -1843,7 +1958,7 @@ class ProductRepositoryTest extends TestCase
                 ],
                 [
                     'id' => $blueId,
-                    'price' => ['gross' => 100, 'net' => 90, 'linked' => false],
+                    'price' => ['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 90, 'linked' => false],
                     'option' => [
                         'id' => $blueId,
                         'name' => 'blue',
@@ -1870,8 +1985,8 @@ class ProductRepositoryTest extends TestCase
         $blue = $configuratorSettings->get($blueId);
         $red = $configuratorSettings->get($redId);
 
-        static::assertEquals(['gross' => 50, 'net' => 25, 'linked' => false], $red->getPrice());
-        static::assertEquals(['gross' => 100, 'net' => 90, 'linked' => false], $blue->getPrice());
+        static::assertEquals(['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false], $red->getPrice());
+        static::assertEquals(['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 90, 'linked' => false], $blue->getPrice());
 
         static::assertEquals('red', $red->getOption()->getName());
         static::assertEquals('blue', $blue->getOption()->getName());
@@ -1897,28 +2012,33 @@ class ProductRepositoryTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 10,
             'name' => 'price test',
-            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+            ],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'prices' => [
                 [
-                    'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'quantityEnd' => 20,
                     'ruleId' => $ruleA,
-                    'price' => ['gross' => 100, 'net' => 100, 'linked' => false],
+                    'price' => [
+                        ['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 100, 'linked' => false],
+                    ],
                 ],
                 [
-                    'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 21,
                     'ruleId' => $ruleA,
-                    'price' => ['gross' => 10, 'net' => 50, 'linked' => false],
+                    'price' => [
+                        ['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 50, 'linked' => false],
+                    ],
                 ],
                 [
-                    'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'ruleId' => $ruleB,
-                    'price' => ['gross' => 50, 'net' => 50, 'linked' => false],
+                    'price' => [
+                        ['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 50, 'linked' => false],
+                    ],
                 ],
             ],
         ];
@@ -1930,21 +2050,16 @@ class ProductRepositoryTest extends TestCase
         /** @var ProductEntity $product */
         $product = $products->get($id);
 
-        static::assertCount(2, $product->getListingPrices());
+        $price = $product
+            ->getListingPrices()
+            ->filterByRuleId($ruleA)
+            ->filterByCurrencyId(Defaults::CURRENCY);
 
-        $price = $product->getListingPrices()->filterByRuleId($ruleA);
         static::assertCount(1, $price);
         $price = $price->first();
 
-        /* @var PriceRuleEntity $price */
-        static::assertEquals(10, $price->getPrice()->getGross());
-
-        $price = $product->getListingPrices()->filterByRuleId($ruleB);
-        static::assertCount(1, $price);
-        $price = $price->first();
-
-        /* @var PriceRuleEntity $price */
-        static::assertEquals(50, $price->getPrice()->getGross());
+        /** @var ListingPrice $price */
+        static::assertEquals(10, $price->getFrom()->getGross());
     }
 
     public function testModifyProductPriceMatrix(): void
@@ -1964,17 +2079,15 @@ class ProductRepositoryTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 10,
             'name' => 'price test',
-            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'prices' => [
                 [
                     'id' => $id,
-                    'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
-
                     'ruleId' => $ruleA,
-                    'price' => ['gross' => 100, 'net' => 100, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 100, 'linked' => false]],
                 ],
             ],
         ];
@@ -2004,15 +2117,18 @@ class ProductRepositoryTest extends TestCase
                 [
                     'id' => $id,
                     'quantityEnd' => 20,
-                    'price' => ['gross' => 5000, 'net' => 4000, 'linked' => false],
+                    'price' => [
+                        ['currencyId' => Defaults::CURRENCY, 'gross' => 5000, 'net' => 4000, 'linked' => false],
+                    ],
                 ],
 
                 //add new graduation to existing rule
                 [
-                    'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 21,
                     'ruleId' => $ruleA,
-                    'price' => ['gross' => 10, 'net' => 50, 'linked' => false],
+                    'price' => [
+                        ['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 50, 'linked' => false],
+                    ],
                 ],
             ],
         ];
@@ -2032,8 +2148,14 @@ class ProductRepositoryTest extends TestCase
 
         /** @var ProductPriceEntity $price */
         $price = $product->getPrices()->get($id);
+
         static::assertEquals($ruleA, $price->getRuleId());
-        static::assertEquals(new Price(4000, 5000, false), $price->getPrice());
+        static::assertInstanceOf(PriceCollection::class, $price->getPrice());
+
+        static::assertEquals(
+            new Price(Defaults::CURRENCY, 4000, 5000, false),
+            $price->getPrice()->getCurrencyPrice(Defaults::CURRENCY)
+        );
 
         static::assertEquals(1, $price->getQuantityStart());
         static::assertEquals(20, $price->getQuantityEnd());
@@ -2049,7 +2171,7 @@ class ProductRepositoryTest extends TestCase
                     'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'ruleId' => $ruleB,
-                    'price' => ['gross' => 50, 'net' => 50, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 50, 'linked' => false]],
                 ],
             ],
         ];
@@ -2070,7 +2192,11 @@ class ProductRepositoryTest extends TestCase
         /** @var ProductPriceEntity $price */
         $price = $product->getPrices()->get($id3);
         static::assertEquals($ruleB, $price->getRuleId());
-        static::assertEquals(new Price(50, 50, false), $price->getPrice());
+
+        static::assertEquals(
+            new Price(Defaults::CURRENCY, 50, 50, false),
+            $price->getPrice()->getCurrencyPrice(Defaults::CURRENCY)
+        );
 
         static::assertEquals(1, $price->getQuantityStart());
         static::assertNull($price->getQuantityEnd());
@@ -2087,7 +2213,7 @@ class ProductRepositoryTest extends TestCase
             'stock' => 10,
             'tax' => ['name' => 'test', 'taxRate' => 15, 'id' => $manufacturerId],
             'name' => 'test product',
-            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
             'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
         ];
 
@@ -2160,7 +2286,7 @@ class ProductRepositoryTest extends TestCase
             'name' => 'product',
             'stock' => 10,
             'ean' => 'test',
-            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
             'manufacturer' => ['name' => 'manufacturer'],
             'tax' => ['name' => 'tax', 'taxRate' => 15],
             'categories' => [
@@ -2175,6 +2301,33 @@ class ProductRepositoryTest extends TestCase
         $count = $this->connection->fetchAll('SELECT * FROM category');
 
         static::assertCount(1, $count, print_r($count, true));
+    }
+
+    private function formatPrice(
+        float $gross,
+        string $currencyId,
+        string $ruleId,
+        int $quantityStart,
+        ?int $quantityEnd,
+        ?float $net = null,
+        ?string $id = null
+    ) {
+        $id = $id ?? Uuid::randomHex();
+
+        return [
+            'id' => $id,
+            'quantityStart' => $quantityStart,
+            'quantityEnd' => $quantityEnd,
+            'ruleId' => $ruleId,
+            'price' => [
+                [
+                    'currencyId' => $currencyId,
+                    'gross' => $gross,
+                    'net' => $net ?? $gross / 1.19,
+                    'linked' => false,
+                ],
+            ],
+        ];
     }
 
     private function createContext(array $ruleIds = []): Context

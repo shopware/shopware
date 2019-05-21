@@ -45,6 +45,17 @@ $sw-products-variants-generated-variants-toolbar-border: $color-steam-cloud;
                 }
             }
         }
+
+        .sw-price-field .sw-field .sw-field__addition {
+            display: none;
+        }
+
+        .sw-inheritance-switch {
+            margin-right: 8px;
+        }
+        .sw-inheritance-switch:not(.sw-inheritance-switch--disabled) {
+            cursor: pointer;
+        }
     }
 
     .sw-product-variants-overview__single-variation {

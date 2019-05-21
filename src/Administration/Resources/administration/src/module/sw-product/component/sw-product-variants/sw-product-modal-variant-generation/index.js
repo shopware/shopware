@@ -1,4 +1,5 @@
 import { Component } from 'src/core/shopware';
+import { mapState } from 'vuex';
 import template from './sw-product-modal-variant-generation.html.twig';
 import VariantsGenerator from '../../../helper/sw-products-variants-generator';
 import './sw-product-modal-variant-generation.scss';
@@ -44,6 +45,10 @@ Component.register('sw-product-modal-variant-generation', {
     },
 
     computed: {
+        ...mapState('swProductDetail', [
+            'currencies'
+        ]),
+
         configuratorSettingsRepository() {
             // get configuratorSettingsRepository
             return this.repositoryFactory.create(
@@ -96,7 +101,7 @@ Component.register('sw-product-modal-variant-generation', {
         generateVariants(forceGenerating) {
             this.isLoading = true;
 
-            this.variantsGenerator.createNewVariants(forceGenerating, this.product.variantRestrictions).then(() => {
+            this.variantsGenerator.createNewVariants(forceGenerating, this.currencies).then(() => {
                 // Save the product after generating
                 this.productRepository.save(this.product, this.context).then(() => {
                     this.$emit('variations-finish-generate');

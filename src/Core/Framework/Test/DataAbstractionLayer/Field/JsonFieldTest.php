@@ -14,7 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\UnexpectedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\JsonDefinition;
@@ -118,7 +117,7 @@ EOF;
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'test',
-            'price' => ['gross' => 15, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'linked' => false]],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'categories' => [
@@ -137,7 +136,7 @@ EOF;
 
         $fieldException = $ex->getExceptions()[0];
         static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
-        static::assertEquals('/price/net', $fieldException->getPath());
+        static::assertEquals('/price/0/net', $fieldException->getPath());
     }
 
     public function testMultipleMissingProperties(): void
@@ -150,7 +149,9 @@ EOF;
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'test',
-            'price' => ['foo' => 'bar', 'linked' => false],
+            'price' => [
+                ['foo' => 'bar', 'linked' => false],
+            ],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'categories' => [
@@ -165,19 +166,24 @@ EOF;
         }
 
         static::assertInstanceOf(WriteException::class, $ex);
-        static::assertCount(3, $ex->getExceptions());
+        static::assertCount(1, $ex->getExceptions());
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(UnexpectedFieldException::class, \get_class($fieldException));
-        static::assertEquals('/price/foo', $fieldException->getPath());
+        static::assertInstanceOf(WriteConstraintViolationException::class, $fieldException);
 
-        $fieldException = $ex->getExceptions()[1];
-        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
-        static::assertEquals('/price/gross', $fieldException->getPath());
+        $violations = $fieldException->getViolations();
 
-        $fieldException = $ex->getExceptions()[2];
-        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
-        static::assertEquals('/price/net', $fieldException->getPath());
+        $violation = $violations->get(0);
+        static::assertEquals('price/0/currencyId', $violation->getPropertyPath());
+
+        $violation = $violations->get(1);
+        static::assertEquals('price/0/gross', $violation->getPropertyPath());
+
+        $violation = $violations->get(2);
+        static::assertEquals('price/0/net', $violation->getPropertyPath());
+
+        $violation = $violations->get(3);
+        static::assertEquals('price/0/foo', $violation->getPropertyPath());
     }
 
     public function testPropertyTypes(): void
@@ -190,7 +196,7 @@ EOF;
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'test',
-            'price' => ['gross' => 15, 'net' => 'strings are not allowed', 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 'strings are not allowed', 'linked' => false]],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'categories' => [
@@ -209,7 +215,7 @@ EOF;
 
         $fieldException = $ex->getExceptions()[0];
         static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
-        static::assertEquals('/price/net', $fieldException->getPath());
+        static::assertEquals('/price/0/net', $fieldException->getPath());
     }
 
     public function testUnexpectedFieldShouldThrowException(): void
@@ -222,7 +228,7 @@ EOF;
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'test',
-            'price' => ['gross' => 15, 'net' => 13.2, 'linked' => false, 'fail' => 'me'],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 13.2, 'linked' => false, 'fail' => 'me']],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'categories' => [
@@ -240,8 +246,15 @@ EOF;
         static::assertCount(1, $ex->getExceptions());
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(UnexpectedFieldException::class, \get_class($fieldException));
-        static::assertEquals('/price/fail', $fieldException->getPath());
+
+        /** @var InvalidFieldException $fieldException */
+        static::assertInstanceOf(InvalidFieldException::class, $fieldException);
+
+        $violations = $fieldException->getViolations();
+        static::assertCount(1, $violations);
+
+        $violation = $violations->get(0);
+        static::assertEquals('price/0/fail', $violation->getPropertyPath());
     }
 
     public function testWithoutMappingShouldAcceptAnyKey(): void

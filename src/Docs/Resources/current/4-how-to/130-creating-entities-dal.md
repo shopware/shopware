@@ -109,7 +109,7 @@ $productRepository->upsert(
     [
         [
             'name' => 'Example product',
-            'price' => [ 'gross' => 15, 'net' => 10, 'linked' => false ],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false ]],
             'manufacturer' => [ 'name' => 'shopware AG' ],
             'tax' => [ 'name' => '19%', 'taxRate' => 19 ]
         ]

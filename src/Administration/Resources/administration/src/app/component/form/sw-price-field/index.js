@@ -21,15 +21,21 @@ export default {
 
     props: {
         price: {
-            type: Object,
+            type: Array,
             required: true,
             default() {
-                return {
-                    net: null,
-                    gross: null
-                };
+                return [];
             }
         },
+
+        defaultPrice: {
+            type: Object,
+            required: false,
+            default() {
+                return {};
+            }
+        },
+
         taxRate: {
             type: Object,
             required: true,
@@ -37,6 +43,7 @@ export default {
                 return {};
             }
         },
+
         currency: {
             type: Object,
             required: true,
@@ -44,14 +51,17 @@ export default {
                 return {};
             }
         },
+
         validation: {
             required: false,
             default: null
         },
+
         label: {
             required: false,
             default: true
         },
+
         compact: {
             required: false,
             default: false
@@ -61,19 +71,30 @@ export default {
             tye: String,
             required: false,
             default: null
+        },
+
+        disabled: {
+            required: false,
+            default: false
+        },
+
+        enableInheritance: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
     watch: {
-        'price.linked': function priceLinkedWatcher(value) {
+        'priceForCurrency.linked': function priceLinkedWatcher(value) {
             if (value === true) {
-                this.convertGrossToNet(this.price.gross);
+                this.convertGrossToNet(this.priceForCurrency.gross);
             }
         },
 
         'taxRate.taxRate': function taxRateWatcher() {
-            if (this.price.linked === true) {
-                this.convertGrossToNet(this.price.gross);
+            if (this.priceForCurrency.linked === true) {
+                this.convertGrossToNet(this.priceForCurrency.gross);
             }
         }
     },
@@ -89,20 +110,60 @@ export default {
 
         netPointer() {
             return this.rootPointer ? `${this.rootPointer}.price.net` : null;
+        },
+
+        priceForCurrency: {
+            get() {
+                const priceForCurrency = Object.values(this.price).find((price) => {
+                    return price.currencyId === this.currency.id;
+                });
+
+                // check if price exists
+                if (priceForCurrency) {
+                    return priceForCurrency;
+                }
+
+                // otherwise calculate values
+                return {
+                    gross: this.convertPrice(this.defaultPrice.gross),
+                    linked: this.defaultPrice.linked,
+                    net: this.convertPrice(this.defaultPrice.net)
+                };
+            },
+            set(newValue) {
+                this.priceForCurrency.gross = newValue.gross;
+                this.priceForCurrency.linked = newValue.linked;
+                this.priceForCurrency.net = newValue.net;
+            }
+        },
+
+        isInherited() {
+            const priceForCurrency = Object.values(this.price).find((price) => {
+                return price.currencyId === this.currency.id;
+            });
+
+            return !priceForCurrency;
+        },
+
+        isDisabled() {
+            return this.isInherited || this.disabled;
         }
     },
 
     methods: {
         onLockSwitch() {
-            this.price.linked = !this.price.linked;
-            this.$emit('price-lock-change', this.price.linked);
-            this.$emit('change', this.price);
+            if (this.isDisabled) {
+                return;
+            }
+            this.priceForCurrency.linked = !this.priceForCurrency.linked;
+            this.$emit('price-lock-change', this.priceForCurrency.linked);
+            this.$emit('change', this.priceForCurrency);
         },
 
         onPriceGrossChange(value) {
-            this.price.gross = value;
+            this.priceForCurrency.gross = value;
 
-            if (this.price.linked) {
+            if (this.priceForCurrency.linked) {
                 this.$emit('price-calculate', true);
                 this.onPriceGrossChangeDebounce(value);
             }
@@ -110,15 +171,15 @@ export default {
 
         onPriceGrossChangeDebounce: utils.debounce(function onPriceGrossChange(value) {
             this.$emit('price-gross-change', value);
-            this.$emit('change', this.price);
+            this.$emit('change', this.priceForCurrency);
 
             this.convertGrossToNet(value);
         }, 500),
 
         onPriceNetChange(value) {
-            this.price.net = value;
+            this.priceForCurrency.net = value;
 
-            if (this.price.linked) {
+            if (this.priceForCurrency.linked) {
                 this.$emit('price-calculate', true);
                 this.onPriceNetChangeDebounce(value);
             }
@@ -126,7 +187,7 @@ export default {
 
         onPriceNetChangeDebounce: utils.debounce(function onPriceNetChange(value) {
             this.$emit('price-net-change', value);
-            this.$emit('change', this.price);
+            this.$emit('change', this.priceForCurrency);
 
             this.convertNetToGross(value);
         }, 500),
@@ -138,7 +199,7 @@ export default {
             this.$emit('price-calculate', true);
 
             this.requestTaxValue(value, 'net').then((res) => {
-                this.price.gross = this.price.net + res;
+                this.priceForCurrency.gross = this.priceForCurrency.net + res;
             });
             return true;
         },
@@ -151,7 +212,7 @@ export default {
             this.$emit('price-calculate', true);
 
             this.requestTaxValue(value, 'gross').then((res) => {
-                this.price.net = this.price.gross - res;
+                this.priceForCurrency.net = this.priceForCurrency.gross - res;
             });
             return true;
         },
@@ -159,14 +220,20 @@ export default {
         requestTaxValue(value, outputType) {
             this.$emit('price-calculate', true);
             return new Promise((resolve) => {
-                if (!value || typeof value !== 'number' || !this.price[outputType] || !this.taxRate.id || !outputType) {
+                if (
+                    !value ||
+                    typeof value !== 'number' ||
+                    !this.priceForCurrency[outputType] ||
+                    !this.taxRate.id ||
+                    !outputType
+                ) {
                     return null;
                 }
 
                 this.calculatePriceApiService.calculatePrice({
                     taxId: this.taxRate.id,
                     currencyId: this.currency.id,
-                    price: this.price[outputType],
+                    price: this.priceForCurrency[outputType],
                     output: outputType
                 }).then(({ data }) => {
                     resolve(data.calculatedTaxes[0].tax);
@@ -174,6 +241,12 @@ export default {
                 });
                 return true;
             });
+        },
+
+        convertPrice(value) {
+            const calculatedPrice = value * this.currency.factor;
+            const priceRounded = calculatedPrice.toFixed(this.currency.decimalPrecision);
+            return Number(priceRounded);
         }
     }
 };

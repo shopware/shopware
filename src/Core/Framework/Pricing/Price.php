@@ -7,6 +7,11 @@ use Shopware\Core\Framework\Struct\Struct;
 class Price extends Struct
 {
     /**
+     * @var string
+     */
+    protected $currencyId;
+
+    /**
      * @var float
      */
     protected $net;
@@ -21,11 +26,12 @@ class Price extends Struct
      */
     protected $linked;
 
-    public function __construct(float $net, float $gross, bool $linked)
+    public function __construct(string $currencyId, float $net, float $gross, bool $linked)
     {
         $this->net = $net;
         $this->gross = $gross;
         $this->linked = $linked;
+        $this->currencyId = $currencyId;
     }
 
     public function getNet(): float
@@ -62,5 +68,15 @@ class Price extends Struct
     {
         $this->gross += $price->getGross();
         $this->net += $price->getNet();
+    }
+
+    public function getCurrencyId(): string
+    {
+        return $this->currencyId;
+    }
+
+    public function setCurrencyId(string $currencyId): void
+    {
+        $this->currencyId = $currencyId;
     }
 }

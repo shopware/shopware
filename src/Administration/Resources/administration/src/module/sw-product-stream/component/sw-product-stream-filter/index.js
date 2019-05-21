@@ -182,7 +182,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                 this.conditionTreeComponent.isApi = true;
             }
         },
-        mountComponent() {
+        mountedComponent() {
             this.loadNegatedCondition();
 
             this.type = this.findCorrectAbstractionForRangeType();

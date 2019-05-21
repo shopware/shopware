@@ -432,9 +432,11 @@ class TranslationTest extends TestCase
                     'name' => '19%',
                 ],
                 'price' => [
-                    'gross' => 7.9899999999999824,
-                    'net' => 6.7142857142857,
-                    'linked' => false,
+                    [
+                        'currencyId' => Defaults::CURRENCY, 'gross' => 7.9899999999999824,
+                        'net' => 6.7142857142857,
+                        'linked' => false,
+                    ],
                 ],
                 'translations' => [
                     $germanLanguageId => [
@@ -529,9 +531,11 @@ class TranslationTest extends TestCase
                     'name' => '19%',
                 ],
                 'price' => [
-                    'gross' => 7.9899999999999824,
-                    'net' => 6.7142857142857,
-                    'linked' => false,
+                    [
+                        'currencyId' => Defaults::CURRENCY, 'gross' => 7.9899999999999824,
+                        'net' => 6.7142857142857,
+                        'linked' => false,
+                    ],
                 ],
                 'translations' => [
                     [

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -53,7 +54,7 @@ trait AggregationTestBehaviour
                 'productNumber' => Uuid::randomHex(),
                 'name' => 'product 1',
                 'stock' => 1,
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
                 'manufacturer' => ['name' => 'manufacturer1'],
                 'categories' => [
@@ -65,7 +66,7 @@ trait AggregationTestBehaviour
                 'productNumber' => Uuid::randomHex(),
                 'name' => 'product 2',
                 'stock' => 1,
-                'price' => ['gross' => 20, 'net' => 19, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 20, 'net' => 19, 'linked' => false]],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
                 'manufacturer' => ['name' => 'manufacturer2'],
                 'categories' => [
@@ -77,7 +78,7 @@ trait AggregationTestBehaviour
                 'productNumber' => Uuid::randomHex(),
                 'name' => 'product 3',
                 'stock' => 1,
-                'price' => ['gross' => 50, 'net' => 49, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 49, 'linked' => false]],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
                 'manufacturer' => ['name' => 'manufacturer1'],
                 'categories' => [
@@ -88,7 +89,7 @@ trait AggregationTestBehaviour
                 'productNumber' => Uuid::randomHex(),
                 'name' => 'product 4',
                 'stock' => 1,
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
                 'manufacturer' => ['name' => 'manufacturer2'],
                 'categories' => [
@@ -100,7 +101,7 @@ trait AggregationTestBehaviour
                 'productNumber' => Uuid::randomHex(),
                 'name' => 'product 5',
                 'stock' => 1,
-                'price' => ['gross' => 90, 'net' => 99, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 90, 'net' => 99, 'linked' => false]],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
                 'manufacturer' => ['name' => 'manufacturer3'],
                 'categories' => [
@@ -112,7 +113,7 @@ trait AggregationTestBehaviour
                 'productNumber' => Uuid::randomHex(),
                 'name' => 'product 6',
                 'stock' => 1,
-                'price' => ['gross' => 50, 'net' => 49, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 49, 'linked' => false]],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
                 'manufacturer' => ['name' => 'manufacturer2'],
                 'categories' => [
@@ -123,7 +124,7 @@ trait AggregationTestBehaviour
                 'productNumber' => Uuid::randomHex(),
                 'name' => 'product 6',
                 'stock' => 1,
-                'price' => ['gross' => 20, 'net' => 19, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 20, 'net' => 19, 'linked' => false]],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
                 'manufacturer' => ['name' => 'manufacturer1'],
                 'categories' => [

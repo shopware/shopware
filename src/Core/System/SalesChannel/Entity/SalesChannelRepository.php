@@ -78,7 +78,7 @@ class SalesChannelRepository
             return new EntitySearchResult($entities->count(), $entities, $aggregations, $criteria, $context->getContext());
         }
 
-        $ids = $this->searchIds($criteria, $context);
+        $ids = $this->doSearch($criteria, $context);
 
         $readCriteria = new Criteria($ids->getIds());
         foreach ($criteria->getAssociations() as $key => $associationCriteria) {
@@ -136,12 +136,7 @@ class SalesChannelRepository
             $this->definition->processCriteria($criteria, $context);
         }
 
-        $result = $this->searcher->search($this->definition, $criteria, $context->getContext());
-
-        $event = new SalesChannelEntityIdSearchResultLoadedEvent($this->definition, $result, $context);
-        $this->eventDispatcher->dispatch($event->getName(), $event);
-
-        return $result;
+        return $this->doSearch($criteria, $context);
     }
 
     private function read(Criteria $criteria, SalesChannelContext $context): EntityCollection
@@ -156,5 +151,15 @@ class SalesChannelRepository
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $entities;
+    }
+
+    private function doSearch(Criteria $criteria, SalesChannelContext $context): IdSearchResult
+    {
+        $result = $this->searcher->search($this->definition, $criteria, $context->getContext());
+
+        $event = new SalesChannelEntityIdSearchResultLoadedEvent($this->definition, $result, $context);
+        $this->eventDispatcher->dispatch($event->getName(), $event);
+
+        return $result;
     }
 }

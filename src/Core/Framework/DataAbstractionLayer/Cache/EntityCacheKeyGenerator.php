@@ -272,6 +272,7 @@ class EntityCacheKeyGenerator
     private function getCriteriaHash(Criteria $criteria): string
     {
         return md5(json_encode([
+            $criteria->getIds(),
             $criteria->getFilters(),
             $criteria->getPostFilters(),
             $criteria->getQueries(),

@@ -67,7 +67,7 @@ Make sure to also include that file when publishing your plugin!
 A copy of this file will then be put into the directory `<shopware root>/public/bundles/administrationnewcolumn/static/js/AdministrationNewColumn.js`.
 
 The latter javascript file has to be injected into the template by your plugin as well for production environments.
-In order to do this, create a new file called `index.html.twig`, next to your `main.js` file.
+In order to do this, create a new file called `index.html.twig` here: `<plugin root>/src/Resources/views/administration/`
 
 ```twig
 {% sw_extends 'administration/index.html.twig' %}

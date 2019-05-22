@@ -34,6 +34,7 @@
         border: 0 none;
     }
 </style>
+
 <div class="platform-main-content">
     <section class="has--no-padding-bottom has--no-padding-top">
         <div class="section--inner">

@@ -149,7 +149,7 @@ You can see a shortened example below:
 ### Example: Authentication
 
 The following example shows how to authenticate a user by his password.
-Detailed information about the authentication can be found [here](./20-management-authentication.md).
+Detailed information about the authentication can be found [here](./020-management-authentication.md).
 
 ```javascript
     const baseUrl = '{insert your url}';
@@ -176,7 +176,7 @@ Detailed information about the authentication can be found [here](./20-managemen
 
 After fetching an access token you can access all other resources by sending the access token in the **Authorization** header.
 The following example shows how to get a list of products.
-For detailed information take a look at [usage](./30-management-api-usage.md) and [extended read](./40-management-extended-read.md).
+For detailed information take a look at [usage](./030-management-api-usage.md) and [extended read](./040-management-extended-read.md).
 
 ```javascript
     const baseUrl = '{insert your url}';

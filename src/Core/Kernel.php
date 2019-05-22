@@ -408,6 +408,8 @@ SQL;
         }
 
         [$version, $hash] = explode('@', $version);
+        $version = ltrim($version, 'v');
+        $version = str_replace('+', '-', $version);
 
         // checks if the version is a valid version pattern
         if (!preg_match('#\d+\.\d+\.\d+(-\w+)?#', $version)) {

@@ -16,8 +16,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 EOD;
     /**

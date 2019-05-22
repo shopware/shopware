@@ -24,6 +24,11 @@ class OrderLineItemEntity extends Entity
     protected $identifier;
 
     /**
+     * @var string|null
+     */
+    protected $referencedId;
+
+    /**
      * @var int
      */
     protected $quantity;
@@ -131,6 +136,16 @@ class OrderLineItemEntity extends Entity
     public function setIdentifier(string $identifier): void
     {
         $this->identifier = $identifier;
+    }
+
+    public function getReferencedId(): ?string
+    {
+        return $this->referencedId;
+    }
+
+    public function setReferencedId(?string $referencedId): void
+    {
+        $this->referencedId = $referencedId;
     }
 
     public function getQuantity(): int

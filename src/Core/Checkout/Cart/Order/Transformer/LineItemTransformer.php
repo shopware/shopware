@@ -34,6 +34,7 @@ class LineItemTransformer
         $data = [
             'id' => $id,
             'identifier' => $lineItem->getId(),
+            'referencedId' => $lineItem->getReferencedId(),
             'quantity' => $lineItem->getQuantity(),
             'type' => $lineItem->getType(),
             'label' => $lineItem->getLabel(),

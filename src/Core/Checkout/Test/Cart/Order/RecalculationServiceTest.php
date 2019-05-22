@@ -993,6 +993,23 @@ class RecalculationServiceTest extends TestCase
 
         static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
+        $this->getClient()->request(
+            'POST',
+            sprintf(
+                '/api/v%s/_action/order/%s/recalculate',
+                PlatformRequest::API_VERSION,
+                $orderId
+            ),
+            [],
+            [],
+            [
+                'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
+            ]
+        );
+        $response = $this->getClient()->getResponse();
+
+        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
+
         // read versioned order
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('lineItems');

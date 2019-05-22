@@ -4,8 +4,8 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
-use Shopware\Core\Content\NewsletterRecipient\SalesChannel\NewsletterSubscriptionService;
-use Shopware\Core\Content\NewsletterRecipient\SalesChannel\NewsletterSubscriptionServiceInterface;
+use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscriptionService;
+use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscriptionServiceInterface;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;

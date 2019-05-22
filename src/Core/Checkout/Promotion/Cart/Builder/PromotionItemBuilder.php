@@ -64,8 +64,8 @@ class PromotionItemBuilder
      * Builds a new Line Item for the provided discount and its promotion.
      * It will automatically reference all provided "product" item Ids within the payload.
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
+     * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
      */
     public function buildDiscountLineItem(PromotionEntity $promotion, PromotionDiscountEntity $discount, int $currencyPrecision): LineItem
     {

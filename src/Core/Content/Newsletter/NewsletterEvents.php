@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\NewsletterRecipient;
+namespace Shopware\Core\Content\Newsletter;
 
-class NewsletterRecipientEvents
+class NewsletterEvents
 {
     /**
-     * @Event("Shopware\Core\Content\NewsletterRecipient\Event\NewsletterConfirmEvent")
+     * @Event("Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent")
      */
     public const NEWSLETTER_CONFIRM_EVENT = 'newsletter.confirm';
 
@@ -40,7 +40,7 @@ class NewsletterRecipientEvents
     public const NEWSLETTER_RECIPIENT_ID_SEARCH_RESULT_LOADED_EVENT = 'newsletter_recipient.id.search.result.loaded';
 
     /**
-     * @Event("Shopware\Core\Content\NewsletterRecipient\Event\NewsletterRegisterEvent")
+     * @Event("Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent")
      */
     public const NEWSLETTER_REGISTER_EVENT = 'newsletter.register';
 }

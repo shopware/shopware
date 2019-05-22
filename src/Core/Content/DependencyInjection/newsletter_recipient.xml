@@ -5,25 +5,25 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="Shopware\Core\Content\NewsletterRecipient\NewsletterRecipientDefinition">
+        <service id="Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition">
             <tag name="shopware.entity.definition" entity="newsletter_recipient"/>
         </service>
 
-        <service id="Shopware\Core\Content\NewsletterRecipient\Aggregate\NewsletterRecipientTag\NewsletterRecipientTagDefinition">
+        <service id="Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipientTag\NewsletterRecipientTagDefinition">
             <tag name="shopware.entity.definition" entity="newsletter_recipient_tag"/>
         </service>
 
-        <service id="Shopware\Core\Content\NewsletterRecipient\ScheduledTask\NewsletterRecipientTask">
+        <service id="Shopware\Core\Content\Newsletter\ScheduledTask\NewsletterRecipientTask">
             <tag name="shopware.scheduled.task" />
         </service>
 
-        <service id="Shopware\Core\Content\NewsletterRecipient\ScheduledTask\NewsletterRecipientTaskHandler">
+        <service id="Shopware\Core\Content\Newsletter\ScheduledTask\NewsletterRecipientTaskHandler">
             <argument type="service" id="scheduled_task.repository" />
             <argument type="service" id="newsletter_recipient.repository" />
             <tag name="messenger.message_handler" />
         </service>
 
-        <service id="Shopware\Core\Content\NewsletterRecipient\SalesChannel\NewsletterSubscriptionService">
+        <service id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscriptionService">
             <argument type="service" id="newsletter_recipient.repository" />
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="event_dispatcher"/>

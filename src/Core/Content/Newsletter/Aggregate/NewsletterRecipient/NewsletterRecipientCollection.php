@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\NewsletterRecipient;
+namespace Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 

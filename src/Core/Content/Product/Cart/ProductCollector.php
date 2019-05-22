@@ -25,7 +25,7 @@ class ProductCollector implements CollectorInterface
     private $productGateway;
 
     /**
-     * @var \Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilderInterface
+     * @var ProductPriceDefinitionBuilderInterface
      */
     private $priceDefinitionBuilder;
 

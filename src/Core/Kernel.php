@@ -294,7 +294,7 @@ SQL;
     private function addBundleRoutes(RouteCollectionBuilder $routes): void
     {
         foreach ($this->getBundles() as $bundle) {
-            if ($bundle instanceof \Shopware\Core\Framework\Bundle) {
+            if ($bundle instanceof Framework\Bundle) {
                 $bundle->configureRoutes($routes, (string) $this->environment);
             }
         }

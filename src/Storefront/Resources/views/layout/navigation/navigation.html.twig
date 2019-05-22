@@ -13,7 +13,7 @@
 								href="{{ path('frontend.home.page') }}"
 								itemprop="url"
 								title="{{ "general.homeLink"|trans }}">
-								<div class="main-navigation-link-inner">
+								<div class="main-navigation-link-text">
 									<span itemprop="name">{{ "general.homeLink"|trans }}</span>
 								</div>
 							</a>
@@ -28,7 +28,7 @@
 												data-flyout-menu-trigger="{{ treeItem.category.id }}"
                                             {% endif %}
 											  title="{{ treeItem.category.translated.name }}">
-											<div class="main-navigation-link-inner">
+											<div class="main-navigation-link-text">
 												<span itemprop="name">{{ treeItem.category.translated.name }}</span>
 											</div>
 										</div>
@@ -40,7 +40,7 @@
 												data-flyout-menu-trigger="{{ treeItem.category.id }}"
                                             {% endif %}
 										   title="{{ treeItem.category.translated.name }}">
-											<div class="main-navigation-link-inner">
+											<div class="main-navigation-link-text">
 												<span itemprop="name">{{ treeItem.category.translated.name }}</span>
 											</div>
 										</a>

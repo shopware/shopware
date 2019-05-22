@@ -1,8 +1,4 @@
-.address-item-content {
-    margin-bottom: $spacer-lg;
-}
-
-.address-item-body .card-title {
+.address-card-title {
     margin-bottom: $spacer-lg;
 }
 
@@ -10,15 +6,14 @@
     margin-bottom: $spacer-sm;
 }
 
-.address-required-info {
-    margin-bottom: $spacer-lg;
-}
-
 .address-list {
     padding-top: $spacer-lg;
 }
 
 .address-action-delete {
-    display: inline-block;
     margin-left: $spacer-sm;
+}
+
+.address-action-create {
+    margin-bottom: $spacer-lg;
 }

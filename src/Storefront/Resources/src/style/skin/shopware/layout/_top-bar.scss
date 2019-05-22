@@ -1,11 +1,14 @@
-.btn.top-bar-nav-btn {
+/*
+Top bar
+==================================================
+Contains skin styles for the top bar located at the top of the page.
+The top bar contains e.g. the language switcher, the currency switcher and the service menu.
+*/
+
+.top-bar-nav-btn.btn {
     color: $gray-600;
     font-weight: normal;
     padding: 0;
-
-    .icon {
-        transition: color 0.15s ease-in-out;
-    }
 
     &:hover {
         &,
@@ -31,7 +34,7 @@
 .top-bar-list-item {
     color: $gray-600;
 
-    &.item-checked {
+    &.is-checked {
         color: $primary;
     }
 
@@ -44,9 +47,4 @@
             cursor: pointer;
         }
     }
-}
-
-.language-form {
-    display: flex;
-    align-items: center;
 }

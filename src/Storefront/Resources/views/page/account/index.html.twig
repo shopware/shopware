@@ -15,7 +15,7 @@
             {% block page_account_overview_main %}
                 <div class="row">
                     {% block page_account_overview_profile %}
-                        <div class="col-lg-6 card-col account-overview-card overview-profile">
+                        <div class="col-lg-6 card-col account-overview-card account-overview-profile">
                             {% block page_account_overview_profile_card %}
                                 <div class="card">
                                     <div class="card-body">
@@ -59,7 +59,7 @@
                     {% endblock %}
 
                     {% block page_account_overview_payment %}
-                        <div class="col-lg-6 card-col account-overview-card overview-payment">
+                        <div class="col-lg-6 card-col account-overview-card account-overview-payment">
                             {% block page_account_overview_payment_card %}
                                 <div class="card">
                                     <div class="card-body">
@@ -92,7 +92,7 @@
             {% endblock %}
 
             {% block page_account_overview_newsletter %}
-                <div class="account-overview-card overview-newsletter">
+                <div class="account-overview-card account-overview-newsletter">
                     <div class="card">
                         <div class="card-body">
                             {% block page_account_overview_newsletter_title %}
@@ -117,7 +117,7 @@
 
             {% block page_account_overview_newest_order %}
                 {% if page.newestOrder %}
-                    <div class="account-overview-card overview-newest-order">
+                    <div class="account-overview-card account-overview-newest-order">
                         <div class="card">
                             <div class="card-body">
                                 {% block page_account_overview_newest_order_title %}

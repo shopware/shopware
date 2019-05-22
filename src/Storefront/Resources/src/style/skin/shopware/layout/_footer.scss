@@ -1,4 +1,19 @@
+/*
+Footer
+==================================================
+Contains custom skin styles for the footer located at the bottom of the page.
+*/
+
+.footer-main {
+    border-top: 1px solid $border-color;
+}
+
+.footer-column {
+    border-bottom: 1px solid $border-color;
+}
+
 .footer-column-headline {
+    color: $primary;
     font-size: $font-size-lg;
     font-weight: $font-weight-bold;
 }
@@ -12,7 +27,7 @@
     }
 }
 
-.footer-hotline a {
+.footer-contact a {
     @extend .footer-link;
     display: block;
     margin: $spacer 0 $spacer-sm;
@@ -20,7 +35,30 @@
     font-weight: $font-weight-bold;
 }
 
+.footer-service-menu-item {
+    &::after {
+        display: inline-block;
+        height: 10px;
+        width: 1px;
+        border-left: 1px solid $gray-500;
+        content: '';
+        margin: 0 $spacer-sm;
+    }
+
+    &:last-child::after {
+        content: none;
+    }
+}
+
 @include media-breakpoint-up(md) {
+    .footer-columns {
+        border-bottom: 1px solid $border-color;
+    }
+
+    .footer-column {
+        border: 0;
+    }
+
     .footer-link-item {
         padding: 2px 0;
     }

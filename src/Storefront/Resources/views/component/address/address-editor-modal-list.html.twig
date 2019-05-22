@@ -22,7 +22,7 @@
                                         {% for address in addresses %}
                                             {% if (address.id != defaultShippingAddress and changeShipping) or (address.id != defaultBillingAddress and changeBilling) %}
                                                 {% block component_address_address_editor_modal_list_address %}
-                                                    <div class="card address-card">
+                                                    <div class="card address-editor-card">
                                                         {% block component_address_address_editor_modal_list_address_body %}
                                                             <div class="card-body">
                                                                 {% block component_address_address_editor_modal_list_address_include %}

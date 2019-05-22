@@ -5,12 +5,19 @@
         <div class="account-profile">
             {% block page_account_profile_main %}
                 {% block page_account_profile_personal_welcome %}
-                    <h1>{{ "account.profileTitle"|trans }}</h1>
-                    <p>{{ "account.profileText"|trans }}</p>
+                    <div class="account-welcome">
+                        {% block page_account_profile_personal_welcome_headline %}
+                            <h1>{{ "account.profileTitle"|trans }}</h1>
+                        {% endblock %}
+
+                        {% block page_account_profile_personal_welcome_intro %}
+                            <p>{{ "account.profileText"|trans }}</p>
+                        {% endblock %}
+                    </div>
                 {% endblock %}
 
                 {% block page_account_profile_personal %}
-                    <div class="card profile-personal">
+                    <div class="card account-profile-personal">
                         <div class="card-body">
                             {% block page_account_profile_personal_header %}
                                 <div class="card-title">
@@ -31,7 +38,7 @@
                                     {% endblock %}
 
                                     {% block page_account_profile_personal_required %}
-                                        <p class="profile-required-info required-fields">
+                                        <p class="account-profile-required-info required-fields">
                                             {{ "general.requiredFields"|trans }}
                                         </p>
                                     {% endblock %}
@@ -54,7 +61,7 @@
                 {% endblock %}
 
                 {% block page_account_profile_credentials %}
-                    <div class="card profile-credentials">
+                    <div class="card account-profile-credentials">
                         <div class="card-body">
                             {% block page_account_profile_credentials_header %}
                                 <div class="card-title">
@@ -67,23 +74,24 @@
                                     {% block page_account_profile_credentials_current_mail %}
                                         <div class="col-6">
                                             {% block page_account_profile_credentials_current_mail_label %}
-                                                <span class="account-current-mail-label">{{ "account.profileCurrentMail"|trans }}</span>
-                                                <span class="account-current-mail">{{ context.customer.email }}</span>
+                                                <span class="account-profile-mail-label">{{ "account.profileCurrentMail"|trans }}</span>
+                                                <span class="account-profile-mail">{{ context.customer.email }}</span>
                                             {% endblock %}
                                         </div>
                                     {% endblock %}
 
                                     {% block page_account_profile_credentials_change_mail %}
                                         <div class="col-3">
-                                            <a class="account-change-mail" data-toggle="collapse" href="#profile-email-form"
+                                            <a class="account-profile-change" data-toggle="collapse" href="#profile-email-form"
                                                role="button"
-                                               aria-expanded="false" aria-controls="profile-email-form">{{ "account.profileChangeEmail"|trans }}</a>
+                                               aria-expanded="false"
+                                               aria-controls="profile-email-form">{{ "account.profileChangeEmail"|trans }}</a>
                                         </div>
                                     {% endblock %}
 
                                     {% block page_account_profile_credentials_change_password %}
                                         <div class="col-3">
-                                            <a class="account-change-password" data-toggle="collapse"
+                                            <a class="account-profile-change" data-toggle="collapse"
                                                href="#profile-password-form" role="button"
                                                aria-expanded="false" aria-controls="profile-password-form">{{ "account.profileChangePassword"|trans }}</a>
                                         </div>
@@ -210,7 +218,7 @@
                                             {% endblock %}
 
                                             {% block page_account_profile_mail_required %}
-                                                <p class="profile-required-info required-fields">
+                                                <p class="account-profile-required-info required-fields">
                                                     {{ "general.requiredFields"|trans }}
                                                 </p>
                                             {% endblock %}
@@ -350,7 +358,7 @@
                                             {% endblock %}
 
                                             {% block page_account_profile_password_required %}
-                                                <p class="profile-required-info required-fields">
+                                                <p class="account-profile-required-info required-fields">
                                                     {{ "general.requiredFields"|trans }}
                                                 </p>
                                             {% endblock %}

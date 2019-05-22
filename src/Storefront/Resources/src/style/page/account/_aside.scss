@@ -1,0 +1,26 @@
+.account {
+    .account-aside-list-group {
+        flex-direction: row;
+        overflow-x: auto;
+        overflow-y: hidden;
+    }
+}
+
+.account-aside {
+    margin-bottom: $spacer-lg;
+}
+
+@include media-breakpoint-up(md) {
+    .account-aside {
+        margin-bottom: 0;
+    }
+}
+
+@include media-breakpoint-up(lg) {
+    .account {
+        .account-aside-list-group {
+            flex-direction: column;
+            overflow: visible;
+        }
+    }
+}

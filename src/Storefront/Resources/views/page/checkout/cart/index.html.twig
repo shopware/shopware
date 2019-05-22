@@ -73,7 +73,7 @@
                                                id="addProductInput"
                                                placeholder="{{ "checkout.addProductPlaceholder"|trans }}"
                                                aria-label="{{ "checkout.addProductLabel"|trans }}"
-                                               aria-describedby="addProduct"
+                                               aria-describedby="addProductButton"
                                                required="required">
                                     {% endblock %}
 
@@ -81,7 +81,7 @@
                                         <div class="input-group-append">
                                             <button class="btn btn-dark"
                                                     type="submit"
-                                                    id="addProductInput">
+                                                    id="addProductButton">
                                                 {% sw_icon 'checkmark' %}
                                             </button>
                                         </div>
@@ -91,6 +91,7 @@
                         </form>
                     </div>
                 {% endblock %}
+
                 {% block page_checkout_cart_shipping_costs %}
                     <div class="col-md-8 cart-shipping-costs-container">
                         <form name="precalc"
@@ -98,7 +99,7 @@
                               action="{{ path('frontend.checkout.configure') }}"
                               data-form-auto-submit="true">
                             {% block page_checkout_cart_shipping_costs_trigger %}
-                                    <a class="btn btn-link shipping-costs-trigger"
+                                    <a class="btn btn-link cart-shipping-costs-btn"
                                        data-toggle="collapse"
                                        href="#collapseShippingCost"
                                        role="button"
@@ -178,7 +179,7 @@
                 {% endblock %}
 
                 {% block page_checkout_cart_add_promotion_input_group %}
-                    <div class="input-group checkout-aside-code">
+                    <div class="input-group checkout-aside-add-code">
                         {% block page_checkout_cart_add_promotion_label %}
                             <label class="sr-only" for="addPromotionInput">
                                 {{ "checkout.addPromotionLabel"|trans }}

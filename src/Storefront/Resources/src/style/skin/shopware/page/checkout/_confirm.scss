@@ -1,4 +1,4 @@
-.shipping-method {
+.confirm-shipping-method {
     border-bottom: 1px solid $border-color;
     margin-bottom: $spacer;
 
@@ -6,9 +6,4 @@
         border-bottom: 0;
         margin-bottom: 0;
     }
-}
-
-.checkout-aside-summary,
-.checkout-aside-products {
-    padding: $spacer;
 }

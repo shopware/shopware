@@ -1,11 +1,11 @@
 {% block layout_header_actions_cart_widget %}
-	<span class="cart-widget-display">
+	<span class="header-cart-icon">
 		{% sw_icon 'bag' %}
     </span>
 	{% if page.cart.lineItems|length > 0 %}
-		<span class="badge badge-primary cart-widget-badge">{{ page.cart.lineItems|length }}</span>
+		<span class="badge badge-primary header-cart-badge">{{ page.cart.lineItems|length }}</span>
 	{% endif %}
-	<span class="cart-widget-total">
+	<span class="header-cart-total">
         {{ page.cart.price.positionPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
     </span>
 {% endblock %}

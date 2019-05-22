@@ -1,0 +1,13 @@
+.login-card {
+    margin-bottom: $spacer;
+}
+
+.login-advantages {
+    display: none;
+}
+
+@include media-breakpoint-up(lg) {
+    .login-advantages {
+        display: block;
+    }
+}

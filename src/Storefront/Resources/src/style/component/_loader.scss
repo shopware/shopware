@@ -10,26 +10,46 @@ Defines the loader icon
 }
 
 /*
-Spinner
+Element loader
 ==============================================
-Custom styling for bootstrap spinner component.
-
-https://getbootstrap.com/docs/4.3/components/spinners/
+Element loader can be applied to any element.
 */
 
-// spinner inside an input
-input ~ .spinner-border,
-input ~ .spinner-grow {
+.has-element-loader {
+    z-index: 15;
+    pointer-events: none;
+    position: relative;
+}
+
+.element-loader-backdrop {
+    opacity: 0;
+    transition: opacity 0.45s cubic-bezier(0.3, 0, 0.15, 1), visibility 0.45s linear;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
     position: absolute;
-    top: $spacer-sm;
-    z-index: 3;
-    right: 50px;
+    background-color: $element-backdrop-bg;
+    box-shadow: 0 0 11px 7px rgba($element-backdrop-bg, 1);
+    z-index: 15;
+
+    &.element-loader-backdrop-open {
+        opacity: 1;
+    }
+
+    > .loader {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        margin-left: -$spacer;
+        margin-top: -$spacer;
+    }
 }
 
 /*
 Skeleton screen
 ==============================================
-Skeleton screen for product-listing with subtle shimmer effect
+Skeleton screen for reloading product-listing with subtle shimmer effect
 */
 
 @keyframes skeletonShimmer {

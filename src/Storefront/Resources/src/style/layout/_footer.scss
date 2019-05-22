@@ -1,60 +1,40 @@
-.footer-main {
-    border-top: 1px solid $border-color;
-    background: $white;
-}
-
-.footer-column {
-    border-bottom: 1px solid $border-color;
-}
+/*
+Footer
+==================================================
+Contains custom styles for the footer located at the bottom of the page.
+*/
 
 .footer-column-content {
-    &::after {
-        content: '';
-        display: block;
-        height: $spacer;
-    }
-
-    &:not(.collapsing):not(.show) {
-        display: none;
-    }
+    padding-bottom: $spacer;
 }
 
 .footer-column-headline {
-    color: $primary;
-    cursor: pointer;
-    font-weight: $font-weight-bold;
-    margin-bottom: 0;
     padding: $spacer-sm 0;
+    display: flex;
+    justify-content: space-between;
 
-    .toggle-icon {
-        pointer-events: none;
-        color: $gray-600;
-        float: right;
-        font-size: 12px;
-    }
-
-    .plus-icon {
-        display: inline-block;
-    }
-
-    .minus-icon {
+    // control icon visibility via collapse show state
+    .footer-minus-icon {
         display: none;
     }
 
     &.show {
-        .plus-icon {
+        .footer-plus-icon {
             display: none;
         }
 
-        .minus-icon {
-            display: inline-block;
+        .footer-minus-icon {
+            display: block;
         }
     }
 }
 
+.footer-column-toggle {
+    pointer-events: none;
+}
+
 .footer-link-item {
     padding: $spacer-sm 0;
-    border: 0;
 }
 
 .footer-bottom {
@@ -62,18 +42,12 @@
 }
 
 .footer-vat,
-.footer-copyright {
-    text-align: center;
-}
-
+.footer-copyright,
 .footer-service-menu-list {
-    list-style-type: none;
-    padding: 0;
     text-align: center;
 }
 
-.footer-service-menu-item,
-.footer-service-menu-link {
+.footer-service-menu-item {
     display: inline-block;
 }
 
@@ -81,47 +55,22 @@
     padding: $spacer-sm 0;
 }
 
-.footer-service-menu-item {
-    &::after {
-        display: inline-block;
-        height: 10px;
-        width: 1px;
-        border-left: 1px solid $gray-500;
-        content: '';
-        margin: 0 $spacer-sm;
-    }
-
-    &:last-child::after {
-        content: none;
-    }
-}
-
 @include media-breakpoint-up(md) {
     .footer-columns {
-        border-bottom: 1px solid $border-color;
         padding-bottom: 20px;
     }
 
-    .footer-column {
-        border: 0;
-    }
-
     .footer-column-headline {
-        cursor: auto;
-        margin-top: $spacer-xl;
-        padding: 0;
-        margin-bottom: $spacer-sm;
-
-        .toggle-icon {
-            display: none;
-        }
+        padding: $spacer-xl 0 $spacer-sm 0;
     }
 
-    .footer-column-content {
-        &:not(.collapsing):not(.show) {
-            height: 100%;
-            display: block;
-        }
+    .footer-column-toggle {
+        display: none;
+    }
+
+    // show collapse content on larger screens
+    .footer-column-content.collapse {
+        display: block;
     }
 }
 

@@ -7,16 +7,16 @@
                 <div class="col-md-4 footer-column js-footer-column">
                     {% block layout_footer_navigation_hotline_headline %}
                         <div class="footer-column-headline footer-headline js-footer-column-headline js-collapse-footer-column-trigger"
-                            data-target="#collapseOneFooter"
+                            data-target="#collapseFooterHotline"
                             aria-expanded="true"
-                            aria-controls="collapseOneFooter">
+                            aria-controls="collapseFooterHotline">
                             {{ 'footer.serviceHotlineHeadline'|trans }}
                             {% block layout_footer_navigation_hotline_icons %}
-                                <div class="toggle-icon">
-                                    <span class="plus-icon">
+                                <div class="footer-column-toggle">
+                                    <span class="footer-plus-icon">
                                         {% sw_icon 'plus' %}
                                     </span>
-                                    <span class="minus-icon">
+                                    <span class="footer-minus-icon">
                                         {% sw_icon 'minus' %}
                                     </span>
                                 </div>
@@ -25,8 +25,8 @@
                     {% endblock %}
 
                     {% block layout_footer_navigation_hotline_content %}
-                        <div id="collapseOneFooterFooter"
-                             class="footer-column-content js-footer-column-content footer-hotline"
+                        <div id="collapseFooterHotline"
+                             class="footer-column-content collapse js-footer-column-content footer-contact"
                              aria-labelledby="headingOne">
                             {{ 'footer.serviceHotline'|trans|raw }}
                         </div>
@@ -40,17 +40,17 @@
                         <div class="col-md-4 footer-column js-footer-column">
                             {% block layout_footer_navigation_information_headline %}
                                 <div class="footer-column-headline footer-headline js-collapse-footer-column-trigger"
-                                     data-target="#collapseThreeFooter"
+                                     data-target="#collapseFooter{{ loop.index }}"
                                      aria-expanded="true"
-                                     aria-controls="collapseThreeFooter">
+                                     aria-controls="collapseFooter{{ loop.index }}">
 
                                     {{ root.category.translated.name }}
                                     {% block layout_footer_navigation_information_icons %}
-                                        <div class="toggle-icon">
-                                            <span class="plus-icon">
+                                        <div class="footer-column-toggle">
+                                            <span class="footer-plus-icon">
                                                 {% sw_icon 'plus' %}
                                             </span>
-                                            <span class="minus-icon">
+                                            <span class="footer-minus-icon">
                                                 {% sw_icon 'minus' %}
                                             </span>
                                         </div>
@@ -59,15 +59,15 @@
                             {% endblock %}
 
                             {% block layout_footer_navigation_information_content %}
-                                <div id="collapseThreeFooter"
-                                     class="footer-column-content js-footer-column-content"
+                                <div id="collapseFooter{{ loop.index }}"
+                                     class="footer-column-content collapse js-footer-column-content"
                                      aria-labelledby="headingThree">
 
                                     {% block layout_footer_navigation_information_links %}
-                                        <ul class="list-group">
+                                        <ul class="list-unstyled">
                                             {% for treeItem in root.children %}
                                                 {% block layout_footer_navigation_information_link_item %}
-                                                    <li class="footer-link-item list-group-item">
+                                                    <li class="footer-link-item">
                                                         {% block layout_footer_navigation_information_link %}
                                                             <a class="footer-link"
                                                                href="{{ navigationUrl(treeItem.category) }}"
@@ -105,7 +105,7 @@
             {% block layout_footer_service_menu %}
                 <div class="container">
                     {% block layout_footer_service_menu_content %}
-                        <ul class="footer-service-menu-list">
+                        <ul class="footer-service-menu-list list-unstyled">
                             {% for serviceMenuItem in page.header.serviceMenu %}
                                 {% block layout_footer_service_menu_item %}
                                     <li class="footer-service-menu-item">

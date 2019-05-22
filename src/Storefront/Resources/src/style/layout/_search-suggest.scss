@@ -1,18 +1,19 @@
-.search-form {
-    position: relative;
-}
+/*
+Search suggest
+==================================================
+Contains styles for the search suggest popover in the shop header.
+*/
 
 .search-suggest-container {
-    list-style-type: none;
-    touch-action: manipulation;
     position: absolute;
     top: 55px;
+    left: 0;
+    list-style: none;
+    touch-action: manipulation;
     background: $white;
     padding: $spacer-sm;
     border: 1px solid $border-color;
     width: 100%;
-    left: 0;
-    text-align: left;
     z-index: $search-suggest-zindex;
     box-shadow: 0 10px 25px -15px $black;
 
@@ -30,73 +31,46 @@
         border-top: 0 none;
         border-right: 0 none;
     }
-
-    a:hover {
-        text-decoration: none;
-    }
 }
 
-.result-product {
-    display: flex;
-    height: 42px;
+.search-suggest-product {
     padding: $spacer-sm 0;
-    border-bottom: 1px solid $border-color;
 
-    &:last-child {
-        border-bottom: 0;
-    }
-
-    &.active {
-        a {
+    &.is-active {
+        .search-suggest-product-link {
             color: $primary;
         }
     }
 }
 
-.result-total {
-    display: flex;
-    justify-content: space-between;
-    padding: $spacer-sm;
+.search-suggest-product-link,
+.search-suggest-total-link {
+    &:hover {
+        text-decoration: none;
+    }
 }
 
-.no-search-result {
-    text-align: center;
-}
-
-.result-link {
-    display: flex;
-    width: 100%;
-    align-items: center;
-    color: $gray-600;
-}
-
-.result-name {
+.search-suggest-product-name {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.result-product .result-name {
-    font-weight: $font-weight-bold;
-}
-
-.result-image {
+.search-suggest-product-image-container {
     margin: 0 $spacer-sm;
-    position: relative;
+}
+
+.search-suggest-product-image {
+    max-width: 35px;
+    max-height: 35px;
+}
+
+.search-suggest-total {
+    padding: $spacer-sm;
+}
+
+.search-suggest-no-result {
     text-align: center;
-
-    img {
-        max-width: 35px;
-        max-height: 35px;
-    }
-}
-
-.result-price {
-    margin-left: auto;
-}
-
-.total-link-icon {
-    margin-right: $spacer-sm;
 }
 
 @include media-breakpoint-up(md) {

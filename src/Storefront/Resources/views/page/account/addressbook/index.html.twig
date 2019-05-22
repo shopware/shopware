@@ -108,7 +108,7 @@
             {% endblock %}
 
             {% block page_account_address_item_content_create %}
-                <div class="address-item-content address-item-create">
+                <div class="address-action-create">
                     <a href="{{ path('frontend.account.address.create.page') }}"
                        title="{{ "account.addressCreateBtn"|trans }}"
                        class="btn btn-primary">
@@ -124,7 +124,7 @@
                     </div>
 
                     <div class="row">
-                        {% for address in page.addresses%}
+                        {% for address in page.addresses %}
                             <div class="col-sm-6 card-col address-card">
                                 <div class="card other-address">
                                     <div class="card-body">

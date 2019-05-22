@@ -2,7 +2,7 @@
     {% if position is empty %}
         {% set position = 'top-bar' %}
     {% endif %}
-	
+
 	{% if  page.header.languages.count > 1 %}
 		<div class="top-bar-nav-item top-bar-language">
 			{% block layout_header_actions_language_widget_form %}
@@ -22,8 +22,8 @@
 									data-toggle="dropdown"
 									aria-haspopup="true"
 									aria-expanded="false">
-								<div class="language-flag country-{{ country }} language-{{ language }}"></div>
-								<span class="top-bar-nav-name">{{ page.header.activeLanguage.name }}</span>
+								<div class="top-bar-list-icon language-flag country-{{ country }} language-{{ language }}"></div>
+								<span class="top-bar-nav-text">{{ page.header.activeLanguage.name }}</span>
 							</button>
 							{% block layout_header_actions_languages_widget_form_items %}
 								<div class="top-bar-list dropdown-menu dropdown-menu-right"
@@ -40,12 +40,12 @@
                                                     <label class="top-bar-list-label"
                                                            for="{{ position }}-{{ language.id }}">
                                                         <input id="{{ position }}-{{ language.id }}"
-                                                               class="top-bar-list-input"
+                                                               class="top-bar-list-radio"
                                                                value="{{ language.id }}"
                                                                name="languageId"
                                                                type="radio"
                                                             {% if language.id is same as(page.header.activeLanguage.id) %} checked{% endif %}>
-                                                        <div class="language-flag country-{{ flagCountry }} language-{{ flagLanguage }}"></div>
+                                                        <div class="top-bar-list-icon language-flag country-{{ flagCountry }} language-{{ flagLanguage }}"></div>
                                                         {{ language.name }}
                                                     </label>
                                                 {% endblock %}

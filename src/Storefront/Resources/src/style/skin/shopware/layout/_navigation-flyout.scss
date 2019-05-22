@@ -1,0 +1,64 @@
+/*
+Navigation flyout
+==============================================
+Custom skin styling for navigation flyout which opens on hover over the main navigation.
+*/
+
+.navigation-flyout-categories {
+    &:not(.is-level-0) {
+        margin-left: 20px;
+    }
+
+    &.is-level-0 {
+        > .navigation-flyout-col {
+            margin-bottom: 30px;
+            position: relative;
+
+            &::before {
+                border-left: 1px solid $border-color;
+                content: '';
+                height: 100%;
+                left: 15px;
+                position: absolute;
+                top: 0;
+            }
+
+            &.col-3:nth-child(4n+1),
+            &.col-4:nth-child(3n+1) {
+                border-left: 0;
+            }
+        }
+    }
+}
+
+.navigation-flyout-link {
+    @include transition(padding 0.25s cubic-bezier(0, 0.77, 0.33, 1));
+    color: $gray-800;
+    font-size: $font-size-lg;
+    margin: 0 $spacer;
+    padding: $spacer-xs 0;
+
+    &.is-level-0 {
+        font-weight: $font-weight-bold;
+    }
+
+    &.is-level-2 {
+        font-size: $font-size-base;
+        padding: $spacer-xs/2 0;
+    }
+
+    &:hover {
+        color: $primary;
+        padding-left: 5px;
+    }
+}
+
+.navigation-flyout-bar {
+    align-items: center;
+    padding: 20px 0;
+}
+
+.navigation-flyout-category-link {
+    font-weight: $font-weight-bold;
+    font-size: $font-size-lg;
+}

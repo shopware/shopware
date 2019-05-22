@@ -1,6 +1,14 @@
-.js-offcanvas {
+/*
+Offcanvas
+==============================================
+Move page content like the navigation menu in a sliding offcanvas menu.
+The sliding direction can be left or right.
+*/
+
+.offcanvas {
     background: $white;
     height: 100%;
+    width: 100%;
     overflow-y: auto;
     position: fixed;
     top: 0;
@@ -38,8 +46,7 @@
         padding: $spacer-sm $spacer;
         text-align: left;
 
-        &:focus,
-        &:not(:disabled):not(.disabled):active:focus {
+        &:focus {
             box-shadow: none;
         }
 
@@ -62,16 +69,16 @@
 
     .offcanvas-content-container {
         padding: $grid-gutter-width / 2;
-        width: 400px;
+        width: 100%;
     }
 }
 
-@include media-breakpoint-down(xs) {
-    .js-offcanvas {
-        width: 100%;
+@include media-breakpoint-up(sm) {
+    .offcanvas {
+        width: auto;
 
         .offcanvas-content-container {
-            width: 100%;
+            width: 400px;
         }
     }
 }

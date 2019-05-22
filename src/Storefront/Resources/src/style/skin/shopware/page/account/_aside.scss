@@ -1,0 +1,35 @@
+.account-aside-header {
+    background: none;
+    color: $headings-color;
+    font-weight: $font-weight-bold;
+}
+
+.account-aside-item {
+    border: 0;
+
+    &.is-active {
+        color: $primary;
+        background: $list-group-bg;
+        font-weight: $font-weight-bold;
+    }
+
+    &:hover {
+        color: $primary;
+        background: $list-group-bg;
+    }
+}
+
+.account-aside-footer {
+    background: none;
+    margin-top: 1px;
+    border-top: 1px solid $border-color;
+}
+
+.account-aside-btn {
+    line-height: normal;
+    padding: 0;
+}
+
+.account-guest-abort {
+    border-top: 0;
+}

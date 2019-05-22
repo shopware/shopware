@@ -1,3 +1,12 @@
+/*
+Reboot
+==================================================
+Reboot styles using only element selectors.
+
+https://getbootstrap.com/docs/4.3/content/reboot/
+*/
+
+// reboot search input styles
 input[type=search]::-ms-clear {
     display: none;
     width: 0;

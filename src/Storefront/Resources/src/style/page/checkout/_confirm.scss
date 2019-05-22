@@ -29,18 +29,15 @@
     margin-bottom: $spacer-lg;
 }
 
-.checkout-confirm-payment-current,
-.checkout-confirm-shipping-current {
+.confirm-payment-current,
+.confirm-shipping-current {
     margin-bottom: $spacer-xl;
-}
 
-.checkout-confirm-payment-current,
-.checkout-confirm-shipping-current {
     &.is-invalid {
         color: $danger;
     }
 }
 
-.checkout-confirm-method-tooltip {
+.confirm-method-tooltip {
     margin-left: $spacer-xs;
 }

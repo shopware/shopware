@@ -1,4 +1,11 @@
-.search-form-btn {
+/*
+Header
+==================================================
+Contains custom skin styles for the header at the top of the page.
+The header contains the shop logo, the search form and various actions like the offcanvas cart button.
+*/
+
+.header-search-btn {
     background: $input-bg;
     border: $input-border-width solid $input-border-color;
     border-left: 0;
@@ -9,6 +16,10 @@
         }
     }
 
+    &:focus {
+        box-shadow: none;
+    }
+
     &.btn:disabled {
         background: $input-bg;
         border-color: $border-color;
@@ -17,21 +28,14 @@
     }
 }
 
-.search-form-input {
+.header-search-input {
     border-right: 0;
 
     &:focus {
         &,
-        ~ .input-group-append .search-form-btn {
+        ~ .input-group-append .header-search-btn {
             border-color: $primary;
         }
-    }
-}
-
-.search-form-input,
-.search-form-btn {
-    &:focus {
-        box-shadow: none;
     }
 }
 
@@ -54,13 +58,13 @@
     }
 }
 
-.cart-widget-total {
+.header-cart-total {
     color: $primary;
     font-size: $font-size-lg;
 }
 
 @include media-breakpoint-up(sm) {
-    .cart-widget-badge {
+    .header-cart-badge {
         display: none;
     }
 }

@@ -1,4 +1,4 @@
-[titleEn]: <>(Bundle example: Final adjustments)
+[titleEn]: <>(Step 10: Final adjustments)
 
 You're almost done with the whole plugin. There's just one more thing to do before being completely done.
 

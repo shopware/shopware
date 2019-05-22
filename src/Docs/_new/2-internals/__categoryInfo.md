@@ -18,7 +18,7 @@ The central philosophy of the Shopware Platform is called **no waste**. The Shop
 
 The [Shopware Platform][platform-gh] consists of 3 top level building blocks. The [**Core**][core] is the center of the Platform and wraps all eCommerce specific workflows and resources. The two satellites **Storefront** and [**Administration**][admin] provide web frontends for specific use cases. The **Storefront** is a Web-UI providing customer views and operating the sales channel interfaces of the core. The **Administration** on the other hand provides a Single Page Application that enables you to manage the core.
 
-The next article introduces you to the [directory structure](./110-directory-structure/__categoryInfo.md) of all applications so you should be able to find the general place you are looking for. 
+The next article introduces you to the [directory structure](./5-directory-structure/__categoryInfo.md) of all applications so you should be able to find the general place you are looking for. 
 
 Or feel free to head over to the subsections introducing the three different applications in depth.
 

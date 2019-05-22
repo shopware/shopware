@@ -68,7 +68,7 @@ To get help information about required and optional parameters, you can always s
 
 ## The sources
 
-Now that you have a idea how to execute the various Shopware Platform stacks, we will briefly point you to the sources directories. But keep in mind that there are entire documents describing the [directory structure](./../../2-internals/110-directory-structure/__categoryInfo.md) of the Shopware Platform.
+Now that you have a idea how to execute the various Shopware Platform stacks, we will briefly point you to the sources directories. But keep in mind that there are entire documents describing the [directory structure](./../../2-internals/5-directory-structure/__categoryInfo.md) of the Shopware Platform.
 
 | Thing | Place
 | ----: | :----

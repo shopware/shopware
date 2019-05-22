@@ -1,4 +1,4 @@
-[titleEn]: <>(Bundle example: Creating an entity)
+[titleEn]: <>(Step 4: Creating an entity)
 
 While it's good to have the database tables running already, the Shopware platform does not know your new table yet.
 

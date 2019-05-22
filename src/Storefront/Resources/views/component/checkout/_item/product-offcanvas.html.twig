@@ -37,10 +37,52 @@
                                     </a>
                                 </div>
                             {% endblock %}
-
-                            {% block component_offcanvas_product_total_price %}
-                                <div class="cart-item-price">
-                                    {{ lineItem.price.totalPrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
+    
+                            {% block component_offcanvas_product_quantity_price %}
+                                <div class="cart-quantity-price">
+                                    {% block component_offcanvas_product_quantity %}
+                                        <div class="cart-item-quantity">
+                                            {% block component_offcanvas_product_quantity_form %}
+                                                <form action="{{ path('frontend.checkout.line-item.change-quantity', {'id': lineItem.id}) }}"
+                                                      class="cart-item-quantity-container"
+                                                      method="post">
+                                                    {% block component_offcanvas_product_quantity_form_redirect %}
+                                                        <input type="hidden"
+                                                               name="redirectTo"
+                                                               value="frontend.cart.offcanvas"/>
+                                                    {% endblock %}
+                        
+                                                    {% if lineItem.quantityInformation.maxPurchase %}
+                                                        {% if lineItem.deliveryInformation.stock < lineItem.quantityInformation.maxPurchase %}
+                                                            {% set maxQuantity = lineItem.deliveryInformation.stock %}
+                                                        {% else %}
+                                                            {% set maxQuantity = lineItem.quantityInformation.maxPurchase %}
+                                                        {% endif %}
+                                                    {% else %}
+                                                        {% set maxQuantity = shopware.config.checkout.maxQuantity %}
+                                                    {% endif %}
+                        
+                                                    {% block component_offcanvas_product_buy_quantity %}
+                                                        <select name="quantity"
+                                                                class="custom-select quantity-select-{{ lineItem.id }} js-offcanvas-cart-change-quantity">
+                                                            {% for quantity in range(lineItem.quantityInformation.minPurchase, maxQuantity, lineItem.quantityInformation.purchaseSteps) %}
+                                                                <option value="{{ quantity }}"
+                                                                    {% if quantity == lineItem.quantity %} selected="selected"{% endif %}>
+                                                                    {{ quantity }}
+                                                                </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    {% endblock %}
+                                                </form>
+                                            {% endblock %}
+                                        </div>
+                                    {% endblock %}
+        
+                                    {% block component_offcanvas_product_total_price %}
+                                        <div class="cart-item-price">
+                                            {{ lineItem.price.totalPrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
+                                        </div>
+                                    {% endblock %}
                                 </div>
                             {% endblock %}
                         </div>
@@ -55,7 +97,6 @@
                             <form action="{{ path('frontend.checkout.line-item.delete', {'id': lineItem.id}) }}"
                                   class="cart-item-remove js-offcanvas-cart-remove-product"
                                   method="post">
-                                <input type="hidden" name="_method" value="POST">
                                 {% block component_offcanvas_product_remove_redirect %}
                                     <input type="hidden"
                                            name="redirectTo"

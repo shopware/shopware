@@ -47,7 +47,16 @@
     .cart-item-price {
         text-align: right;
         font-weight: $font-weight-bold;
-        margin-top: $spacer;
+    }
+
+    .cart-quantity-price {
+        justify-content: space-between;
+        display: flex;
+        align-items: center;
+    }
+
+    .cart-item-details {
+        margin-bottom: $spacer;
     }
 }
 

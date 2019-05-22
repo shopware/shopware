@@ -52,5 +52,7 @@ class CacheClearer
         }
 
         $this->cacheClearer->clear($this->cacheDir);
+
+        $this->filesystem->remove($this->cacheDir . '/twig');
     }
 }

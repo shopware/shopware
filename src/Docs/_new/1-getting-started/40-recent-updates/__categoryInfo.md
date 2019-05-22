@@ -22,8 +22,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>The <code>\Shopware\Core\Framework\Validation\DataBag\RequestDataBag</code> was added to the pay methods of
 <code>\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface</code> and
 <code>\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface</code>.
@@ -41,8 +56,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>The Settings are now split up in the categories <code>Shop</code>, <code>System</code> and <code>Plugins</code>.</p>
 <p>To add your setting to the different categories you just have to extend the right template block.</p>
 <p>Instead of the old <code>sw_settings_content_card_slot_default</code> block you now have three specific blocks for each category:</p>
@@ -62,8 +92,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>There are two new custom E2E commands for the new <code>sw-single-select</code> and <code>sw-multi-select</code> components:</p>
 <pre><code>.fillMultiSelect(
     '.selector', 
@@ -90,8 +135,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>The <code>sw-field</code> component got a complete overhaul in order to remove unused properties, doubled configuration
 and a lot of unnecessary template and logic inheritance.</p>
 <h3>New structure for fields</h3>
@@ -213,8 +273,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>Product streams are now released. With this feature you can filter products based on DAL fields in the admin and via API.</p>
 <p>The filters start from the product entity and can be restricted for the admin with a blacklist.</p>
 <p>This blacklist can be found in the module <code>app/service/product-stream-condition</code>. There you can add blacklist keywords for general or entity based purpose.</p>
@@ -233,8 +308,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <pre><code class="language-bash">
 &gt;  bin/console database:generate-debug-views
 </code></pre>
@@ -263,8 +353,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>The rule scope of rules are now supported and required to define in the administration.</p>
 <p>The scopes filter the matching rules so it's possible to show only <code>cart</code> or <code>lineItem</code> based rules.</p>
 <p>The scopes can be added in the in the condition type data provider. See <code>platform/src/Administration/Resources/administration/src/app/decorator/condition-type-data-provider.js</code></p>
@@ -288,8 +393,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>We just removed a lot of static calls from DataAbstractionLayer. All <code>EntityDefinitions</code> are now instances provided through the container. This changed a lot of internals and a few but <strong>breaking</strong> public API methods.</p>
 <p>New rule of thumb: <strong>If you need something from the <code>EntityDefinition</code> inject it</strong></p>
 <h3>EntityDefinition</h3>
@@ -377,8 +497,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>A new component called <code>sw-button-process</code> was added to Shopware platform.
 The button is introduced to display the status of the process the button should start. E.g. if you click the button
 to save an entity, it will display a loading indicator while the save process is running and a tick icon if the
@@ -433,8 +568,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>The leading &quot;X-&quot; in a header name has been deprecated for years (<a href="https://tools.ietf.org/html/rfc6648">https://tools.ietf.org/html/rfc6648</a>) and therefore should not be used anymore.</p>
 <p><strong>Before:</strong></p>
 <ul>
@@ -465,8 +615,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>We refactored the plugin entity as follows:</p>
 <ul>
 <li>Renamed plugin.name =&gt; plugin.baseClass
@@ -491,8 +656,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>The administration now has a notification center in every <code>sw-page</code>.
 This is not a breaking change, you can still make notifications the same way as before.
 But there are some nice new Features that you may want to know:</p>
@@ -548,8 +728,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>The new <code>\Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyIdField</code> allows to store ids of an <code>\Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField</code> inside the entity.</p>
 <h2>How to implement</h2>
 <ol>
@@ -609,8 +804,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>We have got the feedback that the intended usage of attributes is unclear
 and often mistaken for product properties. So we decided to rename
 attributes to custom fields.</p>
@@ -631,8 +841,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>There is now a new class which can help you to deal with the <code>StateMachine</code>.
 <code>Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler</code> contains some methods to improve the readability of your code when changing the state.</p>
 <p>old way:</p>
@@ -670,8 +895,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>By extending the EntityDefinition-Class all Definitions now automatically have a <code>cratedAt</code>- and <code>UpdatedAt</code>-Field, so you don't have to add them manually.
 Also every Entity-Struct extending the <code>Entity</code>-Class has the associated Properties + Getters and Setters automatically.</p>
 <p>The only Exception are <code>MappingDefinitions</code>, there these Fields aren't added automatically.</p>
@@ -693,8 +933,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>From now on the <code>\Shopware\Core\System\SalesChannel\SalesChannelContext</code> is injected into the methods of
 <code>\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface</code> and
 <code>\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface</code>.
@@ -715,8 +970,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>We have added the ApiBrowser functionality of the EntityDefinitions for the SalesChannelApi-Entities as well.
 You can find the SwaggerUI under <code>/sales-channel-api/v1/_info/swagger.html</code>.</p>
 <p>We also added a configuration, to control whether the ApiBrowser functionality is available or not.
@@ -737,8 +1007,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>The context used to have the shorthand functions <code>getUserId</code> and <code>getSalesChannelId</code>.</p>
 <p>The problem is that it depended on the Source of the Context whether these Ids were set or not.
 Especially in the case of the <code>salesChannelId</code> this was problematic, because it silently returned the DefaultId in case the source didn't match.</p>
@@ -760,8 +1045,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>In the past you had to extend the whitelist in the SalesChannelApi-/ApiAuthenticationLister
 if you wanted to create a controller which doesn't required a logged in user.
 Since it was almost impossible for third party developers to extend this list,
@@ -781,8 +1081,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>The currency entity now has an additional field called isoCode which is required and not translated.
 This field contains a 3 letter code according to the ISO 4217 standard.</p>
 <h3>2019-04-25: Vue Vuex in the Administration</h3>
@@ -798,8 +1113,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>Vuex is a Vue.js plugin and library that allows you to share state between components. This is done by using a single object which is accessible by all component via the <code>$store</code> property. Vuex applies a flux pattern on this store which means every change of the store's state must be done via commits (synchronous changes) or actions (asynchronous changes).</p>
 <p>Well this is not completely true because we deactivated strict mode (more on this later).</p>
 <p>This is not a documentation about Vuex but an overview how we want to use Vuex in our application. If you are not familiar with Vuex I strongly recommend reading the documentation at <a href="vuex.vuejs.org">vuex.vuejs.org</a>.</p>
@@ -860,8 +1190,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>With the newest MySQL version <code>CONSTRAINTS</code> must be unique across all tables. This means that</p>
 <p><code>CONSTRAINT json.custom_fields CHECK (JSON_VALID(custom_fields))</code> is no longer valid. The new constraint name should be:</p>
 <p><code>CONSTRAINT json.table_name.custom_fields CHECK (JSON_VALID(custom_fields))</code>. This is true for all CONSTRAINT, not only JSON_VALID().</p>
@@ -878,8 +1223,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>Until now we used two locale code standards.</p>
 <p>Bcp-47 inside vue.js (administration) and IEC_15897 inside the Php backend.</p>
 <p>Now we use the BCP-47 standard for both. This means, that the locale codes changed from <code>en_GB</code> to <code>en-GB</code>.</p>
@@ -932,8 +1292,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>We just implemented VueMeta 1.6.0 to shopware!</p>
 <p>For now, it's only used to configure dynamic document titles in addition to the recently implemented favicons per module and will be added to every, already implemented module. Please be sure to add it to every new module! Additonally: Every Moduels <code>name</code> property has been refactored in the style of its identifier. (If its <code>sw-product-stream</code> the name now is <code>product-stream</code>.)</p>
 <p>To provide more detailed information, we added the <code>this.$createTitle()</code> method to get an easily generated document title like <code>Customers | Shopware administration or Awesome Product | Products | Shopware administration</code></p>
@@ -985,8 +1360,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>To secure the Storefront we made every Controller-Action inside the StorefrontBundle not requestable via XmlHttpRequests/AJAX.</p>
 <p>You can override this by allowing XmlHttpRequests in the Route Annotation</p>
 <p>with the <code>defaults={"XmlHttpRequest"=true}</code> Option.</p>
@@ -1009,8 +1399,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>We impemented a central way to define entities which should be available over the <code>sales-channel-api</code>.</p>
 <p>An EntityDefinition can now define a decoration definition for the <code>sales-channel-api</code>:</p>
 <pre><code class="language-php">&lt;?php
@@ -1133,8 +1538,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>The Rules were refactored, so that the match function not longer returns a reason object which contains the debug messages. Instead the match function directly returns a bool if the rule is matching or not.</p>
 <h3>2019-04-17: Internal request removed</h3>
 
@@ -1149,8 +1569,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>The <code>InternalRequest</code> class alternative to the Symfony Request has been removed as it is not required anymore.</p>
 <p>To check required parameters etc. use the Symfony Request or even better the <code>RequestDataBag</code> or <code>QueryDataBag</code> and validate your input using the <code>DataValidator</code>. You can see some examples in the <code>AccountService</code>.</p>
 <h3>2019-04-17: Administration open API Housekeeping</h3>
@@ -1166,8 +1601,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>We are currently working on a lot of housekeeping tasks to make the administration code base as clean as possible. It should be easier for new developers to spot best practices inside the code. This is why we have to adjust some general things like events.</p>
 <p><em>This changes are not merged yet! We will write more update logs when some of the mentioned topics are inside the master branch.</em></p>
 <p>Here are the most important changes:</p>
@@ -1254,8 +1704,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>For the extraction of a production-ready community edition template, some configuration variables will be moved into the platform.</p>
 <p>The routing configuration has already been moved into the bundles of the platform and they will be registered automatically. You can find the configuration file in the same folder structure like our plugins: <code>Resources/config/route.xml</code></p>
 <p>More configuration files will most likely follow in the near future.</p>
@@ -1272,8 +1737,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>To ensure every bundle inside our mono-repository can be used standalone, their dependencies in the bundles <code>composer.json</code> must be maintained. Therefore we no longer update the platform's <code>composer.json</code> manually, except for metadata updates.</p>
 <p>There is a new script ran as pre-commit hook, which collects every dependency of the bundles and merges them into the platforms <code>composer.json</code>. If the script notices any difference, you'll get a warning and have to review the changes:</p>
 <blockquote>
@@ -1292,8 +1772,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>For plausibility reasons we removed the Storefront term from the core bundles and named it SalesChannel. The idea beeing:</p>
 <p>The Core knows about sales channels and exposes an API for SalesChannels. All customer facing applications then connect to this SalesChannel-API.Doesn't matter whether its a fully featured store front, a buy button, something with voice or whatever.</p>
 <p>Therefore:</p>
@@ -1315,8 +1810,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <p>Here you will find a current overview of the epics that are currently being implemented, which have been completed and which will be implemented next.</p>
@@ -1398,8 +1908,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>We renamed the following tables as follow:</p>
 <ul>
 <li>product.variatios =&gt; product.options
@@ -1439,8 +1964,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>We made a refactoring of the plugin structure which affect ALL plugins!</p>
 <ul>
 <li>The &quot;type&quot; in the composer.json must now be <code>shopware-platform-plugin</code>. This is necessary to differentiate between Shopware 5 and Shopware platform plugins</li>
@@ -1485,8 +2025,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>We made all IDs defined in <code>Shopware\Core\Defaults.php</code> unique, so the Ids changed.</p>
 <p>If you experience some problems with logging in to the Admin after rebasing your branch please check the localStorage for the key sw-admin-current-language and delete this key.</p>
 <p>After that it should work as before.</p>
@@ -1503,8 +2058,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>We made the shift from Karma (including Chai, Jasmine and Sinon) to Jest as our primary JavaScript testing framework. Jest provides us with a lot of functionality:</p>
 <ul>
 <li>Snapshot testing using the offical @vue/test-utils tool</li>
@@ -1599,8 +2169,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>With the latest DAL change, you are no longer able to auto-load <code>toMany</code> associations as they have a huge performance impact. From now on, please enrich your criteria object by adding associations like:</p>
 <pre><code class="language-php">$criteria-&gt;addAssociation('comments');</code></pre>
 <p><strong>Please think about when to load toMany associations and if they are really necessary there.</strong></p>
@@ -1620,8 +2205,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>It is now possible to define a favicon for each module in the administration. The favicon, which is just a .png version of the module-icon, is switched dynamically depending on what module is active at the moment. Currently there are 7 favicons that are located in <code>administration/static/img/favicon/modules/</code>.</p>
 <p>When no favicon is defined for the module the default shopware signet is used as a fallback.</p>
 <p>The favicon can be defined in the module registration.</p>
@@ -1643,8 +2243,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 <p>We renamed the <code>CheckoutContext</code> to <code>SalesChannelContext</code> and moved <code>Checkout\Context</code> to `System\SalesChannelConte</p>
 <p>In perspective it is planned to</p>
 <ul>
@@ -1667,8 +2282,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <p>We have completely removed the<strong> Entity::viewData </strong>property.</p>
@@ -1714,8 +2344,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <p>We changed the naming of product_price_rule table and all corresponding php classes, api routes, php properties.</p>
@@ -1742,8 +2387,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <ul>
@@ -1767,8 +2427,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <p>With the new data handling, we implemented a list of scaffolding components to prevent boiler plate code and keep data handling as simple as possible.</p>
@@ -1963,8 +2638,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <p>The new data handling was created to remove the active record pattern in the admininstration. It uses a repository pattern which is strongly based on the DAL from the PHP part.</p>
@@ -2491,8 +3181,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <p>We removed a ton of constants from our super global <strong>Defaults-object.</strong></p>
@@ -2525,8 +3230,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <p>The icon system in the administration has been updated.</p>
@@ -2584,8 +3304,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <p>Payment handler are now able to throw special exceptions if certain error cases occur.</p>
@@ -2617,8 +3352,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <p>Just removed the last of the global exceptions. From now on, please move custom exceptions into the <strong>module that throws it.</strong></p>
@@ -2655,8 +3405,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <p>The Uuid class was moved from <strong>FrameworkStruct\Uuid </strong>to<strong> Framework\Uuid\Uuid </strong>please adjust your branches.</p>
@@ -2687,8 +3452,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <p><strong>#1 Request / Query data</strong><br />
@@ -2770,8 +3550,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <p>We deleted the entity properties:</p>
@@ -2819,8 +3614,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <p><strong>Error codes</strong><br />
@@ -2852,8 +3662,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <p>We&#39;ve removed the <strong>SourceContext</strong> as it was global mutable State.</p>
@@ -2877,8 +3702,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <p>The entity for plugins got a new boolean field <strong>managedByComposer</strong> which determines if a plugin is required with composer. The field is set during <strong>bin/console plugin:refresh</strong></p>
@@ -2898,8 +3738,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <p>We changed the contents of the <strong>\Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct</strong></p>
@@ -2921,8 +3776,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <p>We changed the properties of <strong>src/Core/Checkout/Payment/PaymentMethodEntity.php</strong> from <strong>additionalDescription</strong> to <strong>description</strong> and <strong>surcharge_string</strong> to <strong>surcharge_text</strong>. <strong>surcharge_text</strong> is also now translateable.</p>
@@ -2942,8 +3812,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <p>The component library is now public on <a href="https://component-library.shopware.com">https://component-library.shopware.com</a> !</p>
@@ -2961,8 +3846,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <p>We fixed two issues in the current data handling of the administration.</p>
@@ -3005,8 +3905,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <p>The first Plugin-Manager version is now merged, but it&#39;s behind the <strong>NEXT-1223</strong> feature flag.</p>
@@ -3047,8 +3962,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <p>The <strong>sw-tree</strong> was refactored again, due to the changing of the sorting.</p>
@@ -3082,8 +4012,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <p>In order to react to upload events and errors globally, we made some changes how uploads are stored and run.</p>
@@ -3177,8 +4122,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <p>We implemented a configurable number range.</p>
@@ -3241,8 +4201,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <p>We removed the details column from the order_transaction table. It was introduced in the past, to store additional data to the transaction, e.g. from external payment providers. This is now unnecessary since the introduction of the custom field. If you stored data to the details field, create a new custom field and store the data in this custom field field. An example migration could be found in our <a href="https://github.com/shopwareLabs/SwagPayPal/commit/a09beec33c5ebe8247d259e970dfcc09ee9c8f13">PayPal integration</a></p>
@@ -3260,8 +4235,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <ul>
@@ -3284,8 +4274,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <p>The sw-data-grid is a new component to render tables with data. It works similar to the sw-grid component but it has some additional features like hiding columns or scrolling horizontally.</p>
@@ -3502,8 +4507,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <p>We had the problem that our two big snippets files for the administration caused a bunch of merge conflicts in the past.</p>
@@ -3549,8 +4569,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <p>It&#39;s already possible to define types for the values in the json object by passing an array of Fields into propertyMapping. The values are then validated and encoded by the corresponding FieldSerializer.</p>
@@ -3599,8 +4634,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <p>We added an easy way to add custom fields to entities. The CustomField is like the JsonField only dynamically typed. To save custom fields to entities you first have to define the custom field:</p>
@@ -3642,8 +4692,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <p>The new tab component got a redesign. It supports now horizontal and vertical mode. The vertical mode looks and works like the side-navigation component. This is the reason why it was replaced with this component. You can switch between a left and right alignment.</p>
@@ -3677,8 +4742,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <p>Recently we used an npm feature (clean-install) which is available since version 6.5.0</p>
@@ -3699,8 +4779,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <p>We added the following new rules to our coding style rule set</p>
@@ -3732,8 +4827,23 @@ dl dd {
     padding-left: 2rem;
 }
 
-</style>
+h2 code {
+    font-size: 32px;
+}
 
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
 
 
 <p>It is now possible to group aggregations by the value of given fields. Just like GROUP BY in SQL works.</p>

@@ -12,7 +12,7 @@ renderWatcherUsage();
 
 module.exports = {
 
-    waitForConditionTimeout: 3000,
+    waitForConditionTimeout: 30000,
     asyncHookTimeout: 60000,
 
     beforeEach: (browser, done) => {

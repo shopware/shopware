@@ -62,7 +62,25 @@ Component.register('sw-order-detail', {
         },
 
         loadEntityData() {
-            this.order = this.orderStore.getById(this.orderId);
+            const criteria = {
+                criteria: CriteriaFactory.equals('order.id', this.orderId),
+                associations: {
+                    orderCustomer: {
+                        associations: {
+                            salutation: {}
+                        }
+                    },
+                    salesChannel: {
+                        associations: {
+                            language: {}
+                        }
+                    }
+                }
+            };
+
+            this.orderStore.getList(criteria).then((response) => {
+                this.order = response.items[0];
+            });
 
             this.customFieldSetStore.getList({
                 page: 1,

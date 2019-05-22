@@ -52,14 +52,18 @@ class StateMachineRegistry
 
         $transitionCriteria = new Criteria();
         $transitionCriteria->addSorting(new FieldSorting('state_machine_transition.actionName'));
+        $transitionCriteria->addAssociation('fromStateMachineState');
+        $transitionCriteria->addAssociation('toStateMachineState');
+
         $statesCriteria = new Criteria();
         $statesCriteria->addSorting(new FieldSorting('state_machine_state.technicalName'));
 
         $criteria = new Criteria();
-        $criteria->addAssociation('transitions', $transitionCriteria);
-        $criteria->addAssociation('states', $statesCriteria);
-        $criteria->addFilter(new EqualsFilter('state_machine.technicalName', $name));
-        $criteria->setLimit(1);
+        $criteria
+            ->addAssociation('transitions', $transitionCriteria)
+            ->addAssociation('states', $statesCriteria)
+            ->addFilter(new EqualsFilter('state_machine.technicalName', $name))
+            ->setLimit(1);
 
         $results = $this->stateMachineRepository->search($criteria, $context);
 

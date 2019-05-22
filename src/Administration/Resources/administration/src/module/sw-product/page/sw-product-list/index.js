@@ -36,18 +36,6 @@ Component.register('sw-product-list', {
 
         productColumns() {
             return this.getProductColumns();
-        },
-
-        filters() {
-            return [{
-                active: false,
-                label: 'Preis über 50€',
-                criteria: { type: 'range', field: 'product.price', options: { '>': 50 } }
-            }, {
-                active: false,
-                label: 'Lagerbestand unter 10',
-                criteria: { type: 'range', field: 'product.stock', options: { '<': 10 } }
-            }];
         }
     },
 
@@ -103,6 +91,10 @@ Component.register('sw-product-list', {
             const params = this.getListingParams();
 
             params.criteria = CriteriaFactory.equals('product.parentId', null);
+
+            params.associations = {
+                manufacturer: {}
+            };
 
             if (!params.sortBy) {
                 params.sortBy = this.sortBy;

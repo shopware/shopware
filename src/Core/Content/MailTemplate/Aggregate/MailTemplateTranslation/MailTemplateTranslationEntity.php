@@ -38,7 +38,7 @@ class MailTemplateTranslationEntity extends TranslationEntity
     protected $contentPlain;
 
     /**
-     * @var MailTemplateEntity
+     * @var MailTemplateEntity|null
      */
     protected $mailTemplate;
 
@@ -102,7 +102,7 @@ class MailTemplateTranslationEntity extends TranslationEntity
         $this->contentPlain = $contentPlain;
     }
 
-    public function getMailTemplate(): MailTemplateEntity
+    public function getMailTemplate(): ?MailTemplateEntity
     {
         return $this->mailTemplate;
     }

@@ -38,7 +38,7 @@ class MailHeaderFooterTranslationEntity extends TranslationEntity
     protected $footerPlain;
 
     /**
-     * @var MailHeaderFooterEntity
+     * @var MailHeaderFooterEntity|null
      */
     protected $mailHeaderFooter;
 
@@ -117,7 +117,7 @@ class MailHeaderFooterTranslationEntity extends TranslationEntity
         $this->footerPlain = $footerPlain;
     }
 
-    public function getMailHeaderFooter(): MailHeaderFooterEntity
+    public function getMailHeaderFooter(): ?MailHeaderFooterEntity
     {
         return $this->mailHeaderFooter;
     }

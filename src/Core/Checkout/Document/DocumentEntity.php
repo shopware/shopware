@@ -68,7 +68,7 @@ class DocumentEntity extends Entity
     protected $customFields;
 
     /**
-     * @var DocumentTypeEntity
+     * @var DocumentTypeEntity|null
      */
     protected $documentType;
 
@@ -172,7 +172,7 @@ class DocumentEntity extends Entity
         $this->customFields = $customFields;
     }
 
-    public function getDocumentType(): DocumentTypeEntity
+    public function getDocumentType(): ?DocumentTypeEntity
     {
         return $this->documentType;
     }

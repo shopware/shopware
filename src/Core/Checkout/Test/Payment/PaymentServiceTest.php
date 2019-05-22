@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DefaultPayment;
@@ -146,8 +145,9 @@ class PaymentServiceTest extends TestCase
         $tokenStruct = $this->paymentService->finalizeTransaction($token, $request, $salesChannelContext);
 
         static::assertSame('testFinishUrl', $tokenStruct->getFinishUrl());
-        /** @var OrderTransactionEntity $transactionEntity */
-        $transactionEntity = $this->orderTransactionRepository->search(new Criteria([$transactionId]), $this->context)->first();
+        $criteria = new Criteria([$transactionId]);
+        $criteria->addAssociation('stateMachineState');
+        $transactionEntity = $this->orderTransactionRepository->search($criteria, $this->context)->first();
         static::assertSame(
             OrderTransactionStates::STATE_PAID,
             $transactionEntity->getStateMachineState()->getTechnicalName()
@@ -211,8 +211,11 @@ class PaymentServiceTest extends TestCase
             static::fail('exception should be thrown');
         } catch (CustomerCanceledAsyncPaymentException $e) {
         }
-        /** @var OrderTransactionEntity $transactionEntity */
-        $transactionEntity = $this->orderTransactionRepository->search(new Criteria([$transactionId]), $this->context)->first();
+        $criteria = new Criteria([$transactionId]);
+        $criteria->addAssociation('stateMachineState');
+
+        $transactionEntity = $this->orderTransactionRepository->search($criteria, $this->context)->first();
+
         static::assertSame(
             OrderStates::STATE_CANCELLED,
             $transactionEntity->getStateMachineState()->getTechnicalName()

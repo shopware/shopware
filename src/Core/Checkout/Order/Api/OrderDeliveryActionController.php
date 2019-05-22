@@ -78,12 +78,16 @@ class OrderDeliveryActionController extends AbstractController
     ): Response {
         $delivery = $this->getOrderDelivery($deliveryId, $context);
 
-        $toPlace = $this->stateMachineRegistry->transition($this->stateMachineRegistry->getStateMachine(OrderTransactionStates::STATE_MACHINE, $context),
+        $stateMachine = $this->stateMachineRegistry->getStateMachine(OrderTransactionStates::STATE_MACHINE, $context);
+
+        $toPlace = $this->stateMachineRegistry->transition(
+            $stateMachine,
             $delivery->getStateMachineState(),
             $this->orderDeliveryRepository->getDefinition()->getEntityName(),
             $delivery->getId(),
             $context,
-            $transition);
+            $transition
+        );
 
         $payload = [
             ['id' => $delivery->getId(), 'stateId' => $toPlace->getId()],
@@ -103,7 +107,10 @@ class OrderDeliveryActionController extends AbstractController
      */
     private function getOrderDelivery(string $id, Context $context): OrderDeliveryEntity
     {
-        $result = $this->orderDeliveryRepository->search(new Criteria([$id]), $context);
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('stateMachineState');
+
+        $result = $this->orderDeliveryRepository->search($criteria, $context);
 
         if ($result->count() === 0) {
             throw new ResourceNotFoundException($this->orderDeliveryRepository->getDefinition()->getEntityName(), ['id' => $id]);

@@ -70,6 +70,7 @@ class MediaFolderService
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('parentId', $folder->getId()));
+        $criteria->addAssociation('configuration');
         $subFolders = $this->mediaFolderRepo->search($criteria, $context);
 
         if ($subFolders->getTotal() === 0) {

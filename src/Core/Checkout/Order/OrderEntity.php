@@ -86,17 +86,17 @@ class OrderEntity extends Entity
     protected $shippingTotal;
 
     /**
-     * @var OrderCustomerEntity
+     * @var OrderCustomerEntity|null
      */
     protected $orderCustomer;
 
     /**
-     * @var CurrencyEntity
+     * @var CurrencyEntity|null
      */
     protected $currency;
 
     /**
-     * @var SalesChannelEntity
+     * @var SalesChannelEntity|null
      */
     protected $salesChannel;
 
@@ -131,7 +131,7 @@ class OrderEntity extends Entity
     protected $autoIncrement;
 
     /**
-     * @var StateMachineStateEntity
+     * @var StateMachineStateEntity|null
      */
     protected $stateMachineState;
 
@@ -250,7 +250,7 @@ class OrderEntity extends Entity
         return $this->shippingTotal;
     }
 
-    public function getOrderCustomer(): OrderCustomerEntity
+    public function getOrderCustomer(): ?OrderCustomerEntity
     {
         return $this->orderCustomer;
     }
@@ -260,7 +260,7 @@ class OrderEntity extends Entity
         $this->orderCustomer = $orderCustomer;
     }
 
-    public function getCurrency(): CurrencyEntity
+    public function getCurrency(): ?CurrencyEntity
     {
         return $this->currency;
     }
@@ -270,7 +270,7 @@ class OrderEntity extends Entity
         $this->currency = $currency;
     }
 
-    public function getSalesChannel(): SalesChannelEntity
+    public function getSalesChannel(): ?SalesChannelEntity
     {
         return $this->salesChannel;
     }
@@ -340,7 +340,7 @@ class OrderEntity extends Entity
         $this->autoIncrement = $autoIncrement;
     }
 
-    public function getStateMachineState(): StateMachineStateEntity
+    public function getStateMachineState(): ?StateMachineStateEntity
     {
         return $this->stateMachineState;
     }

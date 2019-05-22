@@ -80,7 +80,7 @@ export default {
     methods: {
         componentCreated() {
             this.getThumbnailSizes();
-            this.configuration = this.mediaFolderConfigurationStore.getById(this.folder.configuration.id);
+            this.configuration = this.mediaFolderConfigurationStore.getById(this.folder.configurationId);
             this.mediaFolderConfigurationThumbnailSizeStore.getList({
                 limit: 25,
                 page: 1

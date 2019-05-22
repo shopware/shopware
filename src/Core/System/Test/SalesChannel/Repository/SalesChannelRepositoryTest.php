@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class SalesChannelRepositoryTest extends TestCase
 {
@@ -113,8 +112,10 @@ class SalesChannelRepositoryTest extends TestCase
             'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
         ]], $context);
 
-        /** @var SalesChannelEntity $salesChannel */
-        $salesChannel = $this->salesChannelRepository->search(new Criteria([$salesChannelId]), $context)->get($salesChannelId);
+        $criteria1 = new Criteria([$salesChannelId]);
+        $criteria1->addAssociation('type');
+
+        $salesChannel = $this->salesChannelRepository->search($criteria1, $context)->get($salesChannelId);
 
         static::assertEquals($name, $salesChannel->getName());
         static::assertEquals($accessKey, $salesChannel->getAccessKey());

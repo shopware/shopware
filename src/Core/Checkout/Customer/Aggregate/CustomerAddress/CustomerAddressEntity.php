@@ -94,7 +94,7 @@ class CustomerAddressEntity extends Entity
     protected $additionalAddressLine2;
 
     /**
-     * @var CountryEntity
+     * @var CountryEntity|null
      */
     protected $country;
 
@@ -104,7 +104,7 @@ class CustomerAddressEntity extends Entity
     protected $countryState;
 
     /**
-     * @var SalutationEntity
+     * @var SalutationEntity|null
      */
     protected $salutation;
 
@@ -278,7 +278,7 @@ class CustomerAddressEntity extends Entity
         $this->additionalAddressLine2 = $additionalAddressLine2;
     }
 
-    public function getCountry(): CountryEntity
+    public function getCountry(): ?CountryEntity
     {
         return $this->country;
     }
@@ -298,7 +298,7 @@ class CustomerAddressEntity extends Entity
         $this->countryState = $countryState;
     }
 
-    public function getSalutation(): SalutationEntity
+    public function getSalutation(): ?SalutationEntity
     {
         return $this->salutation;
     }

@@ -46,6 +46,7 @@ class OrderCustomerEntity extends Entity
      * @var string|null
      */
     protected $customerNumber;
+
     /**
      * @var string
      */
@@ -57,7 +58,7 @@ class OrderCustomerEntity extends Entity
     protected $customer;
 
     /**
-     * @var SalutationEntity
+     * @var SalutationEntity|null
      */
     protected $salutation;
 
@@ -161,7 +162,7 @@ class OrderCustomerEntity extends Entity
         $this->order = $order;
     }
 
-    public function getSalutation(): SalutationEntity
+    public function getSalutation(): ?SalutationEntity
     {
         return $this->salutation;
     }

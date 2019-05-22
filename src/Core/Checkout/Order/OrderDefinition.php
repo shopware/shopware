@@ -85,7 +85,7 @@ class OrderDefinition extends EntityDefinition
             new StringField('deep_link_code', 'deepLinkCode'),
 
             (new FkField('state_id', 'stateId', StateMachineStateDefinition::class))->setFlags(new Required()),
-            new ManyToOneAssociationField('stateMachineState', 'state_id', StateMachineStateDefinition::class, 'id', false),
+            new ManyToOneAssociationField('stateMachineState', 'state_id', StateMachineStateDefinition::class, 'id', true),
 
             new CustomFields(),
 

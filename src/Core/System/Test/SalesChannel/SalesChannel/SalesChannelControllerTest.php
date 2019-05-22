@@ -59,17 +59,9 @@ class SalesChannelControllerTest extends TestCase
 
         $content = json_decode($response->getContent(), true);
 
-        foreach ($content['data'] as $currency) {
-            if ($currency['id'] !== $originalCurrency['id']) {
-                continue;
-            }
-
-            $this->silentAssertArraySubset($originalCurrency, $currency);
-
-            return;
-        }
-
-        static::fail('Unable to find currency');
+        static::assertArrayHasKey('data', $content);
+        $ids = array_column($content['data'], 'id');
+        static::assertContains($originalCurrency['id'], $ids);
     }
 
     public function testGetSalesChannelLanguages(): void
@@ -82,17 +74,10 @@ class SalesChannelControllerTest extends TestCase
 
         $content = json_decode($response->getContent(), true);
 
-        foreach ($content['data'] as $language) {
-            if ($language['id'] !== $originalLanguage['id']) {
-                continue;
-            }
+        static::assertArrayHasKey('data', $content);
 
-            $this->silentAssertArraySubset($originalLanguage, $language);
-
-            return;
-        }
-
-        static::fail('Unable to find language');
+        $ids = array_column($content['data'], 'id');
+        static::assertContains($originalLanguage['id'], $ids);
     }
 
     public function testGetSalesChannelCountries(): void
@@ -104,18 +89,10 @@ class SalesChannelControllerTest extends TestCase
         static::assertEquals(200, $response->getStatusCode());
 
         $content = json_decode($response->getContent(), true);
+        static::assertArrayHasKey('data', $content);
 
-        foreach ($content['data'] as $country) {
-            if ($country['id'] !== $originalCountry['id']) {
-                continue;
-            }
-
-            $this->silentAssertArraySubset($originalCountry, $country);
-
-            return;
-        }
-
-        static::fail('Unable to find country');
+        $ids = array_column($content['data'], 'id');
+        static::assertContains($originalCountry['id'], $ids);
     }
 
     public function testGetSalesChannelCountryStates(): void
@@ -158,17 +135,10 @@ class SalesChannelControllerTest extends TestCase
 
         $content = json_decode($response->getContent(), true);
 
-        foreach ($content['data'] as $paymentMethod) {
-            if ($paymentMethod['id'] !== $originalPaymentMethod['id']) {
-                continue;
-            }
+        static::assertArrayHasKey('data', $content);
+        $ids = array_column($content['data'], 'id');
 
-            $this->silentAssertArraySubset($originalPaymentMethod, $paymentMethod);
-
-            return;
-        }
-
-        static::fail('Unable to find payment method');
+        static::assertContains($originalPaymentMethod['id'], $ids);
     }
 
     public function testGetSalesChannelShippingMethods(): void
@@ -181,14 +151,10 @@ class SalesChannelControllerTest extends TestCase
 
         $content = json_decode($response->getContent(), true);
 
-        foreach ($content['data'] as $shippingMethod) {
-            if ($shippingMethod['id'] !== $originalShippingMethod['id']) {
-                continue;
-            }
+        static::assertArrayHasKey('data', $content);
+        $ids = array_column($content['data'], 'id');
 
-            unset($originalShippingMethod['availabilityRules']);
-            $this->silentAssertArraySubset($originalShippingMethod, $shippingMethod);
-        }
+        static::assertContains($originalShippingMethod['id'], $ids);
     }
 
     public function testGetSalesChannelShippingMethodsWithoutUnavailable(): void
@@ -202,14 +168,10 @@ class SalesChannelControllerTest extends TestCase
 
         $content = json_decode($response->getContent(), true);
 
-        foreach ($content['data'] as $shippingMethod) {
-            if ($shippingMethod['id'] !== $originalShippingMethod['id']) {
-                continue;
-            }
+        static::assertArrayHasKey('data', $content);
 
-            unset($originalShippingMethod['availabilityRules']);
-            $this->silentAssertArraySubset($originalShippingMethod, $shippingMethod);
-        }
+        $ids = array_column($content['data'], 'id');
+        static::assertContains($originalShippingMethod['id'], $ids);
     }
 
     public function testGetMultiSalesChannelShippingMethods(): void
@@ -226,14 +188,8 @@ class SalesChannelControllerTest extends TestCase
         static::assertGreaterThanOrEqual(1, count($content['data']));
         static::assertCount($content['total'], $content['data']);
 
-        foreach ($content['data'] as $shippingMethod) {
-            if ($shippingMethod['id'] !== $originalShippingMethod['id']) {
-                continue;
-            }
-
-            unset($originalShippingMethod['availabilityRules']);
-            $this->silentAssertArraySubset($originalShippingMethod, $shippingMethod);
-        }
+        $ids = array_column($content['data'], 'id');
+        static::assertContains($originalShippingMethod['id'], $ids);
     }
 
     public function testGetDefaultSalesChannelShippingMethod(): void
@@ -261,17 +217,9 @@ class SalesChannelControllerTest extends TestCase
 
         static::assertCount(6, $content['data'], print_r($content['data'], true));
 
-        foreach ($content['data'] as $paymentMethod) {
-            if ($paymentMethod['id'] !== $originalPaymentMethod['id']) {
-                continue;
-            }
-
-            $this->silentAssertArraySubset($originalPaymentMethod, $paymentMethod);
-
-            return;
-        }
-
-        static::fail('Unable to find payment method');
+        static::assertArrayHasKey('data', $content);
+        $ids = array_column($content['data'], 'id');
+        static::assertContains($originalPaymentMethod['id'], $ids);
     }
 
     public function testGetMultiSalesChannelPaymentMethods(): void
@@ -288,17 +236,9 @@ class SalesChannelControllerTest extends TestCase
         static::assertGreaterThanOrEqual(5, count($content['data']));
         static::assertCount($content['total'], $content['data']);
 
-        foreach ($content['data'] as $shippingMethod) {
-            if ($shippingMethod['id'] !== $originalPaymentMethod['id']) {
-                continue;
-            }
-
-            $this->silentAssertArraySubset($originalPaymentMethod, $shippingMethod);
-
-            return;
-        }
-
-        static::fail('Unable to find payment method');
+        static::assertArrayHasKey('data', $content);
+        $ids = array_column($content['data'], 'id');
+        static::assertContains($originalPaymentMethod['id'], $ids);
     }
 
     public function testGetSalutations(): void

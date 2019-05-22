@@ -31,7 +31,7 @@ class MediaThumbnailEntity extends Entity
     protected $mediaId;
 
     /**
-     * @var MediaEntity
+     * @var MediaEntity|null
      */
     protected $media;
 
@@ -80,7 +80,7 @@ class MediaThumbnailEntity extends Entity
         $this->mediaId = $mediaId;
     }
 
-    public function getMedia(): MediaEntity
+    public function getMedia(): ?MediaEntity
     {
         return $this->media;
     }

@@ -209,6 +209,7 @@ class ThumbnailService
         }
 
         $criteria = new Criteria([$media->getMediaFolderId()]);
+        $criteria->addAssociationPath('configuration.mediaThumbnailSizes');
         /** @var MediaFolderEntity $folder */
         $folder = $this->mediaFolderRepository->search($criteria, $context)->get($media->getMediaFolderId());
         $media->setMediaFolder($folder);

@@ -113,8 +113,10 @@ class SalesChannelContextFactory
     {
         $context = $this->getContext($salesChannelId, $options);
 
-        /** @var SalesChannelEntity|null $salesChannel */
-        $salesChannel = $this->salesChannelRepository->search(new Criteria([$salesChannelId]), $context)
+        $criteria = new Criteria([$salesChannelId]);
+        $criteria->addAssociation('currency');
+
+        $salesChannel = $this->salesChannelRepository->search($criteria, $context)
             ->get($salesChannelId);
 
         if (!$salesChannel) {
@@ -129,13 +131,10 @@ class SalesChannelContextFactory
         //load active currency, fallback to shop currency
         $currency = $salesChannel->getCurrency();
         if (array_key_exists(SalesChannelContextService::CURRENCY_ID, $options)) {
-            $currency = $this->currencyRepository->search(new Criteria([$options[SalesChannelContextService::CURRENCY_ID]]), $context)->get($options[SalesChannelContextService::CURRENCY_ID]);
-        }
+            $currencyId = $options[SalesChannelContextService::CURRENCY_ID];
 
-        //fallback customer group is hard coded to 'EK'
-        $customerGroups = $this->customerGroupRepository->search(new Criteria([Defaults::FALLBACK_CUSTOMER_GROUP]), $context);
-        $fallbackGroup = $customerGroups->get(Defaults::FALLBACK_CUSTOMER_GROUP);
-        $customerGroup = $customerGroups->get(Defaults::FALLBACK_CUSTOMER_GROUP);
+            $currency = $this->currencyRepository->search(new Criteria([$currencyId]), $context)->get($currencyId);
+        }
 
         // customer
         $customer = null;
@@ -147,7 +146,6 @@ class SalesChannelContextFactory
         $shippingLocation = null;
         if ($customer) {
             $shippingLocation = ShippingLocation::createFromAddress($customer->getActiveShippingAddress());
-            $customerGroup = $customer->getGroup();
         }
 
         if (!$shippingLocation) {
@@ -155,10 +153,20 @@ class SalesChannelContextFactory
             $shippingLocation = $this->loadShippingLocation($options, $context, $salesChannel);
         }
 
-        //customer group switched?
-        if (array_key_exists(SalesChannelContextService::CUSTOMER_GROUP_ID, $options)) {
-            $customerGroup = $this->customerGroupRepository->search(new Criteria([$options[SalesChannelContextService::CUSTOMER_GROUP_ID]]), $context)->get($options[SalesChannelContextService::CUSTOMER_GROUP_ID]);
+        $groupId = Defaults::FALLBACK_CUSTOMER_GROUP;
+        $groupIds = [Defaults::FALLBACK_CUSTOMER_GROUP];
+
+        if ($customer) {
+            $groupIds[] = $customer->getGroupId();
+            $groupId = $customer->getGroupId();
         }
+
+        $groupIds = array_keys(array_flip($groupIds));
+
+        //fallback customer group is hard coded to 'EK'
+        $customerGroups = $this->customerGroupRepository->search(new Criteria($groupIds), $context);
+        $fallbackGroup = $customerGroups->get(Defaults::FALLBACK_CUSTOMER_GROUP);
+        $customerGroup = $customerGroups->get($groupId);
 
         //loads tax rules based on active customer group and delivery address
         //todo@dr load area based tax rules
@@ -169,7 +177,7 @@ class SalesChannelContextFactory
         $payment = $this->getPaymentMethod($options, $context, $salesChannel, $customer);
 
         //detect active delivery method, at first checkout scope, at least shop default method
-        $delivery = $this->getShippingMethod($options, $context, $salesChannel);
+        $shippingMethod = $this->getShippingMethod($options, $context, $salesChannel);
 
         $context = new Context(
             $context->getSource(),
@@ -191,7 +199,7 @@ class SalesChannelContextFactory
             $fallbackGroup,
             new TaxCollection($taxRules),
             $payment,
-            $delivery,
+            $shippingMethod,
             $shippingLocation,
             $customer,
             []
@@ -204,31 +212,34 @@ class SalesChannelContextFactory
 
     private function getPaymentMethod(array $options, Context $context, SalesChannelEntity $salesChannel, ?CustomerEntity $customer): PaymentMethodEntity
     {
-        //payment switched in checkout?
+        $id = $salesChannel->getPaymentMethodId();
+
         if (array_key_exists(SalesChannelContextService::PAYMENT_METHOD_ID, $options)) {
-            return $this->paymentMethodRepository->search(new Criteria([$options[SalesChannelContextService::PAYMENT_METHOD_ID]]), $context)->get($options[SalesChannelContextService::PAYMENT_METHOD_ID]);
+            $id = $options[SalesChannelContextService::PAYMENT_METHOD_ID];
+        } elseif ($customer && $customer->getLastPaymentMethodId()) {
+            $id = $customer->getLastPaymentMethodId();
+        } elseif ($customer && $customer->getDefaultPaymentMethodId()) {
+            $id = $customer->getDefaultPaymentMethodId();
         }
 
-        if (!$customer) {
-            return $this->paymentMethodRepository->search(new Criteria([$salesChannel->getPaymentMethodId()]), $context)
-                ->get($salesChannel->getPaymentMethodId());
-        }
-
-        if ($customer->getLastPaymentMethod()) {
-            return $customer->getLastPaymentMethod();
-        }
-
-        return $customer->getDefaultPaymentMethod();
+        return $this->paymentMethodRepository
+            ->search(new Criteria([$id]), $context)
+            ->get($id);
     }
 
     private function getShippingMethod(array $options, Context $context, SalesChannelEntity $salesChannel): ShippingMethodEntity
     {
         $id = $salesChannel->getShippingMethodId();
+
         if (array_key_exists(SalesChannelContextService::SHIPPING_METHOD_ID, $options)) {
             $id = $options[SalesChannelContextService::SHIPPING_METHOD_ID];
         }
 
-        return $this->shippingMethodRepository->search((new Criteria([$id]))->addAssociation('prices'), $context)->get($id);
+        $criteria = (new Criteria([$id]))
+            ->addAssociation('deliveryTime')
+            ->addAssociation('prices');
+
+        return $this->shippingMethodRepository->search($criteria, $context)->get($id);
     }
 
     private function getContext(string $salesChannelId, array $session): Context
@@ -300,40 +311,31 @@ class SalesChannelContextFactory
     {
         $customerId = $options[SalesChannelContextService::CUSTOMER_ID];
 
-        /** @var CustomerEntity|null $customer */
-        $customer = $this->customerRepository->search(new Criteria([$customerId]), $context)->get($customerId);
+        $criteria = new Criteria([$customerId]);
+        $criteria->addAssociationPath('salutation');
+        $criteria->addAssociationPath('defaultBillingAddress.country');
+        $criteria->addAssociationPath('defaultShippingAddress.country');
+
+        $customer = $this->customerRepository->search($criteria, $context)->get($customerId);
 
         if (!$customer) {
             return null;
         }
 
-        $billingAddressId = $options[SalesChannelContextService::BILLING_ADDRESS_ID] ?? null;
-        $shippingAddressId = $options[SalesChannelContextService::SHIPPING_ADDRESS_ID] ?? null;
+        $billingAddressId = $options[SalesChannelContextService::BILLING_ADDRESS_ID] ?? $customer->getDefaultBillingAddressId();
+        $shippingAddressId = $options[SalesChannelContextService::SHIPPING_ADDRESS_ID] ?? $customer->getDefaultShippingAddressId();
 
-        $addressIds = [];
-        if (array_key_exists(SalesChannelContextService::BILLING_ADDRESS_ID, $options)) {
-            $addressIds[] = $options[SalesChannelContextService::BILLING_ADDRESS_ID];
-        }
+        $addressIds[] = $billingAddressId;
+        $addressIds[] = $shippingAddressId;
 
-        if (array_key_exists(SalesChannelContextService::SHIPPING_ADDRESS_ID, $options)) {
-            $addressIds[] = $options[SalesChannelContextService::SHIPPING_ADDRESS_ID];
-        }
+        $criteria = new Criteria($addressIds);
+        $criteria->addAssociation('country');
+        $criteria->addAssociation('countryState');
 
-        if (empty($addressIds)) {
-            return $customer;
-        }
+        $addresses = $this->addressRepository->search($criteria, $context);
 
-        $addresses = $this->addressRepository->search(new Criteria($addressIds), $context);
-
-        //billing address changed within checkout?
-        if ($billingAddressId) {
-            $customer->setActiveBillingAddress($addresses->get($billingAddressId));
-        }
-
-        //shipping address changed within checkout?
-        if ($shippingAddressId) {
-            $customer->setActiveShippingAddress($addresses->get($shippingAddressId));
-        }
+        $customer->setActiveBillingAddress($addresses->get($billingAddressId));
+        $customer->setActiveShippingAddress($addresses->get($shippingAddressId));
 
         return $customer;
     }

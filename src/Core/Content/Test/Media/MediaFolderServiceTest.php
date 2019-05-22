@@ -212,7 +212,9 @@ class MediaFolderServiceTest extends TestCase
         $this->assertMediaHasParentFolder($media, $parentId);
 
         $criteria = (new Criteria())
+            ->addAssociation('configuration')
             ->addFilter(new EqualsFilter('parentId', $parentId));
+
         $folders = $this->mediaFolderRepo
             ->search($criteria, $this->context)
             ->getEntities();

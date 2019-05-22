@@ -70,7 +70,7 @@ class LanguageEntity extends Entity
     protected $name;
 
     /**
-     * @var LocaleEntity
+     * @var LocaleEntity|null
      */
     protected $locale;
 
@@ -344,7 +344,7 @@ class LanguageEntity extends Entity
         $this->name = $name;
     }
 
-    public function getLocale(): LocaleEntity
+    public function getLocale(): ?LocaleEntity
     {
         return $this->locale;
     }

@@ -110,6 +110,11 @@ Component.register('sw-order-state-history-card', {
             return this.stateMachineHistoryStore.getList({
                 limit: 50,
                 page: 1,
+                associations: {
+                    fromStateMachineState: {},
+                    toStateMachineState: {},
+                    user: {}
+                },
                 sortBy: 'state_machine_history.createdAt',
                 sortDirection: 'ASC',
                 versionId: this.order.versionId,

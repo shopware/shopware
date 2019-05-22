@@ -329,8 +329,13 @@ class InvoiceServiceTest extends TestCase
     {
         $criteria = (new Criteria([$orderId]))
             ->addAssociation('lineItems')
+            ->addAssociation('currency')
             ->addAssociation('transactions');
-        $order = $this->getContainer()->get('order.repository')->search($criteria, $this->context)->get($orderId);
+
+        $order = $this->getContainer()->get('order.repository')
+            ->search($criteria, $this->context)
+            ->get($orderId);
+
         static::assertNotNull($orderId);
 
         return $order;

@@ -17,7 +17,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryCollection;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
@@ -127,8 +126,11 @@ class OrderActionControllerTest extends TestCase
         static::assertEquals($transitionTechnicalName, $destinationStateTechnicalName);
 
         // test whether the state history was written
-        /** @var StateMachineHistoryCollection $history */
-        $history = $this->stateMachineHistoryRepository->search(new Criteria(), $context);
+        $criteria = new Criteria();
+        $criteria->addAssociation('fromStateMachineState');
+        $criteria->addAssociation('toStateMachineState');
+
+        $history = $this->stateMachineHistoryRepository->search($criteria, $context);
 
         static::assertCount(1, $history->getElements(), 'Expected history to be written');
         /** @var StateMachineHistoryEntity $historyEntry */

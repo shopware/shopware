@@ -69,7 +69,9 @@ class GenerateThumbnailsCommandTest extends TestCase
         static::assertRegExp('/.*Generated\s*2.*/', $string);
         static::assertRegExp('/.*Skipped\s*0.*/', $string);
 
-        $mediaResult = $this->mediaRepository->search(new Criteria(), $this->context);
+        $criteria = new Criteria();
+        $criteria->addAssociation('thumbnails');
+        $mediaResult = $this->mediaRepository->search($criteria, $this->context);
         /** @var MediaEntity $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
             $thumbnails = $updatedMedia->getThumbnails();
@@ -98,6 +100,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         static::assertRegExp('/.*Skipped\s*0.*/', $string);
 
         $searchCriteria = new Criteria();
+        $searchCriteria->addAssociation('thumbnails');
         $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
         /** @var MediaEntity $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
@@ -126,7 +129,10 @@ class GenerateThumbnailsCommandTest extends TestCase
         static::assertRegExp('/.*Generated\s*1.*/', $string);
         static::assertRegExp('/.*Skipped\s*1.*/', $string);
 
-        $mediaResult = $this->mediaRepository->search(new Criteria(), $this->context);
+        $criteria = new Criteria();
+        $criteria->addAssociation('thumbnails');
+
+        $mediaResult = $this->mediaRepository->search($criteria, $this->context);
         /** @var MediaEntity $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
             if (strpos($updatedMedia->getMimeType(), 'image') === 0) {

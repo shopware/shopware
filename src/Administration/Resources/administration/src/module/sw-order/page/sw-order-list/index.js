@@ -73,6 +73,8 @@ Component.register('sw-order-list', {
             }
 
             params.associations.addresses = {};
+            params.associations.salesChannel = {};
+            params.associations.orderCustomer = {};
             params.associations.transactions = {};
 
             return this.orderStore.getList(params, true).then((response) => {

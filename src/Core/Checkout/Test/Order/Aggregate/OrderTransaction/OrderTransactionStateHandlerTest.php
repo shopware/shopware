@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderStates;
@@ -66,8 +65,9 @@ class OrderTransactionStateHandlerTest extends TestCase
 
         $this->orderTransactionStateHelper->cancel($transactionId, $context);
 
-        /** @var OrderTransactionEntity $transaction */
-        $transaction = $this->orderTransactionRepository->search(new Criteria([$transactionId]), $context)->first();
+        $criteria = new Criteria([$transactionId]);
+        $criteria->addAssociation('stateMachineState');
+        $transaction = $this->orderTransactionRepository->search($criteria, $context)->first();
 
         static::assertSame(OrderTransactionStates::STATE_CANCELLED, $transaction->getStateMachineState()->getTechnicalName());
     }
@@ -81,8 +81,9 @@ class OrderTransactionStateHandlerTest extends TestCase
 
         $this->orderTransactionStateHelper->pay($transactionId, $context);
 
-        /** @var OrderTransactionEntity $transaction */
-        $transaction = $this->orderTransactionRepository->search(new Criteria([$transactionId]), $context)->first();
+        $criteria = new Criteria([$transactionId]);
+        $criteria->addAssociation('stateMachineState');
+        $transaction = $this->orderTransactionRepository->search($criteria, $context)->first();
 
         static::assertSame(OrderTransactionStates::STATE_PAID, $transaction->getStateMachineState()->getTechnicalName());
     }
@@ -96,15 +97,17 @@ class OrderTransactionStateHandlerTest extends TestCase
 
         $this->orderTransactionStateHelper->cancel($transactionId, $context);
 
-        /** @var OrderTransactionEntity $transaction */
-        $transaction = $this->orderTransactionRepository->search(new Criteria([$transactionId]), $context)->first();
+        $criteria = new Criteria([$transactionId]);
+        $criteria->addAssociation('stateMachineState');
+        $transaction = $this->orderTransactionRepository->search($criteria, $context)->first();
 
         static::assertSame(OrderTransactionStates::STATE_CANCELLED, $transaction->getStateMachineState()->getTechnicalName());
 
         $this->orderTransactionStateHelper->open($transactionId, $context);
 
-        /** @var OrderTransactionEntity $transaction */
-        $transaction = $this->orderTransactionRepository->search(new Criteria([$transactionId]), $context)->first();
+        $criteria = new Criteria([$transactionId]);
+        $criteria->addAssociation('stateMachineState');
+        $transaction = $this->orderTransactionRepository->search($criteria, $context)->first();
 
         static::assertSame(OrderTransactionStates::STATE_OPEN, $transaction->getStateMachineState()->getTechnicalName());
     }

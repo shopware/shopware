@@ -20,7 +20,7 @@ class StateMachineTransitionEntity extends Entity
     protected $stateMachineId;
 
     /**
-     * @var StateMachineStateEntity
+     * @var StateMachineStateEntity|null
      */
     protected $stateMachine;
 
@@ -30,7 +30,7 @@ class StateMachineTransitionEntity extends Entity
     protected $fromStateId;
 
     /**
-     * @var StateMachineStateEntity
+     * @var StateMachineStateEntity|null
      */
     protected $fromStateMachineState;
 
@@ -40,7 +40,7 @@ class StateMachineTransitionEntity extends Entity
     protected $toStateId;
 
     /**
-     * @var StateMachineStateEntity
+     * @var StateMachineStateEntity|null
      */
     protected $toStateMachineState;
 
@@ -59,7 +59,7 @@ class StateMachineTransitionEntity extends Entity
         $this->stateMachineId = $stateMachineId;
     }
 
-    public function getStateMachine(): StateMachineStateEntity
+    public function getStateMachine(): ?StateMachineStateEntity
     {
         return $this->stateMachine;
     }
@@ -79,7 +79,7 @@ class StateMachineTransitionEntity extends Entity
         $this->fromStateId = $fromStateId;
     }
 
-    public function getFromStateMachineState(): StateMachineStateEntity
+    public function getFromStateMachineState(): ?StateMachineStateEntity
     {
         return $this->fromStateMachineState;
     }
@@ -99,7 +99,7 @@ class StateMachineTransitionEntity extends Entity
         $this->toStateId = $toStateId;
     }
 
-    public function getToStateMachineState(): StateMachineStateEntity
+    public function getToStateMachineState(): ?StateMachineStateEntity
     {
         return $this->toStateMachineState;
     }

@@ -192,6 +192,54 @@ export default class Criteria {
     }
 
     /**
+     * Allows to add criteria objects for nested associations
+     *
+     * e.g. criteria.addAssociationPath(products.prices.rule)
+     *
+     * @param {String} path
+     * @returns {Criteria}
+     */
+    addAssociationPath(path) {
+        const parts = path.split('.');
+
+        let criteria = this;
+        parts.forEach((part) => {
+            if (!criteria.hasAssociation(part)) {
+                criteria.addAssociation(part);
+            }
+
+            criteria = criteria.getAssociation(part);
+        });
+        return this;
+    }
+
+    /**
+     * Allows to add multiple association paths to the criteria
+     * @param {Array} associations
+     */
+    addAssociationPaths(associations) {
+        associations.forEach((association) => {
+            this.addAssociationPath(association);
+        });
+    }
+
+    /**
+     * @param {String} property
+     * @returns {boolean}
+     */
+    hasAssociation(property) {
+        let exists = false;
+
+        this.associations.forEach((association) => {
+            if (association.association === property) {
+                exists = true;
+            }
+        });
+
+        return exists;
+    }
+
+    /**
      * @param {String} property
      * @returns {Criteria}
      */

@@ -321,7 +321,9 @@ class ProductRepositoryTest extends TestCase
 
         $this->repository->create($data, $this->context);
         $ids = array_column($data, 'id');
-        $products = $this->repository->search(new Criteria($ids), $this->context);
+        $criteria = new Criteria($ids);
+        $criteria->addAssociation('tax');
+        $products = $this->repository->search($criteria, $this->context);
 
         $product = $products->get($ids[0]);
 
@@ -401,7 +403,10 @@ class ProductRepositoryTest extends TestCase
 
         $this->repository->create($data, $this->context);
         $ids = array_column($data, 'id');
-        $products = $this->repository->search(new Criteria($ids), $this->context);
+        $criteria = new Criteria($ids);
+        $criteria->addAssociation('manufacturer');
+
+        $products = $this->repository->search($criteria, $this->context);
 
         $product = $products->get($ids[0]);
 
@@ -461,7 +466,10 @@ class ProductRepositoryTest extends TestCase
         $this->eventDispatcher->addListener('product.loaded', $listener);
         $this->eventDispatcher->addListener('product_manufacturer.loaded', $listener);
 
-        $products = $this->repository->search(new Criteria([$id]), Context::createDefaultContext());
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('manufacturer');
+
+        $products = $this->repository->search($criteria, Context::createDefaultContext());
 
         //check only provided id loaded
         static::assertCount(1, $products);
@@ -850,7 +858,9 @@ class ProductRepositoryTest extends TestCase
 
         static::assertNull($raw['parent_id']);
 
-        $products = $this->repository->search(new Criteria([$child]), Context::createDefaultContext());
+        $criteria = new Criteria([$child]);
+        $criteria->addAssociation('manufacturer');
+        $products = $this->repository->search($criteria, Context::createDefaultContext());
         $product = $products->get($child);
 
         /* @var ProductEntity $product */
@@ -991,9 +1001,11 @@ class ProductRepositoryTest extends TestCase
         $this->repository->create($products, $context);
 
         $criteria = new Criteria([$redId, $greenId]);
+        $criteria->addAssociation('tax');
         $products = $this->repository->search($criteria, $context);
 
         $criteria = new Criteria([$parentId]);
+        $criteria->addAssociation('tax');
         $context->setConsiderInheritance(false);
         $parents = $this->repository->search($criteria, $context);
 
@@ -1035,6 +1047,7 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals($greenTax, Uuid::fromBytesToHex($row['tax_id']));
 
         $criteria = new Criteria([$redId, $greenId]);
+        $criteria->addAssociation('tax');
         $context->setConsiderInheritance(false);
         $products = $this->repository->search($criteria, $context);
 
@@ -1794,7 +1807,7 @@ class ProductRepositoryTest extends TestCase
         $this->repository->create([$data], Context::createDefaultContext());
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('configuratorSettings');
+        $criteria->addAssociationPath('configuratorSettings.option');
         /** @var ProductEntity $product */
         $product = $this->repository->search($criteria, Context::createDefaultContext())->get($id);
 

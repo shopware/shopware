@@ -26,7 +26,7 @@ class ProductMediaEntity extends Entity
     protected $position;
 
     /**
-     * @var MediaEntity
+     * @var MediaEntity|null
      */
     protected $media;
 
@@ -70,7 +70,7 @@ class ProductMediaEntity extends Entity
         $this->position = $position;
     }
 
-    public function getMedia(): MediaEntity
+    public function getMedia(): ?MediaEntity
     {
         return $this->media;
     }

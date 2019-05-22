@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 class DeliveryTimeTranslationEntity extends TranslationEntity
 {
     /**
-     * @var DeliveryTimeEntity
+     * @var DeliveryTimeEntity|null
      */
     protected $deliveryTime;
 
@@ -37,7 +37,7 @@ class DeliveryTimeTranslationEntity extends TranslationEntity
      */
     protected $customFields;
 
-    public function getDeliveryTime(): DeliveryTimeEntity
+    public function getDeliveryTime(): ?DeliveryTimeEntity
     {
         return $this->deliveryTime;
     }

@@ -110,8 +110,13 @@ class DocumentServiceTest extends TestCase
         static::assertTrue(Uuid::isValid($documentStruct->getId()));
 
         $documentRepository = $this->getContainer()->get('document.repository');
-        /** @var DocumentEntity $document */
-        $document = $documentRepository->search(new Criteria([$documentStruct->getId()]), $this->context)->get($documentStruct->getId());
+
+        $criteria = new Criteria([$documentStruct->getId()]);
+        $criteria->addAssociation('documentType');
+
+        $document = $documentRepository
+            ->search($criteria, $this->context)
+            ->get($documentStruct->getId());
 
         static::assertNotNull($document);
         static::assertSame($orderId, $document->getOrderId());
@@ -290,8 +295,11 @@ class DocumentServiceTest extends TestCase
             new EqualsFilter('id', $document->getId()),
             new EqualsFilter('deepLinkCode', $document->getDeepLinkCode()),
         ]));
+        $criteria->addAssociation('documentType');
+
         /** @var EntityRepositoryInterface $documentRepository */
         $documentRepository = $this->getContainer()->get('document.repository');
+
         $document = $documentRepository->search($criteria, $this->context)->first();
 
         if (!$document) {
@@ -430,6 +438,8 @@ class DocumentServiceTest extends TestCase
         $documentRepository = $this->getContainer()->get('document.repository');
         $criteria = new Criteria([$documentStruct->getId()]);
         $criteria->addAssociation('documentMediaFile');
+        $criteria->addAssociation('documentType');
+
         /** @var DocumentEntity $document */
         $document = $documentRepository->search($criteria, $this->context)->get($documentStruct->getId());
 

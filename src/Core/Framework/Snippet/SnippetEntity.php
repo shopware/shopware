@@ -31,7 +31,7 @@ class SnippetEntity extends Entity
     protected $author;
 
     /**
-     * @var SnippetSetEntity
+     * @var SnippetSetEntity|null
      */
     protected $set;
 
@@ -80,7 +80,7 @@ class SnippetEntity extends Entity
         $this->author = $author;
     }
 
-    public function getSet(): SnippetSetEntity
+    public function getSet(): ?SnippetSetEntity
     {
         return $this->set;
     }

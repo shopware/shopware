@@ -42,7 +42,7 @@ class OrderDeliveryPositionEntity extends Entity
     protected $quantity;
 
     /**
-     * @var OrderLineItemEntity
+     * @var OrderLineItemEntity|null
      */
     protected $orderLineItem;
 
@@ -116,7 +116,7 @@ class OrderDeliveryPositionEntity extends Entity
         $this->quantity = $quantity;
     }
 
-    public function getOrderLineItem(): OrderLineItemEntity
+    public function getOrderLineItem(): ?OrderLineItemEntity
     {
         return $this->orderLineItem;
     }

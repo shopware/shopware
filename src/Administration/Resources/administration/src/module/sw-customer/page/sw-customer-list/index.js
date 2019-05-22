@@ -65,6 +65,7 @@ Component.register('sw-customer-list', {
             criteria.setTerm(this.term);
             const naturalSort = this.sortBy === 'customerNumber';
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, naturalSort));
+            criteria.addAssociation('defaultBillingAddress');
 
             this.customerRepository.search(criteria, this.context).then((items) => {
                 this.total = items.total;

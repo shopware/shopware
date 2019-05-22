@@ -50,7 +50,7 @@ class OrderDeliveryEntity extends Entity
     protected $shippingCosts;
 
     /**
-     * @var OrderAddressEntity
+     * @var OrderAddressEntity|null
      */
     protected $shippingOrderAddress;
 
@@ -60,12 +60,12 @@ class OrderDeliveryEntity extends Entity
     protected $stateId;
 
     /**
-     * @var StateMachineStateEntity
+     * @var StateMachineStateEntity|null
      */
     protected $stateMachineState;
 
     /**
-     * @var ShippingMethodEntity
+     * @var ShippingMethodEntity|null
      */
     protected $shippingMethod;
 
@@ -154,7 +154,7 @@ class OrderDeliveryEntity extends Entity
         $this->shippingCosts = $shippingCosts;
     }
 
-    public function getShippingOrderAddress(): OrderAddressEntity
+    public function getShippingOrderAddress(): ?OrderAddressEntity
     {
         return $this->shippingOrderAddress;
     }
@@ -164,7 +164,7 @@ class OrderDeliveryEntity extends Entity
         $this->shippingOrderAddress = $shippingOrderAddress;
     }
 
-    public function getShippingMethod(): ShippingMethodEntity
+    public function getShippingMethod(): ?ShippingMethodEntity
     {
         return $this->shippingMethod;
     }
@@ -204,7 +204,7 @@ class OrderDeliveryEntity extends Entity
         $this->stateId = $stateId;
     }
 
-    public function getStateMachineState(): StateMachineStateEntity
+    public function getStateMachineState(): ?StateMachineStateEntity
     {
         return $this->stateMachineState;
     }

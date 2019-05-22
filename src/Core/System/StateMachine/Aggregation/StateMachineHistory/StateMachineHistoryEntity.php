@@ -18,7 +18,7 @@ class StateMachineHistoryEntity extends Entity
     protected $stateMachineId;
 
     /**
-     * @var StateMachineEntity
+     * @var StateMachineEntity|null
      */
     protected $stateMachine;
 
@@ -38,7 +38,7 @@ class StateMachineHistoryEntity extends Entity
     protected $fromStateId;
 
     /**
-     * @var StateMachineStateEntity
+     * @var StateMachineStateEntity|null
      */
     protected $fromStateMachineState;
 
@@ -48,7 +48,7 @@ class StateMachineHistoryEntity extends Entity
     protected $toStateId;
 
     /**
-     * @var StateMachineStateEntity
+     * @var StateMachineStateEntity|null
      */
     protected $toStateMachineState;
 
@@ -87,7 +87,7 @@ class StateMachineHistoryEntity extends Entity
         $this->stateMachineId = $stateMachineId;
     }
 
-    public function getStateMachine(): StateMachineEntity
+    public function getStateMachine(): ?StateMachineEntity
     {
         return $this->stateMachine;
     }
@@ -127,7 +127,7 @@ class StateMachineHistoryEntity extends Entity
         $this->fromStateId = $fromStateId;
     }
 
-    public function getFromStateMachineState(): StateMachineStateEntity
+    public function getFromStateMachineState(): ?StateMachineStateEntity
     {
         return $this->fromStateMachineState;
     }
@@ -142,7 +142,7 @@ class StateMachineHistoryEntity extends Entity
         $this->toStateId = $toStateId;
     }
 
-    public function getToStateMachineState(): StateMachineStateEntity
+    public function getToStateMachineState(): ?StateMachineStateEntity
     {
         return $this->toStateMachineState;
     }

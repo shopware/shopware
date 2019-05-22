@@ -107,7 +107,6 @@ class ProductControllerTest extends TestCase
 
         static::assertEquals($productId, $content['data']['id']);
         static::assertEquals(10, $content['data']['price']['gross']);
-        static::assertEquals('test', $content['data']['manufacturer']['name']);
         static::assertEquals('with id', $content['data']['tax']['name']);
         static::assertEquals(17, $content['data']['tax']['taxRate']);
     }

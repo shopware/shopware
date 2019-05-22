@@ -57,6 +57,7 @@ Component.register('sw-sales-channel-menu', {
             criteria.addSorting(
                 Criteria.sort('sales_channel.name', 'ASC')
             );
+            criteria.addAssociation('type');
 
             this.salesChannelRepository.search(criteria, this.context).then((response) => {
                 this.salesChannels = response;

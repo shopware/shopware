@@ -236,7 +236,9 @@ class OrderConverter
         }
 
         $cart->addLineItems($root);
-        $cart->setDeliveries($this->convertDeliveries($order->getDeliveries(), $root));
+        $cart->setDeliveries(
+            $this->convertDeliveries($order->getDeliveries(), $root)
+        );
 
         $event = new OrderConvertedEvent($order, $cart, $context);
         $this->eventDispatcher->dispatch(OrderConvertedEvent::NAME, $event);

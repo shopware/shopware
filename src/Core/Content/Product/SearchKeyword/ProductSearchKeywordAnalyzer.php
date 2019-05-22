@@ -24,16 +24,16 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
 
         $keywords->add(new AnalyzedKeyword($product->getProductNumber(), 1000));
 
-        $name = $product->getTranslated()['name'];
+        $name = $product->getTranslation('name');
         if ($name) {
-            $tokens = $this->tokenizer->tokenize($name);
+            $tokens = $this->tokenizer->tokenize((string) $name);
             foreach ($tokens as $token) {
                 $keywords->add(new AnalyzedKeyword((string) $token, 700));
             }
         }
 
         if ($product->getManufacturer()) {
-            $keywords->add(new AnalyzedKeyword($product->getManufacturer()->getTranslated()['name'], 500));
+            $keywords->add(new AnalyzedKeyword((string) $product->getManufacturer()->getTranslation('name'), 500));
         }
         if ($product->getManufacturerNumber()) {
             $keywords->add(new AnalyzedKeyword($product->getManufacturerNumber(), 500));

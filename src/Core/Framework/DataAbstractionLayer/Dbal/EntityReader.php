@@ -154,8 +154,6 @@ class EntityReader implements EntityReaderInterface
                 continue;
             }
 
-            $accessor = $definition->getEntityName() . '.' . $field->getPropertyName();
-
             //many to one associations can be directly fetched in same query
             if ($field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField) {
                 $reference = $field->getReferenceDefinition();

@@ -1,6 +1,6 @@
 {% block page_checkout_confirm_address_inner %}
-    {% set billingAddress = page.context.customer.defaultBillingAddress %}
-    {% set shippingAddress = page.context.customer.defaultShippingAddress %}
+    {% set billingAddress = page.context.customer.activeBillingAddress %}
+    {% set shippingAddress = page.context.customer.activeShippingAddress %}
 
     {% block page_checkout_confirm_address %}
         <div class="row js-confirm-overview-addresses">

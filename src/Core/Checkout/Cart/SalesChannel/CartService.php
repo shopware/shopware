@@ -183,10 +183,11 @@ class CartService
         $orderId = $this->orderPersister->persist($calculatedCart, $context);
 
         $criteria = new Criteria([$orderId]);
-        $criteria->addAssociation('lineItems');
-        $criteria->addAssociation('deliveries');
-        $criteria->addAssociation('transactions');
-        $criteria->addAssociation('addresses');
+        $criteria
+            ->addAssociation('lineItems')
+            ->addAssociation('deliveries')
+            ->addAssociation('transactions')
+            ->addAssociation('addresses');
 
         /** @var OrderEntity|null $orderEntity */
         $orderEntity = $this->orderRepository->search($criteria, $context->getContext())->first();

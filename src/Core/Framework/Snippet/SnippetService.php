@@ -312,7 +312,7 @@ class SnippetService
         $result = [];
         /** @var SnippetSetEntity $value */
         foreach ($queryResult as $key => $value) {
-            $result[$key] = $value->toArray();
+            $result[$key] = $value->jsonSerialize();
         }
 
         return $result;
@@ -321,9 +321,10 @@ class SnippetService
     private function databaseSnippetsToArray(array $queryResult, array $fileSnippets): array
     {
         $result = [];
+        /** @var SnippetEntity $snippet */
         foreach ($queryResult as $snippet) {
             $currentSnippet = array_intersect_key(
-                $snippet->toArray(),
+                $snippet->jsonSerialize(),
                 array_flip([
                     'author',
                     'id',

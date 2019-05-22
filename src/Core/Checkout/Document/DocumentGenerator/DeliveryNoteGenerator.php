@@ -54,7 +54,7 @@ class DeliveryNoteGenerator implements DocumentGeneratorInterface
         return $this->twigEngine->render($templatePath, [
             'order' => $order,
             'orderDelivery' => $deliveries,
-            'config' => DocumentConfigurationFactory::mergeConfiguration($config, new DocumentConfiguration())->toArray(),
+            'config' => DocumentConfigurationFactory::mergeConfiguration($config, new DocumentConfiguration())->jsonSerialize(),
             'rootDir' => $this->rootDir,
             'context' => $context,
         ]);

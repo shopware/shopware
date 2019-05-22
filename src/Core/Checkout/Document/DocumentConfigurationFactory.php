@@ -29,7 +29,7 @@ class DocumentConfigurationFactory
         if (is_array($additionalConfig)) {
             $additionalConfigArray = $additionalConfig;
         } elseif (is_object($additionalConfig)) {
-            $additionalConfigArray = $additionalConfig->toArray();
+            $additionalConfigArray = $additionalConfig->jsonSerialize();
         }
 
         $additionalConfigArray = static::cleanConfig($additionalConfigArray);

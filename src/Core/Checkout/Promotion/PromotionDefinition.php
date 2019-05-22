@@ -88,7 +88,7 @@ class PromotionDefinition extends EntityDefinition
             (new ManyToManyAssociationField('orderRules', RuleDefinition::class, PromotionOrderRuleDefinition::class, 'promotion_id', 'rule_id'))->addFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('cartRules', RuleDefinition::class, PromotionCartRuleDefinition::class, 'promotion_id', 'rule_id'))->addFlags(new CascadeDelete()),
 
-            new TranslationsAssociationField(PromotionTranslationDefinition::class, 'promotion_id'),
+            (new TranslationsAssociationField(PromotionTranslationDefinition::class, 'promotion_id'))->addFlags(new Required()),
         ]);
     }
 }

@@ -23,8 +23,6 @@
                         {% endblock %}
                     {% else %}
                         {% block page_account_orders_overview %}
-                            {% set orderItems = page.orders.elements %}
-
                             <div class="account-orders-overview">
                                 {% block page_account_orders_table %}
                                     <table class="table order-table">
@@ -41,14 +39,14 @@
                                                         scope="col">{{ "account.orderItemColumnNumber"|trans }}</th>
                                                 {% endblock %}
 
-                                                {% block page_account_orders_table_header_dispatch %}
-                                                    <th class="col order-header-dispatch"
-                                                        scope="col">{{ "account.orderItemColumnDispatch"|trans }}</th>
+                                                {% block page_account_orders_table_header_payment_method %}
+                                                    <th class="col order-header-payment-method"
+                                                        scope="col">{{ "account.orderItemColumnPaymentMethod"|trans }}</th>
                                                 {% endblock %}
 
-                                                {% block page_account_orders_table_header_status %}
-                                                    <th class="col order-header-status"
-                                                        scope="col">{{ "account.orderItemColumnStatus"|trans }}</th>
+                                                {% block page_account_orders_table_header_shipping_method %}
+                                                    <th class="col order-header-shipping-method"
+                                                        scope="col">{{ "account.orderItemColumnShippingMethod"|trans }}</th>
                                                 {% endblock %}
 
                                                 {% block page_account_orders_table_header_actions %}
@@ -62,55 +60,11 @@
                                         {% block page_account_orders_table_body %}
                                             <tbody class="order-table-body">
                                             {% block page_account_order_items %}
-                                                {% for order in orderItems %}
+                                                {% for order in page.orders %}
                                                     {% sw_include '@Storefront/page/account/order-history/order-item.html.twig' %}
                                                 {% endfor %}
                                             {% endblock %}
                                             </tbody>
-                                        {% endblock %}
-
-                                        {% block page_account_orders_table_footer %}
-                                            <tfoot class="order-table-footer">
-                                            <tr>
-                                                {#TODO: NEXT-2695 - pages#}
-                                                {% block page_account_orders_table_actions_paging %}
-                                                    <td class="col order-footer-paging">
-                                                        {% if page.orders.pages.previous %}
-                                                            <a href="{{ page.orders.pages.previous }}"
-                                                               class="btn order-paging-link order-paging-prev">
-                                                                {% sw_icon 'arrow-head-left' %}
-                                                            </a>
-                                                        {% endif %}
-
-                                                        {% for page in page.orders.pages.numbers %}
-                                                            {% if page.markup %}
-                                                                <a class="order-paging-link is-active">{{ page.value }}</a>
-                                                                {% set sPage = page.value %}
-                                                            {% else %}
-                                                                <a href="{{ page.link }}"
-                                                                   class="order-paging-link">{{ page.value }}</a>
-                                                            {% endif %}
-                                                        {% endfor %}
-
-                                                        {% if page.orders.pages.next %}
-                                                            <a href="{{ page.orders.pages.next }}"
-                                                               class="btn order-paging-link order-paging-next">
-                                                                {% sw_icon 'arrow-head-right' %}
-                                                            </a>
-                                                        {% endif %}
-
-                                                        {% block page_account_orders_table_actions_paging_count %}
-                                                            <div class="paging-display">
-                                                                {{ "listing.listingTextSite"|trans }}
-                                                                <strong>{% if sPage %}{{ sPage }}{% else %}1{% endif %}</strong>
-                                                                {{ "listing.listingTextFrom"|trans }}
-                                                                <strong>{% if page.orders.pages.numberpages %}{{ page.orders.pages.numberpages }}{% else %}1{% endif %}</strong>
-                                                            </div>
-                                                        {% endblock %}
-                                                    </td>
-                                                {% endblock %}
-                                            </tr>
-                                            </tfoot>
                                         {% endblock %}
                                     </table>
                                 {% endblock %}

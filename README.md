@@ -30,7 +30,7 @@ If you like Shopware 6, give us a star on Github ★
 - [Take a glimpse](#take-a-glimpse)
 - [Technology](#technology)
 - [Repository structure](#shopware-6-repository-structure)
-- [Installation](#quickstart---installation)
+- [Installation](#quickstart--installation)
 - [Roadmap](#roadmap)
 - [Community](#community)
 - [Ecosystem](#ecosystem)

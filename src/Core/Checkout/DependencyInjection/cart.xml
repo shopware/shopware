@@ -195,6 +195,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
             <argument type="service" id="rule.repository"/>
+            <argument type="service" id="logger"/>
         </service>
     </services>
 </container>

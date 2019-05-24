@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Test\Cart\Tax;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\PriceRounding;
+use Shopware\Core\Checkout\Cart\Price\PriceRoundingInterface;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
@@ -14,7 +15,7 @@ class TaxCalculatorTest extends TestCase
     /**
      * @dataProvider netPricesToGross
      */
-    public function testCalculateGrossPriceOfNetPrice(float $expected, PriceRounding $rounding, int $precision, TaxRule $taxRule, float $net): void
+    public function testCalculateGrossPriceOfNetPrice(float $expected, PriceRoundingInterface $rounding, int $precision, TaxRule $taxRule, float $net): void
     {
         $calculator = new TaxCalculator(
             $rounding,

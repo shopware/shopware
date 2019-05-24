@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Price;
 
-class PriceRounding
+class PriceRounding implements PriceRoundingInterface
 {
     public function round(float $price, int $precision): float
     {

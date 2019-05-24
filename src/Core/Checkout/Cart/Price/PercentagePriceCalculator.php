@@ -11,7 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class PercentagePriceCalculator
 {
     /**
-     * @var PriceRounding
+     * @var PriceRoundingInterface
      */
     private $rounding;
 
@@ -26,7 +26,7 @@ class PercentagePriceCalculator
     private $percentageTaxRuleBuilder;
 
     public function __construct(
-        PriceRounding $rounding,
+        PriceRoundingInterface $rounding,
         QuantityPriceCalculator $priceCalculator,
         PercentageTaxRuleBuilder $percentageTaxRuleBuilder
     ) {

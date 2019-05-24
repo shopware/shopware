@@ -16,11 +16,11 @@ class GrossPriceCalculator
     private $taxCalculator;
 
     /**
-     * @var PriceRounding
+     * @var PriceRoundingInterface
      */
     private $priceRounding;
 
-    public function __construct(TaxCalculator $taxCalculator, PriceRounding $priceRounding)
+    public function __construct(TaxCalculator $taxCalculator, PriceRoundingInterface $priceRounding)
     {
         $this->taxCalculator = $taxCalculator;
         $this->priceRounding = $priceRounding;

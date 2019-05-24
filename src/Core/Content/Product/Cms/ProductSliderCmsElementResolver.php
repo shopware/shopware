@@ -1,20 +1,20 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product\Cms\Type;
+namespace Shopware\Core\Content\Product\Cms;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
+use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
+use Shopware\Core\Content\Cms\DataResolver\Element\AbstractCmsElementResolver;
+use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
+use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
+use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
+use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
-use Shopware\Core\Content\Cms\SlotDataResolver\CriteriaCollection;
-use Shopware\Core\Content\Cms\SlotDataResolver\FieldConfig;
-use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\EntityResolverContext;
-use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
-use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolveResult;
-use Shopware\Core\Content\Cms\SlotDataResolver\Type\TypeDataResolver;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
-class ProductSliderTypeDataResolver extends TypeDataResolver
+class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
 {
     private const PRODUCT_SLIDER_ENTITY_FALLBACK = 'product-slider-entity-fallback';
     private const STATIC_SEARCH_KEY = 'product-slider';
@@ -47,7 +47,7 @@ class ProductSliderTypeDataResolver extends TypeDataResolver
         return $collection->all() ? $collection : null;
     }
 
-    public function enrich(CmsSlotEntity $slot, ResolverContext $resolverContext, SlotDataResolveResult $result): void
+    public function enrich(CmsSlotEntity $slot, ResolverContext $resolverContext, ElementDataCollection $result): void
     {
         $config = $slot->getFieldConfig();
         $slider = new ProductSliderStruct();
@@ -73,7 +73,7 @@ class ProductSliderTypeDataResolver extends TypeDataResolver
         }
     }
 
-    private function enrichFromSearch(ProductSliderStruct $slider, SlotDataResolveResult $result, string $searchKey): void
+    private function enrichFromSearch(ProductSliderStruct $slider, ElementDataCollection $result, string $searchKey): void
     {
         $searchResult = $result->get($searchKey);
         if (!$searchResult) {

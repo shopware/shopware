@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext;
+namespace Shopware\Core\Content\Cms\DataResolver\ResolverContext;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;

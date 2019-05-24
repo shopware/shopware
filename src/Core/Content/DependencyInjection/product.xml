@@ -136,16 +136,16 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\Cms\Type\ProductBoxTypeDataResolver">
+        <service id="Shopware\Core\Content\Product\Cms\ProductBoxCmsElementResolver">
             <tag name="shopware.cms.data_resolver" />
         </service>
 
-        <service id="Shopware\Core\Content\Product\Cms\Type\ProductListingTypeDataResolver">
+        <service id="Shopware\Core\Content\Product\Cms\ProductListingCmsElementResolver">
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingGateway" />
             <tag name="shopware.cms.data_resolver" />
         </service>
 
-        <service id="Shopware\Core\Content\Product\Cms\Type\ProductSliderTypeDataResolver">
+        <service id="Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver">
             <tag name="shopware.cms.data_resolver"/>
         </service>
 

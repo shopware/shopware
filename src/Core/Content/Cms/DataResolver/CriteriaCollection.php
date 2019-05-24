@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Cms\SlotDataResolver;
+namespace Shopware\Core\Content\Cms\DataResolver;
 
 use Shopware\Core\Content\Cms\Exception\DuplicateCriteriaKeyException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;

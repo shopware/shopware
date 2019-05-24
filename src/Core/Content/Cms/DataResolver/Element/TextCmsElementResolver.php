@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Cms\SlotDataResolver\Type;
+namespace Shopware\Core\Content\Cms\DataResolver\Element;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
+use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
+use Shopware\Core\Content\Cms\DataResolver\Element;
+use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
+use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\TextStruct;
-use Shopware\Core\Content\Cms\SlotDataResolver\CriteriaCollection;
-use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\EntityResolverContext;
-use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
-use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolveResult;
 
-class TextTypeDataResolver extends TypeDataResolver
+class TextCmsElementResolver extends Element\AbstractCmsElementResolver
 {
     public function getType(): string
     {
@@ -21,7 +21,7 @@ class TextTypeDataResolver extends TypeDataResolver
         return null;
     }
 
-    public function enrich(CmsSlotEntity $slot, ResolverContext $resolverContext, SlotDataResolveResult $result): void
+    public function enrich(CmsSlotEntity $slot, ResolverContext $resolverContext, ElementDataCollection $result): void
     {
         $text = new TextStruct();
         $slot->setData($text);

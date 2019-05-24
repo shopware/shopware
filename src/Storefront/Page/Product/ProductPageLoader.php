@@ -3,9 +3,9 @@
 namespace Shopware\Storefront\Page\Product;
 
 use Shopware\Core\Content\Cms\CmsPageEntity;
+use Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolver;
+use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageRepository;
-use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\EntityResolverContext;
-use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -48,7 +48,7 @@ class ProductPageLoader
     private $cmsPageRepository;
 
     /**
-     * @var SlotDataResolver
+     * @var CmsSlotsDataResolver
      */
     private $slotDataResolver;
 
@@ -67,7 +67,7 @@ class ProductPageLoader
         SalesChannelRepository $productRepository,
         EventDispatcherInterface $eventDispatcher,
         SalesChannelCmsPageRepository $cmsPageRepository,
-        SlotDataResolver $slotDataResolver,
+        CmsSlotsDataResolver $slotDataResolver,
         ProductPageConfiguratorLoader $configuratorLoader,
         ProductDefinition $productDefinition
     ) {

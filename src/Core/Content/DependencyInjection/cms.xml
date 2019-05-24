@@ -29,7 +29,7 @@
             <argument type="service" id="cms_page.repository" />
         </service>
 
-        <service id="Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver" public="true">
+        <service id="Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolver" public="true">
             <argument type="tagged" tag="shopware.cms.data_resolver"/>
             <argument type="collection">
                 <argument type="service" key="product" id="sales_channel.product.repository" />
@@ -37,7 +37,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>
 
-        <service id="Shopware\Core\Content\Cms\SlotDataResolver\Type\TextTypeDataResolver">
+        <service id="Shopware\Core\Content\Cms\DataResolver\Element\TextCmsElementResolver">
             <tag name="shopware.cms.data_resolver"/>
         </service>
 
@@ -58,7 +58,7 @@
 
         <service id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader">
             <argument type="service" id="cms_page.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver"/>
+            <argument type="service" id="Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolver"/>
         </service>
     </services>
 </container>

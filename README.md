@@ -191,7 +191,7 @@ Whether plugin, theme or marketing tool: You can easily extend the functionality
 
 Do you want to become a Shopware expert or get a sneak peek into the software? Find a training session that is individually tailored to your interests.
  
-[shopware.com/academy/](https://shopware.com/academy/)
+[shopware.com/academy/](https://www.shopware.com/academy/)
  
 ### Shopware Community Day
 

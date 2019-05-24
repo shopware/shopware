@@ -17,7 +17,7 @@
 .was-validated .custom-control-input:valid ~ .custom-control-label.no-validation {
     color: inherit;
 
-    &::before{
+    &::before {
         border-color: inherit;
     }
 }

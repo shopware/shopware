@@ -32,12 +32,13 @@ Skeleton screen
 Skeleton screen for product-listing with subtle shimmer effect
 */
 
-@keyframes skeletonShimmer{
-    0%{
-        background-position: -500px 0
+@keyframes skeletonShimmer {
+    0% {
+        background-position: -500px 0;
     }
-    100%{
-        background-position: 500px 0
+
+    100% {
+        background-position: 500px 0;
     }
 }
 

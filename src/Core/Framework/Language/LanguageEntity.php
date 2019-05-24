@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Language;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
-use Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation\DiscountSurchargeTranslationCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentTypeTranslation\DocumentTypeTranslationCollection;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionTranslation\PromotionTranslationCollection;
@@ -188,11 +187,6 @@ class LanguageEntity extends Entity
      * @var SalutationTranslationCollection|null
      */
     protected $salutationTranslations;
-
-    /**
-     * @var DiscountSurchargeTranslationCollection|null
-     */
-    protected $discountSurchargeTranslations;
 
     /**
      * @var SalesChannelDomainCollection|null
@@ -552,16 +546,6 @@ class LanguageEntity extends Entity
     public function setPropertyGroupOptionTranslations(PropertyGroupOptionTranslationCollection $propertyGroupOptionTranslationCollection): void
     {
         $this->propertyGroupOptionTranslations = $propertyGroupOptionTranslationCollection;
-    }
-
-    public function getDiscountsurchargeTranslations(): ?DiscountSurchargeTranslationCollection
-    {
-        return $this->discountSurchargeTranslations;
-    }
-
-    public function setDiscountsurchargeTranslations(DiscountSurchargeTranslationCollection $discountSurchargeTranslations): void
-    {
-        $this->discountSurchargeTranslations = $discountSurchargeTranslations;
     }
 
     public function getSalesChannelTranslations(): ?SalesChannelTranslationCollection

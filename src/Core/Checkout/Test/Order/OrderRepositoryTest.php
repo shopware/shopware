@@ -17,6 +17,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\OrderStates;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -95,11 +96,29 @@ class OrderRepositoryTest extends TestCase
         $token = Uuid::randomHex();
         $cart = new Cart('test', $token);
 
+        $id = Uuid::randomHex();
+
+        $product = [
+            'id' => $id,
+            'name' => 'test',
+            'price' => ['gross' => 119.99, 'net' => 99.99, 'linked' => false],
+            'productNumber' => Uuid::randomHex(),
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['taxRate' => 19, 'name' => 'test'],
+            'stock' => 10,
+            'active' => true,
+            'visibilities' => [
+                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+            ],
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->create([$product], Context::createDefaultContext());
+
         $cart->add(
-            (new LineItem('test', 'test'))
-                ->setLabel('test')
+            (new LineItem($id, LineItem::PRODUCT_LINE_ITEM_TYPE, $id))
                 ->setGood(true)
-                ->setPriceDefinition(new QuantityPriceDefinition(10, new TaxRuleCollection(), 2))
+                ->setStackable(true)
         );
 
         $customerId = $this->createCustomer();
@@ -109,7 +128,8 @@ class OrderRepositoryTest extends TestCase
             Defaults::SALES_CHANNEL,
             [
                 SalesChannelContextService::CUSTOMER_ID => $customerId,
-            ]);
+            ]
+        );
 
         $this->getContainer()->get(CartRuleLoader::class)->loadByToken($context, $context->getToken());
 

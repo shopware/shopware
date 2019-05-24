@@ -89,9 +89,15 @@ class CartPersister implements CartPersisterInterface
     private function serializeCart(Cart $cart): string
     {
         $errors = $cart->getErrors();
+        $data = $cart->getData();
+
         $cart->setErrors(new ErrorCollection());
+        $cart->setData(null);
+
         $serializedCart = \serialize($cart);
+
         $cart->setErrors($errors);
+        $cart->setData($data);
 
         return $serializedCart;
     }

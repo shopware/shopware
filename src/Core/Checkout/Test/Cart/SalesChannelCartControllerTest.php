@@ -414,8 +414,6 @@ class SalesChannelCartControllerTest extends TestCase
         $type = LineItem::PRODUCT_LINE_ITEM_TYPE;
         $stackable = true;
         $removable = true;
-        $label = 'My custom label';
-        $description = 'My custom description';
 
         $browser->request(
             'POST',
@@ -426,8 +424,6 @@ class SalesChannelCartControllerTest extends TestCase
                 'quantity' => $quantity,
                 'stackable' => $stackable,
                 'removable' => $removable,
-                'label' => $label,
-                'description' => $description,
                 'coverId' => $mediaId,
             ]
         );
@@ -452,8 +448,6 @@ class SalesChannelCartControllerTest extends TestCase
 
         static::assertEquals($stackable, $product['stackable']);
         static::assertEquals($removable, $product['removable']);
-        static::assertEquals($label, $product['label']);
-        static::assertEquals($description, $product['description']);
 
         static::assertEquals($mediaId, $product['cover']['id']);
     }
@@ -500,8 +494,6 @@ class SalesChannelCartControllerTest extends TestCase
         $quantity = 10;
         $stackable = true;
         $removable = true;
-        $label = 'My custom label';
-        $description = 'My custom description';
 
         $browser->request(
             'PATCH',
@@ -511,8 +503,6 @@ class SalesChannelCartControllerTest extends TestCase
                 'quantity' => $quantity,
                 'stackable' => $stackable,
                 'removable' => $removable,
-                'label' => $label,
-                'description' => $description,
                 'coverId' => $mediaId,
             ]
         );
@@ -532,8 +522,6 @@ class SalesChannelCartControllerTest extends TestCase
 
         static::assertEquals($stackable, $product['stackable']);
         static::assertEquals($removable, $product['removable']);
-        static::assertEquals($label, $product['label']);
-        static::assertEquals($description, $product['description']);
 
         static::assertEquals($mediaId, $product['cover']['id']);
     }

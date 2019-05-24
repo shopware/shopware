@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxDefinition;
@@ -44,17 +45,15 @@ class EntityAggregationTest extends TestCase
         $this->taxRepository = $this->getContainer()->get('tax.repository');
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->categoryRepository = $this->getContainer()->get('category.repository');
-
-        $this->connection->executeUpdate('DELETE FROM tax');
-        $this->connection->executeUpdate('DELETE FROM product');
     }
 
     public function testEntityAggregation(): void
     {
         $context = Context::createDefaultContext();
-        $this->setupFixtures($context);
+        $ids = $this->setupFixtures($context);
 
         $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('product.categories.id', $ids['categories']));
         $criteria->addAggregation(new EntityAggregation('taxId', TaxDefinition::class, 'tax_count'));
 
         $result = $this->productRepository->aggregate($criteria, $context);
@@ -77,9 +76,10 @@ class EntityAggregationTest extends TestCase
     public function testEntityAggregationWithGroupBy(): void
     {
         $context = Context::createDefaultContext();
-        $this->setupFixtures($context);
+        $ids = $this->setupFixtures($context);
 
         $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('product.categories.id', $ids['categories']));
         $criteria->addAggregation(new EntityAggregation('taxId', TaxDefinition::class, 'tax_count', 'product.categories.name'));
 
         $result = $this->productRepository->aggregate($criteria, $context);
@@ -119,7 +119,7 @@ class EntityAggregationTest extends TestCase
         static::assertTrue($entities->has('d281b2a352234db0b851d962c6b3ba88')); // tax #6
     }
 
-    private function setupFixtures(Context $context): void
+    private function setupFixtures(Context $context): array
     {
         $category1 = Uuid::randomHex();
         $category2 = Uuid::randomHex();
@@ -164,5 +164,9 @@ class EntityAggregationTest extends TestCase
         ];
 
         $this->productRepository->create($productPayload, $context);
+
+        return [
+            'categories' => array_column($categories, 'id'),
+        ];
     }
 }

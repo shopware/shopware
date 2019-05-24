@@ -47,14 +47,6 @@ SalesChannel Customer
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-checkout-customer.md)
 
-#### DiscountSurcharge <span class="tip is--primary">Data store</span> <span class="tip is--primary">Extension</span>
-
-* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Checkout/DiscountSurcharge) 
-
-Discounts and Surcharges
-
-* [Entity relationship diagram](./10-erd/erd-shopware-core-checkout-discountsurcharge.md)
-
 #### Order <span class="tip is--primary">Data store</span> <span class="tip is--primary">Custom actions</span> <span class="tip is--primary">Extension</span>
 
 * [Sources](https://github.com/shopware/platform/tree/master/src/Core/Checkout/Order) 

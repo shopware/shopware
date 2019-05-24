@@ -17,6 +17,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Struct\StructCollection;
 
 class Cart extends Struct
 {
@@ -54,6 +55,16 @@ class Cart extends Struct
      * @var TransactionCollection
      */
     protected $transactions;
+
+    /**
+     * @var bool
+     */
+    protected $modified = false;
+
+    /**
+     * @var StructCollection|null
+     */
+    private $data;
 
     public function __construct(string $name, string $token)
     {
@@ -206,5 +217,34 @@ class Cart extends Struct
     public function getShippingCosts(): CalculatedPrice
     {
         return $this->deliveries->getShippingCosts()->sum();
+    }
+
+    public function getData(): StructCollection
+    {
+        if (!$this->data) {
+            $this->data = new StructCollection();
+        }
+
+        return $this->data;
+    }
+
+    public function setData(?StructCollection $data): void
+    {
+        $this->data = $data;
+    }
+
+    public function isModified(): bool
+    {
+        return $this->modified;
+    }
+
+    public function markModified(): void
+    {
+        $this->modified = true;
+    }
+
+    public function markUnmodified(): void
+    {
+        $this->modified = false;
     }
 }

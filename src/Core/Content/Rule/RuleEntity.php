@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Rule;
 
-use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
@@ -42,11 +41,6 @@ class RuleEntity extends Entity
      * @var array|null
      */
     protected $moduleTypes;
-
-    /**
-     * @var DiscountSurchargeCollection|null
-     */
-    protected $discountSurcharges;
 
     /**
      * @var ProductPriceCollection|null
@@ -146,16 +140,6 @@ class RuleEntity extends Entity
     public function setPriority(int $priority): void
     {
         $this->priority = $priority;
-    }
-
-    public function getDiscountSurcharges(): ?DiscountSurchargeCollection
-    {
-        return $this->discountSurcharges;
-    }
-
-    public function setDiscountSurcharges(DiscountSurchargeCollection $discountSurcharges): void
-    {
-        $this->discountSurcharges = $discountSurcharges;
     }
 
     public function getProductPrices(): ?ProductPriceCollection

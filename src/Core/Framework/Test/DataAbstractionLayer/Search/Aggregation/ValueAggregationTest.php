@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\AggregationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -21,6 +22,7 @@ class ValueAggregationTest extends TestCase
         $this->setupFixtures($context);
 
         $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('taxRate', [10, 20, 50, 90]));
         $criteria->addAggregation(new ValueAggregation('taxRate', 'rate_agg'));
 
         $taxRepository = $this->getContainer()->get('tax.repository');
@@ -47,9 +49,10 @@ class ValueAggregationTest extends TestCase
     public function testValueAggregationWithGroupBy(): void
     {
         $context = Context::createDefaultContext();
-        $this->setupGroupByFixtures($context);
+        $categoryIds = $this->setupGroupByFixtures($context);
 
         $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('product.categories.id', $categoryIds));
         $criteria->addAggregation(new ValueAggregation('product.price.gross', 'value_agg', 'product.categories.name'));
 
         $productRepository = $this->getContainer()->get('product.repository');

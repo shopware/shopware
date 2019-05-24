@@ -6,12 +6,9 @@ use Faker\Factory;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\CartBehavior;
-use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
-use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -19,7 +16,6 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -82,31 +78,6 @@ class OrderPersisterTest extends TestCase
         $persister = new OrderPersister($repository, $this->orderConverter, $this->businessEventDispatcher);
 
         $persister->persist($cart, $this->getSalesChannelContext());
-    }
-
-    public function testSaveWithMissingLabel(): void
-    {
-        $cart = new Cart('A', 'a-b-c');
-        $cart->add(
-            (new LineItem('test', 'test'))
-                ->setPriceDefinition(new AbsolutePriceDefinition(1, 2))
-        );
-
-        $processedCart = $this->cartProcessor->process($cart, Generator::createSalesChannelContext(), new CartBehavior());
-
-        $exception = null;
-        try {
-            $this->orderPersister->persist($processedCart, $this->getSalesChannelContext());
-        } catch (InvalidCartException $exception) {
-        }
-
-        $messages = [];
-        static::assertInstanceOf(InvalidCartException::class, $exception);
-        foreach ($exception->getCartErrors() as $error) {
-            $messages[] = $error->getMessage();
-        }
-
-        static::assertContains('Line item "test" incomplete. Property "label" missing.', $messages);
     }
 
     private function getCustomer(): CustomerEntity

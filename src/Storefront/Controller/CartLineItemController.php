@@ -42,13 +42,9 @@ class CartLineItemController extends StorefrontController
     /**
      * @Route("/checkout/line-item/delete/{id}", name="frontend.checkout.line-item.delete", methods={"POST", "DELETE"}, defaults={"XmlHttpRequest": true})
      */
-    public function deleteLineItem(string $id, Request $request, SalesChannelContext $context): Response
+    public function deleteLineItem(Cart $cart, string $id, Request $request, SalesChannelContext $context): Response
     {
         try {
-            $token = $request->request->getAlnum('token', $context->getToken());
-
-            $cart = $this->cartService->getCart($token, $context);
-
             if (!$cart->has($id)) {
                 throw new LineItemNotFoundException($id);
             }
@@ -66,12 +62,9 @@ class CartLineItemController extends StorefrontController
     /**
      * @Route("/checkout/promotion/add", name="frontend.checkout.promotion.add", defaults={"XmlHttpRequest": true}, methods={"POST"})
      */
-    public function addPromotion(Request $request, SalesChannelContext $context): Response
+    public function addPromotion(Cart $cart, Request $request, SalesChannelContext $context): Response
     {
         try {
-            /** @var string $token */
-            $token = $request->request->getAlnum('token', $context->getToken());
-
             /** @var string|null $code */
             $code = $request->request->getAlnum('code');
 
@@ -82,7 +75,6 @@ class CartLineItemController extends StorefrontController
                 $code,
                 $context->getContext()->getCurrencyPrecision()
             );
-            $cart = $this->cartService->getCart($token, $context);
 
             $initialCartState = md5(json_encode($cart));
 
@@ -112,18 +104,14 @@ class CartLineItemController extends StorefrontController
     /**
      * @Route("/checkout/line-item/change-quantity/{id}", name="frontend.checkout.line-item.change-quantity", defaults={"XmlHttpRequest": true}, methods={"POST"})
      */
-    public function changeQuantity(string $id, Request $request, SalesChannelContext $context): Response
+    public function changeQuantity(Cart $cart, string $id, Request $request, SalesChannelContext $context): Response
     {
         try {
-            $token = $request->request->getAlnum('token', $context->getToken());
-
             $quantity = $request->get('quantity');
 
             if ($quantity === null) {
                 throw new \InvalidArgumentException('quantity field is required');
             }
-
-            $cart = $this->cartService->getCart($token, $context);
 
             if (!$cart->has($id)) {
                 throw new LineItemNotFoundException($id);
@@ -189,7 +177,7 @@ class CartLineItemController extends StorefrontController
      *     ]
      * ]
      */
-    public function addLineItems(RequestDataBag $requestDataBag, Request $request, SalesChannelContext $context): Response
+    public function addLineItems(Cart $cart, RequestDataBag $requestDataBag, Request $request, SalesChannelContext $context): Response
     {
         /** @var RequestDataBag|null $lineItems */
         $lineItems = $requestDataBag->get('lineItems');
@@ -198,8 +186,6 @@ class CartLineItemController extends StorefrontController
         }
 
         $count = 0;
-
-        $cart = $this->cartService->getCart($context->getToken(), $context);
 
         try {
             /** @var RequestDataBag $lineItemData */

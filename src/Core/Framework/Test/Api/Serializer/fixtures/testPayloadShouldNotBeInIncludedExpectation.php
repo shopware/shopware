@@ -21,10 +21,6 @@ return [
                     'data' => [],
                     'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/conditions'],
                 ],
-                'discountSurcharges' => [
-                    'data' => [],
-                    'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/discount-surcharges'],
-                ],
                 'productPrices' => [
                     'data' => [],
                     'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/product-prices'],

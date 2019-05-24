@@ -2,39 +2,34 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 trait AggregationTestBehaviour
 {
-    public function setUp(): void
-    {
-        $connection = $this->getContainer()->get(Connection::class);
-        $connection->executeUpdate('DELETE FROM tax');
-    }
-
-    public function setupFixtures(Context $context): void
+    public function setupFixtures(Context $context): array
     {
         /** @var EntityRepositoryInterface $taxRepository */
         $taxRepository = $this->getContainer()->get('tax.repository');
 
         $payload = [
-            ['name' => 'Tax rate #1', 'taxRate' => 10],
-            ['name' => 'Tax rate #2', 'taxRate' => 20],
-            ['name' => 'Tax rate #3', 'taxRate' => 10],
-            ['name' => 'Tax rate #4', 'taxRate' => 20],
-            ['name' => 'Tax rate #5', 'taxRate' => 50],
-            ['name' => 'Tax rate #6', 'taxRate' => 50],
-            ['name' => 'Tax rate #7', 'taxRate' => 90],
-            ['name' => 'Tax rate #8', 'taxRate' => 10],
+            ['id' => Uuid::randomHex(), 'name' => 'Tax rate #1', 'taxRate' => 10],
+            ['id' => Uuid::randomHex(), 'name' => 'Tax rate #2', 'taxRate' => 20],
+            ['id' => Uuid::randomHex(), 'name' => 'Tax rate #3', 'taxRate' => 10],
+            ['id' => Uuid::randomHex(), 'name' => 'Tax rate #4', 'taxRate' => 20],
+            ['id' => Uuid::randomHex(), 'name' => 'Tax rate #5', 'taxRate' => 50],
+            ['id' => Uuid::randomHex(), 'name' => 'Tax rate #6', 'taxRate' => 50],
+            ['id' => Uuid::randomHex(), 'name' => 'Tax rate #7', 'taxRate' => 90],
+            ['id' => Uuid::randomHex(), 'name' => 'Tax rate #8', 'taxRate' => 10],
         ];
 
         $taxRepository->create($payload, $context);
+
+        return array_column($payload, 'id');
     }
 
-    public function setupGroupByFixtures(Context $context): void
+    public function setupGroupByFixtures(Context $context): array
     {
         /** @var EntityRepositoryInterface $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
@@ -137,5 +132,7 @@ trait AggregationTestBehaviour
             ],
         ];
         $productRepository->create($products, $context);
+
+        return array_column($categories, 'id');
     }
 }

@@ -6,18 +6,11 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
-use Shopware\Core\Checkout\Cart\Enrichment;
 use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
-use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Processor;
-use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
-use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator;
@@ -27,6 +20,8 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
 use Shopware\Core\Content\DeliveryTime\DeliveryTimeEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -90,13 +85,14 @@ class InvoiceServiceTest extends TestCase
         $this->salesChannelContext->setRuleIds([$priceRuleId]);
     }
 
-    public function testGenerate()
+    public function testGenerateWithDifferentTaxes()
     {
         $invoiceService = $this->getContainer()->get(InvoiceGenerator::class);
         $pdfGenerator = $this->getContainer()->get(PdfGenerator::class);
 
         $possibleTaxes = [7, 19, 22];
-        $cart = $this->generateDemoCart(75, $possibleTaxes);
+        //generates one line item for each tax
+        $cart = $this->generateDemoCart($possibleTaxes);
         $orderId = $this->persistCart($cart);
         /** @var OrderEntity $order */
         $order = $this->getOrderById($orderId);
@@ -154,34 +150,44 @@ class InvoiceServiceTest extends TestCase
      * @throws MixedLineItemTypeException
      * @throws \Exception
      */
-    private function generateDemoCart(int $lineItemCount, array $taxes): Cart
+    private function generateDemoCart(array $taxes): Cart
     {
         $cart = new Cart('A', 'a-b-c');
-        $deliveryInformation = new DeliveryInformation(
-            100,
-            0,
-            new DeliveryDate(new \DateTime(), new \DateTime()),
-            new DeliveryDate(new \DateTime(), new \DateTime()),
-            false
-        );
 
         $keywords = ['awesome', 'epic', 'high quality'];
 
-        for ($i = 0; $i < $lineItemCount; ++$i) {
+        $products = [];
+
+        $factory = new ProductLineItemFactory();
+
+        foreach ($taxes as $tax) {
+            $id = Uuid::randomHex();
+
             $price = random_int(100, 200000) / 100.0;
-            $quantity = random_int(1, 25);
-            $taxRate = $taxes[array_rand($taxes)];
+
             shuffle($keywords);
             $name = ucfirst(implode($keywords, ' ') . ' product');
-            $cart->add(
-                (new LineItem((string) $i, 'product_' . $i, null, $quantity))
-                    ->setPriceDefinition(new QuantityPriceDefinition($price, new TaxRuleCollection([new TaxRule($taxRate)]), $quantity))
-                    ->setLabel($name)
-                    ->setStackable(true)
-                    ->setDeliveryInformation($deliveryInformation)
-            );
+
+            $products[] = [
+                'id' => $id,
+                'name' => $name,
+                'price' => ['gross' => $price, 'net' => $price, 'linked' => false],
+                'productNumber' => Uuid::randomHex(),
+                'manufacturer' => ['id' => $id, 'name' => 'test'],
+                'tax' => ['id' => $id, 'taxRate' => $tax, 'name' => 'test'],
+                'stock' => 10,
+                'active' => true,
+                'visibilities' => [
+                    ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
+            ];
+
+            $cart->add($factory->create($id));
         }
-        $cart = $this->getContainer()->get(Enrichment::class)->enrich($cart, $this->salesChannelContext, new CartBehavior());
+
+        $this->getContainer()->get('product.repository')
+            ->create($products, Context::createDefaultContext());
+
         $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->salesChannelContext, new CartBehavior());
 
         return $cart;

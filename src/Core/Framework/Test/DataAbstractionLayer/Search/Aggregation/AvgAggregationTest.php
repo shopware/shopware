@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AvgAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\AggregationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -18,9 +19,10 @@ class AvgAggregationTest extends TestCase
     public function testAvgAggregation(): void
     {
         $context = Context::createDefaultContext();
-        $this->setupFixtures($context);
+        $ids = $this->setupFixtures($context);
 
         $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('id', $ids));
         $criteria->addAggregation(new AvgAggregation('taxRate', 'rate_agg'));
 
         $taxRepository = $this->getContainer()->get('tax.repository');
@@ -40,9 +42,10 @@ class AvgAggregationTest extends TestCase
     public function testAvgAggregationWithGroupBy(): void
     {
         $context = Context::createDefaultContext();
-        $this->setupGroupByFixtures($context);
+        $ids = $this->setupGroupByFixtures($context);
 
         $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('product.categories.id', $ids));
         $criteria->addAggregation(new AvgAggregation('product.price.gross', 'price_agg', 'product.categories.name'));
 
         $productRepository = $this->getContainer()->get('product.repository');
@@ -60,9 +63,10 @@ class AvgAggregationTest extends TestCase
     public function testAvgAggregationWithMultipleGroupBy(): void
     {
         $context = Context::createDefaultContext();
-        $this->setupGroupByFixtures($context);
+        $ids = $this->setupGroupByFixtures($context);
 
         $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('product.categories.id', $ids));
         $criteria->addAggregation(new AvgAggregation('product.price.gross', 'price_agg', 'product.categories.name', 'product.manufacturer.name'));
 
         $productRepository = $this->getContainer()->get('product.repository');

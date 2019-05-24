@@ -4,11 +4,14 @@ namespace Shopware\Core\Checkout\Cart\Delivery;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
-use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\CartDataCollectorInterface;
+use Shopware\Core\Checkout\Cart\CartProcessorInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Struct\StructCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class DeliveryProcessor
+class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInterface
 {
     /**
      * @var DeliveryBuilder
@@ -20,30 +23,90 @@ class DeliveryProcessor
      */
     protected $deliveryCalculator;
 
-    public function __construct(DeliveryBuilder $builder, DeliveryCalculator $deliveryCalculator)
-    {
+    /**
+     * @var EntityRepositoryInterface
+     */
+    protected $shippingMethodRepository;
+
+    public function __construct(
+        DeliveryBuilder $builder,
+        DeliveryCalculator $deliveryCalculator,
+        EntityRepositoryInterface $shippingMethodRepository
+    ) {
         $this->builder = $builder;
         $this->deliveryCalculator = $deliveryCalculator;
+        $this->shippingMethodRepository = $shippingMethodRepository;
     }
 
-    public function process(
-        Cart $cart,
-        LineItemCollection $lineItems,
+    public static function buildKey(string $shippingMethodId): string
+    {
+        return 'shipping-method-' . $shippingMethodId;
+    }
+
+    public function collect(
+        StructCollection $data,
+        Cart $original,
         SalesChannelContext $context,
         CartBehavior $behavior
-    ): DeliveryCollection {
-        if ($behavior->isRecalculation()) {
-            $deliveries = $cart->getDeliveries();
+    ): void {
+        $default = $context->getShippingMethod()->getId();
 
-            $this->deliveryCalculator->calculate($deliveries, $context);
-
-            return $deliveries;
+        if (!$data->has(self::buildKey($default))) {
+            $ids = [$default];
         }
 
-        $deliveries = $this->builder->build(new DeliveryCollection(), $lineItems, $context, false);
+        foreach ($original->getDeliveries() as $delivery) {
+            $id = $delivery->getShippingMethod()->getId();
 
-        $this->deliveryCalculator->calculate($deliveries, $context);
+            if (!$data->has(self::buildKey($id))) {
+                $ids[] = $id;
+            }
+        }
 
-        return $deliveries;
+        if (empty($ids)) {
+            return;
+        }
+
+        $criteria = new Criteria($ids);
+        $criteria->addAssociation('prices');
+        $criteria->addAssociation('deliveryTime');
+
+        $shippingMethods = $this->shippingMethodRepository
+            ->search($criteria, $context->getContext());
+
+        foreach ($ids as $id) {
+            $key = self::buildKey($id);
+
+            if (!$shippingMethods->has($id)) {
+                continue;
+            }
+
+            $data->set($key, $shippingMethods->get($id));
+        }
+    }
+
+    public function process(StructCollection $data, Cart $original, Cart $calculated, SalesChannelContext $context, CartBehavior $behavior): void
+    {
+        if ($behavior->isRecalculation()) {
+            $deliveries = $original->getDeliveries();
+
+            $this->deliveryCalculator->calculate($data, $deliveries, $context);
+
+            $calculated->setDeliveries($deliveries);
+
+            return;
+        }
+
+        $deliveries = $this->builder->build(
+            $data,
+            $calculated->getDeliveries(),
+            $calculated->getLineItems(),
+            $context,
+            false
+        );
+
+        $this->deliveryCalculator->calculate($data, $deliveries, $context);
+
+        $calculated->setDeliveries($deliveries);
     }
 }

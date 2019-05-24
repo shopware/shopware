@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Test\Shipping\Cart;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Delivery\DeliveryValidator;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
@@ -12,7 +13,6 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
-use Shopware\Core\Checkout\Shipping\Cart\ShippingMethodValidator;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -25,7 +25,7 @@ class ShippingMethodValidatorTest extends TestCase
         $cart = $this->createMock(Cart::class);
         $cart->expects(static::once())->method('getDeliveries')->willReturn(new DeliveryCollection());
 
-        $validator = new ShippingMethodValidator();
+        $validator = new DeliveryValidator();
         $errors = new ErrorCollection();
         $validator->validate($cart, $errors, $this->createMock(SalesChannelContext::class));
 
@@ -54,7 +54,7 @@ class ShippingMethodValidatorTest extends TestCase
         $cart->expects(static::once())->method('getDeliveries')->willReturn(new DeliveryCollection([$delivery]));
         $context->expects(static::once())->method('getRuleIds')->willReturn(['1']);
 
-        $validator = new ShippingMethodValidator();
+        $validator = new \Shopware\Core\Checkout\Cart\Delivery\DeliveryValidator();
         $errors = new ErrorCollection();
         $validator->validate($cart, $errors, $context);
 
@@ -83,7 +83,7 @@ class ShippingMethodValidatorTest extends TestCase
         $cart->expects(static::once())->method('getDeliveries')->willReturn(new DeliveryCollection([$delivery]));
         $context->expects(static::once())->method('getRuleIds')->willReturn(['1']);
 
-        $validator = new ShippingMethodValidator();
+        $validator = new \Shopware\Core\Checkout\Cart\Delivery\DeliveryValidator();
         $errors = new ErrorCollection();
         $validator->validate($cart, $errors, $context);
 
@@ -114,7 +114,7 @@ class ShippingMethodValidatorTest extends TestCase
         $cart->expects(static::once())->method('getDeliveries')->willReturn(new DeliveryCollection([$delivery]));
         $context->expects(static::once())->method('getRuleIds')->willReturn(['1']);
 
-        $validator = new ShippingMethodValidator();
+        $validator = new \Shopware\Core\Checkout\Cart\Delivery\DeliveryValidator();
         $errors = new ErrorCollection();
         $validator->validate($cart, $errors, $context);
 
@@ -145,7 +145,7 @@ class ShippingMethodValidatorTest extends TestCase
         $cart->expects(static::once())->method('getDeliveries')->willReturn(new DeliveryCollection([$delivery]));
         $context->expects(static::once())->method('getRuleIds')->willReturn(['2']);
 
-        $validator = new ShippingMethodValidator();
+        $validator = new \Shopware\Core\Checkout\Cart\Delivery\DeliveryValidator();
         $errors = new ErrorCollection();
         $validator->validate($cart, $errors, $context);
 
@@ -185,7 +185,7 @@ class ShippingMethodValidatorTest extends TestCase
 
         $cart->expects(static::once())->method('getDeliveries')->willReturn(new DeliveryCollection([$delivery, $delivery2]));
 
-        $validator = new ShippingMethodValidator();
+        $validator = new \Shopware\Core\Checkout\Cart\Delivery\DeliveryValidator();
         $errors = new ErrorCollection();
         $validator->validate($cart, $errors, $context);
 
@@ -231,7 +231,7 @@ class ShippingMethodValidatorTest extends TestCase
 
         $cart->expects(static::once())->method('getDeliveries')->willReturn(new DeliveryCollection([$delivery, $delivery2]));
 
-        $validator = new ShippingMethodValidator();
+        $validator = new \Shopware\Core\Checkout\Cart\Delivery\DeliveryValidator();
         $errors = new ErrorCollection();
         $validator->validate($cart, $errors, $context);
 

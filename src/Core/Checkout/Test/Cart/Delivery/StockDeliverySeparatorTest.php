@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Test\Cart\Delivery;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder;
+use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
@@ -26,6 +27,7 @@ use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
+use Shopware\Core\Framework\Struct\StructCollection;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
 
@@ -41,14 +43,14 @@ class StockDeliverySeparatorTest extends TestCase
         parent::setUp();
 
         $taxCalculator = new TaxCalculator(
-            new PriceRounding(2),
-            new TaxRuleCalculator(new PriceRounding(2))
+            new PriceRounding(),
+            new TaxRuleCalculator(new PriceRounding())
         );
 
         $this->separator = new DeliveryBuilder(
             new QuantityPriceCalculator(
-                new GrossPriceCalculator($taxCalculator, new PriceRounding(2)),
-                new NetPriceCalculator($taxCalculator, new PriceRounding(2)),
+                new GrossPriceCalculator($taxCalculator, new PriceRounding()),
+                new NetPriceCalculator($taxCalculator, new PriceRounding()),
                 Generator::createGrossPriceDetector()
             )
         );
@@ -57,10 +59,19 @@ class StockDeliverySeparatorTest extends TestCase
     public function testAnEmptyCartHasNoDeliveries(): void
     {
         $deliveries = new DeliveryCollection();
+        $context = Generator::createSalesChannelContext();
+
+        $data = new StructCollection();
+        $data->set(
+            DeliveryProcessor::buildKey($context->getShippingMethod()->getId()),
+            $context->getShippingMethod()
+        );
+
         $this->separator->build(
+            $data,
             $deliveries,
             new LineItemCollection(),
-            Generator::createSalesChannelContext()
+            $context
         );
 
         static::assertEquals(new DeliveryCollection(), $deliveries);
@@ -92,7 +103,14 @@ class StockDeliverySeparatorTest extends TestCase
 
         $deliveries = new DeliveryCollection();
 
+        $data = new StructCollection();
+        $data->set(
+            DeliveryProcessor::buildKey($context->getShippingMethod()->getId()),
+            $context->getShippingMethod()
+        );
+
         $this->separator->build(
+            $data,
             $deliveries,
             new LineItemCollection([$item]),
             $context
@@ -144,10 +162,28 @@ class StockDeliverySeparatorTest extends TestCase
 
         $deliveries = new DeliveryCollection();
 
+        $context = Generator::createSalesChannelContext(
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            $location->getCountry(),
+            $location->getState()
+        );
+
+        $data = new StructCollection();
+        $data->set(
+            DeliveryProcessor::buildKey($context->getShippingMethod()->getId()),
+            $context->getShippingMethod()
+        );
+
         $this->separator->build(
+            $data,
             $deliveries,
             new LineItemCollection([$itemA, $itemB]),
-            Generator::createSalesChannelContext(null, null, null, null, null, null, $location->getCountry(), $location->getState())
+            $context
         );
 
         static::assertCount(1, $deliveries);
@@ -191,7 +227,14 @@ class StockDeliverySeparatorTest extends TestCase
             );
 
         $deliveries = new DeliveryCollection();
+        $data = new StructCollection();
+        $data->set(
+            DeliveryProcessor::buildKey($context->getShippingMethod()->getId()),
+            $context->getShippingMethod()
+        );
+
         $this->separator->build(
+            $data,
             $deliveries,
             new LineItemCollection([$itemA, $itemB]),
             $context
@@ -235,7 +278,15 @@ class StockDeliverySeparatorTest extends TestCase
             ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
         $deliveries = new DeliveryCollection();
+
+        $data = new StructCollection();
+        $data->set(
+            DeliveryProcessor::buildKey($context->getShippingMethod()->getId()),
+            $context->getShippingMethod()
+        );
+
         $this->separator->build(
+            $data,
             $deliveries,
             new LineItemCollection([$product, $calculatedLineItem]),
             $context
@@ -276,7 +327,14 @@ class StockDeliverySeparatorTest extends TestCase
             );
 
         $deliveries = new DeliveryCollection();
+        $data = new StructCollection();
+        $data->set(
+            DeliveryProcessor::buildKey($context->getShippingMethod()->getId()),
+            $context->getShippingMethod()
+        );
+
         $this->separator->build(
+            $data,
             $deliveries,
             new LineItemCollection([$product]),
             $context

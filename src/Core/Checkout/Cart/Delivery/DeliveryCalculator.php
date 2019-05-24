@@ -11,6 +11,9 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceEntity;
 use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
+use Shopware\Core\Checkout\Shipping\Exception\ShippingMethodNotFoundException;
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Framework\Struct\StructCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class DeliveryCalculator
@@ -39,14 +42,14 @@ class DeliveryCalculator
         $this->percentageTaxRuleBuilder = $percentageTaxRuleBuilder;
     }
 
-    public function calculate(DeliveryCollection $deliveries, SalesChannelContext $context): void
+    public function calculate(StructCollection $data, DeliveryCollection $deliveries, SalesChannelContext $context): void
     {
         foreach ($deliveries as $delivery) {
-            $this->calculateDelivery($delivery, $context);
+            $this->calculateDelivery($data, $delivery, $context);
         }
     }
 
-    private function calculateDelivery(Delivery $delivery, SalesChannelContext $context): void
+    private function calculateDelivery(StructCollection $data, Delivery $delivery, SalesChannelContext $context): void
     {
         $costs = null;
         if ($delivery->getShippingCosts()->getUnitPrice() > 0) {
@@ -73,8 +76,17 @@ class DeliveryCalculator
             return;
         }
 
-        $shippingMethod = $delivery->getShippingMethod();
+        $key = DeliveryProcessor::buildKey($delivery->getShippingMethod()->getId());
+
+        if (!$data->has($key)) {
+            throw new ShippingMethodNotFoundException($delivery->getShippingMethod()->getId());
+        }
+
+        /** @var ShippingMethodEntity $shippingMethod */
+        $shippingMethod = $data->get($key);
+
         $prices = $shippingMethod->getPrices();
+
         $prices->sort(
             function (ShippingMethodPriceEntity $priceEntityA, ShippingMethodPriceEntity $priceEntityB) {
                 return $priceEntityA->getPrice() <=> $priceEntityB->getPrice();

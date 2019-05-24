@@ -5,6 +5,10 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
+        <service id="Shopware\Core\Checkout\Cart\CreditCartProcessor">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator"/>
+            <tag name="shopware.cart.processor" priority="4000"/>
+        </service>
 
         <!-- price calculation -->
         <service id="Shopware\Core\Checkout\Cart\Price\AmountCalculator">
@@ -17,8 +21,6 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\SalesChannel\CartService" public="true">
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Enrichment"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderPersister"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
@@ -86,6 +88,7 @@
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
+            <argument type="service" id="Shopware\Core\Content\Product\Cart\ProductLineItemFactory"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\SalesChannel\SalesChannelCheckoutController" public="true">
@@ -119,19 +122,16 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AmountCalculator"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Cart\Enrichment">
-            <argument type="tagged" tag="shopware.cart.collector"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Product\Cart\ProductCollector">
-            <argument type="service" id="Shopware\Core\Content\Product\Cart\ProductGateway"/>
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilderInterface"/>
-            <tag name="shopware.cart.collector"/>
-        </service>
-
         <service id="Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator"/>
+            <argument type="service" id="shipping_method.repository"/>
+            <tag name="shopware.cart.processor" priority="-5000" />
+            <tag name="shopware.cart.enrichment" priority="-5000" />
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Delivery\DeliveryValidator">
+            <tag name="shopware.cart.validator"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\LineItem\LineItemValidator">
@@ -144,10 +144,20 @@
 
         <service id="Shopware\Core\Checkout\Cart\Processor">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Calculator"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Validator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AmountCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor"/>
+            <argument type="tagged" tag="shopware.cart.processor"/>
+            <argument type="tagged" tag="shopware.cart.enrichment"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Cart\ProductCartProcessor">
+            <tag name="shopware.cart.processor" priority="5000" />
+            <tag name="shopware.cart.enrichment" priority="5000" />
+
+            <argument type="service" id="Shopware\Core\Content\Product\Cart\ProductGateway"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilderInterface"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor"/>
@@ -175,7 +185,6 @@
             <argument type="service" id="product.repository"/>
             <argument type="service" id="order_address.repository"/>
             <argument type="service" id="customer_address.repository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Enrichment"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
         </service>

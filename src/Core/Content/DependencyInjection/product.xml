@@ -176,5 +176,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
+
+        <service id="Shopware\Core\Content\Product\Cart\ProductLineItemFactory"/>
     </services>
 </container>                

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\SalesChannel;
 
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
@@ -13,6 +14,7 @@ use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Builder\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsCollector;
+use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -43,14 +45,21 @@ class SalesChannelCartController extends AbstractController
      */
     private $serializer;
 
+    /**
+     * @var ProductLineItemFactory
+     */
+    private $productLineItemFactory;
+
     public function __construct(
         CartService $service,
         EntityRepositoryInterface $mediaRepository,
-        Serializer $serializer
+        Serializer $serializer,
+        ProductLineItemFactory $productLineItemFactory
     ) {
         $this->serializer = $serializer;
         $this->cartService = $service;
         $this->mediaRepository = $mediaRepository;
+        $this->productLineItemFactory = $productLineItemFactory;
     }
 
     /**
@@ -99,13 +108,8 @@ class SalesChannelCartController extends AbstractController
     {
         $token = $request->request->getAlnum('token', $context->getToken());
         $quantity = $request->request->getInt('quantity', 1);
-        $payload = $request->request->get('payload', []);
-        $referencedId = $request->request->get('referencedId', $id);
 
-        $lineItem = (new LineItem($id, LineItem::PRODUCT_LINE_ITEM_TYPE, $referencedId, $quantity))
-            ->setPayload($payload)
-            ->setRemovable(true)
-            ->setStackable(true);
+        $lineItem = $this->productLineItemFactory->create($id, ['quantity' => $quantity]);
 
         $cart = $this->cartService->add($this->cartService->getCart($token, $context), $lineItem, $context);
 

@@ -107,6 +107,11 @@ class LineItem extends Struct
     protected $quantityInformation;
 
     /**
+     * @var bool
+     */
+    protected $modified = false;
+
+    /**
      * @throws InvalidQuantityException
      */
     public function __construct(string $id, string $type, ?string $referencedId = null, int $quantity = 1)
@@ -436,6 +441,21 @@ class LineItem extends Struct
         $this->quantityInformation = $quantityInformation;
 
         return $this;
+    }
+
+    public function isModified(): bool
+    {
+        return $this->modified;
+    }
+
+    public function markModified(): void
+    {
+        $this->modified = true;
+    }
+
+    public function markUnmodified(): void
+    {
+        $this->modified = false;
     }
 
     /**

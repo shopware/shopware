@@ -232,12 +232,6 @@ Order management
 * [Entity relationship diagram](./10-erd/erd-shopware-core-checkout-order.md)
 EOD
     ,
-    'Checkout/DiscountSurcharge' => <<<'EOD'
-Discounts and Surcharges
-
-* [Entity relationship diagram](./10-erd/erd-shopware-core-checkout-discountsurcharge.md)
-EOD
-    ,
     'Checkout/Shipping' => <<<'EOD'
 Shipping methods
 EOD

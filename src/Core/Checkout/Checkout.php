@@ -21,7 +21,6 @@ class Checkout extends Bundle
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('cart.xml');
         $loader->load('customer.xml');
-        $loader->load('discount_surcharge.xml');
         $loader->load('document.xml');
         $loader->load('order.xml');
         $loader->load('payment.xml');

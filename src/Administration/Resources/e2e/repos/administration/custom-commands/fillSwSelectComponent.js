@@ -57,7 +57,7 @@ exports.command = function fillSwSelectComponent(
     this.assert.containsText('.sw-select-option--0', value);
 
     // select the first result
-    this.keys(this.Keys.ENTER);
+    this.setValue(`${selector} ${inputCssSelector}`, ['', this.Keys.ENTER]);
 
     if (!isMulti) {
         // expect the placeholder for an empty select field not be shown and search for the value
@@ -68,6 +68,7 @@ exports.command = function fillSwSelectComponent(
     }
 
     // in multi selects we can check if the value is a selected item
+    this.waitForElementVisible(`${selector} ${swSelectedItemCssSelector}`);
     this.expect.element(`${selector} ${swSelectedItemCssSelector}`).to.have.text.that.contains(value);
 
     // close search results

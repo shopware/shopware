@@ -34,13 +34,13 @@
 
                         {% block sw_cms_element_product_box_name %}
                             <a href="#" class="sw-cms-el-product-box__name" :title="placeholder(product, 'name')">
-                                {{ placeholder(product, 'name') }}
+                                {{ placeholder(product, 'name', product.name) }}
                             </a>
                         {% endblock %}
 
                         {% block sw_cms_element_product_box_description %}
                             <div class="sw-cms-el-product-box__description" v-if="element.config.boxLayout.value === 'standard'">
-                                {{ placeholder(product, 'description') | truncate(200, true, '...') }}
+                                {{ placeholder(product, 'description', product.description) | truncate(200, true, '...') }}
                             </div>
                         {% endblock %}
 

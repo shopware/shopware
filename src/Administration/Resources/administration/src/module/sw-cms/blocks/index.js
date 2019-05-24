@@ -25,3 +25,4 @@ import './text-image/text-on-image';
 
 import './commerce/product-three-column';
 import './commerce/product-listing';
+import './commerce/product-slider';

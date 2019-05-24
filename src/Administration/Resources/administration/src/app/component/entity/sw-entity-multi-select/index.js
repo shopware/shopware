@@ -36,6 +36,11 @@ export default {
             type: Number,
             required: false,
             default: 25
+        },
+        selectedEntities: {
+            type: [Array, null],
+            required: false,
+            default: null
         }
     },
 
@@ -52,6 +57,12 @@ export default {
             this.repository = this.repositoryFactory.create(this.entity, `/${this.entity}`);
 
             this.$on('scroll', this.paginate);
+
+            if (this.selectedEntities && this.selectedEntities.length > 0) {
+                this.selectedEntities.forEach((entity) => {
+                    this.addItem({ item: entity });
+                });
+            }
 
             return Promise.resolve();
         },

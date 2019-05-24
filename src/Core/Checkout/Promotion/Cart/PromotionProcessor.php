@@ -138,7 +138,7 @@ class PromotionProcessor implements CartProcessorInterface
             $discountItem = $this->itemBuilder->buildDiscountLineItem(
                 $promotion,
                 $discount,
-                $context->getContext()->getCurrencyPrecision()
+                $context
             );
 
             $lineItems[] = $discountItem;

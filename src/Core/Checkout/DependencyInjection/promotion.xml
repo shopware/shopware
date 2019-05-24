@@ -45,6 +45,10 @@
             <tag name="shopware.entity.definition" entity="promotion_translation"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceDefinition">
+            <tag name="shopware.entity.definition" entity="promotion_discount_prices"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Promotion\Validator\PromotionValidator">
             <tag name="kernel.event_subscriber"/>
         </service>

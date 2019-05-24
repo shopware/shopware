@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Currency;
 
 use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -83,6 +84,11 @@ class CurrencyEntity extends Entity
      * @var ShippingMethodPriceCollection|null
      */
     protected $shippingMethodPrices;
+
+    /**
+     * @var PromotionDiscountPriceCollection
+     */
+    protected $promotionDiscountPrices;
 
     /**
      * @var bool|null
@@ -237,5 +243,18 @@ class CurrencyEntity extends Entity
     public function setIsDefault(bool $isDefault): void
     {
         $this->isDefault = $isDefault;
+    }
+
+    /**
+     * @return PromotionDiscountPriceCollection
+     */
+    public function getPromotionDiscountPrices(): ?PromotionDiscountPriceCollection
+    {
+        return $this->promotionDiscountPrices;
+    }
+
+    public function setPromotionDiscountPrices(?PromotionDiscountPriceCollection $promotionDiscountPrices): void
+    {
+        $this->promotionDiscountPrices = $promotionDiscountPrices;
     }
 }

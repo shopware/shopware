@@ -104,6 +104,13 @@
             "confirmText" : "Do you really want to delete this discount from the promotion?",
             "buttonCancel" : "Cancel",
             "buttonDelete" : "Delete Discount"
+          },
+          "linkAdvancedPrices": "Open advanced price view",
+          "pricesModal": {
+            "advancedPricesHeader": "Advanced prices",
+            "closeModal": "Close",
+            "labelCurrency": "Currency",
+            "labelPrice": "Value"
           }
         }
       }

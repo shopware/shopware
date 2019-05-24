@@ -22,10 +22,9 @@
 								<span class="top-bar-nav-name">{{ page.header.activeLanguage.name }}</span>
 							</button>
 							{% block layout_header_actions_languages_widget_form_items %}
-								<ul class="top-bar-list dropdown-menu dropdown-menu-right"
+								<div class="top-bar-list dropdown-menu dropdown-menu-right"
 									aria-labelledby="languagesDropdown">
 									{% for language in  page.header.languages.elements %}
-										<li>
                                             <div class="top-bar-list-item dropdown-item{% if language.id is same as(page.header.activeLanguage.id) %} item-checked{% endif %}"
                                                  title="{{ language.translated.name }}">
                                                 
@@ -47,9 +46,8 @@
                                                     </label>
                                                 {% endblock %}
                                             </div>
-										</li>
 									{% endfor %}
-								</ul>
+								</div>
 							{% endblock %}
 						</div>
 

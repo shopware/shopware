@@ -111,8 +111,10 @@
                                                                 v-if="showSettings"
                                                                 :columns="currentColumns"
                                                                 :compact="compact"
+                                                                :previewImages="previewImages"
                                                                 :disabled="isInlineEditActive"
                                                                 @change-compact-mode="onChangeCompactMode"
+                                                                @change-preview-images="onChangePreviewImages"
                                                                 @change-column-visibility="onChangeColumnVisibility"
                                                                 @change-column-order="onChangeColumnOrder">
                                                             </sw-data-grid-settings>
@@ -160,6 +162,13 @@
 
                                                 {% block sw_data_grid_body_columns_content %}
                                                     <div class="sw-data-grid__cell-content">
+
+                                                        {% block sw_data_grid_preview_images_slot %}
+                                                            <slot v-if="previewImages && !isInlineEdit(item)"
+                                                                  :name="`image-${column.property}`"
+                                                                  v-bind="{ item, column, compact }">
+                                                            </slot>
+                                                        {% endblock %}
 
                                                         {% block sw_data_grid_columns_slot %}
                                                             <slot :name="`column-${column.property}`"

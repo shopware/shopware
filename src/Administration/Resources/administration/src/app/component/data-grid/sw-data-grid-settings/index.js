@@ -22,6 +22,11 @@ export default {
             required: true,
             default: false
         },
+        previewImages: {
+            type: Boolean,
+            required: true,
+            default: false
+        },
         disabled: {
             type: Boolean,
             required: true,
@@ -32,6 +37,7 @@ export default {
     data() {
         return {
             currentCompact: false,
+            currentPreviewImages: false,
             currentColumns: []
         };
     },
@@ -50,10 +56,15 @@ export default {
         createdComponent() {
             this.currentCompact = this.compact;
             this.currentColumns = this.columns;
+            this.currentPreviewImages = this.previewImages;
         },
 
         onChangeCompactMode(value) {
             this.$emit('change-compact-mode', value);
+        },
+
+        onChangePreviewImages(value) {
+            this.$emit('change-preview-images', value);
         },
 
         onChangeColumnVisibility(value, index) {

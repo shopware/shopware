@@ -108,6 +108,18 @@ export default {
             type: String,
             required: false,
             default: 'ASC'
+        },
+
+        compactMode: {
+            type: Boolean,
+            required: false,
+            default: true
+        },
+
+        showPreviewImages: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 
@@ -122,7 +134,8 @@ export default {
             selection: {},
             allSelectedChecked: false,
             originalTarget: null,
-            compact: true,
+            compact: this.compactMode,
+            previewImages: this.showPreviewImages,
             isInlineEditActive: false,
             currentInlineEditId: '',
             hasResizeColumns: false,
@@ -268,6 +281,10 @@ export default {
 
         onChangeCompactMode(value) {
             this.compact = value;
+        },
+
+        onChangePreviewImages(value) {
+            this.previewImages = value;
         },
 
         onChangeColumnVisibility(value, index) {

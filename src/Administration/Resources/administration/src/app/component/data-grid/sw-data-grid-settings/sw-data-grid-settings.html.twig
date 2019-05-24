@@ -34,6 +34,15 @@
                                       :label="$tc('global.sw-data-grid.labelSettingsCompactMode')">
                             </sw-field>
                         {% endblock %}
+
+                        {% block sw_data_grid_settings_preview_switch %}
+                            <sw-field type="switch"
+                                      v-model="currentPreviewImages"
+                                      noMarginTop
+                                      @change="onChangePreviewImages(currentPreviewImages)"
+                                      label="Show preview images">
+                            </sw-field>
+                        {% endblock %}
                     </div>
                 {% endblock %}
 

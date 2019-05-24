@@ -62,6 +62,10 @@
                                       @inline-edit-save="onInlineEditSave"
                                       @inline-edit-cancel="onInlineEditCancel">
 
+                            <template #image-name="{ item, column, compact }">
+                                <sw-media-preview :source="item.cover.media"></sw-media-preview>
+                            </template>
+
                             {% block sw_product_list_grid_columns %}
                                 {% block sw_product_list_grid_columns_name %}
                                     <template slot="column-active" slot-scope="{ item, isInlineEdit }">

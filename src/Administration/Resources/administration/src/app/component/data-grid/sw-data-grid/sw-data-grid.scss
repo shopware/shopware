@@ -285,6 +285,15 @@
         }
     }
 
+    .sw-media-preview {
+        position: relative;
+        width: 48px;
+        height: 48px;
+        border: 1px solid $color-steam-cloud;
+        border-radius: $border-radius-default;
+        margin-right: 10px;
+    }
+
     .sw-data-grid__cell-settings {
         box-shadow: inset 1px -1px 0 $color-steam-cloud;
         z-index: 5;
@@ -308,6 +317,11 @@
         .sw-data-grid__body .sw-data-grid__cell-content {
             padding: 10px 20px;
             height: 42px;
+        }
+
+        .sw-media-preview {
+            width: 32px;
+            height: 32px;
         }
     }
 

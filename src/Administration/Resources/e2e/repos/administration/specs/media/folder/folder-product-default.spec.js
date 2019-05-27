@@ -55,7 +55,7 @@ module.exports = {
 
         browser
             .clickContextMenuItem(productPageObject.elements.contextMenuButton, {
-                menuActionSelector: '.sw-product-list__edit-action',
+                menuActionSelector: '.sw-entity-listing__context-menu-edit-action',
                 scope: `${productPageObject.elements.dataGridRow}--0`
             })
             .expect.element(productPageObject.elements.smartBarHeader).to.have.text.that.equals(global.ProductFixtureService.productFixture.name);

@@ -30,7 +30,7 @@ so we removed the  property in favor of `helpText`. The `helpText` property is n
 * `type="bool"`: It was very confusing to have to two switch typed variants of `sw-field` (`type="switch"` and `type="bool"`)
 which' only difference was a border. We removed `<sw-field type="bool">` an replace it with an `bordered` attribute.
 ```HTMl
-<sw-field type="switch" borderd [...] ></sw-field>
+<sw-field type="switch" bordered [...] ></sw-field>
 
 ```     
 * `prefix` and `suffix`: We removed the `prefix` and `suffix` properties in all fields in favour of using slots instead.

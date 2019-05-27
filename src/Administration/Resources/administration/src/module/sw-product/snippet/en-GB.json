@@ -128,7 +128,7 @@
       "contextMenuDuplicate": "Duplicate",
       "messageEmpty": "No products yet",
       "modalTitleDelete": "Product",
-      "textDeleteConfirm": "Are you sure you really want to delete the product \"{name}\"?",
+      "textDeleteConfirm": "Are you sure you really want to delete the product \"{name}\"? | Are you sure you really want to delete these {count} products?",
       "titleSidebarItemRefresh": "Refresh",
       "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Product \"{name}\" has successfully been saved."

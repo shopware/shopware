@@ -10,7 +10,6 @@ Therefore every Module should set a `title` property with a snippet for its in t
 
 
 ```javascript
-
 Module.register('sw-product', {
 	name: 'sw-product.general.mainMenuItemGeneral',
 	...
@@ -19,7 +18,6 @@ Module.register('sw-product', {
 And also add the `metaInfo` property on **every pages** `index.js`:
 
 ```javascript
-
 ...
 metaInfo() {
 	return {

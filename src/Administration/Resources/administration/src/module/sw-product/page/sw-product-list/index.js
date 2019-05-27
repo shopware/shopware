@@ -18,11 +18,11 @@ Component.register('sw-product-list', {
         return {
             products: null,
             currencies: {},
-            showDeleteModal: false,
             sortBy: 'productNumber',
             sortDirection: 'DESC',
             naturalSorting: true,
             isLoading: false,
+            isBulkLoading: false,
             total: 0
         };
     },
@@ -102,15 +102,16 @@ Component.register('sw-product-list', {
             return Promise.all([
                 this.productRepository.search(productCriteria, this.context),
                 this.currencyRepository.search(currencyCriteria, this.context)
-            ]).then((res) => {
-                const products = res[0];
-                const currencies = res[1];
+            ]).then((result) => {
+                const products = result[0];
+                const currencies = result[1];
 
                 this.total = products.total;
                 this.products = products;
 
                 this.currencies = currencies;
                 this.isLoading = false;
+                this.selection = {};
             }).catch(() => {
                 this.isLoading = false;
             });
@@ -137,25 +138,13 @@ Component.register('sw-product-list', {
             product.discardChanges();
         },
 
+        updateTotal({ total }) {
+            this.total = total;
+        },
+
         onChangeLanguage(languageId) {
             this.context.languageId = languageId;
             this.getList();
-        },
-
-        onDelete(id) {
-            this.showDeleteModal = id;
-        },
-
-        onCloseDeleteModal() {
-            this.showDeleteModal = false;
-        },
-
-        onConfirmDelete(id) {
-            this.showDeleteModal = false;
-
-            return this.productRepository.delete(id, this.context).then(() => {
-                this.getList();
-            });
         },
 
         getCurrencyPriceByCurrencyId(itemId, currencyId) {

@@ -114,7 +114,7 @@ Component.register('sw-settings-snippet-set-list', {
 
                 return;
             }
-            const selection = Object.keys(this.selection);
+            const selection = Object.keys(this.snippetSelection);
 
             this.$router.push({
                 name: 'sw.settings.snippet.list',
@@ -123,9 +123,9 @@ Component.register('sw-settings-snippet-set-list', {
         },
 
         onSelectionChanged(selection) {
-            this.selection = selection;
-            this.selectionCount = Object.keys(selection).length;
-            this.snippetsEditable = this.selectionCount >= 1;
+            this.snippetSelection = selection;
+            this.snippetSelectionCount = Object.keys(selection).length;
+            this.snippetsEditable = this.snippetSelectionCount >= 1;
         },
 
         onInlineEditCancel() {

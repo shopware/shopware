@@ -56,7 +56,7 @@ module.exports = {
         browser
             .click(`${page.elements.modalFooter} button${page.elements.primaryButton}`)
             .waitForElementNotPresent(page.elements.modal)
-            .checkNotification('has successfully been reset to');
+            .expect.element(`${page.elements.dataGridRow}--0`).to.have.text.that.not.contains('- some more');
     },
     'verify deletion of snippet': (browser) => {
         const page = settingsPage(browser);

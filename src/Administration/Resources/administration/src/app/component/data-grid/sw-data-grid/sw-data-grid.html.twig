@@ -3,6 +3,27 @@
 
         {% block sw_data_grid_wrapper %}
             <div class="sw-data-grid__wrapper" ref="wrapper">
+                {% block sw_data_grid_bulk %}
+                    <div v-if="selectionCount > 0"
+                         class="sw-data-grid__bulk">
+                        {% block sw_data_grid_bulk_selected_count %}
+                            <span class="sw-data-grid__bulk-selected sw-data-grid__bulk-selected-label">{{ $tc('global.sw-data-grid.labelSelectionCount') }}</span>
+                            <span class="sw-data-grid__bulk-selected sw-data-grid__bulk-selected-count">{{ selectionCount }}</span>
+                        {% endblock %}
+
+                        {% block sw_data_grid_bulk_selected_actions %}
+                            <span class="sw-data-grid__bulk-selected bulk-link">
+                                <slot name="bulk">{% block sw_data_grid_bulk_selected_actions_content %}{% endblock %}</slot>
+                            </span>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block sw_data_grid_bulk_modals %}
+                    <slot name="bulk-modals">
+                        {% block sw_data_grid_slot_bulk_modals %}{% endblock %}
+                    </slot>
+                {% endblock %}
 
                 {% block sw_data_grid_table %}
                     <table class="sw-data-grid__table" ref="table">
@@ -102,7 +123,7 @@
 
                                         {% block sw_data_grid_header_cell_actions %}
                                             <th v-if="showActions"
-                                                class="sw-data-grid__cell sw-data-grid__cell--header sw-data-gird__cell--actions sw-data-grid__cell-settings"
+                                                class="sw-data-grid__cell sw-data-grid__cell--header sw-data-grid__cell--actions sw-data-grid__cell-settings"
                                                 :class="{ 'is--loading': loading }">
                                                 {% block sw_data_grid_header_cell_actions_content %}
                                                     <div class="sw-data-grid__cell-content">
@@ -221,7 +242,7 @@
                                         {% endblock %}
 
                                         {% block sw_data_grid_body_cell_actions %}
-                                            <td v-if="showActions" class="sw-data-grid__cell sw-data-gird__cell--actions">
+                                            <td v-if="showActions" class="sw-data-grid__cell sw-data-grid__cell--actions">
                                                 {% block sw_data_grid_body_cell_actions_content %}
                                                     <div class="sw-data-grid__cell-content">
 
@@ -258,7 +279,7 @@
                                                         {% endblock %}
 
                                                         {% block sw_data_grid_body_cell_actions %}
-                                                            <sw-context-button v-else class="sw-data-gird__actions-menu">
+                                                            <sw-context-button v-else class="sw-data-grid__actions-menu">
                                                                 <slot name="actions" :item="item">
                                                                     {% block sw_data_grid_slot_actions %}{% endblock %}
                                                                 </slot>

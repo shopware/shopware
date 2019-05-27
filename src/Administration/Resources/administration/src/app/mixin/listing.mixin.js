@@ -13,6 +13,7 @@ Mixin.register('listing', {
             sortBy: null,
             sortDirection: 'ASC',
             naturalSorting: false,
+            selection: [],
             term: undefined,
             disableRouteParams: false
         };
@@ -27,8 +28,16 @@ Mixin.register('listing', {
             return this.$route.name;
         },
 
+        selectionArray() {
+            return Object.values(this.selection);
+        },
+
+        selectionCount() {
+            return this.selectionArray.length;
+        },
+
         filters() {
-            // You can create your custom filters by defining the computed property "filters
+            // You can create your custom filters by defining the computed property "filters"
             return [];
         }
     },
@@ -174,6 +183,10 @@ Mixin.register('listing', {
             }
 
             return CriteriaFactory.multi(operator, ...terms);
+        },
+
+        updateSelection(selection) {
+            this.selection = selection;
         },
 
         onPageChange(opts) {

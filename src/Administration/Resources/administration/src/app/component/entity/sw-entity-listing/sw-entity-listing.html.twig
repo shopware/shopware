@@ -1,5 +1,32 @@
 {% block sw_data_grid_slot_pagination %}
-    <sw-pagination :page="page" :limit="limit" :total="total" :total-visible="7" @page-change="paginate" />
+    <sw-pagination :page="page" :limit="limit" :total="total" :total-visible="7" @page-change="paginate"></sw-pagination>
+{% endblock %}
+
+{% block sw_data_grid_bulk_selected_actions_content %}
+    <a class="link link-danger" @click="showBulkDeleteModal = true">
+        {{ $tc('global.entity-components.deleteAction') }}
+    </a>
+{% endblock %}
+
+{% block sw_data_grid_slot_bulk_modals %}
+    <sw-modal v-if="showBulkDeleteModal"
+              @modal-close="showBulkDeleteModal = false"
+              :title="$tc('global.entity-components.deleteTitle')"
+              variant="small">
+        <p class="sw-data-grid__confirm-bulk-delete-text">
+            {{ $tc('global.entity-components.deleteMessage', selectionCount, { count: selectionCount }) }}
+        </p>
+
+        <template #modal-footer>
+            <sw-button @click="showBulkDeleteModal = false" size="small">
+                {{ $tc('global.entity-components.deleteCancel') }}
+            </sw-button>
+
+            <sw-button @click="deleteItems" variant="primary" size="small" :isLoading="isBulkLoading">
+                {{ $tc('global.entity-components.deleteAction') }}
+            </sw-button>
+        </template>
+    </sw-modal>
 {% endblock %}
 
 {% block sw_data_grid_slot_actions %}
@@ -26,7 +53,7 @@
             </slot>
         </p>
 
-        <template slot="modal-footer">
+        <template #modal-footer>
             <slot name="delete-modal-footer" v-bind="{ item }">
                 <sw-button @click="closeModal" size="small">
                     {{ $tc('global.entity-components.deleteCancel') }}

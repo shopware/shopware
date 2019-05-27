@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\Twig\TemplateFinder;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -20,7 +21,17 @@ abstract class StorefrontController extends AbstractController
     {
         $view = $this->resolveView($view);
 
-        return $this->render($view, $parameters, $response);
+        $request = $this->get('request_stack')->getCurrentRequest();
+
+        $master = $this->get('request_stack')->getMasterRequest();
+
+        $context = $master->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+
+        $event = new StorefrontRenderEvent($view, $parameters, $request, $context);
+
+        $this->get('event_dispatcher')->dispatch(StorefrontRenderEvent::NAME, $event);
+
+        return $this->render($view, $event->getParameters(), $response);
     }
 
     protected function trans(string $snippet, array $parameters = []): string

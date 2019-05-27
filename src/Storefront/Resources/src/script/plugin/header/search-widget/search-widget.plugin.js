@@ -2,7 +2,7 @@ import Plugin from 'src/script/helper/plugin/plugin.class';
 import DomAccess from 'src/script/helper/dom-access.helper';
 import Debouncer from 'src/script/helper/debouncer.helper';
 import HttpClient from 'src/script/service/http-client.service';
-import InputLoadingIndicator from 'src/script/utility/loading-indicator/input-loading-indicator.util';
+import ButtonLoadingIndicator from 'src/script/utility/loading-indicator/button-loading-indicator.util';
 import DeviceDetection from 'src/script/helper/device-detection.helper';
 import ArrowNavigationHelper from 'src/script/plugin/header/search-widget/helper/arrow-navigation.helper';
 import Iterator from 'src/script/helper/iterator.helper';
@@ -11,6 +11,7 @@ const SEARCH_WIDGET_SELECTOR = '.js-search-form';
 const SEARCH_WIDGET_RESULTS_SELECTOR = '.js-search-result';
 const SEARCH_WIDGET_RESULT_ITEM_SELECTOR = '.js-result:not(.no-search-result)';
 const SEARCH_WIDGET_INPUT_FIELD_SELECTOR = 'input[type=search]';
+const SEARCH_WIDGET_BUTTON_FIELD_SELECTOR = 'button[type=submit]';
 const SEARCH_WIDGET_URL_DATA_ATTRIBUTE = 'data-url';
 
 const SEARCH_WIDGET_DELAY = 250;
@@ -21,6 +22,7 @@ export default class SearchWidgetPlugin extends Plugin {
     init() {
         try {
             this._inputField = DomAccess.querySelector(this.el, SEARCH_WIDGET_INPUT_FIELD_SELECTOR);
+            this._submitButton = DomAccess.querySelector(this.el, SEARCH_WIDGET_BUTTON_FIELD_SELECTOR);
             this._url = DomAccess.getAttribute(this.el, SEARCH_WIDGET_URL_DATA_ATTRIBUTE);
         } catch (e) {
             return;
@@ -85,7 +87,7 @@ export default class SearchWidgetPlugin extends Plugin {
         const url = this._url + encodeURI(value);
 
         // init loading indicator
-        const indicator = new InputLoadingIndicator(this._inputField);
+        const indicator = new ButtonLoadingIndicator(this._submitButton);
         indicator.create();
 
         this._client.get(url, (response) => {
@@ -98,7 +100,6 @@ export default class SearchWidgetPlugin extends Plugin {
             // attach search results to the DOM
             this.el.insertAdjacentHTML('beforeend', response);
         });
-
     }
 
     /**
@@ -133,5 +134,4 @@ export default class SearchWidgetPlugin extends Plugin {
         // remove existing search results popover
         this._clearSearchResults();
     }
-
 }

@@ -8,6 +8,13 @@
             color: $primary;
         }
     }
+
+    &.btn:disabled {
+        background: $input-bg;
+        border-color: $border-color;
+        display: flex;
+        align-items: center;
+    }
 }
 
 .search-form-input {

@@ -1570,55 +1570,58 @@ class Migration1536233560BasicData extends MigrationStep
                 'id' => Uuid::randomHex(),
                 'name' => 'Customer registration',
                 'nameDe' => 'Kunden-Registrierung',
-                'availableEntities' => ['customer' => 'customer'],
+                'availableEntities' => ['customer' => 'customer', 'salesChannel' => 'sales_channel'],
             ],
             NewsletterSubscriptionServiceInterface::MAIL_TYPE_OPT_IN => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Newsletter double opt-in',
                 'nameDe' => 'Newsletter Double-Opt-In',
-                'availableEntities' => ['newsletterRecipient' => 'newsletter_recipient'],
+                'availableEntities' => ['newsletterRecipient' => 'newsletter_recipient', 'salesChannel' => 'sales_channel'],
             ],
             NewsletterSubscriptionServiceInterface::MAIL_TYPE_REGISTER => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Newsletter registration',
                 'nameDe' => 'Newsletter-Registrierung',
-                'availableEntities' => ['newsletterRecipient' => 'newsletter_recipient'],
+                'availableEntities' => ['newsletterRecipient' => 'newsletter_recipient', 'salesChannel' => 'sales_channel'],
             ],
             MailTemplateTypes::MAILTYPE_ORDER_CONFIRM => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Order confirmation',
                 'nameDe' => 'Bestellbestätigung',
-                'availableEntities' => ['order' => 'order'],
+                'availableEntities' => ['order' => 'order', 'salesChannel' => 'sales_channel'],
             ],
             MailTemplateTypes::MAILTYPE_CUSTOMER_GROUP_CHANGE_ACCEPT => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Customer group change accepted',
                 'nameDe' => 'Kundengruppenwechsel akzeptiert',
-                'availableEntities' => ['customer' => 'customer'],
+                'availableEntities' => ['customer' => 'customer', 'salesChannel' => 'sales_channel'],
             ],
             MailTemplateTypes::MAILTYPE_CUSTOMER_GROUP_CHANGE_REJECT => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Customer group change rejected',
                 'nameDe' => 'Kundengruppenwechsel abgelehnt',
-                'availableEntities' => ['customer' => 'customer'],
+                'availableEntities' => ['customer' => 'customer', 'salesChannel' => 'sales_channel'],
             ],
             MailTemplateTypes::MAILTYPE_PASSWORD_CHANGE => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Password change request',
                 'nameDe' => 'Passwort Änderungsanfrage',
-                'availableEntities' => ['customer' => 'customer', 'urlResetPassword' => null],
+                'availableEntities' => [
+                    'customer' => 'customer',
+                    'urlResetPassword' => null,
+                    'salesChannel' => 'sales_channel', ],
             ],
             MailTemplateTypes::MAILTYPE_SEPA_CONFIRMATION => [
                 'id' => Uuid::randomHex(),
                 'name' => 'SEPA authorization',
                 'nameDe' => 'SEPA-Autorisierung',
-                'availableEntities' => ['order' => 'order'],
+                'availableEntities' => ['order' => 'order', 'salesChannel' => 'sales_channel'],
             ],
             MailTemplateTypes::MAILTYPE_STOCK_WARNING => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Product stock warning',
                 'nameDe' => 'Lagerbestandshinweis',
-                'availableEntities' => ['product' => 'product'],
+                'availableEntities' => ['product' => 'product', 'salesChannel' => 'sales_channel'],
             ],
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_RETURNED_PARTIALLY => [
                 'id' => Uuid::randomHex(),
@@ -1628,6 +1631,7 @@ class Migration1536233560BasicData extends MigrationStep
                     'order' => 'order',
                     'previousState' => 'state_machine_state',
                     'newState' => 'state_machine_state',
+                    'salesChannel' => 'sales_channel',
                 ],
             ],
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_SHIPPED_PARTIALLY => [
@@ -1638,6 +1642,7 @@ class Migration1536233560BasicData extends MigrationStep
                     'order' => 'order',
                     'previousState' => 'state_machine_state',
                     'newState' => 'state_machine_state',
+                    'salesChannel' => 'sales_channel',
                 ],
             ],
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_RETURNED => [
@@ -1648,6 +1653,7 @@ class Migration1536233560BasicData extends MigrationStep
                     'order' => 'order',
                     'previousState' => 'state_machine_state',
                     'newState' => 'state_machine_state',
+                    'salesChannel' => 'sales_channel',
                 ],
             ],
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_SHIPPED => [
@@ -1658,6 +1664,7 @@ class Migration1536233560BasicData extends MigrationStep
                     'order' => 'order',
                     'previousState' => 'state_machine_state',
                     'newState' => 'state_machine_state',
+                    'salesChannel' => 'sales_channel',
                 ],
             ],
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_CANCELLED => [
@@ -1668,6 +1675,7 @@ class Migration1536233560BasicData extends MigrationStep
                     'order' => 'order',
                     'previousState' => 'state_machine_state',
                     'newState' => 'state_machine_state',
+                    'salesChannel' => 'sales_channel',
                 ],
             ],
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_REMINDED => [
@@ -1678,6 +1686,7 @@ class Migration1536233560BasicData extends MigrationStep
                     'order' => 'order',
                     'previousState' => 'state_machine_state',
                     'newState' => 'state_machine_state',
+                    'salesChannel' => 'sales_channel',
                 ],
             ],
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_REFUNDED_PARTIALLY => [
@@ -1688,6 +1697,7 @@ class Migration1536233560BasicData extends MigrationStep
                     'order' => 'order',
                     'previousState' => 'state_machine_state',
                     'newState' => 'state_machine_state',
+                    'salesChannel' => 'sales_channel',
                 ],
             ],
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_CANCELLED => [
@@ -1698,6 +1708,7 @@ class Migration1536233560BasicData extends MigrationStep
                     'order' => 'order',
                     'previousState' => 'state_machine_state',
                     'newState' => 'state_machine_state',
+                    'salesChannel' => 'sales_channel',
                 ],
             ],
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_PAID => [
@@ -1708,6 +1719,7 @@ class Migration1536233560BasicData extends MigrationStep
                     'order' => 'order',
                     'previousState' => 'state_machine_state',
                     'newState' => 'state_machine_state',
+                    'salesChannel' => 'sales_channel',
                 ],
             ],
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_REFUNDED => [
@@ -1718,6 +1730,7 @@ class Migration1536233560BasicData extends MigrationStep
                     'order' => 'order',
                     'previousState' => 'state_machine_state',
                     'newState' => 'state_machine_state',
+                    'salesChannel' => 'sales_channel',
                 ],
             ],
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_PAID_PARTIALLY => [
@@ -1728,6 +1741,7 @@ class Migration1536233560BasicData extends MigrationStep
                     'order' => 'order',
                     'previousState' => 'state_machine_state',
                     'newState' => 'state_machine_state',
+                    'salesChannel' => 'sales_channel',
                 ],
             ],
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_OPEN => [
@@ -1738,6 +1752,7 @@ class Migration1536233560BasicData extends MigrationStep
                     'order' => 'order',
                     'previousState' => 'state_machine_state',
                     'newState' => 'state_machine_state',
+                    'salesChannel' => 'sales_channel',
                 ],
             ],
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_STATE_OPEN => [
@@ -1748,6 +1763,7 @@ class Migration1536233560BasicData extends MigrationStep
                     'order' => 'order',
                     'previousState' => 'state_machine_state',
                     'newState' => 'state_machine_state',
+                    'salesChannel' => 'sales_channel',
                 ],
             ],
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_STATE_IN_PROGRESS => [
@@ -1758,6 +1774,7 @@ class Migration1536233560BasicData extends MigrationStep
                     'order' => 'order',
                     'previousState' => 'state_machine_state',
                     'newState' => 'state_machine_state',
+                    'salesChannel' => 'sales_channel',
                 ],
             ],
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_STATE_CANCELLED => [
@@ -1768,6 +1785,7 @@ class Migration1536233560BasicData extends MigrationStep
                     'order' => 'order',
                     'previousState' => 'state_machine_state',
                     'newState' => 'state_machine_state',
+                    'salesChannel' => 'sales_channel',
                 ],
             ],
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_STATE_COMPLETED => [
@@ -1778,6 +1796,7 @@ class Migration1536233560BasicData extends MigrationStep
                     'order' => 'order',
                     'previousState' => 'state_machine_state',
                     'newState' => 'state_machine_state',
+                    'salesChannel' => 'sales_channel',
                 ],
             ],
         ];

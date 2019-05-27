@@ -182,7 +182,9 @@ export default {
                     this.editor.completers = [textCompleterCloned];
                     const startCallback = (function startCall(e) {
                         if (e.command.name === 'insertstring') {
-                            e.editor.execCommand('startAutocomplete', null);
+                            if (e.args !== '\n' && e.args !== ' ') {
+                                e.editor.execCommand('startAutocomplete', null);
+                            }
                         }
                     });
                     this.editor.commands.on('afterExec', startCallback);

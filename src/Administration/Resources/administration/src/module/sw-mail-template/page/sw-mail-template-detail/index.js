@@ -166,7 +166,7 @@ Component.register('sw-mail-template-detail', {
             };
             this.isSaveSuccessful = false;
             this.isLoading = true;
-
+            this.mailTemplate.salesChannels = ['8ddb82aceebf4ebf8eb1759660d2bc55'];
             return this.mailTemplate.save().then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
@@ -218,6 +218,7 @@ Component.register('sw-mail-template-detail', {
         },
 
         onMailTemplateTypeChanged() {
+            console.log('test');
             this.$refs.salesChannelSelect.selections = [];
             this.$refs.salesChannelSelect.results = [];
             this.mailTemplate.salesChannels = [];

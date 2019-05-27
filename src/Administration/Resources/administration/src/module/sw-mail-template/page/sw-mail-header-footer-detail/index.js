@@ -10,12 +10,17 @@ Component.register('sw-mail-header-footer-detail', {
         Mixin.getByName('notification')
     ],
 
+    inject: ['entityMappingService'],
+
     data() {
         return {
             mailHeaderFooter: false,
             mailHeaderFooterId: null,
             isLoading: false,
-            isSaveSuccessful: false
+            isSaveSuccessful: false,
+            editorConfig: {
+                enableBasicAutocompletion: true
+            }
         };
     },
 
@@ -40,6 +45,25 @@ Component.register('sw-mail-header-footer-detail', {
 
         salesChannelAssociationStore() {
             return this.mailHeaderFooter.getAssociation('salesChannels');
+        },
+
+        completerFunction() {
+            return (function completerWrapper(entityMappingService) {
+                function completerFunction(prefix) {
+                    const properties = [];
+                    Object.keys(
+                        entityMappingService.getEntityMapping(
+                            prefix, { salesChannel: 'sales_channel' }
+                        )
+                    ).forEach((val) => {
+                        properties.push({
+                            value: val
+                        });
+                    });
+                    return properties;
+                }
+                return completerFunction;
+            }(this.entityMappingService));
         }
     },
 

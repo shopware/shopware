@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Tax;
 
-use Shopware\Core\Checkout\Cart\Price\PriceRounding;
+use Shopware\Core\Checkout\Cart\Price\PriceRoundingInterface;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -10,7 +10,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 class TaxCalculator
 {
     /**
-     * @var PriceRounding
+     * @var PriceRoundingInterface
      */
     private $rounding;
 
@@ -20,7 +20,7 @@ class TaxCalculator
     private $calculator;
 
     public function __construct(
-        PriceRounding $rounding,
+        PriceRoundingInterface $rounding,
         TaxRuleCalculator $calculator
     ) {
         $this->rounding = $rounding;

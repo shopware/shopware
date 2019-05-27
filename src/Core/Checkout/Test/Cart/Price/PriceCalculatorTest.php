@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\PriceRounding;
+use Shopware\Core\Checkout\Cart\Price\PriceRoundingInterface;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
@@ -25,7 +26,7 @@ class PriceCalculatorTest extends TestCase
      * @dataProvider priceCalculationWithGrossPricesProvider
      */
     public function testPriceCalculationWithGrossPrices(
-        PriceRounding $priceRounding,
+        PriceRoundingInterface $priceRounding,
         CalculatedPrice $expected,
         QuantityPriceDefinition $priceDefinition
     ): void {

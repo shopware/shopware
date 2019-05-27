@@ -18,7 +18,7 @@ class AmountCalculator
     private $taxDetector;
 
     /**
-     * @var PriceRounding
+     * @var PriceRoundingInterface
      */
     private $rounding;
 
@@ -29,7 +29,7 @@ class AmountCalculator
 
     public function __construct(
         TaxDetector $taxDetector,
-        PriceRounding $rounding,
+        PriceRoundingInterface $rounding,
         TaxAmountCalculatorInterface $taxAmountCalculator
     ) {
         $this->taxDetector = $taxDetector;

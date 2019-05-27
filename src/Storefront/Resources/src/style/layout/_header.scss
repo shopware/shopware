@@ -14,6 +14,12 @@
     max-width: 280px;
 }
 
+.search-form-btn {
+    .loader ~ .search-form-icon {
+        display: none;
+    }
+}
+
 @include media-breakpoint-down(md) {
     .header-logo-col {
         margin: $spacer 0;

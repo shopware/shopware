@@ -4,19 +4,19 @@ namespace Shopware\Core\Content\MailTemplate;
 
 class MailTemplateTypes
 {
-    public const NEWSLETTER = 'newsletter';
+    public const MAILTYPE_NEWSLETTER = 'newsletter';
 
-    public const NEWSLETTER_DO_CONFIRM = 'newsletter_do_confirm'; // after subscription with confirm instructions
+    public const MAILTYPE_NEWSLETTER_DO_CONFIRM = 'newsletter_do_confirm'; // after subscription with confirm instructions
 
-    public const NEWSLETTER_CONFIRMED = 'newsletter_confirmed'; // after confirmation is done
+    public const MAILTYPE_NEWSLETTER_CONFIRMED = 'newsletter_confirmed'; // after confirmation is done
 
-    public const DELIVERY_NOTE = 'delivery_mail';
+    public const MAILTYPE_DOCUMENT_DELIVERY_NOTE = 'delivery_mail';
 
-    public const INVOICE = 'invoice_mail';
+    public const MAILTYPE_DOCUMENT_INVOICE = 'invoice_mail';
 
-    public const CREDIT_NOTE = 'credit_note_mail';
+    public const MAILTYPE_DOCUMENT_CREDIT_NOTE = 'credit_note_mail';
 
-    public const STORNO = 'storno_mail';
+    public const MAILTYPE_DOCUMENT_STORNO = 'storno_mail';
 
     public const MAILTYPE_ORDER_CONFIRM = 'order_confirmation_mail';
 

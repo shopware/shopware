@@ -24,11 +24,6 @@ class MailService
     private $dataValidator;
 
     /**
-     * @var MailBuilder
-     */
-    private $mailBuilder;
-
-    /**
      * @var StringTemplateRenderer
      */
     private $templateRenderer;
@@ -65,7 +60,6 @@ class MailService
 
     public function __construct(
         DataValidator $dataValidator,
-        MailBuilder $mailBuilder,
         StringTemplateRenderer $templateRenderer,
         MessageFactory $messageFactory,
         MailSender $mailSender,
@@ -75,7 +69,6 @@ class MailService
         SystemConfigService $systemConfigService
     ) {
         $this->dataValidator = $dataValidator;
-        $this->mailBuilder = $mailBuilder;
         $this->templateRenderer = $templateRenderer;
         $this->messageFactory = $messageFactory;
         $this->mailSender = $mailSender;
@@ -94,6 +87,7 @@ class MailService
         $salesChannelId = $data['salesChannelId'];
 
         $criteria = new Criteria([$salesChannelId]);
+        $criteria->addAssociation('mailHeaderFooter');
         /** @var SalesChannelEntity|null $salesChannel */
         $salesChannel = $this->salesChannelRepository->search($criteria, $context)->get($salesChannelId);
 
@@ -108,12 +102,7 @@ class MailService
             return null;
         }
 
-        $bodies = [
-            'text/html' => $data['contentHtml'],
-            'text/plain' => $data['contentPlain'],
-        ];
-
-        $contents = $this->mailBuilder->buildContents($context, $bodies, $salesChannelId);
+        $contents = $this->buildContents($data, $salesChannel);
         $templateData['salesChannel'] = $salesChannel;
         foreach ($contents as $index => $template) {
             $contents[$index] = $this->templateRenderer->render($template, $templateData);
@@ -132,6 +121,30 @@ class MailService
         $this->mailSender->send($message);
 
         return $message;
+    }
+
+    /**
+     * Attaches header and footer to given email bodies
+     *
+     * @param array $data e.g. ['contentHtml' => 'foobar', 'contentPlain' => '<h1>foobar</h1>']
+     *
+     * @return array e.g. ['text/plain' => '{{foobar}}', 'text/html' => '<h1>{{foobar}}</h1>']
+     */
+    public function buildContents(array $data, SalesChannelEntity $salesChannel): array
+    {
+        $bodies = [
+            'text/html' => $data['contentHtml'],
+            'text/plain' => $data['contentPlain'],
+        ];
+        $mailHeaderFooter = $salesChannel->getMailHeaderFooter();
+        if ($mailHeaderFooter !== null) {
+            return [
+                'text/plain' => $mailHeaderFooter->getHeaderPlain() . $bodies['text/plain'] . $mailHeaderFooter->getFooterPlain(),
+                'text/html' => $mailHeaderFooter->getHeaderHtml() . $bodies['text/html'] . $mailHeaderFooter->getFooterHtml(),
+            ];
+        }
+
+        return $bodies;
     }
 
     private function getValidationDefinition(Context $context): DataValidationDefinition

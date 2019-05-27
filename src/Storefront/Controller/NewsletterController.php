@@ -3,9 +3,8 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
-use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscriptionService;
-use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscriptionServiceInterface;
+use Shopware\Core\Content\Newsletter\NewsletterSubscriptionService;
+use Shopware\Core\Content\Newsletter\NewsletterSubscriptionServiceInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -41,11 +40,6 @@ class NewsletterController extends StorefrontController
     private $requestStack;
 
     /**
-     * @var AccountService
-     */
-    private $accountService;
-
-    /**
      * @var EntityRepositoryInterface
      */
     private $customerRepository;
@@ -55,14 +49,12 @@ class NewsletterController extends StorefrontController
         NewsletterSubscribePageLoader $newsletterConfirmRegisterPageLoader,
         NewsletterSubscriptionServiceInterface $newsletterService,
         RequestStack $requestStack,
-        AccountService $accountService,
         EntityRepositoryInterface $customerRepository
     ) {
         $this->newsletterRegisterPageLoader = $newsletterRegisterPageLoader;
         $this->newsletterConfirmRegisterPageLoader = $newsletterConfirmRegisterPageLoader;
         $this->newsletterService = $newsletterService;
         $this->requestStack = $requestStack;
-        $this->accountService = $accountService;
         $this->customerRepository = $customerRepository;
     }
 
@@ -82,9 +74,6 @@ class NewsletterController extends StorefrontController
     public function handle(Request $request, SalesChannelContext $context, RequestDataBag $requestDataBag): Response
     {
         $subscribe = $requestDataBag->get('option') === 'subscribe';
-        $requestDataBag->add([
-            'baseUrl' => $this->requestStack->getMasterRequest()->getSchemeAndHttpHost(),
-        ]);
 
         try {
             if ($subscribe) {

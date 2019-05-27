@@ -23,7 +23,7 @@ use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriber;
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
-use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscriptionServiceInterface;
+use Shopware\Core\Content\Newsletter\NewsletterSubscriptionServiceInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Doctrine\MultiInsertQueryQueue;
@@ -1380,6 +1380,14 @@ class Migration1536233560BasicData extends MigrationStep
             'id' => Uuid::randomBytes(),
             'configuration_key' => 'core.saveDocuments',
             'configuration_value' => '{"_value": true}',
+            'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+        ]);
+
+        $connection->insert('system_config', [
+            'id' => Uuid::randomBytes(),
+            'configuration_key' => 'newsletter.subscribeDomain',
+            'configuration_value' => '{"_value": "shopware.local"}',
+            'sales_channel_id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL),
             'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
         ]);
     }

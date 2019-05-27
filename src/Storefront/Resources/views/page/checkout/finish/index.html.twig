@@ -13,23 +13,21 @@
         {% endblock %}
 
         {% block page_checkout_finish_product_table %}
-            {% if page.order.lineItems %}
-                <div class="card checkout-product-table">
-                    <div class="card-body">
-                        {% block page_checkout_finish_table_header %}
-                            {% sw_include '@Storefront/page/checkout/confirm/confirm-product-header.html.twig' %}
-                        {% endblock %}
+            <div class="card checkout-product-table">
+                <div class="card-body">
+                    {% block page_checkout_finish_table_header %}
+                        {% sw_include '@Storefront/page/checkout/confirm/confirm-product-header.html.twig' %}
+                    {% endblock %}
 
-                        {% block page_checkout_finish_items %}
-                            {% for lineItem in page.order.lineItems %}
-                                {% block page_checkout_finish_item %}
-                                    {% sw_include '@Storefront/page/checkout/finish/finish-item.html.twig' %}
-                                {% endblock %}
-                            {% endfor %}
-                        {% endblock %}
-                    </div>
+                    {% block page_checkout_finish_items %}
+                        {% for lineItem in page.order.lineItems %}
+                            {% block page_checkout_finish_item %}
+                                {% sw_include '@Storefront/page/checkout/finish/finish-item.html.twig' %}
+                            {% endblock %}
+                        {% endfor %}
+                    {% endblock %}
                 </div>
-            {% endif %}
+            </div>
         {% endblock %}
     {% endblock %}
 {% endblock %}

@@ -34,8 +34,8 @@ module.exports = {
             .waitForElementVisible('.is--compact');
     },
     'check that name column cannot be hidden': (browser) => {
-        browser.expect.element('.sw-data-grid__settings-item--1').to.have.text.that.contains('Name');
-        browser.expect.element('.sw-data-grid__settings-item--1 input').to.not.be.enabled;
+        browser.expect.element('.sw-data-grid__settings-item--0').to.have.text.that.contains('Name');
+        browser.expect.element('.sw-data-grid__settings-item--0 input').to.not.be.enabled;
     },
     'hide and retrieve mail column': (browser) => {
         const page = customerPage(browser);

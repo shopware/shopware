@@ -13,6 +13,7 @@ export default class OffCanvasCartPlugin extends Plugin {
 
     static options = {
         removeProductTriggerSelector: '.js-offcanvas-cart-remove-product',
+        changeProductQuantityTriggerSelector: '.js-offcanvas-cart-change-quantity',
         offcanvasPosition: 'right',
     };
 
@@ -70,7 +71,29 @@ export default class OffCanvasCartPlugin extends Plugin {
     }
 
     /**
-     * default callback when the off canvas has opened
+     * Register events to handle changing the quantity of a product from the cart
+     *
+     * @private
+     */
+    _registerChangeQuantityProductTriggerEvents() {
+        const selects = DomAccess.querySelectorAll(document, this.options.changeProductQuantityTriggerSelector, false);
+        if (selects) {
+            Iterator.iterate(selects, select => select.addEventListener('change', this._onChangeProductQuantity.bind(this)));
+        }
+    }
+
+    /**
+     * Register all needed events
+     *
+     * @private
+     */
+    _registerEvents() {
+        this._registerRemoveProductTriggerEvents();
+        this._registerChangeQuantityProductTriggerEvents();
+    }
+
+    /**
+     * default callback when the offcanvas has opened
      *
      * @param {function|null} callback
      * @param {string} response
@@ -80,13 +103,27 @@ export default class OffCanvasCartPlugin extends Plugin {
     _onOffCanvasOpened(callback, response) {
         if (typeof callback === 'function') callback(response);
         this._fetchCartWidgets();
-        this._registerRemoveProductTriggerEvents();
+        this._registerEvents();
     }
 
     /**
-     * On submitting the delete product form inside the OffCanvas a DELETE request
-     * against the storefront api has to take place to remove the product. After that
-     * the current cart template needs to be fetched and shown inside the OffCanvas
+     * Fire the ajax request for the form
+     *
+     * @param {HTMLElement} form
+     *
+     * @private
+     */
+    _fireRequest(form) {
+        ElementLoadingIndicatorUtil.create(form.closest('.js-cart-item'));
+
+        const requestUrl = DomAccess.getAttribute(form, 'action');
+        const data = FormSerializeUtil.serialize(form);
+
+        this.client.post(requestUrl.toLowerCase(), data, this._onOffCanvasOpened.bind(this, this._updateOffCanvasContent.bind(this)));
+    }
+
+    /**
+     * Submit the delete form inside the Offcanvas
      *
      * @param {Event} event
      *
@@ -96,17 +133,25 @@ export default class OffCanvasCartPlugin extends Plugin {
         event.preventDefault();
         const form = event.target;
 
-        ElementLoadingIndicatorUtil.create(form.closest('.js-cart-item'));
-
-        const requestUrl = DomAccess.getAttribute(form, 'action');
-        const data = FormSerializeUtil.serialize(form);
-
-        this.client.post(requestUrl.toLowerCase(), data, this._onOffCanvasOpened.bind(this, this._updateOffCanvasContent.bind(this)));
+        this._fireRequest(form);
     }
 
+    /**
+     * Submit the change quantity form inside the Offcanvas
+     *
+     * @param {Event} event
+     *
+     * @private
+     */
+    _onChangeProductQuantity(event) {
+        const select = event.target;
+        const form = select.closest('form');
+
+        this._fireRequest(form);
+    }
 
     /**
-     * updates all registered cart widgets
+     * Update all registered cart widgets
      *
      * @private
      */
@@ -115,13 +160,12 @@ export default class OffCanvasCartPlugin extends Plugin {
         Iterator.iterate(CartWidgetPluginInstances, instance => instance.fetch());
     }
 
-    /**x
-     * update the OffCanvas content
+    /**
+     * Update the OffCanvas content
      *
      * @private
      */
     _updateOffCanvasContent(response) {
-        OffCanvas.setContent(response, false, this._registerRemoveProductTriggerEvents.bind(this));
+        OffCanvas.setContent(response, false, this._registerEvents.bind(this));
     }
-
 }

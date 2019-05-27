@@ -60,18 +60,18 @@ module.exports = {
     'reduce street column width using drag and drop': (browser) => {
         const page = customerPage(browser);
 
-        browser.expect.element(`${page.elements.dataGridHeader} ${page.elements.dataGridColumn}--1`).to.have.css('width').which.equals('250px');
+        browser.expect.element(`${page.elements.dataGridHeader} ${page.elements.dataGridColumn}--0`).to.have.css('width').which.equals('250px');
 
         browser
-            .moveToElement(`${page.elements.dataGridHeader} ${page.elements.dataGridColumn}--2`, 10, 10)
-            .waitForElementVisible(`${page.elements.dataGridColumn}--2 ${page.elements.dataGridColumn}-resize`)
+            .moveToElement(`${page.elements.dataGridHeader} ${page.elements.dataGridColumn}--1`, 10, 10)
+            .waitForElementVisible(`${page.elements.dataGridColumn}--1 ${page.elements.dataGridColumn}-resize`)
             .dragAndDrop(
-                `${page.elements.dataGridColumn}--2 ${page.elements.dataGridColumn}-resize`,
-                `${page.elements.dataGridColumn}--2 ${page.elements.contextMenuButton}`,
+                `${page.elements.dataGridColumn}--1 ${page.elements.dataGridColumn}-resize`,
+                `${page.elements.dataGridColumn}--1 ${page.elements.contextMenuButton}`,
                 { xDrag: 0 }
             );
 
-        browser.expect.element(`${page.elements.dataGridColumn}--2`).to.have.css('width').which.not.equals('250px');
+        browser.expect.element(`${page.elements.dataGridColumn}--1`).to.have.css('width').which.not.equals('250px');
     },
     'inline edit name': (browser) => {
         const page = customerPage(browser);
@@ -85,7 +85,7 @@ module.exports = {
             .click(`${page.elements.dataGridRow}--0 ${page.elements.dataGridInlineEditSave}`)
             .waitForElementNotPresent('.is--inline-edit')
             .refresh()
-            .expect.element(`.sw-data-grid__row--0 ${page.elements.columnName}`).to.have.text.that.equals('Meghan Markle');
+            .expect.element(`.sw-data-grid__row--0 ${page.elements.columnName} a`).to.have.text.that.equals('Meghan Markle');
     },
     'move city column before street column': (browser) => {
         const page = customerPage(browser);

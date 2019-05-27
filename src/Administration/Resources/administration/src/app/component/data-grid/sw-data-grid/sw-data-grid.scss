@@ -291,7 +291,24 @@
         height: 48px;
         border: 1px solid $color-steam-cloud;
         border-radius: $border-radius-default;
-        margin-right: 10px;
+        background-color: $color-white;
+        margin-right: 15px;
+        flex-shrink: 0;
+
+        .sw-media-preview__item {
+            max-width: calc(100% - 5px);
+            max-height: calc(100% - 5px);
+
+            &.sw-icon {
+                width: 80%;
+                height: 80%;
+            }
+        }
+    }
+
+    .sw-avatar {
+        margin-right: 15px;
+        flex-shrink: 0;
     }
 
     .sw-data-grid__cell-settings {

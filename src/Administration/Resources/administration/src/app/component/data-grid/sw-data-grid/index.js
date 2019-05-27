@@ -116,7 +116,7 @@ export default {
             default: true
         },
 
-        showPreviewImages: {
+        showPreviews: {
             type: Boolean,
             required: false,
             default: true
@@ -135,9 +135,10 @@ export default {
             allSelectedChecked: false,
             originalTarget: null,
             compact: this.compactMode,
-            previewImages: this.showPreviewImages,
+            previews: this.showPreviews,
             isInlineEditActive: false,
             currentInlineEditId: '',
+            hasPreviewSlots: false,
             hasResizeColumns: false,
             _hasColumnsResize: false,
             _isResizing: false
@@ -200,6 +201,7 @@ export default {
 
         mountedComponent() {
             this.trackScrollX();
+            this.findPreviewSlots();
 
             this.$device.onResize({
                 listener: this.trackScrollX.bind(this),
@@ -226,6 +228,14 @@ export default {
         findResizeColumns() {
             this.hasResizeColumns = this.currentColumns.some((column) => {
                 return column.allowResize;
+            });
+        },
+
+        findPreviewSlots() {
+            const scopedSlots = Array.from(Object.keys(this.$scopedSlots));
+
+            this.hasPreviewSlots = scopedSlots.some((scopedSlot) => {
+                return scopedSlot.includes('preview-');
             });
         },
 
@@ -283,8 +293,8 @@ export default {
             this.compact = value;
         },
 
-        onChangePreviewImages(value) {
-            this.previewImages = value;
+        onChangePreviews(value) {
+            this.previews = value;
         },
 
         onChangeColumnVisibility(value, index) {

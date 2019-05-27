@@ -74,6 +74,14 @@ export default {
         };
     },
 
+    watch: {
+        size() {
+            this.$nextTick(() => {
+                this.generateAvatarInitialsSize();
+            });
+        }
+    },
+
     computed: {
         avatarSize() {
             const size = this.size;

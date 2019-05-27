@@ -55,6 +55,17 @@
                                            @inline-edit-save="onInlineEditSave">
 
                             {% block sw_customer_list_grid_columns %}
+
+                                {% block sw_product_list_grid_columns_name_preview %}
+                                    <template #preview-firstName="{ item, compact }">
+                                        <sw-avatar
+                                            :size="compact ? '32px' : '48px'"
+                                            :firstName="item.firstName"
+                                            :lastName="item.lastName">
+                                        </sw-avatar>
+                                    </template>
+                                {% endblock %}
+
                                 {% block sw_customer_list_grid_columns_name %}
                                     <template #column-firstName="{ item, compact, isInlineEdit }">
 

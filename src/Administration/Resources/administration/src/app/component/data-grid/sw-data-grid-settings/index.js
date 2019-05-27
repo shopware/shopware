@@ -22,7 +22,12 @@ export default {
             required: true,
             default: false
         },
-        previewImages: {
+        previews: {
+            type: Boolean,
+            required: true,
+            default: false
+        },
+        enablePreviews: {
             type: Boolean,
             required: true,
             default: false
@@ -36,34 +41,18 @@ export default {
 
     data() {
         return {
-            currentCompact: false,
-            currentPreviewImages: false,
-            currentColumns: []
+            currentCompact: this.compact,
+            currentPreviews: this.previews,
+            currentColumns: this.columns
         };
     },
 
-    watch: {
-        columns() {
-            this.createdComponent();
-        }
-    },
-
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
-        createdComponent() {
-            this.currentCompact = this.compact;
-            this.currentColumns = this.columns;
-            this.currentPreviewImages = this.previewImages;
-        },
-
         onChangeCompactMode(value) {
             this.$emit('change-compact-mode', value);
         },
 
-        onChangePreviewImages(value) {
+        onChangePreviews(value) {
             this.$emit('change-preview-images', value);
         },
 

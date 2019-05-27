@@ -95,14 +95,6 @@ Component.register('sw-customer-list', {
 
         getCustomerColumns() {
             return [{
-                property: 'customerNumber',
-                dataIndex: 'customerNumber',
-                naturalSort: true,
-                label: this.$tc('sw-customer.list.columnCustomerNumber'),
-                allowResize: true,
-                inlineEdit: 'string',
-                align: 'right'
-            }, {
                 property: 'firstName',
                 dataIndex: 'firstName,lastName',
                 inlineEdit: 'string',
@@ -127,6 +119,14 @@ Component.register('sw-customer-list', {
                 dataIndex: 'defaultBillingAddress.city',
                 label: this.$tc('sw-customer.list.columnCity'),
                 allowResize: true
+            }, {
+                property: 'customerNumber',
+                dataIndex: 'customerNumber',
+                naturalSort: true,
+                label: this.$tc('sw-customer.list.columnCustomerNumber'),
+                allowResize: true,
+                inlineEdit: 'string',
+                align: 'right'
             }, {
                 property: 'email',
                 dataIndex: 'email',

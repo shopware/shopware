@@ -161,6 +161,7 @@ Component.register('sw-product-list', {
                 property: 'productNumber',
                 dataIndex: 'productNumber',
                 label: this.$tc('sw-product.list.columnProductNumber'),
+                align: 'right',
                 allowResize: true
             }, {
                 property: 'manufacturer.name',

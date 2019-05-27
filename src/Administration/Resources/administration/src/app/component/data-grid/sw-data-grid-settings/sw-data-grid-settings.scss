@@ -31,8 +31,9 @@
 
     .sw-field--checkbox,
     .sw-field--switch {
-        margin-bottom: 0;
+        margin-bottom: 5px;
 
+        &:last-child,
         label {
             margin-bottom: 0;
         }

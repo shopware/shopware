@@ -306,7 +306,7 @@ class PromotionControllerTest extends TestCase
                     'exclusive' => false,
                     'useCodes' => true,
                     'code' => 'super19',
-                    'codeType' => 'standard',
+                    'customer_restriction' => true,
                     'discounts' => [
                         [
                             'id' => $discountId,

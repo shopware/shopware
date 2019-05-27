@@ -51,16 +51,14 @@ class PromotionEntityTest extends TestCase
         $personaRuleEntity->setPayload($fakePersonaRule);
 
         $promotion = new PromotionEntity();
+        $promotion->setCustomerRestriction(false);
+
         $promotion->setPersonaRules(new RuleCollection([$personaRuleEntity]));
 
         $expected = new AndRule(
             [
                 new OrRule(
-                    [
-                        new OrRule(
-                            [$fakePersonaRule]
-                        ),
-                    ]
+                    [$fakePersonaRule]
                 ),
             ]
         );
@@ -91,6 +89,8 @@ class PromotionEntityTest extends TestCase
         $customer2->setCustomerNumber('C2');
 
         $promotion = new PromotionEntity();
+        $promotion->setCustomerRestriction(true);
+
         $promotion->setPersonaCustomers(new CustomerCollection([$customer1, $customer2]));
 
         $custRule1 = new CustomerNumberRule();
@@ -101,15 +101,11 @@ class PromotionEntityTest extends TestCase
 
         $expected = new AndRule(
             [
+                // this is the customer rules OR condition
                 new OrRule(
                     [
-                        // this is the customer rules OR condition
-                        new OrRule(
-                            [
-                                $custRule1,
-                                $custRule2,
-                            ]
-                        ),
+                        $custRule1,
+                        $custRule2,
                     ]
                 ),
             ]
@@ -187,6 +183,8 @@ class PromotionEntityTest extends TestCase
      * OR conditions for each part of the topics.
      * So all conditions need to match when speaking about preconditions, but only
      * 1 rule has to match within of the separate topics.
+     * We also use a customer restriction, which means that only customer-assignment
+     * rules are visible in the persona part.
      *
      * @test
      * @group promotions
@@ -220,19 +218,14 @@ class PromotionEntityTest extends TestCase
         $promotion->setCartRules(new RuleCollection([$cartRuleEntity]));
         $promotion->setOrderRules(new RuleCollection([$orderRuleEntity]));
 
+        // we set the customer-assignment restriction mode
+        // for the persona condition.
+        $promotion->setCustomerRestriction(true);
+
         $expected = new AndRule(
             [
                 new OrRule(
-                    [
-                        new OrRule(
-                            [$fakePersonaRule]
-                        ),
-                        new OrRule(
-                            [
-                                $custRule,
-                            ]
-                        ),
-                    ]
+                    [$custRule]
                 ),
                 new OrRule(
                     [$fakeCartRule]

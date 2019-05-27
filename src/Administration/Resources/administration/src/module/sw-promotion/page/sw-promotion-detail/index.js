@@ -93,6 +93,14 @@ Component.register('sw-promotion-detail', {
             return this.$store.state.swPromotionDetail.discounts;
         },
 
+        personaCustomerIdsAdd() {
+            return this.$store.state.swPromotionDetail.personaCustomerIdsAdd;
+        },
+
+        personaCustomerIdsDelete() {
+            return this.$store.state.swPromotionDetail.personaCustomerIdsDelete;
+        },
+
         ...mapPageErrors(errorConfig)
 
     },
@@ -195,29 +203,52 @@ Component.register('sw-promotion-detail', {
                 discounts.source
             );
 
-            return discountRepository.sync(discounts, discounts.context).then(() => {
-                return this.promotionRepository.save(this.promotion, this.context).then(() => {
-                    this.isSaveSuccessful = true;
-                    const criteria = new Criteria(1, 1);
-                    criteria.addAssociation('salesChannels');
+            return this.savePromotionAssociations().then(() => {
+                // first save our discounts
+                return discountRepository.sync(discounts, discounts.context).then(() => {
+                    // finally save our promotion
+                    return this.promotionRepository.save(this.promotion, this.context).then(() => {
+                        this.isSaveSuccessful = true;
+                        const criteria = new Criteria(1, 1);
+                        criteria.addAssociation('salesChannels');
 
-                    return this.promotionRepository.get(this.promotion.id, this.context, criteria).then((promotion) => {
-                        this.promotion = promotion;
+                        return this.promotionRepository.get(this.promotion.id, this.context, criteria).then((promotion) => {
+                            this.promotion = promotion;
+                            this.isLoading = false;
+                        });
+                    }).catch((error) => {
                         this.isLoading = false;
+                        this.createNotificationError({
+                            title: this.$tc('global.notification.notificationSaveErrorTitle'),
+                            message: this.$tc(
+                                'global.notification.notificationSaveErrorMessage',
+                                0,
+                                { entityName: this.promotion.name }
+                            )
+                        });
+                        throw error;
                     });
-                }).catch((error) => {
-                    this.isLoading = false;
-                    this.createNotificationError({
-                        title: this.$tc('global.notification.notificationSaveErrorTitle'),
-                        message: this.$tc(
-                            'global.notification.notificationSaveErrorMessage',
-                            0,
-                            { entityName: this.promotion.name }
-                        )
-                    });
-                    throw error;
                 });
             });
+        },
+
+        async savePromotionAssociations() {
+            const customerPersonaRepository = this.repositoryFactory.create(
+                this.promotion.personaCustomers.entity,
+                this.promotion.personaCustomers.source
+            );
+
+            if (this.personaCustomerIdsDelete !== null) {
+                await this.personaCustomerIdsDelete.forEach((customerId) => {
+                    customerPersonaRepository.delete(customerId, this.context);
+                });
+            }
+
+            if (this.personaCustomerIdsAdd !== null) {
+                await this.personaCustomerIdsAdd.forEach((customerId) => {
+                    customerPersonaRepository.assign(customerId, this.context);
+                });
+            }
         },
 
         onCancel() {

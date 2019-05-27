@@ -75,13 +75,20 @@
         "preconditions": {
           "ruleModuleLink": "Open rule builder",
           "persona": {
-            "card": "Targeted customers",
-            "title": "Benificiaries of this promotion",
-            "text": "Use the rule builder to narrow down this promotion's target group. Without a set limitation, the promotion will be available to all customers.",
-            "labelRules": "Customer rules",
-            "placeholderRules" : "Assign customer rules...",
-            "labelCustomers": "Individual assignment",
-            "placeholderCustomers" : "Assign customers..."
+            "card": "Target Group",
+            "title": "Determine which customers benefit from this promotion",
+            "text": "Use rules from the rule builder to narrow down the audience for this marketing action. Without a limitation, all your customers have access to this action.",
+            "labelRules": "Customer Rules",
+            "placeholderRules" : "Add Rules...",
+            "switchAssignCustomers": "Assign individual customers to promotion",
+            "placeholderAddCustomers" : "Search and add Customers...",
+            "customers" : {
+              "grid": {
+                "headerName": "Name",
+                "headerCustomerNumber" : "Customer Number",
+                "delete" : "Delete"
+              }
+            }
           },
           "order": {
             "card": "Qualified orders",

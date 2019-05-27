@@ -1,42 +1,95 @@
 {% block sw_promotion_persona_form %}
-    <sw-card class="sw-promotion-persona-form"
-             :title="$tc('sw-promotion.detail.main.preconditions.persona.card')"
-             :isLoading="!promotion || promotion.isLoading">
-        <h4>{{ $tc('sw-promotion.detail.main.preconditions.persona.title') }}</h4>
-        <p>
-            {{ $tc('sw-promotion.detail.main.preconditions.persona.text') }}
-        </p>
+    <div class="sw-promotion-persona-form">
+        <sw-card :title="$tc('sw-promotion.detail.main.preconditions.persona.card')">
+            {% block sw_promotion_persona_form_rules %}
+                <div class="sw-promotion-persona-form-rules">
+                    <h4>{{ $tc('sw-promotion.detail.main.preconditions.persona.title') }}</h4>
+                    <p>
+                        {{ $tc('sw-promotion.detail.main.preconditions.persona.text') }}
+                    </p>
+                    {% block sw_promotion_persona_form_persona_rule_id_field %}
+                        <sw-promotion-rule-select
+                            v-if="promotion"
+                            class="sw-promotion-persona-form__persona-rules"
+                            :localMode="promotion.isNew()"
+                            :criteria="ruleFilter"
+                            :label="$tc('sw-promotion.detail.main.preconditions.persona.labelRules')"
+                            :placeholder="$tc('sw-promotion.detail.main.preconditions.persona.placeholderRules')"
+                            :ruleScope="['checkout']"
+                            v-model="promotion.personaRules">
+                        </sw-promotion-rule-select>
+                    {% endblock %}
+                    {% block sw_promotion_persona_form_persona_customers_switch %}
+                        <sw-field type="switch"
+                                  v-if="promotion"
+                                  class="sw-promotion-persona-form__customers-switch"
+                                  :label="$tc('sw-promotion.detail.main.preconditions.persona.switchAssignCustomers')"
+                                  v-model="promotion.customerRestriction">
+                        </sw-field>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </sw-card>
 
-        {% block sw_promotion_persona_form_persona_rule_id_field %}
-            <sw-promotion-rule-select
-                    v-if="promotion"
-                    class="sw-promotion-persona-form__persona-rules"
-                    :localMode="promotion.isNew()"
-                    :criteria="ruleFilter"
-                    :label="$tc('sw-promotion.detail.main.preconditions.persona.labelRules')"
-                    :placeholder="$tc('sw-promotion.detail.main.preconditions.persona.placeholderRules')"
-                    :ruleScope="['checkout']"
-                    v-model="promotion.personaRules">
-            </sw-promotion-rule-select>
-        {% endblock %}
-
-        {% block sw_promotion_persona_form_customer_field %}
-            <sw-many-to-many-select
-                    v-if="promotion"
-                    class="sw-promotion-persona-form__persona-customers"
-                    :localMode="promotion.isNew()"
-                    :label="$tc('sw-promotion.detail.main.preconditions.persona.labelCustomers')"
-                    :placeholder="$tc('sw-promotion.detail.main.preconditions.persona.placeholderCustomers')"
-                    :collection="promotion.personaCustomers">
-                <template #labelProperty="{ item }">
-                    {{ item.firstName }} {{ item.lastName }}
-                </template>
-                <template #result_items="{ item, index }">
-                    <sw-multi-select-option v-bind="{ index, item }">
-                        {{ item.firstName }} {{ item.lastName }}
-                    </sw-multi-select-option>
-                </template>
-            </sw-many-to-many-select>
-        {% endblock %}
-    </sw-card>
+        <sw-card v-if="promotion && promotion.customerRestriction">
+            {% block sw_promotion_persona_form_customers %}
+                <div class="sw-promotion-persona-form-customers">
+                    {% block sw_promotion_persona_form_customer_search_field %}
+                        <sw-entity-single-select ref="selectCustomerSearch"
+                                                 class="sw-promotion-persona-form-customers__customer-search"
+                                                 :searchPlaceholder="$tc('sw-promotion.detail.main.preconditions.persona.placeholderAddCustomers')"
+                                                 required
+                                                 entity="customer"
+                                                 :criteria="customerCriteria"
+                                                 labelProperty="firstName"
+                                                 @option-click="onAddCustomer"
+                                                 value="">
+                            <template slot="labelProperty" slot-scope="{ item, index }">
+                                {{ item.firstName }} {{ item.lastName }}
+                            </template>
+                        </sw-entity-single-select>
+                    {% endblock %}
+                    {% block sw_promotion_persona_form_customer_grid %}
+                        <sw-data-grid ref="gridCustomers"
+                                      :dataSource="gridCustomersPageDataSource"
+                                      :columns="gridCustomersColumns"
+                                      :showSelection="true"
+                                      @select-all-items="onGridSelectionChanged"
+                                      @select-item="onGridSelectionChanged">
+                            <template slot="column-fullName" slot-scope="{ item, index }">
+                                {{ item.firstName }} {{ item.lastName }}
+                            </template>
+                            <template slot="actions" slot-scope="{ item }">
+                                {% block sw_promotion_persona_form_customer_grid_action_remove %}
+                                    <sw-context-menu-item variant="danger"
+                                                          @click="onRemoveCustomer(item)">
+                                        {{ $tc('sw-promotion.detail.main.preconditions.persona.customers.grid.delete') }}
+                                    </sw-context-menu-item>
+                                {% endblock %}
+                            </template>
+                            <template slot="pagination">
+                                <sw-pagination :total="gridCustomersTotalCount"
+                                               :page="gridCustomersPageNr"
+                                               :limit="gridCustomersPageLimit"
+                                               :total-visible="7"
+                                               :steps="[10, 25, 50]"
+                                               @page-change="onCustomerPageChange">
+                                </sw-pagination>
+                            </template>
+                        </sw-data-grid>
+                    {% endblock %}
+                    {% block sw_promotion_persona_form_customer_grid_remove_all %}
+                        <sw-button class="sw-promotion-persona-form-customers__remove-selected-customers"
+                                   v-if="gridCustomersTotalCount > 0"
+                                   :disabled="isRemoveButtonDisabled"
+                                   @click="onRemoveSelectedCustomers"
+                                   size="small"
+                                   square>
+                            <sw-icon name="default-action-trash" small/>
+                        </sw-button>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </sw-card>
+    </div>
 {% endblock %}

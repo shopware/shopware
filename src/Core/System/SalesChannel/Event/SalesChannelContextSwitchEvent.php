@@ -2,45 +2,29 @@
 
 namespace Shopware\Core\System\SalesChannel\Event;
 
-use Shopware\Core\Checkout\Customer\CustomerDefinition;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\BusinessEventInterface;
-use Shopware\Core\Framework\Event\EventData\EntityType;
-use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
-use Symfony\Component\EventDispatcher\Event;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class SalesChannelContextSwitchEvent extends Event implements BusinessEventInterface
+class SalesChannelContextSwitchEvent extends NestedEvent
 {
-    public const EVENT_NAME = 'system.sales-channel.context-switched';
+    public const EVENT_NAME = 'sales-channel.context.switched';
 
     /**
-     * @var Context
+     * @var SalesChannelContext
      */
-    private $context;
+    private $salesChannelContext;
 
     /**
      * @var DataBag
      */
     private $requestDataBag;
 
-    /**
-     * @var CustomerEntity|null
-     */
-    private $customer;
-
-    /**
-     * @var string
-     */
-    private $salesChannelId;
-
-    public function __construct(Context $context, DataBag $requestDataBag, ?CustomerEntity $customer = null, string $salesChannelId)
+    public function __construct(SalesChannelContext $context, DataBag $requestDataBag)
     {
-        $this->context = $context;
+        $this->salesChannelContext = $context;
         $this->requestDataBag = $requestDataBag;
-        $this->customer = $customer;
-        $this->salesChannelId = $salesChannelId;
     }
 
     public function getName(): string
@@ -50,7 +34,7 @@ class SalesChannelContextSwitchEvent extends Event implements BusinessEventInter
 
     public function getContext(): Context
     {
-        return $this->context;
+        return $this->salesChannelContext->getContext();
     }
 
     public function getRequestDataBag(): DataBag
@@ -58,14 +42,8 @@ class SalesChannelContextSwitchEvent extends Event implements BusinessEventInter
         return $this->requestDataBag;
     }
 
-    public function getCustomer(): ?CustomerEntity
+    public function getSalesChannelContext(): SalesChannelContext
     {
-        return $this->customer;
-    }
-
-    public static function getAvailableData(): EventDataCollection
-    {
-        return (new EventDataCollection())
-            ->add('customer', new EntityType(CustomerDefinition::class));
+        return $this->salesChannelContext;
     }
 }

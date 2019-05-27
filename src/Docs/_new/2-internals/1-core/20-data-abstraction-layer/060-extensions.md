@@ -6,6 +6,8 @@ You can extend existing entities by creating a `EntityExtension`. The extension 
 `Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface` interface and has access to the fields within an entity. You can even manipulate the core fields
 by adding flags and so on. When changing core fields, keep in mind that it can make your system behave inconsistently!
 
+Extensions are used to add relations to existing entities. They are not intended to add normal fields like StringField,
+BoolField or JsonField. Please use [CustomFields](./045-custom-field.md) in these cases.
 ## Creating an extension
 
 Create a class which extends the `Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface` interface, implement the required methods and register and tag it in the service container as `shopware.entity.extension`.
@@ -23,7 +25,7 @@ The example below will add a new `1:n` relation to a new promotion entity.
 
 ```php
 $fields->add(
-    (new OneToManyAssociationField('promotions', PromotionDefinition::class, 'product_id'))->addFlags(new Extension())
+    new OneToManyAssociationField('promotions', PromotionDefinition::class, 'product_id')
 );
 ```
 

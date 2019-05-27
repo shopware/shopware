@@ -269,7 +269,11 @@
         "finishInfoConfirmationMail": "Wir haben Ihnen eine Bestellbestätigung per E-Mail geschickt.",
         "finishButtonBackToShop": "Zurück zum Shop",
         "codeAddedSuccessful": "Code wurde erfolgreich hinzugefügt",
-        "addToCartSuccess": "{1} 1 Item erfolgreich zum Warenkorb hinzugefügt.|]1,Inf[ %count% Items erfolgreich zum Warenkorb hinzugefügt."
+        "addToCartSuccess": "{1} 1 Item erfolgreich zum Warenkorb hinzugefügt.|]1,Inf[ %count% Items erfolgreich zum Warenkorb hinzugefügt.",
+        "shippingCosts": "Versandkosten",
+        "shippingCountry": "Lieferland",
+        "paymentMethod": "Zahlungsart",
+        "shippingMethod": "Versandart"
     },
     "listing": {
         "boxUnitLabel": "Inhalt:",

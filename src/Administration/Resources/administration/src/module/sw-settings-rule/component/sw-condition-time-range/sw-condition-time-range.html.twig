@@ -3,6 +3,7 @@
         <sw-field type="date"
                   dateType="time"
                   name="fromTime"
+                  required
                   :config="datepickerConfig"
                   v-model="condition.value.fromTime"
                   class="field--main has--arrow"
@@ -13,6 +14,7 @@
         <sw-field type="date"
                   dateType="time"
                   name="toTime"
+                  required
                   :config="datepickerConfig"
                   v-model="condition.value.toTime"
                   class="field--main"

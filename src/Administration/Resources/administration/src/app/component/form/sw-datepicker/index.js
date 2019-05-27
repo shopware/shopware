@@ -49,7 +49,8 @@ export default {
     props: {
         value: {
             type: String,
-            required: false
+            required: false,
+            default: null
         },
 
         config: {
@@ -66,13 +67,18 @@ export default {
             validator(value) {
                 return ['time', 'date', 'datetime', 'datetime-local'].includes(value);
             }
+        },
+
+        required: {
+            type: Boolean,
+            default: false,
+            required: false
         }
     },
 
     data() {
         return {
             flatpickrInstance: null,
-            inputValue: this.value || '',
             isDatepickerOpen: false,
             defaultConfig: {}
         };
@@ -94,6 +100,15 @@ export default {
 
             return this.flatpickrInstance.config;
         },
+
+        placeholder() {
+            if (this.flatpickrInstance === null) {
+                return this.defaultConfig.altFormat;
+            }
+
+            return this.flatpickrInstance.config.altFormat;
+        },
+
         suffixName() {
             if (this.noCalendar) {
                 return 'default-time-clock';
@@ -176,10 +191,8 @@ export default {
          *
          * @param newValue
          */
-        value: {
-            handler() {
-                this.setDatepickerValue();
-            }
+        value(newValue) {
+            this.setDatepickerValue(newValue);
         }
     },
 
@@ -189,20 +202,15 @@ export default {
         },
 
         /**
-         * Update DOM if the newValue is different from the DOM value.
+         * Update with the new value.
          *
-         * @param newValue
+         * @param value
          */
-        setDatepickerValue() {
-            // Prevent updates if v-model value is same as input's current value
-            if (this.value === this.flatpickrInstance.input.defaultValue) {
-                return;
-            }
-
+        setDatepickerValue(value) {
             // Make sure we have a flatpickr instance
             if (this.flatpickrInstance !== null) {
                 // Notify flatpickr instance that there is a change in value
-                this.flatpickrInstance.setDate(this.value, true);
+                this.flatpickrInstance.setDate(value, false);
             }
         },
 
@@ -237,8 +245,6 @@ export default {
 
         /**
          * Update the flatpickr instance with a new config.
-         *
-         * @param newConfig
          */
         updateFlatpickrInstance() {
             if (this.flatpickrInstance === null) {
@@ -246,10 +252,9 @@ export default {
             }
 
             const mergedConfig = this.getMergedConfig(this.config);
-            // Don't pass the original reference to the config object. Use a copy instead.
-            const safeConfig = Object.assign({}, mergedConfig);
 
-            if (safeConfig.enableTime !== undefined && safeConfig.enableTime !== this.currentFlatpickrConfig.enableTime) {
+            if (mergedConfig.enableTime !== undefined
+                    && mergedConfig.enableTime !== this.currentFlatpickrConfig.enableTime) {
                 // The instance must be recreated for some config options to take effect like 'enableTime' changes.
                 // See https://github.com/flatpickr/flatpickr/issues/1108 for details.
                 this.createFlatpickrInstance(this.config);
@@ -260,31 +265,22 @@ export default {
             // Notice: we are looping through all events
             // This also means that new callbacks can not passed once component has been initialized
             allEvents.forEach((hook) => {
-                delete safeConfig[hook];
+                delete mergedConfig[hook];
             });
 
             // Update the flatpickr config.
-            this.flatpickrInstance.set(safeConfig);
+            this.flatpickrInstance.set(mergedConfig);
 
             // Workaround: Allow to change locale dynamically
             ['locale', 'showMonths'].forEach((name) => {
-                if (typeof safeConfig[name] !== 'undefined') {
-                    this.flatpickrInstance.set(name, safeConfig[name]);
-                }
-            });
-
-            // emit a new value if the value has changed during config update
-            this.$nextTick(() => {
-                if (this.value !== this.flatpickrInstance.input.defaultValue) {
-                    this.$emit('input', this.flatpickrInstance.input.defaultValue);
+                if (typeof mergedConfig[name] !== 'undefined') {
+                    this.flatpickrInstance.set(name, mergedConfig[name]);
                 }
             });
         },
 
         /**
          * Create the flatpickr instance. If already one exists it will be recreated.
-         *
-         * @param {Object} newConfig
          */
         createFlatpickrInstance() {
             if (this.flatpickrInstance !== null) {
@@ -293,18 +289,16 @@ export default {
             }
 
             const mergedConfig = this.getMergedConfig(this.config);
-            // Don't pass the original reference to the config object. Use a copy instead.
-            const safeConfig = Object.assign({}, mergedConfig);
 
             // Set event hooks in config.
             this.getEventNames().forEach(({ kebabCase, camelCase }) => {
-                safeConfig[camelCase] = (...args) => {
+                mergedConfig[camelCase] = (...args) => {
                     this.$emit(kebabCase, ...args);
                 };
             });
 
             // Init flatpickr only if it is not already loaded.
-            this.flatpickrInstance = new Flatpickr(this.flatpickrInputRef, safeConfig);
+            this.flatpickrInstance = new Flatpickr(this.flatpickrInputRef, mergedConfig);
             this.flatpickrInstance.config.onOpen.push(() => {
                 this.isDatepickerOpen = true;
             });
@@ -313,15 +307,12 @@ export default {
                 this.isDatepickerOpen = false;
             });
 
-            // Set the right datepicker value from the property.
-            this.setDatepickerValue();
-
-            // emit a new value if the value has changed during instance recreation
-            this.$nextTick(() => {
-                if (this.value !== this.flatpickrInstance.input.defaultValue) {
-                    this.$emit('input', this.flatpickrInstance.input.defaultValue);
-                }
+            this.flatpickrInstance.config.onChange.push((...args) => {
+                this.emitValue(args[1]);
             });
+
+            // Set the right datepicker value from the property.
+            this.setDatepickerValue(this.value);
         },
 
         /**
@@ -365,15 +356,26 @@ export default {
             });
         },
 
-        onInput() {
-            if (this.inputValue) {
-                this.flatpickrInstance.input.defaultValue = this.inputValue;
+        unsetValue() {
+            this.$nextTick(() => {
+                this.emitValue(null);
+            });
+        },
+
+        emitValue(value) {
+            this.resetFormError();
+
+            // Prevent emitting an empty date, to reset a date, null should be emitted
+            if (value === '') {
+                value = null;
             }
 
-            this.$nextTick(() => {
-                this.resetFormError();
-                this.$emit('input', this.flatpickrInstance.input.defaultValue);
-            });
+            // Prevent emit if value is already up to date
+            if (value === this.value) {
+                return;
+            }
+
+            this.$emit('input', value);
         },
 
         createConfig() {
@@ -394,7 +396,8 @@ export default {
                 locale: 'en',
                 dateFormat,
                 altInput: true,
-                altFormat
+                altFormat,
+                allowInput: true
             };
         }
 

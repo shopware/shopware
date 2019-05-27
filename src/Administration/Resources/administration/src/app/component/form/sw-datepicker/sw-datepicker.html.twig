@@ -3,6 +3,7 @@
         :class="{ 'has--focus': this.isDatepickerOpen }"
         @sw-contextual-field-suffix-clicked="openDatepicker"
         v-bind="$attrs"
+        :required="required"
         :name="formFieldName"
         v-on="additionalEventListeners">
 
@@ -11,9 +12,13 @@
                ref="flatpickrInput"
                :name="identification"
                :id="identification"
-               :placeholder="currentFlatpickrConfig.dateFormat"
-               v-model="inputValue"
-               @input="onInput">
+               :placeholder="placeholder">
+            <sw-icon v-if="!required && value"
+                     class="sw-field--datepicker__button-reset-value"
+                     name="small-default-x-line-small"
+                     @click="unsetValue"
+                     small>
+            </sw-icon>
     </template>
 
     <template #sw-contextual-field-suffix>

@@ -14,6 +14,7 @@
         <sw-field type="date"
                   :dateType="condition.value.useTime ? 'datetime' : 'date'"
                   name="fromDate"
+                  required
                   :config="datepickerConfig"
                   v-model="fromDate"
                   class="field--main field--from-date has--arrow"
@@ -24,6 +25,7 @@
         <sw-field type="date"
                   :dateType="condition.value.useTime ? 'datetime' : 'date'"
                   name="toDate"
+                  required
                   :config="datepickerConfig"
                   v-model="toDate"
                   class="field--main field--to-date"

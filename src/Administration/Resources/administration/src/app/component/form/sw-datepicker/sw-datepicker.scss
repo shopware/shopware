@@ -19,6 +19,30 @@ $sw-datepicker-color-text-selected: $color-white;
             }
         }
     }
+
+    .sw-block-field__block {
+        position: relative;
+    }
+
+    .sw-field--datepicker__button-reset-value {
+        position: absolute;
+        cursor: pointer;
+        right: 63px;
+        top: 14px;
+
+    }
+
+    &.sw-field--small {
+        .sw-field--datepicker__button-reset-value {
+            top: 7px;
+        }
+    }
+    &.sw-field--medium {
+        .sw-field--datepicker__button-reset-value {
+            top: 12px;
+        }
+    }
+
 }
 
 .flatpickr-calendar {

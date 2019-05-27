@@ -89,7 +89,7 @@ Component.register('sw-integration-list', {
         },
 
         createIntegration() {
-            if (!this.currentIntegration.label || this.currentIntegration.label.length < 0) {
+            if (!this.currentIntegration.label || !this.currentIntegration.label.length) {
                 this.createSavedErrorNotification();
                 return;
             }

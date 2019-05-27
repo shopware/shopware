@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
@@ -34,14 +35,21 @@ class CartRuleLoader
      */
     private $processor;
 
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
     public function __construct(
         CartPersisterInterface $cartPersister,
         Processor $processor,
-        EntityRepositoryInterface $repository
+        EntityRepositoryInterface $repository,
+        LoggerInterface $logger
     ) {
         $this->cartPersister = $cartPersister;
         $this->repository = $repository;
         $this->processor = $processor;
+        $this->logger = $logger;
     }
 
     public function loadByToken(SalesChannelContext $context, string $cartToken): RuleLoaderResult
@@ -94,6 +102,14 @@ class CartRuleLoader
             ++$iteration;
         } while ($valid);
 
+        $index = 0;
+        foreach ($this->rules as $rule) {
+            ++$index;
+            $this->logger->debug(
+                sprintf('#%s Rule detection: %s with priority %s', $index, $rule->getName(), $rule->getPriority())
+            );
+        }
+
         $context->setRuleIds($rules->getIds());
 
         return new RuleLoaderResult($cart, $rules);
@@ -106,7 +122,9 @@ class CartRuleLoader
         }
 
         /** @var RuleCollection $rules */
-        $rules = $this->repository->search(new Criteria(), $context)->getEntities();
+        $rules = $this->repository
+            ->search(new Criteria(), $context)
+            ->getEntities();
 
         /** @var RuleEntity $rule */
         foreach ($rules as $key => $rule) {

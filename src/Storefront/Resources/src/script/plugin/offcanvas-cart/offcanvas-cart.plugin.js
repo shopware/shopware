@@ -14,6 +14,9 @@ export default class OffCanvasCartPlugin extends Plugin {
     static options = {
         removeProductTriggerSelector: '.js-offcanvas-cart-remove-product',
         changeProductQuantityTriggerSelector: '.js-offcanvas-cart-change-quantity',
+        addPromotionTriggerSelector: '.js-offcanvas-cart-add-promotion',
+        cartItemSelector: '.js-cart-item',
+        cartPromotionSelector: '.js-offcanvas-cart-promotion',
         offcanvasPosition: 'right',
     };
 
@@ -83,6 +86,19 @@ export default class OffCanvasCartPlugin extends Plugin {
     }
 
     /**
+     * Register events to handle adding a promotion to the cart
+     *
+     * @private
+     */
+    _registeraddPromotionTriggerEvents() {
+        const forms = DomAccess.querySelectorAll(document, this.options.addPromotionTriggerSelector, false);
+
+        if (forms) {
+            Iterator.iterate(forms, form => form.addEventListener('submit', this._onAddPromotionToCart.bind(this)));
+        }
+    }
+
+    /**
      * Register all needed events
      *
      * @private
@@ -90,6 +106,7 @@ export default class OffCanvasCartPlugin extends Plugin {
     _registerEvents() {
         this._registerRemoveProductTriggerEvents();
         this._registerChangeQuantityProductTriggerEvents();
+        this._registeraddPromotionTriggerEvents();
     }
 
     /**
@@ -110,11 +127,12 @@ export default class OffCanvasCartPlugin extends Plugin {
      * Fire the ajax request for the form
      *
      * @param {HTMLElement} form
+     * @param {string} selector
      *
      * @private
      */
-    _fireRequest(form) {
-        ElementLoadingIndicatorUtil.create(form.closest('.js-cart-item'));
+    _fireRequest(form, selector) {
+        ElementLoadingIndicatorUtil.create(form.closest(selector));
 
         const requestUrl = DomAccess.getAttribute(form, 'action');
         const data = FormSerializeUtil.serialize(form);
@@ -132,8 +150,9 @@ export default class OffCanvasCartPlugin extends Plugin {
     _onRemoveProductFromCart(event) {
         event.preventDefault();
         const form = event.target;
+        const selector = this.options.cartItemSelector;
 
-        this._fireRequest(form);
+        this._fireRequest(form, selector);
     }
 
     /**
@@ -146,8 +165,25 @@ export default class OffCanvasCartPlugin extends Plugin {
     _onChangeProductQuantity(event) {
         const select = event.target;
         const form = select.closest('form');
+        const selector = this.options.cartItemSelector;
 
-        this._fireRequest(form);
+        this._fireRequest(form, selector);
+    }
+
+
+    /**
+     * Submit the add form inside the Offcanvas
+     *
+     * @param {Event} event
+     *
+     * @private
+     */
+    _onAddPromotionToCart(event) {
+        event.preventDefault();
+        const form = event.target;
+        const selector = this.options.cartPromotionSelector;
+
+        this._fireRequest(form, selector);
     }
 
     /**

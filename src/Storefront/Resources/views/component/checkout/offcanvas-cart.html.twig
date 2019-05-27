@@ -83,6 +83,55 @@
 
             {% block component_offcanvas_cart_actions %}
                 <div class="offcanvas-cart-actions">
+                    {% block component_offcanvas_cart_actions_promotion %}
+                        {% if isCartNotEmpty %}
+                            <div class="js-offcanvas-cart-promotion">
+                                {% block component_offcanvas_cart_actions_promotion_form %}
+                                    <form action="{{ path('frontend.checkout.promotion.add') }}"
+                                          class="offcanvas-cart-promotion-form js-offcanvas-cart-add-promotion"
+                                          method="post">
+                                        {% block component_offcanvas_cart_actions_promotion_redirect %}
+                                            <input type="hidden"
+                                                   name="redirectTo"
+                                                   value="frontend.cart.offcanvas">
+                                        {% endblock %}
+                        
+                                        {% block component_offcanvas_cart_actions_promotion_input_group %}
+                                            <div class="input-group">
+                                                {% block component_offcanvas_cart_actions_promotion_label %}
+                                                    <label class="sr-only" for="addPromotionOffcanvasCartInput">
+                                                        {{ "checkout.addPromotionLabel"|trans }}
+                                                    </label>
+                                                {% endblock %}
+                                
+                                                {% block component_offcanvas_cart_actions_promotion_input %}
+                                                    <input type="text"
+                                                           name="code"
+                                                           class="form-control"
+                                                           id="addPromotionOffcanvasCartInput"
+                                                           placeholder="{{ "checkout.addPromotionPlaceholder"|trans }}"
+                                                           aria-label="{{ "checkout.addPromotionLabel"|trans }}"
+                                                           aria-describedby="addPromotionOffcanvasCart"
+                                                           required="required">
+                                                {% endblock %}
+                                
+                                                {% block component_offcanvas_cart_actions_promotion_submit %}
+                                                    <div class="input-group-append">
+                                                        <button class="btn btn-dark"
+                                                                type="submit"
+                                                                id="addPromotionOffcanvasCart">
+                                                            {% sw_icon 'checkmark' %}
+                                                        </button>
+                                                    </div>
+                                                {% endblock %}
+                                            </div>
+                                        {% endblock %}
+                                    </form>
+                                {% endblock %}
+                            </div>
+                        {% endif %}
+                    {% endblock %}
+                    
                     {% block component_offcanvas_cart_actions_checkout %}
                         <a href="{{ path('frontend.checkout.confirm.page') }}"
                            class="btn btn-block {% if isCartNotEmpty %}btn-primary{% else %}btn-light disabled{% endif %}"

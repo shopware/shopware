@@ -73,6 +73,10 @@
     font-size: $small-font-size;
 }
 
+.offcanvas-cart-promotion-form {
+    margin-bottom: $spacer;
+}
+
 @include media-breakpoint-down(xs) {
     .offcanvas-cart {
         .cart-item-image {

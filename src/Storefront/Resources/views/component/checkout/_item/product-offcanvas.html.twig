@@ -6,19 +6,21 @@
                 <div class="col-3">
                     {% block component_offcanvas_product_image_inner %}
                         <div class="cart-item-image">
-                            <a href="{{ path('frontend.detail.page', {'productId': productId}) }}"
-                               title="{{ lineItem.label }}">
-                                {% if lineItem.cover.url %}
-                                    <img src="{{ lineItem.cover.url }}"
-                                         class="cart-item-link img-fluid"
-                                         alt="{{ lineItem.label }}"
-                                         title="{{ lineItem.label }}">
-                                {% else %}
-                                    {% sw_icon 'placeholder' style {
-                                        'size': 'fluid'
-                                    } %}
-                                {% endif %}
-                            </a>
+                            {% block component_offcanvas_product_image_link %}
+                                <a href="{{ path('frontend.detail.page', {'productId': productId}) }}"
+                                   title="{{ lineItem.label }}">
+                                    {% if lineItem.cover.url %}
+                                        <img src="{{ lineItem.cover.url }}"
+                                             class="cart-item-link img-fluid"
+                                             alt="{{ lineItem.label }}"
+                                             title="{{ lineItem.label }}">
+                                    {% else %}
+                                        {% sw_icon 'placeholder' style {
+                                            'size': 'fluid'
+                                        } %}
+                                    {% endif %}
+                                </a>
+                            {% endblock %}
                         </div>
                     {% endblock %}
                 </div>
@@ -43,37 +45,39 @@
                                     {% block component_offcanvas_product_quantity %}
                                         <div class="cart-item-quantity">
                                             {% block component_offcanvas_product_quantity_form %}
-                                                <form action="{{ path('frontend.checkout.line-item.change-quantity', {'id': lineItem.id}) }}"
-                                                      class="cart-item-quantity-container"
-                                                      method="post">
-                                                    {% block component_offcanvas_product_quantity_form_redirect %}
-                                                        <input type="hidden"
-                                                               name="redirectTo"
-                                                               value="frontend.cart.offcanvas"/>
-                                                    {% endblock %}
-                        
-                                                    {% if lineItem.quantityInformation.maxPurchase %}
-                                                        {% if lineItem.deliveryInformation.stock < lineItem.quantityInformation.maxPurchase %}
-                                                            {% set maxQuantity = lineItem.deliveryInformation.stock %}
+                                                {% if lineItem.quantityInformation %}
+                                                    <form action="{{ path('frontend.checkout.line-item.change-quantity', {'id': lineItem.id}) }}"
+                                                          class="cart-item-quantity-container"
+                                                          method="post">
+                                                        {% block component_offcanvas_product_quantity_form_redirect %}
+                                                            <input type="hidden"
+                                                                   name="redirectTo"
+                                                                   value="frontend.cart.offcanvas"/>
+                                                        {% endblock %}
+                            
+                                                        {% if lineItem.quantityInformation.maxPurchase %}
+                                                            {% if lineItem.deliveryInformation.stock < lineItem.quantityInformation.maxPurchase %}
+                                                                {% set maxQuantity = lineItem.deliveryInformation.stock %}
+                                                            {% else %}
+                                                                {% set maxQuantity = lineItem.quantityInformation.maxPurchase %}
+                                                            {% endif %}
                                                         {% else %}
-                                                            {% set maxQuantity = lineItem.quantityInformation.maxPurchase %}
+                                                            {% set maxQuantity = shopware.config.checkout.maxQuantity %}
                                                         {% endif %}
-                                                    {% else %}
-                                                        {% set maxQuantity = shopware.config.checkout.maxQuantity %}
-                                                    {% endif %}
-                        
-                                                    {% block component_offcanvas_product_buy_quantity %}
-                                                        <select name="quantity"
-                                                                class="custom-select quantity-select-{{ lineItem.id }} js-offcanvas-cart-change-quantity">
-                                                            {% for quantity in range(lineItem.quantityInformation.minPurchase, maxQuantity, lineItem.quantityInformation.purchaseSteps) %}
-                                                                <option value="{{ quantity }}"
-                                                                    {% if quantity == lineItem.quantity %} selected="selected"{% endif %}>
-                                                                    {{ quantity }}
-                                                                </option>
-                                                            {% endfor %}
-                                                        </select>
-                                                    {% endblock %}
-                                                </form>
+                            
+                                                        {% block component_offcanvas_product_buy_quantity %}
+                                                            <select name="quantity"
+                                                                    class="custom-select quantity-select-{{ lineItem.id }} js-offcanvas-cart-change-quantity">
+                                                                {% for quantity in range(lineItem.quantityInformation.minPurchase, maxQuantity, lineItem.quantityInformation.purchaseSteps) %}
+                                                                    <option value="{{ quantity }}"
+                                                                        {% if quantity == lineItem.quantity %} selected="selected"{% endif %}>
+                                                                        {{ quantity }}
+                                                                    </option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        {% endblock %}
+                                                    </form>
+                                                {% endif %}
                                             {% endblock %}
                                         </div>
                                     {% endblock %}

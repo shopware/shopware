@@ -67,7 +67,9 @@
         }
 
         .sw-field.sw-field--checkbox,
-        .sw-field.sw-field--radio {
+        .sw-field.sw-field--radio,
+        .sw-field--checkbox,
+        .sw-field--radio {
             display: block;
             margin-bottom: 0;
             width: auto;

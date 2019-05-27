@@ -113,9 +113,13 @@ class SalesChannelContextSwitcher
 
         $this->contextPersister->save($context->getToken(), $parameters);
 
-        $this->contextService->refresh($context->getSalesChannel()->getId(), $context->getToken(), $context->getSalesChannel()->getLanguageId());
+        $this->contextService->refresh(
+            $context->getSalesChannel()->getId(),
+            $context->getToken(),
+            $context->getContext()->getLanguageId()
+        );
 
-        $event = new SalesChannelContextSwitchEvent($context->getContext(), $data, $context->getCustomer(), $context->getSalesChannel()->getId());
+        $event = new SalesChannelContextSwitchEvent($context, $data);
         $this->eventDispatcher->dispatch($event->getName(), $event);
     }
 }

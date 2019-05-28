@@ -4,8 +4,8 @@
         xsi:schemaLocation="http://symfony.com/schema/routing
         https://symfony.com/schema/routing/routing-1.0.xsd">
 
-    <import resource="../../User/Api/" type="annotation" />
-    <import resource="../../SystemConfig" type="annotation" />
-    <import resource="../../NumberRange/" type="annotation" />
-    <import resource="../../SalesChannel/SalesChannel/" type="annotation" />
+    <import resource="../../User/Api/**/*Controller.php" type="annotation" />
+    <import resource="../../SystemConfig/**/*Controller.php" type="annotation" />
+    <import resource="../../NumberRange/**/*Controller.php" type="annotation" />
+    <import resource="../../SalesChannel/SalesChannel/**/*Controller.php" type="annotation" />
 </routes>

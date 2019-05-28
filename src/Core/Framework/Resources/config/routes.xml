@@ -4,12 +4,12 @@
         xsi:schemaLocation="http://symfony.com/schema/routing
         https://symfony.com/schema/routing/routing-1.0.xsd">
 
-    <import resource="../../Api/Controller/" type="annotation" />
-    <import resource="../../Snippet/" type="annotation" />
-    <import resource="../../CustomField/" type="annotation" />
-    <import resource="../../Plugin/" type="annotation" />
-    <import resource="../../Store/" type="annotation" />
-    <import resource="../../MessageQueue/" type="annotation" />
-    <import resource="../../Migration/" type="annotation" />
-    <import resource="../../ScheduledTask/" type="annotation" />
+    <import resource="../../Api/Controller/**/*Controller.php" type="annotation" />
+    <import resource="../../Snippet/**/*Controller.php" type="annotation" />
+    <import resource="../../CustomField/**/*Controller.php" type="annotation" />
+    <import resource="../../Plugin/**/*Controller.php" type="annotation" />
+    <import resource="../../Store/**/*Controller.php" type="annotation" />
+    <import resource="../../MessageQueue/**/*Controller.php" type="annotation" />
+    <import resource="../../Migration/**/*Controller.php" type="annotation" />
+    <import resource="../../ScheduledTask/**/*Controller.php" type="annotation" />
 </routes>

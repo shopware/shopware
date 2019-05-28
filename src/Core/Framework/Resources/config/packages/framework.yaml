@@ -1,0 +1,37 @@
+framework:
+    esi: true
+    trusted_hosts: ~
+    fragments: ~
+    assets: ~
+    session:
+        handler_id: ~
+    serializer: { enabled: true }
+    secret: "%env(APP_SECRET)%"
+    validation:
+        enable_annotations: true
+    default_locale:  en_GB
+    http_method_override: true
+    php_errors:
+        log: true
+    cache:
+        prefix_seed: shopware
+        app: cache.adapter.filesystem
+    templating:
+        engines: ['twig']
+    messenger:
+        transports:
+            default:
+                dsn: "enqueue://default"
+                options:
+                    receiveTimeout: 1000
+        routing:
+            '*': default
+        default_bus: messenger.bus.shopware
+        buses:
+            messenger.bus.shopware:
+                middleware:
+                    - Shopware\Core\Framework\MessageQueue\Middleware\RetryMiddleware
+
+sensio_framework_extra:
+    router:
+        annotations: false

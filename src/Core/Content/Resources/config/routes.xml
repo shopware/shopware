@@ -4,10 +4,8 @@
         xsi:schemaLocation="http://symfony.com/schema/routing
         https://symfony.com/schema/routing/routing-1.0.xsd">
 
-    <import resource="../../Product/SalesChannel/" type="annotation" />
-    <import resource="../../Category/SalesChannel/" type="annotation" />
-    <import resource="../../Cms/SalesChannel/" type="annotation" />
-    <import resource="../../Product/" type="annotation" />
-    <import resource="../../Media/" type="annotation" />
-    <import resource="../../MailTemplate/" type="annotation" />
+    <import resource="../../Cms/SalesChannel/**/*Controller.php" type="annotation" />
+    <import resource="../../Product/**/*Controller.php" type="annotation" />
+    <import resource="../../Media/**/*Controller.php" type="annotation" />
+    <import resource="../../MailTemplate/**/*Controller.php" type="annotation" />
 </routes>

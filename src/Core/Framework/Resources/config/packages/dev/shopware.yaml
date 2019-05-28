@@ -1,0 +1,4 @@
+shopware:
+    cache:
+        entity_cache:
+            enabled: false

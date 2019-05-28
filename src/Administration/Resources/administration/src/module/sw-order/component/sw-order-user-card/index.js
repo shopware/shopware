@@ -64,14 +64,12 @@ Component.register('sw-order-user-card', {
             if (this.currentOrder) {
                 if (this.currentOrder.updatedAt) {
                     return format.date(
-                        this.currentOrder.updatedAt,
-                        { year: '2-digit', hour: '2-digit', minute: '2-digit' }
+                        this.currentOrder.updatedAt
                     );
                 }
 
                 return format.date(
-                    this.currentOrder.orderDate,
-                    { year: '2-digit', hour: '2-digit', minute: '2-digit' }
+                    this.currentOrder.orderDate
                 );
             }
             return '';

@@ -3,9 +3,9 @@
 To be able to introduce extensions into the system, the core comes with an integrated plugin system.
 Plugins are [Symfony Bundles](https://symfony.com/doc/current/bundles.html) which can be activated and deactivated via the [plugin commands](./030-plugin-commands.md).
 A plugin can change the behavior of the system including: 
-* Listening for events and executing afterwards ([Listening to events via Subscriber](#Listening to events via Subscriber)
-* Define new services, extend existing ones or exchange them completely to implement your custom logic and business cases (([Creating a service](#Creating a service)))
-* Include entities in the system and/or extend existing ones ([Custom entities via plugin](./../../4-how-to/050-custom-entity.md)
+* Listening for events and executing afterwards ([Listening to events via Subscriber](./../../4-how-to/040-register-subscriber.md))
+* Define new services, extend existing ones or exchange them completely to implement your custom logic and business cases ([Creating a service](./../../4-how-to/070-add-service.md))
+* Include entities in the system and/or extend existing ones ([Custom entities via plugin](./../../4-how-to/050-custom-entity.md))
 
 This document will give you a brief introduction on how to create your very first own plugin, including some
 basic setup, e.g. registering your first service or creating a new controller.

@@ -1,6 +1,21 @@
 {% sw_extends '@Storefront/utilities/offcanvas.html.twig' %}
 
 {% block utilities_offcanvas_content %}
+    {% block layout_navigation_offcanvas_navigation_actions %}
+        <nav class="nav offcanvas-menu-actions">
+            {% block layout_navigation_offcanvas_navigation_action_language %}
+                <div class="nav-item nav-link">
+                    {% sw_include '@Storefront/layout/header/actions/language-widget.html.twig' %}
+                </div>
+            {% endblock %}
+
+            {% block layout_navigation_offcanvas_navigation_action_currency %}
+                <div class="nav-item nav-link">
+                    {% sw_include '@Storefront/layout/header/actions/currency-widget.html.twig' %}
+                </div>
+            {% endblock %}
+        </nav>
+    {% endblock %}
 
     {% if page.header.offcanvasNavigation %}
         {% set offcanvasNavigation = page.header.offcanvasNavigation %}

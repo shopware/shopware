@@ -10,6 +10,12 @@
     }
 }
 
+.offcanvas-menu-actions {
+    .top-bar-nav-name {
+        display: inline;
+    }
+}
+
 .offcanvas-menu-headline {
     @extend .nav-link;
     font-weight: $font-weight-bold;

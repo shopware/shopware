@@ -94,7 +94,7 @@ Component.register('sw-settings-country-detail', {
         onDeleteCountryStates() {
             const selection = this.$refs.countryStateGrid.selection;
 
-            if (Object.keys(selection).length < 0) {
+            if (!Object.keys(selection).length) {
                 return;
             }
 

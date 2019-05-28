@@ -155,3 +155,5 @@ You can now access your shopware platform installation using the following urls:
 * Storefront: http://shopware:8000
 * Admin: http://shopware:8000/admin (User: admin, password: shopware)
 
+### Next: [Startup](./../30-startup-guide/__categoryInfo.md)
+

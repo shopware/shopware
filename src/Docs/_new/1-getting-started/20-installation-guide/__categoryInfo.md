@@ -98,6 +98,7 @@ Voila, the Shopware Platform is installed. To be sure that the installation succ
 ## Specific guides
 
 * [MacOSX using MAMP](./../25-system-installation-guides/10-mac-os-x.md)
+* [Vagrant VM](./../25-system-installation-guides/20-vagrant.md)
 
 ## Updating the repositories
 
@@ -116,3 +117,5 @@ The following steps should always yield a positive result:
 ```
 
 Please note that this will reset your database.
+
+### Next: [Startup](./../30-startup-guide/__categoryInfo.md)

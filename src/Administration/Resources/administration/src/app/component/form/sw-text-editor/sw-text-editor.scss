@@ -3,6 +3,39 @@
 .sw-text-editor {
     position: relative;
 
+    .sw-text-editor-table {
+        border-collapse: collapse;
+
+        .sw-text-editor-table__head {
+            td {
+                background: $color-light-gray;
+            }
+        }
+
+        .sw-text-editor-table__row {
+            .sw-text-editor-table__col {
+                border: 1px solid #000;
+                min-width: 15px;
+                position: relative;
+
+                .sw-text-editor-table__col-selector {
+                    position: absolute;
+                    cursor: col-resize;
+                    user-select: none;
+                    width: 4px;
+                    top: 0;
+                    right: 0;
+                    z-index: 2;
+                    margin: 0;
+
+                    &:hover {
+                        border: 2px solid $color-shopware-blue;
+                    }
+                }
+            }
+        }
+    }
+
     &.is--boxed {
         margin-bottom: 22px;
 
@@ -80,6 +113,7 @@
     .sw-text-editor__word_count {
         transition: 0.3s all ease;
         padding-top: 10px;
+        background-color: $color-light-gray;
     }
 
     .sw-text-editor__content-editor {

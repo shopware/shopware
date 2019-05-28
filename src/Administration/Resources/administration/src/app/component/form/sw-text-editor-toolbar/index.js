@@ -86,6 +86,7 @@ export default {
                 const body = document.querySelector('body');
                 body.appendChild(this.$el);
             }
+
             document.addEventListener('mouseup', this.onMouseUp);
             this.setToolbarPosition();
 
@@ -243,8 +244,6 @@ export default {
                 this.closeExpandedMenu();
             }
 
-            this.keepSelection();
-
             if (parent) {
                 parent.children.forEach((child) => {
                     child.active = false;
@@ -252,9 +251,18 @@ export default {
             }
 
             if (button.handler) {
+                this.keepSelection(true);
+
                 button.handler(button, parent);
+
+                this.range = document.getSelection().getRangeAt(0);
+                this.range.setStart(this.range.startContainer, 0);
+                button.expanded = false;
+
                 return;
             }
+
+            this.keepSelection();
 
             this.$emit('text-style-change', button.type, button.value);
 

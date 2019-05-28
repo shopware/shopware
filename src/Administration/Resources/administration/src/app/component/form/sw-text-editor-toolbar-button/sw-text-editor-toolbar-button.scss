@@ -42,7 +42,7 @@ $sw-text-editor-toolbar-button-arrow-shadow: rgba(120, 138, 155, 0.5);
         white-space: nowrap;
         border: 1px solid $color-steam-cloud;
         box-shadow: 0 3px 6px 0 $sw-text-editor-toolbar-button-child-shadow;
-
+        z-index: 260;
 
         &::before {
             content: '';

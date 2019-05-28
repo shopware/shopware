@@ -225,7 +225,14 @@ export default {
             content: '',
             placeholderHeight: null,
             placeholderVisible: false,
-            isCodeEdit: false
+            isCodeEdit: false,
+            tableData: {
+                pageX: null,
+                curCol: null,
+                nextCol: null,
+                curColWidth: null,
+                nextColWidth: null
+            }
         };
     },
 
@@ -251,6 +258,7 @@ export default {
 
                 this.$nextTick(() => {
                     this.setWordCount();
+                    this.setTablesResizable();
                 });
             }
         },
@@ -280,14 +288,24 @@ export default {
         createdComponent() {
             this.content = this.value;
 
-            if (!this.isInlineEdit && !this.$options.buttonConfig) {
+            if (!this.$options.buttonConfig) {
                 this.buttonConfig.push({
-                    type: 'codeSwitch',
-                    icon: 'default-text-editor-code',
-                    expanded: this.isCodeEdit,
-                    handler: this.toggleCodeEditor,
-                    position: 'right'
+                    type: 'table',
+                    icon: 'default-text-editor-table',
+                    tag: 'table',
+                    expanded: false,
+                    handler: this.handleInsertTable
                 });
+
+                if (!this.isInlineEdit) {
+                    this.buttonConfig.push({
+                        type: 'codeSwitch',
+                        icon: 'default-text-editor-code',
+                        expanded: this.isCodeEdit,
+                        handler: this.toggleCodeEditor,
+                        position: 'right'
+                    });
+                }
             }
 
             document.addEventListener('mouseup', this.onSelectionChange);
@@ -306,6 +324,7 @@ export default {
 
             this.$nextTick(() => {
                 this.setWordCount();
+                this.setTablesResizable();
             });
         },
 
@@ -373,6 +392,79 @@ export default {
         onTextStyleChange(type, value) {
             document.execCommand(type, false, value);
             this.emitContent();
+        },
+
+        handleInsertTable(button) {
+            this.onTextStyleChange('insertHTML', button.value);
+            this.selection = document.getSelection();
+
+            this.$nextTick(() => {
+                this.setTablesResizable();
+            });
+        },
+
+        setTablesResizable() {
+            const tables = this.$el.querySelectorAll('.sw-text-editor-table');
+
+            if (tables) {
+                tables.forEach((table) => {
+                    this.setTableResizable(table);
+                });
+            }
+        },
+
+        setTableResizable(table) {
+            const row = table.getElementsByTagName('tr')[0];
+            const cols = row ? row.children : undefined;
+
+            if (!cols) {
+                return;
+            }
+
+            const resizeSelectors = table.querySelectorAll('.sw-text-editor-table__col-selector');
+
+            if (resizeSelectors.length > 0) {
+                resizeSelectors.forEach((selector) => {
+                    selector.style.height = `${table.offsetHeight}px`;
+                    this.setTableSelectorListeners(selector);
+                });
+
+                this.setTableListeners();
+            }
+        },
+
+        setTableSelectorListeners(selector) {
+            selector.addEventListener('mousedown', (e) => {
+                this.tableData.curCol = e.target.parentElement;
+                this.tableData.nextCol = this.tableData.curCol.nextElementSibling;
+                this.tableData.pageX = e.pageX;
+                this.tableData.curColWidth = this.tableData.curCol.offsetWidth;
+                if (this.tableData.nextCol) {
+                    this.tableData.nextColWidth = this.tableData.nextCol.offsetWidth;
+                }
+            });
+        },
+
+        setTableListeners() {
+            this.$el.addEventListener('mousemove', (e) => {
+                if (this.tableData.curCol) {
+                    const diffX = e.pageX - this.tableData.pageX;
+
+                    if (this.tableData.nextCol) {
+                        this.tableData.nextCol.style.width = `${this.tableData.nextColWidth - (diffX)}px`;
+                    }
+
+                    this.tableData.curCol.style.width = `${this.tableData.curColWidth + diffX}px`;
+                }
+            });
+
+            this.$el.addEventListener('mouseup', () => {
+                this.tableData.curCol = null;
+                this.tableData.nextCol = null;
+                this.tableData.pageX = null;
+                this.tableData.nextColWidth = null;
+                this.tableData.curColWidth = null;
+            });
         },
 
         onSetLink(value, target) {

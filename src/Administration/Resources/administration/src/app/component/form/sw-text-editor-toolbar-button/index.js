@@ -36,7 +36,7 @@ export default {
                 return null;
             }
 
-            return button.children || button.type === 'link' || button.type === 'foreColor' ?
+            return button.children || button.type === 'link' || button.type === 'table' || button.type === 'foreColor' ?
                 this.onToggleMenu(event, button) :
                 this.handleButtonClick(button);
         },
@@ -56,7 +56,7 @@ export default {
         },
 
         onToggleMenu(event, button) {
-            if (button.type !== 'link' && !button.children) {
+            if (!['link', 'table'].includes(button.type) && !button.children) {
                 return;
             }
 
@@ -64,7 +64,7 @@ export default {
                 return;
             }
 
-            if (button.type === 'link' && event.target.closest('.sw-text-editor-toolbar-button__link-menu')) {
+            if (button.type === 'table' && event.target.closest('.sw-text-editor-toolbar-button__table-menu')) {
                 return;
             }
 

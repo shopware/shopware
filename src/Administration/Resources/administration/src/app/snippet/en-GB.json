@@ -530,6 +530,11 @@
       "placeholder": "Enter URL",
       "linkTo": "Link to",
       "insert": "Insert"
+    },
+    "table": {
+      "addHeading": "Add table heading",
+      "cols": "Columns",
+      "rows": "Rows"
     }
   },
   "sw-tree": {

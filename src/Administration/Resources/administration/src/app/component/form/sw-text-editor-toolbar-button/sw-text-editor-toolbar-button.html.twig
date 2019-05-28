@@ -1,7 +1,7 @@
 {% block sw_text_editor_toolbar_button %}
     <div class="sw-text-editor-toolbar-button" :class="classes" @click="buttonHandler($event, buttonConfig)">
     
-        {% block sw_text_editor_toolbar_button_icon%}
+        {% block sw_text_editor_toolbar_button_icon %}
             <template v-if="buttonConfig.icon">
                 <div class="sw-text-editor-toolbar-button__icon">
                     <sw-icon :name="buttonConfig.icon" size="12"></sw-icon>
@@ -53,6 +53,17 @@
                             <sw-button size="small" variant="primary" @click="handleButtonClick(buttonConfig)">{{ $tc('sw-text-editor-toolbar.link.insert') }}</sw-button>
                         {% endblock %}
                     </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_text_editor_toolbar_button_table %}
+            <div v-if="buttonConfig.type === 'table' && buttonConfig.expanded"
+                 class="sw-text-editor-toolbar-button__children sw-text-editor-toolbar-button__table-menu">
+                {% block sw_text_editor_toolbar_button_table_menu_content %}
+                    <sw-text-editor-toolbar-table :buttonConfig="buttonConfig"
+                                                         @table-create="handleButtonClick(buttonConfig)">
+                    </sw-text-editor-toolbar-table>
                 {% endblock %}
             </div>
         {% endblock %}

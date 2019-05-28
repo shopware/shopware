@@ -59,7 +59,7 @@ module.exports = {
             .assert.containsText(`${page.elements.cartItem}-label`, currentProduct.attributes.name)
             .assert.containsText(`${page.elements.cartItem}-unit-price`, currentProduct.attributes.price.gross)
             .assert.containsText('.checkout-summary-list .summary-value.summary-total', currentProduct.attributes.price.gross)
-            .click(`.checkout-aside-action ${page.elements.primaryButton}`);
+            .click(`${page.elements.primaryButton}[title="Checkout"]`);
     },
     'log in customer': (browser) => {
         const page = checkoutPage(browser);

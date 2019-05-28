@@ -118,17 +118,17 @@ class ProductPageObject extends GeneralPageObject {
 
     createProductTag(value, position = 0) {
         this.browser
-            .fillField(`.sw-tag-field .sw-multi-select__selection-item-input input`, value)
+            .fillField('.sw-tag-field .sw-multi-select__selection-item-input input', value)
             .expect.element('.sw-multi-select__results-empty-message').to.have.text.that.equals(`No results found for "${value}".`);
 
         this.browser
-            .setValue(`.sw-tag-field .sw-multi-select__selection-item-input input`, this.browser.Keys.ENTER)
-            .expect.element(`.sw-tag-field .sw-multi-select__selection-item-input input`).to.have.value.that.equals('');
+            .setValue('.sw-tag-field .sw-multi-select__selection-item-input input', this.browser.Keys.ENTER)
+            .expect.element('.sw-tag-field .sw-multi-select__selection-item-input input').to.have.value.that.equals('');
 
         this.browser
             .expect.element(`.sw-multi-select__selection-item-holder--${position} .sw-multi-select__selection-item`).to.have.text.that.equals(value);
 
-        this.browser.setValue(`.sw-tag-field ${this.elements.selectInput}`, this.browser.Keys.ESCAPE);
+        this.browser.setValue('.sw-tag-field .sw-multi-select__selection-item-input input', this.browser.Keys.ESCAPE);
     }
 }
 

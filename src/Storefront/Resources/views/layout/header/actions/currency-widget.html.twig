@@ -1,5 +1,5 @@
 {% block layout_header_actions_currency_widget %}
-    {% if page.header.currencies.elements|length > 1 %}
+    {% if page.header.currencies.count > 1 %}
         <div class="top-bar-nav-item top-bar-currency">
             {% block layout_header_actions_currency_widget_form %}
                 <form method="post"
@@ -25,7 +25,7 @@
                             {% block layout_header_actions_currency_widget_form_items %}
                                 <div class="top-bar-list dropdown-menu dropdown-menu-right"
                                     aria-labelledby="currenciesDropdown">
-                                    {% for currency in page.header.currencies.elements %}
+                                    {% for currency in page.header.currencies %}
                                         {% block layout_header_actions_currency_widget_form_items_element %}
                                             {% block layout_header_actions_currency_widget_form_items_element_data %}
                                                 <div class="top-bar-list-item dropdown-item{% if currency.id is same as(page.header.activeCurrency.id) %} item-checked{% endif %}"

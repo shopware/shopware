@@ -199,10 +199,10 @@
 									{{ "address.countryPlaceholder"|trans }}{{ "general.required"|trans }}
 								</option>
 							{% endif %}
-							{% for country in page.countries.elements %}
+							{% for country in page.countries %}
 								<option {% if country.id == data.get('countryId') %}
-									selected="selected"
-								{% endif %}
+										selected="selected"
+										{% endif %}
 										value="{{ country.id }}">
 									{{ country.translated.name }}
 								</option>

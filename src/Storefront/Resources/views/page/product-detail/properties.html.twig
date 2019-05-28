@@ -1,38 +1,34 @@
 {% block page_product_detail_properties_inner %}
-    {% set propertyItems = page.product.sortedProperties.elements %}
-
-    {% if propertyItems|length > 0 %}
-        <div class="product-detail-properties">
-            {% block page_product_detail_properties_container %}
-                <div class="row product-detail-properties-container">
-                    <div class="col-md-10 col-md-8 col-lg-6">
-                        {% block page_product_detail_properties_table %}
-                            <table class="table table-striped product-detail-properties-table">
-                                <tbody>
-                                {# @var product \Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity #}
-                                {% for group in page.product.sortedProperties %}
-                                    {% block page_product_detail_properties_table_row %}
-                                        <tr class="properties-row">
-                                            {% block page_product_detail_properties_item_label %}
-                                                <th class="properties-label">{{ group.translated.name|e }}:</th>
-                                            {% endblock %}
-                                            {% block page_product_detail_properties_item_value %}
-                                                <td class="properties-value">{% spaceless %}
-                                                        {% for option in group.options %}
-                                                            {% set i = ( i | default(0) ) + 1 %}
-                                                            <span>{% if i > 1 %}, {% endif %}{{ option.translated.name|e }}</span>
-                                                        {% endfor %}
-                                                    {% endspaceless %}</td>
-                                            {% endblock %}
-                                        </tr>
-                                    {% endblock %}
-                                {% endfor %}
-                                </tbody>
-                            </table>
-                        {% endblock %}
-                    </div>
+    <div class="product-detail-properties">
+        {% block page_product_detail_properties_container %}
+            <div class="row product-detail-properties-container">
+                <div class="col-md-10 col-md-8 col-lg-6">
+                    {% block page_product_detail_properties_table %}
+                        <table class="table table-striped product-detail-properties-table">
+                            <tbody>
+                            {# @var product \Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity #}
+                            {% for group in page.product.sortedProperties %}
+                                {% block page_product_detail_properties_table_row %}
+                                    <tr class="properties-row">
+                                        {% block page_product_detail_properties_item_label %}
+                                            <th class="properties-label">{{ group.translated.name|e }}:</th>
+                                        {% endblock %}
+                                        {% block page_product_detail_properties_item_value %}
+                                            <td class="properties-value">{% spaceless %}
+                                                    {% for option in group.options %}
+                                                        {% set i = ( i | default(0) ) + 1 %}
+                                                        <span>{% if i > 1 %}, {% endif %}{{ option.translated.name|e }}</span>
+                                                    {% endfor %}
+                                                {% endspaceless %}</td>
+                                        {% endblock %}
+                                    </tr>
+                                {% endblock %}
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endblock %}
                 </div>
-            {% endblock %}
-        </div>
-    {% endif %}
+            </div>
+        {% endblock %}
+    </div>
 {% endblock %}

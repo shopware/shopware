@@ -5,7 +5,7 @@
                   method="post"
                   data-variant-switch="true">
                 {% block page_product_detail_configurator_groups %}
-                    {% for group in page.configuratorSettings.elements %}
+                    {% for group in page.configuratorSettings %}
                         {% block page_product_detail_configurator_group %}
                             <div class="configurator-option-group">
                                 {% block page_product_detail_configurator_group_title %}

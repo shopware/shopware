@@ -102,7 +102,6 @@ class RestService
     {
         $this->restClient = new Client();
         $this->config = $config;
-        $this->getAdminAccess();
     }
     
     private function getAdminAccess(): void
@@ -159,8 +158,7 @@ class RestService
 ```
 
 Note our extension of the constructor! First we get the `SystemConfigService` to ask for information we can maintain in
-the `administration`. Second we call the `getAdminAccess` function to make an API call to get and persist our OAuth
-credentials.
+the `administration`.
 
 Since we have changed our `RestService` constructor we need to change our `services.xml`.
 
@@ -290,6 +288,10 @@ class RestService
     
     public function request(string $method, string $uri, ?array $body = null): ResponseInterface
     {
+        if ($this->accessToken === null || $this->refreshToken === null || $this->expiresAt === null) {
+            $this->getAdminAccess();
+        }
+        
         $bodyEncoded = json_encode($body);
 
         $request = $this->createShopwareApiRequest($method, $uri, $bodyEncoded);
@@ -299,7 +301,8 @@ class RestService
 }
 ```
 
-The `request` function makes it easy to send API requests. All you have to do is call the `request` function as follows:
+The `request` function makes it easy to send API requests. It requests the API credentials if they do not already exist,
+and converts your request into a Management-API request. All you have to do is call the `request` function as follows:
 
 ```php
 $this->restService->request('GET', 'product');

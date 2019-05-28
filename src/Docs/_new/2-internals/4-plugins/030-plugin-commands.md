@@ -32,7 +32,7 @@ $ ./bin/console plugin:list --filter YourPluginName
 The first command will list all plugins currently known to `Shopware`.
 The second command will list all plugins containing the `YourPluginName` in the plugin name or label.
 
-## Refreshing plugins
+### Refreshing plugins
 
 Refreshing your plugins is necessary every time you add a new plugin by hand.
 Below you'll find a few examples how to use the `plugin:refresh` command.
@@ -49,21 +49,21 @@ $ ./bin/console plugin:refresh -s
 The first command will refresh the available plugins and print out the refreshed plugin list.
 The other two commands will refresh the available plugins without printing the plugin list.
 
-## Installing/uninstalling plugins
+### Installing/uninstalling plugins
 
 You can either install or uninstall one plugin at a time or even a list of plugins at once.
 Have a look at the example below to get an idea on how to use the `plugin:install` and `plugin:uninstall` command.
 
 ```
-$ ./bin/console plugin:install YourPluginWithNamespace
-$ ./bin/console plugin:uninstall YourPluginWithNamespace
+$ ./bin/console plugin:install YourPluginName
+$ ./bin/console plugin:uninstall YourPluginName
 
-$ ./bin/console plugin:install YourPluginWithNamespace ThirdPartyPluginWithNamespace
-$ ./bin/console plugin:uninstall YourPluginWithNamespace ThirdPartyPluginWithNamespace
+$ ./bin/console plugin:install YourPluginName ThirdPartyPluginName
+$ ./bin/console plugin:uninstall YourPluginName ThirdPartyPluginName
 ```
 *Plugin un-, install command*
 
-## Updating plugins
+### Updating plugins
 
 You can either update one plugin at a time or a list of plugins.
 
@@ -77,7 +77,7 @@ $ ./bin/console plugin:update YourPluginWithNamespace ThirdPartyPluginWithNamesp
 The first command updates the `YourPlugin` plugin if it exists.
 The second command updates `YourPlugin` and `ThirdPartyPlugin` if they exist.
 
-## Activating/Deactivating plugins
+### Activating/Deactivating plugins
 
 Activating and deactivating plugins works in a similar fashion.
 You can either activate or deactivate one plugin at a time or a list of plugins at once.

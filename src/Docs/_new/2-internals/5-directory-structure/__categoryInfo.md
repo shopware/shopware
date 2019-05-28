@@ -4,12 +4,11 @@ After setting up the Shopware Platform you should import the project into your f
 
 This guide will give you a brief initial overview onto the structure. We take this step before diving deeper into the architecture, general concepts and detailed specification to give you some sense of familiarity.
 
-### The project
+## The project
 
 If you followed the installation guide, you should have already noticed that the Shopware Platform consists of a minimum of two repositories for you to check out. You work inside of a *development template* that is an adjusted Symfony application template and the actual sources of the platform.
 
-
-### The development template
+## The development template
 
 If you are familiar with Symfony applications you will recognize most of the directories upfront. The application template is a slight deviation of the Symfony project template. When opening the root you will be greeted by this file listing:
 
@@ -59,7 +58,7 @@ Since this is mostly a Symfony boilerplate, we will ignore most files and folder
 `dev-ops`
  : Contains utilities for deployment, development and continuous integration.
 
-### The platform root
+## The platform root
 
 The Shopware Platform can be found in `platform/`. This directory also contains a few configuration files specific to the platform. The real application resides in the `src/` subdirectory and conforms to the Symfony Bundle standard.
  
@@ -77,7 +76,7 @@ Here you find the three main components of the Application. The `Core` is the he
 
 Oh and by the way: This document amongst the whole documentation you are currently reading can be found in `Docs` ;).
 
-### Core
+## Core
 
 The Core is the basis of the Shopware Platform. On the inside you find the majority of the PHP source code.
 
@@ -105,7 +104,7 @@ The Core itself is structured by the major sectors of the eCommerce domain. All 
 
 A rather special role plays the `Framework` directory which contains the technical basis for the Platform. Therefore it provides abstraction for the Platform.
 
-### Administration
+## Administration
 
 The Administration component looks almost like a stock Symfony bundle, and is just a thin PHP wrapper around the single page application management ui. This application is fairly deep inside of the bundles structure and can be found in `Administration/Resources/administration`.
 
@@ -143,7 +142,7 @@ This one follows the common structure for npm packages. Again most files are con
 The src directory of the administration contains four directories. In `core` you find the technical basis for the admin. It contains the bootstrapping, data handling and a shared service layer. In `app` you find the binding to the concrete node modules deployed with the application. And last but far from least in `module` you find the actual application components, views and the styling information. 
 
 
-###  Storefront
+## Storefront
 
 The `Storefront` directory follows the Symfony Bundle standard with the addition of the actual storefront.      
 
@@ -180,6 +179,6 @@ Again the structure reflects a stock Symfony bundle. The most noteworthy directo
 `Resources`
  :  As the Storefront actually delivers html content, there is a vast mass twig templates, jQuery plugins and Sass stylesheets present.
  
-### Conclusion
+## Conclusion
 
 With this knowledge you should be able to direct your attention to the various parts of the Shopware Platform and find the places that you are searching for. 

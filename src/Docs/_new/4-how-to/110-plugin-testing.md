@@ -13,7 +13,7 @@ This quick HowTo requires you to have a proper working plugin first.
 Basically, the following is just a suggestion on how to setup PHPUnit with your plugin.
 This is by no means a hard requirement, feel free to create your own testing suite.
 
-### PHPUnit config file
+## PHPUnit config file
 
 PHPUnit is configured using a `phpunit.xml.dist` file.
 Read more about the possible configurations of the `phpunit.xml.dist` file [here](https://phpunit.readthedocs.io/en/8.0/configuration.html?highlight=.xml).

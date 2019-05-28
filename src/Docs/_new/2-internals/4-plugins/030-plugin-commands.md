@@ -55,11 +55,11 @@ You can either install or uninstall one plugin at a time or even a list of plugi
 Have a look at the example below to get an idea on how to use the `plugin:install` and `plugin:uninstall` command.
 
 ```
-$ ./bin/console plugin:install YourPluginWithNamespace
-$ ./bin/console plugin:uninstall YourPluginWithNamespace
+$ ./bin/console plugin:install YourPluginName
+$ ./bin/console plugin:uninstall YourPluginName
 
-$ ./bin/console plugin:install YourPluginWithNamespace ThirdPartyPluginWithNamespace
-$ ./bin/console plugin:uninstall YourPluginWithNamespace ThirdPartyPluginWithNamespace
+$ ./bin/console plugin:install YourPluginName ThirdPartyPluginName
+$ ./bin/console plugin:uninstall YourPluginName ThirdPartyPluginName
 ```
 *Plugin un-, install command*
 

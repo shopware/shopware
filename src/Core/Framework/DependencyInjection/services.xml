@@ -265,5 +265,10 @@
             <argument type="service" id="filesystem"/>
             <argument>%kernel.cache_dir%</argument>
         </service>
+
+        <!-- Util -->
+        <service id="Shopware\Core\Framework\Util\LoggerFactory">
+            <argument type="string">%kernel.logs_dir%/%%s_%kernel.environment%.log</argument>
+        </service>
     </services>
 </container>

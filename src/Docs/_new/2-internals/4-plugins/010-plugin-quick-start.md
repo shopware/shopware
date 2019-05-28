@@ -431,6 +431,32 @@ Your `services.xml` should now look like this:
 </container>
 ```
 
+# Helpful plugin services
+
+## Logging
+
+There is a logging service factory that can create loggers for any case.
+The logging service has to be registered manually like this:
+```
+<?xml version="1.0" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="plugin_quick_start.logger" class="Monolog\Logger">
+            <factory service="Shopware\Core\Framework\Util\LoggerFactory" method="createRotating"/>
+            <argument type="string">plugin_quick_start</argument>
+        </service>
+        <service id="plugin_quick_start.foobar.logger" class="Monolog\Logger">
+            <factory service="Shopware\Core\Framework\Util\LoggerFactory" method="createRotating"/>
+            <argument type="string">plugin_quick_start_foobar</argument>
+        </service>
+    </services>
+</container>
+
+```
+It is a rotating file logger that has its specific file prefix (e.g. `var/logs/plugin_quick_start_dev-2019-03-15.log`).
+
 ## Source
 
 There's a GitHub repository available, containing this example source.

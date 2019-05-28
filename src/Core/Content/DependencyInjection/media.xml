@@ -67,7 +67,6 @@
 
         <service id="Shopware\Core\Content\Media\Subscriber\MediaLoadedSubscriber">
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
-            <argument type="service" id="Shopware\Core\Content\Media\Metadata\MetadataLoader"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -200,15 +199,7 @@
         </service>
 
         <!-- Metadata -->
-        <service id="Shopware\Core\Content\Media\Metadata\MetadataLoader\GetId3Loader">
-            <tag name="shopware.metadata.loader"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Media\Metadata\MetadataLoader\PdfParserLoader">
-            <tag name="shopware.metadata.loader"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Media\Metadata\MetadataLoader\WordLoader">
+        <service id="Shopware\Core\Content\Media\Metadata\MetadataLoader\ImageMetadataLoader">
             <tag name="shopware.metadata.loader"/>
         </service>
 

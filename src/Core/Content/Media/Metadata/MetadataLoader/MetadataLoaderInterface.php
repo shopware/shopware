@@ -2,15 +2,11 @@
 
 namespace Shopware\Core\Content\Media\Metadata\MetadataLoader;
 
-use Shopware\Core\Content\Media\Exception\CanNotLoadMetadataException;
-use Shopware\Core\Content\Media\Metadata\Type\MetadataType;
+use Shopware\Core\Content\Media\MediaType\MediaType;
 
 interface MetadataLoaderInterface
 {
-    /**
-     * @throws CanNotLoadMetadataException
-     */
-    public function extractMetadata(string $filePath): array;
+    public function extractMetadata(string $filePath): ?array;
 
-    public function enhanceTypeObject(MetadataType $metadataType, array $rawMetadata): void;
+    public function supports(MediaType $mediaType): bool;
 }

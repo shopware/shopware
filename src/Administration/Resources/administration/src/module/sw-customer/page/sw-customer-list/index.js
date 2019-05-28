@@ -22,6 +22,7 @@ Component.register('sw-customer-list', {
             customers: null,
             sortBy: 'customerNumber',
             sortDirection: 'DESC',
+            naturalSorting: true,
             isLoading: false,
             showDeleteModal: false
         };
@@ -62,9 +63,10 @@ Component.register('sw-customer-list', {
         getList() {
             this.isLoading = true;
             const criteria = new Criteria(this.page, this.limit);
+            this.naturalSorting = this.sortBy === 'customerNumber';
+
             criteria.setTerm(this.term);
-            const naturalSort = this.sortBy === 'customerNumber';
-            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, naturalSort));
+            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
             criteria.addAssociation('defaultBillingAddress');
 
             this.customerRepository.search(criteria, this.context).then((items) => {
@@ -119,7 +121,8 @@ Component.register('sw-customer-list', {
                 allowResize: true
             }, {
                 property: 'customerNumber',
-                naturalSort: true,
+                dataIndex: 'customerNumber',
+                naturalSorting: true,
                 label: this.$tc('sw-customer.list.columnCustomerNumber'),
                 allowResize: true,
                 inlineEdit: 'string',

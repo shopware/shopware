@@ -12,6 +12,7 @@ Mixin.register('listing', {
             total: 0,
             sortBy: null,
             sortDirection: 'ASC',
+            naturalSorting: false,
             term: undefined,
             disableRouteParams: false
         };
@@ -77,6 +78,7 @@ Mixin.register('listing', {
             this.term = customData.term || this.term;
             this.sortBy = customData.sortBy || this.sortBy;
             this.sortDirection = customData.sortDirection || this.sortDirection;
+            this.naturalSorting = customData.naturalSorting || this.naturalSorting;
         },
 
         updateRoute(customQuery, queryExtension = {}) {
@@ -94,6 +96,7 @@ Mixin.register('listing', {
                     term: query.term || this.term,
                     sortBy: query.sortBy || this.sortBy,
                     sortDirection: query.sortDirection || this.sortDirection,
+                    naturalSorting: query.naturalSorting || this.naturalSorting,
                     ...queryExtension
                 }
             };
@@ -114,7 +117,8 @@ Mixin.register('listing', {
                     page: this.page,
                     term: this.term,
                     sortBy: this.sortBy,
-                    sortDirection: this.sortDirection
+                    sortDirection: this.sortDirection,
+                    naturalSorting: this.naturalSorting
                 }
             });
         },
@@ -126,7 +130,8 @@ Mixin.register('listing', {
                     page: this.page,
                     term: this.term,
                     sortBy: this.sortBy,
-                    sortDirection: this.sortDirection
+                    sortDirection: this.sortDirection,
+                    naturalSorting: this.naturalSorting
                 };
             }
             // Get actual query parameter
@@ -137,7 +142,8 @@ Mixin.register('listing', {
                 page: query.page,
                 term: query.term,
                 sortBy: query.sortBy || this.sortBy,
-                sortDirection: query.sortDirection || this.sortDirection
+                sortDirection: query.sortDirection || this.sortDirection,
+                naturalSorting: query.naturalSorting || this.naturalSorting
             };
 
             const criteria = this.generateCriteriaFromFilters(this.filters);
@@ -225,7 +231,8 @@ Mixin.register('listing', {
             } else {
                 this.updateRoute({
                     sortBy: column.dataIndex,
-                    sortDirection: 'ASC'
+                    sortDirection: 'ASC',
+                    naturalSorting: column.naturalSorting
                 });
             }
             this.updateRoute();

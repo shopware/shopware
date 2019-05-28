@@ -3,6 +3,7 @@
         "general": {
             "mainMenuItemIndex": "Kategorien",
             "mainMenuItemList": "Übersicht",
+            "descriptionTextModule": "Verwaltung von Kategorien.",
             "headlineCategories": "Kategorien",
             "placeholderSearchBar": "Durchsuche alle Kategorien",
             "buttonCreate": "Kategorie erstellen",
@@ -16,94 +17,94 @@
             "emptyStateHeadline": "Keine Kategorie ausgewählt",
 
             "leavePageModal": {
-              "headline": "Warnung",
-              "description": "Es existieren ungespeicherte Änderungen. Soll die Seite trotzdem verlassen werden?",
-              "confirmButton": "Seite verlassen",
-              "cancelButton": "Auf Seite bleiben"
+                "headline": "Warnung",
+                "description": "Es existieren ungespeicherte Änderungen. Soll die Seite trotzdem verlassen werden?",
+                "confirmButton": "Seite verlassen",
+                "cancelButton": "Auf Seite bleiben"
             },
 
             "actions": {
-              "actionsDisabledInLanguage": "Kategorien können nur in der Standardsprache erstellt werden",
-              "createSub": "Neue Subkategorie",
-              "createBefore": "Neue Kategorie davor",
-              "createAfter": "Neue Kategorie danach"
+                "actionsDisabledInLanguage": "Kategorien können nur in der Standardsprache erstellt werden",
+                "createSub": "Neue Subkategorie",
+                "createBefore": "Neue Kategorie davor",
+                "createAfter": "Neue Kategorie danach"
             }
         },
 
         "view": {
-          "general": "Allgemein",
-          "cms": "Inhalte"
+            "general": "Allgemein",
+            "cms": "Inhalte"
         },
 
         "base": {
-          "general": {
-            "categoryNameLabel": "Name",
-            "linkLabel": "Linkziel",
-            "headlineInformationCard": "Allgemein",
-            "isCategoryActiveLabel": "Kategorie ist aktiv",
-            "useAsLink": "Als Link verwenden",
+            "general": {
+                "categoryNameLabel": "Name",
+                "linkLabel": "Linkziel",
+                "headlineInformationCard": "Allgemein",
+                "isCategoryActiveLabel": "Kategorie ist aktiv",
+                "useAsLink": "Als Link verwenden",
 
-            "types": {
-              "title": "Kategorietyp",
-              "page": "Kategorie",
-              "folder": "Strukturkategorie",
-              "link": "Benutzerdefinierter Link",
-              "help": "Eine Strukturkategorie ist nicht aufrufbar, sondern dient lediglich der Gliederung."
-            }
-          },
-
-          "entry-point": {
-            "title": "Einstiegspunkt",
-
-            "navigation": {
-              "descriptionGeneral": "Du hast diesen Knoten in folgenden Verkaufskanälen als Einstiegspunkt für die Hauptnavigation zugewiesen:"
+                "types": {
+                    "title": "Kategorietyp",
+                    "page": "Kategorie",
+                    "folder": "Strukturkategorie",
+                    "link": "Benutzerdefinierter Link",
+                    "help": "Eine Strukturkategorie ist nicht selbst aufrufbar, sondern dient lediglich der Gliederung."
+                }
             },
-            "serviceSales": {
-              "descriptionGeneral": "Du hast diesen Knoten in folgenden Verkaufskanälen als Einstiegspunkt für die Servicenavigation zugewiesen:"
+
+            "entry-point": {
+                "title": "Einstiegspunkt",
+
+                "navigation": {
+                    "descriptionGeneral": "Du hast diesen Knoten in folgenden Verkaufskanälen als Einstiegspunkt für die Hauptnavigation zugewiesen:"
+                },
+                "serviceSales": {
+                    "descriptionGeneral": "Du hast diesen Knoten in folgenden Verkaufskanälen als Einstiegspunkt für die Servicenavigation zugewiesen:"
+                },
+                "footerSales": {
+                    "descriptionGeneral": "Du hast diesen Knoten in folgenden Verkaufskanälen als Einstiegspunkt für die Footernavigation zugewiesen:"
+                }
             },
-            "footerSales": {
-              "descriptionGeneral": "Du hast diesen Knoten in folgenden Verkaufskanälen als Einstiegspunkt für die Footernavigation zugewiesen:"
+
+            "menu": {
+                "title": "Menü-Einstellungen",
+                "visible": "In der Navigation ausblenden",
+                "imageLabel": "Anzeigebild",
+                "description": "Beschreibung"
+            },
+
+            "cms": {
+                "title": "Layout Zuweisung",
+                "changeLayout": "Layout ändern",
+                "changeLayoutEmpty": "Layout zuweisen",
+                "editInPagebuilder": "Im Designer bearbeiten",
+                "editInPagebuilderEmpty": "Neues Layout erstellen",
+                "editContent": "Inhalte bearbeiten",
+                "defaultTitle": "Standard Layout",
+                "defaultDesc": "Kategorieseite"
+            },
+
+            "link": {
+                "title": "Benutzerdefinierter Link",
+                "example": "Beispiel:",
+                "internalExampleText": "/meine-kategorie",
+                "externalDesc": "Um externe Links zu setzen, füge die komplette Webadresse ein:",
+                "internalDesc": "Wenn Du einen internen Link setzen möchtest, füge nur den Pfad ein der auf die Domain folgt:"
+            },
+
+            "products": {
+                "productAssignmentHeadline": "Produktzuweisung",
+                "productAssignmentPlaceholder": "Produkte durchsuchen und zuweisen ...",
+                "productAssignmentActionDetails": "Details",
+                "productAssignmentActionRemove": "Entfernen",
+                "productAssignmentActionUndo": "Rückgängig machen",
+                "productAssignmentEmptyText": "Keine Produkte gefunden",
+                "productAssignmentEmptyStateTitle": "Keine Produkte zugewiesen",
+                "productAssignmentEmptyStateSubline": "Füge über die Suche neue Produkte hinzu",
+                "columnNameLabel": "Name",
+                "columnManufacturerLabel": "Hersteller"
             }
-          },
-
-          "menu": {
-            "title": "Menü-Einstellungen",
-            "visible": "In der Navigation ausblenden",
-            "imageLabel": "Anzeigebild",
-            "description": "Beschreibung"
-          },
-
-          "cms": {
-            "title": "Layout Zuweisung",
-            "changeLayout": "Layout ändern",
-            "changeLayoutEmpty": "Layout zuweisen",
-            "editInPagebuilder": "Im Designer bearbeiten",
-            "editInPagebuilderEmpty": "Neues Layout erstellen",
-            "editContent": "Inhalte bearbeiten",
-            "defaultTitle": "Standard Layout",
-            "defaultDesc": "Kategorieseite"
-          },
-
-          "link": {
-            "title": "Benutzerdefinierter Link",
-            "example": "Beispiel:",
-            "internalExampleText": "/meine-kategorie",
-            "externalDesc": "Um externe Links zu setzen, füge die komplette Webadresse ein:",
-            "internalDesc": "Wenn Du einen internen Link setzen möchtest, füge nur den Pfad ein, der auf die Domain folgt:"
-          },
-
-          "products": {
-            "productAssignmentHeadline": "Produktzuweisung",
-            "productAssignmentPlaceholder": "Produkte durchsuchen und zuweisen ...",
-            "productAssignmentActionDetails": "Details",
-            "productAssignmentActionRemove": "Entfernen",
-            "productAssignmentActionUndo": "Rückgängig machen",
-            "productAssignmentEmptyText": "Keine Produkte gefunden",
-            "productAssignmentEmptyStateTitle": "Keine Produkte zugewiesen",
-            "productAssignmentEmptyStateSubline": "Füge über die Suche neue Produkte hinzu",
-            "columnNameLabel": "Name",
-            "columnManufacturerLabel": "Hersteller"
-          }
         },
 
         "modal": {

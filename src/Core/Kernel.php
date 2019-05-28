@@ -64,6 +64,8 @@ class Kernel extends HttpKernel
      */
     public function __construct(string $environment, bool $debug, ClassLoader $classLoader, ?string $version = self::SHOPWARE_FALLBACK_VERSION)
     {
+        date_default_timezone_set('UTC');
+
         parent::__construct($environment, $debug);
 
         self::$plugins = new KernelPluginCollection();

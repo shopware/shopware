@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Test\Newsletter\ScheduledTask;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Newsletter\ScheduledTask\NewsletterRecipientTaskHandler;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -56,7 +57,7 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
         ];
 
         foreach ($expectedResult as $id) {
-            static::assertContains($id, array_keys($result->getData()));
+            static::assertContains($id, array_keys($result->getData()), print_r(array_keys($result->getData()), true));
         }
     }
 
@@ -66,6 +67,7 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
         $this->getContainer()->get(Connection::class)->exec($salutationSql);
 
         $recipientSql = file_get_contents(__DIR__ . '/../fixtures/recipient.sql');
+        $recipientSql = str_replace(':createdAt', date(Defaults::STORAGE_DATE_FORMAT), $recipientSql);
         $this->getContainer()->get(Connection::class)->exec($recipientSql);
 
         $templateSql = file_get_contents(__DIR__ . '/../fixtures/template.sql');

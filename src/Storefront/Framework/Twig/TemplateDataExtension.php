@@ -42,6 +42,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
             'shopware' => [
                 'config' => $this->getDefaultConfiguration(),
                 'theme' => $this->getThemeConfig(),
+                'dateFormat' => DATE_ATOM,
             ],
             'controllerName' => $controllerInfo->getName(),
             'controllerAction' => $controllerInfo->getAction(),

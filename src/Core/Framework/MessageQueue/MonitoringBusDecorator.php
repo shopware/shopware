@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\MessageQueue;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -66,11 +67,12 @@ class MonitoringBusDecorator implements MessageBusInterface
     {
         $this->connection->executeQuery('
             INSERT INTO `message_queue_stats` (`id`, `name`, `size`, `created_at`)
-            VALUES (:id, :name, 1, NOW())
-            ON DUPLICATE KEY UPDATE `size` = `size` +1, `updated_at` = NOW()
+            VALUES (:id, :name, 1, :createdAt)
+            ON DUPLICATE KEY UPDATE `size` = `size` +1, `updated_at` = :createdAt
         ', [
             'id' => Uuid::randomBytes(),
             'name' => $name,
+            'createdAt' => date(Defaults::STORAGE_DATE_FORMAT),
         ]);
     }
 

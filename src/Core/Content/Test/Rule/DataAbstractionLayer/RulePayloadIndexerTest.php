@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Test\Rule\DataAbstractionLayer;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\RulePayloadIndexer;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -412,10 +413,11 @@ class RulePayloadIndexerTest extends TestCase
         for ($i = 0; $i < 21; ++$i) {
             $this->connection->createQueryBuilder()
                 ->insert('rule')
-                ->values(['id' => ':id', 'name' => ':name', 'priority' => 1, 'payload' => ':payload', 'created_at' => 'NOW()'])
+                ->values(['id' => ':id', 'name' => ':name', 'priority' => 1, 'payload' => ':payload', 'created_at' => ':createdAt'])
                 ->setParameter('id', Uuid::randomBytes())
                 ->setParameter('payload', $payload)
                 ->setParameter('name', 'Rule' . $i)
+                ->setParameter('createdAt', date(Defaults::STORAGE_DATE_FORMAT))
                 ->execute();
         }
 

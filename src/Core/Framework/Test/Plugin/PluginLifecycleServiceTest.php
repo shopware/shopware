@@ -24,6 +24,8 @@ use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
+use SwagTest\Migration\Migration1536761533Test;
+use SwagTest\SwagTest;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -93,13 +95,13 @@ class PluginLifecycleServiceTest extends TestCase
         $this->connection->executeUpdate(
             sprintf(
                 'DROP TABLE IF EXISTS `%s`',
-                \SwagTest\Migration\Migration1536761533Test::TABLE_NAME
+                Migration1536761533Test::TABLE_NAME
             )
         );
         $this->connection->executeUpdate(
             sprintf(
                 'DELETE FROM `migration` WHERE `creation_timestamp` = %d',
-                \SwagTest\Migration\Migration1536761533Test::TIMESTAMP
+                Migration1536761533Test::TIMESTAMP
             )
         );
         $this->connection->executeUpdate(
@@ -127,7 +129,7 @@ class PluginLifecycleServiceTest extends TestCase
     public function testInstallPluginAlreadyInstalled(): void
     {
         $installedAt = (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT);
-        $this->createPlugin($this->pluginRepo, $this->context, \SwagTest\SwagTest::PLUGIN_VERSION, $installedAt);
+        $this->createPlugin($this->pluginRepo, $this->context, SwagTest::PLUGIN_VERSION, $installedAt);
 
         /** @var PluginEntity $plugin */
         $plugin = $this->getTestPlugin();
@@ -143,7 +145,7 @@ class PluginLifecycleServiceTest extends TestCase
 
     public function testInstallPluginWithUpdate(): void
     {
-        $this->createPlugin($this->pluginRepo, $this->context, \SwagTest\SwagTest::PLUGIN_OLD_VERSION);
+        $this->createPlugin($this->pluginRepo, $this->context, SwagTest::PLUGIN_OLD_VERSION);
         $this->pluginService->refreshPlugins($this->context, new NullIO());
 
         /** @var PluginEntity $plugin */
@@ -156,7 +158,7 @@ class PluginLifecycleServiceTest extends TestCase
 
         static::assertNotNull($pluginInstalled->getInstalledAt());
         static::assertNotNull($pluginInstalled->getUpgradedAt());
-        static::assertSame(\SwagTest\SwagTest::PLUGIN_VERSION, $pluginInstalled->getVersion());
+        static::assertSame(SwagTest::PLUGIN_VERSION, $pluginInstalled->getVersion());
     }
 
     public function testUninstallPlugin(): void
@@ -195,7 +197,7 @@ class PluginLifecycleServiceTest extends TestCase
 
     public function testUpdatePlugin(): void
     {
-        $this->createPlugin($this->pluginRepo, $this->context, \SwagTest\SwagTest::PLUGIN_OLD_VERSION);
+        $this->createPlugin($this->pluginRepo, $this->context, SwagTest::PLUGIN_OLD_VERSION);
         static::assertFalse($this->pluginTableExists());
 
         $this->pluginService->refreshPlugins($this->context, new NullIO());
@@ -209,7 +211,7 @@ class PluginLifecycleServiceTest extends TestCase
         $pluginUpdated = $this->getTestPlugin();
 
         static::assertNotNull($pluginUpdated->getUpgradedAt());
-        static::assertSame(\SwagTest\SwagTest::PLUGIN_VERSION, $pluginUpdated->getVersion());
+        static::assertSame(SwagTest::PLUGIN_VERSION, $pluginUpdated->getVersion());
 
         static::assertTrue($this->pluginTableExists());
     }
@@ -335,7 +337,7 @@ class PluginLifecycleServiceTest extends TestCase
     private function addTestPluginToKernel(): void
     {
         require_once __DIR__ . '/_fixture/plugins/SwagTest/SwagTest.php';
-        $this->pluginCollection->add(new \SwagTest\SwagTest(false));
+        $this->pluginCollection->add(new SwagTest(false));
     }
 
     private function pluginTableExists(): bool
@@ -348,7 +350,7 @@ SQL;
 
         return (bool) $this->connection->fetchColumn(
             $sql,
-            ['tableName' => \SwagTest\Migration\Migration1536761533Test::TABLE_NAME]
+            ['tableName' => Migration1536761533Test::TABLE_NAME]
         );
     }
 

@@ -8,6 +8,7 @@ use Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\RulePayloadIndexer;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\RulePayloadSubscriber;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -157,17 +158,19 @@ class RulePayloadSubscriberTest extends TestCase
         $id = Uuid::randomHex();
         $this->connection->createQueryBuilder()
             ->insert('rule')
-            ->values(['id' => ':id', 'name' => ':name', 'priority' => 3, 'invalid' => '0', 'created_at' => 'NOW()'])
+            ->values(['id' => ':id', 'name' => ':name', 'priority' => 3, 'invalid' => '0', 'created_at' => ':createdAt'])
             ->setParameter('name', 'Rule')
             ->setParameter('id', Uuid::fromHexToBytes($id))
+            ->setParameter('createdAt', date(Defaults::STORAGE_DATE_FORMAT))
             ->execute();
 
         $this->connection->createQueryBuilder()
             ->insert('rule_condition')
-            ->values(['id' => ':id', 'type' => ':type', 'value' => 'null', 'position' => '0', 'rule_id' => ':ruleId', 'created_at' => 'NOW()'])
+            ->values(['id' => ':id', 'type' => ':type', 'value' => 'null', 'position' => '0', 'rule_id' => ':ruleId', 'created_at' => ':createdAt'])
             ->setParameter('id', Uuid::randomBytes())
             ->setParameter('type', (new AndRule())->getName())
             ->setParameter('ruleId', Uuid::fromHexToBytes($id))
+            ->setParameter('createdAt', date(Defaults::STORAGE_DATE_FORMAT))
             ->execute();
 
         /** @var RuleEntity $rule */
@@ -194,17 +197,19 @@ class RulePayloadSubscriberTest extends TestCase
         $id = Uuid::randomHex();
         $this->connection->createQueryBuilder()
             ->insert('rule')
-            ->values(['id' => ':id', 'name' => ':name', 'priority' => 3, 'invalid' => '0', 'created_at' => 'NOW()'])
+            ->values(['id' => ':id', 'name' => ':name', 'priority' => 3, 'invalid' => '0', 'created_at' => ':createdAt'])
             ->setParameter('name', 'Rule')
             ->setParameter('id', Uuid::fromHexToBytes($id))
+            ->setParameter('createdAt', date(Defaults::STORAGE_DATE_FORMAT))
             ->execute();
 
         $this->connection->createQueryBuilder()
             ->insert('rule_condition')
-            ->values(['id' => ':id', 'type' => ':type', 'value' => 'null', 'position' => '0', 'rule_id' => ':ruleId', 'created_at' => 'NOW()'])
+            ->values(['id' => ':id', 'type' => ':type', 'value' => 'null', 'position' => '0', 'rule_id' => ':ruleId', 'created_at' => ':createdAt'])
             ->setParameter('id', Uuid::randomBytes())
             ->setParameter('type', 'invalid')
             ->setParameter('ruleId', Uuid::fromHexToBytes($id))
+            ->setParameter('createdAt', date(Defaults::STORAGE_DATE_FORMAT))
             ->execute();
 
         /** @var RuleEntity $rule */

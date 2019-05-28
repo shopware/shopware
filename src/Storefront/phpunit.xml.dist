@@ -22,11 +22,11 @@
     <filter>
         <whitelist>
             <directory>./</directory>
-	    <exclude>
-		<directory>./Templates</directory>
-		<directory>./Test</directory>
-		<directory>./vendor</directory>
-	    </exclude>
+        <exclude>
+        <directory>./Templates</directory>
+        <directory>./Test</directory>
+        <directory>./vendor</directory>
+        </exclude>
         </whitelist>
     </filter>
 </phpunit>

@@ -1791,21 +1791,25 @@ class Migration1536233560BasicData extends MigrationStep
                 'id' => Uuid::randomHex(),
                 'global' => 0,
                 'nameDe' => 'Rechnung',
+                'nameEn' => 'Invoice',
             ],
             'document_storno' => [
                 'id' => Uuid::randomHex(),
                 'global' => 0,
                 'nameDe' => 'Storno',
+                'nameEn' => 'Cancellation',
             ],
             'document_delivery_note' => [
                 'id' => Uuid::randomHex(),
                 'global' => 0,
                 'nameDe' => 'Lieferschein',
+                'nameEn' => 'Delivery note',
             ],
             'document_credit_note' => [
                 'id' => Uuid::randomHex(),
                 'global' => 0,
                 'nameDe' => 'Gutschrift',
+                'nameEn' => 'Credit note',
             ],
         ];
 
@@ -1813,7 +1817,7 @@ class Migration1536233560BasicData extends MigrationStep
             'document_invoice' => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Invoices',
-                'nameDe' => 'Rechnung',
+                'nameDe' => 'Rechnungen',
                 'global' => 1,
                 'typeId' => $definitionNumberRangeTypes['document_invoice']['id'],
                 'pattern' => '{n}',
@@ -1821,8 +1825,8 @@ class Migration1536233560BasicData extends MigrationStep
             ],
             'document_storno' => [
                 'id' => Uuid::randomHex(),
-                'name' => 'Stornos',
-                'nameDe' => 'Storno',
+                'name' => 'Cancellations',
+                'nameDe' => 'Stornos',
                 'global' => 1,
                 'typeId' => $definitionNumberRangeTypes['document_storno']['id'],
                 'pattern' => '{n}',
@@ -1830,8 +1834,8 @@ class Migration1536233560BasicData extends MigrationStep
             ],
             'document_delivery_note' => [
                 'id' => Uuid::randomHex(),
-                'name' => 'DeliveryNotes',
-                'nameDe' => 'Lieferschein',
+                'name' => 'Delivery notes',
+                'nameDe' => 'Lieferscheine',
                 'global' => 1,
                 'typeId' => $definitionNumberRangeTypes['document_delivery_note']['id'],
                 'pattern' => '{n}',
@@ -1839,8 +1843,8 @@ class Migration1536233560BasicData extends MigrationStep
             ],
             'document_credit_note' => [
                 'id' => Uuid::randomHex(),
-                'name' => 'CreditNotes',
-                'nameDe' => 'Gutschrift',
+                'name' => 'Credit notes',
+                'nameDe' => 'Gutschriften',
                 'global' => 1,
                 'typeId' => $definitionNumberRangeTypes['document_credit_note']['id'],
                 'pattern' => '{n}',
@@ -1865,7 +1869,7 @@ class Migration1536233560BasicData extends MigrationStep
                 'number_range_type_translation',
                 [
                     'number_range_type_id' => Uuid::fromHexToBytes($numberRangeType['id']),
-                    'type_name' => $typeName,
+                    'type_name' => $numberRangeType['nameEn'],
                     'language_id' => $languageEn,
                     'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
                 ]
@@ -2663,16 +2667,19 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
                 'id' => Uuid::randomHex(),
                 'global' => 1,
                 'nameDe' => 'Produkt',
+                'nameEn' => 'Product',
             ],
             'order' => [
                 'id' => Uuid::randomHex(),
                 'global' => 0,
                 'nameDe' => 'Bestellung',
+                'nameEn' => 'Order',
             ],
             'customer' => [
                 'id' => Uuid::randomHex(),
                 'global' => 0,
                 'nameDe' => 'Kunde',
+                'nameEn' => 'Customer',
             ],
         ];
 
@@ -2723,7 +2730,7 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
                 'number_range_type_translation',
                 [
                     'number_range_type_id' => Uuid::fromHexToBytes($numberRangeType['id']),
-                    'type_name' => $typeName,
+                    'type_name' => $numberRangeType['nameEn'],
                     'language_id' => $languageEn,
                     'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
                 ]

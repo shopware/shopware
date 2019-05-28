@@ -9,7 +9,7 @@ This can and **should** be done using the Shopware platform [data abstraction la
 Here are two methods on how to update your previously created entities.
 Both of the following methods are to be executed on the entities' respective repository.
 
-## Updating entities via update
+## Updating entities
 
 The `update()` method is for updating existing entities and takes the same parameters as the `create()` method.
 Read [here](./130-creating-entities-dal.md) to find out how to create entities in the first place.

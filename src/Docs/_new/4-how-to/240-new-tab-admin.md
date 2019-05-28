@@ -16,7 +16,7 @@ This HowTo requires you to already have a basic plugin running.
 If you don't know how to do this in the first place, have a look at our [plugin quick start guide](./../2-internals/4-plugins/010-plugin-quick-start.md).
 That's already all the setup you need.
 
-## Creating the new tab
+## New tab
 
 ### Injecting custom javascript
 

@@ -18,9 +18,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class RootDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'root';
+
     public function getEntityName(): string
     {
-        return 'root';
+        return self::ENTITY_NAME;
     }
 
     protected function defineFields(): FieldCollection
@@ -36,9 +38,11 @@ class RootDefinition extends EntityDefinition
 
 class SubDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'root_sub';
+
     public function getEntityName(): string
     {
-        return 'root_sub';
+        return self::ENTITY_NAME;
     }
 
     protected function defineFields(): FieldCollection
@@ -58,9 +62,11 @@ class SubDefinition extends EntityDefinition
 
 class SubManyDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'root_sub_many';
+
     public function getEntityName(): string
     {
-        return 'root_sub_many';
+        return self::ENTITY_NAME;
     }
 
     protected function defineFields(): FieldCollection

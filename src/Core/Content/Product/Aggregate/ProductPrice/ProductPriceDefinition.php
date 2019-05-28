@@ -21,9 +21,11 @@ use Shopware\Core\System\Currency\CurrencyDefinition;
 
 class ProductPriceDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'product_price';
+
     public function getEntityName(): string
     {
-        return 'product_price';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

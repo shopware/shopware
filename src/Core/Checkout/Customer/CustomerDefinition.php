@@ -37,9 +37,11 @@ use Shopware\Core\System\Tag\TagDefinition;
 
 class CustomerDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'customer';
+
     public function getEntityName(): string
     {
-        return 'customer';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

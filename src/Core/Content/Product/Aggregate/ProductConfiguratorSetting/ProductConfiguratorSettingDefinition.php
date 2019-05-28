@@ -20,9 +20,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class ProductConfiguratorSettingDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'product_configurator_setting';
+
     public function getEntityName(): string
     {
-        return 'product_configurator_setting';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

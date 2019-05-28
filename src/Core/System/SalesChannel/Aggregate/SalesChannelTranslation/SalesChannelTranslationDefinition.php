@@ -11,9 +11,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class SalesChannelTranslationDefinition extends EntityTranslationDefinition
 {
+    public const ENTITY_NAME = 'sales_channel_translation';
+
     public function getEntityName(): string
     {
-        return 'sales_channel_translation';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

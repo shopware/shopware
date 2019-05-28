@@ -13,9 +13,11 @@ use Shopware\Core\System\Tag\TagDefinition;
 
 class NewsletterRecipientTagDefinition extends MappingEntityDefinition
 {
+    public const ENTITY_NAME = 'newsletter_recipient_tag';
+
     public function getEntityName(): string
     {
-        return 'newsletter_recipient_tag';
+        return self::ENTITY_NAME;
     }
 
     protected function defineFields(): FieldCollection

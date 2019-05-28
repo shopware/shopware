@@ -15,9 +15,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class NumberRangeSalesChannelDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'number_range_sales_channel';
+
     public function getEntityName(): string
     {
-        return 'number_range_sales_channel';
+        return self::ENTITY_NAME;
     }
 
     protected function defineFields(): FieldCollection

@@ -15,9 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class MediaThumbnailSizeDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'media_thumbnail_size';
+
     public function getEntityName(): string
     {
-        return 'media_thumbnail_size';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

@@ -28,9 +28,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class PropertyGroupOptionDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'property_group_option';
+
     public function getEntityName(): string
     {
-        return 'property_group_option';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

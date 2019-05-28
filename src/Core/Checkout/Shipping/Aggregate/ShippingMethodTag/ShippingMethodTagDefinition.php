@@ -13,9 +13,11 @@ use Shopware\Core\System\Tag\TagDefinition;
 
 class ShippingMethodTagDefinition extends MappingEntityDefinition
 {
+    public const ENTITY_NAME = 'shipping_method_tag';
+
     public function getEntityName(): string
     {
-        return 'shipping_method_tag';
+        return self::ENTITY_NAME;
     }
 
     protected function defineFields(): FieldCollection

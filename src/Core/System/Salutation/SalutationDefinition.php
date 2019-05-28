@@ -22,9 +22,11 @@ use Shopware\Core\System\Salutation\Aggregate\SalutationTranslation\SalutationTr
 
 class SalutationDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'salutation';
+
     public function getEntityName(): string
     {
-        return 'salutation';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

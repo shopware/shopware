@@ -18,9 +18,11 @@ use Shopware\Core\Framework\Language\LanguageDefinition;
 
 class ProductSearchKeywordDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'product_search_keyword';
+
     public function getEntityName(): string
     {
-        return 'product_search_keyword';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

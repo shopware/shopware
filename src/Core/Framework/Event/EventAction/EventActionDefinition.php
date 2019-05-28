@@ -12,9 +12,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class EventActionDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'event_action';
+
     public function getEntityName(): string
     {
-        return 'event_action';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

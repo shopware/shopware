@@ -21,9 +21,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class CmsBlockDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'cms_block';
+
     public function getEntityName(): string
     {
-        return 'cms_block';
+        return self::ENTITY_NAME;
     }
 
     public function getEntityClass(): string

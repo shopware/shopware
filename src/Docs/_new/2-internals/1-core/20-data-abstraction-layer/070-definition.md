@@ -24,13 +24,10 @@ Every definition must be extended from `Shopware\Core\Framework\DataAbstractionL
 ### Method: getEntityName()
 
 ```php
-public function getEntityName(): string
-{
-    return 'product';
-}
+public const ENTITY_NAME = 'product';
 ```
 
-The method should return the name of the definition, which will be used in the system. This will be your alias for search queries, too.
+The ENTITY_NAME constant should be set to the name of the definition, which will be used in the system. This will be your alias for search queries, too.
 
 **Convention:** The name should match exactly the table name and should be lower_snake_case!
 

@@ -15,9 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 
 class MessageQueueStatsDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'message_queue_stats';
+
     public function getEntityName(): string
     {
-        return 'message_queue_stats';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

@@ -11,9 +11,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class CustomerGroupTranslationDefinition extends EntityTranslationDefinition
 {
+    public const ENTITY_NAME = 'customer_group_translation';
+
     public function getEntityName(): string
     {
-        return 'customer_group_translation';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

@@ -36,9 +36,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class BundleDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'swag_bundle';
+    
     public function getEntityName(): string
     {
-        return 'swag_bundle';
+        return self::ENTITY_NAME;
     }
 
     protected function defineFields(): FieldCollection

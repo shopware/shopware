@@ -16,15 +16,21 @@ use Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageDefinition;
 
 class ScheduledTaskDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'scheduled_task';
+
     public const STATUS_SCHEDULED = 'scheduled';
+
     public const STATUS_QUEUED = 'queued';
+
     public const STATUS_RUNNING = 'running';
+
     public const STATUS_FAILED = 'failed';
+
     public const STATUS_INACTIVE = 'inactive';
 
     public function getEntityName(): string
     {
-        return 'scheduled_task';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

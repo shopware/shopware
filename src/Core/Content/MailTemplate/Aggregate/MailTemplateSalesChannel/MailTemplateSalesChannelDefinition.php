@@ -13,9 +13,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class MailTemplateSalesChannelDefinition extends MappingEntityDefinition
 {
+    public const ENTITY_NAME = 'mail_template_sales_channel';
+
     public function getEntityName(): string
     {
-        return 'mail_template_sales_channel';
+        return self::ENTITY_NAME;
     }
 
     protected function defineFields(): FieldCollection

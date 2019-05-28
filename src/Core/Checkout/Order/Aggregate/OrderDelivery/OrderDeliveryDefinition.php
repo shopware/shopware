@@ -26,9 +26,11 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 
 class OrderDeliveryDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'order_delivery';
+
     public function getEntityName(): string
     {
-        return 'order_delivery';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

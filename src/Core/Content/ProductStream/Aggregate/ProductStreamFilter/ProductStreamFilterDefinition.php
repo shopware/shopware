@@ -21,9 +21,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class ProductStreamFilterDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'product_stream_filter';
+
     public function getEntityName(): string
     {
-        return 'product_stream_filter';
+        return self::ENTITY_NAME;
     }
 
     public function getEntityClass(): string

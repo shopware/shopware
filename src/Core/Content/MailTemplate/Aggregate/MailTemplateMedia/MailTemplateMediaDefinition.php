@@ -15,9 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 
 class MailTemplateMediaDefinition extends MappingEntityDefinition
 {
+    public const ENTITY_NAME = 'mail_template_media';
+
     public function getEntityName(): string
     {
-        return 'mail_template_media';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

@@ -17,9 +17,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class SalesChannelTypeDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'sales_channel_type';
+
     public function getEntityName(): string
     {
-        return 'sales_channel_type';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

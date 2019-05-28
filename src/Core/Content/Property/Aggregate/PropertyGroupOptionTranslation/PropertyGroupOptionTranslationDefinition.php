@@ -13,9 +13,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 
 class PropertyGroupOptionTranslationDefinition extends EntityTranslationDefinition
 {
+    public const ENTITY_NAME = 'property_group_option_translation';
+
     public function getEntityName(): string
     {
-        return 'property_group_option_translation';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

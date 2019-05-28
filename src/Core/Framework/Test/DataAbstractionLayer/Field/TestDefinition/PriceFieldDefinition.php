@@ -11,9 +11,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class PriceFieldDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = '_test_nullable';
+
     public function getEntityName(): string
     {
-        return '_test_nullable';
+        return self::ENTITY_NAME;
     }
 
     protected function defineFields(): FieldCollection

@@ -24,9 +24,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class CmsPageDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'cms_page';
+
     public function getEntityName(): string
     {
-        return 'cms_page';
+        return self::ENTITY_NAME;
     }
 
     public function getEntityClass(): string

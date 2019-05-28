@@ -30,9 +30,11 @@ use Shopware\Core\System\Tag\TagDefinition;
 
 class ShippingMethodDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'shipping_method';
+
     public function getEntityName(): string
     {
-        return 'shipping_method';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

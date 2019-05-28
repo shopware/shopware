@@ -27,9 +27,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class TagDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'tag';
+
     public function getEntityName(): string
     {
-        return 'tag';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

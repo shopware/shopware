@@ -21,9 +21,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class DocumentDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'document';
+
     public function getEntityName(): string
     {
-        return 'document';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

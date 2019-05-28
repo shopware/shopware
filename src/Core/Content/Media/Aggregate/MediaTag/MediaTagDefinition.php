@@ -13,9 +13,11 @@ use Shopware\Core\System\Tag\TagDefinition;
 
 class MediaTagDefinition extends MappingEntityDefinition
 {
+    public const ENTITY_NAME = 'media_tag';
+
     public function getEntityName(): string
     {
-        return 'media_tag';
+        return self::ENTITY_NAME;
     }
 
     public function isVersionAware(): bool

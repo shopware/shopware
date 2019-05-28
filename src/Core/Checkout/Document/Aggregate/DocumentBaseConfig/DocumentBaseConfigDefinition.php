@@ -21,9 +21,11 @@ use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 
 class DocumentBaseConfigDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'document_base_config';
+
     public function getEntityName(): string
     {
-        return 'document_base_config';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

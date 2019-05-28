@@ -121,6 +121,8 @@ class EntityScoreBuilderTest extends TestCase
 
 class ScoreBuilderTestDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'test';
+
     public function getEntityName(): string
     {
         return 'test';
@@ -139,6 +141,8 @@ class ScoreBuilderTestDefinition extends EntityDefinition
 
 class NestedDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'nested';
+
     public function getEntityName(): string
     {
         return 'nested';
@@ -154,6 +158,8 @@ class NestedDefinition extends EntityDefinition
 
 class OnlyTranslatedFieldDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'translated';
+
     public function getEntityName(): string
     {
         return 'translated';

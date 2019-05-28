@@ -11,9 +11,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class DiscountSurchargeTranslationDefinition extends EntityTranslationDefinition
 {
+    public const ENTITY_NAME = 'discount_surcharge_translation';
+
     public function getEntityName(): string
     {
-        return 'discount_surcharge_translation';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

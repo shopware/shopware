@@ -19,9 +19,11 @@ use Shopware\Core\System\User\UserDefinition;
 
 class LocaleDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'locale';
+
     public function getEntityName(): string
     {
-        return 'locale';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

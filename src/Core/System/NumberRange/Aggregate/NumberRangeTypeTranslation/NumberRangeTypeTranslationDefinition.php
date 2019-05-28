@@ -11,9 +11,11 @@ use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeDe
 
 class NumberRangeTypeTranslationDefinition extends EntityTranslationDefinition
 {
+    public const ENTITY_NAME = 'number_range_type_translation';
+
     public function getEntityName(): string
     {
-        return 'number_range_type_translation';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

@@ -61,9 +61,11 @@ use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinitio
 
 class LanguageDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'language';
+
     public function getEntityName(): string
     {
-        return 'language';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

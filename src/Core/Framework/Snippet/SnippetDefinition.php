@@ -17,9 +17,11 @@ use Shopware\Core\Framework\Snippet\Aggregate\SnippetSet\SnippetSetDefinition;
 
 class SnippetDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'snippet';
+
     public function getEntityName(): string
     {
-        return 'snippet';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

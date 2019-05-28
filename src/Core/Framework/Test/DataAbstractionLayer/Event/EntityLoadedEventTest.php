@@ -221,6 +221,8 @@ class EntityLoadedEventTest extends TestCase
 
 class TestDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'test';
+
     public function getEntityName(): string
     {
         return 'test';

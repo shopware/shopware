@@ -22,9 +22,11 @@ use Shopware\Core\Framework\ScheduledTask\ScheduledTaskDefinition;
 
 class DeadMessageDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'dead_message';
+
     public function getEntityName(): string
     {
-        return 'dead_message';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

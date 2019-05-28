@@ -19,9 +19,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class SeoUrlDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'seo_url';
+
     public function getEntityName(): string
     {
-        return 'seo_url';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

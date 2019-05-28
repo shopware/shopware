@@ -13,9 +13,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class NamedDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'named';
+
     public function getEntityName(): string
     {
-        return 'named';
+        return self::ENTITY_NAME;
     }
 
     protected function defineFields(): FieldCollection

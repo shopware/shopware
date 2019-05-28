@@ -15,9 +15,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class DocumentBaseConfigSalesChannelDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'document_base_config_sales_channel';
+
     public function getEntityName(): string
     {
-        return 'document_base_config_sales_channel';
+        return self::ENTITY_NAME;
     }
 
     protected function defineFields(): FieldCollection

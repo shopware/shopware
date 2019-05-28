@@ -20,9 +20,11 @@ use Shopware\Core\System\NumberRange\NumberRangeDefinition;
 
 class NumberRangeTypeDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'number_range_type';
+
     public function getEntityName(): string
     {
-        return 'number_range_type';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

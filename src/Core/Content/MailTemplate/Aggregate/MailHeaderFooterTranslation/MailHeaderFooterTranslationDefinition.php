@@ -12,9 +12,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class MailHeaderFooterTranslationDefinition extends EntityTranslationDefinition
 {
+    public const ENTITY_NAME = 'mail_header_footer_translation';
+
     public function getEntityName(): string
     {
-        return 'mail_header_footer_translation';
+        return self::ENTITY_NAME;
     }
 
     public function getEntityClass(): string

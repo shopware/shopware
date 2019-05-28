@@ -17,9 +17,11 @@ use Shopware\Core\System\User\UserDefinition;
 
 class StateMachineHistoryDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'state_machine_history';
+
     public function getEntityName(): string
     {
-        return 'state_machine_history';
+        return self::ENTITY_NAME;
     }
 
     public function getEntityClass(): string

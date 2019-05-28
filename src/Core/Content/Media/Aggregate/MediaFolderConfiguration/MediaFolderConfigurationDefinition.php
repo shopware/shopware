@@ -22,9 +22,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 
 class MediaFolderConfigurationDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'media_folder_configuration';
+
     public function getEntityName(): string
     {
-        return 'media_folder_configuration';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

@@ -18,9 +18,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class DiscountSurchargeDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'discount_surcharge';
+
     public function getEntityName(): string
     {
-        return 'discount_surcharge';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

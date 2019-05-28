@@ -18,9 +18,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class SalesChannelDomainDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'sales_channel_domain';
+
     public function getEntityName(): string
     {
-        return 'sales_channel_domain';
+        return self::ENTITY_NAME;
     }
 
     public function getEntityClass(): string

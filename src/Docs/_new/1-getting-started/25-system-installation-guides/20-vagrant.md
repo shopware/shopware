@@ -2,14 +2,14 @@
 
 If using docker is not an option for you, you might want to try to set up the platform through Vagrant. In order to get the Shopware Platform up and running you do not even have to check out the sources. Just do the following:
 
-### Requirements
+## Requirements
 
 * [Vagrant](https://www.vagrantup.com/) v2.4 or later
 * [VirtualBox](https://www.virtualbox.org/) in a Vagrant compatible version
 * Git
 * unused IP-Address `192.168.33.10`
 
-### Starting it
+## Starting it
 
 Start by checking out the repository [located here](https://github.com/shopwareLabs/shopware-platform-vagrant)
 
@@ -20,14 +20,13 @@ Start by checking out the repository [located here](https://github.com/shopwareL
 
 Now we just execute `vagrant up` and wait while Vagrant downloads a virtual box image, checks out the platform and configures everything:
 
-
 ```bash
 > vagrant up
 ```
 
 *Notice: This will take **a while** on first execution. But caches will be created and used on any futher `up` call.*
 
-### Accessing it
+## Accessing it
 
 Afterwards you have a fully fledged Shopware Platform up and running. Access it through your browser:
 
@@ -46,7 +45,7 @@ Or use the terminal and access the virtual machine via:
 
 *Notice: You should regularly update the box by executing `vagrant provision` - this will **reset** the box to it's stock state*
 
-### Developing with it
+## Developing with it
 
 The Vagrant box fully encapsulates the whole platform with all its sources. So the development process works just like with any other foreign system. The machine supports **SCP** as a way to go:
 
@@ -57,4 +56,4 @@ Key |  Setting
 **Password:** | `vagrant`
 **Path:** | `/~/shopware-dev`
 
-### Next: [Startup](./../30-startup-guide/__categoryInfo.md)
+## Next: [Startup](./../30-startup-guide/__categoryInfo.md)

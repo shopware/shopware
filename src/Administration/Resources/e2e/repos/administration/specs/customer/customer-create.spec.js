@@ -70,6 +70,6 @@ module.exports = {
             .fillGlobalSearchField('Pep Eroni')
             .waitForElementNotPresent(page.elements.loader)
             .expect.element(page.elements.smartBarAmount).to.have.text.that.equals('(1)');
-        browser.expect.element(page.elements.columnName).to.have.text.that.equals('Pep Eroni');
+        browser.expect.element(`${page.elements.columnName} a`).to.have.text.that.equals('Pep Eroni');
     }
 };

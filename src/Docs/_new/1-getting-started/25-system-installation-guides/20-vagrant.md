@@ -1,32 +1,39 @@
 [titleEn]: <>(Vagrant VM)
 
-If using docker is not an option for you, you might want to try to set up the platform through Vagrant. In order to get the Shopware Platform up and running you do not even have to check out the sources. Just do the following:
+If using docker is not an option for you, vagrant is another great technology to quickly get a local Shopware up and running.
+
+Other than with the docker or local setup, with vagrant you will have a complete seperate server on your machine.
+
+Because of technical reasons, the vagrant machine acts like a remote web server, so with this setup, you'll develop your code on your PC like and then you upload/synchronize it to the vagrant machine.
+
+For this, the vagrant machine supports SCP/SSH, which is integrated in Editors like PHPStorm or Visual Studio Code.
 
 ## Requirements
 
 * [Vagrant](https://www.vagrantup.com/) v2.4 or later
 * [VirtualBox](https://www.virtualbox.org/) in a Vagrant compatible version
-* Git
-* unused IP-Address `192.168.33.10`
+* [Git](https://git-scm.com/)
+
+The IP address `192.168.33.10` is used by the vagrant box, so it must not be in use in the network already. If this is not possible, you manually have to change the IP address in the `Vagrantfile` you'll clone in the next step.
 
 ## Starting it
 
-Start by checking out the repository [located here](https://github.com/shopwareLabs/shopware-platform-vagrant)
+Start by cloning the repository [shopwareLabs/shopware-platform-vagrant](https://github.com/shopwareLabs/shopware-platform-vagrant)
 
 ```
 > git clone git@github.com:shopwareLabs/shopware-platform-vagrant.git
 > cd shopware-platform-vagrant
 ```
 
-Now we just execute `vagrant up` and wait while Vagrant downloads a virtual box image, checks out the platform and configures everything:
+Next, execute `vagrant up` and wait while Vagrant downloads a virtual box image, clones the platform and configures the server.
 
 ```bash
 > vagrant up
 ```
 
-*Notice: This will take **a while** on first execution. But caches will be created and used on any futher `up` call.*
+*Note: This will take **quite a while** on first execution. But caches will be created and used on any futher `up` call.*
 
-## Accessing it
+## Accessing Shopware
 
 Afterwards you have a fully fledged Shopware Platform up and running. Access it through your browser:
 
@@ -43,11 +50,11 @@ Or use the terminal and access the virtual machine via:
 > bin/console
 ``` 
 
-*Notice: You should regularly update the box by executing `vagrant provision` - this will **reset** the box to it's stock state*
+*Note: You should regularly update the box by executing `vagrant provision` - this will **reset** the box to it's stock state* meaning **Content inside the box is wiped and deleted**
 
-## Developing with it
+## Connecting your IDE
 
-The Vagrant box fully encapsulates the whole platform with all its sources. So the development process works just like with any other foreign system. The machine supports **SCP** as a way to go:
+The Vagrant box fully encapsulates the whole platform with all its sources. So the development process works just like with any other foreign system. The machine supports **SCP** with the following credentials.
 
 Key |  Setting
 ----------|----------

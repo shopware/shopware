@@ -90,30 +90,30 @@ module.exports = {
     'move city column before street column': (browser) => {
         const page = customerPage(browser);
 
-        browser.expect.element('.sw-data-grid__cell--4').to.have.text.that.equals('City');
+        browser.expect.element('.sw-data-grid__cell--3').to.have.text.that.equals('City');
         browser
             .clickContextMenuItem('.sw-data-grid-settings__trigger', {
                 scope: `${page.elements.dataGridHeader} .sw-data-grid__row`
             })
-            .assert.containsText('.sw-data-grid__settings-item--4 label', 'City')
-            .click('.sw-data-grid__settings-item--4 .icon--small-arrow-small-up')
-            .assert.containsText('.sw-data-grid__settings-item--2 label', 'Street')
-            .click('.sw-data-grid__settings-item--2 .icon--small-arrow-small-down ')
+            .assert.containsText('.sw-data-grid__settings-item--3 label', 'City')
+            .click('.sw-data-grid__settings-item--3 .icon--small-arrow-small-up')
+            .assert.containsText('.sw-data-grid__settings-item--1 label', 'Street')
+            .click('.sw-data-grid__settings-item--1 .icon--small-arrow-small-down ')
             .click('.sw-page__head-area');
-        browser.expect.element(`${page.elements.dataGridHeader} ${page.elements.dataGridColumn}--2`).to.have.text.that.equals('City');
-        browser.expect.element(`${page.elements.dataGridHeader} ${page.elements.dataGridColumn}--3`).to.have.text.that.equals('Street');
-        browser.expect.element(`${page.elements.dataGridHeader} ${page.elements.dataGridColumn}--4`).to.have.text.that.equals('Zip code');
+        browser.expect.element(`${page.elements.dataGridHeader} ${page.elements.dataGridColumn}--1`).to.have.text.that.equals('City');
+        browser.expect.element(`${page.elements.dataGridHeader} ${page.elements.dataGridColumn}--2`).to.have.text.that.equals('Street');
+        browser.expect.element(`${page.elements.dataGridHeader} ${page.elements.dataGridColumn}--3`).to.have.text.that.equals('Zip code');
     },
     'sort by name': (browser) => {
         const page = customerPage(browser);
 
-        browser.expect.element(`.sw-data-grid__row--0 ${page.elements.columnName}`).to.have.text.that.equals('Meghan Markle');
+        browser.expect.element(`.sw-data-grid__row--0 ${page.elements.columnName} a`).to.have.text.that.equals('Meghan Markle');
         browser
-            .click(`${page.elements.dataGridHeader} ${page.elements.dataGridColumn}--1`)
+            .click(`${page.elements.dataGridHeader} ${page.elements.dataGridColumn}--0`)
             .waitForElementNotPresent('.sw-data-grid-skeleton');
 
-        browser.click(`${page.elements.dataGridHeader} ${page.elements.dataGridColumn}--1`)
-            .expect.element(`.sw-data-grid__row--0 ${page.elements.columnName}`).to.have.text.that.equals('Zapp Zarapp');
+        browser.click(`${page.elements.dataGridHeader} ${page.elements.dataGridColumn}--0`)
+            .expect.element(`.sw-data-grid__row--0 ${page.elements.columnName} a`).to.have.text.that.equals('Zapp Zarapp');
     },
     'navigate to customer': (browser) => {
         const page = customerPage(browser);

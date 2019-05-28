@@ -89,11 +89,6 @@ Component.register('sw-product-variants-configurator-restrictions', {
         mountedComponent() {
             this.filterEmptyValues();
 
-            // Make the data grid not compact
-            if (this.$refs.swDataGrid) {
-                this.$refs.swDataGrid.compact = false;
-            }
-
             // Load the groups with the related options
             this.groupsWithOptions = this.selectedGroups.map((group) => {
                 return {

@@ -78,6 +78,15 @@ Now that you have a idea how to execute the various Shopware Platform stacks, we
 | Administration | `platform/src/Administration/`
 | Administration application | `platform/src/Administration/Resources/administration`
 
+## Default Login Credentials
+
+Although these credentials are far from hardcoded and may of course vary for production installations, these are the defaults created during installation of the dev system.
+
+|  UI  | URL  | User | Password 
+| ---- | ---- |----- | ----
+| Admin | http://your_host_setting/admin | admin | shopware 
+| Storefront | http://your_host_setting/account/login | test@example.com | shopware 
+
 ## And now?
 
 Look around! Add products, trigger orders, register customers and use the Shopware Platform. Maybe you want to add debug statements to some sources to get a deeper insight and if you are ready to learn more hop over to the [internals](./../../2-internals/__categoryInfo.md).

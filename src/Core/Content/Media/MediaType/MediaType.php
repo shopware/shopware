@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Media\MediaType;
 
-use Shopware\Core\Content\Media\Metadata\Type\MetadataType;
 use Shopware\Core\Framework\Struct\Struct;
 
 abstract class MediaType extends Struct
@@ -16,8 +15,6 @@ abstract class MediaType extends Struct
      * @var string[]
      */
     protected $flags = [];
-
-    abstract public function getMetadataType(): MetadataType;
 
     public function getName(): string
     {

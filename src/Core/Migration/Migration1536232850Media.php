@@ -22,7 +22,7 @@ class Migration1536232850Media extends MigrationStep
               `mime_type`       VARCHAR(255)    COLLATE utf8mb4_unicode_ci  NULL,
               `file_extension`  VARCHAR(50)     COLLATE utf8mb4_unicode_ci  NULL,
               `file_size`       INT(10)         unsigned                    NULL,
-              `meta_data`       LONGBLOB                                    NULL,
+              `meta_data`       JSON                                        NULL,
               `file_name`       LONGTEXT        COLLATE utf8mb4_unicode_ci  NULL,
               `media_type`      LONGBLOB                                    NULL,
               `thumbnails_ro`   LONGBLOB                                    NULL,
@@ -30,6 +30,7 @@ class Migration1536232850Media extends MigrationStep
               `created_at`      DATETIME(3)                                 NOT NULL,
               `updated_at`      DATETIME(3)                                 NULL,
                PRIMARY KEY (`id`),
+               CONSTRAINT `json.media.meta_data` CHECK (JSON_VALID(`meta_data`)),
                CONSTRAINT `fk.media.user_id` FOREIGN KEY (`user_id`)
                  REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
                CONSTRAINT `fk.media.media_folder_id` FOREIGN KEY (`media_folder_id`)

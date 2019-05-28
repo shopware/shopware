@@ -13,7 +13,6 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\Media\MediaType\MediaType;
-use Shopware\Core\Content\Media\Metadata\Metadata;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
@@ -63,7 +62,7 @@ class MediaEntity extends Entity
     protected $mediaTypeRaw;
 
     /**
-     * @var Metadata|null
+     * @var array|null
      */
     protected $metaData;
 
@@ -261,12 +260,12 @@ class MediaEntity extends Entity
         $this->title = $title;
     }
 
-    public function getMetaData(): ?Metadata
+    public function getMetaData(): ?array
     {
         return $this->metaData;
     }
 
-    public function setMetaData(Metadata $metaData): void
+    public function setMetaData(array $metaData): void
     {
         $this->metaData = $metaData;
     }

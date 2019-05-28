@@ -6,8 +6,6 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollectio
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaEvents;
-use Shopware\Core\Content\Media\Metadata\MetadataLoader;
-use Shopware\Core\Content\Media\Metadata\Type\NoMetadata;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -19,17 +17,9 @@ class MediaLoadedSubscriber implements EventSubscriberInterface
      */
     private $urlGenerator;
 
-    /**
-     * @var MetadataLoader
-     */
-    private $metadataLoader;
-
-    public function __construct(
-        UrlGeneratorInterface $urlGenerator,
-        MetadataLoader $metadataLoader
-    ) {
+    public function __construct(UrlGeneratorInterface $urlGenerator)
+    {
         $this->urlGenerator = $urlGenerator;
-        $this->metadataLoader = $metadataLoader;
     }
 
     public static function getSubscribedEvents(): array
@@ -38,7 +28,6 @@ class MediaLoadedSubscriber implements EventSubscriberInterface
             MediaEvents::MEDIA_LOADED_EVENT => [
                 ['unserialize', 10],
                 ['addUrls'],
-                ['loadTypedMetadata'],
             ],
         ];
     }
@@ -59,33 +48,10 @@ class MediaLoadedSubscriber implements EventSubscriberInterface
         }
     }
 
-    public function loadTypedMetadata(EntityLoadedEvent $event): void
-    {
-        /** @var MediaEntity $entity */
-        foreach ($event->getEntities() as $entity) {
-            $metadata = $entity->getMetaData();
-
-            if (!$metadata) {
-                continue;
-            }
-
-            try {
-                $this->metadataLoader->updateMetadata($metadata);
-            } catch (\Throwable $e) {
-                // don't fail the request because metadata cannot be loaded
-                $metadata->setType(new NoMetadata());
-            }
-        }
-    }
-
     public function unserialize(EntityLoadedEvent $event): void
     {
         /** @var MediaEntity $media */
         foreach ($event->getEntities() as $media) {
-            if ($media->getMetaDataRaw()) {
-                $media->setMetaData(unserialize($media->getMetaDataRaw()));
-            }
-
             if ($media->getMediaTypeRaw()) {
                 $media->setMediaType(unserialize($media->getMediaTypeRaw()));
             }

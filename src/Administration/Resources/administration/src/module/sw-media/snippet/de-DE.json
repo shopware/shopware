@@ -42,13 +42,8 @@
         "mimeType": "MIME-Type",
         "fileSize": "Größe",
         "createdAt": "Hochgeladen am",
-        "url": "URL",
         "width": "Breite",
         "height": "Höhe",
-        "frameRate": "Bildrate",
-        "documentTitle": "Dokumenten Titel",
-        "creator": "Erstellt durch",
-        "pages": "Seiten",
         "totalSize": "Insgesamt"
       },
       "usage": {

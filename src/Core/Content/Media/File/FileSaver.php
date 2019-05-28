@@ -16,7 +16,6 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Message\GenerateThumbnailsMessage;
-use Shopware\Core\Content\Media\Metadata\Metadata;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
@@ -115,13 +114,13 @@ class FileSaver
         $this->removeOldMediaData($currentMedia, $context);
 
         $mediaType = $this->typeDetector->detect($mediaFile);
-        $rawMetadata = $this->metadataLoader->loadFromFile($mediaFile, $mediaType);
+        $metaData = $this->metadataLoader->loadFromFile($mediaFile, $mediaType);
 
         $media = $this->updateMediaEntity(
             $mediaFile,
             $destination,
             $currentMedia,
-            $rawMetadata,
+            $metaData,
             $mediaType,
             $context
         );
@@ -272,7 +271,7 @@ class FileSaver
         MediaFile $mediaFile,
         string $destination,
         MediaEntity $media,
-        Metadata $metadata,
+        ?array $metadata,
         MediaType $mediaType,
         Context $context
     ): MediaEntity {
@@ -283,7 +282,7 @@ class FileSaver
             'fileExtension' => $mediaFile->getFileExtension(),
             'fileSize' => $mediaFile->getFileSize(),
             'fileName' => $destination,
-            'metaDataRaw' => serialize($metadata),
+            'metaData' => $metadata,
             'mediaTypeRaw' => serialize($mediaType),
             'uploadedAt' => new \DateTime(),
         ];

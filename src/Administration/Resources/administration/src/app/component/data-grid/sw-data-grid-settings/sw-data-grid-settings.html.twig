@@ -34,6 +34,16 @@
                                       :label="$tc('global.sw-data-grid.labelSettingsCompactMode')">
                             </sw-field>
                         {% endblock %}
+
+                        {% block sw_data_grid_settings_preview_switch %}
+                            <sw-field v-if="enablePreviews"
+                                      type="switch"
+                                      v-model="currentPreviews"
+                                      noMarginTop
+                                      @change="onChangePreviews(currentPreviews)"
+                                      :label="$tc('global.sw-data-grid.labelSettingsPreviewImages')">
+                            </sw-field>
+                        {% endblock %}
                     </div>
                 {% endblock %}
 

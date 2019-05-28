@@ -22,7 +22,7 @@ module.exports = {
     'delete customer and verify deletion': (browser) => {
         const page = customerPage(browser);
 
-        browser.expect.element(page.elements.columnName).to.have.text.that.equals('Pep Eroni');
+        browser.expect.element(`${page.elements.columnName} a`).to.have.text.that.equals('Pep Eroni');
         browser
             .clickContextMenuItem(page.elements.contextMenuButton, {
                 menuActionSelector: `${page.elements.contextMenu}-item--danger`,

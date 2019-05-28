@@ -67,7 +67,9 @@
         }
 
         .sw-field.sw-field--checkbox,
-        .sw-field.sw-field--radio {
+        .sw-field.sw-field--radio,
+        .sw-field--checkbox,
+        .sw-field--radio {
             display: block;
             margin-bottom: 0;
             width: auto;
@@ -285,6 +287,32 @@
         }
     }
 
+    .sw-media-preview {
+        position: relative;
+        width: 48px;
+        height: 48px;
+        border: 1px solid $color-steam-cloud;
+        border-radius: $border-radius-default;
+        background-color: $color-white;
+        margin-right: 15px;
+        flex-shrink: 0;
+
+        .sw-media-preview__item {
+            max-width: calc(100% - 5px);
+            max-height: calc(100% - 5px);
+
+            &.sw-icon {
+                width: 80%;
+                height: 80%;
+            }
+        }
+    }
+
+    .sw-avatar {
+        margin-right: 15px;
+        flex-shrink: 0;
+    }
+
     .sw-data-grid__cell-settings {
         box-shadow: inset 1px -1px 0 $color-steam-cloud;
         z-index: 5;
@@ -308,6 +336,11 @@
         .sw-data-grid__body .sw-data-grid__cell-content {
             padding: 10px 20px;
             height: 42px;
+        }
+
+        .sw-media-preview {
+            width: 32px;
+            height: 32px;
         }
     }
 

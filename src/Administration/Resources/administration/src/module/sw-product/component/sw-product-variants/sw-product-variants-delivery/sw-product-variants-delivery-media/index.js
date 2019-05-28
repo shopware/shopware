@@ -55,17 +55,6 @@ Component.register('sw-product-variants-delivery-media', {
         }
     },
 
-    watch: {
-        activeOptions() {
-            // TODO: Replace it with prop when the sw-data-grid allows to deactivate the compact mode
-            this.$nextTick().then(() => {
-                if (this.$refs.variantsMedia) {
-                    this.$refs.variantsMedia.compact = false;
-                }
-            });
-        }
-    },
-
     methods: {
         onUploadsAdded({ data }) {
             if (data.length === 0) {

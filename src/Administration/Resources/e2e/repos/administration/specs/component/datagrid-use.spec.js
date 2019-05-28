@@ -34,8 +34,8 @@ module.exports = {
             .waitForElementVisible('.is--compact');
     },
     'check that name column cannot be hidden': (browser) => {
-        browser.expect.element('.sw-data-grid__settings-item--1').to.have.text.that.contains('Name');
-        browser.expect.element('.sw-data-grid__settings-item--1 input').to.not.be.enabled;
+        browser.expect.element('.sw-data-grid__settings-item--0').to.have.text.that.contains('Name');
+        browser.expect.element('.sw-data-grid__settings-item--0 input').to.not.be.enabled;
     },
     'hide and retrieve mail column': (browser) => {
         const page = customerPage(browser);
@@ -60,18 +60,18 @@ module.exports = {
     'reduce street column width using drag and drop': (browser) => {
         const page = customerPage(browser);
 
-        browser.expect.element(`${page.elements.dataGridHeader} ${page.elements.dataGridColumn}--1`).to.have.css('width').which.equals('250px');
+        browser.expect.element(`${page.elements.dataGridHeader} ${page.elements.dataGridColumn}--0`).to.have.css('width').which.equals('250px');
 
         browser
-            .moveToElement(`${page.elements.dataGridHeader} ${page.elements.dataGridColumn}--2`, 10, 10)
-            .waitForElementVisible(`${page.elements.dataGridColumn}--2 ${page.elements.dataGridColumn}-resize`)
+            .moveToElement(`${page.elements.dataGridHeader} ${page.elements.dataGridColumn}--1`, 10, 10)
+            .waitForElementVisible(`${page.elements.dataGridColumn}--1 ${page.elements.dataGridColumn}-resize`)
             .dragAndDrop(
-                `${page.elements.dataGridColumn}--2 ${page.elements.dataGridColumn}-resize`,
-                `${page.elements.dataGridColumn}--2 ${page.elements.contextMenuButton}`,
+                `${page.elements.dataGridColumn}--1 ${page.elements.dataGridColumn}-resize`,
+                `${page.elements.dataGridColumn}--1 ${page.elements.contextMenuButton}`,
                 { xDrag: 0 }
             );
 
-        browser.expect.element(`${page.elements.dataGridColumn}--2`).to.have.css('width').which.not.equals('250px');
+        browser.expect.element(`${page.elements.dataGridColumn}--1`).to.have.css('width').which.not.equals('250px');
     },
     'inline edit name': (browser) => {
         const page = customerPage(browser);
@@ -85,35 +85,35 @@ module.exports = {
             .click(`${page.elements.dataGridRow}--0 ${page.elements.dataGridInlineEditSave}`)
             .waitForElementNotPresent('.is--inline-edit')
             .refresh()
-            .expect.element(`.sw-data-grid__row--0 ${page.elements.columnName}`).to.have.text.that.equals('Meghan Markle');
+            .expect.element(`.sw-data-grid__row--0 ${page.elements.columnName} a`).to.have.text.that.equals('Meghan Markle');
     },
     'move city column before street column': (browser) => {
         const page = customerPage(browser);
 
-        browser.expect.element('.sw-data-grid__cell--4').to.have.text.that.equals('City');
+        browser.expect.element('.sw-data-grid__cell--3').to.have.text.that.equals('City');
         browser
             .clickContextMenuItem('.sw-data-grid-settings__trigger', {
                 scope: `${page.elements.dataGridHeader} .sw-data-grid__row`
             })
-            .assert.containsText('.sw-data-grid__settings-item--4 label', 'City')
-            .click('.sw-data-grid__settings-item--4 .icon--small-arrow-small-up')
-            .assert.containsText('.sw-data-grid__settings-item--2 label', 'Street')
-            .click('.sw-data-grid__settings-item--2 .icon--small-arrow-small-down ')
+            .assert.containsText('.sw-data-grid__settings-item--3 label', 'City')
+            .click('.sw-data-grid__settings-item--3 .icon--small-arrow-small-up')
+            .assert.containsText('.sw-data-grid__settings-item--1 label', 'Street')
+            .click('.sw-data-grid__settings-item--1 .icon--small-arrow-small-down ')
             .click('.sw-page__head-area');
-        browser.expect.element(`${page.elements.dataGridHeader} ${page.elements.dataGridColumn}--2`).to.have.text.that.equals('City');
-        browser.expect.element(`${page.elements.dataGridHeader} ${page.elements.dataGridColumn}--3`).to.have.text.that.equals('Street');
-        browser.expect.element(`${page.elements.dataGridHeader} ${page.elements.dataGridColumn}--4`).to.have.text.that.equals('Zip code');
+        browser.expect.element(`${page.elements.dataGridHeader} ${page.elements.dataGridColumn}--1`).to.have.text.that.equals('City');
+        browser.expect.element(`${page.elements.dataGridHeader} ${page.elements.dataGridColumn}--2`).to.have.text.that.equals('Street');
+        browser.expect.element(`${page.elements.dataGridHeader} ${page.elements.dataGridColumn}--3`).to.have.text.that.equals('Zip code');
     },
     'sort by name': (browser) => {
         const page = customerPage(browser);
 
-        browser.expect.element(`.sw-data-grid__row--0 ${page.elements.columnName}`).to.have.text.that.equals('Meghan Markle');
+        browser.expect.element(`.sw-data-grid__row--0 ${page.elements.columnName} a`).to.have.text.that.equals('Meghan Markle');
         browser
-            .click(`${page.elements.dataGridHeader} ${page.elements.dataGridColumn}--1`)
+            .click(`${page.elements.dataGridHeader} ${page.elements.dataGridColumn}--0`)
             .waitForElementNotPresent('.sw-data-grid-skeleton');
 
-        browser.click(`${page.elements.dataGridHeader} ${page.elements.dataGridColumn}--1`)
-            .expect.element(`.sw-data-grid__row--0 ${page.elements.columnName}`).to.have.text.that.equals('Zapp Zarapp');
+        browser.click(`${page.elements.dataGridHeader} ${page.elements.dataGridColumn}--0`)
+            .expect.element(`.sw-data-grid__row--0 ${page.elements.columnName} a`).to.have.text.that.equals('Zapp Zarapp');
     },
     'navigate to customer': (browser) => {
         const page = customerPage(browser);

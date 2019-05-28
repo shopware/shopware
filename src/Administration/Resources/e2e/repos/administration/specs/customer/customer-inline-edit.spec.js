@@ -29,6 +29,6 @@ module.exports = {
             .click(`${page.elements.dataGridRow}--0 ${page.elements.dataGridInlineEditSave}`)
             .waitForElementNotPresent('.is--inline-edit')
             .refresh()
-            .expect.element(page.elements.columnName).to.have.text.that.equals('Meghan Markle');
+            .expect.element(`${page.elements.columnName} a`).to.have.text.that.equals('Meghan Markle');
     }
 };

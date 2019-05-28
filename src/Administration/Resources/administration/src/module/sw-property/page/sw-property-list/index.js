@@ -87,10 +87,6 @@ Component.register('sw-property-list', {
                 this.properties = response.items;
                 this.isLoading = false;
 
-                this.$nextTick(() => {
-                    this.$refs.propertyList.compact = false;
-                });
-
                 return this.properties;
             });
         }

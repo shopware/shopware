@@ -18,12 +18,14 @@ You now have the application template for the Shopware Platform in the directory
 > cd development
 ```
 
-and clone the platform repository into its default directory `platform`. *Note This is important for autoloading purposes.*
+Only if you want to work with the platform code itself, e.g. in order to create a pull request for it, you should clone the `platform` code manually.
 
 ```bash
 > git clone git@github.com:shopware/platform.git
-
 ```
+
+Otherwise, the platform code would be placed into a `vendor/shopware/platform` directory, where you don't want to change any code.
+There's a good reason, why many IDEs try to prevent you from changing code in the `vendor` directory.
 
 ## Docker installation (recommended)
 
@@ -33,7 +35,6 @@ Build and start the containers:
 
 ```bash
 > ./psh.phar docker:start
-
 ```
 
 Access the application container:
@@ -53,6 +54,7 @@ This may take a while since many caches need to be generated on first execution,
 To be sure that the installation succeeded, just open the following url in your favorite browser: [http://localhost:8000/](http://localhost:8000/)
 
 ## Local installation
+
 If you are working on a Mac or it's otherwise impossible to get docker up and running on your development environment you can install the Shopware Platform locally. **But be aware that this will be the by far more complex solution since additional or changed system requirements need to be managed by you.**
 
 Once you setup all the required packages mentioned in [requirements](./../10-requirements/__categoryInfo.md) there are two main goals you need to accomplish:

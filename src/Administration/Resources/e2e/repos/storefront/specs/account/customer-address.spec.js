@@ -46,7 +46,7 @@ module.exports = {
             .waitForElementVisible(page.elements.addressForm)
             .fillField('#addressAddressStreet', '12th Ebbinghoff Street', true)
             .click(`.address-form-submit${page.elements.primaryButton}`)
-            .expect.element(page.elements.alertSuccess).to.have.text.that.contains('Address saved successfully');
+            .expect.element(page.elements.alertSuccess).to.have.text.that.contains('Address has successfully been saved.');
     },
     'add new address': (browser) => {
         const page = accountPage(browser);
@@ -66,7 +66,7 @@ module.exports = {
             .fillField('#addressAddressCity', 'Somewhere')
             .fillSelectField('#addressAddressCountry', 'Germany')
             .click(`.address-form-submit${page.elements.primaryButton}`)
-            .expect.element(page.elements.alertSuccess).to.have.text.that.contains('Address saved successfully');
+            .expect.element(page.elements.alertSuccess).to.have.text.that.contains('Address has successfully been saved.');
     },
     'check main address to be both shipping and billing address': (browser) => {
         browser
@@ -81,7 +81,7 @@ module.exports = {
             .click(
                 `${page.elements.addressBox}:not(.address-front) .address-actions-set-defaults form:nth-of-type(1) .btn`
             )
-            .expect.element(page.elements.alertSuccess).to.have.text.that.contains('Changed default address successfully.');
+            .expect.element(page.elements.alertSuccess).to.have.text.that.contains('Default address has successfully been changed.');
         browser
             .waitForElementNotPresent(`${page.elements.addressBox}:not(.address-front)`)
             .assert.containsText('.default-billing-address', 'Pep Eroni')

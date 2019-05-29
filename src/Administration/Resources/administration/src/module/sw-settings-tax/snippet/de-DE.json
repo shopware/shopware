@@ -3,7 +3,7 @@
     "general": {
       "mainMenuItemGeneral": "Steuern",
       "taxRateSymbol": "&#037;",
-      "placeholderSearchBar": "Durchsuche alle Steuern"
+      "placeholderSearchBar": "Durchsuche alle Steuern ..."
     },
     "list": {
       "textHeadline": "Steuern",
@@ -25,8 +25,8 @@
       "messageSaveSuccess": "Die Steuer \"{name}\" wurde erfolgreich gespeichert.",
       "labelName": "Name",
       "labelTaxRate": "Steuersatz",
-      "placeholderName": "Namen eingeben...",
-      "placeholderTaxRate": "Steuersatz eingeben...",
+      "placeholderName": "Namen eingeben ...",
+      "placeholderTaxRate": "Steuersatz eingeben ...",
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern"
     }

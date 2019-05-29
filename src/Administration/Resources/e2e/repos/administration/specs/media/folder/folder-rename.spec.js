@@ -44,7 +44,7 @@ module.exports = {
         browser
             .fillField('input[name=sw-field--folder-name]', 'An Edith Finch', true)
             .click('.sw-media-modal-folder-settings__confirm')
-            .checkNotification('Settings have been saved successfully');
+            .checkNotification('Settings have successfully been saved.');
     },
     'verify changed folder name again': (browser) => {
         const page = mediaPage(browser);

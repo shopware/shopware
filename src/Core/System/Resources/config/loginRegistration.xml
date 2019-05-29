@@ -8,19 +8,19 @@
         <input-field type="int">
             <name>passwordMinLength</name>
             <label>Minimum password length (registration)</label>
-            <label lang="de-DE">Mindestlänge Passwort (Registrierung)</label>
+            <label lang="de-DE">Passwort-Mindestlänge (Registrierung)</label>
         </input-field>
 
         <input-field type="bool">
             <name>showPhoneNumberField</name>
-            <label>Show phone number field</label>
-            <label lang="de-DE">Telefon anzeigen</label>
+            <label>Show phone number</label>
+            <label lang="de-DE">Telefonnummer anzeigen</label>
         </input-field>
 
         <input-field type="bool">
             <name>phoneNumberFieldRequired</name>
-            <label>Treat phone field as required</label>
-            <label lang="de-DE">Telefon als Pflichtfeld behandeln</label>
+            <label>Phone number field required</label>
+            <label lang="de-DE">Telefonnummer als Pflichtfeld behandeln</label>
         </input-field>
 
         <input-field type="bool">
@@ -31,7 +31,7 @@
 
         <input-field type="bool">
             <name>birthdayFieldRequired</name>
-            <label>Treat birthday field as required</label>
+            <label>Birthday field required</label>
             <label lang="de-DE">Geburtstag als Pflichtfeld behandeln</label>
         </input-field>
 
@@ -43,7 +43,7 @@
 
         <input-field type="bool">
             <name>additionalAddressField1Required</name>
-            <label>Treat additional address 1 field as required</label>
+            <label>Additional address 1 field required</label>
             <label lang="de-DE">Adresszusatzzeile 1 als Pflichtfeld behandeln</label>
         </input-field>
 
@@ -55,7 +55,7 @@
 
         <input-field type="bool">
             <name>additionalAddressField2Required</name>
-            <label>Treat additional address 2 field as required</label>
+            <label>Additional address 2 field required</label>
             <label lang="de-DE">Adresszusatzzeile 1 als Pflichtfeld behandeln</label>
         </input-field>
 
@@ -75,7 +75,7 @@
                 <option>
                     <id>honeypot</id>
                     <name>Honeypot (invisible)</name>
-                    <name lang="de-DE">Honeypot (Unsichtbar)</name>
+                    <name lang="de-DE">Honeypot (unsichtbar)</name>
                 </option>
             </options>
             <label>Use captcha in registration</label>

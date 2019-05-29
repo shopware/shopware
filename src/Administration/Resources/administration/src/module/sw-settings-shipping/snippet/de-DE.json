@@ -51,7 +51,7 @@
     },
     "priceMatrix": {
       "placeholderName": "Preismatrix",
-      "noRestriction": "Keine Regel einschränkung",
+      "noRestriction": "Keine Einschränkungen",
       "addNewRule": "Neue Regel erstellen",
       "addNewPriceRule": "Neue Preisregel hinzufügen",
       "duplicateMatrixContextLabel": "Preismatrix duplizieren",
@@ -61,7 +61,7 @@
       "contextMenuModifyPrice": "Preisregel ändern",
       "selectProperty": "Eigenschaft auswählen",
       "useRules": "Oder Regeln benutzen",
-      "emptyText": "Um die Preismatrix zu nutzen, musst du zwischen der Verwendung von Eigenschaften oder Regeln wählen.",
+      "emptyText": "Um die Preismatrix zu nutzen, musst Du zwischen der Verwendung von Eigenschaften oder Regeln wählen.",
       "calculationLineItemCount": "Anzahl Positionen",
       "calculationPrice": "Warenkorb Wert",
       "calculationWeight": "Gewicht",
@@ -76,7 +76,7 @@
       "columnVolumeEnd": "Volumen bis",
       "columnPrice": "Preis (Brutto)",
       "columnCalculationRule": "Regel",
-      "buttonAddAdditionalPriceMatrix": "Weitere Preismatrix hinzufügen",
+      "buttonAddAdditionalPriceMatrix": "Preismatrix hinzufügen",
       "any": "beliebig",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
@@ -87,7 +87,7 @@
       "labelUseAsLogo": "Als Logo verwenden"
     },
     "priceRuleModal": {
-      "modalTitleNew": "Neue Preisregel hinzufügen",
+      "modalTitleNew": "Abstufung hinzufügen",
       "modalTitleModify": "Preisregel bearbeiten",
       "labelPrice": "Preis",
       "placeholderPrice": "Preis eingeben ..."

@@ -24,7 +24,7 @@
     "detail": {
       "textHeadline": "Neue Währung",
       "labelPrecision": "Nachkommastellen",
-      "placeholderPrecision": "Nachkommastellen eingeben...",
+      "placeholderPrecision": "Nachkommastellen eingeben ...",
       "titleCard": "Einstellungen",
       "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Die Währung \"{name}\" wurde erfolgreich gespeichert.",
@@ -33,11 +33,11 @@
       "labelShortName": "Kurzname",
       "labelSymbol": "Symbol",
       "labelFactor": "Faktor",
-      "placeholderName": "Namen eingeben...",
-      "placeholderIsoCode": "ISO-Code eingeben...",
-      "placeholderShortName": "Kurznamen eingeben...",
-      "placeholderSymbol": "Symbol eingeben...",
-      "placeholderFactor": "Faktor eingeben...",
+      "placeholderName": "Namen eingeben ...",
+      "placeholderIsoCode": "ISO-Code eingeben ...",
+      "placeholderShortName": "Kurznamen eingeben ...",
+      "placeholderSymbol": "Symbol eingeben ...",
+      "placeholderFactor": "Faktor eingeben ...",
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern"
     }

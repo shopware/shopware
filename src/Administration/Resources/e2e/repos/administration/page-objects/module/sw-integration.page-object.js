@@ -57,7 +57,7 @@ class IntegrationPageObject extends GeneralPageObject {
 
         this.browser
             .click(this.elements.integrationSaveAction)
-            .checkNotification('Integration has been saved successfully');
+            .checkNotification('Integration has successfully been saved.');
     }
 
     verifyChangedApiCredentials() {

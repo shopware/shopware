@@ -9,18 +9,18 @@
             "buttonSave": "Save",
             "contextMenuEdit": "Edit",
             "contextMenuDelete": "Delete",
-            "placeholderSearchBar": "Search customer group",
+            "placeholderSearchBar": "Search customer groups...",
             "titleError": "Error",
             "titleSuccess": "Success"
         },
         "list": {
             "columnName": "Name",
             "columnDisplayGross": "Tax display",
-            "fieldNamePlaceholder": "Please choose a name",
+            "fieldNamePlaceholder": "Enter a name...",
             "messageDeleteError": "Customer group could not be deleted.",
-            "messageDeleteSuccess": "Customer group has been deleted successfully.",
+            "messageDeleteSuccess": "Customer group has successfully been deleted.",
             "messageSaveError": "Customer group could not be saved.",
-            "messageSaveSuccess": "Customer group \"{name}\" has been saved successfully.",
+            "messageSaveSuccess": "Customer group \"{name}\" has successfully been saved.",
             "textDeleteConfirm": "Are you sure you want to delete the customer group \"{name}\"?",
             "titleDeleteSuccess": "Success",
             "textNetGross": "Gross | Net"
@@ -31,8 +31,8 @@
             "fieldDisplayGrossLabel": "Tax display",
             "fieldDisplayGrossValues": "Gross | Net",
             "messageSaveError": "Customer group could not be saved.",
-            "messageSaveSuccess": "Customer group \"{name}\" has been saved successfully.",
-            "placeholderName": "Please choose a name",
+            "messageSaveSuccess": "Customer group \"{name}\" has successfully been saved.",
+            "placeholderName": "Enter a name...",
             "placeholderNewCustomerGroup": "New customer group"
         }
     }

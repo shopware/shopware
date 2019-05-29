@@ -27,7 +27,7 @@
         "buttonSave": "Speichern",
         "titleCardInformation": "Set Informationen",
         "labelName": "Set Name",
-        "placeholderName": "Name eingeben...",
+        "placeholderName": "Name eingeben ...",
         "labelCheckboxTranslated": "In allen Administrationssprachen pflegen",
         "titleSaveSuccess": "Zusatzfeld-Set",
         "messageSaveSuccess": "Das Set \"{name}\" wurde erfolgreich gespeichert.",
@@ -35,7 +35,7 @@
         "addCustomField": "Neues Zusatzfeld",
         "buttonApply": "Speichern",
         "labelEntities": "Verwenden für:",
-        "placeholderEntities": "Verwendung hinzufügen...",
+        "placeholderEntities": "Verwendung hinzufügen ...",
         "titleNameNotUnique": "Fehler",
         "messageNameNotUnique": "Der technische Name existiert bereits."
       }

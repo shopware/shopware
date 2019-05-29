@@ -41,7 +41,7 @@
       "placeholderDescription": "Set a description for this rule...",
       "placeholderPriority": "Set a priority for this rule...",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "The rule \"{name}\" has been saved successfully.",
+      "messageSaveSuccess": "The rule \"{name}\" has successfully been saved.",
       "ruleCard": "Condition",
       "titleSaveError": "Error",
       "messageSaveError": "An error occurred while saving rule \"{name}\".",

@@ -33,9 +33,9 @@
         "labelUseAsLogo": "Als Logo benutzen"
       },
       "topRule": "Verfügbarkeitsregel",
-      "placeholderName": "Namen eingeben...",
-      "placeholderPosition": "Position eingeben...",
-      "placeholderDescription": "Beschreibung eingeben...",
+      "placeholderName": "Namen eingeben ...",
+      "placeholderPosition": "Position eingeben ...",
+      "placeholderDescription": "Beschreibung eingeben ...",
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern"
     }

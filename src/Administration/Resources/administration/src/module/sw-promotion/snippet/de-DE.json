@@ -19,7 +19,7 @@
       "contextMenuEdit": "Bearbeiten",
       "messageEmpty": "Noch keine Rabattaktionen",
       "modalTitleDelete": "Rabattaktion löschen",
-      "placeholderSearchBar": "Durchsuchen aller Rabattaktionen",
+      "placeholderSearchBar": "Durchsuche alle Rabattaktionen ...",
       "textDeleteConfirm": "Möchtest Du die Rabattaktion \"{name}\" wirklich löschen?",
       "titleSidebarItemRefresh": "Aktualisieren"
     },
@@ -30,7 +30,7 @@
         "buttonCancel": "Abbrechen",
         "buttonSave": "Speichern",
         "titleSaveSuccess": "Erfolg",
-        "messageSaveSuccess": "Die Rabattaktion {name} wurde erfolgreich gespeichert."
+        "messageSaveSuccess": "Die Rabattaktion \"{name}\" wurde erfolgreich gespeichert."
       },
       "tabs": {
         "tabGeneral": "Allgemein",
@@ -42,10 +42,10 @@
           "cardTitlePromotionInfo": "Einstellungen",
           "cardTitleCode": "Aktionscodes",
           "labelTitle": "Name",
-          "placeholderName": "Name",
+          "placeholderName": "Namen eingeben ...",
           "labelActive": "Aktiv",
           "labelSalesChannels": "Verkaufskanäle",
-          "placeholderSalesChannels": "Verkaufskanal hinzufügen...",
+          "placeholderSalesChannels": "Verkaufskanal hinzufügen ...",
           "labelValidFrom": "Aktiv von:",
           "labelValidUntil": "Aktiv bis:",
           "labelMaxRedemptionsGlobal": "Anzahl insgesamt",
@@ -53,7 +53,7 @@
           "codes" : {
             "card" : "Aktionscodes",
             "labelCode" : "Allgemeiner Aktionscode",
-            "placeholderCode": "Gib einen Code für die Rabattaktion an",
+            "placeholderCode": "Gib einen Code für die Rabattaktion an ...",
             "switchUseCodes" : "Aktionscodes verwenden"
           }
         },
@@ -64,9 +64,9 @@
             "title": "Bestimme welche Kunden von dieser Rabattaktion profitieren",
             "text": "Nutze Regeln aus dem Regelmodul, um die Zielgruppe dieser Marketingaktion einzugrenzen. Ohne eine Eingrenzung haben alle deine Kunden Zugriff auf diese Aktion.",
             "labelRules": "Kundenregeln",
-            "placeholderRules": "Regel hinzufügen...",
-            "labelCustomers": "Spezifischen Kunden zuweisen",
-            "placeholderCustomers": "Kunden hinzufügen..."
+            "placeholderRules": "Regel hinzufügen ...",
+            "labelCustomers": "Individuellen Kunden zuweisen",
+            "placeholderCustomers": "Kunden hinzufügen ..."
           },
           "order": {
             "card": "Bestellung",
@@ -74,7 +74,7 @@
             "text": "Nutze Regeln des Typs 'Bestellung' um zu definieren, welche Bediungen erfüllt sein müssen, damit diese Rabattaktion angewendet wird.",
             "rulesModuleLink": "Regelmodul öffnen",
             "rulesCaption": "Bestellregeln",
-            "rulesPlaceholder": "Bestellregel zuweisen..."
+            "rulesPlaceholder": "Bestellregel zuweisen ..."
           },
           "cart": {
             "card": "Warenkorb",
@@ -82,26 +82,26 @@
             "text": "Nutze Regeln aus dem Regelmodul, um die Aktionswarenkörbe dieser Marketingaktion zu definieren.\n            Ohne eine Eingrenzung wird die Aktion auf alle Warenkörbe angewendet.",
             "rulesModuleLink": "Regelmodul öffnen",
             "rulesCaption": "Warenkorbregeln",
-            "rulesPlaceholder": "Warenkorbregel zuweisen..."
+            "rulesPlaceholder": "Warenkorbregel zuweisen ..."
           }
         },
         "discounts": {
           "card": "Rabatt",
           "labelValue": "Wert",
-          "placeholderValue": "Gib den Wert der Rabattaktion an...",
+          "placeholderValue": "Gib den Wert der Rabattaktion an ...",
           "labelScope": "Bezieht sich auf:",
           "flagProductScopeLabel": "Rabatt nur auf ausgewählte Produkte anwenden",
           "labelRules": "Produktregeln",
-          "placeholder": "Produktregeln zuweisen...",
+          "placeholder": "Produktregeln zuweisen ...",
           "labelType": "Art",
           "valueScopeCart": "Warenkorb",
           "valueTypeAbsolute": "Absolut",
           "valueTypePercentage": "Prozentual",
-          "buttonAddDiscount": "+ Rabatt hinzufügen",
+          "buttonAddDiscount": "Rabatt hinzufügen",
           "buttonDeleteDiscount": "Rabatt entfernen",
           "delete": {
             "confirmTitle": "Rabatt entfernen",
-            "confirmText": "Möchtest du den Rabatt wirklich aus der Rabattaktion entfernen?",
+            "confirmText": "Möchtest Du diesen Rabatt wirklich aus der Rabattaktion entfernen?",
             "buttonCancel": "Abbrechen",
             "buttonDelete": "Rabatt entfernen"
           }

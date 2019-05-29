@@ -3,7 +3,7 @@
     "general": {
       "mainMenuItemGeneral": "Media",
       "descriptionTextModule": "Manage media here.",
-      "placeholderSearchBar": "Search current folder",
+      "placeholderSearchBar": "Search current folder...",
       "notification": {
         "urlCopied": {
           "title": "Success",

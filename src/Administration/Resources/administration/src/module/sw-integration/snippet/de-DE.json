@@ -36,7 +36,7 @@
       "readAccessFieldLabel": "Lesen (standard)",
       "writeAccessFieldLabel": "Schreiben (optional)",
       "titleSaveSuccess": "Erfolg",
-      "messageSaveSuccess": "Integration erfolgreich gespeichert",
+      "messageSaveSuccess": "Integration erfolgreich gespeichert.",
       "titleSaveError": "Fehler",
       "messageSaveError": "Die Integration konnte nicht gespeichert werden.",
       "titleCreateNewError": "Fehler",

@@ -1,12 +1,12 @@
 {
   "sw-product-stream": {
     "general": {
-      "mainMenuItemGeneral": "Dynamic product groups",
-      "placeholderSearchBar": "Search dynamic product groups",
-      "descriptionTextModule": "Manage dynamic product groups here."
+      "mainMenuItemGeneral": "Product groups",
+      "placeholderSearchBar": "Search product groups",
+      "descriptionTextModule": "Manage product groups here."
     },
     "list": {
-      "textProductStreamOverview": "Dynamic product groups",
+      "textProductStreamOverview": "Product groups",
       "columnName": "Name",
       "columnDescription": "Description",
       "columnDateUpdated": "Last updated",
@@ -20,14 +20,14 @@
       "contextMenuEdit": "Edit",
       "contextMenuDuplicate": "Duplicate",
       "contextMenuDelete": "Delete",
-      "messageEmpty": "No product group yet",
-      "modalTitleDelete": "Delete product stream",
+      "messageEmpty": "No product groups yet",
+      "modalTitleDelete": "Delete product group",
       "textDeleteConfirm": "Are you sure you want to delete the product group \"{name}\"?",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete"
     },
     "filter": {
-      "valid": "Show only valid product group",
+      "valid": "Show valid product groups only",
       "type": {
       "equals": "Is equal to",
       "equalsAny": "Is equal to any of",
@@ -99,18 +99,18 @@
       }
     },
     "detail": {
-      "titleCard": "Settings",
+      "titleCard": "General information",
       "buttonCancel": "Cancel",
       "buttonSave": "Save",
       "labelName": "Name",
-      "placeholderName": "Enter a title",
+      "placeholderName": "Enter product group title...",
       "labelDescription": "Description",
-      "placeholderDescription": "Enter a description",
+      "placeholderDescription": "Enter a description...",
       "textHeadline": "New product group",
-      "titleFilter": "Filter",
-      "titleResult": "product group",
+      "titleFilter": "Conditions",
+      "titleResult": "Product group",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "The product stream \"{name}\" has been saved successfully.",
+      "messageSaveSuccess": "The product group \"{name}\" has successfully been saved.",
       "buttonOpenPreview": "Preview"
     },
     "previewModal": {

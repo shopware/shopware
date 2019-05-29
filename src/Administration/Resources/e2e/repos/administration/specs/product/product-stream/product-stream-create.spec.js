@@ -29,7 +29,7 @@ module.exports = {
                 subMenuId: 'sw-product-stream'
             })
             .refresh()
-            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Dynamic product groups');
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Product groups');
         browser.assert.urlContains('#/sw/product/stream/index');
 
         browser.expect.element(`${page.elements.gridRow}--0 `).to.have.text.that.contains('Product stream 1st');

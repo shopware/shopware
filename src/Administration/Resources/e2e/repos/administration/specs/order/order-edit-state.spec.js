@@ -1,7 +1,7 @@
 const orderPage = require('administration/page-objects/module/sw-order.page-object.js');
 
 module.exports = {
-    '@tags': ['order', 'order-edit-state', 'edit', 'state', 'order-state'],
+    '@tags': ['order', 'order-edit-state', 'order-edit', 'edit', 'state', 'order-state'],
     before: (browser, done) => {
         return global.ProductFixtureService.setProductFixture().then((result) => {
             return global.OrderFixtureService.createGuestOrder(result);

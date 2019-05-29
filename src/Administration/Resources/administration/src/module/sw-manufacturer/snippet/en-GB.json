@@ -31,11 +31,11 @@
       "labelName": "Name",
       "labelDescription": "Description",
       "labelLink": "Website",
-      "placeholderName": "Enter manufacturer name.",
-      "placeholderDescription": "Enter manufacturer description.",
-      "placeholderLink": "Enter manufacturer website.",
+      "placeholderName": "Enter manufacturer name...",
+      "placeholderDescription": "Enter description...",
+      "placeholderLink": "Enter manufacturer website...",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "Manufacturer \"{name}\" has been saved successfully.",
+      "messageSaveSuccess": "Manufacturer \"{name}\" has successfully been saved.",
       "labelLogo": "Logo",
       "labelUseAsLogo": "Use as Logo"
     }

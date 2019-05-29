@@ -46,9 +46,9 @@
             "types": {
               "title": "Kategorietyp",
               "page": "Kategorie",
-              "folder": "Strukturierungselement",
+              "folder": "Strukturkategorie",
               "link": "Benutzerdefinierter Link",
-              "help": "Eine Strukturkategorie ist nicht selbst aufrufbar, sondern dient lediglich der Gliederung."
+              "help": "Eine Strukturkategorie ist nicht aufrufbar, sondern dient lediglich der Gliederung."
             }
           },
 
@@ -89,12 +89,12 @@
             "example": "Beispiel:",
             "internalExampleText": "/meine-kategorie",
             "externalDesc": "Um externe Links zu setzen, füge die komplette Webadresse ein:",
-            "internalDesc": "Wenn du einen internen Links etzen möchtest, füge nur den Pfad ein der auf die Domain folgt:"
+            "internalDesc": "Wenn Du einen internen Link setzen möchtest, füge nur den Pfad ein, der auf die Domain folgt:"
           },
 
           "products": {
             "productAssignmentHeadline": "Produktzuweisung",
-            "productAssignmentPlaceholder": "Produkte durchsuchen und zuweisen...",
+            "productAssignmentPlaceholder": "Produkte durchsuchen und zuweisen ...",
             "productAssignmentActionDetails": "Details",
             "productAssignmentActionRemove": "Entfernen",
             "productAssignmentActionUndo": "Rückgängig machen",

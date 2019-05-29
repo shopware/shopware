@@ -33,7 +33,7 @@ module.exports = {
 
         browser
             .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)
-            .checkNotification('Snippet set has been deleted successfully.')
+            .checkNotification('Snippet set has successfully been deleted.')
             .waitForElementNotPresent(page.elements.loader);
     },
     'verify deletion': (browser) => {

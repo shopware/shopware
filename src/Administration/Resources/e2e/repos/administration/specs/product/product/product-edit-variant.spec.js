@@ -1,7 +1,7 @@
 const productPage = require('administration/page-objects/module/sw-product.page-object.js');
 
 module.exports = {
-    '@tags': ['product', 'product-edit', 'variant'],
+    '@tags': ['product', 'product-variant', 'product-edit', 'variant'],
     '@disabled': !global.flags.isActive('next2021'),
     before: (browser, done) => {
         return global.ProductFixtureService.setProductFixture().then(() => {

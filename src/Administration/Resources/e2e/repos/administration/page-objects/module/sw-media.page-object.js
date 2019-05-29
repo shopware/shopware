@@ -92,10 +92,10 @@ class MediaPageObject extends GeneralPageObject {
 
         if (itemType === 'folder') {
             this.browser
-                .checkNotification('Media items successfully moved', '.sw-notifications__notification--1')
-                .checkNotification(`Folder "${name}" has been moved successfully.`);
+                .checkNotification('Media items have successfully been moved.', '.sw-notifications__notification--1')
+                .checkNotification(`Folder "${name}" has successfully been moved.`);
         } else {
-            this.browser.checkNotification('Media items successfully moved');
+            this.browser.checkNotification('Media items have successfully been moved.');
         }
     }
 

@@ -33,7 +33,7 @@ module.exports = {
         browser
             .click('button.sw-media-modal-folder-settings__switch-mode')
             .click(page.elements.saveSettingsAction)
-            .checkNotification('Settings have been saved successfully');
+            .checkNotification('Settings have successfully been saved.');
     },
     'remove first thumbnail size and create second size with separate height afterwards': (browser) => {
         const page = mediaPage(browser);
@@ -53,7 +53,7 @@ module.exports = {
             .tickCheckbox('input[name=thumbnail-size-active]', true)
             .click('button.sw-media-modal-folder-settings__switch-mode')
             .click(page.elements.saveSettingsAction)
-            .checkNotification('Settings have been saved successfully');
+            .checkNotification('Settings have successfully been saved.');
     },
     'create child folder': (browser) => {
         const page = mediaPage(browser);
@@ -99,7 +99,7 @@ module.exports = {
         browser
             .click('.sw-media-modal-folder-settings__switch-mode')
             .click(page.elements.saveSettingsAction)
-            .checkNotification('Settings have been saved successfully');
+            .checkNotification('Settings have successfully been saved.');
     },
     'navigate back to parent folder': (browser) => {
         const page = mediaPage(browser);

@@ -14,16 +14,16 @@
       "contextMenuEdit": "Edit",
       "modalTitleDelete": "Delete payment method",
       "titleDeleteSuccess": "Success",
-      "messageDeleteSuccess": "Payment method \"{name}\" has been deleted successfully.",
+      "messageDeleteSuccess": "Payment method \"{name}\" has successfully been deleted.",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete",
-      "pluginDeleteTitleText": "Plugin payment methods can not be deleted."
+      "pluginDeleteTitleText": "Plugin payment methods cannot be deleted."
     },
     "detail": {
-      "textHeadline": "New Payment method",
-      "titleCard": "Payment Methods",
+      "textHeadline": "New payment method",
+      "titleCard": "Payment methods",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "Payment method \"{name}\" has been saved successfully.",
+      "messageSaveSuccess": "Payment method \"{name}\" has successfully been saved.",
       "labelName": "Name",
       "labelPosition": "Position",
       "labelActive": "Payment active",

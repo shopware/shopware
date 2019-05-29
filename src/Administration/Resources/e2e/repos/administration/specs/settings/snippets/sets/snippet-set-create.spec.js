@@ -21,7 +21,7 @@ module.exports = {
             .fillField(`${page.elements.gridRow}--0 input[name=sw-field--item-name]`, 'Snip Snap')
             .fillSelectField(`${page.elements.gridRow}--0 select[name=sw-field--item-baseFile]`, 'messages.en-GB')
             .click(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
-            .checkNotification('Snippet set "Snip Snap" has been saved successfully.');
+            .checkNotification('Snippet set "Snip Snap" has successfully been saved.');
     },
     'go back to listing and verify snippet set': (browser) => {
         const page = settingsPage(browser);

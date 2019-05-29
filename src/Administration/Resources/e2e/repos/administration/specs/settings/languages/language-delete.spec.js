@@ -31,7 +31,7 @@ module.exports = {
 
         browser
             .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)
-            .checkNotification('Language "Philippine English" has been deleted successfully.');
+            .checkNotification('Language "Philippine English" has successfully been deleted.');
     },
     'check if default language cannot be deleted': (browser) => {
         const page = settingsPage(browser);

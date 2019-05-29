@@ -66,7 +66,7 @@ module.exports = {
         browser
             .click(`${rulePageObject.elements.modal} ${rulePageObject.elements.primaryButton}`)
             .waitForElementNotPresent(rulePageObject.elements.modal)
-            .checkNotification('The rule "Rule for new customers" has been saved successfully.')
+            .checkNotification('The rule "Rule for new customers" has successfully been saved.')
             .expect.element('.sw-select-rule-create').to.have.text.that.contains('Rule for new customers');
     },
     'save and verify shipping method': browser => {

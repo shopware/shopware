@@ -11,7 +11,7 @@
       "emptyText": "Bravo, alles erledigt.",
       "deleteModal": {
         "title": "Mitteilungen löschen",
-        "textConfirm": "Möchtest du wirklich alle Mitteilungen löschen?",
+        "textConfirm": "Möchtest Du wirklich alle Mitteilungen löschen?",
         "cancel": "Abbrechen",
         "delete": "Löschen"
       },
@@ -78,7 +78,7 @@
     "sw-tag-field":{
       "title": "Tags",
       "listItemAdd": "\"{term}\" hinzufügen",
-      "placeholder": "Tippe, um Tags zu suchen..."
+      "placeholder": "Tags durchsuchen ..."
     },
     "sw-grid-row": {
       "buttonInlineEditCancel": "Abbrechen",
@@ -99,7 +99,7 @@
       "labelClose": "Schließen"
     },
     "sw-media-field": {
-      "labelToggleSearchExisting": "Medien suchen",
+      "labelToggleSearchExisting": "Medien durchsuchen",
       "labelToggleUploadNew": "Neue Medien hochladen",
       "labelUnlink": "Verknüpfung aufheben"
     },
@@ -142,7 +142,7 @@
           "message": "Fehler beim Umbenennen."
         }
       },
-      "labelUploading": "Wird hochgeladen..."
+      "labelUploading": "Wird hochgeladen ..."
     },
     "sw-media-modal-delete": {
       "titleModal": {
@@ -330,7 +330,7 @@
     },
     "sw-sidebar-media-item": {
       "title": "Medien",
-      "placeholderSearch": "Suche",
+      "placeholderSearch": "Suchen ...",
       "labelLoadMore": "Mehr laden"
     },
     "sw-select": {
@@ -347,7 +347,7 @@
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden.",
       "messageNoTypeResults": "Es wurde kein passender Typ gefunden.",
       "placeholderSearchField": "Finde Produkte, Kunden, Bestellungen",
-      "placeholderTypeSearchField": "Durchsuche alle {entity}",
+      "placeholderTypeSearchField": "Durchsuche alle {entity} ...",
       "placeholderShortcutInfo": "Tipp: Nutze die \"s\" Taste, um die Suche schneller zu öffnen.",
       "labelShowResultsInModule": "Ergebnisse im Modul anzeigen({count})"
     },
@@ -417,9 +417,9 @@
         "and": "Und",
         "or": "Oder",
         "field": {
-          "valuePlaceholder": "Wert..."
+          "valuePlaceholder": "Gib einen Wert ein ..."
         },
-        "placeholder-warning": "Bitte wähle eine Bedingung aus...",
+        "placeholder-warning": "Wähle eine Bedingung aus ...",
         "not-found": {
           "label": "Die Bedingung konnte nicht gefunden werden",
           "error-message": "Der Bedingungstyp {type} konnte nicht gefunden werden. Die Bedingung besitzt das Feld: {fields} | Der Bedingungstyp {type} konnte nicht gefunden werden. Die Bedingungen besitzen die Felder: {fields}"
@@ -444,7 +444,7 @@
       }
     },
     "sw-simple-search-field": {
-      "defaultPlaceholder": "Suche"
+      "defaultPlaceholder": "Suche ..."
     },
     "entities": {
       "custom_field": "Zusatzfeld | Zusatzfelder",
@@ -516,7 +516,7 @@
   },
   "sw-tree": {
     "general": {
-      "placeholderSearch": "Suche",
+      "placeholderSearch": "Suche ...",
       "treeHeadSelected": "{count} selektiert",
       "treeHeadline": "Baumstruktur",
       "buttonCreate": "Element erstellen",
@@ -549,14 +549,14 @@
     }
   },
   "sw-property-search": {
-    "placeholderSearch": "Suche nach Eigenschaften und Optionen",
+    "placeholderSearch": "Suche nach Eigenschaften ...",
     "selected": "{count} Option ausgewählt | {count} Optionen ausgewählt"
   },
   "sw-property-assignment": {
     "columnGroup": "Eigenschaft",
     "columnOptions": "Optionen",
     "messageEmptyTitle": "Noch keine Eigenschaften",
-    "messageEmptySubline": "Verwaltung von Eigenschaften."
+    "messageEmptySubline": "Zum Anlegen von Gruppen gehe ins Eigenschaften-Modul."
   },
   "sw-language-info": {
     "infoTextChildLanguage": "Darstellung von \"{entityDescription}\" in der Sprache \"{language}\". Diese erbt von",
@@ -572,7 +572,7 @@
   },
   "sw-sales-channel-switch": {
     "messageModalUnsavedChanges": "Du hast noch ungespeicherte Änderungen in diesem Verkaufskanal. Möchtest Du diese jetzt speichern?",
-    "placeholderSelect": "Suchen...",
+    "placeholderSelect": "Suchen ...",
     "titleModalUnsavedChanges": "Nicht gespeicherte Änderungen",
     "titleModalButtonCancelUnsavedChanges": "Abbrechen",
     "titleModalButtonRevertUnsavedChanges": "Änderungen verwerfen",
@@ -580,8 +580,8 @@
     "labelDefaultOption": "Alle Verkaufskanäle"
   },
   "sw-config-form-renderer": {
-    "placeholder": "Bitte \"{name}\" ausfüllen...",
-    "option": "Für die Sprache \"{locale}\" wurde kein Label gesetzt...",
+    "placeholder": "Bitte \"{name}\" ausfüllen ...",
+    "option": "Für die Sprache \"{locale}\" wurde kein Label gesetzt ...",
     "configLoadErrorMessage": "Beim Laden der Konfiguration ist ein Fehler aufgetreten: | Beim Laden der Konfiguration sind Fehler aufgetreten:",
     "configLoadErrorTitle": "Fehler beim Laden der Konfiguration!"
   },
@@ -597,11 +597,11 @@
   "sw-rule-modal": {
     "modalTitleNew": "Neue Globale Regel erstellen",
     "labelDescription": "Beschreibung",
-    "placeholderDescription": "Lege eine Beschreibung für diese Regel fest...",
+    "placeholderDescription": "Lege eine Beschreibung für diese Regel fest ...",
     "labelName": "Name",
-    "placeholderName": "Lege einen Namen für diese Regel fest...",
+    "placeholderName": "Lege einen Namen für diese Regel fest ...",
     "labelPriority": "Priorität",
-    "placeholderPriority": "Lege eine Priorität für diese Regel fest...",
+    "placeholderPriority": "Lege eine Priorität für diese Regel fest ...",
     "buttonAbort": "Abbrechen",
     "buttonSave": "Speichern",
     "titleSaveSuccess": "Erfolg",

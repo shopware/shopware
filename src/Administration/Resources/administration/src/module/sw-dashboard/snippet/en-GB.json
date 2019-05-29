@@ -2,14 +2,14 @@
   "sw-dashboard": {
     "general": {
       "mainMenuItemGeneral": "Dashboard",
-      "descriptionTextModule": "This is the front page, containing statistics and system information"
+      "descriptionTextModule": "The administration's front page, displaying statistics and system information"
     },
     "welcome": {
       "header": "Welcome {firstName}",
-      "subHeader": "We're glad you're here.",
-      "text": "Discover the new Shopware generation. We look ",
-      "subText": "forward to your feedback! Our transparent roadmap will",
-      "subSubText": "keep you up to date on the latest developments.",
+      "subHeader": "We are glad to have you here!",
+      "text": "This is where you start discovering the new Shopware generation.",
+      "subText": "We are looking forward to your feedback!",
+      "subSubText": "In the meantime, take a peek at what lies ahead. Our dedicated roadmap will keep you up to date with the latest developments regarding Shopware.",
       "roadmapButton": "Roadmap",
       "issueTrackerButton": "Send your feedback",
       "roadmapLink": "https://www.shopware.com/en/roadmap/",
@@ -18,21 +18,21 @@
       "migrationDocumentationLink": "http://docs.shopware.com/en/migration-en"
     },
     "paypal": {
-      "setupButtonText": "Setup PayPal",
+      "setupButtonText": "Set up PayPal",
       "settingsLinkButtonText": "Open PayPal settings"
     },
     "documentation": {
       "header": "Documentation",
-      "pluginLinkLabel": "Plugin Documentation",
-      "devLinkLabel": "Developer Documentation",
-      "userLinkLabel": "User Documentation"
+      "pluginLinkLabel": "Plugin documentation",
+      "devLinkLabel": "Developer documentation",
+      "userLinkLabel": "User documentation"
     },
     "migration": {
-      "header": "Try the Migration from Shopware 5",
-      "description": "Discover the possibilities of Shopware with real data. Together we will connect the systems. After that you can migrate your data with help of the migration assistant.",
-      "sw6pluginLinkLabel": "Migration Plugin",
+      "header": "Migration from Shopware 5",
+      "description": "Discover Shopware and start off with something familiar - your own data! Together we will connect your Shopware 5 data and to Shopware 6. Afterwards you will be able to migrate your data. A migration assistant we'll be at your side and help guide you through the process.",
+      "sw6pluginLinkLabel": "Migration plugin",
       "sw5pluginLinkLabel": "Shopware 5 Connector",
-      "documentationLabel": "Migration Documentation",
+      "documentationLabel": "Migration documentation",
       "setupButtonText": "Setup Migration",
       "settingsLinkButtonText": "Migrate my data"
     },

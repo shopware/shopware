@@ -45,7 +45,7 @@ class ProductPageObject extends GeneralPageObject {
             .click('.sw-media-url-form__submit-button')
             .waitForElementNotPresent('input[name=sw-field--url]')
             .waitForElementVisible('.sw-media-preview__item')
-            .checkNotification('A file has been saved successfully.')
+            .checkNotification('File has successfully been saved.')
             .expect.element(this.elements.productSaveAction).to.not.have.attribute('disabled');
     }
 

@@ -8,7 +8,7 @@
       "titleSaveError": "Error",
       "messageSaveError": "Not all templates are valid.",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "The SEO url templates have been saved successfully.",
+      "messageSaveSuccess": "The SEO url templates have successfully been saved.",
       "preview": "Preview:",
       "placeholderSelectVariables": "Choose...",
       "labelSalesChannelSelect": "Sales channel"

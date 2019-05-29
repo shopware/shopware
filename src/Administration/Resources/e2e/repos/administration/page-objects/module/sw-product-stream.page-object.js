@@ -128,7 +128,7 @@ class ProductStreamPageObject extends GeneralPageObject {
             });
 
         this.browser.fillSwSelectComponent(`${ruleData.ruleSelector} .sw-select[name=useTime]`, {
-            value: ruleData.useTime ? 'Use time' : 'Don\'t use time',
+            value: ruleData.useTime ? 'Include time reference' : 'Exclude time reference',
             isMulti: false,
             searchTerm: String(ruleData.useTime)
         });

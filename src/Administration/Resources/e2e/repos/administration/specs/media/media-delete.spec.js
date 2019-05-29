@@ -35,6 +35,6 @@ module.exports = {
             .click('.sw-media-modal-delete__confirm')
             .waitForElementNotPresent(`${page.elements.modal}l__footer`)
             .waitForElementNotPresent(page.elements.loader)
-            .checkNotification('A file has been successfully deleted.');
+            .checkNotification('A file has successfully been deleted.');
     }
 };

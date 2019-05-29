@@ -1,7 +1,7 @@
 const settingsPage = require('administration/page-objects/module/sw-settings.page-object.js');
 
 module.exports = {
-    '@tags': ['settings', 'snippet-reset', 'snippets', 'edit', 'reset'],
+    '@tags': ['settings', 'snippet-reset', 'snippet', 'edit', 'snippet-edit', 'reset'],
     'open snippet module': (browser) => {
         browser
             .openMainMenuEntry({
@@ -40,7 +40,7 @@ module.exports = {
             .click(`${page.elements.dataGridRow}--0 ${page.elements.dataGridInlineEditSave}`)
             .waitForElementNotPresent('.is--inline-edit')
             .waitForElementNotPresent(page.elements.loader)
-            .checkNotification('has been saved successfully.')
+            .checkNotification('has successfully been saved.')
             .expect.element(`${page.elements.dataGridRow}--0`).to.have.text.that.contains('- some more');
     },
     'reset first snippet': (browser) => {
@@ -56,7 +56,7 @@ module.exports = {
         browser
             .click(`${page.elements.modalFooter} button${page.elements.primaryButton}`)
             .waitForElementNotPresent(page.elements.modal)
-            .checkNotification('has been reset to');
+            .checkNotification('has successfully been reset to');
     },
     'verify deletion of snippet': (browser) => {
         const page = settingsPage(browser);

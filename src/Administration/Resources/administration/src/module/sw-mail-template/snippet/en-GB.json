@@ -8,7 +8,7 @@
       "notificationTestMailSalesChannelErrorMessage": "Please choose a sales channel",
       "notificationTestMailErrorMessage": "An error occurred while sending the test email.",
       "notificationTestMailSuccessTitle": "Success",
-      "notificationTestMailSuccessMessage": "The test email has been sent successfully."
+      "notificationTestMailSuccessMessage": "The test email has successfully been sent."
     },
     "list": {
       "textMailTemplateOverview": "Email templates",
@@ -36,18 +36,18 @@
         "labelMailType": "Type",
         "labelDescription": "Description",
         "labelSalesChannels": "Sales channels",
-        "placeholderMailType": "Choose a type",
-        "placeholderDescription": "Enter email template description",
-        "placeholderSalesChannels": "Choose email template sales channels"
+        "placeholderMailType": "Choose a type...",
+        "placeholderDescription": "Enter email template description...",
+        "placeholderSalesChannels": "Choose email template sales channels..."
       },
       "options": {
         "titleCard": "Options",
         "labelSenderMail": "Sender mail",
         "labelSenderName": "Sender name",
         "labelSubject": "Subject",
-        "placeholderSenderMail": "shop@example.com",
-        "placeholderSenderName": "Example shop",
-        "placeholderSubject": "Enter email template subject"
+        "placeholderSenderMail": "shop@example.com...",
+        "placeholderSenderName": "Example shop...",
+        "placeholderSubject": "Enter email template subject..."
       },
       "mailText": {
         "titleCard": "Mail text",
@@ -73,13 +73,13 @@
       "textHeadlineEdit": "Edit email template",
       "titleResult": "Email template",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "The email template \"{subject}\" has been saved successfully."
+      "messageSaveSuccess": "The email template \"{subject}\" has successfully been saved."
     }
   },
   "sw-mail-header-footer": {
     "general": {
       "mainMenuItemList": "Headers and footers",
-      "placeholderSearchBar": "Search email headers and footers",
+      "placeholderSearchBar": "Search email headers and footers...",
       "mainMenuItemGeneral": "Headers & Footers"
     },
     "list": {
@@ -104,30 +104,30 @@
         "labelName": "Name",
         "labelDescription": "Description",
         "labelSalesChannels": "Sales channels",
-        "placeholderName": "Enter a name",
-        "placeholderDescription": "Enter a description",
-        "placeholderSalesChannels": "Choose related sales channels"
+        "placeholderName": "Enter a name...",
+        "placeholderDescription": "Enter a description...",
+        "placeholderSalesChannels": "Choose related sales channels..."
       },
       "header": {
         "titleCard": "Mail header",
         "labelPlain": "Plain text",
         "labelHtml": "HTML",
-        "placeholderPlain": "Enter email header plain text",
-        "placeholderHtml": "Enter email header formatted text"
+        "placeholderPlain": "Enter plain text email header...",
+        "placeholderHtml": "Enter formatted text email header..."
       },
       "footer": {
         "titleCard": "Mail footer",
         "labelPlain": "Plain text",
         "labelHtml": "HTML",
-        "placeholderPlain": "Enter email footer plain text",
-        "placeholderHtml": "Enter email footer formatted text"
+        "placeholderPlain": "Enter plain text email footer...",
+        "placeholderHtml": "Enter formatted text email footer..."
       },
       "buttonCancel": "Cancel",
       "buttonSave": "Save",
       "textHeadline": "New email header/footer",
       "titleResult": "Email header/footer",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "The email header/footer \"{name}\" has been saved successfully."
+      "messageSaveSuccess": "The email header/footer \"{name}\" has successfully been saved."
     }
   }
 }

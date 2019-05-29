@@ -22,23 +22,23 @@
             "fieldLetterNamePlaceholder": "Please choose a letter salutation",
             "fieldSalutationKeyPlaceholder": "Please choose a technical name",
             "messageDeleteError": "Salutation could not be deleted.",
-            "messageDeleteSuccess": "Salutation \"{key}\" has been deleted successfully.",
+            "messageDeleteSuccess": "Salutation \"{key}\" has successfully been deleted.",
             "messageSaveError": "Salutation could not be saved.",
-            "messageSaveSuccess": "Salutation \"{key}\" has been saved successfully.",
+            "messageSaveSuccess": "Salutation \"{key}\" has successfully been saved.",
             "textDeleteConfirm": "Are you sure you want to delete the salutation \"{key}\"?"
         },
         "detail": {
             "cardTitle": "Salutation",
             "fieldDisplayNameLabel": "Salutation",
-            "fieldDisplayNamePlaceholder": "Please choose a salutation",
+            "fieldDisplayNamePlaceholder": "Please choose a salutation...",
             "fieldLetterNameLabel": "Letter salutation",
-            "fieldLetterNamePlaceholder": "Please choose a letter salutation",
-            "fieldSalutationKeyTooltip": "A unique, technical name that is required to include the salutations, e.g. in email templates.",
+            "fieldLetterNamePlaceholder": "Please choose a letter salutation...",
+            "fieldSalutationKeyTooltip": "Choose a unique technical name that is required to include the salutations, e.g. in email templates.",
             "fieldSalutationKeyLabel": "Technical name",
             "fieldSalutationKeyPlaceholder": "Please choose a technical name",
-            "invalidKeyMessage": "Technical name is already in use. Please choose a different one.",
+            "invalidKeyMessage": "Technical name already in use. Please choose a different one.",
             "messageSaveError": "Salutation could not be saved.",
-            "messageSaveSuccess": "Salutation \"{key}\" has been saved successfully.",
+            "messageSaveSuccess": "Salutation \"{key}\" has successfully been saved.",
             "placeholderNewSalutation": "New Salutation"
         }
     }

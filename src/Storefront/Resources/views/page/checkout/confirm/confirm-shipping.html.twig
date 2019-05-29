@@ -29,7 +29,7 @@
 
                     {% block page_checkout_confirm_shipping_form_fields %}
                         <div class="shipping-fields">
-                            {% for shipping in page.shippingMethods.elements %}
+                            {% for shipping in page.shippingMethods %}
                                 <div class="shipping-method">
                                     {% block page_checkout_confirm_shipping_form_field %}
                                         <div class="form-group checkout-config-form-group">

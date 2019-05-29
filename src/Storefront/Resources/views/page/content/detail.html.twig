@@ -1,6 +1,6 @@
 {% block page_content_blocks_inner %}
     <div class="cms-blocks">
-        {% for block in cmsPage.blocks.elements %}
+        {% for block in cmsPage.blocks %}
             {% block page_content_block %}
                 {% set top = block.marginTop ? block.marginTop : 0 %}
                 {% set right = block.marginRight ? block.marginRight : 0 %}

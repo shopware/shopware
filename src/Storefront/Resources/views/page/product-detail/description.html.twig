@@ -18,7 +18,9 @@
                 {% endblock %}
 
                 {% block page_product_detail_description_content_properties %}
-                    {% sw_include '@Storefront/page/product-detail/properties.html.twig' %}
+                    {% if page.product.sortedProperties %}
+                        {% sw_include '@Storefront/page/product-detail/properties.html.twig' %}
+                    {% endif %}
                 {% endblock %}
             {% endblock %}
         </div>

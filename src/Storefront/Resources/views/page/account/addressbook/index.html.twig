@@ -118,37 +118,35 @@
             {% endblock %}
 
             {% block page_account_address_list %}
-                {% if page.addresses.entities.elements|length > 1 %}
-                    <div class="address-list">
-                        <div class="h3">
-                            {{ "account.addressListHeader"|trans }}
-                        </div>
+                <div class="address-list">
+                    <div class="h3">
+                        {{ "account.addressListHeader"|trans }}
+                    </div>
 
-                        <div class="row">
-                            {% for address in page.addresses.entities.elements %}
-                                <div class="col-sm-6 card-col address-card">
-                                    <div class="card other-address">
-                                        <div class="card-body">
-                                            {% block page_account_address_overview_body %}
-                                                <div class="address-item-body">
-                                                    {% block page_account_address_overview_address %}
-                                                        {% sw_include '@Storefront/component/address/address.html.twig' %}
-                                                    {% endblock %}
+                    <div class="row">
+                        {% for address in page.addresses%}
+                            <div class="col-sm-6 card-col address-card">
+                                <div class="card other-address">
+                                    <div class="card-body">
+                                        {% block page_account_address_overview_body %}
+                                            <div class="address-item-body">
+                                                {% block page_account_address_overview_address %}
+                                                    {% sw_include '@Storefront/component/address/address.html.twig' %}
+                                                {% endblock %}
 
-                                                    {% block page_account_address_overview_actions %}
-                                                        <div class="card-actions">
-                                                            {% sw_include '@Storefront/page/account/addressbook/address-actions.html.twig' %}
-                                                        </div>
-                                                    {% endblock %}
-                                                </div>
-                                            {% endblock %}
-                                        </div>
+                                                {% block page_account_address_overview_actions %}
+                                                    <div class="card-actions">
+                                                        {% sw_include '@Storefront/page/account/addressbook/address-actions.html.twig' %}
+                                                    </div>
+                                                {% endblock %}
+                                            </div>
+                                        {% endblock %}
                                     </div>
                                 </div>
-                            {% endfor %}
-                        </div>
+                            </div>
+                        {% endfor %}
                     </div>
-                {% endif %}
+                </div>
             {% endblock %}
         {% endblock %}
     </div>

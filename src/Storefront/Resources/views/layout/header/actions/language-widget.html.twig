@@ -1,5 +1,5 @@
 {% block layout_header_actions_language_widget%}
-	{% if  page.header.languages.elements|length > 1 %}
+	{% if  page.header.languages.count > 1 %}
 		<div class="top-bar-nav-item top-bar-language">
 			{% block layout_header_actions_language_widget_form %}
 				<form method="post"
@@ -24,7 +24,7 @@
 							{% block layout_header_actions_languages_widget_form_items %}
 								<div class="top-bar-list dropdown-menu dropdown-menu-right"
 									aria-labelledby="languagesDropdown">
-									{% for language in  page.header.languages.elements %}
+									{% for language in  page.header.languages %}
                                             <div class="top-bar-list-item dropdown-item{% if language.id is same as(page.header.activeLanguage.id) %} item-checked{% endif %}"
                                                  title="{{ language.translated.name }}">
                                                 

@@ -1,6 +1,6 @@
 {% block component_payment_methods %}
     <div class="payment-methods">
-        {% for payment in page.paymentMethods.elements %}
+        {% for payment in page.paymentMethods %}
             {% block component_payment_method %}
                 <div class="payment-method">
                     {% block component_payment_method_field %}

@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block page_checkout_container %}
-    {% if not page.cart.lineItems.elements %}
+    {% if not page.cart.lineItems %}
         {% sw_include '@Storefront/utilities/alert.html.twig' with {
             type: "info",
             content: "checkout.cartEmpty"|trans
@@ -33,7 +33,7 @@
                     {% endblock %}
 
                     {% block page_checkout_cart_table_items %}
-                        {% for lineItem in page.cart.lineItems.elements %}
+                        {% for lineItem in page.cart.lineItems %}
                             {% block page_checkout_cart_table_item %}
                                 {% sw_include '@Storefront/page/checkout/checkout-item.html.twig' %}
                             {% endblock %}

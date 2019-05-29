@@ -23,7 +23,7 @@
                 {% endblock %}
 
                 {% block page_checkout_summary_shippings %}
-                    {% for delivery in summary.deliveries.elements %}
+                    {% for delivery in summary.deliveries %}
                         {% block page_checkout_summary_shipping %}
                             {% block page_checkout_summary_shipping_label %}
                                 <dt class="col-7 summary-label">
@@ -69,7 +69,7 @@
                 {% endblock %}
 
                 {% block page_checkout_summary_taxes %}
-                    {% for taxItem in summary.price.calculatedTaxes.elements %}
+                    {% for taxItem in summary.price.calculatedTaxes %}
                         {% block page_checkout_summary_tax %}
                             {% block page_checkout_summary_tax_label %}
                                 <dt class="col-7 summary-label">

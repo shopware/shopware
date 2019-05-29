@@ -1,4 +1,4 @@
-{% set imageCount = page.product.media.elements|length %}
+{% set imageCount = page.product.media|length %}
 
 {% block product_detail_zoom_modal %}
     <div class="modal is-fullscreen zoom-modal js-zoom-modal{% if imageCount is same as(1) %} no-thumbnails{% endif %}"
@@ -63,7 +63,7 @@
                                     <div class="image-slider"
                                          data-image-slider-container=true>
                                         {% block product_detail_zoom_modal_image_slider_loop %}
-                                            {% for image in page.product.media.elements %}
+                                            {% for image in page.product.media %}
                                                 {% block product_detail_zoom_modal_image_slider_item %}
                                                     <div class="image-slider-item">
                                                         {% block product_detail_zoom_modal_image_slider_item_zoom_container %}
@@ -119,7 +119,7 @@
                                         <div class="image-slider-thumbnails"
                                              data-image-slider-thumbnails=true>
                                             {% block product_detail_zoom_modal_thumbnails_loop %}
-                                                {% for image in page.product.media.elements %}
+                                                {% for image in page.product.media %}
                                                     {% block product_detail_zoom_modal_thumbnail_item %}
                                                         <div class="image-slider-thumbnails-item">
                                                             {% block product_detail_zoom_modal_thumbnail_item_inner %}

@@ -13,7 +13,7 @@
         {% endblock %}
 
         {% block page_checkout_finish_product_table %}
-            {% if page.order.lineItems.elements %}
+            {% if page.order.lineItems %}
                 <div class="card checkout-product-table">
                     <div class="card-body">
                         {% block page_checkout_finish_table_header %}
@@ -21,7 +21,7 @@
                         {% endblock %}
 
                         {% block page_checkout_finish_items %}
-                            {% for lineItem in page.order.lineItems.elements %}
+                            {% for lineItem in page.order.lineItems %}
                                 {% block page_checkout_finish_item %}
                                     {% sw_include '@Storefront/page/checkout/finish/finish-item.html.twig' %}
                                 {% endblock %}

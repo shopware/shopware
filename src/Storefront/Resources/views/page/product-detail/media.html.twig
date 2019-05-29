@@ -1,5 +1,5 @@
 {% block page_product_detail_media_inner %}
-    {% set mediaItems = page.product.media.elements %}
+    {% set mediaItems = page.product.media %}
 
     <div class="row product-detail-media-container{% if mediaItems|length == 1 %} is-single-image{% endif %}"
         {% if mediaItems|length > 1 %} data-image-slider="true"{% endif %}

@@ -1,5 +1,5 @@
-import deDEMessages from 'src/app/snippets/de-DE.json';
-import enGBMessages from 'src/app/snippets/en-GB.json';
+import deDEMessages from 'src/app/snippet/de-DE.json';
+import enGBMessages from 'src/app/snippet/en-GB.json';
 
 export default function initializeLocaleService() {
     const factoryContainer = this.getContainer('factory');

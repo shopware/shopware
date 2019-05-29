@@ -8,6 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
 use Shopware\Storefront\Framework\Seo\SeoResolver;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
@@ -47,7 +48,9 @@ class RequestTransformer
 
         $salesChannel = $this->findSalesChannel($request);
         if ($salesChannel === null) {
-            return $request;
+            // this class and therefore the "isSalesChannelRequired" method is currently not extendable
+            // which can cause problems when adding custom paths
+            throw new SalesChannelMappingException($request->getUri());
         }
 
         $baseUrl = str_replace($request->getSchemeAndHttpHost() . $request->getBaseUrl(), '', $salesChannel['url']);

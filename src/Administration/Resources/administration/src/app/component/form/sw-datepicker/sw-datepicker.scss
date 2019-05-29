@@ -8,7 +8,7 @@ $sw-datepicker-color-selected: $color-shopware-blue;
 $sw-datepicker-color-text-selected: $color-white;
 
 .sw-field--datepicker {
-    &:not(is--diabled) {
+    &:not(.is--disabled) {
         .sw-field__addition {
             cursor: pointer;
         }

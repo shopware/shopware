@@ -49,6 +49,12 @@ Module.register('sw-cms', {
     },
 
     navigation: [{
+        id: 'sw-content',
+        label: 'global.sw-admin-menu.navigation.mainMenuItemContent',
+        color: '#ff68b4',
+        icon: 'default-symbol-content',
+        position: 50
+    }, {
         id: 'sw-cms',
         label: 'sw-cms.general.mainMenuItemGeneral',
         color: '#ff68b4',

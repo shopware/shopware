@@ -111,6 +111,12 @@ Module.register('sw-product', {
     },
 
     navigation: [{
+        id: 'sw-catalogue',
+        label: 'global.sw-admin-menu.navigation.mainMenuItemCatalogue',
+        color: '#57D9A3',
+        icon: 'default-symbol-products',
+        position: 20
+    }, {
         id: 'sw-product',
         label: 'sw-product.general.mainMenuItemGeneral',
         color: '#57D9A3',

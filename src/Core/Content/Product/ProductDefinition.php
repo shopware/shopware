@@ -56,9 +56,11 @@ use Shopware\Core\System\Unit\UnitDefinition;
 
 class ProductDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'product';
+
     public function getEntityName(): string
     {
-        return 'product';
+        return self::ENTITY_NAME;
     }
 
     public function isInheritanceAware(): bool

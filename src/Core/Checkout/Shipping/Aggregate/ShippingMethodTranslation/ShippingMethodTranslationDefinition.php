@@ -12,9 +12,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class ShippingMethodTranslationDefinition extends EntityTranslationDefinition
 {
+    public const ENTITY_NAME = 'shipping_method_translation';
+
     public function getEntityName(): string
     {
-        return 'shipping_method_translation';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

@@ -19,17 +19,23 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 
 class PropertyGroupDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'property_group';
+
     public const DISPLAY_TYPE_TEXT = 'text';
+
     public const DISPLAY_TYPE_IMAGE = 'image';
+
     public const DISPLAY_TYPE_COLOR = 'color';
 
     public const SORTING_TYPE_NUMERIC = 'numeric';
+
     public const SORTING_TYPE_ALPHANUMERIC = 'alphanumeric';
+
     public const SORTING_TYPE_POSITION = 'position';
 
     public function getEntityName(): string
     {
-        return 'property_group';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

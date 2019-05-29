@@ -18,9 +18,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class TaxDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'tax';
+
     public function getEntityName(): string
     {
-        return 'tax';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

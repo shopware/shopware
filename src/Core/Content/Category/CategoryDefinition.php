@@ -41,13 +41,17 @@ use Shopware\Core\System\Tag\TagDefinition;
 
 class CategoryDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'category';
+
     public const TYPE_PAGE = 'page';
+
     public const TYPE_LINK = 'link';
+
     public const TYPE_FOLDER = 'folder';
 
     public function getEntityName(): string
     {
-        return 'category';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

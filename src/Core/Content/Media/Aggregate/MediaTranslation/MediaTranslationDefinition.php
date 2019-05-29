@@ -11,9 +11,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class MediaTranslationDefinition extends EntityTranslationDefinition
 {
+    public const ENTITY_NAME = 'media_translation';
+
     public function getEntityName(): string
     {
-        return 'media_translation';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

@@ -19,9 +19,11 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 
 class OrderTransactionDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'order_transaction';
+
     public function getEntityName(): string
     {
-        return 'order_transaction';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

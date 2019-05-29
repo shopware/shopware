@@ -32,9 +32,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class PaymentMethodDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'payment_method';
+
     public function getEntityName(): string
     {
-        return 'payment_method';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

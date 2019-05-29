@@ -23,9 +23,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class ProductManufacturerDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'product_manufacturer';
+
     public function getEntityName(): string
     {
-        return 'product_manufacturer';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

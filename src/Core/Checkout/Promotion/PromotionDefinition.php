@@ -32,9 +32,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 
 class PromotionDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'promotion';
+
     public function getEntityName(): string
     {
-        return 'promotion';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

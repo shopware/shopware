@@ -30,9 +30,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class OrderLineItemDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'order_line_item';
+
     public function getEntityName(): string
     {
-        return 'order_line_item';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

@@ -14,9 +14,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 
 class ProductOptionDefinition extends MappingEntityDefinition
 {
+    public const ENTITY_NAME = 'product_option';
+
     public function getEntityName(): string
     {
-        return 'product_option';
+        return self::ENTITY_NAME;
     }
 
     protected function defineFields(): FieldCollection

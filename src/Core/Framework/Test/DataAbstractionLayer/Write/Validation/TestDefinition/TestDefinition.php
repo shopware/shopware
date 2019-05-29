@@ -14,9 +14,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class TestDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = '_test_lock';
+
     public function getEntityName(): string
     {
-        return '_test_lock';
+        return self::ENTITY_NAME;
     }
 
     protected function defineFields(): FieldCollection

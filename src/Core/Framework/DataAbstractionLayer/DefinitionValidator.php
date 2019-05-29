@@ -113,6 +113,10 @@ class DefinitionValidator
             }
             $violations[$definition->getClass()] = [];
 
+            $violations = array_merge_recursive($violations, $this->validateSchema($definition));
+
+            $violations = array_merge_recursive($violations, $this->checkEntityNameConstant($definition));
+
             $struct = ArrayEntity::class;
             if (!$definition instanceof MappingEntityDefinition) {
                 $struct = $definition->getEntityClass();
@@ -882,5 +886,27 @@ class DefinitionValidator
     private function getAggregateNamespace(EntityDefinition $definition): string
     {
         return lcfirst(preg_replace('/.*\\\\([^\\\\]+)\\\\Aggregate.*/', '$1', $definition->getClass()));
+    }
+
+    private function checkEntityNameConstant(EntityDefinition $definition): array
+    {
+        $violations = [];
+        // Definition has cosntant ENTITY_NAME and is not empty
+        if (!defined($definition->getClass() . '::ENTITY_NAME') || constant($definition->getClass() . '::ENTITY_NAME') === '') {
+            $violations = array_merge_recursive(
+                $violations,
+                [$definition->getClass() => [sprintf('ENTITY_NAME constant Missing in %s', $definition->getClass())]]
+            );
+        }
+
+        // GetEntityName returns same Value as ENTITY_NAME
+        if (constant($definition->getClass() . '::ENTITY_NAME') !== $definition->getEntityName()) {
+            $violations = array_merge_recursive(
+                $violations,
+                [$definition->getClass() => [sprintf('ENTITY_NAME constant differs from getEntityName in %s', $definition->getClass())]]
+            );
+        }
+
+        return $violations;
     }
 }

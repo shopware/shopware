@@ -11,9 +11,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class DeliveryTimeTranslationDefinition extends EntityTranslationDefinition
 {
+    public const ENTITY_NAME = 'delivery_time_translation';
+
     public function getEntityName(): string
     {
-        return 'delivery_time_translation';
+        return self::ENTITY_NAME;
     }
 
     public function getEntityClass(): string

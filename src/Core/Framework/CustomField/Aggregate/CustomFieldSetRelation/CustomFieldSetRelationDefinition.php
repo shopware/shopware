@@ -14,9 +14,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class CustomFieldSetRelationDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'custom_field_set_relation';
+
     public function getEntityName(): string
     {
-        return 'custom_field_set_relation';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

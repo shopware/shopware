@@ -18,9 +18,11 @@ use Shopware\Core\System\User\UserDefinition;
 
 class UserAccessKeyDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'user_access_key';
+
     public function getEntityName(): string
     {
-        return 'user_access_key';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

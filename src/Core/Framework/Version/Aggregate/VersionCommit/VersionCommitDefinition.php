@@ -23,9 +23,11 @@ use Shopware\Core\Framework\Version\VersionDefinition;
 
 class VersionCommitDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'version_commit';
+
     public function getEntityName(): string
     {
-        return 'version_commit';
+        return self::ENTITY_NAME;
     }
 
     public function isVersionAware(): bool

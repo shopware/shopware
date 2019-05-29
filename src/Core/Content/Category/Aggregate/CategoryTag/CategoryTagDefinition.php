@@ -14,9 +14,11 @@ use Shopware\Core\System\Tag\TagDefinition;
 
 class CategoryTagDefinition extends MappingEntityDefinition
 {
+    public const ENTITY_NAME = 'category_tag';
+
     public function getEntityName(): string
     {
-        return 'category_tag';
+        return self::ENTITY_NAME;
     }
 
     public function isVersionAware(): bool

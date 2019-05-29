@@ -16,9 +16,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class PromotionSalesChannelDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'promotion_sales_channel';
+
     public function getEntityName(): string
     {
-        return 'promotion_sales_channel';
+        return self::ENTITY_NAME;
     }
 
     public function getEntityClass(): string

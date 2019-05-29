@@ -11,9 +11,11 @@ use Shopware\Core\System\Currency\CurrencyDefinition;
 
 class CurrencyTranslationDefinition extends EntityTranslationDefinition
 {
+    public const ENTITY_NAME = 'currency_translation';
+
     public function getEntityName(): string
     {
-        return 'currency_translation';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

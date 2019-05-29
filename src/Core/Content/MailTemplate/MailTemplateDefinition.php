@@ -24,9 +24,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class MailTemplateDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'mail_template';
+
     public function getEntityName(): string
     {
-        return 'mail_template';
+        return self::ENTITY_NAME;
     }
 
     public function getEntityClass(): string

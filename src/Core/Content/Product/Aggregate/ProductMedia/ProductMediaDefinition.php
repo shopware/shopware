@@ -19,9 +19,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class ProductMediaDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'product_media';
+
     public function getEntityName(): string
     {
-        return 'product_media';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

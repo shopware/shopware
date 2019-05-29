@@ -26,9 +26,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class CountryDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'country';
+
     public function getEntityName(): string
     {
-        return 'country';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

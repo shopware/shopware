@@ -24,9 +24,11 @@ use Shopware\Core\System\StateMachine\StateMachineDefinition;
 
 class StateMachineStateDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'state_machine_state';
+
     public function getEntityName(): string
     {
-        return 'state_machine_state';
+        return self::ENTITY_NAME;
     }
 
     public function getEntityClass(): string

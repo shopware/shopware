@@ -12,9 +12,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class PropertyGroupTranslationDefinition extends EntityTranslationDefinition
 {
+    public const ENTITY_NAME = 'property_group_translation';
+
     public function getEntityName(): string
     {
-        return 'property_group_translation';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

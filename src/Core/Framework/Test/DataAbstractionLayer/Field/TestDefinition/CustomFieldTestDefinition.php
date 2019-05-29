@@ -17,9 +17,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class CustomFieldTestDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'attribute_test';
+
     public function getEntityName(): string
     {
-        return 'attribute_test';
+        return self::ENTITY_NAME;
     }
 
     public function isInheritanceAware(): bool

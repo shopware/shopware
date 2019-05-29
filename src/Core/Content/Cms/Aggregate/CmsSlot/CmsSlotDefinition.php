@@ -22,9 +22,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class CmsSlotDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'cms_slot';
+
     public function getEntityName(): string
     {
-        return 'cms_slot';
+        return self::ENTITY_NAME;
     }
 
     public function getEntityClass(): string

@@ -15,9 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class IntegrationDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'integration';
+
     public function getEntityName(): string
     {
-        return 'integration';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

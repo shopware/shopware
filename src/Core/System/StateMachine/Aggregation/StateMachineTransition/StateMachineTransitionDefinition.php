@@ -16,9 +16,11 @@ use Shopware\Core\System\StateMachine\StateMachineDefinition;
 
 class StateMachineTransitionDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'state_machine_transition';
+
     public function getEntityName(): string
     {
-        return 'state_machine_transition';
+        return self::ENTITY_NAME;
     }
 
     public function getEntityClass(): string

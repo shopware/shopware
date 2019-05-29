@@ -17,9 +17,11 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 
 class SnippetSetDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'snippet_set';
+
     public function getEntityName(): string
     {
-        return 'snippet_set';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

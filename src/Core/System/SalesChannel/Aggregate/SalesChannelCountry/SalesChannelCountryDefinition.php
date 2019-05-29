@@ -13,9 +13,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class SalesChannelCountryDefinition extends MappingEntityDefinition
 {
+    public const ENTITY_NAME = 'sales_channel_country';
+
     public function getEntityName(): string
     {
-        return 'sales_channel_country';
+        return self::ENTITY_NAME;
     }
 
     protected function defineFields(): FieldCollection

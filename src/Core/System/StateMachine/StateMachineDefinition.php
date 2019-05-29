@@ -20,9 +20,11 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMa
 
 class StateMachineDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'state_machine';
+
     public function getEntityName(): string
     {
-        return 'state_machine';
+        return self::ENTITY_NAME;
     }
 
     public function getEntityClass(): string

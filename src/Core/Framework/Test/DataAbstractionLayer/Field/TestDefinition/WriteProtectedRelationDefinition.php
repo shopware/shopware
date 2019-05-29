@@ -14,9 +14,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class WriteProtectedRelationDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = '_test_relation';
+
     public function getEntityName(): string
     {
-        return '_test_relation';
+        return self::ENTITY_NAME;
     }
 
     protected function defineFields(): FieldCollection

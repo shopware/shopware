@@ -11,9 +11,11 @@ use Shopware\Core\System\Locale\LocaleDefinition;
 
 class LocaleTranslationDefinition extends EntityTranslationDefinition
 {
+    public const ENTITY_NAME = 'locale_translation';
+
     public function getEntityName(): string
     {
-        return 'locale_translation';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

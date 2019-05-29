@@ -8,9 +8,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class WriteProtectedTranslationDefinition extends EntityTranslationDefinition
 {
+    public const ENTITY_NAME = '_test_nullable_translation';
+
     public function getEntityName(): string
     {
-        return '_test_nullable_translation';
+        return self::ENTITY_NAME;
     }
 
     public static function getDefinition(): string

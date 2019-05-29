@@ -13,13 +13,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 
 class PromotionOrderRuleDefinition extends MappingEntityDefinition
 {
+    public const ENTITY_NAME = 'promotion_order_rule';
+
     /**
      * This class is used as m:n relation between promotions and order rules.
      * It gives the option to assign what rules may be used for order conditions.
      */
     public function getEntityName(): string
     {
-        return 'promotion_order_rule';
+        return self::ENTITY_NAME;
     }
 
     protected function defineFields(): FieldCollection

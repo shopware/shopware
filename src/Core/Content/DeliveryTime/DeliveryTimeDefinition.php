@@ -18,9 +18,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class DeliveryTimeDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'delivery_time';
+
     public function getEntityName(): string
     {
-        return 'delivery_time';
+        return self::ENTITY_NAME;
     }
 
     public function getEntityClass(): string

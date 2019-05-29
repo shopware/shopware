@@ -12,9 +12,11 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTyp
 
 class SalesChannelTypeTranslationDefinition extends EntityTranslationDefinition
 {
+    public const ENTITY_NAME = 'sales_channel_type_translation';
+
     public function getEntityName(): string
     {
-        return 'sales_channel_type_translation';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

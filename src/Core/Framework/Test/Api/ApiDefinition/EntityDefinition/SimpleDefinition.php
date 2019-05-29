@@ -15,9 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class SimpleDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'simple';
+
     public function getEntityName(): string
     {
-        return 'simple';
+        return self::ENTITY_NAME;
     }
 
     protected function defineFields(): FieldCollection

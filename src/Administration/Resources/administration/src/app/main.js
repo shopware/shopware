@@ -7,6 +7,7 @@ import initializers from 'src/app/init';
 /** Services */
 import MenuService from 'src/app/service/menu.service';
 import LoginService from 'src/core/service/login.service';
+import EntityMappingService from 'src/core/service/entity-mapping.service';
 import JsonApiParser from 'src/core/service/jsonapi-parser.service';
 import ValidationService from 'src/core/service/validation.service';
 import RuleConditionService from 'src/app/service/rule-condition.service';
@@ -67,4 +68,7 @@ Application
     })
     .addServiceProvider('localeToLanguageService', () => {
         return LocaleToLanguageService();
+    })
+    .addServiceProvider('entityMappingService', () => {
+        return EntityMappingService;
     });

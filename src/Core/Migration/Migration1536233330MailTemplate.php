@@ -18,10 +18,12 @@ class Migration1536233330MailTemplate extends MigrationStep
             CREATE TABLE `mail_template_type` (
               `id` BINARY(16) NOT NULL,
               `technical_name` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+              `available_entities` LONGTEXT COLLATE utf8mb4_unicode_ci NULL,
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`),
-              UNIQUE `uniq.technical_name_state_mail_template_type` (`technical_name`)
+              CONSTRAINT `uniq.mail_template_type.technical_name` UNIQUE (`technical_name`),
+              CONSTRAINT `json.mail_template_type.available_entities` CHECK (JSON_VALID(`available_entities`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ');
 

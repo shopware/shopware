@@ -9,7 +9,7 @@
 
         {% block sw_code_editor_editor %}
             <div class="sw-code-editor__editor"
-                 ref="editor"
+                 :ref="`editor${editorId}`"
                  :content="value"
                  @input="onInput"
                  @change="onChange"

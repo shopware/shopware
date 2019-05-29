@@ -14,7 +14,7 @@ Component.register('sw-mail-template-detail', {
         Mixin.getByName('notification')
     ],
 
-    inject: ['mailService'],
+    inject: ['mailService', 'entityMappingService'],
 
     data() {
         return {
@@ -23,7 +23,10 @@ Component.register('sw-mail-template-detail', {
             mailTemplateId: null,
             isLoading: false,
             isSaveSuccessful: false,
-            eventAssociationStore: {}
+            eventAssociationStore: {},
+            editorConfig: {
+                enableBasicAutocompletion: true
+            }
         };
     },
 
@@ -52,8 +55,36 @@ Component.register('sw-mail-template-detail', {
             return this.mailTemplate.getAssociation('salesChannels');
         },
 
+        completerFunction() {
+            return (function completerWrapper(entityMappingService, innerMailTemplateType) {
+                function completerFunction(prefix) {
+                    const properties = [];
+                    Object.keys(
+                        entityMappingService.getEntityMapping(
+                            prefix, innerMailTemplateType.availableEntities
+                        )
+                    ).forEach((val) => {
+                        properties.push({
+                            value: val
+                        });
+                    });
+                    return properties;
+                }
+                return completerFunction;
+            }(this.entityMappingService, this.mailTemplateType));
+        },
+
         mailTemplateTypeStore() {
             return State.getStore('mail_template_type');
+        },
+
+        mailTemplateType() {
+            if (this.mailTemplate.mailTemplateTypeId) {
+                return this.mailTemplateTypeStore.getById(
+                    this.mailTemplate.mailTemplateTypeId
+                );
+            }
+            return {};
         },
 
         unassignedSalesChannelCriteria() {
@@ -164,10 +195,16 @@ Component.register('sw-mail-template-detail', {
 
             if (this.mailTemplate.salesChannels.length) {
                 this.mailTemplate.salesChannels.forEach((salesChannel) => {
+                    let salesChannelId = '';
+                    if (typeof salesChannel === 'object') {
+                        salesChannelId = salesChannel.id;
+                    } else {
+                        salesChannelId = salesChannel;
+                    }
                     this.mailService.testMailTemplateById(
                         this.testerMail,
                         this.mailTemplate,
-                        salesChannel.id
+                        salesChannelId
                     ).then(() => {
                         this.createNotificationSuccess(notificationTestMailSuccess);
                     }).catch((exception) => {
@@ -184,6 +221,7 @@ Component.register('sw-mail-template-detail', {
             this.$refs.salesChannelSelect.selections = [];
             this.$refs.salesChannelSelect.results = [];
             this.mailTemplate.salesChannels = [];
+            this.completerFunction();
         }
     }
 });

@@ -1558,141 +1558,215 @@ class Migration1536233560BasicData extends MigrationStep
                 'id' => Uuid::randomHex(),
                 'name' => 'Customer registration',
                 'nameDe' => 'Kunden-Registrierung',
+                'availableEntities' => ['customer' => 'customer'],
             ],
             NewsletterSubscriptionServiceInterface::MAIL_TYPE_OPT_IN => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Newsletter double opt-in',
                 'nameDe' => 'Newsletter Double-Opt-In',
+                'availableEntities' => ['newsletterRecipient' => 'newsletter_recipient'],
             ],
             NewsletterSubscriptionServiceInterface::MAIL_TYPE_REGISTER => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Newsletter registration',
                 'nameDe' => 'Newsletter-Registrierung',
+                'availableEntities' => ['newsletterRecipient' => 'newsletter_recipient'],
             ],
             MailTemplateTypes::MAILTYPE_ORDER_CONFIRM => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Order confirmation',
                 'nameDe' => 'Bestellbestätigung',
+                'availableEntities' => ['order' => 'order'],
             ],
             MailTemplateTypes::MAILTYPE_CUSTOMER_GROUP_CHANGE_ACCEPT => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Customer group change accepted',
                 'nameDe' => 'Kundengruppenwechsel akzeptiert',
+                'availableEntities' => ['customer' => 'customer'],
             ],
             MailTemplateTypes::MAILTYPE_CUSTOMER_GROUP_CHANGE_REJECT => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Customer group change rejected',
                 'nameDe' => 'Kundengruppenwechsel abgelehnt',
+                'availableEntities' => ['customer' => 'customer'],
             ],
             MailTemplateTypes::MAILTYPE_PASSWORD_CHANGE => [
                 'id' => Uuid::randomHex(),
-                'name' => 'Password changed',
-                'nameDe' => 'Passwort geändert',
+                'name' => 'Password change request',
+                'nameDe' => 'Passwort Änderungsanfrage',
+                'availableEntities' => ['customer' => 'customer', 'urlResetPassword' => null],
             ],
             MailTemplateTypes::MAILTYPE_SEPA_CONFIRMATION => [
                 'id' => Uuid::randomHex(),
                 'name' => 'SEPA authorization',
                 'nameDe' => 'SEPA-Autorisierung',
+                'availableEntities' => ['order' => 'order'],
             ],
             MailTemplateTypes::MAILTYPE_STOCK_WARNING => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Product stock warning',
                 'nameDe' => 'Lagerbestandshinweis',
+                'availableEntities' => ['product' => 'product'],
             ],
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_RETURNED_PARTIALLY => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Enter order state: Open',
                 'nameDe' => 'Eintritt Bestellstatus: Offen',
+                'availableEntities' => [
+                    'order' => 'order',
+                    'previousState' => 'state_machine_state',
+                    'newState' => 'state_machine_state',
+                ],
             ],
-
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_SHIPPED_PARTIALLY => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Enter order state: Shipped (partially)',
                 'nameDe' => 'Eintritt Bestellstatus: Teilweise versandt',
+                'availableEntities' => [
+                    'order' => 'order',
+                    'previousState' => 'state_machine_state',
+                    'newState' => 'state_machine_state',
+                ],
             ],
-
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_RETURNED => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Enter order state: Returned',
                 'nameDe' => 'Eintritt Bestellstatus: Retour',
+                'availableEntities' => [
+                    'order' => 'order',
+                    'previousState' => 'state_machine_state',
+                    'newState' => 'state_machine_state',
+                ],
             ],
-
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_SHIPPED => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Enter order state: Shipped',
                 'nameDe' => 'Eintritt Bestellstatus: Versandt',
+                'availableEntities' => [
+                    'order' => 'order',
+                    'previousState' => 'state_machine_state',
+                    'newState' => 'state_machine_state',
+                ],
             ],
-
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_CANCELLED => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Enter order state: Cancelled',
                 'nameDe' => 'Eintritt Bestellstatus: Abgebrochen',
+                'availableEntities' => [
+                    'order' => 'order',
+                    'previousState' => 'state_machine_state',
+                    'newState' => 'state_machine_state',
+                ],
             ],
-
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_REMINDED => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Enter payment state: Reminded',
                 'nameDe' => 'Eintritt Zahlungsstatus: Erinnert',
+                'availableEntities' => [
+                    'order' => 'order',
+                    'previousState' => 'state_machine_state',
+                    'newState' => 'state_machine_state',
+                ],
             ],
-
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_REFUNDED_PARTIALLY => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Enter payment state: Refunded (partially)',
                 'nameDe' => 'Eintritt Zahlungsstatus: Teilweise erstattet',
+                'availableEntities' => [
+                    'order' => 'order',
+                    'previousState' => 'state_machine_state',
+                    'newState' => 'state_machine_state',
+                ],
             ],
-
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_CANCELLED => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Enter payment state: Cancelled',
                 'nameDe' => 'Eintritt Zahlungsstatus: Abgebrochen',
+                'availableEntities' => [
+                    'order' => 'order',
+                    'previousState' => 'state_machine_state',
+                    'newState' => 'state_machine_state',
+                ],
             ],
-
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_PAID => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Enter payment state: Paid',
                 'nameDe' => 'Eintritt Zahlungsstatus: Bezahlt',
+                'availableEntities' => [
+                    'order' => 'order',
+                    'previousState' => 'state_machine_state',
+                    'newState' => 'state_machine_state',
+                ],
             ],
-
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_REFUNDED => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Enter payment state: Refunded',
                 'nameDe' => 'Eintritt Zahlungsstatus: Erstattet',
+                'availableEntities' => [
+                    'order' => 'order',
+                    'previousState' => 'state_machine_state',
+                    'newState' => 'state_machine_state',
+                ],
             ],
-
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_PAID_PARTIALLY => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Enter payment state: Paid (partially)',
                 'nameDe' => 'Eintritt Zahlungsstatus: Teilweise bezahlt',
+                'availableEntities' => [
+                    'order' => 'order',
+                    'previousState' => 'state_machine_state',
+                    'newState' => 'state_machine_state',
+                ],
             ],
-
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_OPEN => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Enter payment state: Open',
                 'nameDe' => 'Eintritt Zahlungsstatus: Offen',
+                'availableEntities' => [
+                    'order' => 'order',
+                    'previousState' => 'state_machine_state',
+                    'newState' => 'state_machine_state',
+                ],
             ],
-
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_STATE_OPEN => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Enter order state: Open',
                 'nameDe' => 'Eintritt Bestellstatus: Offen',
+                'availableEntities' => [
+                    'order' => 'order',
+                    'previousState' => 'state_machine_state',
+                    'newState' => 'state_machine_state',
+                ],
             ],
-
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_STATE_IN_PROGRESS => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Enter order state: In progress',
                 'nameDe' => 'Eintritt Bestellstatus: In Bearbeitung',
+                'availableEntities' => [
+                    'order' => 'order',
+                    'previousState' => 'state_machine_state',
+                    'newState' => 'state_machine_state',
+                ],
             ],
-
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_STATE_CANCELLED => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Enter order state: Cancelled',
                 'nameDe' => 'Eintritt Bestellstatus: Abgebrochen',
+                'availableEntities' => [
+                    'order' => 'order',
+                    'previousState' => 'state_machine_state',
+                    'newState' => 'state_machine_state',
+                ],
             ],
-
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_STATE_COMPLETED => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Enter order state: Done',
                 'nameDe' => 'Eintritt Bestellstatus: Abgeschlossen',
+                'availableEntities' => [
+                    'order' => 'order',
+                    'previousState' => 'state_machine_state',
+                    'newState' => 'state_machine_state',
+                ],
             ],
         ];
     }
@@ -1705,11 +1779,17 @@ class Migration1536233560BasicData extends MigrationStep
         $languageDe = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE);
 
         foreach ($definitionMailTypes as $typeName => $mailType) {
+            $availableEntities = null;
+            if (array_key_exists('availableEntities', $mailType)) {
+                $availableEntities = json_encode($mailType['availableEntities']);
+            }
+
             $connection->insert(
                 'mail_template_type',
                 [
                     'id' => Uuid::fromHexToBytes($mailType['id']),
                     'technical_name' => $typeName,
+                    'available_entities' => $availableEntities,
                     'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
                 ]
             );

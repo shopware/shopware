@@ -259,7 +259,7 @@ class Criteria extends Struct
 
         $extension = 'extensions.' . $field;
 
-        return isset($this->associations[$field]) || isset($this->associations[$extension]);
+        return isset($this->associations[$extension]);
     }
 
     public function resetSorting(): self

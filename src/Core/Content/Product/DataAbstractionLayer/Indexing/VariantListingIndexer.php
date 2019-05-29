@@ -86,11 +86,8 @@ class VariantListingIndexer implements IndexerInterface
         $this->update($ids, $event->getContext());
     }
 
-    private function update(array $ids, Context $context): void
+    private function getListingConfiguration(array $ids, Context $context)
     {
-        if (empty($ids)) {
-            return;
-        }
         $versionBytes = Uuid::fromHexToBytes($context->getVersionId());
 
         $query = $this->connection->createQueryBuilder();
@@ -117,6 +114,18 @@ class VariantListingIndexer implements IndexerInterface
 
             $listingConfiguration[$config['id']] = $listing;
         }
+
+        return $listingConfiguration;
+    }
+
+    private function update(array $ids, Context $context): void
+    {
+        if (empty($ids)) {
+            return;
+        }
+        $versionBytes = Uuid::fromHexToBytes($context->getVersionId());
+
+        $listingConfiguration = $this->getListingConfiguration($ids, $context);
 
         foreach ($listingConfiguration as $parentId => $config) {
             // display only "container" product, if the config is empty
@@ -169,19 +178,30 @@ class VariantListingIndexer implements IndexerInterface
             );
 
             // no variants found? display "container" product
-            if (empty($ids)) {
+            if (!empty($ids)) {
+                // activate found variants for listings
                 $this->connection->executeUpdate(
-                    'UPDATE product SET display_in_listing = 1 WHERE product.parent_id = :id AND product.version_id = :versionId',
-                    ['id' => $parentId, 'versionId' => $versionBytes]
+                    'UPDATE product SET display_in_listing = 1 WHERE product.id IN (:ids) AND product.version_id = :versionId',
+                    ['ids' => $ids, 'versionId' => $versionBytes],
+                    ['ids' => Connection::PARAM_STR_ARRAY]
                 );
+
                 continue;
             }
 
-            // activate found variants for listings
+            $available = $this->connection->fetchColumn(
+                'SELECT 1 FROM `product` WHERE `parent_id` = :parentId AND `active` = 1 LIMIT 1',
+                ['parentId' => $parentId]
+            );
+
+            // product has no more available variant
+            if (!$available) {
+                continue;
+            }
+
             $this->connection->executeUpdate(
-                'UPDATE product SET display_in_listing = 1 WHERE product.id IN (:ids) AND product.version_id = :versionId',
-                ['ids' => $ids, 'versionId' => $versionBytes],
-                ['ids' => Connection::PARAM_STR_ARRAY]
+                'UPDATE product SET display_in_listing = 1 WHERE product.parent_id = :id AND product.version_id = :versionId',
+                ['id' => $parentId, 'versionId' => $versionBytes]
             );
         }
     }

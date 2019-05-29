@@ -178,6 +178,8 @@
       "generatedListColumnVariation": "Variante",
       "generatedListColumnPrice": "Preis (Brutto / Netto)",
       "generatedListColumnProductNumber": "Produktnummer",
+      "generatedListColumnDisplayInListing": "Im Listing?",
+      "generatedListColumnActive": "Aktiv",
       "generatedListColumnStock": "Lagerbestand",
       "generatedListContextMenuEdit": "Bearbeiten",
       "generatedListContextMenuDelete": "Löschen",

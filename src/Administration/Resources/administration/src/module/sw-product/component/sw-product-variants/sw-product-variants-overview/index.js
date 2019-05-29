@@ -101,6 +101,21 @@ Component.register('sw-product-variants-overview', {
                     label: this.$tc('sw-product.variations.generatedListColumnProductNumber'),
                     allowResize: true,
                     inlineEdit: 'string'
+                },
+                {
+                    property: 'active',
+                    dataIndex: 'active',
+                    label: this.$tc('sw-product.variations.generatedListColumnActive'),
+                    allowResize: true,
+                    inlineEdit: 'boolean',
+                    align: 'center'
+                },
+                {
+                    property: 'displayInListing',
+                    dataIndex: 'displayInListing',
+                    label: this.$tc('sw-product.variations.generatedListColumnDisplayInListing'),
+                    allowResize: true,
+                    align: 'center'
                 }
             ];
         },

@@ -178,6 +178,8 @@
       "generatedListColumnVariation": "Variant",
       "generatedListColumnPrice": "Price (Gross / Net)",
       "generatedListColumnProductNumber": "Product number",
+      "generatedListColumnDisplayInListing": "Listing visible?",
+      "generatedListColumnActive": "Active",
       "generatedListColumnStock": "Stock",
       "generatedListContextMenuEdit": "Edit",
       "generatedListContextMenuDelete": "Delete",

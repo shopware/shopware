@@ -23,7 +23,7 @@ class CustomerAddressDefinition extends EntityDefinition
 
     public function getEntityName(): string
     {
-        return 'customer_address';
+        return self::ENTITY_NAME;
     }
 
     public function getCollectionClass(): string

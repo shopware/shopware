@@ -23,7 +23,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Event\DataMappingEvent;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -36,7 +35,6 @@ use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\Salutation\SalutationCollection;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Validator\Constraints\Email;
@@ -56,11 +54,6 @@ class AccountService
      * @var EntityRepositoryInterface
      */
     private $customerRepository;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $salutationRepository;
 
     /**
      * @var SalesChannelContextPersister
@@ -100,7 +93,6 @@ class AccountService
     public function __construct(
         EntityRepositoryInterface $customerAddressRepository,
         EntityRepositoryInterface $customerRepository,
-        EntityRepositoryInterface $salutationRepository,
         SalesChannelContextPersister $contextPersister,
         EventDispatcherInterface $eventDispatcher,
         DataValidator $validator,
@@ -111,7 +103,6 @@ class AccountService
     ) {
         $this->customerAddressRepository = $customerAddressRepository;
         $this->customerRepository = $customerRepository;
-        $this->salutationRepository = $salutationRepository;
         $this->contextPersister = $contextPersister;
         $this->eventDispatcher = $eventDispatcher;
         $this->validator = $validator;
@@ -181,18 +172,6 @@ class AccountService
         $this->customerRepository->update([$customer], $context->getContext());
 
         $this->refreshContext($context);
-    }
-
-    public function getSalutationList(SalesChannelContext $context): SalutationCollection
-    {
-        $criteria = new Criteria([]);
-        $criteria->addSorting(new FieldSorting('salutationKey', 'DESC'));
-
-        /** @var SalutationCollection $salutations */
-        $salutations = $this->salutationRepository->search($criteria, $context->getContext())
-            ->getEntities();
-
-        return $salutations;
     }
 
     public function savePassword(DataBag $data, SalesChannelContext $context): void

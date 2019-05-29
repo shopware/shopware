@@ -2,6 +2,7 @@
 
 $sw-media-preview-play-button-size:         50%;
 $sw-media-preview-play-button-z-index:      5;
+$sw-media-preview-locked-icon-z-index:      5;
 $sw-media-preview-border-color:             $color-steam-cloud;
 $sw-media-preview-border-color-highlighted: $color-shopware-blue;
 $sw-media-preview-border-radius:            $border-radius-default;
@@ -57,5 +58,12 @@ $sw-media-preview-background:               $color-white;
 
     .sw-media-preview__placeholder {
         padding: 0;
+    }
+
+    .sw-media-preview__locked-icon {
+        top: 2px;
+        position: absolute;
+        left: 16px;
+        z-index: $sw-media-preview-locked-icon-z-index;
     }
 }

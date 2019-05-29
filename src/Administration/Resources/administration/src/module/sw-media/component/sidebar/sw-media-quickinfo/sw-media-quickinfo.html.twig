@@ -16,10 +16,10 @@
                     {% block sw_media_quickinfo_quickactions_content %}
                         <ul class="sw-media-sidebar__quickactions-list">
                             {% block sw_media_quickinfo_quickactions_replace %}
-                                <li class="sw-media-sidebar__quickaction quickaction--replace" @click="openModalReplace">
-                                    <sw-icon small name="default-action-replace" class="sw-media-sidebar__quickactions-icon"> </sw-icon>
-                                    {{ $tc('sw-media.sidebar.actions.replace') }}
-                                </li>
+                            <li v-if="!item.private" class="sw-media-sidebar__quickaction quickaction--replace" @click="openModalReplace">
+                                <sw-icon small name="default-action-replace" class="sw-media-sidebar__quickactions-icon"> </sw-icon>
+                                {{ $tc('sw-media.sidebar.actions.replace') }}
+                            </li>
                             {% endblock %}
 
                             {% block sw_media_quickinfo_quickactions_download %}
@@ -56,6 +56,7 @@
 
                             {% block sw_media_quickinfo_quickactions_delete %}
                                 <li class="sw-media-sidebar__quickaction is--danger quickaction--delete"
+                                    v-if="!item.private"
                                     @click="openModalDelete">
 
                                     <sw-icon small name="default-action-trash" class="sw-media-sidebar__quickactions-icon is--danger"></sw-icon>

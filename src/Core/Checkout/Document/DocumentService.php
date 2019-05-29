@@ -4,13 +4,16 @@ namespace Shopware\Core\Checkout\Document;
 
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
+use Shopware\Core\Checkout\Document\DocumentGenerator\DocumentGeneratorInterface;
 use Shopware\Core\Checkout\Document\DocumentGenerator\DocumentGeneratorRegistry;
 use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentGeneratorTypeException;
 use Shopware\Core\Checkout\Document\Exception\InvalidFileGeneratorTypeException;
+use Shopware\Core\Checkout\Document\FileGenerator\FileGeneratorInterface;
 use Shopware\Core\Checkout\Document\FileGenerator\FileGeneratorRegistry;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
+use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -20,10 +23,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class DocumentService
 {
     public const VERSION_NAME = 'document';
+
+    public const SYSTEM_CONFIG_SAVE_TO_FS = 'core.saveDocuments';
 
     /**
      * @var DocumentGeneratorRegistry
@@ -55,13 +61,25 @@ class DocumentService
      */
     private $documentConfigRepository;
 
+    /**
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
+
+    /**
+     * @var MediaService
+     */
+    private $mediaService;
+
     public function __construct(
         DocumentGeneratorRegistry $documentGeneratorRegistry,
         FileGeneratorRegistry $fileGeneratorRegistry,
         EntityRepositoryInterface $orderRepository,
         EntityRepositoryInterface $documentRepository,
         EntityRepositoryInterface $documentTypeRepository,
-        EntityRepositoryInterface $documentConfigRepository
+        EntityRepositoryInterface $documentConfigRepository,
+        SystemConfigService $systemConfigService,
+        MediaService $mediaService
     ) {
         $this->documentGeneratorRegistry = $documentGeneratorRegistry;
         $this->fileGeneratorRegistry = $fileGeneratorRegistry;
@@ -69,6 +87,8 @@ class DocumentService
         $this->documentRepository = $documentRepository;
         $this->documentTypeRepository = $documentTypeRepository;
         $this->documentConfigRepository = $documentConfigRepository;
+        $this->systemConfigService = $systemConfigService;
+        $this->mediaService = $mediaService;
     }
 
     public function create(
@@ -134,28 +154,27 @@ class DocumentService
         return new DocumentIdStruct($documentId, $deepLinkCode);
     }
 
-    public function generate(DocumentEntity $document, Context $context): GeneratedDocument
+    public function getDocument(DocumentEntity $document, Context $context, bool $regenerate = false): GeneratedDocument
     {
-        $documentGenerator = $this->documentGeneratorRegistry->getGenerator($document->getDocumentType()->getTechnicalName());
+        $config = DocumentConfigurationFactory::createConfiguration($document->getConfig());
         $fileGenerator = $this->fileGeneratorRegistry->getGenerator($document->getFileType());
 
-        $this->validateVersion($document->getOrderVersionId());
-
-        $order = $this->getOrderById($document->getOrderId(), $document->getOrderVersionId(), $context);
-
-        if (!$order) {
-            throw new InvalidOrderException($document->getOrderId());
-        }
-
-        $config = DocumentConfigurationFactory::createConfiguration($document->getConfig());
-
         $generatedDocument = new GeneratedDocument();
-        $generatedDocument->setHtml($documentGenerator->generate($order, $config, $context));
-        $generatedDocument->setFilename($documentGenerator->getFileName($config) . '.' . $fileGenerator->getExtension());
         $generatedDocument->setPageOrientation($config->getPageOrientation());
         $generatedDocument->setPageSize($config->getPageSize());
-        $generatedDocument->setFileBlob($fileGenerator->generate($generatedDocument));
         $generatedDocument->setContentType($fileGenerator->getContentType());
+
+        if (($regenerate === true || !$this->hasValidFile($document)) && !$document->isStatic()) {
+            $this->regenerateDocument($document, $context, $generatedDocument, $config, $fileGenerator);
+        } else {
+            $generatedDocument->setFilename($document->getDocumentMediaFile()->getFileName());
+            $fileBlob = '';
+            $mediaService = $this->mediaService;
+            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($mediaService, $document, &$fileBlob) {
+                $fileBlob = $mediaService->loadFile($document->getDocumentMediaFileId(), $context);
+            });
+            $generatedDocument->setFileBlob($fileBlob);
+        }
 
         return $generatedDocument;
     }
@@ -190,7 +209,9 @@ class DocumentService
 
         $generatedDocument = new GeneratedDocument();
         $generatedDocument->setHtml($documentGenerator->generate($order, $documentConfiguration, $context));
-        $generatedDocument->setFilename($documentGenerator->getFileName($config) . '.' . $fileGenerator->getExtension());
+        $generatedDocument->setFilename(
+            $documentGenerator->getFileName($config) . '.' . $fileGenerator->getExtension()
+        );
         $generatedDocument->setPageOrientation($config->getPageOrientation());
         $generatedDocument->setPageSize($config->getPageSize());
         $generatedDocument->setFileBlob($fileGenerator->generate($generatedDocument));
@@ -199,18 +220,19 @@ class DocumentService
         return $generatedDocument;
     }
 
+    private function hasValidFile(DocumentEntity $document): bool
+    {
+        return $document->getDocumentMediaFile() !== null && $document->getDocumentMediaFile()->getFileName() !== null;
+    }
+
     private function getOrderByIdAndToken(
         string $orderId,
         string $deepLinkCode,
         string $versionId,
         Context $context
     ): ?OrderEntity {
-        $criteria = (new Criteria([$orderId]))
-            ->addFilter(new EqualsFilter('deepLinkCode', $deepLinkCode))
-            ->addAssociation('lineItems')
-            ->addAssociation('transactions')
-            ->addAssociation('addresses')
-            ->addAssociation('deliveries', (new Criteria())->addAssociation('positions'));
+        $criteria = $this->getOrderBaseCriteria($orderId);
+        $criteria->addFilter(new EqualsFilter('deepLinkCode', $deepLinkCode));
 
         return $this->orderRepository->search($criteria, $context->createWithVersionId($versionId))->get($orderId);
     }
@@ -220,11 +242,7 @@ class DocumentService
         string $versionId,
         Context $context
     ): ?OrderEntity {
-        $criteria = (new Criteria([$orderId]))
-            ->addAssociation('lineItems')
-            ->addAssociation('transactions')
-            ->addAssociation('addresses')
-            ->addAssociation('deliveries', (new Criteria())->addAssociation('positions'));
+        $criteria = $this->getOrderBaseCriteria($orderId);
 
         return $this->orderRepository->search($criteria, $context->createWithVersionId($versionId))->get($orderId);
     }
@@ -244,8 +262,11 @@ class DocumentService
         }
     }
 
-    private function getConfiguration(Context $context, string $documentTypeId, ?array $specificConfiguration): DocumentConfiguration
-    {
+    private function getConfiguration(
+        Context $context,
+        string $documentTypeId,
+        ?array $specificConfiguration
+    ): DocumentConfiguration {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('documentTypeId', $documentTypeId));
         /** @var DocumentBaseConfigEntity $typeConfig */
@@ -290,5 +311,91 @@ class DocumentService
         }
 
         return $referencedDocument->getOrderVersionId();
+    }
+
+    private function saveDocumentFile(
+        DocumentEntity $document,
+        Context $context,
+        string $fileBlob,
+        FileGeneratorInterface $fileGenerator,
+        DocumentGeneratorInterface $documentGenerator,
+        DocumentConfiguration $config
+    ): void {
+        try {
+            $mediaService = $this->mediaService;
+            $mediaId = null;
+            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use (
+                $mediaService,
+                $fileBlob,
+                $fileGenerator,
+                $documentGenerator,
+                $document,
+                $config,
+                &$mediaId
+            ) {
+                $mediaId = $mediaService->saveFile(
+                    $fileBlob,
+                    $fileGenerator->getExtension(),
+                    $fileGenerator->getContentType(),
+                    $documentGenerator->getFileName($config),
+                    $context,
+                    'document',
+                    $document->getDocumentMediaFileId()
+                );
+            });
+
+            if ($document->getDocumentMediaFileId() === null) {
+                $document->setDocumentMediaFileId($mediaId);
+                $this->documentRepository->update(
+                    [
+                        [
+                            'id' => $document->getId(),
+                            'documentMediaFileId' => $document->getDocumentMediaFileId(),
+                        ],
+                    ],
+                    $context
+                );
+            }
+        } catch (\Exception $e) {
+            $document->setDocumentMediaFileId(null);
+        }
+    }
+
+    private function regenerateDocument(
+        DocumentEntity $document,
+        Context $context,
+        GeneratedDocument $generatedDocument,
+        DocumentConfiguration $config,
+        FileGeneratorInterface $fileGenerator
+    ): void {
+        $documentGenerator = $this->documentGeneratorRegistry->getGenerator(
+            $document->getDocumentType()->getTechnicalName()
+        );
+        $this->validateVersion($document->getOrderVersionId());
+
+        $order = $this->getOrderById($document->getOrderId(), $document->getOrderVersionId(), $context);
+
+        if (!$order) {
+            throw new InvalidOrderException($document->getOrderId());
+        }
+
+        $generatedDocument->setHtml($documentGenerator->generate($order, $config, $context));
+        $generatedDocument->setFilename($documentGenerator->getFileName($config) . '.' . $fileGenerator->getExtension());
+        $fileBlob = $fileGenerator->generate($generatedDocument);
+        $generatedDocument->setFileBlob($fileBlob);
+        if ($this->systemConfigService->get(self::SYSTEM_CONFIG_SAVE_TO_FS) === true) {
+            $this->saveDocumentFile($document, $context, $fileBlob, $fileGenerator, $documentGenerator, $config);
+        }
+    }
+
+    private function getOrderBaseCriteria(string $orderId): Criteria
+    {
+        $criteria = (new Criteria([$orderId]))
+            ->addAssociation('lineItems')
+            ->addAssociation('transactions')
+            ->addAssociation('addresses')
+            ->addAssociation('deliveries', (new Criteria())->addAssociation('positions'));
+
+        return $criteria;
     }
 }

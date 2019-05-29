@@ -20,6 +20,7 @@
 
                             {% block sw_media_quickinfo_multiple_quickactions_delete %}
                                 <li class="sw-media-sidebar__quickaction is--danger"
+                                    v-if="!isPrivate"
                                     @click="openModalDelete">
 
                                     <sw-icon small name="default-action-trash" class="sw-media-sidebar__quickactions-icon is--danger"></sw-icon>

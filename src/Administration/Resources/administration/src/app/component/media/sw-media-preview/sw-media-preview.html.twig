@@ -12,6 +12,7 @@
                          :sizes="`${width}px`"
                          @error="showEvent">
                     <sw-icon v-else class="sw-media-preview__item" name="multicolor-file-thumbnail-broken" multicolor></sw-icon>
+                    <sw-icon v-if="mediaIsPrivate" class="sw-media-preview__locked-icon sw-icon--small" name="default-lock-closed" multicolor></sw-icon>
                 {% endblock %}
             </template>
 
@@ -27,6 +28,7 @@
                     <button class="sw-media-preview__play-button" v-if="!showControls" @click="onPlayClick">
                         <sw-icon class="sw-media-preview__play-icon" name="multicolor-action-play" multicolor></sw-icon>
                     </button>
+                    <sw-icon v-if="mediaIsPrivate" class="sw-media-preview__locked-icon sw-icon--small" name="default-lock-closed" multicolor></sw-icon>
                 {% endblock %}
             </template>
 
@@ -47,6 +49,7 @@
                     <button class="sw-media-preview__play-button" v-if="!showControls" @click="onPlayClick">
                         <sw-icon class="sw-media-preview__play-icon" name="multicolor-action-play" multicolor></sw-icon>
                     </button>
+                    <sw-icon v-if="mediaIsPrivate" class="sw-media-preview__locked-icon sw-icon--small" name="default-lock-closed" multicolor></sw-icon>
                 {% endblock %}
             </template>
 
@@ -61,6 +64,7 @@
                              multicolor>
                     </sw-icon>
                 {% endblock %}
+                <sw-icon v-if="mediaIsPrivate" class="sw-media-preview__locked-icon sw-icon--small" name="default-lock-closed" multicolor></sw-icon>
             </template>
         {% endblock %}
     </div>

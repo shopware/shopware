@@ -71,6 +71,7 @@
                                     {{ $tc('sw-order.documentCard.labelDownloadPdf') }}
                                 </sw-context-menu-item>
                             </sw-context-button>
+                            <sw-icon v-if="item.static" class="sw-order-document-card__static-icon sw-icon--small" name="default-web-link" multicolor></sw-icon>
                         </sw-grid-column>
                     {% endblock %}
                 </template>

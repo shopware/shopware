@@ -3,14 +3,23 @@
 namespace Shopware\Core\Content\Test\Media\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
+use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\StateMachine\StateMachineRegistry;
 
 class MediaRepositoryDecoratorTest extends TestCase
 {
@@ -25,6 +34,16 @@ class MediaRepositoryDecoratorTest extends TestCase
     private $mediaRepository;
 
     /**
+     * @var EntityRepositoryInterface
+     */
+    private $documentRepository;
+
+    /**
+     * @var StateMachineRegistry
+     */
+    private $stateMachineRegistry;
+
+    /**
      * @var Context
      */
     private $context;
@@ -32,7 +51,129 @@ class MediaRepositoryDecoratorTest extends TestCase
     protected function setUp(): void
     {
         $this->mediaRepository = $this->getContainer()->get('media.repository');
+        $this->documentRepository = $this->getContainer()->get('document.repository');
         $this->context = Context::createDefaultContext();
+        $this->stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);
+    }
+
+    public function testPrivateMediaNotReadable(): void
+    {
+        $mediaId = Uuid::randomHex();
+
+        $this->mediaRepository->create(
+            [
+                [
+                    'id' => $mediaId,
+                    'name' => 'test media',
+                    'mimeType' => 'image/png',
+                    'fileExtension' => 'png',
+                    'fileName' => $mediaId . '-' . (new \DateTime())->getTimestamp(),
+                    'private' => true,
+                ],
+            ],
+            $this->context
+        );
+        $mediaRepository = $this->mediaRepository;
+        $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($mediaId, &$media, $mediaRepository) {
+            $media = $mediaRepository->search(new Criteria([$mediaId]), $this->context);
+        });
+
+        static::assertEquals(0, $media->count());
+    }
+
+    public function testPrivateMediaReadableThroughAssociation(): void
+    {
+        $documentId = Uuid::randomHex();
+        $documentTypeId = Uuid::randomHex();
+        $mediaId = Uuid::randomHex();
+        $orderId = Uuid::randomHex();
+        $folderId = Uuid::randomHex();
+        $configId = Uuid::randomHex();
+
+        $this->documentRepository->create(
+            [
+                [
+                    'documentType' => [
+                        'id' => $documentTypeId,
+                        'technicalName' => 'testType',
+                        'name' => 'test',
+                    ],
+                    'id' => $documentId,
+                    'order' => $this->getOrderData($orderId, $this->context),
+                    'fileType' => 'pdf',
+                    'deepLinkCode' => 'deeplink',
+
+                    'documentMediaFile' => [
+                        'thumbnails' => [
+                            [
+                                'id' => Uuid::randomHex(),
+                                'width' => 100,
+                                'height' => 200,
+                                'highDpi' => true,
+                            ],
+                        ],
+                        'mediaFolder' => [
+                            'id' => $folderId,
+                            'name' => 'testFolder',
+                            'configuration' => [
+                                'id' => $configId,
+                                'private' => true,
+                            ],
+                        ],
+
+                        'id' => $mediaId,
+                        'name' => 'test media',
+                        'mimeType' => 'image/png',
+                        'fileExtension' => 'png',
+                        'fileName' => $mediaId . '-' . (new \DateTime())->getTimestamp(),
+                        'private' => true,
+                    ],
+                ],
+            ],
+            $this->context
+        );
+        $mediaRepository = $this->mediaRepository;
+        $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($mediaId, &$media, $mediaRepository) {
+            $media = $mediaRepository->search(new Criteria([$mediaId]), $context);
+        });
+
+        static::assertEquals(0, $media->count());
+
+        $documentRepository = $this->documentRepository;
+        $this->context->scope(Context::USER_SCOPE, function (Context $context) use (&$document, $documentId, $documentRepository) {
+            $criteria = new Criteria([$documentId]);
+            $criteria->addAssociation('documentMediaFile');
+            $document = $documentRepository->search($criteria, $context);
+        });
+        static::assertEquals(1, $document->count());
+        static::assertEquals($mediaId, $document->get($documentId)->getDocumentMediaFile()->getId());
+        static::assertEquals('', $document->get($documentId)->getDocumentMediaFile()->getUrl());
+        // currently there shouldn't be loaded any thumdnails for private media, but if, the urls should be blank
+        foreach ($document->get($documentId)->getDocumentMediaFile()->getThumbnails() as $thumbnail) {
+            static::assertEquals('', $thumbnail->getUrl());
+        }
+    }
+
+    public function testPublicMediaIsReadable(): void
+    {
+        $mediaId = Uuid::randomHex();
+
+        $this->mediaRepository->create(
+            [
+                [
+                    'id' => $mediaId,
+                    'name' => 'test media',
+                    'mimeType' => 'image/png',
+                    'fileExtension' => 'png',
+                    'fileName' => $mediaId . '-' . (new \DateTime())->getTimestamp(),
+                    'private' => false,
+                ],
+            ],
+            $this->context
+        );
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
+
+        static::assertEquals($mediaId, $media->getId());
     }
 
     public function testDeleteMediaEntityWithoutThumbnails(): void
@@ -212,5 +353,127 @@ class MediaRepositoryDecoratorTest extends TestCase
 
         static::assertCount(1, $event->getEventByDefinition(MediaDefinition::class)->getIds());
         static::assertEquals($firstId, $event->getEventByDefinition(MediaDefinition::class)->getIds()[0]);
+    }
+
+    private function getOrderData($orderId, $context): array
+    {
+        $addressId = Uuid::randomHex();
+        $orderLineItemId = Uuid::randomHex();
+        $countryStateId = Uuid::randomHex();
+        $salutation = $this->getValidSalutationId();
+
+        $order
+            = [
+                'id' => $orderId,
+                'orderDate' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+                'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
+                'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                'stateId' => $this->stateMachineRegistry->getInitialState(OrderStates::STATE_MACHINE, $context)->getId(),
+                'paymentMethodId' => $this->getValidPaymentMethodId(),
+                'currencyId' => Defaults::CURRENCY,
+                'currencyFactor' => 1,
+                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'deliveries' => [
+                    [
+                        'stateId' => $this->stateMachineRegistry->getInitialState(OrderDeliveryStates::STATE_MACHINE, $context)->getId(),
+                        'shippingMethodId' => $this->getValidShippingMethodId(),
+                        'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                        'shippingDateEarliest' => date(DATE_ISO8601),
+                        'shippingDateLatest' => date(DATE_ISO8601),
+                        'shippingOrderAddress' => [
+                            'salutationId' => $salutation,
+                            'firstName' => 'Floy',
+                            'lastName' => 'Glover',
+                            'zipcode' => '59438-0403',
+                            'city' => 'Stellaberg',
+                            'street' => 'street',
+                            'country' => [
+                                'name' => 'kasachstan',
+                                'id' => $this->getValidCountryId(),
+                            ],
+                        ],
+                        'positions' => [
+                            [
+                                'price' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                                'orderLineItemId' => $orderLineItemId,
+                            ],
+                        ],
+                    ],
+                ],
+                'lineItems' => [
+                    [
+                        'id' => $orderLineItemId,
+                        'identifier' => 'test',
+                        'quantity' => 1,
+                        'type' => 'test',
+                        'label' => 'test',
+                        'price' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                        'priceDefinition' => new QuantityPriceDefinition(10, new TaxRuleCollection(), 2),
+                        'good' => true,
+                    ],
+                ],
+                'deepLinkCode' => 'BwvdEInxOHBbwfRw6oHF1Q_orfYeo9RY',
+                'orderCustomer' => [
+                    'email' => 'test@example.com',
+                    'firstName' => 'Noe',
+                    'lastName' => 'Hill',
+                    'salutationId' => $salutation,
+                    'title' => 'Doc',
+                    'customerNumber' => 'Test',
+                    'customer' => [
+                        'email' => 'test@example.com',
+                        'firstName' => 'Noe',
+                        'lastName' => 'Hill',
+                        'salutationId' => $salutation,
+                        'title' => 'Doc',
+                        'customerNumber' => 'Test',
+                        'guest' => true,
+                        'group' => ['name' => 'testse2323'],
+                        'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
+                        'salesChannelId' => Defaults::SALES_CHANNEL,
+                        'defaultBillingAddressId' => $addressId,
+                        'defaultShippingAddressId' => $addressId,
+                        'addresses' => [
+                            [
+                                'id' => $addressId,
+                                'salutationId' => $salutation,
+                                'firstName' => 'Floy',
+                                'lastName' => 'Glover',
+                                'zipcode' => '59438-0403',
+                                'city' => 'Stellaberg',
+                                'street' => 'street',
+                                'countryStateId' => $countryStateId,
+                                'country' => [
+                                    'name' => 'kasachstan',
+                                    'id' => $this->getValidCountryId(),
+                                    'states' => [
+                                        [
+                                            'id' => $countryStateId,
+                                            'name' => 'oklahoma',
+                                            'shortCode' => 'OH',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                'billingAddressId' => $addressId,
+                'addresses' => [
+                    [
+                        'salutationId' => $salutation,
+                        'firstName' => 'Floy',
+                        'lastName' => 'Glover',
+                        'zipcode' => '59438-0403',
+                        'city' => 'Stellaberg',
+                        'street' => 'street',
+                        'countryId' => $this->getValidCountryId(),
+                        'id' => $addressId,
+                    ],
+                ],
+            ]
+        ;
+
+        return $order;
     }
 }

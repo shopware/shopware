@@ -428,6 +428,7 @@ class FileSaverTest extends TestCase
         $fileSaverWithFailingRepository = new FileSaver(
             $repositoryMock,
             $this->getContainer()->get('shopware.filesystem.public'),
+            $this->getContainer()->get('shopware.filesystem.private'),
             $this->getContainer()->get(UrlGeneratorInterface::class),
             $this->getContainer()->get(ThumbnailService::class),
             $this->getContainer()->get(MetadataLoader::class),

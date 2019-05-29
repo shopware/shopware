@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Document;
 
 use Doctrine\DBAL\Connection;
+use League\Flysystem\FilesystemInterface;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -19,6 +20,7 @@ use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator;
@@ -27,6 +29,9 @@ use Shopware\Core\Checkout\Document\DocumentGenerator\StornoGenerator;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Shopware\Core\Content\Media\MediaType\BinaryType;
+use Shopware\Core\Content\Media\Pathname\UrlGenerator;
+use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -39,6 +44,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Smalot\PdfParser\Parser;
 
 class DocumentServiceTest extends TestCase
@@ -151,6 +157,116 @@ class DocumentServiceTest extends TestCase
         static::assertSame($storno->getOrderVersionId(), $invoice->getOrderVersionId());
     }
 
+    public function testCreateFileIsWrittenInFs(): void
+    {
+        /** @var SystemConfigService $systemConfigService */
+        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+
+        $systemConfigService->set(DocumentService::SYSTEM_CONFIG_SAVE_TO_FS, true);
+
+        /** @var FilesystemInterface $fileSystem */
+        $fileSystem = $this->getContainer()->get('shopware.filesystem.private');
+        $document = $this->createDocumentWithFile();
+
+        /** @var UrlGenerator $urlGenerator */
+        $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
+
+        $filePath = $urlGenerator->getRelativeMediaUrl($document->getDocumentMediaFile());
+
+        static::assertTrue($fileSystem->has($filePath));
+        $fileSystem->delete($filePath);
+        static::assertFalse($fileSystem->has($filePath));
+    }
+
+    public function testCreateFileIsNotWrittenInFs(): void
+    {
+        /** @var SystemConfigService $systemConfigService */
+        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+
+        $systemConfigService->set(DocumentService::SYSTEM_CONFIG_SAVE_TO_FS, false);
+
+        $document = $this->createDocumentWithFile();
+
+        static::assertNull($document->getDocumentMediaFile());
+    }
+
+    public function testGetStaticDocumentFile(): void
+    {
+        /** @var DocumentService $documentService */
+        $documentService = $this->getContainer()->get(DocumentService::class);
+
+        $cart = $this->generateDemoCart(75);
+        $orderId = $this->persistCart($cart);
+
+        /** @var FilesystemInterface $fileSystem */
+        $fileSystem = $this->getContainer()->get('shopware.filesystem.private');
+
+        /** @var UrlGenerator $urlGenerator */
+        $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
+
+        $orderRepository = $this->getContainer()->get('order.repository');
+
+        $documentRepository = $this->getContainer()->get('document.repository');
+
+        $documentTypeRepository = $this->getContainer()->get('document_type.repository');
+
+        $orderVersionId = $orderRepository->createVersion($orderId, $this->context, DocumentService::VERSION_NAME);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('technicalName', DeliveryNoteGenerator::DELIVERY_NOTE));
+
+        /** @var DocumentTypeEntity $documentType */
+        $documentType = $documentTypeRepository->search($criteria, $this->context)->first();
+
+        /** @var SystemConfigService $systemConfigService */
+        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+
+        $systemConfigService->set(DocumentService::SYSTEM_CONFIG_SAVE_TO_FS, true);
+
+        $documentId = Uuid::randomHex();
+        $mediaId = Uuid::randomHex();
+        $documentRepository->create([
+            [
+                'id' => $documentId,
+                'documentTypeId' => $documentType->getId(),
+                'fileType' => FileTypes::PDF,
+                'orderId' => $orderId,
+                'orderVersionId' => $orderVersionId,
+                'config' => ['documentNumber' => '1001'],
+                'deepLinkCode' => 'dfr',
+                'static' => true,
+                'documentMediaFile' => [
+                    'id' => $mediaId,
+                    'mimeType' => 'plain/txt',
+                    'fileExtension' => 'txt',
+                    'fileName' => 'textFileWithExtension',
+                    'fileSize' => 1024,
+                    'private' => true,
+                    'mediaType' => new BinaryType(),
+                    'uploadedAt' => new \DateTime('2011-01-01T15:03:01.012345Z'),
+                ],
+            ],
+        ],
+            $this->context
+        );
+
+        $documentRepository = $this->getContainer()->get('document.repository');
+        $criteria = new Criteria([$documentId]);
+        $criteria->addAssociation('documentMediaFile');
+        /** @var DocumentEntity $document */
+        $document = $documentRepository->search($criteria, $this->context)->get($documentId);
+
+        $filePath = $urlGenerator->getRelativeMediaUrl($document->getDocumentMediaFile());
+
+        $fileSystem->put($filePath, 'test123');
+
+        static::assertTrue($fileSystem->has($filePath));
+
+        $generatedDocument = $documentService->getDocument($document, $this->context);
+
+        static::assertEquals('test123', $generatedDocument->getFileBlob());
+    }
+
     public function testGetInvoicePdfDocumentById(): void
     {
         /** @var DocumentService $documentService */
@@ -167,19 +283,22 @@ class DocumentServiceTest extends TestCase
             $this->context
         );
 
+        $documentId = $document->getId();
+
         $criteria = new Criteria();
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
             new EqualsFilter('id', $document->getId()),
             new EqualsFilter('deepLinkCode', $document->getDeepLinkCode()),
         ]));
+        /** @var EntityRepositoryInterface $documentRepository */
         $documentRepository = $this->getContainer()->get('document.repository');
-        $document = $documentRepository->search($criteria, $this->context)->get($document->getId());
+        $document = $documentRepository->search($criteria, $this->context)->first();
 
         if (!$document) {
             throw new InvalidDocumentException($documentId);
         }
 
-        $renderedDocument = $documentService->generate($document, $this->context);
+        $renderedDocument = $documentService->getDocument($document, $this->context);
 
         $parser = new Parser();
         $parsedDocument = $parser->parseContent($renderedDocument->getFileBlob());
@@ -288,5 +407,37 @@ class DocumentServiceTest extends TestCase
         $criteria = (new Criteria())->setLimit(1);
 
         return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+    }
+
+    private function createDocumentWithFile(): DocumentEntity
+    {
+        /** @var DocumentService $documentService */
+        $documentService = $this->getContainer()->get(DocumentService::class);
+
+        $cart = $this->generateDemoCart(75);
+        $orderId = $this->persistCart($cart);
+
+        $documentStruct = $documentService->create(
+            $orderId,
+            DeliveryNoteGenerator::DELIVERY_NOTE,
+            FileTypes::PDF,
+            new DocumentConfiguration(),
+            $this->context
+        );
+
+        static::assertTrue(Uuid::isValid($documentStruct->getId()));
+
+        $documentRepository = $this->getContainer()->get('document.repository');
+        $criteria = new Criteria([$documentStruct->getId()]);
+        $criteria->addAssociation('documentMediaFile');
+        /** @var DocumentEntity $document */
+        $document = $documentRepository->search($criteria, $this->context)->get($documentStruct->getId());
+
+        $documentService->getDocument($document, $this->context);
+
+        /** @var DocumentEntity $document */
+        $document = $documentRepository->search($criteria, $this->context)->get($documentStruct->getId());
+
+        return $document;
     }
 }

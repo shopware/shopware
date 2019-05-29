@@ -60,6 +60,20 @@ Mixin.register('media-sidebar-modal-mixin', {
             });
         },
 
+        hideSelectedItems(deletePromise) {
+            this.closeModalHide();
+            deletePromise.then((ids) => {
+                this.$emit('media-sidebar-items-hide', ids);
+            });
+        },
+
+        unhideSelectedItems(deletePromise) {
+            this.closeModalUnhide();
+            deletePromise.then((ids) => {
+                this.$emit('media-sidebar-items-unhide', ids);
+            });
+        },
+
         onFolderDissolved(dissolvePromise) {
             this.closeFolderDissolve();
             dissolvePromise.then((ids) => {

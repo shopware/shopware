@@ -8,7 +8,8 @@
             <template #preview="{ item }">
                 <sw-media-preview
                     :source="item.id"
-                    @media-preview-play="emitPlayEvent($event, item)">
+                    @media-preview-play="emitPlayEvent($event, item)"
+                    :mediaIsPrivate="item.private">
                 </sw-media-preview>
             </template>
         {% endblock %}
@@ -53,7 +54,7 @@
                 {% block sw_media_media_item_context_group_quick_actions %}
                     <div :class="defaultContextMenuClass">
                         {% block sw_media_media_item_context_item_rename_item %}
-                            <sw-context-menu-item v-if="item.hasFile" @click="startInlineEdit">
+                            <sw-context-menu-item :disabled="!item.hasFile || item.private" @click="startInlineEdit">
                                 {{ $tc('global.sw-media-media-item.labelContextMenuRename') }}
                             </sw-context-menu-item>
                         {% endblock %}
@@ -65,7 +66,7 @@
                         {% endblock %}
 
                         {% block sw_media_media_item_context_item_replace %}
-                            <sw-context-menu-item class="sw-media-context-item__replace-media-action"  @click="openModalReplace">
+                            <sw-context-menu-item :disabled="item.private" class="sw-media-context-item__replace-media-action"  @click="openModalReplace">
                                 {{ $tc('global.sw-media-media-item.labelContextMenuReplace') }}
                             </sw-context-menu-item>
                         {% endblock %}
@@ -77,10 +78,11 @@
                         {% endblock %}
 
                         {% block sw_media_media_item_context_item_delete %}
-                            <sw-context-menu-item @click="openModalDelete" variant="danger">
+                            <sw-context-menu-item :disabled="item.private" @click="openModalDelete" variant="danger">
                                 {{ $tc('global.sw-media-media-item.labelContextMenuDelete') }}
                             </sw-context-menu-item>
                         {% endblock %}
+
                     </div>
                 {% endblock %}
             </template>

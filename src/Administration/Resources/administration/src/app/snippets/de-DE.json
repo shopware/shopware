@@ -299,6 +299,7 @@
     },
     "sw-media-modal-folder-settings": {
       "labelSettings": "Einstellungen",
+      "labelSystem": "Systemordner",
       "labelThumbnails": "Thumbnails",
       "labelFolderName": "Name",
       "labelInheritSettings": "Einstellungen vom überliegenden Ordner übernehmen",
@@ -450,6 +451,7 @@
       "cart": "Warenkorb | Warenkörbe",
       "category": "Kategorie | Kategorien",
       "cms_page": "Seite | Seiten",
+      "document": "Dokument | Dokumente",
       "property": "Eigenschaft | Eigenschaften",
       "country": "Land | Länder",
       "currency": "Währung | Währungen",

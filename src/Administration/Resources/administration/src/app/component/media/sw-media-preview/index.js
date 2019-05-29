@@ -73,6 +73,12 @@ export default {
             type: Boolean,
             required: false,
             default: true
+        },
+
+        mediaIsPrivate: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

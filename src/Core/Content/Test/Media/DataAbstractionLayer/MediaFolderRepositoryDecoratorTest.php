@@ -40,6 +40,48 @@ class MediaFolderRepositoryDecoratorTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
+    public function testPrivateFolderNotReadable(): void
+    {
+        $folderId = Uuid::randomHex();
+        $configId = Uuid::randomHex();
+
+        $this->folderRepository->create([
+            [
+                'id' => $folderId,
+                'name' => 'testFolder',
+                'configuration' => [
+                    'id' => $configId,
+                    'private' => true,
+                ],
+            ],
+        ], $this->context);
+
+        $folderRepository = $this->folderRepository;
+        $this->context->scope(Context::USER_SCOPE, function (Context $context) use (&$media, $folderId, $folderRepository) {
+            $media = $folderRepository->search(new Criteria([$folderId]), $context);
+        });
+
+        static::assertEquals(0, $media->count());
+    }
+
+    public function testFolderWithoutConfigIsReadable(): void
+    {
+        $folderId = Uuid::randomHex();
+        $configId = Uuid::randomHex();
+
+        $this->folderRepository->create([
+            [
+                'id' => $folderId,
+                'name' => 'testFolder',
+                'configurationId' => $configId,
+            ],
+        ], $this->context);
+
+        $media = $this->folderRepository->search(new Criteria([$folderId]), $this->context);
+
+        static::assertEquals(1, $media->count());
+    }
+
     public function testDeleteFolderAlsoDeletesMedia(): void
     {
         $folderId = Uuid::randomHex();

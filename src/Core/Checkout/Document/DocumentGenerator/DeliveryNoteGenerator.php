@@ -62,6 +62,6 @@ class DeliveryNoteGenerator implements DocumentGeneratorInterface
 
     public function getFileName(DocumentConfiguration $config): string
     {
-        return $config->getFileNamePrefix() . $config->getDocumentNumber() . $config->getFileNameSuffix();
+        return $config->getFilenamePrefix() . $config->getDocumentNumber() . $config->getFilenameSuffix();
     }
 }

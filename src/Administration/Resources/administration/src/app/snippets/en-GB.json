@@ -295,6 +295,7 @@
     },
     "sw-media-modal-folder-settings": {
       "labelSettings": "Settings",
+      "labelSystem": "System folder",
       "labelThumbnails": "Thumbnails",
       "labelFolderName": "Name",
       "labelInheritSettings": "Inherit settings from parent folder",
@@ -446,6 +447,7 @@
       "cart": "Cart | Carts",
       "category": "Category | Categories",
       "cms_page": "Page | Pages",
+      "document": "Document | Documents",
       "property": "Property | Properties",
       "country": "Country | Countries",
       "currency": "Currency | Currencies",

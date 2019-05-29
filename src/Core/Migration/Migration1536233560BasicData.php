@@ -930,6 +930,7 @@ class Migration1536233560BasicData extends MigrationStep
         $queue->addInsert('media_default_folder', ['id' => Uuid::randomBytes(), 'association_fields' => '["mailTemplateMedia"]', 'entity' => 'mail_template', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);
         $queue->addInsert('media_default_folder', ['id' => Uuid::randomBytes(), 'association_fields' => '["categories"]', 'entity' => 'category', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);
         $queue->addInsert('media_default_folder', ['id' => Uuid::randomBytes(), 'association_fields' => '[]', 'entity' => 'cms_page', 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
+        $queue->addInsert('media_default_folder', ['id' => Uuid::randomBytes(), 'association_fields' => '["documents"]', 'entity' => 'document', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);
         $queue->execute();
 
         $notCreatedDefaultFolders = $connection->executeQuery('
@@ -954,13 +955,17 @@ class Migration1536233560BasicData extends MigrationStep
             $configurationId = Uuid::randomBytes();
             $folderId = Uuid::randomBytes();
             $folderName = $this->getMediaFolderName($entity);
-
+            $private = 0;
+            if ($entity === 'document') {
+                $private = 1;
+            }
             $connection->executeUpdate('
-                INSERT INTO `media_folder_configuration` (`id`, `thumbnail_quality`, `create_thumbnails`, created_at)
-                VALUES (:id, 80, 1, :createdAt)
+                INSERT INTO `media_folder_configuration` (`id`, `thumbnail_quality`, `create_thumbnails`, `private`, created_at)
+                VALUES (:id, 80, 1, :private, :createdAt)
             ', [
                 'id' => $configurationId,
                 'createdAt' => date(Defaults::STORAGE_DATE_FORMAT),
+                'private' => $private,
             ]);
 
             $connection->executeUpdate('
@@ -1368,6 +1373,13 @@ class Migration1536233560BasicData extends MigrationStep
             'id' => Uuid::randomBytes(),
             'configuration_key' => 'core.basicInformation.email',
             'configuration_value' => '{"_value": "doNotReply@localhost"}',
+            'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+        ]);
+
+        $connection->insert('system_config', [
+            'id' => Uuid::randomBytes(),
+            'configuration_key' => 'core.saveDocuments',
+            'configuration_value' => '{"_value": true}',
             'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
         ]);
     }

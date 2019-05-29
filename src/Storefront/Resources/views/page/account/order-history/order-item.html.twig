@@ -1,7 +1,4 @@
 {% block page_account_order_item_overview %}
-    {#TODO: NEXT-2695 - delivery admin configs not available#}
-    {% set orderDispatchName = order.deliveries.elements|first.shippingMethod.name %}
-
     <tr>
         {% block page_account_order_item_date %}
             <td class="col-12 col-md order-item order-item-date">
@@ -31,34 +28,36 @@
             </td>
         {% endblock %}
 
-        {% block page_account_order_item_dispatch %}
-            <td class="col-12 col-md order-item order-item-dispatch">
-                {% block page_account_order_item_dispatch_label %}
+        {% block page_account_order_item_payment_method %}
+            <td class="col-12 col-md order-item order-item-payment-method">
+                {% block page_account_order_item_payment_method_label %}
                     <strong
-                        class="order-item-label order-item-dispatch-label">{{ "account.orderItemColumnDispatch"|trans }}</strong>
+                        class="order-item-label order-item-payment-method-label">{{ "account.orderItemColumnPaymentMethod"|trans }}</strong>
                 {% endblock %}
 
-                {% block page_account_order_item_dispatch_value %}
-                    <span class="order-item-value order-item-dispatch-value">
-                        {% if orderDispatchName %}
-                            {{ orderDispatchName }}
-                        {% else %}
-                            {{ "account.orderInfoNoDispatch"|trans }}
-                        {% endif %}
+                {% block page_account_order_item_payment_method_value %}
+                    <span class="order-item-value order-item-payment-method-value">
+                        {% for transaction in order.transactions %}
+                            {% if not loop.first and loop.index > 1 %}, {% endif %}{{ transaction.paymentMethod.translated.name }}
+                        {% endfor %}
                     </span>
                 {% endblock %}
             </td>
         {% endblock %}
 
-        {% block page_account_order_item_status %}
-            <td class="col-12 col-md order-item order-item-status">
-                {% block page_account_order_item_status_label %}
+        {% block page_account_order_item_shipping_method %}
+            <td class="col-12 col-md order-item order-item-shipping-method">
+                {% block page_account_order_item_shipping_method_label %}
                     <strong
-                        class="order-item-label order-item-status-label">{{ "account.orderItemColumnStatus"|trans }}</strong>
+                        class="order-item-label order-item-shipping-method-label">{{ "account.orderItemColumnShippingMethod"|trans }}</strong>
                 {% endblock %}
 
-                {% block page_account_order_item_status_value %}
-                    <span class="order-item-value order-item-status-value">{{ order.stateMachineState.translated.name }}</span>
+                {% block page_account_order_item_shipping_method_value %}
+                    <span class="order-item-value order-item-shipping-method-value">
+                        {% for delivery in order.deliveries %}
+                            {% if not loop.first and loop.index > 1 %}, {% endif %}{{ delivery.shippingMethod.translated.name }}
+                        {% endfor %}
+                    </span>
                 {% endblock %}
             </td>
         {% endblock %}

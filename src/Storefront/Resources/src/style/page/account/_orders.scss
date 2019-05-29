@@ -16,7 +16,6 @@ td.order-item {
 }
 
 td.order-item-actions {
-    border-bottom: 1px solid $border-color;
     text-align: center;
 }
 
@@ -41,6 +40,7 @@ td.order-item-detail {
 }
 
 .order-detail-table {
+    border-top: 1px solid $border-color;
     margin: 0;
 }
 
@@ -49,7 +49,6 @@ td.order-item-detail {
 }
 
 .order-detail-table-body tr {
-    border-bottom: 1px solid $border-color;
     display: block;
     padding-bottom: $spacer-sm;
 }
@@ -58,16 +57,11 @@ td.order-item-detail {
     margin-top: $spacer-sm;
 }
 
-.order-detail-table-footer {
-    border-bottom: 1px solid $border-color;
-}
-
 .order-detail-table-footer tr {
     display: block;
 }
 
 td.order-item-detail-footer {
-    border-top: 0;
     display: block;
     padding-bottom: $spacer;
     padding-top: $spacer;
@@ -128,12 +122,18 @@ td.order-footer-paging {
 }
 
 @include media-breakpoint-down(sm) {
+    .order-table {
+        border-top: 0;
+    }
+
     td.order-item {
+        clear: both;
         padding-bottom: $spacer-xs;
         padding-top: $spacer-xs;
     }
 
     td.order-item-date {
+        border-top: 1px solid $border-color;
         padding-top: $spacer;
     }
 
@@ -153,8 +153,7 @@ td.order-footer-paging {
     }
 
     thead.order-table-header th {
-        border-top: 0;
-        border-bottom-width: 1px;
+        border: 0;
     }
 
     .order-table-body tr {
@@ -162,7 +161,7 @@ td.order-footer-paging {
     }
 
     td.order-item {
-        border-bottom: 1px solid $border-color;
+        border-top: 1px solid $border-color;
     }
 
     td.order-item-actions {
@@ -178,8 +177,12 @@ td.order-footer-paging {
         border-bottom-width: 1px;
     }
 
-    .order-detail-table tr {
-        display: flex;
+    .order-detail-table {
+        border-top: 0;
+
+        tr {
+            display: flex;
+        }
     }
 
     .order-header-price,
@@ -193,7 +196,6 @@ td.order-footer-paging {
     }
 
     .order-detail-table-body tr {
-        border: 0;
         display: flex;
         padding: 0;
     }
@@ -205,6 +207,10 @@ td.order-footer-paging {
     td.order-item-price,
     td.order-item-total {
         text-align: right;
+    }
+
+    td.order-item-detail-footer {
+        border-bottom: 0;
     }
 
     .order-detail-table-footer tr {

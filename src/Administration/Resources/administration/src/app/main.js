@@ -16,9 +16,8 @@ import StateStyleService from 'src/app/service/state-style.service';
 import CustomFieldService from 'src/app/service/custom-field.service';
 import SearchTypeService from 'src/app/service/search-type.service';
 import LocaleToLanguageService from 'src/app/service/locale-to-language.service';
-import 'src/app/decorator/condition-type-data-provider';
-import 'src/app/decorator/state-styling-provider';
 import addPluginUpdatesListener from 'src/core/service/plugin-updates-listener.service';
+import 'src/app/decorator';
 
 /** Import global styles */
 import 'src/app/assets/scss/all.scss';

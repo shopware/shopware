@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
 use Shopware\Core\Kernel;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class PluginConfigDumper implements EventSubscriberInterface
+class BundleConfigDumper implements EventSubscriberInterface
 {
     /**
      * @var Kernel

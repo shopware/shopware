@@ -11,11 +11,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 class BundleDumpCommand extends Command
 {
     /**
-     * @var Plugin\PluginConfigDumper
+     * @var Plugin\BundleConfigDumper
      */
     private $bundleDumper;
 
-    public function __construct(Plugin\PluginConfigDumper $pluginDumper)
+    public function __construct(Plugin\BundleConfigDumper $pluginDumper)
     {
         parent::__construct();
 

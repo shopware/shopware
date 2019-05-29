@@ -45,12 +45,8 @@ class LineItemRule extends Rule
             case self::OPERATOR_EQ:
                 return \in_array($scope->getLineItem()->getId(), $this->identifiers, true);
 
-                return \in_array($referencedId, $this->identifiers, true);
-
             case self::OPERATOR_NEQ:
                 return !\in_array($scope->getLineItem()->getId(), $this->identifiers, true);
-
-                return !\in_array($referencedId, $this->identifiers, true);
 
             default:
                 throw new UnsupportedOperatorException($this->operator, __CLASS__);

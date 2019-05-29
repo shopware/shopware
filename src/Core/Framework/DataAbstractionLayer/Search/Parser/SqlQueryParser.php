@@ -152,7 +152,7 @@ class SqlQueryParser
         $result = new ParseResult();
         $result->addWhere($field . ' LIKE :' . $key . '');
 
-        $escaped = str_replace('%', '\\%', $query->getValue());
+        $escaped = addcslashes($query->getValue(), '\\_%');
         $result->addParameter($key, '%' . $escaped . '%');
 
         return $result;

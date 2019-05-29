@@ -5,6 +5,17 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
+        <service id="Shopware\Core\Framework\Plugin\Command\BundleDumpCommand">
+            <argument type="service" id="Shopware\Core\Framework\Plugin\BundleConfigDumper"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Plugin\BundleConfigDumper">
+            <argument type="service" id="kernel" />
+            <argument type="service" id="plugin.repository" />
+            <tag name="kernel.event_subscriber" />
+        </service>
+
         <service id="Shopware\Core\Framework\Plugin\PluginDefinition">
             <tag name="shopware.entity.definition" entity="plugin"/>
         </service>

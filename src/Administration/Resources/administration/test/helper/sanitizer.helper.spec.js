@@ -2,7 +2,7 @@ import { shallowMount, createLocalVue } from '@vue/test-utils';
 
 import Sanitizer from 'src/core/helper/sanitizer.helper';
 import swEmptyState from 'src/app/component/base/sw-empty-state';
-import SanitizePlugin from 'src/core/plugins/sanitize.plugin';
+import SanitizePlugin from 'src/app/plugin/sanitize.plugin';
 
 // Disable developer hints in jest output
 jest.spyOn(global.console, 'warn').mockImplementation(() => jest.fn());

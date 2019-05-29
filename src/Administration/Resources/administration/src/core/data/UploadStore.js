@@ -2,7 +2,7 @@
  * @module core/data/UploadStore
  */
 import remove from 'lodash/remove';
-import UploadTask from 'src/core/helper/uploadTask.helper';
+import UploadTask from 'src/core/helper/upload-task.helper';
 import { fileReader } from 'src/core/service/util.service';
 
 const UploadEvents = {

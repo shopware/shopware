@@ -2045,7 +2045,7 @@ class ProductRepositoryTest extends TestCase
         $this->repository->create($products, Context::createDefaultContext());
 
         $criteria = new Criteria([$manufacturerId]);
-        $criteria->addAssociation('product_manufacturer.products', new PaginationCriteria(4));
+        $criteria->addAssociation('products', new PaginationCriteria(4));
 
         $repo = $this->getContainer()->get('product_manufacturer.repository');
 
@@ -2061,7 +2061,7 @@ class ProductRepositoryTest extends TestCase
 
         //test if two of four products can be read if context contains no rule
         $criteria = new Criteria([$manufacturerId]);
-        $criteria->addAssociation('product_manufacturer.products', new PaginationCriteria(2));
+        $criteria->addAssociation('products', new PaginationCriteria(2));
 
         $repo = $this->getContainer()->get('product_manufacturer.repository');
 
@@ -2075,7 +2075,7 @@ class ProductRepositoryTest extends TestCase
 
         //test if two of four products can be read if context contains no rule
         $criteria = new Criteria([$manufacturerId]);
-        $criteria->addAssociation('product_manufacturer.products', new PaginationCriteria(4));
+        $criteria->addAssociation('products', new PaginationCriteria(4));
 
         $repo = $this->getContainer()->get('product_manufacturer.repository');
 

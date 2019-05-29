@@ -178,6 +178,8 @@
       "generatedListColumnVariation": "Variant",
       "generatedListColumnPrice": "Price (Gross / Net)",
       "generatedListColumnProductNumber": "Product number",
+      "generatedListColumnDisplayInListing": "Listing visible?",
+      "generatedListColumnActive": "Active",
       "generatedListColumnStock": "Stock",
       "generatedListContextMenuEdit": "Edit",
       "generatedListContextMenuDelete": "Delete",
@@ -227,7 +229,8 @@
         "mediaExplanation": "You can pick media for each option for the Storefront.",
         "mediaOptions": "Options",
         "cancel": "Cancel",
-        "save": "Save"
+        "save": "Save",
+        "useForListing": "Split in listing"
       }
     }
   }

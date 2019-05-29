@@ -182,7 +182,7 @@ class RecalculationService
         $criteria = (new Criteria([$orderId]))
             ->addAssociation('lineItems')
             ->addAssociation('transactions')
-            ->addAssociation('order.deliveries', $deliveryCriteria);
+            ->addAssociation('deliveries', $deliveryCriteria);
 
         /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search($criteria, $context)->get($orderId);

@@ -1150,7 +1150,7 @@ class RecalculationServiceTest extends TestCase
 
         // read versioned order
         $criteria = new Criteria([$orderId]);
-        $criteria->addAssociation('order.lineItems');
+        $criteria->addAssociation('lineItems');
         $order = $orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->get($orderId);
         static::assertNotEmpty($order);
         static::assertEquals($oldTotal + $creditAmount, $order->getAmountTotal());

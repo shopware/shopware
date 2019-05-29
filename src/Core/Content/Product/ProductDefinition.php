@@ -116,7 +116,9 @@ class ProductDefinition extends EntityDefinition
             (new IntField('stock', 'stock'))->addFlags(new Required()),
 
             new JsonField('variant_restrictions', 'variantRestrictions'),
-            new ListField('configurator_group_sorting', 'configuratorGroupSorting', IdField::class),
+            new BoolField('display_in_listing', 'displayInListing'),
+
+            new JsonField('configurator_group_config', 'configuratorGroupConfig'),
 
             //inherited foreign keys with version fields
             (new FkField('product_manufacturer_id', 'manufacturerId', ProductManufacturerDefinition::class))->addFlags(new Inherited(), new Required()),

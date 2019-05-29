@@ -236,7 +236,7 @@ class EntityExtensionTest extends TestCase
         static::assertFalse($product->hasExtension('myPrices'));
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('product.myPrices', new PaginationCriteria(1));
+        $criteria->addAssociation('myPrices', new PaginationCriteria(1));
 
         /** @var ProductEntity $product */
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())
@@ -423,7 +423,7 @@ class EntityExtensionTest extends TestCase
         static::assertFalse($product->hasExtension('myCategories'));
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('product.extensions.myCategories', new PaginationCriteria(2));
+        $criteria->addAssociation('extensions.myCategories', new PaginationCriteria(2));
 
         /** @var ProductEntity $product */
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())
@@ -435,7 +435,7 @@ class EntityExtensionTest extends TestCase
         static::assertCount(2, $product->getExtension('myCategories'));
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('product.myCategories', new PaginationCriteria(2));
+        $criteria->addAssociation('myCategories', new PaginationCriteria(2));
 
         /** @var ProductEntity $product */
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())

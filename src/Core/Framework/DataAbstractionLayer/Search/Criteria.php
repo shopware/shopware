@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
@@ -166,17 +165,16 @@ class Criteria extends Struct
         return $this->associations;
     }
 
-    public function getAssociation(string $field, ?EntityDefinition $definition = null): ?Criteria
+    public function getAssociation(string $field): ?Criteria
     {
         if (isset($this->associations[$field])) {
             return $this->associations[$field];
         }
 
-        if ($definition) {
-            $key = $definition->getEntityName() . '.' . $field;
-            $extensionKey = $definition->getEntityName() . '.extensions.' . $field;
+        $extension = 'extensions.' . $field;
 
-            return $this->associations[$key] ?? $this->associations[$extensionKey] ?? null;
+        if (isset($this->associations[$extension])) {
+            return $this->associations[$extension];
         }
 
         return null;
@@ -253,18 +251,15 @@ class Criteria extends Struct
         return $this;
     }
 
-    public function hasAssociation(string $field, ?EntityDefinition $definition = null): bool
+    public function hasAssociation(string $field): bool
     {
         if (isset($this->associations[$field])) {
             return true;
         }
 
-        if ($definition !== null) {
-            return isset($this->associations[$definition->getEntityName() . '.' . $field])
-                || isset($this->associations[$definition->getEntityName() . '.extensions.' . $field]);
-        }
+        $extension = 'extensions.' . $field;
 
-        return false;
+        return isset($this->associations[$extension]);
     }
 
     public function resetSorting(): self

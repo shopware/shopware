@@ -34,10 +34,12 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Framework\Twig\TemplateDataExtension;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\EqualTo;
+use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -84,6 +86,13 @@ class AccountService
      */
     private $paymentMethodRepository;
 
+    /**
+     * TODO: Replace with system config
+     *
+     * @var TemplateDataExtension
+     */
+    private $templateExtension;
+
     public function __construct(
         EntityRepositoryInterface $customerAddressRepository,
         EntityRepositoryInterface $customerRepository,
@@ -92,7 +101,8 @@ class AccountService
         DataValidator $validator,
         CustomerProfileValidationService $customerProfileValidationService,
         LegacyPasswordVerifier $legacyPasswordVerifier,
-        EntityRepositoryInterface $paymentMethodRepository
+        EntityRepositoryInterface $paymentMethodRepository,
+        TemplateDataExtension $templateExtension
     ) {
         $this->customerAddressRepository = $customerAddressRepository;
         $this->customerRepository = $customerRepository;
@@ -102,6 +112,7 @@ class AccountService
         $this->legacyPasswordVerifier = $legacyPasswordVerifier;
         $this->customerProfileValidationService = $customerProfileValidationService;
         $this->paymentMethodRepository = $paymentMethodRepository;
+        $this->templateExtension = $templateExtension;
     }
 
     /**
@@ -511,8 +522,11 @@ class AccountService
         /** @var DataValidationDefinition $definition */
         $definition = new DataValidationDefinition('customer.password.update');
 
+        $templateData = $this->templateExtension->getGlobals();
+        $minPasswordLength = $templateData['shopware']['config']['register']['minPasswordLength'];
+
         $definition
-            ->add('newPassword', new NotBlank(), new EqualTo(['propertyPath' => 'newPasswordConfirm']))
+            ->add('newPassword', new NotBlank(), new Length(['min' => $minPasswordLength]), new EqualTo(['propertyPath' => 'newPasswordConfirm']))
             ->add('password', new CustomerPasswordMatches(['context' => $context]));
 
         $this->dispatchValidationEvent($definition, $context->getContext());

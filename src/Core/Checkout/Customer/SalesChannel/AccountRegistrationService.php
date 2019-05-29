@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Validation\ValidationServiceInterface;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class AccountRegistrationService
@@ -253,7 +254,7 @@ class AccountRegistrationService
         $validation = $this->accountValidationService->buildCreateValidation($context);
 
         if (!$isGuest) {
-            $validation->add('password', new NotBlank());
+            $validation->add('password', new NotBlank(), new Length(['min' => 8])); //todo get the minLength value via DI (backend config when available)
             $validation->add('email', new CustomerEmailUnique(['context' => $context]));
         }
 

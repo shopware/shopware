@@ -338,7 +338,7 @@ class SalesChannelCustomerControllerTest extends TestCase
             'salutationId' => $this->getValidSalutationId(),
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
-            'password' => 'test',
+            'password' => '12345678',
             'email' => Uuid::randomHex() . '@example.com',
             'title' => 'Phd',
             'active' => true,
@@ -454,7 +454,7 @@ class SalesChannelCustomerControllerTest extends TestCase
     public function testChangePassword(): void
     {
         $customerId = $this->createCustomerAndLogin();
-        $password = '1234';
+        $password = '12345678';
 
         $payload = [
             'password' => 'shopware',

@@ -1,4 +1,5 @@
 @import '~scss/variables';
+$sw-field--radio-color-border: $color-steam-cloud;
 
 .sw-field--radio {
     label + .sw-help-text {
@@ -21,6 +22,13 @@
             font-size: $font-size-small;
             color: $color-gutenberg;
         }
+    }
+
+    &.sw-field--radio-bordered .sw-field__radio-group {
+        border-radius: 4px;
+        border: 1px solid $sw-field--radio-color-border;
+        padding: 12px 16px;
+        margin-bottom: 0;
     }
 
     .sw-field__radio-input {

@@ -1,3 +1,18 @@
+import './sw-boolean-radio-group.scss';
+
+/**
+ * @public
+ * @description radio input field for boolean and named entries.
+ * @status ready
+ * @example-type static
+ * @component-example
+ * <sw-boolean-radio-group
+ *      label="Bool Radio group example"
+ *      labelOptionTrue="Gross"
+ *      labelOptionFalse="Net"
+ *      :bordered="bordered">
+ * </sw-boolean-radio-group>
+ */
 export default {
     name: 'sw-boolean-radio-group',
 
@@ -11,14 +26,16 @@ export default {
 <sw-radio-field
     v-bind="$attrs"
     :options="options"
-    v-model="castedValue">
+    v-model="castedValue"
+    :bordered="bordered">
 </sw-radio-field>
 `,
 
     props: {
         value: {
             type: Boolean,
-            required: true
+            required: false,
+            default: true
         },
 
         labelOptionTrue: {
@@ -29,6 +46,12 @@ export default {
         labelOptionFalse: {
             type: String,
             required: true
+        },
+
+        bordered: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -42,7 +65,7 @@ export default {
 
         castedValue: {
             get() {
-                return this.value.toString();
+                return this.value ? this.value.toString() : 'false';
             },
 
             set(val) {

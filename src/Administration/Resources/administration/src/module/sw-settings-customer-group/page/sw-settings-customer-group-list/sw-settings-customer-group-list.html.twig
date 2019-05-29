@@ -99,14 +99,14 @@
                                             {% endblock %}
 
                                             {% block sw_settings_customer_group_list_column_display_gross %}
-                                                <template slot="column-displayGross" slot-scope="{ item, compact, isInlineEdit }">
+                                                <template slot="column-displayGross" slot-scope="{ item, isInlineEdit }">
 
                                                     {% block sw_settings_customer_group_list_column_display_gross_inline_edit %}
-                                                        <sw-field v-if="isInlineEdit"
-                                                                  type="switch"
-                                                                  v-model="item.displayGross"
-                                                                  :label="$tc('sw-settings-customer-group.list.textNetGross', item.displayGross)">
-                                                        </sw-field>
+                                                        <sw-boolean-radio-group v-if="isInlineEdit"
+                                                                                v-model="item.displayGross"
+                                                                                :labelOptionTrue="$tc('sw-settings-customer-group.list.textNetGross', true)"
+                                                                                :labelOptionFalse="$tc('sw-settings-customer-group.list.textNetGross', false)">
+                                                        </sw-boolean-radio-group>
                                                     {% endblock %}
 
                                                     {% block sw_settings_customer_group_list_column_display_gross_content %}

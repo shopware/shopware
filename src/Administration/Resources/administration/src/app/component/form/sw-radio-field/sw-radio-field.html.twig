@@ -1,8 +1,12 @@
-<sw-base-field class="sw-field--radio" v-bind="$attrs" :name="formFieldName" :error="$attrs.error || actualError">
+<sw-base-field class="sw-field--radio"
+               :class="classes"
+               v-bind="$attrs"
+               :name="formFieldName"
+               :error="$attrs.error || actualError">
     <template #sw-field-input="{ identification, helpText, error, disabled }">
         <sw-help-text v-if="helpText" :text="helpText"></sw-help-text>
             <div class="sw-field__radio-group">
-                <div class="sw-field__radio-option" v-for="(option, index) in options">
+                <div class="sw-field__radio-option group-bordered" v-for="(option, index) in options">
                     <div class="sw-field__radio-input">
                         <input type="radio"
                                :name="`${identification}-${index}`"

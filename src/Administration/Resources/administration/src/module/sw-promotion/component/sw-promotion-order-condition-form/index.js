@@ -1,4 +1,5 @@
 import { Component, Mixin, State } from 'src/core/shopware';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-promotion-order-condition-form.html.twig';
 import './sw-promotion-order-condition-form.scss';
 
@@ -33,6 +34,18 @@ Component.register('sw-promotion-order-condition-form', {
 
         orderRulesAssociationStore() {
             return this.promotion.getAssociation('orderRules');
+        },
+
+        ruleFilter() {
+            return CriteriaFactory.equalsAny(
+                'conditions.type',
+                [
+                    'customerBillingCountry', 'customerBillingStreet', 'customerBillingZipCode', 'customerIsNewCustomer',
+                    'customerCustomerGroup', 'customerCustomerNumber', 'customerDaysSinceLastOrder',
+                    'customerDifferentAddresses', 'customerLastName', 'customerOrderCount', 'customerShippingCountry',
+                    'customerShippingStreet', 'customerShippingZipCode'
+                ]
+            );
         }
 
     },

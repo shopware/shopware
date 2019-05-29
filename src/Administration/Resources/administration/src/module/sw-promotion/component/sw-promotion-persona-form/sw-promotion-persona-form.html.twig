@@ -10,6 +10,7 @@
                    ref="personaRuleSelect"
                    multi
                    class="sw-promotion-persona-form__persona-rules"
+                   :criteria="ruleFilter"
                    :label="$tc('sw-promotion.detail.main.preconditions.persona.labelRules')"
                    :placeholder="$tc('sw-promotion.detail.main.preconditions.persona.placeholderRules')"
                    :store="ruleStore"

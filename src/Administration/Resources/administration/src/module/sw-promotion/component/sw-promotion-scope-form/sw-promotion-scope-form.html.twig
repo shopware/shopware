@@ -12,6 +12,7 @@
                    class="sw-promotion-scope-form__select-cart-rules"
                    :label="$tc('sw-promotion.detail.main.preconditions.cart.rulesCaption')"
                    :placeholder="$tc('sw-promotion.detail.main.preconditions.cart.rulesPlaceholder')"
+                   :criteria="ruleFilter"
                    @sw-select-option-clicked="onSelectRule"
                    :associationStore="cartRulesAssociationStore">
             <template slot="sw_select_list_before">

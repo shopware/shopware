@@ -25,7 +25,7 @@ Component.register('sw-settings-rule-detail', {
                         label: this.$tc(condition.label),
                         type: this.$tc(condition.label)
                     };
-                }, ['checkout', 'cart', 'global']), 'type'),
+                }, ['checkout', 'cart', 'global', 'lineItem']), 'type'),
                 entityName: 'rule',
                 conditionIdentifier: 'conditions',
                 childName: 'children',

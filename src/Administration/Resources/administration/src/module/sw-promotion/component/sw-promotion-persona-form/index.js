@@ -1,4 +1,5 @@
 import { Component, Mixin, State } from 'src/core/shopware';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-promotion-persona-form.html.twig';
 import './sw-promotion-persona-form.scss';
 
@@ -23,6 +24,7 @@ Component.register('sw-promotion-persona-form', {
                 id: ''
             },
             showRuleModal: false
+
         };
     },
     computed: {
@@ -37,6 +39,17 @@ Component.register('sw-promotion-persona-form', {
         },
         personaCustomerAssociationStore() {
             return this.promotion.getAssociation('personaCustomers');
+        },
+        ruleFilter() {
+            return CriteriaFactory.equalsAny(
+                'conditions.type',
+                [
+                    'customerBillingCountry', 'customerBillingStreet', 'customerBillingZipCode', 'customerIsNewCustomer',
+                    'customerCustomerGroup', 'customerCustomerNumber', 'customerDaysSinceLastOrder',
+                    'customerDifferentAddresses', 'customerLastName', 'customerOrderCount', 'customerShippingCountry',
+                    'customerShippingStreet', 'customerShippingZipCode'
+                ]
+            );
         }
     },
     methods: {

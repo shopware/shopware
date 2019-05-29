@@ -1,4 +1,5 @@
 import { Component, Mixin, State } from 'src/core/shopware';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-promotion-scope-form.html.twig';
 import './sw-promotion-scope-form.scss';
 
@@ -16,7 +17,6 @@ Component.register('sw-promotion-scope-form', {
             default: {}
         }
     },
-
     data() {
         return {
             itemAddNewRule: {
@@ -34,6 +34,18 @@ Component.register('sw-promotion-scope-form', {
 
         cartRulesAssociationStore() {
             return this.promotion.getAssociation('cartRules');
+        },
+
+        ruleFilter() {
+            return CriteriaFactory.equalsAny(
+                'conditions.type',
+                [
+                    'customerBillingCountry', 'customerBillingStreet', 'customerBillingZipCode', 'customerIsNewCustomer',
+                    'customerCustomerGroup', 'customerCustomerNumber', 'customerDaysSinceLastOrder',
+                    'customerDifferentAddresses', 'customerLastName', 'customerOrderCount', 'customerShippingCountry',
+                    'customerShippingStreet', 'customerShippingZipCode'
+                ]
+            );
         }
 
     },

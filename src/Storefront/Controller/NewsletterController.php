@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscriptionService;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscriptionServiceInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -44,18 +45,25 @@ class NewsletterController extends StorefrontController
      */
     private $accountService;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $customerRepository;
+
     public function __construct(
         NewsletterRegisterPageLoader $newsletterRegisterPageLoader,
         NewsletterSubscribePageLoader $newsletterConfirmRegisterPageLoader,
         NewsletterSubscriptionServiceInterface $newsletterService,
         RequestStack $requestStack,
-        AccountService $accountService
+        AccountService $accountService,
+        EntityRepositoryInterface $customerRepository
     ) {
         $this->newsletterRegisterPageLoader = $newsletterRegisterPageLoader;
         $this->newsletterConfirmRegisterPageLoader = $newsletterConfirmRegisterPageLoader;
         $this->newsletterService = $newsletterService;
         $this->requestStack = $requestStack;
         $this->accountService = $accountService;
+        $this->customerRepository = $customerRepository;
     }
 
     /**
@@ -141,7 +149,7 @@ class NewsletterController extends StorefrontController
             try {
                 $this->newsletterService->subscribe($this->hydrateFromCustomer($dataBag, $context->getCustomer()), $context);
 
-                $this->accountService->setNewsletterFlag($context->getCustomer(), true, $context);
+                $this->setNewsletterFlag($context->getCustomer(), true, $context);
 
                 $success = true;
                 $messages[] = ['type' => 'success', 'text' => $this->trans('newsletter.subscriptionConfirmationSuccess')];
@@ -159,7 +167,7 @@ class NewsletterController extends StorefrontController
 
         try {
             $this->newsletterService->unsubscribe($this->hydrateFromCustomer($dataBag, $context->getCustomer()), $context);
-            $this->accountService->setNewsletterFlag($context->getCustomer(), false, $context);
+            $this->setNewsletterFlag($context->getCustomer(), false, $context);
 
             $success = true;
             $messages[] = ['type' => 'success', 'text' => $this->trans('newsletter.subscriptionRevokeSuccess')];
@@ -186,5 +194,17 @@ class NewsletterController extends StorefrontController
         $dataBag->set('city', $customer->getDefaultShippingAddress()->getCity());
 
         return $dataBag;
+    }
+
+    private function setNewsletterFlag(CustomerEntity $customer, bool $newsletter, SalesChannelContext $context): void
+    {
+        $customer->setNewsletter($newsletter);
+
+        $this->customerRepository->update(
+            [
+                ['id' => $customer->getId(), 'newsletter' => $newsletter],
+            ],
+            $context->getContext()
+        );
     }
 }

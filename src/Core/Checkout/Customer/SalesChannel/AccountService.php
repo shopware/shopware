@@ -338,16 +338,6 @@ class AccountService
         $this->refreshContext($context);
     }
 
-    public function setNewsletterFlag(CustomerEntity $customer, bool $newsletter, SalesChannelContext $context): void
-    {
-        $customer->setNewsletter($newsletter);
-
-        $this->customerRepository->update([[
-            'id' => $customer->getId(),
-            'newsletter' => $newsletter,
-        ]], $context->getContext());
-    }
-
     /**
      * @throws InvalidUuidException
      * @throws UnknownPaymentMethodException

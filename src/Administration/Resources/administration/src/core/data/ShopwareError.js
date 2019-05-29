@@ -17,12 +17,64 @@ export default class ShopwareError {
         status = '',
         trace
     } = {}) {
-        this.id = utils.createId();
-        this.code = code;
-        this.title = title;
-        this.detail = detail;
-        this.parameters = parameters;
-        this.status = status;
-        this.trace = trace;
+        this._id = utils.createId();
+        this._code = code;
+        this._title = title;
+        this._detail = detail;
+        this._parameters = parameters;
+        this._status = status;
+        this._trace = trace;
+    }
+
+    get id() {
+        return this._id;
+    }
+
+    get code() {
+        return this._code;
+    }
+
+    set code(value) {
+        this._code = value;
+    }
+
+    get title() {
+        return this._title;
+    }
+
+    set title(value) {
+        this._title = value;
+    }
+
+    get detail() {
+        return this._detail;
+    }
+
+    set detail(value) {
+        this._detail = value;
+    }
+
+    get parameters() {
+        return this._parameters;
+    }
+
+    set parameters(value) {
+        this._parameters = value;
+    }
+
+    get status() {
+        return this._status;
+    }
+
+    set status(value) {
+        this._status = value;
+    }
+
+    get trace() {
+        return this._trace;
+    }
+
+    set trace(value) {
+        this._trace = value;
     }
 }

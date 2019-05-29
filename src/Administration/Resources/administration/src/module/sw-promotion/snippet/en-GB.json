@@ -6,7 +6,8 @@
       "PROMOTION_DISCOUNT_MIN_VALUE_VIOLATION": "The discount value must not be less than {value}.",
       "PROMOTION_DUPLICATED_CODE_VIOLATION": "The code has been used by another promotion already.",
       "PROMOTION_CODE_WHITESPACE_VIOLATION": "The code must not start nor end with whitespace.",
-      "PROMOTION_EMPTY_CODE_VIOLATION": "The code must not be empty."
+      "PROMOTION_EMPTY_CODE_VIOLATION": "The code must not be empty.",
+      "PROMOTION_DUPLICATE_PATTERN_VIOLATION": "The code pattern has already been used in another promotion."
     }
   },
   "sw-promotion": {
@@ -63,29 +64,53 @@
           "labelValidUntil": "Valid until:",
           "labelMaxRedemptionsGlobal": "Total possible redemptions",
           "labelMaxRedemptionsPerCustomer": "Redemptions per customer",
+          "labelPromotionExclusions": "Do not combine with",
+          "placeholderPromotionExclusions": "Add promotion...",
           "codes" : {
             "card" : "Promotion codes",
             "labelCode" : "General promotion code",
+            "helpTextIndividual": "A general code cannot be used simultaneously with individual codes.",
             "placeholderCode": "Enter promotion code...",
-            "switchUseCodes" : "Promotion code required"
-          },
-          "labelPromotionExclusions": "Do not combine with",
-          "placeholderPromotionExclusions": "Add promotion ..."
+            "switchUseCodes" : "Promotion code required",
+            "switchUseIndividualCodes": "Use individual promotion codes",
+            "linkEditIndividualCodes": "Manage individual promotion codes",
+            "individual": {
+              "title": "Individual promotion codes",
+              "labelPattern": "Pattern",
+              "helpTextPattern": "Create your custom code pattern. Use placeholders like %s for characters and %d for digits. Example: code-%s%s%d',",
+              "labelCount": "Count",
+              "buttonGenerate": "Save and generate codes",
+              "labelNoCodesExist" : "No individual codes",
+              "columnCode": "Promotion code",
+              "columnRedeemed": "Redeemed",
+              "columnCustomer": "Customer",
+              "buttonDeleteCode": "Delete",
+              "buttonOpenCustomer": "Open customer",
+              "alerts": {
+                "errorNoPatternTitle": "No code pattern",
+                "errorNoPatternMessage": "Please assign a code pattern!",
+                "successGeneratedTitle": "Generation completed",
+                "successGeneratedMessage": "Generated {count} new codes!",
+                "successDeletedTitle": "Code deleted",
+                "errorDeletedTitle": "Error when deleting code"
+              }
+            }
+          }
         },
         "preconditions": {
           "ruleModuleLink": "Open rule builder",
           "persona": {
-            "card": "Target Group",
+            "card": "Target group",
             "title": "Determine which customers benefit from this promotion",
             "text": "Use rules from the rule builder to narrow down the audience for this marketing action. Without a limitation, all your customers have access to this action.",
-            "labelRules": "Customer Rules",
-            "placeholderRules" : "Add Rules...",
+            "labelRules": "Customer rules",
+            "placeholderRules" : "Add rules...",
             "switchAssignCustomers": "Assign individual customers to promotion",
-            "placeholderAddCustomers" : "Search and add Customers...",
+            "placeholderAddCustomers" : "Search and add customers...",
             "customers" : {
               "grid": {
                 "headerName": "Name",
-                "headerCustomerNumber" : "Customer Number",
+                "headerCustomerNumber" : "Customer number",
                 "delete" : "Delete"
               }
             }
@@ -110,7 +135,7 @@
         "discounts": {
           "card": "Discount",
           "labelValue": "Value",
-          "labelMaxValue": "Maximum Discount",
+          "labelMaxValue": "Maximum discount",
           "placeholderValue": "Enter either a percentage or an absolute value...",
           "labelScope" : "Apply to:",
           "flagProductScopeLabel": "Apply to specific range of products",
@@ -118,8 +143,8 @@
           "placeholder": "Assign product rules...",
           "labelType" : "Type",
           "valueScopeCart": "Cart",
+          "valueTypeAbsolute": "Absolute",
           "valueScopeDelivery": "Shipping costs",
-          "valueTypeAbsolute" : "Absolute",
           "valueTypePercentage": "Percentage",
           "valueTypeFixed": "Fixed price",
           "buttonAddDiscount" : "Add discount",

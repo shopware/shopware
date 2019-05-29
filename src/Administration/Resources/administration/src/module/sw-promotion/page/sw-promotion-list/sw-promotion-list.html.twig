@@ -57,7 +57,6 @@
                                            fullPage>
 
                             {% block sw_promotion_list_grid_columns %}
-
                                 {% block sw_promotion_list_grid_columns_active %}
                                     <template #column-active="{ item }">
                                         <sw-icon v-if="item.active" name="small-default-checkmark-line-medium" small class="is--active"></sw-icon>
@@ -76,8 +75,13 @@
                                         {{ item.validUntil | date({ hour: '2-digit', minute: '2-digit' }) }}
                                     </template>
                                 {% endblock %}
-
                             {% endblock %}
+
+                            <template #delete-action="{ item, showDelete }">
+                                <sw-context-menu-item @click="showDelete(item.id)" :disabled="item.hasOrders" variant="danger">
+                                    {{ $tc('global.entity-components.deleteAction') }}
+                                </sw-context-menu-item>
+                            </template>
 
                         </sw-entity-listing>
                     {% endblock %}

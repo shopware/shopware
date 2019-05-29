@@ -1,9 +1,9 @@
-import DiscountTypes from 'src/module/sw-promotion/common/discount-type';
+import { DiscountTypes } from 'src/module/sw-promotion/helper/promotion.helper';
 
 // Disable developer hints in jest output
 jest.spyOn(global.console, 'warn').mockImplementation(() => jest.fn());
 
-describe('module/sw-promotion/common/discount-type.js', () => {
+describe('module/sw-promotion/helper/discount-type.js', () => {
     it('should have a ABSOLUTE property that matches our defined identifier string', () => {
         expect(DiscountTypes.ABSOLUTE).toBe('absolute');
     });

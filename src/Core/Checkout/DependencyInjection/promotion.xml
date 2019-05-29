@@ -17,6 +17,10 @@
             <tag name="shopware.entity.definition" entity="promotion_sales_channel"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeDefinition">
+            <tag name="shopware.entity.definition" entity="promotion_individual_code"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountDefinition">
             <tag name="shopware.entity.definition" entity="promotion_discount"/>
         </service>
@@ -80,7 +84,7 @@
         <service id="Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder"/>
 
         <service id="Shopware\Core\Checkout\Promotion\Cart\PromotionCollector">
-            <argument type="service" id="Shopware\Core\Checkout\Promotion\PromotionGateway"/>
+            <argument type="service" id="Shopware\Core\Checkout\Promotion\Gateway\PromotionGateway"/>
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder"/>
             <!-- // inject after product collector(5000) -->
             <tag name="shopware.cart.collector" priority="4900"/>
@@ -119,20 +123,41 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <!-- ADDITIONAL SERVICES -->
+
+        <!-- API CONTROLLERS -->
         <!-- ==================================================================================================================== -->
 
-        <service id="Shopware\Core\Checkout\Promotion\PromotionGateway">
-            <argument type="service" id="promotion.repository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Promotion\Service\PromotionDateTimeService"/>
+        <service id="Shopware\Core\Checkout\Promotion\Api\PromotionActionController" public="true">
+            <argument type="service" id="Shopware\Core\Checkout\Promotion\Util\PromotionCodesLoader"/>
+            <argument type="service" id="Shopware\Core\Checkout\Promotion\Util\PromotionCodesRemover"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
         </service>
+
+
+        <!-- ADDITIONAL SERVICES -->
+        <!-- ==================================================================================================================== -->
 
         <service id="Shopware\Core\Checkout\Promotion\Gateway\PromotionGateway">
             <argument type="service" id="promotion.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Service\PromotionDateTimeService"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Promotion\Subscriber\PromotionIndividualCodeRedeemer">
+            <argument type="service" id="promotion_individual_code.repository"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Promotion\Service\PromotionDateTimeService"/>
+
+        <service id="Shopware\Core\Checkout\Promotion\Util\PromotionCodesLoader">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Promotion\Util\PromotionCodesRemover">
+            <argument type="service" id="promotion_individual_code.repository"/>
+        </service>
 
     </services>
 </container>

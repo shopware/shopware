@@ -2,9 +2,10 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Fakes;
 
+use Shopware\Core\Checkout\Promotion\Gateway\PromotionGatewayInterface;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
-use Shopware\Core\Checkout\Promotion\PromotionGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class FakePromotionGateway implements PromotionGatewayInterface
@@ -12,26 +13,15 @@ class FakePromotionGateway implements PromotionGatewayInterface
     /**
      * @var PromotionEntity[]
      */
-    private $contextPromotions = [];
+    private $promotions = [];
 
-    /**
-     * @var PromotionEntity[]
-     */
-    private $codePromotions = [];
-
-    public function __construct(array $contextPromotions, array $codePromotions)
+    public function __construct(array $promotions)
     {
-        $this->contextPromotions = $contextPromotions;
-        $this->codePromotions = $codePromotions;
+        $this->promotions = $promotions;
     }
 
-    public function getAutomaticPromotions(SalesChannelContext $context): EntityCollection
+    public function get(Criteria $criteria, SalesChannelContext $context): EntityCollection
     {
-        return new EntityCollection($this->contextPromotions);
-    }
-
-    public function getByCodes(array $codes, SalesChannelContext $context): EntityCollection
-    {
-        return new EntityCollection($this->codePromotions);
+        return new EntityCollection($this->promotions);
     }
 }

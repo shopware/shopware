@@ -1,9 +1,8 @@
 import { Component, Mixin } from 'src/core/shopware';
 import Criteria from 'src/core/data-new/criteria.data';
+import { DiscountTypes, DiscountScopes, PromotionPermissions } from 'src/module/sw-promotion/helper/promotion.helper';
 import template from './sw-promotion-discount-component.html.twig';
 import './sw-promotion-discount-component.scss';
-import DiscountTypes from './../../common/discount-type';
-import DiscountScopes from './../../common/discount-scope';
 import DiscountHandler from './handler';
 
 const discountHandler = new DiscountHandler();
@@ -17,6 +16,10 @@ Component.register('sw-promotion-discount-component', {
     ],
 
     props: {
+        promotion: {
+            type: Object,
+            required: true
+        },
         discount: {
             type: Object,
             required: true
@@ -99,8 +102,11 @@ Component.register('sw-promotion-discount-component', {
 
         showAbsoluteAdvancedPricesSettings() {
             return (this.discount.type === DiscountTypes.ABSOLUTE || this.discount.type === DiscountTypes.FIXED);
-        }
+        },
 
+        isEditingDisabled() {
+            return !PromotionPermissions.isEditingAllowed(this.promotion);
+        }
     },
     methods: {
         createdComponent() {

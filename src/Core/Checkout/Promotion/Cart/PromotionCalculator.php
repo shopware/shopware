@@ -393,7 +393,7 @@ class PromotionCalculator
         // then use the max discount value as negative discount,
         // otherwise simply use the calculated price
         if (abs($discountPrice) > $maxDiscountValue) {
-            $discountPrice = -($maxDiscountValue);
+            $discountPrice = -abs($maxDiscountValue);
         }
 
         /** @var PriceDefinitionInterface $actualPriceDefinition */

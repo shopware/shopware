@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -43,6 +44,10 @@ class RequestTransformerTest extends TestCase
 
         /** @var ExpectedRequest $expectedRequest */
         foreach ($requests as $expectedRequest) {
+            if ($expectedRequest->exception) {
+                static::expectException($expectedRequest->exception);
+            }
+
             $request = Request::create($expectedRequest->url);
 
             $resolved = $this->requestBuilder->transform($request);
@@ -151,9 +156,9 @@ class RequestTransformerTest extends TestCase
                     $this->getInactiveSalesChannel($germanId, $gerDomainId, 'http://inactive.test'),
                 ],
                 [
-                    new ExpectedRequest('http://inactive.test', null, null, null, null, null, null, null, null),
-                    new ExpectedRequest('http://inactive.test/', null, null, null, null, null, null, null, null),
-                    new ExpectedRequest('http://inactive.test/foobar', null, null, null, null, null, null, null, null),
+                    new ExpectedRequest('http://inactive.test', null, null, null, null, null, null, null, null, SalesChannelMappingException::class),
+                    new ExpectedRequest('http://inactive.test/', null, null, null, null, null, null, null, null, SalesChannelMappingException::class),
+                    new ExpectedRequest('http://inactive.test/foobar', null, null, null, null, null, null, null, null, SalesChannelMappingException::class),
                 ],
             ],
         ];
@@ -291,26 +296,29 @@ class ExpectedRequest
     /** @var string|null */
     public $baseUrl;
 
-    /** @var string */
+    /** @var string|null */
     public $domainId;
 
-    /** @var string */
+    /** @var string|null */
     public $salesChannelId;
 
-    /** @var bool */
+    /** @var bool|null */
     public $isStorefrontRequest;
 
-    /** @var string */
+    /** @var string|null */
     public $locale;
 
-    /** @var string */
+    /** @var string|null */
     public $currency;
 
-    /** @var string */
+    /** @var string|null */
     public $language;
 
-    /** @var string */
+    /** @var string|null */
     public $snippetSetId;
+
+    /** @var string|null */
+    public $exception;
 
     public function __construct(
         string $url,
@@ -321,7 +329,8 @@ class ExpectedRequest
         ?string $locale,
         ?string $currency,
         ?string $language,
-        ?string $snippetSetId
+        ?string $snippetSetId,
+        ?string $exception = null
     ) {
         $this->url = $url;
         $this->domainId = $domainId;
@@ -332,5 +341,6 @@ class ExpectedRequest
         $this->language = $language;
         $this->snippetSetId = $snippetSetId;
         $this->baseUrl = $baseUrl;
+        $this->exception = $exception;
     }
 }

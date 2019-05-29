@@ -1,9 +1,8 @@
-import 'src/app/filter/asset';
-import 'src/app/filter/currency';
-import 'src/app/filter/date';
-import 'src/app/filter/fileSize';
-import 'src/app/filter/salutation';
-import 'src/app/filter/mediaName';
-import 'src/app/filter/striphtml';
-import 'src/app/filter/thumbnailSize';
-import 'src/app/filter/truncate';
+export default (() => {
+    const context = require.context('./', false, /(?<!index)\.js$/);
+    return context.keys().reduce((accumulator, item) => {
+        const service = context(item).default;
+        accumulator.push(service);
+        return accumulator;
+    }, []);
+})();

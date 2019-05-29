@@ -8,11 +8,20 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\EntityCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FeatureFlagCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\FrameworkExtension;
 use Shopware\Core\Framework\Migration\MigrationCompilerPass;
+use Shopware\Core\Kernel;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\Config\Loader\DelegatingLoader;
+use Symfony\Component\Config\Loader\LoaderResolver;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
+use Symfony\Component\DependencyInjection\Loader\ClosureLoader;
+use Symfony\Component\DependencyInjection\Loader\DirectoryLoader;
+use Symfony\Component\DependencyInjection\Loader\GlobFileLoader;
+use Symfony\Component\DependencyInjection\Loader\IniFileLoader;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 class Framework extends Bundle
 {
@@ -27,6 +36,9 @@ class Framework extends Bundle
     public function build(ContainerBuilder $container): void
     {
         $container->setParameter('locale', 'en-GB');
+        $environment = $container->getParameter('kernel.environment');
+
+        $this->buildConfig($container, $environment);
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('services.xml');
@@ -42,6 +54,10 @@ class Framework extends Bundle
         $loader->load('scheduled-task.xml');
         $loader->load('store.xml');
         $loader->load('language.xml');
+
+        if ($container->getParameter('kernel.environment') === 'test') {
+            $loader->load('services_test.xml');
+        }
 
         $container->addCompilerPass(new FeatureFlagCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION);
         $container->addCompilerPass(new EntityCompilerPass());
@@ -75,5 +91,27 @@ class Framework extends Bundle
     protected function registerFilesystem(ContainerBuilder $container, string $key): void
     {
         // empty body intended to prevent circular filesystem references
+    }
+
+    private function buildConfig(ContainerBuilder $container, $environment): void
+    {
+        $locator = new FileLocator($this->getConfigPath());
+
+        $resolver = new LoaderResolver([
+            new XmlFileLoader($container, $locator),
+            new YamlFileLoader($container, $locator),
+            new IniFileLoader($container, $locator),
+            new PhpFileLoader($container, $locator),
+            new GlobFileLoader($container, $locator),
+            new DirectoryLoader($container, $locator),
+            new ClosureLoader($container),
+        ]);
+
+        $configLoader = new DelegatingLoader($resolver);
+
+        $confDir = $this->getPath() . '/' . $this->getConfigPath();
+
+        $configLoader->load($confDir . '/{packages}/*' . Kernel::CONFIG_EXTS, 'glob');
+        $configLoader->load($confDir . '/{packages}/' . $environment . '/*' . Kernel::CONFIG_EXTS, 'glob');
     }
 }

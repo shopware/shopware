@@ -81,6 +81,7 @@ abstract class Bundle extends SymfonyBundle
             $routes->import($confDir . '/{routes}/*' . Kernel::CONFIG_EXTS, '/', 'glob');
             $routes->import($confDir . '/{routes}/' . $environment . '/**/*' . Kernel::CONFIG_EXTS, '/', 'glob');
             $routes->import($confDir . '/{routes}' . Kernel::CONFIG_EXTS, '/', 'glob');
+            $routes->import($confDir . '/{routes}_' . $environment . Kernel::CONFIG_EXTS, '/', 'glob');
         }
     }
 

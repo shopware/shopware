@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <defaults public="true"/>
+
+        <service id="Shopware\Core\Checkout\Test\Payment\Handler\AsyncTestPaymentHandler">
+            <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
+            <tag name="shopware.payment.method.async"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler">
+            <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
+            <tag name="shopware.payment.method.sync"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Test\Filesystem\Adapter\MemoryAdapterFactory">
+            <tag name="shopware.filesystem.factory"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\NamedDefinition">
+            <tag name="shopware.entity.definition" entity="named"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\NamedOptionalGroupDefinition">
+            <tag name="shopware.entity.definition" entity="named_optional_group"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Version\CalculatedPriceFieldTestDefinition">
+            <tag name="shopware.entity.definition" entity="calculated_price_field_test" />
+        </service>
+
+        <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\RootDefinition">
+            <tag name="shopware.entity.definition" entity="root" />
+        </service>
+
+        <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\SubDefinition">
+            <tag name="shopware.entity.definition" entity="root_sub" />
+        </service>
+
+        <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\SubManyDefinition">
+            <tag name="shopware.entity.definition" entity="root_sub_many" />
+        </service>
+
+        <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Write\Validation\TestDefinition\TestDefinition">
+            <tag name="shopware.entity.definition" entity="_test_lock" />
+        </service>
+
+        <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Write\Validation\TestDefinition\TestTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="_test_lock_translation" />
+        </service>
+
+        <service id="Shopware\Core\Framework\Test\TestCaseHelper\ReceiverLocatorDecorator" decorates="messenger.receiver_locator">
+            <argument type="service" id="Shopware\Core\Framework\Test\TestCaseHelper\ReceiverLocatorDecorator.inner"/>
+        </service>
+
+        <service id="messenger.test_receiver_locator" alias="messenger.receiver_locator" public="true"/>
+        <service id="messenger.bus.test_shopware" alias="messenger.bus.shopware" public="true"/>
+
+        <service id="test.client" class="Shopware\Core\Framework\Test\TestCaseHelper\TestClient" shared="false" public="true">
+            <argument type="service" id="kernel" />
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument>%test.client.parameters%</argument>
+            <argument type="service" id="test.client.history" />
+            <argument type="service" id="test.client.cookiejar" />
+        </service>
+    </services>
+
+</container>

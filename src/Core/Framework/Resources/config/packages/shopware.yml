@@ -1,0 +1,30 @@
+shopware:
+    filesystem:
+        private:
+            type: "local"
+            config:
+                root: "%kernel.project_dir%/files"
+        public:
+            type: "local"
+            config:
+                root: "%kernel.project_dir%/public"
+
+    cdn:
+        url: ~
+        strategy: "md5"
+
+    api:
+        max_limit: 500
+        allowed_limits: [1, 5, 10, 25, 50, 75, 100, 500]
+        api_browser:
+            public: true
+
+    admin_worker:
+        enable_admin_worker: true
+        poll_interval: 30
+        transports: ["default"]
+
+    cache:
+        entity_cache:
+            enabled: true
+            expiration_time: 3600

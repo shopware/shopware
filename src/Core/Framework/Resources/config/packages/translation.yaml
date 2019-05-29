@@ -1,0 +1,7 @@
+framework:
+    default_locale: '%locale%'
+    translator:
+        default_path: '%kernel.project_dir%/vendor/shopware/platform/src/Core/Framework/Snippet/Files'
+        fallbacks:
+            - 'en_GB'
+            - 'en'

@@ -157,16 +157,6 @@ class AccountService
         return $this->customerRepository->search($criteria, $context->getContext());
     }
 
-    /**
-     * @throws CustomerNotLoggedInException
-     */
-    public function getCustomerByContext(SalesChannelContext $context): CustomerEntity
-    {
-        $this->validateCustomer($context);
-
-        return $context->getCustomer();
-    }
-
     public function saveProfile(DataBag $data, SalesChannelContext $context): void
     {
         /** @var DataValidationDefinition $validation */

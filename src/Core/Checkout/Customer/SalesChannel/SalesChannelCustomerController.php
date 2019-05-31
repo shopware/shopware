@@ -179,8 +179,14 @@ class SalesChannelCustomerController extends AbstractController
      */
     public function getCustomerDetail(Request $request, SalesChannelContext $context, ResponseFactoryInterface $responseFactory): Response
     {
+        $customer = $context->getCustomer();
+
+        if (!$customer) {
+            throw new CustomerNotLoggedInException();
+        }
+
         return $responseFactory->createDetailResponse(
-            $this->accountService->getCustomerByContext($context),
+            $customer,
             $this->customerDefinition,
             $request,
             $context->getContext()

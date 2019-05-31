@@ -62,15 +62,10 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
 
     public function get(string $salesChannelId, string $token, ?string $languageId = null): SalesChannelContext
     {
-        return $this->load($salesChannelId, $token, true, $languageId);
+        return $this->load($salesChannelId, $token, $languageId);
     }
 
-    public function refresh(string $salesChannelId, string $token, ?string $languageId = null): void
-    {
-        $this->load($salesChannelId, $token, false, $languageId);
-    }
-
-    private function load(string $salesChannelId, string $token, bool $useCache, ?string $languageId = null): SalesChannelContext
+    private function load(string $salesChannelId, string $token, ?string $languageId = null): SalesChannelContext
     {
         $parameters = $this->contextPersister->load($token);
 

@@ -23,7 +23,6 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\Country\CountryCollection;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -54,25 +53,18 @@ class AddressService
      */
     private $eventDispatcher;
 
-    /**
-     * @var SalesChannelContextServiceInterface
-     */
-    private $contextService;
-
     public function __construct(
         EntityRepositoryInterface $countryRepository,
         EntityRepositoryInterface $customerAddressRepository,
         AddressValidationService $addressValidationService,
         DataValidator $validator,
-        EventDispatcherInterface $eventDispatcher,
-        SalesChannelContextServiceInterface $contextService
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->countryRepository = $countryRepository;
         $this->customerAddressRepository = $customerAddressRepository;
         $this->addressValidationService = $addressValidationService;
         $this->validator = $validator;
         $this->eventDispatcher = $eventDispatcher;
-        $this->contextService = $contextService;
     }
 
     /**
@@ -160,8 +152,6 @@ class AddressService
 
         $this->customerAddressRepository->upsert([$addressData], $context->getContext());
 
-        $this->refreshContext($context);
-
         return $id;
     }
 
@@ -185,8 +175,6 @@ class AddressService
         }
 
         $this->customerAddressRepository->delete([['id' => $addressId]], $context->getContext());
-
-        $this->refreshContext($context);
     }
 
     /**
@@ -231,14 +219,5 @@ class AddressService
         $this->eventDispatcher->dispatch($validationEvent->getName(), $validationEvent);
 
         return $validation;
-    }
-
-    private function refreshContext(SalesChannelContext $context): void
-    {
-        $this->contextService->refresh(
-            $context->getSalesChannel()->getId(),
-            $context->getToken(),
-            $context->getContext()->getLanguageId()
-        );
     }
 }

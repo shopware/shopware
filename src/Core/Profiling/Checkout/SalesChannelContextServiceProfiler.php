@@ -34,9 +34,4 @@ class SalesChannelContextServiceProfiler implements SalesChannelContextServiceIn
 
         return $context;
     }
-
-    public function refresh(string $salesChannelId, string $token, ?string $languageId): void
-    {
-        $this->decorated->refresh($salesChannelId, $token, $languageId);
-    }
 }

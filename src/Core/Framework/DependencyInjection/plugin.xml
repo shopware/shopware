@@ -144,5 +144,10 @@
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\Util\VersionSanitizer"/>
+
+        <service id="Shopware\Core\Framework\Plugin\Command\PluginCreateCommand">
+            <argument>%kernel.project_dir%</argument>
+            <tag name="console.command"/>
+        </service>
     </services>
 </container>

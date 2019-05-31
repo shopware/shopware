@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\System\SalesChannel\Context;
 
-use Psr\Cache\CacheItemInterface;
-use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -31,11 +29,6 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
     public const STATE_ID = 'stateId';
 
     /**
-     * @var CacheItemPoolInterface
-     */
-    private $cache;
-
-    /**
      * @var SalesChannelContextFactory
      */
     private $factory;
@@ -56,13 +49,11 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
     private $cartService;
 
     public function __construct(
-        CacheItemPoolInterface $cache,
         SalesChannelContextFactory $factory,
         CartRuleLoader $ruleLoader,
         SalesChannelContextPersister $contextPersister,
         CartService $cartService
     ) {
-        $this->cache = $cache;
         $this->factory = $factory;
         $this->ruleLoader = $ruleLoader;
         $this->contextPersister = $contextPersister;
@@ -81,62 +72,18 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
 
     private function load(string $salesChannelId, string $token, bool $useCache, ?string $languageId = null): SalesChannelContext
     {
-        $key = $salesChannelId . '-' . $token;
-
         $parameters = $this->contextPersister->load($token);
 
         if ($languageId) {
             $parameters[self::LANGUAGE_ID] = $languageId;
         }
 
-        $cacheKey = $key . '-' . implode($parameters);
-
-        $item = $this->cache->getItem($cacheKey);
-
-        $context = null;
-        if ($useCache && $item->isHit()) {
-            try {
-                $context = $this->loadFromCache($item, $token);
-            } catch (\Exception $e) {
-                // nth
-            }
-        }
-
-        if (!$context) {
-            $context = $this->factory->create($token, $salesChannelId, $parameters);
-
-            $item->set($context);
-
-            $item->expiresAfter(120);
-
-            $this->cache->save($item);
-        }
+        $context = $this->factory->create($token, $salesChannelId, $parameters);
 
         $result = $this->ruleLoader->loadByToken($context, $token);
 
         $this->cartService->setCart($result->getCart());
 
         return $context;
-    }
-
-    private function loadFromCache(CacheItemInterface $item, string $token): SalesChannelContext
-    {
-        $cacheContext = $item->get();
-
-        /* @var SalesChannelContext $cacheContext */
-        return new SalesChannelContext(
-            $cacheContext->getContext(),
-            $token,
-            $cacheContext->getSalesChannel(),
-            $cacheContext->getCurrency(),
-            $cacheContext->getCurrentCustomerGroup(),
-            $cacheContext->getFallbackCustomerGroup(),
-            $cacheContext->getTaxRules(),
-            $cacheContext->getPaymentMethod(),
-            $cacheContext->getShippingMethod(),
-            $cacheContext->getShippingLocation(),
-            $cacheContext->getCustomer(),
-            []
-        );
     }
 }

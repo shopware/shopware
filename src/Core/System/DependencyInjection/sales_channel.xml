@@ -65,7 +65,6 @@
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService">
-            <argument type="service" id="shopware.cache"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>

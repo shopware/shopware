@@ -89,7 +89,7 @@ class OrderAddressEntity extends Entity
     protected $additionalAddressLine2;
 
     /**
-     * @var CountryEntity
+     * @var CountryEntity|null
      */
     protected $country;
 
@@ -104,7 +104,7 @@ class OrderAddressEntity extends Entity
     protected $order;
 
     /**
-     * @var SalutationEntity
+     * @var SalutationEntity|null
      */
     protected $salutation;
 
@@ -273,7 +273,7 @@ class OrderAddressEntity extends Entity
         $this->additionalAddressLine2 = $additionalAddressLine2;
     }
 
-    public function getCountry(): CountryEntity
+    public function getCountry(): ?CountryEntity
     {
         return $this->country;
     }
@@ -303,7 +303,7 @@ class OrderAddressEntity extends Entity
         $this->order = $order;
     }
 
-    public function getSalutation(): SalutationEntity
+    public function getSalutation(): ?SalutationEntity
     {
         return $this->salutation;
     }

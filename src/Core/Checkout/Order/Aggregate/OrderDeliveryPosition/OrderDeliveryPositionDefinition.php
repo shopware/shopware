@@ -61,7 +61,7 @@ class OrderDeliveryPositionDefinition extends EntityDefinition
             (new IntField('quantity', 'quantity'))->addFlags(new Computed()),
             new CustomFields(),
             new ManyToOneAssociationField('orderDelivery', 'order_delivery_id', OrderDeliveryDefinition::class, 'id', false),
-            new ManyToOneAssociationField('orderLineItem', 'order_line_item_id', OrderLineItemDefinition::class, 'id', true),
+            new ManyToOneAssociationField('orderLineItem', 'order_line_item_id', OrderLineItemDefinition::class, 'id', false),
         ]);
     }
 }

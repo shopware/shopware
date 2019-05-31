@@ -79,7 +79,7 @@ class ThumbnailServiceTest extends TestCase
         $searchCriteria = new Criteria();
         $searchCriteria->setLimit(1);
         $searchCriteria->addFilter(new EqualsFilter('media.id', $media->getId()));
-        $searchCriteria->addAssociation('mediaFolder', new Criteria());
+        $searchCriteria->addAssociationPath('mediaFolder.configuration.mediaThumbnailSizes');
 
         $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
 
@@ -275,7 +275,11 @@ class ThumbnailServiceTest extends TestCase
             ],
         ], $this->context);
 
-        $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
+        $criteria = new Criteria([$media->getId()]);
+        $criteria->addAssociation('thumbnails');
+        $criteria->addAssociationPath('mediaFolder.configuration.mediaThumbnailSizes');
+
+        $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
 
         $this->getPublicFilesystem()->putStream(
             $this->urlGenerator->getRelativeMediaUrl($media),
@@ -284,16 +288,21 @@ class ThumbnailServiceTest extends TestCase
 
         $this->thumbnailService->generateThumbnails($media, $this->context);
 
-        /** @var MediaEntity $media */
-        $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
-        static::assertEquals(4, $media->getThumbnails()->count());
+        $criteria = new Criteria([$media->getId()]);
+        $criteria->addAssociation('thumbnails');
+
+        $media = $this->mediaRepository
+            ->search($criteria, $this->context)
+            ->get($media->getId());
+
+        static::assertEquals(2, $media->getThumbnails()->count());
 
         $filteredThumbnails = $media->getThumbnails()->filter(function (MediaThumbnailEntity $thumbnail) {
             return ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300)
                 || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150);
         });
 
-        static::assertEquals(3, $filteredThumbnails->count());
+        static::assertEquals(2, $filteredThumbnails->count());
 
         /** @var MediaThumbnailEntity $thumbnail */
         foreach ($filteredThumbnails as $thumbnail) {

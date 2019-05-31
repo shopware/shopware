@@ -34,7 +34,10 @@ class CurrencyFormatter
     public function formatCurrencyByLanguage(float $price, string $currency, string $languageId, Context $context): string
     {
         if (!array_key_exists($languageId, $this->localeCache)) {
-            $criteria = (new Criteria())->addFilter(new EqualsFilter('language.id', $languageId));
+            $criteria = (new Criteria())
+                ->addAssociation('locale')
+                ->addFilter(new EqualsFilter('language.id', $languageId));
+
             /** @var LanguageEntity|null $language */
             $language = $this->languageRepository->search($criteria, $context)->get($languageId);
 

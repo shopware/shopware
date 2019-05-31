@@ -535,7 +535,17 @@ class SalesChannelCheckoutControllerTest extends TestCase
         static::assertSame(200, $response->getStatusCode(), print_r($response, true));
 
         $actualOrder = json_decode($response->getContent(), true);
-        $this->silentAssertArraySubset($expectedOrder, $actualOrder);
+
+        $actualOrder = $actualOrder['data'];
+        $expectedOrder = $expectedOrder['data'];
+
+        static::assertSame($actualOrder['orderNumber'], $expectedOrder['orderNumber']);
+        static::assertSame($actualOrder['currencyId'], $expectedOrder['currencyId']);
+        static::assertSame($actualOrder['salesChannelId'], $expectedOrder['salesChannelId']);
+        static::assertSame($actualOrder['amountTotal'], $expectedOrder['amountTotal']);
+        static::assertSame($actualOrder['amountNet'], $expectedOrder['amountNet']);
+        static::assertSame($actualOrder['positionPrice'], $expectedOrder['positionPrice']);
+        static::assertSame($actualOrder['taxStatus'], $expectedOrder['taxStatus']);
     }
 
     public function testDeepLinkGuestOrderWithAccessKey(): void
@@ -549,7 +559,17 @@ class SalesChannelCheckoutControllerTest extends TestCase
         static::assertSame(200, $response->getStatusCode());
 
         $actualOrder = json_decode($response->getContent(), true);
-        $this->silentAssertArraySubset($expectedOrder, $actualOrder);
+
+        $actualOrder = $actualOrder['data'];
+        $expectedOrder = $expectedOrder['data'];
+
+        static::assertSame($actualOrder['orderNumber'], $expectedOrder['orderNumber']);
+        static::assertSame($actualOrder['currencyId'], $expectedOrder['currencyId']);
+        static::assertSame($actualOrder['salesChannelId'], $expectedOrder['salesChannelId']);
+        static::assertSame($actualOrder['amountTotal'], $expectedOrder['amountTotal']);
+        static::assertSame($actualOrder['amountNet'], $expectedOrder['amountNet']);
+        static::assertSame($actualOrder['positionPrice'], $expectedOrder['positionPrice']);
+        static::assertSame($actualOrder['taxStatus'], $expectedOrder['taxStatus']);
     }
 
     public function testDeepLinkGuestOrderWithWrongCode(): void

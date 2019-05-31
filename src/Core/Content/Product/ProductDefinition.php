@@ -179,9 +179,9 @@ class ProductDefinition extends EntityDefinition
 
             //inherited associations and associations which are loaded immediately
             (new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, 'id', true))->addFlags(new Inherited()),
-            (new ManyToOneAssociationField('manufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, 'id', true))->addFlags(new Inherited()),
-            (new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, 'id', true))->addFlags(new Inherited()),
-            (new ManyToOneAssociationField('cover', 'product_media_id', ProductMediaDefinition::class, 'id', true))->addFlags(new Inherited()),
+            (new ManyToOneAssociationField('manufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, 'id', false))->addFlags(new Inherited()),
+            (new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, 'id', false))->addFlags(new Inherited()),
+            (new ManyToOneAssociationField('cover', 'product_media_id', ProductMediaDefinition::class, 'id', false))->addFlags(new Inherited()),
             (new OneToManyAssociationField('prices', ProductPriceDefinition::class, 'product_id'))->addFlags(new CascadeDelete(), new Inherited()),
 
             //inherited associations which are not loaded immediately

@@ -25,7 +25,7 @@ class PaymentMethodTranslationEntity extends TranslationEntity
     protected $description;
 
     /**
-     * @var PaymentMethodEntity
+     * @var PaymentMethodEntity|null
      */
     protected $paymentMethod;
 
@@ -64,7 +64,7 @@ class PaymentMethodTranslationEntity extends TranslationEntity
         $this->description = $description;
     }
 
-    public function getPaymentMethod(): PaymentMethodEntity
+    public function getPaymentMethod(): ?PaymentMethodEntity
     {
         return $this->paymentMethod;
     }

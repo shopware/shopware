@@ -18,7 +18,7 @@ class CmsSlotTranslationEntity extends TranslationEntity
     protected $cmsSlotId;
 
     /**
-     * @var CmsSlotEntity
+     * @var CmsSlotEntity|null
      */
     protected $cmsSlot;
 
@@ -47,7 +47,7 @@ class CmsSlotTranslationEntity extends TranslationEntity
         $this->cmsSlotId = $cmsSlotId;
     }
 
-    public function getCmsSlot(): CmsSlotEntity
+    public function getCmsSlot(): ?CmsSlotEntity
     {
         return $this->cmsSlot;
     }

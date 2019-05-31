@@ -343,14 +343,18 @@ class Criteria extends Struct
         ]);
     }
 
-    public function setIds(array $ids): void
+    public function setIds(array $ids): self
     {
         $this->ids = $ids;
+
+        return $this;
     }
 
-    public function addState(string $state): void
+    public function addState(string $state): self
     {
         $this->states[$state] = true;
+
+        return $this;
     }
 
     public function hasState(string $state): bool

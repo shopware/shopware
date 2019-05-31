@@ -90,6 +90,7 @@ Component.register('sw-customer-detail-order', {
             } else {
                 criteria = this.orders.criteria;
             }
+            criteria.addAssociation('stateMachineState');
 
             this.orderRepository.search(criteria, this.context).then((orders) => {
                 this.orders = orders;

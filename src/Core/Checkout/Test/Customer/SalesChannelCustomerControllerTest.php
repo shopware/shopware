@@ -102,7 +102,8 @@ class SalesChannelCustomerControllerTest extends TestCase
 
         static::assertEquals(200, $response->getStatusCode());
         static::assertNotEmpty($content);
-        static::assertEquals($customer, $content);
+
+        static::assertSame($customer['data']['customerNumber'], $content['data']['customerNumber']);
     }
 
     public function testLoginWithBadCredentials(): void
@@ -171,7 +172,8 @@ class SalesChannelCustomerControllerTest extends TestCase
         $customerData = $this->serialize($customer);
         static::assertEquals(200, $response->getStatusCode());
         static::assertNotEmpty($content);
-        static::assertEquals($customerData, $content);
+
+        static::assertSame($customerData['data']['customerNumber'], $content['data']['customerNumber']);
     }
 
     public function testLogout(): void
@@ -205,7 +207,8 @@ class SalesChannelCustomerControllerTest extends TestCase
 
         static::assertEquals(200, $response->getStatusCode());
         static::assertNotEmpty($content);
-        static::assertEquals($customer, $content);
+
+        static::assertSame($customer['data']['customerNumber'], $content['data']['customerNumber']);
     }
 
     public function testGetAddress(): void
@@ -400,7 +403,7 @@ class SalesChannelCustomerControllerTest extends TestCase
         $billingAddress = $customer->getDefaultBillingAddress();
 
         static::assertEquals($personal['billingAddress']['countryId'], $billingAddress->getCountryId());
-        static::assertEquals($personal['salutationId'], $billingAddress->getSalutation()->getId());
+        static::assertEquals($personal['salutationId'], $billingAddress->getSalutationId());
         static::assertEquals($personal['firstName'], $billingAddress->getFirstName());
         static::assertEquals($personal['lastName'], $billingAddress->getLastName());
         static::assertEquals($personal['billingAddress']['street'], $billingAddress->getStreet());
@@ -415,7 +418,7 @@ class SalesChannelCustomerControllerTest extends TestCase
         $shippingAddress = $customer->getDefaultShippingAddress();
 
         static::assertEquals($personal['shippingAddress']['countryId'], $shippingAddress->getCountryId());
-        static::assertEquals($personal['shippingAddress']['salutationId'], $shippingAddress->getSalutation()->getId());
+        static::assertEquals($personal['shippingAddress']['salutationId'], $shippingAddress->getSalutationId());
         static::assertEquals($personal['shippingAddress']['firstName'], $shippingAddress->getFirstName());
         static::assertEquals($personal['shippingAddress']['lastName'], $shippingAddress->getLastName());
         static::assertEquals($personal['shippingAddress']['street'], $shippingAddress->getStreet());
@@ -653,20 +656,26 @@ class SalesChannelCustomerControllerTest extends TestCase
         return $addressId;
     }
 
-    private function readCustomer(string $userID): CustomerEntity
+    private function readCustomer(string $customerId): CustomerEntity
     {
-        return $this->customerRepository->search(
-            new Criteria([$userID]),
-            Context::createDefaultContext()
-        )->get($userID);
+        $criteria = new Criteria([$customerId]);
+        $criteria->addAssociation('salutation');
+        $criteria->addAssociation('defaultBillingAddress');
+        $criteria->addAssociation('defaultShippingAddress');
+
+        return $this->customerRepository
+            ->search($criteria, Context::createDefaultContext())
+            ->get($customerId);
     }
 
     private function readCustomerAddress(string $addressId): ?CustomerAddressEntity
     {
-        return $this->customerAddressRepository->search(
-            new Criteria([$addressId]),
-            Context::createDefaultContext()
-        )->get($addressId);
+        $criteria = new Criteria([$addressId]);
+        $criteria->addAssociation('salutation');
+
+        return $this->customerAddressRepository
+            ->search($criteria, Context::createDefaultContext())
+            ->get($addressId);
     }
 
     private function serialize($data): array

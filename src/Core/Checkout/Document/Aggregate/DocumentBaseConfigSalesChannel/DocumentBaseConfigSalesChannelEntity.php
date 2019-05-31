@@ -27,12 +27,12 @@ class DocumentBaseConfigSalesChannelEntity extends Entity
     protected $documentTypeId;
 
     /**
-     * @var DocumentTypeEntity
+     * @var DocumentTypeEntity|null
      */
     protected $documentType;
 
     /**
-     * @var DocumentBaseConfigSalesChannelEntity
+     * @var DocumentBaseConfigSalesChannelEntity|null
      */
     protected $documentBaseConfig;
 
@@ -74,7 +74,7 @@ class DocumentBaseConfigSalesChannelEntity extends Entity
         $this->documentTypeId = $documentTypeId;
     }
 
-    public function getDocumentType(): DocumentTypeEntity
+    public function getDocumentType(): ?DocumentTypeEntity
     {
         return $this->documentType;
     }
@@ -84,7 +84,7 @@ class DocumentBaseConfigSalesChannelEntity extends Entity
         $this->documentType = $documentType;
     }
 
-    public function getDocumentBaseConfig(): DocumentBaseConfigSalesChannelEntity
+    public function getDocumentBaseConfig(): ?DocumentBaseConfigSalesChannelEntity
     {
         return $this->documentBaseConfig;
     }

@@ -140,19 +140,55 @@ Component.register('sw-order-detail-base', {
             this.isLoading = true;
 
             const addresses = this.currentOrder.getAssociation('addresses').getList(
-                { page: 1, limit: 50, versionId: this.currentOrder.versionId }
+                {
+                    page: 1,
+                    limit: 50,
+                    versionId: this.currentOrder.versionId,
+                    associations: {
+                        country: {},
+                        countryState: {},
+                        salutation: {}
+                    }
+                }
             );
 
             const deliveries = this.currentOrder.getAssociation('deliveries').getList(
-                { page: 1, limit: 50, versionId: this.currentOrder.versionId }
+                {
+                    page: 1,
+                    limit: 50,
+                    versionId: this.currentOrder.versionId,
+                    associations: {
+                        stateMachineState: {},
+                        shippingMethod: {},
+                        shippingOrderAddress: {
+                            associations: {
+                                country: {}
+                            }
+                        }
+                    }
+                }
             );
 
             const transactions = this.currentOrder.getAssociation('transactions').getList(
-                { page: 1, limit: 50, versionId: this.currentOrder.versionId }
+                {
+                    page: 1,
+                    limit: 50,
+                    versionId: this.currentOrder.versionId,
+                    associations: {
+                        paymentMethod: {}
+                    }
+                }
             );
 
             const documents = this.currentOrder.getAssociation('documents').getList(
-                { page: 1, limit: 50, versionId: this.currentOrder.versionId }
+                {
+                    page: 1,
+                    limit: 50,
+                    versionId: this.currentOrder.versionId,
+                    associations: {
+                        documentType: {}
+                    }
+                }
             );
 
             return Promise.all([addresses, deliveries, transactions, documents]).then(() => {

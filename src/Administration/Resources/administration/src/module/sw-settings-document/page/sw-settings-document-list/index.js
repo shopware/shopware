@@ -44,6 +44,7 @@ Component.register('sw-settings-document-list', {
 
             const params = this.getListingParams();
             params.associations = {
+                documentType: {},
                 salesChannels: {
                     associations: {
                         salesChannel: {}

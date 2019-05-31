@@ -27,17 +27,17 @@ class NumberRangeSalesChannelEntity extends Entity
     protected $numberRangeTypeId;
 
     /**
-     * @var NumberRangeEntity
+     * @var NumberRangeEntity|null
      */
     protected $numberRange;
 
     /**
-     * @var SalesChannelEntity
+     * @var SalesChannelEntity|null
      */
     protected $salesChannel;
 
     /**
-     * @var NumberRangeTypeEntity
+     * @var NumberRangeTypeEntity|null
      */
     protected $numberRangeType;
 
@@ -71,7 +71,7 @@ class NumberRangeSalesChannelEntity extends Entity
         $this->numberRangeTypeId = $numberRangeTypeId;
     }
 
-    public function getNumberRange(): NumberRangeEntity
+    public function getNumberRange(): ?NumberRangeEntity
     {
         return $this->numberRange;
     }
@@ -81,7 +81,7 @@ class NumberRangeSalesChannelEntity extends Entity
         $this->numberRange = $numberRange;
     }
 
-    public function getSalesChannel(): SalesChannelEntity
+    public function getSalesChannel(): ?SalesChannelEntity
     {
         return $this->salesChannel;
     }
@@ -91,7 +91,7 @@ class NumberRangeSalesChannelEntity extends Entity
         $this->salesChannel = $salesChannel;
     }
 
-    public function getNumberRangeType(): NumberRangeTypeEntity
+    public function getNumberRangeType(): ?NumberRangeTypeEntity
     {
         return $this->numberRangeType;
     }

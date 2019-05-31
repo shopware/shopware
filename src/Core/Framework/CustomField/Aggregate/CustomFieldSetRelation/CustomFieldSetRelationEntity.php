@@ -21,7 +21,7 @@ class CustomFieldSetRelationEntity extends Entity
     protected $customFieldSetId;
 
     /**
-     * @var CustomFieldSetEntity
+     * @var CustomFieldSetEntity|null
      */
     protected $customFieldSet;
 
@@ -45,7 +45,7 @@ class CustomFieldSetRelationEntity extends Entity
         $this->customFieldSetId = $customFieldSetId;
     }
 
-    public function getCustomFieldSet(): CustomFieldSetEntity
+    public function getCustomFieldSet(): ?CustomFieldSetEntity
     {
         return $this->customFieldSet;
     }

@@ -115,15 +115,8 @@ class RecalculationService
      */
     public function recalculateOrder(string $orderId, Context $context): void
     {
-        $deliveryCriteria = new Criteria();
-        $deliveryCriteria->addAssociation('positions');
+        $order = $this->fetchOrder($orderId, $context);
 
-        $criteria = (new Criteria([$orderId]))
-            ->addAssociation('lineItems')
-            ->addAssociation('transactions')
-            ->addAssociation('deliveries', $deliveryCriteria);
-
-        $order = $this->orderRepository->search($criteria, $context)->get($orderId);
         $this->validateOrder($order, $orderId);
 
         $salesChannelContext = $this->orderConverter->assembleSalesChannelContext($order, $context);
@@ -176,16 +169,8 @@ class RecalculationService
      */
     public function addCustomLineItem(string $orderId, LineItem $lineItem, Context $context): void
     {
-        $deliveryCriteria = new Criteria();
-        $deliveryCriteria->addAssociation('positions');
+        $order = $this->fetchOrder($orderId, $context);
 
-        $criteria = (new Criteria([$orderId]))
-            ->addAssociation('lineItems')
-            ->addAssociation('transactions')
-            ->addAssociation('deliveries', $deliveryCriteria);
-
-        /** @var OrderEntity|null $order */
-        $order = $this->orderRepository->search($criteria, $context)->get($orderId);
         $this->validateOrder($order, $orderId);
 
         $salesChannelContext = $this->orderConverter->assembleSalesChannelContext($order, $context);
@@ -224,6 +209,22 @@ class RecalculationService
         $newOrderAddress = AddressTransformer::transform($customerAddress);
         $newOrderAddress['id'] = $orderAddressId;
         $this->orderAddressRepository->upsert([$newOrderAddress], $context);
+    }
+
+    private function fetchOrder(string $orderId, Context $context)
+    {
+        $criteria = (new Criteria([$orderId]))
+            ->addAssociation('lineItems')
+            ->addAssociation('transactions')
+            ->addAssociationPath('deliveries.shippingMethod')
+            ->addAssociationPath('deliveries.positions.orderLineItem')
+            ->addAssociationPath('deliveries.shippingOrderAddress.country')
+            ->addAssociationPath('deliveries.shippingOrderAddress.countryState');
+
+        /* @var OrderEntity|null $order */
+        return $this->orderRepository
+            ->search($criteria, $context)
+            ->get($orderId);
     }
 
     private function refresh(Cart $cart, SalesChannelContext $context): Cart

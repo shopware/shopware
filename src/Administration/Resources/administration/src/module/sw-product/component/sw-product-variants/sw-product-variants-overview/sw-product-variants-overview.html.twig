@@ -118,6 +118,7 @@
                         <template v-if="isInlineEdit">
                             {% block sw_product_variants_overview_data_grid_column_price_field_inline %}
                                 <sw-product-variants-price-field
+                                        v-if="currency"
                                         :price="item.price"
                                         :taxRate="item.taxId"
                                         :compact="compact"
@@ -129,6 +130,7 @@
                         <template v-else>
                             {% block sw_product_variants_overview_data_grid_column_price_field_view %}
                                 <sw-product-variants-price-field
+                                        v-if="currency"
                                         :price="item.price"
                                         :taxRate="item.taxId"
                                         :compact="compact"

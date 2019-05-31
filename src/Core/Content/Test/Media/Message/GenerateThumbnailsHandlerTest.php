@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Test\Media\Message;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
-use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Message\GenerateThumbnailsHandler;
 use Shopware\Core\Content\Media\Message\GenerateThumbnailsMessage;
 use Shopware\Core\Content\Media\Message\UpdateThumbnailsMessage;
@@ -86,7 +85,11 @@ class GenerateThumbnailsHandlerTest extends TestCase
 
         $this->handler->__invoke($msg);
 
-        $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
+        $criteria = new Criteria([$media->getId()]);
+        $criteria->addAssociation('thumbnails');
+        $criteria->addAssociationPath('mediaFolder.configuration.thumbnailSizes');
+
+        $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
         static::assertEquals(4, $media->getThumbnails()->count());
 
         $filteredThumbnails = $media->getThumbnails()->filter(function (MediaThumbnailEntity $thumbnail) {
@@ -131,8 +134,11 @@ class GenerateThumbnailsHandlerTest extends TestCase
 
         $this->handler->__invoke($msg);
 
-        /** @var MediaEntity $media */
-        $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
+        $criteria = new Criteria([$media->getId()]);
+        $criteria->addAssociation('thumbnails');
+        $criteria->addAssociationPath('mediaFolder.configuration.thumbnailSizes');
+
+        $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
         static::assertEquals(3, $media->getThumbnails()->count());
 
         $filteredThumbnails = $media->getThumbnails()->filter(function (MediaThumbnailEntity $thumbnail) {

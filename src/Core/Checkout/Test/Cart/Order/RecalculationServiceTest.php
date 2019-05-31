@@ -106,9 +106,16 @@ class RecalculationServiceTest extends TestCase
 
         $criteria = (new Criteria([$orderId]))
             ->addAssociation('lineItems')
-            ->addAssociation('deliveries', $deliveryCriteria);
+            ->addAssociation('transactions')
+            ->addAssociationPath('deliveries.shippingMethod')
+            ->addAssociationPath('deliveries.positions.orderLineItem')
+            ->addAssociationPath('deliveries.shippingOrderAddress.country')
+            ->addAssociationPath('deliveries.shippingOrderAddress.countryState');
 
-        $order = $this->getContainer()->get('order.repository')->search($criteria, $this->context)->get($orderId);
+        $order = $this->getContainer()->get('order.repository')
+            ->search($criteria, $this->context)
+            ->get($orderId);
+
         $convertedCart = $this->getContainer()->get(OrderConverter::class)->convertToCart($order, $this->context);
 
         // check name and token
@@ -1364,6 +1371,7 @@ class RecalculationServiceTest extends TestCase
 
         $criteria = new Criteria([$shippingMethodId]);
         $criteria->addAssociation('prices');
+        $criteria->addAssociation('deliveryTime');
 
         return $repository->search($criteria, $this->context)->get($shippingMethodId);
     }
@@ -1430,6 +1438,7 @@ class RecalculationServiceTest extends TestCase
 
         $criteria = new Criteria([$shippingMethodId]);
         $criteria->addAssociation('priceRules');
+        $criteria->addAssociation('deliveryTime');
 
         return $repository->search($criteria, $this->context)->get($shippingMethodId);
     }

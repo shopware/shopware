@@ -22,7 +22,7 @@ class MailTemplateMediaEntity extends Entity
     protected $mediaId;
 
     /**
-     * @var MediaEntity
+     * @var MediaEntity|null
      */
     protected $media;
 
@@ -51,7 +51,7 @@ class MailTemplateMediaEntity extends Entity
         $this->mediaId = $mediaId;
     }
 
-    public function getMedia(): MediaEntity
+    public function getMedia(): ?MediaEntity
     {
         return $this->media;
     }

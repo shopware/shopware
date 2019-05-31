@@ -39,7 +39,7 @@ class OrderTransactionEntity extends Entity
     protected $order;
 
     /***
-     * @var StateMachineStateEntity
+     * @var StateMachineStateEntity|null
      */
     protected $stateMachineState;
 
@@ -103,7 +103,7 @@ class OrderTransactionEntity extends Entity
         $this->order = $order;
     }
 
-    public function getStateMachineState(): StateMachineStateEntity
+    public function getStateMachineState(): ?StateMachineStateEntity
     {
         return $this->stateMachineState;
     }

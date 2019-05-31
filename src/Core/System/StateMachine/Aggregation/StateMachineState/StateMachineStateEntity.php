@@ -30,7 +30,7 @@ class StateMachineStateEntity extends Entity
     protected $stateMachineId;
 
     /**
-     * @var StateMachineEntity
+     * @var StateMachineEntity|null
      */
     protected $stateMachine;
 
@@ -119,7 +119,7 @@ class StateMachineStateEntity extends Entity
         $this->stateMachineId = $stateMachineId;
     }
 
-    public function getStateMachine(): StateMachineEntity
+    public function getStateMachine(): ?StateMachineEntity
     {
         return $this->stateMachine;
     }

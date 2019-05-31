@@ -194,7 +194,10 @@ class EntityRepositoryTest extends TestCase
         $listener->expects(static::once())->method('__invoke');
         $dispatcher->addListener('tax.loaded', $listener);
 
-        $locale = $repository->search(new Criteria([$id, $id2]), $context);
+        $criteria = new Criteria([$id, $id2]);
+        $criteria->addAssociation('manufacturer');
+
+        $locale = $repository->search($criteria, $context);
 
         static::assertInstanceOf(EntityCollection::class, $locale);
         static::assertCount(2, $locale);
@@ -320,6 +323,7 @@ class EntityRepositoryTest extends TestCase
 
         $criteria = new Criteria([$id, $id2]);
         $criteria->addAssociation('prices');
+        $criteria->addAssociation('manufacturer');
 
         $locale = $repository->search($criteria, $context);
 

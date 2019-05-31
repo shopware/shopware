@@ -43,7 +43,7 @@ class SalesChannelDomainEntity extends Entity
     protected $salesChannelId;
 
     /**
-     * @var SalesChannelEntity
+     * @var SalesChannelEntity|null
      */
     protected $salesChannel;
 
@@ -53,7 +53,7 @@ class SalesChannelDomainEntity extends Entity
     protected $languageId;
 
     /**
-     * @var LanguageEntity
+     * @var LanguageEntity|null
      */
     protected $language;
 
@@ -92,7 +92,7 @@ class SalesChannelDomainEntity extends Entity
         $this->languageId = $languageId;
     }
 
-    public function getSalesChannel(): SalesChannelEntity
+    public function getSalesChannel(): ?SalesChannelEntity
     {
         return $this->salesChannel;
     }
@@ -102,7 +102,7 @@ class SalesChannelDomainEntity extends Entity
         $this->salesChannel = $salesChannel;
     }
 
-    public function getLanguage(): LanguageEntity
+    public function getLanguage(): ?LanguageEntity
     {
         return $this->language;
     }

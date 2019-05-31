@@ -63,7 +63,7 @@ class OrderDeliveryDefinition extends EntityDefinition
             (new FkField('shipping_method_id', 'shippingMethodId', ShippingMethodDefinition::class))->addFlags(new Required()),
 
             (new FkField('state_id', 'stateId', StateMachineStateDefinition::class))->addFlags(new Required()),
-            new ManyToOneAssociationField('stateMachineState', 'state_id', StateMachineStateDefinition::class, 'id', true),
+            new ManyToOneAssociationField('stateMachineState', 'state_id', StateMachineStateDefinition::class, 'id', false),
 
             (new StringField('tracking_code', 'trackingCode'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new DateField('shipping_date_earliest', 'shippingDateEarliest'))->addFlags(new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),

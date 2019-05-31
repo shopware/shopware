@@ -175,7 +175,7 @@ class SalesChannelCheckoutController extends AbstractController
     private function getOrderById(string $orderId, SalesChannelContext $context): OrderEntity
     {
         $criteria = new Criteria([$orderId]);
-        $criteria->addAssociation('addresses');
+        $criteria->addAssociationPath('addresses.country');
 
         $order = $this->orderRepository->search($criteria, $context->getContext())->get($orderId);
 

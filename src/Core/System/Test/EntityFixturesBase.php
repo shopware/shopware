@@ -64,7 +64,10 @@ trait EntityFixturesBase
             );
         }
 
-        return $repository->search(new Criteria([$fixtureData[$fixtureName]['id']]), $this->entityFixtureContext)
+        $criteria = new Criteria([$fixtureData[$fixtureName]['id']]);
+
+        return $repository
+            ->search($criteria, $this->entityFixtureContext)
             ->get($fixtureData[$fixtureName]['id']);
     }
 

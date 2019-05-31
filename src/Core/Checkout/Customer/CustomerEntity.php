@@ -155,17 +155,17 @@ class CustomerEntity extends Entity
     protected $legacyPassword;
 
     /**
-     * @var CustomerGroupEntity
+     * @var CustomerGroupEntity|null
      */
     protected $group;
 
     /**
-     * @var PaymentMethodEntity
+     * @var PaymentMethodEntity|null
      */
     protected $defaultPaymentMethod;
 
     /**
-     * @var SalesChannelEntity
+     * @var SalesChannelEntity|null
      */
     protected $salesChannel;
 
@@ -180,17 +180,17 @@ class CustomerEntity extends Entity
     protected $lastPaymentMethod;
 
     /**
-     * @var SalutationEntity
+     * @var SalutationEntity|null
      */
     protected $salutation;
 
     /**
-     * @var CustomerAddressEntity
+     * @var CustomerAddressEntity|null
      */
     protected $defaultBillingAddress;
 
     /**
-     * @var CustomerAddressEntity
+     * @var CustomerAddressEntity|null
      */
     protected $defaultShippingAddress;
 
@@ -469,26 +469,6 @@ class CustomerEntity extends Entity
         $this->orderCount = $orderCount;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
-    }
-
     public function getLegacyEncoder(): ?string
     {
         return $this->legacyEncoder;
@@ -514,7 +494,7 @@ class CustomerEntity extends Entity
         return $this->legacyPassword !== null && $this->legacyEncoder !== null;
     }
 
-    public function getGroup(): CustomerGroupEntity
+    public function getGroup(): ?CustomerGroupEntity
     {
         return $this->group;
     }
@@ -524,7 +504,7 @@ class CustomerEntity extends Entity
         $this->group = $group;
     }
 
-    public function getDefaultPaymentMethod(): PaymentMethodEntity
+    public function getDefaultPaymentMethod(): ?PaymentMethodEntity
     {
         return $this->defaultPaymentMethod;
     }
@@ -534,7 +514,7 @@ class CustomerEntity extends Entity
         $this->defaultPaymentMethod = $defaultPaymentMethod;
     }
 
-    public function getSalesChannel(): SalesChannelEntity
+    public function getSalesChannel(): ?SalesChannelEntity
     {
         return $this->salesChannel;
     }
@@ -564,7 +544,7 @@ class CustomerEntity extends Entity
         $this->lastPaymentMethod = $lastPaymentMethod;
     }
 
-    public function getSalutation(): SalutationEntity
+    public function getSalutation(): ?SalutationEntity
     {
         return $this->salutation;
     }
@@ -574,7 +554,7 @@ class CustomerEntity extends Entity
         $this->salutation = $salutation;
     }
 
-    public function getDefaultBillingAddress(): CustomerAddressEntity
+    public function getDefaultBillingAddress(): ?CustomerAddressEntity
     {
         return $this->defaultBillingAddress;
     }
@@ -584,7 +564,7 @@ class CustomerEntity extends Entity
         $this->defaultBillingAddress = $defaultBillingAddress;
     }
 
-    public function getDefaultShippingAddress(): CustomerAddressEntity
+    public function getDefaultShippingAddress(): ?CustomerAddressEntity
     {
         return $this->defaultShippingAddress;
     }
@@ -594,7 +574,7 @@ class CustomerEntity extends Entity
         $this->defaultShippingAddress = $defaultShippingAddress;
     }
 
-    public function getActiveBillingAddress(): CustomerAddressEntity
+    public function getActiveBillingAddress(): ?CustomerAddressEntity
     {
         if (!$this->activeBillingAddress) {
             return $this->defaultBillingAddress;
@@ -608,7 +588,7 @@ class CustomerEntity extends Entity
         $this->activeBillingAddress = $activeBillingAddress;
     }
 
-    public function getActiveShippingAddress(): CustomerAddressEntity
+    public function getActiveShippingAddress(): ?CustomerAddressEntity
     {
         if (!$this->activeShippingAddress) {
             return $this->defaultShippingAddress;
@@ -685,7 +665,7 @@ class CustomerEntity extends Entity
      * Sets a list of all promotions where the customer
      * should be assigned to within the "persona" conditions.
      */
-    public function setPromotions(?PromotionCollection $promotions): void
+    public function setPromotions(PromotionCollection $promotions): void
     {
         $this->promotions = $promotions;
     }

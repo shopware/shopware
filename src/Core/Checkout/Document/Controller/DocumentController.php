@@ -49,6 +49,8 @@ class DocumentController extends AbstractController
             new EqualsFilter('deepLinkCode', $deepLinkCode),
         ]));
         $criteria->addAssociation('documentMediaFile');
+        $criteria->addAssociation('documentType');
+
         $document = $this->documentRepository->search($criteria, $context)->get($documentId);
 
         if (!$document) {

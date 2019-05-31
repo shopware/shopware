@@ -38,7 +38,7 @@ class ShippingMethodEntity extends Entity
     protected $deliveryTimeId;
 
     /**
-     * @var DeliveryTimeEntity
+     * @var DeliveryTimeEntity|null
      */
     protected $deliveryTime;
 
@@ -142,7 +142,7 @@ class ShippingMethodEntity extends Entity
         $this->deliveryTimeId = $deliveryTimeId;
     }
 
-    public function getDeliveryTime(): DeliveryTimeEntity
+    public function getDeliveryTime(): ?DeliveryTimeEntity
     {
         return $this->deliveryTime;
     }

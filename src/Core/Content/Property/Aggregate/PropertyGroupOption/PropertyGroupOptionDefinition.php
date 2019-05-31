@@ -60,7 +60,7 @@ class PropertyGroupOptionDefinition extends EntityDefinition
             new StringField('color_hex_code', 'colorHexCode'),
             new FkField('media_id', 'mediaId', MediaDefinition::class),
             new TranslatedField('customFields'),
-            new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', true),
+            new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false),
             new ManyToOneAssociationField('group', 'property_group_id', PropertyGroupDefinition::class, 'id', false),
             (new TranslationsAssociationField(PropertyGroupOptionTranslationDefinition::class, 'property_group_option_id'))->addFlags(new Required()),
             (new OneToManyAssociationField('productConfiguratorSettings', ProductConfiguratorSettingDefinition::class, 'property_group_option_id', 'id'))->addFlags(new RestrictDelete()),

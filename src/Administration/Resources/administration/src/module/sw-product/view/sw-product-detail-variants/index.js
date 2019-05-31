@@ -88,6 +88,7 @@ Component.register('sw-product-detail-variants', {
                 const criteria = new Criteria();
                 const configuratorSettingsCriteria = new Criteria();
                 configuratorSettingsCriteria.setLimit(500);
+                configuratorSettingsCriteria.addAssociation('option');
 
                 criteria.addAssociation('configuratorSettings', configuratorSettingsCriteria);
 

@@ -76,7 +76,8 @@ class PaymentTransactionChainProcessor
         ?string $finishUrl = null
     ): ?RedirectResponse {
         $criteria = new Criteria([$orderId]);
-        $criteria->addAssociation('transactions');
+        $criteria->addAssociationPath('transactions.stateMachineState');
+        $criteria->addAssociationPath('transactions.paymentMethod');
         $criteria->addAssociation('lineItems');
 
         /** @var OrderEntity|null $order */

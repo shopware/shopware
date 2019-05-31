@@ -33,7 +33,7 @@ class NumberRangeTypeEntity extends Entity
     protected $numberRanges;
 
     /**
-     * @var NumberRangeSalesChannelEntity
+     * @var NumberRangeSalesChannelEntity|null
      */
     protected $numberRangeSalesChannels;
 
@@ -107,7 +107,7 @@ class NumberRangeTypeEntity extends Entity
         $this->technicalName = $technicalName;
     }
 
-    public function getNumberRangeSalesChannels(): NumberRangeSalesChannelEntity
+    public function getNumberRangeSalesChannels(): ?NumberRangeSalesChannelEntity
     {
         return $this->numberRangeSalesChannels;
     }

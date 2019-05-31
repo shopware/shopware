@@ -40,21 +40,21 @@ class StateMachineHistoryDefinition extends EntityDefinition
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
 
             (new FkField('state_machine_id', 'stateMachineId', StateMachineDefinition::class))->setFlags(new Required()),
-            new ManyToOneAssociationField('stateMachine', 'state_machine_id', StateMachineDefinition::class, 'id', true),
+            new ManyToOneAssociationField('stateMachine', 'state_machine_id', StateMachineDefinition::class, 'id', false),
 
             (new StringField('entity_name', 'entityName'))->setFlags(new Required()),
             (new JsonField('entity_id', 'entityId'))->setFlags(new Required()),
 
             (new FkField('from_state_id', 'fromStateId', StateMachineStateDefinition::class))->setFlags(new Required()),
-            new ManyToOneAssociationField('fromStateMachineState', 'from_state_id', StateMachineStateDefinition::class, 'id', true),
+            new ManyToOneAssociationField('fromStateMachineState', 'from_state_id', StateMachineStateDefinition::class, 'id', false),
 
             (new FkField('to_state_id', 'toStateId', StateMachineStateDefinition::class))->setFlags(new Required()),
-            new ManyToOneAssociationField('toStateMachineState', 'to_state_id', StateMachineStateDefinition::class, 'id', true),
+            new ManyToOneAssociationField('toStateMachineState', 'to_state_id', StateMachineStateDefinition::class, 'id', false),
 
             new StringField('action_name', 'transitionActionName'),
 
             new FkField('user_id', 'userId', UserDefinition::class),
-            new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id', true),
+            new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id', false),
         ]);
     }
 }

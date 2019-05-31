@@ -120,17 +120,17 @@ class SalesChannelEntity extends Entity
     protected $taxCalculationType;
 
     /**
-     * @var SalesChannelTypeEntity
+     * @var SalesChannelTypeEntity|null
      */
     protected $type;
 
     /**
-     * @var CurrencyEntity
+     * @var CurrencyEntity|null
      */
     protected $currency;
 
     /**
-     * @var LanguageEntity
+     * @var LanguageEntity|null
      */
     protected $language;
 
@@ -240,7 +240,7 @@ class SalesChannelEntity extends Entity
     protected $customerGroupId;
 
     /**
-     * @var CustomerGroupEntity
+     * @var CustomerGroupEntity|null
      */
     protected $customerGroup;
 
@@ -409,7 +409,7 @@ class SalesChannelEntity extends Entity
         $this->taxCalculationType = $taxCalculationType;
     }
 
-    public function getCurrency(): CurrencyEntity
+    public function getCurrency(): ?CurrencyEntity
     {
         return $this->currency;
     }
@@ -419,7 +419,7 @@ class SalesChannelEntity extends Entity
         $this->currency = $currency;
     }
 
-    public function getLanguage(): LanguageEntity
+    public function getLanguage(): ?LanguageEntity
     {
         return $this->language;
     }
@@ -489,7 +489,7 @@ class SalesChannelEntity extends Entity
         $this->typeId = $typeId;
     }
 
-    public function getType(): SalesChannelTypeEntity
+    public function getType(): ?SalesChannelTypeEntity
     {
         return $this->type;
     }
@@ -619,7 +619,7 @@ class SalesChannelEntity extends Entity
         $this->customerGroupId = $customerGroupId;
     }
 
-    public function getCustomerGroup(): CustomerGroupEntity
+    public function getCustomerGroup(): ?CustomerGroupEntity
     {
         return $this->customerGroup;
     }

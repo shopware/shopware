@@ -33,7 +33,7 @@ class MediaFolderTest extends TestCase
         ], $context);
 
         $criteria = new Criteria();
-        $criteria->addAssociation('mediaFolderConfiguration');
+        $criteria->addAssociation('configuration');
 
         $collection = $mediaFolderRepository->search($criteria, $context)->getEntities();
 

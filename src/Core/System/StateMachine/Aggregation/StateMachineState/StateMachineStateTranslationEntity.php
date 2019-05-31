@@ -17,7 +17,7 @@ class StateMachineStateTranslationEntity extends TranslationEntity
     protected $stateMachineStateId;
 
     /**
-     * @var StateMachineStateEntity
+     * @var StateMachineStateEntity|null
      */
     protected $stateMachineState;
 
@@ -46,7 +46,7 @@ class StateMachineStateTranslationEntity extends TranslationEntity
         $this->stateMachineStateId = $stateMachineStateId;
     }
 
-    public function getStateMachineState(): StateMachineStateEntity
+    public function getStateMachineState(): ?StateMachineStateEntity
     {
         return $this->stateMachineState;
     }

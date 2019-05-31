@@ -36,7 +36,7 @@ class SeoUrlTemplateEntity extends Entity
     protected $isValid;
 
     /**
-     * @var SalesChannelEntity
+     * @var SalesChannelEntity|null
      */
     protected $salesChannel;
 
@@ -95,7 +95,7 @@ class SeoUrlTemplateEntity extends Entity
         $this->isValid = $isValid;
     }
 
-    public function getSalesChannel(): SalesChannelEntity
+    public function getSalesChannel(): ?SalesChannelEntity
     {
         return $this->salesChannel;
     }

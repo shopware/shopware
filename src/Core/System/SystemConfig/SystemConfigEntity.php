@@ -26,7 +26,7 @@ class SystemConfigEntity extends Entity
     protected $salesChannelId;
 
     /**
-     * @var ?SalesChannelEntity
+     * @var SalesChannelEntity|null
      */
     protected $salesChannel;
 

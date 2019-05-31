@@ -40,7 +40,7 @@ class VersionCommitDataEntity extends Entity
     protected $payload;
 
     /**
-     * @var VersionCommitEntity
+     * @var VersionCommitEntity|null
      */
     protected $commit;
 
@@ -114,7 +114,7 @@ class VersionCommitDataEntity extends Entity
         $this->payload = $payload;
     }
 
-    public function getCommit(): VersionCommitEntity
+    public function getCommit(): ?VersionCommitEntity
     {
         return $this->commit;
     }

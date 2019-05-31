@@ -74,7 +74,7 @@ class NewsletterRecipientEntity extends Entity
     protected $languageId;
 
     /**
-     * @var LanguageEntity
+     * @var LanguageEntity|null
      */
     protected $language;
 
@@ -84,7 +84,7 @@ class NewsletterRecipientEntity extends Entity
     protected $salesChannelId;
 
     /**
-     * @var SalesChannelEntity
+     * @var SalesChannelEntity|null
      */
     protected $salesChannel;
 
@@ -233,7 +233,7 @@ class NewsletterRecipientEntity extends Entity
         $this->languageId = $languageId;
     }
 
-    public function getLanguage(): LanguageEntity
+    public function getLanguage(): ?LanguageEntity
     {
         return $this->language;
     }
@@ -253,7 +253,7 @@ class NewsletterRecipientEntity extends Entity
         $this->salesChannelId = $salesChannelId;
     }
 
-    public function getSalesChannel(): SalesChannelEntity
+    public function getSalesChannel(): ?SalesChannelEntity
     {
         return $this->salesChannel;
     }

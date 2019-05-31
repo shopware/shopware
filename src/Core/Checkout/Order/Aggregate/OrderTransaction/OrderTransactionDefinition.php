@@ -55,7 +55,7 @@ class OrderTransactionDefinition extends EntityDefinition
             new ManyToOneAssociationField('stateMachineState', 'state_id', StateMachineStateDefinition::class, 'id', true),
             new CustomFields(),
             new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, 'id', false),
-            new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, 'id', true),
+            new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, 'id', false),
         ]);
     }
 }

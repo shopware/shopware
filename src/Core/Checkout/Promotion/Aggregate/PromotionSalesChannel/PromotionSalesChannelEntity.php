@@ -28,12 +28,12 @@ class PromotionSalesChannelEntity extends Entity
     protected $priority;
 
     /**
-     * @var PromotionEntity
+     * @var PromotionEntity|null
      */
     protected $promotion;
 
     /**
-     * @var SalesChannelEntity
+     * @var SalesChannelEntity|null
      */
     protected $salesChannel;
 
@@ -67,7 +67,7 @@ class PromotionSalesChannelEntity extends Entity
         $this->priority = $priority;
     }
 
-    public function getPromotion(): PromotionEntity
+    public function getPromotion(): ?PromotionEntity
     {
         return $this->promotion;
     }
@@ -77,7 +77,7 @@ class PromotionSalesChannelEntity extends Entity
         $this->promotion = $promotion;
     }
 
-    public function getSalesChannel(): SalesChannelEntity
+    public function getSalesChannel(): ?SalesChannelEntity
     {
         return $this->salesChannel;
     }

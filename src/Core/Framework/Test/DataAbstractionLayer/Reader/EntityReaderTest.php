@@ -1647,6 +1647,7 @@ class EntityReaderTest extends TestCase
 
         $this->productRepository->create([$data], $context);
         $criteria = new Criteria([$data['id']]);
+        $criteria->addAssociation('cover');
         $results = $this->productRepository->search($criteria, $context);
 
         /** @var ProductEntity $product */

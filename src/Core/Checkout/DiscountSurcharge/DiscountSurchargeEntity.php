@@ -21,7 +21,7 @@ class DiscountSurchargeEntity extends Entity
     protected $ruleId;
 
     /**
-     * @var RuleEntity
+     * @var RuleEntity|null
      */
     protected $rule;
 
@@ -65,7 +65,7 @@ class DiscountSurchargeEntity extends Entity
         $this->ruleId = $ruleId;
     }
 
-    public function getRule(): RuleEntity
+    public function getRule(): ?RuleEntity
     {
         return $this->rule;
     }

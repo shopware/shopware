@@ -29,10 +29,10 @@ Component.register('sw-order-product-select', {
         onItemChanged(newProductId) {
             this.productStore.getByIdAsync(newProductId).then((newProduct) => {
                 this.item.identifier = newProduct.id;
-                this.item.label = newProduct.name;
+                this.item.label = newProduct.translated.name;
                 this.item.priceDefinition.price = newProduct.price.gross;
                 this.item.unitPrice = newProduct.price.gross;
-                this.item.priceDefinition.taxRules.elements[0].taxRate = newProduct.tax.taxRate;
+                this.item.priceDefinition.taxRules[0].taxRate = newProduct.tax.taxRate;
             });
         }
     }

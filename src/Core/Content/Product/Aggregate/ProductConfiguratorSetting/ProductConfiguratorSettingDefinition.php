@@ -55,7 +55,7 @@ class ProductConfiguratorSettingDefinition extends EntityDefinition
             new IntField('position', 'position'),
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false),
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false),
-            new ManyToOneAssociationField('option', 'property_group_option_id', PropertyGroupOptionDefinition::class, 'id', true),
+            new ManyToOneAssociationField('option', 'property_group_option_id', PropertyGroupOptionDefinition::class, 'id', false),
             new CustomFields(),
         ]);
     }

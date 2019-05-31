@@ -110,7 +110,18 @@ Component.register('sw-customer-detail', {
 
                 if (!this.createMode) {
                     const criteria = new Criteria();
-                    criteria.addAssociation('addresses');
+                    criteria.addAssociationPaths([
+                        'addresses',
+                        'group',
+                        'salutation',
+                        'salesChannel',
+                        'defaultPaymentMethod',
+                        'lastPaymentMethod',
+                        'defaultBillingAddress.country',
+                        'defaultBillingAddress.salutation',
+                        'defaultShippingAddress.country',
+                        'defaultShippingAddress.salutation'
+                    ]);
 
                     this.customerRepository.get(this.customerId, this.context, criteria).then((customer) => {
                         this.customer = customer;

@@ -390,12 +390,11 @@ class DocumentService
 
     private function getOrderBaseCriteria(string $orderId): Criteria
     {
-        $criteria = (new Criteria([$orderId]))
+        return (new Criteria([$orderId]))
             ->addAssociation('lineItems')
             ->addAssociation('transactions')
+            ->addAssociation('currency')
             ->addAssociation('addresses')
-            ->addAssociation('deliveries', (new Criteria())->addAssociation('positions'));
-
-        return $criteria;
+            ->addAssociationPath('deliveries.positions');
     }
 }

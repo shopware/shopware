@@ -37,7 +37,7 @@ class ProductConfiguratorSettingEntity extends Entity
     protected $price;
 
     /**
-     * @var PropertyGroupOptionEntity
+     * @var PropertyGroupOptionEntity|null
      */
     protected $option;
 
@@ -91,7 +91,7 @@ class ProductConfiguratorSettingEntity extends Entity
         $this->price = $price;
     }
 
-    public function getOption(): PropertyGroupOptionEntity
+    public function getOption(): ?PropertyGroupOptionEntity
     {
         return $this->option;
     }

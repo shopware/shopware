@@ -132,9 +132,8 @@ export default {
         this.createdComponent();
     },
 
-    // TODO: Check non-existing lifecycle method
-    beforeDestroyed() {
-        this.beforeDestroyedComponent();
+    beforeDestroy() {
+        this.beforeDestroyComponent();
     },
 
     methods: {
@@ -145,7 +144,7 @@ export default {
             this.uploadStore.addDefaultListener(this.handleUploadStoreEvent);
         },
 
-        beforeDestroyedComponent() {
+        beforeDestroyComponent() {
             this.uploadStore.removeDefaultListener(this.handleUploadStoreEvent);
         },
 

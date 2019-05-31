@@ -29,7 +29,7 @@
         "@vue/test-utils": "1.0.0-beta.29",
         "ace-builds": "1.4.3",
         "app-module-path": "2.2.0",
-        "axios": "0.18.0",
+        "axios": "0.19.0",
         "bottlejs": "1.7.2",
         "dompurify": "1.0.10",
         "eslint-friendly-formatter": "4.0.1",

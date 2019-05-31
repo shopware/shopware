@@ -33,7 +33,6 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
@@ -85,11 +84,6 @@ class AccountService
      */
     private $paymentMethodRepository;
 
-    /**
-     * @var SalesChannelContextServiceInterface
-     */
-    private $contextService;
-
     public function __construct(
         EntityRepositoryInterface $customerAddressRepository,
         EntityRepositoryInterface $customerRepository,
@@ -98,8 +92,7 @@ class AccountService
         DataValidator $validator,
         CustomerProfileValidationService $customerProfileValidationService,
         LegacyPasswordVerifier $legacyPasswordVerifier,
-        EntityRepositoryInterface $paymentMethodRepository,
-        SalesChannelContextServiceInterface $contextService
+        EntityRepositoryInterface $paymentMethodRepository
     ) {
         $this->customerAddressRepository = $customerAddressRepository;
         $this->customerRepository = $customerRepository;
@@ -109,7 +102,6 @@ class AccountService
         $this->legacyPasswordVerifier = $legacyPasswordVerifier;
         $this->customerProfileValidationService = $customerProfileValidationService;
         $this->paymentMethodRepository = $paymentMethodRepository;
-        $this->contextService = $contextService;
     }
 
     /**
@@ -170,8 +162,6 @@ class AccountService
         $customer['id'] = $context->getCustomer()->getId();
 
         $this->customerRepository->update([$customer], $context->getContext());
-
-        $this->refreshContext($context);
     }
 
     public function savePassword(DataBag $data, SalesChannelContext $context): void
@@ -186,8 +176,6 @@ class AccountService
         ];
 
         $this->customerRepository->update([$customerData], $context->getContext());
-
-        $this->refreshContext($context);
     }
 
     public function saveEmail(DataBag $data, SalesChannelContext $context): void
@@ -202,8 +190,6 @@ class AccountService
         ];
 
         $this->customerRepository->update([$customerData], $context->getContext());
-
-        $this->refreshContext($context);
     }
 
     /**
@@ -221,8 +207,6 @@ class AccountService
             'defaultBillingAddressId' => $addressId,
         ];
         $this->customerRepository->update([$data], $context->getContext());
-
-        $this->refreshContext($context);
     }
 
     /**
@@ -240,8 +224,6 @@ class AccountService
             'defaultShippingAddressId' => $addressId,
         ];
         $this->customerRepository->update([$data], $context->getContext());
-
-        $this->refreshContext($context);
     }
 
     /**
@@ -272,8 +254,6 @@ class AccountService
 
         $event = new CustomerLoginEvent($context->getContext(), $customer, $newToken, $context->getSalesChannel()->getId());
         $this->eventDispatcher->dispatch($event->getName(), $event);
-
-        $this->refreshContext($context);
 
         return $newToken;
     }
@@ -334,8 +314,6 @@ class AccountService
 
         $event = new CustomerLogoutEvent($context->getContext(), $context->getCustomer(), $context->getSalesChannel()->getId());
         $this->eventDispatcher->dispatch($event->getName(), $event);
-
-        $this->refreshContext($context);
     }
 
     /**
@@ -355,8 +333,6 @@ class AccountService
 
         $event = new CustomerChangedPaymentMethodEvent($context->getContext(), $customer, $requestDataBag, $context->getSalesChannel()->getId());
         $this->eventDispatcher->dispatch($event->getName(), $event);
-
-        $this->refreshContext($context);
     }
 
     /**
@@ -552,14 +528,5 @@ class AccountService
         if (!$paymentMethod) {
             throw new UnknownPaymentMethodException($paymentMethodId);
         }
-    }
-
-    private function refreshContext(SalesChannelContext $context): void
-    {
-        $this->contextService->refresh(
-            $context->getSalesChannel()->getId(),
-            $context->getToken(),
-            $context->getContext()->getLanguageId()
-        );
     }
 }

@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -41,11 +40,6 @@ class SalesChannelCustomerController extends AbstractController
     private $accountRegisterService;
 
     /**
-     * @var SalesChannelContextServiceInterface
-     */
-    private $salesChannelContextService;
-
-    /**
      * @var EntityRepositoryInterface
      */
     private $orderRepository;
@@ -63,7 +57,6 @@ class SalesChannelCustomerController extends AbstractController
     public function __construct(
         Serializer $serializer,
         AccountService $accountService,
-        SalesChannelContextServiceInterface $salesChannelContextService,
         EntityRepositoryInterface $orderRepository,
         AccountRegistrationService $accountRegisterService,
         AddressService $addressService,
@@ -71,7 +64,6 @@ class SalesChannelCustomerController extends AbstractController
     ) {
         $this->serializer = $serializer;
         $this->accountService = $accountService;
-        $this->salesChannelContextService = $salesChannelContextService;
         $this->orderRepository = $orderRepository;
         $this->accountRegisterService = $accountRegisterService;
         $this->addressService = $addressService;
@@ -132,12 +124,6 @@ class SalesChannelCustomerController extends AbstractController
     {
         $this->accountService->saveEmail($requestData, $context);
 
-        $this->salesChannelContextService->refresh(
-            $context->getSalesChannel()->getId(),
-            $context->getToken(),
-            $context->getContext()->getLanguageId()
-        );
-
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
@@ -148,12 +134,6 @@ class SalesChannelCustomerController extends AbstractController
     {
         $this->accountService->savePassword($requestData, $context);
 
-        $this->salesChannelContextService->refresh(
-            $context->getSalesChannel()->getId(),
-            $context->getToken(),
-            $context->getContext()->getLanguageId()
-        );
-
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
@@ -163,11 +143,6 @@ class SalesChannelCustomerController extends AbstractController
     public function saveProfile(RequestDataBag $requestData, SalesChannelContext $context): JsonResponse
     {
         $this->accountService->saveProfile($requestData, $context);
-        $this->salesChannelContextService->refresh(
-            $context->getSalesChannel()->getId(),
-            $context->getToken(),
-            $context->getContext()->getLanguageId()
-        );
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
@@ -229,12 +204,6 @@ class SalesChannelCustomerController extends AbstractController
     public function createAddress(RequestDataBag $requestData, SalesChannelContext $context): JsonResponse
     {
         $addressId = $this->addressService->create($requestData, $context);
-
-        $this->salesChannelContextService->refresh(
-            $context->getSalesChannel()->getId(),
-            $context->getToken(),
-            $context->getContext()->getLanguageId()
-        );
 
         return new JsonResponse($this->serialize($addressId));
     }

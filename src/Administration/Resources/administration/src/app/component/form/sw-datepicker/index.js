@@ -197,9 +197,9 @@ export default {
         mountedComponent() {
             if (this.flatpickrInstance === null) {
                 this.createFlatpickrInstance();
-            } else {
-                this.updateFlatpickrInstance();
+                return;
             }
+            this.updateFlatpickrInstance();
         },
 
         /**

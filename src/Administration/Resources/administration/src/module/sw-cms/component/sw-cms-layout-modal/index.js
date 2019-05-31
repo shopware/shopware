@@ -25,11 +25,11 @@ Component.register('sw-cms-layout-modal', {
     },
 
     created() {
-        this.componentCreated();
+        this.createdComponent();
     },
 
     methods: {
-        componentCreated() {
+        createdComponent() {
             this.getList();
         },
 

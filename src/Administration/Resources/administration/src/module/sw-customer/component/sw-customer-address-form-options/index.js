@@ -21,17 +21,24 @@ Component.register('sw-customer-address-form-options', {
             required: true
         }
     },
+
     data() {
         return {
             isDefaultShippingAddressId: false,
             isDefaultBillingAddressId: false
         };
     },
+
     created() {
-        this.isDefaultShippingAddressId = this.customer.defaultShippingAddressId === this.address.id;
-        this.isDefaultBillingAddressId = this.customer.defaultBillingAddressId === this.address.id;
+        this.createdComponent();
     },
+
     methods: {
+        createdComponent() {
+            this.isDefaultShippingAddressId = this.customer.defaultShippingAddressId === this.address.id;
+            this.isDefaultBillingAddressId = this.customer.defaultBillingAddressId === this.address.id;
+        },
+
         onChangeDefaultShippingAddress(active) {
             this.$emit('change-default-address', { name: 'shipping-address', id: this.address.id, value: active });
         },

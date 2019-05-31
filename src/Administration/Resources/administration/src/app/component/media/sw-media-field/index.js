@@ -46,7 +46,7 @@ export default {
     },
 
     created() {
-        this.componentCreated();
+        this.createdComponent();
     },
 
     watch: {
@@ -79,7 +79,7 @@ export default {
     },
 
     methods: {
-        componentCreated() {
+        createdComponent() {
             this.fetchItem();
         },
 

@@ -88,11 +88,11 @@ export default {
     },
 
     created() {
-        this.componentCreated();
+        this.createdComponent();
     },
 
     methods: {
-        componentCreated() {
+        createdComponent() {
             this.initializeContent();
         },
 

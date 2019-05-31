@@ -44,9 +44,7 @@ Component.register('sw-category-tree', {
     },
 
     created() {
-        if (this.activeCategory && this.activeCategory.id) {
-            this.openTreeById();
-        }
+        this.createdComponent();
     },
 
     computed: {
@@ -71,6 +69,12 @@ Component.register('sw-category-tree', {
     },
 
     methods: {
+        createdComponent() {
+            if (this.activeCategory && this.activeCategory.id) {
+                this.openTreeById();
+            }
+        },
+
         onUpdatePositions() {
             this.saveCategories();
         },

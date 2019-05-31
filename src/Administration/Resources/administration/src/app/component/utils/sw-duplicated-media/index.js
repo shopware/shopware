@@ -129,18 +129,24 @@ export default {
     },
 
     created() {
-        this.componentCreated();
-        this.uploadStore.addDefaultListener(this.handleUploadStoreEvent);
+        this.createdComponent();
     },
 
+    // TODO: Check non-existing lifecycle method
     beforeDestroyed() {
-        this.uploadStore.removeDefaultListener(this.handleUploadStoreEvent);
+        this.beforeDestroyedComponent();
     },
 
     methods: {
-        componentCreated() {
+        createdComponent() {
             this.loadDefaultOption();
             this.updatePreviewData();
+
+            this.uploadStore.addDefaultListener(this.handleUploadStoreEvent);
+        },
+
+        beforeDestroyedComponent() {
+            this.uploadStore.removeDefaultListener(this.handleUploadStoreEvent);
         },
 
         loadDefaultOption() {

@@ -94,10 +94,14 @@ Component.register('sw-media-sidebar', {
     },
 
     created() {
-        this.fetchCurrentFolder();
+        this.createdComponent();
     },
 
     methods: {
+        createdComponent() {
+            this.fetchCurrentFolder();
+        },
+
         fetchCurrentFolder() {
             if (!this.currentFolderId) {
                 this.currentFolder = null;

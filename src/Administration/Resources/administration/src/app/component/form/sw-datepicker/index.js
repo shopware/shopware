@@ -148,21 +148,14 @@ export default {
     },
 
     mounted() {
-        if (this.flatpickrInstance === null) {
-            this.createFlatpickrInstance();
-        } else {
-            this.updateFlatpickrInstance();
-        }
+        this.mountedComponent();
     },
 
     /**
      * Free up memory
      */
     beforeDestroy() {
-        if (this.flatpickrInstance !== null) {
-            this.flatpickrInstance.destroy();
-            this.flatpickrInstance = null;
-        }
+        this.beforeDestroyComponent();
     },
 
     watch: {
@@ -199,6 +192,24 @@ export default {
     methods: {
         createdComponent() {
             this.createConfig();
+        },
+
+        mountedComponent() {
+            if (this.flatpickrInstance === null) {
+                this.createFlatpickrInstance();
+            } else {
+                this.updateFlatpickrInstance();
+            }
+        },
+
+        /**
+         * Free up memory
+         */
+        beforeDestroyComponent() {
+            if (this.flatpickrInstance !== null) {
+                this.flatpickrInstance.destroy();
+                this.flatpickrInstance = null;
+            }
         },
 
         /**

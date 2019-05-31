@@ -76,11 +76,15 @@ Component.register('sw-settings-snippet-detail', {
     },
 
     created() {
-        this.translationKeyOrigin = this.$route.params.origin;
-        this.prepareContent();
+        this.createdComponent();
     },
 
     methods: {
+        createdComponent() {
+            this.translationKeyOrigin = this.$route.params.origin;
+            this.prepareContent();
+        },
+
         prepareContent() {
             this.isLoading = true;
             this.userService.getUser().then((response) => {

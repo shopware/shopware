@@ -55,13 +55,13 @@ export default {
             default: null
         }
     },
+
     created() {
         this.createdComponent();
-        this.$on('entity-save', this.onSave);
     },
 
     beforeDestroy() {
-        this.$off('entity-save');
+        this.beforeDestroyComponent();
     },
 
     methods: {
@@ -77,6 +77,12 @@ export default {
             } else {
                 this.loadConditions();
             }
+
+            this.$on('entity-save', this.onSave);
+        },
+
+        beforeDestroyComponent() {
+            this.$off('entity-save');
         },
 
         onSave(loadConditions) {

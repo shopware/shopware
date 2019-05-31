@@ -156,19 +156,19 @@ export default {
     },
 
     created() {
-        this.onCreated();
+        this.createdComponent();
     },
 
     mounted() {
-        this.onMounted();
+        this.mountedComponent();
     },
 
     beforeDestroy() {
-        this.onBeforeDestroy();
+        this.beforeDestroyComponent();
     },
 
     methods: {
-        onCreated() {
+        createdComponent() {
             this.uploadStore.addListener(this.uploadTag, this.handleUploadStoreEvent);
             if (this.mediaFolderId) {
                 return;
@@ -181,7 +181,7 @@ export default {
             }
         },
 
-        onMounted() {
+        mountedComponent() {
             if (this.$refs.dropzone) {
                 ['dragover', 'drop'].forEach((event) => {
                     window.addEventListener(event, this.stopEventPropagation, false);
@@ -193,7 +193,7 @@ export default {
             }
         },
 
-        onBeforeDestroy() {
+        beforeDestroyComponent() {
             this.uploadStore.removeByTag(this.uploadTag);
             this.uploadStore.removeListener(this.uploadTag, this.handleUploadStoreEvent);
 

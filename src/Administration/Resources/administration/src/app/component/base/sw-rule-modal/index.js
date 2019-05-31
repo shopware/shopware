@@ -100,11 +100,11 @@ export default {
     },
 
     beforeMount() {
-        this.beforeMounted();
+        this.beforeMountComponent();
     },
 
     methods: {
-        beforeMounted() {
+        beforeMountComponent() {
             this.loadEntityData();
         },
         loadEntityData() {

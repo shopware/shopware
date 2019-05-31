@@ -42,16 +42,16 @@ Component.register('sw-product-stream-modal-preview', {
         }
     },
     created() {
-        this.onCreated();
+        this.createdComponent();
     },
     beforeDestroy() {
-        this.onDestroy();
+        this.beforeDestroyComponent();
     },
     methods: {
-        onCreated() {
+        createdComponent() {
             this.getList();
         },
-        onDestroy() {
+        beforeDestroyComponent() {
             this.$emit('sw-product-stream-modal-preview-destroy');
         },
         getList() {

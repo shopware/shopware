@@ -86,10 +86,13 @@ export default {
     },
 
     created() {
-        this.createFirstPlaceholderIfNecessary();
+        this.createdComponent();
     },
 
     methods: {
+        createdComponent() {
+            this.createFirstPlaceholderIfNecessary();
+        },
         createFirstPlaceholderIfNecessary() {
             if (!this.condition[this.config.childName]) {
                 this.condition[this.config.childName] = [];

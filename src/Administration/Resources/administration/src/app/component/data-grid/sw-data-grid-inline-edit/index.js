@@ -38,7 +38,7 @@ export default {
     },
 
     beforeDestroy() {
-        this.beforeDestroyedComponent();
+        this.beforeDestroyComponent();
     },
 
     computed: {
@@ -60,7 +60,7 @@ export default {
             this.$parent.$on('inline-edit-assign', this.emitInput);
         },
 
-        beforeDestroyedComponent() {
+        beforeDestroyComponent() {
             this.$parent.$off('inline-edit-assign', this.emitInput);
         },
 

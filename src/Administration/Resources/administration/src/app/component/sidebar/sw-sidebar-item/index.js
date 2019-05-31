@@ -73,11 +73,11 @@ export default {
     },
 
     created() {
-        this.componentCreated();
+        this.createdComponent();
     },
 
     methods: {
-        componentCreated() {
+        createdComponent() {
             let parent = this.$parent;
 
             while (parent) {

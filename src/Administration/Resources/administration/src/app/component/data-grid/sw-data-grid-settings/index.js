@@ -47,6 +47,12 @@ export default {
         };
     },
 
+    watch: {
+        columns() {
+            this.currentColumns = this.columns;
+        }
+    },
+
     methods: {
         onChangeCompactMode(value) {
             this.$emit('change-compact-mode', value);

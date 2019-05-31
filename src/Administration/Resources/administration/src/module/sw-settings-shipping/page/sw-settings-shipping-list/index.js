@@ -45,7 +45,6 @@ Component.register('sw-settings-shipping-list', {
             return [{
                 property: 'name',
                 label: this.$tc('sw-settings-shipping.list.columnName'),
-                dataIndex: 'name',
                 inlineEdit: 'string',
                 routerLink: 'sw.settings.shipping.detail',
                 allowResize: true,
@@ -53,13 +52,11 @@ Component.register('sw-settings-shipping-list', {
             }, {
                 property: 'description',
                 label: this.$tc('sw-settings-shipping.list.columnDescription'),
-                dataIndex: 'description',
                 inlineEdit: 'string',
                 allowResize: true
             }, {
                 property: 'active',
                 label: this.$tc('sw-settings-shipping.list.columnActive'),
-                dataIndex: 'active',
                 inlineEdit: 'boolean',
                 allowResize: true,
                 align: 'center'

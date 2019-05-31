@@ -36,19 +36,15 @@ Component.register('sw-settings-user-list', {
         userColumns() {
             return [{
                 property: 'username',
-                dataIndex: 'username',
                 label: this.$tc('sw-settings-user.user-grid.labelUsername')
             }, {
                 property: 'firstName',
-                dataIndex: 'firstName',
                 label: this.$tc('sw-settings-user.user-grid.labelFirstName')
             }, {
                 property: 'lastName',
-                dataIndex: 'lastName',
                 label: this.$tc('sw-settings-user.user-grid.labelLastName')
             }, {
                 property: 'email',
-                dataIndex: 'email',
                 label: this.$tc('sw-settings-user.user-grid.labelEmail')
             }];
         }

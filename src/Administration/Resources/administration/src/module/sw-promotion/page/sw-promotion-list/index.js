@@ -91,7 +91,6 @@ Component.register('sw-promotion-list', {
         getPromotionColumns() {
             return [{
                 property: 'name',
-                dataIndex: 'name',
                 label: this.$tc('sw-promotion.list.columnName'),
                 routerLink: 'sw.promotion.detail',
                 inlineEdit: 'string',
@@ -99,21 +98,18 @@ Component.register('sw-promotion-list', {
                 primary: true
             }, {
                 property: 'active',
-                dataIndex: 'active',
                 label: this.$tc('sw-promotion.list.columnActive'),
                 inlineEdit: 'boolean',
                 allowResize: true,
                 align: 'center'
             }, {
                 property: 'validFrom',
-                dataIndex: 'validFrom',
                 label: this.$tc('sw-promotion.list.columnValidFrom'),
                 inlineEdit: 'date',
                 allowResize: true,
                 align: 'center'
             }, {
                 property: 'validUntil',
-                dataIndex: 'validUntil',
                 label: this.$tc('sw-promotion.list.columnValidUntil'),
                 inlineEdit: 'date',
                 allowResize: true,

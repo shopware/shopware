@@ -106,22 +106,18 @@ Component.register('sw-customer-list', {
             }, {
                 property: 'defaultBillingAddress.street',
                 label: this.$tc('sw-customer.list.columnStreet'),
-                dataIndex: 'defaultBillingAddress.street',
                 allowResize: true
             }, {
                 property: 'defaultBillingAddress.zipcode',
-                dataIndex: 'defaultBillingAddress.zipcode',
                 label: this.$tc('sw-customer.list.columnZip'),
                 align: 'right',
                 allowResize: true
             }, {
                 property: 'defaultBillingAddress.city',
-                dataIndex: 'defaultBillingAddress.city',
                 label: this.$tc('sw-customer.list.columnCity'),
                 allowResize: true
             }, {
                 property: 'customerNumber',
-                dataIndex: 'customerNumber',
                 naturalSort: true,
                 label: this.$tc('sw-customer.list.columnCustomerNumber'),
                 allowResize: true,
@@ -129,7 +125,6 @@ Component.register('sw-customer-list', {
                 align: 'right'
             }, {
                 property: 'email',
-                dataIndex: 'email',
                 inlineEdit: 'string',
                 label: this.$tc('sw-customer.list.columnEmail'),
                 allowResize: true

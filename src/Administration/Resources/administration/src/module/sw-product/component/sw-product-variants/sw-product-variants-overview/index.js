@@ -74,7 +74,6 @@ Component.register('sw-product-variants-overview', {
             return [
                 {
                     property: 'name',
-                    dataIndex: 'name',
                     label: this.$tc('sw-product.variations.generatedListColumnVariation'),
                     allowResize: true
                 },
@@ -88,7 +87,6 @@ Component.register('sw-product-variants-overview', {
                 },
                 {
                     property: 'stock',
-                    dataIndex: 'stock',
                     label: this.$tc('sw-product.variations.generatedListColumnStock'),
                     allowResize: true,
                     inlineEdit: 'number',
@@ -97,14 +95,12 @@ Component.register('sw-product-variants-overview', {
                 },
                 {
                     property: 'productNumber',
-                    dataIndex: 'productNumber',
                     label: this.$tc('sw-product.variations.generatedListColumnProductNumber'),
                     allowResize: true,
                     inlineEdit: 'string'
                 },
                 {
                     property: 'active',
-                    dataIndex: 'active',
                     label: this.$tc('sw-product.variations.generatedListColumnActive'),
                     allowResize: true,
                     inlineEdit: 'boolean',
@@ -112,7 +108,6 @@ Component.register('sw-product-variants-overview', {
                 },
                 {
                     property: 'displayInListing',
-                    dataIndex: 'displayInListing',
                     label: this.$tc('sw-product.variations.generatedListColumnDisplayInListing'),
                     allowResize: true,
                     align: 'center'

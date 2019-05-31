@@ -244,12 +244,16 @@ export default {
                 const defaults = {
                     width: 'auto',
                     allowResize: false,
+                    sortable: true,
                     visible: true,
                     align: 'left'
                 };
 
                 if (!column.property) {
                     throw new Error(`[${this.$options.name}] Please specify a "property" to render a column.`);
+                }
+                if (!column.dataIndex) {
+                    column.dataIndex = column.property;
                 }
 
                 return Object.assign({}, defaults, column);
@@ -417,7 +421,7 @@ export default {
                 return;
             }
 
-            if (!column.dataIndex) {
+            if (!column.sortable) {
                 return;
             }
 

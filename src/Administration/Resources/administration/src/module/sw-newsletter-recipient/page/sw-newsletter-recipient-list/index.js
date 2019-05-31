@@ -163,7 +163,6 @@ Component.register('sw-newsletter-recipient-list', {
         getColumns() {
             return [{
                 property: 'email',
-                dataIndex: 'email',
                 label: this.$tc('sw-newsletter-recipient.list.email'),
                 routerLink: 'sw.newsletter.recipient.detail',
                 allowResize: true,
@@ -177,35 +176,29 @@ Component.register('sw-newsletter-recipient-list', {
                 primary: true
             }, {
                 property: 'status',
-                dataIndex: 'status',
                 label: this.$tc('sw-newsletter-recipient.list.status'),
                 allowResize: true
             }, {
                 property: 'zipCode',
-                dataIndex: 'zipCode',
                 label: this.$tc('sw-newsletter-recipient.list.zipCode'),
                 allowResize: true,
                 align: 'right'
             }, {
                 property: 'city',
-                dataIndex: 'city',
                 label: this.$tc('sw-newsletter-recipient.list.city'),
                 allowResize: true
             }, {
                 property: 'street',
-                dataIndex: 'street',
                 label: this.$tc('sw-newsletter-recipient.list.street'),
                 allowResize: true,
                 visible: false
             }, {
                 property: 'updatedAt',
-                dataIndex: 'updatedAt',
                 label: this.$tc('sw-newsletter-recipient.list.updatedAt'),
                 allowResize: true,
                 visible: false
             }, {
                 property: 'createdAt',
-                dataIndex: 'createdAt',
                 label: this.$tc('sw-newsletter-recipient.list.createdAt'),
                 allowResize: true,
                 visible: false

@@ -45,13 +45,11 @@ Component.register('sw-settings-customer-group-list', {
             return [{
                 property: 'name',
                 label: this.$tc('sw-settings-customer-group.list.columnName'),
-                dataIndex: 'name',
                 inlineEdit: 'string',
                 primary: true
             }, {
                 property: 'displayGross',
                 label: this.$tc('sw-settings-customer-group.list.columnDisplayGross'),
-                dataIndex: 'displayGross',
                 inlineEdit: 'boolean'
             }];
         },

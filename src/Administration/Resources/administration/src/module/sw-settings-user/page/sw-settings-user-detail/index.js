@@ -83,11 +83,9 @@ Component.register('sw-settings-user-detail', {
         integrationColumns() {
             return [{
                 property: 'accessKey',
-                dataIndex: 'accessKey',
                 label: this.$tc('sw-settings-user.user-detail.labelAccessKey')
             }, {
                 property: 'writeAccess',
-                dataIndex: 'writeAccess',
                 label: this.$tc('sw-settings-user.user-detail.labelPermissions')
             }];
         },

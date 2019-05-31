@@ -126,7 +126,6 @@ Component.register('sw-settings-snippet-list', {
                 property: 'id',
                 label: this.$tc('sw-settings-snippet.list.columnKey'),
                 inlineEdit: true,
-                dataIndex: 'id',
                 allowResize: true,
                 rawData: true,
                 primary: true
@@ -137,7 +136,6 @@ Component.register('sw-settings-snippet-list', {
                     columns.push({
                         property: item.id,
                         label: item.name,
-                        dataIndex: item.id,
                         allowResize: true,
                         inlineEdit: 'string',
                         rawData: true

@@ -93,40 +93,32 @@ Component.register('sw-customer-detail-addresses', {
         getAddressColumns() {
             return [{
                 property: 'defaultShippingAddress',
-                dataIndex: 'defaultShippingAddress',
                 label: this.$tc('sw-customer.detailAddresses.columnDefaultShippingAddress'),
                 align: 'center',
                 iconLabel: 'default-shopping-cart'
             }, {
                 property: 'defaultBillingAddress',
-                dataIndex: 'defaultBillingAddress',
                 label: this.$tc('sw-customer.detailAddresses.columnDefaultBillingAddress'),
                 align: 'center',
                 iconLabel: 'default-documentation-file'
             }, {
                 property: 'lastName',
-                dataIndex: 'lastName',
                 label: this.$tc('sw-customer.detailAddresses.columnLastName')
             }, {
                 property: 'firstName',
-                dataIndex: 'firstName',
                 label: this.$tc('sw-customer.detailAddresses.columnFirstName')
             }, {
                 property: 'company',
-                dataIndex: 'company',
                 label: this.$tc('sw-customer.detailAddresses.columnCompany')
             }, {
                 property: 'street',
-                label: this.$tc('sw-customer.detailAddresses.columnStreet'),
-                dataIndex: 'street'
+                label: this.$tc('sw-customer.detailAddresses.columnStreet')
             }, {
                 property: 'zipcode',
-                dataIndex: 'zipcode',
                 label: this.$tc('sw-customer.detailAddresses.columnZipCode'),
                 align: 'right'
             }, {
                 property: 'city',
-                dataIndex: 'city',
                 label: this.$tc('sw-customer.detailAddresses.columnCity')
             }];
         },

@@ -49,17 +49,17 @@ class NewsletterRecipientServiceTest extends TestCase
         $testData5 = ['email' => '', 'salutationId' => '', 'option' => ''];
 
         // test Not Valid Email
-        $testDataEmail1 = ['email' => '', 'salutationId' => 'AD165C1FAAC14059832B6258AC0A7339', 'option' => 'subscribe'];
-        $testDataEmail2 = ['email' => 'notValid', 'salutationId' => 'AD165C1FAAC14059832B6258AC0A7339', 'option' => 'subscribe'];
-        $testDataEmail3 = ['email' => 'notValid@', 'salutationId' => 'AD165C1FAAC14059832B6258AC0A7339', 'option' => 'subscribe'];
-        $testDataEmail4 = ['email' => 'notValid@foo', 'salutationId' => 'AD165C1FAAC14059832B6258AC0A7339', 'option' => 'subscribe'];
-        $testDataEmail5 = ['email' => 'notValid@foo.', 'salutationId' => 'AD165C1FAAC14059832B6258AC0A7339', 'option' => 'subscribe'];
+        $testDataEmail1 = ['email' => '', 'salutationId' => 'ad165c1faac14059832b6258ac0a7339', 'option' => 'subscribe'];
+        $testDataEmail2 = ['email' => 'notValid', 'salutationId' => 'ad165c1faac14059832b6258ac0a7339', 'option' => 'subscribe'];
+        $testDataEmail3 = ['email' => 'notValid@', 'salutationId' => 'ad165c1faac14059832b6258ac0a7339', 'option' => 'subscribe'];
+        $testDataEmail4 = ['email' => 'notValid@foo', 'salutationId' => 'ad165c1faac14059832b6258ac0a7339', 'option' => 'subscribe'];
+        $testDataEmail5 = ['email' => 'notValid@foo.', 'salutationId' => 'ad165c1faac14059832b6258ac0a7339', 'option' => 'subscribe'];
 
         // test not valid option
-        $testDataOption1 = ['option' => '', 'email' => 'valid@email.foo', 'salutationId' => 'AD165C1FAAC14059832B6258AC0A7339'];
-        $testDataOption2 = ['option' => 'notValid', 'email' => 'valid@email.foo', 'salutationId' => 'AD165C1FAAC14059832B6258AC0A7339'];
-        $testDataOption3 = ['option' => 'unitTest', 'email' => 'valid@email.foo', 'salutationId' => 'AD165C1FAAC14059832B6258AC0A7339'];
-        $testDataOption4 = ['option' => 'otherValue', 'email' => 'valid@email.foo', 'salutationId' => 'AD165C1FAAC14059832B6258AC0A7339'];
+        $testDataOption1 = ['option' => '', 'email' => 'valid@email.foo', 'salutationId' => 'ad165c1faac14059832b6258ac0a7339'];
+        $testDataOption2 = ['option' => 'notValid', 'email' => 'valid@email.foo', 'salutationId' => 'ad165c1faac14059832b6258ac0a7339'];
+        $testDataOption3 = ['option' => 'unitTest', 'email' => 'valid@email.foo', 'salutationId' => 'ad165c1faac14059832b6258ac0a7339'];
+        $testDataOption4 = ['option' => 'otherValue', 'email' => 'valid@email.foo', 'salutationId' => 'ad165c1faac14059832b6258ac0a7339'];
 
         return [
             [$testData1],
@@ -85,7 +85,7 @@ class NewsletterRecipientServiceTest extends TestCase
         $email = 'valid@email.foo';
         $dataBag = new RequestDataBag([
             'email' => $email,
-            'salutationId' => 'AD165C1FAAC14059832B6258AC0A7339',
+            'salutationId' => 'ad165c1faac14059832b6258ac0a7339',
             'baseUrl' => '',
             'option' => 'subscribe',
             'firstName' => '',
@@ -143,14 +143,10 @@ class NewsletterRecipientServiceTest extends TestCase
             'hash' => 'b4b45f58088d41289490db956ca19af7',
         ]);
 
-        $languageId = Uuid::fromBytesToHex(
-            $this->getContainer()->get(Connection::class)->fetchColumn('SELECT `id` FROM `language` LIMIT 1')
-        );
-
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
         $property = ReflectionHelper::getProperty(Context::class, 'languageIdChain');
-        $property->setValue($context, [$languageId]);
+        $property->setValue($context, [Defaults::LANGUAGE_SYSTEM]);
 
         $this->getService()->confirm($dataBag, $context);
 
@@ -175,7 +171,7 @@ class NewsletterRecipientServiceTest extends TestCase
         $email = 'not@existend.email';
         $dataBag = new RequestDataBag([
             'email' => $email,
-            'salutationId' => 'AD165C1FAAC14059832B6258AC0A7339',
+            'salutationId' => 'ad165c1faac14059832b6258ac0a7339',
             'option' => 'unsubscribe',
         ]);
 
@@ -205,9 +201,9 @@ class NewsletterRecipientServiceTest extends TestCase
     {
         // Option is not valid
         return [
-            [['option' => 'direct', 'email' => 'unit@test.foo', 'salutationId' => 'AD165C1FAAC14059832B6258AC0A7339']],
-            [['option' => 'subscribe', 'email' => 'unit@test.foo', 'salutationId' => 'AD165C1FAAC14059832B6258AC0A7339']],
-            [['option' => 'confirmSubscribe', 'email' => 'unit@test.foo', 'salutationId' => 'AD165C1FAAC14059832B6258AC0A7339']],
+            [['option' => 'direct', 'email' => 'unit@test.foo', 'salutationId' => 'ad165c1faac14059832b6258ac0a7339']],
+            [['option' => 'subscribe', 'email' => 'unit@test.foo', 'salutationId' => 'ad165c1faac14059832b6258ac0a7339']],
+            [['option' => 'confirmSubscribe', 'email' => 'unit@test.foo', 'salutationId' => 'ad165c1faac14059832b6258ac0a7339']],
         ];
     }
 
@@ -243,10 +239,10 @@ class NewsletterRecipientServiceTest extends TestCase
 
     private function installTestData(): void
     {
-        $salutationSql = file_get_contents(__DIR__ . '/../fixtures/salutation.sql');
-        $this->getContainer()->get(Connection::class)->exec($salutationSql);
+        $this->getContainer()->get(Connection::class)->exec(file_get_contents(__DIR__ . '/../fixtures/salutation.sql'));
 
         $recipientSql = file_get_contents(__DIR__ . '/../fixtures/recipient.sql');
+        $recipientSql = str_replace(':createdAt', date(Defaults::STORAGE_DATE_FORMAT), $recipientSql);
         $this->getContainer()->get(Connection::class)->exec($recipientSql);
 
         $templateSql = file_get_contents(__DIR__ . '/../fixtures/template.sql');

@@ -128,12 +128,16 @@ class MigrationStepTest extends TestCase
         $connection = $this->getContainer()->get(Connection::class);
 
         $this->removeMigrationFromTable($migration);
-        $connection->executeUpdate(
-            sprintf(
-                'INSERT INTO `migration` VALUES(\'%s\', %d, NOW(), NOW(), null);',
-                str_replace('\\', '\\\\', get_class($migration)),
-                $migration->getCreationTimestamp()
-            )
+        $now = date('Y-m-d H:i:s');
+        $connection->executeQuery(
+            'INSERT `migration` (`class`, `creation_timestamp`, `update`, `update_destructive`) 
+                VALUES (:class, :creationTimestamp, :update, :updateDestructive);',
+            [
+                'class' => get_class($migration),
+                'creationTimestamp' => $migration->getCreationTimestamp(),
+                'update' => $now,
+                'updateDestructive' => $now,
+            ]
         );
     }
 

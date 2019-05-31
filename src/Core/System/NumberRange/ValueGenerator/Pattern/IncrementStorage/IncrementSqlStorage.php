@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\NumberRangeEntity;
 
@@ -25,13 +26,14 @@ class IncrementSqlStorage implements IncrementStorageInterface
         $varname = Uuid::randomHex();
         $stateId = Uuid::randomBytes();
         $this->connection->executeQuery(
-            'INSERT `number_range_state` (`id`, `last_value`, `number_range_id`, `created_at`) VALUES (:stateId, :value, :id, NOW()) 
+            'INSERT `number_range_state` (`id`, `last_value`, `number_range_id`, `created_at`) VALUES (:stateId, :value, :id, :createdAt) 
                 ON DUPLICATE KEY UPDATE
                 `last_value` = @nr' . $varname . ' := `last_value`+1',
             [
                 'value' => $configuration->getStart(),
                 'id' => Uuid::fromHexToBytes($configuration->getId()),
                 'stateId' => $stateId,
+                'createdAt' => date(Defaults::STORAGE_DATE_FORMAT),
             ]
         );
 

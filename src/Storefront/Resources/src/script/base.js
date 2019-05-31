@@ -24,6 +24,7 @@ import ViewportDetection from 'src/script/helper/viewport-detection.helper';
 import utils
  */
 import AjaxModalExtensionUtil from 'src/script/utility/modal-extension/ajax-modal-extension.util';
+import TimezoneUtil from 'src/script/utility/timezone/timezone.util.js';
 
 /*
 import plugins
@@ -59,6 +60,7 @@ import CmsSlotHistoryReloadPlugin from 'src/script/plugin/cms-slot-reload/cms-sl
 import RemoteClickPlugin from 'src/script/plugin/remote-click/remote-click.plugin';
 import AddressEditorPlugin from 'src/script/plugin/address-editor/address-editor.plugin';
 import ConfirmOrderPlugin from 'src/script/plugin/confirm-order/confirm-order.plugin';
+import DateFormat from 'src/script/plugin/date-format/date-format.plugin.js';
 
 /*
 initialisation
@@ -88,6 +90,7 @@ register plugins
 // example plugin end (remove before release)
 
 
+PluginManager.register('DateFormat', DateFormat, '[data-date-format]');
 PluginManager.register('CookiePermission', CookiePermissionPlugin, '[data-cookie-permission]');
 PluginManager.register('SearchWidget', SearchWidgetPlugin, '[data-search-form]');
 PluginManager.register('CartWidget', CartWidgetPlugin, '[data-cart-widget]');
@@ -132,3 +135,5 @@ document.addEventListener('DOMContentLoaded', () => PluginManager.initializePlug
 run utils
 */
 new AjaxModalExtensionUtil();
+
+new TimezoneUtil();

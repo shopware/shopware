@@ -17,6 +17,10 @@
             <argument type="service" id="request_stack"/>
         </service>
 
+        <service id="Shopware\Storefront\Framework\Twig\TwigDateRequestListener">
+            <tag name="kernel.event_listener" event="kernel.request"/>
+        </service>
+
         <service id="Shopware\Storefront\Framework\Twig\ErrorTemplateResolver" public="false">
             <argument type="service" id="twig"/>
         </service>

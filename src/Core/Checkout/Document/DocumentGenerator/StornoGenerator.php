@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
-use Symfony\Bundle\TwigBundle\TwigEngine;
+use Symfony\Component\Templating\EngineInterface;
 use Twig\Error\Error;
 
 class StornoGenerator implements DocumentGeneratorInterface
@@ -21,11 +21,11 @@ class StornoGenerator implements DocumentGeneratorInterface
     private $rootDir;
 
     /**
-     * @var TwigEngine
+     * @var EngineInterface
      */
     private $twigEngine;
 
-    public function __construct(TwigEngine $twigEngine, string $rootDir)
+    public function __construct(EngineInterface $twigEngine, string $rootDir)
     {
         $this->rootDir = $rootDir;
         $this->twigEngine = $twigEngine;

@@ -99,19 +99,39 @@ class ProductStreamIndexerTest extends TestCase
                 ],
             ], $this->context
         );
-        $languageId = Defaults::LANGUAGE_SYSTEM;
+
         $id = Uuid::randomHex();
-        $this->connection->exec(
-            sprintf('INSERT INTO product_stream (id, created_at, api_filter, invalid) VALUES (UNHEX(\'%s\'), NOW(), null, 1)', $id)
+        $this->connection->insert(
+            'product_stream',
+            [
+                'id' => Uuid::fromHexToBytes($id),
+                'api_filter' => null,
+                'invalid' => 1,
+                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+            ]
         );
-        $this->connection->exec(
-            sprintf('INSERT INTO product_stream_translation (product_stream_id, language_id, name, created_at) VALUES (UNHEX(\'%s\'), UNHEX(\'%s\'), \'%s\', NOW())', $id, $languageId, 'Stream')
+
+        $this->connection->insert(
+            'product_stream_translation',
+            [
+                'product_stream_id' => Uuid::fromHexToBytes($id),
+                'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+                'name' => 'Stream',
+                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+            ]
         );
-        $this->connection->exec(
-            sprintf(
-                'INSERT INTO product_stream_filter (id, type, field, value, position, product_stream_id, created_at) VALUES (UNHEX(\'%s\'), \'%s\', \'%s\', \'%s\', 1, UNHEX(\'%s\'), NOW())',
-                Uuid::randomHex(), 'equals', 'product.id', $productId, $id
-            )
+
+        $this->connection->insert(
+            'product_stream_filter',
+            [
+                'id' => Uuid::randomBytes(),
+                'type' => 'equals',
+                'field' => 'product.id',
+                'value' => $productId,
+                'position' => 1,
+                'product_stream_id' => Uuid::fromHexToBytes($id),
+                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+            ]
         );
 
         $this->eventIdExtractor->expects(static::once())->method('getProductStreamIds')->willReturn([$id]);
@@ -143,26 +163,53 @@ class ProductStreamIndexerTest extends TestCase
                 ],
             ], $this->context
         );
-        $languageId = Defaults::LANGUAGE_SYSTEM;
         $id = Uuid::randomHex();
-        $this->connection->exec(
-            sprintf('INSERT INTO product_stream (id, created_at, api_filter, invalid) VALUES (UNHEX(\'%s\'), NOW(), null, 1)', $id)
+
+        $this->connection->insert(
+            'product_stream',
+            [
+                'id' => Uuid::fromHexToBytes($id),
+                'api_filter' => null,
+                'invalid' => 1,
+                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+            ]
         );
-        $this->connection->exec(
-            sprintf('INSERT INTO product_stream_translation (product_stream_id, language_id, name, created_at) VALUES (UNHEX(\'%s\'), UNHEX(\'%s\'), \'%s\', NOW())', $id, $languageId, 'Stream')
+
+        $this->connection->insert(
+            'product_stream_translation',
+            [
+                'product_stream_id' => Uuid::fromHexToBytes($id),
+                'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+                'name' => 'Stream',
+                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+            ]
         );
+
         $multiId = Uuid::randomHex();
-        $this->connection->exec(
-            sprintf(
-                'INSERT INTO product_stream_filter (id, type, position, product_stream_id, created_at) VALUES (UNHEX(\'%s\'), \'%s\', 1, UNHEX(\'%s\'), NOW())',
-                $multiId, 'multi', $id
-            )
+        $this->connection->insert(
+            'product_stream_filter',
+            [
+                'id' => Uuid::fromHexToBytes($multiId),
+                'type' => 'multi',
+                'position' => 1,
+                'product_stream_id' => Uuid::fromHexToBytes($id),
+                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+            ]
         );
-        $this->connection->exec(
-            sprintf(
-                'INSERT INTO product_stream_filter (id, type, field, operator, value, position, parent_id, product_stream_id, created_at) VALUES (UNHEX(\'%s\'), \'%s\', \'%s\', \'%s\', \'%s\', 1, UNHEX(\'%s\'), UNHEX(\'%s\'), NOW())',
-                Uuid::randomHex(), 'equals', 'product.id', 'equals', $productId, $multiId, $id
-            )
+
+        $this->connection->insert(
+            'product_stream_filter',
+            [
+                'id' => Uuid::randomBytes(),
+                'type' => 'equals',
+                'field' => 'product.id',
+                'operator' => 'equals',
+                'value' => $productId,
+                'position' => 1,
+                'parent_id' => Uuid::fromHexToBytes($multiId),
+                'product_stream_id' => Uuid::fromHexToBytes($id),
+                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+            ]
         );
 
         $this->eventIdExtractor->expects(static::once())->method('getProductStreamIds')->willReturn([$id]);
@@ -197,20 +244,40 @@ class ProductStreamIndexerTest extends TestCase
                 ],
             ], $this->context
         );
-        $languageId = Defaults::LANGUAGE_SYSTEM;
         $id = Uuid::randomHex();
-        $this->connection->exec(
-            sprintf('INSERT INTO product_stream (id, created_at, api_filter, invalid) VALUES (UNHEX(\'%s\'), NOW(), null, 1)', $id)
+
+        $this->connection->insert(
+            'product_stream',
+            [
+                'id' => Uuid::fromHexToBytes($id),
+                'api_filter' => null,
+                'invalid' => 1,
+                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+            ]
         );
-        $this->connection->exec(
-            sprintf('INSERT INTO product_stream_translation (product_stream_id, language_id, name, created_at) VALUES (UNHEX(\'%s\'), UNHEX(\'%s\'), \'%s\', NOW())', $id, $languageId, 'Stream')
+
+        $this->connection->insert(
+            'product_stream_translation',
+            [
+                'product_stream_id' => Uuid::fromHexToBytes($id),
+                'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+                'name' => 'Stream',
+                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+            ]
         );
+
         $multiId = Uuid::randomHex();
-        $this->connection->exec(
-            sprintf(
-                'INSERT INTO product_stream_filter (id, type, field, value, position, product_stream_id, created_at) VALUES (UNHEX(\'%s\'), \'%s\', \'%s\', \'%s\', 1, UNHEX(\'%s\'), NOW())',
-                $multiId, 'invalid', 'product.id', $productId, $id
-            )
+        $this->connection->insert(
+            'product_stream_filter',
+            [
+                'id' => Uuid::fromHexToBytes($multiId),
+                'type' => 'invalid',
+                'field' => 'product.id',
+                'value' => $productId,
+                'position' => 1,
+                'product_stream_id' => Uuid::fromHexToBytes($id),
+                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+            ]
         );
 
         $this->eventIdExtractor->expects(static::once())->method('getProductStreamIds')->willReturn([$id]);
@@ -239,20 +306,39 @@ class ProductStreamIndexerTest extends TestCase
                 ],
             ], $this->context
         );
-        $languageId = Defaults::LANGUAGE_SYSTEM;
+
         $id = Uuid::randomHex();
-        $this->connection->exec(
-            sprintf('INSERT INTO product_stream (id, created_at, api_filter, invalid) VALUES (UNHEX(\'%s\'), NOW(), null, 1)', $id)
+        $this->connection->insert(
+            'product_stream',
+            [
+                'id' => Uuid::fromHexToBytes($id),
+                'api_filter' => null,
+                'invalid' => 1,
+                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+            ]
         );
-        $this->connection->exec(
-            sprintf('INSERT INTO product_stream_translation (product_stream_id, language_id, name, created_at) VALUES (UNHEX(\'%s\'), UNHEX(\'%s\'), \'%s\', NOW())', $id, $languageId, 'Stream')
+
+        $this->connection->insert(
+            'product_stream_translation',
+            [
+                'product_stream_id' => Uuid::fromHexToBytes($id),
+                'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+                'name' => 'Stream',
+                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+            ]
         );
-        $multiId = Uuid::randomHex();
-        $this->connection->exec(
-            sprintf(
-                'INSERT INTO product_stream_filter (id, type, field, value, position, product_stream_id, created_at) VALUES (UNHEX(\'%s\'), \'%s\', \'%s\', \'%s\', 1, UNHEX(\'%s\'), NOW())',
-                $multiId, 'equals', null, $productId, $id
-            )
+
+        $this->connection->insert(
+            'product_stream_filter',
+            [
+                'id' => Uuid::randomBytes(),
+                'type' => 'equals',
+                'field' => null,
+                'value' => $productId,
+                'position' => 1,
+                'product_stream_id' => Uuid::fromHexToBytes($id),
+                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+            ]
         );
 
         $this->eventIdExtractor->expects(static::once())->method('getProductStreamIds')->willReturn([$id]);
@@ -267,34 +353,39 @@ class ProductStreamIndexerTest extends TestCase
 
     public function testEmptyValue(): void
     {
-        $productId = Uuid::randomHex();
-        $this->productRepo->create(
-            [
-                [
-                    'id' => $productId,
-                    'productNumber' => Uuid::randomHex(),
-                    'stock' => 10,
-                    'name' => 'Test',
-                    'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
-                    'manufacturer' => ['name' => 'test'],
-                    'tax' => ['taxRate' => 19, 'name' => 'without id'],
-                ],
-            ], $this->context
-        );
-        $languageId = Defaults::LANGUAGE_SYSTEM;
         $id = Uuid::randomHex();
-        $this->connection->exec(
-            sprintf('INSERT INTO product_stream (id, created_at, api_filter, invalid) VALUES (UNHEX(\'%s\'), NOW(), null, 1)', $id)
+
+        $this->connection->insert(
+            'product_stream',
+            [
+                'id' => Uuid::fromHexToBytes($id),
+                'api_filter' => null,
+                'invalid' => 1,
+                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+            ]
         );
-        $this->connection->exec(
-            sprintf('INSERT INTO product_stream_translation (product_stream_id, language_id, name, created_at) VALUES (UNHEX(\'%s\'), UNHEX(\'%s\'), \'%s\', NOW())', $id, $languageId, 'Stream')
+
+        $this->connection->insert(
+            'product_stream_translation',
+            [
+                'product_stream_id' => Uuid::fromHexToBytes($id),
+                'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+                'name' => 'Stream',
+                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+            ]
         );
-        $multiId = Uuid::randomHex();
-        $this->connection->exec(
-            sprintf(
-                'INSERT INTO product_stream_filter (id, type, field, value, position, product_stream_id, created_at) VALUES (UNHEX(\'%s\'), \'%s\', \'%s\', \'%s\', 1, UNHEX(\'%s\'), NOW())',
-                $multiId, 'equals', 'id', null, $id
-            )
+
+        $this->connection->insert(
+            'product_stream_filter',
+            [
+                'id' => Uuid::randomBytes(),
+                'type' => 'equals',
+                'field' => 'id',
+                'value' => '',
+                'position' => 1,
+                'product_stream_id' => Uuid::fromHexToBytes($id),
+                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+            ]
         );
 
         $this->eventIdExtractor->expects(static::once())->method('getProductStreamIds')->willReturn([$id]);
@@ -309,34 +400,38 @@ class ProductStreamIndexerTest extends TestCase
 
     public function testWithParameters(): void
     {
-        $productId = Uuid::randomHex();
-        $this->productRepo->create(
-            [
-                [
-                    'id' => $productId,
-                    'productNumber' => Uuid::randomHex(),
-                    'stock' => 10,
-                    'name' => 'Test',
-                    'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
-                    'manufacturer' => ['name' => 'test'],
-                    'tax' => ['taxRate' => 19, 'name' => 'without id'],
-                ],
-            ], $this->context
-        );
-        $languageId = Defaults::LANGUAGE_SYSTEM;
         $id = Uuid::randomHex();
-        $this->connection->exec(
-            sprintf('INSERT INTO product_stream (id, created_at, api_filter, invalid) VALUES (UNHEX(\'%s\'), NOW(), null, 1)', $id)
+        $this->connection->insert(
+            'product_stream',
+            [
+                'id' => Uuid::fromHexToBytes($id),
+                'api_filter' => null,
+                'invalid' => 1,
+                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+            ]
         );
-        $this->connection->exec(
-            sprintf('INSERT INTO product_stream_translation (product_stream_id, language_id, name, created_at) VALUES (UNHEX(\'%s\'), UNHEX(\'%s\'), \'%s\', NOW())', $id, $languageId, 'Stream')
+
+        $this->connection->insert(
+            'product_stream_translation',
+            [
+                'product_stream_id' => Uuid::fromHexToBytes($id),
+                'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+                'name' => 'Stream',
+                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+            ]
         );
-        $multiId = Uuid::randomHex();
-        $this->connection->exec(
-            sprintf(
-                'INSERT INTO product_stream_filter (id, type, field, parameters, position, product_stream_id, created_at) VALUES (UNHEX(\'%s\'), \'%s\', \'%s\', \'%s\', 1, UNHEX(\'%s\'), NOW())',
-                $multiId, 'range', 'price.gross', json_encode([RangeFilter::GTE => 10]), $id
-            )
+
+        $this->connection->insert(
+            'product_stream_filter',
+            [
+                'id' => Uuid::randomBytes(),
+                'type' => 'range',
+                'field' => 'price.gross',
+                'parameters' => json_encode([RangeFilter::GTE => 10]),
+                'position' => 1,
+                'product_stream_id' => Uuid::fromHexToBytes($id),
+                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+            ]
         );
 
         $this->eventIdExtractor->expects(static::once())->method('getProductStreamIds')->willReturn([$id]);

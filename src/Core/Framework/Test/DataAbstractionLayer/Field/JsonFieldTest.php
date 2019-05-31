@@ -346,16 +346,17 @@ EOF;
         $context = $context->getContext();
 
         $taxId = Uuid::randomHex();
-        $tax_rate = 15.0;
+        $taxRate = 15.0;
 
         $repo = $this->getRepository();
         $criteria = new Criteria();
 
         $connection = $this->getContainer()->get(Connection::class);
         $insertInjection = sprintf(
-            'INSERT INTO `tax` (id, tax_rate, name, created_at) VALUES(UNHEX(%s), %s, "foo", now())',
+            'INSERT INTO `tax` (id, tax_rate, name, created_at) VALUES(UNHEX(%s), %s, "foo", %s)',
             $connection->quote($taxId),
-            $tax_rate
+            $taxRate,
+            date(Defaults::STORAGE_DATE_FORMAT)
         );
         $keyWithQuotes = sprintf(
             'data.%s\')) = "%s"); %s; SELECT 1 FROM ((("',

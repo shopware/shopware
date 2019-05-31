@@ -93,14 +93,12 @@ Component.register('sw-order-list', {
         getOrderColumns() {
             return [{
                 property: 'orderNumber',
-                dataIndex: 'orderNumber',
                 label: this.$tc('sw-order.list.columnOrderNumber'),
                 routerLink: 'sw.order.detail',
                 allowResize: true,
                 primary: true
             }, {
                 property: 'salesChannel.name',
-                dataIndex: 'salesChannel.name',
                 label: this.$tc('sw-order.list.columnSalesChannel'),
                 allowResize: true
             }, {
@@ -114,13 +112,11 @@ Component.register('sw-order-list', {
                 allowResize: true
             }, {
                 property: 'amountTotal',
-                dataIndex: 'amountTotal',
                 label: this.$tc('sw-order.list.columnAmount'),
                 align: 'right',
                 allowResize: true
             }, {
                 property: 'stateMachineState.name',
-                dataIndex: 'stateMachineState.name',
                 label: this.$tc('sw-order.list.columnState'),
                 allowResize: true
             }, {
@@ -129,7 +125,6 @@ Component.register('sw-order-list', {
                 allowResize: true
             }, {
                 property: 'orderDate',
-                dataIndex: 'orderDate',
                 label: this.$tc('sw-order.list.orderDate'),
                 allowResize: true
             }];

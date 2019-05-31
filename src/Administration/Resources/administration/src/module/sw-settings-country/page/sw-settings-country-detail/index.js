@@ -170,13 +170,11 @@ Component.register('sw-settings-country-detail', {
         getStateColumns() {
             return [{
                 property: 'name',
-                dataIndex: 'name',
                 label: this.$tc('sw-settings-country.detail.columnStateNameLabel'),
                 inlineEdit: 'string',
                 primary: true
             }, {
                 property: 'shortCode',
-                dataIndex: 'shortCode',
                 label: this.$tc('sw-settings-country.detail.columnStateShortCodeLabel'),
                 inlineEdit: 'string'
             }];

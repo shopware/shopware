@@ -30,7 +30,6 @@ Component.register('sw-property-list', {
         propertiesColumns() {
             return [{
                 property: 'name',
-                dataIndex: 'name',
                 label: this.$tc('sw-property.list.columnName'),
                 routerLink: 'sw.property.detail',
                 inlineEdit: 'string',

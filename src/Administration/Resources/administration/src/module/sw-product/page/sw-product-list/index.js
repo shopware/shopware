@@ -151,7 +151,6 @@ Component.register('sw-product-list', {
         getProductColumns() {
             return [{
                 property: 'name',
-                dataIndex: 'name',
                 label: this.$tc('sw-product.list.columnName'),
                 routerLink: 'sw.product.detail',
                 inlineEdit: 'string',
@@ -159,31 +158,26 @@ Component.register('sw-product-list', {
                 primary: true
             }, {
                 property: 'productNumber',
-                dataIndex: 'productNumber',
                 label: this.$tc('sw-product.list.columnProductNumber'),
                 align: 'right',
                 allowResize: true
             }, {
                 property: 'manufacturer.name',
-                dataIndex: 'manufacturer.name',
                 label: this.$tc('sw-product.list.columnManufacturer'),
                 allowResize: true
             }, {
                 property: 'active',
-                dataIndex: 'active',
                 label: this.$tc('sw-product.list.columnActive'),
                 inlineEdit: 'boolean',
                 allowResize: true,
                 align: 'center'
             }, {
                 property: 'price.gross',
-                dataIndex: 'price.gross',
                 label: this.$tc('sw-product.list.columnPrice'),
                 allowResize: true,
                 align: 'right'
             }, {
                 property: 'stock',
-                dataIndex: 'stock',
                 label: this.$tc('sw-product.list.columnInStock'),
                 inlineEdit: 'number',
                 allowResize: true,

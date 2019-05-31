@@ -67,21 +67,17 @@ Component.register('sw-customer-detail-order', {
         getOrderColumns() {
             return [{
                 property: 'orderNumber',
-                dataIndex: 'orderNumber',
                 label: this.$tc('sw-customer.detailOrder.columnNumber'),
                 align: 'center'
             }, {
                 property: 'amountTotal',
-                dataIndex: 'amountTotal',
                 label: this.$tc('sw-customer.detailOrder.columnAmount'),
                 align: 'right'
             }, {
                 property: 'stateMachineState.name',
-                dataIndex: 'stateMachineState.name',
                 label: this.$tc('sw-customer.detailOrder.columnOrderState')
             }, {
                 property: 'createdAt',
-                dataIndex: 'createdAt',
                 label: this.$tc('sw-customer.detailOrder.columnOrderDate'),
                 align: 'center'
             }];

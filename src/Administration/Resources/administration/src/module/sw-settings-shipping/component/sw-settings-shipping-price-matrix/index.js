@@ -67,7 +67,6 @@ Component.register('sw-settings-shipping-price-matrix', {
             if (this.priceGroup && this.priceGroup.prices.some(priceRule => priceRule.calculationRuleId)) {
                 columns.push({
                     property: 'calculationRule.name',
-                    dataIndex: 'calculationRule.name',
                     label: this.$tc('sw-settings-shipping.priceMatrix.columnCalculationRule'),
                     allowResize: true,
                     primary: true,
@@ -76,7 +75,6 @@ Component.register('sw-settings-shipping-price-matrix', {
             } else {
                 columns.push({
                     property: 'quantityStart',
-                    dataIndex: 'quantityStart',
                     label: this.labelQuantityStart,
                     inlineEdit: 'number',
                     allowResize: true,
@@ -85,7 +83,6 @@ Component.register('sw-settings-shipping-price-matrix', {
                 });
                 columns.push({
                     property: 'quantityEnd',
-                    dataIndex: 'quantityEnd',
                     label: this.labelQuantityEnd,
                     inlineEdit: 'number',
                     allowResize: true,
@@ -95,7 +92,6 @@ Component.register('sw-settings-shipping-price-matrix', {
 
             columns.push({
                 property: 'price',
-                dataIndex: 'price',
                 label: this.$tc('sw-settings-shipping.priceMatrix.columnPrice'),
                 inlineEdit: 'number',
                 allowResize: true,

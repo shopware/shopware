@@ -45,19 +45,16 @@ Component.register('sw-settings-salutation-list', {
             return [{
                 property: 'salutationKey',
                 label: this.$tc('sw-settings-salutation.list.columnSalutationKey'),
-                dataIndex: 'salutationKey',
                 inlineEdit: 'string',
                 primary: true
             }, {
                 property: 'displayName',
                 label: this.$tc('sw-settings-salutation.list.columnDisplayName'),
-                dataIndex: 'displayName',
                 inlineEdit: 'string',
                 primary: true
             }, {
                 property: 'letterName',
                 label: this.$tc('sw-settings-salutation.list.columnLetterName'),
-                dataIndex: 'letterName',
                 inlineEdit: 'string'
             }];
         },

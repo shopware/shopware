@@ -198,17 +198,17 @@ Component.register('sw-media-library', {
 
         mapFolderSorting() {
             switch (this.sorting.sortBy) {
-            case 'createdAt':
-                this.folderSorting.sortBy = 'createdAt';
-                this.folderSorting.sortDirection = this.sorting.sortDirection;
-                break;
-            case 'fileName':
-                this.folderSorting.sortBy = 'name';
-                this.folderSorting.sortDirection = this.sorting.sortDirection;
-                break;
-            default:
-                this.folderSorting.sortBy = 'name';
-                this.folderSorting.sortDirection = 'asc';
+                case 'createdAt':
+                    this.folderSorting.sortBy = 'createdAt';
+                    this.folderSorting.sortDirection = this.sorting.sortDirection;
+                    break;
+                case 'fileName':
+                    this.folderSorting.sortBy = 'name';
+                    this.folderSorting.sortDirection = this.sorting.sortDirection;
+                    break;
+                default:
+                    this.folderSorting.sortBy = 'name';
+                    this.folderSorting.sortDirection = 'asc';
             }
         },
 

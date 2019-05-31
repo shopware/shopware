@@ -212,16 +212,16 @@ export default {
             this.isLoading = true;
             let solvingPromise = null;
             switch (this.selectedOption) {
-            case 'Rename':
-                solvingPromise = this.renameFile(this.currentTask);
-                break;
-            case 'Replace':
-                solvingPromise = this.replaceFile(this.currentTask);
-                break;
-            case 'Skip':
-            default:
-                solvingPromise = this.skipFile(this.currentTask);
-                break;
+                case 'Rename':
+                    solvingPromise = this.renameFile(this.currentTask);
+                    break;
+                case 'Replace':
+                    solvingPromise = this.replaceFile(this.currentTask);
+                    break;
+                case 'Skip':
+                default:
+                    solvingPromise = this.skipFile(this.currentTask);
+                    break;
             }
 
             return solvingPromise.then(() => {

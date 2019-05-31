@@ -13,20 +13,20 @@
         {% endblock %}
 
         {% block sw_tree_actions_headline %}
-        <slot name="headline">
-            <div v-if="checkedElementsCount > 0" class="sw-tree-actions__headline">
-                <span> {{ $tc(`${translationContext}.general.treeHeadSelected`, 0, { count: checkedElementsCount }) }}:</span>
-                <sw-button @click="onDeleteElements(null)"
-                           variant="danger"
-                           size="small">
-                    {{ $tc('sw-tree.modal.buttonDelete') }}
-                </sw-button>
-            </div>
+            <slot name="headline">
+                <div v-if="checkedElementsCount > 0" class="sw-tree-actions__headline">
+                    <span> {{ $tc(`${translationContext}.general.treeHeadSelected`, 0, { count: checkedElementsCount }) }}:</span>
+                    <sw-button @click="onDeleteElements(null)"
+                               variant="danger"
+                               size="small">
+                        {{ $tc('sw-tree.modal.buttonDelete') }}
+                    </sw-button>
+                </div>
 
-            <div v-else class="sw-tree-actions__headline">
-                <span>{{ $tc(`${translationContext}.general.treeHeadline`) }}</span>
-            </div>
-        </slot>
+                <div v-else class="sw-tree-actions__headline">
+                    <span>{{ $tc(`${translationContext}.general.treeHeadline`) }}</span>
+                </div>
+            </slot>
         {% endblock %}
 
         {% block sw_tree_content %}

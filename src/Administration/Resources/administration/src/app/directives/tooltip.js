@@ -162,29 +162,29 @@ class Tooltip {
         this._setTooltipDOMElementWidth();
 
         switch (this._position) {
-        case 'bottom':
-            this._DOMElement.style.top = `${boundingBox.top + boundingBox.height + secureOffset}px`;
-            this._DOMElement.style.left =
-                    `${boundingBox.left + (boundingBox.width / 2) - this._DOMElement.offsetWidth / 2}px`;
-            break;
-        case 'left':
-            this._DOMElement.style.top =
-                    `${boundingBox.top + boundingBox.height / 2 - this._DOMElement.offsetHeight / 2}px`;
-            this._DOMElement.style.left =
-                    `${boundingBox.left - secureOffset - this._DOMElement.offsetWidth}px`;
-            break;
-        case 'right':
-            this._DOMElement.style.top =
-                    `${boundingBox.top + boundingBox.height / 2 - this._DOMElement.offsetHeight / 2}px`;
-            this._DOMElement.style.left =
-                    `${boundingBox.right + secureOffset}px`;
-            break;
-        case 'top':
-        default:
-            this._DOMElement.style.top =
-                    `${boundingBox.top - this._DOMElement.offsetHeight - secureOffset}px`;
-            this._DOMElement.style.left =
-                    `${boundingBox.left + (boundingBox.width / 2) - this._DOMElement.offsetWidth / 2}px`;
+            case 'bottom':
+                this._DOMElement.style.top = `${boundingBox.top + boundingBox.height + secureOffset}px`;
+                this._DOMElement.style.left =
+                        `${boundingBox.left + (boundingBox.width / 2) - this._DOMElement.offsetWidth / 2}px`;
+                break;
+            case 'left':
+                this._DOMElement.style.top =
+                        `${boundingBox.top + boundingBox.height / 2 - this._DOMElement.offsetHeight / 2}px`;
+                this._DOMElement.style.left =
+                        `${boundingBox.left - secureOffset - this._DOMElement.offsetWidth}px`;
+                break;
+            case 'right':
+                this._DOMElement.style.top =
+                        `${boundingBox.top + boundingBox.height / 2 - this._DOMElement.offsetHeight / 2}px`;
+                this._DOMElement.style.left =
+                        `${boundingBox.right + secureOffset}px`;
+                break;
+            case 'top':
+            default:
+                this._DOMElement.style.top =
+                        `${boundingBox.top - this._DOMElement.offsetHeight - secureOffset}px`;
+                this._DOMElement.style.left =
+                        `${boundingBox.left + (boundingBox.width / 2) - this._DOMElement.offsetWidth / 2}px`;
         }
     }
 

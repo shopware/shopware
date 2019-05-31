@@ -33,9 +33,6 @@ class ProductPageObject extends GeneralPageObject {
             .waitForElementVisible('.icon--small-default-checkmark-line-medium')
             .waitForElementVisible('.sw-product-detail-page__tabs')
             .assert.urlContains('detail');
-
-        this.browser
-            .checkNotification('Product "Marci Darci" has been saved successfully.');
     }
 
     addProductImageViaUrl(imagePath) {

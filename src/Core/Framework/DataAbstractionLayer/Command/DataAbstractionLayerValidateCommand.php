@@ -24,7 +24,7 @@ class DataAbstractionLayerValidateCommand extends Command
 
     protected function configure(): void
     {
-        $this->setName('dataabstractionlayer:validate');
+        $this->setName('dal:validate');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

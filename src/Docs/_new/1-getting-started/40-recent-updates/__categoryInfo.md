@@ -916,7 +916,7 @@ p code {
 Also every Entity-Struct extending the <code>Entity</code>-Class has the associated Properties + Getters and Setters automatically.</p>
 <p>The only Exception are <code>MappingDefinitions</code>, there these Fields aren't added automatically.</p>
 <h2>What do you have to do?</h2>
-<p>We have extended the <code>dataabstractionlayer:validate</code>-command to check for fields that don't have a mapped Column.
+<p>We have extended the <code>dal:validate</code>-command to check for fields that don't have a mapped Column.
 So run this command to check for Definitions that previously didn`t had these fields.
 For those entities you have to write Migrations and add these fields.
 For every definitions that has those fields you can remove them from the FieldDefinitions and EntityStructs.</p>

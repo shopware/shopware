@@ -6,7 +6,7 @@ Also every Entity-Struct extending the `Entity`-Class has the associated Propert
 The only Exception are `MappingDefinitions`, there these Fields aren't added automatically.
 
 ## What do you have to do?
-We have extended the `dataabstractionlayer:validate`-command to check for fields that don't have a mapped Column.
+We have extended the `dal:validate`-command to check for fields that don't have a mapped Column.
 So run this command to check for Definitions that previously didn`t had these fields.
 For those entities you have to write Migrations and add these fields.
 For every definitions that has those fields you can remove them from the FieldDefinitions and EntityStructs.

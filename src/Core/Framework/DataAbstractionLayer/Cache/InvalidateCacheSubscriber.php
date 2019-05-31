@@ -32,35 +32,11 @@ class InvalidateCacheSubscriber implements EventSubscriberInterface
 
     public static function getSubscribedEvents(): array
     {
-        /*
-         * Running this two times allows the indexers to use repositories.
-         */
         return [
             EntityWrittenContainerEvent::NAME => [
-                ['entitiesWrittenBefore', 20000],
-                ['entitiesWrittenAfter', -20000],
+                ['entitiesWritten', -20000],
             ],
         ];
-    }
-
-    /**
-     * This method exists just to allow calling entitiesWritten two times in the event handler
-     *
-     * @internal
-     */
-    public function entitiesWrittenBefore(EntityWrittenContainerEvent $event): void
-    {
-        $this->entitiesWritten($event);
-    }
-
-    /**
-     * This method exists just to allow calling entitiesWritten two times in the event handler
-     *
-     * @internal
-     */
-    public function entitiesWrittenAfter(EntityWrittenContainerEvent $event): void
-    {
-        $this->entitiesWritten($event);
     }
 
     public function entitiesWritten(EntityWrittenContainerEvent $event): void

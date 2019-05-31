@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Framework\Seo\SeoUrl;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class SeoUrlEntity extends Entity
@@ -11,9 +12,14 @@ class SeoUrlEntity extends Entity
     use EntityIdTrait;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $salesChannelId;
+
+    /**
+     * @var string
+     */
+    protected $languageId;
 
     /**
      * @var string
@@ -66,6 +72,11 @@ class SeoUrlEntity extends Entity
     protected $salesChannel;
 
     /**
+     * @var LanguageEntity|null
+     */
+    protected $language;
+
+    /**
      * @var string
      */
     protected $url;
@@ -75,14 +86,24 @@ class SeoUrlEntity extends Entity
      */
     protected $customFields;
 
-    public function getSalesChannelId(): string
+    public function getSalesChannelId(): ?string
     {
         return $this->salesChannelId;
     }
 
-    public function setSalesChannelId(string $salesChannelId): void
+    public function setSalesChannelId(?string $salesChannelId): void
     {
         $this->salesChannelId = $salesChannelId;
+    }
+
+    public function getLanguageId(): string
+    {
+        return $this->languageId;
+    }
+
+    public function setLanguageId(string $languageId): void
+    {
+        $this->languageId = $languageId;
     }
 
     public function getRouteName(): string
@@ -203,5 +224,15 @@ class SeoUrlEntity extends Entity
     public function setAutoIncrement(int $autoIncrement): void
     {
         $this->autoIncrement = $autoIncrement;
+    }
+
+    public function getLanguage(): ?LanguageEntity
+    {
+        return $this->language;
+    }
+
+    public function setLanguage(LanguageEntity $language): void
+    {
+        $this->language = $language;
     }
 }

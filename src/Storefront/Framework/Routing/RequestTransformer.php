@@ -55,7 +55,7 @@ class RequestTransformer
 
         $baseUrl = str_replace($request->getSchemeAndHttpHost() . $request->getBaseUrl(), '', $salesChannel['url']);
 
-        $resolved = $this->resolveSeoUrl($request, $baseUrl, $salesChannel['salesChannelId']);
+        $resolved = $this->resolveSeoUrl($request, $baseUrl, $salesChannel['languageId'], $salesChannel['salesChannelId']);
 
         /**
          * - Remove "virtual" suffix of domain mapping shopware.de/de
@@ -191,7 +191,7 @@ class RequestTransformer
         return $bestMatch;
     }
 
-    private function resolveSeoUrl(Request $request, string $baseUrl, string $salesChannelId): array
+    private function resolveSeoUrl(Request $request, string $baseUrl, string $languageId, string $salesChannelId): array
     {
         $seoPathInfo = rtrim($request->getPathInfo(), '/') . '/';
 
@@ -208,7 +208,7 @@ class RequestTransformer
 
         if ($_ENV['FEATURE_NEXT_741'] ?? false) {
             $resolved = (new SeoResolver($this->connection))
-                ->resolveSeoPath($salesChannelId, $seoPathInfo);
+                ->resolveSeoPath($languageId, $salesChannelId, $seoPathInfo);
 
             $resolved['pathInfo'] = rtrim($seoPathInfo, '/');
 

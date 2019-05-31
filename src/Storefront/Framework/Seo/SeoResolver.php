@@ -17,7 +17,7 @@ class SeoResolver implements SeoResolverInterface
         $this->connection = $connection;
     }
 
-    public function resolveSeoPath(string $salesChannelId, string $pathInfo): ?array
+    public function resolveSeoPath(string $languageId, string $salesChannelId, string $pathInfo): ?array
     {
         $seoPathInfo = ltrim($pathInfo, '/');
         if ($seoPathInfo === '') {
@@ -27,11 +27,15 @@ class SeoResolver implements SeoResolverInterface
         $seoPath = $this->connection->createQueryBuilder()
             ->select('id', 'path_info pathInfo', 'is_canonical isCanonical')
             ->from('seo_url')
-            ->where('sales_channel_id = :salesChannelId')
+            ->where('language_id = :language_id')
+            ->andWhere('(sales_channel_id = :sales_channel_id OR sales_channel_id IS NULL)')
             ->andWhere('seo_path_info = :seoPath')
             ->andWhere('is_valid = 1')
+            ->orderBy('seo_path_info')
+            ->addOrderBy('sales_channel_id IS NULL') // sales_channel_specific comes first
             ->setMaxResults(1)
-            ->setParameter('salesChannelId', Uuid::fromHexToBytes($salesChannelId))
+            ->setParameter('language_id', Uuid::fromHexToBytes($languageId))
+            ->setParameter('sales_channel_id', Uuid::fromHexToBytes($salesChannelId))
             ->setParameter('seoPath', $seoPathInfo)
             ->execute()
             ->fetch();
@@ -44,13 +48,15 @@ class SeoResolver implements SeoResolverInterface
             $query = $this->connection->createQueryBuilder()
                 ->select('path_info pathInfo', 'seo_path_info seoPathInfo')
                 ->from('seo_url')
-                ->where('sales_channel_id = :salesChannelId')
+                ->where('language_id = :language_id')
+                ->andWhere('sales_channel_id = :sales_channel_id')
                 ->andWhere('id != :id')
                 ->andWhere('path_info = :pathInfo')
                 ->andWhere('is_valid = 1')
                 ->andWhere('is_canonical = 1')
                 ->setMaxResults(1)
-                ->setParameter('salesChannelId', Uuid::fromHexToBytes($salesChannelId))
+                ->setParameter('language_id', Uuid::fromHexToBytes($languageId))
+                ->setParameter('sales_channel_id', Uuid::fromHexToBytes($salesChannelId))
                 ->setParameter('id', $seoPath['id'] ?? '')
                 ->setParameter('pathInfo', '/' . trim($seoPath['pathInfo'], '/'));
 

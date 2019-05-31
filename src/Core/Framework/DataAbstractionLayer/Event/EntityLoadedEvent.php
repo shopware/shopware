@@ -86,6 +86,18 @@ class EntityLoadedEvent extends NestedEvent
         return new NestedEventCollection($events);
     }
 
+    public function getIds(): array
+    {
+        $ids = [];
+
+        /** @var Entity $entity */
+        foreach ($this->getEntities() as $entity) {
+            $ids[] = $entity->getUniqueIdentifier();
+        }
+
+        return $ids;
+    }
+
     protected function extractAssociations(EntityDefinition $definition, iterable $entities): array
     {
         $events = $this->extractAssociationsInCurrentLevel($definition, $entities);

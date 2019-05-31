@@ -244,12 +244,15 @@ class TreeIndexerTest extends TestCase
         ├── Category C
         │  └── Category D
         */
-        $categoryA = $this->createCategory();
 
-        $categoryB = $this->createCategory($categoryA);
-        $categoryC = $this->createCategory($categoryA);
+        [$categoryA, $categoryB, $categoryC, $categoryD] = $this->context->disableCache(function () {
+            $categoryA = $this->createCategory();
+            $categoryB = $this->createCategory($categoryA);
+            $categoryC = $this->createCategory($categoryA);
+            $categoryD = $this->createCategory($categoryC);
 
-        $categoryD = $this->createCategory($categoryC);
+            return [$categoryA, $categoryB, $categoryC, $categoryD];
+        });
 
         $this->connection->executeQuery(
             'UPDATE category SET path = NULL, level = 0 WHERE HEX(id) IN (:ids)',

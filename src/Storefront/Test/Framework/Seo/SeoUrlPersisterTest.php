@@ -8,14 +8,17 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Storefront\Framework\Seo\SeoService;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlEntity;
+use Shopware\Storefront\Framework\Seo\SeoUrlGenerator;
+use Shopware\Storefront\Framework\Seo\SeoUrlPersister;
 
-class SeoServiceTest extends TestCase
+class SeoUrlPersisterTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
@@ -30,23 +33,24 @@ class SeoServiceTest extends TestCase
     private $seoUrlRepository;
 
     /**
-     * @var SeoService
+     * @var SeoUrlGenerator
      */
-    private $seoService;
+    private $seoUrlPersister;
 
     public function setUp(): void
     {
         $this->templateRepository = $this->getContainer()->get('seo_url_template.repository');
         $this->seoUrlRepository = $this->getContainer()->get('seo_url.repository');
-        $this->seoService = $this->getContainer()->get(SeoService::class);
+        $this->seoUrlPersister = $this->getContainer()->get(SeoUrlPersister::class);
 
         $connection = $this->getContainer()->get(Connection::class);
         $connection->exec('DELETE FROM `sales_channel`');
+        $connection->exec('DELETE FROM `seo_url`');
     }
 
-    public function testUpdateSeoUrls(): void
+    public function testUpdateSeoUrlsDefault(): void
     {
-        $salesChannel = $this->createSalesChannel(Uuid::randomHex(), 'test');
+        $context = Context::createDefaultContext();
 
         $fk = Uuid::randomHex();
         $seoUrlUpdates = [
@@ -56,11 +60,11 @@ class SeoServiceTest extends TestCase
                 'seoPathInfo' => 'fancy-path',
             ],
         ];
-        $this->seoService->updateSeoUrls($salesChannel->getId(), 'foo.route', array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates);
+        $this->seoUrlPersister->updateSeoUrls($context, 'foo.route', array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates);
         $seoUrls = $this->seoUrlRepository->search(new Criteria(), Context::createDefaultContext())->getEntities();
         static::assertCount(1, $seoUrls);
 
-        $this->seoService->updateSeoUrls($salesChannel->getId(), 'foo.route', array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates);
+        $this->seoUrlPersister->updateSeoUrls($context, 'foo.route', array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates);
         $seoUrls = $this->seoUrlRepository->search(new Criteria(), Context::createDefaultContext())->getEntities();
         static::assertCount(1, $seoUrls);
 
@@ -71,9 +75,23 @@ class SeoServiceTest extends TestCase
                 'seoPathInfo' => 'fancy-path-2',
             ],
         ];
-        $this->seoService->updateSeoUrls($salesChannel->getId(), 'foo.route', array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates);
+        $this->seoUrlPersister->updateSeoUrls($context, 'foo.route', array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates);
         $seoUrls = $this->seoUrlRepository->search(new Criteria(), Context::createDefaultContext())->getEntities();
-        static::assertCount(1, $seoUrls, print_r($seoUrls, true));
+
+        static::assertCount(2, $seoUrls);
+
+        $canonicalUrls = $seoUrls->filterByProperty('isCanonical', true);
+        static::assertCount(1, $canonicalUrls);
+        /** @var SeoUrlEntity $first */
+        $first = $canonicalUrls->first();
+        static::assertEquals('fancy-path-2', $first->getSeoPathInfo());
+
+        $obsoletedSeoUrls = $seoUrls->filterByProperty('isCanonical', false);
+
+        static::assertCount(1, $obsoletedSeoUrls);
+        /** @var SeoUrlEntity $first */
+        $first = $obsoletedSeoUrls->first();
+        static::assertEquals('fancy-path', $first->getSeoPathInfo());
     }
 
     public function testDuplicatesSameSalesChannel(): void
@@ -84,21 +102,25 @@ class SeoServiceTest extends TestCase
         $fk2 = Uuid::randomHex();
         $seoUrlUpdates = [
             [
+                'salesChannelId' => $salesChannel->getId(),
                 'foreignKey' => $fk1,
                 'pathInfo' => 'normal/path',
                 'seoPathInfo' => 'fancy-path',
             ],
             [
+                'salesChannelId' => $salesChannel->getId(),
                 'foreignKey' => $fk2,
                 'pathInfo' => 'normal/path',
                 'seoPathInfo' => 'fancy-path',
             ],
         ];
         $fks = array_column($seoUrlUpdates, 'foreignKey');
-        $this->seoService->updateSeoUrls($salesChannel->getId(), 'r', $fks, $seoUrlUpdates);
+        $this->seoUrlPersister->updateSeoUrls(Context::createDefaultContext(), 'r', $fks, $seoUrlUpdates);
 
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('foreignKey', [$fk1, $fk2]));
         /** @var SeoUrlCollection $result */
-        $result = $this->seoUrlRepository->search(new Criteria(), Context::createDefaultContext())->getEntities();
+        $result = $this->seoUrlRepository->search($criteria, Context::createDefaultContext())->getEntities();
 
         /** @var SeoUrlEntity $valid */
         $valid = $result->filterByProperty('isValid', true)->first();
@@ -112,8 +134,46 @@ class SeoServiceTest extends TestCase
         static::assertEquals($fk2, $invalid->getForeignKey());
     }
 
+    public function testSameSeoPathDifferentLanguage(): void
+    {
+        $defaultContext = Context::createDefaultContext();
+        $deContext = new Context($defaultContext->getSource(), [], $defaultContext->getCurrencyId(), [Defaults::LANGUAGE_SYSTEM_DE]);
+
+        $fk = Uuid::randomHex();
+        $seoUrlUpdates = [
+            [
+                'foreignKey' => $fk,
+                'pathInfo' => 'normal/path',
+                'seoPathInfo' => 'fancy-path',
+            ],
+        ];
+        $fks = array_column($seoUrlUpdates, 'foreignKey');
+        $this->seoUrlPersister->updateSeoUrls($defaultContext, 'r', $fks, $seoUrlUpdates);
+
+        $seoUrlUpdates = [
+            [
+                'foreignKey' => $fk,
+                'pathInfo' => 'normal/path',
+                'seoPathInfo' => 'fancy-path',
+            ],
+        ];
+        $fks = array_column($seoUrlUpdates, 'foreignKey');
+        $this->seoUrlPersister->updateSeoUrls($deContext, 'r', $fks, $seoUrlUpdates);
+
+        $criteria = (new Criteria())->addFilter(new EqualsFilter('routeName', 'r'));
+        /** @var SeoUrlCollection $result */
+        $result = $this->seoUrlRepository->search($criteria, $defaultContext)->getEntities();
+        $validSeoUrls = $result->filterByProperty('isValid', true);
+        static::assertCount(2, $validSeoUrls);
+
+        $invalidSeoUrls = $result->filterByProperty('isValid', false);
+        static::assertCount(0, $invalidSeoUrls);
+    }
+
     public function testSameSeoPathInfoDifferentSalesChannels(): void
     {
+        $context = Context::createDefaultContext();
+
         $salesChannelA = $this->createSalesChannel(Uuid::randomHex(), 'test a');
         $salesChannelB = $this->createSalesChannel(Uuid::randomHex(), 'test b');
 
@@ -126,14 +186,36 @@ class SeoServiceTest extends TestCase
             ],
         ];
         $fks = array_column($seoUrlUpdates, 'foreignKey');
-        $this->seoService->updateSeoUrls($salesChannelA->getId(), 'r', $fks, $seoUrlUpdates);
-        $this->seoService->updateSeoUrls($salesChannelB->getId(), 'r', $fks, $seoUrlUpdates);
+        $this->seoUrlPersister->updateSeoUrls($context, 'r', $fks, $seoUrlUpdates);
 
+        $seoUrlUpdates = [
+            [
+                'foreignKey' => $fk,
+                'salesChannelId' => $salesChannelA->getId(),
+                'pathInfo' => 'normal/path',
+                'seoPathInfo' => 'fancy-path',
+            ],
+        ];
+        $fks = array_column($seoUrlUpdates, 'foreignKey');
+        $this->seoUrlPersister->updateSeoUrls($context, 'r', $fks, $seoUrlUpdates);
+
+        $seoUrlUpdates = [
+            [
+                'foreignKey' => $fk,
+                'salesChannelId' => $salesChannelB->getId(),
+                'pathInfo' => 'normal/path',
+                'seoPathInfo' => 'fancy-path',
+            ],
+        ];
+        $fks = array_column($seoUrlUpdates, 'foreignKey');
+        $this->seoUrlPersister->updateSeoUrls($context, 'r', $fks, $seoUrlUpdates);
+
+        $criteria = (new Criteria())->addFilter(new EqualsFilter('routeName', 'r'));
         /** @var SeoUrlCollection $result */
-        $result = $this->seoUrlRepository->search(new Criteria(), Context::createDefaultContext())->getEntities();
+        $result = $this->seoUrlRepository->search($criteria, $context)->getEntities();
 
         $validSeoUrls = $result->filterByProperty('isValid', true);
-        static::assertCount(2, $validSeoUrls);
+        static::assertCount(3, $validSeoUrls);
 
         $invalidSeoUrls = $result->filterByProperty('isValid', false);
         static::assertCount(0, $invalidSeoUrls);

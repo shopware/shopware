@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Language\LanguageDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class SeoUrlDefinition extends EntityDefinition
@@ -40,7 +41,8 @@ class SeoUrlDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new Required()),
+            new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class),
+            (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new Required()),
             (new IdField('foreign_key', 'foreignKey'))->addFlags(new Required()),
 
             (new StringField('route_name', 'routeName', 50))->addFlags(new Required()),
@@ -56,6 +58,7 @@ class SeoUrlDefinition extends EntityDefinition
 
             new CustomFields(),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
+            new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false),
         ]);
     }
 }

@@ -15,18 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class SeoUrlTemplateCollection extends EntityCollection
 {
-    public function filterBySalesChannelId(string $salesChannelId): SeoUrlTemplateCollection
-    {
-        return $this->filterByProperty('salesChannelId', $salesChannelId);
-    }
-
-    public function getByRouteName(string $salesChannelId, string $routeName): ?SeoUrlTemplateEntity
-    {
-        return $this->filterBySalesChannelId($salesChannelId)
-            ->filterByProperty('routeName', $routeName)
-            ->first();
-    }
-
     protected function getExpectedClass(): string
     {
         return SeoUrlTemplateEntity::class;

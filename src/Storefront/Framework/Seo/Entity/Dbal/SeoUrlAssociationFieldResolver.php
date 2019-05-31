@@ -50,7 +50,8 @@ class SeoUrlAssociationFieldResolver implements FieldResolverInterface
                 array_values($parameters),
                 '#alias#.#reference_column# = #root#.#source_column#  
                  AND #alias#.route_name = :' . $routeParamKey . '
-                 AND #alias#.is_valid = 1'
+                 AND #alias#.is_valid = 1
+                 AND #alias#.is_deleted = 0'
             )
         );
         $query->setParameter($routeParamKey, $field->getRouteName());

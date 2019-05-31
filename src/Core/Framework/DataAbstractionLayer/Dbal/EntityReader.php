@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deferred;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
@@ -843,27 +842,22 @@ class EntityReader implements EntityReaderInterface
             return $reference->getEntityName() . '.parentId';
         }
 
-        $fields = $reference->getFields();
-        foreach ($fields as $field) {
-            if (!$field instanceof FkField) {
-                continue;
-            }
+        $ref = $reference->getFields()->getByStorageName(
+            $association->getReferenceField()
+        );
 
-            if ($field->getReferenceDefinition() !== $definition) {
-                continue;
-            }
-
-            return $reference->getEntityName() . '.' . $field->getPropertyName();
+        if (!$ref) {
+            throw new \RuntimeException(
+                sprintf(
+                    'Reference field %s not found in definition %s for definition %s',
+                    $association->getReferenceField(),
+                    $reference->getEntityName(),
+                    $definition->getEntityName()
+                )
+            );
         }
 
-        throw new \RuntimeException(
-            sprintf(
-                'Fk field for association %s not found in definition %s for definition %s',
-                $association->getPropertyName(),
-                $reference->getEntityName(),
-                $definition->getEntityName()
-            )
-        );
+        return $reference->getEntityName() . '.' . $ref->getPropertyName();
     }
 
     private function isAssociationRestricted(?Criteria $criteria, EntityDefinition $definition, string $accessor): bool

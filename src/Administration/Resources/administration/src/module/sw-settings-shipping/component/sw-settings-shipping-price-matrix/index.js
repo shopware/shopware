@@ -137,10 +137,14 @@ Component.register('sw-settings-shipping-price-matrix', {
     },
 
     mounted() {
-        this.loadCalculationRules();
+        this.mountedComponent();
     },
 
     methods: {
+        mountedComponent() {
+            this.loadCalculationRules();
+        },
+
         loadCalculationRules() {
             this.priceGroup.prices.forEach(price => {
                 if (!price.calculationRuleId || price.calculationRule.id) {

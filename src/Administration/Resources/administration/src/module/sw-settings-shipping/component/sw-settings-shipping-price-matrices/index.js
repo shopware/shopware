@@ -96,7 +96,7 @@ Component.register('sw-settings-shipping-price-matrices', {
     },
 
     beforeDestroy() {
-        this.$off('rule-add');
+        this.beforeDestroyComponent();
     },
 
     methods: {
@@ -120,6 +120,10 @@ Component.register('sw-settings-shipping-price-matrices', {
             this.loadRules();
 
             this.$on('rule-add', this.loadRules);
+        },
+
+        beforeDestroyComponent() {
+            this.$off('rule-add');
         },
 
         loadRules() {

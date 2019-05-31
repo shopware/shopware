@@ -42,19 +42,19 @@ Component.register('sw-media-grid', {
     },
 
     created() {
-        this.componentCreated();
+        this.createdComponent();
     },
 
     beforeDestroy() {
-        this.beforeComponentDestroyed();
+        this.beforeDestroyComponent();
     },
 
     methods: {
-        componentCreated() {
+        createdComponent() {
             window.addEventListener('click', this.clearSelectionOnClickOutside, false);
         },
 
-        beforeComponentDestroyed() {
+        beforeDestroyComponent() {
             window.removeEventListener('click', this.clearSelectionOnClickOutside);
         },
 

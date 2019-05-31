@@ -81,13 +81,17 @@ Component.register('sw-cms-el-product-slider', {
     },
 
     mounted() {
-        this.setSliderRowLimit();
+        this.mountedComponent();
     },
 
     methods: {
         createdComponent() {
             this.initElementConfig('product-slider');
             this.initElementData('product-slider');
+        },
+
+        mountedComponent() {
+            this.setSliderRowLimit();
         },
 
         setSliderRowLimit() {

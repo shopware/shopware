@@ -3,7 +3,9 @@
 namespace Shopware\Core\Framework\Plugin\Command;
 
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class PluginCreateCommand extends Command
@@ -55,6 +57,23 @@ EOL;
 </container>
 EOL;
 
+    private $configXmlTemplate = <<<EOL
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/System/SystemConfig/Schema/config.xsd">
+    <card>
+        <title>#pluginName# Settings</title>
+        <title lang="de-DE">#pluginName# Einstellungen</title>
+
+        <input-field type="bool">
+            <name>active</name>
+            <label>Active</label>
+            <label lang="de-DE">Aktiviert</label>
+        </input-field>
+    </card>
+</config>
+EOL;
+
     /**
      * @var string
      */
@@ -72,7 +91,8 @@ EOL;
     protected function configure(): void
     {
         $this->setName('plugin:create')
-            ->addArgument('name')
+            ->addArgument('name', InputArgument::REQUIRED)
+            ->addOption('create-config', 'c', InputOption::VALUE_NONE, 'Create config.xml')
             ->setDescription('Creates a plugin skeleton');
     }
 
@@ -111,5 +131,16 @@ EOL;
         file_put_contents($composerFile, $composer);
         file_put_contents($bootstrapFile, $bootstrap);
         file_put_contents($servicesXmlFile, $this->servicesXmlTemplate);
+
+        if ($input->hasOption('create-config')) {
+            $configXmlFile = $directory . '/src/Resources/config/config.xml';
+            $configXml = str_replace(
+                ['pluginName'],
+                [$name],
+                $this->configXmlTemplate
+            );
+
+            file_put_contents($configXmlFile, $configXml);
+        }
     }
 }

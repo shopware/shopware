@@ -10,7 +10,7 @@ For this, the vagrant machine supports SCP/SSH, which is integrated in Editors l
 
 ## Requirements
 
-* [Vagrant](https://www.vagrantup.com/) v2.4 or later
+* [Vagrant](https://www.vagrantup.com/) v2.2.4 or later
 * [VirtualBox](https://www.virtualbox.org/) in a Vagrant compatible version
 * [Git](https://git-scm.com/)
 

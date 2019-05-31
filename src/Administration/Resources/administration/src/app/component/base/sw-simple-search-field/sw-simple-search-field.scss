@@ -1,7 +1,5 @@
 @import "~scss/variables";
 
-$sw-simple-search-field-search-icon-color: $color-gray;
-
 .sw-simple-search-field {
     position: relative;
     outline: none;
@@ -63,7 +61,7 @@ $sw-simple-search-field-search-icon-color: $color-gray;
     }
 
     .sw-simple-search-field__search-icon, .sw-icon {
-        color: $sw-simple-search-field-search-icon-color;
+        color: $color-gray;
         transform: translate(0, -50%);
         position: absolute;
         right: 18px;

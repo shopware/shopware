@@ -1,8 +1,5 @@
 @import '~scss/variables';
 
-$sw-button-group-border-radius: $border-radius-default;
-$sw-button-group-color-border-split: rgba(0, 0, 0, 0.2);
-
 .sw-button-group {
     display: inline-flex;
     vertical-align: middle;
@@ -19,14 +16,14 @@ $sw-button-group-color-border-split: rgba(0, 0, 0, 0.2);
         position: relative;
 
         &:first-child {
-            border-top-left-radius: $sw-button-group-border-radius;
-            border-bottom-left-radius: $sw-button-group-border-radius;
+            border-top-left-radius: $border-radius-default;
+            border-bottom-left-radius: $border-radius-default;
             margin-left: 0;
         }
 
         &:last-child {
-            border-top-right-radius: $sw-button-group-border-radius;
-            border-bottom-right-radius: $sw-button-group-border-radius;
+            border-top-right-radius: $border-radius-default;
+            border-bottom-right-radius: $border-radius-default;
         }
 
         &:only-child {
@@ -47,13 +44,13 @@ $sw-button-group-color-border-split: rgba(0, 0, 0, 0.2);
         }
 
         &:first-child .sw-button {
-            border-top-left-radius: $sw-button-group-border-radius;
-            border-bottom-left-radius: $sw-button-group-border-radius;
+            border-top-left-radius: $border-radius-default;
+            border-bottom-left-radius: $border-radius-default;
         }
 
         &:last-child .sw-button {
-            border-top-right-radius: $sw-button-group-border-radius;
-            border-bottom-right-radius: $sw-button-group-border-radius;
+            border-top-right-radius: $border-radius-default;
+            border-bottom-right-radius: $border-radius-default;
         }
     }
 
@@ -62,7 +59,7 @@ $sw-button-group-color-border-split: rgba(0, 0, 0, 0.2);
             &.sw-button--primary,
             &.sw-button--danger,
             &.sw-button--contrast {
-                border-left: 1px solid $sw-button-group-color-border-split;
+                border-left: 1px solid rgba(0, 0, 0, 0.2);
             }
         }
     }

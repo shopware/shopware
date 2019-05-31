@@ -1,25 +1,21 @@
 @import "~scss/variables";
 
-$sw-address-color-text:     $color-gutenberg;
-$sw-address-color-headline: $color-kashmir;
-$sw-address-color-link: $color-shopware-blue;
-
 .sw-address {
     margin-bottom: 20px;
     font-style: normal;
     font-size: 14px;
     line-height: 20px;
-    color: $sw-address-color-text;
+    color: $color-gutenberg;
 
     .sw-address__headline {
         margin: 0 0 20px 0;
-        color: $sw-address-color-headline;
+        color: $color-kashmir;
         font-weight: normal;
         font-size: 18px;
 
         .sw-address-headline-link {
             font-size: 14px;
-            color: $sw-address-color-link;
+            color: $color-shopware-blue;
             text-decoration: none;
         }
     }

@@ -1,41 +1,39 @@
 @import "~scss/variables";
 
-$sw-side-navigation-item-link-color: $color-gutenberg;
 $sw-side-navigation-item-link-distance: 10px;
-$sw-side-navigation-item-color-disabled: $color-kashmir;
 
 .sw-tabs-item {
     transition: 0.3s all ease-in-out;
     padding: $sw-side-navigation-item-link-distance ($sw-side-navigation-item-link-distance * 1.75);
-    border-bottom: 2px solid lighten($sw-side-navigation-item-link-color, 45);
+    border-bottom: 2px solid lighten($color-gutenberg, 45);
     text-decoration: none;
     font-weight: 600;
     white-space: nowrap;
-    color: lighten($sw-side-navigation-item-link-color, 30);
+    color: lighten($color-gutenberg, 30);
     cursor: pointer;
     user-select: none;
 
     &.sw-tabs-item--active {
-        color: $sw-side-navigation-item-link-color;
+        color: $color-gutenberg;
     }
 
     &:hover {
-        color: $sw-side-navigation-item-link-color;
+        color: $color-gutenberg;
     }
 
     &:disabled {
-        color: $sw-side-navigation-item-color-disabled;
+        color: $color-kashmir;
         cursor: not-allowed;
     }
 }
 
 .sw-tabs--vertical .sw-tabs-item {
     padding: $sw-side-navigation-item-link-distance;
-    border-bottom: 0px solid lighten($sw-side-navigation-item-link-color, 45);
-    border-left: 2px solid lighten($sw-side-navigation-item-link-color, 45);
+    border-bottom: 0 solid lighten($color-gutenberg, 45);
+    border-left: 2px solid lighten($color-gutenberg, 45);
 }
 
 .sw-tabs--vertical.sw-tabs--align-right .sw-tabs-item{
-    border-left: 0px;
-    border-right: 2px solid lighten($sw-side-navigation-item-link-color, 45);
+    border-left: 0;
+    border-right: 2px solid lighten($color-gutenberg, 45);
 }

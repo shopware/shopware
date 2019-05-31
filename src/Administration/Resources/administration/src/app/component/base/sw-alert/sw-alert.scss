@@ -1,37 +1,25 @@
 @import "~scss/variables";
 
-$sw-alert-color-border:            $color-steam-cloud;
-$sw-alert-color-fallback:          $color-steam-cloud;
-$sw-alert-color-text:              $color-gutenberg;
-$sw-alert-color-background:        $color-white;
-$sw-alert-color-warning:           $color-contrast;
-$sw-alert-color-error:             $color-crimson;
-$sw-alert-color-success:           $color-emerald;
-$sw-alert-color-info:              $color-shopware-blue;
-$sw-alert-box-shadow:              1px 2px 5px rgba(0, 0, 0, 0.1);
-$sw-alert-size-close:              40px;
-$sw-alert-system-color-text:       $color-white;
-$sw-alert-system-color-border:     $color-kashmir;
-$sw-alert-system-color-background: $color-deep-cove;
-$sw-alert-font-size:               $font-size-small;
+$sw-alert-box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.1);
+$sw-alert-size-close: 40px;
 
 .sw-alert {
-    border: 1px solid $sw-alert-color-border;
+    border: 1px solid $color-steam-cloud;
     border-radius: $border-radius-default;
-    color: $sw-alert-color-text;
-    background-color: $sw-alert-color-background;
+    color: $color-gutenberg;
+    background-color: $color-white;
     padding: 15px 15px 15px 55px;
     text-align: left;
     position: relative;
     margin: 0 auto 20px;
-    font-size: $sw-alert-font-size;
+    font-size: $font-size-small;
 
     &.sw-alert--no-icon {
         padding: 15px 30px;
     }
 
     .sw-alert__icon {
-        color: $sw-alert-color-fallback;
+        color: $color-steam-cloud;
         position: absolute;
         display: block;
         left: 15px;
@@ -56,7 +44,7 @@ $sw-alert-font-size:               $font-size-small;
     }
 
     .sw-alert__title {
-        font-size: $sw-alert-font-size;
+        font-size: $font-size-small;
         margin-bottom: 8px;
         display: block;
         font-weight: bold;
@@ -72,78 +60,78 @@ $sw-alert-font-size:               $font-size-small;
 
     &.sw-alert--notification {
         box-shadow: $sw-alert-box-shadow;
-        border: 1px solid $sw-alert-color-border;
-        border-left: 4px solid $sw-alert-color-fallback;
+        border: 1px solid $color-steam-cloud;
+        border-left: 4px solid $color-steam-cloud;
     }
 
     &.sw-alert--warning {
-        border-color: $sw-alert-color-warning;
-        background-color: lighten($sw-alert-color-warning, 48%);
+        border-color: $color-contrast;
+        background-color: lighten($color-contrast, 48%);
 
         &.sw-alert--notification {
-            background-color: $sw-alert-color-background;
-            border-color: $sw-alert-color-border;
-            border-left-color: $sw-alert-color-warning;
+            background-color: $color-white;
+            border-color: $color-steam-cloud;
+            border-left-color: $color-contrast;
         }
 
         .sw-alert__icon,
         .sw-alert__close {
-            color: $sw-alert-color-warning;
+            color: $color-contrast;
         }
     }
 
     &.sw-alert--error {
-        border-color: $sw-alert-color-error;
-        background-color: lighten($sw-alert-color-error, 46%);
+        border-color: $color-crimson;
+        background-color: lighten($color-crimson, 46%);
 
         &.sw-alert--notification {
-            background-color: $sw-alert-color-background;
-            border-color: $sw-alert-color-border;
-            border-left-color: $sw-alert-color-error;
+            background-color: $color-white;
+            border-color: $color-steam-cloud;
+            border-left-color: $color-crimson;
         }
 
         .sw-alert__icon,
         .sw-alert__close {
-            color: $sw-alert-color-error;
+            color: $color-crimson;
         }
     }
 
     &.sw-alert--success {
-        border-color: $sw-alert-color-success;
-        background-color: lighten($sw-alert-color-success, 46%);
+        border-color: $color-emerald-500;
+        background-color: $color-emerald-50;
 
         &.sw-alert--notification {
-            background-color: $sw-alert-color-background;
-            border-color: $sw-alert-color-border;
-            border-left-color: $sw-alert-color-success;
+            background-color: $color-white;
+            border-color: $color-gray-300;
+            border-left-color: $color-emerald-500;
         }
 
         .sw-alert__icon,
         .sw-alert__close {
-            color: $sw-alert-color-success;
+            color: $color-emerald;
         }
     }
 
     &.sw-alert--info {
-        border-color: $sw-alert-color-info;
-        background-color: lighten($sw-alert-color-info, 42%);
+        border-color: $color-shopware-blue;
+        background-color: lighten($color-shopware-blue, 42%);
 
         &.sw-alert--notification {
-            background-color: $sw-alert-color-background;
-            border-color: $sw-alert-color-border;
-            border-left-color: $sw-alert-color-info;
+            background-color: $color-white;
+            border-color: $color-steam-cloud;
+            border-left-color: $color-shopware-blue;
         }
 
         .sw-alert__icon,
         .sw-alert__close {
-            color: $sw-alert-color-info;
+            color: $color-shopware-blue;
         }
     }
 
     &.sw-alert--system {
-        color: $sw-alert-system-color-text;
-        background: $sw-alert-system-color-background;
-        border: 1px solid $sw-alert-system-color-border;
+        color: $color-white;
+        background: $color-deep-cove;
+        border: 1px solid $color-kashmir;
         box-shadow: none;
     }
 }

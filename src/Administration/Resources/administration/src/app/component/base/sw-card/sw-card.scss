@@ -1,36 +1,25 @@
 @import "~scss/variables";
 
-$sw-card-color-background:                  $color-white;
-$sw-card-color-border:                      $color-steam-cloud;
-$sw-card-border-radius:                     $border-radius-default;
-$sw-card-color-title-text:                  $color-kashmir;
-$sw-card-tabs-item-color-border:            $color-steam-cloud;
-$sw-card-tabs-item-color-background:        $color-light-gray;
-$sw-card-tabs-item-color-background-active: $color-white;
-$sw-card-color-text:                        $color-gutenberg;
-$sw-card-tabs-color-background:             #F9FAFB; //TODO: replace with matching global variable
-$sw-card-color-background-toolbar:			$color-light-gray;
-
 .sw-card {
     max-width: 800px;
     margin: 0 auto 40px auto;
     position: relative;
-    color: $sw-card-color-text;
+    color: $color-gutenberg;
 
     &.sw-card--tabs {
         .sw-card__content {
-            border-radius: 0 0 $sw-card-border-radius $sw-card-border-radius;
+            border-radius: 0 0 $border-radius-default $border-radius-default;
             border-top: none;
         }
 
         & > .sw-tabs {
-            border: 1px solid #D1D9E0; // TODO: replace with matching global variable.
-            border-radius: $sw-card-border-radius $sw-card-border-radius 0 0;
+            border: 1px solid $color-gray-300;
+            border-radius: $border-radius-default $border-radius-default 0 0;
             border-bottom: none;
             margin-bottom: 0;
 
             .sw-tabs__content {
-                background-color: $sw-card-tabs-color-background;
+                background-color: $color-gray-50;
             }
 
             .sw-tabs__custom-Content {
@@ -97,7 +86,7 @@ $sw-card-color-background-toolbar:			$color-light-gray;
         margin-bottom: 12px;
         font-size: 18px;
         line-height: 24px;
-        color: $sw-card-color-title-text;
+        color: $color-kashmir;
 
         @media screen and (min-width: 1580px) {
             width: 200px;
@@ -108,25 +97,25 @@ $sw-card-color-background-toolbar:			$color-light-gray;
         }
     }
 
-	.sw-card__toolbar {
-		padding: 30px;
-		background-color: $sw-card-color-background-toolbar;
-		border: 1px solid $sw-card-color-border;
-	}
+    .sw-card__toolbar {
+        padding: 30px;
+        background-color: $color-light-gray;
+        border: 1px solid $color-steam-cloud;
+    }
 
-	&.has--header {
-		.sw-card__content {
-			border-top: none;
-			border-radius: 0 0 $sw-card-border-radius $sw-card-border-radius;
-		}
-	}
+    &.has--header {
+        .sw-card__content {
+            border-top: none;
+            border-radius: 0 0 $border-radius-default $border-radius-default;
+        }
+    }
 
     .sw-card__content {
         padding: 30px;
-        background: $sw-card-color-background;
+        background: $color-white;
         background-clip: padding-box;
-        border-radius: $sw-card-border-radius;
-        border: 1px solid $sw-card-color-border;
+        border-radius: $border-radius-default;
+        border: 1px solid $color-steam-cloud;
         position: relative;
 
         @media screen and (max-width: 800px) {
@@ -187,22 +176,22 @@ $sw-card-color-background-toolbar:			$color-light-gray;
             border-bottom-right-radius: 0;
 
             &:hover {
-                border-bottom-color: $sw-card-tabs-item-color-border;
+                border-bottom-color: $color-steam-cloud;
             }
 
             &:focus {
-                background-color: $sw-card-tabs-item-color-background;
-                border-bottom-color: $sw-card-tabs-item-color-border;
+                background-color: $color-light-gray;
+                border-bottom-color: $color-steam-cloud;
             }
 
             &:active {
-                border-bottom-color: $sw-card-tabs-item-color-background-active;
-                background-color: $sw-card-tabs-item-color-background-active;
+                border-bottom-color: $color-white;
+                background-color: $color-white;
             }
 
             &.router-link-active {
-                background-color: $sw-card-tabs-item-color-background-active;
-                border-bottom-color: $sw-card-tabs-item-color-background-active;
+                background-color: $color-white;
+                border-bottom-color: $color-white;
             }
         }
     }

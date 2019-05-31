@@ -43,7 +43,7 @@ EOD;
     /**
      * @var string
      */
-    private $targetFile = __DIR__ . '/../_new/1-getting-started/40-recent-updates/__categoryInfo.md';
+    private $targetFile = __DIR__ . '/../Resources/current/1-getting-started/40-recent-updates/__categoryInfo.md';
 
     public function __construct()
     {

@@ -51,7 +51,7 @@
         </testsuite>
 
         <testsuite name="docs">
-            <directory  suffix="example.php">src/Docs/_new/</directory>
+            <directory  suffix="example.php">src/Docs/Resources/current/</directory>
         </testsuite>
     </testsuites>
 

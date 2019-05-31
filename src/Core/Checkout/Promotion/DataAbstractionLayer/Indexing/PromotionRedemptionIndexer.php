@@ -73,6 +73,10 @@ class PromotionRedemptionIndexer implements IndexerInterface
 
         $iterator = $this->iteratorFactory->createIterator($this->orderLineItemDefinition);
 
+        if ($iterator->fetchCount() <= 0) {
+            return;
+        }
+
         $this->eventDispatcher->dispatch(
             ProgressStartedEvent::NAME,
             new ProgressStartedEvent('Start indexing promotion redemption counts', $iterator->fetchCount())

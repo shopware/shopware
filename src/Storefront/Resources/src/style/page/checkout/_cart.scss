@@ -71,6 +71,19 @@ $cart-grid-gutter-width: $spacer-sm;
     }
 }
 
+.cart-add-product-container {
+    margin-bottom: $spacer;
+}
+
+.cart-shipping-costs-container {
+    align-self: center;
+}
+
+.shipping-costs-trigger {
+    padding-left: 0;
+    margin: 1px 0;
+}
+
 @include media-breakpoint-up(md) {
     .cart-table-header {
         display: block;
@@ -78,6 +91,10 @@ $cart-grid-gutter-width: $spacer-sm;
 
     .cart-add-product {
         max-width: 250px;
+    }
+
+    .cart-add-product-container {
+        margin-bottom: 0;
     }
 }
 

@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block page_checkout_container %}
-    {% if not page.cart.lineItems %}
+    {% if page.cart.lineItems.count is same as(0) %}
         {% sw_include '@Storefront/utilities/alert.html.twig' with {
             type: "info",
             content: "checkout.cartEmpty"|trans
@@ -43,47 +43,122 @@
             </div>
         {% endblock %}
 
-        {% block page_checkout_cart_add_product %}
-            <form action="{{ path('frontend.checkout.product.add-by-number') }}"
-                  class="cart-add-product"
-                  method="post">
-                {% block page_checkout_cart_add_product_redirect %}
-                    <input type="hidden"
-                           name="redirectTo"
-                           value="frontend.checkout.cart.page">
-                {% endblock %}
+        {% block page_checkout_cart_add_product_and_shipping %}
+            <div class="row">
+                {% block page_checkout_cart_add_product %}
+                    <div class="col-md-4 cart-add-product-container">
+                        <form action="{{ path('frontend.checkout.product.add-by-number') }}"
+                              class="cart-add-product"
+                              method="post">
+                            {% block page_checkout_cart_add_product_redirect %}
+                                <input type="hidden"
+                                       name="redirectTo"
+                                       value="frontend.checkout.cart.page">
+                            {% endblock %}
 
-                {% block page_checkout_cart_add_product_input_group %}
-                    <div class="input-group">
-                        {% block page_checkout_cart_add_product_label %}
-                            <label class="sr-only" for="addProductInput">
-                                {{ "checkout.addProductLabel"|trans }}
-                            </label>
-                        {% endblock %}
+                            {% block page_checkout_cart_add_product_input_group %}
+                                <div class="input-group">
+                                    {% block page_checkout_cart_add_product_label %}
+                                        <label class="sr-only" for="addProductInput">
+                                            {{ "checkout.addProductLabel"|trans }}
+                                        </label>
+                                    {% endblock %}
 
-                        {% block page_checkout_cart_add_product_input %}
-                            <input type="text"
-                                   name="number"
-                                   class="form-control"
-                                   id="addProductInput"
-                                   placeholder="{{ "checkout.addProductPlaceholder"|trans }}"
-                                   aria-label="{{ "checkout.addProductLabel"|trans }}"
-                                   aria-describedby="addProduct"
-                                   required="required">
-                        {% endblock %}
+                                    {% block page_checkout_cart_add_product_input %}
+                                        <input type="text"
+                                               name="number"
+                                               class="form-control"
+                                               id="addProductInput"
+                                               placeholder="{{ "checkout.addProductPlaceholder"|trans }}"
+                                               aria-label="{{ "checkout.addProductLabel"|trans }}"
+                                               aria-describedby="addProduct"
+                                               required="required">
+                                    {% endblock %}
 
-                        {% block page_checkout_cart_add_product_submit %}
-                            <div class="input-group-append">
-                                <button class="btn btn-dark"
-                                        type="submit"
-                                        id="addProductInput">
-                                    {% sw_icon 'checkmark' %}
-                                </button>
-                            </div>
-                        {% endblock %}
+                                    {% block page_checkout_cart_add_product_submit %}
+                                        <div class="input-group-append">
+                                            <button class="btn btn-dark"
+                                                    type="submit"
+                                                    id="addProductInput">
+                                                {% sw_icon 'checkmark' %}
+                                            </button>
+                                        </div>
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+                        </form>
                     </div>
                 {% endblock %}
-            </form>
+                {% block page_checkout_cart_shipping_costs %}
+                    <div class="col-md-8 cart-shipping-costs-container">
+                        <form name="precalc"
+                              method="post"
+                              action="{{ path('frontend.checkout.configure') }}"
+                              data-form-auto-submit="true">
+                            {% block page_checkout_cart_shipping_costs_trigger %}
+                                    <a class="btn btn-link shipping-costs-trigger"
+                                       data-toggle="collapse"
+                                       href="#collapseShippingCost"
+                                       role="button"
+                                       aria-expanded="false"
+                                       aria-controls="collapseExample">
+                                        {{ "checkout.shippingCosts"|trans }}
+                                        {% block page_checkout_cart_shipping_costs_trigger_icon %}
+                                            {% sw_icon 'arrow-medium-right' style { 'pack':'solid', 'size': 'sm' } %}
+                                        {% endblock %}
+                                    </a>
+                            {% endblock %}
+
+                            {% block page_checkout_cart_shipping_costs_form_group %}
+                                <div class="collapse" id="collapseShippingCost">
+                                    {% block page_checkout_cart_shipping_costs_form_group_country %}
+                                        <div class="form-group">
+                                            <label for="countryId">{{ "checkout.shippingCountry"|trans }}</label>
+                                            <select class="form-control" type="text" id="countryId" name="countryId">
+                                                {% for country in page.countries %}
+                                                    <option value="{{ country.id }}"
+                                                        {% if country.id == page.context.shippingLocation.country.id %}selected="selected"{% endif %}>
+                                                        {{ country.translated.name }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    {% endblock %}
+
+                                    {% block page_checkout_cart_shipping_costs_form_group_payment_method %}
+                                        <div class="form-group">
+                                            <label for="paymentMethodId">{{ "checkout.paymentMethod"|trans }}</label>
+                                            <select class="form-control" type="text" id="paymentMethodId" name="paymentMethodId">
+                                                {% for payment in page.paymentMethods %}
+                                                    <option value="{{ payment.id }}"
+                                                        {% if payment.id == page.context.paymentMethod.id %} selected="selected"{% endif %}>
+                                                        {{ payment.translated.name }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    {% endblock %}
+
+                                    {% block page_checkout_cart_shipping_costs_form_group_shipping_method %}
+                                        <div class="form-group">
+                                            <label for="shippingMethodId">{{ "checkout.shippingMethod"|trans }}</label>
+                                            <select class="form-control" type="text" id="shippingMethodId" name="shippingMethodId">
+                                                {% for shipping in page.shippingMethods %}
+                                                    <option value="{{ shipping.id }}"
+                                                        {% if shipping.id == page.context.shippingMethod.id %} selected="selected"{% endif %}>
+                                                        {{ shipping.translated.name }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    {% endblock %}
+                                    <input type="hidden" name="redirectTo" value="frontend.checkout.cart.page">
+                                </div>
+                            {% endblock %}
+                        </form>
+                    </div>
+                {% endblock %}
+            </div>
         {% endblock %}
     {% endblock %}
 {% endblock %}
@@ -128,50 +203,6 @@
                                 </button>
                             </div>
                         {% endblock %}
-                    </div>
-                {% endblock %}
-            </form>
-        {% endblock %}
-
-        {% block page_checkout_cart_shipping_costs %}
-            <form name="precalc" method="post" action="{{ path('frontend.checkout.configure') }}" data-form-auto-submit="true">
-                {% block page_checkout_cart_shipping_costs_trigger %}
-                    <a class="btn btn-primary" data-toggle="collapse" href="#collapseShippingCost" role="button" aria-expanded="false" aria-controls="collapseExample">
-                        {{ "checkout.shippingCosts"|trans }}
-                    </a>
-                {% endblock %}
-
-                {% block page_checkout_cart_shipping_costs_form_group %}
-                    <div class="collapse" id="collapseShippingCost">
-                        <div class="form-group">
-                            {% block page_checkout_cart_shipping_costs_form_group_country %}
-                                <label for="countryId">{{ "checkout.shippingCountry"|trans }}</label>
-                                <select class="form-control" type="text" id="countryId" name="countryId">
-                                    {% for country in page.countries %}
-                                        <option value="{{ country.id }}"{% if country.id == page.context.shippingLocation.country.id %} selected="selected"{% endif %}>{{ country.translated.name }}</option>
-                                    {% endfor %}
-                                </select>
-                            {% endblock %}
-
-                            {% block page_checkout_cart_shipping_costs_form_group_payment_method %}
-                                <label for="paymentMethodId">{{ "checkout.paymentMethod"|trans }}</label>
-                                <select class="form-control" type="text" id="paymentMethodId" name="paymentMethodId">
-                                    {% for payment in page.paymentMethods %}
-                                        <option value="{{ payment.id }}"{% if payment.id == page.context.paymentMethod.id %} selected="selected"{% endif %}>{{ payment.translated.name }}</option>
-                                    {% endfor %}
-                                </select>
-                            {% endblock %}
-
-                            {% block page_checkout_cart_shipping_costs_form_group_shipping_method %}
-                                <label for="shippingMethodId">{{ "checkout.shippingMethod"|trans }}</label>
-                                <select class="form-control" type="text" id="shippingMethodId" name="shippingMethodId">
-                                    {% for shipping in page.shippingMethods %}
-                                        <option value="{{ shipping.id }}"{% if shipping.id == page.context.shippingMethod.id %} selected="selected"{% endif %}>{{ shipping.translated.name }}</option>
-                                    {% endfor %}
-                                </select>
-                            {% endblock %}
-                            <input type="hidden" name="redirectTo" value="frontend.checkout.cart.page">
-                        </div>
                     </div>
                 {% endblock %}
             </form>

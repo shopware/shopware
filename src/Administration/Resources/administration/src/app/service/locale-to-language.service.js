@@ -17,7 +17,7 @@ export default function createLocaleToLanguageService() {
         const languageRepo = repoFactory.create('language', '/language');
         const localeCriteria = new Criteria();
 
-        localeCriteria.setTerm(locale.replace('-', '_'));
+        localeCriteria.setTerm(locale);
 
         return localeRepo.search(localeCriteria, contextService).then((data) => {
             return data.first().id;

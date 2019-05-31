@@ -444,11 +444,11 @@ The logging service has to be registered manually like this:
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
         <service id="plugin_quick_start.logger" class="Monolog\Logger">
-            <factory service="Shopware\Core\Framework\Util\LoggerFactory" method="createRotating"/>
+            <factory service="Shopware\Core\Framework\Log\LoggerFactory" method="createRotating"/>
             <argument type="string">plugin_quick_start</argument>
         </service>
         <service id="plugin_quick_start.foobar.logger" class="Monolog\Logger">
-            <factory service="Shopware\Core\Framework\Util\LoggerFactory" method="createRotating"/>
+            <factory service="Shopware\Core\Framework\Log\LoggerFactory" method="createRotating"/>
             <argument type="string">plugin_quick_start_foobar</argument>
         </service>
     </services>

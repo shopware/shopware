@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Util;
+namespace Shopware\Core\Framework\Log;
 
 use Monolog\Handler\RotatingFileHandler;
 use Monolog\Logger;

@@ -267,7 +267,7 @@
         </service>
 
         <!-- Util -->
-        <service id="Shopware\Core\Framework\Util\LoggerFactory">
+        <service id="Shopware\Core\Framework\Log\LoggerFactory">
             <argument type="string">%kernel.logs_dir%/%%s_%kernel.environment%.log</argument>
         </service>
     </services>

@@ -61,6 +61,6 @@ Key |  Setting
 **Host:** | `192.168.33.10`
 **User:**  | `vagrant`
 **Password:** | `vagrant`
-**Path:** | `/~/shopware-dev`
+**Path:** | `~/shopware-dev`
 
 ## Next: [Startup](./../30-startup-guide/__categoryInfo.md)

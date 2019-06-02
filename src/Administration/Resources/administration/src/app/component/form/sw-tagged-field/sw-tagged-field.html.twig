@@ -17,7 +17,7 @@
 
                     {% block sw_tagged_field_tag_items %}
                         <li class="sw-tagged-field__tags-wrapper sw-tagged-field__selection" v-for="(tag, index) in tags" :key="tag + index">
-                            <sw-label small dismissAble @dismiss="dismissTag(index)">
+                            <sw-label size="medium" @dismiss="dismissTag(index)">
                                 <span class="sw-tagged-field__selection-item">{{ tag }}</span>
                             </sw-label>
                         </li>

@@ -1,65 +1,65 @@
 @import "~scss/variables";
 @import "~scss/mixins";
 @import "sw-label-variant";
-
 $sw-label-border-radius: $border-radius-default / 2;
 $sw-label-pill-border-radius: 50px;
 
 .sw-label {
-    @include truncate();
     display: inline-block;
     position: relative;
     max-width: 100%;
-    margin-right: 6px;
-    margin-bottom: 6px;
-    padding: 4px 12px 4px 12px;
-    line-height: 22px;
-    font-size: 13px;
+    min-width: 56px;
+    margin: 0 6px 6px 0;
+    padding: 8px 12px;
+    line-height: 14px;
+    font-size: 12px;
     height: 32px;
     border: 1px solid $color-gray-300;
     background: $color-gray-50;
     border-radius: $sw-label-border-radius;
     color: $color-darkgray-200;
-    flex-shrink: 0;
     cursor: default;
 
-    &.sw-label--dismiss-able {
-        &:hover {
-            &, .sw-label__dismiss {
-                border-color: $color-shopware-brand-500;
-                color: $color-shopware-brand-500;
-            }
+    .sw-label__caption {
+        @include truncate();
+        display: inline-block;
+        width: 100%
+    }
+
+    &.sw-label--dismissable:hover {
+        border-color: $color-shopware-brand-500;
+
+        .sw-label__caption {
+            width: calc(100% - 15px);
+        }
+
+
+        .sw-label__dismiss {
+            display: inline-block;
+            color: $color-shopware-brand-500;
         }
     }
 
-    &.sw-label--small {
+    &.sw-label--size-medium {
         height: 24px;
-        font-size: 12px;
-        line-height: 18px;
-        padding: 2px 5px;
+        padding: 4px 12px;
+    }
 
-        .sw-label__dismiss {
-            width: 28px;
-        }
+    &.sw-label--size-small {
+        height: 16px;
+        padding: 0 12px;
     }
 
     .sw-label__dismiss {
-        display: inline-block;
+        display: none;
         position: absolute;
-        width: 35px;
         height: 100%;
-        padding: 4px 10px;
-        right: 0;
+        right: 10px;
         top: 0;
         color: $color-darkgray-200;
-        font-size: 14px;
-        text-align: center;
-        background: 0 none;
+        background-color: $color-gray-50;
         border: 0 none;
         cursor: pointer;
-        text-decoration: none;
-        line-height: 0;
-        font-weight: bold;
         outline: none;
 
         .sw-icon {
@@ -68,33 +68,17 @@ $sw-label-pill-border-radius: 50px;
         }
     }
 
-    &.sw-label--circle {
-        width: 24px;
-        height: 24px;
-        border-radius: 16px;
-        padding: 0 4px 4px 4px;
-        border: 0;
-    }
-
     &.sw-label--ghost {
         background: transparent;
         border-color: $color-gray-300;
     }
 
-    &.sw-label--pill {
+    &.sw-label--appearance-pill {
         border-radius: $sw-label-pill-border-radius;
-
-        .sw-label__dismiss {
-            border-radius: $sw-label-pill-border-radius;
-        }
     }
 
     &.sw-label--caps {
         text-transform: uppercase;
-    }
-
-    &.sw-label--light {
-        color: $color-darkgray-100;
     }
 
     &.sw-label--info,
@@ -104,9 +88,8 @@ $sw-label-pill-border-radius: 50px;
     &.sw-label--neutral {
 
         &.sw-label--small {
-            border-radius: $sw-label-pill-border-radius;
-            line-height: 14px;
             font-weight: 600;
+            line-height: 14px;
             font-size: 12px;
             padding: 0 5px;
             padding-left: 15px;
@@ -119,7 +102,6 @@ $sw-label-pill-border-radius: 50px;
             height: 6px;
             width: 6px;
             position: absolute;
-            border-radius: 50%;
             top: 4px;
             left: 5px;
         }

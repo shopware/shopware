@@ -31,8 +31,7 @@
                                 :key="selection.id"
                                 :data-id="selection.id">
                                 {% block sw_select_selection_item %}
-                                    <sw-label dismissAble
-                                              :small="size === 'small'"
+                                    <sw-label size="medium"
                                               @selected="changeDefaultItemId(selection.id)"
                                               @dismiss="onDismissSelection(selection[itemValueKey])">
                                         <template>

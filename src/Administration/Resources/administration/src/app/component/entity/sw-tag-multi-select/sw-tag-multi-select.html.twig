@@ -26,7 +26,7 @@
                                 :data-id="tag.id">
 
                                 {% block sw_tag_multi_select_selected_list_items_label %}
-                                    <sw-label dismissAble @dismiss="deleteSelectedTag(tag)">
+                                    <sw-label @dismiss="deleteSelectedTag(tag)">
                                         <template>
                                             {% block sw_tag_multi_select_selected_list_items_label_content %}
                                                 <span class="sw-tag-multi-select__selection-item">

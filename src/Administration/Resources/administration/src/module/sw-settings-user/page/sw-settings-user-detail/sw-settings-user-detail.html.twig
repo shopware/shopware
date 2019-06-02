@@ -168,8 +168,8 @@
 
                                     {% block sw_settings_user_detail_key_grid_column_write_access %}
                                         <template v-slot:column-writeAccess="{ item }">
-                                            <sw-label :ghost="true" :small="true" :caps="true" :light="true">{{ $tc('sw-settings-user.user-detail.readAccess') }}</sw-label>
-                                            <sw-label v-if="item.writeAccess" :ghost="true" :small="true" :caps="true" :light="true">{{ $tc('sw-settings-user.user-detail.writeAccess') }}</sw-label>
+                                            <sw-label size="medium" ghost caps>{{ $tc('sw-settings-user.user-detail.readAccess') }}</sw-label>
+                                            <sw-label v-if="item.writeAccess" size="medium" ghost caps>{{ $tc('sw-settings-user.user-detail.writeAccess') }}</sw-label>
                                         </template>
                                     {% endblock %}
 

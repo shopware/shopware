@@ -172,46 +172,36 @@ Component.register('sw-product-detail', {
 
             return this.$store.dispatch('swProductDetail/saveProduct').then((res) => {
                 switch (res) {
-                case 'empty': {
-                    const titleSaveWarning = this.$tc('sw-product.detail.titleSaveWarning');
-                    const messageSaveWarning = this.$tc('sw-product.detail.messageSaveWarning');
+                    case 'empty': {
+                        const titleSaveWarning = this.$tc('sw-product.detail.titleSaveWarning');
+                        const messageSaveWarning = this.$tc('sw-product.detail.messageSaveWarning');
 
-                    this.createNotificationWarning({
-                        title: titleSaveWarning,
-                        message: messageSaveWarning
-                    });
-                    break;
-                }
+                        this.createNotificationWarning({
+                            title: titleSaveWarning,
+                            message: messageSaveWarning
+                        });
+                        break;
+                    }
 
-                case 'success': {
-                    const titleSaveSuccess = this.$tc('sw-product.detail.titleSaveSuccess');
-                    const messageSaveSuccess = this.$tc('sw-product.detail.messageSaveSuccess', 0, {
-                        name: this.product.translated.name
-                    });
+                    case 'success': {
+                        this.isSaveSuccessful = true;
 
-                    this.createNotificationSuccess({
-                        title: titleSaveSuccess,
-                        message: messageSaveSuccess
-                    });
+                        break;
+                    }
 
-                    this.isSaveSuccessful = true;
+                    default: {
+                        const productName = this.product.translated ? this.product.translated.name : this.product.name;
+                        const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');
+                        const messageSaveError = this.$tc(
+                            'global.notification.notificationSaveErrorMessage', 0, { entityName: productName }
+                        );
 
-                    break;
-                }
-
-                default: {
-                    const productName = this.product.translated ? this.product.translated.name : this.product.name;
-                    const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');
-                    const messageSaveError = this.$tc(
-                        'global.notification.notificationSaveErrorMessage', 0, { entityName: productName }
-                    );
-
-                    this.createNotificationError({
-                        title: titleSaveError,
-                        message: messageSaveError
-                    });
-                    break;
-                }
+                        this.createNotificationError({
+                            title: titleSaveError,
+                            message: messageSaveError
+                        });
+                        break;
+                    }
                 }
             });
         },

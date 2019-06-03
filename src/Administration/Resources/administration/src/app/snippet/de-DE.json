@@ -538,6 +538,9 @@
       "buttonCancel": "Abbrechen"
     }
   },
+  "sw-category-tree-field": {
+    "emptySearchResults": "Keine Kategorien gefunden."
+  },
   "sw-error": {
     "general": {
       "statusCodePlaceholder": "Fehler",

@@ -19,7 +19,7 @@ module.exports = {
         // allow console
         'no-console': 0,
         // 4 spaces for indention
-        indent: ['error', 4],
+        indent: ['error', 4, { 'SwitchCase': 1 }],
         // Remove forced trailing comma
         'comma-dangle': ['error', 'never'],
         // Allow functions to be used before definition, useful for exporting a object literal at the beginning of the file

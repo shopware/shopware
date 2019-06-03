@@ -33,9 +33,8 @@ module.exports = {
             .waitForElementNotPresent(page.elements.loader)
             .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .getLocationInView('.sw-product-detail__select-category')
-            .fillMultiSelect(
+            .selectFromCategoryTree(
                 '.sw-product-detail__select-category',
-                global.AdminFixtureService.basicFixture.name,
                 global.AdminFixtureService.basicFixture.name
             )
             .fillMultiSelect(

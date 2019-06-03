@@ -77,7 +77,8 @@ const defaultDragConfig = {
     onDragEnter: null,
     onDragLeave: null,
     onDrop: null,
-    data: null
+    data: null,
+    disabled: false
 };
 
 /**
@@ -400,9 +401,11 @@ Directive.register('draggable', {
             Object.assign(dragConfig, { data: binding.value });
         }
 
-        el.classList.add(dragConfig.draggableCls);
-        el.addEventListener('mousedown', onDrag.bind(this, el, dragConfig));
-        el.addEventListener('touchstart', onDrag.bind(this, el, dragConfig));
+        if (!dragConfig.disabled) {
+            el.classList.add(dragConfig.draggableCls);
+            el.addEventListener('mousedown', onDrag.bind(this, el, dragConfig));
+            el.addEventListener('touchstart', onDrag.bind(this, el, dragConfig));
+        }
     },
 
     unbind(el, binding) {

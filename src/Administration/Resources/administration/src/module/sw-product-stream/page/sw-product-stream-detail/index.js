@@ -240,25 +240,25 @@ Component.register('sw-product-stream-detail', {
         },
         mapCustomFieldType(customField) {
             switch (customField.type) {
-            case 'bool':
-                customField.type = 'boolean';
-                break;
-            case 'html':
-            case 'text':
-                customField.type = 'string';
-                break;
-            case 'datetime':
-                customField.type = 'string';
-                customField.format = 'date-time';
-                break;
-            case 'int':
-                customField.type = 'integer';
-                break;
-            case 'float':
-                customField.type = 'number';
-                break;
-            default:
-                break;
+                case 'bool':
+                    customField.type = 'boolean';
+                    break;
+                case 'html':
+                case 'text':
+                    customField.type = 'string';
+                    break;
+                case 'datetime':
+                    customField.type = 'string';
+                    customField.format = 'date-time';
+                    break;
+                case 'int':
+                    customField.type = 'integer';
+                    break;
+                case 'float':
+                    customField.type = 'number';
+                    break;
+                default:
+                    break;
             }
             return customField;
         }

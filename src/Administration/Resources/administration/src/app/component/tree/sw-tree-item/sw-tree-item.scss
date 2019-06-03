@@ -75,6 +75,7 @@ $sw-tree-item-color-text: $color-gutenberg;
         padding: 0;
         font-size: 14px;
         color: $sw-tree-item-color-text;
+        border-radius: $border-radius-default;
 
         &:hover {
             background: $sw-tree-item-color-background;
@@ -94,6 +95,18 @@ $sw-tree-item-color-text: $color-gutenberg;
             .sw-tree-item__content {
                 color: $color-shopware-blue;
             }
+        }
+    }
+
+    &.is--marked-inactive {
+        .sw-tree-item__label {
+            color: lighten($color-gutenberg, 30);
+        }
+    }
+
+    &.is--focus {
+        > .sw-tree-item__element {
+            background-color: lighten($color-shopware-blue, 40);
         }
     }
 

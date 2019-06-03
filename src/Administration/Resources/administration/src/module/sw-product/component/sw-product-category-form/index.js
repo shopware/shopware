@@ -5,6 +5,8 @@ import template from './sw-product-category-form.html.twig';
 Component.register('sw-product-category-form', {
     template,
 
+    inject: ['repositoryFactory', 'context'],
+
     data() {
         return {
             displayVisibilityDetail: false,
@@ -17,7 +19,11 @@ Component.register('sw-product-category-form', {
             'product',
             'localMode',
             'loading'
-        ])
+        ]),
+
+        categoriesCollection() {
+            return !this.loading.product ? this.product.categories : {};
+        }
     },
 
     methods: {

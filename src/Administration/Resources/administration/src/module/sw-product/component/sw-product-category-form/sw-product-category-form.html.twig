@@ -2,14 +2,11 @@
     <div class="sw-product-category-form">
 
         {% block sw_product_category_form_category_field %}
-            <sw-many-to-many-select v-if="!loading.product"
-                                    id="categories"
-                                    :collection="product.categories"
+            <sw-category-tree-field :categoriesCollection="categoriesCollection"
                                     class="sw-product-detail__select-category"
                                     :label="$tc('sw-product.categoryForm.labelCategory')"
-                                    :localMode="localMode"
                                     :placeholder="$tc('sw-product.categoryForm.placeholderCategory')">
-            </sw-many-to-many-select>
+            </sw-category-tree-field>
         {% endblock %}
 
         {% block sw_product_category_form_visibility_field %}

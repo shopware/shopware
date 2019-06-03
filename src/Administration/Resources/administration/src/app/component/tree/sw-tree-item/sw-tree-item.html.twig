@@ -1,7 +1,8 @@
 {% block sw_tree_item %}
     <div class="sw-tree-item" :class="styling">
         {% block sw_tree_item_element %}
-            <div class="sw-tree-item__element" v-droppable="{ dragGroup: 'sw-tree-item', data: item }"
+            <div class="sw-tree-item__element"
+                 v-droppable="{ dragGroup: 'sw-tree-item', data: item }"
                  v-draggable="dragConf">
                 {% block sw_tree_item_element_leaf_icon %}
                     <div class="sw-tree-item__leaf" v-if="item.childCount <= 0"></div>
@@ -23,8 +24,12 @@
 
                 {% block sw_tree_item_element_selection %}
                     <div class="sw-tree-item__selection">
-                        <sw-field :disabled="currentEditElement === item.data.id" @change="toggleItemCheck($event, item)" type="checkbox"
-                                  :value="checked"></sw-field>
+                        <sw-field :disabled="currentEditElement === item.data.id"
+                                  @change="toggleItemCheck($event, item)"
+                                  type="checkbox"
+                                  :ghostValue="checkedGhost"
+                                  :value="checked">
+                        </sw-field>
                     </div>
                 {% endblock %}
 
@@ -127,7 +132,14 @@
                                           :newElementId="newElementId"
                                           :translationContext="translationContext"
                                           :onChangeRoute="onChangeRoute"
-                                          @itemChecked="emitCheckedItem" :disableContextMenu="disableContextMenu">
+                                          @itemChecked="emitCheckedItem"
+                                          :activeParentIds="activeParentIds"
+                                          :activeItemIds="activeItemIds"
+                                          :markInactive="markInactive"
+                                          :sortable="sortable"
+                                          :shouldFocus="shouldFocus"
+                                          :activeFocusId="activeFocusId"
+                                          :disableContextMenu="disableContextMenu">
                                 {% block sw_tree_item_children_items_slots %}
                                     <template slot="content" slot-scope="{ item, openTreeItem }">
                                         {% block sw_tree_item_children_items_slot_content %}

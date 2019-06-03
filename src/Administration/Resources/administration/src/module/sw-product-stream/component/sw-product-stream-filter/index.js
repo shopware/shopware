@@ -468,46 +468,46 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
 
         mapParametersForType(type) {
             switch (type) {
-            case TYPES.TYPE_LESS_THAN_EQUALS:
-                this.actualCondition.parameters = {
-                    lt: undefined,
-                    gt: undefined,
-                    lte: 0,
-                    gte: undefined
-                };
-                break;
-            case TYPES.TYPE_LESS_THAN:
-                this.actualCondition.parameters = {
-                    lt: 0,
-                    gt: undefined,
-                    lte: undefined,
-                    gte: undefined
-                };
-                break;
-            case TYPES.TYPE_GREATER_THAN_EQUALS:
-                this.actualCondition.parameters = {
-                    lt: undefined,
-                    gt: undefined,
-                    lte: undefined,
-                    gte: 0
-                };
-                break;
-            case TYPES.TYPE_GREATER_THAN:
-                this.actualCondition.parameters = {
-                    lt: undefined,
-                    gt: 0,
-                    lte: undefined,
-                    gte: undefined
-                };
-                break;
-            default:
-                this.actualCondition.parameters = {
-                    lt: undefined,
-                    gt: undefined,
-                    lte: undefined,
-                    gte: undefined
-                };
-                break;
+                case TYPES.TYPE_LESS_THAN_EQUALS:
+                    this.actualCondition.parameters = {
+                        lt: undefined,
+                        gt: undefined,
+                        lte: 0,
+                        gte: undefined
+                    };
+                    break;
+                case TYPES.TYPE_LESS_THAN:
+                    this.actualCondition.parameters = {
+                        lt: 0,
+                        gt: undefined,
+                        lte: undefined,
+                        gte: undefined
+                    };
+                    break;
+                case TYPES.TYPE_GREATER_THAN_EQUALS:
+                    this.actualCondition.parameters = {
+                        lt: undefined,
+                        gt: undefined,
+                        lte: undefined,
+                        gte: 0
+                    };
+                    break;
+                case TYPES.TYPE_GREATER_THAN:
+                    this.actualCondition.parameters = {
+                        lt: undefined,
+                        gt: 0,
+                        lte: undefined,
+                        gte: undefined
+                    };
+                    break;
+                default:
+                    this.actualCondition.parameters = {
+                        lt: undefined,
+                        gt: undefined,
+                        lte: undefined,
+                        gte: undefined
+                    };
+                    break;
             }
         },
 
@@ -554,17 +554,17 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
         },
         getValueFieldByType(type) {
             switch (type) {
-            case 'string':
-                if (this.isDateTime()) {
-                    return 'date';
-                }
-                return 'text';
-            case 'integer':
-            case 'number':
-                this.filterValue = Number(this.actualCondition.value);
-                return 'number';
-            default:
-                return type;
+                case 'string':
+                    if (this.isDateTime()) {
+                        return 'date';
+                    }
+                    return 'text';
+                case 'integer':
+                case 'number':
+                    this.filterValue = Number(this.actualCondition.value);
+                    return 'number';
+                default:
+                    return type;
             }
         },
         getAvailableTypes() {
@@ -573,11 +573,40 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             }
 
             switch (this.lastField.type) {
-            case 'boolean':
-                return [TYPES.TYPE_EQUALS];
-            case 'string':
-                switch (this.lastField.format) {
-                case 'date-time':
+                case 'boolean':
+                    return [TYPES.TYPE_EQUALS];
+                case 'string':
+                    switch (this.lastField.format) {
+                        case 'date-time':
+                            return [
+                                TYPES.TYPE_EQUALS,
+                                TYPES.TYPE_GREATER_THAN,
+                                TYPES.TYPE_GREATER_THAN_EQUALS,
+                                TYPES.TYPE_LESS_THAN,
+                                TYPES.TYPE_LESS_THAN_EQUALS,
+                                TYPES.TYPE_NOT_EQUALS,
+                                TYPES.TYPE_RANGE
+                            ];
+                        case 'uuid':
+                            return [
+                                TYPES.TYPE_EQUALS,
+                                TYPES.TYPE_EQUALS_ANY,
+                                TYPES.TYPE_NOT_EQUALS,
+                                TYPES.TYPE_NOT_EQUALS_ANY
+                            ];
+                        default:
+                            return [
+                                TYPES.TYPE_EQUALS,
+                                TYPES.TYPE_EQUALS_ANY,
+                                TYPES.TYPE_CONTAINS,
+                                TYPES.TYPE_NOT_EQUALS,
+                                TYPES.TYPE_NOT_EQUALS_ANY,
+                                TYPES.TYPE_NOT_CONTAINS
+                            ];
+                    }
+                case 'integer':
+                case 'number':
+                case 'object':
                     return [
                         TYPES.TYPE_EQUALS,
                         TYPES.TYPE_GREATER_THAN,
@@ -587,42 +616,13 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                         TYPES.TYPE_NOT_EQUALS,
                         TYPES.TYPE_RANGE
                     ];
-                case 'uuid':
+                default:
                     return [
                         TYPES.TYPE_EQUALS,
                         TYPES.TYPE_EQUALS_ANY,
                         TYPES.TYPE_NOT_EQUALS,
                         TYPES.TYPE_NOT_EQUALS_ANY
                     ];
-                default:
-                    return [
-                        TYPES.TYPE_EQUALS,
-                        TYPES.TYPE_EQUALS_ANY,
-                        TYPES.TYPE_CONTAINS,
-                        TYPES.TYPE_NOT_EQUALS,
-                        TYPES.TYPE_NOT_EQUALS_ANY,
-                        TYPES.TYPE_NOT_CONTAINS
-                    ];
-                }
-            case 'integer':
-            case 'number':
-            case 'object':
-                return [
-                    TYPES.TYPE_EQUALS,
-                    TYPES.TYPE_GREATER_THAN,
-                    TYPES.TYPE_GREATER_THAN_EQUALS,
-                    TYPES.TYPE_LESS_THAN,
-                    TYPES.TYPE_LESS_THAN_EQUALS,
-                    TYPES.TYPE_NOT_EQUALS,
-                    TYPES.TYPE_RANGE
-                ];
-            default:
-                return [
-                    TYPES.TYPE_EQUALS,
-                    TYPES.TYPE_EQUALS_ANY,
-                    TYPES.TYPE_NOT_EQUALS,
-                    TYPES.TYPE_NOT_EQUALS_ANY
-                ];
             }
         }
     }

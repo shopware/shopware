@@ -36,53 +36,26 @@ Component.register('sw-media-list-selection', {
     data() {
         return {
             columnCount: 8,
-            columnWidth: 90,
-            entityMediaImages: this.entityMediaItems
+            columnWidth: '90px'
         };
     },
 
-    watch: {
-        entityMediaItems: {
-            handler() {
-                this.entityMediaImages = this.entityMediaItems;
-            },
-            deep: true
-        }
-    },
-
     computed: {
-        placeholderCount() {
-            let columnCount = this.columnCount;
-
-            if (this.entityMediaImages.length + 2 < columnCount * 2) {
-                columnCount *= 2;
-            }
-
-            const placeholderCount = columnCount - ((this.entityMediaImages.length + 2) % columnCount);
-            if (placeholderCount === columnCount) {
-                return 0;
-            }
-
-            if (columnCount < this.entityMediaImages.length) {
-                return 0;
-            }
-
-            return placeholderCount;
+        currentCount() {
+            return this.entityMediaItems.length;
         },
 
         mediaItems() {
-            const mediaItems = this.entityMediaImages.slice();
-
-            const placeholderCount = this.placeholderCount;
-            if (placeholderCount === 0) {
-                return mediaItems;
+            // two rows with columnCount columns
+            const columnCount = this.columnCount * 2;
+            if (this.currentCount >= columnCount) {
+                return this.entityMediaItems;
             }
 
-            for (let i = 0; i < placeholderCount; i += 1) {
-                mediaItems.push(this.createPlaceholderMedia(mediaItems));
-            }
+            const items = [...this.entityMediaItems];
+            items.splice(this.currentCount, 0, ...this.createPlaceholders(columnCount - this.currentCount));
 
-            return mediaItems;
+            return items;
         },
 
         uploadStore() {
@@ -129,15 +102,15 @@ Component.register('sw-media-list-selection', {
             });
         },
 
-        createPlaceholderMedia(mediaItems) {
-            return {
+        createPlaceholders(count) {
+            return (new Array(count)).fill({
                 isPlaceholder: true,
                 media: {
                     isPlaceholder: true,
                     name: ''
                 },
-                mediaId: mediaItems.length
-            };
+                mediaId: this.currentCount
+            });
         },
 
         onUploadsAdded({ data }) {
@@ -164,7 +137,7 @@ Component.register('sw-media-list-selection', {
         },
 
         onUploadFailed(uploadTask) {
-            const toRemove = this.entityMediaImages.find((media) => {
+            const toRemove = this.mediaItems.find((media) => {
                 return media.mediaId === uploadTask.targetId;
             });
 
@@ -176,9 +149,6 @@ Component.register('sw-media-list-selection', {
         },
 
         removeItem(mediaItem) {
-            const key = mediaItem.id;
-            this.entityMediaImages = this.entityMediaImages.filter((e) => e.id !== key && e !== key);
-
             this.$emit('item-remove', mediaItem);
         }
     }

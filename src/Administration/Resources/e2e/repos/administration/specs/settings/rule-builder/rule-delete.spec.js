@@ -21,18 +21,18 @@ module.exports = {
 
         browser
             .fillGlobalSearchField(global.AdminFixtureService.basicFixture.name)
-            .expect.element(`${page.elements.gridRow}--0 ${page.elements.columnName}`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
+            .expect.element(`${page.elements.dataGridRow}--0 ${page.elements.columnName}`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
     },
     'delete rule': (browser) => {
         const page = ruleBuilderPage(browser);
 
         browser
-            .expect.element(`${page.elements.gridRow}--0 ${page.elements.columnName}`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
+            .expect.element(`${page.elements.dataGridRow}--0 ${page.elements.columnName}`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
 
         browser
             .clickContextMenuItem(page.elements.contextMenuButton, {
                 menuActionSelector: '.sw-context-menu-item--danger',
-                scope: `${page.elements.gridRow}--0`
+                scope: `${page.elements.dataGridRow}--0`
             })
             .waitForElementVisible('.sw-modal')
             .expect.element('.sw-settings-rule-list__confirm-delete-text').to.have.text.that.contains(`Are you sure you want to delete the rule "${global.AdminFixtureService.basicFixture.name}"?`);

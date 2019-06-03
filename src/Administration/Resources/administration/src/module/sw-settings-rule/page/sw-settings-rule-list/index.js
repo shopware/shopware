@@ -1,17 +1,24 @@
-import { Component, Mixin, State } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
+import Criteria from 'src/core/data-new/criteria.data';
 import './sw-settings-rule-list.scss';
 import template from './sw-settings-rule-list.html.twig';
 
 Component.register('sw-settings-rule-list', {
     template,
 
+    inject: [
+        'repositoryFactory',
+        'context'
+    ],
+
     mixins: [
-        Mixin.getByName('sw-settings-list')
+        Mixin.getByName('sw-settings-list'),
+        Mixin.getByName('notification')
     ],
 
     data() {
         return {
-            rules: [],
+            rules: null,
             showDeleteModal: false,
             isLoading: false,
             entityName: 'rule',
@@ -26,32 +33,27 @@ Component.register('sw-settings-rule-list', {
     },
 
     computed: {
-        ruleStore() {
-            return State.getStore('rule');
-        },
-
-        filters() {
-            return [];
+        ruleRepository() {
+            return this.repositoryFactory.create('rule');
         }
     },
 
     methods: {
         getList() {
             this.isLoading = true;
-            if (!this.sortBy) {
-                this.sortBy = 'createdAt';
-            }
+            const criteria = new Criteria(this.page, this.limit);
+            criteria.setTerm(this.term);
+            const naturalSort = this.sortBy === 'createdAt';
+            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, naturalSort));
 
-            const params = this.getListingParams();
-
-            this.rules = [];
-
-            return this.ruleStore.getList(params).then((response) => {
-                this.total = response.total;
-                this.rules = response.items;
+            this.ruleRepository.search(criteria, this.context).then((items) => {
+                this.total = items.total;
+                this.rules = items;
                 this.isLoading = false;
 
-                return this.rules;
+                return items;
+            }).catch(() => {
+                this.isLoading = false;
             });
         },
 
@@ -59,47 +61,45 @@ Component.register('sw-settings-rule-list', {
             this.showDeleteModal = id;
         },
 
-        onBulkDelete() {
-            this.showDeleteModal = true;
+        onCloseDeleteModal() {
+            this.showDeleteModal = false;
         },
 
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
-            this.isLoading = true;
-            return this.ruleStore.getById(id).delete(true).then(() => {
-                this.isLoading = false;
-                return this.getList();
+            return this.ruleRepository.delete(id, this.context).then(() => {
+                this.getList();
             });
+        },
+
+        onBulkDelete() {
+            this.showDeleteModal = true;
         },
 
         onConfirmBulkDelete() {
             this.showDeleteModal = false;
 
-            const selectedRules = this.$refs.ruleGrid.getSelection();
+            const selectedRules = this.$refs.swRuleGrid.selection;
 
             if (!selectedRules) {
                 return;
             }
 
-            this.isLoading = true;
-
             Object.values(selectedRules).forEach((rule) => {
-                rule.delete();
-            });
-
-            this.ruleStore.sync(true).then(() => {
-                this.isLoading = false;
-                return this.getList();
+                this.ruleRepository.delete(rule.id, this.context).then(() => {
+                    return this.getList();
+                });
             });
         },
 
-        onCloseDeleteModal() {
-            this.showDeleteModal = false;
-        },
-
-        onDuplicate(id) {
-            this.ruleStore.apiService.clone(id).then((rule) => {
+        onDuplicate(referenceRule) {
+            this.ruleRepository.clone(referenceRule.id, this.context).then((rule) => {
+                this.ruleRepository
+                    .get(rule.id, this.context)
+                    .then((entity) => {
+                        this.rules.add(entity);
+                    });
                 this.$router.push(
                     {
                         name: 'sw.settings.rule.detail',
@@ -109,16 +109,55 @@ Component.register('sw-settings-rule-list', {
             });
         },
 
-        onInlineEditSave(params) {
+        onInlineEditSave(promise, rule) {
             this.isLoading = true;
-            const rule = this.ruleStore.store[params.id];
 
-            rule.save().then(() => {
+            promise.then(() => {
                 this.isLoading = false;
+
+                this.createNotificationSuccess({
+                    title: this.$tc('sw-settings-rule.detail.titleSaveSuccess'),
+                    message: this.$tc('sw-settings-rule.detail.messageSaveSuccess', 0, { name: rule.name })
+                });
             }).catch(() => {
                 this.getList();
-                this.isLoading = false;
+                this.createNotificationError({
+                    title: this.$tc('sw-settings-rule.detail.titleSaveError'),
+                    message: this.$tc('sw-settings-rule.detail.messageSaveError')
+                });
             });
+        },
+
+        getRuleColumns() {
+            return [{
+                property: 'name',
+                dataIndex: 'name',
+                inlineEdit: 'string',
+                label: this.$tc('sw-settings-rule.list.columnName'),
+                routerLink: 'sw.settings.rule.detail',
+                width: '250px',
+                allowResize: true,
+                primary: true
+            }, {
+                property: 'priority',
+                label: this.$tc('sw-settings-rule.list.columnPriority'),
+                inlineEdit: 'number',
+                allowResize: true
+            }, {
+                property: 'description',
+                label: this.$tc('sw-settings-rule.list.columnDescription'),
+                width: '250px',
+                allowResize: true
+            }, {
+                property: 'updatedAt',
+                label: this.$tc('sw-settings-rule.list.columnDateCreated'),
+                align: 'right',
+                allowResize: true
+            }, {
+                property: 'invalid',
+                label: this.$tc('sw-product-stream.list.columnStatus'),
+                allowResize: true
+            }];
         }
     }
 });

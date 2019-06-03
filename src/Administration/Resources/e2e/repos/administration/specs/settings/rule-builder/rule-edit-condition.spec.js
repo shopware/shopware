@@ -22,7 +22,7 @@ module.exports = {
         const page = ruleBuilderPage(browser);
         browser
             .fillGlobalSearchField(global.AdminFixtureService.basicFixture.name)
-            .expect.element(`${page.elements.gridRow}--0 ${page.elements.columnName}`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
+            .expect.element(`${page.elements.dataGridRow}--0 ${page.elements.columnName}`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
     },
     'edit rule and add first condition': (browser) => {
         const page = ruleBuilderPage(browser);
@@ -30,7 +30,7 @@ module.exports = {
         browser
             .clickContextMenuItem(page.elements.contextMenuButton, {
                 menuActionSelector: '.sw-rule-list__rule-edit-action',
-                scope: `${page.elements.gridRow}--0`
+                scope: `${page.elements.dataGridRow}--0`
             })
             .expect.element(page.elements.smartBarHeader).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
 

@@ -28,7 +28,7 @@ class ProductStreamPageObject extends GeneralPageObject {
             .waitForElementNotPresent(this.elements.loader)
             .clickContextMenuItem(this.elements.contextMenuButton, {
                 menuActionSelector: '.sw-context-menu-item--danger',
-                scope: `${this.elements.gridRow}--0`
+                scope: `${this.elements.dataGridRow}--0`
             })
             .expect.element(`${this.elements.modal}__body`).to.have.text.that.equals(`Are you sure you want to delete the product group "${productStreamName}"?`);
 

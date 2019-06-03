@@ -12,7 +12,8 @@ Component.register('sw-product-stream-list', {
     ],
 
     mixins: [
-        Mixin.getByName('listing')
+        Mixin.getByName('listing'),
+        Mixin.getByName('notification')
     ],
 
     data() {
@@ -34,21 +35,22 @@ Component.register('sw-product-stream-list', {
     computed: {
         productStreamRepository() {
             return this.repositoryFactory.create('product_stream');
-        },
-
-        productStreamColumns() {
-            return this.getProductStreamColumns();
         }
     },
 
     methods: {
-        onInlineEditSave(productStream) {
-            this.isLoading = true;
-
-            productStream.save().then(() => {
-                this.isLoading = false;
+        onInlineEditSave(promise, productStream) {
+            promise.then(() => {
+                this.createNotificationSuccess({
+                    title: this.$tc('sw-product-stream.detail.titleSaveSuccess'),
+                    message: this.$tc('sw-product-stream.detail.messageSaveSuccess', 0, { name: productStream.name })
+                });
             }).catch(() => {
-                this.isLoading = false;
+                this.getList();
+                this.createNotificationError({
+                    title: this.$tc('sw-product-stream.detail.titleSaveError'),
+                    message: this.$tc('sw-product-stream.detail.messageSaveError')
+                });
             });
         },
 

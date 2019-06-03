@@ -7,7 +7,7 @@ class RuleBuilderPageObject extends GeneralPageObject {
         this.elements = {
             ...this.elements,
             ...{
-                columnName: '.sw-settings-rule-list__column-name',
+                columnName: '.sw-data-grid__cell--name',
                 ruleSaveAction: '.sw-settings-rule-detail__save-action',
                 ruleDeleteAction: '.sw-condition-or-container__actions--delete'
             }

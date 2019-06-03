@@ -1,5 +1,5 @@
 [titleEn]: <>(How to create a subscriber)
-[metaDescriptionEn]: <>(Registering a subscriber in the Shopware platform is as easy as it is in Symfony. This HowTo will cover what you need to know in order to create a subscriber using your plugin.)
+[metaDescriptionEn]: <>(Registering a subscriber in Shopware 6 is as easy as it is in Symfony. This HowTo will cover what you need to know in order to create a subscriber using your plugin.)
 
 This HowTo will cover what you need to know in order to create a subscriber using your plugin.
 
@@ -36,7 +36,7 @@ Don't worry, we got you covered here as well.
 
 ## Creating the subscriber class
 
-As mentioned above, a subscriber for the Shopware platform looks exactly the same like in Symfony itself.
+As mentioned above, a subscriber for Shopware 6 looks exactly the same like in Symfony itself.
 Therefore, this is how your subscriber could then look like:
 
 ```php
@@ -73,7 +73,7 @@ Unfortunately, your subscriber is not even loaded yet - this will be done in the
 
 ## Introducing your subscriber via services.xml
 
-Registering your subscriber to the Shopware platform is also as simple as it is in Symfony.
+Registering your subscriber to Shopware 6 is also as simple as it is in Symfony.
 You're simply [registering your (subscriber) service](./070-add-service.md) by mentioning it in the `services.xml`.
 The only difference to a normal service is, that you need to add the `kernel.event_subscriber` tag to your subscriber for it
 to be recognized as such.

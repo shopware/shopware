@@ -22,8 +22,8 @@ class ApiController extends Plugin
 
 ## Loading the controllers via routes.xml
 
-The `routes.xml` file is necessary to introduce our controllers to the Shopware platform.
-The Shopware platform automatically searches for an `xml` / `yml` / `php` file in a `src/Resources/config/` directory, whose path contains `routes`.
+The `routes.xml` file is necessary to introduce our controllers to Shopware 6.
+Shopware 6 automatically searches for an `xml` / `yml` / `php` file in a `src/Resources/config/` directory, whose path contains `routes`.
 In this example, only `xml` is used.
 Therefore possible default locations would be:
 - <plugin-root>/src/Resources/config/**routes**.xml
@@ -32,7 +32,7 @@ Therefore possible default locations would be:
 Since only a single `xml` file is necessary for this example, the file is called `routes.xml` and will be put
 into the `<plugin root>/src/Resources/config/` directory.
 
-It only has to contain the path to the controllers, that should be known to the Shopware platform.
+It only has to contain the path to the controllers, that should be known to Shopware 6.
 This example will have its API controller inside a `Controller` directory.
 
 ```xml

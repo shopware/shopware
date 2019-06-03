@@ -2,7 +2,7 @@
 
 [Back to modules](./../10-modules.md)
 
-The central customer entity of the platform. Is created through SalesChannel processes and used in the order and cart workflow.
+The central customer entity of Shopware 6. Is created through SalesChannel processes and used in the order and cart workflow.
 
 ![Customer](./dist/erd-shopware-core-checkout-customer.png)
 

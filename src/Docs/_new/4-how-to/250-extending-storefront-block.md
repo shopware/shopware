@@ -16,9 +16,8 @@ That's already all the setup you need.
 
 ### Setting up your view directory
 
-First of all you need to register your plugin's own view path, which basically represents a path in which the
-Shopware platform is looking for template-files.
-By default, the Shopware platform is looking for a directory called `views` in your plugin's `Resources` directory, so 
+First of all you need to register your plugin's own view path, which basically represents a path in which Shopware 6 is looking for template-files.
+By default, Shopware 6 is looking for a directory called `views` in your plugin's `Resources` directory, so 
 the path could look like this: `<plugin root>/src/Resources/views`
 
 If you're unhappy with this default path, you can override it in your plugin's base class using the [getViewPaths](./../2-internals/4-plugins/020-plugin-base-class.md) method.

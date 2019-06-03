@@ -1,7 +1,7 @@
 Documentation
 =============
 
-A collection of documentation to build the Shopware Platform documentation. 
+A collection of documentation to build the Shopware 6 documentation. 
 
 This repository is considered **read-only**. Please send pull requests
 to our [main Shopware\Core repository](https://github.com/shopware/platform).

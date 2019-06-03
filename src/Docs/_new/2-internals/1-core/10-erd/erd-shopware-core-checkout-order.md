@@ -2,7 +2,7 @@
 
 [Back to modules](./../10-modules.md)
 
-Order management of the Platform. Notice: The data structure in this module is mostly decoupled from the rest of the system so deleting customers, products and other entities will not break already placed orders.
+Order management of Shopware 6. Notice: The data structure in this module is mostly decoupled from the rest of the system so deleting customers, products and other entities will not break already placed orders.
 
 ![Orders](./dist/erd-shopware-core-checkout-order.png)
 

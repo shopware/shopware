@@ -23,7 +23,7 @@ All core modules encapsulate domain concepts and provide a varying number of ext
   : Provide special events to handle business cases.
 
 <span class="tip is--primary">Extension</span>
-  : These modules contain extensions of - usually Framework - interfaces and classes to provide more specific functions for the Platform. 
+  : These modules contain extensions of - usually Framework - interfaces and classes to provide more specific functions for Shopware 6. 
 
 <span class="tip is--primary">Custom Rules</span>
   : Cross-system process to validate workflow decisions. 
@@ -394,7 +394,7 @@ Order state management
 
 * [Sources](https://github.com/shopware/platform/tree/master/src/Core/System/SystemConfig) 
 
-Platform Configuration
+Shopware 6 Configuration
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-system-systemconfig.md)
 

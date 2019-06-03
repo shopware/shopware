@@ -1,7 +1,7 @@
 [titleEn]: <>(Migration assistant introduction)
 
 [Shopware Migration Assistant](https://github.com/shopware/SwagMigrationAssistant) was built with simple but powerful concepts in mind.
-These enable you to extend the plugin in various ways and migrate data into the Shopware platform environment.
+These enable you to extend the plugin in various ways and migrate data into the Shopware 6 environment.
 You should have a basic understanding of how to use the migration plugin and its core features, before extending it yourself.
 (this documentation will not explain the usage of the plugin).
 We will provide you with a basic introduction into the concepts and possibilities of extending the plugin right here in this chapter.
@@ -29,8 +29,8 @@ For more details have a look at [migration context](./040-migration-context.md).
 ## Premapping
 Because the structure of the source system does not always match the structure of the target system, the user may need to map the old structure to the new one.
 For example, in Shopware 5 we have default salutations like 'mr', but the user can also create custom ones.
-In Shopware platform there are also default salutations like 'mr' and the user can also create custom ones.
-So the salutation 'mr' from Shopware 5 must be mapped to the Shopware platform 'mr'.
+In Shopware 6 there are also default salutations like 'mr' and the user can also create custom ones.
+So the salutation 'mr' from Shopware 5 must be mapped to Shopware 6 'mr'.
 In this default case the mapping can be achieved automatically, but customized salutations will most likely have to be mapped manually.
 The premapping will be written into the mapping table to associate the old identifier with the new one.
 [More details](./050-premapping.md)
@@ -46,7 +46,7 @@ If you want to use the `Shopware55ApiGateway` you have to download the [Shopware
 plugin for your Shopware 5. For more details have a look at the [Gateway and reader](./060-gateway-and-reader.md).
 
 ## Converter and Mapping
-Data gathered by `Reader` objects is transferred to `Converter` objects that put the data in a format the Shopware platform is able to work with.
+Data gathered by `Reader` objects is transferred to `Converter` objects that put the data in a format Shopware 6 is able to work with.
 Simultaneously entries in the underlying mapping table are inserted to map the old identifiers to the new ones for future migrations (Have a look at the `MappingService` for that).
 The mapping is saved for the current connection. Converted data will be removed after the migration, the mapping will stay persistent.
 You can find out more about them here: [Converter and mapping](./070-converter-and-mapping.md)
@@ -57,12 +57,12 @@ The users can see these errors and these should be as helpful as possible.
 For more information have a look at [Logging](./071-logging.md).
 
 ## Writer
-The `Writer` objects will receive the converted data and write it to Shopware platform.
+The `Writer` objects will receive the converted data and write it to Shopware 6.
 There is no special magic here and you don't need to worry about error handling because the migration assistant takes care of it.
 To learn more about them take a look at [Writer](./080-writer.md).
 
 ## Media processing
-During a typical migration we download the media files from the source system to shopware platform.
+During a typical migration we download the media files from the source system to Shopware 6.
 This is the last processing step in the migration and may be done differently for other gateways.
 For example the `local` gateway will copy and rename the files directly in the local filesystem.
 For more Details you can look at [Media processing](./090-media-processing.md).
@@ -84,7 +84,7 @@ The following bullet points will give you a general overview of what happens dur
     5.1 The corresponding `Writer` writes the data
 6. Process media, if necessary for example to download / copy images
     6.1 Data in `swag_migration_media_file` table will be downloaded / copied  
-    6.2 Files are assigned to media objects in Shopware platform
+    6.2 Files are assigned to media objects in Shopware 6
 7. Finish migration to cleanup
 
 These steps can be done multiple times. Each migration is called a `Run` / `MigrationRun` and will be saved to let the users know about any errors that occurred (in form of a detailed history).

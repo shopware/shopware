@@ -39,13 +39,13 @@ The relationship between the `eCommerce` and `Framework` directories is of cours
  : Content contains the user curated content to enable a rich shopping experience. Here you find products, the content management system and navigation amongst others.
     
 `Checkout`
- : Checkout provides the workflow and process management of the Shopware Platform. The Checkout process contains the Cart, Orders, Payment and Shipping as well as state management and customer management.
+ : Checkout provides the workflow and process management of Shopware 6. The Checkout process contains the Cart, Orders, Payment and Shipping as well as state management and customer management.
  
  The whole structure follows a strict *domain first* approach. This means that you won't find a global `models` or `controllers` directory, but instead will find domain concepts as the scope of a module. So what you will find is a `Product` module or a `Language` module.
  
  ## Technical layers
  
- Inside each of these modules there is of course technical layering present. Shopware Platform employs a typical multitier architecture, with optional and required layers.
+ Inside each of these modules there is of course technical layering present. Shopware 6 employs a typical multitier architecture, with optional and required layers.
   
 The required layers are `Presentation` and `Data access` with an optional `Application` and `Business` layer,  depending on the complexity of the case.
   

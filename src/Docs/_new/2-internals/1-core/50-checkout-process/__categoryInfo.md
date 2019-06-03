@@ -16,7 +16,7 @@ The `Order` on the other hand represents a permanent model capturing the carts d
 
 ![order context](./dist/order-component.png)
 
-As you can see the basic ownership of the data moved from the customer to the system, since the order represents a contract that is managed by the shop itself. State management in this context is done through the Shopware Platform's state machine.
+As you can see the basic ownership of the data moved from the customer to the system, since the order represents a contract that is managed by the shop itself. State management in this context is done through Shopware 6's state machine.
 
 ## Cross cutting concerns
 
@@ -24,7 +24,7 @@ Cross cutting in the checkout means that an order as well as the cart must know 
 
 ### [Payment](./30-payment.md)
 
-The Shopware Platform comes with its own pluggable Payment handling. Only orders can be payed for. A list of payment handlers is managed by the Shopware Platform.
+Shopware 6 comes with its own pluggable Payment handling. Only orders can be payed for. A list of payment handlers is managed by Shopware 6.
 
 ### Shipping
 

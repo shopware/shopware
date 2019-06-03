@@ -10,14 +10,14 @@ Since a name is a string, one would open the `BundleDefinition` now and just add
 Also adjusting the `BundleEntity` would be necessary, so it knows the new field, same as the `swag_bundle` table migration, which now would need a new column.
 While that would work, you would have to handle the translation saving and loading yourself, which sounds like a lot of boilerplate code.
 
-Fortunately, the Shopware platform also has you covered on that subject.
+Fortunately, Shopware 6 also has you covered on that subject.
 Instead of creating a `StringField`, you should rather create a `TranslatedField`, which only requires you to provide a `propertyName`, you only define the name of the property.
 The attentive might have noticed, that this means you didn't have to provide a `storageName` and therefore the `swag_bundle` table does **not** come with a `name` column.
-Instead, translations in the Shopware platform are saved in a separate table, so we're dealing with an association here.
+Instead, translations in Shopware 6 are saved in a separate table, so we're dealing with an association here.
 One more thing you probably learned earlier in this tutorial: When dealing with an association, you'll have to define both a field as well as an 'AssociationField' in your `BundleDefinition`.
 
-For this, also add a new `TranslationsAssociationField`, a special association field from the Shopware platform. This is also just a `OneToManyAssociationField`, but it also
-lets the Shopware platform know, that it's dealing with a translation here. This is also necessary, so it can take care of loading your translation automatically later.
+For this, also add a new `TranslationsAssociationField`, a special association field from Shopware 6. This is also just a `OneToManyAssociationField`, but it also
+lets Shopware 6 know, that it's dealing with a translation here. This is also necessary, so it can take care of loading your translation automatically later.
 
 Here's your new `defineFields` method of your `BundleDefinition`:
 ```php

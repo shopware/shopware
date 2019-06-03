@@ -19,7 +19,7 @@ Repository
  : The Repository is the main access point for every DAL Request. It houses the basic methods to work with data.
 
 Events
- : All DAL requests dispatch events to trigger handling inside of the Shopware Platform. Be it adding static data, triggering re indexing or handling a file upload.
+ : All DAL requests dispatch events to trigger handling inside of Shopware 6. Be it adding static data, triggering re indexing or handling a file upload.
 
 ## Table of contents
 

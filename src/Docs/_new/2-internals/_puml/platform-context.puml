@@ -1,12 +1,12 @@
 @startuml LAYOUT_TOP_DOWN
 !includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/release/1-0/C4_Context.puml
 
-title Shopware Platform Context
+title Shopware 6 Context
 
 Person_Ext(admin, "Administrator")
 Person_Ext(customer, "Customer")
 
-System(platform, "Shopware Platform", "eCommerce System")
+System(platform, "Shopware 6", "eCommerce System")
 
 System_Ext(erp, "ERP")
 System_Ext(mailer, "Mailer")

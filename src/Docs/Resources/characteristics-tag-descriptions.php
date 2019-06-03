@@ -26,7 +26,7 @@ Provide special events to handle business cases.
 EOD
     ,
     'Extension' => <<<'EOD'
-These modules contain extensions of - usually Framework - interfaces and classes to provide more specific functions for the Platform. 
+These modules contain extensions of - usually Framework - interfaces and classes to provide more specific functions for Shopware 6. 
 EOD
     ,
     'Custom Rules' => <<<'EOD'

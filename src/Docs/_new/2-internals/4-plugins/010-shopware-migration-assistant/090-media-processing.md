@@ -1,6 +1,6 @@
 [titleEn]: <>(Media processing)
 
-To import files to the Shopware platform using the migration, two steps are necessary:
+To import files to Shopware 6 using the migration, two steps are necessary:
 1. Create a media file object (`MediaDefinition` / `media` table)
 For more Details take a look at the `MediaConverter`
 2. Create an entry in the `SwagMigrationMediaFileDefinition` / `swag_migration_media_file` table.
@@ -46,7 +46,7 @@ class MediaConverter extends Shopware55Converter
                 'uri' => $data['uri'] ?? $data['path'], // uri or path to the file (because of the different implementations of the gateways)
                 'fileName' => $data['name'],
                 'fileSize' => (int) $data['file_size'],
-                'mediaId' => $converted['id'], // uuid of the media object in Shopware platform
+                'mediaId' => $converted['id'], // uuid of the media object in Shopware 6
             ]
         );
         unset($data['uri'], $data['file_size']);
@@ -85,7 +85,7 @@ class MediaConverter extends Shopware55Converter
             $data = null;
         }
 
-        // The MediaWriter will write this Shopware platform media object
+        // The MediaWriter will write this Shopware 6 media object
         return new ConvertStruct($converted, $data);
     }
         
@@ -136,6 +136,6 @@ class HttpMediaDownloadService extends AbstractMediaFileProcessor
 }
 ```
 First, the service fetches all media files associated with given media ids and downloads these media files from the source system.
-After this, it handles the response, saves the media files in a temporary folder and copies them to the Shopware Platform filesystem.
+After this, it handles the response, saves the media files in a temporary folder and copies them to Shopware 6 filesystem.
 In the end the service sets a `processed` status to these media files, saves all warnings that may have occured and
 returns the status of the processed files.

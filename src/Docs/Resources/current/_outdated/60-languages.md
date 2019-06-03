@@ -1,6 +1,6 @@
 # Languages
 
-This section describes the language system of the shopware platform.
+This section describes the language system of Shopware 6.
 Languages are defined in the `Shopware\Core\SalesChannel\Language\LanguageDefinition` entity.
 Each language requires a name and a locale id on which it is based on.
 The locale id is used for libraries to identify a internationalized localisation.
@@ -12,7 +12,7 @@ Defining own language has different benefits:
 * I can define languages with own dialects
 * **I can inherited languages**
 
-Yes, the shopware platform allows to define language inheritance. Like the `data inhertiance` it allows to define a fallback which are used if the request language data not exists.
+Yes, Shopware 6 allows to define language inheritance. Like the `data inhertiance` it allows to define a fallback which are used if the request language data not exists.
 This prevents duplicate data for same languages. 
 Adopted we have a language with a specify dialect where only ten words in the language are different, without the language inheritance it would be necessary to clone the whole language data and modify only the ten words.
 With the language inheritance, you would create a new language for the dialect and add a parent language.

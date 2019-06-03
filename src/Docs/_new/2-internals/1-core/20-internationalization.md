@@ -1,6 +1,6 @@
 [titleEn]: <>(Internationalization)
 
-The Shopware Platform supports internationalization as a core concept. The translation System supports three levels. 
+Shopware 6 supports internationalization as a core concept. The translation System supports three levels. 
 
 1. A *system language* (fixed en-GB) - the fallback that requires a translation. 
 2. A *root language*  - The actual main content language.
@@ -29,7 +29,7 @@ not especially translated field, will stick to the German language `de-DE`.
 
 ## Support
 
-Translations in the Shopware Platform are supported by two subsystems all correlating to the same basic rules:
+Translations in Shopware 6 are supported by two subsystems all correlating to the same basic rules:
 
 Snippets
  : Snippets are dynamic translation texts that can be managed through the Management-API

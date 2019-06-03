@@ -54,7 +54,7 @@ EOD;
     {
         $this
             ->setName('docs:dump-platform-updates')
-            ->setDescription('Dumps all platform updates into a single file for the sync.');
+            ->setDescription('Dumps all Shopware 6 updates into a single file for the sync.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

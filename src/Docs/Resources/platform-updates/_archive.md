@@ -462,7 +462,7 @@ To make sure you can use the new setup:</p>
 
 <h3>2019-02-01: Storefront building pipeline</h3>
 
-<p>The Shopware platform&nbsp;Storefront Building Pipline provides the developer with the ability to use a Node.js based tech stack to build the storefront.</p>
+<p>Shopware 6&nbsp;Storefront Building Pipline provides the developer with the ability to use a Node.js based tech stack to build the storefront.</p>
 
 <p><strong>This has many advantages:</strong></p>
 
@@ -817,7 +817,7 @@ class CustomerAddressApiService extends ApiService {
 
 <h3>2019-01-29: Feature flags</h3>
 
-<p>In the shopware platform you can switch off features via environment variables and also merge &quot;Work in Progress&quot; changes into the master. So how does this work?</p>
+<p>In Shopware 6 you can switch off features via environment variables and also merge &quot;Work in Progress&quot; changes into the master. So how does this work?</p>
 
 <p><strong>Create</strong><br />
 When you start developing a new feature, you should first create a new flag. As a convention we use a Jira reference number here. Remember, this will be published to GitHub, so just take the issue number.</p>

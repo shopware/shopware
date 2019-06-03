@@ -1,8 +1,8 @@
 [titleEn]: <>(Step 4: Creating an entity)
 
-While it's good to have the database tables running already, the Shopware platform does not know your new table yet.
+While it's good to have the database tables running already, Shopware 6 does not know your new table yet.
 
-Introducing the table to the Shopware platform is done by adding a so called `EntityDefinition` for your table.
+Introducing the table to Shopware 6 is done by adding a so called `EntityDefinition` for your table.
 As the name suggests, it defines your own entity, including its fields and name, the latter also represents the table name and therefore
 has to perfectly match.
 While it's up to you where to place your custom definition, we would recommend to stick to the [Core structure](./../../2-internals/1-core/__categoryInfo.md).
@@ -212,22 +212,22 @@ The class documentation is just another helper to have a proper auto-completion 
 You've got a `BundleDefinition`, which also knows your `BundleCollection` as well as the `BundleEntity`, so everything is perfectly set up.
 
 **Just one more thing is missing:**
-The Shopware platform does not know your `BundleDefinition` yet!
+Shopware 6 does not know your `BundleDefinition` yet!
 
 Your custom definition has to be defined as a tagged service, using the `shopware.entity.definition` tag.
-Registering a service to the Shopware platform works just like in Symfony itself, it has to be registered to the DI container
+Registering a service to Shopware 6 works just like in Symfony itself, it has to be registered to the DI container
 using a configuration file. What an DI container is and how it works, **won't** be explained as part of this tutorial.
 Head over to the [Symfony documentation](https://symfony.com/doc/current/service_container.html) to figure out more about the DI container and
 service registration in Symfony.
 
-The Shopware platform is looking for a `services.xml` file in your plugin automatically, but you need to place it into the proper directory.
+Shopware 6 is looking for a `services.xml` file in your plugin automatically, but you need to place it into the proper directory.
 By default it is expected to be in the following location relative to your plugin's base class: `Resources/config/services.xml`
 In this example, the full path then would be `<plugin root>/src/Resources/config/services.xml`, so go ahead and create this file.
 
 The structure of a Symfony configuration file is also not explained here, make sure to have a look at the [Symfony documentation](https://symfony.com/doc/current/service_container.html).
 In order to maybe use auto wiring, we mostly use a class' FQCN as service IDs, so you immediately know which class to expect from a given service.
 
-As already mentioned, your `BundleDefinition` has to be registered using the `shopware.entity.definition` tag, because the Shopware platform
+As already mentioned, your `BundleDefinition` has to be registered using the `shopware.entity.definition` tag, because Shopware 6
 is looking for definitions by looking for this tag.
 
 Here's the `services.xml` as it should look like now:
@@ -250,7 +250,7 @@ Please have a look at the `<tag>` element. Not only does it have the mentioned `
 an `entity` attribute. Make sure to always provide this attribute when using this tag, otherwise you'll see an error at runtime.
 Its value has to be equal to the name you've used in the `EntityDefinition` itself, `swag_bundle` in this case.
 
-**And that's it, your definition is now completely registered to the Shopware platform! From here on
+**And that's it, your definition is now completely registered to Shopware 6! From here on
 your custom entity is accessible throughout the API.**
 
 Now continue with the [next step](./050-entity-association.md) to add the product association to your entity.

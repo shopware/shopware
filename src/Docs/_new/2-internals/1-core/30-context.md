@@ -1,6 +1,6 @@
 [titleEn]: <>(Context and scope)
 
-The Shopware Platform preprocesses some user-, application- or environment specific information. This data is wrapped into the different context objects and offer a necessary execution context for the various business relevant processes.
+Shopware 6 preprocesses some user-, application- or environment specific information. This data is wrapped into the different context objects and offer a necessary execution context for the various business relevant processes.
 
 For example it might be important to know what language the user prefers to offer a response which is correctly translated. 
 
@@ -18,7 +18,7 @@ The diagram below illustrates the different contexts and relations:
 
 ![context](./dist/context-relation.png) 
 
-As you see usually the controllers are the entry point into the context distribution. The platform usually assembles a context during the kernel boot so you don't have to create your own. Each request is either marked as a sales channel or management type and the according context will be created.
+As you see usually the controllers are the entry point into the context distribution. Shopware 6 usually assembles a context during the kernel boot so you don't have to create your own. Each request is either marked as a sales channel or management type and the according context will be created.
 
 ### Accessing the context 
 

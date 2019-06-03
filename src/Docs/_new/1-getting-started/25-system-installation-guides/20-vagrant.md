@@ -25,7 +25,7 @@ Start by cloning the repository [shopwareLabs/shopware-platform-vagrant](https:/
 > cd shopware-platform-vagrant
 ```
 
-Next, execute `vagrant up` and wait while Vagrant downloads a virtual box image, clones the platform and configures the server.
+Next, execute `vagrant up` and wait while Vagrant downloads a virtual box image, clones the Shopware platform code and configures the server.
 
 ```bash
 > vagrant up
@@ -35,7 +35,7 @@ Next, execute `vagrant up` and wait while Vagrant downloads a virtual box image,
 
 ## Accessing Shopware
 
-Afterwards you have a fully fledged Shopware Platform up and running. Access it through your browser:
+Afterwards you have a fully fledged Shopware 6 up and running. Access it through your browser:
 
 URL | UI
 ---- | --------
@@ -54,7 +54,7 @@ Or use the terminal and access the virtual machine via:
 
 ## Connecting your IDE
 
-The Vagrant box fully encapsulates the whole platform with all its sources. So the development process works just like with any other foreign system. The machine supports **SCP** with the following credentials.
+The Vagrant box fully encapsulates the whole Shopware 6 with all its sources. So the development process works just like with any other foreign system. The machine supports **SCP** with the following credentials.
 
 Key |  Setting
 ----------|----------

@@ -1,15 +1,15 @@
 [titleEn]: <>(Depending on other plugins)
-[metaDescriptionEn]: <>(New in the Shopware platform is the possibility to properly require on other plugins to be in the system. This HowTo will cover that subject.)
+[metaDescriptionEn]: <>(New in Shopware 6 is the possibility to properly require on other plugins to be in the system. This HowTo will cover that subject.)
 
 ## Overview
 
-New in the Shopware platform is the possibility to properly require on other plugins to be in the system.
+New in Shopware 6 is the possibility to properly require on other plugins to be in the system.
 This is done using the `require` feature from composer.
 Further information about this can be found in the [official composer documentation](https://getcomposer.org/doc/04-schema.md#package-links).
 
 ## Setup
 
-Each plugin for the Shopware platform has to own a `composer.json` file for it to be a valid plugin.
+Each plugin for Shopware 6 has to own a `composer.json` file for it to be a valid plugin.
 Creating a plugin is not explained here, make sure to read our [plugin quick start guide](./../2-internals/4-plugins/010-plugin-quick-start.md) first.
 
 Since every plugin has to own a `composer.json` file, you can simply refer to this plugin by its technical name and its version
@@ -66,7 +66,7 @@ own `composer.json` as a key value pair:
 }
 ```
 
-Have a detailed look at the `require` keyword, which now requires both the Shopware platform version, which **always**
+Have a detailed look at the `require` keyword, which now requires both the Shopware 6 version, which **always**
 has to be mentioned in your `composer.json`, as well as the previously mentioned plugin and its version.
 Just as in composer itself, you can also use version wildcards, such as `v1.0.*` to only require the other plugin's
 minor version to be 1.1, not considering the patch version.

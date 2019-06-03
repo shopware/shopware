@@ -6,7 +6,7 @@ Custom fields are part of almost every entity of the system. The term describes 
 EOD
     ,
     'Shopware\\Core\\Framework\\Event' => <<<'EOD'
-The Platform uses typed events in all of its core processes. Additionally to defining handlers programmatically this component provides a way to dynamically match handlers to events to for example control mailing.
+Shopware 6 uses typed events in all of its core processes. Additionally to defining handlers programmatically this component provides a way to dynamically match handlers to events to for example control mailing.
 EOD
     ,
     'Shopware\\Core\\Framework\\MessageQueue' => <<<'EOD'
@@ -70,7 +70,7 @@ An integration is foreign application that has access to the Shopware API throug
 EOD
     ,
     'Shopware\\Core\\System\\StateMachine' => <<<'EOD'
-Like the rule system, that makes core decisions configurable through the Rest-API, the state machine makes core workflows configurable. State machines in checkout, payment and delivery processing are used to adapt the Shopware Platform to custom needs.
+Like the rule system, that makes core decisions configurable through the Rest-API, the state machine makes core workflows configurable. State machines in checkout, payment and delivery processing are used to adapt Shopware 6 to custom needs.
 EOD
     ,
     'Shopware\\Core\\System\\SystemConfig' => <<<'EOD'
@@ -102,7 +102,7 @@ Main navigation tree of a sales channel. May either be a CMS page or a category 
 EOD
     ,
     'Shopware\\Core\\Content\\Rule' => <<<'EOD'
-Rules are used throughout the platform to provide dynamic decision management. For instance shipping and billing methods are matched to customers, carts and line items based on rules from these resources.
+Rules are used throughout Shopware 6 to provide dynamic decision management. For instance shipping and billing methods are matched to customers, carts and line items based on rules from these resources.
 EOD
     ,
     'Shopware\\Core\\Content\\ProductStream' => <<<'EOD'
@@ -114,11 +114,11 @@ Contains the configuration options for product variants.
 EOD
     ,
     'Shopware\\Core\\Checkout\\Customer' => <<<'EOD'
-The central customer entity of the platform. Is created through SalesChannel processes and used in the order and cart workflow.
+The central customer entity of Shopware 6. Is created through SalesChannel processes and used in the order and cart workflow.
 EOD
     ,
     'Shopware\\Core\\Checkout\\Order' => <<<'EOD'
-Order management of the Platform. Notice: The data structure in this module is mostly decoupled from the rest of the system so deleting customers, products and other entities will not break already placed orders.
+Order management of Shopware 6. Notice: The data structure in this module is mostly decoupled from the rest of the system so deleting customers, products and other entities will not break already placed orders.
 EOD
     ,
     'Shopware\\Core\\Checkout\\Payment' => <<<'EOD'
@@ -134,7 +134,7 @@ Manage Discounts and surcharges.
 EOD
     ,
     'Shopware\\Storefront' => <<<'EOD'
-The storefront application of the Shopware Platform. Therefore contains Storefront specific entities that do not need to be part of the core and just support inner workings of this particular Storefront.
+The storefront application of Shopware 6. Therefore contains Storefront specific entities that do not need to be part of the core and just support inner workings of this particular Storefront.
 EOD
     ,
     Shopware\Core\Framework\CustomField\CustomFieldDefinition::class => <<<'EOD'

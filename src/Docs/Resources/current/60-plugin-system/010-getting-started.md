@@ -45,7 +45,7 @@ Read more about the lifecycle and kernel methods of a plugin [here](030-plugin-b
 Run `bin/console plugin:install --activate GettingStarted` to install and activate the plugin.
 
 ## Include services.xml
-The central place to extend the Shopware platform is the [DI container](https://symfony.com/doc/current/service_container.html). 
+The central place to extend Shopware 6 is the [DI container](https://symfony.com/doc/current/service_container.html). 
 In the platform, the services in the DI container are defined in XML.
 To integrate your own `services.xml` in your plugin, the `build` function of your base class has to be overwritten:
 

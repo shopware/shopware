@@ -2,7 +2,7 @@
 
 *It is highly recommended to - first - read the [cart documentation](./../50-checkout-process/10-cart.md)*
 
-The rule system pervades the Shopware Platform. It solves the problem of calculating the cart differently based on the context (`SalesChannel`, `CustomerGroup`, `...`) and the current state (`LineItems`, `Amount`, `...`), but user controlled and decoupled from the cart itself. In theory [every part of the Shopware Platform](./10-rule-list.md) can contribute to the set of available rules.
+The rule system pervades Shopware 6. It solves the problem of calculating the cart differently based on the context (`SalesChannel`, `CustomerGroup`, `...`) and the current state (`LineItems`, `Amount`, `...`), but user controlled and decoupled from the cart itself. In theory [every part of Shopware 6](./10-rule-list.md) can contribute to the set of available rules.
 
 ### Scenario
 
@@ -50,7 +50,7 @@ The last building block then is the **Rule Scope**. The Scope contains the curre
 
 ### Connection to the System
 
-Following the Shopware Platforms data driven approach the rule objects are stored to the [database](./../10-erd/erd-shopware-core-content-rule.md) and used to trigger behaviour in the cart through the associations present.
+Following Shopware 6s data driven approach the rule objects are stored to the [database](./../10-erd/erd-shopware-core-content-rule.md) and used to trigger behaviour in the cart through the associations present.
 
 For more insights on the rule validation take a look at the [cart documentation](./../50-checkout-process/10-cart.md)
 

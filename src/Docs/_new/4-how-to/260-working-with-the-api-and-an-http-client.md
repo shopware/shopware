@@ -1,16 +1,16 @@
 [titleEn]: <>(Working with the Rest-API and an HTTP Client)
-[metaDescriptionEn]: <>(One of the big advantages of working with the Shopware Platform is the Rest-API it comes with. Learn how to work with this API in a PHP context here)
+[metaDescriptionEn]: <>(One of the big advantages of working with Shopware 6 is the Rest-API it comes with. Learn how to work with this API in a PHP context here)
 
-Some things are not easy to solve without an API. For these cases the Shopware Platform has a REST-API!
+Some things are not easy to solve without an API. For these cases Shopware 6 has a REST-API!
 
 ## Overview
 
-The Shopware Platform comes with a powerful REST-API. You can use this API by using a HTTP-Client, like curl or similar.
+Shopware 6 comes with a powerful REST-API. You can use this API by using a HTTP-Client, like curl or similar.
 
 ## Warning
 
-For reasons of simplicity we wrote a Shopware Platform plugin, but in most cases this is not a good use case. Please do not
-call the Shopware Platform API through a plugin unless you do have a really good reason to do so!
+For reasons of simplicity we wrote a Shopware 6 plugin, but in most cases this is not a good use case. Please do not
+call the Shopware 6 API through a plugin unless you do have a really good reason to do so!
 
 ## API Entrypoint
 

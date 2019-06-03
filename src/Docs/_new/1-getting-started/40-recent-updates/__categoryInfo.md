@@ -514,7 +514,7 @@ p code {
     font-size: 16px;
 }
 </style>
-<p>A new component called <code>sw-button-process</code> was added to Shopware platform.
+<p>A new component called <code>sw-button-process</code> was added to Shopware 6.
 The button is introduced to display the status of the process the button should start. E.g. if you click the button
 to save an entity, it will display a loading indicator while the save process is running and a tick icon if the
 process was finished successfully. This way, we tend to get rid of those &quot;Success&quot; notifications which does not
@@ -1983,7 +1983,7 @@ p code {
 </style>
 <p>We made a refactoring of the plugin structure which affect ALL plugins!</p>
 <ul>
-<li>The &quot;type&quot; in the composer.json must now be <code>shopware-platform-plugin</code>. This is necessary to differentiate between Shopware 5 and Shopware platform plugins</li>
+<li>The &quot;type&quot; in the composer.json must now be <code>shopware-platform-plugin</code>. This is necessary to differentiate between Shopware 5 and Shopware 6 plugins</li>
 <li>You now have to provide the whole FQN of your plugin base class in the composer.json. Add something like this to the &quot;extra&quot; part of the composer.json: <code>"shopware-plugin-class": "SwagTest\\SwagTest"</code>, The old identifier <code>installer-name</code> is no longer used</li>
 <li>You now have to provide valid autoload information about your plugin with the composer.json:</li>
 </ul>
@@ -5270,13 +5270,13 @@ Another news is the new SSL-switch field. It allows the user to type or paste a 
 
 <h3>2019-02-07: Rule documentation</h3>
 
-<p>The rules documentation is now available. You are now able to read how to create your own rules using the shopware/platform! Any feedback is appreciated.</p>
+<p>The rules documentation is now available. You are now able to read how to create your own rules using Shopware 6! Any feedback is appreciated.</p>
 
 <p>See it at: <a href="https://github.com/shopware/platform/blob/master/src/Docs/60-plugin-system/35-custom-rules.md">https://github.com/shopware/platform/blob/master/src/Docs/60-plugin-system/35-custom-rules.md</a></p>
 
 <h3>2019-02-07: System requirements</h3>
 
-<p>The platform now requires PHP &gt;= 7.2.0. We&#39;ve also included a polyfill library for PHP 7.3 functions, so feel free to use them.</p>
+<p>Shopware 6 now requires PHP &gt;= 7.2.0. We&#39;ve also included a polyfill library for PHP 7.3 functions, so feel free to use them.</p>
 
 <h3>2019-02-06: Plugin configuration</h3>
 
@@ -5396,7 +5396,7 @@ To make sure you can use the new setup:</p>
 
 <h3>2019-02-01: Storefront building pipeline</h3>
 
-<p>The Shopware platform&nbsp;Storefront Building Pipline provides the developer with the ability to use a Node.js based tech stack to build the storefront.</p>
+<p>The Shopware 6&nbsp;Storefront Building Pipline provides the developer with the ability to use a Node.js based tech stack to build the storefront.</p>
 
 <p><strong>This has many advantages:</strong></p>
 
@@ -5751,7 +5751,7 @@ class CustomerAddressApiService extends ApiService {
 
 <h3>2019-01-29: Feature flags</h3>
 
-<p>In the shopware platform you can switch off features via environment variables and also merge &quot;Work in Progress&quot; changes into the master. So how does this work?</p>
+<p>In Shopware 6 you can switch off features via environment variables and also merge &quot;Work in Progress&quot; changes into the master. So how does this work?</p>
 
 <p><strong>Create</strong><br />
 When you start developing a new feature, you should first create a new flag. As a convention we use a Jira reference number here. Remember, this will be published to GitHub, so just take the issue number.</p>
@@ -5792,7 +5792,7 @@ const:
 &nbsp; FEATURES: |
 &nbsp; &nbsp; FEATURE_NEXT_1128=1</pre>
 
-<p>This is automatically written to the .env file and from there imported into the platform.</p>
+<p>This is automatically written to the .env file and from there imported into Shopware 6.</p>
 
 <p><strong>USAGE IN PHP</strong><br />
 The interception points in the order of their usefulness:</p>

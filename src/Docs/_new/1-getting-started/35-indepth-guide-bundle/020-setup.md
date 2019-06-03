@@ -60,7 +60,7 @@ After having a look at the [composer schema](https://getcomposer.org/doc/04-sche
     
     <dt>version</dt>
     <dd>
-        A version in the Shopware platform mostly follows the specification for semantic versioning.
+        A version in Shopware 6 mostly follows the specification for semantic versioning.
         The 'v' at the beginning is just a convention, since most tags in a version control system are named like that.
         It's okay though if you dismiss the 'v' prefix, your plugin will still work perfectly.
     </dd>
@@ -80,7 +80,7 @@ After having a look at the [composer schema](https://getcomposer.org/doc/04-sche
 </dl>
 
 All of those values being used in the example are mostly used by composer.
-Yet, there are plenty more values, that are required by the Shopware platform, so let's have a look at them as well.
+Yet, there are plenty more values, that are required by Shopware 6, so let's have a look at them as well.
 
 #### type
 
@@ -120,9 +120,9 @@ Usually you'd want it to look something like this: `YourVendorPrefix\YourPluginN
 #### extra
 
 Last but not least is the [extra](https://getcomposer.org/doc/04-schema.md#extra) property, which can fit ANY value.
-The Shopware platform is using it for fetching a few more meta information, such as a `copyright`, a `label` and a `plugin-icon` path. 
-Another important value is the fully qualified class name (later referred to as 'FQCN') of your plugin's base class, so the Shopware platform knows where to look for your plugin's base class.
-This is necessary, since due to your freedom to setup your plugin structure yourself, the Shopware platform also has no clue where your plugin's base class could be.
+Shopware 6 is using it for fetching a few more meta information, such as a `copyright`, a `label` and a `plugin-icon` path. 
+Another important value is the fully qualified class name (later referred to as 'FQCN') of your plugin's base class, so Shopware 6 knows where to look for your plugin's base class.
+This is necessary, since due to your freedom to setup your plugin structure yourself, Shopware 6 also has no clue where your plugin's base class could be.
 
 ```json
 {
@@ -191,7 +191,7 @@ class BundleExample extends Plugin
 
 Your plugin base class **always** has to extend from `Shopware\Core\Framework\Plugin` in order to work properly.
 The namespace and class name are set as defined in the composer.json. That's it for now, the plugin would already be recognized
-by the Shopware platform and is installable.
+by Shopware 6 and is installable.
 
 ### Installing the plugin
 

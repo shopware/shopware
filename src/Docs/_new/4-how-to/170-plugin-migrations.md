@@ -10,7 +10,7 @@ version checks into your plugin's `update` method.
 As you might notice, this will bloat the `update` method sooner or later, becoming more and more of a pain to
 maintain reliably.
 
-A very common solution to this issue is a database migration system, which the Shopware platform supports out of the box
+A very common solution to this issue is a database migration system, which Shopware 6 supports out of the box
 for every plugin.
 
 Here's a brief introduction on how to use `Migrations` in your plugin.
@@ -21,7 +21,7 @@ Make sure to have a look at our in-depth guide about [plugin migrations](./../2-
 This example won't explain how to create a plugin in the first instance.
 How to create your first plugin is explained in detail [here](./../2-internals/4-plugins/010-plugin-quick-start.md).
 
-By default, the Shopware platform is looking for migration files in a folder called `Migration` relative to your plugin's base class directory.
+By default, Shopware 6 is looking for migration files in a folder called `Migration` relative to your plugin's base class directory.
 You can adjust this behaviour by overwriting the [getMigrationNamespace](./../2-internals/4-plugins/020-plugin-base-class.md#getMigrationNamespace()) method in your plugin.
 
 ## The migration file

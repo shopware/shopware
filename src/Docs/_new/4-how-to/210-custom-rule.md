@@ -1,9 +1,9 @@
 [titleEn]: <>(Register a custom rule via plugin)
-[metaDescriptionEn]: <>(The Shopware platform comes with a new rule system. This HowTo comes with an example, which integrates a fully working custom rule.)
+[metaDescriptionEn]: <>(Shopware 6 comes with a new rule system. This HowTo comes with an example, which integrates a fully working custom rule.)
 
 ## Overview
 
-The Shopware platform comes with a new rule system.
+Shopware 6 comes with a new rule system.
 If you're wondering, how you can create a new custom rule with your plugin, make sure to read this HowTo.
 
 This example will introduce a new rule, which checks if there's currently a lunar eclipse or not.
@@ -11,7 +11,7 @@ The shop administrator is then able to react on a lunar eclipse with special pri
 
 ## Setup
 
-This HowTo **does not** explain how you can create a new plugin for the Shopware platform.
+This HowTo **does not** explain how you can create a new plugin for Shopware 6.
 Head over to our [Plugin quick start guide](./../2-internals/4-plugins/010-plugin-quick-start.md) to
 learn creating a plugin at first.
 
@@ -137,7 +137,7 @@ Also note the second line, which already imports your not yet existing component
 But this code is not executed yet, because it was never included or executed.
 
 Your main entry point for this purpose is your plugin's `main.js` file.
-It has to be placed into the `<plugin root>/src/Resources/admininistration` directory in order to be automatically found by the Shopware platform.
+It has to be placed into the `<plugin root>/src/Resources/admininistration` directory in order to be automatically found by Shopware 6.
 *Note: This path can be changed by overriding the [getAdministrationEntryPath()](../2-internals/4-plugins/020-plugin-base-class.md#getAdministrationEntryPath()) method of your plugin's base class.*
 
 In there you'll simply have to import the decoration file mentioned above:

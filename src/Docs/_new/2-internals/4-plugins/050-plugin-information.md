@@ -85,4 +85,4 @@ If a language with this locale is not available, the translation will not be wri
 ## Changelog
 
 The changelog for your plugin now has to be located in another file.
-Have as look at our [changelog guide](./060-plugin-changelog.md) to figure out how that's done in the Shopware platform.
+Have as look at our [changelog guide](./060-plugin-changelog.md) to figure out how that's done in Shopware 6.

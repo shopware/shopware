@@ -44,7 +44,9 @@ export default {
         editorConfig: {
             type: Object,
             required: false,
-            default: {}
+            default() {
+                return {};
+            }
         },
 
         completionMode: {

@@ -11,7 +11,7 @@
             <div :class="tipClass">{{ component.meta.status }}</div>
         </header>
 
-        <p class="is--xl" v-if="component.meta.description" v-html="component.meta.description"></p>
+        <div class="is--xl" v-if="component.meta.description" v-html="component.meta.description"></div>
 
         <section class="section--usage" v-if="component.meta.example">
             <h3>Usage</h3>

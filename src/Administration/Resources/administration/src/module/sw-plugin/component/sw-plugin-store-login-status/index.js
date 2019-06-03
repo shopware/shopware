@@ -31,11 +31,11 @@ Component.register('sw-plugin-store-login-status', {
         createdComponent() {
             this.load();
 
-            this.$root.$on('sw-plugin-login', this.load);
+            this.$root.$on('plugin-login', this.load);
         },
 
         destroyedComponent() {
-            this.$root.$off('sw-plugin-login', this.load);
+            this.$root.$off('plugin-login', this.load);
         },
 
         load() {
@@ -72,7 +72,7 @@ Component.register('sw-plugin-store-login-status', {
             this.storeService.logout().then(() => {
                 this.shopwareId = null;
                 this.load();
-                this.$root.$emit('sw-plugin-logout');
+                this.$root.$emit('plugin-logout');
             });
         },
 

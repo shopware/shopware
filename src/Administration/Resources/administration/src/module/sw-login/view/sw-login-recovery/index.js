@@ -29,7 +29,7 @@ Component.register('sw-login-recovery', {
         },
 
         sendRecoveryMail() {
-            this.$emit('isLoading');
+            this.$emit('is-loading');
 
             this.userRecoveryService.createRecovery(this.email).finally(() => {
                 this.displayRecoveryInfo();

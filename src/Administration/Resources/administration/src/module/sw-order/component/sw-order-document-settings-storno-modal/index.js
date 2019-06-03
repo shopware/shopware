@@ -78,7 +78,7 @@ Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-s
                 ).then((response) => {
                     this.documentConfig.custom.stornoNumber = response.number;
                     this.$emit(
-                        'document-modal-create-document',
+                        'document-create',
                         this.documentConfig,
                         additionalAction,
                         selectedInvoice.id
@@ -87,7 +87,7 @@ Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-s
             } else {
                 this.documentConfig.custom.stornoNumber = this.documentConfig.documentNumber;
                 this.$emit(
-                    'document-modal-create-document',
+                    'document-create',
                     this.documentConfig,
                     additionalAction,
                     selectedInvoice.id

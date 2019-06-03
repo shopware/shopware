@@ -261,8 +261,8 @@ export default {
         },
 
         addEventListeners() {
-            this.$on('sw-select-option-clicked', this.addSelection);
-            this.$on('sw-select-option-mouse-over', this.setActiveResultPosition);
+            this.$on('option-click', this.addSelection);
+            this.$on('option-mouse-over', this.setActiveResultPosition);
             // Reload selections when global language changes
             this.$root.$on('on-change-application-language', this.loadSelected);
             document.addEventListener('click', this.closeOnClickOutside);
@@ -356,7 +356,7 @@ export default {
                     this.setActiveResultPosition({ index: 0 });
                 }
 
-                this.$emit('sw-select-list-applied', this.results);
+                this.$emit('list-load', this.results);
             });
         },
 
@@ -490,7 +490,7 @@ export default {
             this.page = 1;
             this.doGlobalSearch();
 
-            this.$emit('sw-select-search-term-change', this.searchTerm);
+            this.$emit('search-term-change', this.searchTerm);
         },
 
         doGlobalSearch: utils.debounce(function debouncedSearch() {
@@ -503,11 +503,11 @@ export default {
         },
 
         emitActiveResultPosition() {
-            this.$emit('sw-select-active-item-index', this.activeResultPosition);
+            this.$emit('active-item-index-select', this.activeResultPosition);
         },
 
         navigateUpResults() {
-            this.$emit('sw-select-on-arrow-up', this.activeResultPosition);
+            this.$emit('on-arrow-up', this.activeResultPosition);
 
             if (this.activeResultPosition === this.possibleMinPosition) {
                 return;
@@ -527,7 +527,7 @@ export default {
         },
 
         navigateDownResults() {
-            this.$emit('sw-select-on-arrow-down', this.activeResultPosition);
+            this.$emit('on-arrow-down', this.activeResultPosition);
 
             if (this.activeResultPosition === this.results.length - 1 || this.results.length < 1) {
                 return;
@@ -655,7 +655,7 @@ export default {
         },
 
         onKeyUpEnter() {
-            this.$emit('sw-select-on-keyup-enter', this.activeResultPosition);
+            this.$emit('on-keyup-enter', this.activeResultPosition);
         },
 
         onDismissSelection(identifier) {

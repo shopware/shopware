@@ -97,7 +97,7 @@ Component.register('sw-sales-channel-detail-base', {
 
         deleteSalesChannel(salesChannelId) {
             this.salesChannelRepository.delete(salesChannelId, this.context).then(() => {
-                this.$root.$emit('changed-sales-channel');
+                this.$root.$emit('sales-channel-change');
             });
         },
 

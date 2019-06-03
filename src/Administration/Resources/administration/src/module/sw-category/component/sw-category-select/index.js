@@ -47,7 +47,7 @@ Component.extend('sw-category-select', 'sw-select', {
         },
 
         toggleSelection(item) {
-            this.$emit('sw-category-select-on-select', item[this.itemValueKey]);
+            this.$emit('toggle-select', item[this.itemValueKey]);
         },
 
         getResults() {

@@ -126,7 +126,7 @@
                                         {% block sw_cms_detail_stage_add_first_block %}
                                             <sw-cms-stage-add-block :key="0"
                                                                     v-droppable="{ dragGroup: 'cms-stage', data: { dropIndex: 0 } }"
-                                                                    @onStageAddBlock="onAddBlockSection">
+                                                                    @stage-add="onAddBlockSection">
                                             </sw-cms-stage-add-block>
                                         {% endblock %}
 
@@ -138,9 +138,9 @@
                                                                   :key="block.id"
                                                                   :block="block"
                                                                   :active="currentBlock !== null && currentBlock.id === block.id"
-                                                                  @onBlockOverlayClick="onBlockSelection(block)"
-                                                                  @onBlockDelete="onBlockDelete(block.id)"
-                                                                  @onBlockDuplicate="onBlockDuplicate(block)">
+                                                                  @block-overlay-click="onBlockSelection(block)"
+                                                                  @block-delete="onBlockDelete(block.id)"
+                                                                  @block-duplicate="onBlockDuplicate(block)">
 
                                                         {% block sw_cms_detail_stage_content_block_component %}
                                                             <component :is="`sw-cms-block-${block.type}`">
@@ -160,7 +160,7 @@
                                                 {% block sw_cms_detail_stage_add_block %}
                                                     <sw-cms-stage-add-block :key="index + 1"
                                                                             v-droppable="{ dragGroup: 'cms-stage', data: { dropIndex: index + 1 } }"
-                                                                            @onStageAddBlock="onAddBlockSection">
+                                                                            @stage-add-block="onAddBlockSection">
                                                     </sw-cms-stage-add-block>
                                                 {% endblock %}
                                             </template>
@@ -269,7 +269,7 @@
                                                      :title="$tc('sw-cms.detail.sidebarTitleBlockSettings')"
                                                      ref="blockConfigSidebar"
                                                      :disabled="currentBlock === null"
-                                                     @sw-sidebar-item-close-content="onCloseBlockConfig">
+                                                     @close-content="onCloseBlockConfig">
 
                                         <div class="sw-cms-detail__block-config">
                                             <template v-if="currentBlock !== null">

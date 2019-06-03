@@ -98,8 +98,8 @@ Component.register('sw-order-state-history-card', {
                 transactionTransitions
             ]).then(() => {
                 this.statesLoading = false;
-                this.$emit('state-transition-options-changed', 'order.states', this.orderOptions);
-                this.$emit('state-transition-options-changed', 'order_transaction.states', this.transactionOptions);
+                this.$emit('options-change', 'order.states', this.orderOptions);
+                this.$emit('options-change', 'order_transaction.states', this.transactionOptions);
             });
         },
         getStateHistoryEntries(entity) {
@@ -193,7 +193,7 @@ Component.register('sw-order-state-history-card', {
             }
 
             this.orderService.transitionState(this.order.id, this.order.versionId, actionName).then(() => {
-                this.$emit('order-state-changed');
+                this.$emit('order-state-change');
             }).catch((error) => {
                 this.createStateChangeErrorNotification(error);
             });
@@ -206,7 +206,7 @@ Component.register('sw-order-state-history-card', {
 
             this.orderTransactionService.transitionState(this.order.transactions[0].id,
                 this.order.versionId, actionName).then(() => {
-                this.$emit('order-state-changed');
+                this.$emit('order-state-change');
             }).catch((error) => {
                 this.createStateChangeErrorNotification(error);
             });

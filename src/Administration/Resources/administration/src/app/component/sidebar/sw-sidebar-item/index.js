@@ -97,14 +97,14 @@ export default {
                 return;
             }
 
-            this.$emit('sw-sidebar-item-toggle-active', this);
+            this.$emit('toggle-active', this);
         },
 
         closeContent() {
             if (this.isActive) {
                 this.isActive = false;
 
-                this.$emit('sw-sidebar-item-close-content');
+                this.$emit('close-content');
             }
         },
 

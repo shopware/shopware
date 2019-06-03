@@ -280,7 +280,7 @@ export default {
 
         // Bubbles this method to the root tree from any item depth
         emitCheckedItem(item) {
-            this.$emit('itemChecked', item);
+            this.$emit('check-item', item);
         },
 
         // Checks the item
@@ -293,7 +293,7 @@ export default {
                 this.item.checked = event;
             }
 
-            this.$emit('itemChecked', item);
+            this.$emit('check-item', item);
         },
 
         addSubElement(item) {

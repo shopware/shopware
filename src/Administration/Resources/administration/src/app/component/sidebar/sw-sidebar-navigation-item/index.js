@@ -17,7 +17,7 @@ export default {
 
     methods: {
         emitButtonClicked() {
-            this.$emit('sw-sidebar-navigation-item-clicked', this.sidebarItem);
+            this.$emit('item-click', this.sidebarItem);
         }
     }
 };

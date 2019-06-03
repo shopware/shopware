@@ -17,7 +17,7 @@ export default {
 
     model: {
         prop: 'searchTerm',
-        event: 'search-term-changed'
+        event: 'search-term-change'
     },
 
     props: {
@@ -66,7 +66,7 @@ export default {
         onSearchTermChanged() {
             return utils.debounce((input) => {
                 const validInput = input || '';
-                this.$emit('search-term-changed', validInput.trim());
+                this.$emit('search-term-change', validInput.trim());
             }, this.delay);
         }
     }

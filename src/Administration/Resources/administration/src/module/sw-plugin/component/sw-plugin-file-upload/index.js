@@ -28,7 +28,7 @@ Component.register('sw-plugin-file-upload', {
             formData.append('file', files[0]);
 
             this.pluginService.upload(formData).then(() => {
-                this.$emit('sw-plugin-file-upload-success');
+                this.$emit('upload-success');
                 this.createNotificationSuccess({
                     title: this.$tc('sw-plugin.fileUpload.titleUploadSuccess'),
                     message: this.$tc('sw-plugin.fileUpload.messageUploadSuccess')

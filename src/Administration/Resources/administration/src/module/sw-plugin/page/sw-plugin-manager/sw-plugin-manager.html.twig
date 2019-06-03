@@ -24,7 +24,7 @@
         {% block sw_plugin_manager_smart_bar_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_plugin_list_top_actions_upload %}
-                    <sw-plugin-file-upload @sw-plugin-file-upload-success="successfulUpload"></sw-plugin-file-upload>
+                    <sw-plugin-file-upload @upload-success="successfulUpload"></sw-plugin-file-upload>
                 {% endblock %}
             </template>
         {% endblock %}

@@ -134,7 +134,7 @@ export default {
         registerListener() {
             document.addEventListener('click', this.closeOnClickOutside);
             document.addEventListener('keydown', this.onKeyDown);
-            this.$on('sw-search-bar-item-mouse-over', this.setActiveResultPosition);
+            this.$on('mouse-over', this.setActiveResultPosition);
         },
 
         getLabelSearchType(type) {
@@ -197,7 +197,7 @@ export default {
             this.isActive = true;
             this.isOffCanvasShown = false;
 
-            this.$root.$emit('toggleOffCanvas', this.isOffCanvasShown);
+            this.$root.$emit('toggle-offcanvas', this.isOffCanvasShown);
         },
 
         hideSearchBar() {
@@ -276,7 +276,7 @@ export default {
         toggleOffCanvas() {
             this.isOffCanvasShown = !this.isOffCanvasShown;
 
-            this.$root.$emit('toggleOffCanvas', this.isOffCanvasShown);
+            this.$root.$emit('toggle-offcanvas', this.isOffCanvasShown);
         },
 
         resetSearchType() {
@@ -361,7 +361,7 @@ export default {
         },
 
         emitActiveResultPosition() {
-            this.$emit('sw-search-bar-active-item-index', {
+            this.$emit('active-item-index-select', {
                 index: this.activeResultIndex,
                 column: this.activeResultColumn
             });
@@ -488,7 +488,7 @@ export default {
         },
 
         onKeyUpEnter() {
-            this.$emit('sw-search-bar-on-keyup-enter', this.activeResultIndex, this.activeResultColumn);
+            this.$emit('keyup-enter', this.activeResultIndex, this.activeResultColumn);
 
             if (this.showTypeSelectContainer) {
                 if (this.typeSelectResults.length > 0) {

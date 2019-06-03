@@ -152,7 +152,7 @@ Component.register('sw-order-user-card', {
                 });
         },
         emitChange() {
-            this.$emit('order-changed');
+            this.$emit('order-change');
         }
     }
 

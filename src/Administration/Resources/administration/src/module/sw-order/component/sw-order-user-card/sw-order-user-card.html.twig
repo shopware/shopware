@@ -8,10 +8,10 @@
             :countries="countries"
             :address="addressBeingEdited"
             :orderCustomer="currentOrder.orderCustomer"
-            @sw-address-modal-selected-address="onAddressModalAddressSelected"
-            @sw-address-modal-close="onAddressModalClose"
-            @sw-address-modal-save="onAddressModalSave"
-            @sw-address-modal-error="$emit('error')">
+            @adress-select="onAddressModalAddressSelected"
+            @close="onAddressModalClose"
+            @save="onAddressModalSave"
+            @error="$emit('error')">
         </sw-order-address-modal>
     {% endblock %}
     <sw-container slot="grid" rows="auto auto">
@@ -74,8 +74,8 @@
                                                                required
                                                                :value="currentOrder.orderCustomer.email"
                                                                :editable="isEditing"
-                                                               @input="$emit('order-changed')"
-                                                               v-model="currentOrder.orderCustomer.email">
+                                                               @input="$emit('order-change')"
+                                                               v-model="currentOrder.orderCustomer.email"
                                         </sw-order-inline-field>
                                     </dd>
                                 {% endblock %}
@@ -106,7 +106,7 @@
                                         <sw-order-inline-field :displayValue="billingAddress.phoneNumber? billingAddress.phoneNumber : $tc('sw-order.detailBase.labelNoPhoneNumber')"
                                             :value="billingAddress.phoneNumber"
                                             :editable="isEditing"
-                                            @input="$emit('order-changed')"
+                                            @input="$emit('order-change')"
                                             v-model="billingAddress.phoneNumber"
                                             class="sw-order-inline-field__truncateable">
                                         </sw-order-inline-field>

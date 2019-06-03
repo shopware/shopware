@@ -44,8 +44,8 @@
                                             <sw-simple-search-field
                                                 variant="form"
                                                 :placeholder="$tc('sw-cms.general.placeholderSearchBar')"
-                                                :searchType="$tc('sw-cms.general.mainMenuItemGeneral')"
-                                                @search-term-changed="onSearch">
+                                                           :searchType="$tc('sw-cms.general.mainMenuItemGeneral')"
+                                                           @search-term-change="onSearch">
                                             </sw-simple-search-field>
                                         {% endblock %}
 
@@ -83,7 +83,7 @@
                                                               :key="cmsPage.id"
                                                               @preview-image-change="onPreviewChange"
                                                               @cms-page-delete="onDeleteCmsPage"
-                                                              @onItemClick="onListItemClick">
+                                                              @item-click="onListItemClick">
 
                                                 <sw-context-button slot="contextMenu"
                                                                    class="sw-cms-list-item__options">

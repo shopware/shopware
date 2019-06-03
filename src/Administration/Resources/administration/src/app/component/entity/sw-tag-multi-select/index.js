@@ -95,8 +95,8 @@ Component.register('sw-tag-multi-select', {
         },
 
         addEventListeners() {
-            this.$on('sw-multi-select-option-clicked', this.onOptionClick);
-            this.$on('sw-multi-select-option-mouse-over', this.setActiveOption);
+            this.$on('option-click', this.onOptionClick);
+            this.$on('option-mouse-over', this.setActiveOption);
             document.addEventListener('click', this.onBlurField);
             document.addEventListener('keyup', this.onBlurField);
         },
@@ -418,15 +418,15 @@ Component.register('sw-tag-multi-select', {
         },
 
         emitActiveOption() {
-            this.$emit('sw-multi-select-active-item-index', this.activeOptionIndex);
+            this.$emit('active-item-index-select', this.activeOptionIndex);
         },
 
         emitAddSelection(tag) {
-            this.$emit('sw-tag-multi-select-add-selection', tag);
+            this.$emit('add-selection', tag);
         },
 
         emitRemoveSelection(tag) {
-            this.$emit('sw-tag-multi-select-remove-selection', tag);
+            this.$emit('remove-selection', tag);
         }
     }
 });

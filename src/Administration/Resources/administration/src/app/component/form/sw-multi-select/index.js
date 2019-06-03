@@ -278,11 +278,11 @@ export default {
             this.page = 1;
             this.searchDelayed();
 
-            this.$emit('sw-multi-select-search-term-change', this.searchTerm);
+            this.$emit('search-term-change', this.searchTerm);
         },
 
         onKeyUpEnter() {
-            this.$emit('sw-multi-select-on-keyup-enter', this.activeResultPosition);
+            this.$emit('keyup-enter', this.activeResultPosition);
         },
 
         searchDelayed: utils.debounce(function debouncedSearch() {
@@ -324,8 +324,8 @@ export default {
         },
 
         addEventListeners() {
-            this.$on('sw-multi-select-option-clicked', this.addItem);
-            this.$on('sw-multi-select-option-mouse-over', this.setActiveResultPosition);
+            this.$on('option-click', this.addItem);
+            this.$on('option-mouse-over', this.setActiveResultPosition);
             document.addEventListener('click', this.closeOnClickOutside);
             document.addEventListener('keyup', this.closeOnClickOutside);
         },
@@ -345,11 +345,11 @@ export default {
         },
 
         emitActiveResultPosition() {
-            this.$emit('sw-multi-select-active-item-index', this.activeResultPosition);
+            this.$emit('active-item-index-select', this.activeResultPosition);
         },
 
         navigateUpResults() {
-            this.$emit('sw-multi-select-on-arrow-up', this.activeResultPosition);
+            this.$emit('select-on-arrow-up', this.activeResultPosition);
 
             if (this.activeResultPosition === this.possibleMinPosition) {
                 return;
@@ -369,7 +369,7 @@ export default {
         },
 
         navigateDownResults() {
-            this.$emit('sw-multi-select-on-arrow-down', this.activeResultPosition);
+            this.$emit('arrow-down', this.activeResultPosition);
 
             if (this.activeResultPosition === this.currentOptions.length - 1 || this.currentOptions.length < 1) {
                 return;

@@ -40,12 +40,12 @@ Component.register('sw-sales-channel-menu', {
         },
 
         registerListener() {
-            this.$root.$on('changed-sales-channel', this.loadEntityData);
+            this.$root.$on('sales-channel-change', this.loadEntityData);
             this.$root.$on('on-change-application-language', this.loadEntityData);
         },
 
         destroyedComponent() {
-            this.$root.$off('changed-sales-channel', this.loadEntityData);
+            this.$root.$off('sales-channel-change', this.loadEntityData);
             this.$root.$off('on-change-application-language', this.loadEntityData);
         },
 

@@ -80,11 +80,11 @@ Component.register('sw-category-tree', {
         },
 
         saveCategories() {
-            this.$emit('sw-category-on-save');
+            this.$emit('save');
         },
 
         refreshCategories() {
-            this.$emit('sw-category-on-refresh');
+            this.$emit('refresh');
         },
 
         onDeleteCategory(item) {
@@ -92,7 +92,7 @@ Component.register('sw-category-tree', {
             category.delete(true).then(() => {
                 this.refreshCategories();
                 if (this.activeCategory && item.id === this.activeCategory.id) {
-                    this.$emit('sw-category-on-reset-details');
+                    this.$emit('details-reset');
                 }
             });
         },
@@ -112,7 +112,7 @@ Component.register('sw-category-tree', {
         changeCategory(category) {
             const route = { name: 'sw.category.detail', params: { id: category.id } };
             if (this.activeCategory && this.activeCategory.hasChanges()) {
-                this.$emit('sw-category-tree-on-unsaved-changes', route);
+                this.$emit('unsaved-changes', route);
             } else {
                 this.$router.push(route);
             }
@@ -123,7 +123,7 @@ Component.register('sw-category-tree', {
         },
 
         onGetTreeItems(parentId) {
-            this.$emit('sw-category-load-children', parentId);
+            this.$emit('children-load', parentId);
         },
 
         getChildrenFromParent(parentId) {

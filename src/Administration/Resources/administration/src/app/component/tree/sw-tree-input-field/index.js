@@ -35,7 +35,7 @@ Component.register('sw-tree-input-field', {
 
     methods: {
         createNewItem(itemName) {
-            this.$emit('createNewItem', itemName);
+            this.$emit('new-item-create', itemName);
         }
     }
 });

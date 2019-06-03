@@ -14,10 +14,10 @@
                              :size="size"
                              valueProperty="id"
                              labelProperty="name"
-                             @sw-multi-select-search-term-change="onSearchTermChange"
-                             @sw-multi-select-on-arrow-down="onArrowDown"
+                             @search-term-change="onSearchTermChange"
+                             @select-on-arrow-down="onArrowDown"
                              @search-finished="onSearchResultChange"
-                             @sw-multi-select-option-clicked="onClickAdd"
+                             @option-click="onClickAdd"
                              @input="emitInput">
 
                 <sw-multi-select-option v-if="term && !recentlyAdded && !tagExists"

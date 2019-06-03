@@ -100,18 +100,18 @@ Component.register('sw-custom-field-detail', {
             if (this.currentCustomField !== null && !this.currentCustomField.isLocal) {
                 this.currentCustomField.discardChanges();
             }
-            this.$emit('cancel-custom-field-edit', this.currentCustomField);
+            this.$emit('custom-field-edit-cancel', this.currentCustomField);
         },
         onSave() {
             this.applyTypeConfiguration();
             if (!this.currentCustomField.isLocal) {
-                this.$emit('save-custom-field-edit', this.currentCustomField);
+                this.$emit('custom-field-edit-save', this.currentCustomField);
                 return;
             }
 
             this.SwCustomFieldListIsCustomFieldNameUnique(this.currentCustomField).then(isUnique => {
                 if (isUnique) {
-                    this.$emit('save-custom-field-edit', this.currentCustomField);
+                    this.$emit('custom-field-edit-save', this.currentCustomField);
                     return;
                 }
                 this.createNameNotUniqueNotification();

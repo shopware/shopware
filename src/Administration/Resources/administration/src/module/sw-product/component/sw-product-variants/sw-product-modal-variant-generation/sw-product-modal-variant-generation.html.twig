@@ -59,8 +59,8 @@
                             :options="product.configuratorSettings"
                             :overlay="false"
                             :collapsible="false"
-                            @variations-generated="$emit('variations-generated')"
-                            @optionSelect="calcVariantsNumber()"
+                            @variations-finish-generate="$emit('variations-finish-generate')"
+                            @option-select="calcVariantsNumber()"
                             v-show="activeTab == 'options'"
                     ></sw-product-variants-configurator-selection>
                 {% endblock %}

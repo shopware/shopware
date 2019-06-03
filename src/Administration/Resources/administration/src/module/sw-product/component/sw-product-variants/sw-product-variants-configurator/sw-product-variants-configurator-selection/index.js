@@ -46,7 +46,7 @@ Component.extend('sw-product-variants-configurator-selection', 'sw-property-sear
                 this.$set(group, 'optionCount', optionCount.length);
             });
 
-            this.$emit('optionSelect');
+            this.$emit('option-select');
         },
 
         selectOptions(grid) {

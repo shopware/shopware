@@ -76,7 +76,7 @@ export default {
 
         onClose() {
             this.open = false;
-            this.$emit('sw-colorpicker-closed');
+            this.$emit('close');
         },
 
         colorWatcher() {}

@@ -151,7 +151,7 @@ export default {
                 this.colorPicker.hide();
             } else {
                 this.open = true;
-                this.$emit('sw-colorpicker-open');
+                this.$emit('open');
             }
         },
 
@@ -169,7 +169,7 @@ export default {
         onClose(value) {
             this.open = false;
             this.color = value[this.colorCallback];
-            this.$emit('sw-colorpicker-closed');
+            this.$emit('close');
         }
     }
 };

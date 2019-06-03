@@ -154,8 +154,8 @@ export default {
         },
 
         addEventListeners() {
-            this.$on('sw-single-select-option-clicked', this.setValue);
-            this.$on('sw-single-select-option-mouse-over', this.setActiveResultPosition);
+            this.$on('option-click', this.setValue);
+            this.$on('option-mouse-over', this.setActiveResultPosition);
             document.addEventListener('click', this.closeOnClickOutside);
             document.addEventListener('keyup', this.closeOnClickOutside);
         },
@@ -184,7 +184,7 @@ export default {
         },
 
         search() {
-            this.$emit('sw-single-select-search-term-change', this.searchTerm);
+            this.$emit('search-term-change', this.searchTerm);
         },
 
         unsetValue() {
@@ -295,11 +295,11 @@ export default {
         },
 
         emitActiveResultPosition() {
-            this.$emit('sw-single-select-active-item-index', this.activeResultPosition);
+            this.$emit('active-item-index-select', this.activeResultPosition);
         },
 
         navigateUpResults() {
-            this.$emit('sw-single-select-on-arrow-up', this.activeResultPosition);
+            this.$emit('on-arrow-up', this.activeResultPosition);
 
             if (this.activeResultPosition === 0) {
                 return;
@@ -319,7 +319,7 @@ export default {
         },
 
         navigateDownResults() {
-            this.$emit('sw-single-select-on-arrow-down', this.activeResultPosition);
+            this.$emit('on-arrow-down', this.activeResultPosition);
 
             const optionsCount = this.currentOptions.length;
 
@@ -364,7 +364,7 @@ export default {
         },
 
         onKeyUpEnter() {
-            this.$emit('sw-single-select-on-keyup-enter', this.activeResultPosition);
+            this.$emit('on-keyup-enter', this.activeResultPosition);
         }
     }
 };

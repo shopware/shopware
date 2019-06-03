@@ -85,15 +85,15 @@ Component.register('sw-cms-block', {
         },
 
         onBlockOverlayClick() {
-            this.$emit('onBlockOverlayClick');
+            this.$emit('block-overlay-click');
         },
 
         onBlockDelete() {
-            this.$emit('onBlockDelete');
+            this.$emit('block-delete');
         },
 
         onBlockDuplicate() {
-            this.$emit('onBlockDuplicate');
+            this.$emit('block-duplicate');
         }
     }
 });

@@ -9,7 +9,7 @@
                         :searchable="false"
                         :disableContextMenu="true"
                         bindItemsToFolder
-                        @sw-tree-on-drag-end="orderChanged">
+                        @drag-end="orderChanged">
 
                         <template slot="items"
                                   slot-scope="{ treeItems, sortable, draggedItem, disableContextMenu, onChangeRoute }">

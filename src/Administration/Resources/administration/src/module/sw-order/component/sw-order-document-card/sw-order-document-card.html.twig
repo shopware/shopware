@@ -83,9 +83,9 @@
                        :is="documentModal"
                        :currentDocumentType="currentDocumentType"
                        :order="order"
-                       @document-modal-leave-page="onCancelCreation"
-                       @document-modal-create-document="onCreateDocument"
-                       @document-modal-show-preview="onPreview">
+                       @page-leave="onCancelCreation"
+                       @document-create="onCreateDocument"
+                       @preview-show="onPreview">
             </component>
         {% endblock %}
 

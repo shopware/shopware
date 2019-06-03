@@ -8,7 +8,7 @@
                        :size="size"
                        :placeholder="placeholder"
                        @input="onRuleSelectInput"
-                       @sw-select-option-clicked="onSelectRule">
+                       @option-click="onSelectRule">
                 <template slot="sw_select_list_before">
                     {% block sw_select_rule_create_select_before %}
                         <sw-select-option :index="-1"

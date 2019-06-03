@@ -99,7 +99,7 @@ Component.register('sw-product-modal-variant-generation', {
             this.variantsGenerator.createNewVariants(forceGenerating, this.product.variantRestrictions).then(() => {
                 // Save the product after generating
                 this.productRepository.save(this.product, this.context).then(() => {
-                    this.$emit('variations-generated');
+                    this.$emit('variations-finish-generate');
                     this.$emit('modal-close');
                     this.isLoading = false;
                     this.actualProgress = 0;

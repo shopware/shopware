@@ -61,7 +61,7 @@ Component.register('sw-product-variants-price-field', {
                 return false;
             }
             this.price.linked = !this.price.linked;
-            this.$emit('priceLockChange', this.price.linked);
+            this.$emit('price-lock-change', this.price.linked);
             this.$emit('change', this.price);
             return true;
         },
@@ -76,7 +76,7 @@ Component.register('sw-product-variants-price-field', {
         },
 
         onPriceGrossChangeDebounce: utils.debounce(function onPriceGrossChange(value) {
-            this.$emit('priceGrossChange', value);
+            this.$emit('price-gross-change', value);
             this.$emit('change', this.price);
 
             this.convertGrossToNet(value);
@@ -92,7 +92,7 @@ Component.register('sw-product-variants-price-field', {
         },
 
         onPriceNetChangeDebounce: utils.debounce(function onPriceNetChange(value) {
-            this.$emit('priceNetChange', value);
+            this.$emit('price-net-change', value);
             this.$emit('change', this.price);
 
             this.convertNetToGross(value);

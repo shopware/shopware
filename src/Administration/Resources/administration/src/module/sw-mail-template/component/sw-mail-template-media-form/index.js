@@ -140,7 +140,7 @@ Component.register('sw-mail-template-media-form', {
         },
 
         onMediaUploadButtonOpenSidebar() {
-            this.$root.$emit('sw-mail-template-media-form-open-sidebar');
+            this.$root.$emit('sidebar-toggle-open');
         },
 
         buildMailTemplateMedia(mediaId) {

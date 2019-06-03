@@ -40,11 +40,11 @@ final class IncludeTokenParser extends AbstractTokenParser
             $parent = $this->finder->find($template, $ignoreMissing);
 
             $expr->setAttribute('value', $parent);
-        } elseif ($expr->hasAttribute('name')) {
-            return new SwInclude($expr, $variables, $only, $ignoreMissing, $token->getLine(), $this->getTag());
+
+            return new IncludeNode($expr, $variables, $only, $ignoreMissing, $token->getLine(), $this->getTag());
         }
 
-        return new IncludeNode($expr, $variables, $only, $ignoreMissing, $token->getLine(), $this->getTag());
+        return new SwInclude($expr, $variables, $only, $ignoreMissing, $token->getLine(), $this->getTag());
     }
 
     public function getTag(): string

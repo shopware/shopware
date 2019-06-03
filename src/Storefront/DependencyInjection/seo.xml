@@ -15,6 +15,7 @@
             <argument type="service" id="Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlRouteRegistry"/>
 
             <tag name="shopware.dbal_indexing.indexer" priority="250"/>
+            <argument type="service" id="language.repository"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlDefinition" >

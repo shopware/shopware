@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -45,18 +46,26 @@ class SeoUrlIndexer implements IndexerInterface
      * @var DefinitionInstanceRegistry
      */
     private $definitionRegistry;
+
     /**
      * @var SeoUrlRouteRegistry
      */
     private $seoUrlRouteRegistry;
+
     /**
      * @var SeoUrlPersister
      */
     private $seoUrlPersister;
+
     /**
      * @var SeoUrlTemplateLoader
      */
     private $templateLoader;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $languageRepository;
 
     public function __construct(
         Connection $connection,
@@ -65,7 +74,8 @@ class SeoUrlIndexer implements IndexerInterface
         SeoUrlPersister $seoUrlPersister,
         SeoUrlTemplateLoader $templateLoader,
         DefinitionInstanceRegistry $definitionRegistry,
-        SeoUrlRouteRegistry $seoUrlRouteRegistry
+        SeoUrlRouteRegistry $seoUrlRouteRegistry,
+        EntityRepositoryInterface $languageRepository
     ) {
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
@@ -74,6 +84,7 @@ class SeoUrlIndexer implements IndexerInterface
         $this->seoUrlRouteRegistry = $seoUrlRouteRegistry;
         $this->seoUrlPersister = $seoUrlPersister;
         $this->templateLoader = $templateLoader;
+        $this->languageRepository = $languageRepository;
     }
 
     public function index(\DateTimeInterface $timestamp): void
@@ -83,6 +94,8 @@ class SeoUrlIndexer implements IndexerInterface
             return;
         }
 
+        $languages = $this->languageRepository->search(new Criteria(), Context::createDefaultContext());
+
         /** @var SeoUrlRouteInterface $seoUrlRoute */
         foreach ($this->seoUrlRouteRegistry->getSeoUrlRoutes() as $seoUrlRoute) {
             $config = $seoUrlRoute->getConfig();
@@ -91,6 +104,8 @@ class SeoUrlIndexer implements IndexerInterface
             $templateGroups = $this->templateLoader->getTemplateGroups($config->getRouteName());
             /** @var TemplateGroup[] $groups */
             foreach ($templateGroups as $languageId => $groups) {
+                $language = $languages->get($languageId);
+
                 $chain = $this->getLanguageIdChain($languageId);
                 $context = new Context(new Context\SystemSource(), [], Defaults::CURRENCY, $chain);
                 $iterator = new RepositoryIterator($repo, $context);
@@ -100,7 +115,8 @@ class SeoUrlIndexer implements IndexerInterface
                     new ProgressStartedEvent(
                         sprintf(
                             'Start indexing %s seo urls for language %s',
-                            $config->getRouteName(), $languageId
+                            $config->getRouteName(),
+                            $language->getName()
                         ),
                         $iterator->getTotal()
                     )
@@ -120,7 +136,8 @@ class SeoUrlIndexer implements IndexerInterface
                     ProgressFinishedEvent::NAME,
                     new ProgressFinishedEvent(sprintf(
                         'Finished indexing %s seo urls for language %s',
-                        $config->getRouteName(), $languageId
+                        $config->getRouteName(),
+                        $language->getName()
                     ))
                 );
             }

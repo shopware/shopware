@@ -5,24 +5,25 @@ import './sw-text-editor.scss';
  * @public
  * @status ready
  * @example-type static
- * @description A simple text editor which uses the browsers api.
+ * @description <p>A simple text editor which uses the browsers api.
  *              Pass a buttonConfig array to configure the buttons you desire.
  *              Each Button needs to be an object with a type (this will be the executed Command as well),
  *              a name or an icon which will be displayed as the button and
  *              the created HTML-Tag (this is needed to set actives states in the Toolbar).
  *              If the type requires a value you can set the value prop,
- *              which will be passed in the execCommand function.
- *              To read more about the execCommand function see
- *              https://developer.mozilla.org/de/docs/Web/API/Document/execCommand.
+ *              which will be passed in the execCommand function.</p>
+ *              <p>To read more about the execCommand function see</p>
+ *              <a href="https://developer.mozilla.org/de/docs/Web/API/Document/execCommand" target="_blank">
+ *              https://developer.mozilla.org/de/docs/Web/API/Document/execCommand</a>
  *
- *              If you want to generate a sub-menu you can set a children prop in the button-object which,
- *              holds the buttonConfig of the children (Button syntax is the same as explained above).
+ *              <p>If you want to generate a sub-menu you can set a children prop in the button-object which,
+ *              holds the buttonConfig of the children (Button syntax is the same as explained above).</p>
  *
- *              If you need to call a custom callback instead you can pass your handler with a handler prop
- *              e.g. handler: (button, parent = null) => { callback(button, parent) }
+ *              <p>If you need to call a custom callback instead you can pass your handler with a handler prop
+ *              e.g. handler: (button, parent = null) => { callback(button, parent) }</p>
  *
- *              Furthermore you can pass the position prop [left (default), middle and right]
- *              to set the buttons position in the toolbar.
+ *              <p>Furthermore you can pass the position prop [left (default), middle and right]
+ *              to set the buttons position in the toolbar.</p>
  * @component-example
  *  <sw-text-editor value="Lorem ipsum dolor sit amet, consetetur sadipscing elitr" :isInlineEdit="true">
  *

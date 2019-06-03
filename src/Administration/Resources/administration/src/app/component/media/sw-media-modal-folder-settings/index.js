@@ -74,11 +74,11 @@ export default {
     },
 
     created() {
-        this.componentCreated();
+        this.createdComponent();
     },
 
     methods: {
-        componentCreated() {
+        createdComponent() {
             this.getThumbnailSizes();
             this.configuration = this.mediaFolderConfigurationStore.getById(this.folder.configurationId);
             this.mediaFolderConfigurationThumbnailSizeStore.getList({

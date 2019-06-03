@@ -48,7 +48,7 @@ export default {
     },
 
     created() {
-        this.registerColumn();
+        this.createdComponent();
     },
 
     watch: {
@@ -62,6 +62,10 @@ export default {
     },
 
     methods: {
+        createdComponent() {
+            this.registerColumn();
+        },
+
         registerColumn() {
             const hasColumn = this.$parent.columns.findIndex((column) => column.label === this.label);
 

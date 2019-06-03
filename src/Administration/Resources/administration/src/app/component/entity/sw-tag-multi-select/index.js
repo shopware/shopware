@@ -75,17 +75,25 @@ Component.register('sw-tag-multi-select', {
     },
 
     created() {
-        this.createRepositories();
-        this.loadTagList();
-        this.loadSelectedTags(true);
-        this.addEventListeners();
+        this.createdComponent();
     },
 
     destroyed() {
-        this.removeEventListeners();
+        this.destroyedComponent();
     },
 
     methods: {
+        createdComponent() {
+            this.createRepositories();
+            this.loadTagList();
+            this.loadSelectedTags(true);
+            this.addEventListeners();
+        },
+
+        destroyedComponent() {
+            this.removeEventListeners();
+        },
+
         addEventListeners() {
             this.$on('sw-multi-select-option-clicked', this.onOptionClick);
             this.$on('sw-multi-select-option-mouse-over', this.setActiveOption);

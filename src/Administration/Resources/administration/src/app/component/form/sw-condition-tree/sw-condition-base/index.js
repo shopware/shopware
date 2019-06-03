@@ -79,7 +79,7 @@ export default {
     },
 
     beforeDestroy() {
-        this.conditionTreeComponent.$off('entity-save', this.checkErrors);
+        this.beforeDestroyComponent();
     },
 
     created() {
@@ -87,11 +87,11 @@ export default {
     },
 
     beforeMount() {
-        this.applyDefaultValues();
+        this.beforeMountComponent();
     },
 
     mounted() {
-        this.mountComponent();
+        this.mountedComponent();
     },
 
     methods: {
@@ -107,7 +107,11 @@ export default {
             this.hasErrors = this.condition.errors.map(obj => obj.id).includes('clientValidationError');
         },
 
-        mountComponent() {
+        beforeMountComponent() {
+            this.applyDefaultValues();
+        },
+
+        mountedComponent() {
             if (!this.condition.value) {
                 this.condition.value = {};
             }
@@ -148,6 +152,10 @@ export default {
             });
 
             this.deleteError('type');
+        },
+
+        beforeDestroyComponent() {
+            this.conditionTreeComponent.$off('entity-save', this.checkErrors);
         },
 
         // TODO: Error Handling must be fixed NEXT-3271

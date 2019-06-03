@@ -28,10 +28,6 @@ Component.extend('sw-product-variants-configurator-selection', 'sw-property-sear
         }
     },
 
-    created() {
-        this.$super.createdComponent();
-    },
-
     methods: {
         /**
          * Important: options = configurators

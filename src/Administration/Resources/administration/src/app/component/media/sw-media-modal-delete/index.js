@@ -92,11 +92,11 @@ export default {
     },
 
     created() {
-        this.componentCreated();
+        this.createdComponent();
     },
 
     methods: {
-        componentCreated() {
+        createdComponent() {
             this.mediaItems = this.itemsToDelete.filter((item) => {
                 return item.getEntityName() === 'media';
             });

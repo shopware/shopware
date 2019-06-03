@@ -224,16 +224,20 @@ export default {
     },
 
     created() {
-        this.componentCreated();
+        this.createdComponent();
     },
 
     mounted() {
-        this.width = this.$el.offsetWidth;
+        this.mountedComponent();
     },
 
     methods: {
-        componentCreated() {
+        createdComponent() {
             this.fetchSourceIfNecessary();
+        },
+
+        mountedComponent() {
+            this.width = this.$el.offsetWidth;
         },
 
         fetchSourceIfNecessary() {

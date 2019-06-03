@@ -68,10 +68,14 @@ Component.register('sw-media-breadcrumbs', {
     },
 
     created() {
-        this.updateFolder();
+        this.createdComponent();
     },
 
     methods: {
+        createdComponent() {
+            this.updateFolder();
+        },
+
         updateFolder() {
             if (!this.currentFolderId) {
                 this.currentFolder = this.rootFolder;

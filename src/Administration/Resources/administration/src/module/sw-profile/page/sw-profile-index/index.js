@@ -70,10 +70,7 @@ Component.register('sw-profile-index', {
     },
 
     beforeMount() {
-        this.userPromise.then((user) => {
-            this.user = user;
-            this.isUserLoading = false;
-        });
+        this.beforeMountComponent();
     },
 
     methods: {
@@ -86,6 +83,13 @@ Component.register('sw-profile-index', {
                     return this.setUserData(response.data);
                 });
             }
+        },
+
+        beforeMountComponent() {
+            this.userPromise.then((user) => {
+                this.user = user;
+                this.isUserLoading = false;
+            });
         },
 
         setUserData(userProfile) {

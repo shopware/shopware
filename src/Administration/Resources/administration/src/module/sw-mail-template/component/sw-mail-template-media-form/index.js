@@ -62,7 +62,7 @@ Component.register('sw-mail-template-media-form', {
     },
 
     beforeDestroy() {
-        this.onBeforeDestroy();
+        this.beforeDestroyComponent();
     },
 
     methods: {
@@ -88,7 +88,7 @@ Component.register('sw-mail-template-media-form', {
             });
         },
 
-        onBeforeDestroy() {
+        beforeDestroyComponent() {
             this.unsavedEntities.forEach((entity) => {
                 this.uploadStore.removeUpload(entity.taskId);
             });

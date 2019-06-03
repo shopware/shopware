@@ -97,16 +97,7 @@ export default {
     },
 
     mounted() {
-        const that = this;
-
-        this.$device.onResize({
-            listener() {
-                that.collapseMenuOnSmallViewports();
-            },
-            component: this
-        });
-
-        this.addScrollbarOffset();
+        this.mountedComponent();
     },
 
     methods: {
@@ -116,6 +107,19 @@ export default {
             this.$root.$on('toggleOffCanvas', (state) => {
                 this.isOffCanvasShown = state;
             });
+        },
+
+        mountedComponent() {
+            const that = this;
+
+            this.$device.onResize({
+                listener() {
+                    that.collapseMenuOnSmallViewports();
+                },
+                component: this
+            });
+
+            this.addScrollbarOffset();
         },
 
         getUser() {

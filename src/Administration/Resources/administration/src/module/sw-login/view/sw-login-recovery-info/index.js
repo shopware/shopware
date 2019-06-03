@@ -5,6 +5,12 @@ Component.register('sw-login-recovery-info', {
     template,
 
     created() {
-        this.$emit('isNotLoading');
+        this.createdComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            this.$emit('isNotLoading');
+        }
     }
 });

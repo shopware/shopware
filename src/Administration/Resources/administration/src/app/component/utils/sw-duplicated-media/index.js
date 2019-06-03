@@ -129,18 +129,23 @@ export default {
     },
 
     created() {
-        this.componentCreated();
-        this.uploadStore.addDefaultListener(this.handleUploadStoreEvent);
+        this.createdComponent();
     },
 
-    beforeDestroyed() {
-        this.uploadStore.removeDefaultListener(this.handleUploadStoreEvent);
+    beforeDestroy() {
+        this.beforeDestroyComponent();
     },
 
     methods: {
-        componentCreated() {
+        createdComponent() {
             this.loadDefaultOption();
             this.updatePreviewData();
+
+            this.uploadStore.addDefaultListener(this.handleUploadStoreEvent);
+        },
+
+        beforeDestroyComponent() {
+            this.uploadStore.removeDefaultListener(this.handleUploadStoreEvent);
         },
 
         loadDefaultOption() {

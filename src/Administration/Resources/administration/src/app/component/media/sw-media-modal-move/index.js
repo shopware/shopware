@@ -92,11 +92,11 @@ export default {
     },
 
     mounted() {
-        this.onMountedComponent();
+        this.mountedComponent();
     },
 
     methods: {
-        onMountedComponent() {
+        mountedComponent() {
             this.displayFolder = { id: null, name: this.rootFolderName };
             this.targetFolder = { id: null, name: this.rootFolderName };
 

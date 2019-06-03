@@ -59,11 +59,11 @@ Component.register('sw-tag-field-new', {
     },
 
     created() {
-        this.onCreated();
+        this.createdComponent();
     },
 
     methods: {
-        onCreated() {
+        createdComponent() {
             this.updateOptions();
         },
 

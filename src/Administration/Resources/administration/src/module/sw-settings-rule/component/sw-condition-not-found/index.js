@@ -26,8 +26,8 @@ Component.extend('sw-condition-not-found', 'sw-condition-base', {
         }
     },
     methods: {
-        mountComponent() {
-            // nothing to do
+        mountedComponent() {
+            // Override "sw-condition-base" mounted behaviour
         }
     }
 });

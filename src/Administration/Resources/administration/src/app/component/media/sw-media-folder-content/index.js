@@ -45,11 +45,11 @@ export default {
     },
 
     mounted() {
-        this.onMountedComponent();
+        this.mountedComponent();
     },
 
     methods: {
-        onMountedComponent() {
+        mountedComponent() {
             this.getSubFolders(this.startFolderId);
             this.fetchParentFolder(this.startFolderId);
         },

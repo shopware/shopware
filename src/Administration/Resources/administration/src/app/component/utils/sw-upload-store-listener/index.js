@@ -79,14 +79,22 @@ export default {
     },
 
     created() {
-        this.uploadStore.addListener(this.uploadTag, this.convertStoreEventToVueEvent);
+        this.createdComponent();
     },
 
     destroyed() {
-        this.uploadStore.removeListener(this.uploadTag, this.convertStoreEventToVueEvent);
+        this.destroyedComponent();
     },
 
     methods: {
+        createdComponent() {
+            this.uploadStore.addListener(this.uploadTag, this.convertStoreEventToVueEvent);
+        },
+
+        destroyedComponent() {
+            this.uploadStore.removeListener(this.uploadTag, this.convertStoreEventToVueEvent);
+        },
+
         convertStoreEventToVueEvent({ action, uploadTag, payload }) {
             if (this.uploadTag !== uploadTag) {
                 return;

@@ -41,15 +41,19 @@ export default {
     },
 
     created() {
-        // Bubble up columns declaration for the column header definition
-        this.$parent.columns = this.columns;
-
-        this.$parent.$on('sw-grid-disable-inline-editing', (id) => {
-            this.onInlineEditCancel(id);
-        });
+        this.createdComponent();
     },
 
     methods: {
+        createdComponent() {
+            // Bubble up columns declaration for the column header definition
+            this.$parent.columns = this.columns;
+
+            this.$parent.$on('sw-grid-disable-inline-editing', (id) => {
+                this.onInlineEditCancel(id);
+            });
+        },
+
         onInlineEditStart() {
             if (this.$device.getViewportWidth() < 800) {
                 return;

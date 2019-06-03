@@ -90,22 +90,31 @@ Component.register('sw-media-modal', {
     },
 
     created() {
-        this.fetchCurrentFolder();
-        this.addResizeListener();
+        this.createdComponent();
     },
 
     mounted() {
-        this.getComponentWidth();
+        this.mountedComponent();
     },
 
     beforeDestroy() {
-        this.removeOnResizeListener();
+        this.beforeDestroyComponent();
     },
 
     methods: {
-        /*
-         * Lifecycle methods
-         */
+        createdComponent() {
+            this.fetchCurrentFolder();
+            this.addResizeListener();
+        },
+
+        mountedComponent() {
+            this.getComponentWidth();
+        },
+
+        beforeDestroyComponent() {
+            this.removeOnResizeListener();
+        },
+
         fetchCurrentFolder() {
             if (!this.folderId) {
                 this.currentFolder = null;

@@ -137,7 +137,7 @@ export default {
     },
 
     updated() {
-        this.setScrollbarOffset();
+        this.updatedComponent();
     },
 
     created() {
@@ -156,6 +156,10 @@ export default {
                 },
                 component: this
             });
+        },
+
+        updatedComponent() {
+            this.setScrollbarOffset();
         },
 
         onInlineEditFinish(item) {

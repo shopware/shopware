@@ -32,7 +32,7 @@ module.exports = {
             .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Product groups');
         browser.assert.urlContains('#/sw/product/stream/index');
 
-        browser.expect.element(`${page.elements.gridRow}--0 `).to.have.text.that.contains('Product stream 1st');
+        browser.expect.element(`${page.elements.dataGridRow}--0 `).to.have.text.that.contains('Product stream 1st');
     },
     'verify product stream details': (browser) => {
         const page = productStreamPage(browser);
@@ -42,7 +42,7 @@ module.exports = {
             .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
             .clickContextMenuItem(page.elements.contextMenuButton, {
                 menuActionSelector: '.sw_product_stream_list__edit-action',
-                scope: `${page.elements.gridRow}--0`
+                scope: `${page.elements.dataGridRow}--0`
             })
             .waitForElementNotPresent(page.elements.loader)
             .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Product stream 1st');

@@ -20,8 +20,8 @@ module.exports = {
 
         browser
             .assert.urlContains('#/sw/product/stream/index')
-            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Product groups');
-        browser.expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Dynamic product groups');
+        browser.expect.element(`${page.elements.dataGridRow}--0`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
     },
     'verify product stream details': (browser) => {
         const page = productStreamPage(browser);
@@ -31,7 +31,7 @@ module.exports = {
             .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
             .clickContextMenuItem(page.elements.contextMenuButton, {
                 menuActionSelector: `${page.elements.contextMenu} .sw-context-menu-item__text`,
-                scope: `${page.elements.gridRow}--0`
+                scope: `${page.elements.dataGridRow}--0`
             })
             .waitForElementNotPresent(page.elements.loader)
             .expect.element(page.elements.smartBarHeader).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);

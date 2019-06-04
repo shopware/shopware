@@ -1,4 +1,6 @@
 import { Component, Mixin } from 'src/core/shopware';
+import { types } from 'src/core/service/util.service';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-promotion-basic-form.html.twig';
 import './sw-promotion-basic-form.scss';
 
@@ -6,6 +8,8 @@ const { mapApiErrors } = Component.getComponentHelper();
 
 Component.register('sw-promotion-basic-form', {
     template,
+
+    inject: ['repositoryFactory', 'context'],
 
     mixins: [
         Mixin.getByName('placeholder')
@@ -19,7 +23,59 @@ Component.register('sw-promotion-basic-form', {
         }
     },
 
+    data() {
+        return {
+            excludedPromotions: []
+        };
+    },
+
     computed: {
-        ...mapApiErrors('promotion', ['name', 'validUntil'])
+        ...mapApiErrors('promotion', ['name', 'validUntil']),
+        exclusionCriteria() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.not('and', [Criteria.equals('id', this.promotion.id)]));
+            return criteria;
+        }
+    },
+    watch: {
+        promotion() {
+            if (this.promotion) {
+                this.loadExclusions();
+            }
+        }
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        loadExclusions() {
+            if (types.isEmpty(this.promotion.exclusionIds)) {
+                this.excludedPromotions = [];
+                return;
+            }
+
+            const promotionRepository = this.repositoryFactory.create('promotion');
+            const criteria = (new Criteria()).addFilter(Criteria.equalsAny('id', this.promotion.exclusionIds));
+
+            promotionRepository.search(criteria, this.context).then((excluded) => {
+                this.excludedPromotions = excluded;
+            });
+        },
+
+        createdComponent() {
+            if (this.promotion) {
+                this.loadExclusions();
+            }
+        },
+
+        onChangeExclusions(promotions) {
+            this.promotion.exclusionIds = [];
+
+            promotions.forEach((promotion) => {
+                this.promotion.exclusionIds.push(promotion.id);
+            });
+        }
     }
 });

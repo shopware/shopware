@@ -69,6 +69,20 @@
             </sw-container>
 
             <sw-container columns="1fr" gap="0px 30px">
+                {%  block sw_promotion_basic_form_exclusions %}
+                    <sw-entity-multi-select
+                            class="sw-promotion-basic__select-exclusions"
+                            :label="$tc('sw-promotion.detail.main.general.labelPromotionExclusions')"
+                            :placeholder="$tc('sw-promotion.detail.main.general.placeholderPromotionExclusions')"
+                            :criteria="exclusionCriteria"
+                            entity="promotion"
+                            :selectedEntities="excludedPromotions"
+                            @input="onChangeExclusions">
+                    </sw-entity-multi-select>
+                {% endblock %}
+            </sw-container>
+
+            <sw-container columns="1fr" gap="0px 30px">
                 {% block sw_promotion_basic_form_use_codes %}
                     <sw-switch-field class="sw-promotion-basic-form__switch-codes"
                                      :label="$tc('sw-promotion.detail.main.general.codes.switchUseCodes')"

@@ -29,11 +29,15 @@
         <service id="Shopware\Core\Framework\MessageQueue\Handler\EncryptedMessageHandler">
             <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="shopware.private_key"/>
+
+            <tag name="messenger.message_handler"/>
         </service>
 
         <service id="Shopware\Core\Framework\MessageQueue\Handler\RetryMessageHandler">
             <argument type="service" id="service_container"/>
             <argument type="service" id="dead_message.repository"/>
+
+            <tag name="messenger.message_handler"/>
         </service>
 
         <!--Middleware-->

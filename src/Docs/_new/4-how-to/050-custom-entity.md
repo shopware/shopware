@@ -179,7 +179,7 @@ For a short example how to use migrations, have a look [here](./170-plugin-migra
 A more detailed explanation about the plugin migration system can be found in [this guide](./../2-internals/4-plugins/080-plugin-migrations.md).
 
 In short:
-Create a new directory named `src/Resources/migration` in your plugin root and add a migration class like this in there:
+Create a new directory named `src/Migration` in your plugin root and add a migration class like this in there:
 
 ```php
 <?php declare(strict_types=1);

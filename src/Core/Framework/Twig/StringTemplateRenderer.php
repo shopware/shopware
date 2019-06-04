@@ -43,4 +43,14 @@ class StringTemplateRenderer
             throw new StringTemplateRenderingException($error->getMessage());
         }
     }
+
+    public function enableTestMode(): void
+    {
+        $this->twig->disableStrictVariables();
+    }
+
+    public function disableTestMode()
+    {
+        $this->twig->enableStrictVariables();
+    }
 }

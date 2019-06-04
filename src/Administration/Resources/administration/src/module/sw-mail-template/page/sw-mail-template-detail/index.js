@@ -182,6 +182,7 @@ Component.register('sw-mail-template-detail', {
             this.isLoading = true;
             this.onChangeSalesChannel();
             return this.mailTemplate.save().then(() => {
+                console.log(this.mailTemplate);
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
             }).catch((exception) => {
@@ -207,14 +208,8 @@ Component.register('sw-mail-template-detail', {
                 message: this.$tc('sw-mail-template.general.notificationTestMailSalesChannelErrorMessage')
             };
 
-            if (this.mailTemplate.mailTemplateSalesChannels.length) {
-                this.mailTemplate.mailTemplateSalesChannels.forEach((salesChannel) => {
-                    let salesChannelId = '';
-                    if (typeof salesChannel === 'object') {
-                        salesChannelId = salesChannel.id;
-                    } else {
-                        salesChannelId = salesChannel;
-                    }
+            if (this.mailTemplateSalesChannels && this.mailTemplateSalesChannels.length > 0) {
+                this.mailTemplateSalesChannels.forEach((salesChannelId) => {
                     this.mailService.testMailTemplateById(
                         this.testerMail,
                         this.mailTemplate,
@@ -257,6 +252,11 @@ Component.register('sw-mail-template-detail', {
         },
         getPossibleSalesChannels(assignedSalesChannelIds) {
             this.setSalesChannelCriteria(assignedSalesChannelIds);
+            this.mailTemplateSalesChannelAssociationStore.getList({
+                associations: { salesChannel: {} }
+            }).then((responseAssoc) => {
+                this.enrichAssocStores(responseAssoc);
+            });
         },
         setSalesChannelCriteria(assignedSalesChannelIds) {
             this.salesChannelTypeCriteria = null;
@@ -338,7 +338,7 @@ Component.register('sw-mail-template-detail', {
 
         salesChannelIsSelected(salesChannelId) {
             // SalesChannel is selected in select field?
-            return (this.mailTemplateSalesChannels && this.mailTemplateSalesChannels.indexOf(salesChannelId) !== -1);
+            return (this.mailTemplateSalesChannels && this.mailTemplateSalesChannels.includes(salesChannelId));
         },
 
         undeleteSaleschannel(salesChannelId) {

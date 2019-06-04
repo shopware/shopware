@@ -46,6 +46,25 @@ Component.register('sw-mail-template-list', {
             });
         },
 
+        getSalesChannelsString(item) {
+            if (typeof item.mailTemplateSalesChannels === 'undefined') {
+                return '';
+            }
+            let salesChannels = '';
+            item.mailTemplateSalesChannels.slice(0, 4).forEach((mailTemplateSalesChannel) => {
+                if (salesChannels !== '') {
+                    salesChannels += ', ';
+                }
+                salesChannels += `${mailTemplateSalesChannel.salesChannel.translated.name}`;
+            });
+
+            if (item.mailTemplateSalesChannels.length >= 5) {
+                salesChannels += '...';
+            }
+
+            return salesChannels;
+        },
+
         onEdit(mailTemplate) {
             if (mailTemplate && mailTemplate.id) {
                 this.$router.push({

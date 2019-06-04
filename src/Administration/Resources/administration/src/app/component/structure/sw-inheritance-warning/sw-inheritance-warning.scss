@@ -1,0 +1,23 @@
+@import "~scss/variables";
+
+.sw-inheritance-warning {
+    display: flex;
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto 20px auto;
+    background-color: $color-module-purple-50;
+    border: 1px solid $color-module-purple-900;
+    border-radius: $border-radius-default;
+
+    .sw-icon {
+        flex-shrink: 0;
+        margin-right: 8px;
+        margin-top: 2px;
+    }
+
+    p {
+        color: $color-darkgray-200;
+        font-size: $font-size-small;
+        line-height: 22px;
+    }
+}

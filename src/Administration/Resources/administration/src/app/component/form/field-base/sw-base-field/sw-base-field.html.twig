@@ -1,11 +1,11 @@
 <div class="sw-field" :class="swFieldClasses">
     <div class="sw-field__label" v-if="hasLabel">
-        <sw-field-inherit v-if="isInheritanceField"
-                          :disabled="disabled"
+        <sw-inheritance-switch v-if="isInheritanceField"
+                          :disabled="disableInheritanceToggle"
                           class="sw-field__inheritance-icon"
                           :isInherited="isInherited"
-                          @inheritance-restore="$emit('inheritance-restore')">
-        </sw-field-inherit>
+                          v-on="$listeners">
+        </sw-inheritance-switch>
 
         <label v-if="label" :for="identification" :class="swFieldLabelClasses">
             {{ label }}

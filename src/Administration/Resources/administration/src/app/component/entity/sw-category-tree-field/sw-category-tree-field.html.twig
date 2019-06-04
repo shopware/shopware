@@ -1,17 +1,16 @@
 {% block sw_category_tree_field %}
-    <div class="sw-category-tree-field" ref="swCategoryTreeField">
+    <div ref="swCategoryTreeField" class="sw-category-tree-field" :class="{ 'is--disabled': disabled }">
 
         <sw-contextual-field v-bind="$attrs"
                              v-on="$listeners"
                              class="sw-category-tree-field__main-wrapper">
 
             {% block sw_category_tree_field_input %}
-                <template #sw-field-input="{ identification, error, disabled, swBlockSize, setFocusClass, removeFocusClass, hasSuffix, hasPrefix }">
+                <template #sw-field-input="{ identification, error, swBlockSize, setFocusClass, removeFocusClass, hasSuffix, hasPrefix }">
 
                     {% block sw_category_tree_field_input_labels %}
                         <sw-label v-for="selectedCategory in visibleTags"
                                   :key="selectedCategory.id"
-                                  dismissAble
                                   selected=""
                                   @dismiss="removeItem(selectedCategory)"
                                   v-tooltip="{

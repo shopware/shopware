@@ -2,17 +2,30 @@
     <div class="product-basic-form">
         <sw-container columns="1fr 300px" gap="0px 30px">
             {% block sw_product_basic_form_title_field %}
-                <sw-field type="text"
-                          :required="isTitleRequired"
-                          :label="$tc('sw-product.basicForm.labelTitle')"
-                          :placeholder="placeholder(product, 'name', $tc('sw-product.basicForm.placeholderName'))"
-                          v-model="product.name">
-                </sw-field>
+                <sw-inherit-wrapper v-model="product.name"
+                                    :inheritedValue="getInheritValue('translated', 'name')">
+                    <template #content="props">
+
+                        <sw-field type="text"
+                                  :mapInheritance="props"
+                                  :value="props.currentValue"
+                                  @input="props.updateCurrentValue"
+                                  pointer="product.name"
+                                  :disabled="props.isInherited"
+                                  :label="$tc('sw-product.basicForm.labelTitle')"
+                                  :required="isTitleRequired"
+                                  name="sw-field--product-name"
+                                  :placeholder="placeholder(product, 'name', $tc('sw-product.basicForm.placeholderName'))">
+                        </sw-field>
+
+                    </template>
+                </sw-inherit-wrapper>
             {% endblock %}
 
             {% block sw_product_settings_form_active_field %}
                 <sw-field type="switch"
                           bordered
+                          pointer="product.active"
                           :label="$tc('sw-product.settingsForm.labelActive')"
                           v-model="product.active">
                 </sw-field>
@@ -20,10 +33,21 @@
         </sw-container>
 
         {% block sw_product_basic_form_description_field %}
-            <sw-text-editor :label="$tc('sw-product.basicForm.labelDescription')"
-                            :placeholder="placeholder(product, 'description', $tc('sw-product.basicForm.placeholderDescriptionLong'))"
-                            v-model="product.description">
-            </sw-text-editor>
+            <sw-inherit-wrapper v-model="product.description"
+                                :inheritedValue="getInheritValue('translated', 'description')"
+                                :label="$tc('sw-product.basicForm.labelDescription')">
+                <template #content="{ currentValue, updateCurrentValue, isInherited }">
+
+                    <sw-text-editor :placeholder="placeholder(product, 'description', $tc('sw-product.basicForm.placeholderDescriptionLong'))"
+                                    pointer="product.description"
+                                    :key="isInherited"
+                                    :disabled="isInherited"
+                                    :value="currentValue"
+                                    @input="updateCurrentValue">
+                    </sw-text-editor>
+
+                </template>
+            </sw-inherit-wrapper>
         {% endblock %}
 
         <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 30px">
@@ -35,18 +59,43 @@
             {% endblock %}
             {% block sw_product_basic_form_manufacturer_field %}
 
-                <sw-entity-single-select required
-                                         v-model="product.manufacturerId"
-                                         entity="product_manufacturer"
-                                         class="sw-select-product__select_manufacturer"
-                                         id="manufacturerId"
-                                         :placeholder="$tc('sw-product.basicForm.placeholderManufacturer')"
-                                         :label="$tc('sw-product.basicForm.labelManufacturer')">
-                </sw-entity-single-select>
+                <sw-inherit-wrapper v-model="product.manufacturerId"
+                                    :inheritedValue="parentProduct.manufacturerId"
+                                    :label="$tc('sw-product.basicForm.labelManufacturer')"
+                                    required>
+                    <template #content="{ currentValue, updateCurrentValue, isInherited }">
+
+                        <sw-entity-single-select :value="currentValue"
+                                                 @input="updateCurrentValue"
+                                                 entity="product_manufacturer"
+                                                 :disabled="isInherited"
+                                                 class="sw-select-product__select_manufacturer"
+                                                 id="manufacturerId"
+                                                 :key="isInherited"
+                                                 pointer="product.manufacturerId"
+                                                 :placeholder="$tc('sw-product.basicForm.placeholderManufacturer')">
+                        </sw-entity-single-select>
+
+                    </template>
+                </sw-inherit-wrapper>
 
             {% endblock %}
         </sw-container>
 
-        <sw-tag-field-new v-if="!loading.product" :entity="product.tags" :label="$tc('global.sw-tag-field.title')"></sw-tag-field-new>
+        <sw-inherit-wrapper v-model="product.tags"
+                            :inheritedValue="parentProduct.tags"
+                            isAssociation
+                            :label="$tc('global.sw-tag-field.title')">
+
+            <template #content="{ currentValue, isInherited }">
+                <sw-tag-field-new v-if="!loading.product && !loading.parentProduct"
+                                  :disabled="isInherited"
+                                  :key="isInherited"
+                                  pointer="product.tags"
+                                  :entity="currentValue ? currentValue : {}">
+                </sw-tag-field-new>
+            </template>
+
+        </sw-inherit-wrapper>
     </div>
 {% endblock %}

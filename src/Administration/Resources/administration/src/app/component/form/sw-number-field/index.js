@@ -114,7 +114,7 @@ export default {
     watch: {
         value() {
             if (this.value === null || this.value === undefined) {
-                this.currentValue = 0;
+                this.currentValue = null;
                 return;
             }
 

@@ -4,12 +4,15 @@ export default {
     state() {
         return {
             product: {},
+            parentProduct: {},
             currencies: {},
             context: {},
             taxes: {},
             customFieldSets: {},
             loading: {
+                init: false,
                 product: false,
+                parentProduct: false,
                 manufacturers: false,
                 currencies: false,
                 taxes: false,
@@ -24,6 +27,13 @@ export default {
     getters: {
         isLoading: (state) => {
             return Object.values(state.loading).some((loadState) => loadState);
+        },
+
+        isChild(state) {
+            if (state.product && state.product.parentId) {
+                return !!state.product.parentId;
+            }
+            return false;
         }
     },
 
@@ -57,6 +67,10 @@ export default {
 
         setProduct(state, newProduct) {
             state.product = newProduct;
+        },
+
+        setParentProduct(state, newProduct) {
+            state.parentProduct = newProduct;
         },
 
         setCurrencies(state, newCurrencies) {

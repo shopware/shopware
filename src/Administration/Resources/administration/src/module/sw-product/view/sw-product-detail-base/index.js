@@ -1,5 +1,5 @@
 import { Component } from 'src/core/shopware';
-import { mapState } from 'vuex';
+import { mapState, mapGetters } from 'vuex';
 import template from './sw-product-detail-base.html.twig';
 
 Component.register('sw-product-detail-base', {
@@ -16,8 +16,13 @@ Component.register('sw-product-detail-base', {
     computed: {
         ...mapState('swProductDetail', [
             'product',
+            'parentProduct',
             'customFieldSets',
             'loading'
+        ]),
+
+        ...mapGetters('swProductDetail', [
+            'isLoading'
         ]),
 
         ...mapState('swProductDetail', {
@@ -27,6 +32,13 @@ Component.register('sw-product-detail-base', {
                 }
                 return Object.values(state.customFieldSets.items);
             }
-        })
+        }),
+
+        mediaFormVisible() {
+            return !this.loading.product &&
+                   !this.loading.parentProduct &&
+                   !this.loading.customFieldSets &&
+                   !this.loading.media;
+        }
     }
 });

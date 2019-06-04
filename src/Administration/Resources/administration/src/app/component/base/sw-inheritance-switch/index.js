@@ -1,8 +1,8 @@
 import { Component } from 'src/core/shopware';
-import template from './sw-field-inherit.html.twig';
-import './sw-field-inherit.scss';
+import template from './sw-inheritance-switch.html.twig';
+import './sw-inheritance-switch.scss';
 
-Component.register('sw-field-inherit', {
+Component.register('sw-inheritance-switch', {
     template,
 
     props: {
@@ -31,6 +31,13 @@ Component.register('sw-field-inherit', {
                 return;
             }
             this.$emit('inheritance-restore');
+        },
+
+        onClickRemoveInheritance() {
+            if (this.disabled) {
+                return;
+            }
+            this.$emit('inheritance-remove');
         }
     }
 });

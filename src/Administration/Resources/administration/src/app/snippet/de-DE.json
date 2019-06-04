@@ -60,7 +60,8 @@
       },
       "titleShowPassword": "Passwort anzeigen",
       "titleHidePassword": "Passwort verbergen",
-      "tooltipRestoreInheritance": "Vererbung wiederherstellen"
+      "tooltipRestoreInheritance": "Vererbung wiederherstellen",
+      "tooltipRemoveInheritance": "Vererbung entfernen"
     },
     "sw-field-copyable": {
       "tooltip": {
@@ -587,6 +588,9 @@
     "titleModalButtonCancelUnsavedChanges": "Abbrechen",
     "titleModalButtonRevertUnsavedChanges": "Änderungen verwerfen",
     "titleModalButtonSaveChanges": "Speichern"
+  },
+  "sw-inheritance-warning": {
+    "infoTextInheritedField": "{moduleName} hat vererbte Felder. Das bedeutet, dass solange der vererbte Zustand aktiv ist, der Inhalt vererbt wird. Vererbte Felder können durch Anklicken des Link-Symbols aufgelöst werden. Ein erneuter Klick auf das Symbol setzt den vererbten Zustand wieder zurück."
   },
   "sw-sales-channel-switch": {
     "messageModalUnsavedChanges": "Du hast noch ungespeicherte Änderungen in diesem Verkaufskanal. Möchtest Du diese jetzt speichern?",

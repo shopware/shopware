@@ -3,6 +3,7 @@
 $sw-category-tree-field-transition-results: all ease-in-out .2s;
 
 .sw-category-tree-field {
+    position: relative;
 
     .sw-category-tree-field__main-wrapper {
         position: relative;
@@ -31,7 +32,7 @@ $sw-category-tree-field-transition-results: all ease-in-out .2s;
     }
 
     .sw-category-tree-field__label-more .sw-category-tree-field__label-more-property {
-        color: $color-shopware-blue;
+        color: $color-shopware-brand-500;
     }
 
     .sw-category-tree-field__label-property {
@@ -56,9 +57,9 @@ $sw-category-tree-field-transition-results: all ease-in-out .2s;
         left: 0;
         width: 100%;
         height: 550px;
-        z-index: 1;
-        border: 1px solid $color-light-gray;
-        box-shadow: 0px 3px 6px 0px rgba($color-black, 0.2);
+        z-index: 20;
+        border: 1px solid $color-gray-100;
+        box-shadow: 0px 3px 6px 0px $color-gray-300;
         background-color: $color-white;
     }
 
@@ -89,11 +90,11 @@ $sw-category-tree-field-transition-results: all ease-in-out .2s;
         }
 
         li.sw-category-tree-field__search-result:hover {
-            background-color: lighten($color-shopware-blue, 40);
+            background-color: lighten($color-shopware-brand-500, 40);
         }
 
         li.sw-category-tree-field__search-result.is--focus {
-            background-color: lighten($color-shopware-blue, 40);
+            background-color: lighten($color-shopware-brand-500, 40);
         }
 
         li .sw-category-tree-field__search-results-checkbox {
@@ -112,6 +113,24 @@ $sw-category-tree-field-transition-results: all ease-in-out .2s;
 
     .sw-category-tree-field__empty-state {
         padding: 16px;
+    }
+
+    &.is--disabled {
+        background-color: $color-gray-100;
+
+        .sw-label {
+            background-color: $color-gray-100;
+        }
+
+        &::after {
+            content: '';
+            position: absolute;
+            z-index: 10;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+        }
     }
 
     // Vue.js transitions

@@ -31,7 +31,7 @@
                     <div class="sw-text-editor__content" v-else>
                         <div class="sw-text-editor__content-editor"
                              ref="textEditor"
-                             :contenteditable="true"
+                             :contenteditable="!disabled"
                              spellcheck="false"
                              @focus="onFocus"
                              @paste="onPaste"

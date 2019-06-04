@@ -57,6 +57,12 @@ export default {
             default: ''
         },
 
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
         buttonConfig: {
             type: Array,
             required: false,
@@ -226,6 +232,7 @@ export default {
         classes() {
             return {
                 'is--active': this.isActive,
+                'is--disabled': this.disabled,
                 'is--boxed': !this.isInlineEdit,
                 'is--empty': this.isEmpty
             };

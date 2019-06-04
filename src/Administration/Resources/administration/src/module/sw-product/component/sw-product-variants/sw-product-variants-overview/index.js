@@ -1,5 +1,4 @@
 import { Component, Mixin } from 'src/core/shopware';
-import { warn } from 'src/core/service/utils/debug.utils';
 import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-product-variants-overview.html.twig';
 import './sw-products-variants-overview.scss';
@@ -343,11 +342,15 @@ Component.register('sw-product-variants-overview', {
             });
         },
 
-        onOptionEdit() {
-            warn(
-                'Notification',
-                'The editing of single variants is actually not implemented. This feature will be available soon.'
-            );
+        onOptionEdit(variant) {
+            if (variant && variant.id) {
+                this.$router.push({
+                    name: 'sw.product.detail',
+                    params: {
+                        id: variant.id
+                    }
+                });
+            }
         },
 
         isPriceEditing(value) {

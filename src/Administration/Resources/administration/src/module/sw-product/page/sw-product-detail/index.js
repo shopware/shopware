@@ -41,17 +41,27 @@ Component.register('sw-product-detail', {
             'localMode'
         ]),
 
-        ...mapState('swProductDetail', {
-            storeProductId: state => state.productId
-        }),
-
         ...mapGetters('swProductDetail', [
             'productRepository',
-            'isLoading'
+            'isLoading',
+            'isChild'
         ]),
 
         identifier() {
             return this.placeholder(this.product, 'name');
+        },
+
+        productTitle() {
+            // when product is variant
+            if (this.isChild && this.product && this.product.options && this.product.options.items) {
+                // return each option
+                return Object.values(this.product.options.items).map(option => {
+                    return option.translated.name || option.name;
+                }).join(' – ');
+            }
+
+            // return name
+            return this.placeholder(this.product, 'name', this.$tc('sw-product.detail.textHeadline'));
         },
 
         languageStore() {
@@ -135,6 +145,7 @@ Component.register('sw-product-detail', {
             criteria.addAssociation('prices', this.pricesCriteria);
             criteria.addAssociation('tags', this.tagsCriteria);
             criteria.addAssociation('categories', this.defaultCriteria);
+            criteria.addAssociation('options', this.defaultCriteria);
             return criteria;
         },
 
@@ -174,7 +185,8 @@ Component.register('sw-product-detail', {
     },
 
     watch: {
-        '$route.params.id'() {
+        productId() {
+            this.destroyedComponent();
             this.createdComponent();
         }
     },
@@ -277,9 +289,24 @@ Component.register('sw-product-detail', {
         loadProduct() {
             this.$store.commit('swProductDetail/setLoading', ['product', true]);
 
-            this.productRepository.get(this.storeProductId, this.context, this.productCriteria).then((res) => {
+            this.productRepository.get(this.productId || this.product.id, this.context, this.productCriteria).then((res) => {
                 this.$store.commit('swProductDetail/setProduct', res);
+
+                if (this.product.parentId) {
+                    this.loadParentProduct();
+                }
+
                 this.$store.commit('swProductDetail/setLoading', ['product', false]);
+            });
+        },
+
+        loadParentProduct() {
+            this.$store.commit('swProductDetail/setLoading', ['parentProduct', true]);
+
+            return this.productRepository.get(this.product.parentId, this.context, this.productCriteria).then((res) => {
+                this.$store.commit('swProductDetail/setParentProduct', res);
+            }).then(() => {
+                this.$store.commit('swProductDetail/setLoading', ['parentProduct', false]);
             });
         },
 
@@ -392,6 +419,7 @@ Component.register('sw-product-detail', {
             return new Promise((resolve) => {
                 // check if product exists
                 if (!this.productRepository.hasChanges(this.product)) {
+                    this.$store.commit('swProductDetail/setLoading', ['product', false]);
                     resolve('empty');
                     return;
                 }

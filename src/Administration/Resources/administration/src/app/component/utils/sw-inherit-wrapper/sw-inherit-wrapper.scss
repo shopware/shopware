@@ -1,0 +1,50 @@
+@import "~scss/variables";
+
+.sw-inherit-wrapper {
+    .sw-inherit-wrapper__toggle-wrapper {
+        display: flex;
+        align-items: center;
+        line-height: 16px;
+        font-size: 14px;
+        margin-bottom: 8px;
+        color: $color-kashmir;
+
+        label {
+            flex-grow: 1;
+        }
+
+        .sw-inherit-wrapper__inheritance-icon {
+            margin-right: 8px;
+        }
+    }
+
+    &.is--inherited {
+        .sw-inherit-wrapper__toggle-wrapper {
+            color: $color-purple;
+        }
+    }
+
+    &.is--required .sw-inherit-wrapper__toggle-wrapper label::after{
+        content: "*";
+        color: $color-shopware-blue;
+    }
+
+    .sw-card__title {
+        display: flex;
+        justify-content: flex-end;
+
+        .sw-inheritance-switch {
+            position: relative;
+            top: -1px;
+            margin-right: 4px;
+        }
+
+        &.sw-card__title__inherited {
+            color: $color-purple;
+        }
+    }
+
+    .sw-card__inherited .sw-card__content{
+        border-color: $color-purple;
+    }
+}

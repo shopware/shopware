@@ -1,5 +1,5 @@
 {% block sw_product_media_form %}
-    <div class="sw-product-media-form">
+    <div class="sw-product-media-form" :class="{ 'is--disabled': disabled }">
         {% block sw_product_media_form_upload %}
             <sw-upload-store-listener
                 v-if="!isLoading"

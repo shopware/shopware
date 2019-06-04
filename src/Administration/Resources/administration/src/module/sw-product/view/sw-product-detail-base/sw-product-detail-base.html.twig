@@ -1,9 +1,9 @@
 {% block sw_product_detail_base %}
     <div class="sw-product-detail-base">
         {% block sw_product_detail_base_basic_info_card %}
-            <sw-card :title="$tc('sw-product.detailBase.cardTitleProductInfo')" :isLoading="loading.product">
+            <sw-card :title="$tc('sw-product.detailBase.cardTitleProductInfo')" :isLoading="isLoading">
                 {% block sw_product_detail_base_basic_info_form %}
-                    <sw-product-basic-form></sw-product-basic-form>
+                    <sw-product-basic-form v-if="!isLoading"></sw-product-basic-form>
                 {% endblock %}
             </sw-card>
         {% endblock %}
@@ -16,16 +16,41 @@
             </sw-card>
         {% endblock %}
 
-        {% block sw_product_detail_base_media_card %}
-            <sw-card :title="$tc('sw-product.detailBase.cardTitleMedia')"
-                     :isLoading="loading.product || loading.customFieldSets || loading.media">
-                {% block sw_product_detail_base_media_form %}
-                    <sw-product-media-form v-if="!loading.product && !loading.customFieldSets && !loading.media"
-                                           :productId="product.id"
-                                           @media-drop="$emit('media-drop', $event)">
-                    </sw-product-media-form>
-                {% endblock %}
-            </sw-card>
+        {% block sw_product_detail_base_media %}
+            <sw-inherit-wrapper v-model="product.media"
+                                :inheritedValue="parentProduct.media"
+                                isAssociation>
+                <template #content="{ isInherited, isInheritField, restoreInheritance, removeInheritance }">
+
+                    {% block sw_product_detail_base_media_card %}
+                        <sw-card :isLoading="loading.product || loading.customFieldSets || loading.media" :class="{ 'sw-card__inherited': isInherited }">
+                            <template #title>
+                                {% block sw_product_detail_base_media_card_title %}
+                                    <div class="sw-card__title" :class="{ 'sw-card__title__inherited': isInherited }">
+                                        <sw-inheritance-switch v-if="isInheritField"
+                                                          class="sw-inherit-wrapper__inheritance-icon"
+                                                          :isInherited="isInherited"
+                                                          @inheritance-restore="restoreInheritance"
+                                                          @inheritance-remove="removeInheritance">
+                                        </sw-inheritance-switch>
+                                        {{ $tc('sw-product.detailBase.cardTitleMedia') }}
+                                    </div>
+                                {% endblock %}
+                            </template>
+
+                            {% block sw_product_detail_base_media_card_form %}
+                                <sw-product-media-form v-if="mediaFormVisible"
+                                                       :productId="isInherited ? parentProduct.id : product.id"
+                                                       :key="isInherited"
+                                                       :disabled="isInherited"
+                                                       @media-drop="$emit('media-drop', $event)">
+                                </sw-product-media-form>
+                            {% endblock %}
+                        </sw-card>
+                    {% endblock %}
+
+                </template>
+            </sw-inherit-wrapper>
         {% endblock %}
 
         {% block sw_product_detail_base_seo_card %}
@@ -39,6 +64,7 @@
         {% endblock %}
 
         {% block sw_product_detail_base_price_card %}
+            {# TODO: Add inheritation after adding currencies with Ticket NEXT-2055 #}
             <sw-card :title="$tc('sw-product.detailBase.cardTitlePrices')" :isLoading="loading.product">
                 {% block sw_product_detail_base_price_form %}
                     <sw-product-price-form></sw-product-price-form>

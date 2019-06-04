@@ -40,12 +40,6 @@ export default {
             type: Boolean,
             required: false,
             default: false
-        },
-
-        inheritedValue: {
-            type: String,
-            required: false,
-            default: null
         }
     },
 
@@ -83,14 +77,12 @@ export default {
     methods: {
         onChange(event) {
             this.resetFormError();
-            this.currentValue = event.target.value || '';
-            this.$emit('change', this.currentValue);
+            this.$emit('change', event.target.value || '');
         },
 
         onInput(event) {
             this.resetFormError();
-            this.currentValue = event.target.value || '';
-            this.$emit('input', this.currentValue);
+            this.$emit('input', event.target.value);
         },
 
         restoreInheritance() {

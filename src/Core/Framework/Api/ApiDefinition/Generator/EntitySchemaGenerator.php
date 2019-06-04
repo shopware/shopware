@@ -110,6 +110,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
                     $definition,
                     EntityDefinitionQueryHelper::getTranslatedField($definition, $field)
                 );
+                $property['flags'] = array_replace_recursive($property['flags'], $flags);
                 $property['flags']['translatable'] = true;
 
                 return $property;

@@ -45,7 +45,11 @@ Component.register('sw-tag-field-new', {
         },
 
         tagItems() {
-            return Object.values(this.entity.items).map(item => item.id);
+            if (this.entity && this.entity.items) {
+                return Object.values(this.entity.items).map(item => item.id);
+            }
+
+            return [];
         }
     },
 
@@ -142,7 +146,7 @@ Component.register('sw-tag-field-new', {
 
         emitInput(selected) {
             if (!selected) {
-                return;
+                selected = [];
             }
 
             // Remove items

@@ -3,30 +3,60 @@
 
         <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 30px">
             {% block sw_product_price_form_tax_field %}
-                <sw-field type="select"
-                          :label="$tc('sw-product.priceForm.labelTaxRate')"
-                          :placeholder="$tc('sw-product.priceForm.placeholderTaxRate')"
-                          validation="required"
-                          required
-                          v-model="product.taxId">
-                        <option v-for="tax in taxes" :key="tax.id" :value="tax.id" :selected="product.taxId === tax.id">{{ tax.name }}</option>
-                </sw-field>
+                <sw-inherit-wrapper v-model="product.taxId"
+                                    :inheritedValue="parentProduct.taxId"
+                                    :label="$tc('sw-product.priceForm.labelTaxRate')"
+                                    ref="taxIdInheritation"
+                                    required>
+                    <template #content="{ currentValue, updateCurrentValue, isInherited }">
+
+                        <sw-field type="select"
+                                  name="sw-field--product-taxId"
+                                  :placeholder="$tc('sw-product.priceForm.placeholderTaxRate')"
+                                  validation="required"
+                                  pointer="product.taxId"
+                                  :disabled="isInherited"
+                                  :value="currentValue"
+                                  @change="updateCurrentValue">
+                            <option v-for="tax in taxes"
+                                    :key="tax.id"
+                                    :value="tax.id"
+                                    :selected="currentValue === tax.id">
+                                {{ tax.name }}
+                            </option>
+                        </sw-field>
+
+                    </template>
+                </sw-inherit-wrapper>
             {% endblock %}
 
             {% block sw_product_price_form_purchase_price_field %}
-                <sw-field type="number"
-                          :min="0"
-                          :label="$tc('sw-product.priceForm.labelPurchasePriceGross')"
-                          :placeholder="$tc('sw-product.priceForm.placeholderPurchasePriceGross')"
-                          v-model="product.purchasePrice">
-                    <template #suffix>
-                        <span v-if="defaultCurrency">{{ defaultCurrency.symbol }}</span>
+                <sw-inherit-wrapper v-model="product.purchasePrice"
+                                    :hasParent="!!parentProduct.id"
+                                    :inheritedValue="parentProduct.purchasePrice"
+                                    :label="$tc('sw-product.priceForm.labelPurchasePriceGross')"
+                                    required>
+                    <template #content="{ currentValue, updateCurrentValue, isInherited }">
+
+                        <sw-field type="number"
+                                  pointer="product.purchasePrice"
+                                  :min="0"
+                                  :disabled="isInherited"
+                                  :placeholder="$tc('sw-product.priceForm.placeholderPurchasePriceGross')"
+                                  :value="currentValue"
+                                  @change="updateCurrentValue">
+                            <template #suffix>
+                                <span v-if="defaultCurrency">{{ defaultCurrency.symbol }}</span>
+                            </template>
+                        </sw-field>
+
                     </template>
-                </sw-field>
+                </sw-inherit-wrapper>
             {% endblock %}
         </sw-container>
 
         {% block sw_product_price_form_price_field %}
+            {# TODO: Add inheritation after adding currencies with Ticket NEXT-2055 #}
             <sw-price-field v-if="!isLoading"
                             :price="product.price"
                             :taxRate="productTaxRate"
@@ -39,31 +69,67 @@
 
         <sw-container columns="repeat(auto-fit, minmax(150px, 1fr))" gap="0px 30px">
             {% block sw_product_price_form_purchase_unit_field %}
-                <sw-field type="number"
-                          numberType="int"
-                          :min="0"
-                          :label="$tc('sw-product.priceForm.labelPurchaseUnit')"
-                          :placeholder="$tc('sw-product.priceForm.placeholderPurchaseUnit')"
-                          v-model="product.purchaseUnit">
-                </sw-field>
+                <sw-inherit-wrapper v-model="product.purchaseUnit"
+                                    :hasParent="!!parentProduct.id"
+                                    :inheritedValue="parentProduct.purchaseUnit">
+                    <template #content="props">
+
+                        <sw-field type="number"
+                                  :mapInheritance="props"
+                                  numberType="int"
+                                  :min="0"
+                                  pointer="product.purchaseUnit"
+                                  :label="$tc('sw-product.priceForm.labelPurchaseUnit')"
+                                  :disabled="props.isInherited"
+                                  :placeholder="$tc('sw-product.priceForm.placeholderPurchaseUnit')"
+                                  :value="props.currentValue"
+                                  @change="props.updateCurrentValue">
+                        </sw-field>
+
+                    </template>
+                </sw-inherit-wrapper>
             {% endblock %}
 
             {% block sw_product_price_form_reference_unit_field %}
-                <sw-field type="number"
-                          numberType="int"
-                          :min="0"
-                          :label="$tc('sw-product.priceForm.labelReferenceUnit')"
-                          :placeholder="$tc('sw-product.priceForm.placeholderReferenceUnit')"
-                          v-model="product.referenceUnit">
-                </sw-field>
+                <sw-inherit-wrapper v-model="product.referenceUnit"
+                                    :hasParent="!!parentProduct.id"
+                                    :inheritedValue="parentProduct.referenceUnit">
+                    <template #content="props">
+
+                        <sw-field type="number"
+                                  :mapInheritance="props"
+                                  numberType="int"
+                                  :min="0"
+                                  pointer="product.referenceUnit"
+                                  :disabled="props.isInherited"
+                                  :placeholder="$tc('sw-product.priceForm.placeholderReferenceUnit')"
+                                  :label="$tc('sw-product.priceForm.labelReferenceUnit')"
+                                  :value="props.currentValue"
+                                  @change="props.updateCurrentValue">
+                        </sw-field>
+
+                    </template>
+                </sw-inherit-wrapper>
             {% endblock %}
 
             {% block sw_product_price_form_pack_unit_field %}
-                <sw-field type="text"
-                          :label="$tc('sw-product.priceForm.labelPackUnit')"
-                          :placeholder="placeholder(product, 'packUnit', $tc('sw-product.priceForm.placeholderPackUnit'))"
-                          v-model="product.packUnit">
-                </sw-field>
+                <sw-inherit-wrapper v-model="product.packUnit"
+                                    :hasParent="!!parentProduct.id"
+                                    :inheritedValue="parentProduct.packUnit">
+                    <template #content="props">
+
+                        <sw-field type="text"
+                                  :mapInheritance="props"
+                                  pointer="product.packUnit"
+                                  :label="$tc('sw-product.priceForm.labelPackUnit')"
+                                  :placeholder="placeholder(product, 'packUnit', $tc('sw-product.priceForm.placeholderPackUnit'))"
+                                  :disabled="props.isInherited"
+                                  :value="props.currentValue"
+                                  @input="props.updateCurrentValue">
+                        </sw-field>
+
+                    </template>
+                </sw-inherit-wrapper>
             {% endblock %}
         </sw-container>
     </div>

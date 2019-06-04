@@ -2,21 +2,43 @@
     <div class="sw-product-category-form">
 
         {% block sw_product_category_form_category_field %}
-            <sw-category-tree-field :categoriesCollection="categoriesCollection"
-                                    class="sw-product-detail__select-category"
-                                    :label="$tc('sw-product.categoryForm.labelCategory')"
-                                    :placeholder="$tc('sw-product.categoryForm.placeholderCategory')">
-            </sw-category-tree-field>
+            <sw-inherit-wrapper v-model="product.categories"
+                                :inheritedValue="parentProduct.categories"
+                                isAssociation
+                                :label="$tc('sw-product.categoryForm.labelCategory')">
+                <template #content="{ currentValue, isInherited }">
+
+                    <sw-category-tree-field :categoriesCollection="currentValue ? currentValue : {}"
+                                            class="sw-product-detail__select-category"
+                                            :disabled="isInherited"
+                                            :key="isInherited"
+                                            :placeholder="$tc('sw-product.categoryForm.placeholderCategory')">
+                    </sw-category-tree-field>
+
+                </template>
+            </sw-inherit-wrapper>
         {% endblock %}
 
         {% block sw_product_category_form_visibility_field %}
-            <sw-product-visibility-select v-if="!loading.product && multiSelectVisible"
-                                          class="sw-product-detail__select-visibility"
-                                          :collection="product.visibilities"
-                                          :label="$tc('sw-product.visibility.labelVisibility')"
-                                          :placeholder="$tc('sw-product.visibility.placeholderVisibility')"
-                                          :localMode="localMode">
-            </sw-product-visibility-select>
+            <sw-inherit-wrapper v-model="product.visibilities"
+                                :inheritedValue="parentProduct.visibilities"
+                                isAssociation
+                                @inheritance-remove="reloadProductVisibility"
+                                :label="$tc('sw-product.visibility.labelVisibility')">
+                <template #content="{ currentValue, isInherited }">
+
+                    <sw-product-visibility-select v-if="!loading.product && !loading.parentProduct && multiSelectVisible"
+                                                  class="sw-product-detail__select-visibility"
+                                                  :collection="currentValue ? currentValue : {}"
+                                                  :placeholder="$tc('sw-product.visibility.placeholderVisibility')"
+                                                  :disabled="isInherited"
+                                                  :key="isInherited"
+                                                  ref="productVisibility"
+                                                  :localMode="localMode || (isChild && !isInherited)">
+                    </sw-product-visibility-select>
+
+                </template>
+            </sw-inherit-wrapper>
         {% endblock %}
 
         {% block sw_product_detail_base_advanced_prices_link %}

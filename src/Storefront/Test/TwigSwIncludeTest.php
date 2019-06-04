@@ -3,17 +3,14 @@
 namespace Shopware\Storefront\Test;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Twig\InheritanceExtension;
 use Shopware\Core\Framework\Twig\TemplateFinder;
 use Shopware\Storefront\Test\fixtures\BundleFixture;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
-class TwigIncludeTest extends TestCase
+class TwigSwIncludeTest extends TestCase
 {
-    use SalesChannelFunctionalTestBehaviour;
-
     public function testMultipleInheritance(): void
     {
         $loader = new FilesystemLoader(__DIR__ . '/fixtures/Storefront/Resources/views');
@@ -98,5 +95,39 @@ class TwigIncludeTest extends TestCase
         $twig->getExtension(InheritanceExtension::class)->getFinder();
         $template = $twig->loadTemplate('frontend/notemplatefound.html.twig');
         static::assertSame('nothingelse', $template->render([]));
+    }
+
+    public function testDynamicInclude(): void
+    {
+        $loader = new FilesystemLoader(__DIR__ . '/fixtures/Storefront/Resources/views');
+        $loader->addPath(__DIR__ . '/fixtures/Storefront/Resources/views', 'Storefront');
+        $twig = new Environment($loader, [
+            'cache' => false,
+        ]);
+        $templateFinder = new TemplateFinder($loader);
+        $twig->addExtension(new InheritanceExtension($templateFinder));
+
+        $template = $twig->loadTemplate('frontend/dynamic_include.html.twig');
+        static::assertSame('a', $template->render(['child' => 'a']));
+        static::assertSame('b', $template->render(['child' => 'b']));
+    }
+
+    public function testDynamicIncludeExtended(): void
+    {
+        $loader = new FilesystemLoader(__DIR__ . '/fixtures/Storefront/Resources/views');
+        $loader->addPath(__DIR__ . '/fixtures/Storefront/Resources/views', 'Storefront');
+        $twig = new Environment($loader, [
+            'cache' => false,
+        ]);
+        $templateFinder = new TemplateFinder($loader);
+        $bundlePlugin1 = new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1');
+        $bundlePlugin2 = new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2');
+        $templateFinder->addBundle($bundlePlugin1);
+        $templateFinder->addBundle($bundlePlugin2);
+        $twig->addExtension(new InheritanceExtension($templateFinder));
+
+        $template = $twig->loadTemplate('frontend/dynamic_include.html.twig');
+        static::assertSame('a/TestPlugin1_a/TestPlugin2_a', $template->render(['child' => 'a']));
+        static::assertSame('b/TestPlugin1_b/TestPlugin2_b', $template->render(['child' => 'b']));
     }
 }

@@ -5,6 +5,7 @@ import './page/sw-import-export-profile-create';
 import './page/sw-import-export-profile-detail';
 import './page/sw-import-export-log-list';
 import './component/sw-import-export-log-modal';
+import './component/sw-import-export-profile-csv-mapping-modal';
 import './component/sw-import-export-progress';
 import { NEXT733 } from 'src/flag/feature_next733';
 import deDE from './snippet/de_DE.json';

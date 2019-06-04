@@ -83,10 +83,26 @@
                                           v-model="importExportProfile.enclosure">
                                 </sw-field>
                             {% endblock %}
+
+                            {% block sw_import_export_profile_csv_mapping_button %}
+                                <sw-button @click="selectedItem=importExportProfile"
+                                           v-if="importExportProfile.fileType === 'text/csv'">
+                                    {{ $tc('sw-import-export-profile.detail.basic.fieldMappingButton') }}
+                                </sw-button>
+                            {% endblock %}
                         </sw-card>
+                    {% endblock %}
+
+                    {% block sw_import_export_proofile_csv_mapping_modal %}
+                        <sw-import-export-profile-csv-mapping-modal v-if="selectedItem"
+                                                                    @closeMappingModal="selectedItem=null"
+                                                                    @saveMapping="onSave"
+                                                                    :importExportProfile="selectedItem">
+                        </sw-import-export-profile-csv-mapping-modal>
                     {% endblock %}
                 </sw-card-view>
             </template>
+
         {% endblock %}
     </sw-page>
 {% endblock %}

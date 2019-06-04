@@ -95,7 +95,8 @@
         "labelEnclosure": "Maskierungszeichen",
         "placeholderName": "Gib einen Namen ein",
         "placeholderDelimiter": "Wähle ein Trennzeichen...",
-        "placeholderEnclosure": "Wähle ein Maskierungszeichen..."
+        "placeholderEnclosure": "Wähle ein Maskierungszeichen...",
+        "fieldMappingButton": "Felder zuordnen"
       },
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
@@ -104,6 +105,17 @@
       "titleResult": "Profile",
       "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Das Profil \"{name}\" wurde erfolgreich gespeichert."
+    },
+    "mapping": {
+      "modal": {
+        "title": "Feldzuordnung für Objekt-Typ \"{entity}\""
+      },
+      "columnFileField": "Dateispalte",
+      "columnEntityField": "Internes Feld",
+      "columnValueSubstitution": "Trennzeichen",
+      "addCsvMappingItem": "Zuordnung hinzufügen",
+      "deleteCsvMappingItem": "Zuordnung löschen",
+      "saveButton": "Speichern"
     }
   },
   "sw-import-export-log": {

@@ -59,4 +59,22 @@ export default class DeviceDetection {
         const userAgent = navigator.userAgent.toLowerCase();
         return userAgent.indexOf('edge') !== -1;
     }
+
+    /**
+     * Returns a list of css classes with the boolean result of all device detection functions.
+     * @returns {object}
+     */
+    static getList() {
+        const detections = {};
+
+        detections['is-touch'] = DeviceDetection.isTouchDevice();
+        detections['is-ios'] = DeviceDetection.isIOSDevice();
+        detections['is-native-windows'] = DeviceDetection.isNativeWindowsBrowser();
+        detections['is-iphone'] = DeviceDetection.isIPhoneDevice();
+        detections['is-ipad'] = DeviceDetection.isIPadDevice();
+        detections['is-ie'] = DeviceDetection.isIEBrowser();
+        detections['is-edge'] = DeviceDetection.isEdgeBrowser();
+
+        return detections;
+    }
 }

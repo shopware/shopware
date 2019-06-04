@@ -1,0 +1,12 @@
+html.is-ie {
+    .input-group-append {
+        .icon {
+            display: block;
+        }
+
+        svg {
+            top: 0;
+            vertical-align: auto;
+        }
+    }
+}

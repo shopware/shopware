@@ -132,7 +132,7 @@ EOL;
         file_put_contents($bootstrapFile, $bootstrap);
         file_put_contents($servicesXmlFile, $this->servicesXmlTemplate);
 
-        if ($input->hasOption('create-config')) {
+        if ($input->getOption('create-config')) {
             $configXmlFile = $directory . '/src/Resources/config/config.xml';
             $configXml = str_replace(
                 ['pluginName'],

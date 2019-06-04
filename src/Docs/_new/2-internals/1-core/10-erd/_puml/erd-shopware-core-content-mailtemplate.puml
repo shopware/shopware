@@ -50,6 +50,7 @@ Table(ShopwareCoreContentMailTemplateAggregateMailTemplateTypeMailTemplateTypeDe
    primary_key(id) id
    name translated
    not_null(technicalName) string
+   availableEntities json
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    customFields translated

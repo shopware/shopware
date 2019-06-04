@@ -31,7 +31,6 @@ Table(ShopwareCoreContentMediaMediaDefinition, "media\n(Media / Files)") {
    uploadedAt date
    fileName longText
    fileSize int
-   metaDataRaw blob
    mediaTypeRaw blob
    metaData json
    mediaType json
@@ -41,6 +40,7 @@ Table(ShopwareCoreContentMediaMediaDefinition, "media\n(Media / Files)") {
    customFields translated
    thumbnailsRo blob
    hasFile bool
+   private bool
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    translated json
@@ -97,6 +97,7 @@ Table(ShopwareCoreContentMediaAggregateMediaFolderConfigurationMediaFolderConfig
    createThumbnails bool
    keepAspectRatio bool
    thumbnailQuality int
+   private bool
    mediaThumbnailSizesRo blob
    customFields customFields
    not_null(createdAt) createdAt
@@ -136,6 +137,8 @@ ForeignTable(ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition, "cms_blo
 }
 ForeignTable(ShopwareCoreContentCmsCmsPageDefinition, "cms_page") {
 }
+ForeignTable(ShopwareCoreCheckoutDocumentDocumentDefinition, "document") {
+}
 ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 }
 ForeignTable(ShopwareCoreSystemTagTagDefinition, "tag") {
@@ -160,6 +163,7 @@ ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreContentProductAggregateP
 ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreCheckoutOrderAggregateOrderLineItemOrderLineItemDefinition
 ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition
 ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreContentCmsCmsPageDefinition
+ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreCheckoutDocumentDocumentDefinition
 ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition --> ShopwareCoreContentMediaAggregateMediaDefaultFolderMediaDefaultFolderDefinition
 ShopwareCoreContentMediaAggregateMediaTranslationMediaTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition --> ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition

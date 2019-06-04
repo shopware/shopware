@@ -198,4 +198,5 @@ return [
     Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSalesChannelDefinition::class => 'Promotion configuration',
     Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountDefinition::class => 'Discounts',
     'Shopware\\Core\\Content\\Cms' => 'Content Management',
+    'Shopware\\Core\\Content\\Newsletter' => 'Newsletter',
 ];

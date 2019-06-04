@@ -9,6 +9,334 @@
 
 <h2>May 2019</h2>
 
+<h3>2019-05-31: Added plugin:create command</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+h2 code {
+    font-size: 32px;
+}
+
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
+<p>We added a <code>plugin:create</code> command which creates a plugin skeleton structure inside the <code>custom/plugins</code> directory.
+The skeleton contains the required implementation of <code>\Shopware\Core\Framework\Plugin</code>, the required <code>composer.json</code> file and an empty <code>services.xml</code> for further service declarations.  </p>
+<h3>2019-05-31: Disabled auto load of many to one associations</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+h2 code {
+    font-size: 32px;
+}
+
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
+<p>We changed the default value of <code>$autoload</code> to <code>false</code> in the <code>\Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField</code>.
+Additionally we disable this flag for the most core associations to prevent unnecessary data loading. It is now required to specify which data has be loaded
+on php or on javascript side. </p>
+<p>For the sake of all developers we added the <code>\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::addAssociationPath</code> function which allows to added nested associations to the criteria:</p>
+<pre><code>$criteria = new Criteria();
+
+// adds an empty criteria for the following associations
+    // category.products
+    // product.prices
+    // price.rule
+
+$criteria-&gt;addAssociationPath('products.prices.rule');
+
+$categoryRepository-&gt;search($criteria, $context);
+</code></pre>
+<p>The same function exists for the admin Vue part:</p>
+<pre><code>criteria = new Criteria();
+
+// adds an empty criteria for the following associations
+    // category.products
+    // product.prices
+    // price.rule
+
+criteria.addAssociationPath('products.prices.rule');
+
+repo = this.repositoryFactory.create('category');
+
+repo.search(criteria, this.context);
+</code></pre>
+<h3>2019-05-29: Added private flag for MediaItems</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+h2 code {
+    font-size: 32px;
+}
+
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
+<p>The <code>MediaItems</code> and <code>MediaFolderConfiguration</code> have been refactored. The property <code>private</code> has been added as a boolean field.</p>
+<p>The <code>private-flag</code> provides a way to mark a folder or a <code>MediaItem</code> as <strong>private</strong>.
+<strong>Private</strong> <code>MediaItems</code> will be stored in via the filesystem.private instead of filesystem.public and therefor not accessible via web.
+<strong>Private</strong> <code>MediaItems</code> are not shown in the MediaItems-Admin by now. They are excluded from any API-Call of the Media-Entity.
+To get access to those <strong>Private</strong> <code>MediaItems</code> the Repository-Request has to be made with a <code>SYSTEM_SCOPE</code>-Context.  </p>
+<p>Example of a <code>SYSTEM_SCOPE</code>-Context:</p>
+<pre><code class="language-php">$mediaService = $this-&gt;mediaService;
+$context-&gt;scope(Context::SYSTEM_SCOPE, function (Context $context) use ($mediaService, $document, &amp;$fileBlob) {
+    $fileBlob = $mediaService-&gt;loadFile($document-&gt;getDocumentMediaFileId(), $context);
+});
+$generatedDocument-&gt;setFileBlob($fileBlob);</code></pre>
+<h3>2019-05-29: Added static Property to DocumentEntity</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+h2 code {
+    font-size: 32px;
+}
+
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
+<p>The <code>DocumentEntity</code> has been refactored. A boolean property named <code>static</code> has been added.</p>
+<p>This property is used to determine wether a document can be generated or not. If <code>static</code> is set to true. The <code>DocumentEntity</code> is marked as linked to a static file which can not regenerated.
+The file is stored in the <code>documentMediaFile</code> association of the <code>DocumentEntity</code>.
+The main purpose for the <code>static</code> property is to provide a way to store documents of legacy shopware versions or third-party systems to the new document structure and asure these files will stay untouched by any regeneration of documents.</p>
+<p>When calling the <code>DocumentService::getDocument()</code>-Method even with the parameter <code>$regenerate</code> set to <code>true</code> these documents won't be regenerated or changed in any way.</p>
+<p>Now you can import legacy documents to the system via the following way:</p>
+<ul>
+<li>Add a new MediaItem with the <code>private</code>-property set to <code>true</code>
+<pre><code class="language-php">$newMediaId = Uuid::randomHex();
+$mediaRepository-&gt;create(
+[
+    'id' =&gt; $newMediaId,
+    'private' =&gt; true
+],
+);</code></pre></li>
+<li>Save the file to the server via the <code>MediaService</code>
+<pre><code class="language-php">$mediaService-&gt;saveFile(
+$fileBlob,      // Blob of file to save
+$fileExtension, // Extension of the file (eg. 'pdf')
+$contentType,   // ContentType of the file (eg. 'application/pdf')
+$filename,      // Filename fof the file (eg. 'invoice_23_12_1977_123')
+$context,       // Context
+'document',     // MediaFolder to save the new file (default for documents is 'document')
+$newMediaId     // Id of the MediaItem created as "private")
+);</code></pre></li>
+<li>Create DocumentEntity as <code>static</code> with associating MediaId
+<pre><code class="language-php">$documentRepository-&gt;create([
+    [
+        'id' =&gt; Uuid::randomHex(),
+        'documentTypeId' =&gt; $documentType-&gt;getId(), // (id of type ('invoice', 'storno',...))
+        'fileType' =&gt; FileTypes::PDF,
+        'orderId' =&gt; $orderId, // Id of the order this document is associated with.
+        'orderVersionId' =&gt; $orderVersionId, // VersionId of the order this document is associated with.
+        'config' =&gt; ['documentNumber' =&gt; '1001'], // documentConfig with at least the documentNumber
+        'deepLinkCode' =&gt; 'xyz123', // Deeplinkcode 
+        'static' =&gt; true,   // static = true is important to prevent overwriting of the document 
+        'documentMediaFile' =&gt; [
+            'id' =&gt; $newMediaId,
+        ],
+    ],
+],
+$this-&gt;context
+);</code></pre>
+<p>It is impotant that you need an already imported order to associate the document with. Currently every document needs a valid orderId to be associated with.</p></li>
+</ul>
+<h3>2019-05-29: Added MediaItem association to DocumentEntity</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+h2 code {
+    font-size: 32px;
+}
+
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
+<p>The <code>DocumentEntity</code> has been refactored. An association with <code>MediaItem</code> to the property <code>documentMediaFile</code> has been added.
+Also a new system setting named <code>core.saveDocuments</code> was added and defaults to true.</p>
+<p>This association is used to store an already generated document-file to the document-entry.<br />
+If the system setting <code>core.saveDocuments</code> is set to true, a document will be generated once and stored as a <strong>private</strong> <code>MediaItem</code>. Following calls for document generation will not regenerate the file, but load the already generated file.
+The regeneration process can be enforced with a <code>$regenerate</code> parameter set to <code>true</code> for the <code>DocumentService::getDocument()</code>-Method </p>
+<h3>2019-05-28: Breaking change - Change default timezone to UTC</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+h2 code {
+    font-size: 32px;
+}
+
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
+<p>On kernel construct, the platform now uses UTC as default timezone.
+This means that all dates in the database are now also UTC. The administration formats the DateTime
+objects correctly by default by simply using the <code>|date</code> filter.</p>
+<p>In the storefront we have a Timezone utility which automatically detects the timezone of the
+user and sets a cookie which will be processed by the
+<code>platform/src/Storefront/Framework/Twig/TwigDateRequestListener.php</code>. This means that you can use
+the <code>|localizeddate('short', 'none', app.request.locale)</code> filter and the time will
+automatically be converted to the client timezone.</p>
+<p>If you have to convert the time on the client side, you can use the DateFormatPlugin.
+Example: </p>
+<pre><code>&lt;span data-date-format="true"&gt;
+    {{ order.orderDate.format(shopware.dateFormat) }}
+&lt;/span&gt;</code></pre>
+<h3>2019-05-15: Breaking change - Refactor line item</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+h2 code {
+    font-size: 32px;
+}
+
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
+<p>The <code>LineItem</code> has been refactored. The property <code>key</code> has been renamed to <code>id</code> to be a bit more consistent
+with other structs/entities.</p>
+<p>The id must be a unique string. In most cases you use the id of the entity which the line item refers to.
+If you want to have different line items of the same entity (e.g. different prices, children), you must use a different id.</p>
+<p>Previously you often had to do the following:</p>
+<pre><code class="language-php">&lt;?php
+$lineItem = new LineItem('98432def39fc4624b33213a56b8c944d', 'product');
+$lineItem-&gt;setPayload(['id' =&gt; '98432def39fc4624b33213a56b8c944d']);
+
+// New way:
+
+$lineItem = new LineItem('98432def39fc4624b33213a56b8c944d', 'product', '98432def39fc4624b33213a56b8c944d');</code></pre>
+<p>All tests and the documentation has been updated.</p>
 <h3>2019-05-13: Added RequestDataBag to interface of payment handler</h3>
 
 <style type="text/css">
@@ -514,7 +842,7 @@ p code {
     font-size: 16px;
 }
 </style>
-<p>A new component called <code>sw-button-process</code> was added to Shopware 6.
+<p>A new component called <code>sw-button-process</code> was added to Shopware platform.
 The button is introduced to display the status of the process the button should start. E.g. if you click the button
 to save an entity, it will display a loading indicator while the save process is running and a tick icon if the
 process was finished successfully. This way, we tend to get rid of those &quot;Success&quot; notifications which does not
@@ -1983,7 +2311,7 @@ p code {
 </style>
 <p>We made a refactoring of the plugin structure which affect ALL plugins!</p>
 <ul>
-<li>The &quot;type&quot; in the composer.json must now be <code>shopware-platform-plugin</code>. This is necessary to differentiate between Shopware 5 and Shopware 6 plugins</li>
+<li>The &quot;type&quot; in the composer.json must now be <code>shopware-platform-plugin</code>. This is necessary to differentiate between Shopware 5 and Shopware platform plugins</li>
 <li>You now have to provide the whole FQN of your plugin base class in the composer.json. Add something like this to the &quot;extra&quot; part of the composer.json: <code>"shopware-plugin-class": "SwagTest\\SwagTest"</code>, The old identifier <code>installer-name</code> is no longer used</li>
 <li>You now have to provide valid autoload information about your plugin with the composer.json:</li>
 </ul>
@@ -5270,13 +5598,13 @@ Another news is the new SSL-switch field. It allows the user to type or paste a 
 
 <h3>2019-02-07: Rule documentation</h3>
 
-<p>The rules documentation is now available. You are now able to read how to create your own rules using Shopware 6! Any feedback is appreciated.</p>
+<p>The rules documentation is now available. You are now able to read how to create your own rules using the shopware/platform! Any feedback is appreciated.</p>
 
 <p>See it at: <a href="https://github.com/shopware/platform/blob/master/src/Docs/60-plugin-system/35-custom-rules.md">https://github.com/shopware/platform/blob/master/src/Docs/60-plugin-system/35-custom-rules.md</a></p>
 
 <h3>2019-02-07: System requirements</h3>
 
-<p>Shopware 6 now requires PHP &gt;= 7.2.0. We&#39;ve also included a polyfill library for PHP 7.3 functions, so feel free to use them.</p>
+<p>The platform now requires PHP &gt;= 7.2.0. We&#39;ve also included a polyfill library for PHP 7.3 functions, so feel free to use them.</p>
 
 <h3>2019-02-06: Plugin configuration</h3>
 
@@ -5396,7 +5724,7 @@ To make sure you can use the new setup:</p>
 
 <h3>2019-02-01: Storefront building pipeline</h3>
 
-<p>The Shopware 6&nbsp;Storefront Building Pipline provides the developer with the ability to use a Node.js based tech stack to build the storefront.</p>
+<p>Shopware 6&nbsp;Storefront Building Pipline provides the developer with the ability to use a Node.js based tech stack to build the storefront.</p>
 
 <p><strong>This has many advantages:</strong></p>
 
@@ -5792,7 +6120,7 @@ const:
 &nbsp; FEATURES: |
 &nbsp; &nbsp; FEATURE_NEXT_1128=1</pre>
 
-<p>This is automatically written to the .env file and from there imported into Shopware 6.</p>
+<p>This is automatically written to the .env file and from there imported into the platform.</p>
 
 <p><strong>USAGE IN PHP</strong><br />
 The interception points in the order of their usefulness:</p>

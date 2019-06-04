@@ -22,9 +22,10 @@ skinparam backgroundColor #FFFFFF
 
 ' entities
 
-Table(ShopwareCoreContentNewsletterReceiverNewsletterReceiverDefinition, "newsletter_receiver\n(Newsletter receiver)") {
+Table(ShopwareCoreContentNewsletterAggregateNewsletterRecipientNewsletterRecipientDefinition, "newsletter_recipient\n(Newsletter recipient)") {
    primary_key(id) id
    not_null(email) string
+   title string
    firstName string
    lastName string
    zipCode string
@@ -40,8 +41,8 @@ Table(ShopwareCoreContentNewsletterReceiverNewsletterReceiverDefinition, "newsle
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
-Table(ShopwareCoreContentNewsletterReceiverAggregateNewsletterReceiverTagNewsletterReceiverTagDefinition, "newsletter_receiver_tag\n(M:N Mapping)") {
-   primary_key(newsletterReceiverId) foreignKey
+Table(ShopwareCoreContentNewsletterAggregateNewsletterRecipientTagNewsletterRecipientTagDefinition, "newsletter_recipient_tag\n(M:N Mapping)") {
+   primary_key(newsletterRecipientId) foreignKey
    primary_key(tagId) foreignKey
 }
 ForeignTable(ShopwareCoreSystemSalutationSalutationDefinition, "salutation") {
@@ -55,9 +56,9 @@ ForeignTable(ShopwareCoreSystemTagTagDefinition, "tag") {
 
 ' relationshipd
 
-ShopwareCoreContentNewsletterReceiverAggregateNewsletterReceiverTagNewsletterReceiverTagDefinition --> ShopwareCoreContentNewsletterReceiverNewsletterReceiverDefinition
-ShopwareCoreContentNewsletterReceiverNewsletterReceiverDefinition --> ShopwareCoreSystemSalutationSalutationDefinition
-ShopwareCoreContentNewsletterReceiverNewsletterReceiverDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
-ShopwareCoreContentNewsletterReceiverNewsletterReceiverDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
-ShopwareCoreContentNewsletterReceiverAggregateNewsletterReceiverTagNewsletterReceiverTagDefinition --> ShopwareCoreSystemTagTagDefinition
+ShopwareCoreContentNewsletterAggregateNewsletterRecipientTagNewsletterRecipientTagDefinition --> ShopwareCoreContentNewsletterAggregateNewsletterRecipientNewsletterRecipientDefinition
+ShopwareCoreContentNewsletterAggregateNewsletterRecipientNewsletterRecipientDefinition --> ShopwareCoreSystemSalutationSalutationDefinition
+ShopwareCoreContentNewsletterAggregateNewsletterRecipientNewsletterRecipientDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreContentNewsletterAggregateNewsletterRecipientNewsletterRecipientDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreContentNewsletterAggregateNewsletterRecipientTagNewsletterRecipientTagDefinition --> ShopwareCoreSystemTagTagDefinition
 @enduml

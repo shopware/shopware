@@ -125,9 +125,9 @@ Media/File management
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-content-media.md)
 
-#### NewsletterReceiver <span class="tip is--primary">Data store</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Business Event Dispatcher</span> <span class="tip is--primary">Extension</span>
+#### Newsletter <span class="tip is--primary">Data store</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Business Event Dispatcher</span> <span class="tip is--primary">Extension</span>
 
-* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Content/NewsletterReceiver) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Content/Newsletter) 
 
 Newsletter
 
@@ -174,6 +174,12 @@ Rest-API
 * [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/Cache) 
 
 Cache helpers
+
+#### Console 
+
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/Console) 
+
+Console helpers
 
 #### Context <span class="tip is--primary">Custom Extendable</span>
 
@@ -228,6 +234,12 @@ Filesystem handling
 Languages
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-framework-language.md)
+
+#### Log 
+
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/Log) 
+
+Logging
 
 #### MessageQueue <span class="tip is--primary">Data store</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
@@ -366,7 +378,7 @@ Number ranges (SKU)
 * [Entity relationship diagram](./10-erd/erd-shopware-core-system-numberrange.md)
 * [Guide](./00-module/number-range.md)
 
-#### SalesChannel <span class="tip is--primary">Data store</span> <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Business Event Dispatcher</span> <span class="tip is--primary">Extension</span>
+#### SalesChannel <span class="tip is--primary">Data store</span> <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
 * [Sources](https://github.com/shopware/platform/tree/master/src/Core/System/SalesChannel) 
 

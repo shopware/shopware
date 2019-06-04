@@ -78,7 +78,7 @@ Table(ShopwareCoreCheckoutPromotionAggregatePromotionDiscountRulePromotionDiscou
    primary_key(ruleId) foreignKey
 }
 TranslationTable(ShopwareCoreCheckoutPromotionAggregatePromotionTranslationPromotionTranslationDefinition, "promotion_translation\n((Translations))") {
-   name string
+   not_null(name) string
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    primary_key(promotionId) foreignKey

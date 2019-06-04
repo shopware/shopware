@@ -40,7 +40,7 @@
         <div class="section--inner">
             <div class="row justify--center">
                 <div class="col col-12 is--text-centered">
-                    <div class="col-inner"><h1>Shopware Platform</h1></div>
+                    <div class="col-inner"><h1>Shopware 6</h1></div>
                 </div>
             </div>
         </div>
@@ -54,7 +54,7 @@
                 </div>
                 <div class="col col-12 col-l-6">
                     <div class="col-inner"><h3 class="h5 is--uppercase is--subhead">getting started</h3>
-                        <h2 class="no--margin-top"> New to the Shopware platform?</h2>
+                        <h2 class="no--margin-top"> New to Shopware 6?</h2>
                         <p>
                             Click <a href="/en/shopware-platform-dev-en/getting-started/requirements">here</a> to learn how to set it up for the first time or take a deep dive into our
                             <a href="/en/shopware-platform-dev-en/getting-started/indepth-guide-bundle/introduction">plugin tutorial</a>
@@ -72,7 +72,7 @@
                 <div class="col col-12 col-l-4">
                     <h2 class="no--margin-top">API</h2>
                     <p>
-                        Connect your software to the Shopware platform.
+                        Connect your software to Shopware 6.
                         Whether it is a new <a href="/en/shopware-platform-dev-en/api/sales-channel-api">frontend</a> or an <a href="/en/shopware-platform-dev-en/api/management-api">ERP</a>, look no further.
                     </p>
                     <a href="/en/shopware-platform-dev-en/api" class="btn is--primary is--transparent is--box ct-button">Start now <i class="icon--arrow-right"></i></a>
@@ -80,7 +80,7 @@
                 <div class="col col-12 col-l-4">
                     <h2 class="no--margin-top">Internals</h2>
                     <p>
-                        Dig deep into the internals of the Shopware platform.
+                        Dig deep into the internals of Shopware 6.
                         Learn more about the <a href="/en/shopware-platform-dev-en/internals/plugins">plugins</a>,
                         the <a href="/en/shopware-platform-dev-en/internals/core">core</a>,
                         the <a href="/en/shopware-platform-dev-en/internals/administration">administration</a>

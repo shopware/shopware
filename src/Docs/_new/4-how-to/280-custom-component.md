@@ -1,24 +1,23 @@
 [titleEn]: <>(Creating a custom component)
-[metaDescriptionEn]: <>(Since the Shopware platform's Administration is using VueJS as its framework, it also supports creating custom components. This How-to will teach you real quick how to register your own custom component with your plugin.)
+[metaDescriptionEn]: <>(Since Shopware 6's Administration is using VueJS as its framework, it also supports creating custom components. This How-to will teach you real quick how to register your own custom component with your plugin.)
 
 ## Overview
 
-Since the Shopware platform's Administration is using [VueJS](https://vuejs.org/) as its framework, it also supports creating
+Since Shopware 6's Administration is using [VueJS](https://vuejs.org/) as its framework, it also supports creating
 custom components. This How-to will teach you real quick how to register your own custom component with your plugin.
 
 In this example, you will create a component, that will print a 'Hello world!' everywhere it's being used.
 
 ## Setup
 
-This HowTo **does not** explain how to create a new plugin for the Shopware platform.
+This HowTo **does not** explain how to create a new plugin for Shopware 6.
 Head over to our [Plugin quick start guide](./../2-internals/4-plugins/010-plugin-quick-start.md) to
 learn creating a plugin at first.
 
 ## Injecting into the administration
 
 The main entry point to extend the administration via plugin is the `main.js` file.
-It has to be placed into a `<plugin root>/src/Resources/admininistration` directory in order to be found by the Shopware
-platform.
+It has to be placed into a `<plugin root>/src/Resources/admininistration` directory in order to be found by Shopware 6.
 *Note: This path can be changed by overriding the [getAdministrationEntryPath](./../2-internals/4-plugins/020-plugin-base-class.md#getAdministrationEntryPath) method of your plugin's base class.*
 
 ## Creating a custom component
@@ -38,7 +37,7 @@ For this example, this scenario is used.
 `<plugin-root>/src/Resources/administration/app/component/<name of your plugin>/<name of your component>`
 
 Those are **not** a hard requirement, but rather a recommendation. This way, third party developers having a glance at your code will
-get used to it real quick, because you sticked to the Shopware platform's core conventions.
+get used to it real quick, because you sticked to Shopware 6's core conventions.
 
 Since the latter example is being used, this is the path being created in the plugin now:
 `<plugin-root>/src/Resources/administration/app/component/custom-component/hello-world`
@@ -116,9 +115,9 @@ This is a [shorthand](https://alligator.io/js/object-property-shorthand-es6/), w
 
 ## Loading the JS files
 
-As mentioned above, the Shopware platform looks for a `main.js` file in your plugin.
+As mentioned above, Shopware 6 looks for a `main.js` file in your plugin.
 Its contents get minified into a new file named after your plugin and will be moved to the `public` directory
-of the Shopware platform root directory.
+of the Shopware 6 root directory.
 Given this plugin is named "CustomComponent", the minified javascript code for this example would be
 located under `<plugin root>/src/Resources/public/static/js/CustomComponent.js`, once you run the command `./psh.phar administration:build` in your shopware root directory.
 *Note: Your plugin has to be activated for this to work.*

@@ -3,7 +3,7 @@
 
 ## Overview
 
-Creating a command for the Shopware platform via a plugin works exactly like you would add a command to Symfony.
+Creating a command for Shopware 6 via a plugin works exactly like you would add a command to Symfony.
 Make sure to have a look at the [Symfony commands guide](https://symfony.com/doc/current/console.html#registering-the-command).
 
 ## Registering your command

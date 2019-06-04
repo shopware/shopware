@@ -110,7 +110,7 @@ Sales Channels
 EOD
     ,
     'System/SystemConfig' => <<<'EOD'
-Platform Configuration
+Shopware 6 Configuration
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-system-systemconfig.md)
 EOD

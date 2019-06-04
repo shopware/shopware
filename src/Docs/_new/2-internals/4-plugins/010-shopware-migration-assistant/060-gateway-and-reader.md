@@ -7,7 +7,7 @@ and the `local` gateway, which communicates directly with the source system's da
 same server for successfully using the `local` gateway.
 
 ## Gateway
-The gateway defines how to communicate from Shopware platform with your source system like Shopware 5. Every profile
+The gateway defines how to communicate from Shopware 6 with your source system like Shopware 5. Every profile
 needs to have at least one gateway. Gateways need to be defined in the corresponding service xml using the `shopware.migration.gateway` tag:
 ```xml
 <service id="SwagMigrationAssistant\Profile\Shopware55\Gateway\Local\Shopware55LocalGateway">

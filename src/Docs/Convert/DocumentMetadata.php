@@ -8,7 +8,7 @@ class DocumentMetadata
 {
     private const INITIAL_VERSION = '6.0.0';
 
-    private const META_TITLE_PREFIX = 'Shopware Platform: ';
+    private const META_TITLE_PREFIX = 'Shopware 6: ';
 
     /**
      * @var Document

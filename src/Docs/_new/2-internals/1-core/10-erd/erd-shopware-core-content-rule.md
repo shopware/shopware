@@ -2,7 +2,7 @@
 
 [Back to modules](./../10-modules.md)
 
-Rules are used throughout the platform to provide dynamic decision management. For instance shipping and billing methods are matched to customers, carts and line items based on rules from these resources.
+Rules are used throughout Shopware 6 to provide dynamic decision management. For instance shipping and billing methods are matched to customers, carts and line items based on rules from these resources.
 
 ![Rules](./dist/erd-shopware-core-content-rule.png)
 

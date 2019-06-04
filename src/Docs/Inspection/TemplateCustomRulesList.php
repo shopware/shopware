@@ -7,7 +7,7 @@ class TemplateCustomRulesList
     private const TEMPLATE_PAGE = <<<EOD
 [titleEn]: <>(Rule classes)
 
-List of all rule classes across the Shopware Platform.
+List of all rule classes across Shopware 6.
 
 %s
 

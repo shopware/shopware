@@ -360,7 +360,7 @@ class BaseClass extends Plugin
 
 ### getRoutesPath
 
-Override this method if you want to change the directory, in which the Shopware platform is trying to find an .xml file,
+Override this method if you want to change the directory, in which Shopware 6 is trying to find an .xml file,
 whose path contains `routes`.
 
 ```php
@@ -383,7 +383,7 @@ Internally, this is called by the [configureRoutes](./020-plugin-base-class.md#c
 
 ### getServicesFilePath
 
-By default, the Shopware platform searches for a `services.xml` file in the directory `Resources/config/` relative to your plugin's
+By default, Shopware 6 searches for a `services.xml` file in the directory `Resources/config/` relative to your plugin's
 base file location.
 If you're unhappy with this, override this method.
 
@@ -405,8 +405,8 @@ class BaseClass extends Plugin
 
 ### getAdministrationEntryPath
 
-It's a common thing to customize the Shopware platform administration.
-In order to do so, the Shopware platform is looking for an entry point .js file called `main.js` or `main.ts` inside the directory `/Resources/administration` next to your
+It's a common thing to customize the Shopware 6 administration.
+In order to do so, Shopware 6 is looking for an entry point .js file called `main.js` or `main.ts` inside the directory `/Resources/administration` next to your
 plugin's base class.
 If this doesn't fit your needs, override this method to return a custom path.
 

@@ -2,7 +2,7 @@
 
 Repository Link: [`https://github.com/shopware/platform/tree/master/src/Core/Checkout/Cart`](https://github.com/shopware/platform/tree/master/src/Core/Checkout/Cart)
 
-Shopping cart management is a central feature of the Shopware Platform. The shopping cart resides in the checkout bundle and is a central part of the checkout process.
+Shopping cart management is a central feature of Shopware 6. The shopping cart resides in the checkout bundle and is a central part of the checkout process.
 
 ## Design goals
 
@@ -15,13 +15,13 @@ Performance
   : With the *no waste* philosophy the cart is designed by identifying key processes and optimizing upon them. Therefore the amount of calculations, queries and iterations is kept to a minimum and a clear state management is implemented.
 
 Independence
-  : The cart is independent from many core entities of the Shopware Platform. It does not itself know that product, surcharges or discounts exist but communicates through interfaces with its line items.
+  : The cart is independent from many core entities of Shopware 6. It does not itself know that product, surcharges or discounts exist but communicates through interfaces with its line items.
 
 ## Cart Struct
 
 [`\Shopware\Core\Checkout\Cart\Cart`](https://github.com/shopware/platform/blob/master/src/Core/Checkout/Cart/Cart.php)
 
-An instance of this class represents one single Cart. As you can see relations to central Entities of the System are omitted. This allows the Shopware Platform to manage multiple carts per user and per SalesChannel, or one across all sales channels. The only identification is a token hash.
+An instance of this class represents one single Cart. As you can see relations to central Entities of the System are omitted. This allows Shopware 6 to manage multiple carts per user and per SalesChannel, or one across all sales channels. The only identification is a token hash.
 
 The diagram below illustrates the data that a cart holds.
 
@@ -50,7 +50,7 @@ This is a highly **mutable** data structure that is acted upon from requests and
 [Price](https://github.com/shopware/platform/blob/master/src/Core/Checkout/Cart/Price/Struct/CartPrice.php)
    : The price of all line items including tax, delivery costs and vouchers discounts and surcharges.
    
-The Shopware Platform manages the carts state through different services. The different states a cart can inhabit are illustrated in the diagram below:
+Shopware 6 manages the carts state through different services. The different states a cart can inhabit are illustrated in the diagram below:
 
 ![cart state](./dist/cart-state.png)
  
@@ -58,13 +58,13 @@ In the next chapters we will take a look at the **calculation** and **data enric
 
 ## Calculation
 
-Calculating a cart is one of the more costly operations a eCommerce System must support. Therefore the cut of the interfaces and the design of the process follows the **no waste** philosophy of the Shopware Platform very closely. Calculation is a multi stage process that revolves around the mutation of data structure of the cart struct.
+Calculating a cart is one of the more costly operations a eCommerce System must support. Therefore the cut of the interfaces and the design of the process follows the **no waste** philosophy of Shopware 6 very closely. Calculation is a multi stage process that revolves around the mutation of data structure of the cart struct.
 
 ![calculation steps](./dist/calculation-steps.png)
 
 ### Cart enrichment
 
-Enrichment secures the *Independence* and *Adaptability* of the Shopware Platform. Basically the Cart is able to create and contain line items that are initially empty and will only be loaded (=**enriched**) during calculation. The following code snippet illustrates this behaviour:
+Enrichment secures the *Independence* and *Adaptability* of Shopware 6. Basically the Cart is able to create and contain line items that are initially empty and will only be loaded (=**enriched**) during calculation. The following code snippet illustrates this behaviour:
 
 ```php
 <?php 
@@ -83,7 +83,7 @@ $lineItem->getPrice(); // now set up
 
 This process is transparently controlled from the cart but executed through implementations of the [`\Shopware\Core\Checkout\Cart\CollectorInterface`](https://github.com/shopware/platform/blob/master/src/Core/Checkout/Cart/CollectorInterface.php). This interface is cut in order to reduce the number database calls necessary to setup the cart's data structure for **price calculation** and **inspection** (meaning: rendering in a storefront, reading from the API).
 
-The default collectors implemented in the Shopware Platform:
+The default collectors implemented in Shopware 6:
 
 | service id | task |
 | ---------- | ---- |
@@ -125,7 +125,7 @@ As you can see the cart is modified during the enrichment process to at first co
 
 ## Cart storage
 
-Contrary to other entities in the System the Cart is not managed through the Data Abstraction Layer. The Cart can only be written and retrieved as a whole. This is done for one reason mainly: **The cart does only make sense as a whole**. As discussed in the sections the workload of the Shopware Platform can only be performed on the whole object in memory.
+Contrary to other entities in the System the Cart is not managed through the Data Abstraction Layer. The Cart can only be written and retrieved as a whole. This is done for one reason mainly: **The cart does only make sense as a whole**. As discussed in the sections the workload of Shopware 6 can only be performed on the whole object in memory.
 
 ## Cart Control
 

@@ -138,7 +138,7 @@ So let's get to the important part, which is the price.
 For a percentage discount, you have to use the `PercentagePriceDefinition`.
 It consists of an actual value, the currency precision and, if necessary, some rules to apply to.
 
-The Shopware platform comes with a so called `LineItemRule`, which requires two parameters:
+Shopware 6 comes with a so called `LineItemRule`, which requires two parameters:
 - The operator being used, currently only `LineItemRule::OPERATOR_EQ` (Equals) and `LineItemRule::OPERATOR_NEQ` (Not equals) are supported
 - The identifiers to apply the rule to. Pass the line item identifiers here, in this case the identifiers of the previously filtered products
 

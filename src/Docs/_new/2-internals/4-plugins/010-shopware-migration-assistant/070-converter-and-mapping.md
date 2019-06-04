@@ -1,6 +1,6 @@
 [titleEn]: <>(Converter and mapping)
 
-Data gathered by `Reader` objects is transferred to `Converter` objects that put the data in a format the Shopware platform is able to work with.
+Data gathered by `Reader` objects is transferred to `Converter` objects that put the data in a format Shopware 6 is able to work with.
 Simultaneously entries in the underlying mapping table are inserted to map the old identifiers to the new ones for future migrations.
 The mapping is saved for the current connection. Converted data will be removed after the migration, the mapping will stay persistent.
 
@@ -104,14 +104,14 @@ class ProductConverter extends Shopware55Converter
 ```
 As you see above the `convert` method gets the source system data, checks with `checkForEmptyRequiredDataFields` if the
 necessary data fields are filled and returns a `ConvertStruct`. The `ConvertStruct` contains the converted value in the structure
-of Shopware platform and all source system data which could not mapped to the platform structure.
+of Shopware 6 and all source system data which could not be mapped to the Shopware 6 structure.
 If the required fields are not filled, the convert method returns a `ConvertStruct` without a `converted` value and the hole given
 source system data as the `unmapped` value.
 
 ## Mapping
 
 Many entities rely on other entities, so that they have to be converted in a specific order. Because of this and the
-Shopware Migration Assistant's ability to perform multiple migrations without resetting Shopware platform itself,
+Shopware Migration Assistant's ability to perform multiple migrations without resetting Shopware 6 itself,
 source system identifiers have to be mapped to their new counterparts.
 Find a mapping example in the following code snippet:
 ```php

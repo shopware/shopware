@@ -1,12 +1,12 @@
 [titleEn]: <>(Payment plugin)
-[metaDescriptionEn]: <>(Payments are an essential part of the checkout process. That's the reason why Shopware offers an easy platform on which you can build payment plugins. Learn here, how that's done.)
+[metaDescriptionEn]: <>(Payments are an essential part of the checkout process. That's the reason why Shopware 6 offers an easy platform on which you can build payment plugins. Learn here, how that's done.)
 
 Payments are an essential part of the checkout process.
-That's the reason why Shopware offers an easy platform on which you can build payment plugins.
+That's the reason why Shopware 6 offers an easy platform on which you can build payment plugins.
 
 ## Payment handler
 
-Shopware platform has a few default payment handler which can be found under `Shopware\Core\Checkout\Payment\Cart\PaymentHandler`. 
+Shopware 6 has a few default payment handler which can be found under `Shopware\Core\Checkout\Payment\Cart\PaymentHandler`. 
 
 ## Creating a custom payment handler
 
@@ -22,7 +22,7 @@ Depending on the interface, those two methods are required:
 * `pay`: This method will be called after an order has been placed.
 You receive a `Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct|Shopware\Core\Checkout\Payment\Cart\SyncPaymentTransactionStruct` which contains the transactionId,
 order details, the amount for the transaction, a return URL, payment method information and language information.
-Please be aware, Shopware platform supports multiple transactions and you have to use the amount provided and not the total order amount.
+Please be aware, Shopware 6 supports multiple transactions and you have to use the amount provided and not the total order amount.
 If you're using the `AsynchronousPaymentHandlerInterface`, the `pay` method has to return a `RedirectResponse` to redirect the customer to an external payment provider.
 Note: The `AsyncPaymentTransactionStruct` contains a return URL.
 Pass this URL to the external payment provider to ensure that the customer will be redirected back to the shop to this URL.
@@ -31,7 +31,7 @@ Shopware will handle this exception and set the transaction to the `cancelled` s
 The same happens if you are using the `SynchronousPaymentHandlerInterface`: throw a `SyncPaymentProcessException` in an error case.
 
 * `finalize`: The `finalize` method is only required if you implemented the `AsynchronousPaymentHandlerInterface`,
-returned a `RedirectResponse` in your `pay` method and the customer has been redirected from the payment provider back to the Shopware platform. 
+returned a `RedirectResponse` in your `pay` method and the customer has been redirected from the payment provider back to Shopware 6. 
 You must check here if the payment was successful or not and update the order transaction state accordingly.
 Similar to the pay action you are able to throw exceptions if some error cases occur.
 Throw the `CustomerCanceledAsyncPaymentException` if the customer canceled the payment process on the payment provider site.

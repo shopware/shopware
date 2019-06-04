@@ -1,10 +1,10 @@
 [titleEn]: <>(Installation guide)
 
-Before digging deeper into the Shopware Platform we recommend creating a local installation. You should have chosen if you want to install it on your local host or with docker by now and have your system already set up to fulfill the [requirements](./../10-requirements/__categoryInfo.md). 
+Before digging deeper into Shopware 6 we recommend creating a local installation. You should have chosen if you want to install it on your local host or with docker by now and have your system already set up to fulfill the [requirements](./../10-requirements/__categoryInfo.md). 
 
 ## Preparation
 
-Either installation method requires you to check out the sources first. The Shopware Platform is split into two repositories the [development template](https://github.com/shopware/development) and the [platform](https://github.com/shopware/platform) itself.
+Either installation method requires you to check out the sources first. Shopware 6 is split into two repositories the [development template](https://github.com/shopware/development) and the [platform](https://github.com/shopware/platform) itself.
 
 Let's start by cloning the development template:
 
@@ -12,24 +12,24 @@ Let's start by cloning the development template:
 > git clone git@github.com:shopware/development.git
 ```
 
-You now have the application template for the Shopware Platform in the directory `development`, we now change into it:
+You now have the application template for Shopware 6 in the directory `development`, we now change into it:
 
 ```bash
 > cd development
 ```
 
-Only if you want to work with the platform code itself, e.g. in order to create a pull request for it, you should clone the `platform` code manually.
+Only if you want to work with the Shopware platform code itself, e.g. in order to create a pull request for it, you should clone the `platform` code manually.
 
 ```bash
 > git clone git@github.com:shopware/platform.git
 ```
 
-Otherwise, the platform code would be placed into a `vendor/shopware/platform` directory, where you don't want to change any code.
+Otherwise, the Shopware platform code would be placed into a `vendor/shopware/platform` directory, where you don't want to change any code.
 There's a good reason, why many IDEs try to prevent you from changing code in the `vendor` directory.
 
 ## Docker installation (recommended)
 
-The docker installation is the easiest way to get a running Shopware Platform. This way you can setup the Shopware Platform with just three easy commands: 
+The docker installation is the easiest way to get a running Shopware 6. This way you can setup Shopware 6 with just three easy commands: 
 
 Build and start the containers:
 
@@ -55,13 +55,13 @@ To be sure that the installation succeeded, just open the following url in your 
 
 ## Local installation
 
-If you are working on a Mac or it's otherwise impossible to get docker up and running on your development environment you can install the Shopware Platform locally. **But be aware that this will be the by far more complex solution since additional or changed system requirements need to be managed by you.**
+If you are working on a Mac or it's otherwise impossible to get docker up and running on your development environment you can install Shopware 6 locally. **But be aware that this will be the by far more complex solution since additional or changed system requirements need to be managed by you.**
 
 Once you setup all the required packages mentioned in [requirements](./../10-requirements/__categoryInfo.md) there are two main goals you need to accomplish:
 
 ### Setting up your webserver
 
-First up we need to setup Apache to locate the Shopware Platform. You should add a vhost to your Apache site configuration that looks like this:
+First up we need to setup Apache to locate Shopware 6. You should add a vhost to your Apache site configuration that looks like this:
 
 ```xml
 <VirtualHost *:80>
@@ -95,7 +95,7 @@ A simple cli installation wizard can be invoked by executing:
 
 > Note: If something goes wrong during installation check if `.psh.yaml.override` exists. If not restart setup, if yes execute `./psh.phar install` to restart the setup process
 
-Voila, the Shopware Platform is installed. To be sure that the installation succeeded, just open the configured host url in your favorite browser.
+Voila, Shopware 6 is installed. To be sure that the installation succeeded, just open the configured host url in your favorite browser.
 
 ## Specific guides
 

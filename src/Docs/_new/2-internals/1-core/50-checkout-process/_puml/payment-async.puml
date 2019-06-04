@@ -5,7 +5,7 @@ skinparam BoxPadding 10
 
 actor "Customer" as customer
 
-box "Shopware Platform"
+box "Shopware 6"
     participant "Checkout"  as checkout
     participant "Asynchronous\nPayment Handler"  as synchronous_payment_handler
 end box

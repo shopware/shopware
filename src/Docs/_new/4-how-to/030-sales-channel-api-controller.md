@@ -23,8 +23,8 @@ class SalesChannelApiController extends Plugin
 
 ## Loading the controllers via routes.xml
 
-The `routes.xml` file is necessary to introduce your controllers to the Shopware platform.
-The Shopware platform automatically searches for an `xml` file in a `src/Resources/config/` directory, whose path contains `routes`.
+The `routes.xml` file is necessary to introduce your controllers to Shopware 6.
+Shopware 6 automatically searches for an `xml` file in a `src/Resources/config/` directory, whose path contains `routes`.
 Therefore possible default locations would be:
 - <plugin-root>/src/Resources/config/**routes**.xml
 - <plugin-root>/src/Resources/config/**routes**/my_controller.xml

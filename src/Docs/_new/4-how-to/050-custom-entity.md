@@ -1,10 +1,10 @@
 [titleEn]: <>(Creating a custom entity)
-[metaDescriptionEn]: <>(Quite often, your plugin has to save data into a custom database table. The Shopware platform's data abstraction layer fully supports custom entities, so you don't have to take care about the data handling at all.)
+[metaDescriptionEn]: <>(Quite often, your plugin has to save data into a custom database table. Shopware 6's data abstraction layer fully supports custom entities, so you don't have to take care about the data handling at all.)
 
 ## Overview
 
 Quite often, your plugin has to save data into a custom database table.
-The Shopware platform's [data abstraction layer](./../2-internals/1-core/20-data-abstraction-layer/__categoryInfo.md) fully supports custom entities,
+Shopware 6's [data abstraction layer](./../2-internals/1-core/20-data-abstraction-layer/__categoryInfo.md) fully supports custom entities,
 so you don't have to take care about the data handling at all.
 
 ## Plugin base class
@@ -12,7 +12,7 @@ so you don't have to take care about the data handling at all.
 So let's start with the plugin base class.
 
 All it has to do, is to register your `services.xml` file by simply putting it into the proper directory `<plugin root>/src/Resources/config/`.
-This way, the Shopware platform is able to automatically find and load your `services.xml` file.
+This way, Shopware 6 is able to automatically find and load your `services.xml` file.
 
 *Note: You can change your plugin's `services.xml` location by overriding the method `getServicesFilePath` of your [plugin's base class](./../2-internals/4-plugins/020-plugin-base-class.md#getServicesFilePath).*
 

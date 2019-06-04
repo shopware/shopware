@@ -1,6 +1,6 @@
 [titleEn]: <>(Number Range)
 
-The Shopware Platform integrates a configurable number range generator and manager. Numberranges are defined unique identifiers for specific entities.
+Shopware 6 integrates a configurable number range generator and manager. Numberranges are defined unique identifiers for specific entities.
 
 ## Components
 

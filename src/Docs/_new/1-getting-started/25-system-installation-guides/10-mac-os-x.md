@@ -113,7 +113,7 @@ git clone https://github.com/shopware/platform.git
 ```
 
 
-### Shopware platform setup
+### Shopware 6 setup
 
 #### **First of all add new host in MAMP:**​​​​</p>
 
@@ -142,7 +142,7 @@ In short:
 
 Afterwards a file called `.psh.yaml.override` is created, which contains all those information you just entered.
 
-#### **Start shopware platform setup**
+#### **Start Shopware 6 setup**
 
 ```bash
 # Inside the shopware installation directory (e.g. /PhpstormProjects/shopware/development) 
@@ -150,7 +150,7 @@ Afterwards a file called `.psh.yaml.override` is created, which contains all tho
 ```
 
 After that the setup is done.
-You can now access your shopware platform installation using the following urls:
+You can now access your Shopware 6 installation using the following urls:
 
 * Storefront: http://shopware:8000
 * Admin: http://shopware:8000/admin (User: admin, password: shopware)

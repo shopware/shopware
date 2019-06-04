@@ -1,6 +1,6 @@
 [titleEn]: <>(Payment)
 
-The Shopware Platform's payment system is an integral Part of the Checkout process. A payment is applied to a transaction of an order. As with any order change this is done through the state machine. At its core the payment system is composed from *payment handlers*, these extend Shopware to support multiple different payment types. A list of all payment handlers is stored [in the database](./../10-erd/erd-shopware-core-checkout-payment.md). 
+Shopware 6's payment system is an integral Part of the Checkout process. A payment is applied to a transaction of an order. As with any order change this is done through the state machine. At its core the payment system is composed from *payment handlers*, these extend Shopware to support multiple different payment types. A list of all payment handlers is stored [in the database](./../10-erd/erd-shopware-core-checkout-payment.md). 
 
 ## Payment handler
 

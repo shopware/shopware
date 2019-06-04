@@ -5,7 +5,7 @@ And that's the scenario given for this chapter, which will be all about properly
 
 ### Creating a cart collector
 
-Changing the cart's behavior is accomplished by using the Shopware Platform's enrichment pattern.
+Changing the cart's behavior is accomplished by using Shopware 6's enrichment pattern.
 You're registering a new service using the `shopware.cart.collector` tag and you'll have your class implement the `Shopware\Core\Checkout\Cart\CollectorInterface` interface.
 A `CartCollector` will be executed every time the cart changes, due to quantity changes, new items in the cart, etc.
 
@@ -257,7 +257,7 @@ The variable `$bundles` now contains your `BundleCollection` you've created way 
 So, you've collected the bundle data for all the bundle's being used in the current cart.
 
 Let's have a bit of theory on what to do next.
-The cart in the Shopware platform supports nested line items, which means, that a line item can contain multiple other line items as "childs".
+The cart in Shopware 6 supports nested line items, which means, that a line item can contain multiple other line items as "childs".
 This sounds perfect for a bundle: Have a parent line item as the "bundle" item, and its childrens being all the products that are part of this bundle.
 As of now, there's only a single line item in the cart, so you have to take of adding child line item for each product assigned to the bundle.
 This also means, that you need the `products` association on the bundles again, so add this to the `Criteria` object now.
@@ -528,7 +528,7 @@ For this reason, the return type of the method `calculateBundleDiscount` is also
 
 So, how do you apply a discount now?
 A discount is also a `LineItem`, but it has to come with a custom `PriceDefinition`, hence the method `setPriceDefinition` on an line item.
-Available `PriceDefinitions` in the Shopware Platform are `AbsolutePriceDefinition` as well as `PercentagePriceDefinition` - perfect!
+Available `PriceDefinitions` in Shopware 6 are `AbsolutePriceDefinition` as well as `PercentagePriceDefinition` - perfect!
 
 Depending on the `discountType` of the bundle, you can create or the other. Both of them require the same parameters.
 The first one being the actual discount value, the second one being the previously mentioned 'currency precision', which you can find in the provided context.
@@ -567,7 +567,7 @@ Now simply create a new line item for the discount, use the `setPriceDefinition`
 Also add the quantity from the original bundle line item, so the discount actually scales with the quantity.
 
 Afterwards, return the line item, so it's added as a child line item to the bundle.
-Actually calculating the price is then done by the Shopware platform again.
+Actually calculating the price is then done by Shopware 6 again.
 
 This is how your full `calculateBundleDiscount` method should look like:
 ```php
@@ -648,10 +648,10 @@ That's right, the live cart wouldn't be updated. You also need to consider the d
 The customer puts a bundle with 10% discount into the cart, and right in the moment he proceeds to pay this cart, the shop manager decreased the discount.
 If you'd update your discount now, the customer would be very upset, because he didn't pay for what he last saw.
 
-Yet, the Shopware Platform has this covered as well.
+Yet, Shopware 6 has this covered as well.
 When finish an order, a complete recalculation of the cart is enforced. If there's any difference found to the previous cart, the order will not be created immediately and the cart will be fully recalculated.
 Afterwards, a warning will be printed, that his cart has updated and he should re-check if he's still fine with the cart's contents.
 
-**And that's it! The checkout works now as well. You can put a bundle into the cart and have it calculated properly by the Shopware Platform!**
+**And that's it! The checkout works now as well. You can put a bundle into the cart and have it calculated properly by Shopware 6!**
 
 Your plugin is almost done, just some last polishing is necessary. Head over to the [next step](./100-final-preparation.md) for the last few changes necessary.

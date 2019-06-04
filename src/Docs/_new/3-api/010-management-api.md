@@ -8,7 +8,7 @@ At the end of this guide you'll find a short example about the authentication.
 
 ## Request body formats
 
-As in every Shopware platform, the request body has to be JSON encoded.
+In Shopware 6, the request body has to be JSON encoded.
 It's required to use typesafe values, e.g. if the API expects an integer value, you're required to provide an actual integer.
 If you're using a Date field, make sure to use an ISO 8601 compatible date format.
 

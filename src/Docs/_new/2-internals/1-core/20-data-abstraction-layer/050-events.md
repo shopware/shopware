@@ -8,7 +8,7 @@ request instead of dispatching the event 30 times.
 
 ## Event overview
 
-The events below are dispatched for every entity in the Shopware Platform. The first part before the dot (.) equals your
+The events below are dispatched for every entity in Shopware 6. The first part before the dot (.) equals your
 entity name. The examples are based on the `product` entity.
 
 | Event | Description |

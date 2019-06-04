@@ -1,12 +1,12 @@
 [titleEn]: <>(Requirements)
 
-Before installing the Shopware Platform you should take a quick look at the requirements to check if your local environment is capable of running Shopware.
+Before installing Shopware 6, you should take a quick look at the requirements to check if your local environment is capable of running it.
 
 ## System Requirements
 
 ### Operating System
 
-Although the Shopware Platform should support most unix like environments, we recommend using **Ubuntu 18.04 LTS** or  **macOS Mojave 10.14** to get the best experience.
+Although Shopware 6 support most UNIX like environments, we recommend using **Ubuntu 18.04 LTS** or  **macOS Mojave 10.14** to get the best experience.
 
 ### Environment
 

@@ -4,8 +4,8 @@
 ## Overview
 
 This HowTo will handle how to properly translate your custom entities.
-Since [this HowTo](./050-custom-entity.md) already covered creating a custom entity and introducing it to the
-Shopware platform, this won't be explained here.
+Since [this HowTo](./050-custom-entity.md) already covered creating a custom entity and introducing it to
+Shopware 6, this won't be explained here.
 Furthermore, this example will build upon the fact, that you already got a plugin containing a custom entity.
 
 ## Translatable fields in definition
@@ -118,7 +118,7 @@ The class `CustomEntityTranslationCollection` will be added in the next steps, d
 Since the translation is going to be saved in another table just for your custom entity,
 the translations need an own `Entity`, `EntityDefinition` and an `EntityCollection` class, such as the `CustomEntityTranslationCollection` mentioned above.
 
-So, once more, let's create all these classes. By default, the Shopware platform places the entity translation classes
+So, once more, let's create all these classes. By default, Shopware 6 places the entity translation classes
 inside a directory called `Aggregate`.
 In this example, the directory structure would look like this:
 

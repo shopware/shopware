@@ -75,7 +75,7 @@ The directory structure could then look like this:
 ## Plugin meta data
 
 Another requirement for a working plugin is the `composer.json` file.
-It contains all the necessary meta data of your plugin, e.g. the plugin version, its supported Shopware platform versions,
+It contains all the necessary meta data of your plugin, e.g. the plugin version, its supported Shopware 6 versions,
 the plugin description, the plugin title and many more.
 This has to be located in your plugin **root** directory.
 
@@ -129,7 +129,7 @@ Starting in your **project root** directory, run the command `bin/console plugin
 When shipping a plugin to your customer, you might want to ship the plugin with some built-in configurations.
 This way you can make sure your customers can configure your plugin to perfectly fit their needs.
 
-The Shopware platform supports this out of the box by adding a `config.xml` file to your plugin.
+Shopware 6 supports this out of the box by adding a `config.xml` file to your plugin.
 By default, this should be placed relative to your plugin's base class in a directory called `Resources/config`.
 Both the file naming as well as the directory naming is important here for the auto-loading of the `config.xml` file to work as intended.
 In this example, the location would be the following: `PluginQuickStart/src/Resources/config/config.xml`
@@ -165,11 +165,11 @@ For a more detailed guide on how to setup the `config.xml` and which input types
 
 ## Listening to events via Subscriber
 
-You registered the plugin into the Shopware platform, created a config for it and even installed and activated it afterwards.
+You registered the plugin into Shopware 6, created a config for it and even installed and activated it afterwards.
 Unfortunately, you're not really doing anything with your plugin as of yet.
 
 One of the main purposes of a plugin is listening to several system events and then executing code once an event is dispatched.
-In order to do so, the Shopware platform makes use of the [Symfony subscribers](https://symfony.com/doc/current/components/event_dispatcher.html#using-event-subscribers).
+In order to do so, Shopware 6 makes use of the [Symfony subscribers](https://symfony.com/doc/current/components/event_dispatcher.html#using-event-subscribers).
 
 ### Subscriber class
 
@@ -215,7 +215,7 @@ The subscriber would now listen to the event `example_event` and once the event 
 ### The services.xml
 
 Your subscriber now has to be registered into the [DI container](https://symfony.com/doc/current/service_container.html).
-In the platform, the services in the DI container are defined in XML.
+In Shopware 6, the services in the DI container are defined in XML.
 
 A `services.xml` file is automatically loaded, if you place it into the proper directory.
 This works just like the plugin's `config.xml` explained above. Once again, the proper directory for the `services.xml` has to be located relative
@@ -294,7 +294,7 @@ class MyController extends AbstractController
 
 Important to notice is the `@Route` annotation above the `myFirstApi`, which basically defines the actual route to access the controller.
 
-Additional to that, the Shopware platform needs to learn where to search for your controller in the first place.
+Additional to that, Shopware 6 needs to learn where to search for your controller in the first place.
 This is done by adding a `routes.xml` file into a `src/Resources/config/` directory.
 The naming for the directory is not only suggested, it is highly recommended again here, so the auto-loading works.
 This is done by looking for any .xml file, whose path contains `routes`, so the path `src/Resources/config/routes/example.xml` would also work.
@@ -315,14 +315,14 @@ Here's the example for the `routes.xml` content:
 ```
 *PluginQuickStart/src/Resources/config/routes.xml*
 
-Since the Shopware platform uses Symfony fullstack, it's technically also possible to use configuration files written in YML or PHP.
-Yet, the Shopware platform is looking for XML files by default. This can be overridden in the plugin's [base class](./020-plugin-base-class.md).
+Since Shopware 6 uses Symfony fullstack, it's technically also possible to use configuration files written in YML or PHP.
+Yet, Shopware 6 is looking for XML files by default. This can be overridden in the plugin's [base class](./020-plugin-base-class.md).
 An representation of the same routes configuration using a YAML or PHP file instead, can be found in the Symfony documentation
 about [external routing resources](https://symfony.com/doc/current/routing/external_resources.html).
 
 Now the controller should be fully working and accessible using the route mentioned in the method's `@Route` annotation.
 Since we've created an API route here, an authorization token is still necessary to actually access our controller.
-Remove the 'api' from the route to circumvent the authorization for testing purposes or get more into how the Shopware platform management API works [here](./../../3-api/010-management-api.md). 
+Remove the 'api' from the route to circumvent the authorization for testing purposes or get more into how Shopware 6 management API works [here](./../../3-api/010-management-api.md). 
 
 ## Creating a service
 

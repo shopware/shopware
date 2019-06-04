@@ -389,7 +389,7 @@ class WikiApiService
             '/wiki/entries',
             [
                 'json' => [
-                    'product' => ['id' => 4, 'name' => 'PF', 'label' => 'Shopware Platform'],
+                    'product' => ['id' => 4, 'name' => 'PF', 'label' => 'Shopware 6'],
                 ],
                 'headers' => $this->getBasicHeaders(),
             ]

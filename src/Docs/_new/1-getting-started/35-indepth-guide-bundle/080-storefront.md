@@ -69,7 +69,7 @@ Now you'll have:
 
 Hopefully it's clear why this is necessary now.
 
-Last thing missing is to register your custom subscriber to the Shopware platform, so it even gets considered. Open your plugin's `services.xml` file for it.
+Last thing missing is to register your custom subscriber to Shopware 6, so it even gets considered. Open your plugin's `services.xml` file for it.
 You'll have to define your subscriber as a service using the `kernel.event_subscriber` tag:
 ```xml
 <services>
@@ -82,7 +82,7 @@ You'll have to define your subscriber as a service using the `kernel.event_subsc
 
 ### Editing the detail template
 
-By default, the Shopware platform is looking for a directory called `Resources/views` relative to your plugin's base class.
+By default, Shopware 6 is looking for a directory called `Resources/views` relative to your plugin's base class.
 Its default location can be changed by overriding your plugin's base class [getViewPaths](./../../2-internals/4-plugins/020-plugin-base-class.md#getViewPaths) method.
 This directory is then considered by the Twig FileSystemLoader, so all templates in this directory will be loaded automatically.
 In this example, the path therefore would be: `<plugin root>/src/Resources/views` - guess you know what to do now, create this directory.
@@ -467,7 +467,7 @@ Those services implement the `Shopware\Core\Framework\Snippet\Files\SnippetFileI
 - `getPath`: Each SnippetFile class has to point to a `.json` file, which actually contain the translations. Return the path to this file here.
 - `getIso`: Return the ISO string of the supported locale here.
 - `getAuthor`: Guess what, return your vendor name here. This can be used to distinguish your snippets from all the other available ones.
-- `isBase`: Return `true` here, if your plugin implements a whole new language, such as providing french snippets for the whole Shopware platform.
+- `isBase`: Return `true` here, if your plugin implements a whole new language, such as providing french snippets for the whole Shopware 6.
 In this case, you're just adding your own snippets to an existent language, so use `false` here.
 
 Now start of by adding this new directory: `<plugin root>/src/Snippet/Files`

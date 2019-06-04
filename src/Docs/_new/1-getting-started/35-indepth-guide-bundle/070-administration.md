@@ -9,11 +9,11 @@ a single bundle or even create a new one.
 The administration mainly uses [VueJS](https://vuejs.org/) as a framework. How to develop with VueJS is **not** explained here, head over to the [official documentation](https://vuejs.org/v2/guide/)
 to learn more about the framework itself.
 
-Of course any Shopware platform specific code will be explained, don't worry about that.
+Of course any Shopware 6 specific code will be explained, don't worry about that.
 
 ### Setting up the the administration
 
-Each plugin has a main entry point to add custom javascript code to the administration. By default, the Shopware platform is looking for a 
+Each plugin has a main entry point to add custom javascript code to the administration. By default, Shopware 6 is looking for a 
 `main.js` file inside a `Resources/administration` directory in your plugin.
 Thus, create a new file `main.js` in the directory `<plugin root>/src/Resources/administration`. That's it, this file will now be considered when building
 the administration.
@@ -25,10 +25,10 @@ In the `Administration` core code, each module is defined in a directory called 
 Inside of the `module` directory lies the list of several modules, each having their own directory named after the module itself. Makes sense, right?
 
 So, go ahead and create a new directory `<plugin root>/src/Resources/administration/module/swag-bundle`, so you can store your own modules files in there.
-Right afterwards create a new file called `index.js` in there. This is necessary, because the Shopware platform is automatically requiring an `index.js` file
+Right afterwards create a new file called `index.js` in there. This is necessary, because Shopware 6 is automatically requiring an `index.js` file
 for each module. Consider it to be the main file for your custom module.
 
-Your custom module directory is not known to the Shopware platform yet, because why should it.
+Your custom module directory is not known to Shopware 6 yet, because why should it.
 As mentioned earlier, the only entry point of your plugin is the `main.js` file. And that's the file you need to change now, so that it loads your new module.
 For this, simply add the following line to your `main.js` file:
 ```js
@@ -67,7 +67,7 @@ Module.register('swag-bundle', {
 So, what do you configure here?
 For example the color of your module. Each module asks for a color, which will be used automatically throughout your module.
 In this example `#ff3d58` is used as a color, which is a soft red. Also, each module has a his own icon.
-Which icons are available in the Shopware platform by default can be seen [here](https://component-library.shopware.com/#/icons/).
+Which icons are available in Shopware 6 by default can be seen [here](https://component-library.shopware.com/#/icons/).
 The bundle example uses the icon `default-shopping-paper-bag-product`, which will also be used for the module.
 *Attention: This is not the icon being used for a menu entry!*
 
@@ -479,7 +479,7 @@ your single instance of it, not extending and changing the element as a whole.
 ##### Listing template
 
 You want to show a list of your bundle entities with the `swag-bundle-list` component.
-Fortunately the Shopware platform comes with a neat component to be used for this specific case: `sw-entity-listing`
+Fortunately Shopware 6 comes with a neat component to be used for this specific case: `sw-entity-listing`
 
 Basically, it only needs three attributes to be filled in order to have a running listing:
 <dl>
@@ -559,7 +559,7 @@ Component.register('swag-bundle-list', {
 ```
 
 Now you wonder how to fill the `bundles` variable here. Do you still remember, that you created an `EntityDefinition` for your new table way earlier in this
-tutorial? By this, you've registered your custom table to the Shopware platform [data abstraction layer](./../../2-internals/1-core/20-data-abstraction-layer/__categoryInfo.md) which then
+tutorial? By this, you've registered your custom table to Shopware 6 [data abstraction layer](./../../2-internals/1-core/20-data-abstraction-layer/__categoryInfo.md) which then
 also takes care of creating a repository for your bundles. This means, that you can access your bundles using the API.
 
 Accessing the API in your component also works by fetching a repository and executing searches on it. Accessing the repository now opens up a whole new subject:
@@ -859,7 +859,7 @@ always needs some options to display. That's also the last property you'll need:
 The `options` will be defined in your `swag-bundle-detail` component.
 
 There's only one more field missing right now. With those fields, you will be able to handle all the bundle's basic data. But how do you assign products?
-For this purpose, the Shopware platform another neat component to handle this situation easily: `sw-many-to-many-select`
+For this purpose, Shopware 6 another neat component to handle this situation easily: `sw-many-to-many-select`
 
 Here's the code, before we have a look at what it does:
 ```twig
@@ -889,7 +889,7 @@ The `:collection` attribute is just like `v-model`, you simply point to the asso
 ##### Adding action buttons
 
 Your card contains all necessary fields now, but there's no save or cancel button yet.
-You always want your custom module and components to look like it was from the official Shopware platform Administration itself,
+You always want your custom module and components to look like it was from the official Shopware 6 Administration itself,
 so your customers won't be having any issues understanding how to deal with the new modules and components.
 
 By default, the save and the cancel button should always be part of the smart bar, which is the bar right above your module. 

@@ -7,7 +7,7 @@ Throughout this guide, you will find the `$` symbol representing your command li
 
 ## Overview
 
-By default, the Shopware platform is looking for migration files in a directory called `Migration` relative to your plugin's
+By default, Shopware 6 is looking for migration files in a directory called `Migration` relative to your plugin's
 base class.
 
 ```
@@ -159,7 +159,7 @@ $ ./bin/console database:migrate PluginMigrationExample\\Migration --all
 
 ## Customizing the migration path / namespace
 
-While the Shopware platform searches for your plugin's migrations in a `Migration` directory per default,
+While Shopware 6 searches for your plugin's migrations in a `Migration` directory per default,
 you can manually set another directory to be considered for your plugin.
 
 This is done by choosing another namespace for your migrations, which can be changed by overwriting your plugin's [getMigrationNamespace()](020-plugin-base-class.md#getMigrationNamespace()) method:

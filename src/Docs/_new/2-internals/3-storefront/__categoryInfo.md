@@ -6,7 +6,7 @@ The Storefront component, conceptually like the [Administration](./../2-administ
 
 ## Building Blocks 
 
-The Storefront is the least fancy of the components of the Shopware Platform. If you did some backend development in PHP in the last few years you should find yourself instantly familiar with its structure. The Storefronts main concerns are:
+The Storefront is the least fancy of the components of Shopware 6. If you did some backend development in PHP in the last few years you should find yourself instantly familiar with its structure. The Storefronts main concerns are:
 
 **[Composite Data Loading](./10-composite-data-loading.md)** ([Page](https://github.com/shopware/platform/tree/master/src/Storefront/Page), [Pagelet](https://github.com/shopware/platform/tree/master/src/Storefront/Pagelet))
    : Contrary to API calls that result in single resource data, a whole page in Storefront displays multiple different data sets on a single page.

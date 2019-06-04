@@ -113,14 +113,14 @@ Below you'll find an example how to use this option.
 
 ### options
 
-You can use `<options>` to add options to a `<input-field>` of the types `select` and `radio`.
-For the type `select` each `<option>` represents one option you can select.
+You can use `<options>` to add options to a `<input-field>` of the types `single-select`, `multi-select` and `radio`.
+For the types `single-select` or `multi-select`, each `<option>` represents one option you can select.
 For the type `radio` each `<option>` represents one radio button.
 
 Below you"ll find an example.
 
 ```xml
-<input-field type="select">
+<input-field type="single-select">
     <name>mailMethod</name>
     <options>
         <option>
@@ -184,7 +184,7 @@ Now all that's left to do is to present you a working example `config.xml` and s
             <helpText lang="de-DE">Bitte trage deine persönliche E-Mail Adresse ein</helpText>
         </input-field>
 
-        <input-field type="select">
+        <input-field type="single-select">
             <name>mailMethod</name>
             <options>
                 <option>

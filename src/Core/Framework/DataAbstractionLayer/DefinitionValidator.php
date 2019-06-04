@@ -797,15 +797,22 @@ class DefinitionValidator
 
         $ref = $this->mapRefNameContainedName($ref);
         $refPlural = Inflector::pluralize($ref);
+        $refSalesChannelPart = str_replace('SalesChannel', '', $ref);
+        $refSalesChannelPartPlural = Inflector::pluralize($refSalesChannelPart);
 
-        if (stripos($prop, $ref) === false && stripos($prop, $refPlural) === false) {
+        if (
+            stripos($prop, $ref) === false && stripos($prop, $refPlural) === false
+            && stripos($prop, $refSalesChannelPart) === false && stripos($prop, $refSalesChannelPartPlural) === false
+        ) {
             $ret = [$definition->getClass() => [
                 sprintf(
-                    'Association %s.%s does not contain reference class name `%s` or `%s`.',
+                    'Association %s.%s does not contain reference class name `%s` or `%s` or `%s` or `%s`',
                     $definition->getEntityName(),
                     $association->getPropertyName(),
                     $ref,
-                    $refPlural
+                    $refPlural,
+                    $refSalesChannelPart,
+                    $refSalesChannelPartPlural
                 ),
             ],
             ];

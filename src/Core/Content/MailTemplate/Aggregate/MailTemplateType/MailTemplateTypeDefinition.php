@@ -60,7 +60,7 @@ class MailTemplateTypeDefinition extends EntityDefinition
 
             (new TranslationsAssociationField(MailTemplateTypeTranslationDefinition::class, 'mail_template_type_id'))->addFlags(new Required()),
             new OneToManyAssociationField('mailTemplates', MailTemplateDefinition::class, 'mail_template_type_id'),
-            new OneToManyAssociationField('mailTemplateSalesChannels', MailTemplateSalesChannelDefinition::class, 'mail_template_type_id'),
+            new OneToManyAssociationField('salesChannels', MailTemplateSalesChannelDefinition::class, 'mail_template_type_id'),
         ]);
     }
 }

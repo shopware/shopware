@@ -58,7 +58,7 @@ Component.register('sw-mail-template-detail', {
         },
 
         mailTemplateSalesChannelAssociationStore() {
-            return this.mailTemplate.getAssociation('mailTemplateSalesChannels');
+            return this.mailTemplate.getAssociation('salesChannels');
         },
 
         completerFunction() {
@@ -182,7 +182,6 @@ Component.register('sw-mail-template-detail', {
             this.isLoading = true;
             this.onChangeSalesChannel();
             return this.mailTemplate.save().then(() => {
-                console.log(this.mailTemplate);
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
             }).catch((exception) => {
@@ -208,8 +207,14 @@ Component.register('sw-mail-template-detail', {
                 message: this.$tc('sw-mail-template.general.notificationTestMailSalesChannelErrorMessage')
             };
 
-            if (this.mailTemplateSalesChannels && this.mailTemplateSalesChannels.length > 0) {
-                this.mailTemplateSalesChannels.forEach((salesChannelId) => {
+            if (this.mailTemplate.salesChannels.length) {
+                this.mailTemplate.salesChannels.forEach((salesChannelAssoc) => {
+                    let salesChannelId = '';
+                    if (typeof salesChannelAssoc === 'object') {
+                        salesChannelId = salesChannelAssoc.salesChannel.id;
+                    } else {
+                        salesChannelId = salesChannelAssoc;
+                    }
                     this.mailService.testMailTemplateById(
                         this.testerMail,
                         this.mailTemplate,
@@ -265,17 +270,17 @@ Component.register('sw-mail-template-detail', {
                 // and all SalesChannels already assigned to the current mailTemplate if type not changed
                 if (this.mailTemplate.mailTemplateTypeId === this.selectedType.id) {
                     this.salesChannelTypeCriteria = CriteriaFactory.multi('OR',
-                        CriteriaFactory.equals('mailTemplatesSalesChannels.id', null),
+                        CriteriaFactory.equals('mailTemplates.id', null),
                         CriteriaFactory.not(
                             'AND',
                             CriteriaFactory.equalsAny('id', assignedSalesChannelIds)
                         ),
                         CriteriaFactory.equals(
-                            'mailTemplatesSalesChannels.mailTemplate.id', this.mailTemplate.id
+                            'mailTemplates.mailTemplate.id', this.mailTemplate.id
                         ));
                 } else { // type changed so only get free saleschannels
                     this.salesChannelTypeCriteria = CriteriaFactory.multi('OR',
-                        CriteriaFactory.equals('mailTemplatesSalesChannels.id', null),
+                        CriteriaFactory.equals('mailTemplates.id', null),
                         CriteriaFactory.not(
                             'AND',
                             CriteriaFactory.equalsAny('id', assignedSalesChannelIds)

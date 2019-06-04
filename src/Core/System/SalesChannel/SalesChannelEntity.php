@@ -217,7 +217,7 @@ class SalesChannelEntity extends Entity
     /**
      * @var MailTemplateSalesChannelCollection|null
      */
-    protected $mailTemplateSalesChannels;
+    protected $mailTemplates;
 
     /**
      * @var string|null
@@ -599,14 +599,14 @@ class SalesChannelEntity extends Entity
         $this->productVisibilities = $productVisibilities;
     }
 
-    public function getMailTemplateSalesChannels(): ?MailTemplateSalesChannelCollection
+    public function getMailTemplates(): ?MailTemplateSalesChannelCollection
     {
-        return $this->mailTemplateSalesChannels;
+        return $this->mailTemplates;
     }
 
-    public function setMailTemplateSalesChannels(MailTemplateSalesChannelCollection $mailTemplateSalesChannels): void
+    public function setMailTemplates(MailTemplateSalesChannelCollection $mailTemplates): void
     {
-        $this->mailTemplateSalesChannels = $mailTemplateSalesChannels;
+        $this->mailTemplates = $mailTemplates;
     }
 
     public function getCustomerGroupId(): string

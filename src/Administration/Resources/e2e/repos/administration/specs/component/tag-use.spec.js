@@ -37,12 +37,8 @@ module.exports = {
             .waitForElementVisible('.sw-tag-field');
     },
     'add existing tag': (browser) => {
-        browser
-            .fillMultiSelect(
-                '.sw-tag-field',
-                'Schöner Tag',
-                'Schöner'
-            );
+        browser.fillSwSelect('.sw-tag-field', { value: 'Schöner Tag', isMulti: true });
+        browser.clearValue('.sw-tag-field .sw-multi-select__selection-item-input input');
     },
     'create new tag': (browser) => {
         const page = productPage(browser);

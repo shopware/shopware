@@ -18,9 +18,9 @@ class ProductPageObject extends GeneralPageObject {
         this.browser
             .fillField('input[name=sw-field--product-name]', productName)
             .fillField('.sw-text-editor__content-editor', 'My very first description', false, 'editor')
-            .fillSingleSelect(
+            .fillSwSelect(
                 '.sw-select-product__select_manufacturer',
-                'shopware AG'
+                { value: 'shopware AG' }
             )
             .fillField('input[name=sw-field--price-gross]', '99')
             .fillSelectField('select[name=sw-field--product-taxId]', '19%')

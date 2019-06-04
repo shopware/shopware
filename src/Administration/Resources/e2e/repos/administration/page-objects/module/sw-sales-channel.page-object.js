@@ -24,23 +24,23 @@ class SalesChannelPageObject extends GeneralPageObject {
         this.browser
             .fillField(this.elements.salesChannelNameInput, salesChannelName)
 
-            .fillMultiSelect('.sw-sales-channel-detail__select-payment-method', 'Invoice', 'Invoice')
-            .fillSingleSelect('.sw-sales-channel-detail__assign-payment-method', 'Invoice')
+            .fillSwSelect('.sw-sales-channel-detail__select-payment-method', { value: 'Invoice', isMulti: true })
+            .fillSwSelect('.sw-sales-channel-detail__assign-payment-method', { value: 'Invoice' })
 
-            .fillMultiSelect('.sw-sales-channel-detail__select-shipping-method', 'Standard', 'Standard')
-            .fillSingleSelect('.sw-sales-channel-detail__assign-shipping-method', 'Standard')
+            .fillSwSelect('.sw-sales-channel-detail__select-shipping-method', { value: 'Standard', isMulti: true })
+            .fillSwSelect('.sw-sales-channel-detail__assign-shipping-method', { value: 'Standard' })
 
-            .fillMultiSelect('.sw-sales-channel-detail__select-countries', 'Germany', 'Germany')
-            .fillSingleSelect('.sw-sales-channel-detail__assign-countries', 'Germany')
+            .fillSwSelect('.sw-sales-channel-detail__select-countries', { value: 'Germany', isMulti: true })
+            .fillSwSelect('.sw-sales-channel-detail__assign-countries', { value: 'Germany' })
 
-            .fillMultiSelect('.sw-sales-channel-detail__select-currencies', 'Euro', 'Euro')
-            .fillSingleSelect('.sw-sales-channel-detail__assign-currencies', 'Euro')
+            .fillSwSelect('.sw-sales-channel-detail__select-currencies', { value: 'Euro', isMulti: true })
+            .fillSwSelect('.sw-sales-channel-detail__assign-currencies', { value: 'Euro' })
 
-            .fillMultiSelect('.sw-sales-channel-detail__select-languages', 'Deutsch', 'Deutsch')
-            .fillSingleSelect('.sw-sales-channel-detail__assign-languages', 'Deutsch')
+            .fillSwSelect('.sw-sales-channel-detail__select-languages', { value: 'Deutsch', isMulti: true })
+            .fillSwSelect('.sw-sales-channel-detail__assign-languages', { value: 'Deutsch' })
 
-            .fillSingleSelect('.sw-sales-channel-detail__select-customer-group', 'Standard customer group', 1)
-            .fillSingleSelect('.sw-sales-channel-detail__select-navigation-category-id', 'Catalogue #1', 1)
+            .fillSwSelect('.sw-sales-channel-detail__select-customer-group', { value: 'Standard customer group', resultPosition: 1 })
+            .fillSwSelect('.sw-sales-channel-detail__select-navigation-category-id', { value: 'Catalogue #1', resultPosition: 1 })
 
             .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .click(this.elements.salesChannelSaveAction)

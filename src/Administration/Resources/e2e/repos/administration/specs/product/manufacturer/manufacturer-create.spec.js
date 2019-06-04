@@ -56,10 +56,6 @@ module.exports = {
             .click('.smart-bar__actions a[href="#/sw/product/create"]')
             .waitForElementPresent('.sw-select-product__select_manufacturer')
             .waitForElementNotPresent(page.elements.loader)
-            .fillSingleSelect(
-                '.sw-select-product__select_manufacturer',
-                'MAN-U-FACTURE',
-                0
-            );
+            .fillSwSelect('.sw-select-product__select_manufacturer', { value: 'MAN-U-FACTURE' });
     }
 };

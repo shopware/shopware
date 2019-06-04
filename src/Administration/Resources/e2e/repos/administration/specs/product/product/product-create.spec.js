@@ -37,10 +37,8 @@ module.exports = {
                 '.sw-product-detail__select-category',
                 global.AdminFixtureService.basicFixture.name
             )
-            .fillMultiSelect(
-                '.sw-product-detail__select-visibility',
-                'Storefront',
-                'Storefront'
+            .fillSwSelect(
+                '.sw-product-detail__select-visibility', { value: 'Storefront', isMulti: true }
             )
             .waitForElementNotPresent(`${page.elements.productSaveAction}.sw-button--disabled`)
             .expect.element(page.elements.productSaveAction).to.not.have.attribute('disabled');

@@ -31,14 +31,7 @@ module.exports = {
         browser.expect.element('.sw-media-folder-settings-modal__default-folder-select.sw-select label').to.have.text.that.equals('Default location for:');
 
         browser
-            .fillSwSelectComponent(
-                '.sw-media-folder-settings-modal__default-folder-select .sw-select__inner',
-                {
-                    value: 'Product Media',
-                    isMulti: false,
-                    searchTerm: 'Product Media'
-                }
-            )
+            .fillSwSelect('.sw-media-folder-settings-modal__default-folder-select .sw-select__inner', { value: 'Product Media' })
             .expect.element('.sw-media-folder-settings-modal__default-folder-select .sw-select__single-selection').to.have.text.that.equals('Product Media');
 
         browser

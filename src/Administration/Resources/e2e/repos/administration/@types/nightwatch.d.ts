@@ -2158,7 +2158,7 @@ export interface NightwatchAPI {
     launch_url: string;
 }
 
-interface fillSwSelectComponentOptions {
+interface fillSwSelectOptions {
     value: string,
     clearField?: boolean,
     isMulti?: boolean,
@@ -2246,7 +2246,7 @@ export interface NightwatchCustomCommands {
      *
      * Usage:
      * ```
-     * .fillSwSelectComponent(
+     * .fillSwSelect(
      *     '.sw-settings-language-detail__select-parent',
      *     {
      *          value: 'English',
@@ -2264,7 +2264,7 @@ export interface NightwatchCustomCommands {
      * @param {Boolean} obj.isMulti
      * @param {String} obj.searchTerm
      */
-    fillSwSelectComponent(selector: string, obj: fillSwSelectComponentOptions): this,
+    fillSwSelect(selector: string, obj: fillSwSelectOptions): this,
 
 
     /**
@@ -2366,20 +2366,6 @@ export interface NightwatchCustomCommands {
      * @param callback
      */
     checkIfElementExists(selector: string, callback: () => boolean): this
-
-    /**
-     * @param {String} selector
-     * @param {String} searchTerm
-     * @param {String} value
-     */
-    fillMultiSelect(selector: string, searchTerm: string, value: string): this
-
-    /**
-     * @param {String} selector
-     * @param {String} value
-     * @param {Number} resultPosition
-     */
-    fillSingleSelect(selector: string, value: string, resultPosition?: number): this
 }
 
 /* tslint:disable-next-line:no-empty-interface */

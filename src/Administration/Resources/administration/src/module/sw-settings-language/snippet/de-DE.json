@@ -33,7 +33,6 @@
       "labelLocale": "Lokalisierung",
       "labelParent": "Erben von",
       "labelIsoCode": "ISO Code",
-      "labelDefault": "Als Systemstandardsprache benutzen",
       "placeholderName": "Namen eingeben ...",
       "placeholderPleaseSelect": "Bitte wählen ...",
       "buttonCancel": "Abbrechen",
@@ -43,8 +42,7 @@
       "textAlertChangeParent": "Ein Wechsel der geerbten Sprache kann gegebenenfalls zu inkonsistenten Übersetzungen führen.",
       "titleAlertChangeParent": "Achtung",
       "textIsoCodeIsInUse": "Dieser ISO-Code wird bereits verwendet.",
-      "textLanguageHasParent": "Diese Sprache erbt bereits von einer anderen Sprache.",
-      "helpTextDefaultField": "Das Ändern der Systemstandardsprache ist zur Zeit leider noch nicht möglich."
+      "textLanguageHasParent": "Diese Sprache erbt bereits von einer anderen Sprache."
     }
   }
 }

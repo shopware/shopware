@@ -27,7 +27,7 @@ module.exports = {
                 menuActionSelector: '.sw-context-menu-item--danger',
                 scope: `${page.elements.dataGridRow}--2`
             })
-            .expect.element('.sw-modal .sw-modal__body').to.have.text.that.contains('Are you sure you want to delete the item?');
+            .expect.element('.sw-modal .sw-modal__body').to.have.text.that.contains('Are you sure you want to delete this item?');
 
         browser
             .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)

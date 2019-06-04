@@ -62,12 +62,14 @@ Component.register('sw-settings-language-list', {
                 inlineEdit: true
             }, {
                 property: 'locale',
+                dataIndex: 'locale.id',
                 label: this.$tc('sw-settings-language.list.columnLocaleName')
             }, {
                 property: 'translationCode.code',
                 label: this.$tc('sw-settings-language.list.columnIsoCode')
             }, {
                 property: 'parent',
+                dataIndex: 'parent.id',
                 label: this.$tc('sw-settings-language.list.columnInherit')
             }, {
                 property: 'id',

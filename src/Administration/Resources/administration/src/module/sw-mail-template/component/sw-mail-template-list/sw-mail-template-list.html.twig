@@ -47,8 +47,8 @@
                             {% block sw_mail_template_list_columns_sales_channels %}
                                 {% block sw_mail_template_list_columns_sales_channels_label %}
                                     <span>
-                                        <span v-for="(salesChannel, index) in item.salesChannels.slice(0, 4)" :key="`salechannel-list-item--${index}`">{{ (index > 0) ?`, ${salesChannel.translated.name}`:`${salesChannel.translated.name}`}}</span>
-                                        <span v-if="item.salesChannels.length >= 5">, ...</span>
+                                        <span v-for="(salesChannel, index) in item.mailTemplateSalesChannels.slice(0, 4)" :key="`salechannel-list-item--${index}`">{{ (index > 0) ?`, ${mailTemplateSalesChannel.salesChannel.translated.name}`:`${mailTemplateSalesChannel.salesChannel.translated.name}`}}</span>
+                                        <span v-if="item.mailTemplateSalesChannels.length >= 5">, ...</span>
                                     </span>
                                 {% endblock %}
                             {% endblock %}

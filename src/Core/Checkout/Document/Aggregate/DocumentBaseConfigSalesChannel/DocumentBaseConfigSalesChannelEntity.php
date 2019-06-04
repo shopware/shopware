@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel;
 
+use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -32,7 +33,7 @@ class DocumentBaseConfigSalesChannelEntity extends Entity
     protected $documentType;
 
     /**
-     * @var DocumentBaseConfigSalesChannelEntity|null
+     * @var DocumentBaseConfigEntity|null
      */
     protected $documentBaseConfig;
 
@@ -84,12 +85,12 @@ class DocumentBaseConfigSalesChannelEntity extends Entity
         $this->documentType = $documentType;
     }
 
-    public function getDocumentBaseConfig(): ?DocumentBaseConfigSalesChannelEntity
+    public function getDocumentBaseConfig(): ?DocumentBaseConfigEntity
     {
         return $this->documentBaseConfig;
     }
 
-    public function setDocumentBaseConfig(DocumentBaseConfigSalesChannelEntity $documentBaseConfig): void
+    public function setDocumentBaseConfig(DocumentBaseConfigEntity $documentBaseConfig): void
     {
         $this->documentBaseConfig = $documentBaseConfig;
     }

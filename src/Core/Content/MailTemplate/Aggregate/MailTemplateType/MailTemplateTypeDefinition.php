@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType;
 
+use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateSalesChannel\MailTemplateSalesChannelDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTypeTranslation\MailTemplateTypeTranslationDefinition;
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -59,6 +60,7 @@ class MailTemplateTypeDefinition extends EntityDefinition
 
             (new TranslationsAssociationField(MailTemplateTypeTranslationDefinition::class, 'mail_template_type_id'))->addFlags(new Required()),
             new OneToManyAssociationField('mailTemplates', MailTemplateDefinition::class, 'mail_template_type_id'),
+            new OneToManyAssociationField('mailTemplateSalesChannels', MailTemplateSalesChannelDefinition::class, 'mail_template_type_id'),
         ]);
     }
 }

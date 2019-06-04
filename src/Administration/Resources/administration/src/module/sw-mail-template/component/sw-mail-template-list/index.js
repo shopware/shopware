@@ -28,7 +28,11 @@ Component.register('sw-mail-template-list', {
             this.isLoading = true;
             const params = this.getListingParams();
             params.associations = {
-                salesChannels: {},
+                mailTemplateSalesChannels: {
+                    associations: {
+                        salesChannel: {}
+                    }
+                },
                 mailTemplateType: {}
             };
 

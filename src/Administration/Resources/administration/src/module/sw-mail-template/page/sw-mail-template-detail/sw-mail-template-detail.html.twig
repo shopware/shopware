@@ -49,7 +49,7 @@
                                 v-model="mailTemplate.mailTemplateTypeId"
                                 :label="$tc('sw-mail-template.detail.basic.labelMailType')"
                                 :placeholder="$tc('sw-mail-template.detail.basic.placeholderMailType')"
-                                @input="onMailTemplateTypeChanged"
+                                @input="onChangeType"
                                 validation="required"
                                 required>
                             </sw-select>
@@ -59,13 +59,15 @@
                             <sw-select id="salesChannels"
                                        multi
                                        :store="salesChannelStore"
-                                       :associationStore="salesChannelAssociationStore"
-                                       :criteria="unassignedSalesChannelCriteria"
-                                       :disabled="!mailTemplate.mailTemplateTypeId"
+                                       :associationStore="mailTemplateSalesChannelsStore"
+                                       :criteria="salesChannelTypeCriteria"
                                        :label="$tc('sw-mail-template.detail.basic.labelSalesChannels')"
                                        :placeholder="$tc('sw-mail-template.detail.basic.placeholderSalesChannels')"
-                                       ref="salesChannelSelect"
-                                       v-model="mailTemplate.salesChannels">
+                                       ref="mailTemplateSalesChannel"
+                                       :disabled="selectedType.id === undefined"
+                                       v-if="mailTemplate"
+                                       :showSearch="false"
+                                       v-model="mailTemplateSalesChannels">
                             </sw-select>
                         {% endblock %}
 

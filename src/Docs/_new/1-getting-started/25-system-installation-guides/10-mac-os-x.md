@@ -7,7 +7,7 @@ For quick and easy installation you can also use **MAMP** on mac.
 
 ### Preparation
 
-* 	Download & install MAMP from [https://www.mamp.info/de/downloads/](https://www.mamp.info/de/downloads/)
+* Download & install MAMP from [https://www.mamp.info/de/downloads/](https://www.mamp.info/en/downloads/)
 
 
 First of all you have to modify the PHP settings inside MAMP as seen on the following screenshot:
@@ -20,7 +20,7 @@ After that start the mysql &amp; webserver-service with the toggle buttons on th
 
 ### Prepare MySQL user &amp; database
 
-Open the **MySQL Tab** on the left side and click on the *PhpMyAdmin* icon - if the icon is grayed out check if the mysql and webserver services are running.
+Open the **MySQL Tab** on the left side and click on the *PhpMyAdmin* icon - if the icon is grayed out, check if the mysql and webserver services are running.
 
 
 ![MYSQL Settings](./img/10-mac-os-x-mysql.png)
@@ -28,6 +28,7 @@ Open the **MySQL Tab** on the left side and click on the *PhpMyAdmin* icon - if 
 Inside PhpMyAdmin switch to the user account management on the top menu and click *add new user*.
 
 Choose a username (e.g. shopware) and a password and set the option *Create database with same name and grant all privileges*.
+Also, set the option *Check all* in the **Global privileges** card. Afterwards, all checkboxes in this card should be checked.
 
 Finish this step by clicking *GO*.
 
@@ -126,14 +127,20 @@ git clone https://github.com/shopware/platform.git
  
 ```bash
 # Inside the shopware installation directory (e.g.  /PhpstormProjects/shopware/development)
-vim .psh.yaml.dist
-# Change DB_HOST to *localhost*
-# Change DB_USER to your new mysql-user
-# Change DB_PASSWORD to your choosen password
-# Change APP_URL to http://shopware:8000
+bin/setup
 ```
 
-​​​​​​
+You will be prompted to enter several information.
+In short:
+- Application environment: Just hit enter to apply the default `dev`
+- URL to your /public folder: `http://shopware:8000`
+- Database host: Just hit enter to apply the default `localhost`
+- Database port: Just hit enter to apply the default `3306`
+- Database name: Enter the name of your database that you created earlier, `shopware` was suggested
+- Database user: Enter the name of your MySQL user, that you created previously
+- Database password: Enter the password of the new MySQL user
+
+Afterwards a file called `.psh.yaml.override` is created, which contains all those information you just entered.
 
 #### **Start shopware platform setup**
 
@@ -142,10 +149,11 @@ vim .psh.yaml.dist
 ./psh.phar install
 ```
 
-After that the setup is done 
-You can now access your shopware platform installation with the following urls:
-
+After that the setup is done.
+You can now access your shopware platform installation using the following urls:
 
 * Storefront: http://shopware:8000
 * Admin: http://shopware:8000/admin (User: admin, password: shopware)
+
+### Next: [Startup](./../30-startup-guide/__categoryInfo.md)
 

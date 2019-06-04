@@ -3,9 +3,9 @@
 To be able to introduce extensions into the system, the core comes with an integrated plugin system.
 Plugins are [Symfony Bundles](https://symfony.com/doc/current/bundles.html) which can be activated and deactivated via the [plugin commands](./030-plugin-commands.md).
 A plugin can change the behavior of the system including: 
-* Listening for events and executing afterwards ([Listening to events via Subscriber](#Listening to events via Subscriber)
-* Define new services, extend existing ones or exchange them completely to implement your custom logic and business cases (([Creating a service](#Creating a service)))
-* Include entities in the system and/or extend existing ones ([Custom entities via plugin](./../../4-how-to/050-custom-entity.md)
+* Listening for events and executing afterwards ([Listening to events via Subscriber](./../../4-how-to/040-register-subscriber.md))
+* Define new services, extend existing ones or exchange them completely to implement your custom logic and business cases ([Creating a service](./../../4-how-to/070-add-service.md))
+* Include entities in the system and/or extend existing ones ([Custom entities via plugin](./../../4-how-to/050-custom-entity.md))
 
 This document will give you a brief introduction on how to create your very first own plugin, including some
 basic setup, e.g. registering your first service or creating a new controller.
@@ -72,7 +72,7 @@ The directory structure could then look like this:
                 └── PluginQuickStart.php
 ```
 
-# Plugin meta data
+## Plugin meta data
 
 Another requirement for a working plugin is the `composer.json` file.
 It contains all the necessary meta data of your plugin, e.g. the plugin version, its supported Shopware platform versions,
@@ -117,14 +117,14 @@ Here's a brief example of how this file could look like:
 
 Read [here](./050-plugin-information.md) for more information about the content of the composer.json file.
 
-# Installing the plugin
+## Installing the plugin
 
 Now, that you've created the two necessary plugin files, you're able to install the plugin.
 This is done using one of the [plugin commands](./030-plugin-commands.md).
 
-Starting in your **project root** directory, run the command `bin/console plugin:install --activate Swag\\PluginQuickStart\\PluginQuickStart` to install and activate the plugin.
+Starting in your **project root** directory, run the command `bin/console plugin:install --activate PluginQuickStart` to install and activate the plugin.
 
-# Plugin configuration
+## Plugin configuration
 
 When shipping a plugin to your customer, you might want to ship the plugin with some built-in configurations.
 This way you can make sure your customers can configure your plugin to perfectly fit their needs.
@@ -163,7 +163,7 @@ Those will be rendered into the administration settings.
 
 For a more detailed guide on how to setup the `config.xml` and which input types exist, head over to the detailed [plugin configuration](./070-plugin-config.md) guide.
 
-# Listening to events via Subscriber
+## Listening to events via Subscriber
 
 You registered the plugin into the Shopware platform, created a config for it and even installed and activated it afterwards.
 Unfortunately, you're not really doing anything with your plugin as of yet.
@@ -171,7 +171,7 @@ Unfortunately, you're not really doing anything with your plugin as of yet.
 One of the main purposes of a plugin is listening to several system events and then executing code once an event is dispatched.
 In order to do so, the Shopware platform makes use of the [Symfony subscribers](https://symfony.com/doc/current/components/event_dispatcher.html#using-event-subscribers).
 
-## Subscriber class
+### Subscriber class
 
 Before you can register your subscriber, you need the subscriber class itself first.
 The subscriber class has to implement the `EventSubscriberInterface` and therefore it's required static method `getSubscribedEvents`.
@@ -212,7 +212,7 @@ class MySubscriber implements EventSubscriberInterface
 
 The subscriber would now listen to the event `example_event` and once the event is dispatched, the method `onExampleEvent` is executed.
 
-## The services.xml
+### The services.xml
 
 Your subscriber now has to be registered into the [DI container](https://symfony.com/doc/current/service_container.html).
 In the platform, the services in the DI container are defined in XML.
@@ -258,7 +258,7 @@ Your subscriber is now fully integrated:
 - The subscriber class exists and it listens to an event
 - The subscriber is mentioned in the `services.xml` file
 
-# Creating a controller
+## Creating a controller
 
 Another common thing to be done in a plugin is registering a custom controller, e.g. to be used as a new custom API endpoint.
 For this case you could create a new directory called `Controller` inside the `src` directory , but once again, the naming and structure can be freely chosen here.
@@ -322,9 +322,9 @@ about [external routing resources](https://symfony.com/doc/current/routing/exter
 
 Now the controller should be fully working and accessible using the route mentioned in the method's `@Route` annotation.
 Since we've created an API route here, an authorization token is still necessary to actually access our controller.
-Remove the 'api' from the route to circumvent the authorization for testing purposes or get more into how the Shopware platform management API works [here](./../../3-api/10-management-api.md). 
+Remove the 'api' from the route to circumvent the authorization for testing purposes or get more into how the Shopware platform management API works [here](./../../3-api/010-management-api.md). 
 
-# Creating a service
+## Creating a service
 
 Since you don't want any business logic to be executed inside of a controller or subscriber, you usually want to put your business logic
 into services. Earlier in this tutorial you already created a `services.xml` file, and as the name suggests, you can also define new services in there.

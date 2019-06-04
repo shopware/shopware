@@ -27,21 +27,21 @@ If you're unhappy with this default path, you can override it in your plugin's b
 
 As mentioned earlier, this HowTo is only trying to replace the 'demo' logo with a 'Hello world!' text.
 In order to find the proper template, you can simply search for the term 'logo' inside of the `<shopware root>/src/Storefront` directory.
-This will ultimately lead you to [this](https://github.com/shopware/platform/blob/master/src/Storefront/Resources/views/base/header/logo.html.twig) file.
+This will ultimately lead you to [this](https://github.com/shopware/platform/blob/master/src/Storefront/Resources/views/layout/header/logo.html.twig) file.
 
 Overriding this file now requires you to copy the exact same directory structure starting from the `views` directory.
-In this case, the file `logo.html.twig` is located in a directory called `views/base/header`, so make sure to remember this path.
+In this case, the file `logo.html.twig` is located in a directory called `views/layout/header`, so make sure to remember this path.
 
 ### Overriding the template
 
 Now, that you've found the proper template for the logo, you can override it.
 
 This is done by creating the very same directory structure for your custom file, which is also being used in the Storefront core.
-As you hopefully remember, you have to set up the following directory path in your plugin: `<plugin root>/src/Resources/views/base/header` 
+As you hopefully remember, you have to set up the following directory path in your plugin: `<plugin root>/src/Resources/views/layout/header` 
 In there you want to create a new file called `logo.html.twig`, just like the original file.
 Once more to understand what's going on here:
-In the Storefront code, the path to the logo file looks like this: `Storefront/Resources/views/base/header/logo.html.twig`
-Now have a look at the path being used in your plugin: `<plugin root>/src/Resources/views/base/header/logo.html.twig`
+In the Storefront code, the path to the logo file looks like this: `Storefront/Resources/views/layout/header/logo.html.twig`
+Now have a look at the path being used in your plugin: `<plugin root>/src/Resources/views/layout/header/logo.html.twig`
 
 Starting from the `views` directory, the path is **exactly the same**, and that's the important part for your custom template to be
 loaded automatically.
@@ -53,20 +53,20 @@ First of all you want to extend from the original file, so you can override its 
 
 Put this line at the very beginning of your file
 ```twig
-{% sw_extends '@Storefront/base/header/logo.html.twig' %}
+{% sw_extends '@Storefront/layout/header/logo.html.twig' %}
 ```
 
 This is simply extending the `logo.html.twig` file from the Storefront bundle.
 
 You want to replace the logo with some custom text, so let's have a look at the original file.
-In there you'll find a block called `base_header_logo_link`. Its contents then would create an anchor tag, which is not necessary
+In there you'll find a block called `layout_header_logo_link`. Its contents then would create an anchor tag, which is not necessary
 for our case anymore, so this seems to be a great block to override.
 
 To override it now, just add the very same block into your custom file and replace its contents:
 ```twig
-{% sw_extends '@Storefront/base/header/logo.html.twig' %}
+{% sw_extends '@Storefront/layout/header/logo.html.twig' %}
 
-{% block base_header_logo_link %}
+{% block layout_header_logo_link %}
     <h2>Hello world!</h2>
 {% endblock %}
 ```

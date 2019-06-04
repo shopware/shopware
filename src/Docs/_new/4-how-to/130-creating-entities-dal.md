@@ -8,7 +8,7 @@ The best and **most recommended** way for this is to use the Shopware platform [
 
 All of the following methods are to be executed on the entities' respective repository.
 
-## Using 'create'
+## Using create
 
 The `create()` method is for creating new entities that do not exist yet.
 
@@ -48,7 +48,7 @@ $taxRepository->create(
 );
 ```
 
-## Using Upsert
+## Using upsert
 
 The `upsert()` method is a great way for developers to ensure their data is reflected in the database,
 no matter if they exists or not. It combines both `create()` and `update()` and is mainly used for syncing data.

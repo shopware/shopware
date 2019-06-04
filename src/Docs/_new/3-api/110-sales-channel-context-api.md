@@ -10,7 +10,7 @@ sales channel.
 **Header:** sw-context-token is required  
 **Response:** Returns a list of currencies assigned to the sales channel.
 All filter, sorting, limit, and search operations are supported.
-You find more information about these operations [here](./50-filter-search-limit.md).
+You find more information about these operations [here](./050-filter-search-limit.md).
 
 ## Get languages
 
@@ -19,7 +19,7 @@ You find more information about these operations [here](./50-filter-search-limit
 **Header:** sw-context-token is required  
 **Response:** Returns a list of languages assigned to the sales channel.
 All filter, sorting, limit, and search operations are supported.
-You find more information about these operations [here](./50-filter-search-limit.md).
+You find more information about these operations [here](./050-filter-search-limit.md).
 
 ## Get countries
 
@@ -28,7 +28,7 @@ You find more information about these operations [here](./50-filter-search-limit
 **Header:** sw-context-token is required  
 **Response:** Returns a list of countries assigned to the sales channel.
 All filter, sorting, limit, and search operations are supported.
-You find more information about these operations [here](./50-filter-search-limit.md).
+You find more information about these operations [here](./050-filter-search-limit.md).
 
 ## Get country states
 
@@ -37,7 +37,7 @@ You find more information about these operations [here](./50-filter-search-limit
 **Header:** sw-context-token is required  
 **Response:** Returns a list of country states assigned to the sales channel and country.
 All filter, sorting, limit, and search operations are supported.
-You find more information about these operations [here](./50-filter-search-limit.md).
+You find more information about these operations [here](./050-filter-search-limit.md).
 
 ## Get payment methods
 
@@ -46,7 +46,7 @@ You find more information about these operations [here](./50-filter-search-limit
 **Header:** sw-context-token is required  
 **Response:** Returns a list of payment methods assigned to the sales channel.
 All filter, sorting, limit, and search operations are supported.
-You find more information about these operations [here](./50-filter-search-limit.md).
+You find more information about these operations [here](./050-filter-search-limit.md).
 
 ## Get shipping methods
 
@@ -55,4 +55,4 @@ You find more information about these operations [here](./50-filter-search-limit
 **Header:** sw-context-token is required  
 **Response:** Returns a list of shipping methods assigned to the sales channel.
 All filter, sorting, limit, and search operations are supported.
-You find more information about these operations [here](./50-filter-search-limit.md).
+You find more information about these operations [here](./050-filter-search-limit.md).

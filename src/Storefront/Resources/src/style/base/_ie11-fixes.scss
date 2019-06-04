@@ -1,4 +1,5 @@
 html.is-ie {
+    // fix: wrong height and alignment of icons in input append buttons.
     .input-group-append {
         .icon {
             display: block;
@@ -8,5 +9,10 @@ html.is-ie {
             top: 0;
             vertical-align: auto;
         }
+    }
+
+    // fix: flexbox column is overlapped by another column which makes the select unclickable.
+    .cart-item-row .cart-item-quantity {
+        z-index: 1;
     }
 }

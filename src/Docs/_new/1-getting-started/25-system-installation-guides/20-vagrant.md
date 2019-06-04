@@ -4,9 +4,9 @@ If using docker is not an option for you, vagrant is another great technology to
 
 Other than with the docker or local setup, with vagrant you will have a complete seperate server on your machine.
 
-Because of technical reasons, the vagrant machine acts like a remote web server, so with this setup, you'll develop your code on your PC like and then you upload/synchronize it to the vagrant machine.
+Because of technical reasons, the vagrant machine acts like a remote web server, so with this setup, you'll develop your code on your PC and then upload/synchronize it to the vagrant machine.
 
-For this, the vagrant machine supports SCP/SSH, which is integrated in Editors like PHPStorm or Visual Studio Code.
+For this, the vagrant machine supports SCP/SSH, which is integrated in Editors like PhpStorm or Visual Studio Code.
 
 ## Requirements
 

@@ -14,10 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 abstract class StorefrontController extends AbstractController
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected function renderStorefront($view, array $parameters = [], ?Response $response = null): Response
+    protected function renderStorefront(string $view, array $parameters = [], ?Response $response = null): Response
     {
         $view = $this->resolveView($view);
 

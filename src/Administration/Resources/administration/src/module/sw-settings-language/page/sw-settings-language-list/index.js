@@ -33,6 +33,7 @@ Component.register('sw-settings-language-list', {
     computed: {
         listingCriteria() {
             const criteria = new Criteria(this.page, this.limit);
+            criteria.addAssociation('locale');
 
             if (this.sortBy) {
                 criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection || 'DESC'));

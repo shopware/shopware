@@ -24,6 +24,7 @@ export default {
     template:
 `
 <sw-radio-field
+    class="sw-boolean-radio-group"
     v-bind="$attrs"
     :options="options"
     v-model="castedValue"

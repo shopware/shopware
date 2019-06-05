@@ -1,7 +1,0 @@
-{
-  "swag-custom-rule": {
-    "condition": {
-      "count-42": "Count 42"
-    }
-  }
-}

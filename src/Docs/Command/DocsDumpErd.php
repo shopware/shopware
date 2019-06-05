@@ -58,7 +58,7 @@ class DocsDumpErd extends Command
 
         $descriptionsShort = new ArrayWriter(__DIR__ . '/../Resources/erd-short-description.php');
         $descriptionsLong = new ArrayWriter(__DIR__ . '/../Resources/erd-long-description.php');
-        $destPath = __DIR__ . '/../_new/2-internals/1-core/10-erd';
+        $destPath = __DIR__ . '/../Resources/current/2-internals/1-core/10-erd';
 
         $fs = new Filesystem();
         $fs->remove(glob($destPath . '/erd-*'));

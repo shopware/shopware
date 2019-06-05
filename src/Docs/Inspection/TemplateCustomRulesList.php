@@ -29,7 +29,7 @@ EOD;
      */
     private $ruleDescriptionPath = __DIR__ . '/../Resources/characteristics-rule-descriptions.php';
 
-    private $ruleListPath = __DIR__ . '/../_new/2-internals/1-core/60-rule-system/10-rule-list.md';
+    private $ruleListPath = __DIR__ . '/../Resources/current/2-internals/1-core/60-rule-system/10-rule-list.md';
 
     /**
      * @var ModuleInspector

@@ -51,7 +51,7 @@ EOD;
     /**
      * @var string
      */
-    private $targetFile = __DIR__ . '/../_new/2-internals/1-core/10-modules.md';
+    private $targetFile = __DIR__ . '/../Resources/current/2-internals/1-core/10-modules.md';
 
     /**
      * @var ModuleInspector

@@ -1,9 +1,0 @@
-{
-    "name": "swagcustomrules",
-    "version": "1.0.0",
-    "description": "custom rules example",
-    "main": "index.js",
-    "author": "shopware AG",
-    "license": "MIT",
-    "private": true
-}

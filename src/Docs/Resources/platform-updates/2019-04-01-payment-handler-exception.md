@@ -13,4 +13,4 @@
 
 <p>Soonish it will be possible to transform the order into a cart again and let the customer update the payment method or something like that. Afterwards the order will be updatet und persisted again.</p>
 
-<p>Have a look at the <a href="https://github.com/shopware/platform/blob/master/src/Docs/_new/4-how-to/010-payment-plugin.md">Docs</a> or at our <a href="https://github.com/shopwareLabs/SwagPayPal/blob/master/Core/Checkout/Payment/Cart/PaymentHandler/PayPalPayment.php">PayPal Plugin</a> for examples</p>
+<p>Have a look at the <a href="https://github.com/shopware/platform/blob/master/src/Docs/Resources/current/4-how-to/010-payment-plugin.md">Docs</a> or at our <a href="https://github.com/shopwareLabs/SwagPayPal/blob/master/Core/Checkout/Payment/Cart/PaymentHandler/PayPalPayment.php">PayPal Plugin</a> for examples</p>

@@ -5,30 +5,30 @@ import HttpClient from 'src/script/service/http-client.service';
 import DomAccess from 'src/script/helper/dom-access.helper';
 import Iterator from 'src/script/helper/iterator.helper';
 
-const NAVIGATION_URL = window.router['frontend.menu.offcanvas'];
-
-const POSITION = 'left';
-const TRIGGER_EVENT = 'click';
-
-const ADDITIONAL_OFFCANVAS_CLASS = 'offcanvas-menu';
-
-const LINK_SELECTOR = '.js-offcanvas-menu-link';
-const LOADING_ICON_SELECTOR = '.js-offcanvas-menu-loading-icon';
-const LINK_LOADING_CLASS = 'is-loading';
-const MENU_SELECTOR = '.js-offcanvas-menu';
-const OVERLAY_CONTENT_SELECTOR = '.js-offcanvas-menu-overlay-content';
-const INITIAL_CONTENT_SELECTOR = '.js-offcanvas-menu-initial-content';
-
-const HOME_BTN_CLASS = 'go-home';
-const BACK_BTN_CLASS = 'go-back';
-const TRANSITION_CLASS = 'has-transition';
-const OVERLAY_CLASS = '.offcanvas-menu-overlay';
-const PLACEHOLDER_CLASS = '.offcanvas-menu-placeholder';
-
-const FORWARD_ANIMATION_TYPE = 'forwards';
-const BACKWARD_ANIMATION_TYPE = 'backwards';
-
 export default class OffcanvasMenuPlugin extends Plugin {
+
+    static options = {
+        navigationUrl: window.router['frontend.menu.offcanvas'],
+        position: 'left',
+        tiggerEvent: 'click',
+
+        additionalOffcanvasClass: 'offcanvas-menu',
+        linkSelector: '.js-offcanvas-menu-link',
+        loadingIconSelector: '.js-offcanvas-menu-loading-icon',
+        linkLoadingClass: 'is-loading',
+        menuSelector: '.js-offcanvas-menu',
+        overlayContentSelector: '.js-offcanvas-menu-overlay-content',
+        initialContentSelector: '.js-offcanvas-menu-initial-content',
+
+        homeBtnClass: 'go-home',
+        backBtnClass: 'go-back',
+        transitionClass: 'has-transition',
+        overlayClass: '.offcanvas-menu-overlay',
+        placeholderClass: '.offcanvas-menu-placeholder',
+
+        forwardAnimationType: 'forwards',
+        backwardAnimationType: 'backwards'
+    };
 
     init() {
         this._cache = {};
@@ -44,14 +44,14 @@ export default class OffcanvasMenuPlugin extends Plugin {
      * @private
      */
     _registerEvents() {
-        this.el.removeEventListener(TRIGGER_EVENT, this._getLinkEventHandler.bind(this));
-        this.el.addEventListener(TRIGGER_EVENT, this._getLinkEventHandler.bind(this));
+        this.el.removeEventListener(this.options.tiggerEvent, this._getLinkEventHandler.bind(this));
+        this.el.addEventListener(this.options.tiggerEvent, this._getLinkEventHandler.bind(this));
 
         if (OffCanvas.exists()) {
             const offCanvasElements = OffCanvas.getOffCanvas();
 
             Iterator.iterate(offCanvasElements, offcanvas => {
-                const links = offcanvas.querySelectorAll(LINK_SELECTOR);
+                const links = offcanvas.querySelectorAll(this.options.linkSelector);
                 Iterator.iterate(links, link => {
                     OffcanvasMenuPlugin._resetLoader(link);
                     link.addEventListener('click', (event) => {
@@ -70,8 +70,8 @@ export default class OffcanvasMenuPlugin extends Plugin {
      */
     _openMenu(event) {
         OffcanvasMenuPlugin._stopEvent(event);
-        OffCanvas.open(this._content, this._registerEvents.bind(this), POSITION);
-        OffCanvas.setAdditionalClassName(ADDITIONAL_OFFCANVAS_CLASS);
+        OffCanvas.open(this._content, this._registerEvents.bind(this), this.options.position);
+        OffCanvas.setAdditionalClassName(this.options.additionalOffcanvasClass);
     }
 
     /**
@@ -84,15 +84,15 @@ export default class OffcanvasMenuPlugin extends Plugin {
     _getLinkEventHandler(event, link) {
         if (!link) {
             // fetch home menu to warm the cache
-            this._fetchMenu(NAVIGATION_URL);
+            this._fetchMenu(this.options.navigationUrl);
 
-            const initialContentElement = DomAccess.querySelector(document, INITIAL_CONTENT_SELECTOR);
+            const initialContentElement = DomAccess.querySelector(document, this.options.initialContentSelector);
             this._content = initialContentElement.innerHTML;
             return this._openMenu(event);
         }
 
         OffcanvasMenuPlugin._stopEvent(event);
-        if (link.classList.contains(LINK_LOADING_CLASS)) {
+        if (link.classList.contains(this.options.linkLoadingClass)) {
             return;
         }
 
@@ -100,9 +100,9 @@ export default class OffcanvasMenuPlugin extends Plugin {
 
         const url = DomAccess.getAttribute(link, 'href', true);
 
-        let animationType = FORWARD_ANIMATION_TYPE;
-        if (link.classList.contains(HOME_BTN_CLASS) || link.classList.contains(BACK_BTN_CLASS)) {
-            animationType = BACKWARD_ANIMATION_TYPE;
+        let animationType = this.options.forwardAnimationType;
+        if (link.classList.contains(this.options.homeBtnClass) || link.classList.contains(this.options.backBtnClass)) {
+            animationType = this.options.backwardAnimationType;
         }
 
         this._fetchMenu(url, this._updateOverlay.bind(this, animationType));
@@ -115,8 +115,8 @@ export default class OffcanvasMenuPlugin extends Plugin {
      * @private
      */
     static _setLoader(link) {
-        link.classList.add(LINK_LOADING_CLASS);
-        const icon = link.querySelector(LOADING_ICON_SELECTOR);
+        link.classList.add(this.options.linkLoadingClass);
+        const icon = link.querySelector(this.options.loadingIconSelector);
 
         if (icon) {
             icon._linkIcon = icon.innerHTML;
@@ -131,8 +131,8 @@ export default class OffcanvasMenuPlugin extends Plugin {
      * @private
      */
     static _resetLoader(link) {
-        link.classList.remove(LINK_LOADING_CLASS);
-        const icon = link.querySelector(LOADING_ICON_SELECTOR);
+        link.classList.remove(this.options.linkLoadingClass);
+        const icon = link.querySelector(this.options.loadingIconSelector);
         if (icon && icon._linkIcon) {
             icon.innerHTML = icon._linkIcon;
         }
@@ -179,12 +179,12 @@ export default class OffcanvasMenuPlugin extends Plugin {
      */
     _replaceOffcanvasMenuContent(animationType, menuContent, currentContent) {
 
-        if (animationType === FORWARD_ANIMATION_TYPE) {
+        if (animationType === this.options.forwardAnimationType) {
             this._animateForward(menuContent, currentContent);
             return;
         }
 
-        if (animationType === BACKWARD_ANIMATION_TYPE) {
+        if (animationType === this.options.backwardAnimationType) {
             this._animateBackward(menuContent, currentContent);
             return;
         }
@@ -214,11 +214,11 @@ export default class OffcanvasMenuPlugin extends Plugin {
         if (this._placeholder.innerHTML === '') {
             this._placeholder.innerHTML = currentContent;
         }
-        this._overlay.classList.remove(TRANSITION_CLASS);
+        this._overlay.classList.remove(this.options.transitionClass);
         this._overlay.style.left = '100%';
         this._overlay.innerHTML = menuContent;
         setTimeout(() => {
-            this._overlay.classList.add(TRANSITION_CLASS);
+            this._overlay.classList.add(this.options.transitionClass);
             this._overlay.style.left = '0%';
         }, 1);
     }
@@ -236,10 +236,10 @@ export default class OffcanvasMenuPlugin extends Plugin {
             this._overlay.innerHTML = currentContent;
         }
         this._placeholder.innerHTML = menuContent;
-        this._overlay.classList.remove(TRANSITION_CLASS);
+        this._overlay.classList.remove(this.options.transitionClass);
         this._overlay.style.left = '0%';
         setTimeout(() => {
-            this._overlay.classList.add(TRANSITION_CLASS);
+            this._overlay.classList.add(this.options.transitionClass);
             this._overlay.style.left = '100%';
         }, 1);
     }
@@ -270,7 +270,7 @@ export default class OffcanvasMenuPlugin extends Plugin {
             return '';
         }
 
-        const contentElement = element.querySelector(OVERLAY_CONTENT_SELECTOR);
+        const contentElement = element.querySelector(this.options.overlayContentSelector);
         if (!contentElement) {
             return '';
         }
@@ -301,13 +301,13 @@ export default class OffcanvasMenuPlugin extends Plugin {
      */
     static _createNavigationOverlay(container) {
         const offcanvas = OffcanvasMenuPlugin._getOffcanvas();
-        const currentOverlay = offcanvas.querySelector(OVERLAY_CLASS);
+        const currentOverlay = offcanvas.querySelector(this.options.overlayClass);
         if (currentOverlay) {
             return currentOverlay;
         }
 
         const overlay = document.createElement('div');
-        overlay.classList.add(OVERLAY_CLASS.substr(1));
+        overlay.classList.add(this.options.overlayClass.substr(1));
         overlay.style.minHeight = `${offcanvas.clientHeight}px`;
         container.appendChild(overlay);
 
@@ -322,13 +322,13 @@ export default class OffcanvasMenuPlugin extends Plugin {
      */
     static _createPlaceholder(container) {
         const offcanvas = OffcanvasMenuPlugin._getOffcanvas();
-        const currentPlaceholder = offcanvas.querySelector(PLACEHOLDER_CLASS);
+        const currentPlaceholder = offcanvas.querySelector(this.options.placeholderClass);
         if (currentPlaceholder) {
             return currentPlaceholder;
         }
 
         const placeholder = document.createElement('div');
-        placeholder.classList.add(PLACEHOLDER_CLASS.substr(1));
+        placeholder.classList.add(this.options.placeholderClass.substr(1));
         placeholder.style.minHeight = `${offcanvas.clientHeight}px`;
         container.appendChild(placeholder);
 
@@ -402,7 +402,7 @@ export default class OffcanvasMenuPlugin extends Plugin {
     static _getOffcanvasMenu() {
         const offcanvas = OffcanvasMenuPlugin._getOffcanvas();
 
-        return offcanvas.querySelector(MENU_SELECTOR);
+        return offcanvas.querySelector(this.options.menuSelector);
     }
 
 }

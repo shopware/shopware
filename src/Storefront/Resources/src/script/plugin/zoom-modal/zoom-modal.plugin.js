@@ -5,9 +5,6 @@ import DomAccess from 'src/script/helper/dom-access.helper';
 import ImageZoomPlugin from 'src/script/plugin/image-zoom/image-zoom.plugin';
 import Iterator from 'src/script/helper/iterator.helper';
 
-const IMAGE_SLIDER_INIT_SELECTOR = '[data-image-slider]';
-const IMAGE_ZOOM_INIT_SELECTOR = '[data-image-zoom]';
-
 /**
  * Zoom Modal Plugin
  */
@@ -29,6 +26,9 @@ export default class ZoomModalPlugin extends Plugin {
          * product id to load the images via ajax
          */
         productIdDataAttribute: 'data-product-id',
+
+        imageSliderInitSelector: '[data-image-slider]',
+        imageZoomInitSelector: '[data-image-zoom]'
     };
 
     init() {
@@ -82,7 +82,7 @@ export default class ZoomModalPlugin extends Plugin {
      * @private
      */
     _initSlider(modal) {
-        const slider = modal.querySelector(IMAGE_SLIDER_INIT_SELECTOR);
+        const slider = modal.querySelector(this.options.imageSliderInitSelector);
 
         const plugin = PluginManager.getPluginInstanceFromElement(slider, 'ImageSlider');
 
@@ -135,7 +135,7 @@ export default class ZoomModalPlugin extends Plugin {
      * @private
      */
     _initZoom(modal) {
-        const elements = modal.querySelectorAll(IMAGE_ZOOM_INIT_SELECTOR);
+        const elements = modal.querySelectorAll(this.options.imageZoomInitSelector);
         Iterator.iterate(elements, el => {
             new ImageZoomPlugin(el, {}, 'ImageZoom');
         });
@@ -172,7 +172,7 @@ export default class ZoomModalPlugin extends Plugin {
      * @private
      */
     _getParentSliderElement() {
-        return this.el.closest(IMAGE_SLIDER_INIT_SELECTOR);
+        return this.el.closest(this.options.imageSliderInitSelector);
     }
 
     /**

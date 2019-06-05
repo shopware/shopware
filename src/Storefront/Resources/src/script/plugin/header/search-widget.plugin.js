@@ -4,7 +4,7 @@ import Debouncer from 'src/script/helper/debouncer.helper';
 import HttpClient from 'src/script/service/http-client.service';
 import ButtonLoadingIndicator from 'src/script/utility/loading-indicator/button-loading-indicator.util';
 import DeviceDetection from 'src/script/helper/device-detection.helper';
-import ArrowNavigationHelper from 'src/script/plugin/header/search-widget/helper/arrow-navigation.helper';
+import ArrowNavigationHelper from 'src/script/helper/arrow-navigation.helper';
 import Iterator from 'src/script/helper/iterator.helper';
 
 export default class SearchWidgetPlugin extends Plugin {

@@ -3,16 +3,17 @@ import DomAccess from 'src/script/helper/dom-access.helper';
 import ViewportDetection from 'src/script/helper/viewport-detection.helper';
 import Iterator from 'src/script/helper/iterator.helper';
 
-const COLLAPSE_SHOW_CLASS = 'show';
-
-const COLLAPSE_COLUMN_SELECTOR = '.js-footer-column';
-const COLLAPSE_COLUMN_TRIGGER_SELECTOR = '.js-collapse-footer-column-trigger';
-const COLLAPSE_COLUMN_CONTENT_SELECTOR = '.js-footer-column-content';
-
 export default class CollapseFooterColumnsPlugin extends Plugin {
 
+    static options = {
+        collapseShowClass: 'show',
+        collapseColumnSelector: '.js-footer-column',
+        collapseColumnTriggerSelector: '.js-collapse-footer-column-trigger',
+        collapseColumnContentSelector: '.js-footer-column-content'
+    };
+
     init() {
-        this._columns = this.el.querySelectorAll(COLLAPSE_COLUMN_SELECTOR);
+        this._columns = this.el.querySelectorAll(this.options.collapseColumnSelector);
 
         this._registerEvents();
     }
@@ -34,14 +35,14 @@ export default class CollapseFooterColumnsPlugin extends Plugin {
         const event = 'click';
 
         Iterator.iterate(this._columns, column => {
-            const trigger = DomAccess.querySelector(column, COLLAPSE_COLUMN_TRIGGER_SELECTOR);
+            const trigger = DomAccess.querySelector(column, this.options.collapseColumnTriggerSelector);
 
             // remove possibly existing event listeners
             trigger.removeEventListener(event, this._onClickCollapseTrigger);
 
             // add event listener if currently in an allowed viewport
             if (this._isInAllowedViewports()) {
-                trigger.addEventListener(event, this._onClickCollapseTrigger);
+                trigger.addEventListener(event, this._onClickCollapseTrigger.bind(this));
             }
         });
     }
@@ -54,17 +55,18 @@ export default class CollapseFooterColumnsPlugin extends Plugin {
      */
     _onClickCollapseTrigger(event) {
         const trigger = event.target;
-        const collapse = trigger.parentNode.querySelector(COLLAPSE_COLUMN_CONTENT_SELECTOR);
+        const collapse = trigger.parentNode.querySelector(this.options.collapseColumnContentSelector);
         const $collapse = $(collapse);
+        const collapseShowClass = this.options.collapseShowClass;
 
         $collapse.collapse('toggle');
 
         $collapse.on('shown.bs.collapse', function () {
-            trigger.classList.add(COLLAPSE_SHOW_CLASS);
+            trigger.classList.add(collapseShowClass);
         });
 
         $collapse.on('hidden.bs.collapse', function () {
-            trigger.classList.remove(COLLAPSE_SHOW_CLASS);
+            trigger.classList.remove(collapseShowClass);
         });
     }
 

@@ -21,9 +21,10 @@
                     <div class="sw-cms-el-product-slider__product-holder" :style="sliderBoxMinWidth" ref="productHolder">
                         <template v-if="!element.data.products">
                             {% block sw_cms_element_product_slider_demo_data %}
-                                <sw-cms-el-product-box :element="demoProductElement"></sw-cms-el-product-box>
-                                <sw-cms-el-product-box :element="demoProductElement"></sw-cms-el-product-box>
-                                <sw-cms-el-product-box :element="demoProductElement"></sw-cms-el-product-box>
+                                <sw-cms-el-product-box :element="demoProductElement"
+                                                       v-for="index in sliderBoxLimit"
+                                                       :key="index">
+                                </sw-cms-el-product-box>
                             {% endblock %}
                         </template>
 

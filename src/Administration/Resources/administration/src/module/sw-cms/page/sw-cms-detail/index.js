@@ -9,7 +9,7 @@ import './sw-cms-detail.scss';
 Component.register('sw-cms-detail', {
     template,
 
-    inject: ['loginService', 'cmsPageService', 'cmsService'],
+    inject: ['loginService', 'cmsPageService', 'cmsService', 'context'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -301,6 +301,8 @@ Component.register('sw-cms-detail', {
 
         onDeviceViewChange(view) {
             this.currentDeviceView = view;
+
+            this.context.currentCmsDeviceView = view;
 
             if (view === 'form') {
                 this.currentBlock = null;

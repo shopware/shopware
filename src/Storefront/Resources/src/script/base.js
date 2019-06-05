@@ -35,7 +35,7 @@ import plugins
 // import OverriddenPlugin from 'src/script/plugin/_example/overridden.plugin';
 
 import CartWidgetPlugin from 'src/script/plugin/header/cart-widget.plugin';
-import SearchWidgetPlugin from 'src/script/plugin/header/search-widget/search-widget.plugin';
+import SearchWidgetPlugin from 'src/script/plugin/header/search-widget.plugin';
 import AccountMenuPlugin from 'src/script/plugin/header/account-menu.plugin';
 import OffCanvasCartPlugin from 'src/script/plugin/offcanvas-cart/offcanvas-cart.plugin';
 import AddToCartPlugin from 'src/script/plugin/add-to-cart/add-to-cart.plugin';

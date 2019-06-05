@@ -2,9 +2,11 @@ import Plugin from 'src/script/helper/plugin/plugin.class';
 import HttpClient from 'src/script/service/http-client.service';
 import Storage from 'src/script/helper/storage/storage.helper';
 
-const CART_WIDGET_STORAGE_KEY = 'cart-widget-template';
-
 export default class CartWidgetPlugin extends Plugin {
+
+    static options = {
+        cartWidgetStorageKey: 'cart-widget-template'
+    };
 
     init() {
 
@@ -21,7 +23,7 @@ export default class CartWidgetPlugin extends Plugin {
      */
     insertStoredContent() {
         if (this._storageExists) {
-            const storedContent = Storage.getItem(CART_WIDGET_STORAGE_KEY);
+            const storedContent = Storage.getItem(this.options.cartWidgetStorageKey);
             if (storedContent) {
                 this.el.innerHTML = storedContent;
             }
@@ -35,7 +37,7 @@ export default class CartWidgetPlugin extends Plugin {
     fetch() {
         this._client.get(window.router['frontend.checkout.info'], (response) => {
 
-            Storage.setItem(CART_WIDGET_STORAGE_KEY, response);
+            Storage.setItem(this.options.cartWidgetStorageKey, response);
             this.el.innerHTML = response;
         });
     }

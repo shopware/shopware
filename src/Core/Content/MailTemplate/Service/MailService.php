@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\MailTemplate\Service;
 
 use Shopware\Core\Content\MailTemplate\Exception\SalesChannelNotFoundException;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailDispatchedEvent;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class MailService
@@ -58,6 +60,11 @@ class MailService
      */
     private $systemConfigService;
 
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
     public function __construct(
         DataValidator $dataValidator,
         StringTemplateRenderer $templateRenderer,
@@ -66,7 +73,8 @@ class MailService
         EntityRepositoryInterface $mediaRepository,
         SalesChannelDefinition $salesChannelDefinition,
         EntityRepositoryInterface $salesChannelRepository,
-        SystemConfigService $systemConfigService
+        SystemConfigService $systemConfigService,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->dataValidator = $dataValidator;
         $this->templateRenderer = $templateRenderer;
@@ -76,6 +84,7 @@ class MailService
         $this->salesChannelDefinition = $salesChannelDefinition;
         $this->salesChannelRepository = $salesChannelRepository;
         $this->systemConfigService = $systemConfigService;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function send(array $data, Context $context, array $templateData = []): ?\Swift_Message
@@ -119,6 +128,9 @@ class MailService
         );
 
         $this->mailSender->send($message);
+
+        $mailDispatchedEvent = new MailDispatchedEvent($data['subject'], $recipients, $contents, $context);
+        $this->eventDispatcher->dispatch($mailDispatchedEvent, MailDispatchedEvent::EVENT_NAME);
 
         return $message;
     }

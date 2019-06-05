@@ -37,7 +37,7 @@ class LogEntryDefinition extends EntityDefinition
             new StringField('message', 'message'),
             new IntField('level', 'level'),
             new StringField('channel', 'channel'),
-            new JsonField('content', 'content'),
+            new JsonField('context', 'context'),
             new JsonField('extra', 'extra'),
 
             new CreatedAtField(),

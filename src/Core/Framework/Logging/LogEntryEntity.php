@@ -27,7 +27,7 @@ class LogEntryEntity extends Entity
     /**
      * @var string|null
      */
-    protected $content;
+    protected $context;
 
     /**
      * @var string|null
@@ -64,14 +64,14 @@ class LogEntryEntity extends Entity
         $this->channel = $channel;
     }
 
-    public function getContent(): ?string
+    public function getContext(): ?string
     {
-        return $this->content;
+        return $this->context;
     }
 
-    public function setContent(?string $content): void
+    public function setContext(?string $context): void
     {
-        $this->content = $content;
+        $this->context = $context;
     }
 
     public function getExtra(): ?string

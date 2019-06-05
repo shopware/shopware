@@ -5,8 +5,21 @@
       "placeholderSearchBar": "Search logs"
     },
     "list": {
+      "title": "Logs",
       "columnDate": "Date",
-      "columnContent": "Contents"
+      "columnMessage": "Message",
+      "columnLevel": "Priority",
+      "columnContent": "Contents",
+      "actionShowInfo": "View Details ..."
+    },
+    "entryInfo": {
+      "title": "Log Information",
+      "tabRaw": "Raw",
+      "actionClose": "Close"
+    },
+    "mailInfo": {
+      "tabHTML": "HTML",
+      "tabPlain": "Plain"
     }
   }
 }

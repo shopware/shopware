@@ -5,10 +5,16 @@ Component.register('sw-settings-logging-entry-info', {
     template,
 
     props: {
-        eventData: {
+        logEntry: {
             type: Object,
             required: true
         }
+    },
+
+    data() {
+        return {
+            activeTab: 'raw'
+        };
     },
 
     created() {
@@ -17,7 +23,10 @@ Component.register('sw-settings-logging-entry-info', {
 
     methods: {
         createdComponent() {
+        },
 
+        onClose() {
+            this.$emit('close');
         }
     }
 });

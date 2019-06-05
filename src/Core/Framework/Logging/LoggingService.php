@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Logging;
 
 use Doctrine\DBAL\Connection;
 use Monolog\Logger;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\BusinessEvents;
 use Shopware\Core\Framework\Logging\Filter\LogFilterRegistry;
@@ -29,31 +28,17 @@ class LoggingService implements EventSubscriberInterface
     protected $environment;
 
     /**
-     * @var EntityRepositoryInterface
-     */
-    protected $logEntryRepository;
-
-    /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
      * @var LogFilterRegistry
      */
     private $logFilterRegistry;
 
     public function __construct(string $kernelEnv,
-                                EntityRepositoryInterface $logEntryRepository,
-                                Connection $connection,
-                                LogFilterRegistry $filterRegistry)
+                                LogFilterRegistry $filterRegistry,
+                                Logger $logger)
     {
-        $this->logger = new Logger('shopware');
-//        $this->logger->pushHandler(new StreamHandler(__DIR__ . '/sw_log.log', Logger::API));
-//        $this->logger->pushHandler(new BrowserConsoleHandler(Logger::API));
-        $this->logger->pushHandler(new DALHandler($logEntryRepository, $connection));
+        $this->logger = $logger;
+//        $this->logger->pushHandler(new DALHandler($logEntryRepository, $connection));
         $this->environment = $kernelEnv;
-        $this->logEntryRepository = $logEntryRepository;
         $this->logFilterRegistry = $filterRegistry;
     }
 

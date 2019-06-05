@@ -45,7 +45,7 @@ class DALHandler extends AbstractProcessingHandler
             'message' => $record['message'],
             'level' => $record['level'],
             'channel' => $record['channel'],
-            'content' => json_encode($record['context']),
+            'context' => json_encode($record['context']),
             'extra' => json_encode($record['extra']),
             'updated_at' => null,
             'created_at' => date(Defaults::STORAGE_DATE_FORMAT),

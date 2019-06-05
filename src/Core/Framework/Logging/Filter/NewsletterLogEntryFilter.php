@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Logging\Filter;
 
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
+use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Storefront\Event\NewsletterEvents;
 
@@ -21,10 +22,10 @@ class NewsletterLogEntryFilter implements LogEntryFilterInterface
 
     public function filterEventData(BusinessEventInterface $event): array
     {
-        if (!$event instanceof NewsletterConfirmEvent) {
+        if (!$event instanceof NewsletterConfirmEvent && !$event instanceof NewsletterRegisterEvent) {
             return [];
         }
 
-        return ['salesChannelId' => $event->getName()];
+        return ['mailStruct' => $event->getMailStruct()->getRecipients()];
     }
 }

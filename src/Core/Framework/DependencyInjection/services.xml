@@ -2,7 +2,8 @@
 
 <container xmlns="http://symfony.com/schema/dic/services"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+           xmlns:monolog="http://symfony.com/schema/dic/monolog"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd http://symfony.com/schema/dic/monolog http://symfony.com/schema/dic/monolog/monolog-1.0.xsd">
 
     <parameters>
         <parameter key="shopware.slug.config" type="collection">
@@ -14,6 +15,16 @@
         <parameter key="migration.directories" type="collection" />
         <parameter key="migration.active" type="collection"/>
     </parameters>
+
+    <monolog:config>
+        <monolog:channel>business_events</monolog:channel>
+
+        <monolog:handler name="business_event_handler" type="service" id="Shopware\Core\Framework\Logging\Monolog\DALHandler">
+            <monolog:channels>
+                <monolog:channel>business_events</monolog:channel>
+            </monolog:channels>
+        </monolog:handler>
+    </monolog:config>
 
     <services>
         <service id="templating.loader.wrapped" alias="templating.loader"/>
@@ -251,9 +262,13 @@
         <service id="Shopware\Core\Framework\Logging\LoggingService">
             <argument>%kernel.environment%</argument>
             <tag name="kernel.event_subscriber"/>
+            <argument type="service" id="Shopware\Core\Framework\Logging\Filter\LogFilterRegistry"/>
+            <argument type="service" id="monolog.logger.business_events"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Logging\Monolog\DALHandler">
             <argument type="service" id="log_entry.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Framework\Logging\Filter\LogFilterRegistry"/>
         </service>
 
         <service id="Shopware\Core\Framework\Logging\LoggingController" public="true">
@@ -268,6 +283,10 @@
         </service>
 
         <service id="Shopware\Core\Framework\Logging\Filter\NewsletterLogEntryFilter">
+            <tag name="logging.filter"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Logging\Filter\MailDispatchedLogEntryFilter">
             <tag name="logging.filter"/>
         </service>
 

@@ -6,7 +6,6 @@ Component.register('sw-settings-logging-list', {
     template,
 
     inject: ['loggingService'],
-    // inject: ['logEntryStore'],
 
     mixins: [
         Mixin.getByName('sw-settings-list'),
@@ -17,10 +16,10 @@ Component.register('sw-settings-logging-list', {
         return {
             entityName: 'log_entry',
             sortBy: 'log_entry.createdAt',
+            sortDirection: 'DSC',
             isLoading: true,
             logs: [],
-            term: null,
-            disableRouteParams: true
+            displayedLog: null
         };
     },
 
@@ -41,6 +40,16 @@ Component.register('sw-settings-logging-list', {
 
         logEntryStore() {
             return State.getStore('log_entry');
+        },
+
+        logInfoModalComponent() {
+            const eventName = this.displayedLog.message;
+
+            const subComponentName = eventName.replace(/[._]/g, '-');
+            if (this.$options.components[`sw-settings-logging-${subComponentName}-info`]) {
+                return `sw-settings-logging-${subComponentName}-info`;
+            }
+            return 'sw-settings-logging-entry-info';
         }
     },
 
@@ -50,13 +59,6 @@ Component.register('sw-settings-logging-list', {
 
             this.logs = [];
 
-            // this.loggingService.getLogs().then(response => {
-            //     this.total = response.data.len;
-            //     this.logs = response.data;
-            //     this.isLoading = false;
-            //
-            //     return this.logs;
-            // }
             const params = this.getListingParams();
             console.log(params);
             return this.logEntryStore.getList(params, true).then((response) => {
@@ -67,24 +69,6 @@ Component.register('sw-settings-logging-list', {
 
                 return this.logs;
             });
-
-            // const params = this.getListingParams();
-            // params.associations = {
-            //     type: {},
-            //     numberRangeSalesChannels: {
-            //         associations: {
-            //             salesChannel: {}
-            //         }
-            //     }
-            // };
-            //
-            // return this.store.getList(params, true).then((response) => {
-            //     this.total = response.total;
-            //     this.items = response.items;
-            //     this.isLoading = false;
-            //
-            //     return this.items;
-            // });
         },
 
         getLogColumns() {
@@ -97,26 +81,27 @@ Component.register('sw-settings-logging-list', {
             }, {
                 property: 'message',
                 dataIndex: 'message',
-                label: this.$tc('sw-settings-logging.list.message'),
+                label: this.$tc('sw-settings-logging.list.columnMessage'),
                 allowResize: true
             }, {
                 property: 'level',
                 dataIndex: 'level',
-                label: this.$tc('sw-settings-logging.list.level'),
+                label: this.$tc('sw-settings-logging.list.columnLevel'),
                 allowResize: true
             }, {
-                property: 'content',
-                dataIndex: 'content',
+                property: 'context',
+                dataIndex: 'context',
                 label: this.$tc('sw-settings-logging.list.columnContent'),
                 allowResize: true
             }];
         },
 
-        onSearch(searchTerm) {
-            this.term = searchTerm;
+        showInfoModal(entryContents) {
+            this.displayedLog = entryContents;
+        },
 
-            this.page = 1;
-            this.getList();
+        closeInfoModal() {
+            this.displayedLog = null;
         }
 
     }

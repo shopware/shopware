@@ -22,6 +22,11 @@
 
         {% block sw_mail_template_list_smart_bar_actions %}
             <template slot="smart-bar-actions">
+
+                <sw-button :routerLink="{ name: 'sw.settings.logging.index', query: { term: 'mail.dispatched'} }">
+                    MÄIL-ÄRCHÌV
+                </sw-button>
+
                 <sw-button-group splitButton>
                     <sw-context-button>
                         <sw-button slot="button" class="sw-mail-template__button-create" variant="primary">

@@ -20,11 +20,11 @@ class Migration1558505525AddLogging extends MigrationStep
               `message` VARCHAR(255) NOT NULL,
               `level` TINYINT NOT NULL,
               `channel` VARCHAR(255) NOT NULL,
-              `content` JSON NULL,
+              `context` JSON NULL,
               `extra` JSON NULL,
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) ,
-              CONSTRAINT `json.logging.content` CHECK (JSON_VALID(`content`))
+              CONSTRAINT `json.logging.context` CHECK (JSON_VALID(`context`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

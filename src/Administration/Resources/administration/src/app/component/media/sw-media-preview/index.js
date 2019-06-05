@@ -99,7 +99,8 @@ export default {
 
         mediaPreviewClasses() {
             return {
-                'is--icon': this.isIcon
+                'is--icon': this.isIcon,
+                'is--no-media': !this.source
             };
         },
 
@@ -118,6 +119,10 @@ export default {
         },
 
         mimeType() {
+            if (!this.trueSource) {
+                return '';
+            }
+
             if (this.trueSource instanceof File) {
                 return this.trueSource.type;
             }
@@ -193,6 +198,14 @@ export default {
             return this.trueSource.fileName;
         },
 
+        mediaName() {
+            if (!this.trueSource) {
+                return this.$tc('global.sw-media-preview.textNoMedia');
+            }
+
+            return this.mediaNameFilter(this.trueSource, this.trueSource.fileName);
+        },
+
         mediaNameFilter() {
             return Filter.getByName('mediaName');
         },
@@ -241,6 +254,10 @@ export default {
         },
 
         fetchSourceIfNecessary() {
+            if (!this.source) {
+                return;
+            }
+
             if (typeof this.source === 'string') {
                 this.trueSource = this.mediaStore.getById(this.source);
                 return;

@@ -259,7 +259,8 @@
     },
     "sw-media-preview": {
       "fallbackVideoTagSupport": "Your browser does not support the video tag",
-      "fallbackAudioTagSupport": "Your browser does not support the audio tag"
+      "fallbackAudioTagSupport": "Your browser does not support the audio tag",
+      "textNoMedia": "No media available"
     },
     "sw-media-upload": {
       "buttonFileUpload": "Upload file",

@@ -60,10 +60,7 @@
                             {% block sw_product_list_grid_columns %}
                                 {% block sw_product_list_grid_columns_name_preview %}
                                     <template #preview-name="{ item }">
-                                        {# ToDo @t.berge: Delete v-if, if media placeholders work again #}
-                                        <template v-if="item.cover">
-                                            <sw-media-preview :source="item.cover.media"></sw-media-preview>
-                                        </template>
+                                        <sw-media-preview :source="item.cover ? item.cover.media : null"></sw-media-preview>
                                     </template>
                                 {% endblock %}
 

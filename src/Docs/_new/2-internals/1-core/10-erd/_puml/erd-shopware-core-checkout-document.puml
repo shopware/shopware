@@ -26,10 +26,13 @@ Table(ShopwareCoreCheckoutDocumentDocumentDefinition, "document\n(Document)") {
    primary_key(id) id
    not_null(documentTypeId) foreignKey
    not_null(fileType) string
+   referencedDocumentId foreignKey
    not_null(orderId) foreignKey
+   documentMediaFileId foreignKey
    not_null(orderVersionId) referenceVersion
    config json
    sent bool
+   static bool
    not_null(deepLinkCode) string
    customFields customFields
    not_null(createdAt) createdAt
@@ -75,9 +78,9 @@ Table(ShopwareCoreCheckoutDocumentAggregateDocumentBaseConfigSalesChannelDocumen
 }
 ForeignTable(ShopwareCoreCheckoutOrderOrderDefinition, "order") {
 }
-ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
-}
 ForeignTable(ShopwareCoreContentMediaMediaDefinition, "media") {
+}
+ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 }
 ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
 }
@@ -86,6 +89,8 @@ ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channe
 
 ShopwareCoreCheckoutDocumentAggregateDocumentTypeDocumentTypeDefinition --> ShopwareCoreCheckoutDocumentDocumentDefinition
 ShopwareCoreCheckoutDocumentDocumentDefinition --> ShopwareCoreCheckoutOrderOrderDefinition
+ShopwareCoreCheckoutDocumentDocumentDefinition --> ShopwareCoreCheckoutDocumentDocumentDefinition
+ShopwareCoreCheckoutDocumentDocumentDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreCheckoutDocumentAggregateDocumentTypeTranslationDocumentTypeTranslationDefinition --> ShopwareCoreCheckoutDocumentAggregateDocumentTypeDocumentTypeDefinition
 ShopwareCoreCheckoutDocumentAggregateDocumentBaseConfigDocumentBaseConfigDefinition --> ShopwareCoreCheckoutDocumentAggregateDocumentTypeDocumentTypeDefinition
 ShopwareCoreCheckoutDocumentAggregateDocumentBaseConfigSalesChannelDocumentBaseConfigSalesChannelDefinition --> ShopwareCoreCheckoutDocumentAggregateDocumentTypeDocumentTypeDefinition

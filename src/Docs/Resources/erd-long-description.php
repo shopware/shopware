@@ -475,7 +475,7 @@ EOD
 SQL based product search table containing the dictionary.
 EOD
     ,
-    \Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipientTag\NewsletterRecipientTagDefinition::class => '',
+    Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipientTag\NewsletterRecipientTagDefinition::class => '',
     Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTranslation\MailTemplateTranslationDefinition::class => '',
     Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeDefinition::class => <<<'EOD'
 Different mail template types.
@@ -522,7 +522,7 @@ EOD
 Delivery time of a shipping method.
 EOD
     ,
-    \Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition::class => <<<'EOD'
+    Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition::class => <<<'EOD'
 Newsletter recipient. Denormalized from the account so anyone can subscribe.
 EOD
     ,
@@ -570,6 +570,10 @@ EOD
     ,
     'Shopware\\Core\\Content\\Cms' => <<<'EOD'
 The Content Management System to set up complex storefronts
+EOD
+    ,
+    'Shopware\\Core\\Content\\Newsletter' => <<<'EOD'
+The newsletter adds sales channel management of recipients. Although the data may share similarities this is not representing a full customer with login and history.
 EOD
     ,
 ];

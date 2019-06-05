@@ -24,7 +24,8 @@ skinparam backgroundColor #FFFFFF
 
 Table(ShopwareStorefrontFrameworkSeoSeoUrlSeoUrlDefinition, "seo_url\n(Seo urls)") {
    primary_key(id) id
-   not_null(salesChannelId) foreignKey
+   salesChannelId foreignKey
+   not_null(languageId) foreignKey
    not_null(foreignKey) id
    not_null(routeName) string
    not_null(pathInfo) string
@@ -37,7 +38,6 @@ Table(ShopwareStorefrontFrameworkSeoSeoUrlSeoUrlDefinition, "seo_url\n(Seo urls)
    customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   url string
 }
 Table(ShopwareStorefrontFrameworkSeoSeoUrlTemplateSeoUrlTemplateDefinition, "seo_url_template\n(Template)") {
    primary_key(id) id
@@ -52,9 +52,12 @@ Table(ShopwareStorefrontFrameworkSeoSeoUrlTemplateSeoUrlTemplateDefinition, "seo
 }
 ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
 }
+ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
+}
 
 ' relationshipd
 
 ShopwareStorefrontFrameworkSeoSeoUrlSeoUrlDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareStorefrontFrameworkSeoSeoUrlSeoUrlDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 ShopwareStorefrontFrameworkSeoSeoUrlTemplateSeoUrlTemplateDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 @enduml

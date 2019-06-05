@@ -300,4 +300,16 @@ EOD
 Cache helpers
 EOD
     ,
+    'Content/Newsletter' => <<<'EOD'
+Newsletter
+EOD
+    ,
+    'Framework/Console' => <<<'EOD'
+Console helpers
+EOD
+    ,
+    'Framework/Log' => <<<'EOD'
+Logging
+EOD
+    ,
 ];

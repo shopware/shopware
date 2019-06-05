@@ -152,9 +152,9 @@ Table(ShopwareCoreContentDeliveryTime, "Shopware\Core\Content\DeliveryTime\n(Del
    delivery_time Table
    delivery_time_translation Table
 }
-Table(ShopwareCoreContentNewsletterReceiver, "Shopware\Core\Content\NewsletterReceiver\n(Newsletter)") {
-   newsletter_receiver Table
-   newsletter_receiver_tag Table
+Table(ShopwareCoreContentNewsletter, "Shopware\Core\Content\Newsletter\n(Newsletter)") {
+   newsletter_recipient Table
+   newsletter_recipient_tag Table
 }
 Table(ShopwareCoreContentRule, "Shopware\Core\Content\Rule\n(Rules)") {
    rule Table
@@ -253,7 +253,7 @@ ShopwareCoreFrameworkLanguage --> ShopwareCoreFrameworkLanguage
 ShopwareCoreSystemLocale --> ShopwareCoreFrameworkLanguage
 ShopwareCoreSystemSalesChannel --> ShopwareCoreFrameworkLanguage
 ShopwareCoreCheckoutCustomer --> ShopwareCoreFrameworkLanguage
-ShopwareCoreContentNewsletterReceiver --> ShopwareCoreFrameworkLanguage
+ShopwareCoreContentNewsletter --> ShopwareCoreFrameworkLanguage
 ShopwareCoreContentCategory --> ShopwareCoreFrameworkLanguage
 ShopwareCoreSystemCountry --> ShopwareCoreFrameworkLanguage
 ShopwareCoreSystemCurrency --> ShopwareCoreFrameworkLanguage
@@ -273,6 +273,7 @@ ShopwareCoreCheckoutDocument --> ShopwareCoreFrameworkLanguage
 ShopwareCoreSystemNumberRange --> ShopwareCoreFrameworkLanguage
 ShopwareCoreContentDeliveryTime --> ShopwareCoreFrameworkLanguage
 ShopwareCoreCheckoutPromotion --> ShopwareCoreFrameworkLanguage
+ShopwareStorefront --> ShopwareCoreFrameworkLanguage
 ShopwareCoreSystemSalesChannel --> ShopwareCoreSystemSalesChannel
 ShopwareCoreCheckoutCustomer --> ShopwareCoreSystemSalesChannel
 ShopwareCoreSystemCurrency --> ShopwareCoreSystemSalesChannel
@@ -284,7 +285,7 @@ ShopwareCoreSystemSystemConfig --> ShopwareCoreSystemSalesChannel
 ShopwareCoreContentCategory --> ShopwareCoreSystemSalesChannel
 ShopwareCoreContentProduct --> ShopwareCoreSystemSalesChannel
 ShopwareCoreContentMailTemplate --> ShopwareCoreSystemSalesChannel
-ShopwareCoreContentNewsletterReceiver --> ShopwareCoreSystemSalesChannel
+ShopwareCoreContentNewsletter --> ShopwareCoreSystemSalesChannel
 ShopwareCoreSystemNumberRange --> ShopwareCoreSystemSalesChannel
 ShopwareCoreCheckoutPromotion --> ShopwareCoreSystemSalesChannel
 ShopwareCoreCheckoutDocument --> ShopwareCoreSystemSalesChannel
@@ -303,7 +304,7 @@ ShopwareCoreFrameworkSnippet --> ShopwareCoreFrameworkSnippet
 ShopwareCoreSystemSalutation --> ShopwareCoreSystemSalutation
 ShopwareCoreCheckoutCustomer --> ShopwareCoreSystemSalutation
 ShopwareCoreCheckoutOrder --> ShopwareCoreSystemSalutation
-ShopwareCoreContentNewsletterReceiver --> ShopwareCoreSystemSalutation
+ShopwareCoreContentNewsletter --> ShopwareCoreSystemSalutation
 ShopwareCoreContentProduct --> ShopwareCoreSystemTax
 ShopwareCoreContentProduct --> ShopwareCoreSystemUnit
 ShopwareCoreSystemUnit --> ShopwareCoreSystemUnit
@@ -319,11 +320,12 @@ ShopwareCoreContentCategory --> ShopwareCoreSystemTag
 ShopwareCoreCheckoutCustomer --> ShopwareCoreSystemTag
 ShopwareCoreCheckoutOrder --> ShopwareCoreSystemTag
 ShopwareCoreCheckoutShipping --> ShopwareCoreSystemTag
-ShopwareCoreContentNewsletterReceiver --> ShopwareCoreSystemTag
+ShopwareCoreContentNewsletter --> ShopwareCoreSystemTag
 ShopwareCoreContentCategory --> ShopwareCoreContentCategory
 ShopwareCoreContentMedia --> ShopwareCoreContentCategory
 ShopwareCoreContentProduct --> ShopwareCoreContentCategory
 ShopwareCoreContentCms --> ShopwareCoreContentCategory
+ShopwareCoreContentCategory --> ShopwareStorefront
 ShopwareCoreContentProduct --> ShopwareCoreContentMedia
 ShopwareCoreContentMedia --> ShopwareCoreContentMedia
 ShopwareCoreContentProperty --> ShopwareCoreContentMedia
@@ -339,7 +341,7 @@ ShopwareCoreContentProperty --> ShopwareCoreContentProduct
 ShopwareCoreContentRule --> ShopwareCoreContentProduct
 ShopwareCoreCheckoutShipping --> ShopwareCoreContentDeliveryTime
 ShopwareCoreContentDeliveryTime --> ShopwareCoreContentDeliveryTime
-ShopwareCoreContentNewsletterReceiver --> ShopwareCoreContentNewsletterReceiver
+ShopwareCoreContentNewsletter --> ShopwareCoreContentNewsletter
 ShopwareCoreContentRule --> ShopwareCoreContentRule
 ShopwareCoreCheckoutDiscountSurcharge --> ShopwareCoreContentRule
 ShopwareCoreCheckoutShipping --> ShopwareCoreContentRule

@@ -127,6 +127,7 @@ Table(ShopwareCoreCheckoutOrderAggregateOrderLineItemOrderLineItemDefinition, "o
    not_null(parentVersionId) referenceVersion
    coverId foreignKey
    not_null(identifier) string
+   referencedId string
    not_null(quantity) int
    not_null(label) string
    payload json

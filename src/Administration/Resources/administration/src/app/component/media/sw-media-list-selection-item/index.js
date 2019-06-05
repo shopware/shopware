@@ -1,0 +1,34 @@
+import template from './sw-media-list-selection-item.html.twig';
+import './sw-media-list-selection-item.scss';
+
+/**
+ * @private
+ * @description Component which renders an image.
+ * @status ready
+ */
+export default {
+    name: 'sw-media-list-selection-item',
+    template,
+
+    props: {
+        item: {
+            required: true
+        }
+    },
+
+    computed: {
+        isPlaceholder() {
+            return !!this.item.isPlaceholder;
+        },
+
+        productImageClasses() {
+            return {
+                'is--placeholder': this.isPlaceholder
+            };
+        },
+
+        sourceId() {
+            return this.item.mediaId || this.item.targetId || this.item.id;
+        }
+    }
+};

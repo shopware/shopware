@@ -1,0 +1,41 @@
+@import "~scss/variables";
+
+
+.sw-cms-el-config-image-slider {
+    .sw-cms-el-config-image-slider__setting-option {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 0 32px;
+    }
+
+    .sw-field {
+        &.sw-field--switch {
+            margin: 8px 0;
+        }
+    }
+
+    .sw-cms-el-config-image-slider__settings-links {
+        .sw-cms-el-config-image-slider__settings-link {
+            margin-top: 8px;
+
+            .sw-cms-el-config-image-slider__settings-link-input {
+                margin-bottom: 8px;
+
+                .sw-field__addition {
+                    &.is--prefix {
+                        padding: 5px 0 5px 5px;
+                        background: initial;
+                        border-right: none;
+                    }
+                }
+            }
+
+            .sw-cms-el-config-image-slider__settings-link-prefix {
+                height: 36px;
+                width: 44px;
+                border-radius: 2px;
+                object-fit: cover;
+            }
+        }
+    }
+}

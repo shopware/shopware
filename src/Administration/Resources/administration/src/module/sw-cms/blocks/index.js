@@ -14,6 +14,7 @@ import './image/image-four-column';
 import './image/image-bubble-row';
 import './image/image-highlight-row';
 import './image/image-simple-grid';
+import './image/image-slider';
 
 import './text-image/image-text';
 import './text-image/image-text-cover';

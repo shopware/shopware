@@ -36,42 +36,37 @@ class RuleBuilderPageObject extends GeneralPageObject {
 
     createBasicSelectCondition(ruleData) {
         this.browser
-            .fillSwSelectComponent(`${ruleData.ruleSelector} ${this.elements.ruleFieldCondition}`, {
+            .fillSwSelect(`${ruleData.ruleSelector} ${this.elements.ruleFieldCondition}`, {
                 value: ruleData.type,
-                isMulti: false,
-                searchTerm: ruleData.type
+                isMulti: false
             });
 
         if (ruleData.operator) {
             this.browser
-                .fillSwSelectComponent(`${ruleData.ruleSelector} .sw-condition-operator-select`, {
+                .fillSwSelect(`${ruleData.ruleSelector} .sw-condition-operator-select`, {
                     value: ruleData.operator,
-                    isMulti: false,
-                    searchTerm: ruleData.operator
+                    isMulti: false
                 });
         }
         this.browser
-            .fillSwSelectComponent(`${ruleData.ruleSelector} .field--main`, {
+            .fillSwSelect(`${ruleData.ruleSelector} .field--main`, {
                 value: ruleData.value,
-                isMulti: ruleData.isMulti,
-                searchTerm: ruleData.value
+                isMulti: ruleData.isMulti
             });
     }
 
     createBasicInputCondition(ruleData) {
         this.browser
-            .fillSwSelectComponent(`${ruleData.ruleSelector} ${this.elements.ruleFieldCondition}`, {
+            .fillSwSelect(`${ruleData.ruleSelector} ${this.elements.ruleFieldCondition}`, {
                 value: ruleData.type,
-                isMulti: false,
-                searchTerm: ruleData.type
+                isMulti: false
             });
 
         if (ruleData.operator) {
             this.browser
-                .fillSwSelectComponent(`${ruleData.ruleSelector} .sw-condition-operator-select`, {
+                .fillSwSelect(`${ruleData.ruleSelector} .sw-condition-operator-select`, {
                     value: ruleData.operator,
-                    isMulti: false,
-                    searchTerm: ruleData.operator
+                    isMulti: false
                 });
         }
 
@@ -80,36 +75,28 @@ class RuleBuilderPageObject extends GeneralPageObject {
 
     createCombinedInputSelectCondition(ruleData) {
         this.browser
-            .fillSwSelectComponent(`${ruleData.ruleSelector} ${this.elements.ruleFieldCondition}`, {
+            .fillSwSelect(`${ruleData.ruleSelector} ${this.elements.ruleFieldCondition}`, {
                 value: ruleData.type,
-                isMulti: false,
-                searchTerm: ruleData.type
+                isMulti: false
             })
-            .fillSwSelectComponent(`${ruleData.ruleSelector} .sw-condition-operator-select`, {
+            .fillSwSelect(`${ruleData.ruleSelector} .sw-condition-operator-select`, {
                 value: ruleData.operator,
-                isMulti: ruleData.isMulti,
-                searchTerm: ruleData.operator
+                isMulti: ruleData.isMulti
             })
-            .fillSwSelectComponent(`${ruleData.ruleSelector} .sw-select[name=id]`, {
+            .fillSwSelect(`${ruleData.ruleSelector} .sw-select[name=id]`, {
                 value: ruleData.firstValue,
-                isMulti: ruleData.isMulti,
-                searchTerm: ruleData.firstValue
+                isMulti: ruleData.isMulti
             })
             .fillField(`${ruleData.ruleSelector} input[name=${ruleData.inputName}]`, ruleData.secondValue);
     }
 
     createDateRangeCondition(ruleData) {
         this.browser
-            .fillSwSelectComponent(`${ruleData.ruleSelector} ${this.elements.ruleFieldCondition}`, {
-                value: ruleData.type,
-                isMulti: false,
-                searchTerm: ruleData.type
-            });
+            .fillSwSelect(`${ruleData.ruleSelector} ${this.elements.ruleFieldCondition}`, { value: ruleData.type });
 
-        this.browser.fillSwSelectComponent(`${ruleData.ruleSelector} .sw-select[name=useTime]`, {
+        this.browser.fillSwSelect(`${ruleData.ruleSelector} .sw-select[name=useTime]`, {
             value: ruleData.useTime ? 'Including timestamp' : 'Excluding timestamp',
-            isMulti: false,
-            searchTerm: String(ruleData.useTime)
+            isMulti: false
         });
 
         this.browser

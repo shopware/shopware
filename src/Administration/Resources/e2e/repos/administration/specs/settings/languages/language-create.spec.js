@@ -27,20 +27,8 @@ module.exports = {
         browser
             .assert.urlContains('#/sw/settings/language/create')
             .fillField('input[name=sw-field--language-name]', 'Philippine English')
-            .fillSwSelectComponent(
-                '.sw-settings-language-detail__select-locale',
-                {
-                    value: 'English, Philippines',
-                    searchTerm: 'en-PH'
-                }
-            )
-            .fillSwSelectComponent(
-                '.sw-settings-language-detail__select-parent',
-                {
-                    value: 'English',
-                    searchTerm: 'English'
-                }
-            )
+            .fillSwSelect('.sw-settings-language-detail__select-locale', { value: 'English, Philippines', searchTerm: 'en-PH' })
+            .fillSwSelect('.sw-settings-language-detail__select-parent', { value: 'English' })
             .click(page.elements.languageSaveAction)
             .waitForElementVisible('.icon--small-default-checkmark-line-medium')
             .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')

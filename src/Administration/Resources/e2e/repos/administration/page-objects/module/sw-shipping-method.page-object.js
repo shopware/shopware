@@ -18,14 +18,8 @@ class ShippingMethodPageObject extends GeneralPageObject {
             .fillField('input[name=sw-field--shippingMethod-name]', name)
             .tickCheckbox('input[name=sw-field--shippingMethod-active]', false)
             .tickCheckbox('input[name=sw-field--shippingMethod-active]', true)
-            .fillSwSelectComponent('.sw-settings-shipping-detail__delivery-time', {
-                value: '1-3 days',
-                searchTerm: '1-3'
-            })
-            .fillSwSelectComponent('.sw-settings-shipping-detail__top-rule', {
-                value: 'Cart >= 0',
-                searchTerm: 'Cart >= 0'
-            });
+            .fillSwSelect('.sw-settings-shipping-detail__delivery-time', { value: '1-3 days' })
+            .fillSwSelect('.sw-settings-shipping-detail__top-rule', { value: 'Cart >= 0' });
 
         this.createShippingMethodPriceRule();
 

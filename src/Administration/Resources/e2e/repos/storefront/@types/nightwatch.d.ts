@@ -2158,7 +2158,7 @@ export interface NightwatchAPI {
     launch_url: string;
 }
 
-interface fillSwSelectComponentOptions {
+interface fillSwSelectOptions {
     value: string,
     clearField?: boolean,
     isMulti?: boolean,

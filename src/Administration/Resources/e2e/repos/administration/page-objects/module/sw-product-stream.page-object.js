@@ -39,98 +39,62 @@ class ProductStreamPageObject extends GeneralPageObject {
 
     createBasicSelectCondition(ruleData) {
         this.browser
-            .fillSwSelectComponent(`${ruleData.ruleSelector} ${this.elements.ruleFieldCondition}`, {
-                value: ruleData.type,
-                isMulti: false,
-                searchTerm: ruleData.type
-            });
+            .fillSwSelect(`${ruleData.ruleSelector} ${this.elements.ruleFieldCondition}`, { value: ruleData.type });
 
         if (ruleData.operator) {
             this.browser
-                .fillSwSelectComponent(`${ruleData.ruleSelector} .field--operator`, {
-                    value: ruleData.operator,
-                    isMulti: false,
-                    searchTerm: ruleData.operator
-                });
+                .fillSwSelect(`${ruleData.ruleSelector} .field--operator`, { value: ruleData.operator });
         }
         this.browser
-            .fillSwSelectComponent(`${ruleData.ruleSelector} .field--main`, {
+            .fillSwSelect(`${ruleData.ruleSelector} .field--main`, {
                 value: ruleData.value,
-                isMulti: ruleData.isMulti,
-                searchTerm: ruleData.value
+                isMulti: ruleData.isMulti
             });
     }
 
     createBasicSwitchCondition(ruleData) {
         this.browser
-            .fillSwSelectComponent(`${ruleData.ruleSelector} ${this.elements.ruleFieldCondition}`, {
-                value: ruleData.type,
-                isMulti: false,
-                searchTerm: ruleData.type
-            })
+            .fillSwSelect(`${ruleData.ruleSelector} ${this.elements.ruleFieldCondition}`, { value: ruleData.type })
             .tickCheckbox(`${ruleData.ruleSelector} .field--main input`, ruleData.value);
 
         if (ruleData.operator) {
             this.browser
-                .fillSwSelectComponent(`${ruleData.ruleSelector} .sw-condition-operator-select`, {
-                    value: ruleData.operator,
-                    isMulti: false,
-                    searchTerm: ruleData.operator
-                });
+                .fillSwSelect(`${ruleData.ruleSelector} .sw-condition-operator-select`, { value: ruleData.operator });
         }
     }
 
     createBasicInputCondition(ruleData) {
         this.browser
-            .fillSwSelectComponent(`${ruleData.ruleSelector} ${this.elements.ruleFieldCondition}`, {
-                value: ruleData.type,
-                isMulti: false,
-                searchTerm: ruleData.type
-            })
+            .fillSwSelect(`${ruleData.ruleSelector} ${this.elements.ruleFieldCondition}`, { value: ruleData.type })
             .fillField(`${ruleData.ruleSelector} input[name=${ruleData.inputName}]`, ruleData.value);
 
         if (ruleData.operator) {
             this.browser
-                .fillSwSelectComponent(`${ruleData.ruleSelector} .field--operator`, {
-                    value: ruleData.operator,
-                    isMulti: false,
-                    searchTerm: ruleData.operator
-                });
+                .fillSwSelect(`${ruleData.ruleSelector} .field--operator`, { value: ruleData.operator });
         }
     }
 
     createCombinedInputSelectCondition(ruleData) {
         this.browser
-            .fillSwSelectComponent(`${ruleData.ruleSelector} ${this.elements.ruleFieldCondition}:nth-of-type(1)`, {
-                value: ruleData.type,
-                isMulti: false,
-                searchTerm: ruleData.type
-            })
-            .fillSwSelectComponent(`${ruleData.ruleSelector} .field--condition:nth-of-type(2)`, {
+            .fillSwSelect(`${ruleData.ruleSelector} ${this.elements.ruleFieldCondition}:nth-of-type(1)`, { value: ruleData.type })
+            .fillSwSelect(`${ruleData.ruleSelector} .field--condition:nth-of-type(2)`, {
                 value: ruleData.firstValue,
-                isMulti: ruleData.isMulti,
-                searchTerm: ruleData.firstValue
+                isMulti: ruleData.isMulti
             })
-            .fillSwSelectComponent(`${ruleData.ruleSelector} .field--operator`, {
+            .fillSwSelect(`${ruleData.ruleSelector} .field--operator`, {
                 value: ruleData.operator,
-                isMulti: ruleData.isMulti,
-                searchTerm: ruleData.operator
+                isMulti: ruleData.isMulti
             })
             .fillField(`${ruleData.ruleSelector} input[name=${ruleData.inputName}]`, ruleData.secondValue);
     }
 
     createDateRangeCondition(ruleData) {
         this.browser
-            .fillSwSelectComponent(`${ruleData.ruleSelector} ${this.elements.ruleFieldCondition}`, {
-                value: ruleData.type,
-                isMulti: false,
-                searchTerm: ruleData.type
-            });
+            .fillSwSelect(`${ruleData.ruleSelector} ${this.elements.ruleFieldCondition}`, { value: ruleData.type });
 
-        this.browser.fillSwSelectComponent(`${ruleData.ruleSelector} .sw-select[name=useTime]`, {
+        this.browser.fillSwSelect(`${ruleData.ruleSelector} .sw-select[name=useTime]`, {
             value: ruleData.useTime ? 'Include time reference' : 'Exclude time reference',
-            isMulti: false,
-            searchTerm: String(ruleData.useTime)
+            isMulti: false
         });
 
         this.browser
@@ -140,11 +104,7 @@ class ProductStreamPageObject extends GeneralPageObject {
 
     createDateCondition(ruleData) {
         this.browser
-            .fillSwSelectComponent(`${ruleData.ruleSelector} ${this.elements.ruleFieldCondition}`, {
-                value: ruleData.type,
-                isMulti: false,
-                searchTerm: ruleData.type
-            });
+            .fillSwSelect(`${ruleData.ruleSelector} ${this.elements.ruleFieldCondition}`, { value: ruleData.type });
 
         this.browser
             .fillDateField('.field--main', ruleData.value);

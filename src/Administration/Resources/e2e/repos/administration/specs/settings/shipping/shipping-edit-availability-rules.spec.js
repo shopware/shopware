@@ -32,10 +32,7 @@ module.exports = {
 
         browser
             .getLocationInView('.sw-settings-shipping-price-matrices__actions')
-            .fillSwSelectComponent('.sw-settings-shipping-price-matrix__top-container .sw-select-rule-create', {
-                value: 'Cart >= 0',
-                searchTerm: 'Cart >= 0'
-            });
+            .fillSwSelect('.sw-settings-shipping-price-matrix__top-container .sw-select-rule-create', { value: 'Cart >= 0' });
 
         page.createShippingMethodPriceRule();
     },

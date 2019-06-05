@@ -7,6 +7,61 @@
 
 <p><a href="https://component-library.shopware.com/">https://component-library.shopware.com</a></p>
 
+<h2>June 2019</h2>
+
+<h3>2019-06-05: Refactored fillSwSelectComponent command</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+h2 code {
+    font-size: 32px;
+}
+
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
+<p>A first step to unify all <code>sw-select</code> behaviour was merged today.
+We refactored the E2E custom command <code>fillSwSelectComponent</code> to support <code>sw-select</code> in both variants
+(single and multi select) as well as <code>sw-single-select</code>, <code>sw-multi-select</code> and <code>sw-tag-field</code>.</p>
+<p>We also renamed it to <code>fillSwSelect</code> instead of <code>fillSwSelectCommand</code></p>
+<pre><code>fillSwSelect(
+    selector,
+    {
+      value,
+      clearField = false,
+      isMulti = false,
+      searchTerm = null,
+      resultPosition = 0
+    }
+) </code></pre>
+<ul>
+<li><code>selector</code> The css selector of your select component.</li>
+<li><code>value</code> The value to search and check against after selecting it.</li>
+<li><code>clearField</code> Indicates if all selections should be cleared before selecting a new value. (multi select only)</li>
+<li><code>isMulti</code> Indicates if the select field is a multi select.</li>
+<li><code>searchTerm</code> Overrides the value to search for, if it differs from the actual value. (e.g. search for a locale but the displayed value is the locale description)</li>
+<li><code>resultPosition</code> Tells nightwatch to select a specific option from the results list rather than the first. This might be necessary if your search has more than one result.</li>
+</ul>
+<p>To avoid duplications we removed the E2E commands <code>fillSwSingleSelect</code> and <code>fillSwMultiSelect</code>.   </p>
 <h2>May 2019</h2>
 
 <h3>2019-05-31: Added plugin:create command</h3>

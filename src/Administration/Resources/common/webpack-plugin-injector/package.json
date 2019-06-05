@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "name": "@shopware/webpack-plugin-injector",
+  "version": "1.0.0",
+  "description": "Injects Shopware Plugin into a provided Webpack Config",
+  "main": "index.js",
+  "author": "klarstil",
+  "license": "MIT",
+  "dependencies": {
+    "app-module-path": "2.2.0",
+    "webpack-merge": "4.2.1"
+  }
+}

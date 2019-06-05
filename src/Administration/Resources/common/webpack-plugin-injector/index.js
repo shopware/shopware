@@ -1,0 +1,273 @@
+const { join } = require('path');
+const fs = require('fs');
+const { addPath } = require('app-module-path');
+const merge = require('webpack-merge');
+
+const projectRoot = process.env.PROJECT_ROOT || '';
+
+/**
+ * Resolves a given directory from the root path of the project
+ *
+ * @param {String} directory
+ * @returns {String}
+ */
+function resolveFromRootPath(directory) {
+    return join(projectRoot, directory);
+}
+
+/**
+ * Valid sections
+ *
+ * @type {string[]}
+ */
+const sections = [
+    'storefront',
+    'administration'
+];
+
+/**
+ * Resolves a given directory
+ *
+ * @param {String} directory
+ * @returns {String}
+ */
+function resolve(directory) {
+    return join(__dirname, '..', directory);
+}
+
+/**
+ * Contains a collection of functions which sanitizes the plugin list for the storefront and administration
+ */
+class WebpackPluginInjector {
+    /**
+     * Class constructor which sets up the injector
+     *
+     * @constructor
+     * @param {String} filePath Path to definition file
+     * @param {Object} webpackConfig
+     * @param {String} section Either 'storefront' or 'administration'
+     * @param {boolean} [silent=false]
+     * @returns {void}
+     */
+    constructor(filePath, webpackConfig, section, silent = false) {
+        this._section = section;
+        this._silent = silent;
+        this._filePath = filePath;
+        this._webpackConfig = webpackConfig;
+        this._env = process.env.NODE_ENV;
+
+        if (!sections.includes(section)) {
+            throw new Error(`Section "${section}" is not a valid section. Available sections: ${sections.join(', ')}`);
+        }
+
+        this._includePaths = [
+            resolve('src'),
+            resolve('test')
+        ];
+
+        const content = WebpackPluginInjector.getPluginDefinitionContent(this.filePath);
+        const plugins = this.getPluginsBySection(content);
+        this.registerPluginsToWebpackConfig(plugins);
+    }
+
+    /**
+     * General logging function which provides a unified style of log messages for developers.
+     *
+     * @param {String} [name='# Webpack Plugin Injector']
+     * @param {...String|Array|Date|Number|Object} message
+     * @returns {boolean}
+     */
+    warn(name = 'Webpack Plugin Injector', ...message) {
+        if (this.silent) {
+            return false;
+        }
+
+        message.unshift(`# ${name}:`);
+        console.warn.apply(this, message);
+
+        return true;
+    }
+
+    /**
+     * Checks if the definition exists, loads it and parses it as JSON.
+     *
+     * @static
+     * @param {String} definitionFile
+     * @return {Object}
+     */
+    static getPluginDefinitionContent(definitionFile) {
+        const fullPathDefinitionFile = resolveFromRootPath(definitionFile);
+
+        if (!fs.existsSync(fullPathDefinitionFile)) {
+            throw new Error('Definition file does not exists');
+        }
+
+        let definition;
+        const content = fs.readFileSync(fullPathDefinitionFile, 'utf8');
+        try {
+            definition = JSON.parse(content);
+        } catch (err) {
+            throw new Error('The definition file is not a valid JSON file');
+        }
+
+        return definition;
+    }
+
+    /**
+     * Parses the plugin definition file and split them into the two sections storefront and administration.
+     *
+     * @param {Object} pluginDefinitions
+     * @return {Object<Array>}
+     */
+    parsePluginDefinitions(pluginDefinitions) {
+        const plugins = {
+            administration: [],
+            storefront: []
+        };
+
+        Object.keys(pluginDefinitions).forEach((pluginName) => {
+            const pluginDefinition = pluginDefinitions[pluginName];
+
+            sections.forEach((section) => {
+                if (pluginDefinition[section] && pluginDefinition[section].entryFilePath) {
+                    const plugin = WebpackPluginInjector.getPluginConfig(pluginName, pluginDefinition, section);
+                    plugins[section].push(plugin);
+                }
+            });
+        });
+
+        return plugins;
+    }
+
+    /**
+     * Returns the plugin configuration with sanitized paths. The method also terminates if the plugin contains a custom
+     * webpack configuration which we have to merge.
+     *
+     * @static
+     * @param {String} pluginName - Name of
+     * @param pluginDefinition
+     * @param section
+     * @return {Object}
+     */
+    static getPluginConfig(pluginName, pluginDefinition, section) {
+        const basePath = pluginDefinition.basePath;
+        const hasCustomWebpackConfig = (pluginDefinition[section].webpack !== null);
+        const webpackConfigPath = !hasCustomWebpackConfig ? null
+            : join(basePath, pluginDefinition[section].webpack);
+
+        return {
+            basePath,
+            hasCustomWebpackConfig,
+            webpackConfigPath,
+            pluginName: pluginName,
+            viewPath: pluginDefinition.views.map((path) => join(basePath, path)),
+            entryFile: join(basePath, pluginDefinition[section].entryFilePath)
+        };
+    }
+
+    /**
+     * Provides all registered plugins for a section.
+     *
+     * @param {String} content
+     * @return {Array|null}
+     */
+    getPluginsBySection(content) {
+        const plugins = this.parsePluginDefinitions(content);
+        return plugins[this.section] || null;
+    }
+
+    /**
+     * Iterates the plugin list, adds custom webpack configs to the provided Webpack config, alters
+     * the Node.js' module path resolving to enable plugins with a custom config to load their own Node.js modules.
+     *
+     * @param {Array} plugins
+     * @return {Object} modified webpack config
+     */
+    registerPluginsToWebpackConfig(plugins) {
+        plugins.forEach((plugin) => {
+            const name = plugin.pluginName;
+
+            // Params for the custom webpack config
+            const params = {
+                env: process.env.NODE_ENV,
+                config: this.webpackConfig,
+                name,
+                plugin
+            };
+
+            // Add plugin as a new entry in the webpack config, respect NODE_ENV and insert the dev-client if necessary
+            this.webpackConfig.entry[name] = this.env === 'development'
+                ? ['./build/dev-client'].concat(plugin.entryFile)
+                : plugin.entryFile;
+
+            // Add plugin to include paths to support eslint
+            this._includePaths.push(...plugin.viewPath);
+
+            if (!plugin.hasCustomWebpackConfig) {
+                this.warn('Webpack Plugin Injector', `Plugin "${name}" injected as a new entry point`);
+                return;
+            }
+
+            // Add new path to Node.js' module path resolving
+            addPath(plugin.basePath);
+
+            // Check if custom webpack config is a function
+            const customConfigFn = require(plugin.webpackConfigPath); /* eslint-disable-line */
+            if (typeof customConfigFn !== 'function') {
+                throw new Error(`Webpack config for plugin ${name} needs to be a function to extend the provided Webpack.`);
+            }
+
+            // Call custom webpack config function and merge the new config
+            const modifiedWebpackConfig = customConfigFn(Object.assign({}, {
+                basePath: plugin.basePath
+            }, params));
+
+            this.webpackConfig = merge(this.webpackConfig, modifiedWebpackConfig);
+            this.warn('Webpack Plugin Injector', `Plugin "${name}" injected with custom config`);
+        });
+
+        return this.webpackConfig;
+    }
+
+    get section() {
+        return this._section;
+    }
+
+    set section(value) {
+        this._section = value;
+    }
+
+    get silent() {
+        return this._silent;
+    }
+
+    set silent(value) {
+        this._silent = value;
+    }
+
+    get filePath() {
+        return this._filePath;
+    }
+
+    set filePath(value) {
+        this._filePath = value;
+    }
+
+    get webpackConfig() {
+        return this._webpackConfig;
+    }
+
+    set webpackConfig(value) {
+        this._webpackConfig = value;
+    }
+
+    get env() {
+        return this._env;
+    }
+
+    set env(value) {
+        this._env = value;
+    }
+}
+
+module.exports = WebpackPluginInjector;

@@ -4,7 +4,7 @@
       "mainMenuItemGeneral": "Orders",
       "mainMenuItemList": "Overview",
       "descriptionTextModule": "Manage received orders here.",
-      "placeholderSearchBar": "Search orders"
+      "placeholderSearchBar": "Search all orders..."
     },
     "list": {
       "columnCustomerName": "Customer name",
@@ -39,8 +39,8 @@
       "cardTitleLineItems": "Items",
       "columnProductName": "Item",
       "columnQuantity": "Quantity",
-      "columnPriceNet": "Net. Price",
-      "columnPriceGross": "Gross Price",
+      "columnPriceNet": "Net price",
+      "columnPriceGross": "Gross price",
       "columnTotalPriceNet": "Total",
       "columnPrice": "Price",
       "columnTotalPrice": "Total",
@@ -71,7 +71,7 @@
       "labelLanguage" :"Order language",
       "labelPaymentMethod" : "Payment method",
       "labelShippingMethod":"Shipping method",
-      "labelPartnerCode" : "Partner-Code",
+      "labelPartnerCode" : "Partner code",
       "labelCustomerEmail" :"Email",
       "labelNoDeliveriesYet" : "No deliveries yet",
       "labelNoDeliveryTrackingCodeYet": "None",
@@ -100,7 +100,7 @@
     },
     "leavePageModal" : {
       "headline" : "Warning",
-      "description" : "You have unsaved changes. Are you sure that you want to leave this page?",
+      "description" : "You have unsaved changes. Are you sure you want to leave this page?",
       "confirmButton" : "Leave Page",
       "cancelButton" : "Stay on Page"
     },
@@ -110,14 +110,14 @@
       "headlineTransactionState": "Payment State",
       "labelLastEditedBy":"Last edited by",
       "labelSystemUser":"System",
-      "labelSelectStatePlaceholder":"Choose status...",
+      "labelSelectStatePlaceholder":"Select a status...",
       "labelSelectStateButton":"Update status",
       "headlineErrorStateChange":"Error",
       "labelErrorStateChange":"An error occured while updating the state. Additional information:",
       "labelErrorNoAction":"No valid state selected."
     },
     "documentCard": {
-      "searchBarPlaceholder": "Search documents",
+      "searchBarPlaceholder": "Search all documents...",
       "cardTitle": "Documents",
       "labelDate": "Date",
       "labelNumber": "Number",

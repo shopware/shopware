@@ -10,7 +10,7 @@
             <label>License host</label>
             <label lang="de-DE">Lizenzierungshost</label>
             <placeholder>Enter license host</placeholder>
-            <placeholder lang="de-DE">Gebe den Lizenzierungshost ein</placeholder>
+            <placeholder lang="de-DE">Gib einen Lizenzierungshost ein</placeholder>
         </input-field>
     </card>
 </config>

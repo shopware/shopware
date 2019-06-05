@@ -29,7 +29,7 @@ module.exports = {
             .fillField('input[name=sw-field--currentIntegration-label]', 'My very own integration')
             .tickCheckbox('input[name=sw-field--currentIntegration-writeAccess]', true)
             .click(page.elements.integrationSaveAction)
-            .checkNotification('Integration has been saved successfully')
+            .checkNotification('Integration has successfully been saved.')
             .assert.urlContains('#/sw/integration/index');
     },
     'verify newly created integration': (browser) => {

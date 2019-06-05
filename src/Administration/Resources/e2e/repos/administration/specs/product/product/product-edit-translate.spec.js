@@ -6,7 +6,7 @@ const fixture = {
 };
 
 module.exports = {
-    '@tags': ['product', 'product-translate', 'edit', 'translate', 'language-switch'],
+    '@tags': ['product', 'product-translate', 'product-edit', 'edit', 'translate', 'language-switch'],
     before: (browser, done) => {
         global.ProductFixtureService.setProductFixture(fixture).then(() => {
             done();
@@ -50,7 +50,7 @@ module.exports = {
 
         browser
             .fillField('input[name=sw-field--product-name]', 'Echt gutes Produkt', true)
-            .fillField('.sw-text-editor__content-editor', 'Siehst du nicht, dass das ein wunderbares Produkt ist?', true, 'editor')
+            .fillField('.sw-text-editor__content-editor', 'Siehst Du nicht, dass das ein wunderbares Produkt ist?', true, 'editor')
             .click(page.elements.productSaveAction)
             .waitForElementVisible('.icon--small-default-checkmark-line-medium');
     },

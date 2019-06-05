@@ -25,7 +25,7 @@ module.exports = {
         browser
             .click('a[href="#/sw/product/create"]')
             .assert.urlContains('#/sw/product/create')
-            .expect.element(page.elements.cardTitle).to.have.text.that.equals('Information');
+            .expect.element(page.elements.cardTitle).to.have.text.that.equals('General information');
 
         page.createBasicProduct('Marci Darci');
 

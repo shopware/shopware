@@ -21,16 +21,16 @@
       "textDeleteConfirm": "Are you sure you really want to delete the shipping method \"{name}\"?",
       "titleSidebarItemRefresh": "Refresh",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "Shipping method \"{name}\" has been saved successfully.",
+      "messageSaveSuccess": "Shipping method \"{name}\" has successfully been saved.",
       "messageSaveError": "Shipping method \"{name}\" could not be saved.",
       "messageDeleteError": "Shipping method \"{name}\" could not be deleted.",
-      "messageDeleteSuccess": "Shipping method \"{name}\" has been deleted successfully."
+      "messageDeleteSuccess": "Shipping method \"{name}\" has successfully been deleted."
     },
     "detail": {
       "textHeadline": "New shipping method",
       "titleCard": "Settings",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "Shipping rate \"{name}\" has been saved successfully.",
+      "messageSaveSuccess": "Shipping rate \"{name}\" has successfully been saved.",
       "labelName": "Name",
       "labelActive": "Active",
       "labelDeliveryTime": "Delivery time",
@@ -41,7 +41,7 @@
       "buttonSave": "Save",
       "labelSetRules": "Select rules",
       "labelBasicInfo": "Basic information",
-      "topRule": "Availability rule",
+      "topRule": "Availability",
       "labelLogoUpload": "Upload logo"
     },
     "constants": {
@@ -51,46 +51,46 @@
     },
     "priceMatrix": {
       "placeholderName": "Price matrix",
-      "noRestriction": "No rule restriction",
+      "noRestriction": "Unrestricted",
       "addNewRule": "Add new rule",
-      "addNewPriceRule": "Add new price rule",
-      "duplicateMatrixContextLabel": "duplicate price matrix",
-      "deleteMatrixContextLabel": "delete price matrix",
-      "contextMenuDuplicatePrice": "duplicate price rule",
-      "contextMenuDeletePrice": "delete price rule",
-      "contextMenuModifyPrice": "modify price rule",
-      "selectProperty": "Select property ...",
-      "useRules": "Or use rules",
-      "emptyText": "To use the price matrix you have to choose between the use of properties or rules",
-      "calculationLineItemCount": "Line item count ",
+      "addNewPriceRule": "Add pricing level",
+      "duplicateMatrixContextLabel": "Duplicate price matrix",
+      "deleteMatrixContextLabel": "Delete price matrix",
+      "contextMenuDuplicatePrice": "Duplicate price rule",
+      "contextMenuDeletePrice": "Delete price rule",
+      "contextMenuModifyPrice": "Modify price rule",
+      "selectProperty": "Select property...",
+      "useRules": "Use rules",
+      "emptyText": "When using the price matrix you will have to choose between applying either properties or rules",
+      "calculationLineItemCount": "Line item count",
       "calculationPrice": "Cart price",
       "calculationWeight": "Weight",
       "calculationVolume": "Volume",
-      "columnQuantityStart": "Quantity start",
-      "columnQuantityEnd": "Quantity end",
-      "columnWeightStart": "Weight in kg start",
-      "columnWeightEnd": "Weight in kg end",
+      "columnQuantityStart": "Quantity from...",
+      "columnQuantityEnd": "...to...",
+      "columnWeightStart": "Weight in kg from...",
+      "columnWeightEnd": "...to...",
       "columnPriceStart": "Cart price start",
       "columnPriceEnd": "Cart price end",
       "columnVolumeStart": "Volume start",
       "columnVolumeEnd": "Volume end",
       "columnPrice": "Price (gross)",
       "columnCalculationRule": "Rule",
-      "buttonAddAdditionalPriceMatrix": "Add additional price matrix",
+      "buttonAddAdditionalPriceMatrix": "Add price matrix",
       "any": "any",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete",
       "modalTitleDelete": "Delete price matrix",
-      "textDeleteConfirm": "Are you sure you really want to delete the price matrix \"{name}\"? | Are you sure you really want to delete the price matrix?"
+      "textDeleteConfirm": "Are you sure you really want to delete the price matrix \"{name}\"? | Are you sure you really want to delete these price matrices?"
     },
     "sidebar": {
       "labelUseAsLogo": "Use as logo"
     },
     "priceRuleModal": {
-      "modalTitleNew": "New price rule",
-      "modalTitleModify": "Modify price rule",
+      "modalTitleNew": "Add pricing level",
+      "modalTitleModify": "Modify pricing rule",
       "labelPrice": "Price",
-      "placeholderPrice": "Enter price ..."
+      "placeholderPrice": "Enter price..."
     }
   }
 }

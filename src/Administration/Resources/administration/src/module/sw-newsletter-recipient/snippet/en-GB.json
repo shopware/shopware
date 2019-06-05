@@ -13,7 +13,7 @@
     },
     "detail": {
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "Data for \"{key}\" has been saved successfully.",
+      "messageSaveSuccess": "Data for \"{key}\" has successfully been saved.",
       "titleSaveError": "Error",
       "messageSaveError": "Data for \"{key}\" could not be saved."
     },
@@ -22,7 +22,7 @@
       "titleSidebarItemFilter": "Filters",
       "status": "Status",
       "textHeadline": "Newsletter recipients",
-      "email": "Email",
+      "email": "Email address",
       "name": "Name",
       "title": "Title",
       "firstName": "First name",
@@ -30,13 +30,13 @@
       "zipCode": "Zip code",
       "city": "City",
       "street": "Street",
+      "notSet": "Awaiting activation",
       "createdAt": "Created at",
       "updatedAt": "Updated at",
-      "notSet": "Await activation",
       "optIn": "Active",
-      "optOut": "Await deletion",
-      "direct": "Direct active",
-      "messageEmpty": "No Newsletter recipients yet"
+      "optOut": "Awaiting deletion",
+      "direct": "Instantly active",
+      "messageEmpty": "No newsletter recipients yet"
     }
   }
 }

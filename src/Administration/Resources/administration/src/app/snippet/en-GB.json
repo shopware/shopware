@@ -4,7 +4,7 @@
       "notificationSaveErrorTitle": "Error",
       "notificationSaveErrorMessage": "An error occurred while saving the entity \"{entityName}\".",
       "notificationSaveSuccessTitle": "Success",
-      "notificationSaveSuccessMessage": "The entity \"{entityName}\" has been saved successfully."
+      "notificationSaveSuccessMessage": "The entity \"{entityName}\" has successfully been saved."
     },
     "notification-center": {
       "title": "Notifications",
@@ -46,7 +46,7 @@
     "entity-components": {
       "editAction": "Edit",
       "deleteAction": "Delete",
-      "deleteMessage": "Are you sure you want to delete the item?",
+      "deleteMessage": "Are you sure you want to delete this item?",
       "deleteCancel": "Cancel",
       "deleteConfirm": "Delete",
       "deleteTitle": "Delete entry"
@@ -78,7 +78,7 @@
     "sw-tag-field":{
       "title": "Tags",
       "listItemAdd": "Add \"{term}\"",
-      "placeholder": "Type to search tags..."
+      "placeholder": "Search tags..."
     },
     "sw-grid-row": {
       "buttonInlineEditCancel": "Cancel",
@@ -99,7 +99,7 @@
       "labelClose": "Close"
     },
     "sw-media-field": {
-      "labelToggleSearchExisting": "Search media",
+      "labelToggleSearchExisting": "Search media...",
       "labelToggleUploadNew": "Upload new media",
       "labelUnlink": "Unlink media"
     },
@@ -135,7 +135,7 @@
         },
         "renamingSuccess": {
           "title": "Success",
-          "message": "Media item has been renamed successfully."
+          "message": "Media item has successfully been renamed."
         },
         "renamingError": {
           "title": "Error",
@@ -153,7 +153,7 @@
       "deleteMessage": {
         "media": "Are you sure you want to delete \"{name}\"? | Are you sure you want to delete {count} media items?",
         "folder": "Are you sure you want to delete the folder \"{name}\"?<br>All subfolders and contained media items will be deleted too. | Are you sure you want to delete {count} folders?<br>All subfolders and contained media items will be deleted too.",
-        "mediaAndFolder": "Are you sure you want to delete {mediaCount} media items and {folderCount} folders?<br>All subfolders and contained media items will be deleted too."
+        "mediaAndFolder": "Are you sure you want to delete {mediaCount} media items and {folderCount} folders?<br>All subfolders and all media items within will be deleted too."
       },
       "buttonDelete": "Delete",
       "buttonCancel": "Cancel",
@@ -161,8 +161,8 @@
         "successSingle": {
           "title": "Success",
           "message": {
-            "media": "File \"{name}\" has been deleted successfully.",
-            "folder": "Folder \"{name}\" has been deleted successfully."
+            "media": "File \"{name}\" has successfully been deleted.",
+            "folder": "Folder \"{name}\" has successfully been deleted."
           }
         },
         "errorSingle": {
@@ -175,9 +175,9 @@
         "successOverall": {
           "title": "Success",
           "message": {
-            "media": "No file has been successfully deleted. | A file has been successfully deleted. | {count} / {total} files have been successfully deleted.",
-            "folder": "No folder has been successfully deleted. | A folder has been successfully deleted. | {count} / {total} folders have been successfully deleted.",
-            "mediaAndFolder": "No file or folder has been successfully deleted. | A file or a folder has been successfully deleted. | {count} / {total} files or folders have been successfully deleted."
+            "media": "No file has successfully been deleted. | A file has successfully been deleted. | {count} / {total} files have successfully been deleted.",
+            "folder": "No folder has successfully been deleted. | A folder has successfully been deleted. | {count} / {total} folders have successfully been deleted.",
+            "mediaAndFolder": "No file or folder has successfully been deleted. | A file or a folder has successfully been deleted. | {count} / {total} files or folders have successfully been deleted."
           }
         },
         "errorOverall": {
@@ -198,7 +198,7 @@
       "notification": {
         "successSingle": {
           "title": "Success",
-          "message": "Folder \"{folderName}\"  has been dissolved successfully."
+          "message": "Folder \"{folderName}\" has successfully been dissolved."
         },
         "errorSingle": {
           "title": "Error",
@@ -206,7 +206,7 @@
         },
         "successOverall": {
           "title": "Success",
-          "message": "Folders have been dissolved successfully."
+          "message": "Folders have successfully been dissolved."
         },
         "errorOverall": {
           "title": "Error",
@@ -235,7 +235,7 @@
       "notification": {
         "successSingle": {
           "title": "Success",
-          "message": "Folder \"{mediaName}\"  has been moved successfully."
+          "message": "Folder \"{mediaName}\" has successfully been moved."
         },
         "errorSingle": {
           "title": "Error",
@@ -243,7 +243,7 @@
         },
         "successOverall": {
           "title": "Success",
-          "message": "Media items successfully moved"
+          "message": "Media items have successfully been moved."
         },
         "errorOverall": {
           "title": "Error",
@@ -270,8 +270,8 @@
       "notification": {
         "success": {
           "title": "Media upload",
-          "message": "No file has been saved successfully. | A file has been saved successfully. | {count} / {total} files have been saved successfully.",
-          "titleSuccess": "Media upload finished"
+          "message": "No file has successfully been saved. | File has successfully been saved. | {count} / {total} files have successfully been saved.",
+          "titleSuccess": "Success"
         },
         "failure": {
           "title": "Error",
@@ -282,7 +282,7 @@
           "message": "The filename \"{fileName}\" contains invalid characters."
         }
       },
-      "caption": "Drag files here to upload them"
+      "caption": "Drag files here to upload"
     },
     "sw-media-url-form": {
       "title": "Upload file from URL",
@@ -311,7 +311,7 @@
       "notification": {
         "success": {
           "title": "Success",
-          "message": "Settings have been saved successfully."
+          "message": "Settings have successfully been saved."
         },
         "error": {
           "title": "Error",
@@ -326,7 +326,7 @@
     },
     "sw-sidebar-media-item": {
       "title": "Media",
-      "placeholderSearch": "Search",
+      "placeholderSearch": "Search...",
       "labelLoadMore": "Load more items"
     },
     "sw-media-list-selection-item": {
@@ -337,7 +337,7 @@
     },
     "sw-single-select": {
       "messageNoResults": "No results found for \"{term}\".",
-      "valuePlaceholder": "Choose one"
+      "valuePlaceholder": "Select..."
     },
     "sw-label": {
       "buttonDismiss": "Dismiss"
@@ -346,8 +346,8 @@
       "messageNoResults": "No results found for \"{term}\".",
       "messageNoTypeResults": "No type found.",
       "placeholderSearchField": "Find products, customers, orders...",
-      "placeholderTypeSearchField": "Search {entity}",
-      "placeholderShortcutInfo": "Tip: Use the \"s\" key to open the search faster.",
+      "placeholderTypeSearchField": "Search \"{entity}\"...",
+      "placeholderShortcutInfo": "Tip: Press the \"s\" key to get to the search bar faster.",
       "labelShowResultsInModule": "Show results in module({count})"
     },
     "sw-search-bar-item": {
@@ -369,7 +369,7 @@
         "isOneOf": "Is one of",
         "isNoneOf": "Is none of"
       },
-      "placeholderErrorMessage": "Placeholder can not be saved.",
+      "placeholderErrorMessage": "Placeholder cannot be saved.",
       "dataErrorMessage": "Required fields not filled.",
       "tag": {
         "placeholder": "Use enter key to submit your values."
@@ -377,9 +377,9 @@
       "condition": {
         "dateRangeRule": {
           "label": "Date range",
-          "useTime": "Use time"
+          "useTime": "Include time reference"
         },
-        "placeholder": "Select condition",
+        "placeholder": "Select condition...",
         "orderCountRule": "Count of orders",
         "salesChannelRule": "Sales channel",
         "currencyRule": "Currency",
@@ -411,12 +411,12 @@
         "lineItemWithQuantityRule": "Line item with quantity",
         "yes": "Yes",
         "no": "No",
-        "withTime": "Use time",
-        "withoutTime": "Don't use time",
+        "withTime": "Including timestamp",
+        "withoutTime": "Excluding timestamp",
         "and": "And",
         "or": "Or",
         "field": {
-          "valuePlaceholder": "Value..."
+          "valuePlaceholder": "Enter value..."
         },
         "placeholder-warning": "Please choose a condition...",
         "not-found": {
@@ -443,7 +443,7 @@
       }
     },
     "sw-simple-search-field": {
-      "defaultPlaceholder": "Search"
+      "defaultPlaceholder": "Search..."
     },
     "entities": {
       "custom_field": "Custom field | Custom fields",
@@ -515,7 +515,7 @@
   },
   "sw-tree": {
     "general": {
-      "placeholderSearch": "Search",
+      "placeholderSearch": "Search...",
       "treeHeadSelected": "{count} selected",
       "treeHeadline": "Tree structure",
       "buttonCreate": "Create element",
@@ -543,19 +543,19 @@
   "sw-error": {
     "general": {
       "statusCodePlaceholder": "Error",
-      "messagePlaceholder": "An error occurred.",
+      "messagePlaceholder": "Oops, something went terribly wrong.",
       "textLink": "Back"
     }
   },
   "sw-property-search": {
-    "placeholderSearch": "Search properties and options",
+    "placeholderSearch": "Search properties...",
     "selected": "{count} option selected | {count} options selected"
   },
   "sw-property-assignment": {
     "columnGroup": "Property",
     "columnOptions": "Options",
     "messageEmptyTitle": "No properties yet",
-    "messageEmptySubline": "Manage properties here."
+    "messageEmptySubline": "To add properties, visit the properties module."
   },
   "sw-language-info": {
     "infoTextChildLanguage": "\"{entityDescription}\" displayed in the language <span>\"{language}\"</span>, which inherits from",
@@ -571,7 +571,7 @@
   },
   "sw-sales-channel-switch": {
     "messageModalUnsavedChanges": "There are unsaved changes for the current sales channel. Do you want to save them now?",
-    "placeholderSelect": "Search...",
+    "placeholderSelect": "Search for...",
     "titleModalUnsavedChanges": "Unsaved changes",
     "titleModalButtonCancelUnsavedChanges": "Cancel",
     "titleModalButtonRevertUnsavedChanges": "Discard changes",
@@ -597,15 +597,15 @@
     "modalTitleNew": "Create new global rule",
     "modalTitleModify": "Modify global rule",
     "labelDescription": "Description",
-    "placeholderDescription": "Set a description for this rule...",
+    "placeholderDescription": "Enter a rule description...",
     "labelName": "Name",
-    "placeholderName": "Set a name for this rule...",
+    "placeholderName": "Enter a rule name...",
     "labelPriority": "Priority",
-    "placeholderPriority": "Set a priority for this rule...",
+    "placeholderPriority": "Prioritise this rule...",
     "buttonAbort": "Abort",
     "buttonSave": "Save",
     "titleSaveSuccess": "Success",
-    "messageSaveSuccess": "The rule \"{name}\" has been saved successfully.",
+    "messageSaveSuccess": "The rule \"{name}\" has successfully been saved.",
     "titleSaveError": "Error",
     "messageSaveError": "An error occurred while saving rule \"{name}\"."
   },

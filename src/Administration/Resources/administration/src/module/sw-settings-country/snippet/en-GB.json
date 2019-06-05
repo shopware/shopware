@@ -2,7 +2,7 @@
   "sw-settings-country": {
     "general": {
       "mainMenuItemGeneral": "Countries",
-      "placeholderSearchBar": "Search countries"
+      "placeholderSearchBar": "Search countries..."
     },
     "list": {
       "textHeadline": "Countries",
@@ -14,9 +14,9 @@
       "columnActive": "Active",
       "buttonAddCountry": "Add country",
       "contextMenuEdit": "Edit",
-      "modalTitleDelete": "Delete Country",
+      "modalTitleDelete": "Delete country",
       "titleDeleteSuccess": "Success",
-      "messageDeleteSuccess": "Country \"{name}\" has been deleted successfully.",
+      "messageDeleteSuccess": "Country \"{name}\" has successfully been deleted.",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete"
     },
@@ -24,7 +24,7 @@
       "textHeadline": "New country",
       "titleCard": "Settings",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "Country \"{name}\" has been saved successfully.",
+      "messageSaveSuccess": "Country \"{name}\" has successfully been saved.",
       "labelName": "Name",
       "labelPosition": "Position",
       "labelIso": "ISO",
@@ -32,24 +32,24 @@
       "labelActive": "Active",
       "placeholderName": "Enter name",
       "placeholderPosition": "1",
-      "placeholderIso": "Enter ISO code",
-      "placeholderIso3": "Enter three-digit ISO code",
+      "placeholderIso": "Enter alpha-2 ISO code",
+      "placeholderIso3": "Enter alpha-3 ISO code...",
       "buttonCancel": "Cancel",
       "buttonSave": "Save",
-      "buttonAddCountryState": "Add country state",
+      "buttonAddCountryState": "Add state/province",
       "editAction": "Edit",
       "columnStateNameLabel": "Name",
       "columnStateShortCodeLabel": "Short code"
     }
   },
   "sw-country-state-detail": {
-    "titleNew": "New country state",
-    "titleEdit": "Edit country state",
+    "titleNew": "New state/province",
+    "titleEdit": "Edit state/province",
     "buttonSave": "Save",
     "buttonCancel": "Cancel",
     "labelName": "Name",
     "labelPosition": "Position",
-    "labelShortCode": "ISO-Code",
-    "tooltipPosition": "Controls the position of the country state in lists etc."
+    "labelShortCode": "ISO code",
+    "tooltipPosition": "Controls positioning of the state/province in lists etc."
   }
 }

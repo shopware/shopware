@@ -44,7 +44,7 @@ module.exports = {
         browser
             .waitForElementNotPresent('.sw-select__results')
             .click(page.elements.saveSettingsAction)
-            .checkNotification('Settings have been saved successfully')
+            .checkNotification('Settings have successfully been saved.')
             .waitForElementVisible('.icon--default-symbol-products');
     },
     'check if the folder is used as default location when uploading in products': (browser) => {

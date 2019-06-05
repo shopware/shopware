@@ -1,7 +1,7 @@
 {
   "sw-property": {
     "general": {
-      "placeholderSearchBar": "Search properties",
+      "placeholderSearchBar": "Search properties...",
       "mainMenuItemGeneral": "Properties",
       "descriptionTextModule": "Manage properties here."
     },
@@ -29,13 +29,13 @@
       "positionSortingType": "Custom",
       "cardTitleGroupInfo": "Basic information",
       "labelName": "Name",
-      "placeholderName": "Enter name",
+      "placeholderName": "Enter name...",
       "labelDisplayType": "Presentation",
       "labelSortingType": "Sorting",
       "labelOptionName": "Name",
       "labelOptionColor": "Color",
       "labelOptionMedia": "Image",
-      "placeholderOptionName": "Enter name",
+      "placeholderOptionName": "Enter name...",
       "labelOptionPosition":  "Position",
       "addMediaCaption": "Use media",
       "buttonApply": "Apply",
@@ -45,14 +45,15 @@
       "buttonCancel": "Cancel",
       "buttonSave": "Save",
       "labelDescription": "Description",
-      "placeholderOptionSearch": "Search options",
-      "addOption": "Add new",
+      "placeholderOptionSearch": "Search options...",
+      "addOption": "Add option",
       "addOptionNotPossible": "Options can only be added in the default language",
       "contextMenuOptionResetDelete": "Restore",
       "textOptionHeadline": "New option",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "Property \"{name}\" has been saved successfully.",
-      "messageOptionsEmpty": "No options yet"
+      "messageSaveSuccess": "Property \"{name}\" has successfully been saved.",
+      "messageOptionsEmpty": "No options yet",
+      "messageOptionsEmptySubline": "Add options here."
     }
   }
 }

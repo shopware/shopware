@@ -1,7 +1,7 @@
 const customerPage = require('administration/page-objects/module/sw-customer.page-object.js');
 
 module.exports = {
-    '@tags': ['customer-edit-address', 'customer', 'edit', 'address'],
+    '@tags': ['customer-edit-address', 'customer-edit', 'customer', 'edit', 'address'],
     before: (browser, done) => {
         global.CustomerFixtureService.setCustomerFixture({
             email: 'test-again@example.com'

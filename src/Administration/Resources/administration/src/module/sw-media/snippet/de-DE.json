@@ -3,7 +3,7 @@
     "general": {
       "mainMenuItemGeneral": "Medien",
       "descriptionTextModule": "Verwaltung von Mediendateien.",
-      "placeholderSearchBar": "Durchsuche den aktuellen Ordner",
+      "placeholderSearchBar": "Durchsuche den aktuellen Ordner ...",
       "notification": {
         "urlCopied": {
           "title": "Erfolg",

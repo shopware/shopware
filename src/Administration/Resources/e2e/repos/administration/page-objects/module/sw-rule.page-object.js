@@ -107,7 +107,7 @@ class RuleBuilderPageObject extends GeneralPageObject {
             });
 
         this.browser.fillSwSelectComponent(`${ruleData.ruleSelector} .sw-select[name=useTime]`, {
-            value: ruleData.useTime ? 'Use time' : 'Don\'t use time',
+            value: ruleData.useTime ? 'Including timestamp' : 'Excluding timestamp',
             isMulti: false,
             searchTerm: String(ruleData.useTime)
         });

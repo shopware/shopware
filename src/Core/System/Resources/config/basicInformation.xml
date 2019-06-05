@@ -2,38 +2,38 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/System/SystemConfig/Schema/config.xsd">
     <card>
-        <title>Basic Information</title>
+        <title>Basic information</title>
         <title lang="de-DE">Stammdaten</title>
 
         <input-field>
             <name>email</name>
-            <label>Shopowner email address</label>
-            <label lang="de-DE">Shopbetreiber E-Mail-Adresse</label>
-            <placeholder>Enter email</placeholder>
-            <placeholder lang="de-DE">Gebe eine E-Mail ein</placeholder>
+            <label>Shop owner email address</label>
+            <label lang="de-DE">Shopbetreiber-E-Mail-Adresse</label>
+            <placeholder>Enter email address...</placeholder>
+            <placeholder lang="de-DE">E-Mail-Adresse eingeben ...</placeholder>
         </input-field>
 
         <input-field type="textarea">
             <name>address</name>
             <label>Address</label>
             <label lang="de-DE">Adresse</label>
-            <placeholder>Enter address</placeholder>
-            <placeholder lang="de-DE">Adresse eingeben</placeholder>
+            <placeholder>Enter address...</placeholder>
+            <placeholder lang="de-DE">Adresse eingeben ...</placeholder>
         </input-field>
 
         <input-field type="textarea">
             <name>bankAccount</name>
             <label>Bank account </label>
             <label lang="de-DE">Bankverbindung</label>
-            <placeholder>Enter bank account</placeholder>
-            <placeholder lang="de-DE">Bankverbindung eingeben</placeholder>
+            <placeholder>Enter bank account...</placeholder>
+            <placeholder lang="de-DE">Bankverbindung eingeben ...</placeholder>
         </input-field>
 
         <input-field type="bool">
             <name>familyFriendly</name>
-            <label>Shop is family friendly</label>
-            <label lang="de-DE">Shop ist Familienfreundlich</label>
-            <helpText>Will set the meta tag "isFamilyFriendly" for search engines</helpText>
+            <label>Family friendly shop</label>
+            <label lang="de-DE">Familienfreundlicher Shop</label>
+            <helpText>Sets meta tag "isFamilyFriendly" for search engines</helpText>
             <helpText lang="de-DE">Setzt den Metatag "isFamiliyFriendly" für Suchmaschinen</helpText>
         </input-field>
     </card>

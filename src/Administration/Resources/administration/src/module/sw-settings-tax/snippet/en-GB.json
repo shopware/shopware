@@ -14,7 +14,7 @@
       "contextMenuEdit": "Edit",
       "modalTitleDelete": "Delete tax",
       "titleDeleteSuccess": "Success",
-      "messageDeleteSuccess": "Tax \"{name}\" has been deleted successfully.",
+      "messageDeleteSuccess": "Tax \"{name}\" has successfully been deleted.",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete"
     },
@@ -22,7 +22,7 @@
       "textHeadline": "New tax",
       "titleCard": "Settings",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "Tax \"{name}\" has been saved successfully.",
+      "messageSaveSuccess": "Tax \"{name}\" has successfully been saved.",
       "labelName": "Name",
       "labelTaxRate": "Tax rate",
       "placeholderName": "Enter name",

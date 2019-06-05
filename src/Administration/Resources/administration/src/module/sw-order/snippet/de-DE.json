@@ -110,7 +110,7 @@
       "headlineTransactionState": "Zahlungsstatus",
       "labelLastEditedBy":"Zuletzt geändert von",
       "labelSystemUser":"System",
-      "labelSelectStatePlaceholder":"Bitte wählen...",
+      "labelSelectStatePlaceholder":"Bitte wählen ...",
       "labelSelectStateButton":"Status setzen",
       "headlineErrorStateChange":"Fehler",
       "labelErrorStateChange":"Beim setzen des Status ist ein Fehler aufgetreten. Zusätzliche Informationen:",

@@ -112,7 +112,7 @@
         {% endblock %}
 
         {% block sw_property_option_list_empty_state %}
-            <sw-empty-state v-else-if="!group.isLoading && !total" :title="$tc('sw-property.detail.messageOptionsEmpty')"></sw-empty-state>
+            <sw-empty-state v-else-if="!group.isLoading && !total" :title="$tc('sw-property.detail.messageOptionsEmpty')" :subline="$tc('sw-property.detail.messageOptionsEmptySubline')"></sw-empty-state>
         {% endblock %}
 
         {% block sw_property_option_list_detail %}

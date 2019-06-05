@@ -53,7 +53,7 @@ module.exports = {
 
         browser
             .click('.sw-media-modal-folder-dissolve__confirm')
-            .checkNotification(`Folder "${global.MediaFixtureService.mediaFolderFixture.name}" has been dissolved successfully`);
+            .checkNotification(`Folder "${global.MediaFixtureService.mediaFolderFixture.name}" has successfully been dissolved.`);
     },
     'verify if folder was removed and images persisted': (browser) => {
         const page = mediaPage(browser);

@@ -8,7 +8,7 @@
       "salesChannel": "Verkaufskanal",
       "buttonSave": "Speichern",
       "mainMenuItemGeneral": "Newsletter-Empfänger",
-      "placeholderSearchBarSnippets": "Durchsuche alle Newsletter-Empfänger",
+      "placeholderSearchBarSnippets": "Durchsuche alle Newsletter-Empfänger ...",
       "tags": "Tags"
     },
     "detail": {
@@ -22,7 +22,7 @@
       "titleSidebarItemFilter": "Filter",
       "status": "Status",
       "textHeadline": "Newsletter-Empfänger",
-      "email": "E-Mail",
+      "email": "E-Mail-Adresse",
       "name": "Name",
       "title": "Titel",
       "firstName": "Vorname",

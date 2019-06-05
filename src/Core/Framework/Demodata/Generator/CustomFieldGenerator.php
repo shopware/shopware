@@ -124,7 +124,7 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
                         'en-GB' => $name,
                     ],
                     'placeholder' => [
-                        'en-GB' => 'Type a floating number...',
+                        'en-GB' => 'Type a floating point number...',
                     ],
                     'customFieldPosition' => 1,
                 ];

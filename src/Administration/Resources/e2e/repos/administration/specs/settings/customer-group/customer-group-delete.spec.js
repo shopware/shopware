@@ -35,6 +35,6 @@ module.exports = {
 
         browser
             .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)
-            .checkNotification('Customer group has been deleted successfully.');
+            .checkNotification('Customer group has successfully been deleted.');
     }
 };

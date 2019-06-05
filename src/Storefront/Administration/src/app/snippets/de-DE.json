@@ -10,7 +10,7 @@
       "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Die SEO Url Templates wurden erfolgreich gespeichert.",
       "preview": "Vorschau:",
-      "placeholderSelectVariables": "Auswählen...",
+      "placeholderSelectVariables": "Auswählen ...",
       "labelSalesChannelSelect": "Verkaufskanal"
     },
     "routeNames": {

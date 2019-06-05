@@ -36,9 +36,9 @@
         "labelMailType": "Typ",
         "labelDescription": "Beschreibung",
         "labelSalesChannels": "Verkaufskanal",
-        "placeholderMailType": "Wähle einen Typ...",
-        "placeholderDescription": "Gib eine kurze Beschreibung an...",
-        "placeholderSalesChannels": "Wähle eine Zuweisung..."
+        "placeholderMailType": "Wähle einen Typ ...",
+        "placeholderDescription": "Gib eine kurze Beschreibung an ...",
+        "placeholderSalesChannels": "Wähle eine Zuweisung ..."
       },
       "options": {
         "titleCard": "Optionen",
@@ -47,14 +47,14 @@
         "labelSubject": "Betreff",
         "placeholderSenderMail": "shop@example.com",
         "placeholderSenderName": "Beispiel-Shop",
-        "placeholderSubject": "Betreff eingeben..."
+        "placeholderSubject": "Betreff eingeben ..."
       },
       "mailText": {
         "titleCard": "Mail-Text",
         "labelContentPlain": "Text",
         "labelContentHtml": "HTML",
-        "placeholderPlain": "Definiere den Inhalt in Text...",
-        "placeholderHtml": "Definiere den Inhalt in HTML..."
+        "placeholderPlain": "Definiere den Inhalt in Text ...",
+        "placeholderHtml": "Definiere den Inhalt in HTML ..."
       },
       "media": {
         "titleCard": "Anhänge",
@@ -104,23 +104,23 @@
         "labelName": "Name",
         "labelDescription": "Beschreibung",
         "labelSalesChannels": "Verkaufskanäle",
-        "placeholderName": "Gib einen Namen ein",
-        "placeholderDescription": "Gib eine Beschreibung ein",
+        "placeholderName": "Gib einen Namen ein ...",
+        "placeholderDescription": "Gib eine Beschreibung ein ...",
         "placeholderSalesChannels": "Wähle zutreffende Verkaufskanäle"
       },
       "header": {
         "titleCard": "Mail-Header",
         "labelPlain": "Text",
         "labelHtml": "HTML",
-        "placeholderPlain": "Definiere den Header in Text...",
-        "placeholderHtml": "Definiere den Header in HTML..."
+        "placeholderPlain": "Definiere den Header in Text ...",
+        "placeholderHtml": "Definiere den Header in HTML ..."
       },
       "footer": {
         "titleCard": "Mail Footer",
         "labelPlain": "Text",
         "labelHtml": "HTML",
-        "placeholderPlain": "Definiere den Footer in Text...",
-        "placeholderHtml": "Definiere den Footer in HTML..."
+        "placeholderPlain": "Definiere den Footer in Text ...",
+        "placeholderHtml": "Definiere den Footer in HTML ..."
       },
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",

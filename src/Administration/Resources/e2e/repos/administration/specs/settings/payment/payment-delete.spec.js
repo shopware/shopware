@@ -37,6 +37,6 @@ module.exports = {
 
         browser
             .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)
-            .checkNotification(`Payment method "${global.AdminFixtureService.basicFixture.name}" has been deleted successfully.`);
+            .checkNotification(`Payment method "${global.AdminFixtureService.basicFixture.name}" has successfully been deleted.`);
     }
 };

@@ -21,7 +21,7 @@
       "notification": {
         "deleteSuccess": {
           "title": "Success",
-          "message": "User \"{name}\" deleted successfully."
+          "message": "User \"{name}\" has successfully been deleted."
         },
         "deleteError": {
           "title": "Error",
@@ -38,9 +38,9 @@
       "labelIntegrationsCard": "Integrations",
       "labelFirstName": "First name",
       "labelLastName": "Last name",
-      "labelEmail": "E-Mail",
-      "errorEmailUsed": "This E-Mail is already used.",
-      "errorUsernameUsed": "This Username is already used.",
+      "labelEmail": "Email",
+      "errorEmailUsed": "This email address is already in use.",
+      "errorUsernameUsed": "This username is already in use.",
       "labelUsername": "Username",
       "labelPassword": "Password",
       "labelProfilePicture": "Profile picture",
@@ -56,8 +56,8 @@
       "contextMenuEdit": "Edit",
       "contextMenuDelete": "Delete",
       "textChangePassword": "By pressing the change button the password be saved immediately.",
-      "addAccessKey": "New Access Key",
-      "labelAccessKey": "Access Key",
+      "addAccessKey": "New access key",
+      "labelAccessKey": "Access key",
       "labelPermissions": "Permissions",
       "modal": {
         "deleteModalTitle": "Delete",
@@ -69,19 +69,18 @@
         "buttonCancel": "Cancel",
         "buttonDelete": "Delete",
         "buttonCreateNewApiKeys": "Create new API key",
-        "hintCreateNewApiKeys": "The regeneration of the API access keys requires updating all associated scripts or applications.",
+        "hintCreateNewApiKeys": "For generating new API access keys, updating all associated scripts and applications is recommended.",
         "labelFieldLabel": "Name",
         "idFieldLabel": "Access key ID",
         "secretFieldLabel": "Secret access key",
-        "secretHelpText": "The access key will no longer be visible after saving. Be sure to copy and store the key in a secure place. In case you lost the key anyway, simply generate a new one here.",
         "secretHelpText": "Please copy your access key now. For safety reasons it will be no longer visible after saving.",
         "permissions": "Permissions",
         "readAccessFieldLabel": "Read (default)",
         "writeAccessFieldLabel": "Write (optional)",
         "titleSaveSuccess": "Success",
-        "messageSaveSuccess": "Integration has been saved successfully",
+        "messageSaveSuccess": "Integration has successfully been saved.",
         "titleSaveError": "Error",
-        "messageSaveError": "Integration could not be saved",
+        "messageSaveError": "Integration could not be saved.",
         "titleCreateNewError": "Error",
         "messageCreateNewError": "Integration could not be saved."
       },
@@ -92,7 +91,7 @@
         },
         "saveSuccess": {
           "title": "Success",
-          "message": "User \"{name}\" has been saved successfully."
+          "message": "User \"{name}\" has successfully been saved."
         }
       }
     }

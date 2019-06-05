@@ -4,12 +4,12 @@
             "mainMenuItemIndex": "Categories",
             "mainMenuItemList": "Overview",
             "headlineCategories": "Categories",
-            "placeholderSearchBar": "Search categories",
+            "placeholderSearchBar": "Search categories...",
             "buttonCreate": "Create category",
             "buttonSafeCategory": "Save",
             "descriptionLabel": "Description",
             "titleSaveSuccess": "Success",
-            "messageSaveSuccess": "Category \"{name}\" has been saved successfully.",
+            "messageSaveSuccess": "Category \"{name}\" has successfully been saved.",
             "useAsLogo": "Use as display image",
             "treeHeadline": "Category structure",
             "treeHeadSelected": "{count} selected",
@@ -99,9 +99,10 @@
             "productAssignmentActionUndo": "Undo",
             "productAssignmentEmptyText": "No products found",
             "productAssignmentEmptyStateTitle": "No products assigned",
-            "productAssignmentEmptyStateSubline": "Use the search to add products",
+            "productAssignmentEmptyStateSubline": "Use search to add products",
             "columnNameLabel": "Name",
-            "columnManufacturerLabel": "Manufacturer"
+            "columnManufacturerLabel": "Manufacturer",
+            "showSubcategoryProductsLabel": "Show products from subcategories"
           }
         },
 

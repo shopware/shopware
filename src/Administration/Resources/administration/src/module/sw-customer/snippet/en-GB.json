@@ -28,7 +28,7 @@
       "textCustomers": "Customers",
       "textCustomersTotal": "No customer | One customer | {count} customers",
       "buttonAddCustomer": "Add customer",
-      "columnCustomerNumber": "#",
+      "columnCustomerNumber": "Customer number",
       "columnName": "Name",
       "columnFirstName": "First name",
       "columnLastName": "Last name",
@@ -58,7 +58,7 @@
       "labelPhoneNumber": "Phone number",
       "labelCompany": "Company",
       "labelCustomerGroup": "Customer group",
-      "labelSalesChannel": "Sales Channel",
+      "labelSalesChannel": "Sales channel",
       "labelPaymentMethod": "Payment method",
       "labelCustomerNumber": "Customer number",
       "labelBirthday": "Date of birth",
@@ -117,12 +117,12 @@
       "contextMenuEdit": "Edit",
       "contextMenuDelete": "Delete",
       "contextMenuDuplicate": "Duplicate",
-      "contextMenuDefaultShippingAddress": "Set to default delivery address",
-      "contextMenuDefaultBillingAddress": "Set to default billing address"
+      "contextMenuDefaultShippingAddress": "Set as default delivery address",
+      "contextMenuDefaultBillingAddress": "Set as default billing address"
     },
     "detailOrder": {
       "searchbarPlaceholder": "Search orders",
-      "columnNumber": "Ordernumber",
+      "columnNumber": "Order number",
       "columnAmount": "Amount",
       "columnOrderState": "Order status",
       "columnOrderDate": "Order date",
@@ -138,7 +138,7 @@
       "labelTitle": "Title",
       "labelFirstName": "First name",
       "labelLastName": "Last name",
-      "labelZipcode": "Zipcode",
+      "labelZipcode": "Zip code",
       "labelStreet": "Street",
       "labelCity": "City",
       "labelCountry": "Country",
@@ -156,7 +156,7 @@
       "titleSaveError": "Error",
       "titleSaveSuccess": "Success",
       "messageSaveError": "Customer could not be saved.",
-      "messageSaveSuccess": "Customer \"{name}\" has been saved successfully."
+      "messageSaveSuccess": "Customer \"{name}\" has successfully been saved."
     }
   }
 }

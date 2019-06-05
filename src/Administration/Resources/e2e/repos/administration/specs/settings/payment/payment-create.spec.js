@@ -18,7 +18,7 @@ module.exports = {
             .click('a[href="#/sw/settings/payment/create"]')
             .waitForElementVisible('.sw-settings-payment-detail')
             .assert.urlContains('#/sw/settings/payment/create')
-            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('New Payment method');
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('New payment method');
     },
     'create payment method': browser => {
         const page = paymentPage(browser);

@@ -1,7 +1,7 @@
 const productStreamPage = require('administration/page-objects/module/sw-product-stream.page-object.js');
 
 module.exports = {
-    '@tags': ['product', 'product-stream-edit-filter', 'product-stream', 'edit', 'filter'],
+    '@tags': ['product', 'product-stream-edit-filter', 'product-stream', 'product-stream-edit', 'edit', 'filter'],
     before: (browser, done) => {
         global.AdminFixtureService.create('product-stream').then(() => {
             return global.ProductFixtureService.setProductFixture().then(() => {

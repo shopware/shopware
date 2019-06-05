@@ -30,7 +30,7 @@
         "buttonCancel": "Cancel",
         "buttonSave": "Save",
         "titleSaveSuccess": "Success",
-        "messageSaveSuccess": "Promotion \"{name}\" has been saved successfully."
+        "messageSaveSuccess": "Promotion \"{name}\" has successfully been saved."
       },
       "tabs": {
         "tabGeneral": "General",
@@ -65,7 +65,7 @@
             "text": "Use rules from the rule builder to narrow down the audience for this marketing action. Without a limitation, all your customers have access to this action.",
             "labelRules": "Customer Rules",
             "placeholderRules" : "Add Rules...",
-            "labelCustomers": "Assign to specific customers",
+            "labelCustomers": "Assign to individual customers",
             "placeholderCustomers" : "Add Customers..."
           },
           "order": {
@@ -90,15 +90,15 @@
           "labelValue": "Value",
           "placeholderValue": "Enter the value of the promotion",
           "labelScope" : "Discount on:",
-          "flagProductScopeLabel": "Apply discount only on selected products",
+          "flagProductScopeLabel": "Apply discount on selected products only",
           "labelRules": "Product Rules",
-          "placeholder": "Assign Product Rules...",
+          "placeholder": "Assign product rules...",
           "labelType" : "Type",
           "valueScopeCart": "Cart",
           "valueTypeAbsolute" : "Absolute",
           "valueTypePercentage": "Percentage",
-          "buttonAddDiscount" : "+ Add Discount",
-          "buttonDeleteDiscount" : "Delete Discount",
+          "buttonAddDiscount" : "Add discount",
+          "buttonDeleteDiscount" : "Delete discount",
           "delete" : {
             "confirmTitle" : "Delete Discount",
             "confirmText" : "Do you really want to delete this discount from the promotion?",

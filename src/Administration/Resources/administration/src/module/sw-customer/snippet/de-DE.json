@@ -28,7 +28,7 @@
       "textCustomers": "Kunden",
       "textCustomersTotal": "Kein Kunde | Ein Kunde | {count} Kunden",
       "buttonAddCustomer": "Kunden anlegen",
-      "columnCustomerNumber": "Kd.-Nr.",
+      "columnCustomerNumber": "Kunden-Nr.",
       "columnName": "Name",
       "columnFirstName": "Vorname",
       "columnLastName": "Nachname",
@@ -62,10 +62,10 @@
       "labelPaymentMethod": "Zahlungsart",
       "labelCustomerNumber": "Kundennummer",
       "labelBirthday": "Geburtsdatum",
-      "placeholderSalutation": "Anrede wählen...",
-      "placeholderCustomerGroup": "Bitte wähle eine Kundengruppe...",
-      "placeholderSalesChannel": "Bitte wähle einen Verkaufskanal...",
-      "placeholderPaymentMethod": "Bitte wähle eine Zahlungsart..."
+      "placeholderSalutation": "Anrede wählen ...",
+      "placeholderCustomerGroup": "Bitte wähle eine Kundengruppe ...",
+      "placeholderSalesChannel": "Bitte wähle einen Verkaufskanal ...",
+      "placeholderPaymentMethod": "Bitte wähle eine Zahlungsart ..."
     },
     "baseInfo": {
       "contactEmail": "E-Mail",

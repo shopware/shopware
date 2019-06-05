@@ -8,7 +8,7 @@
       "textHeadline": "Nummernkreise",
       "textDeleteConfirm": "Bist Du sicher, dass Du den Nummernkreis \"{name}\" löschen möchtest?",
       "columnName": "Name",
-      "columnUsedIn": "Verwendet in:",
+      "columnUsedIn": "Typ",
       "columnAssignment": "Zuweisung",
       "buttonAddNumberRange": "Nummernkreis anlegen",
       "contextMenuEdit": "Bearbeiten",

@@ -2,7 +2,7 @@
   "private": true,
   "name": "sw-next-storefront",
   "version": "1.0.0",
-  "description": "Storefront Building Pipeline for Shopware Next",
+  "description": "Storefront Building Pipeline for Shopware 6",
   "scripts": {
     "test": "jest --config jest.config.js --ci && npm run lint",
     "test-watch": "jest --config jest.config.js --watch",

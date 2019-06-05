@@ -5,13 +5,13 @@
         <nav class="nav offcanvas-menu-actions">
             {% block layout_navigation_offcanvas_navigation_action_language %}
                 <div class="nav-item nav-link">
-                    {% sw_include '@Storefront/layout/header/actions/language-widget.html.twig' %}
+                    {% sw_include '@Storefront/layout/header/actions/language-widget.html.twig' with {position: 'offcanvas'} %}
                 </div>
             {% endblock %}
 
             {% block layout_navigation_offcanvas_navigation_action_currency %}
                 <div class="nav-item nav-link">
-                    {% sw_include '@Storefront/layout/header/actions/currency-widget.html.twig' %}
+                    {% sw_include '@Storefront/layout/header/actions/currency-widget.html.twig' with {position: 'offcanvas'} %}
                 </div>
             {% endblock %}
         </nav>

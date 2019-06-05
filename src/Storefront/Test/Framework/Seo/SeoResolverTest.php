@@ -7,16 +7,15 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Framework\Seo\SeoResolver;
 use Shopware\Storefront\Framework\Seo\SeoResolverInterface;
 
 class SeoResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use StorefrontSalesChannelTestHelper;
 
     /**
      * @var EntityRepositoryInterface
@@ -40,38 +39,41 @@ class SeoResolverTest extends TestCase
     public function testResolveEmpty(): void
     {
         $context = Context::createDefaultContext();
-        $salesChannel = $this->createSalesChannel(Uuid::randomHex(), 'test');
+        $salesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
 
-        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannel->getId(), '');
+        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannelId, '');
         static::assertEquals(['pathInfo' => '/', 'isCanonical' => false], $resolved);
 
-        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannel->getId(), '/');
+        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannelId, '/');
         static::assertEquals(['pathInfo' => '/', 'isCanonical' => false], $resolved);
 
-        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannel->getId(), '//');
+        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannelId, '//');
         static::assertEquals(['pathInfo' => '/', 'isCanonical' => false], $resolved);
     }
 
     public function testResolveSeoPathPassthrough(): void
     {
         $context = Context::createDefaultContext();
-        $salesChannel = $this->createSalesChannel(Uuid::randomHex(), 'test');
+        $salesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
 
-        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannel->getId(), '/foo/bar');
+        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannelId, '/foo/bar');
         static::assertEquals(['pathInfo' => '/foo/bar/', 'isCanonical' => false], $resolved);
 
-        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannel->getId(), 'foo/bar');
+        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannelId, 'foo/bar');
         static::assertEquals(['pathInfo' => '/foo/bar/', 'isCanonical' => false], $resolved);
     }
 
     public function testResolveSeoPath(): void
     {
         $context = Context::createDefaultContext();
-        $salesChannel = $this->createSalesChannel(Uuid::randomHex(), 'test');
+        $salesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
 
         $this->seoUrlRepository->create([
             [
-                'salesChannelId' => $salesChannel->getId(),
+                'salesChannelId' => $salesChannelId,
                 'languageId' => Defaults::LANGUAGE_SYSTEM,
                 'routeName' => 'r',
                 'pathInfo' => '/invalid/product',
@@ -80,7 +82,7 @@ class SeoResolverTest extends TestCase
                 'isCanonical' => false,
             ],
             [
-                'salesChannelId' => $salesChannel->getId(),
+                'salesChannelId' => $salesChannelId,
                 'languageId' => Defaults::LANGUAGE_SYSTEM,
                 'routeName' => 'r',
                 'pathInfo' => '/detail/1234',
@@ -89,7 +91,7 @@ class SeoResolverTest extends TestCase
                 'isCanonical' => false,
             ],
             [
-                'salesChannelId' => $salesChannel->getId(),
+                'salesChannelId' => $salesChannelId,
                 'languageId' => Defaults::LANGUAGE_SYSTEM,
                 'routeName' => 'r',
                 'pathInfo' => '/detail/1234',
@@ -100,38 +102,39 @@ class SeoResolverTest extends TestCase
         ], Context::createDefaultContext());
 
         // pathInfo
-        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannel->getId(), 'detail/1234');
+        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannelId, 'detail/1234');
         static::assertEquals('/detail/1234/', $resolved['pathInfo']);
         static::assertEquals(0, $resolved['isCanonical']);
         static::assertEquals('/awesome-product-v2', $resolved['canonicalPathInfo']);
-        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannel->getId(), '/detail/1234');
+        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannelId, '/detail/1234');
         static::assertEquals('/detail/1234/', $resolved['pathInfo']);
         static::assertEquals(0, $resolved['isCanonical']);
         static::assertEquals('/awesome-product-v2', $resolved['canonicalPathInfo']);
 
         // old canonical
-        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannel->getId(), 'awesome-product');
+        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannelId, 'awesome-product');
         static::assertEquals('/detail/1234/', $resolved['pathInfo']);
         static::assertEquals(0, $resolved['isCanonical']);
         static::assertEquals('/awesome-product-v2', $resolved['canonicalPathInfo']);
-        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannel->getId(), '/awesome-product');
+        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannelId, '/awesome-product');
         static::assertEquals('/detail/1234/', $resolved['pathInfo']);
         static::assertEquals(0, $resolved['isCanonical']);
         static::assertEquals('/awesome-product-v2', $resolved['canonicalPathInfo']);
 
         // canonical
-        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannel->getId(), 'awesome-product-v2');
+        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannelId, 'awesome-product-v2');
         static::assertEquals('/detail/1234/', $resolved['pathInfo']);
         static::assertEquals(1, $resolved['isCanonical']);
-        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannel->getId(), '/awesome-product-v2');
+        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannelId, '/awesome-product-v2');
         static::assertEquals('/detail/1234/', $resolved['pathInfo']);
         static::assertEquals(1, $resolved['isCanonical']);
     }
 
     public function testResolveCanonMultiLang(): void
     {
-        $salesChannelDe = $this->createSalesChannel(
-            Uuid::randomHex(),
+        $salesChannelDeId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext(
+            $salesChannelDeId,
             'de',
             Defaults::LANGUAGE_SYSTEM_DE,
             [Defaults::LANGUAGE_SYSTEM, Defaults::LANGUAGE_SYSTEM_DE]
@@ -143,7 +146,7 @@ class SeoResolverTest extends TestCase
         $this->seoUrlRepository->create([
             [
                 'id' => $deId,
-                'salesChannelId' => $salesChannelDe->getId(),
+                'salesChannelId' => $salesChannelDeId,
                 'languageId' => Defaults::LANGUAGE_SYSTEM_DE,
                 'routeName' => 'r',
                 'pathInfo' => '/detail/1234',
@@ -153,7 +156,7 @@ class SeoResolverTest extends TestCase
             ],
             [
                 'id' => $enId,
-                'salesChannelId' => $salesChannelDe->getId(),
+                'salesChannelId' => $salesChannelDeId,
                 'languageId' => Defaults::LANGUAGE_SYSTEM,
                 'routeName' => 'r',
                 'pathInfo' => '/detail/1234',
@@ -163,17 +166,18 @@ class SeoResolverTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $actual = $this->seoResolver->resolveSeoPath(Defaults::LANGUAGE_SYSTEM_DE, $salesChannelDe->getId(), 'awesome-product-de');
+        $actual = $this->seoResolver->resolveSeoPath(Defaults::LANGUAGE_SYSTEM_DE, $salesChannelDeId, 'awesome-product-de');
         static::assertEquals($deId, Uuid::fromBytesToHex($actual['id']));
 
-        $actual = $this->seoResolver->resolveSeoPath(Defaults::LANGUAGE_SYSTEM, $salesChannelDe->getId(), 'awesome-product-en');
+        $actual = $this->seoResolver->resolveSeoPath(Defaults::LANGUAGE_SYSTEM, $salesChannelDeId, 'awesome-product-en');
         static::assertEquals($enId, Uuid::fromBytesToHex($actual['id']));
     }
 
     public function testResolveSamePathForDifferentSalesChannels(): void
     {
-        $other = $this->createSalesChannel(
-            Uuid::randomHex(),
+        $otherSalesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext(
+            $otherSalesChannelId,
             'de',
             Defaults::LANGUAGE_SYSTEM_DE,
             [Defaults::LANGUAGE_SYSTEM, Defaults::LANGUAGE_SYSTEM_DE]
@@ -195,7 +199,7 @@ class SeoResolverTest extends TestCase
             ],
             [
                 'id' => $otherId,
-                'salesChannelId' => $other->getId(),
+                'salesChannelId' => $otherSalesChannelId,
                 'languageId' => Defaults::LANGUAGE_SYSTEM,
                 'routeName' => 'r',
                 'pathInfo' => '/detail/other',
@@ -211,44 +215,8 @@ class SeoResolverTest extends TestCase
         static::assertEquals('/detail/default/', $actual['pathInfo']);
         static::assertTrue((bool) $actual['isCanonical']);
 
-        $actual = $this->seoResolver->resolveSeoPath(Defaults::LANGUAGE_SYSTEM, $other->getId(), 'awesome-product');
+        $actual = $this->seoResolver->resolveSeoPath(Defaults::LANGUAGE_SYSTEM, $otherSalesChannelId, 'awesome-product');
         static::assertEquals('/detail/other/', $actual['pathInfo']);
         static::assertTrue((bool) $actual['isCanonical']);
-    }
-
-    private function createSalesChannel(string $id, string $name, string $defaultLanguageId = Defaults::LANGUAGE_SYSTEM, array $languageIds = []): SalesChannelEntity
-    {
-        /** @var EntityRepositoryInterface $repo */
-        $repo = $this->getContainer()->get('sales_channel.repository');
-        $languageIds[] = $defaultLanguageId;
-        $languageIds = array_unique($languageIds);
-
-        $languages = [];
-        foreach ($languageIds as $langId) {
-            $languages[] = ['id' => $langId];
-        }
-
-        $repo->upsert([[
-            'id' => $id,
-            'name' => $name,
-            'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
-            'accessKey' => Uuid::randomHex(),
-            'secretAccessKey' => 'foobar',
-            'languageId' => $defaultLanguageId,
-            'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
-            'currencyId' => Defaults::CURRENCY,
-            'paymentMethodId' => $this->getValidPaymentMethodId(),
-            'shippingMethodId' => $this->getValidShippingMethodId(),
-            'navigationCategoryId' => $this->getValidCategoryId(),
-            'countryId' => $this->getValidCountryId(),
-            'currencies' => [['id' => Defaults::CURRENCY]],
-            'languages' => $languages,
-            'paymentMethods' => [['id' => $this->getValidPaymentMethodId()]],
-            'shippingMethods' => [['id' => $this->getValidShippingMethodId()]],
-            'countries' => [['id' => $this->getValidCountryId()]],
-            'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-        ]], Context::createDefaultContext());
-
-        return $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
     }
 }

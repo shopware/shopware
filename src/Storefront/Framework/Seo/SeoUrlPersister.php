@@ -134,7 +134,7 @@ class SeoUrlPersister
 
     private function skipUpdate($existing, $seoUrl): bool
     {
-        if ($existing['isModified']) {
+        if ($existing['isModified'] && !($seoUrl['isModified'] ?? false) && trim($seoUrl['seoPathInfo']) !== '') {
             return true;
         }
 
@@ -170,6 +170,7 @@ class SeoUrlPersister
 
         $canonicals = [];
         foreach ($rows as $row) {
+            $row['isModified'] = (bool) $row['isModified'];
             if (!isset($canonicals[$row['foreignKey']])) {
                 $canonicals[$row['foreignKey']] = [$row['salesChannelId'] => $row];
                 continue;

@@ -81,8 +81,11 @@
 
         <service id="Shopware\Storefront\Framework\Seo\Api\SeoActionController" public="true">
             <argument type="service" id="Shopware\Storefront\Framework\Seo\SeoUrlGenerator"/>
+            <argument type="service" id="Shopware\Storefront\Framework\Seo\SeoUrlPersister"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlRouteRegistry"/>
+            <argument type="service" id="Shopware\Storefront\Framework\Seo\Validation\SeoUrlValidationService"/>
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -107,5 +110,7 @@
 
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <service id="Shopware\Storefront\Framework\Seo\Validation\SeoUrlValidationService"/>
     </services>
 </container>

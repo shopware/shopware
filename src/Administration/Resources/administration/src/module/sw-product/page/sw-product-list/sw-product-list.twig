@@ -47,38 +47,35 @@
                 <div class="sw-product-list__content">
 
                     {% block sw_product_list_grid %}
-                        <sw-data-grid :dataSource="products"
-                                      :columns="productColumns"
-                                      :showSelection="false"
-                                      :showSettings="true"
-                                      :fullPage="true"
-                                      :allowInlineEdit="true"
-                                      :sortBy="sortBy"
-                                      :sortDirection="sortDirection"
-                                      :isLoading="isLoading"
-                                      :allowColumnEdit="true"
-                                      identifier="sw-product-list"
-                                      @column-sort="onSortColumn"
-                                      @inline-edit-save="onInlineEditSave"
-                                      @inline-edit-cancel="onInlineEditCancel">
-
+                        <sw-entity-listing ref="swProductGrid"
+                                           v-if="products"
+                                           class="sw-product-list-grid"
+                                           :items="products"
+                                           :columns="productColumns"
+                                           :repository="productRepository"
+                                           detailRoute="sw.product.detail"
+                                           :showSelection="false"
+                                           :isLoading="isLoading"
+                                           @inline-edit-save="onInlineEditSave">
                             {% block sw_product_list_grid_columns %}
-
                                 {% block sw_product_list_grid_columns_name_preview %}
                                     <template #preview-name="{ item }">
-                                        <sw-media-preview :source="item.cover.media"></sw-media-preview>
+                                        {# ToDo @t.berge: Delete v-if, if media placeholders work again #}
+                                        <template v-if="item.cover">
+                                            <sw-media-preview :source="item.cover.media"></sw-media-preview>
+                                        </template>
                                     </template>
                                 {% endblock %}
 
-                                {% block sw_product_list_grid_columns_name %}
-                                    <template slot="column-active" slot-scope="{ item, isInlineEdit }">
-                                        {% block sw_product_list_grid_columns_name_inline_edit %}
+                                {% block sw_product_list_grid_columns_active %}
+                                    <template #column-active="{ item, isInlineEdit }">
+                                        {% block sw_product_list_grid_columns_active_inline_edit %}
                                             <template v-if="isInlineEdit">
                                                 <sw-checkbox-field v-model="item.active"></sw-checkbox-field>
                                             </template>
                                         {% endblock %}
 
-                                        {% block sw_product_list_grid_columns_name_content %}
+                                        {% block sw_product_list_grid_columns_active_content %}
                                             <template v-else>
                                                 <sw-icon v-if="item.active" name="small-default-checkmark-line-medium" small class="is--active"></sw-icon>
                                                 <sw-icon v-else name="small-default-x-line-medium" small class="is--inactive"></sw-icon>
@@ -88,13 +85,13 @@
                                 {% endblock %}
 
                                 {% block sw_product_list_grid_columns_price %}
-                                    <template slot="column-price.gross" slot-scope="{ item }">
+                                    <template #column-price.gross="{ item }">
                                         {{ item.price.gross | currency }}
                                     </template>
                                 {% endblock %}
 
                                 {% block sw_product_list_grid_columns_stock %}
-                                    <template slot="column-stock" slot-scope="{ item, isInlineEdit, compact }">
+                                    <template #column-stock="{ item, isInlineEdit, compact }">
                                         {% block sw_product_list_grid_columns_stock_inline_edit %}
                                             <template v-if="isInlineEdit">
                                                 <sw-number-field :size="compact ? 'small' : 'default'" v-model="item.stock"></sw-number-field>
@@ -112,7 +109,7 @@
                             {% endblock %}
 
                             {% block sw_product_list_grid_columns_actions %}
-                                <template slot="actions" slot-scope="{ item }">
+                                <template #actions="{ item }">
                                     {% block sw_product_list_grid_columns_actions_edit %}
                                         <sw-context-menu-item class="sw-product-list__edit-action" :routerLink="{ name: 'sw.product.detail', params: { id: item.id } }">
                                             {{ $tc('sw-product.list.contextMenuEdit') }}
@@ -126,7 +123,7 @@
                                     {% endblock %}
 
                                     {% block sw_product_list_grid_columns_actions_delete %}
-                                        <sw-context-menu-item @click="onDeleteProduct(item.id)" variant="danger">
+                                        <sw-context-menu-item @click="onDelete(item.id)" variant="danger">
                                             {{ $tc('sw-product.list.contextMenuDelete') }}
                                         </sw-context-menu-item>
                                     {% endblock %}
@@ -134,7 +131,7 @@
                             {% endblock %}
 
                             {% block sw_product_list_grid_action_modals %}
-                                <template slot="action-modals" slot-scope="{ item }">
+                                <template #action-modals="{ item }">
 
                                     {% block sw_product_list_delete_modal %}
                                         <sw-modal v-if="showDeleteModal === item.id"
@@ -148,7 +145,7 @@
                                             {% endblock %}
 
                                             {% block sw_product_list_delete_modal_footer %}
-                                                <template slot="modal-footer">
+                                                <template #modal-footer>
                                                     {% block sw_product_list_delete_modal_cancel %}
                                                         <sw-button @click="onCloseDeleteModal" size="small">
                                                             {{ $tc('sw-product.list.buttonCancel') }}
@@ -166,18 +163,8 @@
                                     {% endblock %}
                                 </template>
                             {% endblock %}
+                        </sw-entity-listing>
 
-                            <template slot="pagination">
-                                {% block sw_product_list_grid_pagination %}
-                                    <sw-pagination :page="page"
-                                                   :limit="limit"
-                                                   :total="total"
-                                                   :total-visible="7"
-                                                   @page-change="onPageChange">
-                                    </sw-pagination>
-                                {% endblock %}
-                            </template>
-                        </sw-data-grid>
                     {% endblock %}
 
                     {% block sw_product_list_empty_state %}

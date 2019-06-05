@@ -14,7 +14,7 @@ Module.register('sw-category', {
     type: 'core',
     name: 'category',
     title: 'sw-category.general.mainMenuItemIndex',
-    description: 'The module for managing categories.',
+    description: 'sw-category.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#57D9A3',

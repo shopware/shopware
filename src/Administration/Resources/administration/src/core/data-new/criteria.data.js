@@ -383,7 +383,7 @@ export default class Criteria {
      *
      * @returns {Object}
      */
-    static naturalSort(field, order = 'ASC') {
+    static naturalSorting(field, order = 'ASC') {
         return { field, order, naturalSorting: true };
     }
 

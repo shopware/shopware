@@ -122,12 +122,13 @@ export default {
 
             column.dataIndex.split(',').forEach((field) => {
                 this.items.criteria.addSorting(
-                    Criteria.sort(field, direction, column.naturalSort)
+                    Criteria.sort(field, direction, column.naturalSorting)
                 );
             });
 
             this.currentSortBy = column.dataIndex;
             this.currentSortDirection = direction;
+            this.currentNaturalSorting = column.naturalSorting;
             this.$emit('column-sort', column);
 
             return this.doSearch();

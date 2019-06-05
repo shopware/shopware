@@ -110,6 +110,12 @@ export default {
             default: 'ASC'
         },
 
+        naturalSorting: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
         compactMode: {
             type: Boolean,
             required: false,
@@ -128,6 +134,7 @@ export default {
             records: this.dataSource,
             currentSortBy: this.sortBy,
             currentSortDirection: this.sortDirection,
+            currentNaturalSorting: this.naturalSorting,
             loading: this.isLoading,
             currentColumns: [],
             columnIndex: null,
@@ -183,6 +190,10 @@ export default {
 
         sortDirection() {
             this.currentSortDirection = this.sortDirection;
+        },
+
+        naturalSorting() {
+            this.currentNaturalSorting = this.naturalSorting;
         },
 
         isLoading() {

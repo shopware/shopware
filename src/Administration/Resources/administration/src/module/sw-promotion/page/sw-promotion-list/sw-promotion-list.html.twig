@@ -73,13 +73,13 @@
 
                                 {% block sw_promotion_list_grid_columns_valid_from %}
                                 <template slot="column-validFrom" slot-scope="{ item }">
-                                    {{ item.validFrom | date({year: '2-digit', hour:'2-digit', minute:'2-digit'}) }}
+                                    {{ item.validFrom | date() }}
                                 </template>
                                 {% endblock %}
 
                                 {% block sw_promotion_list_grid_columns_valid_until %}
                                 <template slot="column-validUntil" slot-scope="{ item }">
-                                    {{ item.validUntil | date({year: '2-digit', hour:'2-digit', minute:'2-digit'}) }}
+                                    {{ item.validUntil | date() }}
                                 </template>
                                 {% endblock %}
 

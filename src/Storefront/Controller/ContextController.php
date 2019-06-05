@@ -42,14 +42,21 @@ class ContextController extends StorefrontController
      */
     private $router;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $customerRepository;
+
     public function __construct(
         SalesChannelContextSwitcher $contextSwitcher,
         EntityRepositoryInterface $domainRepository,
+        EntityRepositoryInterface $customerRepository,
         RequestStack $requestStack,
         RouterInterface $router
     ) {
         $this->contextSwitcher = $contextSwitcher;
         $this->domainRepository = $domainRepository;
+        $this->customerRepository = $customerRepository;
         $this->requestStack = $requestStack;
         $this->router = $router;
     }
@@ -92,6 +99,15 @@ class ContextController extends StorefrontController
         /** @var SalesChannelDomainEntity $domain */
         if (!$domain) {
             throw new LanguageNotFoundException($languageId);
+        }
+
+        if ($context->getCustomer()) {
+            $this->customerRepository->update([
+                [
+                    'id' => $context->getCustomer()->getId(),
+                    'languageId' => $languageId,
+                ],
+            ], $context->getContext());
         }
 
         $route = $request->request->get('redirectTo', 'frontend.home.page');

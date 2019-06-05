@@ -34,7 +34,7 @@
                                         :label="$tc('sw-order.documentCard.labelDate')"
                                         dataIndex="item.createdAt"
                                         truncate>
-                            {{ item.createdAt | date({year: '2-digit', hour:'2-digit', minute:'2-digit'}) }}
+                            {{ item.createdAt | date() }}
                         </sw-grid-column>
                     {% endblock %}
                     {% block sw_order_document_card_grid_column_document_number %}

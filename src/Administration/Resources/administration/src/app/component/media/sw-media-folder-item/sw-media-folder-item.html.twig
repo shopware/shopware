@@ -69,7 +69,7 @@
 
         {% block sw_media_folder_meta_data %}
             <template #metadata="{ item }">
-                <div class="sw-media-folder-item__metadata">{{ item.createdAt| date({ month: 'long'}) }}</div>
+                <div class="sw-media-folder-item__metadata">{{ item.createdAt| date() }}</div>
             </template>
         {% endblock %}
 

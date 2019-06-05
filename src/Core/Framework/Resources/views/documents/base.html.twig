@@ -13,6 +13,8 @@
 
     {% set currencyIsoCode = order.currency.isoCode %}
 
+    {% set locale = customer.customer.language.locale.code %}
+
     {% if config.itemsPerPage <= 0 %}
         {% set itemsPerPage = 10 %}
     {% else %}
@@ -114,10 +116,10 @@
                 {% block document_side_info %}
                     <table>
                         {% block document_side_info_contents %}
-                            <tr><td>{% trans with {'%date%': config.documentDate|localizeddate('medium', 'none', order.saleschannel.language.locale.code)} %}document.date{% endtrans %}</td></tr>
+                            <tr><td>{% trans with {'%date%': config.documentDate|localizeddate('medium', 'none', locale)} %}document.date{% endtrans %}</td></tr>
                             <tr><td>{% trans with {'%customerNumber%': customer.customerNumber} %}document.customerNumber{% endtrans %}</td></tr>
                             <tr><td>{% trans with {'%orderNumber%': order.orderNumber | truncate(10)} %}document.orderNumber{% endtrans %}</td></tr>
-                            <tr><td>{% trans with {'%orderDate%': order.date|localizeddate('medium', 'none', order.saleschannel.language.locale.code)} %}document.orderDate{% endtrans %}</td></tr>
+                            <tr><td>{% trans with {'%orderDate%': order.date|localizeddate('medium', 'none', locale)} %}document.orderDate{% endtrans %}</td></tr>
                         {% endblock %}
                     </table><br/>
                 {% endblock %}

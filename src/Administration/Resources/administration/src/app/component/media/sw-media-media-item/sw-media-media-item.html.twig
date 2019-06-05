@@ -41,7 +41,7 @@
 
         {% block sw_media_media_item_metadata %}
             <template #metadata="{ item }">
-                <div class="sw-media-media-item__metadata">{{ item.uploadedAt | date({ month: 'long' }) }}, {{ item.fileSize | fileSize(locale) }}</div>
+                <div class="sw-media-media-item__metadata">{{ item.uploadedAt | date() }}, {{ item.fileSize | fileSize(locale) }}</div>
             </template>
         {% endblock %}
 

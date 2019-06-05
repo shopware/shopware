@@ -7,23 +7,27 @@ import DeviceDetection from 'src/script/helper/device-detection.helper';
 import ArrowNavigationHelper from 'src/script/plugin/header/search-widget/helper/arrow-navigation.helper';
 import Iterator from 'src/script/helper/iterator.helper';
 
-const SEARCH_WIDGET_SELECTOR = '.js-search-form';
-const SEARCH_WIDGET_RESULTS_SELECTOR = '.js-search-result';
-const SEARCH_WIDGET_RESULT_ITEM_SELECTOR = '.js-result:not(.no-search-result)';
-const SEARCH_WIDGET_INPUT_FIELD_SELECTOR = 'input[type=search]';
-const SEARCH_WIDGET_BUTTON_FIELD_SELECTOR = 'button[type=submit]';
-const SEARCH_WIDGET_URL_DATA_ATTRIBUTE = 'data-url';
-
-const SEARCH_WIDGET_DELAY = 250;
-const SEARCH_WIDGET_MIN_CHARS = 3;
-
 export default class SearchWidgetPlugin extends Plugin {
+
+    static options = {
+        searchWidgetSelector: '.js-search-form',
+        searchWidgetResultSelector: '.js-search-result',
+        searchWidgetResultItemSelector: '.js-result:not(.no-search-result)',
+        searchWidgetInputFieldSelector: 'input[type=search]',
+        searchWidgetButtonFieldSelector: 'button[type=submit]',
+        searchWidgetUrlDataAttribute: 'data-url',
+        searchWidgetCollapseButtonSelector: '.js-search-toggle-btn',
+        searchWidgetCollapseClass: 'collapsed',
+
+        searchWidgetDelay: 250,
+        searchWidgetMinChars: 3,
+    };
 
     init() {
         try {
-            this._inputField = DomAccess.querySelector(this.el, SEARCH_WIDGET_INPUT_FIELD_SELECTOR);
-            this._submitButton = DomAccess.querySelector(this.el, SEARCH_WIDGET_BUTTON_FIELD_SELECTOR);
-            this._url = DomAccess.getAttribute(this.el, SEARCH_WIDGET_URL_DATA_ATTRIBUTE);
+            this._inputField = DomAccess.querySelector(this.el, this.options.searchWidgetInputFieldSelector);
+            this._submitButton = DomAccess.querySelector(this.el, this.options.searchWidgetButtonFieldSelector);
+            this._url = DomAccess.getAttribute(this.el, this.options.searchWidgetUrlDataAttribute);
         } catch (e) {
             return;
         }
@@ -33,8 +37,8 @@ export default class SearchWidgetPlugin extends Plugin {
         // initialize the arrow navigation
         this._navigationHelper = new ArrowNavigationHelper(
             this._inputField,
-            SEARCH_WIDGET_RESULTS_SELECTOR,
-            SEARCH_WIDGET_RESULT_ITEM_SELECTOR,
+            this.options.searchWidgetResultSelector,
+            this.options.searchWidgetResultItemSelector,
             true,
         );
 
@@ -49,7 +53,7 @@ export default class SearchWidgetPlugin extends Plugin {
         // add listener to the form's input event
         this._inputField.addEventListener(
             'input',
-            Debouncer.debounce(this._handleInputEvent.bind(this), SEARCH_WIDGET_DELAY),
+            Debouncer.debounce(this._handleInputEvent.bind(this), this.options.searchWidgetDelay),
             {
                 capture: true,
                 passive: true,
@@ -59,6 +63,9 @@ export default class SearchWidgetPlugin extends Plugin {
         // add click event listener to body
         const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
         document.body.addEventListener(event, this._onBodyClick.bind(this));
+
+        // add click event for mobile search
+        this._registerInputFocus();
     }
 
     /**
@@ -69,7 +76,7 @@ export default class SearchWidgetPlugin extends Plugin {
         const value = this._inputField.value;
 
         // stop search if minimum input value length has not been reached
-        if (value.length < SEARCH_WIDGET_MIN_CHARS) {
+        if (value.length < this.options.searchWidgetMinChars) {
             // further clear possibly existing search results
             this._clearSearchResults();
             return;
@@ -111,7 +118,7 @@ export default class SearchWidgetPlugin extends Plugin {
         this._navigationHelper.resetIterator();
 
         // remove all result popovers
-        const results = document.querySelectorAll(SEARCH_WIDGET_RESULTS_SELECTOR);
+        const results = document.querySelectorAll(this.options.searchWidgetResultSelector);
         Iterator.iterate(results, result => result.remove());
     }
 
@@ -123,15 +130,45 @@ export default class SearchWidgetPlugin extends Plugin {
      */
     _onBodyClick(e) {
         // early return if click target is the search form or any of it's children
-        if (e.target.closest(SEARCH_WIDGET_SELECTOR)) {
+        if (e.target.closest(this.options.searchWidgetSelector)) {
             return;
         }
 
         // early return if click target is the search result or any of it's children
-        if (e.target.closest(SEARCH_WIDGET_RESULTS_SELECTOR)) {
+        if (e.target.closest(this.options.searchWidgetResultSelector)) {
             return;
         }
         // remove existing search results popover
         this._clearSearchResults();
+    }
+
+    /**
+     * When the search is shown, trigger the focus on the input field
+     * @private
+     */
+    _registerInputFocus() {
+        try {
+            this._toggleButton = DomAccess.querySelector(document, this.options.searchWidgetCollapseButtonSelector);
+        } catch (e) {
+            // something went wrong
+            throw new Error(`the search-toggle-btn doesn´t own the "${this.options.searchWidgetCollapseButtonSelector}" class. So the search-input-field wont´t have an autofocus, on Mobile.`);
+        }
+
+        const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
+        this._toggleButton.addEventListener(event, () => {
+            setTimeout(() => this._focusInput(), 0);
+        });
+    }
+
+    /**
+     * Sets the focus on the input field
+     * @private
+     */
+    _focusInput() {
+        if (!this._toggleButton.classList.contains(this.options.searchWidgetCollapseClass)) {
+            this._toggleButton.blur(); // otherwise iOS won´t focus the field.
+            this._inputField.setAttribute('tabindex', '-1');
+            this._inputField.focus();
+        }
     }
 }

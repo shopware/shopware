@@ -66,7 +66,7 @@ class BusinessEventDispatcherTest extends TestCase
             ->willReturn(new EventActionCollection());
 
         $dispatcher = new BusinessEventDispatcher($eventDispatcherMock, $searcher, $reader, $this->getContainer()->get(EventActionDefinition::class));
-        $dispatcher->dispatch($event->getName(), $event);
+        $dispatcher->dispatch($event, $event->getName());
     }
 
     public function testSingleEventActionIsDispatched(): void
@@ -79,7 +79,7 @@ class BusinessEventDispatcherTest extends TestCase
             'actionName' => 'unit_test_action',
         ]], $context);
 
-        $this->dispatcher->dispatch($event->getName(), $event);
+        $this->dispatcher->dispatch($event, $event->getName());
 
         static::assertEquals(1, $this->testSubscriber->events[BusinessEvents::GLOBAL_EVENT] ?? 0);
         static::assertEquals(1, $this->testSubscriber->actions['unit_test_action'] ?? 0);
@@ -101,7 +101,7 @@ class BusinessEventDispatcherTest extends TestCase
             ],
         ], $context);
 
-        $this->dispatcher->dispatch($event->getName(), $event);
+        $this->dispatcher->dispatch($event, $event->getName());
 
         static::assertEquals(1, $this->testSubscriber->events[BusinessEvents::GLOBAL_EVENT] ?? 0, 'Global action event should only be dispatched once');
         static::assertEquals(1, $this->testSubscriber->events[TestBusinessEvent::EVENT_NAME] ?? 0);
@@ -119,7 +119,7 @@ class BusinessEventDispatcherTest extends TestCase
             'actionName' => 'unit_test_action',
         ]], $context);
 
-        $this->dispatcher->dispatch($event->getName(), $event);
+        $this->dispatcher->dispatch($event, $event->getName());
 
         static::assertIsArray($this->testSubscriber->lastActionConfig);
         static::assertEmpty($this->testSubscriber->lastActionConfig);
@@ -143,7 +143,7 @@ class BusinessEventDispatcherTest extends TestCase
             ],
         ], $context);
 
-        $this->dispatcher->dispatch($event->getName(), $event);
+        $this->dispatcher->dispatch($event, $event->getName());
 
         static::assertEquals(1, $this->testSubscriber->events[BusinessEvents::GLOBAL_EVENT] ?? 0, 'Global action event should only be dispatched once');
         static::assertEquals(1, $this->testSubscriber->events[TestBusinessEvent::EVENT_NAME] ?? 0);

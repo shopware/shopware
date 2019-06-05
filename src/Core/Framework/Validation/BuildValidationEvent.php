@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Validation;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareEvent;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class BuildValidationEvent extends Event implements ShopwareEvent
 {

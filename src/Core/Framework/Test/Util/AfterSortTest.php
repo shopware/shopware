@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\AfterSort;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-class AfterSortTraitTest extends TestCase
+class AfterSortTest extends TestCase
 {
     public function testSortingAfterIdWithoutData(): void
     {

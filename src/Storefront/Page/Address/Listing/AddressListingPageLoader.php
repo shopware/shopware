@@ -83,8 +83,8 @@ class AddressListingPageLoader
         );
 
         $this->eventDispatcher->dispatch(
-            AddressListingPageLoadedEvent::NAME,
-            new AddressListingPageLoadedEvent($page, $context, $request)
+            new AddressListingPageLoadedEvent($page, $context, $request),
+            AddressListingPageLoadedEvent::NAME
         );
 
         return $page;

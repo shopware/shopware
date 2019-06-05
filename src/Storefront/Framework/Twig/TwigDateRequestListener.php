@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Framework\Twig;
 
 use Composer\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Twig\Extension\CoreExtension;
 
 class TwigDateRequestListener implements EventSubscriberInterface
@@ -25,7 +25,7 @@ class TwigDateRequestListener implements EventSubscriberInterface
         return ['kernel.request' => 'onKernelRequest'];
     }
 
-    public function onKernelRequest(GetResponseEvent $event)
+    public function onKernelRequest(RequestEvent $event)
     {
         $timezone = $event->getRequest()->cookies->get(self::TIMEZONE_COOKIE);
 

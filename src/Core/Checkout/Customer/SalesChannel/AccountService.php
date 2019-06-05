@@ -156,7 +156,7 @@ class AccountService
         }
 
         $mappingEvent = new DataMappingEvent(CustomerEvents::MAPPING_CUSTOMER_PROFILE_SAVE, $data, $customer, $context->getContext());
-        $this->eventDispatcher->dispatch($mappingEvent->getName(), $mappingEvent);
+        $this->eventDispatcher->dispatch($mappingEvent, $mappingEvent->getName());
 
         $customer = $mappingEvent->getOutput();
         $customer['id'] = $context->getCustomer()->getId();
@@ -253,7 +253,7 @@ class AccountService
         );
 
         $event = new CustomerLoginEvent($context->getContext(), $customer, $newToken, $context->getSalesChannel()->getId());
-        $this->eventDispatcher->dispatch($event->getName(), $event);
+        $this->eventDispatcher->dispatch($event, $event->getName());
 
         return $newToken;
     }
@@ -296,7 +296,7 @@ class AccountService
         ], $context->getContext());
 
         $event = new CustomerLoginEvent($context->getContext(), $customer, $newToken, $context->getSalesChannel()->getId());
-        $this->eventDispatcher->dispatch($event->getName(), $event);
+        $this->eventDispatcher->dispatch($event, $event->getName());
 
         return $newToken;
     }
@@ -313,7 +313,17 @@ class AccountService
         );
 
         $event = new CustomerLogoutEvent($context->getContext(), $context->getCustomer(), $context->getSalesChannel()->getId());
-        $this->eventDispatcher->dispatch($event->getName(), $event);
+        $this->eventDispatcher->dispatch($event, $event->getName());
+    }
+
+    public function setNewsletterFlag(CustomerEntity $customer, bool $newsletter, SalesChannelContext $context): void
+    {
+        $customer->setNewsletter($newsletter);
+
+        $this->customerRepository->update([[
+            'id' => $customer->getId(),
+            'newsletter' => $newsletter,
+        ]], $context->getContext());
     }
 
     /**
@@ -332,7 +342,7 @@ class AccountService
         ], $context->getContext());
 
         $event = new CustomerChangedPaymentMethodEvent($context->getContext(), $customer, $requestDataBag, $context->getSalesChannel()->getId());
-        $this->eventDispatcher->dispatch($event->getName(), $event);
+        $this->eventDispatcher->dispatch($event, $event->getName());
     }
 
     /**
@@ -435,7 +445,7 @@ class AccountService
     private function dispatchValidationEvent(DataValidationDefinition $definition, Context $context): void
     {
         $validationEvent = new BuildValidationEvent($definition, $context);
-        $this->eventDispatcher->dispatch($validationEvent->getName(), $validationEvent);
+        $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
     }
 
     private function updatePasswordHash(string $password, CustomerEntity $customer, Context $context): void

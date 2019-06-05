@@ -105,21 +105,21 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
         $iterator = $this->iteratorFactory->createIterator($this->ruleDefinition);
 
         $this->eventDispatcher->dispatch(
-            ProgressStartedEvent::NAME,
-            new ProgressStartedEvent('Start indexing rules', $iterator->fetchCount())
+            new ProgressStartedEvent('Start indexing rules', $iterator->fetchCount()),
+            ProgressStartedEvent::NAME
         );
 
         while ($ids = $iterator->fetch()) {
             $this->update($ids);
             $this->eventDispatcher->dispatch(
-                ProgressAdvancedEvent::NAME,
-                new ProgressAdvancedEvent(\count($ids))
+                new ProgressAdvancedEvent(\count($ids)),
+                ProgressAdvancedEvent::NAME
             );
         }
 
         $this->eventDispatcher->dispatch(
-            ProgressFinishedEvent::NAME,
-            new ProgressFinishedEvent('Finished indexing rules')
+            new ProgressFinishedEvent('Finished indexing rules'),
+            ProgressFinishedEvent::NAME
         );
     }
 

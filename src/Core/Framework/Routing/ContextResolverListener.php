@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Routing;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
+use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class ContextResolverListener implements EventSubscriberInterface
@@ -43,7 +43,7 @@ class ContextResolverListener implements EventSubscriberInterface
         ];
     }
 
-    public function resolveContext(FilterControllerEvent $event): void
+    public function resolveContext(ControllerEvent $event): void
     {
         $this->requestContextResolver->resolve(
             $this->requestStack->getMasterRequest(),

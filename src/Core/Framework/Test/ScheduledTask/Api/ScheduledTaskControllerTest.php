@@ -40,7 +40,7 @@ class ScheduledTaskControllerTest extends TestCase
         ], Context::createDefaultContext());
 
         $url = sprintf('/api/v%s/_action/scheduled-task/run', PlatformRequest::API_VERSION);
-        $client = $this->getClient();
+        $client = $this->getBrowser();
         $client->request('POST', $url);
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
@@ -83,7 +83,7 @@ class ScheduledTaskControllerTest extends TestCase
         ], Context::createDefaultContext());
 
         $url = sprintf('/api/v%s/_action/scheduled-task/min-run-interval', PlatformRequest::API_VERSION);
-        $client = $this->getClient();
+        $client = $this->getBrowser();
         $client->request('GET', $url);
 
         static::assertSame(200, $client->getResponse()->getStatusCode());

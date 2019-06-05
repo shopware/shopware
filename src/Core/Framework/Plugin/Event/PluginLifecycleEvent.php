@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Plugin\Event;
 
 use Shopware\Core\Framework\Plugin\PluginEntity;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 abstract class PluginLifecycleEvent extends Event
 {

@@ -56,8 +56,8 @@ class CheckoutFinishPageLoader
         $page->setOrder($this->getOrder($request, $context));
 
         $this->eventDispatcher->dispatch(
-            CheckoutFinishPageLoadedEvent::NAME,
-            new CheckoutFinishPageLoadedEvent($page, $context, $request)
+            new CheckoutFinishPageLoadedEvent($page, $context, $request),
+            CheckoutFinishPageLoadedEvent::NAME
         );
 
         return $page;

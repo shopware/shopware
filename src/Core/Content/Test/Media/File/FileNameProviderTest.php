@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace src\Core\Content\Test\Media\File;
+namespace Shopware\Core\Content\Test\Media\File;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\FileNameProvider;

@@ -30,9 +30,9 @@ class SalesChannelProxyControllerTest extends TestCase
 
     public function testProxyWithInvalidSalesChannelId(): void
     {
-        $this->getClient()->request('GET', $this->getUrl(Uuid::randomHex(), '/product'));
+        $this->getBrowser()->request('GET', $this->getUrl(Uuid::randomHex(), '/product'));
 
-        $response = $this->getClient()->getResponse()->getContent();
+        $response = $this->getBrowser()->getResponse()->getContent();
         $response = json_decode($response, true);
 
         static::assertArrayHasKey('errors', $response);
@@ -43,9 +43,9 @@ class SalesChannelProxyControllerTest extends TestCase
     {
         $salesChannel = $this->createSalesChannel();
 
-        $this->getClient()->request('GET', $this->getUrl($salesChannel['id'], '/product'));
+        $this->getBrowser()->request('GET', $this->getUrl($salesChannel['id'], '/product'));
 
-        $response = $this->getClient()->getResponse()->getContent();
+        $response = $this->getBrowser()->getResponse()->getContent();
         $response = json_decode($response, true);
 
         static::assertArrayNotHasKey('errors', $response);
@@ -56,7 +56,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $salesChannel = $this->createSalesChannel();
         $uuid = Uuid::randomHex();
 
-        $this->getClient()->request(
+        $this->getBrowser()->request(
             'GET',
             $this->getUrl($salesChannel['id'], '/product'),
             [],
@@ -68,19 +68,19 @@ class SalesChannelProxyControllerTest extends TestCase
             ]
         );
 
-        static::assertEquals($uuid, $this->getClient()->getRequest()->headers->get('sw-context-token'));
-        static::assertEquals($uuid, $this->getClient()->getRequest()->headers->get('sw-language-id'));
-        static::assertEquals($uuid, $this->getClient()->getRequest()->headers->get('sw-version-id'));
-        static::assertEquals($uuid, $this->getClient()->getResponse()->headers->get('sw-context-token'));
-        static::assertEquals($uuid, $this->getClient()->getResponse()->headers->get('sw-language-id'));
-        static::assertEquals($uuid, $this->getClient()->getResponse()->headers->get('sw-version-id'));
+        static::assertEquals($uuid, $this->getBrowser()->getRequest()->headers->get('sw-context-token'));
+        static::assertEquals($uuid, $this->getBrowser()->getRequest()->headers->get('sw-language-id'));
+        static::assertEquals($uuid, $this->getBrowser()->getRequest()->headers->get('sw-version-id'));
+        static::assertEquals($uuid, $this->getBrowser()->getResponse()->headers->get('sw-context-token'));
+        static::assertEquals($uuid, $this->getBrowser()->getResponse()->headers->get('sw-language-id'));
+        static::assertEquals($uuid, $this->getBrowser()->getResponse()->headers->get('sw-version-id'));
     }
 
     public function testOnlyDefinedHeadersAreCopied(): void
     {
         $salesChannel = $this->createSalesChannel();
 
-        $this->getClient()->request(
+        $this->getBrowser()->request(
             'GET',
             $this->getUrl($salesChannel['id'], '/product'),
             [],
@@ -90,8 +90,8 @@ class SalesChannelProxyControllerTest extends TestCase
             ]
         );
 
-        static::assertEquals('foo', $this->getClient()->getRequest()->headers->get('sw-custom-header'));
-        static::assertArrayNotHasKey('sw-custom-header', $this->getClient()->getResponse()->headers->all());
+        static::assertEquals('foo', $this->getBrowser()->getRequest()->headers->get('sw-custom-header'));
+        static::assertArrayNotHasKey('sw-custom-header', $this->getBrowser()->getResponse()->headers->all());
     }
 
     public function testDifferentLanguage(): void
@@ -152,21 +152,21 @@ class SalesChannelProxyControllerTest extends TestCase
             $categoryData['id'] = Uuid::randomHex();
         }
 
-        $this->getClient()->request('POST', $baseResource, $categoryData);
-        $response = $this->getClient()->getResponse();
+        $this->getBrowser()->request('POST', $baseResource, $categoryData);
+        $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(204, $response->getStatusCode(), $response->getContent());
 
-        $this->assertEntityExists($this->getClient(), 'category', $categoryData['id']);
+        $this->assertEntityExists($this->getBrowser(), 'category', $categoryData['id']);
 
         $headers = ['HTTP_ACCEPT' => 'application/json'];
         if ($langOverride) {
             $headers[$this->getLangHeaderName()] = $langOverride;
         }
 
-        $this->getClient()->request('GET', $this->getUrl($salesChannelId, '/category/' . $categoryData['id']), [], [], $headers);
+        $this->getBrowser()->request('GET', $this->getUrl($salesChannelId, '/category/' . $categoryData['id']), [], [], $headers);
 
-        $response = $this->getClient()->getResponse();
+        $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
         $responseData = json_decode($response->getContent(), true);
 
@@ -192,8 +192,8 @@ class SalesChannelProxyControllerTest extends TestCase
                 ],
                 'translationCodeId' => $fallbackLocaleId,
             ];
-            $this->getClient()->request('POST', $baseUrl . '/language', $parentLanguageData);
-            static::assertEquals(204, $this->getClient()->getResponse()->getStatusCode());
+            $this->getBrowser()->request('POST', $baseUrl . '/language', $parentLanguageData);
+            static::assertEquals(204, $this->getBrowser()->getResponse()->getStatusCode());
         }
 
         $localeId = Uuid::randomHex();
@@ -213,10 +213,10 @@ class SalesChannelProxyControllerTest extends TestCase
             ],
         ];
 
-        $this->getClient()->request('POST', $baseUrl . '/language', $languageData);
-        static::assertEquals(204, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
+        $this->getBrowser()->request('POST', $baseUrl . '/language', $languageData);
+        static::assertEquals(204, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
 
-        $this->getClient()->request('GET', $baseUrl . '/language/' . $langId);
+        $this->getBrowser()->request('GET', $baseUrl . '/language/' . $langId);
     }
 
     private function getUrl(string $salesChannelId, string $url): string

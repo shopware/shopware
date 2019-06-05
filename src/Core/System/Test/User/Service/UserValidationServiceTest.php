@@ -1,11 +1,15 @@
 <?php declare(strict_types=1);
 
+namespace Shopware\Core\System\Test\User\Service;
+
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\User\Service\UserValidationService;
 
-class UserValidationServiceTest extends \PHPUnit\Framework\TestCase
+class UserValidationServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
@@ -17,7 +21,7 @@ class UserValidationServiceTest extends \PHPUnit\Framework\TestCase
     {
         $this->userRepository = $this->getContainer()->get('user.repository');
         $this->localeRepository = $this->getContainer()->get('locale.repository');
-        $this->userValidationService = $this->getContainer()->get(\Shopware\Core\System\User\Service\UserValidationService::class);
+        $this->userValidationService = $this->getContainer()->get(UserValidationService::class);
     }
 
     public function testIfReturnsTrueForUniqueEmails(): void

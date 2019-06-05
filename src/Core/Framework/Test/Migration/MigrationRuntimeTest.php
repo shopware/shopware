@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Migration\Integration;
+namespace Shopware\Core\Framework\Test\Migration;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;

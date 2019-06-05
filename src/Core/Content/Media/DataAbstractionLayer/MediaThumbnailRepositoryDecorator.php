@@ -127,7 +127,7 @@ class MediaThumbnailRepositoryDecorator implements EntityRepositoryInterface
     {
         if ($thumbnails->count() === 0) {
             $event = EntityWrittenContainerEvent::createWithDeletedEvents([], $context, []);
-            $this->eventDispatcher->dispatch(EntityWrittenContainerEvent::NAME, $event);
+            $this->eventDispatcher->dispatch($event, EntityWrittenContainerEvent::NAME);
 
             return $event;
         }
@@ -155,7 +155,7 @@ class MediaThumbnailRepositoryDecorator implements EntityRepositoryInterface
         $delete = $this->innerRepo->delete($thumbnailIds, $context);
 
         $event = new MediaThumbnailDeletedEvent($thumbnails, $context);
-        $this->eventDispatcher->dispatch($event::EVENT_NAME, $event);
+        $this->eventDispatcher->dispatch($event, $event::EVENT_NAME);
 
         return $delete;
     }

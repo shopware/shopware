@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace src\Core\Content\Test\MailTemplate\Api;
+namespace Shopware\Core\Content\Test\MailTemplate\Api;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -57,8 +57,8 @@ class MailHeaderFooterApiTest extends TestCase
 
         // do API calls
         foreach ($data as $entry) {
-            $this->getClient()->request('POST', $this->prepareRoute(), $entry);
-            $response = $this->getClient()->getResponse();
+            $this->getBrowser()->request('POST', $this->prepareRoute(), $entry);
+            $response = $this->getBrowser()->getResponse();
             static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
         }
 
@@ -94,11 +94,11 @@ class MailHeaderFooterApiTest extends TestCase
         $data = $this->prepareHeaderFooterTestData($num);
         $this->repository->create(array_values($data), $this->context);
 
-        $this->getClient()->request('GET', $this->prepareRoute(), [], [], [
+        $this->getBrowser()->request('GET', $this->prepareRoute(), [], [], [
             'HTTP_ACCEPT' => 'application/json',
         ]);
 
-        $response = $this->getClient()->getResponse();
+        $response = $this->getBrowser()->getResponse();
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
         $content = json_decode($response->getContent());
@@ -142,17 +142,17 @@ class MailHeaderFooterApiTest extends TestCase
             $expextData[$id] = $data[$idx];
             unset($data[$idx]['id']);
 
-            $this->getClient()->request('PATCH', $this->prepareRoute() . $id, $data[$idx], [], [
+            $this->getBrowser()->request('PATCH', $this->prepareRoute() . $id, $data[$idx], [], [
                 'HTTP_ACCEPT' => 'application/json',
             ]);
-            $response = $this->getClient()->getResponse();
+            $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         }
 
-        $this->getClient()->request('GET', $this->prepareRoute(), [], [], [
+        $this->getBrowser()->request('GET', $this->prepareRoute(), [], [], [
             'HTTP_ACCEPT' => 'application/json',
         ]);
-        $response = $this->getClient()->getResponse();
+        $response = $this->getBrowser()->getResponse();
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
         $content = json_decode($response->getContent());
@@ -184,10 +184,10 @@ class MailHeaderFooterApiTest extends TestCase
 
         foreach (array_values($data) as $expect) {
             // Request details
-            $this->getClient()->request('GET', $this->prepareRoute() . $expect['id'], [], [], [
+            $this->getBrowser()->request('GET', $this->prepareRoute() . $expect['id'], [], [], [
                 'HTTP_ACCEPT' => 'application/json',
             ]);
-            $response = $this->getClient()->getResponse();
+            $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
             // compare deatils with expected
@@ -217,10 +217,10 @@ class MailHeaderFooterApiTest extends TestCase
         foreach ($searchData as $key => $value) {
             // Search call
             $filter['filter'][$key] = $value;
-            $this->getClient()->request('POST', $this->prepareRoute(true), $filter, [], [
+            $this->getBrowser()->request('POST', $this->prepareRoute(true), $filter, [], [
                 'HTTP_ACCEPT' => 'application/json',
             ]);
-            $response = $this->getClient()->getResponse();
+            $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
             $content = json_decode($response->getContent());
             static ::assertEquals(1, $content->total);
@@ -238,17 +238,17 @@ class MailHeaderFooterApiTest extends TestCase
         $deleteId = array_column($data, 'id')[0];
 
         // Test request
-        $this->getClient()->request('GET', $this->prepareRoute() . $deleteId, [], [], [
+        $this->getBrowser()->request('GET', $this->prepareRoute() . $deleteId, [], [], [
             'HTTP_ACCEPT' => 'application/json',
         ]);
-        $response = $this->getClient()->getResponse();
+        $response = $this->getBrowser()->getResponse();
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
         // Delete call
-        $this->getClient()->request('DELETE', $this->prepareRoute() . $deleteId, [], [], [
+        $this->getBrowser()->request('DELETE', $this->prepareRoute() . $deleteId, [], [], [
             'HTTP_ACCEPT' => 'application/json',
         ]);
-        $response = $this->getClient()->getResponse();
+        $response = $this->getBrowser()->getResponse();
         static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
 

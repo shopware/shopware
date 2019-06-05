@@ -38,9 +38,9 @@ class PriceActionControllerTest extends TestCase
 
     public function testPriceMissingExecption(): void
     {
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate');
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate');
 
-        $response = $this->getClient()->getResponse()->getContent();
+        $response = $this->getBrowser()->getResponse()->getContent();
         $response = json_decode($response, true);
 
         static::assertArrayHasKey('errors', $response);
@@ -48,9 +48,9 @@ class PriceActionControllerTest extends TestCase
 
     public function testTaxIdMissingException(): void
     {
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate', ['price' => 10]);
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate', ['price' => 10]);
 
-        $response = $this->getClient()->getResponse()->getContent();
+        $response = $this->getBrowser()->getResponse()->getContent();
 
         $response = json_decode($response, true);
 
@@ -59,12 +59,12 @@ class PriceActionControllerTest extends TestCase
 
     public function testTaxNotFoundException(): void
     {
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate', [
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate', [
             'price' => 10,
             'taxId' => Uuid::randomHex(),
         ]);
 
-        $response = $this->getClient()->getResponse()->getContent();
+        $response = $this->getBrowser()->getResponse()->getContent();
 
         $response = json_decode($response, true);
 
@@ -221,9 +221,9 @@ class PriceActionControllerTest extends TestCase
             '/api/v%s/_action/calculate-price',
             PlatformRequest::API_VERSION
         );
-        $this->getClient()->request('POST', $url, $data);
+        $this->getBrowser()->request('POST', $url, $data);
 
-        $response = $this->getClient()->getResponse()->getContent();
+        $response = $this->getBrowser()->getResponse()->getContent();
 
         $response = json_decode($response, true);
 

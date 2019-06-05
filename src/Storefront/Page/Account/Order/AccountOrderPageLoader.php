@@ -60,8 +60,8 @@ class AccountOrderPageLoader
         );
 
         $this->eventDispatcher->dispatch(
-            AccountOrderPageLoadedEvent::NAME,
-            new AccountOrderPageLoadedEvent($page, $context, $request)
+            new AccountOrderPageLoadedEvent($page, $context, $request),
+            AccountOrderPageLoadedEvent::NAME
         );
 
         return $page;

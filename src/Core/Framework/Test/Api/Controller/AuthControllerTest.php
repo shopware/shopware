@@ -17,7 +17,7 @@ class AuthControllerTest extends TestCase
 
     public function testRequiresAuthentication(): void
     {
-        $client = $this->getClient();
+        $client = $this->getBrowser();
         $client->setServerParameter('HTTP_Authorization', '');
         $client->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
 
@@ -44,7 +44,7 @@ class AuthControllerTest extends TestCase
             'password' => 'not_a_real_password',
         ];
 
-        $client = $this->getClient();
+        $client = $this->getBrowser();
         $client->setServerParameters([
             'CONTENT_TYPE' => 'application/json',
             'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
@@ -63,7 +63,7 @@ class AuthControllerTest extends TestCase
 
     public function testAccessWithInvalidToken(): void
     {
-        $client = $this->getClient();
+        $client = $this->getBrowser();
         $client->setServerParameters([
             'CONTENT_TYPE' => 'application/json',
             'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
@@ -87,7 +87,7 @@ class AuthControllerTest extends TestCase
 
     public function testAccessWithExpiredToken(): void
     {
-        $client = $this->getClient();
+        $client = $this->getBrowser();
         $client->setServerParameter(
             'HTTP_Authorization',
             'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjBkZmFhOTJkMWNkYTJiZmUyNGMwOGU4MmNhZmExMDY4N2I2ZWEzZTI0MjE4NjcxMmM0YjI3NTA4Y2NjNWQ0MzI3MWQxODYzODA1NDYwYzQ0In0.eyJhdWQiOiJhZG1pbmlzdHJhdGlvbiIsImp0aSI6IjBkZmFhOTJkMWNkYTJiZmUyNGMwOGU4MmNhZmExMDY4N2I2ZWEzZTI0MjE4NjcxMmM0YjI3NTA4Y2NjNWQ0MzI3MWQxODYzODA1NDYwYzQ0IiwiaWF0IjoxNTI5NDM2MTkyLCJuYmYiOjE1Mjk0MzYxOTIsImV4cCI6MTUyOTQzOTc5Miwic3ViIjoiNzI2MWQyNmMzZTM2NDUxMDk1YWZhN2MwNWY4NzMyYjUiLCJzY29wZXMiOlsid3JpdGUiLCJ3cml0ZSJdfQ.DBYbAWNpwxGL6QngLidboGbr2nmlAwjYcJIqN02sRnZNNFexy9V6uyQQ-8cJ00anwxKhqBovTzHxtXBMhZ47Ix72hxNWLjauKxQlsHAbgIKBDRbJO7QxgOU8gUnSQiXzRzKoX6XBOSHXFSUJ239lF4wai7621aCNFyEvlwf1JZVILsLjVkyIBhvuuwyIPbpEETui19BBaJ0eQZtjXtpzjsWNq1ibUCQvurLACnNxmXIj8xkSNenoX5B4p3R1gbDFuxaNHkGgsrQTwkDtmZxqCb3_0AgFL3XX0mpO5xsIJAI_hLHDPvv5m0lTQgMRrlgNdfE7ecI4GLHMkDmjWoNx_A'
@@ -105,22 +105,22 @@ class AuthControllerTest extends TestCase
 
     public function testAccessProtectedResourceWithToken(): void
     {
-        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
+        $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
 
         static::assertEquals(
             Response::HTTP_OK,
-            $this->getClient()->getResponse()->getStatusCode(),
-            $this->getClient()->getResponse()->getContent()
+            $this->getBrowser()->getResponse()->getStatusCode(),
+            $this->getBrowser()->getResponse()->getContent()
         );
 
-        $response = json_decode($this->getClient()->getResponse()->getContent(), true);
+        $response = json_decode($this->getBrowser()->getResponse()->getContent(), true);
 
         static::assertArrayNotHasKey('errors', $response);
     }
 
     public function testInvalidRefreshToken(): void
     {
-        $client = $this->getClient();
+        $client = $this->getBrowser();
         $client->setServerParameters([
             'CONTENT_TYPE' => 'application/json',
             'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
@@ -149,7 +149,7 @@ class AuthControllerTest extends TestCase
 
     public function testRefreshToken(): void
     {
-        $client = $this->getClient();
+        $client = $this->getBrowser();
         $client->setServerParameters([
             'CONTENT_TYPE' => 'application/json',
             'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
@@ -227,16 +227,16 @@ class AuthControllerTest extends TestCase
 
         static::assertEquals(
             Response::HTTP_OK,
-            $this->getClient()->getResponse()->getStatusCode(),
-            $this->getClient()->getResponse()->getContent()
+            $this->getBrowser()->getResponse()->getStatusCode(),
+            $this->getBrowser()->getResponse()->getContent()
         );
-        $response = json_decode($this->getClient()->getResponse()->getContent(), true);
+        $response = json_decode($this->getBrowser()->getResponse()->getContent(), true);
         static::assertArrayNotHasKey('errors', $response);
     }
 
     public function testIntegrationAuth(): void
     {
-        $client = $this->getClient();
+        $client = $this->getBrowser();
         $client->setServerParameters([
             'CONTENT_TYPE' => 'application/json',
             'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],

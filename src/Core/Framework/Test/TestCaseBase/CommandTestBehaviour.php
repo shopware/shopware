@@ -18,7 +18,7 @@ trait CommandTestBehaviour
         }
 
         $commandEvent = new ConsoleCommandEvent($command, $input, $output);
-        $kernel->getContainer()->get('event_dispatcher')->dispatch(ConsoleEvents::COMMAND, $commandEvent);
+        $kernel->getContainer()->get('event_dispatcher')->dispatch($commandEvent, ConsoleEvents::COMMAND);
 
         $command->run($input, $output);
     }

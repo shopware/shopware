@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace src\Core\Content\Test\MailTemplate\Repository;
+namespace Shopware\Core\Content\Test\MailTemplate\Repository;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;

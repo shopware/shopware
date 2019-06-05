@@ -64,7 +64,7 @@ class MediaRepositoryDecorator implements EntityRepositoryInterface
 
         if ($affectedMedia->count() === 0) {
             $event = EntityWrittenContainerEvent::createWithDeletedEvents([], $context, []);
-            $this->eventDispatcher->dispatch(EntityWrittenContainerEvent::NAME, $event);
+            $this->eventDispatcher->dispatch($event, EntityWrittenContainerEvent::NAME);
 
             return $event;
         }

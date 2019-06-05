@@ -39,8 +39,10 @@ class EncryptedMessageHandler extends AbstractMessageHandler
 
         $this->bus->dispatch(new Envelope(
             $originalMessage,
-            new ReceivedStamp(),
-            new DecryptedStamp()
+            [
+                new ReceivedStamp('null'),
+                new DecryptedStamp(),
+            ]
         ));
     }
 

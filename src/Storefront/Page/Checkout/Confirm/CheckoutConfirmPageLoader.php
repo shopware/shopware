@@ -67,8 +67,8 @@ class CheckoutConfirmPageLoader
         $page->setShippingMethods($this->getShippingMethods($context));
 
         $this->eventDispatcher->dispatch(
-            CheckoutConfirmPageLoadedEvent::NAME,
-            new CheckoutConfirmPageLoadedEvent($page, $context, $request)
+            new CheckoutConfirmPageLoadedEvent($page, $context, $request),
+            CheckoutConfirmPageLoadedEvent::NAME
         );
 
         return $page;

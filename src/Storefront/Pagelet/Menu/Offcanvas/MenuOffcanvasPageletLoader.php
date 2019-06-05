@@ -39,8 +39,8 @@ class MenuOffcanvasPageletLoader
         $page = new MenuOffcanvasPagelet($navigation);
 
         $this->eventDispatcher->dispatch(
-            MenuOffcanvasPageletLoadedEvent::NAME,
-            new MenuOffcanvasPageletLoadedEvent($page, $context, $request)
+            new MenuOffcanvasPageletLoadedEvent($page, $context, $request),
+            MenuOffcanvasPageletLoadedEvent::NAME
         );
 
         return $page;

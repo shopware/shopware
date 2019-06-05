@@ -41,15 +41,15 @@ class ProductListingGateway implements ProductListingGatewayInterface
         $this->handleCategoryFilter($request, $criteria, $context);
 
         $this->eventDispatcher->dispatch(
-            ProductEvents::PRODUCT_LISTING_CRITERIA,
-            new ProductListingCriteriaEvent($request, $criteria, $context)
+            new ProductListingCriteriaEvent($request, $criteria, $context),
+            ProductEvents::PRODUCT_LISTING_CRITERIA
         );
 
         $result = $this->productRepository->search($criteria, $context);
 
         $this->eventDispatcher->dispatch(
-            ProductEvents::PRODUCT_LISTING_RESULT,
-            new ProductListingResultEvent($request, $result, $context)
+            new ProductListingResultEvent($request, $result, $context),
+            ProductEvents::PRODUCT_LISTING_RESULT
         );
 
         return $result;

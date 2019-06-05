@@ -49,7 +49,7 @@ class MediaUploadControllerTest extends TestCase
             $this->mediaId
         );
 
-        $this->getClient()->request(
+        $this->getBrowser()->request(
             'POST',
             $url . '?extension=png',
             [],
@@ -62,7 +62,7 @@ class MediaUploadControllerTest extends TestCase
         );
         $media = $this->mediaRepository->search(new Criteria([$this->mediaId]), $this->context)->get($this->mediaId);
 
-        $response = $this->getClient()->getResponse();
+        $response = $this->getBrowser()->getResponse();
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
@@ -76,12 +76,12 @@ class MediaUploadControllerTest extends TestCase
         static::assertTrue($this->getPublicFilesystem()->has($mediaPath));
         static::assertStringEndsWith($media->getId() . '.' . $media->getFileExtension(), $mediaPath);
 
-        $this->getClient()->request(
+        $this->getBrowser()->request(
             'GET',
             "/api/v1/media/{$this->mediaId}"
         );
 
-        $responseData = json_decode($this->getClient()->getResponse()->getContent(), true);
+        $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
 
         static::assertCount(
             3,
@@ -123,7 +123,7 @@ class MediaUploadControllerTest extends TestCase
             $this->mediaId
         );
 
-        $this->getClient()->request(
+        $this->getBrowser()->request(
             'POST',
             $url . '?extension=png&fileName=new%20file%20name',
             [],
@@ -136,7 +136,7 @@ class MediaUploadControllerTest extends TestCase
         );
         $media = $this->mediaRepository->search(new Criteria([$this->mediaId]), $this->context)->get($this->mediaId);
         $mediaPath = $this->urlGenerator->getRelativeMediaUrl($media);
-        $response = $this->getClient()->getResponse();
+        $response = $this->getBrowser()->getResponse();
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
@@ -149,12 +149,12 @@ class MediaUploadControllerTest extends TestCase
         static::assertTrue($this->getPublicFilesystem()->has($mediaPath));
         static::assertStringEndsWith('new file name', $media->getFileName());
 
-        $this->getClient()->request(
+        $this->getBrowser()->request(
             'GET',
             "/api/v1/media/{$this->mediaId}"
         );
 
-        $responseData = json_decode($this->getClient()->getResponse()->getContent(), true);
+        $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
 
         static::assertCount(
             3,
@@ -202,7 +202,7 @@ class MediaUploadControllerTest extends TestCase
         );
 
         try {
-            $this->getClient()->request(
+            $this->getBrowser()->request(
                  'POST',
                 $url . '?extension=png',
                  [],
@@ -212,7 +212,7 @@ class MediaUploadControllerTest extends TestCase
                  ],
                  json_encode(['url' => $baseUrl . '/shopware-logo.png'])
              );
-            $response = $this->getClient()->getResponse();
+            $response = $this->getBrowser()->getResponse();
         } finally {
             unlink($target);
         }
@@ -227,12 +227,12 @@ class MediaUploadControllerTest extends TestCase
         );
         static::assertTrue($this->getPublicFilesystem()->has($this->urlGenerator->getRelativeMediaUrl($media)));
 
-        $this->getClient()->request(
+        $this->getBrowser()->request(
             'GET',
             "/api/v1/media/{$this->mediaId}"
         );
 
-        $responseData = json_decode($this->getClient()->getResponse()->getContent(), true);
+        $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
 
         static::assertCount(
             3,
@@ -278,7 +278,7 @@ class MediaUploadControllerTest extends TestCase
             $media->getId()
         );
 
-        $this->getClient()->request(
+        $this->getBrowser()->request(
             'POST',
             $url,
             [],
@@ -289,7 +289,7 @@ class MediaUploadControllerTest extends TestCase
             \json_encode([])
         );
 
-        $response = $this->getClient()->getResponse();
+        $response = $this->getBrowser()->getResponse();
         $responseData = json_decode($response->getContent(), true);
 
         static::assertEquals(400, $response->getStatusCode());
@@ -310,7 +310,7 @@ class MediaUploadControllerTest extends TestCase
             $media->getId()
         );
 
-        $this->getClient()->request(
+        $this->getBrowser()->request(
             'POST',
             $url,
             [],
@@ -321,7 +321,7 @@ class MediaUploadControllerTest extends TestCase
             \json_encode(['fileName' => 'new file name'])
         );
 
-        $response = $this->getClient()->getResponse();
+        $response = $this->getBrowser()->getResponse();
         static::assertEquals(204, $response->getStatusCode());
 
         $updatedMedia = $this->mediaRepository->search(new Criteria([$media->getId()]), $context)->get($media->getId());
@@ -341,12 +341,12 @@ class MediaUploadControllerTest extends TestCase
             $media->getFileName()
         );
 
-        $this->getClient()->request(
+        $this->getBrowser()->request(
             'GET',
             $url
         );
 
-        $response = $this->getClient()->getResponse();
+        $response = $this->getBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
         $result = json_decode($response->getContent(), true);
@@ -366,12 +366,12 @@ class MediaUploadControllerTest extends TestCase
             $media->getId()
         );
 
-        $this->getClient()->request(
+        $this->getBrowser()->request(
             'GET',
             $url
         );
 
-        $response = $this->getClient()->getResponse();
+        $response = $this->getBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
         $result = json_decode($response->getContent(), true);

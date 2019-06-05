@@ -16,8 +16,6 @@ framework:
     cache:
         prefix_seed: shopware
         app: cache.adapter.filesystem
-    templating:
-        engines: ['twig']
     messenger:
         transports:
             default:

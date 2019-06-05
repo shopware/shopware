@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\Rule\CurrencyRule;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class RulePayloadIndexerTest extends TestCase
 {
@@ -421,7 +422,7 @@ class RulePayloadIndexerTest extends TestCase
                 ->execute();
         }
 
-        $this->eventDispatcher->dispatch($eventName);
+        $this->eventDispatcher->dispatch(new Event(), $eventName);
 
         $rules = $this->connection->createQueryBuilder()->select(['id', 'payload', 'invalid'])->from('rule')->execute()->fetchAll();
 

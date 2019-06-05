@@ -80,22 +80,22 @@ class ChildCountIndexer implements IndexerInterface
             $iterator = $this->iteratorFactory->createIterator($definition);
 
             $this->eventDispatcher->dispatch(
-                ProgressStartedEvent::NAME,
-                new ProgressStartedEvent('Start indexing child counts of ' . $entityName, $iterator->fetchCount())
+                new ProgressStartedEvent('Start indexing child counts of ' . $entityName, $iterator->fetchCount()),
+                ProgressStartedEvent::NAME
             );
 
             while ($ids = $iterator->fetch()) {
                 $this->updateChildCount($definition, $ids, $definition->isVersionAware(), $context);
 
                 $this->eventDispatcher->dispatch(
-                    ProgressAdvancedEvent::NAME,
-                    new ProgressAdvancedEvent(\count($ids))
+                    new ProgressAdvancedEvent(\count($ids)),
+                    ProgressAdvancedEvent::NAME
                 );
             }
 
             $this->eventDispatcher->dispatch(
-                ProgressFinishedEvent::NAME,
-                new ProgressFinishedEvent('Finished indexing child count of ' . $entityName)
+                new ProgressFinishedEvent('Finished indexing child count of ' . $entityName),
+                ProgressFinishedEvent::NAME
             );
         }
     }

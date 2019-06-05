@@ -60,8 +60,8 @@ class ProductApiTest extends TestCase
             ],
         ];
 
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
-        static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
 
         $context = Context::createDefaultContext();
 
@@ -100,8 +100,8 @@ class ProductApiTest extends TestCase
             ],
         ];
 
-        $this->getClient()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id, $data);
-        static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
+        $this->getBrowser()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id, $data);
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
 
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('prices');
@@ -137,8 +137,8 @@ class ProductApiTest extends TestCase
             ],
         ];
 
-        $this->getClient()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id, $data);
-        static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
+        $this->getBrowser()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id, $data);
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
 
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('prices');
@@ -177,14 +177,14 @@ class ProductApiTest extends TestCase
             'description' => $description,
         ];
 
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
-        static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
 
-        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id, [], [], [
+        $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id, [], [], [
             'HTTP_ACCEPT' => 'application/json',
         ]);
 
-        $response = $this->getClient()->getResponse();
+        $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         $product = json_decode($response->getContent(), true);

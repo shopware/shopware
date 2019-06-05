@@ -190,7 +190,7 @@ class LanguageEntity extends Entity
     protected $salutationTranslations;
 
     /**
-     * @var DiscountSurchargeTranslationCollection| null
+     * @var DiscountSurchargeTranslationCollection|null
      */
     protected $discountSurchargeTranslations;
 

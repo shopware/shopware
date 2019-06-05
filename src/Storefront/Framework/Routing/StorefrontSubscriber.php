@@ -11,9 +11,9 @@ use Shopware\Storefront\Controller\ErrorController;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
-use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
-use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
+use Symfony\Component\HttpKernel\Event\ControllerEvent;
+use Symfony\Component\HttpKernel\Event\ExceptionEvent;
+use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\RouterInterface;
@@ -124,7 +124,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         );
     }
 
-    public function showHtmlExceptionResponse(GetResponseForExceptionEvent $event): void
+    public function showHtmlExceptionResponse(ExceptionEvent $event): void
     {
         if ($event->getRequest()->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)) {
             $event->stopPropagation();
@@ -137,7 +137,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         }
     }
 
-    public function customerNotLoggedInHandler(GetResponseForExceptionEvent $event): void
+    public function customerNotLoggedInHandler(ExceptionEvent $event): void
     {
         if (!$event->getRequest()->attributes->has(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
             return;
@@ -159,7 +159,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         $event->setResponse($redirectResponse);
     }
 
-    public function preventPageLoadingFromXmlHttpRequest(FilterControllerEvent $event): void
+    public function preventPageLoadingFromXmlHttpRequest(ControllerEvent $event): void
     {
         if (!$event->getRequest()->isXmlHttpRequest()) {
             return;
@@ -185,7 +185,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         throw new AccessDeniedHttpException('PageController can\'t be requested via XmlHttpRequest.');
     }
 
-    public function setCanonicalUrl(FilterResponseEvent $event): void
+    public function setCanonicalUrl(ResponseEvent $event): void
     {
         if (!$event->getResponse()->isSuccessful()) {
             return;

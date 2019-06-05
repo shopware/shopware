@@ -128,12 +128,12 @@ class MediaEntity extends Entity
     protected $thumbnails;
 
     /**
-     * @var string | null
+     * @var string|null
      */
     protected $mediaFolderId;
 
     /**
-     * @var MediaFolderEntity | null
+     * @var MediaFolderEntity|null
      */
     protected $mediaFolder;
 

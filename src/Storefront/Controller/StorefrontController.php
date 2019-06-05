@@ -26,7 +26,7 @@ abstract class StorefrontController extends AbstractController
 
         $event = new StorefrontRenderEvent($view, $parameters, $request, $context);
 
-        $this->get('event_dispatcher')->dispatch(StorefrontRenderEvent::NAME, $event);
+        $this->get('event_dispatcher')->dispatch($event, StorefrontRenderEvent::NAME);
 
         return $this->render($view, $event->getParameters(), $response);
     }

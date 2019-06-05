@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
-use Symfony\Bundle\FrameworkBundle\Client;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Router;
 
@@ -74,12 +74,12 @@ class SalesChannelCartControllerTest extends TestCase
     {
         $productId = Uuid::randomHex();
 
-        $client = $this->createCart();
+        $browser = $this->createCart();
 
-        $this->addProduct($client, $productId);
+        $this->addProduct($browser, $productId);
 
-        $content = json_decode($client->getResponse()->getContent(), true);
-        static::assertSame(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
+        $content = json_decode($browser->getResponse()->getContent(), true);
+        static::assertSame(Response::HTTP_NOT_FOUND, $browser->getResponse()->getStatusCode());
 
         static::assertNotEmpty($content);
         static::assertArrayHasKey('errors', $content);
@@ -101,12 +101,12 @@ class SalesChannelCartControllerTest extends TestCase
             ],
         ], $this->context);
 
-        $client = $this->createCart();
+        $browser = $this->createCart();
 
-        $this->addProduct($client, $productId);
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->addProduct($browser, $productId);
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $content = json_decode($client->getResponse()->getContent(), true);
+        $content = json_decode($browser->getResponse()->getContent(), true);
 
         static::assertNotEmpty($content);
         static::assertArrayHasKey('data', $content);
@@ -148,15 +148,15 @@ class SalesChannelCartControllerTest extends TestCase
             ],
         ], $this->context);
 
-        $client = $this->createCart();
+        $browser = $this->createCart();
 
-        $this->addProduct($client, $productId1);
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->addProduct($browser, $productId1);
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $this->addProduct($client, $productId2);
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->addProduct($browser, $productId2);
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $cart = $this->getCart($client);
+        $cart = $this->getCart($browser);
 
         static::assertNotEmpty($cart);
         static::assertCount(2, $cart['lineItems']);
@@ -179,14 +179,14 @@ class SalesChannelCartControllerTest extends TestCase
             ],
         ], $this->context);
 
-        $client = $this->createCart();
+        $browser = $this->createCart();
 
-        $this->addProduct($client, $productId1);
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->addProduct($browser, $productId1);
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $this->changeQuantity($client, $productId1, 10);
+        $this->changeQuantity($browser, $productId1, 10);
 
-        $cart = $this->getCart($client);
+        $cart = $this->getCart($browser);
 
         static::assertNotEmpty($cart);
         static::assertCount(1, $cart['lineItems']);
@@ -212,14 +212,14 @@ class SalesChannelCartControllerTest extends TestCase
             ],
         ], $this->context);
 
-        $client = $this->createCart();
+        $browser = $this->createCart();
 
-        $this->addProduct($client, $productId1);
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->addProduct($browser, $productId1);
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $this->updateLineItemQuantity($client, $productId1, 10);
+        $this->updateLineItemQuantity($browser, $productId1, 10);
 
-        $cart = $this->getCart($client);
+        $cart = $this->getCart($browser);
 
         static::assertNotEmpty($cart);
         static::assertCount(1, $cart['lineItems']);
@@ -245,14 +245,14 @@ class SalesChannelCartControllerTest extends TestCase
             ],
         ], $this->context);
 
-        $client = $this->createCart();
+        $browser = $this->createCart();
 
-        $this->addProduct($client, $productId1);
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->addProduct($browser, $productId1);
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $this->changeQuantity($client, $productId1, -1);
+        $this->changeQuantity($browser, $productId1, -1);
 
-        $cart = $this->getCart($client);
+        $cart = $this->getCart($browser);
 
         static::assertNotEmpty($cart);
         static::assertArrayHasKey('errors', $cart);
@@ -287,17 +287,17 @@ class SalesChannelCartControllerTest extends TestCase
             ],
         ], $this->context);
 
-        $client = $this->createCart();
+        $browser = $this->createCart();
 
-        $this->addProduct($client, $productId1);
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->addProduct($browser, $productId1);
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $this->addProduct($client, $productId2);
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->addProduct($browser, $productId2);
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $this->removeLineItem($client, $productId1);
+        $this->removeLineItem($browser, $productId1);
 
-        $cart = $this->getCart($client);
+        $cart = $this->getCart($browser);
 
         static::assertNotEmpty($cart);
         static::assertCount(1, $cart['lineItems']);
@@ -309,11 +309,11 @@ class SalesChannelCartControllerTest extends TestCase
     public function testRemoveNonExistingLineItem(): void
     {
         $productId1 = Uuid::randomHex();
-        $client = $this->createCart();
+        $browser = $this->createCart();
 
-        $this->removeLineItem($client, $productId1);
+        $this->removeLineItem($browser, $productId1);
 
-        $cart = $this->getCart($client);
+        $cart = $this->getCart($browser);
 
         static::assertNotEmpty($cart);
         static::assertArrayHasKey('errors', $cart);
@@ -355,23 +355,23 @@ class SalesChannelCartControllerTest extends TestCase
             ],
         ], $this->context);
 
-        $client = $this->createCart();
+        $browser = $this->createCart();
 
         //add product 1 three times with quantity 1
-        $this->addProduct($client, $productId1);
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->addProduct($browser, $productId1);
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $this->addProduct($client, $productId1);
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->addProduct($browser, $productId1);
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
         //add product 2 one time with quantity 1 and one time with quantity 10
-        $this->addProduct($client, $productId2);
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->addProduct($browser, $productId2);
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $this->addProduct($client, $productId2, 10);
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->addProduct($browser, $productId2, 10);
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $cart = $this->getCart($client);
+        $cart = $this->getCart($browser);
 
         static::assertNotEmpty($cart);
         static::assertCount(2, $cart['lineItems']);
@@ -408,7 +408,7 @@ class SalesChannelCartControllerTest extends TestCase
             ],
         ], $this->context);
 
-        $client = $this->createCart();
+        $browser = $this->createCart();
 
         $quantity = 10;
         $type = LineItem::PRODUCT_LINE_ITEM_TYPE;
@@ -417,7 +417,7 @@ class SalesChannelCartControllerTest extends TestCase
         $label = 'My custom label';
         $description = 'My custom description';
 
-        $client->request(
+        $browser->request(
             'POST',
             '/sales-channel-api/v1/checkout/cart/line-item/' . $productId,
             [
@@ -432,9 +432,9 @@ class SalesChannelCartControllerTest extends TestCase
             ]
         );
 
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $content = json_decode($client->getResponse()->getContent(), true);
+        $content = json_decode($browser->getResponse()->getContent(), true);
 
         static::assertNotEmpty($content);
         static::assertArrayHasKey('data', $content);
@@ -474,13 +474,13 @@ class SalesChannelCartControllerTest extends TestCase
             ],
         ], $this->context);
 
-        $client = $this->createCart();
+        $browser = $this->createCart();
 
-        $this->addProduct($client, $productId);
+        $this->addProduct($browser, $productId);
 
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $content = json_decode($client->getResponse()->getContent(), true);
+        $content = json_decode($browser->getResponse()->getContent(), true);
 
         static::assertNotEmpty($content);
         static::assertArrayHasKey('data', $content);
@@ -503,7 +503,7 @@ class SalesChannelCartControllerTest extends TestCase
         $label = 'My custom label';
         $description = 'My custom description';
 
-        $client->request(
+        $browser->request(
             'PATCH',
             '/sales-channel-api/v1/checkout/cart/line-item/' . $productId,
             [
@@ -517,9 +517,9 @@ class SalesChannelCartControllerTest extends TestCase
             ]
         );
 
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $content = json_decode($client->getResponse()->getContent(), true);
+        $content = json_decode($browser->getResponse()->getContent(), true);
 
         static::assertNotEmpty($content);
         static::assertArrayHasKey('data', $content);
@@ -550,7 +550,7 @@ class SalesChannelCartControllerTest extends TestCase
         static::assertEquals('Access key is invalid and could not be identified.', $content['errors'][0]['detail']);
     }
 
-    private function createCart(): Client
+    private function createCart(): KernelBrowser
     {
         $this->getSalesChannelClient()->request('POST', '/sales-channel-api/v1/checkout/cart');
         $response = $this->getSalesChannelClient()->getResponse();
@@ -559,24 +559,24 @@ class SalesChannelCartControllerTest extends TestCase
 
         $content = json_decode($response->getContent(), true);
 
-        $client = clone $this->getSalesChannelClient();
-        $client->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
+        $browser = clone $this->getSalesChannelClient();
+        $browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
 
-        return $client;
+        return $browser;
     }
 
-    private function getCart(Client $client)
+    private function getCart(KernelBrowser $browser)
     {
         $this->getSalesChannelClient()->request('GET', '/sales-channel-api/v1/checkout/cart');
 
-        $cart = json_decode($client->getResponse()->getContent(), true);
+        $cart = json_decode($browser->getResponse()->getContent(), true);
 
         return $cart['data'] ?? $cart;
     }
 
-    private function addProduct(Client $client, string $id, int $quantity = 1): void
+    private function addProduct(KernelBrowser $browser, string $id, int $quantity = 1): void
     {
-        $client->request(
+        $browser->request(
             'POST',
             '/sales-channel-api/v1/checkout/cart/product/' . $id,
             [
@@ -585,18 +585,18 @@ class SalesChannelCartControllerTest extends TestCase
         );
     }
 
-    private function changeQuantity(Client $client, string $lineItemId, int $quantity): void
+    private function changeQuantity(KernelBrowser $browser, string $lineItemId, int $quantity): void
     {
-        $client->request('PATCH', '/sales-channel-api/v1/checkout/cart/line-item/' . $lineItemId, ['quantity' => $quantity]);
+        $browser->request('PATCH', '/sales-channel-api/v1/checkout/cart/line-item/' . $lineItemId, ['quantity' => $quantity]);
     }
 
-    private function updateLineItemQuantity(Client $client, string $lineItemId, int $quantity): void
+    private function updateLineItemQuantity(KernelBrowser $browser, string $lineItemId, int $quantity): void
     {
-        $client->request('PATCH', '/sales-channel-api/v1/checkout/cart/line-item/' . $lineItemId, ['quantity' => $quantity]);
+        $browser->request('PATCH', '/sales-channel-api/v1/checkout/cart/line-item/' . $lineItemId, ['quantity' => $quantity]);
     }
 
-    private function removeLineItem(Client $client, string $lineItemId): void
+    private function removeLineItem(KernelBrowser $browser, string $lineItemId): void
     {
-        $client->request('DELETE', '/sales-channel-api/v1/checkout/cart/line-item/' . $lineItemId);
+        $browser->request('DELETE', '/sales-channel-api/v1/checkout/cart/line-item/' . $lineItemId);
     }
 }

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace src\Core\Framework\Test\DataAbstractionLayer\Search\Parser;
+namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Parser;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;

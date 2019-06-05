@@ -52,14 +52,10 @@
             <tag name="shopware.entity.definition" entity="_test_lock_translation" />
         </service>
 
-        <service id="Shopware\Core\Framework\Test\TestCaseHelper\ReceiverLocatorDecorator" decorates="messenger.receiver_locator">
-            <argument type="service" id="Shopware\Core\Framework\Test\TestCaseHelper\ReceiverLocatorDecorator.inner"/>
-        </service>
-
         <service id="messenger.test_receiver_locator" alias="messenger.receiver_locator" public="true"/>
         <service id="messenger.bus.test_shopware" alias="messenger.bus.shopware" public="true"/>
 
-        <service id="test.client" class="Shopware\Core\Framework\Test\TestCaseHelper\TestClient" shared="false" public="true">
+        <service id="test.browser" class="Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser" shared="false" public="true">
             <argument type="service" id="kernel" />
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument>%test.client.parameters%</argument>

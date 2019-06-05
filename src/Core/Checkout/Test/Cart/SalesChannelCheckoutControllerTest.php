@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
-use Symfony\Bundle\FrameworkBundle\Client;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
 class SalesChannelCheckoutControllerTest extends TestCase
@@ -122,18 +122,18 @@ class SalesChannelCheckoutControllerTest extends TestCase
 
         $this->createCustomer($addressId, $mail, $password, $context);
 
-        $client = $this->createCart();
+        $browser = $this->createCart();
 
-        $this->addProduct($client, $productId);
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->addProduct($browser, $productId);
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $this->login($client, $mail, $password);
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->login($browser, $mail, $password);
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $this->order($client);
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->order($browser);
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $order = json_decode($client->getResponse()->getContent(), true);
+        $order = json_decode($browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('data', $order);
 
         $order = $order['data'];
@@ -157,7 +157,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
         ];
         $context = Context::createDefaultContext();
         $this->currencyRepository->create([$yen], $context);
-        $salesChannelClient = $this->createCustomSalesChannelClient([
+        $salesChannelClient = $this->createCustomSalesChannelBrowser([
             'currencyId' => $yen['id'],
         ]);
 
@@ -180,19 +180,19 @@ class SalesChannelCheckoutControllerTest extends TestCase
 
         $this->createCustomer($addressId, $mail, $password, $context);
 
-        $client = $this->createCart($salesChannelClient);
+        $browser = $this->createCart($salesChannelClient);
 
-        $this->addProduct($client, $productId);
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->addProduct($browser, $productId);
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $this->login($client, $mail, $password);
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->login($browser, $mail, $password);
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $this->order($client);
+        $this->order($browser);
 
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $order = json_decode($client->getResponse()->getContent(), true);
+        $order = json_decode($browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('data', $order);
 
         $order = $order['data'];
@@ -249,16 +249,16 @@ class SalesChannelCheckoutControllerTest extends TestCase
             ],
         ];
 
-        $client = $this->createCart();
+        $browser = $this->createCart();
 
         $quantity = 5;
-        $this->addProduct($client, $productId, $quantity);
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->addProduct($browser, $productId, $quantity);
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $this->guestOrder($client, array_merge($personal, $billing));
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->guestOrder($browser, array_merge($personal, $billing));
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $order = json_decode($client->getResponse()->getContent(), true);
+        $order = json_decode($browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('data', $order);
 
         $order = $order['data'];
@@ -323,16 +323,16 @@ class SalesChannelCheckoutControllerTest extends TestCase
             ],
         ];
 
-        $client = $this->createCart();
+        $browser = $this->createCart();
 
         $quantity = 5;
-        $this->addProduct($client, $productId, $quantity);
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->addProduct($browser, $productId, $quantity);
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $this->guestOrder($client, $personal);
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->guestOrder($browser, $personal);
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $order = json_decode($client->getResponse()->getContent(), true);
+        $order = json_decode($browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('data', $order);
 
         $order = $order['data'];
@@ -397,14 +397,14 @@ class SalesChannelCheckoutControllerTest extends TestCase
             ],
         ];
 
-        $client = $this->createCart();
+        $browser = $this->createCart();
 
         $quantity = 5;
-        $this->addProduct($client, $productId, $quantity);
-        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->addProduct($browser, $productId, $quantity);
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $this->guestOrder($client, $personal);
-        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->guestOrder($browser, $personal);
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
     }
 
     public function testGuestOrderProcessWithLoggedInCustomer(): void
@@ -459,19 +459,19 @@ class SalesChannelCheckoutControllerTest extends TestCase
 
         $this->createCustomer($addressId, $mail, $password, $context);
 
-        $client = $this->createCart();
+        $browser = $this->createCart();
 
-        $this->login($client, $mail, $password);
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->login($browser, $mail, $password);
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
         $quantity = 5;
-        $this->addProduct($client, $productId, $quantity);
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->addProduct($browser, $productId, $quantity);
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $this->guestOrder($client, array_merge($personal, $billing));
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->guestOrder($browser, array_merge($personal, $billing));
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $order = json_decode($client->getResponse()->getContent(), true);
+        $order = json_decode($browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('data', $order);
 
         $order = $order['data'];
@@ -507,15 +507,15 @@ class SalesChannelCheckoutControllerTest extends TestCase
 
         $this->createCustomer($addressId, $mail, $password, $context);
 
-        $client = $this->createCart();
+        $browser = $this->createCart();
 
-        $this->login($client, $mail, $password);
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->login($browser, $mail, $password);
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $this->order($client);
-        static::assertSame(400, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->order($browser);
+        static::assertSame(400, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $response = json_decode($client->getResponse()->getContent(), true);
+        $response = json_decode($browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('errors', $response);
 
         static::assertTrue(array_key_exists('CHECKOUT__CART_EMPTY', array_flip(array_column($response['errors'], 'code'))));
@@ -686,22 +686,22 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $rulesProperty = ReflectionHelper::getProperty(CartRuleLoader::class, 'rules');
         $rulesProperty->setValue($ruleLoader, null);
 
-        $client = $this->createCart();
-        $this->setShippingMethod($availableShippingMethodId, $client);
-        $this->addProduct($client, $productId);
-        $content = json_decode($client->getResponse()->getContent(), true);
+        $browser = $this->createCart();
+        $this->setShippingMethod($availableShippingMethodId, $browser);
+        $this->addProduct($browser, $productId);
+        $content = json_decode($browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('errors', $content['data']);
         static::assertCount(0, $content['data']['errors']);
 
-        $this->setShippingMethod($unavailableShippingMethodId, $client);
-        $this->addProduct($client, $productId);
-        $content = json_decode($client->getResponse()->getContent(), true);
+        $this->setShippingMethod($unavailableShippingMethodId, $browser);
+        $this->addProduct($browser, $productId);
+        $content = json_decode($browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('errors', $content['data']);
         static::assertCount(1, $content['data']['errors']);
 
         // add products with amount > 50
-        $this->addProduct($client, $productId, 10);
-        $content = json_decode($client->getResponse()->getContent(), true);
+        $this->addProduct($browser, $productId, 10);
+        $content = json_decode($browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('errors', $content['data']);
         static::assertCount(0, $content['data']['errors']);
     }
@@ -752,21 +752,21 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $rulesProperty = ReflectionHelper::getProperty(CartRuleLoader::class, 'rules');
         $rulesProperty->setValue($ruleLoader, null);
 
-        $client = $this->createCart();
-        $this->addProduct($client, $productId);
-        $content = json_decode($client->getResponse()->getContent(), true);
+        $browser = $this->createCart();
+        $this->addProduct($browser, $productId);
+        $content = json_decode($browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('errors', $content['data']);
         static::assertCount(0, $content['data']['errors'], print_r($content['data']['errors'], true));
 
-        $this->setPaymentMethod($unavailablePaymentMethodId, $client);
-        $this->addProduct($client, $productId);
-        $content = json_decode($client->getResponse()->getContent(), true);
+        $this->setPaymentMethod($unavailablePaymentMethodId, $browser);
+        $this->addProduct($browser, $productId);
+        $content = json_decode($browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('errors', $content['data']);
         static::assertCount(1, $content['data']['errors']);
 
         // add products with amount > 50
-        $this->addProduct($client, $productId, 10);
-        $content = json_decode($client->getResponse()->getContent(), true);
+        $this->addProduct($browser, $productId, 10);
+        $content = json_decode($browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('errors', $content['data']);
         static::assertCount(0, $content['data']['errors']);
     }
@@ -809,20 +809,20 @@ class SalesChannelCheckoutControllerTest extends TestCase
             ],
         ];
 
-        $client = $this->createCart();
+        $browser = $this->createCart();
 
         $quantity = 5;
-        $this->addProduct($client, $productId, $quantity);
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->addProduct($browser, $productId, $quantity);
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
         $ruleLoader = $this->getContainer()->get(CartRuleLoader::class);
         $rulesProperty = ReflectionHelper::getProperty(CartRuleLoader::class, 'rules');
         $rulesProperty->setValue($ruleLoader, null);
 
-        $this->guestOrder($client, $personal);
-        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->guestOrder($browser, $personal);
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $order = json_decode($client->getResponse()->getContent(), true);
+        $order = json_decode($browser->getResponse()->getContent(), true);
 
         static::assertNotEmpty($order['data']);
 
@@ -879,10 +879,10 @@ class SalesChannelCheckoutControllerTest extends TestCase
         ], $context);
     }
 
-    private function createCart(?Client $client = null): Client
+    private function createCart(?KernelBrowser $browser = null): KernelBrowser
     {
-        $salesChannelClient = $client;
-        if ($client === null) {
+        $salesChannelClient = $browser;
+        if ($browser === null) {
             $salesChannelClient = $this->getSalesChannelClient();
         }
         $salesChannelClient->request('POST', '/sales-channel-api/v1/checkout/cart');
@@ -892,17 +892,17 @@ class SalesChannelCheckoutControllerTest extends TestCase
 
         $content = json_decode($response->getContent(), true);
 
-        if ($client === null) {
-            $client = clone $salesChannelClient;
+        if ($browser === null) {
+            $browser = clone $salesChannelClient;
         }
-        $client->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
+        $browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
 
-        return $client;
+        return $browser;
     }
 
-    private function addProduct(Client $client, string $id, int $quantity = 1): void
+    private function addProduct(KernelBrowser $browser, string $id, int $quantity = 1): void
     {
-        $client->request(
+        $browser->request(
             'POST',
             '/sales-channel-api/v1/checkout/cart/product/' . $id,
             [
@@ -911,38 +911,38 @@ class SalesChannelCheckoutControllerTest extends TestCase
         );
     }
 
-    private function order(Client $client): void
+    private function order(KernelBrowser $browser): void
     {
-        $client->request('POST', '/sales-channel-api/v1/checkout/order');
+        $browser->request('POST', '/sales-channel-api/v1/checkout/order');
     }
 
-    private function guestOrder(Client $client, array $payload): void
+    private function guestOrder(KernelBrowser $browser, array $payload): void
     {
-        $client->request('POST', '/sales-channel-api/v1/checkout/guest-order', $payload);
+        $browser->request('POST', '/sales-channel-api/v1/checkout/guest-order', $payload);
     }
 
-    private function login(Client $client, string $email, string $password): void
+    private function login(KernelBrowser $browser, string $email, string $password): void
     {
-        $client->request('POST', '/sales-channel-api/v1/customer/login', [
+        $browser->request('POST', '/sales-channel-api/v1/customer/login', [
             'username' => $email,
             'password' => $password,
         ]);
-        $response = $client->getResponse();
+        $response = $browser->getResponse();
         $content = json_decode($response->getContent(), true);
 
-        $client->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
+        $browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
     }
 
-    private function setShippingMethod(string $shippingId, Client $client): void
+    private function setShippingMethod(string $shippingId, KernelBrowser $browser): void
     {
-        $client->request('PATCH', '/sales-channel-api/v1/context', [
+        $browser->request('PATCH', '/sales-channel-api/v1/context', [
             'shippingMethodId' => $shippingId,
         ]);
     }
 
-    private function setPaymentMethod(string $paymentMethodId, Client $client): void
+    private function setPaymentMethod(string $paymentMethodId, KernelBrowser $browser): void
     {
-        $client->request('PATCH', '/sales-channel-api/v1/context', [
+        $browser->request('PATCH', '/sales-channel-api/v1/context', [
             'paymentMethodId' => $paymentMethodId,
         ]);
     }

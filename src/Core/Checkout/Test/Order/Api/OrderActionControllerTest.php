@@ -59,12 +59,12 @@ class OrderActionControllerTest extends TestCase
 
     public function testOrderNotFoundException(): void
     {
-        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/order/' . Uuid::randomHex() . '/actions/state');
+        $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/order/' . Uuid::randomHex() . '/actions/state');
 
-        $response = $this->getClient()->getResponse()->getContent();
+        $response = $this->getBrowser()->getResponse()->getContent();
         $response = json_decode($response, true);
 
-        static::assertEquals(Response::HTTP_NOT_FOUND, $this->getClient()->getResponse()->getStatusCode());
+        static::assertEquals(Response::HTTP_NOT_FOUND, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertArrayHasKey('errors', $response);
     }
 
@@ -74,10 +74,10 @@ class OrderActionControllerTest extends TestCase
         $customerId = $this->createCustomer($context);
         $orderId = $this->createOrder($customerId, $context);
 
-        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_action/order/' . $orderId . '/state');
+        $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_action/order/' . $orderId . '/state');
 
-        static::assertEquals(200, $this->getClient()->getResponse()->getStatusCode());
-        $response = $this->getClient()->getResponse()->getContent();
+        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+        $response = $this->getBrowser()->getResponse()->getContent();
         $response = json_decode($response, true);
 
         static::assertNotNull($response['currentState']);
@@ -94,21 +94,21 @@ class OrderActionControllerTest extends TestCase
         $customerId = $this->createCustomer($context);
         $orderId = $this->createOrder($customerId, $context);
 
-        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_action/order/' . $orderId . '/state');
+        $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_action/order/' . $orderId . '/state');
 
-        $response = $this->getClient()->getResponse()->getContent();
+        $response = $this->getBrowser()->getResponse()->getContent();
         $response = json_decode($response, true);
 
         $actionUrl = $response['transitions'][0]['url'];
         $transitionTechnicalName = $response['transitions'][0]['technicalName'];
         $startStateTechnicalName = $response['currentState']['technicalName'];
 
-        $this->getClient()->request('POST', $actionUrl);
+        $this->getBrowser()->request('POST', $actionUrl);
 
-        $response = $this->getClient()->getResponse()->getContent();
+        $response = $this->getBrowser()->getResponse()->getContent();
         $response = json_decode($response, true);
 
-        static::assertEquals(Response::HTTP_OK, $this->getClient()->getResponse()->getStatusCode());
+        static::assertEquals(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertEquals($orderId, $response['data']['id']);
 
         $stateId = $response['data']['relationships']['stateMachineState']['data']['id'] ?? null;
@@ -150,12 +150,12 @@ class OrderActionControllerTest extends TestCase
         $customerId = $this->createCustomer($context);
         $orderId = $this->createOrder($customerId, $context);
 
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/order/' . $orderId . '/state/foo');
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/order/' . $orderId . '/state/foo');
 
-        $response = $this->getClient()->getResponse()->getContent();
+        $response = $this->getBrowser()->getResponse()->getContent();
         $response = json_decode($response, true);
 
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $this->getClient()->getResponse()->getStatusCode());
+        static::assertEquals(Response::HTTP_BAD_REQUEST, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertArrayHasKey('errors', $response);
     }
 
@@ -165,12 +165,12 @@ class OrderActionControllerTest extends TestCase
         $customerId = $this->createCustomer($context);
         $orderId = $this->createOrder($customerId, $context);
 
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/order/' . $orderId . '/state');
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/order/' . $orderId . '/state');
 
-        $response = $this->getClient()->getResponse()->getContent();
+        $response = $this->getBrowser()->getResponse()->getContent();
         $response = json_decode($response, true);
 
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $this->getClient()->getResponse()->getStatusCode());
+        static::assertEquals(Response::HTTP_BAD_REQUEST, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertArrayHasKey('errors', $response);
     }
 

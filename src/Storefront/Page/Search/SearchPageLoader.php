@@ -55,8 +55,8 @@ class SearchPageLoader
         );
 
         $this->eventDispatcher->dispatch(
-            SearchPageLoadedEvent::NAME,
-            new SearchPageLoadedEvent($page, $context, $request)
+            new SearchPageLoadedEvent($page, $context, $request),
+            SearchPageLoadedEvent::NAME
         );
 
         return $page;

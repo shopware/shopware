@@ -46,8 +46,8 @@ class OffcanvasCartPageLoader
         );
 
         $this->eventDispatcher->dispatch(
-            OffcanvasCartPageLoadedEvent::NAME,
-            new OffcanvasCartPageLoadedEvent($page, $context, $request)
+            new OffcanvasCartPageLoadedEvent($page, $context, $request),
+            OffcanvasCartPageLoadedEvent::NAME
         );
 
         return $page;

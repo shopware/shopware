@@ -66,22 +66,22 @@ class InheritanceIndexer implements IndexerInterface
             $iterator = $this->iteratorFactory->createIterator($definition);
 
             $this->eventDispatcher->dispatch(
-                ProgressStartedEvent::NAME,
-                new ProgressStartedEvent('Start building inheritance for definition: ' . $definition->getEntityName(), $iterator->fetchCount())
+                new ProgressStartedEvent('Start building inheritance for definition: ' . $definition->getEntityName(), $iterator->fetchCount()),
+                ProgressStartedEvent::NAME
             );
 
             while ($ids = $iterator->fetch()) {
                 $this->update($definition, $ids, $context);
 
                 $this->eventDispatcher->dispatch(
-                    ProgressAdvancedEvent::NAME,
-                    new ProgressAdvancedEvent(\count($ids))
+                    new ProgressAdvancedEvent(\count($ids)),
+                    ProgressAdvancedEvent::NAME
                 );
             }
 
             $this->eventDispatcher->dispatch(
-                ProgressFinishedEvent::NAME,
-                new ProgressFinishedEvent('Finish building inheritance for definition: ' . $definition->getEntityName())
+                new ProgressFinishedEvent('Finish building inheritance for definition: ' . $definition->getEntityName()),
+                ProgressFinishedEvent::NAME
             );
         }
     }

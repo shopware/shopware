@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Api\EventListener;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
@@ -16,7 +16,7 @@ class JsonRequestTransformerListener implements EventSubscriberInterface
         ];
     }
 
-    public function onRequest(GetResponseEvent $event): void
+    public function onRequest(RequestEvent $event): void
     {
         if ($event->getRequest()->getContent() && stripos($event->getRequest()->headers->get('Content-Type', ''), 'application/json') === 0) {
             $data = json_decode($event->getRequest()->getContent(), true);

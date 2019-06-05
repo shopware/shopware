@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class CustomerChangedPaymentMethodEvent extends Event implements BusinessEventInterface
 {

@@ -164,7 +164,7 @@ class RecalculationServiceTest extends TestCase
         $cart = $this->generateDemoCart();
         $orderId = $this->persistCart($cart)['orderId'];
 
-        $client = $this->getClient();
+        $client = $this->getBrowser();
 
         // transform order to cart
         $client->request(
@@ -278,7 +278,7 @@ class RecalculationServiceTest extends TestCase
         $versionId = $this->createVersionedOrder($orderId);
 
         // recalculate order
-        $this->getClient()->request(
+        $this->getBrowser()->request(
             'POST',
             sprintf(
                 '/api/v%s/_action/order/%s/recalculate',
@@ -291,7 +291,7 @@ class RecalculationServiceTest extends TestCase
                 'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
             ]
         );
-        $response = $this->getClient()->getResponse();
+        $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
 
@@ -303,7 +303,7 @@ class RecalculationServiceTest extends TestCase
         static::assertNotNull($order->getOrderCustomer());
 
         // recalculate order 2nd time
-        $this->getClient()->request(
+        $this->getBrowser()->request(
             'POST',
             sprintf(
                 '/api/v%s/_action/order/%s/recalculate',
@@ -316,7 +316,7 @@ class RecalculationServiceTest extends TestCase
                 'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
             ]
         );
-        $response = $this->getClient()->getResponse();
+        $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
@@ -387,7 +387,7 @@ class RecalculationServiceTest extends TestCase
         );
 
         // merge versioned order
-        $this->getClient()->request(
+        $this->getBrowser()->request(
             'POST',
             sprintf(
                 '/api/v%s/_action/version/merge/%s/%s',
@@ -396,7 +396,7 @@ class RecalculationServiceTest extends TestCase
                 $versionId
             )
         );
-        $response = $this->getClient()->getResponse();
+        $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
@@ -737,7 +737,7 @@ class RecalculationServiceTest extends TestCase
             $zipcode
         );
 
-        $this->getClient()->request(
+        $this->getBrowser()->request(
             'POST',
             sprintf(
                 '/api/v%s/_action/order-address/%s/customer-address/%s',
@@ -751,7 +751,7 @@ class RecalculationServiceTest extends TestCase
                 'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
             ]
         );
-        $response = $this->getClient()->getResponse();
+        $response = $this->getBrowser()->getResponse();
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
@@ -951,7 +951,7 @@ class RecalculationServiceTest extends TestCase
 
     private function createVersionedOrder(string $orderId): string
     {
-        $this->getClient()->request(
+        $this->getBrowser()->request(
             'POST',
             sprintf(
                 '/api/v%s/_action/version/order/%s',
@@ -959,7 +959,7 @@ class RecalculationServiceTest extends TestCase
                 $orderId
             )
         );
-        $response = $this->getClient()->getResponse();
+        $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
         $content = json_decode($response->getContent(), true);
@@ -982,7 +982,7 @@ class RecalculationServiceTest extends TestCase
         $productId = $this->createProduct($productName, $productPrice, $productTaxRate);
 
         // add product to order
-        $this->getClient()->request(
+        $this->getBrowser()->request(
             'POST',
             sprintf(
                 '/api/v%s/_action/order/%s/product/%s',
@@ -996,11 +996,11 @@ class RecalculationServiceTest extends TestCase
                 'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
             ]
         );
-        $response = $this->getClient()->getResponse();
+        $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
-        $this->getClient()->request(
+        $this->getBrowser()->request(
             'POST',
             sprintf(
                 '/api/v%s/_action/order/%s/recalculate',
@@ -1013,7 +1013,7 @@ class RecalculationServiceTest extends TestCase
                 'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
             ]
         );
-        $response = $this->getClient()->getResponse();
+        $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
@@ -1067,7 +1067,7 @@ class RecalculationServiceTest extends TestCase
         ];
 
         // add product to order
-        $this->getClient()->request(
+        $this->getBrowser()->request(
             'POST',
             sprintf(
                 '/api/v%s/_action/order/%s/lineItem',
@@ -1081,7 +1081,7 @@ class RecalculationServiceTest extends TestCase
             ],
             json_encode($data)
         );
-        $response = $this->getClient()->getResponse();
+        $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
@@ -1137,7 +1137,7 @@ class RecalculationServiceTest extends TestCase
         ];
 
         // add credit item to order
-        $this->getClient()->request(
+        $this->getBrowser()->request(
             'POST',
             sprintf(
                 '/api/v%s/_action/order/%s/creditItem',
@@ -1151,7 +1151,7 @@ class RecalculationServiceTest extends TestCase
             ],
             json_encode($data)
         );
-        $response = $this->getClient()->getResponse();
+        $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 

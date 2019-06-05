@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
-use Symfony\Bundle\FrameworkBundle\Client;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
 class PromotionControllerTest extends TestCase
@@ -35,7 +35,7 @@ class PromotionControllerTest extends TestCase
     private $resourceUri;
 
     /**
-     * @var Client
+     * @var KernelBrowser
      */
     private $api;
 
@@ -44,7 +44,7 @@ class PromotionControllerTest extends TestCase
         $this->promotionRepository = $this->getContainer()->get('promotion.repository');
         $this->context = Context::createDefaultContext();
 
-        $this->api = $this->getClient();
+        $this->api = $this->getBrowser();
         $this->resourceUri = '/api/v' . PlatformRequest::API_VERSION . '/promotion';
     }
 

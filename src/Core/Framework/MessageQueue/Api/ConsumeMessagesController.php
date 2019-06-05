@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Framework\MessageQueue\Api;
 
-use Shopware\Core\Framework\MessageQueue\Receiver\CountHandledMessagesReceiver;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Messenger\Transport\Receiver\StopWhenTimeLimitIsReachedReceiver;
 use Symfony\Component\Messenger\Worker;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -48,12 +47,21 @@ class ConsumeMessagesController extends AbstractController
         }
 
         $receiver = $this->receiverLocator->get($receiverName);
-        $receiver = new StopWhenTimeLimitIsReachedReceiver($receiver, $this->pollInterval);
-        $receiver = new CountHandledMessagesReceiver($receiver);
 
-        $worker = new Worker($receiver, $this->bus);
-        $worker->run();
+        $worker = new Worker([$receiver], $this->bus);
 
-        return $this->json(['handledMessages' => $receiver->getHandledMessagesCount()]);
+        $handledMessages = 0;
+        $started = (new \DateTimeImmutable())->getTimestamp();
+        $worker->run([], function (?Envelope $envelope) use ($worker, $started, $handledMessages) {
+            if ($envelope !== null) {
+                ++$handledMessages;
+            }
+
+            if ($started + $this->pollInterval < (new \DateTimeImmutable())->getTimestamp()) {
+                $worker->stop();
+            }
+        });
+
+        return $this->json(['handledMessages' => $handledMessages]);
     }
 }

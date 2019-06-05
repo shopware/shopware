@@ -9,7 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
-use Symfony\Bundle\FrameworkBundle\Client;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
 
@@ -21,20 +21,20 @@ trait AdminApiTestBehaviour
     protected $apiUsernames = [];
 
     /**
-     * @var Client|null
+     * @var KernelBrowser|null
      */
-    private $apiClient;
+    private $kernelBrowser;
 
     /**
      * @after
      */
     public function resetAdminApiTestCaseTrait(): void
     {
-        if (!$this->apiClient) {
+        if (!$this->kernelBrowser) {
             return;
         }
 
-        $connection = $this->apiClient
+        $connection = $this->kernelBrowser
             ->getContainer()
             ->get(Connection::class);
 
@@ -50,51 +50,52 @@ trait AdminApiTestBehaviour
         }
 
         $this->apiUsernames = [];
-        $this->apiClient = null;
+        $this->kernelBrowser = null;
     }
 
     public function createClient(
         ?KernelInterface $kernel = null,
         bool $enableReboot = false
-    ): Client {
+    ): KernelBrowser {
         if (!$kernel) {
             $kernel = KernelLifecycleManager::getKernel();
         }
 
-        $apiClient = KernelLifecycleManager::createClient($kernel, $enableReboot);
-        $apiClient->followRedirects();
-        $apiClient->setServerParameters([
+        $apiBrowser = KernelLifecycleManager::createBrowser($kernel, $enableReboot);
+
+        $apiBrowser->followRedirects();
+        $apiBrowser->setServerParameters([
             'CONTENT_TYPE' => 'application/json',
             'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
         ]);
 
-        $this->authorizeClient($apiClient);
+        $this->authorizeBrowser($apiBrowser);
 
-        return $this->apiClient = $apiClient;
+        return $this->kernelBrowser = $apiBrowser;
     }
 
-    public function assertEntityExists(Client $client, ...$params): void
+    public function assertEntityExists(KernelBrowser $browser, ...$params): void
     {
         $url = '/api/v' . PlatformRequest::API_VERSION . '/' . implode('/', $params);
 
-        $client->request('GET', $url);
+        $browser->request('GET', $url);
 
         TestCase::assertSame(
             Response::HTTP_OK,
-            $client->getResponse()->getStatusCode(),
-            'Entity does not exists but should do. Response: ' . $client->getResponse()->getContent()
+            $browser->getResponse()->getStatusCode(),
+            'Entity does not exists but should do. Response: ' . $browser->getResponse()->getContent()
         );
     }
 
-    public function assertEntityNotExists(Client $client, ...$params): void
+    public function assertEntityNotExists(KernelBrowser $browser, ...$params): void
     {
         $url = '/api/v' . PlatformRequest::API_VERSION . '/' . implode('/', $params);
 
-        $client->request('GET', $url);
+        $browser->request('GET', $url);
 
         TestCase::assertSame(
             Response::HTTP_NOT_FOUND,
-            $client->getResponse()->getStatusCode(),
+            $browser->getResponse()->getStatusCode(),
             'Entity exists but should not.'
         );
     }
@@ -104,13 +105,13 @@ trait AdminApiTestBehaviour
      * @throws \RuntimeException
      * @throws DBALException
      */
-    public function authorizeClient(Client $client): void
+    public function authorizeBrowser(KernelBrowser $browser): void
     {
         $username = Uuid::randomHex();
         $password = Uuid::randomHex();
 
         /** @var Connection $connection */
-        $connection = $client->getContainer()->get(Connection::class);
+        $connection = $browser->getContainer()->get(Connection::class);
         $userId = Uuid::randomBytes();
         $avatarId = Uuid::randomBytes();
 
@@ -144,9 +145,9 @@ trait AdminApiTestBehaviour
             'password' => $password,
         ];
 
-        $client->request('POST', '/api/oauth/token', $authPayload);
+        $browser->request('POST', '/api/oauth/token', $authPayload);
 
-        $data = json_decode($client->getResponse()->getContent(), true);
+        $data = json_decode($browser->getResponse()->getContent(), true);
 
         if (!array_key_exists('access_token', $data)) {
             throw new \RuntimeException(
@@ -160,16 +161,16 @@ trait AdminApiTestBehaviour
             );
         }
 
-        $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
+        $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
     }
 
-    protected function getClient(): Client
+    protected function getBrowser(): KernelBrowser
     {
-        if ($this->apiClient) {
-            return $this->apiClient;
+        if ($this->kernelBrowser) {
+            return $this->kernelBrowser;
         }
 
-        return $this->apiClient = $this->createClient();
+        return $this->kernelBrowser = $this->createClient();
     }
 
     private function getLocaleOfSystemLanguage(Connection $connection): string

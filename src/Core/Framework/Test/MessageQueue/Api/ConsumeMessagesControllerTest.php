@@ -15,7 +15,7 @@ class ConsumeMessagesControllerTest extends TestCase
     public function testConsumeMessages()
     {
         $url = sprintf('/api/v%s/_action/message-queue/consume', PlatformRequest::API_VERSION);
-        $client = $this->getClient();
+        $client = $this->getBrowser();
         $client->request('POST', $url, ['receiver' => 'default']);
 
         static::assertSame(200, $client->getResponse()->getStatusCode());

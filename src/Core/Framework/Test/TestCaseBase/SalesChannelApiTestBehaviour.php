@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
-use Symfony\Bundle\FrameworkBundle\Client;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 trait SalesChannelApiTestBehaviour
@@ -20,21 +20,21 @@ trait SalesChannelApiTestBehaviour
     protected $salesChannelIds = [];
 
     /**
-     * @var Client|null
+     * @var KernelBrowser|null
      */
-    private $salesChannelApiClient;
+    private $salesChannelApiBrowser;
 
     /**
      * @after
      */
     public function resetSalesChannelApiTestCaseTrait(): void
     {
-        if (!$this->salesChannelApiClient) {
+        if (!$this->salesChannelApiBrowser) {
             return;
         }
 
         /** @var Connection $connection */
-        $connection = $this->salesChannelApiClient
+        $connection = $this->salesChannelApiBrowser
             ->getContainer()
             ->get(Connection::class);
 
@@ -49,7 +49,7 @@ trait SalesChannelApiTestBehaviour
         }
 
         $this->salesChannelIds = [];
-        $this->salesChannelApiClient = null;
+        $this->salesChannelApiBrowser = null;
     }
 
     public function getSalesChannelApiSalesChannelId(): string
@@ -61,45 +61,47 @@ trait SalesChannelApiTestBehaviour
         return end($this->salesChannelIds);
     }
 
-    public function createCustomSalesChannelClient(array $salesChannelOverride = []): Client
+    public function createCustomSalesChannelBrowser(array $salesChannelOverride = []): KernelBrowser
     {
         $kernel = KernelLifecycleManager::getKernel();
-        $salesChannelApiClient = KernelLifecycleManager::createClient($kernel);
-        $salesChannelApiClient->setServerParameters([
+        $salesChannelApiBrowser = KernelLifecycleManager::createBrowser($kernel);
+        $salesChannelApiBrowser->setServerParameters([
             'HTTP_Accept' => 'application/json',
         ]);
-        $this->authorizeSalesChannelClient($salesChannelApiClient, $salesChannelOverride);
 
-        return $salesChannelApiClient;
+        $this->authorizeSalesChannelClient($salesChannelApiBrowser, $salesChannelOverride);
+
+        return $salesChannelApiBrowser;
     }
 
-    protected function getSalesChannelClient(): Client
+    protected function getSalesChannelClient(): KernelBrowser
     {
-        if ($this->salesChannelApiClient) {
-            return $this->salesChannelApiClient;
+        if ($this->salesChannelApiBrowser) {
+            return $this->salesChannelApiBrowser;
         }
 
-        return $this->salesChannelApiClient = $this->createSalesChannelClient();
+        return $this->salesChannelApiBrowser = $this->createSalesChannelClient();
     }
 
     protected function createSalesChannelClient(
         ?KernelInterface $kernel = null,
         bool $enableReboot = false
-    ): Client {
+    ): KernelBrowser {
         if (!$kernel) {
             $kernel = KernelLifecycleManager::getKernel();
         }
 
-        $salesChannelApiClient = KernelLifecycleManager::createClient($kernel, $enableReboot);
-        $salesChannelApiClient->setServerParameters([
+        $salesChannelApiBrowser = KernelLifecycleManager::createBrowser($kernel, $enableReboot);
+        $salesChannelApiBrowser->setServerParameters([
             'HTTP_Accept' => 'application/json',
         ]);
-        $this->authorizeSalesChannelClient($salesChannelApiClient);
 
-        return $salesChannelApiClient;
+        $this->authorizeSalesChannelClient($salesChannelApiBrowser);
+
+        return $salesChannelApiBrowser;
     }
 
-    private function authorizeSalesChannelClient(Client $salesChannelApiClient, array $salesChannelOverride = []): void
+    private function authorizeSalesChannelClient(KernelBrowser $salesChannelApiClient, array $salesChannelOverride = []): void
     {
         $accessKey = AccessKeyHelper::generateAccessKey('sales-channel');
 

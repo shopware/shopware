@@ -50,8 +50,8 @@ class SuggestPageLoader
         );
 
         $this->eventDispatcher->dispatch(
-            SuggestPageLoadedEvent::NAME,
-            new SuggestPageLoadedEvent($page, $context, $request)
+            new SuggestPageLoadedEvent($page, $context, $request),
+            SuggestPageLoadedEvent::NAME
         );
 
         return $page;

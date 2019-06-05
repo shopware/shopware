@@ -114,7 +114,7 @@ class RetryMiddlewareTest extends MiddlewareTestCase
     public function testMiddlewareWithEncryptedMessage(): void
     {
         $message = new RetryMessage(Uuid::randomHex());
-        $envelope = new Envelope($message, new DecryptedStamp());
+        $envelope = new Envelope($message, [new DecryptedStamp()]);
 
         $e = new \Exception('exception');
         $messageFailedException = new MessageFailedException($message, RetryMessageHandler::class, $e);

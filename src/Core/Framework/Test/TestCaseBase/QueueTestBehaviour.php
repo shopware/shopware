@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
-use Shopware\Core\Framework\Test\TestCaseHelper\RunUntilEmptyReceiver;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Transport\Receiver\ReceiverInterface;
 use Symfony\Component\Messenger\Worker;
@@ -52,11 +52,15 @@ trait QueueTestBehaviour
 
     public function runWorker(): void
     {
-        $decoratedReceiver = new RunUntilEmptyReceiver($this->getReceiver(), $this->getQueueFile());
-
         $bus = $this->getBus();
 
-        $worker = new Worker($decoratedReceiver, $bus);
-        $worker->run();
+        $worker = new Worker([$this->getReceiver()], $bus);
+        $worker->run([
+            'sleep' => 1000,
+        ], function (?Envelope $envelope) use ($worker) {
+            if ($envelope === null) {
+                $worker->stop();
+            }
+        });
     }
 }

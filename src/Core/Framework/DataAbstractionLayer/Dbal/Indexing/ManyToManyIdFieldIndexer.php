@@ -66,25 +66,25 @@ class ManyToManyIdFieldIndexer implements IndexerInterface
             $iterator = $this->iteratorFactory->createIterator($definition);
 
             $this->eventDispatcher->dispatch(
-                ProgressStartedEvent::NAME,
                 new ProgressStartedEvent(
                     sprintf('Start indexing many to many ids for entity %s', $definition->getEntityName()),
                     $iterator->fetchCount()
-                )
+                ),
+                ProgressStartedEvent::NAME
             );
 
             while ($ids = $iterator->fetch()) {
                 $this->update($definition, $ids, $context);
 
                 $this->eventDispatcher->dispatch(
-                    ProgressAdvancedEvent::NAME,
-                    new ProgressAdvancedEvent(\count($ids))
+                    new ProgressAdvancedEvent(\count($ids)),
+                    ProgressAdvancedEvent::NAME
                 );
             }
 
             $this->eventDispatcher->dispatch(
-                ProgressFinishedEvent::NAME,
-                new ProgressFinishedEvent(sprintf('Finished indexing many to many ids for entity %s', $definition->getEntityName()))
+                new ProgressFinishedEvent(sprintf('Finished indexing many to many ids for entity %s', $definition->getEntityName())),
+                ProgressFinishedEvent::NAME
             );
         }
     }

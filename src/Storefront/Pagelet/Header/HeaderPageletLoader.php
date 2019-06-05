@@ -90,8 +90,8 @@ class HeaderPageletLoader
         );
 
         $this->eventDispatcher->dispatch(
-            HeaderPageletLoadedEvent::NAME,
-            new HeaderPageletLoadedEvent($page, $context, $request)
+            new HeaderPageletLoadedEvent($page, $context, $request),
+            HeaderPageletLoadedEvent::NAME
         );
 
         return $page;

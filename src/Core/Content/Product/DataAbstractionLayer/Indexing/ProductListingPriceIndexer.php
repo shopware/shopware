@@ -71,22 +71,22 @@ class ProductListingPriceIndexer implements IndexerInterface
         $iterator = $this->iteratorFactory->createIterator($this->productDefinition);
 
         $this->eventDispatcher->dispatch(
-            ProgressStartedEvent::NAME,
-            new ProgressStartedEvent('Start indexing listing prices', $iterator->fetchCount())
+            new ProgressStartedEvent('Start indexing listing prices', $iterator->fetchCount()),
+            ProgressStartedEvent::NAME
         );
 
         while ($ids = $iterator->fetch()) {
             $this->update($ids);
 
             $this->eventDispatcher->dispatch(
-                ProgressAdvancedEvent::NAME,
-                new ProgressAdvancedEvent(\count($ids))
+                new ProgressAdvancedEvent(\count($ids)),
+                ProgressAdvancedEvent::NAME
             );
         }
 
         $this->eventDispatcher->dispatch(
-            ProgressFinishedEvent::NAME,
-            new ProgressFinishedEvent('Finished indexing listing prices')
+            new ProgressFinishedEvent('Finished indexing listing prices'),
+            ProgressFinishedEvent::NAME
         );
     }
 

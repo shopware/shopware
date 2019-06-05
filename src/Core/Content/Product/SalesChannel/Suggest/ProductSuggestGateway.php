@@ -84,15 +84,15 @@ class ProductSuggestGateway implements ProductSuggestGatewayInterface
         $criteria->addFilter(new EqualsFilter('product.searchKeywords.languageId', $context->getContext()->getLanguageId()));
 
         $this->eventDispatcher->dispatch(
-            ProductEvents::PRODUCT_SUGGEST_CRITERIA,
-            new ProductSuggestCriteriaEvent($request, $criteria, $context)
+            new ProductSuggestCriteriaEvent($request, $criteria, $context),
+            ProductEvents::PRODUCT_SUGGEST_CRITERIA
         );
 
         $result = $this->repository->search($criteria, $context);
 
         $this->eventDispatcher->dispatch(
-            ProductEvents::PRODUCT_SUGGEST_RESULT,
-            new ProductSuggestResultEvent($request, $result, $context)
+            new ProductSuggestResultEvent($request, $result, $context),
+            ProductEvents::PRODUCT_SUGGEST_RESULT
         );
 
         return $result;

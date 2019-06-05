@@ -54,8 +54,8 @@ class AccountPaymentMethodPageLoader
         );
 
         $this->eventDispatcher->dispatch(
-            AccountPaymentMethodPageLoadedEvent::NAME,
-            new AccountPaymentMethodPageLoadedEvent($page, $context, $request)
+            new AccountPaymentMethodPageLoadedEvent($page, $context, $request),
+            AccountPaymentMethodPageLoadedEvent::NAME
         );
 
         return $page;

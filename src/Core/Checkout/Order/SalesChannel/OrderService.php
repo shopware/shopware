@@ -74,7 +74,7 @@ class OrderService
         $validation = $this->orderValidationService->buildCreateValidation($context);
 
         $validationEvent = new BuildValidationEvent($validation, $context);
-        $this->eventDispatcher->dispatch($validationEvent->getName(), $validationEvent);
+        $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         return $validation;
     }

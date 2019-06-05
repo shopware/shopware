@@ -5,6 +5,8 @@ import './sw-cms-el-product-slider.scss';
 Component.register('sw-cms-el-product-slider', {
     template,
 
+    inject: ['context'],
+
     mixins: [
         Mixin.getByName('cms-element')
     ],
@@ -65,6 +67,10 @@ Component.register('sw-cms-el-product-slider', {
             }
 
             return null;
+        },
+
+        currentDeviceView() {
+            return this.context.currentCmsDeviceView;
         }
     },
 
@@ -73,6 +79,10 @@ Component.register('sw-cms-el-product-slider', {
             handler() {
                 this.setSliderRowLimit();
             }
+        },
+
+        currentDeviceView() {
+            this.setSliderRowLimit();
         }
     },
 
@@ -87,7 +97,6 @@ Component.register('sw-cms-el-product-slider', {
     methods: {
         createdComponent() {
             this.initElementConfig('product-slider');
-            this.initElementData('product-slider');
         },
 
         mountedComponent() {
@@ -95,6 +104,11 @@ Component.register('sw-cms-el-product-slider', {
         },
 
         setSliderRowLimit() {
+            if (this.currentDeviceView === 'mobile') {
+                this.sliderBoxLimit = 1;
+                return;
+            }
+
             if (!this.element.config.elMinWidth.value || this.element.config.elMinWidth.value.indexOf('px') === -1) {
                 this.sliderBoxLimit = 3;
                 return;

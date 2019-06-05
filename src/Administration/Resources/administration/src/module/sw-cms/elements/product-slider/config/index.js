@@ -1,4 +1,5 @@
 import { Component, Mixin } from 'src/core/shopware';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-cms-el-config-product-slider.html.twig';
 import './sw-cms-el-config-product-slider.scss';
 
@@ -16,6 +17,13 @@ Component.register('sw-cms-el-config-product-slider', {
             }
 
             return null;
+        },
+
+        productMediaFilter() {
+            const criteria = new Criteria(1, 25);
+            criteria.addAssociation('cover');
+
+            return criteria;
         }
     },
 

@@ -103,7 +103,7 @@
 
                                     {% block sw_order_list_grid_columns_order_date %}
                                         <template slot="column-orderDate" slot-scope="{ item }">
-                                            {{ item.orderDate | date() }}
+                                            {{ item.orderDate | date({hour: '2-digit', minute: '2-digit'}) }}
                                         </template>
                                     {% endblock %}
                                 {% endblock %}

@@ -13,11 +13,21 @@
                                             :selection="selection"
                                             :buttonConfig="buttonConfig"
                                             :isCodeEdit="isCodeEdit"
+                                            :isTableEdit="isTableEdit"
                                             @created-el="onToolbarCreated"
                                             @destroyed-el="onToolbarDestroyed"
                                             @on-set-link="onSetLink"
+                                            @table-edit="onTableEdit"
                                             @text-style-change="onTextStyleChange">
                     </sw-text-editor-toolbar>
+                {% endblock %}
+
+                {% block sw_text_editor_box_table_toolbar %}
+                    <sw-text-editor-table-toolbar v-if="isTableEdit && !isInlineEdit && !isCodeEdit"
+                                                  :selection="selection"
+                                                  @table-delete="onTableDelete"
+                                                  @table-modify="onTableModify">
+                    </sw-text-editor-table-toolbar>
                 {% endblock %}
 
                 {% block sw_text_editor_box_content %}

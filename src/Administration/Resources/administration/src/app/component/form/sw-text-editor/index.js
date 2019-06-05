@@ -232,7 +232,8 @@ export default {
                 nextCol: null,
                 curColWidth: null,
                 nextColWidth: null
-            }
+            },
+            isTableEdit: false
         };
     },
 
@@ -363,6 +364,7 @@ export default {
         getPath(event) {
             const path = [];
             let source = event.target;
+
             while (source) {
                 path.push(source);
                 source = source.parentNode;
@@ -400,6 +402,7 @@ export default {
 
             this.$nextTick(() => {
                 this.setTablesResizable();
+                this.isTableEdit = true;
             });
         },
 
@@ -426,6 +429,7 @@ export default {
             if (resizeSelectors.length > 0) {
                 resizeSelectors.forEach((selector) => {
                     selector.style.height = `${table.offsetHeight}px`;
+                    selector.contentEditable = false;
                     this.setTableSelectorListeners(selector);
                 });
 
@@ -563,6 +567,21 @@ export default {
             if (this.$refs.textEditor) {
                 this.textLength = this.$refs.textEditor.innerText.length;
             }
+        },
+
+        onTableEdit(toggle) {
+            this.isTableEdit = toggle;
+        },
+
+        onTableModify(table) {
+            this.$nextTick(() => {
+                this.setTableResizable(table);
+            });
+        },
+
+        onTableDelete(event) {
+            event.stopPropagation();
+            this.isTableEdit = false;
         }
     }
 };

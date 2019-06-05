@@ -1,11 +1,11 @@
-import template from './sw-text-editor-toolbar-table.html.twig';
-import './sw-text-editor-toolbar-table.scss';
+import template from './sw-text-editor-toolbar-table-button.html.twig';
+import './sw-text-editor-toolbar-table-button.scss';
 
 /**
  * @private
  */
 export default {
-    name: 'sw-text-editor-toolbar-table',
+    name: 'sw-text-editor-toolbar-table-button',
     template,
 
     props: {
@@ -142,13 +142,13 @@ export default {
 
         createHtmlTable() {
             let tableHtml = '<table class="sw-text-editor-table">';
-            let resizeHandle = '<div class="sw-text-editor-table__col-selector">';
+            let resizeHandle = '<div class="sw-text-editor-table__col-selector" contenteditable="false"></div>';
 
             if (this.addTableHead) {
                 tableHtml += '<thead class="sw-text-editor-table__head"><tr class="sw-text-editor-table__row">';
 
                 for (let i = 0; i < this.selectedCols; i += 1) {
-                    tableHtml += `<td class="sw-text-editor-table__col">&nbsp;${resizeHandle}</td>`;
+                    tableHtml += `<td class="sw-text-editor-table__col">${resizeHandle}</td>`;
                 }
 
                 resizeHandle = '';
@@ -161,7 +161,7 @@ export default {
                 tableHtml += '<tr class="sw-text-editor-table__row">';
 
                 for (let cols = 0; cols < this.selectedCols; cols += 1) {
-                    tableHtml += `<td class="sw-text-editor-table__col">&nbsp;${resizeHandle}</td>`;
+                    tableHtml += `<td class="sw-text-editor-table__col">${resizeHandle}</td>`;
                 }
 
                 resizeHandle = '';

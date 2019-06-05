@@ -16,7 +16,10 @@
             .sw-text-editor-table__col {
                 border: 1px solid #000;
                 min-width: 15px;
+                min-height: 15px;
                 position: relative;
+                padding: 8px;
+                text-align: left;
 
                 .sw-text-editor-table__col-selector {
                     position: absolute;

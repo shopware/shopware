@@ -61,9 +61,9 @@
             <div v-if="buttonConfig.type === 'table' && buttonConfig.expanded"
                  class="sw-text-editor-toolbar-button__children sw-text-editor-toolbar-button__table-menu">
                 {% block sw_text_editor_toolbar_button_table_menu_content %}
-                    <sw-text-editor-toolbar-table :buttonConfig="buttonConfig"
+                    <sw-text-editor-toolbar-table-button :buttonConfig="buttonConfig"
                                                          @table-create="handleButtonClick(buttonConfig)">
-                    </sw-text-editor-toolbar-table>
+                    </sw-text-editor-toolbar-table-button>
                 {% endblock %}
             </div>
         {% endblock %}

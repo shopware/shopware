@@ -36,7 +36,14 @@ export default {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        isTableEdit: {
+            type: Boolean,
+            required: false,
+            default: false
         }
+
     },
 
     data() {
@@ -51,8 +58,28 @@ export default {
             currentLink: null,
             leftButtons: [],
             middleButtons: [],
-            rightButtons: []
+            rightButtons: [],
+            tableEdit: false
         };
+    },
+
+    computed: {
+        classes() {
+            return {
+                'is--boxedEdit': !this.isInlineEdit
+            };
+        }
+    },
+
+    watch: {
+        isTableEdit: {
+            handler() {
+                this.tableEdit = this.isTableEdit;
+                this.$nextTick(() => {
+                    this.setActiveTags();
+                });
+            }
+        }
     },
 
     created() {
@@ -65,14 +92,6 @@ export default {
 
     destroyed() {
         this.destroyedComponent();
-    },
-
-    computed: {
-        classes() {
-            return {
-                'is--boxedEdit': !this.isInlineEdit
-            };
-        }
     },
 
     methods: {
@@ -137,7 +156,7 @@ export default {
             }
 
             if (!path.includes(this.$el)) {
-                if (!this.isInlineEdit && this.selection && this.selection.toString() !== '') {
+                if (!this.isInlineEdit && this.selection) {
                     this.setActiveTags();
                 } else if (this.activeTags.length > 0) {
                     this.activeTags = [];
@@ -286,7 +305,7 @@ export default {
             this.currentColor = null;
             this.currentLink = null;
 
-            if (!this.selection) {
+            if (!this.selection || !this.selection.baseNode) {
                 return;
             }
 
@@ -302,8 +321,21 @@ export default {
                     this.currentLink = { url: parentNode.href, newTab: parentNode.target === '_blank' };
                 }
 
+                if (parentNode.tagName === 'TABLE') {
+                    if (!this.tableEdit) {
+                        this.tableEdit = true;
+                        this.$emit('table-edit', this.tableEdit);
+                    }
+                }
+
                 this.activeTags.push(parentNode.tagName.toLowerCase());
+
                 parentNode = parentNode.parentNode;
+            }
+
+            if (this.tableEdit && !this.activeTags.includes('table')) {
+                this.tableEdit = false;
+                this.$emit('table-edit', this.tableEdit);
             }
         },
 

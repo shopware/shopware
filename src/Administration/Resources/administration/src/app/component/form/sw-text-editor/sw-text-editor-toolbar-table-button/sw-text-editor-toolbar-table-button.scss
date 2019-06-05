@@ -1,46 +1,41 @@
 @import "~scss/variables";
 
-.sw-text-editor-toolbar-table {
+.sw-text-editor-toolbar-table-button {
     padding: 12px;
 
-    .sw-text-editor-toolbar-table__grid-input {
+    .sw-text-editor-toolbar-table-button__grid-input {
         display: grid;
         grid-template-columns: 96px 12px 96px;
         align-items: center;
         grid-gap: 0 8px;
 
-        .sw-field {
-            // INPUT HAT KEINE KLASSE!
-            //padding: 5px 16px;
-        }
-
-        .sw-text-editor-toolbar-table__grid-input-icon {
+        .sw-text-editor-toolbar-table-button__grid-input-icon {
             color: $color-gray;
         }
     }
 
-    .sw-text-editor-toolbar-table__table {
+    .sw-text-editor-toolbar-table-button__table {
         border-collapse: collapse;
         cursor: pointer;
         border-radius: 2px;
         border-style: hidden;
         box-shadow: 0 0 0 1px $color-steam-cloud;
 
-        .sw-text-editor-toolbar-table__col-placeholder {
+        .sw-text-editor-toolbar-table-button__col-placeholder {
             min-width: 20px;
             min-height: 16px;
         }
 
-        .sw-text-editor-toolbar-table__table-head {
-            .sw-text-editor-toolbar-table__col {
+        .sw-text-editor-toolbar-table-button__table-head {
+            .sw-text-editor-toolbar-table-button__col {
                 border: 1px solid $color-steam-cloud;
                 background: $color-light-gray;
             }
         }
 
-        .sw-text-editor-toolbar-table__table-body {
-            .sw-text-editor-toolbar-table__row {
-                .sw-text-editor-toolbar-table__col {
+        .sw-text-editor-toolbar-table-button__table-body {
+            .sw-text-editor-toolbar-table-button__row {
+                .sw-text-editor-toolbar-table-button__col {
                     border: 1px solid $color-steam-cloud;
 
                     &.is--selected {
@@ -52,7 +47,7 @@
         }
     }
 
-    .sw-text-editor-toolbar-table__insert {
+    .sw-text-editor-toolbar-table-button__insert {
         display: grid;
         grid-auto-flow: column;
         justify-content: end;

@@ -132,7 +132,7 @@
                 ],
                 facetFilters: [
                      [ "localization:en" ],
-                     [ "categories:Shopware Platform > HowTos" ]
+                     [ "categories:Shopware 6 - Developer > HowTos" ]
                 ]
             },
         });

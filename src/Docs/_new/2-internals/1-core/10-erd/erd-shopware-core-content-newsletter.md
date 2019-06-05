@@ -2,7 +2,7 @@
 
 [Back to modules](./../10-modules.md)
 
-The Newsletter adds sales channel management of recipients. Although the data may share similarities this is not representing a full customer with login and history.
+The newsletter adds sales channel management of recipients. Although the data may share similarities this is not representing a full customer with login and history.
 
 ![Newsletter](./dist/erd-shopware-core-content-newsletter.png)
 

@@ -136,7 +136,7 @@ const plugins = [
         'window.jQuery': require.resolve('jquery/dist/jquery.slim'),
     }),
     new WebpackBar({
-        name: 'Shopware Next Storefront',
+        name: 'Shopware 6 Storefront',
     }),
     new StyleLintPlugin({
         context: getPath('src/style'),

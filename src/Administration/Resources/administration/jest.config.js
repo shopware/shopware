@@ -26,7 +26,7 @@ module.exports = {
     reporters: [
         'default',
         ['jest-junit', {
-            suiteName: 'Shopware Next Unit Tests',
+            suiteName: 'Shopware 6 Unit Tests',
             outputDirectory: artifactsPath,
             outputName: 'administration.junit.xml'
         }]

@@ -1,18 +1,21 @@
 @import "~scss/variables";
 
-$sw-media-preview-play-button-size:         50%;
-$sw-media-preview-play-button-z-index:      5;
-$sw-media-preview-locked-icon-z-index:      5;
-$sw-media-preview-border-color:             $color-steam-cloud;
-$sw-media-preview-border-color-highlighted: $color-shopware-blue;
-$sw-media-preview-border-radius:            $border-radius-default;
-$sw-media-preview-background:               $color-white;
+$sw-media-preview-play-button-size: 50%;
+$sw-media-preview-play-button-z-index: 5;
+$sw-media-preview-locked-icon-z-index: 5;
 
 .sw-media-preview {
     &.is--icon {
         .sw-media-preview__item {
             transform: translate(-50%, -50%) scale(0.7);
         }
+    }
+
+    &.is--no-media {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: $color-steam-cloud;
     }
 
     .sw-media-preview__item {
@@ -61,8 +64,8 @@ $sw-media-preview-background:               $color-white;
     }
 
     .sw-media-preview__locked-icon {
-        top: 2px;
         position: absolute;
+        top: 2px;
         left: 16px;
         z-index: $sw-media-preview-locked-icon-z-index;
     }

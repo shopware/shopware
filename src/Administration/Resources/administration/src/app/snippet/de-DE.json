@@ -263,7 +263,8 @@
     },
     "sw-media-preview": {
       "fallbackVideoTagSupport": "Ihr Browser unterstützt diesen Video-Tag nicht",
-      "fallbackAudioTagSupport": "Ihr Browser unterstützt diesen Audio-Tag nicht"
+      "fallbackAudioTagSupport": "Ihr Browser unterstützt diesen Audio-Tag nicht",
+      "textNoMedia": "Kein Medium verfügbar"
     },
     "sw-media-upload": {
       "buttonFileUpload": "Dateien hochladen",

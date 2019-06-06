@@ -10,6 +10,7 @@ use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\LessThanOrEqual;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
 class ConstraintBuilder
@@ -25,6 +26,13 @@ class ConstraintBuilder
     public function isNotBlank(): self
     {
         $this->addConstraint(new NotBlank());
+
+        return $this;
+    }
+
+    public function isNotNull(): self
+    {
+        $this->addConstraint(new NotNull());
 
         return $this;
     }

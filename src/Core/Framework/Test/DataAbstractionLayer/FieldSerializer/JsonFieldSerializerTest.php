@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ConfigJsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\FieldExceptionStack;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
@@ -121,5 +123,47 @@ class JsonFieldSerializerTest extends TestCase
         $field->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
         $actual = $this->serializer->decode($field, $input);
         static::assertEquals($expected, $actual);
+    }
+
+    public function testEmptyValueForRequiredField(): void
+    {
+        $field = (new JsonField('data', 'data'));
+        $field->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+
+        $kvPair = new KeyValuePair('data', [], true);
+
+        $result = $this->serializer->encode($field, $this->existence, $kvPair, $this->parameters)->current();
+
+        static::assertEquals('[]', $result);
+    }
+
+    public function testRequiredValidationThrowsError(): void
+    {
+        $field = (new JsonField('data', 'data'))->addFlags(new Required());
+        $field->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+
+        $kvPair = new KeyValuePair('data', null, true);
+
+        $exception = null;
+        try {
+            $this->serializer->encode($field, $this->existence, $kvPair, $this->parameters)->current();
+        } catch (\Throwable $e) {
+            $exception = $e;
+        }
+
+        static::assertInstanceOf(InvalidFieldException::class, $exception, 'JsonFieldSerializer does not throw violation exception for empty required field.');
+        static::assertEquals('/data', $exception->getPath());
+    }
+
+    public function testNullValueForNotRequiredField(): void
+    {
+        $field = (new JsonField('data', 'data'));
+        $field->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+
+        $kvPair = new KeyValuePair('data', null, true);
+
+        $result = $this->serializer->encode($field, $this->existence, $kvPair, $this->parameters)->current();
+
+        static::assertNull($result);
     }
 }

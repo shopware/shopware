@@ -919,10 +919,12 @@ class RecalculationServiceTest extends TestCase
 
         $cart->add(
             (new LineItem('abcdefg', 'nested'))
+                ->setPriceDefinition(new QuantityPriceDefinition(9.0, new TaxRuleCollection([new TaxRule(5)]), 2, 1))
                 ->setLabel('Third line item (multi level nested)')
                 ->setDeliveryInformation($deliveryInformation)
                 ->addChild(
                     (new LineItem('3-1', 'custom'))
+                        ->setPriceDefinition(new AbsolutePriceDefinition(3.0, 2, new LineItemTotalPriceRule(Rule::OPERATOR_GT, 9.99)))
                         ->setLabel('Custom child depth 1 of the third line item')
                         ->addChild(
                             (new LineItem('3-1-1', 'product_'))

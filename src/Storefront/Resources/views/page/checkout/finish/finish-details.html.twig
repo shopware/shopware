@@ -59,14 +59,14 @@
 
                             {% block page_checkout_finish_order_payment_method %}
                                 <p>
-                                    <strong>{{ "checkout.confirmPaymentMethod"|trans }}</strong>
+                                    <strong>{{ "checkout.finishInfoPayment"|trans }}</strong>
                                     {{ context.paymentMethod.translated.name }}
                                 </p>
                             {% endblock %}
 
                             {% block page_checkout_finish_order_dispatch_method %}
                                 <p>
-                                    <strong>{{ "checkout.confirmDispatchMethod"|trans }}</strong>
+                                    <strong>{{ "checkout.finishInfoShipping"|trans }}</strong>
                                     {{ context.shippingMethod.translated.name }}
                                 </p>
                             {% endblock %}

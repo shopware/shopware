@@ -6,13 +6,9 @@ Custom styling for bootstrap modal component.
 https://getbootstrap.com/docs/4.3/components/modal/
 */
 
-.modal-dialog {
-    border-radius: 3px;
+.modal-content {
+    border: 0;
     box-shadow: 0 43px 43px -6px rgba($black, 0.2);
-
-    .modal-content {
-        border: 0;
-    }
 
     .modal-title {
         margin: 0;

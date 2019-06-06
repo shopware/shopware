@@ -20,30 +20,17 @@
     }
 }
 
-.confirm-main-header {
-    margin-bottom: $spacer-lg;
-}
-
-.confirm-product {
-    margin-bottom: $spacer;
-}
-
-.confirm-tos {
-    margin-bottom: $spacer-lg;
-}
-
+.confirm-main-header,
+.confirm-tos,
 .confirm-address,
+.confirm-payment-shipping,
 .confirm-payment,
-.confirm-shipping {
+.confirm-product {
     margin-bottom: $spacer-lg;
 }
 
-.confirm-billing-address {
-    margin-bottom: $spacer;
+.checkout-confirm-payment-current,
+.checkout-confirm-shipping-current {
+    margin-bottom: $spacer-xl;
 }
 
-@include media-breakpoint-up(sm) {
-    .confirm-billing-address {
-        margin-bottom: 0;
-    }
-}

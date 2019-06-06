@@ -3,70 +3,119 @@
         <div class="card-body">
             {% block page_checkout_confirm_shipping_title %}
                 <div class="card-title">
-                    {{ "checkout.confirmShippingHeader"|trans }}
+                    {{ "checkout.confirmShippingMethod"|trans }}
                 </div>
             {% endblock %}
 
-            {% block page_checkout_confirm_shipping_form %}
-                <form id="confirmShippingForm"
-                      name="confirmShippingForm"
-                      action="{{ path('frontend.checkout.configure') }}"
-                      method="post"
-                      data-form-ajax-submit="true"
-                      data-form-ajax-submit-options='{
-                            "replaceSelectors": [
-                                ".js-reload-on-confirm-change",
-                                ".flashbags"
-                            ],
-                            "submitOnChange": [
-                                "[name=shippingMethodId]"
-                            ]
-                      }'>
+            {% block page_checkout_confirm_shipping_current %}
+                <p class="checkout-confirm-shipping-current">
+                    <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
+                    {{ context.shippingMethod.translated.name }}
+                </p>
+            {% endblock %}
 
-                    {% block page_checkout_confirm_shipping_form_redirect %}
-                        <input type="hidden" name="redirectTo" value="frontend.checkout.confirm.page">
-                    {% endblock %}
+            {% block page_checkout_confirm_shipping_modal_toggle %}
+                <button type="button"
+                        class="btn btn-light"
+                        data-toggle="modal"
+                        data-backdrop="static"
+                        data-target="#confirmShippingModal">
+                    {{ "checkout.confirmChangeShipping"|trans }}
+                </button>
+            {% endblock %}
 
-                    {% block page_checkout_confirm_shipping_form_fields %}
-                        <div class="shipping-fields">
-                            {% for shipping in page.shippingMethods %}
-                                <div class="shipping-method">
-                                    {% block page_checkout_confirm_shipping_form_field %}
-                                        <div class="form-group checkout-config-form-group">
-                                            {% block page_checkout_confirm_shipping_form_control %}
-                                                <div class="custom-control custom-radio shipping-method">
-                                                    {% block page_checkout_confirm_shipping_form_input %}
-                                                        <input type="radio"
-                                                               id="shippingMethod{{ loop.index }}"
-                                                               name="shippingMethodId"
-                                                               value="{{ shipping.id }}"
-                                                               {% if shipping.id is same as(context.shippingMethod.id) %}checked="checked"{% endif %}
-                                                               class="custom-control-input shipping-method-input">
-                                                    {% endblock %}
-
-                                                    {% block page_checkout_confirm_shipping_form_label %}
-                                                        <label class="custom-control-label shipping-method-label"
-                                                               for="shippingMethod{{ loop.index }}">
-                                                            <strong>{{ shipping.translated.name }}</strong>
-
-                                                            {% block page_checkout_confirm_shipping_form_description %}
-                                                                {% if shipping.description %}
-                                                                    <div class="shipping-method-description">
-                                                                        {{ shipping.description|raw }}
-                                                                    </div>
-                                                                {% endif %}
-                                                            {% endblock %}
-                                                        </label>
-                                                    {% endblock %}
-                                                </div>
-                                            {% endblock %}
-                                        </div>
-                                    {% endblock %}
+            {% block page_checkout_confirm_shipping_modal %}
+                <div class="modal fade checkout-confirm-shipping-modal"
+                     id="confirmShippingModal"
+                     tabindex="-1"
+                     role="dialog">
+                    <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered"
+                         role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <div class="modal-title h5">
+                                    {{ "checkout.confirmChangeShipping"|trans }}
                                 </div>
-                            {% endfor %}
+                                <button type="button"
+                                        class="modal-close close"
+                                        data-dismiss="modal"
+                                        aria-label="Close">
+                                    <span aria-hidden="true">
+                                        {% sw_icon 'x' style { 'size': 'sm' } %}
+                                    </span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                {% block page_checkout_confirm_shipping_form %}
+                                    <form id="confirmShippingForm"
+                                          name="confirmShippingForm"
+                                          action="{{ path('frontend.checkout.configure') }}"
+                                          method="post">
+
+                                        {% block page_checkout_confirm_shipping_form_redirect %}
+                                            <input type="hidden" name="redirectTo" value="frontend.checkout.confirm.page">
+                                        {% endblock %}
+
+                                        {% block page_checkout_confirm_shipping_form_fields %}
+                                            <div class="shipping-fields">
+                                                {% for shipping in page.shippingMethods %}
+                                                    <div class="shipping-method">
+                                                        {% block page_checkout_confirm_shipping_form_field %}
+                                                            <div class="form-group checkout-config-form-group">
+                                                                {% block page_checkout_confirm_shipping_form_control %}
+                                                                    <div class="custom-control custom-radio shipping-method">
+                                                                        {% block page_checkout_confirm_shipping_form_input %}
+                                                                            <input type="radio"
+                                                                                   id="shippingMethod{{ loop.index }}"
+                                                                                   name="shippingMethodId"
+                                                                                   value="{{ shipping.id }}"
+                                                                                   {% if shipping.id is same as(context.shippingMethod.id) %}checked="checked"{% endif %}
+                                                                                   class="custom-control-input shipping-method-input">
+                                                                        {% endblock %}
+
+                                                                        {% block page_checkout_confirm_shipping_form_label %}
+                                                                            <label class="custom-control-label shipping-method-label"
+                                                                                   for="shippingMethod{{ loop.index }}">
+                                                                                <strong>{{ shipping.translated.name }}</strong>
+
+                                                                                {% block page_checkout_confirm_shipping_form_description %}
+                                                                                    {% if shipping.description %}
+                                                                                        <div class="shipping-method-description">
+                                                                                            {{ shipping.description|raw }}
+                                                                                        </div>
+                                                                                    {% endif %}
+                                                                                {% endblock %}
+                                                                            </label>
+                                                                        {% endblock %}
+                                                                    </div>
+                                                                {% endblock %}
+                                                            </div>
+                                                        {% endblock %}
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        {% endblock %}
+
+                                        {% block page_checkout_confirm_shipping_form_submit %}
+                                            <button class="btn btn-primary" type="submit">
+                                                {{ "checkout.confirmChangePaymentShippingSave"|trans }}
+                                            </button>
+                                        {% endblock %}
+
+                                        {% block page_checkout_confirm_shipping_cancel %}
+                                            <button class="btn btn-light"
+                                                    type="button"
+                                                    data-dismiss="modal"
+                                                    aria-label="Close">
+                                                {{ "checkout.confirmChangePaymentShippingCancel"|trans }}
+                                            </button>
+                                        {% endblock %}
+                                    </form>
+                                {% endblock %}
+                            </div>
                         </div>
-                    {% endblock %}
-                </form>
+                    </div>
+                </div>
             {% endblock %}
         </div>
     </div>

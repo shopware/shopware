@@ -50,12 +50,6 @@ Mixin.register('sw-form-field', {
         }
     },
 
-    created() {
-        if (this.pointer) {
-            this.$store.dispatch('registerFormField', this.pointer);
-        }
-    },
-
     beforeDestroy() {
         if (this.pointer) {
             this.$store.dispatch('deleteFieldError', this.pointer);

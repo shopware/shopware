@@ -10,14 +10,7 @@ class VuexErrorStore extends ErrorStore {
 
         this.mutations = {
             setErrorData(state, { expression, error, type }) {
-                const { errorName, container } = ErrorStore.getErrorContainer(expression, state[type]);
-                if (container !== null) {
-                    container[errorName] = error;
-                }
-            },
-
-            createError(state, { expression, type }) {
-                ErrorStore.createAtPath(expression, state[type], setReactive);
+                ErrorStore.createAtPath(expression, state[type], setReactive, error);
             },
 
             deleteError(state, { expression, type }) {
@@ -25,10 +18,7 @@ class VuexErrorStore extends ErrorStore {
             },
 
             resetError(state, { expression, type }) {
-                const { errorName, container } = ErrorStore.getErrorContainer(expression, state[type]);
-                if (container !== null && container[errorName].code !== 0) {
-                    container[errorName] = new ShopwareError();
-                }
+                ErrorStore.deleteAtPath(expression, state[type], deleteReactive, false);
             }
         };
 
@@ -51,10 +41,6 @@ class VuexErrorStore extends ErrorStore {
         };
 
         this.actions = {
-            registerFormField({ commit }, expression) {
-                commit('createError', { expression, type: 'api' });
-            },
-
             deleteFieldError({ commit }, expression) {
                 commit('deleteError', { expression, type: 'api' });
             },

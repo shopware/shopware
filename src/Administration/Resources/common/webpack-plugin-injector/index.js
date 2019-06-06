@@ -2,6 +2,8 @@ const { join } = require('path');
 const fs = require('fs');
 const { addPath } = require('app-module-path');
 const merge = require('webpack-merge');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const WebpackCopyAfterBuildPlugin = require('../../administration/build/plugins/copy-after-build');
 
 const projectRoot = process.env.PROJECT_ROOT || '';
 
@@ -60,6 +62,7 @@ class WebpackPluginInjector {
             throw new Error(`Section "${section}" is not a valid section. Available sections: ${sections.join(', ')}`);
         }
 
+        // Include paths for the webpack loaders
         this._includePaths = [
             resolve('src'),
             resolve('test')
@@ -68,12 +71,16 @@ class WebpackPluginInjector {
         const content = WebpackPluginInjector.getPluginDefinitionContent(this.filePath);
         const plugins = this.getPluginsBySection(content);
         this.registerPluginsToWebpackConfig(plugins);
+
+        if (this.env === 'production') {
+            this.injectCopyPluginConfig(plugins);
+        }
     }
 
     /**
      * General logging function which provides a unified style of log messages for developers.
      *
-     * @param {String} [name='# Webpack Plugin Injector']
+     * @param {String} [name='Webpack Plugin Injector']
      * @param {...String|Array|Date|Number|Object} message
      * @returns {boolean}
      */
@@ -195,13 +202,13 @@ class WebpackPluginInjector {
                 plugin
             };
 
-            // Add plugin as a new entry in the webpack config, respect NODE_ENV and insert the dev-client if necessary
-            this.webpackConfig.entry[name] = this.env === 'development'
+            // Add plugin as a new entry in the webpack config, respect NODE_ENV and insert the 'dev-client' if necessary
+            this.webpackConfig.entry[name] = (this.env === 'development')
                 ? ['./build/dev-client'].concat(plugin.entryFile)
                 : plugin.entryFile;
 
             // Add plugin to include paths to support eslint
-            this._includePaths.push(...plugin.viewPath);
+            this.includePaths.push(...plugin.viewPath);
 
             if (!plugin.hasCustomWebpackConfig) {
                 this.warn('Webpack Plugin Injector', `Plugin "${name}" injected as a new entry point`);
@@ -224,6 +231,73 @@ class WebpackPluginInjector {
 
             this.webpackConfig = merge(this.webpackConfig, modifiedWebpackConfig);
             this.warn('Webpack Plugin Injector', `Plugin "${name}" injected with custom config`);
+        });
+
+        return this.injectIncludePathsToLoaders(this.webpackConfig);
+    }
+
+    /**
+     * Adds the additional include paths to the necessary loaders.
+     *
+     * @return {Object} modified webpack configuration
+     */
+    injectIncludePathsToLoaders() {
+        const loaders = ['eslint-loader', 'babel-loader'];
+        this.webpackConfig.module.rules.forEach((rule, index) => {
+            if (loaders.includes(rule.loader)) {
+                this.webpackConfig.module.rules[index].include = this.includePaths;
+            }
+        });
+
+        return this.webpackConfig;
+    }
+
+    /**
+     * In the production build we need additional plugins which are able to copy the plugin chunk to the destination
+     * (e.g. plugin directory) and adds a copy plugin which copies the assets folder if available.
+     *
+     * @param {Array} plugins
+     * @returns {Object} modified webpack config
+     */
+    injectCopyPluginConfig(plugins) {
+        plugins.forEach((plugin) => {
+            const pluginName = plugin.pluginName;
+            const basePath = plugin.basePath;
+            const pluginPath = `${basePath}Resources/public/`;
+            const assetPaths = plugin.views.map((path) => join(basePath, path, 'static'));
+            const publicStaticPath = `${basePath}Resources/public/static/`;
+
+            // Copy plugin chunk after build
+            this.webpackConfig.plugins.push(
+                new WebpackCopyAfterBuildPlugin({
+                    files: [{
+                        chunkName: pluginName,
+                        to: `${pluginPath}/${pluginName}.js`
+                    }],
+                    options: {
+                        absolutePath: true,
+                        sourceMap: true
+                    }
+                })
+            );
+
+            // If the plugin has additional assets - copy them as well
+            assetPaths.forEach((assetPath) => {
+                if (!fs.existsSync(assetPath)) {
+                    return;
+                }
+
+                this.webpackConfig.plugins.push(
+                    // copy custom static assets
+                    new CopyWebpackPlugin([
+                        {
+                            from: assetPath,
+                            to: publicStaticPath,
+                            ignore: ['.*']
+                        }
+                    ])
+                );
+            });
         });
 
         return this.webpackConfig;
@@ -267,6 +341,14 @@ class WebpackPluginInjector {
 
     set env(value) {
         this._env = value;
+    }
+
+    get includePaths() {
+        return this._includePaths;
+    }
+
+    set includePaths(value) {
+        this._includePaths = value;
     }
 }
 

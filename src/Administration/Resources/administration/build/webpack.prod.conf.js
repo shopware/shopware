@@ -5,9 +5,9 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const WebpackCopyAfterBuildPlugin = require('@shopware/webpack-copy-after-build');
 const config = require('../config');
 const utils = require('./utils');
-const WebpackCopyAfterBuildPlugin = require('./plugins/copy-after-build');
 const env = process.env.NODE_ENV === 'testing'
     ? require('../config/test.env')
     : config.build.env;
@@ -68,22 +68,6 @@ const webpackConfig = merge(baseWebpackConfig, {
     ]
 });
 
-if (config.build.productionGzip) {
-    const CompressionWebpackPlugin = require('compression-webpack-plugin');
-
-    webpackConfig.plugins.push(
-        new CompressionWebpackPlugin({
-            asset: '[path].gz[query]',
-            algorithm: 'gzip',
-            test: new RegExp(
-                `\\.(${config.build.productionGzipExtensions.join('|')})$`
-            ),
-            threshold: 10240,
-            minRatio: 0.8
-        })
-    );
-}
-
 if (pluginList.length) {
     pluginList.forEach((plugin) => {
         const pluginName = plugin.name;
@@ -121,7 +105,7 @@ if (pluginList.length) {
 }
 
 if (config.build.bundleAnalyzerReport) {
-    const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+    const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin; // eslint-disable-line
     webpackConfig.plugins.push(new BundleAnalyzerPlugin());
 }
 

@@ -5,7 +5,7 @@ function resolve(directory) {
 }
 
 module.exports = {
-    extends: '../common/eslint-config-base/index.js',
+    extends: '@shopware/eslint-config-base',
     env: {
         browser: true,
         'jest/globals': true

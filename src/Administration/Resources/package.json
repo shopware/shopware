@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "name": "@shopware/administration",
+  "version": "1.0.0",
+  "description": "Shopware Administration bundle",
+  "scripts": {
+    "lerna": "lerna"
+  },
+  "dependencies": {
+    "lerna": "3.14.1"
+  }
+}

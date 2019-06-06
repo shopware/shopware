@@ -11,6 +11,7 @@
         "fix": "eslint --fix --ext .js repos"
     },
     "dependencies": {
+        "@shopware/eslint-config-base": "1.0.0",
         "app-module-path": "2.2.0",
         "axios": "0.19.0",
         "babel-core": "6.26.3",

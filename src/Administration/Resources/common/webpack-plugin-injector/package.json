@@ -8,6 +8,7 @@
   "license": "MIT",
   "dependencies": {
     "app-module-path": "2.2.0",
+    "copy-webpack-plugin": "^5.0.3",
     "webpack-merge": "4.2.1"
   }
 }

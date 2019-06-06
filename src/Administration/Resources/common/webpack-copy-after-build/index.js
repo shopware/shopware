@@ -13,7 +13,7 @@ function WebpackCopyAfterBuild(config) {
     });
 }
 
-WebpackCopyAfterBuild.prototype.apply = function(compiler) {
+WebpackCopyAfterBuild.prototype.apply = function webpackCopyAfterBuild(compiler) {
     const files = this._filesMap;
     const opts = this._opts;
 
@@ -66,6 +66,8 @@ WebpackCopyAfterBuild.prototype.apply = function(compiler) {
                     fs.unlinkSync(from);
                 }
             });
+
+            return true;
         });
     });
 };

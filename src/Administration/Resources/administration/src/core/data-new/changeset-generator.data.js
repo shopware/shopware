@@ -1,5 +1,12 @@
 import types from 'src/core/service/utils/types.utils';
 
+function castValueToNullIfNecessary(value) {
+    if (value === '' || typeof value === 'undefined') {
+        return null;
+    }
+    return value;
+}
+
 export default class ChangesetGenerator {
     constructor(schema) {
         this.schema = schema;
@@ -39,8 +46,8 @@ export default class ChangesetGenerator {
                 return true;
             }
 
-            const draftValue = typeof draft[property] === 'boolean' ? draft[property] : draft[property] || null;
-            const originValue = typeof origin[property] === 'boolean' ? origin[property] : origin[property] || null;
+            const draftValue = castValueToNullIfNecessary(draft[property]);
+            const originValue = castValueToNullIfNecessary(origin[property]);
 
             if (this.scalar.includes(type.type)) {
                 if (draftValue !== originValue) {

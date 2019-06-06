@@ -100,6 +100,33 @@ EOF;
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
     }
 
+    public function testInsertAuthenticatedWithIntegration(): void
+    {
+        $id = Uuid::randomHex();
+
+        $data = [
+            'id' => $id,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'name' => $id,
+            'tax' => ['name' => 'test', 'taxRate' => 10],
+            'manufacturer' => ['name' => 'test'],
+            'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
+        ];
+
+        $this->getBrowserAuthenticatedWithIntegration()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
+        $response = $this->getBrowserAuthenticatedWithIntegration()->getResponse();
+
+        /* @var Response $response */
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
+
+        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/product/' . $id, $response->headers->get('Location'));
+
+        $this->getBrowserAuthenticatedWithIntegration()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id);
+        static::assertSame(Response::HTTP_OK, $this->getBrowserAuthenticatedWithIntegration()->getResponse()->getStatusCode(), $this->getBrowserAuthenticatedWithIntegration()->getResponse()->getContent());
+    }
+
     public function testOneToManyInsert(): void
     {
         $id = Uuid::randomHex();

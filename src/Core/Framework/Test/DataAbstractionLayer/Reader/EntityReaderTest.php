@@ -15,7 +15,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Context\AdminApiSource;
+use Shopware\Core\Framework\Context\SystemSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -1728,7 +1728,7 @@ class EntityReaderTest extends TestCase
         $criteria->addFilter(new EqualsFilter('product.price', 8.0));
 
         $searchContext = new Context(
-            new AdminApiSource(null, null),
+            new SystemSource(),
             $context->getRuleIds(),
             Uuid::randomHex(),
             $context->getLanguageIdChain(),

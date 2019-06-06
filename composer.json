@@ -39,7 +39,7 @@
         "enqueue/fs": "0.9.8",
         "enqueue/messenger-adapter": "0.2.2",
         "erusev/parsedown-extra": "0.7.1",
-        "google/cloud-storage": "1.12.0",
+        "google/cloud-storage": "1.12.2",
         "guzzlehttp/guzzle": "6.3.3",
         "james-heinrich/getid3": "1.9.17",
         "jdorn/sql-formatter": "1.2.17",

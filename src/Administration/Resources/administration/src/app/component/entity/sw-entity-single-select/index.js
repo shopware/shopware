@@ -28,6 +28,10 @@ export default {
             type: String,
             required: false,
             default: 'name'
+        },
+        criteriaFilter: {
+            type: Object,
+            required: false
         }
     },
 
@@ -99,6 +103,10 @@ export default {
             const criteria = new Criteria(this.page, this.limit);
             criteria.setTotalCountMode(0);
             criteria.setTerm(this.searchTerm);
+
+            if (this.criteriaFilter) {
+                criteria.addFilter(this.criteriaFilter);
+            }
 
             return this.repository.search(criteria, this.context).then((result) => {
                 if (this.silent) {

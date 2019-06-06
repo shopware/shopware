@@ -1,4 +1,5 @@
 import { Component, Mixin } from 'src/core/shopware';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-sales-channel-detail-base.html.twig';
 import './sw-sales-channel-detail-base.scss';
 
@@ -59,6 +60,10 @@ Component.register('sw-sales-channel-detail-base', {
 
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
+        },
+
+        mainNavigationFilter() {
+            return Criteria.equals('type', 'page');
         }
     },
 

@@ -4,7 +4,7 @@
     {# display tax instead of unit price in confirm header #}
     {% block page_checkout_cart_header_tax_price %}
         <div class="col-2 cart-header-tax-price">
-            {% if page.context.taxState == "gross" %}
+            {% if context.taxState == "gross" %}
                 {{ "checkout.cartHeaderTaxIncludeVat"|trans }}
             {% else %}
                 {{ "checkout.cartHeaderTaxExcludeVat"|trans }}

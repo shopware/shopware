@@ -26,7 +26,7 @@
                     {% if product.purchaseUnit and product.referenceUnit and product.purchaseUnit !=  product.referenceUnit %}
                         <span class="price-unit-reference">
                             {% set referencePrice = price.unitPrice * product.referenceUnit / product.purchaseUnit %}
-                            ({{ referencePrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}
+                            ({{ referencePrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
                             {{ "general.star"|trans }} / {{ product.referenceUnit }} {{ product.packUnit }})
                         </span>
                     {% endif %}
@@ -36,7 +36,7 @@
 
         {% block component_product_box_price %}
             <p class="product-price">
-                {{ price.unitPrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}
+                {{ price.unitPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
             </p>
         {% endblock %}
     </div>

@@ -63,7 +63,7 @@
 
                                 {% block component_offcanvas_summary_total_value %}
                                     <dd class="col-5 summary-value summary-total">
-                                        {{ page.cart.price.positionPrice|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}
+                                        {{ page.cart.price.positionPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
                                     </dd>
                                 {% endblock %}
                             {% endblock %}

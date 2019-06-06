@@ -28,7 +28,7 @@
 
                     {% block page_checkout_confirm_payment_form_fields %}
                         {% sw_include '@Storefront/component/payment/payment-fields.html.twig' with {
-                            'defaultPaymentMethodId': page.context.paymentMethod.id,
+                            'defaultPaymentMethodId': context.paymentMethod.id,
                         } %}
                     {% endblock %}
                 </form>

@@ -8,7 +8,7 @@
         <div class="col-12 col-sm-4 col-md-2 cart-item-tax-price">
             {% block page_checkout_item_product_tax_price_label %}
                 <div class="cart-item-tax-price-label">
-                    {% if page.context.taxState == "gross" %}
+                    {% if context.taxState == "gross" %}
                         {{ "checkout.cartHeaderTaxIncludeVat"|trans }}
                     {% else %}
                         {{ "checkout.cartHeaderTaxExcludeVat"|trans }}
@@ -18,7 +18,7 @@
 
             {% block page_checkout_item_product_tax_price_inner %}
                 {% for calculatedTax in lineItem.price.calculatedTaxes %}
-                    {{ calculatedTax.tax|localizedcurrency(page.context.currency.translated.shortName, app.request.locale) }}
+                    {{ calculatedTax.tax|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
                     <br>
                 {% endfor %}
             {% endblock %}

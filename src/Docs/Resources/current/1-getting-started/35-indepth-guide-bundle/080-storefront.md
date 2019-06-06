@@ -357,7 +357,7 @@ Here's the example code, it will be explained afterwards
         data-add-to-cart="true">
         <div class="form-row buy-widget-container">
             <button class="btn btn-primary btn-block buy-widget-submit" style="margin-top: 10px;">
-                Buy bundle and save {{ bundle.discount }} {{ bundle.discountType == 'absolute' ? page.context.currency.symbol : '%' }}
+                Buy bundle and save {{ bundle.discount }} {{ bundle.discountType == 'absolute' ? context.currency.symbol : '%' }}
             </button>
 
             <input type="hidden" name="lineItems[{{ bundle.id }}][id]" value="{{ bundle.id }}">
@@ -434,7 +434,7 @@ Your `tabs.html.twig` file should now look like this:
                             data-add-to-cart="true">
                             <div class="form-row buy-widget-container">
                                 <button class="btn btn-primary btn-block buy-widget-submit" style="margin-top: 10px;">
-                                    Buy bundle and save {{ bundle.discount }} {{ bundle.discountType == 'absolute' ? page.context.currency.symbol : '%' }}
+                                    Buy bundle and save {{ bundle.discount }} {{ bundle.discountType == 'absolute' ? context.currency.symbol : '%' }}
                                 </button>
 
                                 <input type="hidden" name="lineItems[{{ bundle.id }}][id]" value="{{ bundle.id }}">
@@ -567,6 +567,6 @@ If you're dealing with variables, use it like this instead:
 
 ```twig
 <button class="btn btn-primary btn-block buy-widget-submit" style="margin-top: 10px;">
-    {{ 'swag-bundle.detail.buyButtonText'|trans({ bundleDiscount: bundle.discount, symbol: bundle.discountType == 'absolute' ? page.context.currency.symbol : '%' }) }}
+    {{ 'swag-bundle.detail.buyButtonText'|trans({ bundleDiscount: bundle.discount, symbol: bundle.discountType == 'absolute' ? context.currency.symbol : '%' }) }}
 </button>
 ```

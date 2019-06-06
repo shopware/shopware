@@ -312,7 +312,8 @@ class SalesChannelContextFactory
         $customerId = $options[SalesChannelContextService::CUSTOMER_ID];
 
         $criteria = new Criteria([$customerId]);
-        $criteria->addAssociationPath('salutation');
+        $criteria->addAssociation('salutation');
+        $criteria->addAssociation('defaultPaymentMethod');
         $criteria->addAssociationPath('defaultBillingAddress.country');
         $criteria->addAssociationPath('defaultShippingAddress.country');
 

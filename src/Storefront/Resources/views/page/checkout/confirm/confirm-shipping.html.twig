@@ -40,7 +40,7 @@
                                                                id="shippingMethod{{ loop.index }}"
                                                                name="shippingMethodId"
                                                                value="{{ shipping.id }}"
-                                                               {% if shipping.id is same as(page.context.shippingMethod.id) %}checked="checked"{% endif %}
+                                                               {% if shipping.id is same as(context.shippingMethod.id) %}checked="checked"{% endif %}
                                                                class="custom-control-input shipping-method-input">
                                                     {% endblock %}
 

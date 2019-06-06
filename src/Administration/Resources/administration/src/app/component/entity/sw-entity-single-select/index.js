@@ -29,7 +29,7 @@ export default {
             required: false,
             default: 'name'
         },
-        criteriaFilter: {
+        criteria: {
             type: Object,
             required: false
         }
@@ -100,13 +100,17 @@ export default {
         load() {
             this.isLoading = true;
 
-            const criteria = new Criteria(this.page, this.limit);
+            let criteria = this.criteria;
+
+            if (criteria) {
+                this.page = this.criteria.page;
+                this.limit = this.criteria.limit;
+            } else {
+                criteria = new Criteria(this.page, this.limit);
+            }
+
             criteria.setTotalCountMode(0);
             criteria.setTerm(this.searchTerm);
-
-            if (this.criteriaFilter) {
-                criteria.addFilter(this.criteriaFilter);
-            }
 
             return this.repository.search(criteria, this.context).then((result) => {
                 if (this.silent) {

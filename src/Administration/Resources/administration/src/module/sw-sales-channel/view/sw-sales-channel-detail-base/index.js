@@ -62,8 +62,10 @@ Component.register('sw-sales-channel-detail-base', {
             return this.repositoryFactory.create('sales_channel');
         },
 
-        mainNavigationFilter() {
-            return Criteria.equals('type', 'page');
+        mainNavigationCriteria() {
+            const criteria = new Criteria(1, 10);
+
+            return criteria.addFilter(Criteria.equals('type', 'page'));
         }
     },
 

@@ -27,19 +27,19 @@
 
                                         {% block page_account_overview_profile_content %}
                                             <p>
-                                                {% if page.customer.salutation.salutationKey != 'not_specified' %}
-                                                    {{ page.customer.salutation.translated.displayName }}
+                                                {% if context.customer.salutation.salutationKey != 'not_specified' %}
+                                                    {{ context.customer.salutation.translated.displayName }}
                                                 {% endif %}
-                                                {% if page.customer.title %}
-                                                    {{ page.customer.title }}<br/>
+                                                {% if context.customer.title %}
+                                                    {{ context.customer.title }}<br/>
                                                 {% endif %}
-                                                {{ page.customer.firstName }} {{ page.customer.lastName }}
+                                                {{ context.customer.firstName }} {{ context.customer.lastName }}
                                             </p>
                                         {% endblock %}
 
                                         {% block page_account_overview_profile_email %}
                                             <p>
-                                                {{ page.customer.email }}
+                                                {{ context.customer.email }}
                                             </p>
                                         {% endblock %}
 
@@ -70,8 +70,8 @@
                                         {% endblock %}
 
                                         {% block page_account_overview_payment_content %}
-                                            <strong>{{ page.context.customer.defaultPaymentMethod.translated.name }}</strong>
-                                            <p>{{ page.context.customer.defaultPaymentMethod.additionalDescription }}</p>
+                                            <strong>{{ context.customer.defaultPaymentMethod.translated.name }}</strong>
+                                            <p>{{ context.customer.defaultPaymentMethod.description }}</p>
                                         {% endblock %}
 
                                         {% block page_account_overview_payment_actions %}
@@ -103,7 +103,7 @@
 
                             {% block page_account_overview_newsletter_content %}
                                 <div class="js-newsletter-wrapper">
-                                    {% sw_include "@Storefront/page/account/newsletter.html.twig" with { "customer": page.context.customer } %}
+                                    {% sw_include "@Storefront/page/account/newsletter.html.twig" with { "customer": context.customer } %}
                                 </div>
                             {% endblock %}
                         </div>

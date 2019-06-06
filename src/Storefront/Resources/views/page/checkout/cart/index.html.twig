@@ -117,7 +117,7 @@
                                             <select class="form-control" type="text" id="countryId" name="countryId">
                                                 {% for country in page.countries %}
                                                     <option value="{{ country.id }}"
-                                                        {% if country.id == page.context.shippingLocation.country.id %}selected="selected"{% endif %}>
+                                                        {% if country.id == context.shippingLocation.country.id %}selected="selected"{% endif %}>
                                                         {{ country.translated.name }}
                                                     </option>
                                                 {% endfor %}
@@ -131,7 +131,7 @@
                                             <select class="form-control" type="text" id="paymentMethodId" name="paymentMethodId">
                                                 {% for payment in page.paymentMethods %}
                                                     <option value="{{ payment.id }}"
-                                                        {% if payment.id == page.context.paymentMethod.id %} selected="selected"{% endif %}>
+                                                        {% if payment.id == context.paymentMethod.id %} selected="selected"{% endif %}>
                                                         {{ payment.translated.name }}
                                                     </option>
                                                 {% endfor %}
@@ -145,7 +145,7 @@
                                             <select class="form-control" type="text" id="shippingMethodId" name="shippingMethodId">
                                                 {% for shipping in page.shippingMethods %}
                                                     <option value="{{ shipping.id }}"
-                                                        {% if shipping.id == page.context.shippingMethod.id %} selected="selected"{% endif %}>
+                                                        {% if shipping.id == context.shippingMethod.id %} selected="selected"{% endif %}>
                                                         {{ shipping.translated.name }}
                                                     </option>
                                                 {% endfor %}

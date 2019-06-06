@@ -29,7 +29,7 @@
                                 <input type="hidden" name="redirectTo" value="frontend.account.payment.page">
                                 {% block page_account_payment_fields %}
                                     {% sw_include '@Storefront/component/payment/payment-fields.html.twig' with {
-                                        'defaultPaymentMethodId': page.context.customer.defaultPaymentMethodId,
+                                        'defaultPaymentMethodId': context.customer.defaultPaymentMethodId,
                                     } %}
                                 {% endblock %}
 

@@ -13,13 +13,13 @@
                                 {% endblock %}
 
                                 {% block page_account_overview_billing_address_content %}
-                                    {% sw_include '@Storefront/component/address/address.html.twig' with {'address': page.context.customer.defaultBillingAddress} %}
+                                    {% sw_include '@Storefront/component/address/address.html.twig' with {'address': context.customer.defaultBillingAddress} %}
                                 {% endblock %}
 
                                 {% block page_account_overview_billing_address_actions %}
                                     <div class="card-actions">
                                         {% block page_account_overview_billing_address_actions_link %}
-                                            <a href="{{ path('frontend.account.address.edit.page', {'addressId': page.context.customer.defaultBillingAddress.id}) }}"
+                                            <a href="{{ path('frontend.account.address.edit.page', {'addressId': context.customer.defaultBillingAddress.id}) }}"
                                                title="{{ "account.overviewChangeBilling"|trans }}"
                                                class="btn btn-light"
                                                data-address-editor="true"
@@ -51,17 +51,17 @@
                                 {% endblock %}
 
                                 {% block page_account_overview_shipping_address_content %}
-                                    {% if page.context.customer.defaultBillingAddress.id is same as(page.context.customer.defaultShippingAddress.id) %}
+                                    {% if context.customer.defaultBillingAddress.id is same as(context.customer.defaultShippingAddress.id) %}
                                         <p>{{ "account.overviewAddressEqual"|trans }}</p>
                                     {% else %}
-                                        {% sw_include '@Storefront/component/address/address.html.twig' with {'address': page.context.customer.defaultShippingAddress} %}
+                                        {% sw_include '@Storefront/component/address/address.html.twig' with {'address': context.customer.defaultShippingAddress} %}
                                     {% endif %}
                                 {% endblock %}
 
                                 {% block page_account_overview_shipping_address_actions %}
                                     <div class="card-actions">
                                         {% block page_account_overview_shipping_address_actions_link %}
-                                            <a href="{{ path('frontend.account.address.edit.page', {'addressId': page.context.customer.defaultShippingAddress.id}) }}"
+                                            <a href="{{ path('frontend.account.address.edit.page', {'addressId': context.customer.defaultShippingAddress.id}) }}"
                                                title="{{ "account.overviewChangeShipping"|trans }}"
                                                class="btn btn-light"
                                                data-address-editor="true"

@@ -1,6 +1,6 @@
 {% block page_checkout_finish_address_inner %}
-    {% set billingAddress = page.context.customer.defaultBillingAddress %}
-    {% set shippingAddress = page.context.customer.defaultShippingAddress %}
+    {% set billingAddress = context.customer.defaultBillingAddress %}
+    {% set shippingAddress = context.customer.defaultShippingAddress %}
     <div class="row">
         {% block page_checkout_finish_address_billing %}
             <div class="col-sm-6">

@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Page\GenericPageLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -26,11 +25,6 @@ class CheckoutConfirmPageLoader
     private $shippingMethodRepository;
 
     /**
-     * @var GenericPageLoader
-     */
-    private $genericLoader;
-
-    /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
@@ -43,28 +37,20 @@ class CheckoutConfirmPageLoader
     public function __construct(
         EntityRepositoryInterface $paymentMethodRepository,
         EntityRepositoryInterface $shippingMethodRepository,
-        GenericPageLoader $genericLoader,
         EventDispatcherInterface $eventDispatcher,
         CartService $cartService
     ) {
         $this->paymentMethodRepository = $paymentMethodRepository;
         $this->shippingMethodRepository = $shippingMethodRepository;
-        $this->genericLoader = $genericLoader;
         $this->eventDispatcher = $eventDispatcher;
         $this->cartService = $cartService;
     }
 
     public function load(Request $request, SalesChannelContext $context): CheckoutConfirmPage
     {
-        $page = $this->genericLoader->load($request, $context, false, false);
-
-        $page = CheckoutConfirmPage::createFrom($page);
+        $page = new CheckoutConfirmPage($this->getPaymentMethods($context), $this->getShippingMethods($context));
 
         $page->setCart($this->cartService->getCart($context->getToken(), $context));
-
-        $page->setPaymentMethods($this->getPaymentMethods($context));
-
-        $page->setShippingMethods($this->getShippingMethods($context));
 
         $this->eventDispatcher->dispatch(
             new CheckoutConfirmPageLoadedEvent($page, $context, $request),

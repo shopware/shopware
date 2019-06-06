@@ -25,20 +25,15 @@ class GenericPageLoader
         $this->footerLoader = $footerLoader;
     }
 
-    public function load(Request $request, SalesChannelContext $context, $loadHeader = true, $loadFooter = true): Page
+    public function load(Request $request, SalesChannelContext $context): Page
     {
-        $loadFooter = $request->isXmlHttpRequest() ? false : $loadFooter;
-        $loadHeader = $request->isXmlHttpRequest() ? false : $loadHeader;
+        $page = new Page();
 
-        $page = new Page($context);
-
-        if ($loadHeader) {
+        if (!$request->isXmlHttpRequest()) {
             $page->setHeader(
                 $this->headerLoader->load($request, $context)
             );
-        }
 
-        if ($loadFooter) {
             $page->setFooter(
                 $this->footerLoader->load($request, $context)
             );

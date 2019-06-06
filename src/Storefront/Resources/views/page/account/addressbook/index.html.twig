@@ -54,8 +54,8 @@
         {% endblock %}
 
         {% block page_account_address_main %}
-            {% set defaultBillingAddress = page.context.customer.defaultBillingAddress %}
-            {% set defaultShippingAddress = page.context.customer.defaultShippingAddress %}
+            {% set defaultBillingAddress = context.customer.defaultBillingAddress %}
+            {% set defaultShippingAddress = context.customer.defaultShippingAddress %}
 
             {% block page_account_address_default %}
                 <div class="row default-address">

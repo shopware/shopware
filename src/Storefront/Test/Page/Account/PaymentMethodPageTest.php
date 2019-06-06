@@ -33,7 +33,6 @@ class PaymentMethodPageTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(AccountPaymentMethodPage::class, $page);
-        static::assertSame(StorefrontPageTestConstants::CUSTOMER_FIRSTNAME, $page->getContext()->getCustomer()->getFirstName());
         static::assertSame(StorefrontPageTestConstants::PAYMENT_METHOD_COUNT, $page->getPaymentMethods()->count());
         self::assertPageEvent(AccountPaymentMethodPageLoadedEvent::class, $event, $context, $request, $page);
     }

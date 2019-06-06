@@ -5,7 +5,6 @@ namespace Shopware\Storefront\Page\Checkout\Confirm;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\Page;
 
 class CheckoutConfirmPage extends Page
@@ -26,11 +25,9 @@ class CheckoutConfirmPage extends Page
     protected $shippingMethods;
 
     public function __construct(
-        SalesChannelContext $context,
         PaymentMethodCollection $paymentMethods,
         ShippingMethodCollection $shippingMethods
     ) {
-        parent::__construct($context);
         $this->paymentMethods = $paymentMethods;
         $this->shippingMethods = $shippingMethods;
     }

@@ -71,7 +71,7 @@ Component.register('sw-settings-language-detail', {
 
     watch: {
         languageId() {
-            // reset current page if user navigates back to create
+            // We must reset the page if the user clicks his browsers back button and navigates back to create
             if (this.languageId === null) {
                 this.createdComponent();
             }
@@ -85,10 +85,7 @@ Component.register('sw-settings-language-detail', {
     methods: {
         createdComponent() {
             if (!this.languageId) {
-                if (this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId) {
-                    this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
-                }
-
+                this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
                 this.language = this.languageRepository.create(this.context);
             } else {
                 this.loadEntityData();

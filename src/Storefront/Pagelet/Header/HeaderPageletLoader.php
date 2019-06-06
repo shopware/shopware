@@ -100,6 +100,7 @@ class HeaderPageletLoader
     private function loadLanguages(SalesChannelContext $context): EntityCollection
     {
         $criteria = new Criteria();
+        $criteria->addAssociation('translationCode');
         $criteria->addFilter(new EqualsFilter('language.salesChannelDomains.salesChannelId', $context->getSalesChannel()->getId()));
 
         return $this->languageRepository->search($criteria, $context->getContext())->getEntities();

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Page\Page;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -45,9 +46,9 @@ class CmsController extends StorefrontController
             throw new MissingRequestParameterException('Parameter id missing');
         }
 
-        $page = $this->load($id, $request, $context);
+        $cmsPage = $this->load($id, $request, $context);
 
-        return $this->renderStorefront('@Storefront/page/content/detail.html.twig', ['cmsPage' => $page]);
+        return $this->renderStorefront('@Storefront/page/content/detail.html.twig', ['page' => new Page($context), 'cmsPage' => $cmsPage]);
     }
 
     /**
@@ -75,9 +76,9 @@ class CmsController extends StorefrontController
             throw new PageNotFoundException('');
         }
 
-        $page = $this->load($category->getCmsPageId(), $request, $context, $category->getSlotConfig());
+        $cmsPage = $this->load($category->getCmsPageId(), $request, $context, $category->getSlotConfig());
 
-        return $this->renderStorefront('@Storefront/page/content/detail.html.twig', ['cmsPage' => $page]);
+        return $this->renderStorefront('@Storefront/page/content/detail.html.twig', ['page' => new Page($context), 'cmsPage' => $cmsPage]);
     }
 
     private function load(string $id, Request $request, SalesChannelContext $context, ?array $config = null): ?CmsPageEntity

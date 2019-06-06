@@ -462,8 +462,9 @@ class VersionManager
 
         $date = (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT);
 
-        $userId = $writeContext->getContext()->getSource() instanceof AdminApiSource
-            ? Uuid::fromHexToBytes($writeContext->getContext()->getSource()->getUserId())
+        $source = $writeContext->getContext()->getSource();
+        $userId = $source instanceof AdminApiSource && $source->getUserId()
+            ? Uuid::fromHexToBytes($source->getUserId())
             : null;
 
         $insert = new InsertCommand(

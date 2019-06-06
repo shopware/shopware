@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -21,9 +22,19 @@ trait AdminApiTestBehaviour
     protected $apiUsernames = [];
 
     /**
+     * @var string[]
+     */
+    protected $apiIntegrations = [];
+
+    /**
      * @var KernelBrowser|null
      */
     private $kernelBrowser;
+
+    /**
+     * @var KernelBrowser|null
+     */
+    private $integrationBrowser;
 
     /**
      * @after
@@ -43,6 +54,11 @@ trait AdminApiTestBehaviour
                 'DELETE FROM user WHERE username IN (:usernames)',
                 ['usernames' => $this->apiUsernames],
                 ['usernames' => Connection::PARAM_STR_ARRAY]
+            );
+            $connection->executeQuery(
+                'DELETE FROM integration WHERE id IN (:ids)',
+                ['ids' => $this->apiIntegrations],
+                ['ids' => Connection::PARAM_STR_ARRAY]
             );
             $connection->executeQuery('DELETE FROM media');
         } catch (\Exception $ex) {
@@ -164,6 +180,50 @@ trait AdminApiTestBehaviour
         $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
     }
 
+    /**
+     * @throws InvalidUuidException
+     * @throws \RuntimeException
+     * @throws DBALException
+     */
+    public function authorizeBrowserWithIntegration(KernelBrowser $browser): void
+    {
+        $accessKey = AccessKeyHelper::generateAccessKey('integration');
+        $secretAccessKey = AccessKeyHelper::generateSecretAccessKey();
+        $id = Uuid::randomBytes();
+
+        /** @var Connection $connection */
+        $connection = $browser->getContainer()->get(Connection::class);
+
+        $connection->insert('integration', [
+            'id' => $id,
+            'write_access' => true,
+            'access_key' => $accessKey,
+            'secret_access_key' => password_hash($secretAccessKey, PASSWORD_BCRYPT),
+            'label' => 'test integration',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
+        ]);
+
+        $this->apiIntegrations[] = $id;
+
+        $authPayload = [
+            'grant_type' => 'client_credentials',
+            'client_id' => $accessKey,
+            'client_secret' => $secretAccessKey,
+        ];
+
+        $browser->request('POST', '/api/oauth/token', $authPayload);
+
+        $data = json_decode($browser->getResponse()->getContent(), true);
+
+        if (!array_key_exists('access_token', $data)) {
+            throw new \RuntimeException(
+                'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error' . print_r($data, true))
+            );
+        }
+
+        $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
+    }
+
     protected function getBrowser(): KernelBrowser
     {
         if ($this->kernelBrowser) {
@@ -171,6 +231,25 @@ trait AdminApiTestBehaviour
         }
 
         return $this->kernelBrowser = $this->createClient();
+    }
+
+    protected function getBrowserAuthenticatedWithIntegration(): KernelBrowser
+    {
+        if ($this->integrationBrowser) {
+            return $this->integrationBrowser;
+        }
+
+        $apiBrowser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel());
+
+        $apiBrowser->followRedirects();
+        $apiBrowser->setServerParameters([
+            'CONTENT_TYPE' => 'application/json',
+            'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
+        ]);
+
+        $this->authorizeBrowserWithIntegration($apiBrowser);
+
+        return $this->integrationBrowser = $apiBrowser;
     }
 
     private function getLocaleOfSystemLanguage(Connection $connection): string

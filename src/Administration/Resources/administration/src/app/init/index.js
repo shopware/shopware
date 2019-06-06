@@ -16,6 +16,7 @@ import initWorker from 'src/app/init/worker.init';
 import initSvgIcons from 'src/app/init/svg-icons.init';
 import initUserContext from 'src/app/init/user-information.init';
 import initConfig from 'src/app/init/config.init';
+import initShortcut from 'src/app/init/shortcut.init';
 
 export default {
     contextService: initContext,
@@ -35,5 +36,6 @@ export default {
     config: initConfig,
     worker: initWorker,
     userInfo: initUserContext,
-    repositoryFactory: initRepository
+    repositoryFactory: initRepository,
+    shortcut: initShortcut
 };

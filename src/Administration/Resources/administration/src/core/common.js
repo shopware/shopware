@@ -14,6 +14,7 @@ const MixinFactory = require('src/core/factory/mixin.factory').default;
 const FilterFactory = require('src/core/factory/filter.factory').default;
 const DirectiveFactory = require('src/core/factory/directive.factory').default;
 const LocaleFactory = require('src/core/factory/locale.factory').default;
+const ShortcutFactory = require('src/core/factory/shortcut.factory').default;
 const ApiServiceFactory = require('src/core/factory/api-service.factory').default;
 const FeatureConfig = require('src/core/feature-config').default;
 
@@ -53,6 +54,9 @@ application
     })
     .addFactory('locale', () => {
         return LocaleFactory;
+    })
+    .addFactory('shortcut', () => {
+        return ShortcutFactory;
     })
     .addFactory('apiService', () => {
         return ApiServiceFactory;
@@ -156,6 +160,16 @@ module.exports = {
         register: LocaleFactory.register,
         extend: LocaleFactory.extend,
         getByName: LocaleFactory.getLocaleByName
+    },
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    Shortcut: {
+        getShortcutRegistry: ShortcutFactory.getShortcutRegistry,
+        getPathByCombination: ShortcutFactory.getPathByCombination,
+        register: ShortcutFactory.register
     },
 
     /**

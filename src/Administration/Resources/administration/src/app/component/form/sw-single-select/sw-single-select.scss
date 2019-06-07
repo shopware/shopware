@@ -25,6 +25,7 @@ $sw-single-select-transition-results: all ease-in-out .2s;
 $sw-single-select-transition-result-icon: all ease-in-out .15s;
 
 .sw-single-select {
+    width: 100%;
     outline: none;
 
     .is--highlighted {

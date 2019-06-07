@@ -8,7 +8,7 @@
             :countries="countries"
             :address="addressBeingEdited"
             :orderCustomer="currentOrder.orderCustomer"
-            @adress-select="onAddressModalAddressSelected"
+            @address-select="onAddressModalAddressSelected"
             @close="onAddressModalClose"
             @save="onAddressModalSave"
             @error="$emit('error')">
@@ -40,6 +40,7 @@
                                     <sw-tag-field size="small"
                                                   :entity="currentOrder"
                                                   :disabled="!isEditing"
+                                                  v-if="isEditing || hasTags"
                                                   :showLabel="false"
                                                   @input="emitChange">
                                     </sw-tag-field>
@@ -70,12 +71,12 @@
                                 {% block sw_order_detail_base_order_overview_email %}
                                     <dt>{{ $tc('sw-order.detailBase.labelCustomerEmail') }}*</dt>
                                     <dd>
-                                        <sw-order-inline-field :displayValue="currentOrder.orderCustomer.email"
+                                        <sw-order-inline-field :displayValue="currentOrder.orderCustomer.email? currentOrder.orderCustomer.email : $tc('sw-order.detailBase.labelNoEmail')"
                                                                required
                                                                :value="currentOrder.orderCustomer.email"
                                                                :editable="isEditing"
                                                                @input="$emit('order-change')"
-                                                               v-model="currentOrder.orderCustomer.email"
+                                                               v-model="currentOrder.orderCustomer.email">
                                         </sw-order-inline-field>
                                     </dd>
                                 {% endblock %}

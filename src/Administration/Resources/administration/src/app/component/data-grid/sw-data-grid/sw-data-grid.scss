@@ -79,6 +79,11 @@
             margin-bottom: 0;
         }
 
+        .sw-select {
+            flex-shrink: 0;
+            width: 100%;
+        }
+
         a {
             color: $color-gutenberg;
             text-decoration: none;

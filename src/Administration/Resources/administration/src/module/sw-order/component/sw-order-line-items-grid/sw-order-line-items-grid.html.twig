@@ -1,5 +1,6 @@
 {% block sw_order_line_items_grid %}
-    <sw-container slot="grid" type="row">
+    <sw-container slot="grid" type="row" class="sw-order-line-items-grid">
+
         {% block sw_order_line_items_grid_actions %}
             <sw-container class="sw-order-line-items-grid__actions-container"
                           columns="1fr 1fr"
@@ -15,10 +16,12 @@
                         </sw-button>
                     {% endblock %}
                 {% endblock %}
+
                 {% block sw_order_line_items_grid_create_actions %}
                     <div align="right">
                         {% block sw_order_line_items_grid_create_actions_button_group %}
                             <sw-button-group :disabled="isLoading">
+
                                 {% block sw_order_line_items_grid_add_existing_product %}
                                     <sw-button variant="ghost"
                                         size="small"
@@ -26,6 +29,7 @@
                                         {{ $tc('sw-order.detailBase.buttonAddProduct') }}
                                     </sw-button>
                                 {% endblock %}
+
                                 {% block sw_order_line_items_grid_create_actions_dropdown%}
                                     <sw-context-button>
                                         <template slot="button">
@@ -37,6 +41,7 @@
                                                 </sw-icon>
                                             </sw-button>
                                         </template>
+
                                         {% block sw_order_line_items_grid_create_actions_dropdown%}
                                             <sw-context-menu-item @click="onInsertBlankItem">
                                                 {{ $tc('sw-order.detailBase.buttonAddBlankProduct') }}
@@ -53,163 +58,153 @@
                 {% endblock %}
             </sw-container>
         {% endblock %}
+
         {% block sw_order_line_items_grid_grid %}
-            <sw-grid class="sw-order-line-items-grid"
-                ref="order-line-items-grid"
-                :selectable="editable"
-                :items="orderLineItems"
-                @inline-edit-cancel="onInlineEditCancel"
-                @inline-edit-finish="onInlineEditSave"
-                @sw-grid-select-item="onSelectionChanged"
-                @sw-grid-select-all="onSelectionChanged"
-                table>
-                {% block sw_order_line_items_grid_columns %}
-                    <template slot="columns" slot-scope="{ item }">
-                        {% block sw_order_line_items_grid_columns_name %}
-                            <sw-grid-column flex="minmax(180px, 1fr)"
-                                :editable="editable"
-                                :label="$tc('sw-order.detailBase.columnProductName')">
-                                {% block sw_order_line_items_grid_columns_name_link %}
-                                    <router-link v-if="item.type === 'product'" :title="$tc('sw-order.detailBase.contextMenuShowProduct')"
-                                        :to="{ name: 'sw.product.detail', params: { id: item.identifier } }">
-                                        {% block sw_order_line_items_grid_columns_name_label %}
-                                            {{ item.label }}
-                                        {% endblock %}
-                                    </router-link>
-                                    <template v-else>
-                                        {% block sw_order_line_items_grid_columns_name_label %}
-                                            {{ item.label }}
-                                        {% endblock %}
-                                    </template>
-                                {% endblock %}
-                                {% block sw_order_line_items_grid_columns_label_editor %}
-                                    <sw-order-product-select
-                                        slot="inline-edit"
-                                        :item="item"
-                                        :displayProductSelection="itemCreatedFromProduct(item.id)">
-                                    </sw-order-product-select>
-                                {% endblock %}
-                            </sw-grid-column>
-                        {% endblock %}
-                        {% block sw_order_line_items_grid_columns_unit_price %}
-                            <sw-grid-column flex="minmax(110px, 130px)"
-                                align="right"
-                                :editable="editable"
-                                :label="order.taxStatus === 'net'? $tc('sw-order.detailBase.columnPriceNet') : $tc('sw-order.detailBase.columnPriceGross')">
-                                {% block sw_order_line_items_grid_columns_unit_price_label %}
-                                    {{ item.unitPrice | currency(order.currency.shortName) }}
-                                {% endblock %}
-                                {% block sw_order_line_items_grid_columns_unit_price_editor %}
-                                    <sw-field :disabled="itemCreatedFromProduct(item.id)"
-                                        type="number"
-                                        v-model="item.priceDefinition.price"
-                                        slot="inline-edit"
-                                        placeholder="0"
-                                        :min="getMinItemPrice(item.id)"
-                                        :max="getMaxItemPrice(item.id)">
-                                        <template #suffix>
-                                            {{ order.currency.symbol }}
-                                        </template>
-                                    </sw-field>
-                                {% endblock %}
-                            </sw-grid-column>
-                        {% endblock %}
-                        {% block sw_order_line_items_grid_columns_unit_quantity %}
-                            <sw-grid-column flex="minmax(110px, 110px)"
-                                :label="$tc('sw-order.detailBase.columnQuantity')"
-                                align="right"
-                                :editable="editable">
-                                {% block sw_order_line_items_grid_columns_quantity_label %}
-                                    {{ item.quantity }}
-                                {% endblock %}
-                                {% block sw_order_line_items_grid_columns_quantity_editor %}
-                                    <sw-field type="number"
-                                        v-model="item.quantity"
-                                        slot="inline-edit"
-                                        placeholder=0
-                                        :disabled="itemIsCredit(item.id)">
-                                    </sw-field>
-                                {% endblock %}
-                            </sw-grid-column>
-                        {% endblock %}
-                        {% block sw_order_line_items_grid_columns_total_price %}
-                            <sw-grid-column flex="minmax(110px, 130px)"
-                                align="right"
-                                :label="order.taxStatus === 'net' ? $tc('sw-order.detailBase.columnTotalPriceNet') : $tc('sw-order.detailBase.columnTotalPriceGross')">
-                                {% block sw_order_line_items_grid_columns_total_price_label %}
-                                    {{ item.totalPrice | currency(order.currency.shortName) }}
-                                {% endblock %}
-                            </sw-grid-column>
-                        {% endblock %}
-                        {% block sw_order_line_items_grid_columns_tax %}
-                            <sw-grid-column v-if="order.price.taxStatus !== 'tax-free'"
-                                flex="minmax(110px, 130px)"
-                                align="right"
-                                :editable="editable"
-                                :label="$tc('sw-order.detailBase.columnTax')">
+            <sw-data-grid :dataSource="orderLineItems"
+                          :columns="lineItemColumns"
+                          :fullPage="false"
+                          :showSettings="false"
+                          :showSelection="editable"
+                          :showActions="true"
+                          :isLoading="isLoading"
+                          :allowColumnEdit="false"
+                          :allowInlineEdit="editable"
+                          identifier="sw-order-line-item-grid"
+                          class="sw-order-line-items-grid__data-grid"
+                          @inline-edit-save="onInlineEditSave"
+                          @select-item="onSelectionChanged"
+                          @select-all-items="onSelectionChanged">
 
-                                {% block sw_order_line_items_grid_columns_tax_label %}
-                                    <template v-if="item.price && item.price.taxRules.length > 0">
-                                        {{ item.price.taxRules[0].taxRate }} %
-                                    </template>
-                                {% endblock %}
+                {% block sw_order_line_items_grid_grid_columns %}
+                    {% block sw_order_line_items_grid_grid_columns_label %}
+                        <template slot="column-label" slot-scope="{ item, isInlineEdit}">
 
-                                {% block sw_order_line_items_grid_columns_tax_editor %}
-                                    <template slot="inline-edit">
-                                        <sw-field v-if="item.type === 'credit'"
-                                            type="number"
-                                            key="order-line-item-tax-edit-credit"
-                                            v-model="item.price.taxRules[0].taxRate"
-                                            placeholder="0"
-                                            :disabled="true">
-                                            <template #suffix>
-                                                %
-                                            </template>
-                                        </sw-field>
-                                        <sw-field v-else-if="item.priceDefinition && item.priceDefinition.taxRules" type="number"
-                                            v-model="item.priceDefinition.taxRules[0].taxRate"
-                                            key="order-line-item-tax-edit-default"
-                                            placeholder="0"
-                                            :disabled="itemCreatedFromProduct(item.id)">
-                                            <template #suffix>
-                                                %
-                                            </template>
-                                        </sw-field>
-                                    </template>
-                                {% endblock %}
-                            </sw-grid-column>
-                        {% endblock %}
-                        {% block sw_order_line_items_grid_columns_slot %}
-                        {% endblock %}
-                        {% block sw_order_line_items_grid_columns_actions %}
-                            <sw-grid-column flex="minmax(70px, 70px)"
-                                align="center">
-                                {% block sw_order_line_items_grid_columns_actions_button %}
-                                    <sw-context-button v-if="item.type === 'product'">
-                                        {% block sw_order_line_items_grid_columns_actions_show %}
-                                            <sw-context-menu-item icon="default-eye-open" :routerLink="{ name: 'sw.product.detail', params: { id: item.identifier } }">
-                                                {% block sw_order_line_items_grid_columns_actions_show_label %}
-                                                    {{ $tc('sw-order.detailBase.contextMenuShowProduct') }}
-                                                {% endblock %}
-                                            </sw-context-menu-item>
-                                        {% endblock %}
-                                    </sw-context-button>
-                                {% endblock %}
-                            </sw-grid-column>
-                        {% endblock %}
-                    </template>
-                {% endblock %}
-                <template slot="pagination">
-                {% block sw_order_line_items_grid_pagination %}
-                        <sw-pagination :page="page"
-                            :limit="limit"
-                            :total="total"
-                            :total-visible="1"
-                            @page-change="onPageChange">
-                        </sw-pagination>
+                            {% block sw_order_line_items_grid_grid_columns_label_inline_edit %}
+                                <sw-order-product-select v-if="isInlineEdit"
+                                                         :item="item"
+                                                         :displayProductSelection="itemCreatedFromProduct(item.id)">
+                                </sw-order-product-select>
+                            {% endblock %}
+
+                            {% block sw_order_line_items_grid_grid_columns_label_link %}
+                                <router-link v-else-if="!isInlineEdit && item.type === 'product'"
+                                             :title="$tc('sw-order.detailBase.contextMenuShowProduct')"
+                                             :to="{ name: 'sw.product.detail', params: { id: item.identifier } }">
+                                    {% block sw_order_line_items_grid_columns_name_label %}
+                                        {{ item.label }}
+                                    {% endblock %}
+                                </router-link>
+                            {% endblock %}
+
+                            {% block sw_order_line_items_grid_grid_columns_label_content %}
+                                <template v-else>
+                                    {{ item.label }}
+                                </template>
+                            {% endblock %}
+
+                        </template>
                     {% endblock %}
-                </template>
-            </sw-grid>
+
+                    {% block sw_order_line_items_grid_grid_columns_unit_price %}
+                        <template slot="column-unitPrice" slot-scope="{ item, isInlineEdit}">
+
+                            {% block sw_order_line_items_grid_grid_columns_unit_price_inline_edit %}
+                                <sw-field v-if="isInlineEdit && !itemCreatedFromProduct(item.id)"
+                                    type="number"
+                                    v-model="item.priceDefinition.price"
+                                    slot="inline-edit"
+                                    placeholder="0"
+                                    size="small"
+                                    :min="getMinItemPrice(item.id)"
+                                    :max="getMaxItemPrice(item.id)">
+                                    <template #suffix>
+                                        {{ order.currency.symbol }}
+                                    </template>
+                                </sw-field>
+                            {% endblock %}
+
+                            {% block sw_order_line_items_grid_grid_columns_unit_price_content %}
+                                <template v-else>
+                                    {{ item.unitPrice | currency(order.currency.shortName) }}
+                                </template>
+                            {% endblock %}
+
+                        </template>
+                    {% endblock %}
+
+                    {% block sw_order_line_items_grid_grid_columns_total_price %}
+                        <template slot="column-totalPrice" slot-scope="{ item }">
+                            {% block sw_order_line_items_grid_grid_columns_total_price_content %}
+                                {{ item.totalPrice | currency(order.currency.shortName) }}
+                            {% endblock %}
+                        </template>
+                    {% endblock %}
+
+                    {% block sw_order_line_items_grid_grid_columns_quantity %}
+                        <template slot="column-quantity" slot-scope="{ item, isInlineEdit }">
+
+                            {% block sw_order_line_items_grid_grid_columns_quantity_inline_edit %}
+                                <sw-field v-if="isInlineEdit && !itemIsCredit(item.id)"
+                                          v-model="item.quantity"
+                                          type="number"
+                                          slot="inline-edit"
+                                          size="small"
+                                          placeholder=0>
+                                </sw-field>
+                            {% endblock %}
+
+                            {% block sw_order_line_items_grid_grid_columns_quantity_content %}
+                                <template v-else>
+                                    {{ item.quantity }}
+                                </template>
+                            {% endblock %}
+                        </template>
+                    {% endblock %}
+
+                    {% block sw_order_line_items_grid_grid_columns_tax %}
+                        <template slot="column-price.taxRules[0]" slot-scope="{ item, isInlineEdit }">
+
+                            {% block sw_order_line_items_grid_grid_columns_tax_inline_edit %}
+                                <sw-field v-if="isInlineEdit &&
+                                                !itemCreatedFromProduct(item.id) &&
+                                                item.priceDefinition &&
+                                                item.priceDefinition.taxRules &&
+                                                item.type !== 'credit'"
+                                    type="number"
+                                    v-model="item.priceDefinition.taxRules[0].taxRate"
+                                    key="order-line-item-tax-edit-default"
+                                    size="small"
+                                    placeholder="0">
+                                    <template #suffix>
+                                        %
+                                    </template>
+                                </sw-field>
+                            {% endblock %}
+
+                            {% block sw_order_line_items_grid_grid_columns_tax_content %}
+                                <template v-else-if="item.price && item.price.taxRules.length">
+                                    {{ item.price.taxRules[0].taxRate }} %
+                                </template>
+                            {% endblock %}
+
+                        </template>
+                    {% endblock %}
+
+                    {% block sw_order_line_items_grid_grid_actions %}
+                        <template #actions="{ item }">
+                            {% block w_order_line_items_grid_grid_actions_show %}
+                            <sw-context-menu-item icon="default-eye-open" :routerLink="{ name: 'sw.product.detail', params: { id: item.identifier } }">
+                                {% block sw_order_line_items_grid_grid_actions_show_label %}
+                                    {{ $tc('sw-order.detailBase.contextMenuShowProduct') }}
+                                {% endblock %}
+                            </sw-context-menu-item>
+                            {% endblock %}
+                        </template>
+                    {% endblock %}
+
+                {% endblock %}
+
+            </sw-data-grid>
         {% endblock %}
     </sw-container>
 {% endblock %}

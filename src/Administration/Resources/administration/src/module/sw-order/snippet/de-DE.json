@@ -67,6 +67,7 @@
       "buttonAddCredit" :"Gutschrift hinzufügen",
       "buttonEditAddress" : "Bearbeiten",
       "labelNoPhoneNumber" :"Keine",
+      "labelNoEmail" :"Keine",
       "labelCustomerPhoneNumber":"Telefonnummer",
       "labelLanguage" :"Sprache der Bestellung",
       "labelPaymentMethod" : "Zahlungsart",

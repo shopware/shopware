@@ -100,6 +100,9 @@ Component.register('sw-order-document-card', {
             params.sortBy = 'createdAt';
             params.sortDirection = 'DESC';
             params.term = this.term;
+            params.associations = {
+                documentType: {}
+            };
 
             this.documentStore.getList(params).then((response) => {
                 this.total = response.total;

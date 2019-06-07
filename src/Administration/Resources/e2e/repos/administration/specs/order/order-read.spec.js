@@ -56,9 +56,9 @@ module.exports = {
 
         browser
             .getLocationInView('.sw-order-detail-base__summary')
-            .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains(global.ProductFixtureService.productFixture.name);
-        browser.expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains(global.ProductFixtureService.productFixture.price.gross);
-        browser.expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains('19 %');
+            .expect.element(`${page.elements.dataGridRow}--0`).to.have.text.that.contains(global.ProductFixtureService.productFixture.name);
+        browser.expect.element(`${page.elements.dataGridRow}--0`).to.have.text.that.contains(global.ProductFixtureService.productFixture.price.gross);
+        browser.expect.element(`${page.elements.dataGridRow}--0`).to.have.text.that.contains('19 %');
     },
     'verify delivery metadata': (browser) => {
         browser

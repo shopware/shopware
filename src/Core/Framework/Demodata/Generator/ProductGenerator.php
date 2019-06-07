@@ -12,6 +12,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
@@ -144,7 +145,7 @@ class ProductGenerator implements DemodataGeneratorInterface
             ['name' => 'High tax', 'taxRate' => 19],
         ], $context);
 
-        return array_values($this->taxRepository->search(new Criteria(), $context)->getIds());
+        return $this->taxRepository->search(new Criteria(), $context);
     }
 
     private function getMediaIds(Context $context)
@@ -152,18 +153,20 @@ class ProductGenerator implements DemodataGeneratorInterface
         return array_values($this->mediaRepository->search(new PaginationCriteria(200), $context)->getIds());
     }
 
-    private function createSimpleProduct(DemodataContext $context, array $taxes): array
+    private function createSimpleProduct(DemodataContext $context, EntitySearchResult $taxes): array
     {
         $price = random_int(1, 1000);
         $manufacturer = $context->getIds(ProductManufacturerDefinition::class);
         $categories = $context->getIds(CategoryDefinition::class);
         $rules = $context->getIds(RuleDefinition::class);
+        $tax = $taxes->get(array_rand($taxes->getIds()));
+        $reverseTaxrate = 1 + ($tax->getTaxRate() / 100);
 
         $faker = $context->getFaker();
         $product = [
             'id' => Uuid::randomHex(),
             'productNumber' => $this->numberRangeValueGenerator->getValue('product', $context->getContext(), null),
-            'price' => ['gross' => $price, 'net' => $price / 1.19, 'linked' => true],
+            'price' => ['gross' => $price, 'net' => $price / $reverseTaxrate, 'linked' => true],
             'name' => $faker->productName,
             'description' => $faker->text(),
             'descriptionLong' => $this->generateRandomHTML(
@@ -171,7 +174,7 @@ class ProductGenerator implements DemodataGeneratorInterface
                 ['b', 'i', 'u', 'p', 'h1', 'h2', 'h3', 'h4', 'cite'],
                 $context
             ),
-            'taxId' => $taxes[array_rand($taxes)],
+            'taxId' => $tax->getId(),
             'manufacturerId' => $manufacturer[array_rand($manufacturer)],
             'active' => true,
             'categories' => [

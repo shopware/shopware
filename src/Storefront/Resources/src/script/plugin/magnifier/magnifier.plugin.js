@@ -186,7 +186,7 @@ export default class MagnifierPlugin extends Plugin {
      */
     _getContainerPos(imageContainer) {
         const containerBoundingRect = imageContainer.getBoundingClientRect();
-        return new Vector2(containerBoundingRect.left + window.scrollX, containerBoundingRect.top + window.scrollY);
+        return new Vector2(containerBoundingRect.left + window.pageXOffset, containerBoundingRect.top + window.pageYOffset);
     }
 
     /**
@@ -196,7 +196,7 @@ export default class MagnifierPlugin extends Plugin {
      */
     _getImagePos(image) {
         const imageBoundingRect = image.getBoundingClientRect();
-        return new Vector2(imageBoundingRect.left + window.scrollX, imageBoundingRect.top + window.scrollY);
+        return new Vector2(imageBoundingRect.left + window.pageXOffset, imageBoundingRect.top + window.pageYOffset);
     }
 
     /**

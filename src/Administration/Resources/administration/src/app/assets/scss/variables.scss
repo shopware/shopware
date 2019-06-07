@@ -1,46 +1,252 @@
-// Base colors
-$color-shopware-blue: #189EFF;
-$color-biscay: #16325C;
-$color-kashmir: #54698D;
-$color-deep-cove: #303A4F;
-$color-iron:  #FAFBFC;
-$color-crimson: #DE294C;
-$color-pumpkin-spice: #FFB75D;
-$color-contrast: #FFD700;
-$color-emerald: #37D046;
-$color-cadet-blue: #E8F6FF;
+/* ------------------------------------
+ * Administration variables
+ * Table of contents
+ *
+ * 1. Primary colors
+ * 2. Status colors
+ * 3. Module colors
+ * 4. Generic colors
+ * 5. Legacy colors
+ * 6. Typography
+ * 7. Miscellaneous
+ * 8. z-index
+ * ------------------------------------ */
+
+/* ------------------------------------
+ * 1. Primary colors
+ * ------------------------------------ */
+
+// Gray
+// Color description: Grayish blue
+$color-gray-50: #F9FAFB;
+$color-gray-100: #F0F2F5;
+$color-gray-200: #E0E6EB;
+$color-gray-300: #D1D9E0;
+$color-gray-400: #C2CCD6;
+$color-gray-500: #B3BFCC;
+$color-gray-600: #A3B3C2;
+$color-gray-700: #94A6B8;
+$color-gray-800: #8599AD;
+$color-gray-900: #758CA3;
+
+// Darkgray
+// Color description: Very dark grayish blue
+$color-darkgray-50: #667F99;
+$color-darkgray-100: #5C738A;
+$color-darkgray-200: #52667A;
+$color-darkgray-300: #47596B;
+$color-darkgray-400: #3D4C5C;
+$color-darkgray-500: #33404D;
+$color-darkgray-600: #29333D;
+$color-darkgray-700: #1F262E;
+$color-darkgray-800: #14191F;
+$color-darkgray-900: #0A0D0F;
+
+// Shopware brand
+// Color description: Vivid blue
+$color-shopware-brand-50: #E3F3FF;
+$color-shopware-brand-100: #BAE2FF;
+$color-shopware-brand-200: #8CCFFF;
+$color-shopware-brand-300: #5DBBFF;
+$color-shopware-brand-400: #3BADFF;
+$color-shopware-brand-500: #189EFF;
+$color-shopware-brand-600: #1596FF;
+$color-shopware-brand-700: #118CFF;
+$color-shopware-brand-800: #0E82FF;
+$color-shopware-brand-900: #0870FF;
+
+// Menu
+// Color description: Very dark desaturated blue
+$color-menu-start: #303A4F;
+$color-menu-end: #2A3345;
+
+/* ------------------------------------
+ * 2. Status colors
+ * ------------------------------------ */
+
+// Emerald
+// Color description: Moderate lime green
+$color-emerald-50: #E7F9E9;
+$color-emerald-100: #C3F1C8;
+$color-emerald-200: #9BE8A3;
+$color-emerald-300: #73DE7E;
+$color-emerald-400: #55D762;
+$color-emerald-500: #37D046;
+$color-emerald-600: #31CB3F;
+$color-emerald-700: #2AC437;
+$color-emerald-800: #23BE2F;
+$color-emerald-900: #16B320;
+
+// Pumpkin Spice
+// Color description: Light orange
+$color-pumpkin-spice-50: #FFF6EC;
+$color-pumpkin-spice-100: #FFE9CE;
+$color-pumpkin-spice-200: #FFDBAE;
+$color-pumpkin-spice-300: #FFCD8E;
+$color-pumpkin-spice-400: #FFC275;
+$color-pumpkin-spice-500: #FFB75D;
+$color-pumpkin-spice-600: #FFB055;
+$color-pumpkin-spice-700: #FFA74B;
+$color-pumpkin-spice-800: #FF9F41;
+$color-pumpkin-spice-900: #FF9030;
+
+// Crimson
+// Color description: Bright red
+$color-crimson-50: #FBE5EA;
+$color-crimson-100: #F5BFC9;
+$color-crimson-200: #EF94A6;
+$color-crimson-300: #E86982;
+$color-crimson-400: #E34967;
+$color-crimson-500: #DE294C;
+$color-crimson-600: #DA2445;
+$color-crimson-700: #D51F3C;
+$color-crimson-800: #D11933;
+$color-crimson-900: #C80F24;
+
+/* ------------------------------------
+ * 3. Module colors
+ * ------------------------------------ */
+
+// Yellow
+// Color description: Pure yellow
+// Marketing module
+$color-module-yellow-50: #FFFAE0;
+$color-module-yellow-100: #FFF3B3;
+$color-module-yellow-200: #FFEB80;
+$color-module-yellow-300: #FFE34D;
+$color-module-yellow-400: #FFDD26;
+$color-module-yellow-500: #FFD700;
+$color-module-yellow-600: #FFD300;
+$color-module-yellow-700: #FFCD00;
+$color-module-yellow-800: #FFC700;
+$color-module-yellow-900: #FFBE00;
+
+// Orange
+// Color description: Soft orange
+// Customer module
+$color-module-orange-50: #FEF1EC;
+$color-module-orange-100: #FDDCD0;
+$color-module-orange-200: #FCC4B1;
+$color-module-orange-300: #FAAC91;
+$color-module-orange-400: #F99B7A;
+$color-module-orange-500: #F88962;
+$color-module-orange-600: #F7815A;
+$color-module-orange-700: #F67650;
+$color-module-orange-800: #F56C46;
+$color-module-orange-900: #F35934;
+
+// Pink
+// Color description: Very light pink
+// Content module
+$color-module-pink-50: #FFF0F8;
+$color-module-pink-100: #FFDAED;
+$color-module-pink-200: #FFC2E1;
+$color-module-pink-300: #FFAAD4;
+$color-module-pink-400: #FF97CB;
+$color-module-pink-500: #FF85C2;
+$color-module-pink-600: #FF7DBC;
+$color-module-pink-700: #FF72B4;
+$color-module-pink-800: #FF68AC;
+$color-module-pink-900: #FF559F;
+
+// Blue
+// Color description: Soft cyan
+// Dashboard module
+$color-module-blue-50: #EDFAFD;
+$color-module-blue-100: #D2F3FB;
+$color-module-blue-200: #B5EBF8;
+$color-module-blue-300: #97E2F5;
+$color-module-blue-400: #80DCF2;
+$color-module-blue-500: #6AD6F0;
+$color-module-blue-600: #62D1EE;
+$color-module-blue-700: #57CCEC;
+$color-module-blue-800: #4DC6E9;
+$color-module-blue-900: #3CBCE5;
+
+// Purple
+// Color description: Very soft blue
+// Order module
+$color-module-purple-50: #F4F2FD;
+$color-module-purple-100: #E3DEFB;
+$color-module-purple-200: #D0C9F8;
+$color-module-purple-300: #BDB3F5;
+$color-module-purple-400: #AEA2F2;
+$color-module-purple-500: #A092F0;
+$color-module-purple-600: #988AEE;
+$color-module-purple-700: #8E7FEC;
+$color-module-purple-800: #8475E9;
+$color-module-purple-900: #7363E5;
+
+// Green
+// Color description: Soft cyan - lime green
+// Catalog module
+$color-module-green-50: #EBFAF4;
+$color-module-green-100: #CDF4E3;
+$color-module-green-200: #ABECD1;
+$color-module-green-300: #89E4BF;
+$color-module-green-400: #70DFB1;
+$color-module-green-500: #57D9A3;
+$color-module-green-600: #4FD59B;
+$color-module-green-700: #46CF91;
+$color-module-green-800: #3CCA88;
+$color-module-green-900: #2CC077;
+
+/* ------------------------------------
+ * 4. Generic colors
+ * ------------------------------------ */
+
 $color-white: #FFF;
 $color-black: #000;
-$color-gutenberg: #607182;
-$color-steam-cloud: #D8DDE6;
-$color-link-water: #FCFCFC;
-$color-light-gray: #F4F7FA;
-$color-gray: #9aa7be;
 $color-drag-select-box: rgba(0, 162, 255, .4);
-$color-purple: #7363E5;
 
-// Module colors
-$color-product: #57D9A3;
-$color-category: #fe87bf;
-$color-customer: #f88962;
-$color-page: #8379c7;
-$color-media: #ef734a;
+/* ------------------------------------
+ * 5. Legacy colors
+ * @deprecated: Will be removed in 6.1
+ * ------------------------------------ */
+
+// Base colors
+$color-shopware-blue: $color-shopware-brand-500;
+$color-biscay: $color-menu-end;
+$color-kashmir: $color-darkgray-200; // Old color #54698D
+$color-deep-cove: $color-menu-start;
+$color-iron: $color-gray-50; // Old color: #FAFBFC
+$color-crimson: $color-crimson-500;
+$color-pumpkin-spice: $color-pumpkin-spice-500;
+$color-contrast: $color-module-yellow-500;
+$color-emerald: $color-emerald-500;
+$color-cadet-blue: $color-shopware-brand-50; // Old color: #E8F6FF
+$color-gutenberg: $color-darkgray-200; // Old color #607182
+$color-steam-cloud: $color-gray-300; // Old color #D8DDE6
+$color-link-water: $color-gray-50; // Old color #FCFCFC
+$color-light-gray: $color-gray-100; // Old color #F4F7FA
+$color-gray: $color-gray-700; // Old color #9AA7BE
+$color-purple: $color-module-purple-900;
 
 // Gradients
-$color-gradient-dark-gray-start: #303A4F;
-$color-gradient-dark-gray-end: #2A3345;
+$color-gradient-dark-gray-start: $color-menu-start;
+$color-gradient-dark-gray-end: $color-menu-end;
 $gradient-dark-gray: linear-gradient(to bottom, $color-gradient-dark-gray-start, $color-gradient-dark-gray-end);
 
-// Typography
+/* ------------------------------------
+ * 6. Typography
+ * ------------------------------------ */
+
 $font-family-default: 'Source Sans Pro', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
 $font-size-default: 16px;
 $font-size-large: 18px;
 $font-size-small: 14px;
 
-// Miscellaneous
-$border-radius-default: 4px;
+/* ------------------------------------
+ * 7. Miscellaneous
+ * ------------------------------------ */
 
-// z-index
+$border-radius-default: 4px;
+$transparent-background-url: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAACVBMVEX39/f////+/v66RnnUAAAAM0lEQVQIHQXBwQ3AMAgEMC95SPRPpQxENuiete2HCqZRhWlkcV4kIIPb6MUWZpEHN+j9ARNGDXV0xoICAAAAAElFTkSuQmCC');
+
+/* ------------------------------------
+ * 8. z-index
+ * ------------------------------------ */
+
 $z-index-loader: 400;
 $z-index-drag-select-box: 100;
 $z-index-sidebar: 200;
@@ -54,6 +260,3 @@ $z-index-tooltip: 1100;
 $z-index-notifications: 1200;
 $z-index-hover-image: 1300;
 $z-index-dragdrop: 1400;
-
-//transparent-background
-$transparent-background-url: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAACVBMVEX39/f////+/v66RnnUAAAAM0lEQVQIHQXBwQ3AMAgEMC95SPRPpQxENuiete2HCqZRhWlkcV4kIIPb6MUWZpEHN+j9ARNGDXV0xoICAAAAAElFTkSuQmCC');

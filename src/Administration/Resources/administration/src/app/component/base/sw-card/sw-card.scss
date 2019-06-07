@@ -4,7 +4,7 @@
     max-width: 800px;
     margin: 0 auto 40px auto;
     position: relative;
-    color: $color-gutenberg;
+    color: $color-darkgray-200;
 
     &.sw-card--tabs {
         .sw-card__content {
@@ -86,7 +86,7 @@
         margin-bottom: 12px;
         font-size: 18px;
         line-height: 24px;
-        color: $color-kashmir;
+        color: $color-darkgray-200;
 
         @media screen and (min-width: 1580px) {
             width: 200px;
@@ -99,8 +99,8 @@
 
     .sw-card__toolbar {
         padding: 30px;
-        background-color: $color-light-gray;
-        border: 1px solid $color-steam-cloud;
+        background-color: $color-gray-100;
+        border: 1px solid $color-gray-300;
     }
 
     &.has--header {
@@ -115,7 +115,7 @@
         background: $color-white;
         background-clip: padding-box;
         border-radius: $border-radius-default;
-        border: 1px solid $color-steam-cloud;
+        border: 1px solid $color-gray-300;
         position: relative;
 
         @media screen and (max-width: 800px) {
@@ -148,11 +148,11 @@
             grid-column-gap: 6px;
             align-items: center;
             text-decoration: none;
-            color: $color-shopware-blue;
+            color: $color-shopware-brand-500;
             font-size: 14px;
 
             &:hover {
-                color: darken($color-shopware-blue, 10);
+                color: $color-shopware-brand-600;
             }
         }
 
@@ -176,12 +176,12 @@
             border-bottom-right-radius: 0;
 
             &:hover {
-                border-bottom-color: $color-steam-cloud;
+                border-bottom-color: $color-gray-300;
             }
 
             &:focus {
-                background-color: $color-light-gray;
-                border-bottom-color: $color-steam-cloud;
+                background-color: $color-gray-100;
+                border-bottom-color: $color-gray-300;
             }
 
             &:active {

@@ -5,20 +5,15 @@ $sw-side-navigation-item-link-distance: 10px;
 .sw-tabs-item {
     transition: 0.3s all ease-in-out;
     padding: $sw-side-navigation-item-link-distance ($sw-side-navigation-item-link-distance * 1.75);
-    border-bottom: 2px solid lighten($color-gutenberg, 45);
+    border-bottom: 2px solid $color-gray-300;
     text-decoration: none;
-    font-weight: 600;
     white-space: nowrap;
-    color: lighten($color-gutenberg, 30);
+    color: $color-darkgray-200;
     cursor: pointer;
     user-select: none;
 
     &.sw-tabs-item--active {
-        color: $color-gutenberg;
-    }
-
-    &:hover {
-        color: $color-gutenberg;
+        color: $color-darkgray-800;
     }
 
     &:disabled {
@@ -29,11 +24,11 @@ $sw-side-navigation-item-link-distance: 10px;
 
 .sw-tabs--vertical .sw-tabs-item {
     padding: $sw-side-navigation-item-link-distance;
-    border-bottom: 0 solid lighten($color-gutenberg, 45);
-    border-left: 2px solid lighten($color-gutenberg, 45);
+    border-bottom: 0 solid $color-gray-300;
+    border-left: 2px solid $color-gray-300;
 }
 
 .sw-tabs--vertical.sw-tabs--align-right .sw-tabs-item{
     border-left: 0;
-    border-right: 2px solid lighten($color-gutenberg, 45);
+    border-right: 2px solid $color-gray-300;
 }

@@ -29,7 +29,7 @@ $sw-modal-transition-timing-function: cubic-bezier(.68, -0.55, .26, 1.55);
     .sw-modal__dialog {
         background-color: $color-white;
         border-radius: $border-radius-default;
-        color: $color-gutenberg;
+        color: $color-darkgray-200;
         max-height: calc(100vh - #{$sw-modal-gap});
         min-height: 200px;
         width: 100%;
@@ -75,7 +75,7 @@ $sw-modal-transition-timing-function: cubic-bezier(.68, -0.55, .26, 1.55);
     }
 
     .sw-modal__header {
-        border-bottom: 1px solid $color-steam-cloud;
+        border-bottom: 1px solid $color-gray-300;
         display: flex;
         flex-shrink: 0;
         flex-direction: row;
@@ -97,7 +97,7 @@ $sw-modal-transition-timing-function: cubic-bezier(.68, -0.55, .26, 1.55);
 
     .sw-modal__close {
         background: 0 none;
-        color: lighten($color-gutenberg, 10%);
+        color: $color-darkgray-100;
         cursor: pointer;
         outline: none;
         flex-shrink: 0;
@@ -108,12 +108,12 @@ $sw-modal-transition-timing-function: cubic-bezier(.68, -0.55, .26, 1.55);
         width: 40px;
 
         &:hover {
-            color: $color-gutenberg;
+            color: $color-darkgray-200;
         }
 
         &:focus {
-            background-color: darken($color-light-gray, 5%);
-            color: $color-gutenberg;
+            background-color: $color-gray-200;
+            color: $color-darkgray-200;
         }
     }
 
@@ -126,7 +126,7 @@ $sw-modal-transition-timing-function: cubic-bezier(.68, -0.55, .26, 1.55);
 
     .sw-modal__footer {
         border-radius: 0 0 $border-radius-default $border-radius-default;
-        background-color: $color-light-gray;
+        background-color: $color-gray-100;
         display: grid;
         grid-auto-columns: min-content;
         grid-auto-flow: column;

@@ -20,7 +20,7 @@
             bottom: 0;
             width: 100%;
             height: 2px;
-            background-color: lighten($color-gutenberg, 45);
+            background-color: $color-gray-300;
         }
     }
 
@@ -30,7 +30,7 @@
          position: absolute;
          bottom: 0;
          height: 2px;
-         background-color: $color-shopware-blue;
+         background-color: $color-shopware-brand-500;
     }
 
     .sw-tabs__arrow {
@@ -65,7 +65,7 @@
             cursor: pointer;
 
             .sw-icon {
-                color: $color-shopware-blue;
+                color: $color-shopware-brand-500;
             }
         }
     }
@@ -122,5 +122,4 @@
             }
         }
     }
-
 }

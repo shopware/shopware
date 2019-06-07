@@ -7,7 +7,7 @@
     dt,
     dd {
         padding: 15px;
-        border-bottom: 1px solid $color-steam-cloud;
+        border-bottom: 1px solid $color-gray-300;
 
         &:last-of-type {
             border-bottom-color: transparent;
@@ -16,6 +16,6 @@
 
     dt {
         font-weight: 600;
-        color: $color-kashmir;
+        color: $color-darkgray-200;
     }
 }

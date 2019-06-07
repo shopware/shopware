@@ -3,9 +3,9 @@
 $sw-button-transition: all 0.15s ease-out;
 
 .sw-button {
-    border: 1px solid $color-steam-cloud;
-    background: $color-link-water;
-    color: $color-kashmir;
+    border: 1px solid $color-gray-300;
+    background: $color-gray-50;
+    color: $color-darkgray-200;
     transition: $sw-button-transition;
     display: inline-block;
     border-radius: $border-radius-default;
@@ -36,36 +36,33 @@ $sw-button-transition: all 0.15s ease-out;
     }
 
     &:hover {
-        color: darken($color-kashmir, 5%);
-        background: darken($color-link-water, 5%);
-        border-color: darken($color-steam-cloud, 5%);
+        background: $color-gray-100;
+        border-color: $color-gray-400;
     }
 
     &:active {
-        color: darken($color-kashmir, 10%);
-        background: darken($color-link-water, 10%);
-        border-color: darken($color-steam-cloud, 20%);
+        background: $color-gray-200;
+        border-color: $color-gray-400;
     }
 
     &:disabled,
     &.sw-button--disabled {
-        background-color: $color-light-gray;
-        color: lighten($color-kashmir, 25%);
+        color: $color-gray-500;
         pointer-events: none;
         cursor: default;
     }
 
     .sw-icon {
-        color: lighten($color-kashmir, 30%);
+        color: $color-gray-800;
     }
 
     &.sw-button--square:not([disabled]) .sw-icon,
     &.sw-button--square:not(.sw-button--disabled) .sw-icon {
-        color: $color-kashmir;
+        color: $color-darkgray-200;
     }
 
     &.sw-button--primary {
-        background: $color-shopware-blue;
+        background: $color-shopware-brand-500;
         color: $color-white;
         line-height: 36px;
         border: 0 none;
@@ -87,16 +84,16 @@ $sw-button-transition: all 0.15s ease-out;
         }
 
         &:hover {
-            background: darken($color-shopware-blue, 10%);
+            background: $color-shopware-brand-700;
         }
 
         &:active {
-            background: darken($color-shopware-blue, 15%);
+            background: $color-shopware-brand-800;
         }
 
         &:disabled,
         &.sw-button--disabled {
-            background: lighten($color-shopware-blue, 20%);
+            background: $color-shopware-brand-200;
         }
 
         &.sw-button--square .sw-icon {
@@ -105,13 +102,13 @@ $sw-button-transition: all 0.15s ease-out;
     }
 
     &.sw-button--contrast {
-        background: $color-contrast;
-        color: $color-kashmir;
+        background: $color-module-yellow-500;
+        color: $color-darkgray-200;
         line-height: 36px;
         border: 0 none;
 
         .sw-icon {
-            color: $color-kashmir;
+            color: $color-darkgray-200;
         }
 
         &.sw-button--x-small {
@@ -127,22 +124,22 @@ $sw-button-transition: all 0.15s ease-out;
         }
 
         &:hover {
-            background: darken($color-contrast, 3%);
+            background: $color-module-yellow-700;
         }
 
         &:active {
-            background: darken($color-contrast, 5%);
+            background: $color-module-yellow-800;
         }
 
         &:disabled,
         &.sw-button--disabled {
-            background: lighten($color-contrast, 20%);
-            color: lighten($color-kashmir, 25%);
+            background: $color-module-yellow-200;
+            color: $color-gray-800;
         }
     }
 
     &.sw-button--danger {
-        background: $color-crimson;
+        background: $color-crimson-500;
         color: $color-white;
         line-height: 36px;
         border: 0 none;
@@ -164,43 +161,41 @@ $sw-button-transition: all 0.15s ease-out;
         }
 
         &:hover {
-            background: darken($color-crimson, 10%);
+            background: $color-crimson-700;
         }
 
         &:active {
-            background: darken($color-crimson, 15%);
+            background: $color-crimson-800;
         }
 
         &:disabled,
         &.sw-button--disabled {
-            background: lighten($color-crimson, 20%);
+            background: $color-crimson-200;
         }
     }
 
     &.sw-button--ghost {
         background-color: transparent;
-        border-color: $color-shopware-blue;
-        color: $color-shopware-blue;
+        border-color: $color-shopware-brand-500;
+        color: $color-shopware-brand-500;
 
         .sw-icon {
-            color: $color-shopware-blue;
+            color: $color-shopware-brand-500;
         }
 
         &:hover {
-            background-color: lighten($color-shopware-blue, 40%);
-            color: $color-shopware-blue;
+            background-color: $color-shopware-brand-50;
         }
 
         &:active {
-            background-color: darken(lighten($color-shopware-blue, 40%), 5%);
-            color: darken($color-shopware-blue, 10);
+            background-color: $color-shopware-brand-100;
         }
 
         &:disabled,
         &.sw-button--disabled {
             background-color: transparent;
-            border-color: lighten($color-shopware-blue, 20%);
-            color: lighten($color-shopware-blue, 20%);
+            border-color: $color-shopware-brand-200;
+            color: $color-shopware-brand-200;
         }
     }
 
@@ -257,7 +252,7 @@ $sw-button-transition: all 0.15s ease-out;
         position: absolute;
         left: 50%;
         top: 50%;
-        animation:spin 2s linear infinite;
+        animation: spin 2s linear infinite;
     }
 
     @keyframes spin {

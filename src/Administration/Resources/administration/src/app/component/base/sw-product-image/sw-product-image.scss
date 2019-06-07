@@ -3,10 +3,10 @@
 .sw-product-image {
     position: relative;
     border-radius: $border-radius-default;
-    border: 2px solid lighten($color-steam-cloud, 5%);
+    border: 2px solid $color-gray-300;
 
     &.is--placeholder {
-        border: 2px dashed lighten($color-steam-cloud, 5%);
+        border: 2px dashed $color-gray-300;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -59,6 +59,6 @@
     }
 
     .sw-product-image__placeholder-icon {
-        color: lighten($color-steam-cloud, 5%);
+        color: $color-gray-300;
     }
 }

@@ -16,18 +16,18 @@ $sw-label-pill-border-radius: 50px;
     line-height: 22px;
     font-size: 13px;
     height: 32px;
-    border: 1px solid $color-steam-cloud;
-    background: $color-iron;
+    border: 1px solid $color-gray-300;
+    background: $color-gray-50;
     border-radius: $sw-label-border-radius;
-    color: $color-gutenberg;
+    color: $color-darkgray-200;
     flex-shrink: 0;
     cursor: default;
 
     &.sw-label--dismiss-able {
         &:hover {
             &, .sw-label__dismiss {
-                border-color: $color-shopware-blue;
-                color: $color-shopware-blue;
+                border-color: $color-shopware-brand-500;
+                color: $color-shopware-brand-500;
             }
         }
     }
@@ -51,7 +51,7 @@ $sw-label-pill-border-radius: 50px;
         padding: 4px 10px;
         right: 0;
         top: 0;
-        color: $color-gutenberg;
+        color: $color-darkgray-200;
         font-size: 14px;
         text-align: center;
         background: 0 none;

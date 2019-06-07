@@ -34,7 +34,7 @@ $sw-version-font-size-info:  12px;
     .sw-version__info {
         @include truncate();
         max-width: 200px;
-        color: $color-steam-cloud;
+        color: $color-gray-300;
         font-size: $sw-version-font-size-info;
     }
 }

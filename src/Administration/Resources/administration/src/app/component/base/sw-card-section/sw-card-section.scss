@@ -4,23 +4,23 @@
     padding: 30px;
 
     &.sw-card-section--divider-top {
-        border-top: 1px solid $color-steam-cloud;
+        border-top: 1px solid $color-gray-300;
     }
 
     &.sw-card-section--divider-right {
-        border-right: 1px solid $color-steam-cloud;
+        border-right: 1px solid $color-gray-300;
     }
 
     &.sw-card-section--divider-bottom {
-        border-bottom: 1px solid $color-steam-cloud;
+        border-bottom: 1px solid $color-gray-300;
     }
 
     &.sw-card-section--divider-left {
-        border-left: 1px solid $color-steam-cloud;
+        border-left: 1px solid $color-gray-300;
     }
 
     &.sw-card-section--secondary {
-        background-color: $color-light-gray;
+        background-color: $color-gray-100;
     }
 
     &.sw-card-section--slim {

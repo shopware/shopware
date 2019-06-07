@@ -5,17 +5,17 @@
     font-style: normal;
     font-size: 14px;
     line-height: 20px;
-    color: $color-gutenberg;
+    color: $color-darkgray-200;
 
     .sw-address__headline {
         margin: 0 0 20px 0;
-        color: $color-kashmir;
+        color: $color-darkgray-200;
         font-weight: normal;
         font-size: 18px;
 
         .sw-address-headline-link {
             font-size: 14px;
-            color: $color-shopware-blue;
+            color: $color-shopware-brand-500;
             text-decoration: none;
         }
     }

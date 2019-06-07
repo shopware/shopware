@@ -7,7 +7,7 @@ $sw-avatar-size-default: 40px;
     width: $sw-avatar-size-default;
     height: $sw-avatar-size-default;
     border-radius: 100%;
-    background: darken($color-light-gray, 10%) no-repeat center center;
+    background: $color-gray-200 no-repeat center center;
     background-size: cover;
     text-align: center;
     font-weight: 600;
@@ -16,6 +16,6 @@ $sw-avatar-size-default: 40px;
     user-select: none;
 
     .sw-icon {
-        color: $color-shopware-blue;
+        color: $color-shopware-brand-500;
     }
 }

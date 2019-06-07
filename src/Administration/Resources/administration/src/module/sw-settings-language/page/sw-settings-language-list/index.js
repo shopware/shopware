@@ -1,21 +1,26 @@
-import { Component, Mixin, Application } from 'src/core/shopware';
-import CriteriaFactory from 'src/core/factory/criteria.factory';
+import { Component, Mixin } from 'src/core/shopware';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-settings-language-list.html.twig';
 import './sw-settings-language-list.scss';
 
 Component.register('sw-settings-language-list', {
     template,
 
+    inject: ['repositoryFactory', 'context'],
+
     mixins: [
-        Mixin.getByName('sw-settings-list')
+        Mixin.getByName('listing'),
+        Mixin.getByName('notification')
     ],
 
     data() {
         return {
-            entityName: 'language',
-            sortBy: 'language.name',
-            defaultLanguageIds: [],
-            filterRootLanguages: false
+            languages: null,
+            parentLanguages: null,
+            filterRootLanguages: false,
+            filterInheritedLanguages: false,
+            isLoading: true,
+            sortBy: this.$route.params.sortBy || 'name'
         };
     },
 
@@ -26,56 +31,95 @@ Component.register('sw-settings-language-list', {
     },
 
     computed: {
-        filters() {
+        listingCriteria() {
+            const criteria = new Criteria(this.page, this.limit);
+            criteria.addAssociation('locale');
+
+            if (this.sortBy) {
+                criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection || 'DESC'));
+            }
+
+            if (this.filterRootLanguages) {
+                criteria.addFilter(Criteria.equals('parentId', null));
+            }
+
+            if (this.filterInheritedLanguages) {
+                criteria.addFilter(Criteria.not('AND', [Criteria.equals('parentId', null)]));
+            }
+
+            return criteria;
+        },
+
+        languageRepository() {
+            return this.repositoryFactory.create('language');
+        },
+
+        getColumns() {
             return [{
-                active: false,
-                label: this.$tc('sw-settings-language.list.textFilterRootLanguages'),
-                criteria: { type: 'equals', field: 'language.parentId', options: null }
+                property: 'name',
+                label: this.$tc('sw-settings-language.list.columnName'),
+                dataIndex: 'name',
+                inlineEdit: true
             }, {
-                active: false,
-                label: this.$tc('sw-settings-language.list.textFilterInheritedLanguages'),
-                criteria: { type: 'not', field: 'and', options: CriteriaFactory.equals('language.parentId', null) }
+                property: 'locale',
+                dataIndex: 'locale.id',
+                label: this.$tc('sw-settings-language.list.columnLocaleName')
+            }, {
+                property: 'translationCode.code',
+                label: this.$tc('sw-settings-language.list.columnIsoCode')
+            }, {
+                property: 'parent',
+                dataIndex: 'parent.id',
+                label: this.$tc('sw-settings-language.list.columnInherit')
+            }, {
+                property: 'id',
+                label: this.$tc('sw-settings-language.list.columnDefault')
             }];
-        },
-
-        expandButtonClass() {
-            return {
-                'is--hidden': this.expanded
-            };
-        },
-
-        collapseButtonClass() {
-            return {
-                'is--hidden': !this.expanded
-            };
         }
     },
 
-    created() {
-        this.createdComponent();
+    watch: {
+        listingCriteria() {
+            this.getList();
+        }
     },
 
     methods: {
-        createdComponent() {
-            this.defaultLanguageIds = Application.getContainer('init').contextService.defaultLanguageIds;
+        getList() {
+            this.isLoading = true;
+            return this.languageRepository.search(this.listingCriteria, this.context).then((languageResult) => {
+                const parentCriteria = (new Criteria(1, this.limit));
+                const parentIds = {};
+
+                languageResult.forEach((language) => {
+                    if (language.parentId) {
+                        parentIds[language.parentId] = true;
+                    }
+                });
+
+                parentCriteria.setIds(Object.keys(parentIds));
+                return this.languageRepository.search(parentCriteria, this.context).then((parentResult) => {
+                    this.languages = languageResult;
+                    this.parentLanguages = parentResult;
+                    this.isLoading = false;
+                });
+            });
         },
 
-        isDefault(id) {
-            return this.defaultLanguageIds.includes(id);
-        },
-
-        getItemParent(item) {
+        getParentName(item) {
             if (item.parentId === null) {
-                return { name: '-' };
+                return '-';
             }
 
-            return this.store.getById(item.parentId);
+            return this.parentLanguages.get(item.parentId).name;
         },
 
-        onChangeRootFilter(value) {
-            this.filterRootLanguages = value === true;
-
+        onChangeLanguage() {
             this.getList();
+        },
+
+        isDefault(languageId) {
+            return this.context.defaultLanguageIds.includes(languageId);
         }
     }
 });

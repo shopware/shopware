@@ -3,7 +3,6 @@ import { Module } from 'src/core/shopware';
 import './extension/sw-settings-index';
 import './page/sw-settings-language-list';
 import './page/sw-settings-language-detail';
-import './page/sw-settings-language-create';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
@@ -33,13 +32,16 @@ Module.register('sw-settings-language', {
         },
         detail: {
             component: 'sw-settings-language-detail',
-            path: 'detail/:id',
+            path: 'detail/:id?',
             meta: {
                 parentPath: 'sw.settings.language.index'
+            },
+            props: {
+                default: (route) => ({ languageId: route.params.id })
             }
         },
         create: {
-            component: 'sw-settings-language-create',
+            component: 'sw-settings-language-detail',
             path: 'create',
             meta: {
                 parentPath: 'sw.settings.language.index'

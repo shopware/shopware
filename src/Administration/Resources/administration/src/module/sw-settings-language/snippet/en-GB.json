@@ -33,7 +33,6 @@
       "labelLocale": "Locale",
       "labelParent": "Inherit from",
       "labelIsoCode": "ISO code",
-      "labelDefault": "Use as default system language",
       "placeholderName": "Enter name",
       "placeholderPleaseSelect": "Please select",
       "buttonCancel": "Cancel",
@@ -43,8 +42,7 @@
       "textAlertChangeParent": "Changing the parent language can lead to inconsistencies in your translations.",
       "titleAlertChangeParent": "Be aware",
       "textIsoCodeIsInUse": "This ISO code is already in use.",
-      "textLanguageHasParent": "This language is already inheriting from another language.",
-      "helpTextDefaultField": "Changing the system default language is not possible at the moment."
+      "textLanguageHasParent": "This language is already inheriting from another language."
     }
   }
 }
